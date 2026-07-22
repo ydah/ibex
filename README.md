@@ -163,8 +163,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec steep stats
 ```
 
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
-signature files both fail the build. The current whole-library `steep stats` result is 3,553 typed calls and 426 untyped calls out
-of 3,979 (89.3% typed). The generated signature tree contains 368 explicit `untyped` occurrences across 16 files. Those boundaries
+signature files both fail the build. The current whole-library `steep stats` result is 3,573 typed calls and 426 untyped calls out
+of 3,999 (89.3% typed). The generated signature tree contains 387 explicit `untyped` occurrences across 16 files. Those boundaries
 are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime semantic values and
 parser-table cells, and embedded user Ruby. Token/location records, the complete grammar AST, parser classifier state, IR,
 the public Ruby DSL, bootstrap parser state, analysis, automaton construction, code generators, table construction, and CLI
