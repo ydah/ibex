@@ -50,7 +50,7 @@ jobs:
 
   rbs:
     runs-on: ubuntu-latest
-    name: RBS validation
+    name: RBS and Steep
     env:
       BUNDLE_GEMFILE: gemfiles/Gemfile
     steps:
@@ -62,8 +62,15 @@ jobs:
         with:
           ruby-version: '3.4'
           bundler-cache: true
+      - name: Check generated RBS signatures
+        run: |
+          bundle exec rbs-inline --base=lib --output="$RUNNER_TEMP/sig" \
+            lib/ibex.rb lib/ibex/runtime/parser.rb
+          diff -ru sig "$RUNNER_TEMP/sig"
       - name: Validate RBS signatures
         run: bundle exec rbs -I sig validate
+      - name: Type check Ruby implementation
+        run: bundle exec steep check
 
   actionlint:
     runs-on: ubuntu-latest

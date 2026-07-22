@@ -11,6 +11,9 @@ AllCops:
 Layout/LineLength:
   Max: 120
 
+Layout/LeadingCommentSpace:
+  AllowRBSInlineAnnotation: true
+
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 

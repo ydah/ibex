@@ -129,4 +129,13 @@ Run all unit, integration, documentation, and optional local racc black-box test
 with `bundle exec rake lint`. The default `bundle exec rake` runs both. Compatibility tests skip automatically when the `racc`
 command is unavailable.
 
+Runtime signatures are generated from rbs-inline annotations and checked with Steep. To reproduce the type-checking CI job:
+
+```sh
+BUNDLE_GEMFILE=gemfiles/Gemfile bundle install
+BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec rbs-inline --base=lib --output=sig lib/ibex.rb lib/ibex/runtime/parser.rb
+BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec rbs -I sig validate
+BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec steep check
+```
+
 Ibex is available under the [MIT License](LICENSE.txt).

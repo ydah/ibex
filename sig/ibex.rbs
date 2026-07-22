@@ -1,0 +1,9 @@
+# Generated from lib/ibex.rb with RBS::Inline
+
+# Ibex generates and runs Pure Ruby LR parsers.
+module Ibex
+  class Error < StandardError
+  end
+
+  ParseError: singleton(Runtime::ParseError)
+end

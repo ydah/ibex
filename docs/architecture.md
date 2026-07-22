@@ -17,8 +17,9 @@ Frontend changes stop at the Normalizer. Algorithm strategies consume Grammar IR
 Outputs consume Automaton IR and never call builder internals. The CLI only connects stages and supports JSON resumption.
 
 The RBS generator emits the generated class namespace, superclass, parser-table constants, and `.parser_tables` contract. The
-gem also ships `sig/ibex/runtime.rbs` for the inherited public parser API. User methods embedded as opaque Ruby source are not
-inferred; applications can reopen the generated class in their own RBS files to declare them.
+gem also ships rbs-inline-generated signatures under `sig/` for the inherited parser API. CI rejects stale generated files,
+validates the RBS environment, and runs Steep against the annotated runtime implementation. User methods embedded as opaque Ruby
+source are not inferred; applications can reopen the generated class in their own RBS files to declare them.
 
 ## Grammar IR v1
 

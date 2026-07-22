@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# rbs_inline: enabled
 
 require_relative "ibex/version"
 require_relative "ibex/tables"
@@ -18,5 +19,5 @@ require_relative "ibex/codegen/html"
 module Ibex
   class Error < StandardError; end
 
-  ParseError = Runtime::ParseError
+  ParseError = Runtime::ParseError #: singleton(Runtime::ParseError)
 end
