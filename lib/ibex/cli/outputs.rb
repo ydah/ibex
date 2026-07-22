@@ -60,7 +60,12 @@ module Ibex
 
     def write_report(automaton, input_path)
       path = @options[:log_file] || default_output_path(input_path, ".output")
-      File.write(path, Codegen::Report.render(automaton))
+      report = Codegen::Report.render(
+        automaton,
+        max_tokens: @options[:counterexample_max_tokens],
+        max_configurations: @options[:counterexample_max_configurations]
+      )
+      File.write(path, report)
       report_status("wrote #{path}")
     end
 

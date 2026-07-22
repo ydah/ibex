@@ -7,9 +7,12 @@ actions at the requested conflict, and then searches for a common suffix that le
 sentence. A successful result contains `unifying: true`, the conflict lookahead position, and both complete derivation trees.
 
 Because unifying-counterexample search is not guaranteed to terminate for every context-free grammar, the search has explicit
-token and configuration budgets. If no common sentence is found within those budgets, the result is marked `unifying: false`
-and contains the deterministic shortest reachability witness. This distinction prevents a nonunifying diagnostic from being
-presented as proof of ambiguity.
+token and configuration budgets. The defaults are 32 tokens and 50,000 explored configurations. Pass `max_tokens:` and
+`max_configurations:` to `Ibex::LALR::Counterexample.new` or `Ibex::Codegen::Report.render` to adjust them through the Ruby API.
+For generated reports, use the positive-integer CLI options `--counterexample-max-tokens=N` and
+`--counterexample-max-configurations=N`. If no common sentence is found within those budgets, the result is marked
+`unifying: false` and contains the deterministic shortest reachability witness. This distinction prevents a nonunifying
+diagnostic from being presented as proof of ambiguity.
 
 ## E7: Ruby DSL
 

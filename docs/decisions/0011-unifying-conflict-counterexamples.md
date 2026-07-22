@@ -13,7 +13,9 @@ be guaranteed to terminate for every context-free grammar.
 
 Search parser-stack configurations using only Automaton IR. At the selected conflict, force each pair of competing actions and
 breadth-first search for a common suffix that makes both branches accept. Preserve parse nodes on each simulated stack so a
-successful search produces two complete derivation trees. Bound the search by terminal count and configuration count.
+successful search produces two complete derivation trees. Bound the search by terminal count and configuration count, using
+defaults of 32 tokens and 50,000 explored configurations. Both budgets are configurable through the counterexample/report Ruby
+APIs and positive-integer command-line options so callers can choose the cost appropriate for their grammar.
 
 If the bounded search finds no common accepted sentence, retain the deterministic shortest state-path witness from ADR 0010 and
 mark it explicitly as nonunifying.

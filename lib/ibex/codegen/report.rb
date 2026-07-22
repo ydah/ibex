@@ -6,10 +6,13 @@ module Ibex
     module Report
       module_function
 
-      def render(automaton)
+      def render(automaton, max_tokens: LALR::Counterexample::DEFAULT_MAX_TOKENS,
+                 max_configurations: LALR::Counterexample::DEFAULT_MAX_CONFIGURATIONS)
         grammar = automaton.grammar
         lines = ["Algorithm: #{automaton.algorithm}", "States: #{automaton.states.length}", ""]
-        examples = LALR::Counterexample.new(automaton).all.group_by { |example| example[:state] }
+        examples = LALR::Counterexample.new(
+          automaton, max_tokens: max_tokens, max_configurations: max_configurations
+        ).all.group_by { |example| example[:state] }
         automaton.states.each do |state|
           append_state(lines, state, grammar, examples.fetch(state.id, []))
         end
