@@ -7,6 +7,7 @@ module Ibex
       DEFAULT_MAX_TOKENS = ConflictSearch::DEFAULT_MAX_TOKENS
       DEFAULT_MAX_CONFIGURATIONS = ConflictSearch::DEFAULT_MAX_CONFIGURATIONS
 
+      # @rbs (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> void
       def initialize(automaton, max_tokens: DEFAULT_MAX_TOKENS, max_configurations: DEFAULT_MAX_CONFIGURATIONS)
         ConflictSearchLimits.validate!(max_tokens: max_tokens, max_configurations: max_configurations)
         @automaton = automaton
@@ -16,6 +17,7 @@ module Ibex
         @shortest_yields = compute_shortest_yields
       end
 
+      # @rbs () -> Array[IR::counterexample]
       def all
         @automaton.states.flat_map do |state|
           state.conflicts.map { |conflict| build_example(state, conflict) }
@@ -24,6 +26,7 @@ module Ibex
 
       private
 
+      # @rbs (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample
       def build_example(state, conflict)
         unifying = ConflictSearch.new(
           @automaton, state, conflict, max_tokens: @max_tokens, max_configurations: @max_configurations
@@ -33,12 +36,14 @@ module Ibex
         reachability_example(state, conflict)
       end
 
+      # @rbs (IR::AutomatonState state, IR::conflict conflict, Hash[Symbol, untyped] result) -> IR::counterexample
       def unifying_example(state, conflict, result)
         { state: state.id, type: conflict[:type], symbol_path: Array.new(0),
           sentence: names(result[:sentence_ids]), lookahead_index: result[:lookahead_index], unifying: true,
           interpretations: result[:interpretations] }
       end
 
+      # @rbs (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample
       def reachability_example(state, conflict)
         path = shortest_state_path(state.id)
         lookahead = @grammar.symbol(conflict[:symbol])
@@ -48,6 +53,7 @@ module Ibex
           lookahead_index: terminal_ids.length - 1, unifying: false, interpretations: interpretations(conflict) }
       end
 
+      # @rbs (Integer target) -> Array[Integer]
       def shortest_state_path(target)
         queue = [[0, Array.new(0)]] #: Array[[Integer, Array[Integer]]]
         visited = { 0 => true }
@@ -65,6 +71,7 @@ module Ibex
         []
       end
 
+      # @rbs () -> Hash[Integer, Array[Integer]]
       def compute_shortest_yields
         yields = @grammar.terminals.to_h { |terminal| [terminal.id, [terminal.id]] }
         loop do
@@ -81,27 +88,34 @@ module Ibex
         end
       end
 
+      # @rbs (Array[Integer] candidate, Array[Integer]? current) -> bool
       def better_yield?(candidate, current)
         return true unless current
         return candidate.length < current.length if candidate.length != current.length
 
-        (names(candidate) <=> names(current)).negative?
+        comparison = names(candidate) <=> names(current)
+        comparison ? comparison.negative? : false
       end
 
+      # @rbs (IR::conflict conflict) -> Array[IR::interpretation]
       def interpretations(conflict)
         case conflict[:type]
         when :shift_reduce
-          [shift_interpretation(conflict), reduce_interpretation(conflict[:reduce])]
+          shift_reduce = conflict #: IR::shift_reduce_conflict
+          [shift_interpretation(shift_reduce), reduce_interpretation(shift_reduce[:reduce])]
         when :reduce_reduce
-          conflict[:reductions].map { |production_id| reduce_interpretation(production_id) }
+          reduce_reduce = conflict #: IR::reduce_reduce_conflict
+          reduce_reduce[:reductions].map { |production_id| reduce_interpretation(production_id) }
         else []
         end
       end
 
+      # @rbs (IR::shift_reduce_conflict conflict) -> IR::interpretation
       def shift_interpretation(conflict)
         { kind: :shift, state: conflict[:shift_to], tree: { token: conflict[:symbol] } }
       end
 
+      # @rbs (Integer production_id) -> IR::interpretation
       def reduce_interpretation(production_id)
         production = @grammar.productions.fetch(production_id)
         lhs = @grammar.symbol_by_id(production.lhs).name
@@ -109,6 +123,7 @@ module Ibex
         { kind: :reduce, production: production_id, tree: { symbol: lhs, children: rhs } }
       end
 
+      # @rbs (Array[Integer] symbol_ids) -> Array[String]
       def names(symbol_ids)
         symbol_ids.map { |id| @grammar.symbol_by_id(id).name }
       end

@@ -15,6 +15,7 @@ module Ibex
 
     private
 
+    # @rbs (String value) -> Array[Symbol]
     def warning_categories(value)
       categories = value.split(",").map(&:strip).reject(&:empty?).map(&:to_sym)
       unknown = categories - %i[all error none]
@@ -26,6 +27,7 @@ module Ibex
       categories
     end
 
+    # @rbs (IR::Grammar grammar, String input_path) -> void
     def handle_grammar_warnings(grammar, input_path)
       categories = @options[:warnings]
       return if categories.nil? || categories.include?(:none) || grammar.warnings.empty?
@@ -39,6 +41,7 @@ module Ibex
       messages.each { |message| @stderr.puts(message) }
     end
 
+    # @rbs (IR::grammar_warning warning, String input_path) -> String
     def format_grammar_warning(warning, input_path)
       location = warning[:loc]
       rendered = if location
@@ -50,6 +53,7 @@ module Ibex
       "#{rendered}: warning: #{formatter.call(warning)}"
     end
 
+    # @rbs (IR::Automaton automaton, String input_path) -> void
     def report_conflicts(automaton, input_path)
       summary = automaton.conflict_summary
       unless summary[:expectation_met]
@@ -58,6 +62,7 @@ module Ibex
       @stderr.puts("#{input_path}:1:1: #{summary[:rr]} reduce/reduce conflicts") if summary[:rr].positive?
     end
 
+    # @rbs (IR::Automaton automaton, String input_path) -> void
     def write_report(automaton, input_path)
       path = @options[:log_file] || default_output_path(input_path, ".output")
       report = Codegen::Report.render(
@@ -69,11 +74,13 @@ module Ibex
       report_status("wrote #{path}")
     end
 
+    # @rbs (String input_path, String extension) -> String
     def default_output_path(input_path, extension)
       replaced = input_path.sub(/\.[^.]+\z/, extension)
       replaced == input_path ? "#{input_path}#{extension}" : replaced
     end
 
+    # @rbs (String message) -> void
     def report_status(message)
       @stderr.puts("ibex: #{message}") if @options[:status]
     end

@@ -1,66 +1,108 @@
 # Generated from lib/ibex/cli.rb with RBS::Inline
 
 module Ibex
+  interface _CLIOutput
+    def puts: (*untyped) -> untyped
+
+    def write: (String) -> untyped
+  end
+
+  type cli_options = { emit: String, mode: Symbol, table: Symbol, line_convert: bool, counterexample_max_tokens: Integer, counterexample_max_configurations: Integer, ?from: String, ?algorithm: Symbol, ?warnings: Array[Symbol], ?output: String, ?embedded: bool, ?debug: bool, ?verbose: bool, ?rbs: String | true, ?dot: String, ?html: String, ?log_file: String, ?executable: String, ?frozen: bool, ?omit_actions: bool, ?superclass: String, ?check_only: bool, ?status: bool, ?profile: bool, ?debug_flags: String, ?version: bool, ?runtime_version: bool, ?copyright: bool, ?help: bool }
+
   # Command-line pipeline coordinator.
+  # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.
   class CLI
     include CLICounterexampleOptions
 
     include CLIOutputs
 
-    def self.start: (untyped arguments, ?stdout: untyped, ?stderr: untyped) -> untyped
+    @options: cli_options
 
-    def initialize: (stdout: untyped, stderr: untyped) -> untyped
+    @stderr: _CLIOutput
 
-    def run: (untyped arguments) -> untyped
+    @stdout: _CLIOutput
+
+    # @rbs (Array[String] arguments, ?stdout: _CLIOutput, ?stderr: _CLIOutput) -> Integer
+    def self.start: (Array[String] arguments, ?stdout: _CLIOutput, ?stderr: _CLIOutput) -> Integer
+
+    # @rbs (stdout: _CLIOutput, stderr: _CLIOutput) -> void
+    def initialize: (stdout: _CLIOutput, stderr: _CLIOutput) -> void
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run: (Array[String] arguments) -> Integer
 
     private
 
-    def option_parser: () -> untyped
+    # @rbs () -> OptionParser
+    def option_parser: () -> OptionParser
 
-    def add_pipeline_options: (untyped options) -> untyped
+    # @rbs (OptionParser options) -> void
+    def add_pipeline_options: (OptionParser options) -> void
 
-    def add_output_options: (untyped options) -> untyped
+    # @rbs (OptionParser options) -> void
+    def add_output_options: (OptionParser options) -> void
 
-    def add_compatibility_options: (untyped options) -> untyped
+    # @rbs (OptionParser options) -> void
+    def add_compatibility_options: (OptionParser options) -> void
 
-    def add_information_options: (untyped options) -> untyped
+    # @rbs (OptionParser options) -> void
+    def add_information_options: (OptionParser options) -> void
 
-    def informational_result: (untyped parser) -> untyped
+    # @rbs (OptionParser parser) -> Integer?
+    def informational_result: (OptionParser parser) -> Integer?
 
-    def input_path: (untyped remaining) -> untyped
+    # @rbs (Array[String] remaining) -> String
+    def input_path: (Array[String] remaining) -> String
 
-    def process_grammar: (untyped path) -> untyped
+    # @rbs (String path) -> Integer
+    def process_grammar: (String path) -> Integer
 
-    def process_ir: (untyped path) -> untyped
+    # @rbs (String path) -> Integer
+    def process_ir: (String path) -> Integer
 
-    def dispatch_grammar: (untyped grammar, untyped path) -> untyped
+    # @rbs (IR::Grammar grammar, String path) -> Integer
+    def dispatch_grammar: (IR::Grammar grammar, String path) -> Integer
 
-    def dispatch_automaton: (untyped automaton, untyped path) -> untyped
+    # @rbs (IR::Automaton automaton, String path) -> Integer
+    def dispatch_automaton: (IR::Automaton automaton, String path) -> Integer
 
-    def print_version: () -> untyped
+    # @rbs () -> Integer
+    def print_version: () -> Integer
 
-    def print_help: (untyped parser) -> untyped
+    # @rbs (OptionParser parser) -> Integer
+    def print_help: (OptionParser parser) -> Integer
 
-    def print_copyright: () -> untyped
+    # @rbs () -> Integer
+    def print_copyright: () -> Integer
 
-    def emit_ast: (untyped ast) -> untyped
+    # @rbs (untyped ast) -> Integer
+    def emit_ast: (untyped ast) -> Integer
 
-    def emit_grammar: (untyped grammar) -> untyped
+    # @rbs (IR::Grammar grammar) -> Integer
+    def emit_grammar: (IR::Grammar grammar) -> Integer
 
-    def emit_automaton: (untyped grammar, untyped input_path) -> untyped
+    # @rbs (IR::Grammar grammar, String input_path) -> Integer
+    def emit_automaton: (IR::Grammar grammar, String input_path) -> Integer
 
-    def emit_ruby: (untyped grammar, untyped input_path) -> untyped
+    # @rbs (IR::Grammar grammar, String input_path) -> Integer
+    def emit_ruby: (IR::Grammar grammar, String input_path) -> Integer
 
-    def generate_ruby: (untyped automaton, untyped input_path) -> untyped
+    # @rbs (IR::Automaton automaton, String input_path) -> Integer
+    def generate_ruby: (IR::Automaton automaton, String input_path) -> Integer
 
-    def write_rbs: (untyped automaton, untyped output_path) -> untyped
+    # @rbs (IR::Automaton automaton, String output_path) -> void
+    def write_rbs: (IR::Automaton automaton, String output_path) -> void
 
-    def emit_loaded_automaton: (untyped automaton, untyped input_path) -> untyped
+    # @rbs (IR::Automaton automaton, String input_path) -> Integer
+    def emit_loaded_automaton: (IR::Automaton automaton, String input_path) -> Integer
 
-    def build_automaton: (untyped grammar, untyped input_path) -> untyped
+    # @rbs (IR::Grammar grammar, String input_path) -> IR::Automaton
+    def build_automaton: (IR::Grammar grammar, String input_path) -> IR::Automaton
 
-    def prepare_loaded_automaton: (untyped automaton, untyped input_path) -> untyped
+    # @rbs (IR::Automaton automaton, String input_path) -> void
+    def prepare_loaded_automaton: (IR::Automaton automaton, String input_path) -> void
 
-    def write_visualizations: (untyped automaton) -> untyped
+    # @rbs (IR::Automaton automaton) -> void
+    def write_visualizations: (IR::Automaton automaton) -> void
   end
 end

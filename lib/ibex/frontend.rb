@@ -15,3 +15,14 @@ require_relative "frontend/generated_parser_base"
 require_relative "frontend/generated_parser"
 require_relative "frontend/parser"
 require_relative "frontend/dsl"
+
+module Ibex
+  module Frontend
+    # @rbs!
+    #   type user_code_token = { name: String, code: String }
+    #   type token_value = String | Integer | user_code_token | nil
+    #   type external_token = Symbol | String
+    #   type parser_section = :declarations | :rules | :user_code
+    #   type delimiter_kind = :group | :separated
+  end
+end

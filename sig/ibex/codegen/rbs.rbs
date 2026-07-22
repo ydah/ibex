@@ -4,17 +4,28 @@ module Ibex
   module Codegen
     # Generates an RBS declaration for the public surface of a generated parser.
     class RBS
-      def initialize: (untyped automaton, ?superclass: untyped) -> untyped
+      @automaton: IR::Automaton
 
-      def generate: () -> untyped
+      @grammar: IR::Grammar
+
+      @superclass: String
+
+      # @rbs (IR::Automaton automaton, ?superclass: String?) -> void
+      def initialize: (IR::Automaton automaton, ?superclass: String?) -> void
+
+      # @rbs () -> String
+      def generate: () -> String
 
       private
 
-      def append_contract: (untyped lines) -> untyped
+      # @rbs (Array[String] lines) -> void
+      def append_contract: (Array[String] lines) -> void
 
-      def class_parts: () -> untyped
+      # @rbs () -> [Array[String], String]
+      def class_parts: () -> [ Array[String], String ]
 
-      def grammar_digest_comment: () -> untyped
+      # @rbs () -> String
+      def grammar_digest_comment: () -> String
     end
   end
 end

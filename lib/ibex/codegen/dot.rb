@@ -6,6 +6,7 @@ module Ibex
     module Dot
       module_function
 
+      # @rbs (IR::Automaton automaton) -> String
       def render(automaton)
         lines = ["digraph ibex_automaton {", "  rankdir=LR;", "  node [shape=box];"]
         automaton.states.each do |state|
@@ -21,6 +22,7 @@ module Ibex
         "#{lines.join("\n")}\n"
       end
 
+      # @rbs (String value) -> String
       def escape(value)
         value.gsub("\\", "\\\\").gsub('"', '\\"')
       end

@@ -4,100 +4,121 @@ module Ibex
   module IR
     SCHEMA_VERSION: ::Integer
 
+    # @rbs (untyped value) -> untyped
     def self?.deep_freeze: (untyped value) -> untyped
 
     # An interned terminal or nonterminal.
     class GrammarSymbol
-      attr_reader id: untyped
+      attr_reader id: Integer
 
-      attr_reader name: untyped
+      attr_reader name: String
 
-      attr_reader kind: untyped
+      attr_reader kind: Symbol
 
-      attr_reader reserved: untyped
+      attr_reader reserved: bool
 
-      attr_reader precedence: untyped
+      attr_reader precedence: precedence?
 
-      attr_reader location: untyped
+      attr_reader location: location?
 
-      def self?.initialize: (id: untyped, name: untyped, kind: untyped, ?reserved: untyped, ?precedence: untyped, ?location: untyped) -> untyped
+      # @rbs (id: Integer, name: String, kind: Symbol, ?reserved: bool, ?precedence: precedence?,
+      #   ?location: location?) -> void
+      def initialize: (id: Integer, name: String, kind: Symbol, ?reserved: bool, ?precedence: precedence?, ?location: location?) -> void
 
-      def self?.terminal?: () -> untyped
+      # @rbs () -> bool
+      def terminal?: () -> bool
 
-      def self?.nonterminal?: () -> untyped
+      # @rbs () -> bool
+      def nonterminal?: () -> bool
 
-      def self?.to_h: () -> untyped
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
     end
 
     # Opaque Ruby semantic action metadata.
     class Action
-      attr_reader code: untyped
+      attr_reader code: String
 
-      attr_reader location: untyped
+      attr_reader location: location
 
-      attr_reader named_refs: untyped
+      attr_reader named_refs: Array[named_ref]
 
-      attr_reader context_length: untyped
+      attr_reader context_length: Integer
 
-      def self?.initialize: (code: untyped, location: untyped, ?named_refs: untyped, ?context_length: untyped) -> untyped
+      # @rbs (code: String, location: location, ?named_refs: Array[named_ref], ?context_length: Integer) -> void
+      def initialize: (code: String, location: location, ?named_refs: Array[named_ref], ?context_length: Integer) -> void
 
-      def self?.to_h: () -> untyped
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
     end
 
     # A normalized BNF production using symbol ids.
     class Production
-      attr_reader id: untyped
+      attr_reader id: Integer
 
-      attr_reader lhs: untyped
+      attr_reader lhs: Integer
 
-      attr_reader rhs: untyped
+      attr_reader rhs: Array[Integer]
 
-      attr_reader action: untyped
+      attr_reader action: Action?
 
-      attr_reader precedence_override: untyped
+      attr_reader precedence_override: Integer?
 
-      attr_reader origin: untyped
+      attr_reader origin: Hash[Symbol, untyped]
 
-      def self?.initialize: (id: untyped, lhs: untyped, rhs: untyped, action: untyped, precedence_override: untyped, origin: untyped) -> untyped
+      # @rbs (id: Integer, lhs: Integer, rhs: Array[Integer], action: Action?, precedence_override: Integer?,
+      #   origin: Hash[Symbol, untyped]) -> void
+      def initialize: (id: Integer, lhs: Integer, rhs: Array[Integer], action: Action?, precedence_override: Integer?, origin: Hash[Symbol, untyped]) -> void
 
-      def self?.to_h: () -> untyped
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
     end
 
     # Immutable normalized grammar exchanged between pipeline stages.
     class Grammar
-      attr_reader class_name: untyped
+      attr_reader class_name: String
 
-      attr_reader superclass: untyped
+      attr_reader superclass: String?
 
-      attr_reader start: untyped
+      attr_reader start: String
 
-      attr_reader expect: untyped
+      attr_reader expect: Integer
 
-      attr_reader options: untyped
+      attr_reader options: grammar_options
 
-      attr_reader symbols: untyped
+      attr_reader symbols: Array[GrammarSymbol]
 
-      attr_reader productions: untyped
+      attr_reader productions: Array[Production]
 
-      attr_reader user_code: untyped
+      attr_reader user_code: Hash[String, String]
 
-      attr_reader conversions: untyped
+      attr_reader conversions: Hash[String, String]
 
-      attr_reader warnings: untyped
+      attr_reader warnings: Array[grammar_warning]
 
-      attr_reader schema_version: untyped
+      attr_reader schema_version: Integer
 
-      def self?.initialize: (class_name: untyped, superclass: untyped, start: untyped, expect: untyped, options: untyped, symbols: untyped, productions: untyped, user_code: untyped, conversions: untyped, warnings: untyped, ?schema_version: untyped) -> untyped
+      # @rbs (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options,
+      #   symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String],
+      #   conversions: Hash[String, String], warnings: Array[grammar_warning], ?schema_version: Integer) -> void
+      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?schema_version: Integer) -> void
 
-      def self?.symbol: (untyped name) -> untyped
+      # @rbs (String name) -> GrammarSymbol?
+      def symbol: (String name) -> GrammarSymbol?
 
-      def self?.symbol_by_id: (untyped id) -> untyped
+      # @rbs (Integer id) -> GrammarSymbol
+      #    | (nil id) -> nil
+      def symbol_by_id: (Integer id) -> GrammarSymbol
+                      | (nil id) -> nil
 
-      def self?.terminals: () -> untyped
+      # @rbs () -> Array[GrammarSymbol]
+      def terminals: () -> Array[GrammarSymbol]
 
-      def self?.nonterminals: () -> untyped
+      # @rbs () -> Array[GrammarSymbol]
+      def nonterminals: () -> Array[GrammarSymbol]
 
-      def self?.to_h: () -> untyped
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
     end
   end
 end

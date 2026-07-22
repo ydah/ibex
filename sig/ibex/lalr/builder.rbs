@@ -8,47 +8,78 @@ module Ibex
 
       ALGORITHMS: untyped
 
-      def initialize: (untyped grammar, ?algorithm: untyped) -> untyped
+      @resolver: ConflictResolver
 
-      def build: () -> untyped
+      @productions_by_lhs: Hash[Integer, Array[IR::Production]]
+
+      @sets: Analysis::Sets
+
+      @algorithm: Symbol
+
+      @grammar: IR::Grammar
+
+      # @rbs (IR::Grammar grammar, ?algorithm: Symbol | String) -> void
+      def initialize: (IR::Grammar grammar, ?algorithm: Symbol | String) -> void
+
+      # @rbs () -> IR::Automaton
+      def build: () -> IR::Automaton
 
       private
 
-      def canonical_collection: () -> untyped
+      # @rbs () -> [Array[item_set], transitions]
+      def canonical_collection: () -> [ Array[item_set], transitions ]
 
-      def closure: (untyped seed) -> untyped
+      # @rbs (item_set seed) -> item_set
+      def closure: (item_set seed) -> item_set
 
-      def suffix_lookaheads: (untyped suffix, untyped inherited) -> untyped
+      # @rbs (Array[Integer] suffix, Integer inherited) -> Array[Integer]
+      def suffix_lookaheads: (Array[Integer] suffix, Integer inherited) -> Array[Integer]
 
-      def enqueue_item: (untyped items, untyped queue, untyped item) -> untyped
+      # @rbs (item_set items, Array[lr_item] queue, lr_item item) -> void
+      def enqueue_item: (item_set items, Array[lr_item] queue, lr_item item) -> void
 
-      def next_symbols: (untyped items) -> untyped
+      # @rbs (item_set items) -> Array[Integer]
+      def next_symbols: (item_set items) -> Array[Integer]
 
-      def go_to: (untyped items, untyped symbol_id) -> untyped
+      # @rbs (item_set items, Integer symbol_id) -> item_set
+      def go_to: (item_set items, Integer symbol_id) -> item_set
 
-      def merge_lalr: (untyped states, untyped transitions) -> untyped
+      # @rbs (Array[item_set] states, transitions transitions) -> [Array[packed_items], transitions]
+      def merge_lalr: (Array[item_set] states, transitions transitions) -> [ Array[packed_items], transitions ]
 
-      def automaton_items: (untyped canonical_states, untyped canonical_transitions) -> untyped
+      # @rbs (Array[item_set] canonical_states, transitions canonical_transitions) -> [Array[packed_items], transitions]
+      def automaton_items: (Array[item_set] canonical_states, transitions canonical_transitions) -> [ Array[packed_items], transitions ]
 
-      def pack_canonical_items: (untyped states) -> untyped
+      # @rbs (Array[item_set] states) -> Array[packed_items]
+      def pack_canonical_items: (Array[item_set] states) -> Array[packed_items]
 
-      def apply_slr_lookaheads: (untyped states) -> untyped
+      # @rbs (Array[packed_items] states) -> void
+      def apply_slr_lookaheads: (Array[packed_items] states) -> void
 
-      def slr_lookaheads: (untyped production_id) -> untyped
+      # @rbs (Integer production_id) -> Array[Integer]
+      def slr_lookaheads: (Integer production_id) -> Array[Integer]
 
-      def build_states: (untyped merged_items, untyped transitions) -> untyped
+      # @rbs (Array[packed_items] merged_items, transitions transitions) -> Array[IR::AutomatonState]
+      def build_states: (Array[packed_items] merged_items, transitions transitions) -> Array[IR::AutomatonState]
 
-      def build_state: (untyped state_id, untyped items, untyped transitions) -> untyped
+      # @rbs (Integer state_id, Array[IR::AutomatonItem] items, Hash[Integer, Integer] transitions) -> IR::AutomatonState
+      def build_state: (Integer state_id, Array[IR::AutomatonItem] items, Hash[Integer, Integer] transitions) -> IR::AutomatonState
 
-      def add_completed_actions: (untyped items, untyped candidates) -> untyped
+      # @rbs (Array[IR::AutomatonItem] items, Hash[Integer, Array[IR::parser_action]] candidates) -> void
+      def add_completed_actions: (Array[IR::AutomatonItem] items, Hash[Integer, Array[IR::parser_action]] candidates) -> void
 
-      def resolve_actions: (untyped candidates) -> untyped
+      # @rbs (Hash[Integer, Array[IR::parser_action]] candidates) ->
+      #   [Hash[Integer, IR::parser_action], Array[IR::conflict]]
+      def resolve_actions: (Hash[Integer, Array[IR::parser_action]] candidates) -> [ Hash[Integer, IR::parser_action], Array[IR::conflict] ]
 
-      def rhs_for: (untyped production_id) -> untyped
+      # @rbs (Integer production_id) -> Array[Integer]
+      def rhs_for: (Integer production_id) -> Array[Integer]
 
-      def core_key: (untyped items) -> untyped
+      # @rbs (item_set items) -> Array[item_core]
+      def core_key: (item_set items) -> Array[item_core]
 
-      def item_key: (untyped items) -> untyped
+      # @rbs (item_set items) -> Array[lr_item]
+      def item_key: (item_set items) -> Array[lr_item]
     end
   end
 end

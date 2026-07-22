@@ -4,37 +4,61 @@ module Ibex
   module Frontend
     # Delivers lexer tokens through declaration and rule context classifiers.
     class TokenAdapter
-      attr_reader eof_token: untyped
+      attr_reader eof_token: Token?
 
-      attr_reader last_token: untyped
+      attr_reader last_token: Token?
 
-      attr_reader previous_external: untyped
+      attr_reader previous_external: external_token?
 
-      def initialize: (untyped tokens) -> untyped
+      @last_external: external_token?
 
-      def next_token: () -> untyped
+      @rules: RuleState?
 
-      def conversion_name: () -> untyped
+      @classifier: DeclarationState | RuleState
 
-      def declaration: () -> untyped
+      @declarations: DeclarationState
 
-      def precedence_closer: () -> untyped
+      @index: Integer
 
-      def section: () -> untyped
+      @tokens: Array[Token]
 
-      def state: () -> untyped
+      # @rbs (Array[Token] tokens) -> void
+      def initialize: (Array[Token] tokens) -> void
 
-      def group_opening: () -> untyped
+      # @rbs () -> ([external_token, Token] | false)
+      def next_token: () -> ([ external_token, Token ] | false)
 
-      def open_delimiter_kind: () -> untyped
+      # @rbs () -> Token?
+      def conversion_name: () -> Token?
 
-      def expectation: (untyped token) -> untyped
+      # @rbs () -> Symbol?
+      def declaration: () -> Symbol?
+
+      # @rbs () -> String?
+      def precedence_closer: () -> String?
+
+      # @rbs () -> parser_section
+      def section: () -> parser_section
+
+      # @rbs () -> Symbol
+      def state: () -> Symbol
+
+      # @rbs () -> Token?
+      def group_opening: () -> Token?
+
+      # @rbs () -> delimiter_kind?
+      def open_delimiter_kind: () -> delimiter_kind?
+
+      # @rbs (Token? token) -> String?
+      def expectation: (Token? token) -> String?
 
       private
 
-      def classify: (untyped token) -> untyped
+      # @rbs (Token token) -> external_token
+      def classify: (Token token) -> external_token
 
-      def enter_rules: () -> untyped
+      # @rbs () -> void
+      def enter_rules: () -> void
     end
   end
 end

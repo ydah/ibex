@@ -3,6 +3,7 @@
 module Ibex
   module LALR
     # Searches the parser state space for one input accepted through both sides of a conflict.
+    # rubocop:disable Metrics/ClassLength -- inline type contracts make the focused search implementation longer.
     class ConflictSearch
       include ConflictSearchLimits
 
@@ -10,64 +11,115 @@ module Ibex
 
       DEFAULT_MAX_CONFIGURATIONS: untyped
 
-      class Configuration < Struct[untyped]
-        attr_accessor states(): untyped
+      class Configuration
+        attr_reader states: Array[Integer]
 
-        attr_accessor nodes(): untyped
+        attr_reader nodes: Array[derivation_node]
 
-        def self.new: (?states: untyped, ?nodes: untyped) -> instance
-                    | ({ ?states: untyped, ?nodes: untyped }) -> instance
+        # @rbs (states: Array[Integer], nodes: Array[derivation_node]) -> void
+        def initialize: (states: Array[Integer], nodes: Array[derivation_node]) -> void
       end
 
-      def initialize: (untyped automaton, untyped state, untyped conflict, ?max_tokens: untyped, ?max_configurations: untyped) -> untyped
+      @input_tokens: Array[Integer]
 
-      def call: () -> untyped
+      @explored: Integer
+
+      @max_configurations: Integer
+
+      @max_tokens: Integer
+
+      @lookahead: Integer
+
+      @conflict: IR::conflict
+
+      @state: IR::AutomatonState
+
+      @grammar: IR::Grammar
+
+      @automaton: IR::Automaton
+
+      # @rbs (IR::Automaton automaton, IR::AutomatonState state, IR::conflict conflict,
+      #   ?max_tokens: Integer, ?max_configurations: Integer) -> void
+      def initialize: (IR::Automaton automaton, IR::AutomatonState state, IR::conflict conflict, ?max_tokens: Integer, ?max_configurations: Integer) -> void
+
+      # @rbs () -> search_result?
+      def call: () -> search_result?
 
       private
 
-      def conflict_configurations: (untyped current) -> untyped
+      # @rbs (Configuration current) -> Array[Configuration]
+      def conflict_configurations: (Configuration current) -> Array[Configuration]
 
-      def enqueue_prefixes: (untyped queue, untyped visited, untyped current, untyped prefix) -> untyped
+      # @rbs (Array[[Configuration, Array[Integer]]] queue, Hash[Array[Integer], bool] visited,
+      #   Configuration current, Array[Integer] prefix) -> void
+      def enqueue_prefixes: (Array[[ Configuration, Array[Integer] ]] queue, Hash[Array[Integer], bool] visited, Configuration current, Array[Integer] prefix) -> void
 
-      def unify_from: (untyped current, untyped prefix) -> untyped
+      # @rbs (Configuration current, Array[Integer] prefix) -> search_result?
+      def unify_from: (Configuration current, Array[Integer] prefix) -> search_result?
 
-      def search_common_suffix: (untyped left, untyped right, untyped prefix, untyped left_action, untyped right_action) -> untyped
+      # @rbs (search_entry left, search_entry right, Array[Integer] prefix, IR::parser_action left_action,
+      #   IR::parser_action right_action) -> search_result?
+      def search_common_suffix: (search_entry left, search_entry right, Array[Integer] prefix, IR::parser_action left_action, IR::parser_action right_action) -> search_result?
 
-      def accept_with_eof: (untyped left_config, untyped right_config) -> untyped
+      # @rbs (Configuration left_config, Configuration right_config) -> [search_entry, search_entry]?
+      def accept_with_eof: (Configuration left_config, Configuration right_config) -> [ search_entry, search_entry ]?
 
-      def enqueue_suffixes: (untyped queue, untyped visited, untyped left_config, untyped right_config, untyped suffix) -> untyped
+      # @rbs (Array[[Configuration, Configuration, Array[Integer]]] queue,
+      #   Hash[[Array[Integer], Array[Integer]], bool] visited, Configuration left_config,
+      #   Configuration right_config, Array[Integer] suffix) -> void
+      def enqueue_suffixes: (Array[[ Configuration, Configuration, Array[Integer] ]] queue, Hash[[ Array[Integer], Array[Integer] ], bool] visited, Configuration left_config, Configuration right_config, Array[Integer] suffix) -> void
 
-      def shifted_results: (untyped current, untyped token_id) -> untyped
+      # @rbs (Configuration current, Integer token_id) -> Array[Configuration]
+      def shifted_results: (Configuration current, Integer token_id) -> Array[Configuration]
 
-      def accepted_result: (untyped prefix, untyped suffix, untyped left, untyped right, untyped left_action, untyped right_action) -> untyped
+      # @rbs (Array[Integer] prefix, Array[Integer] suffix, search_entry left, search_entry right,
+      #   IR::parser_action left_action, IR::parser_action right_action) -> search_result?
+      def accepted_result: (Array[Integer] prefix, Array[Integer] suffix, search_entry left, search_entry right, IR::parser_action left_action, IR::parser_action right_action) -> search_result?
 
-      def interpretation: (untyped action, untyped current) -> untyped
+      # @rbs (IR::parser_action action, Configuration current) -> IR::interpretation
+      def interpretation: (IR::parser_action action, Configuration current) -> IR::interpretation
 
-      def accepted_pair?: (untyped left, untyped right) -> untyped
+      # @rbs (search_entry left, search_entry right) -> bool
+      def accepted_pair?: (search_entry left, search_entry right) -> bool
 
-      def shifted_pair?: (untyped left, untyped right) -> untyped
+      # @rbs (search_entry left, search_entry right) -> bool
+      def shifted_pair?: (search_entry left, search_entry right) -> bool
 
-      def conflict_actions: () -> untyped
+      # @rbs () -> Array[IR::parser_action]
+      def conflict_actions: () -> Array[IR::parser_action]
 
-      def advance: (untyped initial, untyped token_id, ?forced_action: untyped, ?stop_at: untyped, ?branch_conflicts: untyped) -> untyped
+      # @rbs (Configuration initial, Integer token_id, ?forced_action: IR::parser_action?, ?stop_at: Integer?,
+      #   ?branch_conflicts: bool) -> Array[search_entry]
+      def advance: (Configuration initial, Integer token_id, ?forced_action: IR::parser_action?, ?stop_at: Integer?, ?branch_conflicts: bool) -> Array[search_entry]
 
-      def actions_for: (untyped state_id, untyped token_id, untyped forced, untyped branch_conflicts) -> untyped
+      # @rbs (Integer state_id, Integer token_id, IR::parser_action? forced, bool branch_conflicts) ->
+      #   Array[IR::parser_action]
+      def actions_for: (Integer state_id, Integer token_id, IR::parser_action? forced, bool branch_conflicts) -> Array[IR::parser_action]
 
-      def actions_from: (untyped conflict) -> untyped
+      # @rbs (IR::conflict conflict) -> Array[IR::parser_action]
+      def actions_from: (IR::conflict conflict) -> Array[IR::parser_action]
 
-      def apply_action: (untyped results, untyped queue, untyped current, untyped action, untyped token_id) -> untyped
+      # @rbs (Array[search_entry] results, Array[[Configuration, IR::parser_action?]] queue,
+      #   Configuration current, IR::parser_action action, Integer token_id) -> void
+      def apply_action: (Array[search_entry] results, Array[[ Configuration, IR::parser_action? ]] queue, Configuration current, IR::parser_action action, Integer token_id) -> void
 
-      def shift: (untyped current, untyped state_id, untyped token_id) -> untyped
+      # @rbs (Configuration current, Integer state_id, Integer token_id) -> Configuration
+      def shift: (Configuration current, Integer state_id, Integer token_id) -> Configuration
 
-      def reduce: (untyped current, untyped production_id) -> untyped
+      # @rbs (Configuration current, Integer production_id) -> Configuration?
+      def reduce: (Configuration current, Integer production_id) -> Configuration?
 
-      def configuration: (untyped states, untyped nodes) -> untyped
+      # @rbs (Array[Integer] states, Array[derivation_node] nodes) -> Configuration
+      def configuration: (Array[Integer] states, Array[derivation_node] nodes) -> Configuration
 
-      def pair_key: (untyped left, untyped right) -> untyped
+      # @rbs (Configuration left, Configuration right) -> [Array[Integer], Array[Integer]]
+      def pair_key: (Configuration left, Configuration right) -> [ Array[Integer], Array[Integer] ]
 
-      def count_configuration: () -> untyped
+      # @rbs () -> Integer
+      def count_configuration: () -> Integer
 
-      def exhausted?: () -> untyped
+      # @rbs () -> bool
+      def exhausted?: () -> bool
     end
   end
 end

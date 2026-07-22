@@ -7,6 +7,7 @@ module Ibex
   module NormalizeDiagnostics
     private
 
+    # @rbs () -> void
     def validate_grammar
       # @type self: Normalizer
       warn_duplicate_productions
@@ -15,11 +16,12 @@ module Ibex
       warn_empty_language
     end
 
+    # @rbs () -> void
     def warn_duplicate_productions
       # @type self: Normalizer
-      seen = {} #: Hash[untyped, untyped]
+      seen = {} #: Hash[[Integer, Array[Integer]], Integer]
       @productions.each do |production|
-        signature = [production.lhs, production.rhs]
+        signature = [production.lhs, production.rhs] #: [Integer, Array[Integer]]
         if seen.key?(signature)
           @warnings << { type: :duplicate_production, production: production.id, original: seen[signature],
                          loc: production.origin[:loc] }
@@ -29,6 +31,7 @@ module Ibex
       end
     end
 
+    # @rbs () -> void
     def warn_unreachable_nonterminals
       # @type self: Normalizer
       reachable = reachable_symbol_ids
@@ -39,9 +42,10 @@ module Ibex
       end
     end
 
+    # @rbs () -> Set[Integer]
     def reachable_symbol_ids
       # @type self: Normalizer
-      start = symbol(@start_name).id
+      start = required_symbol(@start_name).id
       reachable = Set[start]
       loop do
         before = reachable.length
@@ -52,6 +56,7 @@ module Ibex
       end
     end
 
+    # @rbs () -> void
     def warn_unused_terminals
       # @type self: Normalizer
       used = @productions.flat_map(&:rhs).to_set
@@ -62,6 +67,7 @@ module Ibex
       end
     end
 
+    # @rbs () -> void
     def warn_empty_language
       # @type self: Normalizer
       productive = productive_terminal_ids
@@ -72,17 +78,19 @@ module Ibex
         end
         break if productive.length == before
       end
-      return if productive.include?(symbol(@start_name).id)
+      return if productive.include?(required_symbol(@start_name).id)
 
-      start_symbol = symbol(@start_name)
+      start_symbol = required_symbol(@start_name)
       @warnings << { type: :empty_language, symbol: @start_name, loc: start_symbol.location }
     end
 
+    # @rbs () -> Set[Integer]
     def productive_terminal_ids
       # @type self: Normalizer
       @symbols.select { |grammar_symbol| productive_terminal?(grammar_symbol) }.to_set(&:id)
     end
 
+    # @rbs (IR::GrammarSymbol grammar_symbol) -> bool
     def productive_terminal?(grammar_symbol)
       # @type self: Normalizer
       grammar_symbol.terminal? && !grammar_symbol.reserved

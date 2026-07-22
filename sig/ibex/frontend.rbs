@@ -1,2 +1,15 @@
 # Generated from lib/ibex/frontend.rb with RBS::Inline
 
+module Ibex
+  module Frontend
+    type user_code_token = { name: String, code: String }
+
+    type token_value = String | Integer | user_code_token | nil
+
+    type external_token = Symbol | String
+
+    type parser_section = :declarations | :rules | :user_code
+
+    type delimiter_kind = :group | :separated
+  end
+end

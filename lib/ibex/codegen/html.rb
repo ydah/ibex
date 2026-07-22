@@ -6,6 +6,7 @@ module Ibex
     module HTML
       module_function
 
+      # @rbs (IR::Automaton automaton) -> String
       def render(automaton)
         grammar = automaton.grammar
         <<~HTML
@@ -21,6 +22,7 @@ module Ibex
         HTML
       end
 
+      # @rbs (IR::Automaton automaton, IR::Grammar grammar) -> String
       def state_sections(automaton, grammar)
         automaton.states.map do |state|
           transitions = state.transitions.map do |symbol_id, target|
@@ -36,6 +38,7 @@ module Ibex
       end
       private_class_method :state_sections
 
+      # @rbs (IR::AutomatonItem item, IR::Grammar grammar) -> String
       def item_html(item, grammar)
         return "<li><code>$accept</code></li>" if item.production.negative?
 
@@ -47,6 +50,7 @@ module Ibex
       end
       private_class_method :item_html
 
+      # @rbs (IR::Grammar grammar) -> String
       def rule_sections(grammar)
         grammar.productions.map do |production|
           lhs = grammar.symbol_by_id(production.lhs).name
@@ -57,6 +61,7 @@ module Ibex
       end
       private_class_method :rule_sections
 
+      # @rbs (IR::Automaton automaton) -> String
       def conflict_sections(automaton)
         conflicts = automaton.states.flat_map do |state|
           state.conflicts.map do |conflict|
@@ -68,6 +73,7 @@ module Ibex
       end
       private_class_method :conflict_sections
 
+      # @rbs (String value) -> String
       def escape(value)
         value.to_s.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;").gsub('"', "&quot;")
       end

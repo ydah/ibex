@@ -10,6 +10,7 @@ module Ibex
 
     private
 
+    # @rbs (OptionParser options) -> void
     def add_counterexample_options(options)
       options.on("--counterexamples", "include conflict counterexamples in a report") { @options[:verbose] = true }
       options.on("--counterexample-max-tokens=N", Integer, "maximum counterexample search token budget") do |value|
@@ -24,6 +25,7 @@ module Ibex
       end
     end
 
+    # @rbs (Integer value, String option) -> Integer
     def positive_counterexample_limit(value, option)
       if value.positive?
         @options[:verbose] = true

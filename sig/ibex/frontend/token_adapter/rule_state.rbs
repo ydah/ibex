@@ -7,43 +7,70 @@ module Ibex
       class RuleState
         SCALAR_TYPES: untyped
 
-        attr_reader section: untyped
+        attr_reader section: parser_section
 
-        attr_reader state: untyped
+        attr_reader state: Symbol
 
-        def initialize: () -> untyped
+        @rule_seen: bool?
 
-        def classify: (untyped token, untyped remaining, last_external: untyped, previous_external: untyped) -> untyped
+        @lhs_column: Integer?
 
-        def group_opening: () -> untyped
+        @delimiters: DelimiterTracker
 
-        def open_delimiter_kind: () -> untyped
+        # @rbs () -> void
+        def initialize: () -> void
 
-        def expectation: (untyped token) -> untyped
+        # @rbs (Token token, Array[Token] remaining, last_external: external_token?,
+        #   previous_external: external_token?) -> external_token
+        def classify: (Token token, Array[Token] remaining, last_external: external_token?, previous_external: external_token?) -> external_token
+
+        # @rbs () -> Token?
+        def group_opening: () -> Token?
+
+        # @rbs () -> delimiter_kind?
+        def open_delimiter_kind: () -> delimiter_kind?
+
+        # @rbs (Token? token) -> String?
+        def expectation: (Token? token) -> String?
 
         private
 
-        def classify_identifier: (untyped token, untyped remaining, untyped last_external, untyped previous_external) -> untyped
+        # @rbs (Token token, Array[Token] remaining, external_token? last_external,
+        #   external_token? previous_external) -> external_token
+        def classify_identifier: (Token token, Array[Token] remaining, external_token? last_external, external_token? previous_external) -> external_token
 
-        def rule_lhs: (untyped token) -> untyped
+        # @rbs (Token token) -> external_token
+        def rule_lhs: (Token token) -> external_token
 
-        def named_reference_name?: (untyped last_external, untyped previous_external) -> untyped
+        # @rbs (external_token? last_external, external_token? previous_external) -> bool
+        def named_reference_name?: (external_token? last_external, external_token? previous_external) -> bool
 
-        def rule_boundary?: (untyped token, untyped following) -> untyped
+        # @rbs (Token token, Token following) -> bool
+        def rule_boundary?: (Token token, Token following) -> bool
 
-        def start_rule: (untyped token) -> untyped
+        # @rbs (Token token) -> external_token
+        def start_rule: (Token token) -> external_token
 
-        def finish_rules: () -> untyped
+        # @rbs () -> external_token
+        def finish_rules: () -> external_token
 
-        def separated_list_call?: (untyped token, untyped following) -> untyped
+        # @rbs (Token token, Token following) -> bool
+        def separated_list_call?: (Token token, Token following) -> bool
 
-        def separated_terminal: (untyped token) -> untyped
+        # @rbs (Token token) -> external_token
+        def separated_terminal: (Token token) -> external_token
 
-        def classify_punctuation: (untyped token) -> untyped
+        # @rbs (Token token) -> external_token
+        def classify_punctuation: (Token token) -> external_token
 
-        def reset_rule_boundary: () -> untyped
+        # @rbs () -> void
+        def reset_rule_boundary: () -> void
 
-        def rules_lhs_expectation: (untyped token) -> untyped
+        # @rbs (Token? token) -> String
+        def rules_lhs_expectation: (Token? token) -> String
+
+        # @rbs (Token token) -> String
+        def string_value: (Token token) -> String
       end
     end
   end

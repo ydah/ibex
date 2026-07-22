@@ -13,55 +13,78 @@ module Ibex
 
         EXPECTATIONS: untyped
 
-        attr_reader conversion_name: untyped
+        attr_reader conversion_name: Token?
 
-        attr_reader declaration: untyped
+        attr_reader declaration: Symbol?
 
-        attr_reader precedence_closer: untyped
+        attr_reader precedence_closer: String?
 
-        attr_reader state: untyped
+        attr_reader state: Symbol
 
-        def initialize: () -> untyped
+        # @rbs () -> void
+        def initialize: () -> void
 
-        def classify: (untyped token, untyped remaining) -> untyped
+        # @rbs (Token token, Array[Token] remaining) -> external_token
+        def classify: (Token token, Array[Token] remaining) -> external_token
 
-        def rules?: () -> untyped
+        # @rbs () -> bool
+        def rules?: () -> bool
 
-        def expectation: (untyped token) -> untyped
+        # @rbs (Token? token) -> String?
+        def expectation: (Token? token) -> String?
 
         private
 
-        def classify_identifier: (untyped token, untyped remaining) -> untyped
+        # @rbs (Token token, Array[Token] remaining) -> external_token
+        def classify_identifier: (Token token, Array[Token] remaining) -> external_token
 
-        def class_keyword: (untyped token) -> untyped
+        # @rbs (Token token) -> external_token
+        def class_keyword: (Token token) -> external_token
 
-        def constant_name: (untyped remaining) -> untyped
+        # @rbs (Array[Token] remaining) -> external_token
+        def constant_name: (Array[Token] remaining) -> external_token
 
-        def begin_declaration: (untyped token) -> untyped
+        # @rbs (Token token) -> external_token
+        def begin_declaration: (Token token) -> external_token
 
-        def begin_precedence: (untyped token) -> untyped
+        # @rbs (Token token) -> external_token
+        def begin_precedence: (Token token) -> external_token
 
-        def declaration_symbol: (untyped token) -> untyped
+        # @rbs (Token token) -> external_token
+        def declaration_symbol: (Token token) -> external_token
 
-        def declaration_boundary?: (untyped value) -> untyped
+        # @rbs (String value) -> bool
+        def declaration_boundary?: (String value) -> bool
 
-        def precedence_identifier: (untyped token) -> untyped
+        # @rbs (Token token) -> external_token
+        def precedence_identifier: (Token token) -> external_token
 
-        def finish_precedence: (untyped token) -> untyped
+        # @rbs (Token token) -> external_token
+        def finish_precedence: (Token token) -> external_token
 
-        def begin_conversion: (untyped token, untyped type, untyped remaining) -> untyped
+        # @rbs (Token token, external_token type, Array[Token] remaining) -> external_token
+        def begin_conversion: (Token token, external_token type, Array[Token] remaining) -> external_token
 
-        def classify_scalar: (untyped token, untyped remaining) -> untyped
+        # @rbs (Token token, Array[Token] remaining) -> external_token
+        def classify_scalar: (Token token, Array[Token] remaining) -> external_token
 
-        def finish_single_symbol: (untyped type) -> untyped
+        # @rbs (external_token type) -> external_token
+        def finish_single_symbol: (external_token type) -> external_token
 
-        def finish_conversion: (untyped type) -> untyped
+        # @rbs (external_token type) -> external_token
+        def finish_conversion: (external_token type) -> external_token
 
-        def classify_punctuation: (untyped token) -> untyped
+        # @rbs (Token token) -> external_token
+        def classify_punctuation: (Token token) -> external_token
 
-        def validate_conversion_line: (untyped name, untyped remaining) -> untyped
+        # @rbs (Token name, Array[Token] remaining) -> void
+        def validate_conversion_line: (Token name, Array[Token] remaining) -> void
 
-        def precedence_expectation: (untyped token) -> untyped
+        # @rbs (Token? token) -> String?
+        def precedence_expectation: (Token? token) -> String?
+
+        # @rbs (Token token) -> String
+        def string_value: (Token token) -> String
       end
     end
   end

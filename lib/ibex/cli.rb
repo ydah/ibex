@@ -6,15 +6,59 @@ require_relative "cli/counterexample_options"
 require_relative "cli/outputs"
 
 module Ibex
+  # @rbs!
+  #   interface _CLIOutput
+  #     def puts: (*untyped) -> untyped
+  #     def write: (String) -> untyped
+  #   end
+  #   type cli_options = {
+  #     emit: String,
+  #     mode: Symbol,
+  #     table: Symbol,
+  #     line_convert: bool,
+  #     counterexample_max_tokens: Integer,
+  #     counterexample_max_configurations: Integer,
+  #     ?from: String,
+  #     ?algorithm: Symbol,
+  #     ?warnings: Array[Symbol],
+  #     ?output: String,
+  #     ?embedded: bool,
+  #     ?debug: bool,
+  #     ?verbose: bool,
+  #     ?rbs: String | true,
+  #     ?dot: String,
+  #     ?html: String,
+  #     ?log_file: String,
+  #     ?executable: String,
+  #     ?frozen: bool,
+  #     ?omit_actions: bool,
+  #     ?superclass: String,
+  #     ?check_only: bool,
+  #     ?status: bool,
+  #     ?profile: bool,
+  #     ?debug_flags: String,
+  #     ?version: bool,
+  #     ?runtime_version: bool,
+  #     ?copyright: bool,
+  #     ?help: bool
+  #   }
+
   # Command-line pipeline coordinator.
+  # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.
   class CLI
     include CLICounterexampleOptions
     include CLIOutputs
 
+    # @rbs @stdout: _CLIOutput
+    # @rbs @stderr: _CLIOutput
+    # @rbs @options: cli_options
+
+    # @rbs (Array[String] arguments, ?stdout: _CLIOutput, ?stderr: _CLIOutput) -> Integer
     def self.start(arguments, stdout: $stdout, stderr: $stderr)
       new(stdout: stdout, stderr: stderr).run(arguments)
     end
 
+    # @rbs (stdout: _CLIOutput, stderr: _CLIOutput) -> void
     def initialize(stdout:, stderr:)
       @stdout = stdout
       @stderr = stderr
@@ -22,6 +66,7 @@ module Ibex
                  .merge(CLICounterexampleOptions::DEFAULTS)
     end
 
+    # @rbs (Array[String] arguments) -> Integer
     def run(arguments)
       parser = option_parser
       remaining = parser.parse(arguments)
@@ -36,6 +81,7 @@ module Ibex
 
     private
 
+    # @rbs () -> OptionParser
     def option_parser
       OptionParser.new do |options|
         options.banner = "Usage: ibex [options] grammarfile"
@@ -46,6 +92,7 @@ module Ibex
       end
     end
 
+    # @rbs (OptionParser options) -> void
     def add_pipeline_options(options)
       options.on("--emit=FORMAT", "ast, grammar-ir, automaton-ir, or ruby") { |value| @options[:emit] = value }
       options.on("--from=FORMAT", %w[grammar-ir automaton-ir], "resume from IR JSON") do |value|
@@ -63,6 +110,7 @@ module Ibex
       end
     end
 
+    # @rbs (OptionParser options) -> void
     def add_output_options(options)
       options.on("-o", "--output-file=FILE", "generated parser path") { |value| @options[:output] = value }
       options.on("-E", "--embedded", "embed the Pure Ruby runtime") { @options[:embedded] = true }
@@ -84,6 +132,7 @@ module Ibex
       end
     end
 
+    # @rbs (OptionParser options) -> void
     def add_compatibility_options(options)
       options.on("-F", "--frozen", "emit frozen string literals") { @options[:frozen] = true }
       options.on("--line-convert-all", "convert all source lines") { @options[:line_convert] = true }
@@ -96,6 +145,7 @@ module Ibex
       options.on("-D FLAGS", "accept internal compatibility flags") { |value| @options[:debug_flags] = value }
     end
 
+    # @rbs (OptionParser options) -> void
     def add_information_options(options)
       options.on("--version", "show version") { @options[:version] = true }
       options.on("--runtime-version", "show runtime version") { @options[:runtime_version] = true }
@@ -103,6 +153,7 @@ module Ibex
       options.on("--help", "show help") { @options[:help] = true }
     end
 
+    # @rbs (OptionParser parser) -> Integer?
     def informational_result(parser)
       return print_version if @options[:version] || @options[:runtime_version]
       return print_copyright if @options[:copyright]
@@ -111,6 +162,7 @@ module Ibex
       nil
     end
 
+    # @rbs (Array[String] remaining) -> String
     def input_path(remaining)
       path = remaining.first || raise(Ibex::Error, "(cli):1:1: grammar file is required")
       raise Ibex::Error, "(cli):1:1: only one grammar file may be specified" if remaining.length > 1
@@ -118,6 +170,7 @@ module Ibex
       path
     end
 
+    # @rbs (String path) -> Integer
     def process_grammar(path)
       return process_ir(path) if @options[:from]
 
@@ -129,6 +182,7 @@ module Ibex
       dispatch_grammar(grammar, path)
     end
 
+    # @rbs (String path) -> Integer
     def process_ir(path)
       report_status("reading #{path}")
       value = IR::Serialize.load(File.read(path))
@@ -140,6 +194,7 @@ module Ibex
       dispatch_automaton(value, path)
     end
 
+    # @rbs (IR::Grammar grammar, String path) -> Integer
     def dispatch_grammar(grammar, path)
       handle_grammar_warnings(grammar, path)
       return 0 if @options[:check_only]
@@ -150,6 +205,7 @@ module Ibex
       raise Ibex::Error, "(cli):1:1: emit format #{@options[:emit].inspect} is not available yet"
     end
 
+    # @rbs (IR::Automaton automaton, String path) -> Integer
     def dispatch_automaton(automaton, path)
       handle_grammar_warnings(automaton.grammar, path)
       return 0 if @options[:check_only]
@@ -164,45 +220,53 @@ module Ibex
       raise Ibex::Error, "(cli):1:1: AST cannot be reconstructed from Automaton IR"
     end
 
+    # @rbs () -> Integer
     def print_version
       @stdout.puts("ibex #{VERSION}")
       0
     end
 
+    # @rbs (OptionParser parser) -> Integer
     def print_help(parser)
       @stdout.puts(parser)
       0
     end
 
+    # @rbs () -> Integer
     def print_copyright
       @stdout.puts("Ibex #{VERSION} Copyright (c) 2026 Yudai Takada")
       0
     end
 
+    # @rbs (untyped ast) -> Integer
     def emit_ast(ast)
       @stdout.puts(JSON.pretty_generate(ast.to_h))
       0
     end
 
+    # @rbs (IR::Grammar grammar) -> Integer
     def emit_grammar(grammar)
       @stdout.write(IR::Serialize.dump(grammar))
       0
     end
 
+    # @rbs (IR::Grammar grammar, String input_path) -> Integer
     def emit_automaton(grammar, input_path)
       @stdout.write(IR::Serialize.dump(build_automaton(grammar, input_path)))
       0
     end
 
+    # @rbs (IR::Grammar grammar, String input_path) -> Integer
     def emit_ruby(grammar, input_path)
       automaton = build_automaton(grammar, input_path)
       generate_ruby(automaton, input_path)
     end
 
+    # @rbs (IR::Automaton automaton, String input_path) -> Integer
     def generate_ruby(automaton, input_path)
       source = Codegen::Ruby.new(
-        automaton, table: @options[:table], embedded: @options[:embedded],
-                   line_convert: @options[:line_convert], debug: @options[:debug],
+        automaton, table: @options[:table], embedded: @options.fetch(:embedded, false),
+                   line_convert: @options.fetch(:line_convert), debug: @options.fetch(:debug, false),
                    omit_action_call: @options[:omit_actions], superclass: @options[:superclass],
                    executable: @options[:executable]
       ).generate
@@ -214,19 +278,25 @@ module Ibex
       0
     end
 
+    # @rbs (IR::Automaton automaton, String output_path) -> void
     def write_rbs(automaton, output_path)
-      path = @options[:rbs] == true ? default_output_path(output_path, ".rbs") : @options[:rbs]
+      configured_path = @options[:rbs]
+      path = configured_path == true ? default_output_path(output_path, ".rbs") : configured_path
+      raise ArgumentError, "RBS output path is required" unless path.is_a?(String)
+
       source = Codegen::RBS.new(automaton, superclass: @options[:superclass]).generate
       File.write(path, source)
       report_status("wrote #{path}")
     end
 
+    # @rbs (IR::Automaton automaton, String input_path) -> Integer
     def emit_loaded_automaton(automaton, input_path)
       prepare_loaded_automaton(automaton, input_path)
       @stdout.write(IR::Serialize.dump(automaton))
       0
     end
 
+    # @rbs (IR::Grammar grammar, String input_path) -> IR::Automaton
     def build_automaton(grammar, input_path)
       report_status("building LALR automaton")
       automaton = LALR::Builder.new(grammar, algorithm: @options[:algorithm] || :lalr).build
@@ -236,15 +306,20 @@ module Ibex
       automaton
     end
 
+    # @rbs (IR::Automaton automaton, String input_path) -> void
     def prepare_loaded_automaton(automaton, input_path)
       report_conflicts(automaton, input_path)
       write_report(automaton, input_path) if @options[:verbose]
       write_visualizations(automaton)
     end
 
+    # @rbs (IR::Automaton automaton) -> void
     def write_visualizations(automaton)
-      File.write(@options[:dot], Codegen::Dot.render(automaton)) if @options[:dot]
-      File.write(@options[:html], Codegen::HTML.render(automaton)) if @options[:html]
+      dot_path = @options[:dot]
+      html_path = @options[:html]
+      File.write(dot_path, Codegen::Dot.render(automaton)) if dot_path
+      File.write(html_path, Codegen::HTML.render(automaton)) if html_path
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

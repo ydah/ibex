@@ -7,18 +7,25 @@ module Ibex
 
     private
 
-    def warning_categories: (untyped value) -> untyped
+    # @rbs (String value) -> Array[Symbol]
+    def warning_categories: (String value) -> Array[Symbol]
 
-    def handle_grammar_warnings: (untyped grammar, untyped input_path) -> untyped
+    # @rbs (IR::Grammar grammar, String input_path) -> void
+    def handle_grammar_warnings: (IR::Grammar grammar, String input_path) -> void
 
-    def format_grammar_warning: (untyped warning, untyped input_path) -> untyped
+    # @rbs (IR::grammar_warning warning, String input_path) -> String
+    def format_grammar_warning: (IR::grammar_warning warning, String input_path) -> String
 
-    def report_conflicts: (untyped automaton, untyped input_path) -> untyped
+    # @rbs (IR::Automaton automaton, String input_path) -> void
+    def report_conflicts: (IR::Automaton automaton, String input_path) -> void
 
-    def write_report: (untyped automaton, untyped input_path) -> untyped
+    # @rbs (IR::Automaton automaton, String input_path) -> void
+    def write_report: (IR::Automaton automaton, String input_path) -> void
 
-    def default_output_path: (untyped input_path, untyped extension) -> untyped
+    # @rbs (String input_path, String extension) -> String
+    def default_output_path: (String input_path, String extension) -> String
 
-    def report_status: (untyped message) -> untyped
+    # @rbs (String message) -> void
+    def report_status: (String message) -> void
   end
 end

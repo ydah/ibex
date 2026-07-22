@@ -4,9 +4,11 @@ module Ibex
   module Codegen
     # Renders Graphviz DOT from Automaton IR.
     module Dot
-      def self?.render: (untyped automaton) -> untyped
+      # @rbs (IR::Automaton automaton) -> String
+      def self?.render: (IR::Automaton automaton) -> String
 
-      def self?.escape: (untyped value) -> untyped
+      # @rbs (String value) -> String
+      def self?.escape: (String value) -> String
     end
   end
 end

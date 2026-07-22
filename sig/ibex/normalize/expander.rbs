@@ -5,42 +5,62 @@ module Ibex
   module NormalizeExpander
     private
 
-    def normalize_user_productions: () -> untyped
+    # @rbs () -> void
+    def normalize_user_productions: () -> void
 
-    def normalize_alternative: (untyped rule, untyped alternative) -> untyped
+    # @rbs (Frontend::AST::Rule rule, Frontend::AST::Alternative alternative) -> void
+    def normalize_alternative: (Frontend::AST::Rule rule, Frontend::AST::Alternative alternative) -> void
 
-    def normalize_item: (untyped item) -> untyped
+    # @rbs (Frontend::AST::item item) -> String
+    def normalize_item: (Frontend::AST::item item) -> String
 
-    def expand_inline_action: (untyped item, untyped context_length, untyped named_refs) -> untyped
+    # @rbs (Frontend::AST::InlineAction item, Integer context_length, Array[IR::named_ref] named_refs) -> String
+    def expand_inline_action: (Frontend::AST::InlineAction item, Integer context_length, Array[IR::named_ref] named_refs) -> String
 
-    def expand_optional: (untyped item) -> untyped
+    # @rbs (Frontend::AST::Optional item) -> String
+    def expand_optional: (Frontend::AST::Optional item) -> String
 
-    def expand_star: (untyped item) -> untyped
+    # @rbs (Frontend::AST::Star item) -> String
+    def expand_star: (Frontend::AST::Star item) -> String
 
-    def expand_plus: (untyped item) -> untyped
+    # @rbs (Frontend::AST::Plus item) -> String
+    def expand_plus: (Frontend::AST::Plus item) -> String
 
-    def expand_separated_list: (untyped item) -> untyped
+    # @rbs (Frontend::AST::SeparatedList item) -> String
+    def expand_separated_list: (Frontend::AST::SeparatedList item) -> String
 
-    def expand_group: (untyped item) -> untyped
+    # @rbs (Frontend::AST::Group item) -> String
+    def expand_group: (Frontend::AST::Group item) -> String
 
-    def group_value_expression: (untyped length) -> untyped
+    # @rbs (Integer length) -> String
+    def group_value_expression: (Integer length) -> String
 
-    def reject_group_named_references: (untyped group) -> untyped
+    # @rbs (Frontend::AST::Group group) -> void
+    def reject_group_named_references: (Frontend::AST::Group group) -> void
 
-    def named_reference_in: (untyped item) -> untyped
+    # @rbs (Frontend::AST::item item) -> Frontend::AST::SymbolReference?
+    def named_reference_in: (Frontend::AST::item item) -> Frontend::AST::SymbolReference?
 
-    def new_helper: (untyped kind, untyped location) -> untyped
+    # @rbs (String kind, Frontend::Location location) -> String
+    def new_helper: (String kind, Frontend::Location location) -> String
 
-    def synthetic_action: (untyped expression, untyped location) -> untyped
+    # @rbs (String expression, Frontend::Location location) -> IR::Action
+    def synthetic_action: (String expression, Frontend::Location location) -> IR::Action
 
-    def synthetic_origin: (untyped kind, untyped item) -> untyped
+    # @rbs (Symbol kind, Frontend::AST::item item) -> Hash[Symbol, untyped]
+    def synthetic_origin: (Symbol kind, Frontend::AST::item item) -> Hash[Symbol, untyped]
 
-    def normalize_action: (untyped action, untyped named_refs) -> untyped
+    # @rbs (Frontend::AST::InlineAction? action, Array[IR::named_ref] named_refs) -> IR::Action?
+    def normalize_action: (Frontend::AST::InlineAction? action, Array[IR::named_ref] named_refs) -> IR::Action?
 
-    def add_named_reference: (untyped item, untyped refs, untyped index) -> untyped
+    # @rbs (Frontend::AST::item item, Array[IR::named_ref] refs, Integer index) -> void
+    def add_named_reference: (Frontend::AST::item item, Array[IR::named_ref] refs, Integer index) -> void
 
-    def unwrap_reference: (untyped item) -> untyped
+    # @rbs (Frontend::AST::item item) -> Frontend::AST::SymbolReference?
+    def unwrap_reference: (Frontend::AST::item item) -> Frontend::AST::SymbolReference?
 
-    def add_production: (untyped lhs_name, untyped rhs_names, untyped action, untyped precedence_name, untyped origin) -> untyped
+    # @rbs (String lhs_name, Array[String] rhs_names, IR::Action? action, String? precedence_name,
+    #   Hash[Symbol, untyped] origin) -> void
+    def add_production: (String lhs_name, Array[String] rhs_names, IR::Action? action, String? precedence_name, Hash[Symbol, untyped] origin) -> void
   end
 end

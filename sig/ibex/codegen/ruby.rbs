@@ -4,47 +4,86 @@ module Ibex
   module Codegen
     # Generates a standalone Ruby parser class from Automaton IR.
     class Ruby
-      def initialize: (untyped automaton, ?table: untyped, ?embedded: untyped, ?line_convert: untyped, ?debug: untyped, ?omit_action_call: untyped, ?superclass: untyped, ?executable: untyped) -> untyped
+      @executable: String?
 
-      def generate: () -> untyped
+      @superclass: String
+
+      @omit_action_call: bool
+
+      @debug: bool
+
+      @line_convert: bool
+
+      @embedded: bool
+
+      @table_format: Symbol
+
+      @grammar: IR::Grammar
+
+      @automaton: IR::Automaton
+
+      # @rbs (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool, ?debug: bool,
+      #   ?omit_action_call: bool?, ?superclass: String?, ?executable: String?) -> void
+      def initialize: (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?, ?executable: String?) -> void
+
+      # @rbs () -> String
+      def generate: () -> String
 
       private
 
-      def append_runtime: (untyped lines) -> untyped
+      # @rbs (Array[String] lines) -> void
+      def append_runtime: (Array[String] lines) -> void
 
-      def embedded_source: (untyped relative_path) -> untyped
+      # @rbs (String relative_path) -> String
+      def embedded_source: (String relative_path) -> String
 
-      def append_tables: (untyped lines) -> untyped
+      # @rbs (Array[String] lines) -> void
+      def append_tables: (Array[String] lines) -> void
 
-      def table_literal: (untyped table) -> untyped
+      # @rbs (untyped table) -> String
+      def table_literal: (untyped table) -> String
 
-      def token_ids_literal: () -> untyped
+      # @rbs () -> String
+      def token_ids_literal: () -> String
 
-      def external_token_expression: (untyped terminal) -> untyped
+      # @rbs (IR::GrammarSymbol terminal) -> String
+      def external_token_expression: (IR::GrammarSymbol terminal) -> String
 
-      def token_names_literal: () -> untyped
+      # @rbs () -> String
+      def token_names_literal: () -> String
 
-      def productions_literal: () -> untyped
+      # @rbs () -> String
+      def productions_literal: () -> String
 
-      def append_actions: (untyped lines) -> untyped
+      # @rbs (Array[String] lines) -> void
+      def append_actions: (Array[String] lines) -> void
 
-      def append_action_constant: (untyped lines, untyped production) -> untyped
+      # @rbs (Array[String] lines, IR::Production production) -> void
+      def append_action_constant: (Array[String] lines, IR::Production production) -> void
 
-      def append_action_method: (untyped lines, untyped production) -> untyped
+      # @rbs (Array[String] lines, IR::Production production) -> void
+      def append_action_method: (Array[String] lines, IR::Production production) -> void
 
-      def append_named_bindings: (untyped lines, untyped action) -> untyped
+      # @rbs (Array[String] lines, IR::Action? action) -> void
+      def append_named_bindings: (Array[String] lines, IR::Action? action) -> void
 
-      def append_semantic_code: (untyped lines, untyped production) -> untyped
+      # @rbs (Array[String] lines, IR::Production production) -> void
+      def append_semantic_code: (Array[String] lines, IR::Production production) -> void
 
-      def private_actions: (untyped lines) -> untyped
+      # @rbs (Array[String] lines) -> void
+      def private_actions: (Array[String] lines) -> void
 
-      def action_method?: (untyped production) -> untyped
+      # @rbs (IR::Production production) -> bool
+      def action_method?: (IR::Production production) -> bool
 
-      def append_user_code: (untyped lines, untyped name, ?indent: untyped) -> untyped
+      # @rbs (Array[String] lines, String name, ?indent: Integer) -> void
+      def append_user_code: (Array[String] lines, String name, ?indent: Integer) -> void
 
-      def class_parts: () -> untyped
+      # @rbs () -> [Array[String], String]
+      def class_parts: () -> [ Array[String], String ]
 
-      def grammar_digest_comment: () -> untyped
+      # @rbs () -> String
+      def grammar_digest_comment: () -> String
     end
   end
 end

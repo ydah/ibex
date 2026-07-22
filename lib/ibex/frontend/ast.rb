@@ -4,6 +4,11 @@ module Ibex
   module Frontend
     # Grammar frontend node types.
     module AST
+      # @rbs!
+      #   type declaration = Tokens | Precedence | Options | Expect | Start | Convert
+      #   type item = SymbolReference | InlineAction | Optional | Star | Plus | Group | SeparatedList
+      #   type user_code = Hash[String, Array[UserCode]]
+
       # Adds deterministic, recursively serializable hashes to Struct nodes.
       # @rbs module-self Struct[untyped]
       module Node
@@ -25,27 +30,117 @@ module Ibex
         end
       end
 
-      Root = Struct.new(:class_name, :superclass, :declarations, :rules, :user_code, :loc, keyword_init: true) do
+      Root = Struct.new(
+        :class_name, #: String
+        :superclass, #: String?
+        :declarations, #: Array[declaration]
+        :rules, #: Array[Rule]
+        :user_code, #: user_code
+        :loc, #: Location
+        keyword_init: true
+      ) do
         include Node
       end
-      Tokens = Struct.new(:names, :loc, keyword_init: true) { include Node }
-      Precedence = Struct.new(:direction, :levels, :loc, keyword_init: true) { include Node }
-      PrecedenceLevel = Struct.new(:associativity, :symbols, :loc, keyword_init: true) { include Node }
-      Options = Struct.new(:names, :loc, keyword_init: true) { include Node }
-      Expect = Struct.new(:conflicts, :loc, keyword_init: true) { include Node }
-      Start = Struct.new(:name, :loc, keyword_init: true) { include Node }
-      Convert = Struct.new(:pairs, :loc, keyword_init: true) { include Node }
-      Conversion = Struct.new(:name, :expression, :loc, keyword_init: true) { include Node }
-      Rule = Struct.new(:lhs, :alternatives, :loc, keyword_init: true) { include Node }
-      Alternative = Struct.new(:items, :action, :precedence, :loc, keyword_init: true) { include Node }
-      SymbolReference = Struct.new(:name, :named_reference, :loc, keyword_init: true) { include Node }
-      InlineAction = Struct.new(:code, :loc, keyword_init: true) { include Node }
-      Optional = Struct.new(:item, :loc, keyword_init: true) { include Node }
-      Star = Struct.new(:item, :loc, keyword_init: true) { include Node }
-      Plus = Struct.new(:item, :loc, keyword_init: true) { include Node }
-      Group = Struct.new(:alternatives, :loc, keyword_init: true) { include Node }
-      SeparatedList = Struct.new(:item, :separator, :nonempty, :loc, keyword_init: true) { include Node }
-      UserCode = Struct.new(:name, :code, :loc, keyword_init: true) { include Node }
+      Tokens = Struct.new(
+        :names, #: Array[String]
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      Precedence = Struct.new(
+        :direction, #: Symbol
+        :levels, #: Array[PrecedenceLevel]
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      PrecedenceLevel = Struct.new(
+        :associativity, #: Symbol
+        :symbols, #: Array[String]
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      Options = Struct.new(
+        :names, #: Array[String]
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      Expect = Struct.new(
+        :conflicts, #: Integer
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      Start = Struct.new(
+        :name, #: String
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      Convert = Struct.new(
+        :pairs, #: Array[Conversion]
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      Conversion = Struct.new(
+        :name, #: String
+        :expression, #: String
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      Rule = Struct.new(
+        :lhs, #: String
+        :alternatives, #: Array[Alternative]
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      Alternative = Struct.new(
+        :items, #: Array[item]
+        :action, #: InlineAction?
+        :precedence, #: String?
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      SymbolReference = Struct.new(
+        :name, #: String
+        :named_reference, #: String?
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      InlineAction = Struct.new(
+        :code, #: String
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      Optional = Struct.new(
+        :item, #: item
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      Star = Struct.new(
+        :item, #: item
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      Plus = Struct.new(
+        :item, #: item
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      Group = Struct.new(
+        :alternatives, #: Array[Array[item]]
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      SeparatedList = Struct.new(
+        :item, #: item
+        :separator, #: item
+        :nonempty, #: bool
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      UserCode = Struct.new(
+        :name, #: String
+        :code, #: String
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
     end
   end
 end

@@ -17,12 +17,17 @@ module Ibex
           expect_integer: "integer", start_symbol: "a grammar symbol"
         }.freeze
 
-        attr_reader :conversion_name, :declaration, :precedence_closer, :state
+        attr_reader :conversion_name #: Token?
+        attr_reader :declaration #: Symbol?
+        attr_reader :precedence_closer #: String?
+        attr_reader :state #: Symbol
 
+        # @rbs () -> void
         def initialize
           @state = :class_keyword
         end
 
+        # @rbs (Token token, Array[Token] remaining) -> external_token
         def classify(token, remaining)
           return classify_identifier(token, remaining) if token.type == :identifier
           return classify_scalar(token, remaining) if SCALAR_TYPES.key?(token.type)
@@ -30,10 +35,12 @@ module Ibex
           classify_punctuation(token)
         end
 
+        # @rbs () -> bool
         def rules?
           @state == :rules
         end
 
+        # @rbs (Token? token) -> String?
         def expectation(token)
           expected = EXPECTATIONS[@state]
           return expected if expected
@@ -49,6 +56,7 @@ module Ibex
 
         private
 
+        # @rbs (Token token, Array[Token] remaining) -> external_token
         def classify_identifier(token, remaining)
           case @state
           when :class_keyword then class_keyword(token)
@@ -62,17 +70,22 @@ module Ibex
           end
         end
 
+        # @rbs (Token token) -> external_token
         def class_keyword(token)
-          return :IDENTIFIER unless token.value == "class"
+          return :IDENTIFIER unless string_value(token) == "class"
 
           @state = :class_name
           :CLASS
         end
 
+        # @rbs (Array[Token] remaining) -> external_token
         def constant_name(remaining)
-          @state = if remaining.first.type == :scope
+          following = remaining.first
+          raise Ibex::Error, "unexpected end of token stream" unless following
+
+          @state = if following.type == :scope
                      @state
-                   elsif remaining.first.type == :<
+                   elsif following.type == :<
                      :superclass_marker
                    else
                      :declaration
@@ -80,51 +93,60 @@ module Ibex
           :IDENTIFIER
         end
 
+        # @rbs (Token token) -> external_token
         def begin_declaration(token)
-          return begin_precedence(token) if %w[prechigh preclow].include?(token.value)
+          value = string_value(token)
+          return begin_precedence(token) if %w[prechigh preclow].include?(value)
 
-          terminal, next_state = DECLARATIONS[token.value]
+          terminal, next_state = DECLARATIONS[value]
           return :IDENTIFIER unless terminal
 
           @state = next_state
-          @declaration = token.value.to_sym unless terminal == :RULE
+          @declaration = value.to_sym unless terminal == :RULE
           @declaration = nil if terminal == :RULE
           terminal
         end
 
+        # @rbs (Token token) -> external_token
         def begin_precedence(token)
-          high_to_low = token.value == "prechigh"
+          high_to_low = string_value(token) == "prechigh"
           @precedence_closer = high_to_low ? "preclow" : "prechigh"
           @declaration = :precedence
           @state = :precedence_association
           high_to_low ? :PRECHIGH : :PRECLOW
         end
 
+        # @rbs (Token token) -> external_token
         def declaration_symbol(token)
-          return begin_declaration(token) if declaration_boundary?(token.value)
+          return begin_declaration(token) if declaration_boundary?(string_value(token))
 
           :IDENTIFIER
         end
 
+        # @rbs (String value) -> bool
         def declaration_boundary?(value)
           DECLARATIONS.key?(value) || %w[prechigh preclow].include?(value)
         end
 
+        # @rbs (Token token) -> external_token
         def precedence_identifier(token)
-          return finish_precedence(token) if token.value == @precedence_closer
+          value = string_value(token)
+          return finish_precedence(token) if value == @precedence_closer
 
-          association = ASSOCIATIONS[token.value]
+          association = ASSOCIATIONS[value]
           @state = :precedence_symbols if association
           association || :IDENTIFIER
         end
 
+        # @rbs (Token token) -> external_token
         def finish_precedence(token)
           @state = :declaration
           @declaration = nil
           @precedence_closer = nil
-          token.value == "prechigh" ? :PRECHIGH : :PRECLOW
+          string_value(token) == "prechigh" ? :PRECHIGH : :PRECLOW
         end
 
+        # @rbs (Token token, external_token type, Array[Token] remaining) -> external_token
         def begin_conversion(token, type, remaining)
           if token.type == :identifier && token.value == "end"
             @state = :declaration
@@ -138,6 +160,7 @@ module Ibex
           type
         end
 
+        # @rbs (Token token, Array[Token] remaining) -> external_token
         def classify_scalar(token, remaining)
           type = SCALAR_TYPES.fetch(token.type)
           return finish_single_symbol(type) if @state == :expect_integer && type == :INTEGER
@@ -148,23 +171,27 @@ module Ibex
           type
         end
 
+        # @rbs (external_token type) -> external_token
         def finish_single_symbol(type)
           @state = :declaration
           @declaration = nil
           type
         end
 
+        # @rbs (external_token type) -> external_token
         def finish_conversion(type)
           @state = :convert_name
           @conversion_name = nil
           type
         end
 
+        # @rbs (Token token) -> external_token
         def classify_punctuation(token)
           @state = :superclass_name if @state == :superclass_marker && token.type == :<
-          token.value
+          string_value(token)
         end
 
+        # @rbs (Token name, Array[Token] remaining) -> void
         def validate_conversion_line(name, remaining)
           line = name.location.line
           rest = remaining.take_while do |token|
@@ -175,10 +202,19 @@ module Ibex
           raise Ibex::Error, "#{name.location}: expected a quoted Ruby conversion expression"
         end
 
+        # @rbs (Token? token) -> String?
         def precedence_expectation(token)
           return @precedence_closer if token&.type == :eof
 
           "left or right or nonassoc" if @state == :precedence_association
+        end
+
+        # @rbs (Token token) -> String
+        def string_value(token)
+          value = token.value
+          return value if value.is_a?(String)
+
+          raise Ibex::Error, "#{token.location}: expected text token"
         end
       end
     end

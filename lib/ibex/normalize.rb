@@ -13,16 +13,35 @@ module Ibex
 
     RESERVED_NAMES = %w[result val _values].freeze
 
+    # @rbs @ast: Frontend::AST::Root
+    # @rbs @mode: Symbol
+    # @rbs @symbols: Array[IR::GrammarSymbol]
+    # @rbs @symbols_by_name: Hash[String, IR::GrammarSymbol]
+    # @rbs @productions: Array[IR::Production]
+    # @rbs @warnings: Array[IR::grammar_warning]
+    # @rbs @helper_sequence: Integer
+    # @rbs @declared_tokens: Hash[String, IR::location]
+    # @rbs @precedence: Hash[String, IR::precedence]
+    # @rbs @precedence_locations: Hash[String, IR::location]
+    # @rbs @options: IR::grammar_options
+    # @rbs @expected_conflicts: Integer
+    # @rbs @conversions: Hash[String, String]
+    # @rbs @explicit_start: String?
+    # @rbs @start_name: String
+    # @rbs @start_location: Frontend::Location?
+
+    # @rbs (Frontend::AST::Root ast, ?mode: Symbol | String) -> void
     def initialize(ast, mode: :racc)
       @ast = ast
       @mode = mode
-      @symbols = [] #: Array[untyped]
-      @symbols_by_name = {} #: Hash[untyped, untyped]
-      @productions = [] #: Array[untyped]
-      @warnings = [] #: Array[untyped]
+      @symbols = [] #: Array[IR::GrammarSymbol]
+      @symbols_by_name = {} #: Hash[String, IR::GrammarSymbol]
+      @productions = [] #: Array[IR::Production]
+      @warnings = [] #: Array[IR::grammar_warning]
       @helper_sequence = 0
     end
 
+    # @rbs () -> IR::Grammar
     def normalize
       read_declarations
       intern_reserved_symbols
@@ -38,16 +57,19 @@ module Ibex
 
     private
 
+    # @rbs () -> void
     def intern_reserved_symbols
       intern("$eof", :terminal, reserved: true)
       intern("error", :terminal, reserved: true)
     end
 
+    # @rbs () -> void
     def intern_declared_terminals
       @declared_tokens.each { |name, loc| intern(name, :terminal, location: loc) }
       @precedence.each_key { |name| intern(name, :terminal, location: @precedence_locations[name]) }
     end
 
+    # @rbs () -> void
     def intern_user_nonterminals
       @ast.rules.each { |rule| intern(rule.lhs, :nonterminal, location: rule.loc.to_h) }
       @start_name = @explicit_start || @ast.rules.first&.lhs
@@ -57,6 +79,7 @@ module Ibex
       fail_at(@start_location || @ast.loc, "undefined start symbol #{@start_name}")
     end
 
+    # @rbs (String name, Symbol kind, ?reserved: bool, ?location: IR::location?) -> IR::GrammarSymbol
     def intern(name, kind, reserved: false, location: nil)
       existing = symbol(name)
       if existing
@@ -72,10 +95,17 @@ module Ibex
       definition
     end
 
+    # @rbs (String name) -> IR::GrammarSymbol?
     def symbol(name)
       @symbols_by_name[name]
     end
 
+    # @rbs (String name) -> IR::GrammarSymbol
+    def required_symbol(name)
+      symbol(name) || raise(Ibex::Error, "missing normalized symbol #{name}")
+    end
+
+    # @rbs (Frontend::AST::SymbolReference reference) -> IR::GrammarSymbol
     def symbol_for_reference(reference)
       existing = symbol(reference.name)
       return existing if existing
@@ -85,30 +115,36 @@ module Ibex
       intern(reference.name, :terminal, location: reference.loc.to_h)
     end
 
+    # @rbs (String name) -> bool
     def nonterminal_name?(name)
       name.match?(/\A[a-z_]/) && name != "error"
     end
 
+    # @rbs (Frontend::AST::SymbolReference reference) -> bot
     def undefined_nonterminal(reference)
       fail_at(reference.loc, "undefined nonterminal #{reference.name}")
     end
 
+    # @rbs (Frontend::AST::SymbolReference reference) -> void
     def warn_undeclared_terminal(reference)
       return if @declared_tokens.empty? || reference.name.start_with?("'", '"')
 
       @warnings << { type: :undeclared_terminal, symbol: reference.name, loc: reference.loc.to_h }
     end
 
+    # @rbs () -> Hash[String, String]
     def normalized_user_code
       %w[header inner footer].to_h do |name|
         [name, @ast.user_code.fetch(name, Array.new(0)).map(&:code).join]
       end
     end
 
+    # @rbs (Frontend::Location location, String message) -> bot
     def fail_at(location, message)
       raise Ibex::Error, "#{location}: #{message}"
     end
 
+    # @rbs (IR::location? location, String message) -> bot
     def fail_hash(location, message)
       rendered = location ? "#{location[:file]}:#{location[:line]}:#{location[:column]}" : "(grammar):1:1"
       raise Ibex::Error, "#{rendered}: #{message}"

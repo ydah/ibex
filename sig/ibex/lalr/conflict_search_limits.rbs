@@ -8,17 +8,22 @@ module Ibex
 
       DEFAULT_MAX_CONFIGURATIONS: ::Integer
 
-      def self.validate!: (max_tokens: untyped, max_configurations: untyped) -> untyped
+      # @rbs (max_tokens: Integer, max_configurations: Integer) -> void
+      def self.validate!: (max_tokens: Integer, max_configurations: Integer) -> void
 
-      def self.validate_limit!: (untyped name, untyped value) -> untyped
+      # @rbs (Symbol name, Integer value) -> Integer
+      def self.validate_limit!: (Symbol name, Integer value) -> Integer
 
       private
 
-      def within_token_budget?: (untyped prefix, untyped suffix) -> untyped
+      # @rbs (Array[Integer] prefix, Array[Integer] suffix) -> bool
+      def within_token_budget?: (Array[Integer] prefix, Array[Integer] suffix) -> bool
 
-      def room_for_token?: (untyped prefix, untyped suffix) -> untyped
+      # @rbs (Array[Integer] prefix, Array[Integer] suffix) -> bool
+      def room_for_token?: (Array[Integer] prefix, Array[Integer] suffix) -> bool
 
-      def conflict_lookahead_length: () -> untyped
+      # @rbs () -> Integer
+      def conflict_lookahead_length: () -> Integer
     end
   end
 end

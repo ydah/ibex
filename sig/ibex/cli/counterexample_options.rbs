@@ -7,8 +7,10 @@ module Ibex
 
     private
 
-    def add_counterexample_options: (untyped options) -> untyped
+    # @rbs (OptionParser options) -> void
+    def add_counterexample_options: (OptionParser options) -> void
 
-    def positive_counterexample_limit: (untyped value, untyped option) -> untyped
+    # @rbs (Integer value, String option) -> Integer
+    def positive_counterexample_limit: (Integer value, String option) -> Integer
   end
 end
