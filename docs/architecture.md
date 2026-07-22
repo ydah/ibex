@@ -10,11 +10,15 @@ Ruby DSL ────────┴─> Grammar AST -> Normalizer -> Grammar IR
                                                     |
                                       SLR/LALR/LR1 Builder -> Automaton IR
                                                                     |
-                              Ruby generator / report / DOT / HTML / witnesses
+                              Ruby/RBS generators / report / DOT / HTML / counterexamples
 ```
 
 Frontend changes stop at the Normalizer. Algorithm strategies consume Grammar IR and produce identical Automaton IR shapes.
 Outputs consume Automaton IR and never call builder internals. The CLI only connects stages and supports JSON resumption.
+
+The RBS generator emits the generated class namespace, superclass, parser-table constants, and `.parser_tables` contract. The
+gem also ships `sig/ibex/runtime.rbs` for the inherited public parser API. User methods embedded as opaque Ruby source are not
+inferred; applications can reopen the generated class in their own RBS files to declare them.
 
 ## Grammar IR v1
 
