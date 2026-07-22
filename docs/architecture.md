@@ -49,8 +49,10 @@ Warning records use stable type names (`undeclared_terminal`, `unused_terminal`,
 normalization and IR serialization do not discard diagnostics.
 
 A symbol has `id`, `name`, `kind`, `reserved`, optional `prec {associativity, level}`, and `loc`. A production has `id`, `lhs`,
-`rhs`, optional `action`, optional `prec_override`, and `origin`. An action has opaque `code`, `loc`, `named_refs [{name,index}]`,
-and `context_length`; middle-action helpers use the last field to view preceding stack values.
+`rhs`, optional `action`, optional `prec_override`, and `origin`. Synthetic EBNF origins include an additive, deterministic
+`expression` label used by text, DOT, and HTML presentation while numeric symbol identities remain unchanged. An action has opaque
+`code`, `loc`, `named_refs [{name,index}]`, and `context_length`; middle-action helpers use the last field to view preceding stack
+values.
 
 IR objects and nested collections are frozen. JSON keys have deterministic order, so dump/load/dump is byte-stable. Incompatible
 schema changes require a new version. The additive `user_code_chunks` field is optional so older schema-v1 JSON remains loadable;

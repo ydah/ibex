@@ -28,4 +28,39 @@ class VisualizationTest < Minitest::Test
     assert_includes html, 'id="rule-0"'
     refute_match(%r{https?://}, html)
   end
+
+  def test_reports_render_extended_ebnf_instead_of_internal_helper_names
+    source = <<~GRAMMAR
+      class Extended
+      rule
+      start: (A B)? C+ separated_list(D, ',')
+      end
+    GRAMMAR
+    ast = Ibex::Frontend::Parser.new(source, file: "extended.y", mode: :extended).parse
+    extended = Ibex::LALR::Builder.new(Ibex::Normalizer.new(ast, mode: :extended).normalize).build
+
+    outputs = [
+      Ibex::Codegen::Report.render(extended),
+      Ibex::Codegen::Dot.render(extended),
+      Ibex::Codegen::HTML.render(extended)
+    ]
+    outputs.each do |output|
+      assert_includes output, "(A B)?"
+      assert_includes output, "C+"
+      assert_includes output, "separated_list(D, ',')"
+      refute_match(/\$(?:optional|plus|separated_list)_\d+/, output)
+    end
+  end
+
+  def test_reports_fall_back_to_internal_names_for_older_schema_v1_origins
+    source = "class Extended\nrule\nstart: A?\nend\n"
+    ast = Ibex::Frontend::Parser.new(source, file: "extended.y", mode: :extended).parse
+    grammar = Ibex::Normalizer.new(ast, mode: :extended).normalize
+    data = JSON.parse(Ibex::IR::Serialize.dump(grammar))
+    data.fetch("productions").each { |production| production.fetch("origin").delete("expression") }
+    legacy_grammar = Ibex::IR::Serialize.load(JSON.generate(data))
+    legacy_automaton = Ibex::LALR::Builder.new(legacy_grammar).build
+
+    assert_match(/\$optional_\d+/, Ibex::Codegen::Report.render(legacy_automaton))
+  end
 end

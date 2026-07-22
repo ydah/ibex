@@ -98,6 +98,7 @@ end
 
 The value conventions are `nil` or a value for `?`, and arrays for `*`, `+`, `separated_list`, and
 `separated_nonempty_list`. Parenthesized sequences and alternatives can be nested; multi-item groups produce an Array value.
+Text, DOT, and HTML automaton reports label lowered helper symbols with these source-level EBNF expressions.
 
 ## Pipeline and diagnostics
 

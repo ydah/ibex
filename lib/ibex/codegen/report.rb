@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "symbol_labels"
+
 module Ibex
   module Codegen
     # Renders a human-readable state and conflict report from Automaton IR.
@@ -9,35 +11,45 @@ module Ibex
       #     Array[String] lines,
       #     IR::AutomatonState state,
       #     IR::Grammar grammar,
-      #     Array[IR::counterexample] examples
+      #     Array[IR::counterexample] examples,
+      #     Hash[Integer, String] labels
       #   ) -> void
       #   private def self.append_state: (
       #     Array[String] lines,
       #     IR::AutomatonState state,
       #     IR::Grammar grammar,
-      #     Array[IR::counterexample] examples
+      #     Array[IR::counterexample] examples,
+      #     Hash[Integer, String] labels
       #   ) -> void
-      #   private def append_counterexample: (Array[String] lines, IR::counterexample example) -> void
-      #   private def self.append_counterexample: (Array[String] lines, IR::counterexample example) -> void
-      #   private def append_tree: (Array[String] lines, untyped tree, String indentation) -> void
-      #   private def self.append_tree: (Array[String] lines, untyped tree, String indentation) -> void
-      #   private def format_item: (IR::AutomatonItem item, IR::Grammar grammar) -> String
-      #   private def self.format_item: (IR::AutomatonItem item, IR::Grammar grammar) -> String
+      #   private def append_counterexample: (Array[String] lines, IR::counterexample example, IR::Grammar grammar,
+      #     Hash[Integer, String] labels) -> void
+      #   private def self.append_counterexample: (Array[String] lines, IR::counterexample example, IR::Grammar grammar,
+      #     Hash[Integer, String] labels) -> void
+      #   private def append_tree: (Array[String] lines, untyped tree, String indentation, IR::Grammar grammar,
+      #     Hash[Integer, String] labels) -> void
+      #   private def self.append_tree: (Array[String] lines, untyped tree, String indentation, IR::Grammar grammar,
+      #     Hash[Integer, String] labels) -> void
+      #   private def format_item: (IR::AutomatonItem item, IR::Grammar grammar, Hash[Integer, String] labels) -> String
+      #   private def self.format_item: (IR::AutomatonItem item, IR::Grammar grammar,
+      #     Hash[Integer, String] labels) -> String
       #   private def format_action: (IR::parser_action action) -> String
       #   private def self.format_action: (IR::parser_action action) -> String
-      #   private def symbol_name: (IR::Grammar grammar, Integer id) -> String
-      #   private def self.symbol_name: (IR::Grammar grammar, Integer id) -> String
+      #   private def symbol_name: (Hash[Integer, String] labels, Integer id) -> String
+      #   private def self.symbol_name: (Hash[Integer, String] labels, Integer id) -> String
+      #   private def tree_label: (IR::Grammar grammar, Hash[Integer, String] labels, untyped value) -> untyped
+      #   private def self.tree_label: (IR::Grammar grammar, Hash[Integer, String] labels, untyped value) -> untyped
 
       # @rbs (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> String
       def render(automaton, max_tokens: LALR::Counterexample::DEFAULT_MAX_TOKENS,
                  max_configurations: LALR::Counterexample::DEFAULT_MAX_CONFIGURATIONS)
         grammar = automaton.grammar
+        labels = SymbolLabels.build(grammar)
         lines = ["Algorithm: #{automaton.algorithm}", "States: #{automaton.states.length}", ""]
         examples = LALR::Counterexample.new(
           automaton, max_tokens: max_tokens, max_configurations: max_configurations
         ).all.group_by { |example| example[:state] }
         automaton.states.each do |state|
-          append_state(lines, state, grammar, examples.fetch(state.id, Array.new(0)))
+          append_state(lines, state, grammar, examples.fetch(state.id, Array.new(0)), labels)
         end
         summary = automaton.conflict_summary
         lines << "Conflicts: #{summary[:sr]} shift/reduce, #{summary[:rr]} reduce/reduce"
@@ -49,38 +61,38 @@ module Ibex
       private
 
       # @rbs skip
-      def append_state(lines, state, grammar, examples)
+      def append_state(lines, state, grammar, examples, labels)
         lines << "State #{state.id}"
-        state.items.each { |item| lines << "  #{format_item(item, grammar)}" }
+        state.items.each { |item| lines << "  #{format_item(item, grammar, labels)}" }
         state.actions.each do |token_id, action|
-          lines << "  on #{symbol_name(grammar, token_id)}: #{format_action(action)}"
+          lines << "  on #{symbol_name(labels, token_id)}: #{format_action(action)}"
         end
         lines << "  default: #{format_action(state.default_action)}" if state.default_action
-        state.gotos.each { |symbol_id, target| lines << "  goto #{symbol_name(grammar, symbol_id)}: #{target}" }
+        state.gotos.each { |symbol_id, target| lines << "  goto #{symbol_name(labels, symbol_id)}: #{target}" }
         state.conflicts.each { |conflict| lines << "  conflict: #{conflict.inspect}" }
-        examples.each { |example| append_counterexample(lines, example) }
+        examples.each { |example| append_counterexample(lines, example, grammar, labels) }
         lines << ""
       end
 
       # @rbs skip
-      def append_counterexample(lines, example)
+      def append_counterexample(lines, example, grammar, labels)
         label = example[:unifying] ? "unifying counterexample" : "nonunifying witness"
         sentence = example[:sentence].dup.insert(example[:lookahead_index], "•").join(" ")
         lines << "  #{label}: #{sentence}"
         example[:interpretations].each do |interpretation|
           lines << "    #{interpretation[:kind]} derivation:"
-          append_tree(lines, interpretation[:tree], "      ")
+          append_tree(lines, interpretation[:tree], "      ", grammar, labels)
         end
       end
 
       # @rbs skip
-      def append_tree(lines, tree, indentation)
+      def append_tree(lines, tree, indentation, grammar, labels)
         unless tree.is_a?(Hash)
-          lines << "#{indentation}#{tree}"
+          lines << "#{indentation}#{tree_label(grammar, labels, tree)}"
           return
         end
 
-        symbol = tree[:symbol] || tree[:token]
+        symbol = tree_label(grammar, labels, tree[:symbol] || tree[:token])
         unless tree[:children]
           lines << "#{indentation}#{symbol}"
           return
@@ -88,21 +100,21 @@ module Ibex
 
         production = tree[:production] ? " (production #{tree[:production]})" : ""
         lines << "#{indentation}#{symbol}#{production}"
-        tree[:children].each { |child| append_tree(lines, child, "#{indentation}  ") }
+        tree[:children].each { |child| append_tree(lines, child, "#{indentation}  ", grammar, labels) }
       end
 
       # @rbs skip
-      def format_item(item, grammar)
+      def format_item(item, grammar, labels)
         if item.production == LALR::Builder::AUGMENTED_PRODUCTION
           rhs = [grammar.start]
           lhs = "$accept"
         else
           production = grammar.productions.fetch(item.production)
-          rhs = production.rhs.map { |id| symbol_name(grammar, id) }
-          lhs = symbol_name(grammar, production.lhs)
+          rhs = production.rhs.map { |id| symbol_name(labels, id) }
+          lhs = symbol_name(labels, production.lhs)
         end
         rhs = rhs.dup.insert(item.dot, "•")
-        lookaheads = item.lookaheads.map { |id| symbol_name(grammar, id) }.join(", ")
+        lookaheads = item.lookaheads.map { |id| symbol_name(labels, id) }.join(", ")
         "#{lhs} -> #{rhs.join(' ')} [#{lookaheads}]"
       end
 
@@ -116,14 +128,21 @@ module Ibex
       end
 
       # @rbs skip
-      def symbol_name(grammar, id)
-        symbol = grammar.symbol_by_id(id) || raise(Ibex::Error, "missing grammar symbol id #{id}")
-        symbol.name
+      def symbol_name(labels, id)
+        labels.fetch(id) { raise Ibex::Error, "missing grammar symbol id #{id}" }
       end
-      module_function :append_state, :append_counterexample, :append_tree, :format_item, :format_action, :symbol_name
+
+      # @rbs skip
+      def tree_label(grammar, labels, value)
+        symbol = grammar.symbol(value.to_s)
+        symbol ? symbol_name(labels, symbol.id) : value
+      end
+      module_function :append_state, :append_counterexample, :append_tree, :format_item, :format_action, :symbol_name,
+                      :tree_label
 
       class << self
-        private :append_state, :append_counterexample, :append_tree, :format_item, :format_action, :symbol_name
+        private :append_state, :append_counterexample, :append_tree, :format_item, :format_action, :symbol_name,
+                :tree_label
       end
     end
   end

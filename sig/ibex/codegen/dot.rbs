@@ -8,9 +8,9 @@ module Ibex
 
       private def self.escape: (String value) -> String
 
-      private def symbol_name: (IR::Grammar grammar, Integer id) -> String
+      private def symbol_name: (Hash[Integer, String] labels, Integer id) -> String
 
-      private def self.symbol_name: (IR::Grammar grammar, Integer id) -> String
+      private def self.symbol_name: (Hash[Integer, String] labels, Integer id) -> String
 
       # @rbs (IR::Automaton automaton) -> String
       def self?.render: (IR::Automaton automaton) -> String

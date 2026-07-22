@@ -166,7 +166,7 @@ module Ibex
     # @rbs (Symbol kind, Frontend::AST::item item) -> Hash[Symbol, untyped]
     def synthetic_origin(kind, item)
       # @type self: Normalizer
-      { kind: :"#{kind}_expansion", loc: item.loc.to_h }
+      { kind: :"#{kind}_expansion", expression: NormalizeExpression.render(item), loc: item.loc.to_h }
     end
 
     # @rbs (Frontend::AST::InlineAction? action, Array[IR::named_ref] named_refs) -> IR::Action?

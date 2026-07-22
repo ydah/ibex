@@ -88,7 +88,8 @@ Extended mode supports:
 Parenthesized groups may contain sequences, alternatives, and nested EBNF, for example `(KEY VALUE)*`, `(A | B)+`, or
 `separated_list((KEY VALUE), ',')`. A one-item group has that item's value; a multi-item group has an Array of its item values;
 an empty group has `nil`. Named references must be unique in an outer alternative and cannot use `result`, `val`, or `_values`;
-references inside a group are rejected because the group is lowered behind one outer value slot.
+references inside a group are rejected because the group is lowered behind one outer value slot. Text, DOT, and HTML reports
+render lowered helper nonterminals as their original EBNF expressions instead of exposing generated helper names.
 
 ## Strict diagnostics
 

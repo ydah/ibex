@@ -1,0 +1,21 @@
+# Generated from lib/ibex/normalize/expression.rb with RBS::Inline
+
+module Ibex
+  # Deterministically renders frontend EBNF items for production origin metadata.
+  module NormalizeExpression
+    private def render_reference: (Frontend::AST::SymbolReference item) -> String
+
+    private def self.render_reference: (Frontend::AST::SymbolReference item) -> String
+
+    private def render_group: (Frontend::AST::Group item) -> String
+
+    private def self.render_group: (Frontend::AST::Group item) -> String
+
+    private def render_separated_list: (Frontend::AST::SeparatedList item) -> String
+
+    private def self.render_separated_list: (Frontend::AST::SeparatedList item) -> String
+
+    # @rbs (Frontend::AST::item item) -> String
+    def self?.render: (Frontend::AST::item item) -> String
+  end
+end

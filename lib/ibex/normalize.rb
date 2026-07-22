@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "normalize/declarations"
+require_relative "normalize/expression"
 require_relative "normalize/expander"
 require_relative "normalize/diagnostics"
 
