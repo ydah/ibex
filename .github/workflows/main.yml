@@ -15,9 +15,18 @@ jobs:
     runs-on: ubuntu-latest
     name: Ruby ${{ matrix.ruby }}
     strategy:
+      fail-fast: false
       matrix:
-        ruby:
-          - '4.0'
+        include:
+          - ruby: '3.0'
+            experimental: false
+          - ruby: '3.2'
+            experimental: false
+          - ruby: '3.4'
+            experimental: false
+          - ruby: jruby
+            experimental: true
+    continue-on-error: ${{ matrix.experimental }}
 
     steps:
       - uses: actions/checkout@v6
