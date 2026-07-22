@@ -3,7 +3,7 @@
 Ibex keeps syntax, grammar meaning, automaton construction, and output concerns behind two versioned immutable contracts.
 
 ```text
-.y Lexer/Parser ─┐
+.y Lexer -> Token adapter -> self-hosted LR Parser ─┐
 Ruby DSL ────────┴─> Grammar AST -> Normalizer -> Grammar IR
                                                     |
                                                set analysis
@@ -15,6 +15,12 @@ Ruby DSL ────────┴─> Grammar AST -> Normalizer -> Grammar IR
 
 Frontend changes stop at the Normalizer. Algorithm strategies consume Grammar IR and produce identical Automaton IR shapes.
 Outputs consume Automaton IR and never call builder internals. The CLI only connects stages and supports JSON resumption.
+
+The text frontend's canonical syntax is `lib/ibex/frontend/grammar.y`. Ibex generates and commits
+`lib/ibex/frontend/generated_parser.rb`; the public `Frontend::Parser` always delegates to that class. Lexer `Token` objects remain
+the semantic values passed through `TokenAdapter`, preserving their `Location` in AST nodes and diagnostics. The explicitly named
+handwritten `BootstrapParser` is excluded from normal loading and exists only to break the regeneration cycle. See
+[ADR 0015](decisions/0015-self-hosted-grammar-frontend.md) for the update procedure and boundary.
 
 The RBS generator emits the generated class namespace, superclass, parser-table constants, and `.parser_tables` contract. The
 gem also ships rbs-inline-generated signatures under `sig/` for the inherited parser API. CI rejects stale generated files,

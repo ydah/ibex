@@ -136,6 +136,17 @@ Run all unit, integration, documentation, and optional local racc black-box test
 with `bundle exec rake lint`. The default `bundle exec rake` runs both. Compatibility tests skip automatically when the `racc`
 command is unavailable.
 
+Ibex's grammar frontend is self-hosted. Edit `lib/ibex/frontend/grammar.y`, then regenerate and verify the committed parser with:
+
+```sh
+bundle exec rake frontend:generate
+git diff --exit-code -- lib/ibex/frontend/generated_parser.rb
+bundle exec ruby -Itest test/frontend/self_host_test.rb
+```
+
+Normal library and CLI execution use the generated parser. The handwritten `BootstrapParser` is loaded only by this regeneration
+workflow; the byte-comparison and AST/error parity tests prevent generated-source drift.
+
 Runtime signatures are generated from rbs-inline annotations and checked with Steep. To reproduce the type-checking CI job:
 
 ```sh
