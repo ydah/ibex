@@ -103,12 +103,16 @@ ibex --from=automaton-ir -o parser.rb automaton.json
 ibex -v --dot=states.dot --html=states.html grammar.y
 ibex --algorithm=lr1 grammar.y
 ibex --rbs -o parser.rb grammar.y
+ibex --warnings=all,error -C grammar.y
 ```
 
 Supported construction algorithms are `slr`, `lalr` (default), and canonical `lr1`. Reports retain precedence-resolved
 conflicts and distinguish unifying counterexamples from nonunifying reachability witnesses. `--rbs` writes a signature beside
 the generated parser; `--rbs=FILE` selects another path. Application methods supplied as opaque `---- inner` code can be declared
 by reopening the generated class in an application RBS file.
+
+`--warnings=all` prints unused terminals, unreachable nonterminals, duplicate productions, undeclared terminals, and empty-language
+diagnostics. Add `error` (`--warnings=all,error`, or simply `--warnings=error`) to make any such diagnostic fail the command.
 
 ## Documentation
 

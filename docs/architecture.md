@@ -33,6 +33,10 @@ Top-level fields:
 | `productions` | Numeric LHS/RHS ids, action, precedence override, source origin |
 | `user_code`, `conversions`, `warnings` | Concatenated code, external token expressions, structured diagnostics |
 
+Warning records use stable type names (`undeclared_terminal`, `unused_terminal`, `unreachable_nonterminal`,
+`duplicate_production`, and `empty_language`) and retain source locations. The CLI applies display/error policy at the boundary;
+normalization and IR serialization do not discard diagnostics.
+
 A symbol has `id`, `name`, `kind`, `reserved`, optional `prec {associativity, level}`, and `loc`. A production has `id`, `lhs`,
 `rhs`, optional `action`, optional `prec_override`, and `origin`. An action has opaque `code`, `loc`, `named_refs [{name,index}]`,
 and `context_length`; middle-action helpers use the last field to view preceding stack values.

@@ -14,5 +14,6 @@
 - Add extended EBNF/named-reference integration, DOT/HTML reports, and resumable IR pipelines.
 - Add selectable SLR, LALR(1), and canonical LR(1) construction strategies.
 - Add a Ruby DSL frontend that converges on the existing Grammar AST and IR pipeline.
-- Add deterministic shortest-path conflict witnesses with competing derivation summaries.
+- Add unifying conflict counterexamples with complete competing derivation trees and bounded nonunifying fallback.
+- Add generated parser RBS output, shipped runtime signatures, and strict structured grammar diagnostics.
 - Add complete quickstart, grammar, migration, architecture, and extension documentation with an executable README test.

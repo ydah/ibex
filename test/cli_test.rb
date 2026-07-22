@@ -72,6 +72,34 @@ class CLITest < Minitest::Test
     end
   end
 
+  def test_warning_levels_show_or_promote_structured_diagnostics
+    Tempfile.create(["warnings", ".y"]) do |grammar|
+      grammar.write("class P\ntoken USED UNUSED\nrule\nstart: USED\nend\n")
+      grammar.flush
+
+      visible = StringIO.new
+      assert_equal 0, Ibex::CLI.start(["-C", "--warnings=all", grammar.path],
+                                      stdout: StringIO.new, stderr: visible)
+      assert_match(/:2:1: warning: unused terminal UNUSED/, visible.string)
+
+      promoted = StringIO.new
+      assert_equal 1, Ibex::CLI.start(["-C", "--warnings=all,error", grammar.path],
+                                      stdout: StringIO.new, stderr: promoted)
+      assert_match(/:2:1: warning treated as error: unused terminal UNUSED/, promoted.string)
+    end
+  end
+
+  def test_strict_warnings_detect_an_empty_language
+    Tempfile.create(["empty-language", ".y"]) do |grammar|
+      grammar.write("class P\nrule\nstart: loop\nloop: start\nend\n")
+      grammar.flush
+      errors = StringIO.new
+      status = Ibex::CLI.start(["-C", "--warnings=error", grammar.path], stdout: StringIO.new, stderr: errors)
+      assert_equal 1, status
+      assert_includes errors.string, "start symbol start derives no terminal sentence"
+    end
+  end
+
   def test_report_executable_and_superclass_options
     with_grammar do |grammar|
       Tempfile.create(["report", ".output"]) do |report|
