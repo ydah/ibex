@@ -16,6 +16,7 @@ module Ibex
   #     mode: Symbol,
   #     table: Symbol,
   #     line_convert: bool,
+  #     ?line_convert_all: bool,
   #     counterexample_max_tokens: Integer,
   #     counterexample_max_configurations: Integer,
   #     ?from: String,
@@ -135,8 +136,14 @@ module Ibex
     # @rbs (OptionParser options) -> void
     def add_compatibility_options(options)
       options.on("-F", "--frozen", "emit frozen string literals") { @options[:frozen] = true }
-      options.on("--line-convert-all", "convert all source lines") { @options[:line_convert] = true }
-      options.on("-l", "--no-line-convert", "use generated-file action lines") { @options[:line_convert] = false }
+      options.on("--line-convert-all", "convert all source lines") do
+        @options[:line_convert] = true
+        @options[:line_convert_all] = true
+      end
+      options.on("-l", "--no-line-convert", "use generated-file action lines") do
+        @options[:line_convert] = false
+        @options[:line_convert_all] = false
+      end
       options.on("-a", "--no-omit-actions", "generate implicit action methods") { @options[:omit_actions] = false }
       options.on("--superclass=CLASS", "override parser superclass") { |value| @options[:superclass] = value }
       options.on("-C", "--check-only", "check grammar and exit") { @options[:check_only] = true }
@@ -267,6 +274,7 @@ module Ibex
       source = Codegen::Ruby.new(
         automaton, table: @options[:table], embedded: @options.fetch(:embedded, false),
                    line_convert: @options.fetch(:line_convert), debug: @options.fetch(:debug, false),
+                   line_convert_all: @options.fetch(:line_convert_all, false),
                    omit_action_call: @options[:omit_actions], superclass: @options[:superclass],
                    executable: @options[:executable]
       ).generate

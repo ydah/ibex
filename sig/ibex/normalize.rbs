@@ -84,6 +84,9 @@ module Ibex
     # @rbs () -> Hash[String, String]
     def normalized_user_code: () -> Hash[String, String]
 
+    # @rbs () -> IR::user_code_chunks
+    def normalized_user_code_chunks: () -> IR::user_code_chunks
+
     # @rbs (Frontend::Location location, String message) -> bot
     def fail_at: (Frontend::Location location, String message) -> bot
 

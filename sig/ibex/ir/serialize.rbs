@@ -32,6 +32,10 @@ module Ibex
 
       private def self.load_production: (untyped production) -> untyped
 
+      private def load_user_code_chunks: (untyped chunks) -> untyped
+
+      private def self.load_user_code_chunks: (untyped chunks) -> untyped
+
       private def symbolize: (untyped value) -> untyped
 
       private def self.symbolize: (untyped value) -> untyped

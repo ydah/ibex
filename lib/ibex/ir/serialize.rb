@@ -21,6 +21,8 @@ module Ibex
       #   private def self.normalize_action: (untyped value) -> untyped
       #   private def load_production: (untyped production) -> untyped
       #   private def self.load_production: (untyped production) -> untyped
+      #   private def load_user_code_chunks: (untyped chunks) -> untyped
+      #   private def self.load_user_code_chunks: (untyped chunks) -> untyped
       #   private def symbolize: (untyped value) -> untyped
       #   private def self.symbolize: (untyped value) -> untyped
 
@@ -57,6 +59,7 @@ module Ibex
 
       # @rbs skip
       def load_grammar(data)
+        empty_chunks = {} #: Hash[String, untyped]
         symbols = data.fetch("symbols").map do |symbol|
           GrammarSymbol.new(id: symbol.fetch("id"), name: symbol.fetch("name"), kind: symbol.fetch("kind"),
                             reserved: symbol.fetch("reserved"), precedence: symbolize(symbol["prec"]),
@@ -66,7 +69,8 @@ module Ibex
         Grammar.new(class_name: data.fetch("class_name"), superclass: data["superclass"], start: data.fetch("start"),
                     expect: data.fetch("expect"), options: symbolize(data.fetch("options")), symbols: symbols,
                     productions: productions, user_code: data.fetch("user_code"),
-                    conversions: data.fetch("conversions"), warnings: symbolize(data.fetch("warnings")))
+                    conversions: data.fetch("conversions"), warnings: symbolize(data.fetch("warnings")),
+                    user_code_chunks: load_user_code_chunks(data.fetch("user_code_chunks", empty_chunks)))
       end
 
       # @rbs skip
@@ -121,6 +125,16 @@ module Ibex
       end
 
       # @rbs skip
+      def load_user_code_chunks(chunks)
+        chunks.to_h do |name, values|
+          loaded = values.map do |value|
+            UserCodeChunk.new(code: value.fetch("code"), location: symbolize(value.fetch("loc")))
+          end
+          [name, loaded]
+        end
+      end
+
+      # @rbs skip
       def symbolize(value)
         case value
         when Array then value.map { |item| symbolize(item) }
@@ -129,11 +143,11 @@ module Ibex
         end
       end
       module_function :validate_version, :load_grammar, :load_automaton, :load_state, :symbol_keyed,
-                      :normalize_action, :load_production, :symbolize
+                      :normalize_action, :load_production, :load_user_code_chunks, :symbolize
 
       class << self
         private :validate_version, :load_grammar, :load_automaton, :load_state, :symbol_keyed,
-                :normalize_action, :load_production, :symbolize
+                :normalize_action, :load_production, :load_user_code_chunks, :symbolize
       end
     end
   end

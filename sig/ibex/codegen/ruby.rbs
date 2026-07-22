@@ -12,6 +12,8 @@ module Ibex
 
       @debug: bool
 
+      @line_convert_all: bool
+
       @line_convert: bool
 
       @embedded: bool
@@ -22,9 +24,10 @@ module Ibex
 
       @automaton: IR::Automaton
 
-      # @rbs (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool, ?debug: bool,
-      #   ?omit_action_call: bool?, ?superclass: String?, ?executable: String?) -> void
-      def initialize: (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?, ?executable: String?) -> void
+      # @rbs (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool,
+      #   ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?,
+      #   ?executable: String?) -> void
+      def initialize: (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool, ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?, ?executable: String?) -> void
 
       # @rbs () -> String
       def generate: () -> String
@@ -75,6 +78,9 @@ module Ibex
 
       # @rbs (Array[String] lines, String name, ?indent: Integer) -> void
       def append_user_code: (Array[String] lines, String name, ?indent: Integer) -> void
+
+      # @rbs (String name) -> bool
+      def map_user_code?: (String name) -> bool
 
       # @rbs () -> [Array[String], String]
       def class_parts: () -> [ Array[String], String ]

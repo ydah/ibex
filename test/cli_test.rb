@@ -2,6 +2,8 @@
 
 require_relative "test_helper"
 require "stringio"
+require "open3"
+require "rbconfig"
 require "tempfile"
 require "tmpdir"
 
@@ -115,6 +117,20 @@ class CLITest < Minitest::Test
     end
   end
 
+  def test_line_convert_all_maps_footer_to_the_grammar_file
+    Tempfile.create(["line-convert-all", ".y"]) do |grammar|
+      Tempfile.create(["line-convert-all-parser", ".rb"]) do |output|
+        grammar.write("class P\nrule\nstart:\nend\n---- footer\nraise 'footer'\n")
+        grammar.flush
+        run_cli(["--line-convert-all", "-o", output.path, grammar.path])
+
+        _stdout, stderr, status = Open3.capture3(RbConfig.ruby, "-I#{File.expand_path('../lib', __dir__)}", output.path)
+        refute status.success?
+        assert_includes stderr, "#{grammar.path}:6"
+      end
+    end
+  end
+
   def test_help_lists_compatible_options
     output = StringIO.new
     assert_equal 0, Ibex::CLI.start(["--help"], stdout: output, stderr: StringIO.new)
@@ -144,6 +160,31 @@ class CLITest < Minitest::Test
           end
         end
       end
+    end
+  end
+
+  def test_line_convert_all_is_stable_when_resuming_from_grammar_ir
+    Dir.mktmpdir("ibex-line-convert-ir") do |directory|
+      grammar = File.join(directory, "grammar.y")
+      grammar_ir = File.join(directory, "grammar.json")
+      direct = File.join(directory, "direct.rb")
+      resumed = File.join(directory, "resumed.rb")
+      File.write(grammar, <<~GRAMMAR)
+        class P
+        rule
+        start: TOKEN
+        end
+        ---- inner
+        def marker = :inner
+        ---- footer
+        FOOTER_MARKER = true
+      GRAMMAR
+
+      File.write(grammar_ir, capture_cli(["--emit=grammar-ir", grammar]))
+      run_cli(["--line-convert-all", "-o", direct, grammar])
+      run_cli(["--line-convert-all", "--from=grammar-ir", "-o", resumed, grammar_ir])
+
+      assert_equal File.read(direct), File.read(resumed)
     end
   end
 

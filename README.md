@@ -121,6 +121,9 @@ reopening the generated class in an application RBS file.
 
 `--warnings=all` prints unused terminals, unreachable nonterminals, duplicate productions, undeclared terminals, and empty-language
 diagnostics. Add `error` (`--warnings=all,error`, or simply `--warnings=error`) to make any such diagnostic fail the command.
+Action exceptions and `inner` methods point back to their `.y` lines by default. `--line-convert-all` extends that mapping to
+`header` and `footer`; `-l` disables every source-line conversion. User-code chunk locations survive Grammar/Automaton IR JSON
+round trips, so resumed generation has the same backtraces as direct generation.
 
 ## Documentation
 

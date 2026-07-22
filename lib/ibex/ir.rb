@@ -11,6 +11,7 @@ module Ibex
     #   type location = { file: String, line: Integer, column: Integer }
     #   type precedence = { associativity: Symbol, level: Integer }
     #   type named_ref = { name: String, index: Integer }
+    #   type user_code_chunks = Hash[String, Array[UserCodeChunk]]
     #   type grammar_options = { result_var: bool, omit_action_call: bool }
     #   type grammar_warning = {
     #     type: Symbol,

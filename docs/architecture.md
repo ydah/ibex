@@ -42,6 +42,7 @@ Top-level fields:
 | `symbols` | Interned terminals and nonterminals; `$eof` id 0 and `error` id 1 |
 | `productions` | Numeric LHS/RHS ids, action, precedence override, source origin |
 | `user_code`, `conversions`, `warnings` | Concatenated code, external token expressions, structured diagnostics |
+| `user_code_chunks` | Optional opaque chunks with first-code-line locations for compatible source mapping |
 
 Warning records use stable type names (`undeclared_terminal`, `unused_terminal`, `unreachable_nonterminal`,
 `duplicate_production`, and `empty_language`) and retain source locations. The CLI applies display/error policy at the boundary;
@@ -52,7 +53,8 @@ A symbol has `id`, `name`, `kind`, `reserved`, optional `prec {associativity, le
 and `context_length`; middle-action helpers use the last field to view preceding stack values.
 
 IR objects and nested collections are frozen. JSON keys have deterministic order, so dump/load/dump is byte-stable. Incompatible
-schema changes require a new version.
+schema changes require a new version. The additive `user_code_chunks` field is optional so older schema-v1 JSON remains loadable;
+new text-front-end IR retains it to make direct and resumed `--line-convert-all` generation identical.
 
 ## Automaton IR v1
 

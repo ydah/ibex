@@ -55,6 +55,9 @@ Actions are opaque Ruby between balanced braces. `val` contains RHS values, `res
 of the surrounding value stack. With `no_result_var`, the action's evaluated value is used directly. A middle action becomes an
 empty helper production and consumes one value position in the enclosing RHS.
 
+Action and `inner` backtraces use the original grammar filename and line by default. `--line-convert-all` applies the same mapping
+to `header` and `footer`; `-l` keeps all backtraces on generated-file lines.
+
 The action scanner handles nested braces, quoted/backtick strings and interpolation, `%q/%Q/%w/%W/%i/%I/%x/%r/%s`, regular
 expressions, comments, character literals, and unquoted, single-quoted, double-quoted, or backtick heredocs. Indented, squiggly,
 interpolated, and multiple heredocs on one opener line are supported. See [lexer coverage](lexer-coverage.md).

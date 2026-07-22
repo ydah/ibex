@@ -93,6 +93,40 @@ class NormalizerTest < Minitest::Test
     assert_equal "HEADER\nMORE\n", grammar.user_code["header"]
   end
 
+  def test_preserves_each_user_code_chunk_location_through_ir
+    grammar = normalize(<<~GRAMMAR)
+      class P
+      rule
+      start: TOKEN
+      end
+      ---- header
+      HEADER
+      ---- header
+      MORE
+    GRAMMAR
+    chunks = grammar.user_code_chunks["header"]
+    assert_equal %W[HEADER\n MORE\n], chunks.map(&:code)
+    chunk_lines = chunks.map { |chunk| chunk.location[:line] }
+    assert_equal [6, 8], chunk_lines
+
+    dumped = Ibex::IR::Serialize.dump(grammar)
+    loaded = Ibex::IR::Serialize.load(dumped)
+    assert_equal dumped, Ibex::IR::Serialize.dump(loaded)
+    loaded_lines = loaded.user_code_chunks["header"].map { |chunk| chunk.location[:line] }
+    assert_equal [6, 8], loaded_lines
+  end
+
+  def test_loads_schema_v1_grammar_without_user_code_chunks
+    grammar = normalize("class P\nrule\nstart: TOKEN\nend\n")
+    data = JSON.parse(Ibex::IR::Serialize.dump(grammar))
+    data.delete("user_code_chunks")
+
+    loaded = Ibex::IR::Serialize.load(JSON.generate(data))
+
+    assert_empty loaded.user_code_chunks
+    refute_includes Ibex::IR::Serialize.dump(loaded), "user_code_chunks"
+  end
+
   def test_rejects_undefined_nonterminal_and_bad_named_references
     error = assert_raises(Ibex::Error) { normalize("class P\nrule\nstart: missing\nend\n") }
     assert_equal "normalize.y:3:8: undefined nonterminal missing", error.message
