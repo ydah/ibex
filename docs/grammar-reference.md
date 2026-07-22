@@ -56,8 +56,8 @@ of the surrounding value stack. With `no_result_var`, the action's evaluated val
 empty helper production and consumes one value position in the enclosing RHS.
 
 The action scanner handles nested braces, quoted/backtick strings and interpolation, `%q/%Q/%w/%W/%i/%I/%x/%r/%s`, regular
-expressions, comments, character literals, and basic unquoted `<<ID`, `<<-ID`, and `<<~ID` heredocs. Unsupported quoted or
-dynamic heredoc identifiers fail with a source position. See [lexer coverage](lexer-coverage.md).
+expressions, comments, character literals, and unquoted, single-quoted, double-quoted, or backtick heredocs. Indented, squiggly,
+interpolated, and multiple heredocs on one opener line are supported. See [lexer coverage](lexer-coverage.md).
 
 ## Extended EBNF and names
 
@@ -70,8 +70,10 @@ Extended mode supports:
 - `separated_nonempty_list(item, separator)`: one or more item values.
 - `symbol:name`: binds the corresponding RHS value as a local variable in the final action.
 
-Nested grouped EBNF expressions are intentionally unsupported; name a nonterminal and apply the suffix to it. Named references
-must be unique in an alternative and cannot use `result`, `val`, or `_values`.
+Parenthesized groups may contain sequences, alternatives, and nested EBNF, for example `(KEY VALUE)*`, `(A | B)+`, or
+`separated_list((KEY VALUE), ',')`. A one-item group has that item's value; a multi-item group has an Array of its item values;
+an empty group has `nil`. Named references must be unique in an outer alternative and cannot use `result`, `val`, or `_values`;
+references inside a group are rejected because the group is lowered behind one outer value slot.
 
 ## Strict diagnostics
 

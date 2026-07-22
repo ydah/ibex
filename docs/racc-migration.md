@@ -38,7 +38,6 @@ Ibex defaults to `<input>.rb`; racc 1.8.1 was observed to default to `<input>.ta
 - `.output` report formatting is independent and contains additional resolved-conflict and witness data.
 - An undeclared invalid token was observed to enter racc's `error` production without `on_error`; Ibex currently reports the
   unknown lookahead through `on_error`. Declared invalid tokens match in the black-box recovery probe.
-- Quoted/dynamic heredoc action forms outside [documented lexer coverage](lexer-coverage.md) fail explicitly.
 - `require "racc/parser"` replacement and previously generated racc parser table compatibility are out of scope.
 
 See [compatibility observations](compat-notes.md) for the tested version and probe set.

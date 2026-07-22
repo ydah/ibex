@@ -49,6 +49,20 @@ class NormalizerTest < Minitest::Test
     assert_includes origins, :separated_list_expansion
   end
 
+  def test_desugars_nested_grouped_ebnf
+    grammar = normalize("class P\nrule\nstart: ((A B) | C)+\nend\n", mode: :extended)
+    origins = grammar.productions.map { |production| production.origin[:kind] }
+    assert_operator origins.count(:group_expansion), :>=, 3
+    assert_includes origins, :plus_expansion
+  end
+
+  def test_rejects_named_references_hidden_inside_groups
+    error = assert_raises(Ibex::Error) do
+      normalize("class P\nrule\nstart: ((A:name B) | C)+\nend\n", mode: :extended)
+    end
+    assert_match(/named references inside EBNF groups are not supported/, error.message)
+  end
+
   def test_options_precedence_conversions_and_user_code
     grammar = normalize(<<~GRAMMAR)
       class P

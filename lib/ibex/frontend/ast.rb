@@ -42,6 +42,7 @@ module Ibex
       Optional = Struct.new(:item, :loc, keyword_init: true) { include Node }
       Star = Struct.new(:item, :loc, keyword_init: true) { include Node }
       Plus = Struct.new(:item, :loc, keyword_init: true) { include Node }
+      Group = Struct.new(:alternatives, :loc, keyword_init: true) { include Node }
       SeparatedList = Struct.new(:item, :separator, :nonempty, :loc, keyword_init: true) { include Node }
       UserCode = Struct.new(:name, :code, :loc, keyword_init: true) { include Node }
     end

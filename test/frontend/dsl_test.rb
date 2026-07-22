@@ -47,6 +47,19 @@ class FrontendDSLTest < Minitest::Test
     assert(grammar.productions.any? { |production| production.origin[:kind] == :star_expansion })
   end
 
+  def test_dsl_supports_nested_groups
+    ast = Ibex::Frontend::DSL.grammar(class_name: "DSLGroup") do |grammar|
+      grammar.rule(:start) do |rule|
+        pair = grammar.group(%i[A B])
+        rule.alt(grammar.plus(grammar.group([pair], [:C])))
+      end
+    end
+    grammar = Ibex::Normalizer.new(ast, mode: :extended).normalize
+    origins = grammar.productions.map { |production| production.origin[:kind] }
+    assert_operator origins.count(:group_expansion), :>=, 3
+    assert_includes origins, :plus_expansion
+  end
+
   def test_dsl_supports_convert_options_and_user_code
     ast = Ibex::Frontend::DSL.grammar(class_name: "Configured") do |grammar|
       grammar.token(:NUM)

@@ -163,6 +163,36 @@ class RubyCodegenTest < Minitest::Test
     assert_equal 7, parser_class.new.parse_tokens([[:NUM, 3], ["+", nil], [:NUM, 4]])
   end
 
+  def test_nested_grouped_ebnf_preserves_group_values
+    source = <<~GRAMMAR
+      class GroupedParser
+      rule
+      start: ((A B) | C)+
+      end
+      ---- inner
+      def parse_tokens(tokens) = (@tokens = tokens; do_parse)
+      def next_token = @tokens.shift
+    GRAMMAR
+    parser_class = evaluate(generate(source, mode: :extended), "GroupedParser")
+    tokens = [[:A, 1], [:B, 2], [:C, 3], [:A, 4], [:B, 5]]
+    assert_equal [[1, 2], 3, [4, 5]], parser_class.new.parse_tokens(tokens)
+  end
+
+  def test_separated_list_accepts_a_grouped_item
+    source = <<~GRAMMAR
+      class GroupedListParser
+      rule
+      start: separated_list((KEY VALUE), ',')
+      end
+      ---- inner
+      def parse_tokens(tokens) = (@tokens = tokens; do_parse)
+      def next_token = @tokens.shift
+    GRAMMAR
+    parser_class = evaluate(generate(source, mode: :extended), "GroupedListParser")
+    tokens = [%i[KEY a], [:VALUE, 1], [",", nil], %i[KEY b], [:VALUE, 2]]
+    assert_equal [[:a, 1], [:b, 2]], parser_class.new.parse_tokens(tokens)
+  end
+
   private
 
   def extended_parser_source(class_name, expression)

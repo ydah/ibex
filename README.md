@@ -88,11 +88,12 @@ rule
   maybe     : NUM?
   many      : NUM*
   some      : NUM+
+  pairs     : (KEY VALUE)*
 end
 ```
 
 The value conventions are `nil` or a value for `?`, and arrays for `*`, `+`, `separated_list`, and
-`separated_nonempty_list`.
+`separated_nonempty_list`. Parenthesized sequences and alternatives can be nested; multi-item groups produce an Array value.
 
 ## Pipeline and diagnostics
 

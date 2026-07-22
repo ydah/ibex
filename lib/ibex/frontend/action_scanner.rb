@@ -9,6 +9,7 @@ module Ibex
 
       def initialize(cursor)
         @cursor = cursor
+        @pending_heredocs = []
       end
 
       def scan
@@ -29,6 +30,12 @@ module Ibex
 
       def scan_code(depth)
         until @cursor.eof?
+          if @cursor.peek == "\n" && @pending_heredocs.any?
+            @cursor.advance
+            scan_pending_heredocs
+            next
+          end
+
           index = @cursor.index
           scan_special_character
           next if @cursor.index != index
@@ -158,23 +165,58 @@ module Ibex
       end
 
       def scan_heredoc
-        unsupported = @cursor.rest.match?(/\A<<[~-]?["']/)
-        raise Ibex::Error, "#{@cursor.location}: quoted heredoc identifiers are not supported" if unsupported
+        opener = heredoc_opener
+        return unless opener
 
-        match = @cursor.rest.match(/\A<<([~-]?)([A-Za-z_]\w*)[ \t]*(?:\r?\n)/)
-        return unless match
+        @cursor.advance(opener[:length])
+        @pending_heredocs << opener
+      end
 
-        indentation, identifier = match.captures
-        @cursor.advance(match[0].length)
+      def heredoc_opener
+        prefix = @cursor.rest.match(/\A<<([~-]?)/)
+        return unless prefix
+
+        quote = @cursor.rest[prefix[0].length]
+        identifier, length = if ["'", '"', "`"].include?(quote)
+                               quoted_heredoc_identifier(prefix[0], quote)
+                             else
+                               bare_heredoc_identifier(prefix[0])
+                             end
+        return unless identifier
+
+        { identifier: identifier, indented: !prefix[1].empty?, length: length, location: @cursor.location }
+      end
+
+      def quoted_heredoc_identifier(prefix, quote)
+        start = prefix.length + 1
+        finish = @cursor.rest.index(quote, start)
+        return unless finish
+        return if @cursor.rest[start...finish].match?(/[\r\n]/)
+
+        [@cursor.rest[start...finish], finish + 1]
+      end
+
+      def bare_heredoc_identifier(prefix)
+        identifier = @cursor.rest[prefix.length..].match(/\A[A-Za-z_]\w*/)&.[](0)
+        [identifier, prefix.length + identifier.to_s.length]
+      end
+
+      def scan_pending_heredocs
+        @pending_heredocs.shift.then { |heredoc| scan_heredoc_body(heredoc) } until @pending_heredocs.empty?
+      end
+
+      def scan_heredoc_body(heredoc)
+        identifier = heredoc[:identifier]
         escaped_identifier = Regexp.escape(identifier)
-        terminator = indentation.empty? ? /^#{escaped_identifier}\r?$/ : /^[ \t]*#{escaped_identifier}\r?$/
+        prefix = heredoc[:indented] ? "[ \\t]*" : ""
+        terminator = /\A#{prefix}#{escaped_identifier}\r?\z/
         until @cursor.eof?
           line = @cursor.rest[/\A[^\n]*(?:\n|\z)/]
           content = line.delete_suffix("\n")
           @cursor.advance(line.length)
           return if content.match?(terminator)
         end
-        raise Ibex::Error, "#{@cursor.location}: unterminated heredoc #{identifier}"
+        raise Ibex::Error, "#{heredoc[:location]}: unterminated heredoc #{identifier}"
       end
     end
   end

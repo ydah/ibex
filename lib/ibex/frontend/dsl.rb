@@ -73,6 +73,11 @@ module Ibex
         def star(item) = AST::Star.new(item: normalize_item(item), loc: next_location)
         def plus(item) = AST::Plus.new(item: normalize_item(item), loc: next_location)
 
+        def group(*alternatives)
+          normalized = alternatives.map { |alternative| Array(alternative).map { |item| normalize_item(item) } }
+          AST::Group.new(alternatives: normalized, loc: next_location)
+        end
+
         def separated_list(item, separator, nonempty: false)
           AST::SeparatedList.new(item: normalize_item(item), separator: normalize_item(separator),
                                  nonempty: nonempty, loc: next_location)
