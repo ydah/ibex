@@ -5,6 +5,7 @@ module Ibex
   module NormalizeExpander
     private
 
+    # @rbs () -> void
     def normalize_user_productions
       # @type self: Normalizer
       @ast.rules.each do |rule|
@@ -12,10 +13,11 @@ module Ibex
       end
     end
 
+    # @rbs (Frontend::AST::Rule rule, Frontend::AST::Alternative alternative) -> void
     def normalize_alternative(rule, alternative)
       # @type self: Normalizer
-      rhs = [] #: Array[untyped]
-      named_refs = [] #: Array[untyped]
+      rhs = [] #: Array[String]
+      named_refs = [] #: Array[IR::named_ref]
       alternative.items.each do |item|
         if item.is_a?(Frontend::AST::InlineAction)
           rhs << expand_inline_action(item, rhs.length, named_refs)
@@ -30,6 +32,7 @@ module Ibex
                      { kind: :user, loc: alternative.loc.to_h })
     end
 
+    # @rbs (Frontend::AST::item item) -> String
     def normalize_item(item)
       # @type self: Normalizer
       return symbol_for_reference(item).name if item.is_a?(Frontend::AST::SymbolReference)
@@ -42,6 +45,7 @@ module Ibex
       fail_at(item.loc, "unsupported nested EBNF expression")
     end
 
+    # @rbs (Frontend::AST::InlineAction item, Integer context_length, Array[IR::named_ref] named_refs) -> String
     def expand_inline_action(item, context_length, named_refs)
       # @type self: Normalizer
       helper = new_helper("inline", item.loc)
@@ -51,6 +55,7 @@ module Ibex
       helper
     end
 
+    # @rbs (Frontend::AST::Optional item) -> String
     def expand_optional(item)
       # @type self: Normalizer
       base = normalize_item(item.item)
@@ -60,6 +65,7 @@ module Ibex
       helper
     end
 
+    # @rbs (Frontend::AST::Star item) -> String
     def expand_star(item)
       # @type self: Normalizer
       base = normalize_item(item.item)
@@ -70,6 +76,7 @@ module Ibex
       helper
     end
 
+    # @rbs (Frontend::AST::Plus item) -> String
     def expand_plus(item)
       # @type self: Normalizer
       base = normalize_item(item.item)
@@ -80,6 +87,7 @@ module Ibex
       helper
     end
 
+    # @rbs (Frontend::AST::SeparatedList item) -> String
     def expand_separated_list(item)
       # @type self: Normalizer
       base = normalize_item(item.item)
@@ -95,6 +103,7 @@ module Ibex
       helper
     end
 
+    # @rbs (Frontend::AST::Group item) -> String
     def expand_group(item)
       # @type self: Normalizer
       reject_group_named_references(item)
@@ -107,6 +116,7 @@ module Ibex
       helper
     end
 
+    # @rbs (Integer length) -> String
     def group_value_expression(length)
       # @type self: Normalizer
       return "nil" if length.zero?
@@ -115,23 +125,29 @@ module Ibex
       "val"
     end
 
+    # @rbs (Frontend::AST::Group group) -> void
     def reject_group_named_references(group)
       # @type self: Normalizer
       reference = group.alternatives.flatten.filter_map { |item| named_reference_in(item) }.first
       fail_at(reference.loc, "named references inside EBNF groups are not supported") if reference
     end
 
+    # @rbs (Frontend::AST::item item) -> Frontend::AST::SymbolReference?
     def named_reference_in(item)
       # @type self: Normalizer
       return item if item.is_a?(Frontend::AST::SymbolReference) && item.named_reference
       if item.is_a?(Frontend::AST::Group)
         return item.alternatives.flatten.filter_map { |child| named_reference_in(child) }.first
       end
-      return named_reference_in(item.item) if item.respond_to?(:item)
+      if item.is_a?(Frontend::AST::Optional) || item.is_a?(Frontend::AST::Star) ||
+         item.is_a?(Frontend::AST::Plus) || item.is_a?(Frontend::AST::SeparatedList)
+        return named_reference_in(item.item)
+      end
 
       nil
     end
 
+    # @rbs (String kind, Frontend::Location location) -> String
     def new_helper(kind, location)
       # @type self: Normalizer
       @helper_sequence += 1
@@ -140,17 +156,20 @@ module Ibex
       name
     end
 
+    # @rbs (String expression, Frontend::Location location) -> IR::Action
     def synthetic_action(expression, location)
       # @type self: Normalizer
       code = @options[:result_var] ? " result = #{expression} " : " #{expression} "
       IR::Action.new(code: code, location: location.to_h)
     end
 
+    # @rbs (Symbol kind, Frontend::AST::item item) -> Hash[Symbol, untyped]
     def synthetic_origin(kind, item)
       # @type self: Normalizer
       { kind: :"#{kind}_expansion", loc: item.loc.to_h }
     end
 
+    # @rbs (Frontend::AST::InlineAction? action, Array[IR::named_ref] named_refs) -> IR::Action?
     def normalize_action(action, named_refs)
       # @type self: Normalizer
       return nil unless action
@@ -158,25 +177,34 @@ module Ibex
       IR::Action.new(code: action.code, location: action.loc.to_h, named_refs: named_refs)
     end
 
+    # @rbs (Frontend::AST::item item, Array[IR::named_ref] refs, Integer index) -> void
     def add_named_reference(item, refs, index)
       # @type self: Normalizer
       reference = unwrap_reference(item)
-      return unless reference&.named_reference
+      return unless reference
 
       name = reference.named_reference
+      return unless name
+
       fail_at(reference.loc, "reserved named reference #{name}") if Normalizer::RESERVED_NAMES.include?(name)
       fail_at(reference.loc, "duplicate named reference #{name}") if refs.any? { |entry| entry[:name] == name }
       refs << { name: name, index: index }
     end
 
+    # @rbs (Frontend::AST::item item) -> Frontend::AST::SymbolReference?
     def unwrap_reference(item)
       # @type self: Normalizer
       return item if item.is_a?(Frontend::AST::SymbolReference)
-      return unwrap_reference(item.item) if item.respond_to?(:item)
+      if item.is_a?(Frontend::AST::Optional) || item.is_a?(Frontend::AST::Star) ||
+         item.is_a?(Frontend::AST::Plus) || item.is_a?(Frontend::AST::SeparatedList)
+        return unwrap_reference(item.item)
+      end
 
       nil
     end
 
+    # @rbs (String lhs_name, Array[String] rhs_names, IR::Action? action, String? precedence_name,
+    #   Hash[Symbol, untyped] origin) -> void
     def add_production(lhs_name, rhs_names, action, precedence_name, origin)
       # @type self: Normalizer
       lhs = symbol(lhs_name) || intern(lhs_name, :nonterminal, location: origin[:loc])

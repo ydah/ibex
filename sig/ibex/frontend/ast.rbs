@@ -4,6 +4,12 @@ module Ibex
   module Frontend
     # Grammar frontend node types.
     module AST
+      type declaration = Tokens | Precedence | Options | Expect | Start | Convert
+
+      type item = SymbolReference | InlineAction | Optional | Star | Plus | Group | SeparatedList
+
+      type user_code = Hash[String, Array[UserCode]]
+
       # Adds deterministic, recursively serializable hashes to Struct nodes.
       # @rbs module-self Struct[untyped]
       module Node : Struct[untyped]
@@ -14,203 +20,203 @@ module Ibex
         def serialize: (untyped value) -> untyped
       end
 
-      class Root < Struct[untyped]
-        attr_accessor class_name(): untyped
+      class Root < Struct[String | String? | Array[declaration] | Array[Rule] | user_code | Location]
+        attr_accessor class_name(): String
 
-        attr_accessor superclass(): untyped
+        attr_accessor superclass(): String?
 
-        attr_accessor declarations(): untyped
+        attr_accessor declarations(): Array[declaration]
 
-        attr_accessor rules(): untyped
+        attr_accessor rules(): Array[Rule]
 
-        attr_accessor user_code(): untyped
+        attr_accessor user_code(): user_code
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?class_name: untyped, ?superclass: untyped, ?declarations: untyped, ?rules: untyped, ?user_code: untyped, ?loc: untyped) -> instance
-                    | ({ ?class_name: untyped, ?superclass: untyped, ?declarations: untyped, ?rules: untyped, ?user_code: untyped, ?loc: untyped }) -> instance
+        def self.new: (?class_name: String, ?superclass: String?, ?declarations: Array[declaration], ?rules: Array[Rule], ?user_code: user_code, ?loc: Location) -> instance
+                    | ({ ?class_name: String, ?superclass: String?, ?declarations: Array[declaration], ?rules: Array[Rule], ?user_code: user_code, ?loc: Location }) -> instance
       end
 
-      class Tokens < Struct[untyped]
-        attr_accessor names(): untyped
+      class Tokens < Struct[Array[String] | Location]
+        attr_accessor names(): Array[String]
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?names: untyped, ?loc: untyped) -> instance
-                    | ({ ?names: untyped, ?loc: untyped }) -> instance
+        def self.new: (?names: Array[String], ?loc: Location) -> instance
+                    | ({ ?names: Array[String], ?loc: Location }) -> instance
       end
 
-      class Precedence < Struct[untyped]
-        attr_accessor direction(): untyped
+      class Precedence < Struct[Symbol | Array[PrecedenceLevel] | Location]
+        attr_accessor direction(): Symbol
 
-        attr_accessor levels(): untyped
+        attr_accessor levels(): Array[PrecedenceLevel]
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?direction: untyped, ?levels: untyped, ?loc: untyped) -> instance
-                    | ({ ?direction: untyped, ?levels: untyped, ?loc: untyped }) -> instance
+        def self.new: (?direction: Symbol, ?levels: Array[PrecedenceLevel], ?loc: Location) -> instance
+                    | ({ ?direction: Symbol, ?levels: Array[PrecedenceLevel], ?loc: Location }) -> instance
       end
 
-      class PrecedenceLevel < Struct[untyped]
-        attr_accessor associativity(): untyped
+      class PrecedenceLevel < Struct[Symbol | Array[String] | Location]
+        attr_accessor associativity(): Symbol
 
-        attr_accessor symbols(): untyped
+        attr_accessor symbols(): Array[String]
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?associativity: untyped, ?symbols: untyped, ?loc: untyped) -> instance
-                    | ({ ?associativity: untyped, ?symbols: untyped, ?loc: untyped }) -> instance
+        def self.new: (?associativity: Symbol, ?symbols: Array[String], ?loc: Location) -> instance
+                    | ({ ?associativity: Symbol, ?symbols: Array[String], ?loc: Location }) -> instance
       end
 
-      class Options < Struct[untyped]
-        attr_accessor names(): untyped
+      class Options < Struct[Array[String] | Location]
+        attr_accessor names(): Array[String]
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?names: untyped, ?loc: untyped) -> instance
-                    | ({ ?names: untyped, ?loc: untyped }) -> instance
+        def self.new: (?names: Array[String], ?loc: Location) -> instance
+                    | ({ ?names: Array[String], ?loc: Location }) -> instance
       end
 
-      class Expect < Struct[untyped]
-        attr_accessor conflicts(): untyped
+      class Expect < Struct[Integer | Location]
+        attr_accessor conflicts(): Integer
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?conflicts: untyped, ?loc: untyped) -> instance
-                    | ({ ?conflicts: untyped, ?loc: untyped }) -> instance
+        def self.new: (?conflicts: Integer, ?loc: Location) -> instance
+                    | ({ ?conflicts: Integer, ?loc: Location }) -> instance
       end
 
-      class Start < Struct[untyped]
-        attr_accessor name(): untyped
+      class Start < Struct[String | Location]
+        attr_accessor name(): String
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?name: untyped, ?loc: untyped) -> instance
-                    | ({ ?name: untyped, ?loc: untyped }) -> instance
+        def self.new: (?name: String, ?loc: Location) -> instance
+                    | ({ ?name: String, ?loc: Location }) -> instance
       end
 
-      class Convert < Struct[untyped]
-        attr_accessor pairs(): untyped
+      class Convert < Struct[Array[Conversion] | Location]
+        attr_accessor pairs(): Array[Conversion]
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?pairs: untyped, ?loc: untyped) -> instance
-                    | ({ ?pairs: untyped, ?loc: untyped }) -> instance
+        def self.new: (?pairs: Array[Conversion], ?loc: Location) -> instance
+                    | ({ ?pairs: Array[Conversion], ?loc: Location }) -> instance
       end
 
-      class Conversion < Struct[untyped]
-        attr_accessor name(): untyped
+      class Conversion < Struct[String | Location]
+        attr_accessor name(): String
 
-        attr_accessor expression(): untyped
+        attr_accessor expression(): String
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?name: untyped, ?expression: untyped, ?loc: untyped) -> instance
-                    | ({ ?name: untyped, ?expression: untyped, ?loc: untyped }) -> instance
+        def self.new: (?name: String, ?expression: String, ?loc: Location) -> instance
+                    | ({ ?name: String, ?expression: String, ?loc: Location }) -> instance
       end
 
-      class Rule < Struct[untyped]
-        attr_accessor lhs(): untyped
+      class Rule < Struct[String | Array[Alternative] | Location]
+        attr_accessor lhs(): String
 
-        attr_accessor alternatives(): untyped
+        attr_accessor alternatives(): Array[Alternative]
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?lhs: untyped, ?alternatives: untyped, ?loc: untyped) -> instance
-                    | ({ ?lhs: untyped, ?alternatives: untyped, ?loc: untyped }) -> instance
+        def self.new: (?lhs: String, ?alternatives: Array[Alternative], ?loc: Location) -> instance
+                    | ({ ?lhs: String, ?alternatives: Array[Alternative], ?loc: Location }) -> instance
       end
 
-      class Alternative < Struct[untyped]
-        attr_accessor items(): untyped
+      class Alternative < Struct[Array[item] | InlineAction? | String? | Location]
+        attr_accessor items(): Array[item]
 
-        attr_accessor action(): untyped
+        attr_accessor action(): InlineAction?
 
-        attr_accessor precedence(): untyped
+        attr_accessor precedence(): String?
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?items: untyped, ?action: untyped, ?precedence: untyped, ?loc: untyped) -> instance
-                    | ({ ?items: untyped, ?action: untyped, ?precedence: untyped, ?loc: untyped }) -> instance
+        def self.new: (?items: Array[item], ?action: InlineAction?, ?precedence: String?, ?loc: Location) -> instance
+                    | ({ ?items: Array[item], ?action: InlineAction?, ?precedence: String?, ?loc: Location }) -> instance
       end
 
-      class SymbolReference < Struct[untyped]
-        attr_accessor name(): untyped
+      class SymbolReference < Struct[String | String? | Location]
+        attr_accessor name(): String
 
-        attr_accessor named_reference(): untyped
+        attr_accessor named_reference(): String?
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?name: untyped, ?named_reference: untyped, ?loc: untyped) -> instance
-                    | ({ ?name: untyped, ?named_reference: untyped, ?loc: untyped }) -> instance
+        def self.new: (?name: String, ?named_reference: String?, ?loc: Location) -> instance
+                    | ({ ?name: String, ?named_reference: String?, ?loc: Location }) -> instance
       end
 
-      class InlineAction < Struct[untyped]
-        attr_accessor code(): untyped
+      class InlineAction < Struct[String | Location]
+        attr_accessor code(): String
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?code: untyped, ?loc: untyped) -> instance
-                    | ({ ?code: untyped, ?loc: untyped }) -> instance
+        def self.new: (?code: String, ?loc: Location) -> instance
+                    | ({ ?code: String, ?loc: Location }) -> instance
       end
 
-      class Optional < Struct[untyped]
-        attr_accessor item(): untyped
+      class Optional < Struct[item | Location]
+        attr_accessor item(): item
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?item: untyped, ?loc: untyped) -> instance
-                    | ({ ?item: untyped, ?loc: untyped }) -> instance
+        def self.new: (?item: item, ?loc: Location) -> instance
+                    | ({ ?item: item, ?loc: Location }) -> instance
       end
 
-      class Star < Struct[untyped]
-        attr_accessor item(): untyped
+      class Star < Struct[item | Location]
+        attr_accessor item(): item
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?item: untyped, ?loc: untyped) -> instance
-                    | ({ ?item: untyped, ?loc: untyped }) -> instance
+        def self.new: (?item: item, ?loc: Location) -> instance
+                    | ({ ?item: item, ?loc: Location }) -> instance
       end
 
-      class Plus < Struct[untyped]
-        attr_accessor item(): untyped
+      class Plus < Struct[item | Location]
+        attr_accessor item(): item
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?item: untyped, ?loc: untyped) -> instance
-                    | ({ ?item: untyped, ?loc: untyped }) -> instance
+        def self.new: (?item: item, ?loc: Location) -> instance
+                    | ({ ?item: item, ?loc: Location }) -> instance
       end
 
-      class Group < Struct[untyped]
-        attr_accessor alternatives(): untyped
+      class Group < Struct[Array[Array[item]] | Location]
+        attr_accessor alternatives(): Array[Array[item]]
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?alternatives: untyped, ?loc: untyped) -> instance
-                    | ({ ?alternatives: untyped, ?loc: untyped }) -> instance
+        def self.new: (?alternatives: Array[Array[item]], ?loc: Location) -> instance
+                    | ({ ?alternatives: Array[Array[item]], ?loc: Location }) -> instance
       end
 
-      class SeparatedList < Struct[untyped]
-        attr_accessor item(): untyped
+      class SeparatedList < Struct[item | bool | Location]
+        attr_accessor item(): item
 
-        attr_accessor separator(): untyped
+        attr_accessor separator(): item
 
-        attr_accessor nonempty(): untyped
+        attr_accessor nonempty(): bool
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?item: untyped, ?separator: untyped, ?nonempty: untyped, ?loc: untyped) -> instance
-                    | ({ ?item: untyped, ?separator: untyped, ?nonempty: untyped, ?loc: untyped }) -> instance
+        def self.new: (?item: item, ?separator: item, ?nonempty: bool, ?loc: Location) -> instance
+                    | ({ ?item: item, ?separator: item, ?nonempty: bool, ?loc: Location }) -> instance
       end
 
-      class UserCode < Struct[untyped]
-        attr_accessor name(): untyped
+      class UserCode < Struct[String | Location]
+        attr_accessor name(): String
 
-        attr_accessor code(): untyped
+        attr_accessor code(): String
 
-        attr_accessor loc(): untyped
+        attr_accessor loc(): Location
 
-        def self.new: (?name: untyped, ?code: untyped, ?loc: untyped) -> instance
-                    | ({ ?name: untyped, ?code: untyped, ?loc: untyped }) -> instance
+        def self.new: (?name: String, ?code: String, ?loc: Location) -> instance
+                    | ({ ?name: String, ?code: String, ?loc: Location }) -> instance
       end
     end
   end

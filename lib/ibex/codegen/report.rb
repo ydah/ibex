@@ -6,6 +6,7 @@ module Ibex
     module Report
       module_function
 
+      # @rbs (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> String
       def render(automaton, max_tokens: LALR::Counterexample::DEFAULT_MAX_TOKENS,
                  max_configurations: LALR::Counterexample::DEFAULT_MAX_CONFIGURATIONS)
         grammar = automaton.grammar
@@ -21,6 +22,8 @@ module Ibex
         "#{lines.join("\n")}\n"
       end
 
+      # @rbs (Array[String] lines, IR::AutomatonState state, IR::Grammar grammar,
+      #   Array[IR::counterexample] examples) -> void
       def append_state(lines, state, grammar, examples)
         lines << "State #{state.id}"
         state.items.each { |item| lines << "  #{format_item(item, grammar)}" }
@@ -35,6 +38,7 @@ module Ibex
       end
       private_class_method :append_state
 
+      # @rbs (Array[String] lines, IR::counterexample example) -> void
       def append_counterexample(lines, example)
         label = example[:unifying] ? "unifying counterexample" : "nonunifying witness"
         sentence = example[:sentence].dup.insert(example[:lookahead_index], "•").join(" ")
@@ -46,6 +50,7 @@ module Ibex
       end
       private_class_method :append_counterexample
 
+      # @rbs (Array[String] lines, untyped tree, String indentation) -> void
       def append_tree(lines, tree, indentation)
         unless tree.is_a?(Hash)
           lines << "#{indentation}#{tree}"
@@ -64,6 +69,7 @@ module Ibex
       end
       private_class_method :append_tree
 
+      # @rbs (IR::AutomatonItem item, IR::Grammar grammar) -> String
       def format_item(item, grammar)
         if item.production == LALR::Builder::AUGMENTED_PRODUCTION
           rhs = [grammar.start]
@@ -79,6 +85,7 @@ module Ibex
       end
       private_class_method :format_item
 
+      # @rbs (IR::parser_action action) -> String
       def format_action(action)
         case action[:type]
         when :shift then "shift #{action[:state]}"

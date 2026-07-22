@@ -4,63 +4,74 @@ module Ibex
   module IR
     # A merged LALR item with its lookahead token ids.
     class AutomatonItem
-      attr_reader production: untyped
+      attr_reader production: Integer
 
-      attr_reader dot: untyped
+      attr_reader dot: Integer
 
-      attr_reader lookaheads: untyped
+      attr_reader lookaheads: Array[Integer]
 
-      def initialize: (production: untyped, dot: untyped, lookaheads: untyped) -> untyped
+      # @rbs (production: Integer, dot: Integer, lookaheads: Array[Integer]) -> void
+      def initialize: (production: Integer, dot: Integer, lookaheads: Array[Integer]) -> void
 
-      def to_h: (untyped grammar) -> untyped
+      # @rbs (Grammar grammar) -> Hash[Symbol, untyped]
+      def to_h: (Grammar grammar) -> Hash[Symbol, untyped]
     end
 
     # A deterministic LALR automaton state.
     class AutomatonState
-      attr_reader id: untyped
+      attr_reader id: Integer
 
-      attr_reader items: untyped
+      attr_reader items: Array[AutomatonItem]
 
-      attr_reader transitions: untyped
+      attr_reader transitions: Hash[Integer, Integer]
 
-      attr_reader actions: untyped
+      attr_reader actions: Hash[Integer, parser_action]
 
-      attr_reader gotos: untyped
+      attr_reader gotos: Hash[Integer, Integer]
 
-      attr_reader default_action: untyped
+      attr_reader default_action: parser_action?
 
-      attr_reader conflicts: untyped
+      attr_reader conflicts: Array[conflict]
 
-      def initialize: (id: untyped, items: untyped, transitions: untyped, actions: untyped, gotos: untyped, ?default_action: untyped, ?conflicts: untyped) -> untyped
+      # @rbs (id: Integer, items: Array[AutomatonItem], transitions: Hash[Integer, Integer],
+      #   actions: Hash[Integer, parser_action], gotos: Hash[Integer, Integer], ?default_action: parser_action?,
+      #   ?conflicts: Array[conflict]) -> void
+      def initialize: (id: Integer, items: Array[AutomatonItem], transitions: Hash[Integer, Integer], actions: Hash[Integer, parser_action], gotos: Hash[Integer, Integer], ?default_action: parser_action?, ?conflicts: Array[conflict]) -> void
 
-      def to_h: (untyped grammar) -> untyped
+      # @rbs (Grammar grammar) -> Hash[Symbol, untyped]
+      def to_h: (Grammar grammar) -> Hash[Symbol, untyped]
 
       private
 
-      def named_keys: (untyped values, untyped grammar) -> untyped
+      # @rbs (Hash[Integer, untyped] values, Grammar grammar) -> Hash[String, untyped]
+      def named_keys: (Hash[Integer, untyped] values, Grammar grammar) -> Hash[String, untyped]
     end
 
     # Immutable LALR automaton and its source grammar.
     class Automaton
-      attr_reader algorithm: untyped
+      attr_reader algorithm: String
 
-      attr_reader grammar_digest: untyped
+      attr_reader grammar_digest: String
 
-      attr_reader grammar: untyped
+      attr_reader grammar: Grammar
 
-      attr_reader states: untyped
+      attr_reader states: Array[AutomatonState]
 
-      attr_reader conflict_summary: untyped
+      attr_reader conflict_summary: conflict_summary
 
-      attr_reader schema_version: untyped
+      attr_reader schema_version: Integer
 
-      def initialize: (grammar: untyped, states: untyped, conflict_summary: untyped, ?algorithm: untyped, ?grammar_digest: untyped, ?schema_version: untyped) -> untyped
+      # @rbs (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary,
+      #   ?algorithm: String, ?grammar_digest: String?, ?schema_version: Integer) -> void
+      def initialize: (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary, ?algorithm: String, ?grammar_digest: String?, ?schema_version: Integer) -> void
 
-      def to_h: () -> untyped
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
 
       private
 
-      def digest_for: (untyped grammar) -> untyped
+      # @rbs (Grammar grammar) -> String
+      def digest_for: (Grammar grammar) -> String
     end
   end
 end

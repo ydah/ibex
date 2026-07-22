@@ -8,10 +8,12 @@ module Ibex
     module Serialize
       module_function
 
+      # @rbs (Grammar | Automaton value) -> String
       def dump(value)
         "#{JSON.pretty_generate(value.to_h)}\n"
       end
 
+      # @rbs (String source) -> (Grammar | Automaton)
       def load(source)
         data = JSON.parse(source)
         type = data.fetch("ibex_ir") { raise Ibex::Error, "(ir):1:1: missing ibex_ir discriminator" }

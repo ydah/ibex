@@ -3,62 +3,71 @@
 module Ibex
   module Frontend
     # A source coordinate retained by frontend and IR objects.
-    class Location < Struct[untyped]
-      attr_accessor file(): untyped
+    class Location < Struct[String | Integer]
+      attr_accessor file(): String
 
-      attr_accessor line(): untyped
+      attr_accessor line(): Integer
 
-      attr_accessor column(): untyped
+      attr_accessor column(): Integer
 
-      def self.new: (?file: untyped, ?line: untyped, ?column: untyped) -> instance
-                  | ({ ?file: untyped, ?line: untyped, ?column: untyped }) -> instance
+      def self.new: (?file: String, ?line: Integer, ?column: Integer) -> instance
+                  | ({ ?file: String, ?line: Integer, ?column: Integer }) -> instance
     end
 
     class Location
-      def to_h: () -> untyped
+      # @rbs () -> IR::location
+      def to_h: () -> IR::location
 
-      def to_s: () -> untyped
+      # @rbs () -> String
+      def to_s: () -> String
     end
 
     # A grammar token and its source coordinate.
-    class Token < Struct[untyped]
-      attr_accessor type(): untyped
+    class Token < Struct[Symbol | token_value | Location]
+      attr_accessor type(): Symbol
 
-      attr_accessor value(): untyped
+      attr_accessor value(): token_value
 
-      attr_accessor location(): untyped
+      attr_accessor location(): Location
 
-      def self.new: (?type: untyped, ?value: untyped, ?location: untyped) -> instance
-                  | ({ ?type: untyped, ?value: untyped, ?location: untyped }) -> instance
+      def self.new: (?type: Symbol, ?value: token_value, ?location: Location) -> instance
+                  | ({ ?type: Symbol, ?value: token_value, ?location: Location }) -> instance
     end
 
     class Token
-      def to_h: () -> untyped
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
     end
 
     # Advances through source text while maintaining one-based coordinates.
     class SourceCursor
-      attr_reader source: untyped
+      attr_reader source: String
 
-      attr_reader file: untyped
+      attr_reader file: String
 
-      attr_reader index: untyped
+      attr_reader index: Integer
 
-      attr_reader line: untyped
+      attr_reader line: Integer
 
-      attr_reader column: untyped
+      attr_reader column: Integer
 
-      def initialize: (untyped source, untyped file) -> untyped
+      # @rbs (String source, String file) -> void
+      def initialize: (String source, String file) -> void
 
-      def eof?: () -> untyped
+      # @rbs () -> bool
+      def eof?: () -> bool
 
-      def peek: (?untyped offset) -> untyped
+      # @rbs (?Integer offset) -> String?
+      def peek: (?Integer offset) -> String?
 
-      def rest: () -> untyped
+      # @rbs () -> String
+      def rest: () -> String
 
-      def location: () -> untyped
+      # @rbs () -> Location
+      def location: () -> Location
 
-      def advance: (?untyped count) -> untyped
+      # @rbs (?Integer count) -> void
+      def advance: (?Integer count) -> void
     end
   end
 end

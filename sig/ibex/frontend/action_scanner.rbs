@@ -4,47 +4,71 @@ module Ibex
   module Frontend
     # Extracts a balanced Ruby action while ignoring braces inside literals.
     class ActionScanner
+      type heredoc = { identifier: String, indented: bool, length: Integer, location: Location }
+
       PAIRED_DELIMITERS: untyped
 
       REGEX_PREFIXES: ::String
 
-      def initialize: (untyped cursor) -> untyped
+      @pending_heredocs: Array[heredoc]
 
-      def scan: () -> untyped
+      @cursor: SourceCursor
+
+      # @rbs (SourceCursor cursor) -> void
+      def initialize: (SourceCursor cursor) -> void
+
+      # @rbs () -> Token
+      def scan: () -> Token
 
       private
 
-      def scan_code: (untyped depth) -> untyped
+      # @rbs (Integer depth) -> void
+      def scan_code: (Integer depth) -> void
 
-      def scan_special_character: () -> untyped
+      # @rbs () -> void
+      def scan_special_character: () -> void
 
-      def scan_quoted: (untyped quote) -> untyped
+      # @rbs (String quote) -> void
+      def scan_quoted: (String quote) -> void
 
-      def scan_interpolation: () -> untyped
+      # @rbs () -> void
+      def scan_interpolation: () -> void
 
-      def scan_percent_literal: () -> untyped
+      # @rbs () -> void
+      def scan_percent_literal: () -> void
 
-      def scan_delimited: (untyped opener, untyped closer) -> untyped
+      # @rbs (String opener, String closer) -> void
+      def scan_delimited: (String opener, String closer) -> void
 
-      def regexp_start?: () -> untyped
+      # @rbs () -> bool
+      def regexp_start?: () -> bool
 
-      def scan_regexp: () -> untyped
+      # @rbs () -> void
+      def scan_regexp: () -> void
 
-      def scan_comment: () -> untyped
+      # @rbs () -> void
+      def scan_comment: () -> void
 
-      def scan_character_literal: () -> untyped
+      # @rbs () -> void
+      def scan_character_literal: () -> void
 
-      def scan_heredoc: () -> untyped
+      # @rbs () -> void
+      def scan_heredoc: () -> void
 
-      def heredoc_opener: () -> untyped
+      # @rbs () -> heredoc?
+      def heredoc_opener: () -> heredoc?
 
-      def quoted_heredoc_identifier: (untyped prefix, untyped quote) -> untyped
+      # @rbs (String prefix, String quote) -> [String, Integer]?
+      def quoted_heredoc_identifier: (String prefix, String quote) -> [ String, Integer ]?
 
-      def bare_heredoc_identifier: (untyped prefix) -> untyped
+      # @rbs (String prefix) -> [String?, Integer]
+      def bare_heredoc_identifier: (String prefix) -> [ String?, Integer ]
 
-      def scan_pending_heredocs: () -> untyped
+      # @rbs () -> void
+      def scan_pending_heredocs: () -> void
 
-      def scan_heredoc_body: (untyped heredoc) -> untyped
+      # @rbs (heredoc heredoc) -> void
+      def scan_heredoc_body: (heredoc heredoc) -> void
     end
   end
 end

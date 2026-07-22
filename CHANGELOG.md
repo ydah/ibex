@@ -16,7 +16,8 @@
 - Add a Ruby DSL frontend that converges on the existing Grammar AST and IR pipeline.
 - Add unifying conflict counterexamples with complete competing derivation trees and bounded nonunifying fallback.
 - Add generated parser RBS output, shipped runtime signatures, and strict structured grammar diagnostics.
-- Expand generated signatures and Steep checking to every library source, including the self-hosted parser.
+- Expand generated signatures and Steep checking to every library source, including concrete frontend/IR/LALR/codegen/CLI domain
+  types and the self-hosted parser.
 - Support quoted, interpolated, and multiple Ruby heredocs plus recursively nested grouped EBNF.
 - Define unknown external tokens to invoke `on_error` before yacc-style recovery.
 - Add post-commit shift, reduction, and successful-recovery observation hooks to the runtime.

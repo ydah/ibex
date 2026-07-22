@@ -5,15 +5,20 @@ module Ibex
     class TokenAdapter
       # Tracks ordinary EBNF groups separately from separated-list calls.
       class DelimiterTracker
-        attr_reader group_opening: untyped
+        attr_reader group_opening: Token?
 
-        attr_reader open_kind: untyped
+        attr_reader open_kind: delimiter_kind?
 
-        def initialize: () -> untyped
+        @stack: Array[[ delimiter_kind, Token ]]
 
-        def empty?: () -> untyped
+        # @rbs () -> void
+        def initialize: () -> void
 
-        def observe: (untyped token, untyped external, untyped previous_external) -> untyped
+        # @rbs () -> bool
+        def empty?: () -> bool
+
+        # @rbs (Token token, external_token external, external_token? previous_external) -> void
+        def observe: (Token token, external_token external, external_token? previous_external) -> void
       end
     end
   end

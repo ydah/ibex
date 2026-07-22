@@ -1,2 +1,6 @@
 # Generated from lib/ibex/runtime.rb with RBS::Inline
 
+module Ibex
+  module Runtime
+  end
+end

@@ -8,36 +8,54 @@ module Ibex
 
       USER_CODE: ::Regexp
 
-      def initialize: (untyped source, ?file: untyped) -> untyped
+      @cursor: SourceCursor
 
-      def tokenize: () -> untyped
+      # @rbs (String source, ?file: String) -> void
+      def initialize: (String source, ?file: String) -> void
 
-      def next_token: () -> untyped
+      # @rbs () -> Array[Token]
+      def tokenize: () -> Array[Token]
+
+      # @rbs () -> Token
+      def next_token: () -> Token
 
       private
 
-      def skip_ignored: () -> untyped
+      # @rbs (String character) -> Token
+      def scan_regular_token: (String character) -> Token
 
-      def skip_block_comment: () -> untyped
+      # @rbs () -> void
+      def skip_ignored: () -> void
 
-      def line_start?: () -> untyped
+      # @rbs () -> void
+      def skip_block_comment: () -> void
 
-      def scan_user_code: () -> untyped
+      # @rbs () -> bool
+      def line_start?: () -> bool
 
-      def scan_scope: () -> untyped
+      # @rbs () -> Token
+      def scan_user_code: () -> Token
 
-      def scan_identifier: () -> untyped
+      # @rbs () -> Token
+      def scan_scope: () -> Token
 
-      def scan_integer: () -> untyped
+      # @rbs () -> Token
+      def scan_identifier: () -> Token
 
-      def scan_literal: () -> untyped
+      # @rbs () -> Token
+      def scan_integer: () -> Token
 
-      def scan_punctuation: () -> untyped
+      # @rbs () -> Token
+      def scan_literal: () -> Token
 
-      # @rbs (untyped type, Regexp pattern) ?{ (String) -> untyped } -> untyped
-      def scan_match: (untyped type, Regexp pattern) ?{ (String) -> untyped } -> untyped
+      # @rbs () -> Token
+      def scan_punctuation: () -> Token
 
-      def token: (untyped type, untyped value, ?untyped location) -> untyped
+      # @rbs (Symbol type, Regexp pattern) ?{ (String) -> token_value } -> Token
+      def scan_match: (Symbol type, Regexp pattern) ?{ (String) -> token_value } -> Token
+
+      # @rbs (Symbol type, token_value value, ?Location location) -> Token
+      def token: (Symbol type, token_value value, ?Location location) -> Token
     end
   end
 end

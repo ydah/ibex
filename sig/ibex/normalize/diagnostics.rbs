@@ -5,20 +5,28 @@ module Ibex
   module NormalizeDiagnostics
     private
 
-    def validate_grammar: () -> untyped
+    # @rbs () -> void
+    def validate_grammar: () -> void
 
-    def warn_duplicate_productions: () -> untyped
+    # @rbs () -> void
+    def warn_duplicate_productions: () -> void
 
-    def warn_unreachable_nonterminals: () -> untyped
+    # @rbs () -> void
+    def warn_unreachable_nonterminals: () -> void
 
-    def reachable_symbol_ids: () -> untyped
+    # @rbs () -> Set[Integer]
+    def reachable_symbol_ids: () -> Set[Integer]
 
-    def warn_unused_terminals: () -> untyped
+    # @rbs () -> void
+    def warn_unused_terminals: () -> void
 
-    def warn_empty_language: () -> untyped
+    # @rbs () -> void
+    def warn_empty_language: () -> void
 
-    def productive_terminal_ids: () -> untyped
+    # @rbs () -> Set[Integer]
+    def productive_terminal_ids: () -> Set[Integer]
 
-    def productive_terminal?: (untyped grammar_symbol) -> untyped
+    # @rbs (IR::GrammarSymbol grammar_symbol) -> bool
+    def productive_terminal?: (IR::GrammarSymbol grammar_symbol) -> bool
   end
 end

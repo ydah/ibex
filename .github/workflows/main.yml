@@ -74,7 +74,7 @@ jobs:
           '
           diff -ru sig "$RUNNER_TEMP/ibex-signatures"
       - name: Validate RBS signatures
-        run: bundle exec rbs -I sig validate
+        run: bundle exec rbs -r digest -r json -r optparse -I sig validate
       - name: Type check Ruby implementation
         run: bundle exec steep check
 

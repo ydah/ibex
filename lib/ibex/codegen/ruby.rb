@@ -4,6 +4,18 @@ module Ibex
   module Codegen
     # Generates a standalone Ruby parser class from Automaton IR.
     class Ruby
+      # @rbs @automaton: IR::Automaton
+      # @rbs @grammar: IR::Grammar
+      # @rbs @table_format: Symbol
+      # @rbs @embedded: bool
+      # @rbs @line_convert: bool
+      # @rbs @debug: bool
+      # @rbs @omit_action_call: bool
+      # @rbs @superclass: String
+      # @rbs @executable: String?
+
+      # @rbs (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool, ?debug: bool,
+      #   ?omit_action_call: bool?, ?superclass: String?, ?executable: String?) -> void
       def initialize(automaton, table: :compact, embedded: false, line_convert: true, debug: false,
                      omit_action_call: nil, superclass: nil, executable: nil)
         @automaton = automaton
@@ -17,6 +29,7 @@ module Ibex
         @executable = executable
       end
 
+      # @rbs () -> String
       def generate
         lines = [] #: Array[String]
         lines << "#!#{@executable}" if @executable
@@ -38,6 +51,7 @@ module Ibex
 
       private
 
+      # @rbs (Array[String] lines) -> void
       def append_runtime(lines)
         if @embedded
           lines << embedded_source("../runtime/parser.rb")
@@ -49,11 +63,13 @@ module Ibex
         lines << ""
       end
 
+      # @rbs (String relative_path) -> String
       def embedded_source(relative_path)
         path = File.expand_path(relative_path, File.dirname(__FILE__))
         File.read(path).lines.reject { |line| line.start_with?("# frozen_string_literal:") }.join.rstrip
       end
 
+      # @rbs (Array[String] lines) -> void
       def append_tables(lines)
         table_set = Tables.build(@automaton, format: @table_format)
         indent = "  "
@@ -71,6 +87,7 @@ module Ibex
         lines << ""
       end
 
+      # @rbs (untyped table) -> String
       def table_literal(table)
         return "#{table.inspect}.freeze" unless table.is_a?(Tables::Compact)
 
@@ -78,6 +95,7 @@ module Ibex
           "checks: #{table.checks.inspect}, row_count: #{table.row_count})"
       end
 
+      # @rbs () -> String
       def token_ids_literal
         pairs = @grammar.terminals.filter_map do |terminal|
           next if terminal.id.zero? || terminal.name == "error"
@@ -87,6 +105,7 @@ module Ibex
         "{ #{pairs.join(', ')} }"
       end
 
+      # @rbs (IR::GrammarSymbol terminal) -> String
       def external_token_expression(terminal)
         conversion = @grammar.conversions[terminal.name]
         return "(#{conversion})" if conversion
@@ -95,11 +114,13 @@ module Ibex
         ":#{terminal.name}"
       end
 
+      # @rbs () -> String
       def token_names_literal
         entries = @grammar.terminals.map { |terminal| "#{terminal.id} => #{terminal.name.inspect}" }
         "{ #{entries.join(', ')} }"
       end
 
+      # @rbs () -> String
       def productions_literal
         entries = @grammar.productions.map do |production|
           action = action_method?(production) ? ":_ibex_action_#{production.id}" : "nil"
@@ -108,6 +129,7 @@ module Ibex
         "[#{entries.join(', ')}]"
       end
 
+      # @rbs (Array[String] lines) -> void
       def append_actions(lines)
         @grammar.productions.each do |production|
           next unless action_method?(production)
@@ -117,12 +139,14 @@ module Ibex
         end
       end
 
+      # @rbs (Array[String] lines, IR::Production production) -> void
       def append_action_constant(lines, production)
         return unless production.action && @line_convert
 
         lines << "  ACTION_CODE_#{production.id} = #{production.action.code.inspect}.freeze"
       end
 
+      # @rbs (Array[String] lines, IR::Production production) -> void
       def append_action_method(lines, production)
         action = production.action
         lines << "  def _ibex_action_#{production.id}(val, _values)"
@@ -137,6 +161,7 @@ module Ibex
         lines << ""
       end
 
+      # @rbs (Array[String] lines, IR::Action? action) -> void
       def append_named_bindings(lines, action)
         return unless action&.named_refs&.any?
 
@@ -145,8 +170,9 @@ module Ibex
         lines << "    _ibex_named_values = [#{names.join(', ')}]"
       end
 
+      # @rbs (Array[String] lines, IR::Production production) -> void
       def append_semantic_code(lines, production)
-        action = production.action
+        action = production.action || raise(Ibex::Error, "missing semantic action")
         lines << "    result = val[0]" if @grammar.options[:result_var]
         if @line_convert
           evaluation = "eval(ACTION_CODE_#{production.id}, binding, #{action.location[:file].inspect}, " \
@@ -158,16 +184,19 @@ module Ibex
         lines << "    result" if @grammar.options[:result_var]
       end
 
+      # @rbs (Array[String] lines) -> void
       def private_actions(lines)
         productions = @grammar.productions.select { |production| action_method?(production) }
         names = productions.map { |production| ":_ibex_action_#{production.id}" }
         lines << "  private #{names.join(', ')}" unless names.empty?
       end
 
+      # @rbs (IR::Production production) -> bool
       def action_method?(production)
-        production.action || !@omit_action_call
+        !!(production.action || !@omit_action_call)
       end
 
+      # @rbs (Array[String] lines, String name, ?indent: Integer) -> void
       def append_user_code(lines, name, indent: 0)
         code = @grammar.user_code[name]
         return if code.nil? || code.empty?
@@ -177,13 +206,15 @@ module Ibex
         lines << ""
       end
 
+      # @rbs () -> [Array[String], String]
       def class_parts
         parts = @grammar.class_name.split("::")
-        [parts[0...-1], parts.last]
+        [parts.take(parts.length - 1), parts.fetch(-1)]
       end
 
+      # @rbs () -> String
       def grammar_digest_comment
-        @automaton.grammar_digest.delete_prefix("sha256:")[0, 12]
+        @automaton.grammar_digest.delete_prefix("sha256:").chars.first(12).join
       end
     end
   end

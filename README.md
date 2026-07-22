@@ -157,12 +157,17 @@ BUNDLE_GEMFILE=gemfiles/Gemfile ruby -e '
   sources = Dir.glob("lib/**/*.rb").sort
   exec("bundle", "exec", "rbs-inline", "--opt-out", "--base=lib", "--output=sig", *sources)
 '
-BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec rbs -I sig validate
+BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec rbs -r digest -r json -r optparse -I sig validate
 BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec steep check
+BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec steep stats
 ```
 
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
-signature files both fail the build. Parser tables, open-ended AST fields, and embedded user Ruby remain intentionally `untyped`;
-the full source tree is still checked for declared methods, collection inference, control flow, and standard-library contracts.
+signature files both fail the build. The current whole-library `steep stats` result is 3,156 typed calls and 630 untyped calls out
+of 3,786 (83.4% typed). The generated signature tree contains 527 explicit `untyped` occurrences across 32 files. Those boundaries
+are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime semantic values and
+parser-table cells, and embedded user Ruby. Token/location records, the complete grammar AST, parser classifier state, IR,
+analysis, automaton construction, code generators, table construction, and CLI options use concrete domain types. The committed
+self-hosted parser remains in the Steep target; no library directory or generated source is excluded.
 
 Ibex is available under the [MIT License](LICENSE.txt).

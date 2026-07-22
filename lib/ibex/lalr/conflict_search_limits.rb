@@ -7,11 +7,13 @@ module Ibex
       DEFAULT_MAX_TOKENS = 32
       DEFAULT_MAX_CONFIGURATIONS = 50_000
 
+      # @rbs (max_tokens: Integer, max_configurations: Integer) -> void
       def self.validate!(max_tokens:, max_configurations:)
         validate_limit!(:max_tokens, max_tokens)
         validate_limit!(:max_configurations, max_configurations)
       end
 
+      # @rbs (Symbol name, Integer value) -> Integer
       def self.validate_limit!(name, value)
         return value if value.is_a?(Integer) && value.positive?
 
@@ -20,14 +22,17 @@ module Ibex
 
       private
 
+      # @rbs (Array[Integer] prefix, Array[Integer] suffix) -> bool
       def within_token_budget?(prefix, suffix)
         prefix.length + suffix.length + conflict_lookahead_length <= @max_tokens
       end
 
+      # @rbs (Array[Integer] prefix, Array[Integer] suffix) -> bool
       def room_for_token?(prefix, suffix)
         prefix.length + suffix.length + conflict_lookahead_length < @max_tokens
       end
 
+      # @rbs () -> Integer
       def conflict_lookahead_length = @lookahead.zero? ? 0 : 1
     end
   end

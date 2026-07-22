@@ -4,17 +4,23 @@ module Ibex
   module Codegen
     # Renders a self-contained navigable automaton report.
     module HTML
-      def self?.render: (untyped automaton) -> untyped
+      # @rbs (IR::Automaton automaton) -> String
+      def self?.render: (IR::Automaton automaton) -> String
 
-      def self?.state_sections: (untyped automaton, untyped grammar) -> untyped
+      # @rbs (IR::Automaton automaton, IR::Grammar grammar) -> String
+      def self?.state_sections: (IR::Automaton automaton, IR::Grammar grammar) -> String
 
-      def self?.item_html: (untyped item, untyped grammar) -> untyped
+      # @rbs (IR::AutomatonItem item, IR::Grammar grammar) -> String
+      def self?.item_html: (IR::AutomatonItem item, IR::Grammar grammar) -> String
 
-      def self?.rule_sections: (untyped grammar) -> untyped
+      # @rbs (IR::Grammar grammar) -> String
+      def self?.rule_sections: (IR::Grammar grammar) -> String
 
-      def self?.conflict_sections: (untyped automaton) -> untyped
+      # @rbs (IR::Automaton automaton) -> String
+      def self?.conflict_sections: (IR::Automaton automaton) -> String
 
-      def self?.escape: (untyped value) -> untyped
+      # @rbs (String value) -> String
+      def self?.escape: (String value) -> String
     end
   end
 end

@@ -25,8 +25,10 @@ handwritten `BootstrapParser` is excluded from normal loading and exists only to
 The RBS generator emits the generated class namespace, superclass, parser-table constants, and `.parser_tables` contract. The
 gem also ships a one-to-one rbs-inline-generated signature tree under `sig/` for every Ruby source in `lib/`, including the
 self-hosted parser. CI regenerates into an empty temporary directory, compares the complete trees, validates the RBS environment,
-and runs Steep against the entire library. Dynamic parser tables, open-ended AST fields, and user methods embedded as opaque Ruby
-source remain `untyped`; applications can reopen the generated class in their own RBS files to declare embedded methods.
+and runs Steep against the entire library. Token/location records, grammar AST nodes, parser classifier state, IR records, and
+automaton actions use concrete domain types. Generated-parser reduction values, dynamic parser-table cells, decoded JSON values,
+and user methods embedded as opaque Ruby source remain `untyped`; applications can reopen the generated class in their own RBS
+files to declare embedded methods.
 
 ## Grammar IR v1
 

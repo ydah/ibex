@@ -4,9 +4,11 @@ module Ibex
   module IR
     # Stable JSON serialization for versioned pipeline IR.
     module Serialize
-      def self?.dump: (untyped value) -> untyped
+      # @rbs (Grammar | Automaton value) -> String
+      def self?.dump: (Grammar | Automaton value) -> String
 
-      def self?.load: (untyped source) -> untyped
+      # @rbs (String source) -> (Grammar | Automaton)
+      def self?.load: (String source) -> (Grammar | Automaton)
 
       def self?.validate_version: (untyped data) -> untyped
 

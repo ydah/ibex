@@ -8,31 +8,43 @@ module Ibex
 
       DEFAULT_MAX_CONFIGURATIONS: untyped
 
-      def initialize: (untyped automaton, ?max_tokens: untyped, ?max_configurations: untyped) -> untyped
+      # @rbs (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> void
+      def initialize: (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> void
 
-      def all: () -> untyped
+      # @rbs () -> Array[IR::counterexample]
+      def all: () -> Array[IR::counterexample]
 
       private
 
-      def build_example: (untyped state, untyped conflict) -> untyped
+      # @rbs (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample
+      def build_example: (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample
 
-      def unifying_example: (untyped state, untyped conflict, untyped result) -> untyped
+      # @rbs (IR::AutomatonState state, IR::conflict conflict, Hash[Symbol, untyped] result) -> IR::counterexample
+      def unifying_example: (IR::AutomatonState state, IR::conflict conflict, Hash[Symbol, untyped] result) -> IR::counterexample
 
-      def reachability_example: (untyped state, untyped conflict) -> untyped
+      # @rbs (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample
+      def reachability_example: (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample
 
-      def shortest_state_path: (untyped target) -> untyped
+      # @rbs (Integer target) -> Array[Integer]
+      def shortest_state_path: (Integer target) -> Array[Integer]
 
-      def compute_shortest_yields: () -> untyped
+      # @rbs () -> Hash[Integer, Array[Integer]]
+      def compute_shortest_yields: () -> Hash[Integer, Array[Integer]]
 
-      def better_yield?: (untyped candidate, untyped current) -> untyped
+      # @rbs (Array[Integer] candidate, Array[Integer]? current) -> bool
+      def better_yield?: (Array[Integer] candidate, Array[Integer]? current) -> bool
 
-      def interpretations: (untyped conflict) -> untyped
+      # @rbs (IR::conflict conflict) -> Array[IR::interpretation]
+      def interpretations: (IR::conflict conflict) -> Array[IR::interpretation]
 
-      def shift_interpretation: (untyped conflict) -> untyped
+      # @rbs (IR::shift_reduce_conflict conflict) -> IR::interpretation
+      def shift_interpretation: (IR::shift_reduce_conflict conflict) -> IR::interpretation
 
-      def reduce_interpretation: (untyped production_id) -> untyped
+      # @rbs (Integer production_id) -> IR::interpretation
+      def reduce_interpretation: (Integer production_id) -> IR::interpretation
 
-      def names: (untyped symbol_ids) -> untyped
+      # @rbs (Array[Integer] symbol_ids) -> Array[String]
+      def names: (Array[Integer] symbol_ids) -> Array[String]
     end
   end
 end

@@ -4,23 +4,41 @@ module Ibex
   module LALR
     # Applies yacc-compatible precedence and ordering rules to action candidates.
     class ConflictResolver
-      def initialize: (untyped grammar) -> untyped
+      # @rbs (IR::Grammar grammar) -> void
+      def initialize: (IR::Grammar grammar) -> void
 
-      def resolve: (untyped token_id, untyped candidates) -> untyped
+      # @rbs (Integer token_id, Array[IR::parser_action] candidates) -> [IR::parser_action?, Array[IR::conflict]]
+      def resolve: (Integer token_id, Array[IR::parser_action] candidates) -> [ IR::parser_action?, Array[IR::conflict] ]
 
       private
 
-      def resolve_reductions: (untyped token_id, untyped reductions) -> untyped
+      # @rbs (Array[IR::parser_action] actions) -> Array[IR::reduce_action]
+      def reduction_actions: (Array[IR::parser_action] actions) -> Array[IR::reduce_action]
 
-      def resolve_shift_reduce: (untyped token_id, untyped shift, untyped reduction) -> untyped
+      # @rbs (Array[IR::reduce_reduce_conflict] conflicts) -> Array[IR::conflict]
+      def widen_conflicts: (Array[IR::reduce_reduce_conflict] conflicts) -> Array[IR::conflict]
 
-      def precedence_choice: (untyped shift, untyped reduction, untyped token_precedence, untyped production_precedence) -> untyped
+      # @rbs (Integer token_id, Array[IR::reduce_action] reductions) ->
+      #   [IR::reduce_action?, Array[IR::reduce_reduce_conflict]]
+      def resolve_reductions: (Integer token_id, Array[IR::reduce_action] reductions) -> [ IR::reduce_action?, Array[IR::reduce_reduce_conflict] ]
 
-      def associativity_choice: (untyped shift, untyped reduction, untyped associativity) -> untyped
+      # @rbs (Integer token_id, IR::shift_action shift, IR::reduce_action reduction) ->
+      #   [IR::parser_action, IR::shift_reduce_conflict]
+      def resolve_shift_reduce: (Integer token_id, IR::shift_action shift, IR::reduce_action reduction) -> [ IR::parser_action, IR::shift_reduce_conflict ]
 
-      def precedence_for_production: (untyped production_id) -> untyped
+      # @rbs (IR::shift_action shift, IR::reduce_action reduction, IR::precedence? token_precedence,
+      #   IR::precedence? production_precedence) -> [IR::parser_action, IR::conflict_resolution]
+      def precedence_choice: (IR::shift_action shift, IR::reduce_action reduction, IR::precedence? token_precedence, IR::precedence? production_precedence) -> [ IR::parser_action, IR::conflict_resolution ]
 
-      def token_name: (untyped token_id) -> untyped
+      # @rbs (IR::shift_action shift, IR::reduce_action reduction, Symbol associativity) ->
+      #   [IR::parser_action, IR::conflict_resolution]
+      def associativity_choice: (IR::shift_action shift, IR::reduce_action reduction, Symbol associativity) -> [ IR::parser_action, IR::conflict_resolution ]
+
+      # @rbs (Integer production_id) -> IR::precedence?
+      def precedence_for_production: (Integer production_id) -> IR::precedence?
+
+      # @rbs (Integer token_id) -> String
+      def token_name: (Integer token_id) -> String
     end
   end
 end

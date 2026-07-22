@@ -5,17 +5,19 @@ module Ibex
   module NormalizeDeclarations
     private
 
+    # @rbs () -> void
     def read_declarations
       # @type self: Normalizer
-      @declared_tokens = {} #: Hash[untyped, untyped]
-      @precedence = {} #: Hash[untyped, untyped]
-      @precedence_locations = {} #: Hash[untyped, untyped]
+      @declared_tokens = {} #: Hash[String, IR::location]
+      @precedence = {} #: Hash[String, IR::precedence]
+      @precedence_locations = {} #: Hash[String, IR::location]
       @options = { result_var: true, omit_action_call: true }
       @expected_conflicts = 0
-      @conversions = {} #: Hash[untyped, untyped]
+      @conversions = {} #: Hash[String, String]
       @ast.declarations.each { |declaration| read_declaration(declaration) }
     end
 
+    # @rbs (Frontend::AST::declaration declaration) -> void
     def read_declaration(declaration)
       # @type self: Normalizer
       case declaration
@@ -30,6 +32,7 @@ module Ibex
       end
     end
 
+    # @rbs (Frontend::AST::Precedence declaration) -> void
     def read_precedence(declaration)
       # @type self: Normalizer
       count = declaration.levels.length
@@ -42,6 +45,7 @@ module Ibex
       end
     end
 
+    # @rbs (String name, Frontend::Location location) -> void
     def read_option(name, location)
       # @type self: Normalizer
       case name

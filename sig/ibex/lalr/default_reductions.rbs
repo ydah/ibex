@@ -6,11 +6,14 @@ module Ibex
     module DefaultReductions
       ERROR_ACTION: untyped
 
-      def self?.apply: (untyped states, terminal_ids: untyped) -> untyped
+      # @rbs (Array[IR::AutomatonState] states, terminal_ids: Array[Integer]) -> Array[IR::AutomatonState]
+      def self?.apply: (Array[IR::AutomatonState] states, terminal_ids: Array[Integer]) -> Array[IR::AutomatonState]
 
-      def self?.optimize: (untyped state, terminal_ids: untyped) -> untyped
+      # @rbs (IR::AutomatonState state, terminal_ids: Array[Integer]) -> IR::AutomatonState
+      def self?.optimize: (IR::AutomatonState state, terminal_ids: Array[Integer]) -> IR::AutomatonState
 
-      def self?.select_default: (untyped actions, untyped terminal_ids) -> untyped
+      # @rbs (Hash[Integer, IR::parser_action] actions, Array[Integer] terminal_ids) -> IR::parser_action?
+      def self?.select_default: (Hash[Integer, IR::parser_action] actions, Array[Integer] terminal_ids) -> IR::parser_action?
     end
   end
 end

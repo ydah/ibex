@@ -16,27 +16,34 @@ module Ibex
 
     # Sparse table represented by per-row offsets and ownership checks.
     class Compact
-      attr_reader offsets: untyped
+      attr_reader offsets: Array[Integer]
 
-      attr_reader values: untyped
+      attr_reader values: Array[untyped]
 
-      attr_reader checks: untyped
+      attr_reader checks: Array[Integer?]
 
-      attr_reader row_count: untyped
+      attr_reader row_count: Integer
 
-      def self.build: (untyped rows) -> untyped
+      # @rbs (Array[Hash[Integer, untyped]] rows) -> Compact
+      def self.build: (Array[Hash[Integer, untyped]] rows) -> Compact
 
-      def self.find_offset: (untyped columns, untyped checks) -> untyped
+      # @rbs (Array[Integer] columns, Array[Integer?] checks) -> Integer
+      def self.find_offset: (Array[Integer] columns, Array[Integer?] checks) -> Integer
 
-      def initialize: (offsets: untyped, values: untyped, checks: untyped, row_count: untyped) -> untyped
+      # @rbs (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer) -> void
+      def initialize: (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer) -> void
 
-      def lookup: (untyped row, untyped column) -> untyped
+      # @rbs (Integer row, Integer column) -> untyped
+      def lookup: (Integer row, Integer column) -> untyped
 
-      def row: (untyped row) -> untyped
+      # @rbs (Integer row) -> Hash[Integer, untyped]
+      def row: (Integer row) -> Hash[Integer, untyped]
     end
 
-    def self?.build: (untyped automaton, ?format: untyped) -> untyped
+    # @rbs (IR::Automaton automaton, ?format: Symbol | String) -> TableSet
+    def self?.build: (IR::Automaton automaton, ?format: Symbol | String) -> TableSet
 
-    def self?.runtime_action: (untyped action) -> untyped
+    # @rbs (IR::parser_action action) -> IR::runtime_action
+    def self?.runtime_action: (IR::parser_action action) -> IR::runtime_action
   end
 end

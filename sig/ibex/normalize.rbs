@@ -11,34 +11,83 @@ module Ibex
 
     RESERVED_NAMES: untyped
 
-    def initialize: (untyped ast, ?mode: untyped) -> untyped
+    @ast: Frontend::AST::Root
 
-    def normalize: () -> untyped
+    @mode: Symbol
+
+    @symbols: Array[IR::GrammarSymbol]
+
+    @symbols_by_name: Hash[String, IR::GrammarSymbol]
+
+    @productions: Array[IR::Production]
+
+    @warnings: Array[IR::grammar_warning]
+
+    @helper_sequence: Integer
+
+    @declared_tokens: Hash[String, IR::location]
+
+    @precedence: Hash[String, IR::precedence]
+
+    @precedence_locations: Hash[String, IR::location]
+
+    @options: IR::grammar_options
+
+    @expected_conflicts: Integer
+
+    @conversions: Hash[String, String]
+
+    @explicit_start: String?
+
+    @start_name: String
+
+    @start_location: Frontend::Location?
+
+    # @rbs (Frontend::AST::Root ast, ?mode: Symbol | String) -> void
+    def initialize: (Frontend::AST::Root ast, ?mode: Symbol | String) -> void
+
+    # @rbs () -> IR::Grammar
+    def normalize: () -> IR::Grammar
 
     private
 
-    def intern_reserved_symbols: () -> untyped
+    # @rbs () -> void
+    def intern_reserved_symbols: () -> void
 
-    def intern_declared_terminals: () -> untyped
+    # @rbs () -> void
+    def intern_declared_terminals: () -> void
 
-    def intern_user_nonterminals: () -> untyped
+    # @rbs () -> void
+    def intern_user_nonterminals: () -> void
 
-    def intern: (untyped name, untyped kind, ?reserved: untyped, ?location: untyped) -> untyped
+    # @rbs (String name, Symbol kind, ?reserved: bool, ?location: IR::location?) -> IR::GrammarSymbol
+    def intern: (String name, Symbol kind, ?reserved: bool, ?location: IR::location?) -> IR::GrammarSymbol
 
-    def symbol: (untyped name) -> untyped
+    # @rbs (String name) -> IR::GrammarSymbol?
+    def symbol: (String name) -> IR::GrammarSymbol?
 
-    def symbol_for_reference: (untyped reference) -> untyped
+    # @rbs (String name) -> IR::GrammarSymbol
+    def required_symbol: (String name) -> IR::GrammarSymbol
 
-    def nonterminal_name?: (untyped name) -> untyped
+    # @rbs (Frontend::AST::SymbolReference reference) -> IR::GrammarSymbol
+    def symbol_for_reference: (Frontend::AST::SymbolReference reference) -> IR::GrammarSymbol
 
-    def undefined_nonterminal: (untyped reference) -> untyped
+    # @rbs (String name) -> bool
+    def nonterminal_name?: (String name) -> bool
 
-    def warn_undeclared_terminal: (untyped reference) -> untyped
+    # @rbs (Frontend::AST::SymbolReference reference) -> bot
+    def undefined_nonterminal: (Frontend::AST::SymbolReference reference) -> bot
 
-    def normalized_user_code: () -> untyped
+    # @rbs (Frontend::AST::SymbolReference reference) -> void
+    def warn_undeclared_terminal: (Frontend::AST::SymbolReference reference) -> void
 
-    def fail_at: (untyped location, untyped message) -> untyped
+    # @rbs () -> Hash[String, String]
+    def normalized_user_code: () -> Hash[String, String]
 
-    def fail_hash: (untyped location, untyped message) -> untyped
+    # @rbs (Frontend::Location location, String message) -> bot
+    def fail_at: (Frontend::Location location, String message) -> bot
+
+    # @rbs (IR::location? location, String message) -> bot
+    def fail_hash: (IR::location? location, String message) -> bot
   end
 end

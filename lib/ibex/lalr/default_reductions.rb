@@ -8,17 +8,19 @@ module Ibex
 
       module_function
 
+      # @rbs (Array[IR::AutomatonState] states, terminal_ids: Array[Integer]) -> Array[IR::AutomatonState]
       def apply(states, terminal_ids:)
         states.map { |state| optimize(state, terminal_ids: terminal_ids) }
       end
 
+      # @rbs (IR::AutomatonState state, terminal_ids: Array[Integer]) -> IR::AutomatonState
       def optimize(state, terminal_ids:)
         return state if state.default_action
 
         default_action = select_default(state.actions, terminal_ids)
         return state unless default_action
 
-        actions = {} #: Hash[untyped, untyped]
+        actions = {} #: Hash[Integer, IR::parser_action]
         terminal_ids.each_with_object(actions) do |token_id, result|
           action = state.actions[token_id]
           result[token_id] = action || ERROR_ACTION unless action == default_action
@@ -28,8 +30,16 @@ module Ibex
                                conflicts: state.conflicts)
       end
 
+      # @rbs (Hash[Integer, IR::parser_action] actions, Array[Integer] terminal_ids) -> IR::parser_action?
       def select_default(actions, terminal_ids)
-        candidates = actions.values.select { |action| action[:type] == :reduce }.uniq
+        candidates = [] #: Array[IR::reduce_action]
+        actions.each_value do |action|
+          next unless action[:type] == :reduce
+
+          reduction = action #: IR::reduce_action
+          candidates << reduction
+        end
+        candidates.uniq!
         candidates.sort_by! { |action| action.fetch(:production) }
         candidate = candidates.max_by do |action|
           saved_entries = actions.count { |_token_id, candidate| candidate == action }

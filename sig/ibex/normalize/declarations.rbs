@@ -5,12 +5,16 @@ module Ibex
   module NormalizeDeclarations
     private
 
-    def read_declarations: () -> untyped
+    # @rbs () -> void
+    def read_declarations: () -> void
 
-    def read_declaration: (untyped declaration) -> untyped
+    # @rbs (Frontend::AST::declaration declaration) -> void
+    def read_declaration: (Frontend::AST::declaration declaration) -> void
 
-    def read_precedence: (untyped declaration) -> untyped
+    # @rbs (Frontend::AST::Precedence declaration) -> void
+    def read_precedence: (Frontend::AST::Precedence declaration) -> void
 
-    def read_option: (untyped name, untyped location) -> untyped
+    # @rbs (String name, Frontend::Location location) -> void
+    def read_option: (String name, Frontend::Location location) -> void
   end
 end

@@ -4,47 +4,66 @@ module Ibex
   module Analysis
     # Computes nullable, FIRST, and FOLLOW sets over Grammar IR using integer bitsets.
     class Sets
-      attr_reader nullable_bits: untyped
+      attr_reader nullable_bits: Integer
 
-      attr_reader first_bits: untyped
+      attr_reader first_bits: Array[Integer]
 
-      attr_reader follow_bits: untyped
+      attr_reader follow_bits: Array[Integer]
 
-      def initialize: (untyped grammar) -> untyped
+      @grammar: IR::Grammar
 
-      def nullable?: (untyped symbol) -> untyped
+      # @rbs (IR::Grammar grammar) -> void
+      def initialize: (IR::Grammar grammar) -> void
 
-      def first: (untyped symbol) -> untyped
+      # @rbs (Integer | String | Symbol | IR::GrammarSymbol symbol) -> bool
+      def nullable?: (Integer | String | Symbol | IR::GrammarSymbol symbol) -> bool
 
-      def follow: (untyped symbol) -> untyped
+      # @rbs (Integer | String | Symbol | IR::GrammarSymbol symbol) -> Array[String]
+      def first: (Integer | String | Symbol | IR::GrammarSymbol symbol) -> Array[String]
 
-      def first_of_sequence: (untyped symbol_ids) -> untyped
+      # @rbs (Integer | String | Symbol | IR::GrammarSymbol symbol) -> Array[String]
+      def follow: (Integer | String | Symbol | IR::GrammarSymbol symbol) -> Array[String]
 
-      def sequence_nullable?: (untyped symbol_ids) -> untyped
+      # @rbs (Array[Integer] symbol_ids) -> Integer
+      def first_of_sequence: (Array[Integer] symbol_ids) -> Integer
+
+      # @rbs (Array[Integer] symbol_ids) -> bool
+      def sequence_nullable?: (Array[Integer] symbol_ids) -> bool
 
       private
 
-      def compute_nullable: () -> untyped
+      # @rbs () -> void
+      def compute_nullable: () -> void
 
-      def nullable_worklist: () -> untyped
+      # @rbs () -> [Array[Array[IR::Production]], Array[Integer], Array[Integer]]
+      def nullable_worklist: () -> [ Array[Array[IR::Production]], Array[Integer], Array[Integer] ]
 
-      def compute_first: () -> untyped
+      # @rbs () -> void
+      def compute_first: () -> void
 
-      def compute_follow: () -> untyped
+      # @rbs () -> void
+      def compute_follow: () -> void
 
-      def initialize_follow: (untyped production, untyped dependencies) -> untyped
+      # @rbs (IR::Production production, Array[Array[Integer]] dependencies) -> void
+      def initialize_follow: (IR::Production production, Array[Array[Integer]] dependencies) -> void
 
-      def propagate_bits: (untyped sets, untyped dependencies, untyped seeds) -> untyped
+      # @rbs (Array[Integer] sets, Array[Array[Integer]] dependencies, Array[Integer] seeds) -> void
+      def propagate_bits: (Array[Integer] sets, Array[Array[Integer]] dependencies, Array[Integer] seeds) -> void
 
-      def nullable_id?: (untyped id) -> untyped
+      # @rbs (Integer id) -> bool
+      def nullable_id?: (Integer id) -> bool
 
-      def terminal_names: (untyped bits) -> untyped
+      # @rbs (Integer bits) -> Array[String]
+      def terminal_names: (Integer bits) -> Array[String]
 
-      def symbol_id: (untyped symbol) -> untyped
+      # @rbs (Integer | String | Symbol | IR::GrammarSymbol symbol) -> Integer
+      def symbol_id: (Integer | String | Symbol | IR::GrammarSymbol symbol) -> Integer
 
-      def definition_for: (untyped symbol) -> untyped
+      # @rbs (Integer | String | Symbol | IR::GrammarSymbol symbol) -> IR::GrammarSymbol
+      def definition_for: (Integer | String | Symbol | IR::GrammarSymbol symbol) -> IR::GrammarSymbol
 
-      def bit: (untyped id) -> untyped
+      # @rbs (Integer id) -> Integer
+      def bit: (Integer id) -> Integer
     end
   end
 end

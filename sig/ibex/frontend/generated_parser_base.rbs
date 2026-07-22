@@ -4,63 +4,111 @@ module Ibex
   module Frontend
     # Semantic support and token delivery for the generated grammar parser.
     class GeneratedParserBase < Runtime::Parser
-      def initialize: (untyped tokens, ?mode: untyped) -> untyped
+      @mode: Symbol
 
-      def parse: () -> untyped
+      @adapter: TokenAdapter
 
-      def next_token: () -> untyped
+      # @rbs (Array[Token] tokens, ?mode: Symbol) -> void
+      def initialize: (Array[Token] tokens, ?mode: Symbol) -> void
 
-      def on_error: (untyped _token_id, untyped value, untyped _value_stack) -> untyped
+      # @rbs () -> AST::Root
+      def parse: () -> AST::Root
+
+      # @rbs () -> ([external_token, Token] | false)
+      def next_token: () -> ([ external_token, Token ] | false)
+
+      # @rbs (Integer? _token_id, Token? value, Array[untyped] _value_stack) -> bot
+      def on_error: (Integer? _token_id, Token? value, Array[untyped] _value_stack) -> bot
 
       private
 
-      def raise_contextual_error: (untyped token) -> untyped
+      # @rbs (Token? token) -> void
+      def raise_contextual_error: (Token? token) -> void
 
-      def expected_description: (untyped token) -> untyped
+      # @rbs (Token? token) -> void
+      def raise_group_contextual_error: (Token? token) -> void
 
-      def structural_expectation: (untyped token) -> untyped
+      # @rbs () -> void
+      def raise_conversion_contextual_error: () -> void
 
-      def build_root: (untyped class_token, untyped class_parts, untyped superclass, untyped declarations, untyped rules, untyped user_code) -> untyped
+      # @rbs (Token? token) -> String
+      def expected_description: (Token? token) -> String
 
-      def build_tokens: (untyped keyword, untyped names) -> untyped
+      # @rbs (Token? token) -> String
+      def structural_expectation: (Token? token) -> String
 
-      def build_precedence: (untyped keyword, untyped direction, untyped levels) -> untyped
+      # @rbs (Token class_token, Array[String] class_parts, Array[String]? superclass,
+      #   Array[AST::declaration] declarations, Array[AST::Rule] rules, AST::user_code user_code) -> AST::Root
+      def build_root: (Token class_token, Array[String] class_parts, Array[String]? superclass, Array[AST::declaration] declarations, Array[AST::Rule] rules, AST::user_code user_code) -> AST::Root
 
-      def build_precedence_level: (untyped association, untyped symbols) -> untyped
+      # @rbs (Token keyword, Array[String] names) -> AST::Tokens
+      def build_tokens: (Token keyword, Array[String] names) -> AST::Tokens
 
-      def build_options: (untyped keyword, untyped names) -> untyped
+      # @rbs (Token keyword, Symbol direction, Array[AST::PrecedenceLevel] levels) -> AST::Precedence
+      def build_precedence: (Token keyword, Symbol direction, Array[AST::PrecedenceLevel] levels) -> AST::Precedence
 
-      def build_expect: (untyped keyword, untyped integer) -> untyped
+      # @rbs (Token association, Array[String] symbols) -> AST::PrecedenceLevel
+      def build_precedence_level: (Token association, Array[String] symbols) -> AST::PrecedenceLevel
 
-      def build_start: (untyped keyword, untyped name) -> untyped
+      # @rbs (Token keyword, Array[String] names) -> AST::Options
+      def build_options: (Token keyword, Array[String] names) -> AST::Options
 
-      def build_convert: (untyped keyword, untyped pairs) -> untyped
+      # @rbs (Token keyword, Token integer) -> AST::Expect
+      def build_expect: (Token keyword, Token integer) -> AST::Expect
 
-      def build_conversion: (untyped name_token, untyped literal_token) -> untyped
+      # @rbs (Token keyword, String name) -> AST::Start
+      def build_start: (Token keyword, String name) -> AST::Start
 
-      def build_rule: (untyped lhs, untyped alternatives) -> untyped
+      # @rbs (Token keyword, Array[AST::Conversion] pairs) -> AST::Convert
+      def build_convert: (Token keyword, Array[AST::Conversion] pairs) -> AST::Convert
 
-      def build_alternative: (untyped items, untyped precedence) -> untyped
+      # @rbs (Token name_token, Token literal_token) -> AST::Conversion
+      def build_conversion: (Token name_token, Token literal_token) -> AST::Conversion
 
-      def item_start_location: (untyped item) -> untyped
+      # @rbs (Token lhs, Array[AST::Alternative] alternatives) -> AST::Rule
+      def build_rule: (Token lhs, Array[AST::Alternative] alternatives) -> AST::Rule
 
-      def build_symbol_reference: (untyped token, untyped named_reference, untyped suffixes) -> untyped
+      # @rbs (Array[AST::item] items, Token? precedence) -> AST::Alternative
+      def build_alternative: (Array[AST::item] items, Token? precedence) -> AST::Alternative
 
-      def build_action: (untyped token) -> untyped
+      # @rbs (AST::item? item) -> Location?
+      def item_start_location: (AST::item? item) -> Location?
 
-      def build_group: (untyped opening, untyped alternatives, untyped suffixes) -> untyped
+      # @rbs (Token token, [Token, Token]? named_reference, Array[Token] suffixes) -> AST::item
+      def build_symbol_reference: (Token token, [ Token, Token ]? named_reference, Array[Token] suffixes) -> AST::item
 
-      def build_separated_list: (untyped function, untyped item, untyped separator) -> untyped
+      # @rbs (Token token) -> AST::InlineAction
+      def build_action: (Token token) -> AST::InlineAction
 
-      def apply_suffixes: (untyped item, untyped suffixes) -> untyped
+      # @rbs (Token opening, Array[Array[AST::item]] alternatives, Array[Token] suffixes) -> AST::item
+      def build_group: (Token opening, Array[Array[AST::item]] alternatives, Array[Token] suffixes) -> AST::item
 
-      def append_user_code: (untyped blocks, untyped token) -> untyped
+      # @rbs (Token function, AST::item item, AST::item separator) -> AST::SeparatedList
+      def build_separated_list: (Token function, AST::item item, AST::item separator) -> AST::SeparatedList
 
-      def empty_user_code: () -> untyped
+      # @rbs (AST::item item, Array[Token] suffixes) -> AST::item
+      def apply_suffixes: (AST::item item, Array[Token] suffixes) -> AST::item
 
-      def extended_only!: (untyped location, untyped feature) -> untyped
+      # @rbs (AST::user_code blocks, Token token) -> AST::user_code
+      def append_user_code: (AST::user_code blocks, Token token) -> AST::user_code
 
-      def fail_at: (untyped location, untyped message) -> untyped
+      # @rbs () -> AST::user_code
+      def empty_user_code: () -> AST::user_code
+
+      # @rbs (Location location, String feature) -> void
+      def extended_only!: (Location location, String feature) -> void
+
+      # @rbs (Location location, String message) -> bot
+      def fail_at: (Location location, String message) -> bot
+
+      # @rbs (Token token) -> String
+      def token_string: (Token token) -> String
+
+      # @rbs (Token token) -> Integer
+      def token_integer: (Token token) -> Integer
+
+      # @rbs (Token token) -> user_code_token
+      def token_user_code: (Token token) -> user_code_token
     end
   end
 end

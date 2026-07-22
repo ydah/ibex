@@ -1,2 +1,6 @@
 # Generated from lib/ibex/analysis.rb with RBS::Inline
 
+module Ibex
+  module Analysis
+  end
+end
