@@ -1,0 +1,133 @@
+# frozen_string_literal: true
+
+require_relative "../test_helper"
+require "open3"
+require "rbconfig"
+require "tempfile"
+
+class RubyCodegenTest < Minitest::Test
+  def generate(source, file: "generated_source.y", **options)
+    ast = Ibex::Frontend::Parser.new(source, file: file, mode: options.delete(:mode) || :racc).parse
+    grammar = Ibex::Normalizer.new(ast, mode: options.delete(:normalize_mode) || :racc).normalize
+    automaton = Ibex::LALR::Builder.new(grammar).build
+    Ibex::Codegen::Ruby.new(automaton, **options).generate
+  end
+
+  def calculator_source(class_name = "GeneratedCalc")
+    <<~GRAMMAR
+      class #{class_name}
+      token NUM
+      preclow
+      left '+'
+      left '*'
+      prechigh
+      rule
+      expr: expr '+' expr { result = val[0] + val[2] }
+          | expr '*' expr { result = val[0] * val[2] }
+          | NUM { result = val[0] }
+      end
+      ---- inner
+      def parse(tokens)
+        @tokens = tokens
+        do_parse
+      end
+      def next_token = @tokens.shift
+    GRAMMAR
+  end
+
+  def evaluate(source, class_name, filename = "generated.rb")
+    container = Module.new
+    container.module_eval(source, filename)
+    container.const_get(class_name)
+  end
+
+  def test_generated_compact_parser_calculates_with_precedence
+    parser_class = evaluate(generate(calculator_source), "GeneratedCalc")
+    tokens = [[:NUM, 2], ["+", nil], [:NUM, 3], ["*", nil], [:NUM, 4]]
+    assert_equal 14, parser_class.new.parse(tokens)
+  end
+
+  def test_plain_parser_no_result_var_and_convert
+    source = <<~GRAMMAR
+      class ConvertedParser
+      token NUM
+      options no_result_var
+      convert
+      NUM :number
+      end
+      rule
+      start: NUM { val[0].to_i }
+      end
+      ---- inner
+      def parse(tokens) = (@tokens = tokens; do_parse)
+      def next_token = @tokens.shift
+    GRAMMAR
+    parser_class = evaluate(generate(source, table: :plain), "ConvertedParser")
+    assert_equal 42, parser_class.new.parse([[:number, "42"]])
+  end
+
+  def test_user_code_placement_and_implicit_action_generation
+    source = <<~GRAMMAR
+      class UserCodeParser
+      rule
+      start: TOKEN
+      end
+      ---- header
+      HEADER_MARK = true
+      ---- inner
+      def marker = HEADER_MARK
+      ---- footer
+      FOOTER_MARK = true
+    GRAMMAR
+    generated = generate(source, omit_action_call: false)
+    parser_class = evaluate(generated, "UserCodeParser")
+    assert parser_class.new.marker
+    assert_includes generated, "def _ibex_action_0"
+    assert_operator generated.index("HEADER_MARK"), :<, generated.index("class UserCodeParser")
+    assert_operator generated.index("FOOTER_MARK"), :>, generated.index("class UserCodeParser")
+  end
+
+  def test_default_line_mapping_points_to_grammar
+    source = "class FailingParser\nrule\nstart: TOKEN { raise 'boom' }\nend\n"
+    parser_class = evaluate(generate(source, file: "failure.y"), "FailingParser")
+    parser = parser_class.new
+    parser.define_singleton_method(:next_token) do
+      next nil if @read
+
+      @read = true
+      [:TOKEN, nil]
+    end
+    error = assert_raises(RuntimeError) { parser.do_parse }
+    assert_match(/failure\.y:3/, error.backtrace.first)
+
+    direct = generate(source, file: "failure.y", line_convert: false)
+    refute_includes direct, "eval(ACTION_CODE_"
+    assert_includes direct, "raise 'boom'"
+  end
+
+  def test_embedded_parser_runs_without_load_path
+    source = calculator_source("EmbeddedCalc") + <<~FOOTER
+      ---- footer
+      tokens = [[:NUM, 2], ["+", nil], [:NUM, 5]]
+      puts EmbeddedCalc.new.parse(tokens)
+    FOOTER
+    generated = generate(source, embedded: true)
+    Tempfile.create(["embedded_parser", ".rb"]) do |file|
+      file.write(generated)
+      file.flush
+      output, errors, status = Open3.capture3(RbConfig.ruby, "--disable-gems", file.path)
+      assert status.success?, errors
+      assert_equal "7\n", output
+    end
+  end
+
+  def test_generated_source_has_no_ruby_warnings
+    Tempfile.create(["generated_parser", ".rb"]) do |file|
+      file.write(generate(calculator_source))
+      file.flush
+      _output, errors, status = Open3.capture3(RbConfig.ruby, "-wc", file.path)
+      assert status.success?, errors
+      assert_equal "", errors
+    end
+  end
+end

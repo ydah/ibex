@@ -26,7 +26,7 @@ module Ibex
 
       # Pull tokens from `next_token` and parse them.
       def do_parse
-        parse(-> { next_token })
+        drive_parser(-> { next_token })
       end
 
       # Parse tokens yielded by `receiver.method_id`.
@@ -34,7 +34,7 @@ module Ibex
         stream = Enumerator.new do |tokens|
           receiver.__send__(method_id) { |token| tokens << token }
         end
-        parse(-> { stream.next })
+        drive_parser(-> { stream.next })
       end
 
       # Override in pull parsers. Return `[token, value]`, `false`, or `nil`.
@@ -78,7 +78,7 @@ module Ibex
       def expected_tokens
         return [] unless @state_stack
 
-        actions = parser_tables.fetch(:actions).fetch(@state_stack.last, {})
+        actions = table_row(parser_tables.fetch(:actions), @state_stack.last)
         actions.filter_map do |token_id, action|
           token_to_str(token_id) unless error_action?(action) || token_id == ERROR_TOKEN
         end
@@ -86,7 +86,7 @@ module Ibex
 
       private
 
-      def parse(source)
+      def drive_parser(source)
         prepare_parse(source)
         loop do
           action = action_for_current_state
@@ -113,7 +113,7 @@ module Ibex
       def action_for_current_state
         read_lookahead if @lookahead.equal?(NO_LOOKAHEAD)
         state = @state_stack.last
-        explicit = parser_tables.fetch(:actions).fetch(state, {})[@lookahead]
+        explicit = table_lookup(parser_tables.fetch(:actions), state, @lookahead)
         explicit || parser_tables.fetch(:default_actions, {})[state] || [:error]
       end
 
@@ -143,9 +143,9 @@ module Ibex
         @state_stack.pop(length)
         @value_stack.pop(length)
         result = reduction_value(production, values)
-        next_state = parser_tables.fetch(:gotos).fetch(@state_stack.last, {}).fetch(production.fetch(:lhs)) do
-          raise ParseError, "(tables):1:1: missing goto for production #{production_id}"
-        end
+        next_state = table_lookup(parser_tables.fetch(:gotos), @state_stack.last, production.fetch(:lhs))
+        raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
+
         @state_stack << next_state
         @value_stack << result
         trace("reduce #{production_id} (#{length}) -> state #{next_state}")
@@ -182,7 +182,7 @@ module Ibex
 
       def shift_error_token
         loop do
-          action = parser_tables.fetch(:actions).fetch(@state_stack.last, {})[ERROR_TOKEN]
+          action = table_lookup(parser_tables.fetch(:actions), @state_stack.last, ERROR_TOKEN)
           if action&.first == :shift
             trace("recover: shift error -> state #{action.fetch(1)}")
             @state_stack << action.fetch(1)
@@ -231,6 +231,18 @@ module Ibex
 
       def error_action?(action)
         action.nil? || action.first == :error
+      end
+
+      def table_lookup(table, row, column)
+        return table.lookup(row, column) if table.respond_to?(:lookup)
+
+        table.fetch(row, {})[column]
+      end
+
+      def table_row(table, row)
+        return table.row(row) if table.respond_to?(:row)
+
+        table.fetch(row, {})
       end
 
       def trace(message)
