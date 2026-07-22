@@ -106,6 +106,13 @@ class NormalizerTest < Minitest::Test
     assert_includes warning_types, :unreachable_nonterminal
   end
 
+  def test_warns_when_the_start_symbol_cannot_derive_a_terminal_sentence
+    grammar = normalize("class P\nrule\nstart: loop\nloop: start\nend\n")
+    warning = grammar.warnings.find { |item| item[:type] == :empty_language }
+    assert_equal "start", warning[:symbol]
+    assert_equal 3, warning.dig(:loc, :line)
+  end
+
   def test_rejects_unknown_schema_version_with_position
     error = assert_raises(Ibex::Error) do
       Ibex::IR::Serialize.load('{"ibex_ir":"grammar","schema_version":99}')

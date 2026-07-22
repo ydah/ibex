@@ -11,6 +11,7 @@ module Ibex
       warn_duplicate_productions
       warn_unreachable_nonterminals
       warn_unused_terminals
+      warn_empty_language
     end
 
     def warn_duplicate_productions
@@ -54,6 +55,29 @@ module Ibex
 
         @warnings << { type: :unused_terminal, symbol: grammar_symbol.name, loc: grammar_symbol.location }
       end
+    end
+
+    def warn_empty_language
+      productive = productive_terminal_ids
+      loop do
+        before = productive.length
+        @productions.each do |production|
+          productive << production.lhs if production.rhs.all? { |id| productive.include?(id) }
+        end
+        break if productive.length == before
+      end
+      return if productive.include?(symbol(@start_name).id)
+
+      start_symbol = symbol(@start_name)
+      @warnings << { type: :empty_language, symbol: @start_name, loc: start_symbol.location }
+    end
+
+    def productive_terminal_ids
+      @symbols.select { |grammar_symbol| productive_terminal?(grammar_symbol) }.to_set(&:id)
+    end
+
+    def productive_terminal?(grammar_symbol)
+      grammar_symbol.terminal? && !grammar_symbol.reserved
     end
   end
 end

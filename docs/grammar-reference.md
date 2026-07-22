@@ -73,6 +73,13 @@ Extended mode supports:
 Nested grouped EBNF expressions are intentionally unsupported; name a nonterminal and apply the suffix to it. Named references
 must be unique in an alternative and cannot use `result`, `val`, or `_values`.
 
+## Strict diagnostics
+
+Grammar IR retains structured diagnostics for undeclared or unused terminals, unreachable nonterminals, duplicate productions,
+and a start symbol that cannot derive any terminal sentence. They remain silent by default for compatibility. `--warnings=all`
+prints them, `--warnings=all,error` or `--warnings=error` promotes them to command failures, and `--warnings=none` explicitly
+suppresses them.
+
 ## Ruby DSL
 
 The DSL builds the same AST and IR without evaluating grammar text:

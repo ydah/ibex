@@ -55,6 +55,9 @@ module Ibex
       options.on("--algorithm=NAME", %w[slr lalr lr1], "parser construction algorithm") do |value|
         @options[:algorithm] = value.to_sym
       end
+      options.on("--warnings=CATEGORIES", "all, error, all,error, or none") do |value|
+        @options[:warnings] = warning_categories(value)
+      end
     end
 
     def add_output_options(options)
@@ -135,6 +138,7 @@ module Ibex
     end
 
     def dispatch_grammar(grammar, path)
+      handle_grammar_warnings(grammar, path)
       return 0 if @options[:check_only]
       return emit_grammar(grammar) if @options[:emit] == "grammar-ir"
       return emit_automaton(grammar, path) if @options[:emit] == "automaton-ir"
@@ -144,6 +148,7 @@ module Ibex
     end
 
     def dispatch_automaton(automaton, path)
+      handle_grammar_warnings(automaton.grammar, path)
       return 0 if @options[:check_only]
       return emit_grammar(automaton.grammar) if @options[:emit] == "grammar-ir"
       return emit_loaded_automaton(automaton, path) if @options[:emit] == "automaton-ir"
