@@ -80,7 +80,7 @@ module Ibex
         remaining = Array.new(@grammar.productions.length, 0)
         queue = [] #: Array[Integer]
         @grammar.productions.each do |production|
-          next if production.rhs.any? { |id| @grammar.symbol_by_id(id).terminal? }
+          next if production.rhs.any? { |id| required_symbol_by_id(id).terminal? }
 
           remaining[production.id] = production.rhs.length
           production.rhs.each { |id| dependencies[id] << production }
@@ -120,7 +120,7 @@ module Ibex
         trailer = 0
         suffix_nullable = true
         production.rhs.reverse_each do |id|
-          definition = @grammar.symbol_by_id(id)
+          definition = required_symbol_by_id(id)
           if definition.nonterminal?
             @follow_bits[id] |= trailer
             dependencies[production.lhs] << id if suffix_nullable
@@ -178,6 +178,11 @@ module Ibex
         return definition if definition
 
         raise Ibex::Error, "(analysis):1:1: unknown symbol #{symbol}"
+      end
+
+      # @rbs (Integer id) -> IR::GrammarSymbol
+      def required_symbol_by_id(id)
+        @grammar.symbol_by_id(id) || raise(Ibex::Error, "(analysis):1:1: unknown symbol id #{id}")
       end
 
       # @rbs (Integer id) -> Integer

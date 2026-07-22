@@ -62,6 +62,9 @@ module Ibex
       # @rbs (Integer | String | Symbol | IR::GrammarSymbol symbol) -> IR::GrammarSymbol
       def definition_for: (Integer | String | Symbol | IR::GrammarSymbol symbol) -> IR::GrammarSymbol
 
+      # @rbs (Integer id) -> IR::GrammarSymbol
+      def required_symbol_by_id: (Integer id) -> IR::GrammarSymbol
+
       # @rbs (Integer id) -> Integer
       def bit: (Integer id) -> Integer
     end

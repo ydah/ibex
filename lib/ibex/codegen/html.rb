@@ -26,7 +26,7 @@ module Ibex
       def state_sections(automaton, grammar)
         automaton.states.map do |state|
           transitions = state.transitions.map do |symbol_id, target|
-            symbol = escape(grammar.symbol_by_id(symbol_id).name)
+            symbol = escape(symbol_name(grammar, symbol_id))
             "<li>#{symbol} → <a href=\"#state-#{target}\">state #{target}</a></li>"
           end.join
           items = state.items.map { |item| item_html(item, grammar) }.join
@@ -43,8 +43,8 @@ module Ibex
         return "<li><code>$accept</code></li>" if item.production.negative?
 
         production = grammar.productions.fetch(item.production)
-        lhs = grammar.symbol_by_id(production.lhs).name
-        rhs = production.rhs.map { |id| grammar.symbol_by_id(id).name }.insert(item.dot, "•").join(" ")
+        lhs = symbol_name(grammar, production.lhs)
+        rhs = production.rhs.map { |id| symbol_name(grammar, id) }.insert(item.dot, "•").join(" ")
         link = "<a href=\"#rule-#{production.id}\">rule #{production.id}</a>"
         "<li>#{link} <code>#{escape(lhs)} → #{escape(rhs)}</code></li>"
       end
@@ -53,8 +53,8 @@ module Ibex
       # @rbs (IR::Grammar grammar) -> String
       def rule_sections(grammar)
         grammar.productions.map do |production|
-          lhs = grammar.symbol_by_id(production.lhs).name
-          rhs = production.rhs.map { |id| grammar.symbol_by_id(id).name }.join(" ")
+          lhs = symbol_name(grammar, production.lhs)
+          rhs = production.rhs.map { |id| symbol_name(grammar, id) }.join(" ")
           number = "<strong>#{production.id}</strong>"
           "<p id=\"rule-#{production.id}\">#{number} <code>#{escape(lhs)} → #{escape(rhs)}</code></p>"
         end.join
@@ -78,6 +78,13 @@ module Ibex
         value.to_s.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;").gsub('"', "&quot;")
       end
       private_class_method :escape
+
+      # @rbs (IR::Grammar grammar, Integer id) -> String
+      def symbol_name(grammar, id)
+        symbol = grammar.symbol_by_id(id) || raise(Ibex::Error, "missing grammar symbol id #{id}")
+        symbol.name
+      end
+      private_class_method :symbol_name
     end
   end
 end

@@ -118,14 +118,20 @@ module Ibex
       # @rbs (Integer production_id) -> IR::interpretation
       def reduce_interpretation(production_id)
         production = @grammar.productions.fetch(production_id)
-        lhs = @grammar.symbol_by_id(production.lhs).name
+        lhs = symbol_name(production.lhs)
         rhs = names(production.rhs)
         { kind: :reduce, production: production_id, tree: { symbol: lhs, children: rhs } }
       end
 
       # @rbs (Array[Integer] symbol_ids) -> Array[String]
       def names(symbol_ids)
-        symbol_ids.map { |id| @grammar.symbol_by_id(id).name }
+        symbol_ids.map { |id| symbol_name(id) }
+      end
+
+      # @rbs (Integer id) -> String
+      def symbol_name(id)
+        symbol = @grammar.symbol_by_id(id) || raise(Ibex::Error, "missing grammar symbol id #{id}")
+        symbol.name
       end
     end
   end

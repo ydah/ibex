@@ -4,33 +4,45 @@ module Ibex
   module Frontend
     # Parses productions and extended RHS items.
     module BootstrapParserRules
-      EXTENDED_SUFFIXES: untyped
+      EXTENDED_SUFFIXES: Hash[Symbol, singleton(AST::Optional) | singleton(AST::Star) | singleton(AST::Plus)]
 
       private
 
-      def parse_rules: () -> untyped
+      # @rbs () -> Array[AST::Rule]
+      def parse_rules: () -> Array[AST::Rule]
 
-      def parse_rule: () -> untyped
+      # @rbs () -> AST::Rule
+      def parse_rule: () -> AST::Rule
 
-      def parse_alternative: (untyped lhs) -> untyped
+      # @rbs (Token lhs) -> AST::Alternative
+      def parse_alternative: (Token lhs) -> AST::Alternative
 
-      def parse_item: () -> untyped
+      # @rbs () -> AST::item
+      def parse_item: () -> AST::item
 
-      def parse_action: () -> untyped
+      # @rbs () -> AST::InlineAction
+      def parse_action: () -> AST::InlineAction
 
-      def parse_named_reference: () -> untyped
+      # @rbs () -> String?
+      def parse_named_reference: () -> String?
 
-      def parse_suffix: (untyped item) -> untyped
+      # @rbs (AST::item item) -> AST::item
+      def parse_suffix: (AST::item item) -> AST::item
 
-      def parse_group: () -> untyped
+      # @rbs () -> AST::item
+      def parse_group: () -> AST::item
 
-      def parse_separated_list: () -> untyped
+      # @rbs () -> AST::SeparatedList
+      def parse_separated_list: () -> AST::SeparatedList
 
-      def alternative_end?: (untyped lhs) -> untyped
+      # @rbs (Token lhs) -> bool
+      def alternative_end?: (Token lhs) -> bool
 
-      def rule_start?: (untyped lhs) -> untyped
+      # @rbs (Token lhs) -> bool
+      def rule_start?: (Token lhs) -> bool
 
-      def separated_list?: () -> untyped
+      # @rbs () -> bool
+      def separated_list?: () -> bool
     end
   end
 end

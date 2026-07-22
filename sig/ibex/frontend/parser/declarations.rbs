@@ -4,37 +4,50 @@ module Ibex
   module Frontend
     # Parses the declaration section of a grammar.
     module BootstrapParserDeclarations
-      DECLARATIONS: untyped
+      DECLARATIONS: Array[String]
 
-      ASSOCIATIVITIES: untyped
+      ASSOCIATIVITIES: Array[String]
 
       private
 
-      def parse_declarations: () -> untyped
+      # @rbs () -> Array[AST::declaration]
+      def parse_declarations: () -> Array[AST::declaration]
 
-      def parse_declaration: () -> untyped
+      # @rbs () -> AST::declaration
+      def parse_declaration: () -> AST::declaration
 
-      def parse_tokens: () -> untyped
+      # @rbs () -> AST::Tokens
+      def parse_tokens: () -> AST::Tokens
 
-      def parse_precedence: () -> untyped
+      # @rbs () -> AST::Precedence
+      def parse_precedence: () -> AST::Precedence
 
-      def precedence_levels: (untyped closing) -> untyped
+      # @rbs (String closing) -> Array[AST::PrecedenceLevel]
+      def precedence_levels: (String closing) -> Array[AST::PrecedenceLevel]
 
-      def parse_options: () -> untyped
+      # @rbs () -> AST::Options
+      def parse_options: () -> AST::Options
 
-      def parse_expect: () -> untyped
+      # @rbs () -> AST::Expect
+      def parse_expect: () -> AST::Expect
 
-      def parse_start: () -> untyped
+      # @rbs () -> AST::Start
+      def parse_start: () -> AST::Start
 
-      def parse_convert: () -> untyped
+      # @rbs () -> AST::Convert
+      def parse_convert: () -> AST::Convert
 
-      def tokens_on_line: (untyped line) -> untyped
+      # @rbs (Integer line) -> Array[Token]
+      def tokens_on_line: (Integer line) -> Array[Token]
 
-      def decode_conversion: (untyped tokens, untyped location) -> untyped
+      # @rbs (Array[Token] tokens, Location location) -> String
+      def decode_conversion: (Array[Token] tokens, Location location) -> String
 
-      def declaration_start?: () -> untyped
+      # @rbs () -> bool
+      def declaration_start?: () -> bool
 
-      def association_start?: () -> untyped
+      # @rbs () -> bool
+      def association_start?: () -> bool
     end
   end
 end

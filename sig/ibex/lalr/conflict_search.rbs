@@ -11,13 +11,13 @@ module Ibex
 
       DEFAULT_MAX_CONFIGURATIONS: untyped
 
-      class Configuration
-        attr_reader states: Array[Integer]
+      class Configuration < Struct[Array[Integer] | Array[derivation_node]]
+        attr_accessor states(): Array[Integer]
 
-        attr_reader nodes: Array[derivation_node]
+        attr_accessor nodes(): Array[derivation_node]
 
-        # @rbs (states: Array[Integer], nodes: Array[derivation_node]) -> void
-        def initialize: (states: Array[Integer], nodes: Array[derivation_node]) -> void
+        def self.new: (?states: Array[Integer], ?nodes: Array[derivation_node]) -> instance
+                    | ({ ?states: Array[Integer], ?nodes: Array[derivation_node] }) -> instance
       end
 
       @input_tokens: Array[Integer]
@@ -28,7 +28,7 @@ module Ibex
 
       @max_tokens: Integer
 
-      @lookahead: Integer
+      @lookahead: Integer?
 
       @conflict: IR::conflict
 
@@ -111,6 +111,12 @@ module Ibex
 
       # @rbs (Array[Integer] states, Array[derivation_node] nodes) -> Configuration
       def configuration: (Array[Integer] states, Array[derivation_node] nodes) -> Configuration
+
+      # @rbs () -> Integer
+      def required_lookahead: () -> Integer
+
+      # @rbs (Integer id) -> String
+      def symbol_name: (Integer id) -> String
 
       # @rbs (Configuration left, Configuration right) -> [Array[Integer], Array[Integer]]
       def pair_key: (Configuration left, Configuration right) -> [ Array[Integer], Array[Integer] ]

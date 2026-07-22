@@ -10,22 +10,17 @@ module Ibex
       DEFAULT_MAX_TOKENS = ConflictSearchLimits::DEFAULT_MAX_TOKENS
       DEFAULT_MAX_CONFIGURATIONS = ConflictSearchLimits::DEFAULT_MAX_CONFIGURATIONS
 
-      class Configuration
-        attr_reader :states #: Array[Integer]
-        attr_reader :nodes #: Array[derivation_node]
-
-        # @rbs (states: Array[Integer], nodes: Array[derivation_node]) -> void
-        def initialize(states:, nodes:)
-          @states = states
-          @nodes = nodes
-        end
-      end
+      Configuration = Struct.new(
+        :states, #: Array[Integer]
+        :nodes, #: Array[derivation_node]
+        keyword_init: true
+      )
 
       # @rbs @automaton: IR::Automaton
       # @rbs @grammar: IR::Grammar
       # @rbs @state: IR::AutomatonState
       # @rbs @conflict: IR::conflict
-      # @rbs @lookahead: Integer
+      # @rbs @lookahead: Integer?
       # @rbs @max_tokens: Integer
       # @rbs @max_configurations: Integer
       # @rbs @explored: Integer
@@ -40,8 +35,7 @@ module Ibex
         @grammar = automaton.grammar
         @state = state
         @conflict = conflict
-        lookahead = @grammar.symbol(conflict[:symbol]) || raise(Ibex::Error, "unknown conflict symbol")
-        @lookahead = lookahead.id
+        @lookahead = @grammar.symbol(conflict[:symbol])&.id
         @max_tokens = max_tokens
         @max_configurations = max_configurations
         @explored = 0
@@ -50,6 +44,8 @@ module Ibex
 
       # @rbs () -> search_result?
       def call
+        return unless @lookahead
+
         queue = [[configuration([0], Array.new(0)), Array.new(0)]] #: Array[[Configuration, Array[Integer]]]
         visited = { [0] => true }
         until queue.empty? || exhausted?
@@ -67,7 +63,7 @@ module Ibex
 
       # @rbs (Configuration current) -> Array[Configuration]
       def conflict_configurations(current)
-        advance(current, @lookahead, stop_at: @state.id, branch_conflicts: true)
+        advance(current, required_lookahead, stop_at: @state.id, branch_conflicts: true)
           .filter_map { |status, candidate| candidate if status == :conflict }
       end
 
@@ -94,8 +90,8 @@ module Ibex
         conflict_actions.combination(2) do |left_action, right_action|
           next unless left_action && right_action
 
-          left_results = advance(current, @lookahead, forced_action: left_action, branch_conflicts: true)
-          right_results = advance(current, @lookahead, forced_action: right_action, branch_conflicts: true)
+          left_results = advance(current, required_lookahead, forced_action: left_action, branch_conflicts: true)
+          right_results = advance(current, required_lookahead, forced_action: right_action, branch_conflicts: true)
           left_results.product(right_results).each do |left, right|
             result = search_common_suffix(left, right, prefix, left_action, right_action)
             return result if result
@@ -159,7 +155,8 @@ module Ibex
         return unless within_token_budget?(prefix, suffix)
 
         sentence = prefix.dup
-        sentence << @lookahead unless @lookahead.zero?
+        lookahead = required_lookahead
+        sentence << lookahead unless lookahead.zero?
         sentence.concat(suffix)
         { sentence_ids: sentence, lookahead_index: prefix.length,
           interpretations: [interpretation(left_action, left.last), interpretation(right_action, right.last)] }
@@ -240,7 +237,7 @@ module Ibex
         actions = [state.actions[token_id] || state.default_action].compact
         return actions unless branch_conflicts
 
-        token_name = @grammar.symbol_by_id(token_id).name
+        token_name = symbol_name(token_id)
         state.conflicts.each do |conflict|
           next unless conflict[:symbol] == token_name
 
@@ -285,7 +282,7 @@ module Ibex
 
       # @rbs (Configuration current, Integer state_id, Integer token_id) -> Configuration
       def shift(current, state_id, token_id)
-        symbol = @grammar.symbol_by_id(token_id).name
+        symbol = symbol_name(token_id)
         configuration(current.states + [state_id], current.nodes + [{ symbol: symbol, token: symbol }])
       end
 
@@ -301,12 +298,23 @@ module Ibex
         target = @automaton.states.fetch(states.last).gotos[production.lhs]
         return unless target
 
-        symbol = @grammar.symbol_by_id(production.lhs).name
+        symbol = symbol_name(production.lhs)
         configuration(states + [target], nodes + [{ symbol: symbol, production: production_id, children: children }])
       end
 
       # @rbs (Array[Integer] states, Array[derivation_node] nodes) -> Configuration
       def configuration(states, nodes) = Configuration.new(states: states.freeze, nodes: nodes.freeze)
+
+      # @rbs () -> Integer
+      def required_lookahead
+        @lookahead || raise(Ibex::Error, "missing conflict lookahead")
+      end
+
+      # @rbs (Integer id) -> String
+      def symbol_name(id)
+        symbol = @grammar.symbol_by_id(id) || raise(Ibex::Error, "missing grammar symbol id #{id}")
+        symbol.name
+      end
 
       # @rbs (Configuration left, Configuration right) -> [Array[Integer], Array[Integer]]
       def pair_key(left, right)

@@ -28,10 +28,10 @@ module Ibex
         lines << "State #{state.id}"
         state.items.each { |item| lines << "  #{format_item(item, grammar)}" }
         state.actions.each do |token_id, action|
-          lines << "  on #{grammar.symbol_by_id(token_id).name}: #{format_action(action)}"
+          lines << "  on #{symbol_name(grammar, token_id)}: #{format_action(action)}"
         end
         lines << "  default: #{format_action(state.default_action)}" if state.default_action
-        state.gotos.each { |symbol_id, target| lines << "  goto #{grammar.symbol_by_id(symbol_id).name}: #{target}" }
+        state.gotos.each { |symbol_id, target| lines << "  goto #{symbol_name(grammar, symbol_id)}: #{target}" }
         state.conflicts.each { |conflict| lines << "  conflict: #{conflict.inspect}" }
         examples.each { |example| append_counterexample(lines, example) }
         lines << ""
@@ -76,11 +76,11 @@ module Ibex
           lhs = "$accept"
         else
           production = grammar.productions.fetch(item.production)
-          rhs = production.rhs.map { |id| grammar.symbol_by_id(id).name }
-          lhs = grammar.symbol_by_id(production.lhs).name
+          rhs = production.rhs.map { |id| symbol_name(grammar, id) }
+          lhs = symbol_name(grammar, production.lhs)
         end
         rhs = rhs.dup.insert(item.dot, "•")
-        lookaheads = item.lookaheads.map { |id| grammar.symbol_by_id(id).name }.join(", ")
+        lookaheads = item.lookaheads.map { |id| symbol_name(grammar, id) }.join(", ")
         "#{lhs} -> #{rhs.join(' ')} [#{lookaheads}]"
       end
       private_class_method :format_item
@@ -94,6 +94,13 @@ module Ibex
         end
       end
       private_class_method :format_action
+
+      # @rbs (IR::Grammar grammar, Integer id) -> String
+      def symbol_name(grammar, id)
+        symbol = grammar.symbol_by_id(id) || raise(Ibex::Error, "missing grammar symbol id #{id}")
+        symbol.name
+      end
+      private_class_method :symbol_name
     end
   end
 end

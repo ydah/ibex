@@ -63,7 +63,7 @@ module Ibex
       # @rbs (Integer token_id, IR::shift_action shift, IR::reduce_action reduction) ->
       #   [IR::parser_action, IR::shift_reduce_conflict]
       def resolve_shift_reduce(token_id, shift, reduction)
-        token_precedence = @grammar.symbol_by_id(token_id).precedence
+        token_precedence = required_symbol_by_id(token_id).precedence
         production_precedence = precedence_for_production(reduction[:production])
         chosen, resolution = precedence_choice(shift, reduction, token_precedence, production_precedence)
         conflict = { type: :shift_reduce, symbol: token_name(token_id), shift_to: shift[:state],
@@ -97,10 +97,10 @@ module Ibex
       # @rbs (Integer production_id) -> IR::precedence?
       def precedence_for_production(production_id)
         production = @grammar.productions.fetch(production_id)
-        return @grammar.symbol_by_id(production.precedence_override).precedence if production.precedence_override
+        return required_symbol_by_id(production.precedence_override).precedence if production.precedence_override
 
         production.rhs.reverse_each do |symbol_id|
-          grammar_symbol = @grammar.symbol_by_id(symbol_id)
+          grammar_symbol = required_symbol_by_id(symbol_id)
           return grammar_symbol.precedence if grammar_symbol.terminal? && grammar_symbol.precedence
         end
         nil
@@ -108,7 +108,12 @@ module Ibex
 
       # @rbs (Integer token_id) -> String
       def token_name(token_id)
-        @grammar.symbol_by_id(token_id).name
+        required_symbol_by_id(token_id).name
+      end
+
+      # @rbs (Integer id) -> IR::GrammarSymbol
+      def required_symbol_by_id(id)
+        @grammar.symbol_by_id(id) || raise(Ibex::Error, "missing grammar symbol id #{id}")
       end
     end
   end

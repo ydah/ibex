@@ -98,6 +98,47 @@ class CounterexampleTest < Minitest::Test
     assert_equal 50_000, Ibex::LALR::Counterexample::DEFAULT_MAX_CONFIGURATIONS
   end
 
+  def test_configuration_preserves_struct_api
+    states = [0, 1]
+    nodes = [{ symbol: "TOKEN" }]
+    configuration = Ibex::LALR::ConflictSearch::Configuration.new(states: states, nodes: nodes)
+
+    assert_kind_of Struct, configuration
+    assert_equal configuration, configuration.dup
+    assert_equal configuration.hash, configuration.dup.hash
+    assert_equal %i[states nodes], configuration.members
+    assert_equal states, configuration[0]
+    assert_equal nodes, configuration[:nodes]
+    assert_equal [states, nodes], configuration.deconstruct
+    configuration.states = [2]
+    configuration.nodes = []
+    assert_equal [[2], []], configuration.values
+    assert_raises(ArgumentError) { Ibex::LALR::ConflictSearch::Configuration.new(states, nodes) }
+  end
+
+  def test_unknown_conflict_symbol_falls_back_without_initialization_error
+    automaton = build("class P\nrule\nstart: TOKEN\nend\n")
+    conflict = { type: :shift_reduce, symbol: "UNKNOWN", shift_to: 0, reduce: 0,
+                 resolution: { by: :default_shift, chose: :shift } }
+    state = automaton.states.first
+    state_with_conflict = Ibex::IR::AutomatonState.new(
+      id: state.id, items: state.items, transitions: state.transitions, actions: state.actions,
+      gotos: state.gotos, default_action: state.default_action, conflicts: [conflict]
+    )
+    states = automaton.states.dup
+    states[state.id] = state_with_conflict
+    automaton_with_conflict = Ibex::IR::Automaton.new(
+      grammar: automaton.grammar, states: states, conflict_summary: automaton.conflict_summary,
+      algorithm: automaton.algorithm, grammar_digest: automaton.grammar_digest
+    )
+
+    search = Ibex::LALR::ConflictSearch.new(automaton_with_conflict, state_with_conflict, conflict)
+    assert_nil search.call
+    example = Ibex::LALR::Counterexample.new(automaton_with_conflict).all.first
+    refute example[:unifying]
+    assert_equal :shift_reduce, example[:type]
+  end
+
   def test_token_budget_includes_a_non_eof_conflict_lookahead
     automaton = build("class P\nexpect 1\nrule\nstart: start start | TOKEN\nend\n")
 

@@ -137,8 +137,7 @@ module Ibex
 
       # @rbs (String name) -> GrammarSymbol?
       def symbol(name) = @symbols_by_name[name]
-      # @rbs (Integer id) -> GrammarSymbol
-      #    | (nil id) -> nil
+      # @rbs (Integer? id) -> GrammarSymbol?
       def symbol_by_id(id) = @symbols_by_id[id]
       # @rbs () -> Array[GrammarSymbol]
       def terminals = @symbols.select(&:terminal?)

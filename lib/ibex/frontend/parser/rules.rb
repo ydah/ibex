@@ -4,23 +4,27 @@ module Ibex
   module Frontend
     # Parses productions and extended RHS items.
     module BootstrapParserRules
-      EXTENDED_SUFFIXES = { "?": AST::Optional, "*": AST::Star, "+": AST::Plus }.freeze
+      EXTENDED_SUFFIXES = {
+        "?": AST::Optional, "*": AST::Star, "+": AST::Plus
+      }.freeze #: Hash[Symbol, singleton(AST::Optional) | singleton(AST::Star) | singleton(AST::Plus)]
 
       private
 
+      # @rbs () -> Array[AST::Rule]
       def parse_rules
         # @type self: BootstrapParser
-        rules = [] #: Array[untyped]
+        rules = [] #: Array[AST::Rule]
         rules << parse_rule until keyword?("end") || current.type == :eof
         fail_expected("at least one rule") if rules.empty?
         rules
       end
 
+      # @rbs () -> AST::Rule
       def parse_rule
         # @type self: BootstrapParser
         lhs = expect(:identifier)
         expect(:":")
-        alternatives = [] #: Array[untyped]
+        alternatives = [] #: Array[AST::Alternative]
         loop do
           alternatives << parse_alternative(lhs)
           next if accept(:|)
@@ -28,14 +32,15 @@ module Ibex
           accept(:";")
           break
         end
-        AST::Rule.new(lhs: lhs.value, alternatives: alternatives, loc: lhs.location)
+        AST::Rule.new(lhs: token_string(lhs), alternatives: alternatives, loc: lhs.location)
       end
 
+      # @rbs (Token lhs) -> AST::Alternative
       def parse_alternative(lhs)
         # @type self: BootstrapParser
         location = current.location
-        items = [] #: Array[untyped]
-        precedence = nil
+        items = [] #: Array[AST::item]
+        precedence = nil #: String?
         until alternative_end?(lhs)
           if accept(:"=")
             precedence = parse_symbol_name
@@ -43,10 +48,16 @@ module Ibex
           end
           items << parse_item
         end
-        action = items.pop if items.last.is_a?(AST::InlineAction)
+        action = nil #: AST::InlineAction?
+        last_item = items.last
+        if last_item.is_a?(AST::InlineAction)
+          items.pop
+          action = last_item
+        end
         AST::Alternative.new(items: items, action: action, precedence: precedence, loc: location)
       end
 
+      # @rbs () -> AST::item
       def parse_item
         # @type self: BootstrapParser
         return parse_action if current.type == :action
@@ -55,25 +66,29 @@ module Ibex
 
         token = expect_symbol
         named_reference = parse_named_reference
-        item = AST::SymbolReference.new(name: token.value, named_reference: named_reference, loc: token.location)
+        item = AST::SymbolReference.new(name: token_string(token), named_reference: named_reference,
+                                        loc: token.location)
         parse_suffix(item)
       end
 
+      # @rbs () -> AST::InlineAction
       def parse_action
         # @type self: BootstrapParser
         token = advance
-        AST::InlineAction.new(code: token.value, loc: token.location)
+        AST::InlineAction.new(code: token_string(token), loc: token.location)
       end
 
+      # @rbs () -> String?
       def parse_named_reference
         # @type self: BootstrapParser
         return nil unless current.type == :":"
 
         extended_only!(current.location, "named references")
         advance
-        expect(:identifier).value
+        token_string(expect(:identifier))
       end
 
+      # @rbs (AST::item item) -> AST::item
       def parse_suffix(item)
         # @type self: BootstrapParser
         while (wrapper = EXTENDED_SUFFIXES[current.type])
@@ -83,11 +98,12 @@ module Ibex
         item
       end
 
+      # @rbs () -> AST::item
       def parse_group
         # @type self: BootstrapParser
         opening = advance
         extended_only!(opening.location, "EBNF groups")
-        alternatives = [[]] #: Array[Array[untyped]]
+        alternatives = [[]] #: Array[Array[AST::item]]
         until current.type == :")"
           fail_at(opening.location, "unterminated EBNF group") if current.type == :eof || keyword?("end")
           if accept(:|)
@@ -102,6 +118,7 @@ module Ibex
         parse_suffix(AST::Group.new(alternatives: alternatives, loc: opening.location))
       end
 
+      # @rbs () -> AST::SeparatedList
       def parse_separated_list
         # @type self: BootstrapParser
         function = advance
@@ -115,16 +132,19 @@ module Ibex
                                nonempty: function.value == "separated_nonempty_list", loc: function.location)
       end
 
+      # @rbs (Token lhs) -> bool
       def alternative_end?(lhs)
         # @type self: BootstrapParser
         %i[| ; eof].include?(current.type) || keyword?("end") || rule_start?(lhs)
       end
 
+      # @rbs (Token lhs) -> bool
       def rule_start?(lhs)
         # @type self: BootstrapParser
         current.type == :identifier && lookahead.type == :":" && current.location.column <= lhs.location.column
       end
 
+      # @rbs () -> bool
       def separated_list?
         # @type self: BootstrapParser
         %w[separated_list separated_nonempty_list].include?(current.value) && lookahead.type == :"("
