@@ -37,7 +37,7 @@ module Ibex
 
         def expectation(token)
           if @state == :rules_lhs && @section == :rules
-            "identifier"
+            rules_lhs_expectation(token)
           elsif @state == :rule_colon
             ":"
           elsif @state == :rule_rhs && %w[) ,].include?(token&.value)
@@ -65,6 +65,7 @@ module Ibex
             return :END
           end
 
+          @rule_seen = true
           @lhs_column = token.location.column
           @state = :rule_colon
           :LHS
@@ -79,6 +80,7 @@ module Ibex
         end
 
         def start_rule(token)
+          @rule_seen = true
           @lhs_column = token.location.column
           @state = :rule_colon
           :LHS
@@ -106,6 +108,12 @@ module Ibex
         def reset_rule_boundary
           @lhs_column = nil
           @state = :rules_lhs
+        end
+
+        def rules_lhs_expectation(token)
+          return "identifier" unless token&.type == :eof
+
+          @rule_seen ? "end" : "at least one rule"
         end
       end
     end

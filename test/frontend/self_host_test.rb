@@ -14,6 +14,33 @@ class FrontendSelfHostTest < Minitest::Test
   end.freeze
   GENERATED = File.expand_path("../../lib/ibex/frontend/generated_parser.rb", __dir__)
   ROOT = File.expand_path("../..", __dir__)
+  MALFORMED_GRAMMARS = [
+    ["class P\ntoken X\n", :racc],
+    ["class P\nrule\ns: X\n", :racc],
+    ["class P\nprechigh\nmiddle X\npreclow\nrule\ns: X\nend\n", :racc],
+    ["class P\nprechigh\nleft X\n", :racc],
+    ["class P\nconvert\nX 'x'\n", :racc],
+    ["class P\nrule\nend\n", :racc],
+    ["class P\nrule\n", :racc],
+    ["class P\nrule\ns: A;\n", :racc],
+    ["token X\n", :racc],
+    ["class P\nexpect nope\nrule\ns: X\nend\n", :racc],
+    ["class P\nstart\n", :racc],
+    ["class P\nstart 1\nrule\ns: X\nend\n", :racc],
+    ["class P\nrule\ns: )\nend\n", :racc],
+    ["class P\nrule\ns: ITEM*\nend\n", :racc],
+    ["class P\nrule\ns: (A { x })\nend\n", :extended],
+    ["class P\nrule\ns: (A\nend\n", :extended],
+    ["class P\nrule\ns: (separated_list(A, B) { x })\nend\n", :extended],
+    ["class P\nrule\ns: (separated_list(A, B\nend\n", :extended],
+    ["class P\nrule\ns: (separated_list(A, B)\nend\n", :extended],
+    ["class P\nrule\ns A\nend\n", :racc],
+    ["class P\nrule\ns: ITEM:name\nend\n", :racc],
+    ["class P\nrule\ns: A\nend: B\nend\n", :racc],
+    ["class P\nend\n", :racc],
+    ["class P\nconvert\nX abc\nend\nrule\ns: X\nend\n", :racc],
+    ["class P\nconvert\nX 'one' 'two'\nend\nrule\ns: X\nend\n", :racc]
+  ].freeze
 
   def test_public_parser_uses_generated_implementation
     parser = Ibex::Frontend::Parser.new("class P\nrule\ns: X\nend\n")
@@ -137,33 +164,7 @@ class FrontendSelfHostTest < Minitest::Test
   end
 
   def test_generated_parser_matches_bootstrap_errors
-    malformed = [
-      ["class P\ntoken X\n", :racc],
-      ["class P\nrule\ns: X\n", :racc],
-      ["class P\nprechigh\nmiddle X\npreclow\nrule\ns: X\nend\n", :racc],
-      ["class P\nprechigh\nleft X\n", :racc],
-      ["class P\nconvert\nX 'x'\n", :racc],
-      ["class P\nrule\nend\n", :racc],
-      ["token X\n", :racc],
-      ["class P\nexpect nope\nrule\ns: X\nend\n", :racc],
-      ["class P\nstart\n", :racc],
-      ["class P\nstart 1\nrule\ns: X\nend\n", :racc],
-      ["class P\nrule\ns: )\nend\n", :racc],
-      ["class P\nrule\ns: ITEM*\nend\n", :racc],
-      ["class P\nrule\ns: (A { x })\nend\n", :extended],
-      ["class P\nrule\ns: (A\nend\n", :extended],
-      ["class P\nrule\ns: (separated_list(A, B) { x })\nend\n", :extended],
-      ["class P\nrule\ns: (separated_list(A, B\nend\n", :extended],
-      ["class P\nrule\ns: (separated_list(A, B)\nend\n", :extended],
-      ["class P\nrule\ns A\nend\n", :racc],
-      ["class P\nrule\ns: ITEM:name\nend\n", :racc],
-      ["class P\nrule\ns: A\nend: B\nend\n", :racc],
-      ["class P\nend\n", :racc],
-      ["class P\nconvert\nX abc\nend\nrule\ns: X\nend\n", :racc],
-      ["class P\nconvert\nX 'one' 'two'\nend\nrule\ns: X\nend\n", :racc]
-    ]
-
-    malformed.each do |source, mode|
+    MALFORMED_GRAMMARS.each do |source, mode|
       bootstrap_error = assert_raises(Ibex::Error) { bootstrap(source, mode: mode) }
       generated_error = assert_raises(Ibex::Error) { generated(source, mode: mode) }
       assert_equal bootstrap_error.message, generated_error.message
