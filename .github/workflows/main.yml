@@ -1,4 +1,4 @@
-name: Ruby
+name: CI
 
 on:
   push:
@@ -37,13 +37,55 @@ jobs:
     continue-on-error: ${{ matrix.experimental }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@a30dfa457ad68707b8b910ac3a244714b61c0626 # v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
       - name: Run the default task
         run: bundle exec rake
+
+  rbs:
+    runs-on: ubuntu-latest
+    name: RBS validation
+    env:
+      BUNDLE_GEMFILE: gemfiles/rbs.gemfile
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@a30dfa457ad68707b8b910ac3a244714b61c0626 # v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+      - name: Validate RBS signatures
+        run: bundle exec rbs -I sig validate
+
+  actionlint:
+    runs-on: ubuntu-latest
+    name: actionlint
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check GitHub Actions workflows
+        uses: docker://rhysd/actionlint:1.7.12
+        with:
+          args: -color
+
+  zizmor:
+    runs-on: ubuntu-latest
+    name: zizmor
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Audit GitHub Actions workflows
+        uses: zizmorcore/zizmor-action@6599ee8b7a49aef6a770f63d261d214911a7ce02 # v0.6.0
+        with:
+          advanced-security: false
+          version: 1.27.0
