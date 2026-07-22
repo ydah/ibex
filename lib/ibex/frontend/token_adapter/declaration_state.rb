@@ -12,6 +12,10 @@ module Ibex
         }.freeze
         ASSOCIATIONS = { "left" => :LEFT, "right" => :RIGHT, "nonassoc" => :NONASSOC }.freeze
         SCALAR_TYPES = { literal: :LITERAL, integer: :INTEGER, action: :ACTION, user_code: :USER_CODE }.freeze
+        EXPECTATIONS = {
+          class_keyword: "class", class_name: "identifier", superclass_name: "identifier",
+          expect_integer: "integer", start_symbol: "a grammar symbol"
+        }.freeze
 
         attr_reader :conversion_name, :declaration, :precedence_closer, :state
 
@@ -30,6 +34,19 @@ module Ibex
           @state == :rules
         end
 
+        def expectation(token)
+          expected = EXPECTATIONS[@state]
+          return expected if expected
+
+          if @declaration == :precedence
+            precedence_expectation(token)
+          elsif @declaration == :convert
+            "end"
+          elsif @state == :declaration
+            token&.type == :eof ? "rule" : "a declaration or rule"
+          end
+        end
+
         private
 
         def classify_identifier(token, remaining)
@@ -46,8 +63,10 @@ module Ibex
         end
 
         def class_keyword(token)
+          return :IDENTIFIER unless token.value == "class"
+
           @state = :class_name
-          token.value == "class" ? :CLASS : :IDENTIFIER
+          :CLASS
         end
 
         def constant_name(remaining)
@@ -122,7 +141,7 @@ module Ibex
         def classify_scalar(token, remaining)
           type = SCALAR_TYPES.fetch(token.type)
           return finish_single_symbol(type) if @state == :expect_integer && type == :INTEGER
-          return finish_single_symbol(type) if @state == :start_symbol
+          return finish_single_symbol(type) if @state == :start_symbol && type == :LITERAL
           return begin_conversion(token, type, remaining) if @state == :convert_name && type == :LITERAL
           return finish_conversion(type) if @state == :convert_expression && type == :LITERAL
 
@@ -154,6 +173,12 @@ module Ibex
           return if rest.length == 1 && rest.first.type == :literal
 
           raise Ibex::Error, "#{name.location}: expected a quoted Ruby conversion expression"
+        end
+
+        def precedence_expectation(token)
+          return @precedence_closer if token&.type == :eof
+
+          "left or right or nonassoc" if @state == :precedence_association
         end
       end
     end

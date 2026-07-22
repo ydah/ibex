@@ -57,6 +57,10 @@ module Ibex
         @rules&.open_delimiter_kind
       end
 
+      def expectation(token)
+        @classifier.expectation(token)
+      end
+
       private
 
       def classify(token)

@@ -107,6 +107,28 @@ class FrontendSelfHostTest < Minitest::Test
     assert_equal %w[base deeper], generated(source).rules.map(&:lhs)
   end
 
+  def test_delimited_multiline_named_references_do_not_become_rule_boundaries
+    grammars = [
+      "class P\nrule\n  s: (\nx:name\n  )\nend\n",
+      "class P\nrule\n  s: separated_list(\nx:name, ';')\nend\n"
+    ]
+
+    grammars.each do |source|
+      assert_equal bootstrap(source, mode: :extended).to_h, generated(source, mode: :extended).to_h
+    end
+  end
+
+  def test_end_remains_a_symbol_inside_separated_lists
+    grammars = [
+      "class P\nrule\ns: separated_list(end, ',')\nend\n",
+      "class P\nrule\ns: separated_list(A, end)\nend\n"
+    ]
+
+    grammars.each do |source|
+      assert_equal bootstrap(source, mode: :extended).to_h, generated(source, mode: :extended).to_h
+    end
+  end
+
   def test_invalid_mode_is_rejected_before_malformed_source_is_lexed
     bootstrap_error = assert_raises(ArgumentError) { bootstrap("{", mode: :invalid) }
     generated_error = assert_raises(ArgumentError) { generated("{", mode: :invalid) }
@@ -122,6 +144,11 @@ class FrontendSelfHostTest < Minitest::Test
       ["class P\nprechigh\nleft X\n", :racc],
       ["class P\nconvert\nX 'x'\n", :racc],
       ["class P\nrule\nend\n", :racc],
+      ["token X\n", :racc],
+      ["class P\nexpect nope\nrule\ns: X\nend\n", :racc],
+      ["class P\nstart\n", :racc],
+      ["class P\nstart 1\nrule\ns: X\nend\n", :racc],
+      ["class P\nrule\ns: )\nend\n", :racc],
       ["class P\nrule\ns: ITEM*\nend\n", :racc],
       ["class P\nrule\ns: (A { x })\nend\n", :extended],
       ["class P\nrule\ns: (A\nend\n", :extended],
@@ -130,6 +157,7 @@ class FrontendSelfHostTest < Minitest::Test
       ["class P\nrule\ns: (separated_list(A, B)\nend\n", :extended],
       ["class P\nrule\ns A\nend\n", :racc],
       ["class P\nrule\ns: ITEM:name\nend\n", :racc],
+      ["class P\nrule\ns: A\nend: B\nend\n", :racc],
       ["class P\nend\n", :racc],
       ["class P\nconvert\nX abc\nend\nrule\ns: X\nend\n", :racc],
       ["class P\nconvert\nX 'one' 'two'\nend\nrule\ns: X\nend\n", :racc]

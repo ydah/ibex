@@ -152,7 +152,8 @@ Runtime signatures are generated from rbs-inline annotations and checked with St
 
 ```sh
 BUNDLE_GEMFILE=gemfiles/Gemfile bundle install
-BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec rbs-inline --base=lib --output=sig lib/ibex.rb lib/ibex/runtime/parser.rb
+BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec rbs-inline --base=lib --output=sig \
+  lib/ibex.rb lib/ibex/error.rb lib/ibex/runtime/parser.rb
 BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec rbs -I sig validate
 BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec steep check
 ```
