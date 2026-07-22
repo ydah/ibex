@@ -7,8 +7,9 @@ require "tempfile"
 
 class RubyCodegenTest < Minitest::Test
   def generate(source, file: "generated_source.y", **options)
-    ast = Ibex::Frontend::Parser.new(source, file: file, mode: options.delete(:mode) || :racc).parse
-    grammar = Ibex::Normalizer.new(ast, mode: options.delete(:normalize_mode) || :racc).normalize
+    mode = options.delete(:mode) || :racc
+    ast = Ibex::Frontend::Parser.new(source, file: file, mode: mode).parse
+    grammar = Ibex::Normalizer.new(ast, mode: mode).normalize
     automaton = Ibex::LALR::Builder.new(grammar).build
     Ibex::Codegen::Ruby.new(automaton, **options).generate
   end
@@ -129,5 +130,50 @@ class RubyCodegenTest < Minitest::Test
       assert status.success?, errors
       assert_equal "", errors
     end
+  end
+
+  def test_extended_ebnf_value_conventions
+    cases = [
+      ["Optional", "ITEM?", [], nil],
+      ["OptionalValue", "ITEM?", [[:ITEM, 1]], 1],
+      ["Star", "ITEM*", [[:ITEM, 1], [:ITEM, 2]], [1, 2]],
+      ["Plus", "ITEM+", [[:ITEM, 1], [:ITEM, 2]], [1, 2]],
+      ["Separated", "separated_list(ITEM, ',')", [[:ITEM, 1], [",", nil], [:ITEM, 2]], [1, 2]],
+      ["SeparatedNonempty", "separated_nonempty_list(ITEM, ',')", [[:ITEM, 1]], [1]]
+    ]
+    cases.each do |name, expression, tokens, expected|
+      source = extended_parser_source("Ebnf#{name}", expression)
+      parser_class = evaluate(generate(source, mode: :extended), "Ebnf#{name}")
+      actual = parser_class.new.parse_tokens(tokens)
+      expected.nil? ? assert_nil(actual) : assert_equal(expected, actual)
+    end
+  end
+
+  def test_extended_named_references_bind_values
+    source = <<~GRAMMAR
+      class NamedParser
+      rule
+      start: NUM:left '+' NUM:right { result = left + right }
+      end
+      ---- inner
+      def parse_tokens(tokens) = (@tokens = tokens; do_parse)
+      def next_token = @tokens.shift
+    GRAMMAR
+    parser_class = evaluate(generate(source, mode: :extended), "NamedParser")
+    assert_equal 7, parser_class.new.parse_tokens([[:NUM, 3], ["+", nil], [:NUM, 4]])
+  end
+
+  private
+
+  def extended_parser_source(class_name, expression)
+    <<~GRAMMAR
+      class #{class_name}
+      rule
+      start: #{expression}
+      end
+      ---- inner
+      def parse_tokens(tokens) = (@tokens = tokens; do_parse)
+      def next_token = @tokens.shift
+    GRAMMAR
   end
 end

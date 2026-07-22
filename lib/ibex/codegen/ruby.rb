@@ -125,7 +125,7 @@ module Ibex
         action = production.action
         lines << "  def _ibex_action_#{production.id}(val, _values)"
         lines << "    val = _values.last(#{action.context_length})" if action&.context_length&.positive?
-        action&.named_refs&.each { |reference| lines << "    #{reference[:name]} = val[#{reference[:index]}]" }
+        append_named_bindings(lines, action)
         if action
           append_semantic_code(lines, production)
         else
@@ -133,6 +133,14 @@ module Ibex
         end
         lines << "  end"
         lines << ""
+      end
+
+      def append_named_bindings(lines, action)
+        return unless action&.named_refs&.any?
+
+        action.named_refs.each { |reference| lines << "    #{reference[:name]} = val[#{reference[:index]}]" }
+        names = action.named_refs.map { |reference| reference[:name] }
+        lines << "    _ibex_named_values = [#{names.join(', ')}]"
       end
 
       def append_semantic_code(lines, production)

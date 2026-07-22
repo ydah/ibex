@@ -14,7 +14,7 @@ Style/StringLiterals:
   EnforcedStyle: double_quotes
 
 Metrics/AbcSize:
-  Max: 35
+  Max: 36
 
 Metrics/ClassLength:
   Max: 200

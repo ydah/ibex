@@ -81,6 +81,44 @@ class CLITest < Minitest::Test
     end
   end
 
+  def test_ir_stages_generate_identical_ruby
+    with_grammar do |grammar|
+      Tempfile.create(["grammar", ".json"]) do |grammar_ir|
+        Tempfile.create(["automaton", ".json"]) do |automaton_ir|
+          outputs = Array.new(3) { Tempfile.new(["parser", ".rb"]) }
+          begin
+            run_cli(["-o", outputs[0].path, grammar.path])
+            grammar_json = capture_cli(["--emit=grammar-ir", grammar.path])
+            File.write(grammar_ir.path, grammar_json)
+            run_cli(["--from=grammar-ir", "-o", outputs[1].path, grammar_ir.path])
+            automaton_json = capture_cli(["--from=grammar-ir", "--emit=automaton-ir", grammar_ir.path])
+            File.write(automaton_ir.path, automaton_json)
+            run_cli(["--from=automaton-ir", "-o", outputs[2].path, automaton_ir.path])
+            generated = outputs.map { |output| File.read(output.path) }
+            assert_equal generated[0], generated[1]
+            assert_equal generated[0], generated[2]
+          ensure
+            outputs.each(&:close!)
+          end
+        end
+      end
+    end
+  end
+
+  def test_writes_dot_and_html_side_outputs
+    with_grammar do |grammar|
+      Tempfile.create(["automaton", ".dot"]) do |dot|
+        Tempfile.create(["automaton", ".html"]) do |html|
+          Tempfile.create(["parser", ".rb"]) do |parser|
+            run_cli(["--dot", dot.path, "--html", html.path, "-o", parser.path, grammar.path])
+            assert_includes File.read(dot.path), "digraph"
+            assert_includes File.read(html.path), "<!doctype html>"
+          end
+        end
+      end
+    end
+  end
+
   def test_reports_cli_errors
     errors = StringIO.new
     assert_equal 1, Ibex::CLI.start([], stdout: StringIO.new, stderr: errors)
@@ -95,5 +133,19 @@ class CLITest < Minitest::Test
       grammar.flush
       yield grammar
     end
+  end
+
+  def run_cli(arguments)
+    errors = StringIO.new
+    status = Ibex::CLI.start(arguments, stdout: StringIO.new, stderr: errors)
+    assert_equal 0, status, errors.string
+  end
+
+  def capture_cli(arguments)
+    output = StringIO.new
+    errors = StringIO.new
+    status = Ibex::CLI.start(arguments, stdout: output, stderr: errors)
+    assert_equal 0, status, errors.string
+    output.string
   end
 end
