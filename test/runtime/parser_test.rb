@@ -6,6 +6,7 @@ require "stringio"
 class RuntimeParserTest < Minitest::Test
   class Calculator < Ibex::Runtime::Parser
     TABLES = {
+      format_version: Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION,
       tokens: { INT: 2, "+" => 3, "(" => 4, ")" => 5 },
       token_names: { 0 => "$eof", 1 => "error", 2 => "INT", 3 => "+", 4 => "(", 5 => ")" },
       actions: [
@@ -47,6 +48,7 @@ class RuntimeParserTest < Minitest::Test
 
   class RecoveringStatements < Ibex::Runtime::Parser
     TABLES = {
+      format_version: Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION,
       tokens: { INT: 2, ";" => 3 },
       token_names: { 0 => "$eof", 1 => "error", 2 => "INT", 3 => ";" },
       actions: [

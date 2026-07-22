@@ -37,6 +37,9 @@ module Ibex
       # @rbs () -> String?
       def precedence_closer: () -> String?
 
+      # @rbs () -> bool
+      def extended_pragma?: () -> bool
+
       # @rbs () -> parser_section
       def section: () -> parser_section
 

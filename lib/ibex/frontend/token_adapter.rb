@@ -55,6 +55,11 @@ module Ibex
         @declarations.precedence_closer
       end
 
+      # @rbs () -> bool
+      def extended_pragma?
+        @declarations.extended_pragma?
+      end
+
       # @rbs () -> parser_section
       def section
         rules = @rules

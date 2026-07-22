@@ -3,6 +3,8 @@
 module Ibex
   module Frontend
     class GeneratedParser < Ibex::Frontend::GeneratedParserBase
+      PARSER_TABLE_FORMAT_VERSION: ::Integer
+
       TOKEN_IDS: untyped
 
       TOKEN_NAMES: untyped
@@ -30,10 +32,6 @@ module Ibex
       private def _ibex_action_3: (untyped val, untyped _values) -> untyped
 
       private def _ibex_action_4: (untyped val, untyped _values) -> untyped
-
-      private def _ibex_action_5: (untyped val, untyped _values) -> untyped
-
-      private def _ibex_action_6: (untyped val, untyped _values) -> untyped
 
       private def _ibex_action_7: (untyped val, untyped _values) -> untyped
 
@@ -97,9 +95,9 @@ module Ibex
 
       private def _ibex_action_37: (untyped val, untyped _values) -> untyped
 
-      private def _ibex_action_40: (untyped val, untyped _values) -> untyped
+      private def _ibex_action_38: (untyped val, untyped _values) -> untyped
 
-      private def _ibex_action_41: (untyped val, untyped _values) -> untyped
+      private def _ibex_action_39: (untyped val, untyped _values) -> untyped
 
       private def _ibex_action_42: (untyped val, untyped _values) -> untyped
 
@@ -156,6 +154,10 @@ module Ibex
       private def _ibex_action_68: (untyped val, untyped _values) -> untyped
 
       private def _ibex_action_69: (untyped val, untyped _values) -> untyped
+
+      private def _ibex_action_70: (untyped val, untyped _values) -> untyped
+
+      private def _ibex_action_71: (untyped val, untyped _values) -> untyped
     end
   end
 end

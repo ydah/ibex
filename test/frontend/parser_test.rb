@@ -50,6 +50,31 @@ class FrontendParserTest < Minitest::Test
     assert_equal %w[B C], names
   end
 
+  def test_pragma_extended_enables_extensions_in_racc_mode_without_entering_the_ast
+    source = "class P\npragma extended\nrule\nvalues: ITEM:first ITEM*\nend\n"
+    ast = parse(source)
+    items = ast.rules.first.alternatives.first.items
+
+    assert_equal [], ast.declarations
+    assert_equal "first", items.first.named_reference
+    assert_instance_of Ibex::Frontend::AST::Star, items.last
+  end
+
+  def test_rejects_unknown_duplicate_and_misplaced_pragmas_with_locations
+    error = assert_raises(Ibex::Error) { parse("class P\npragma future\nrule\ns: X\nend\n") }
+    assert_equal "grammar.y:2:8: unknown pragma future", error.message
+
+    error = assert_raises(Ibex::Error) do
+      parse("class P\npragma extended\npragma extended\nrule\ns: X\nend\n")
+    end
+    assert_equal "grammar.y:3:1: duplicate pragma extended", error.message
+
+    error = assert_raises(Ibex::Error) do
+      parse("class P\ntoken X\npragma extended\nrule\ns: X\nend\n")
+    end
+    assert_match(/grammar\.y:3:1:/, error.message)
+  end
+
   def test_rejects_extensions_in_racc_mode
     error = assert_raises(Ibex::Error) { parse("class P\nrule\ns: ITEM*\nend\n") }
     assert_equal "grammar.y:3:8: EBNF suffixes require extended mode", error.message

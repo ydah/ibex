@@ -30,6 +30,9 @@ module Ibex
         # @rbs () -> bool
         def rules?: () -> bool
 
+        # @rbs () -> bool
+        def extended_pragma?: () -> bool
+
         # @rbs (Token? token) -> String?
         def expectation: (Token? token) -> String?
 
@@ -46,6 +49,9 @@ module Ibex
 
         # @rbs (Token token) -> external_token
         def begin_declaration: (Token token) -> external_token
+
+        # @rbs (Token token) -> external_token
+        def finish_pragma: (Token token) -> external_token
 
         # @rbs (Token token) -> external_token
         def begin_precedence: (Token token) -> external_token

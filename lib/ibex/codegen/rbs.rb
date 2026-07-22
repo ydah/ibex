@@ -31,7 +31,8 @@ module Ibex
 
       # @rbs (Array[String] lines) -> void
       def append_contract(lines)
-        lines.push("  TOKEN_IDS: Hash[untyped, Integer]", "  TOKEN_NAMES: Hash[Integer, String]",
+        lines.push("  PARSER_TABLE_FORMAT_VERSION: Integer",
+                   "  TOKEN_IDS: Hash[untyped, Integer]", "  TOKEN_NAMES: Hash[Integer, String]",
                    "  ACTIONS: untyped", "  GOTOS: untyped", "  DEFAULT_ACTIONS: Array[untyped]",
                    "  PRODUCTIONS: Array[Hash[Symbol, untyped]]",
                    "  PARSER_TABLES: Hash[Symbol, untyped]", "  DEBUG_ENABLED: bool", "",

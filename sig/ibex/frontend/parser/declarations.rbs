@@ -13,6 +13,9 @@ module Ibex
       # @rbs () -> Array[AST::declaration]
       def parse_declarations: () -> Array[AST::declaration]
 
+      # @rbs () -> void
+      def parse_pragmas: () -> void
+
       # @rbs () -> AST::declaration
       def parse_declaration: () -> AST::declaration
 

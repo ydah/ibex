@@ -114,6 +114,22 @@ class FrontendSelfHostTest < Minitest::Test
     end
   end
 
+  def test_generated_parser_matches_bootstrap_for_grammar_pragmas
+    grammars = [
+      "class P\npragma extended\nrule\ns: (A | B)+\nend\n",
+      "class P\npragma future\nrule\ns: A\nend\n",
+      "class P\npragma extended\npragma extended\nrule\ns: A\nend\n",
+      "class P\ntoken A\npragma extended\nrule\ns: A\nend\n"
+    ]
+
+    assert_equal bootstrap(grammars[0]).to_h, generated(grammars[0]).to_h
+    grammars.drop(1).each do |source|
+      bootstrap_error = assert_raises(Ibex::Error) { bootstrap(source) }
+      generated_error = assert_raises(Ibex::Error) { generated(source) }
+      assert_equal bootstrap_error.message, generated_error.message
+    end
+  end
+
   def test_contextual_keywords_match_bootstrap
     grammars = [
       "class class::start < rule::convert\nrule\nleft: X\nend\n",
@@ -189,6 +205,10 @@ class FrontendSelfHostTest < Minitest::Test
     assert_equal runtime_private, rbs_private
     assert_empty rbs_public
     assert_respond_to Ibex::Frontend::GeneratedParser, :parser_tables
+    assert_equal Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION,
+                 Ibex::Frontend::GeneratedParser::PARSER_TABLE_FORMAT_VERSION
+    assert_equal Ibex::Frontend::GeneratedParser::PARSER_TABLE_FORMAT_VERSION,
+                 Ibex::Frontend::GeneratedParser.parser_tables.fetch(:format_version)
   end
 
   private

@@ -3,6 +3,9 @@
 
 module Ibex
   module Runtime
+    # Parser-table shape understood by this runtime.
+    PARSER_TABLE_FORMAT_VERSION = 1 #: Integer
+
     # Raised by the default parser error handler.
     class ParseError < StandardError; end
 
@@ -154,6 +157,7 @@ module Ibex
 
       # @rbs (^() -> untyped source) -> void
       def prepare_parse(source)
+        validate_parser_table_format!
         @source = source
         @state_stack = [0]
         @value_stack = []
@@ -164,6 +168,23 @@ module Ibex
         @accept_requested = false
         @unknown_token_id = nil
         trace("start state 0")
+      end
+
+      # @rbs () -> void
+      def validate_parser_table_format!
+        tables = parser_tables
+        unless tables.key?(:format_version)
+          raise ParseError,
+                "(tables):1:1: parser tables for #{self.class} are missing :format_version; " \
+                "regenerate the parser with the installed Ibex version"
+        end
+
+        actual = tables.fetch(:format_version)
+        return if actual == PARSER_TABLE_FORMAT_VERSION
+
+        raise ParseError,
+              "(tables):1:1: unsupported parser table format version #{actual.inspect} for #{self.class}; " \
+              "runtime supports #{PARSER_TABLE_FORMAT_VERSION}; regenerate the parser with the installed Ibex version"
       end
 
       # @rbs () -> untyped
