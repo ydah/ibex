@@ -49,6 +49,9 @@ module Ibex
       options.on("--table=FORMAT", %w[plain compact], "parser table format") do |value|
         @options[:table] = value.to_sym
       end
+      options.on("--algorithm=NAME", %w[slr lalr lr1], "parser construction algorithm") do |value|
+        @options[:algorithm] = value.to_sym
+      end
     end
 
     def add_output_options(options)
@@ -203,7 +206,7 @@ module Ibex
 
     def build_automaton(grammar, input_path)
       report_status("building LALR automaton")
-      automaton = LALR::Builder.new(grammar).build
+      automaton = LALR::Builder.new(grammar, algorithm: @options[:algorithm] || :lalr).build
       report_conflicts(automaton, input_path)
       write_report(automaton, input_path) if @options[:verbose]
       write_visualizations(automaton)
