@@ -14,7 +14,7 @@ module Ibex
           attributes << "color=red" unless state.conflicts.empty?
           lines << "  state_#{state.id} [#{attributes.join(', ')}];"
           state.transitions.each do |symbol_id, target|
-            label = escape(automaton.grammar.symbol_by_id(symbol_id).name)
+            label = escape(symbol_name(automaton.grammar, symbol_id))
             lines << "  state_#{state.id} -> state_#{target} [label=\"#{label}\"];"
           end
         end
@@ -27,6 +27,13 @@ module Ibex
         value.gsub("\\", "\\\\").gsub('"', '\\"')
       end
       private_class_method :escape
+
+      # @rbs (IR::Grammar grammar, Integer id) -> String
+      def symbol_name(grammar, id)
+        symbol = grammar.symbol_by_id(id) || raise(Ibex::Error, "missing grammar symbol id #{id}")
+        symbol.name
+      end
+      private_class_method :symbol_name
     end
   end
 end

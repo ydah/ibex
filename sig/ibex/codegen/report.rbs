@@ -22,6 +22,9 @@ module Ibex
 
       # @rbs (IR::parser_action action) -> String
       def self?.format_action: (IR::parser_action action) -> String
+
+      # @rbs (IR::Grammar grammar, Integer id) -> String
+      def self?.symbol_name: (IR::Grammar grammar, Integer id) -> String
     end
   end
 end

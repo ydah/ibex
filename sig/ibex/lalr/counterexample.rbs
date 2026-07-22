@@ -45,6 +45,9 @@ module Ibex
 
       # @rbs (Array[Integer] symbol_ids) -> Array[String]
       def names: (Array[Integer] symbol_ids) -> Array[String]
+
+      # @rbs (Integer id) -> String
+      def symbol_name: (Integer id) -> String
     end
   end
 end

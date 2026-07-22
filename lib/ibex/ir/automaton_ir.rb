@@ -19,7 +19,10 @@ module Ibex
       # @rbs (Grammar grammar) -> Hash[Symbol, untyped]
       def to_h(grammar)
         { production: @production, dot: @dot,
-          lookaheads: @lookaheads.map { |id| grammar.symbol_by_id(id).name } }
+          lookaheads: @lookaheads.map do |id|
+            symbol = grammar.symbol_by_id(id) || raise(Ibex::Error, "missing grammar symbol id #{id}")
+            symbol.name
+          end }
       end
     end
 
@@ -58,7 +61,10 @@ module Ibex
 
       # @rbs (Hash[Integer, untyped] values, Grammar grammar) -> Hash[String, untyped]
       def named_keys(values, grammar)
-        values.to_h { |symbol_id, value| [grammar.symbol_by_id(symbol_id).name, value] }
+        values.to_h do |symbol_id, value|
+          symbol = grammar.symbol_by_id(symbol_id) || raise(Ibex::Error, "missing grammar symbol id #{symbol_id}")
+          [symbol.name, value]
+        end
       end
     end
 

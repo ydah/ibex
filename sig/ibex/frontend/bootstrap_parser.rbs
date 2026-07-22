@@ -8,41 +8,73 @@ module Ibex
 
       include BootstrapParserRules
 
-      def initialize: (untyped source, ?file: untyped, ?mode: untyped) -> untyped
+      @mode: Symbol
 
-      def parse: () -> untyped
+      @index: Integer
+
+      @tokens: Array[Token]
+
+      # @rbs (String | Array[Token] source, ?file: String, ?mode: Symbol) -> void
+      def initialize: (String | Array[Token] source, ?file: String, ?mode: Symbol) -> void
+
+      # @rbs () -> AST::Root
+      def parse: () -> AST::Root
 
       private
 
-      def parse_constant_path: () -> untyped
+      # @rbs () -> String
+      def parse_constant_path: () -> String
 
-      def parse_symbol_name: () -> untyped
+      # @rbs () -> String
+      def parse_symbol_name: () -> String
 
-      def expect_symbol: () -> untyped
+      # @rbs () -> Token
+      def expect_symbol: () -> Token
 
-      def expect_one_of: (untyped values) -> untyped
+      # @rbs (Array[String] values) -> Token
+      def expect_one_of: (Array[String] values) -> Token
 
-      def keyword?: (untyped value) -> untyped
+      # @rbs (String value) -> bool
+      def keyword?: (String value) -> bool
 
-      def expect_keyword: (untyped value) -> untyped
+      # @rbs (String value) -> Token
+      def expect_keyword: (String value) -> Token
 
-      def accept: (untyped type) -> untyped
+      # @rbs (Symbol type) -> (Token | false)
+      def accept: (Symbol type) -> (Token | false)
 
-      def expect: (untyped type) -> untyped
+      # @rbs (Symbol type) -> Token
+      def expect: (Symbol type) -> Token
 
-      def current: () -> untyped
+      # @rbs () -> Token
+      def current: () -> Token
 
-      def lookahead: () -> untyped
+      # @rbs () -> Token
+      def lookahead: () -> Token
 
-      def advance: () -> untyped
+      # @rbs () -> Token
+      def advance: () -> Token
 
-      def parse_user_code: () -> untyped
+      # @rbs () -> AST::user_code
+      def parse_user_code: () -> AST::user_code
 
-      def extended_only!: (untyped location, untyped feature) -> untyped
+      # @rbs (Location location, String feature) -> void
+      def extended_only!: (Location location, String feature) -> void
 
-      def fail_expected: (untyped expected) -> untyped
+      # @rbs (String | Symbol expected) -> bot
+      def fail_expected: (String | Symbol expected) -> bot
 
-      def fail_at: (untyped location, untyped message) -> untyped
+      # @rbs (Location location, String message) -> bot
+      def fail_at: (Location location, String message) -> bot
+
+      # @rbs (Token token) -> String
+      def token_string: (Token token) -> String
+
+      # @rbs (Token token) -> Integer
+      def token_integer: (Token token) -> Integer
+
+      # @rbs (Token token) -> user_code_token
+      def token_user_code: (Token token) -> user_code_token
     end
   end
 end

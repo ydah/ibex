@@ -4,66 +4,120 @@ module Ibex
   module Frontend
     # Builds the same Grammar AST as the text frontend through a Ruby API.
     module DSL
-      # @rbs (class_name: untyped, ?superclass: untyped, ?file: untyped) { (Builder) -> void } -> untyped
-      def self?.grammar: (class_name: untyped, ?superclass: untyped, ?file: untyped) { (Builder) -> void } -> untyped
+      # @rbs (class_name: Object, ?superclass: Object?, ?file: String) { (Builder) -> void } -> AST::Root
+      def self?.grammar: (class_name: Object, ?superclass: Object?, ?file: String) { (Builder) -> void } -> AST::Root
 
       # Mutable definition context whose output is an immutable-shape AST.
       class Builder
-        def initialize: (class_name: untyped, superclass: untyped, file: untyped) -> untyped
+        @user_code: AST::user_code
 
-        def token: (*untyped names) -> untyped
+        @rules: Array[AST::Rule]
 
-        def options: (*untyped names) -> untyped
+        @declarations: Array[AST::declaration]
 
-        def expect: (untyped conflicts) -> untyped
+        @line: Integer
 
-        def start: (untyped name) -> untyped
+        @file: String
 
-        def convert: (untyped name, untyped expression) -> untyped
+        @superclass: String?
 
-        # @rbs (?direction: untyped) { (PrecedenceBuilder) -> void } -> untyped
-        def precedence: (?direction: untyped) { (PrecedenceBuilder) -> void } -> untyped
+        @class_name: String
 
-        # @rbs (untyped lhs) { (RuleBuilder) -> void } -> untyped
-        def rule: (untyped lhs) { (RuleBuilder) -> void } -> untyped
+        # @rbs (class_name: Object, superclass: Object?, file: String) -> void
+        def initialize: (class_name: Object, superclass: Object?, file: String) -> void
 
-        def user_code: (untyped name, untyped code) -> untyped
+        # @rbs (*Object names) -> void
+        def token: (*Object names) -> void
 
-        def ref: (untyped name, ?as: untyped) -> untyped
+        # @rbs (*Object names) -> void
+        def options: (*Object names) -> void
 
-        def optional: (untyped item) -> untyped
+        # @rbs (Integer conflicts) -> void
+        def expect: (Integer conflicts) -> void
 
-        def star: (untyped item) -> untyped
+        # @rbs (Object name) -> void
+        def start: (Object name) -> void
 
-        def plus: (untyped item) -> untyped
+        # @rbs (Object name, Object expression) -> void
+        def convert: (Object name, Object expression) -> void
 
-        def group: (*untyped alternatives) -> untyped
+        # @rbs (?direction: Symbol) { (PrecedenceBuilder) -> void } -> void
+        def precedence: (?direction: Symbol) { (PrecedenceBuilder) -> void } -> void
 
-        def separated_list: (untyped item, untyped separator, ?nonempty: untyped) -> untyped
+        # @rbs (Object lhs) { (RuleBuilder) -> void } -> void
+        def rule: (Object lhs) { (RuleBuilder) -> void } -> void
 
-        def inline: (untyped code) -> untyped
+        # @rbs (Object name, Object code) -> void
+        def user_code: (Object name, Object code) -> void
 
-        def to_ast: () -> untyped
+        # @rbs (Object name, ?as: Object?) -> AST::SymbolReference
+        def ref: (Object name, ?as: Object?) -> AST::SymbolReference
 
-        def normalize_item: (untyped item) -> untyped
+        # @rbs (Object item) -> AST::Optional
+        def optional: (Object item) -> AST::Optional
 
-        def next_location: () -> untyped
+        # @rbs (Object item) -> AST::Star
+        def star: (Object item) -> AST::Star
+
+        # @rbs (Object item) -> AST::Plus
+        def plus: (Object item) -> AST::Plus
+
+        # @rbs (*Object alternatives) -> AST::Group
+        def group: (*Object alternatives) -> AST::Group
+
+        # @rbs (Object item, Object separator, ?nonempty: bool) -> AST::SeparatedList
+        def separated_list: (Object item, Object separator, ?nonempty: bool) -> AST::SeparatedList
+
+        # @rbs (Object code) -> AST::InlineAction
+        def inline: (Object code) -> AST::InlineAction
+
+        # @rbs () -> AST::Root
+        def to_ast: () -> AST::Root
+
+        # @rbs (Object item) -> AST::item
+        def normalize_item: (Object item) -> AST::item
+
+        # @rbs () -> Location
+        def next_location: () -> Location
       end
 
       # Collects ordered associativity levels.
       class PrecedenceBuilder
-        attr_reader levels: untyped
+        attr_reader levels: Array[AST::PrecedenceLevel]
 
-        def initialize: (untyped grammar) -> untyped
+        @grammar: Builder
+
+        # @rbs (Builder grammar) -> void
+        def initialize: (Builder grammar) -> void
+
+        # @rbs (*Object symbols) -> void
+        def left: (*Object symbols) -> void
+
+        # @rbs (*Object symbols) -> void
+        def right: (*Object symbols) -> void
+
+        # @rbs (*Object symbols) -> void
+        def nonassoc: (*Object symbols) -> void
+
+        private
+
+        # @rbs (Symbol associativity, Array[Object] symbols) -> void
+        def add_level: (Symbol associativity, Array[Object] symbols) -> void
       end
 
       # Collects alternatives for one nonterminal.
       class RuleBuilder
-        attr_reader alternatives: untyped
+        attr_reader alternatives: Array[AST::Alternative]
 
-        def initialize: (untyped grammar, untyped default_location) -> untyped
+        @grammar: Builder
 
-        def alt: (*untyped items, ?action: untyped, ?precedence: untyped) -> untyped
+        @default_location: Location
+
+        # @rbs (Builder grammar, Location default_location) -> void
+        def initialize: (Builder grammar, Location default_location) -> void
+
+        # @rbs (*Object items, ?action: String?, ?precedence: Object?) -> void
+        def alt: (*Object items, ?action: String?, ?precedence: Object?) -> void
       end
     end
   end

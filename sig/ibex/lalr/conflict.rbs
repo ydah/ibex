@@ -39,6 +39,9 @@ module Ibex
 
       # @rbs (Integer token_id) -> String
       def token_name: (Integer token_id) -> String
+
+      # @rbs (Integer id) -> IR::GrammarSymbol
+      def required_symbol_by_id: (Integer id) -> IR::GrammarSymbol
     end
   end
 end

@@ -16,6 +16,7 @@ class NormalizerTest < Minitest::Test
     dumped = Ibex::IR::Serialize.dump(grammar)
     assert_equal dumped, Ibex::IR::Serialize.dump(Ibex::IR::Serialize.load(dumped))
     assert_raises(FrozenError) { grammar.options[:result_var] = false }
+    assert_nil grammar.symbol_by_id(10_000)
   end
 
   def test_desugars_inline_actions_with_stack_context

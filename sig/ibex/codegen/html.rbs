@@ -21,6 +21,9 @@ module Ibex
 
       # @rbs (String value) -> String
       def self?.escape: (String value) -> String
+
+      # @rbs (IR::Grammar grammar, Integer id) -> String
+      def self?.symbol_name: (IR::Grammar grammar, Integer id) -> String
     end
   end
 end

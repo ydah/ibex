@@ -4,11 +4,13 @@ module Ibex
   module Frontend
     # Public grammar parser backed by Ibex's generated LR frontend.
     class Parser
-      attr_reader implementation: untyped
+      attr_reader implementation: GeneratedParser
 
-      def initialize: (untyped source, ?file: untyped, ?mode: untyped) -> untyped
+      # @rbs (String | Array[Token] source, ?file: String, ?mode: Symbol) -> void
+      def initialize: (String | Array[Token] source, ?file: String, ?mode: Symbol) -> void
 
-      def parse: () -> untyped
+      # @rbs () -> AST::Root
+      def parse: () -> AST::Root
     end
   end
 end

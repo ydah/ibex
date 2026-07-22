@@ -199,6 +199,8 @@ module Ibex
         gotos = {} #: Hash[Integer, Integer]
         transitions.each do |symbol_id, target|
           grammar_symbol = @grammar.symbol_by_id(symbol_id)
+          raise Ibex::Error, "missing grammar symbol id #{symbol_id}" unless grammar_symbol
+
           if grammar_symbol.terminal?
             candidates[symbol_id] << { type: :shift, state: target }
           else
