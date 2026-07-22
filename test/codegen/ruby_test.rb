@@ -53,7 +53,7 @@ class RubyCodegenTest < Minitest::Test
       token NUM
       options no_result_var
       convert
-      NUM :number
+      NUM ':number'
       end
       rule
       start: NUM { val[0].to_i }

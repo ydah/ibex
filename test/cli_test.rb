@@ -46,9 +46,54 @@ class CLITest < Minitest::Test
     end
   end
 
+  def test_ast_and_check_only_status_options
+    with_grammar do |grammar|
+      ast_output = StringIO.new
+      assert_equal 0, Ibex::CLI.start(["--emit=ast", grammar.path], stdout: ast_output, stderr: StringIO.new)
+      assert_equal "Root", JSON.parse(ast_output.string).fetch("node")
+
+      status_output = StringIO.new
+      assert_equal 0, Ibex::CLI.start(["-C", "-S", grammar.path], stdout: StringIO.new, stderr: status_output)
+      assert_includes status_output.string, "reading"
+    end
+  end
+
+  def test_report_executable_and_superclass_options
+    with_grammar do |grammar|
+      Tempfile.create(["report", ".output"]) do |report|
+        Tempfile.create(["parser", ".rb"]) do |output|
+          arguments = ["-v", "-O", report.path, "-e", "/usr/bin/env ruby", "--superclass=Ibex::Runtime::Parser",
+                       "-o", output.path, grammar.path]
+          assert_equal 0, Ibex::CLI.start(arguments, stdout: StringIO.new, stderr: StringIO.new)
+          assert_includes File.read(report.path), "State 0"
+          assert File.executable?(output.path)
+          assert File.read(output.path).start_with?("#!/usr/bin/env ruby\n")
+        end
+      end
+    end
+  end
+
+  def test_help_lists_compatible_options
+    output = StringIO.new
+    assert_equal 0, Ibex::CLI.start(["--help"], stdout: output, stderr: StringIO.new)
+    %w[--output-file --debug --verbose --embedded --check-only --superclass].each do |option|
+      assert_includes output.string, option
+    end
+  end
+
   def test_reports_cli_errors
     errors = StringIO.new
     assert_equal 1, Ibex::CLI.start([], stdout: StringIO.new, stderr: errors)
     assert_equal "(cli):1:1: grammar file is required\n", errors.string
+  end
+
+  private
+
+  def with_grammar
+    Tempfile.create(["grammar", ".y"]) do |grammar|
+      grammar.write("class P\nrule\nstart: TOKEN\nend\n")
+      grammar.flush
+      yield grammar
+    end
   end
 end

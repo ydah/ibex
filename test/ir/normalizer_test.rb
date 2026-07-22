@@ -60,7 +60,7 @@ class NormalizerTest < Minitest::Test
       options no_result_var no_omit_action_call
       expect 2
       convert
-      INT "Number"
+      INT '"Number"'
       end
       rule
       start: INT = UMINUS

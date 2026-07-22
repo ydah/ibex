@@ -37,7 +37,8 @@ class LALRBuilderTest < Minitest::Test
       expr: ID
       end
     GRAMMAR
-    assert_equal({ sr: 1, rr: 0, expected_sr: 1, expectation_met: true }, automaton.conflict_summary)
+    expected = { sr: 1, resolved_sr: 0, rr: 0, expected_sr: 1, expectation_met: true }
+    assert_equal expected, automaton.conflict_summary
     conflict = automaton.states.flat_map(&:conflicts).find { |item| item[:type] == :shift_reduce }
     assert_equal "ELSE", conflict[:symbol]
     assert_equal({ by: :default_shift, chose: :shift }, conflict[:resolution])

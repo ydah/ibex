@@ -20,10 +20,13 @@ module Ibex
         merged_items, merged_transitions = merge_lalr(canonical_states, canonical_transitions)
         states = build_states(merged_items, merged_transitions)
         conflicts = states.flat_map(&:conflicts)
-        summary = { sr: conflicts.count { |item| item[:type] == :shift_reduce },
+        shift_reduce = conflicts.select { |item| item[:type] == :shift_reduce }
+        counted_shift_reduce = shift_reduce.count { |item| item.dig(:resolution, :by) == :default_shift }
+        summary = { sr: counted_shift_reduce,
+                    resolved_sr: shift_reduce.length - counted_shift_reduce,
                     rr: conflicts.count { |item| item[:type] == :reduce_reduce },
                     expected_sr: @grammar.expect,
-                    expectation_met: conflicts.count { |item| item[:type] == :shift_reduce } == @grammar.expect }
+                    expectation_met: counted_shift_reduce == @grammar.expect }
         IR::Automaton.new(grammar: @grammar, states: states, conflict_summary: summary)
       end
 
