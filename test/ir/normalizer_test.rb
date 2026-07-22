@@ -48,6 +48,11 @@ class NormalizerTest < Minitest::Test
     assert_includes origins, :star_expansion
     assert_includes origins, :plus_expansion
     assert_includes origins, :separated_list_expansion
+    expressions = grammar.productions.filter_map { |production| production.origin[:expression] }
+    assert_includes expressions, "ITEM?"
+    assert_includes expressions, "ITEM*"
+    assert_includes expressions, "ITEM+"
+    assert_includes expressions, "separated_list(ITEM, ',')"
   end
 
   def test_desugars_nested_grouped_ebnf
@@ -55,6 +60,9 @@ class NormalizerTest < Minitest::Test
     origins = grammar.productions.map { |production| production.origin[:kind] }
     assert_operator origins.count(:group_expansion), :>=, 3
     assert_includes origins, :plus_expansion
+    expressions = grammar.productions.filter_map { |production| production.origin[:expression] }
+    assert_includes expressions, "((A B) | C)+"
+    assert_includes expressions, "(A B)"
   end
 
   def test_rejects_named_references_hidden_inside_groups

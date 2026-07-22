@@ -1,0 +1,11 @@
+# Generated from lib/ibex/codegen/symbol_labels.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Builds human-facing symbol labels without changing Grammar IR identities.
+    module SymbolLabels
+      # @rbs (IR::Grammar grammar) -> Hash[Integer, String]
+      def self.build: (IR::Grammar grammar) -> Hash[Integer, String]
+    end
+  end
+end
