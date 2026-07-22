@@ -64,6 +64,32 @@ class BlackBoxCompatibilityTest < Minitest::Test
     GRAMMAR
   end
 
+  def test_error_recovery_and_on_error_observations_match
+    compare_result(<<~GRAMMAR, "CompatRecovery", [[:BAD, "bad"], [";", nil], [:ITEM, 2], [";", nil]])
+      class CompatRecovery
+      token ITEM BAD
+      rule
+      program: program stmt { result = val[0] + [val[1]] }
+             | stmt { result = [val[0]] }
+      stmt: ITEM ';' { result = val[0] }
+          | error ';' { result = :error; yyerrok }
+      end
+      ---- inner
+      def initialize
+        super
+        @errors = []
+      end
+      def parse_tokens(tokens)
+        @tokens = tokens
+        [do_parse, @errors]
+      end
+      def next_token = @tokens.shift
+      def on_error(token, value, values)
+        @errors << [token_to_str(token), value, values.length]
+      end
+    GRAMMAR
+  end
+
   def test_dangling_else_conflict_count_matches
     source = <<~GRAMMAR
       class CompatDangling

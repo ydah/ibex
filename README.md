@@ -1,39 +1,124 @@
 # Ibex
 
-TODO: Delete this and the text below, and describe your gem
+Ibex is a Pure Ruby LR parser generator. It accepts racc-compatible grammar files, generates parsers with the familiar
+`do_parse` / `yyparse` API, and requires no C or Java extension. Its staged Grammar IR and Automaton IR can also drive extended
+EBNF syntax, diagnostics, visualizations, and alternate LR construction algorithms.
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/ibex`. To experiment with that code, run `bin/console` for an interactive prompt.
+## Requirements and installation
 
-## Installation
+Ibex supports Ruby 3.0 or later and has no runtime gem dependencies. From a source checkout:
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
-
-Install the gem and add to the application's Gemfile by executing:
-
-```bash
-bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+```sh
+bundle install
+bundle exec rake
 ```
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+Build and install the local gem when you want the `ibex` executable on your `PATH`:
 
-```bash
-gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+```sh
+gem build ibex.gemspec
+gem install ./ibex-0.1.0.gem
 ```
 
-## Usage
+## Three-minute calculator
 
-TODO: Write usage instructions here
+Save this as `calculator.y`:
+
+<!-- calculator-grammar:start -->
+```text
+class Calculator
+token NUM
+preclow
+  left '+'
+  left '*'
+prechigh
+rule
+  expr : expr '+' expr { result = val[0] + val[2] }
+       | expr '*' expr { result = val[0] * val[2] }
+       | NUM { result = val[0] }
+end
+---- inner
+def parse_tokens(tokens)
+  @tokens = tokens
+  do_parse
+end
+
+def next_token
+  @tokens.shift
+end
+---- footer
+if $PROGRAM_NAME == __FILE__
+  tokens = [[:NUM, 2], ['+', nil], [:NUM, 3], ['*', nil], [:NUM, 4]]
+  puts Calculator.new.parse_tokens(tokens)
+end
+```
+<!-- calculator-grammar:end -->
+
+Generate and run it:
+
+```sh
+ibex calculator.y
+ruby calculator.rb
+# 14
+```
+
+From a checkout without installing the gem, use `bundle exec ruby -Ilib bin/ibex calculator.y` and
+`bundle exec ruby -Ilib calculator.rb` instead.
+
+Ibex generates compact tables by default. `--table=plain` produces inspectable Hash rows, while `-E` embeds the runtime into a
+single dependency-free output file.
+
+## Lexer contract
+
+Ibex does not generate a lexer. A pull parser implements `next_token` and returns `[token, value]`; `false` or `nil` marks EOF.
+Bare grammar tokens normally use Ruby symbols (`:NUM`), and quoted grammar tokens use strings (`'+'`). A push source can call
+`yyparse(receiver, method_name)` where the receiver method yields the same pairs.
+
+The default `on_error(token_id, value, value_stack)` raises `Ibex::ParseError`. Override it to use yacc-style `error` recovery.
+Semantic actions can call `yyerror`, `yyerrok`, or `yyaccept`, and `expected_tokens` reports valid lookaheads in the current state.
+
+## Extended mode
+
+`--mode=extended` enables optional, repeated, and separated values plus named references:
+
+```text
+rule
+  arguments : separated_list(NUM, ',') { result = val[0] }
+  sum       : NUM:left '+' NUM:right { result = left + right }
+  maybe     : NUM?
+  many      : NUM*
+  some      : NUM+
+end
+```
+
+The value conventions are `nil` or a value for `?`, and arrays for `*`, `+`, `separated_list`, and
+`separated_nonempty_list`.
+
+## Pipeline and diagnostics
+
+```sh
+ibex --emit=grammar-ir grammar.y > grammar.json
+ibex --from=grammar-ir --emit=automaton-ir grammar.json > automaton.json
+ibex --from=automaton-ir -o parser.rb automaton.json
+ibex -v --dot=states.dot --html=states.html grammar.y
+ibex --algorithm=lr1 grammar.y
+```
+
+Supported construction algorithms are `slr`, `lalr` (default), and canonical `lr1`. Reports retain precedence-resolved
+conflicts and include shortest-path witnesses for unresolved conflicts.
+
+## Documentation
+
+- [Grammar reference](docs/grammar-reference.md)
+- [racc migration guide](docs/racc-migration.md)
+- [Architecture and IR schemas](docs/architecture.md)
+- [Compatibility observations](docs/compat-notes.md)
+- [Phase 10 extensions](docs/phase10-extensions.md)
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+Run all unit, integration, documentation, and optional local racc black-box tests with `bundle exec rake test`; run style checks
+with `bundle exec rake lint`. The default `bundle exec rake` runs both. Compatibility tests skip automatically when the `racc`
+command is unavailable.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/ibex.
-
-## License
-
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+Ibex is available under the [MIT License](LICENSE.txt).
