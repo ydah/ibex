@@ -196,6 +196,18 @@ class RuntimeParserTest < Minitest::Test
     assert_equal 7, AcceptingCalculator.new([[:INT, 7], ["+", nil], [:BAD, nil]]).do_parse
   end
 
+  def test_reduce_hook_runs_once_before_yyaccept_terminates
+    parser = AcceptingCalculator.new([[:INT, 7], ["+", nil], [:BAD, nil]])
+    reductions = []
+    parser.define_singleton_method(:on_reduce) do |*payload|
+      reductions << payload
+      :ignored_return
+    end
+
+    assert_equal 7, parser.do_parse
+    assert_equal [[2, [7], 7]], reductions
+  end
+
   def test_yyerror_enters_recovery_without_calling_on_error
     assert_nil RejectingCalculator.new([[:INT, 7]]).do_parse
   end
@@ -281,6 +293,48 @@ class RuntimeParserTest < Minitest::Test
       error = assert_raises(RuntimeError) { parser.do_parse }
       assert_equal "#{hook} failed", error.message
     end
+  end
+
+  def test_hook_return_values_do_not_change_a_normal_parse_result
+    parser = Calculator.new([[:INT, 1], ["+", nil], [:INT, 2]])
+    sentinel = Object.new
+    calls = []
+    parser.define_singleton_method(:on_shift) do |*|
+      calls << :shift
+      sentinel
+    end
+    parser.define_singleton_method(:on_reduce) do |*|
+      calls << :reduce
+      sentinel
+    end
+
+    assert_equal 3, parser.do_parse
+    assert_includes calls, :shift
+    assert_includes calls, :reduce
+  end
+
+  def test_hook_return_values_do_not_change_a_recovery_parse_result
+    tokens = [[:BAD, nil], [";", nil], [:INT, 2], [";", nil]]
+    parser = RecoveringStatements.new(tokens)
+    sentinel = Object.new
+    calls = []
+    parser.define_singleton_method(:on_shift) do |*|
+      calls << :shift
+      sentinel
+    end
+    parser.define_singleton_method(:on_reduce) do |*|
+      calls << :reduce
+      sentinel
+    end
+    parser.define_singleton_method(:on_error_recover) do |*|
+      calls << :recover
+      sentinel
+    end
+
+    assert_equal [:error, 2], parser.do_parse
+    assert_includes calls, :shift
+    assert_includes calls, :reduce
+    assert_includes calls, :recover
   end
 
   def test_debug_trace_reports_core_operations
