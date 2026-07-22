@@ -63,7 +63,10 @@ module Ibex
       options.on("-t", "--debug", "generate a debug-capable parser") { @options[:debug] = true }
       options.on("-g", "obsolete alias for --debug") { @options[:debug] = true }
       options.on("-v", "--verbose", "write an automaton report") { @options[:verbose] = true }
-      options.on("--counterexamples", "include conflict witnesses in a report") { @options[:verbose] = true }
+      options.on("--counterexamples", "include conflict counterexamples in a report") { @options[:verbose] = true }
+      options.on("--rbs[=FILE]", "write an RBS signature (defaults beside parser)") do |value|
+        @options[:rbs] = value || true
+      end
       options.on("--dot=FILE", "write Graphviz DOT") { |value| @options[:dot] = value }
       options.on("--html=FILE", "write a self-contained HTML report") { |value| @options[:html] = value }
       options.on("-O", "--log-file=FILE", "automaton report path") do |value|
@@ -199,7 +202,15 @@ module Ibex
       File.write(output_path, source)
       File.chmod(0o755, output_path) if @options[:executable]
       report_status("wrote #{output_path}")
+      write_rbs(automaton, output_path) if @options[:rbs]
       0
+    end
+
+    def write_rbs(automaton, output_path)
+      path = @options[:rbs] == true ? default_output_path(output_path, ".rbs") : @options[:rbs]
+      source = Codegen::RBS.new(automaton, superclass: @options[:superclass]).generate
+      File.write(path, source)
+      report_status("wrote #{path}")
     end
 
     def emit_loaded_automaton(automaton, input_path)

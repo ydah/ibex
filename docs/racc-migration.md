@@ -21,6 +21,7 @@ copy racc's internal table arrays, internal method names, native runtime, or gen
 | `-e [RUBY]` | Add a shebang and executable permission |
 | `-E`, `--embedded` | Embed the Pure Ruby runtime |
 | `-F`, `--frozen` | Accepted; Ibex always emits frozen-string magic comments |
+| `--rbs[=FILE]` | Ibex extension; emit a generated parser signature |
 | `--line-convert-all`, `-l` | Enable the default source mapping or disable it |
 | `-a` | Generate methods for implicit actions |
 | `--superclass` | Override the grammar superclass |

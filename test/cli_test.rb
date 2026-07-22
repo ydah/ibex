@@ -3,6 +3,7 @@
 require_relative "test_helper"
 require "stringio"
 require "tempfile"
+require "tmpdir"
 
 class CLITest < Minitest::Test
   def test_version
@@ -46,6 +47,19 @@ class CLITest < Minitest::Test
     end
   end
 
+  def test_generates_rbs_beside_the_parser
+    Dir.mktmpdir("ibex-rbs") do |directory|
+      grammar = File.join(directory, "grammar.y")
+      parser = File.join(directory, "generated.rb")
+      File.write(grammar, "class API::Generated\nrule\nstart: TOKEN\nend\n")
+      run_cli(["--rbs", "-o", parser, grammar])
+
+      signature = File.read(File.join(directory, "generated.rbs"))
+      assert_includes signature, "module API"
+      assert_includes signature, "class Generated < Ibex::Runtime::Parser"
+    end
+  end
+
   def test_ast_and_check_only_status_options
     with_grammar do |grammar|
       ast_output = StringIO.new
@@ -76,7 +90,7 @@ class CLITest < Minitest::Test
   def test_help_lists_compatible_options
     output = StringIO.new
     assert_equal 0, Ibex::CLI.start(["--help"], stdout: output, stderr: StringIO.new)
-    %w[--output-file --debug --verbose --embedded --check-only --superclass].each do |option|
+    %w[--output-file --debug --verbose --embedded --rbs --check-only --superclass].each do |option|
       assert_includes output.string, option
     end
   end

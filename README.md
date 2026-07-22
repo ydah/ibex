@@ -102,10 +102,13 @@ ibex --from=grammar-ir --emit=automaton-ir grammar.json > automaton.json
 ibex --from=automaton-ir -o parser.rb automaton.json
 ibex -v --dot=states.dot --html=states.html grammar.y
 ibex --algorithm=lr1 grammar.y
+ibex --rbs -o parser.rb grammar.y
 ```
 
 Supported construction algorithms are `slr`, `lalr` (default), and canonical `lr1`. Reports retain precedence-resolved
-conflicts and include shortest-path witnesses for unresolved conflicts.
+conflicts and distinguish unifying counterexamples from nonunifying reachability witnesses. `--rbs` writes a signature beside
+the generated parser; `--rbs=FILE` selects another path. Application methods supplied as opaque `---- inner` code can be declared
+by reopening the generated class in an application RBS file.
 
 ## Documentation
 
