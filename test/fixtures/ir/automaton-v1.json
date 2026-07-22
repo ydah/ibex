@@ -1,0 +1,369 @@
+{
+  "ibex_ir": "automaton",
+  "schema_version": 1,
+  "algorithm": "lalr1",
+  "grammar_digest": "sha256:e253c24ee05f629a15978ac1ca1e26b70df60aced34d023a70caac9483305a34",
+  "grammar": {
+    "ibex_ir": "grammar",
+    "schema_version": 1,
+    "class_name": "GoldenFixtureParser",
+    "superclass": null,
+    "start": "start",
+    "expect": 0,
+    "options": {
+      "result_var": true,
+      "omit_action_call": true
+    },
+    "symbols": [
+      {
+        "id": 0,
+        "name": "$eof",
+        "kind": "terminal",
+        "reserved": true,
+        "prec": null,
+        "loc": null
+      },
+      {
+        "id": 1,
+        "name": "error",
+        "kind": "terminal",
+        "reserved": true,
+        "prec": null,
+        "loc": null
+      },
+      {
+        "id": 2,
+        "name": "NUMBER",
+        "kind": "terminal",
+        "reserved": false,
+        "prec": null,
+        "loc": {
+          "file": "golden-v1.y",
+          "line": 2,
+          "column": 1
+        }
+      },
+      {
+        "id": 3,
+        "name": "PLUS",
+        "kind": "terminal",
+        "reserved": false,
+        "prec": {
+          "associativity": "left",
+          "level": 1
+        },
+        "loc": {
+          "file": "golden-v1.y",
+          "line": 2,
+          "column": 1
+        }
+      },
+      {
+        "id": 4,
+        "name": "start",
+        "kind": "nonterminal",
+        "reserved": false,
+        "prec": null,
+        "loc": {
+          "file": "golden-v1.y",
+          "line": 10,
+          "column": 1
+        }
+      },
+      {
+        "id": 5,
+        "name": "expression",
+        "kind": "nonterminal",
+        "reserved": false,
+        "prec": null,
+        "loc": {
+          "file": "golden-v1.y",
+          "line": 11,
+          "column": 1
+        }
+      }
+    ],
+    "productions": [
+      {
+        "id": 0,
+        "lhs": 4,
+        "rhs": [
+          5
+        ],
+        "action": null,
+        "prec_override": null,
+        "origin": {
+          "kind": "user",
+          "loc": {
+            "file": "golden-v1.y",
+            "line": 10,
+            "column": 8
+          }
+        }
+      },
+      {
+        "id": 1,
+        "lhs": 5,
+        "rhs": [
+          5,
+          3,
+          2
+        ],
+        "action": {
+          "code": " result = val[0] + val[2] ",
+          "loc": {
+            "file": "golden-v1.y",
+            "line": 11,
+            "column": 36
+          },
+          "named_refs": [],
+          "context_length": 0
+        },
+        "prec_override": null,
+        "origin": {
+          "kind": "user",
+          "loc": {
+            "file": "golden-v1.y",
+            "line": 11,
+            "column": 13
+          }
+        }
+      },
+      {
+        "id": 2,
+        "lhs": 5,
+        "rhs": [
+          2
+        ],
+        "action": null,
+        "prec_override": null,
+        "origin": {
+          "kind": "user",
+          "loc": {
+            "file": "golden-v1.y",
+            "line": 12,
+            "column": 13
+          }
+        }
+      }
+    ],
+    "user_code": {
+      "header": "",
+      "inner": "def fixture_helper = true\n",
+      "footer": ""
+    },
+    "conversions": {
+      "NUMBER": "Integer"
+    },
+    "warnings": [],
+    "user_code_chunks": {
+      "inner": [
+        {
+          "code": "def fixture_helper = true\n",
+          "loc": {
+            "file": "golden-v1.y",
+            "line": 15,
+            "column": 1
+          }
+        }
+      ]
+    }
+  },
+  "states": [
+    {
+      "id": 0,
+      "items": [
+        {
+          "production": -1,
+          "dot": 0,
+          "lookaheads": [
+            "$eof"
+          ]
+        },
+        {
+          "production": 0,
+          "dot": 0,
+          "lookaheads": [
+            "$eof"
+          ]
+        },
+        {
+          "production": 1,
+          "dot": 0,
+          "lookaheads": [
+            "$eof",
+            "PLUS"
+          ]
+        },
+        {
+          "production": 2,
+          "dot": 0,
+          "lookaheads": [
+            "$eof",
+            "PLUS"
+          ]
+        }
+      ],
+      "transitions": {
+        "NUMBER": 1,
+        "start": 2,
+        "expression": 3
+      },
+      "actions": {
+        "NUMBER": {
+          "type": "shift",
+          "state": 1
+        }
+      },
+      "gotos": {
+        "start": 2,
+        "expression": 3
+      },
+      "default_action": null,
+      "conflicts": []
+    },
+    {
+      "id": 1,
+      "items": [
+        {
+          "production": 2,
+          "dot": 1,
+          "lookaheads": [
+            "$eof",
+            "PLUS"
+          ]
+        }
+      ],
+      "transitions": {},
+      "actions": {
+        "$eof": {
+          "type": "reduce",
+          "production": 2
+        },
+        "PLUS": {
+          "type": "reduce",
+          "production": 2
+        }
+      },
+      "gotos": {},
+      "default_action": null,
+      "conflicts": []
+    },
+    {
+      "id": 2,
+      "items": [
+        {
+          "production": -1,
+          "dot": 1,
+          "lookaheads": [
+            "$eof"
+          ]
+        }
+      ],
+      "transitions": {},
+      "actions": {
+        "$eof": {
+          "type": "accept"
+        }
+      },
+      "gotos": {},
+      "default_action": null,
+      "conflicts": []
+    },
+    {
+      "id": 3,
+      "items": [
+        {
+          "production": 0,
+          "dot": 1,
+          "lookaheads": [
+            "$eof"
+          ]
+        },
+        {
+          "production": 1,
+          "dot": 1,
+          "lookaheads": [
+            "$eof",
+            "PLUS"
+          ]
+        }
+      ],
+      "transitions": {
+        "PLUS": 4
+      },
+      "actions": {
+        "$eof": {
+          "type": "reduce",
+          "production": 0
+        },
+        "PLUS": {
+          "type": "shift",
+          "state": 4
+        }
+      },
+      "gotos": {},
+      "default_action": null,
+      "conflicts": []
+    },
+    {
+      "id": 4,
+      "items": [
+        {
+          "production": 1,
+          "dot": 2,
+          "lookaheads": [
+            "$eof",
+            "PLUS"
+          ]
+        }
+      ],
+      "transitions": {
+        "NUMBER": 5
+      },
+      "actions": {
+        "NUMBER": {
+          "type": "shift",
+          "state": 5
+        }
+      },
+      "gotos": {},
+      "default_action": null,
+      "conflicts": []
+    },
+    {
+      "id": 5,
+      "items": [
+        {
+          "production": 1,
+          "dot": 3,
+          "lookaheads": [
+            "$eof",
+            "PLUS"
+          ]
+        }
+      ],
+      "transitions": {},
+      "actions": {
+        "$eof": {
+          "type": "reduce",
+          "production": 1
+        },
+        "PLUS": {
+          "type": "reduce",
+          "production": 1
+        }
+      },
+      "gotos": {},
+      "default_action": null,
+      "conflicts": []
+    }
+  ],
+  "conflict_summary": {
+    "sr": 0,
+    "resolved_sr": 0,
+    "rr": 0,
+    "expected_sr": 0,
+    "expectation_met": true
+  }
+}
