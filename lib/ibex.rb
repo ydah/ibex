@@ -6,6 +6,8 @@ require_relative "ibex/frontend"
 require_relative "ibex/ir"
 require_relative "ibex/normalize"
 require_relative "ibex/analysis"
+require_relative "ibex/lalr"
+require_relative "ibex/codegen/report"
 
 # Ibex generates and runs Pure Ruby LR parsers.
 module Ibex

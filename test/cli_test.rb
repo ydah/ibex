@@ -22,6 +22,17 @@ class CLITest < Minitest::Test
     end
   end
 
+  def test_emits_automaton_ir
+    Tempfile.create(["grammar", ".y"]) do |file|
+      file.write("class P\nrule\nstart: TOKEN\nend\n")
+      file.flush
+      output = StringIO.new
+      status = Ibex::CLI.start(["--emit=automaton-ir", file.path], stdout: output, stderr: StringIO.new)
+      assert_equal 0, status
+      assert_equal "automaton", JSON.parse(output.string).fetch("ibex_ir")
+    end
+  end
+
   def test_reports_cli_errors
     errors = StringIO.new
     assert_equal 1, Ibex::CLI.start([], stdout: StringIO.new, stderr: errors)

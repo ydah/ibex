@@ -17,6 +17,7 @@ module Ibex
         type = data.fetch("ibex_ir") { raise Ibex::Error, "(ir):1:1: missing ibex_ir discriminator" }
         validate_version(data)
         return load_grammar(data) if type == "grammar"
+        return load_automaton(data) if type == "automaton"
 
         raise Ibex::Error, "(ir):1:1: unsupported IR type #{type.inspect}"
       rescue JSON::ParserError => e
@@ -44,6 +45,44 @@ module Ibex
                     conversions: data.fetch("conversions"), warnings: symbolize(data.fetch("warnings")))
       end
       private_class_method :load_grammar
+
+      def load_automaton(data)
+        grammar = load_grammar(data.fetch("grammar"))
+        states = data.fetch("states").map { |state| load_state(state, grammar) }
+        Automaton.new(grammar: grammar, states: states, conflict_summary: symbolize(data.fetch("conflict_summary")),
+                      algorithm: data.fetch("algorithm"), grammar_digest: data.fetch("grammar_digest"))
+      end
+      private_class_method :load_automaton
+
+      def load_state(state, grammar)
+        items = state.fetch("items").map do |item|
+          lookaheads = item.fetch("lookaheads").map { |name| grammar.symbol(name).id }
+          AutomatonItem.new(production: item.fetch("production"), dot: item.fetch("dot"), lookaheads: lookaheads)
+        end
+        AutomatonState.new(id: state.fetch("id"), items: items,
+                           transitions: symbol_keyed(state.fetch("transitions"), grammar),
+                           actions: symbol_keyed(state.fetch("actions"), grammar, actions: true),
+                           gotos: symbol_keyed(state.fetch("gotos"), grammar),
+                           default_action: normalize_action(state["default_action"]),
+                           conflicts: symbolize(state.fetch("conflicts")))
+      end
+      private_class_method :load_state
+
+      def symbol_keyed(values, grammar, actions: false)
+        values.to_h do |name, value|
+          [grammar.symbol(name).id, actions ? normalize_action(value) : value]
+        end
+      end
+      private_class_method :symbol_keyed
+
+      def normalize_action(value)
+        return nil unless value
+
+        action = symbolize(value)
+        action[:type] = action[:type].to_sym
+        action
+      end
+      private_class_method :normalize_action
 
       def load_production(production)
         action_data = production["action"]
