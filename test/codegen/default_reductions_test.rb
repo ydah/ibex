@@ -32,6 +32,18 @@ class DefaultReductionsCodegenTest < Minitest::Test
     end
   end
 
+  def test_plain_and_compact_parsers_reject_integer_and_object_unknown_tokens
+    %i[plain compact].each do |table|
+      parser_class = generate_parser(default_reduction_source, "DefaultReductionParser", table)
+
+      [8, Object.new].each do |external_token|
+        parser = parser_class.new
+        assert_raises(Ibex::ParseError) { parser.parse_tokens([[external_token, :bogus]]) }
+        assert_empty parser.reductions
+      end
+    end
+  end
+
   private
 
   def generate_parser(source, class_name, table)
