@@ -28,5 +28,6 @@ symbol expression, while `NUM '"number"'` emits a Ruby string token.
 
 With an explicitly declared but syntactically invalid `BAD` token, error recovery results and `on_error` observations (token
 string, value, and value-stack length) match. An undeclared `:BAD` was observed to enter racc's `error` production without an
-`on_error` callback; Ibex currently treats it as an unknown lookahead and calls `on_error`, so this edge case is documented as a
-known difference pending a broader undeclared-token compatibility decision.
+`on_error` callback. Ibex intentionally treats it as an unknown lookahead and calls `on_error` before attempting the same error
+recovery flow. This preserves the unexpected token object and value for logging and application policy instead of silently
+entering recovery.

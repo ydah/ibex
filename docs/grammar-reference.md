@@ -59,6 +59,12 @@ The action scanner handles nested braces, quoted/backtick strings and interpolat
 expressions, comments, character literals, and unquoted, single-quoted, double-quoted, or backtick heredocs. Indented, squiggly,
 interpolated, and multiple heredocs on one opener line are supported. See [lexer coverage](lexer-coverage.md).
 
+## Runtime errors
+
+The default `on_error(token_id, value, value_stack)` raises `Ibex::ParseError`. Override it and return to allow an `error`
+production to recover. Unknown external token objects receive a temporary negative internal id, remain printable through
+`token_to_str`, and always invoke `on_error` before recovery is attempted.
+
 ## Extended EBNF and names
 
 Extended mode supports:

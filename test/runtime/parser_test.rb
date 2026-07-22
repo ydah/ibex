@@ -67,7 +67,7 @@ class RuntimeParserTest < Minitest::Test
       ]
     }.freeze
 
-    attr_reader :errors
+    attr_reader :errors, :error_observations
 
     def self.parser_tables = TABLES
 
@@ -75,12 +75,14 @@ class RuntimeParserTest < Minitest::Test
       super()
       @tokens = tokens
       @errors = []
+      @error_observations = []
     end
 
     def next_token = @tokens.shift
 
-    def on_error(token_id, _value, _stack)
+    def on_error(token_id, value, stack)
       @errors << token_to_str(token_id)
+      @error_observations << [token_id, value, stack]
     end
 
     private
@@ -159,6 +161,22 @@ class RuntimeParserTest < Minitest::Test
     parser = RecoveringStatements.new([[:INT, 1], [:BAD, nil], [";", nil], [:INT, 2], [";", nil]])
     assert_equal [:error, 2], parser.do_parse
     assert_equal [":BAD"], parser.errors
+  end
+
+  def test_undeclared_unknown_token_is_reported_before_recovery
+    parser = RecoveringStatements.new([[:BAD, "payload"], [";", nil]])
+    assert_equal [:error], parser.do_parse
+    token_id, value, stack = parser.error_observations.fetch(0)
+    assert_operator token_id, :<, 0
+    assert_equal "payload", value
+    assert_equal [], stack
+    assert_equal ":BAD", parser.token_to_str(token_id)
+  end
+
+  def test_undeclared_unknown_token_uses_the_default_error_handler
+    error = assert_raises(Ibex::ParseError) { Calculator.new([[:BAD, "payload"]]).do_parse }
+    assert_match(/unexpected :BAD/, error.message)
+    assert_match(/payload/, error.message)
   end
 
   def test_recovery_reports_again_after_three_successful_shifts
