@@ -6,6 +6,7 @@ AllCops:
   Exclude:
     - "pkg/**/*"
     - "tmp/**/*"
+    - "vendor/**/*"
 
 Layout/LineLength:
   Max: 120
