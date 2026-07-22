@@ -3,7 +3,7 @@
 module Ibex
   module Frontend
     # Parses the declaration section of a grammar.
-    module ParserDeclarations
+    module BootstrapParserDeclarations
       DECLARATIONS = %w[token prechigh preclow options expect start convert rule].freeze
       ASSOCIATIVITIES = %w[left right nonassoc].freeze
 
