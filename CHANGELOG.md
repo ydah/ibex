@@ -20,3 +20,4 @@
 - Define unknown external tokens to invoke `on_error` before yacc-style recovery.
 - Add post-commit shift, reduction, and successful-recovery observation hooks to the runtime.
 - Add complete quickstart, grammar, migration, architecture, and extension documentation with an executable README test.
+- Self-host the grammar frontend from a committed Ibex grammar with deterministic regeneration and bootstrap parity checks.

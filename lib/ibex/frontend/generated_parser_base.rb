@@ -22,20 +22,46 @@ module Ibex
 
       def on_error(_token_id, value, _value_stack)
         token = value || @adapter.eof_token
+        raise_contextual_error(token)
+
         received = token&.value || token&.type || :eof
         location = token&.location || Location.new(file: "(grammar)", line: 1, column: 1)
-        expected = expected_description
+        expected = expected_description(token)
         raise Ibex::Error, "#{location}: expected #{expected}, got #{received}"
       end
 
       private
 
-      def expected_description
-        return "left or right or nonassoc" if @adapter.declaration == :precedence
+      def raise_contextual_error(token)
+        if @adapter.group_opening && token&.type == :action
+          fail_at(token.location, "actions inside EBNF groups are not supported")
+        end
+        if @adapter.group_opening && (token.nil? || token.type == :eof || token.value == "end")
+          fail_at(@adapter.group_opening.location, "unterminated EBNF group")
+        end
+        return unless @adapter.declaration == :convert && @adapter.conversion_name
+
+        fail_at(@adapter.conversion_name.location, "expected a quoted Ruby conversion expression")
+      end
+
+      def expected_description(token)
+        declaration = declaration_expectation(token)
+        return declaration if declaration
+        return ":" if @adapter.previous_external == :LHS
         return "rule" if @adapter.section == :declarations
+        return "at least one rule" if @adapter.section == :user_code && token&.value == "end"
         return "end" if @adapter.section == :rules && @adapter.eof_token
 
         "grammar syntax"
+      end
+
+      def declaration_expectation(token)
+        if @adapter.declaration == :precedence
+          return @adapter.precedence_closer if token&.type == :eof
+
+          return "left or right or nonassoc"
+        end
+        "end" if @adapter.declaration == :convert
       end
 
       def build_root(class_token, class_parts, superclass, declarations, rules, user_code)
