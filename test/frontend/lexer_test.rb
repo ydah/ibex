@@ -46,9 +46,23 @@ class LexerTest < Minitest::Test
     assert_equal [" #{source} "], actions(source)
   end
 
-  def test_rejects_unsupported_heredoc_with_location
-    error = assert_raises(Ibex::Error) { actions("text = <<~'TEXT'\nvalue\nTEXT") }
-    assert_match(/fixture\.y:3:\d+: quoted heredoc identifiers are not supported/, error.message)
+  def test_handles_quoted_and_dynamic_heredocs
+    sources = [
+      "text = <<-'TEXT'\n}\nTEXT\nresult = text",
+      "text = <<~\"END } MARK\"\n\#{ { brace: '}' } }\nEND } MARK\nresult = text",
+      "command = <<-`SHELL`\n}\nSHELL\nresult = command"
+    ]
+    sources.each { |source| assert_equal [" #{source} "], actions(source) }
+  end
+
+  def test_handles_multiple_heredocs_on_one_line
+    source = "values = [<<~\"LEFT\", <<-'RIGHT']\n}\nLEFT\n\#{not_scanned}\nRIGHT\nresult = values"
+    assert_equal [" #{source} "], actions(source)
+  end
+
+  def test_reports_unterminated_quoted_heredoc_at_its_opener
+    error = assert_raises(Ibex::Error) { actions("text = <<~'TEXT'\nvalue") }
+    assert_match(/fixture\.y:3:\d+: unterminated heredoc TEXT/, error.message)
   end
 
   def test_emits_duplicate_user_code_blocks_in_order

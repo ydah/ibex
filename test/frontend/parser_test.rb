@@ -38,9 +38,24 @@ class FrontendParserTest < Minitest::Test
     assert_instance_of Ibex::Frontend::AST::SeparatedList, items[4]
   end
 
+  def test_parses_nested_ebnf_groups_and_alternatives
+    source = "class P\nrule\nvalues: (A (B | C)?)+\nend\n"
+    item = parse(source, mode: :extended).rules.first.alternatives.first.items.first
+    assert_instance_of Ibex::Frontend::AST::Plus, item
+    outer_group = item.item
+    assert_instance_of Ibex::Frontend::AST::Group, outer_group
+    inner_optional = outer_group.alternatives.first.last
+    assert_instance_of Ibex::Frontend::AST::Optional, inner_optional
+    names = inner_optional.item.alternatives.map { |alternative| alternative.first.name }
+    assert_equal %w[B C], names
+  end
+
   def test_rejects_extensions_in_racc_mode
     error = assert_raises(Ibex::Error) { parse("class P\nrule\ns: ITEM*\nend\n") }
     assert_equal "grammar.y:3:8: EBNF suffixes require extended mode", error.message
+
+    error = assert_raises(Ibex::Error) { parse("class P\nrule\ns: (ITEM)\nend\n") }
+    assert_equal "grammar.y:3:4: EBNF groups require extended mode", error.message
   end
 
   def test_reports_missing_rule_and_end_with_locations

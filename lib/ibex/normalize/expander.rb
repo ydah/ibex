@@ -30,6 +30,7 @@ module Ibex
 
     def normalize_item(item)
       return symbol_for_reference(item).name if item.is_a?(Frontend::AST::SymbolReference)
+      return expand_group(item) if item.is_a?(Frontend::AST::Group)
       return expand_optional(item) if item.is_a?(Frontend::AST::Optional)
       return expand_star(item) if item.is_a?(Frontend::AST::Star)
       return expand_plus(item) if item.is_a?(Frontend::AST::Plus)
@@ -47,7 +48,7 @@ module Ibex
     end
 
     def expand_optional(item)
-      base = simple_ebnf_item(item.item)
+      base = normalize_item(item.item)
       helper = new_helper("optional", item.loc)
       add_production(helper, [], synthetic_action("nil", item.loc), nil, synthetic_origin(:optional, item))
       add_production(helper, [base], synthetic_action("val[0]", item.loc), nil, synthetic_origin(:optional, item))
@@ -55,7 +56,7 @@ module Ibex
     end
 
     def expand_star(item)
-      base = simple_ebnf_item(item.item)
+      base = normalize_item(item.item)
       helper = new_helper("star", item.loc)
       add_production(helper, [], synthetic_action("[]", item.loc), nil, synthetic_origin(:star, item))
       add_production(helper, [helper, base], synthetic_action("val[0] + [val[1]]", item.loc), nil,
@@ -64,7 +65,7 @@ module Ibex
     end
 
     def expand_plus(item)
-      base = simple_ebnf_item(item.item)
+      base = normalize_item(item.item)
       helper = new_helper("plus", item.loc)
       add_production(helper, [base], synthetic_action("[val[0]]", item.loc), nil, synthetic_origin(:plus, item))
       add_production(helper, [helper, base], synthetic_action("val[0] + [val[1]]", item.loc), nil,
@@ -73,8 +74,8 @@ module Ibex
     end
 
     def expand_separated_list(item)
-      base = simple_ebnf_item(item.item)
-      separator = simple_ebnf_item(item.separator)
+      base = normalize_item(item.item)
+      separator = normalize_item(item.separator)
       helper = new_helper("separated_list", item.loc)
       unless item.nonempty
         add_production(helper, [], synthetic_action("[]", item.loc), nil, synthetic_origin(:separated_list, item))
@@ -86,10 +87,37 @@ module Ibex
       helper
     end
 
-    def simple_ebnf_item(item)
-      return symbol_for_reference(item).name if item.is_a?(Frontend::AST::SymbolReference)
+    def expand_group(item)
+      reject_group_named_references(item)
+      helper = new_helper("group", item.loc)
+      item.alternatives.each do |alternative|
+        rhs = alternative.map { |child| normalize_item(child) }
+        expression = group_value_expression(rhs.length)
+        add_production(helper, rhs, synthetic_action(expression, item.loc), nil, synthetic_origin(:group, item))
+      end
+      helper
+    end
 
-      fail_at(item.loc, "nested EBNF expressions are not supported")
+    def group_value_expression(length)
+      return "nil" if length.zero?
+      return "val[0]" if length == 1
+
+      "val"
+    end
+
+    def reject_group_named_references(group)
+      reference = group.alternatives.flatten.filter_map { |item| named_reference_in(item) }.first
+      fail_at(reference.loc, "named references inside EBNF groups are not supported") if reference
+    end
+
+    def named_reference_in(item)
+      return item if item.is_a?(Frontend::AST::SymbolReference) && item.named_reference
+      if item.is_a?(Frontend::AST::Group)
+        return item.alternatives.flatten.filter_map { |child| named_reference_in(child) }.first
+      end
+      return named_reference_in(item.item) if item.respond_to?(:item)
+
+      nil
     end
 
     def new_helper(kind, location)
@@ -126,7 +154,7 @@ module Ibex
 
     def unwrap_reference(item)
       return item if item.is_a?(Frontend::AST::SymbolReference)
-      return item.item if item.respond_to?(:item)
+      return unwrap_reference(item.item) if item.respond_to?(:item)
 
       nil
     end

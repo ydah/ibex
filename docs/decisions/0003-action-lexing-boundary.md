@@ -12,8 +12,9 @@ to parser-local variables and should remain opaque until code generation.
 
 Use a source cursor shared by the grammar lexer and a dedicated balanced action scanner. The scanner recognizes nested braces,
 quoted and percent literals, interpolation, regular expressions selected by a conservative preceding-character heuristic,
-comments, character literals, and basic unquoted heredocs. Ambiguous or unsupported quoted heredoc identifiers fail with a
-source location. User-code separators are recognized only at column one.
+comments, character literals, and Ruby's unquoted, single-quoted, double-quoted, and backtick heredocs. Heredoc openers are queued
+until the end of their shared source line, then their bodies are consumed in declaration order. User-code separators are
+recognized only at column one.
 
 ## Consequences
 

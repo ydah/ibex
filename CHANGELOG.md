@@ -16,4 +16,5 @@
 - Add a Ruby DSL frontend that converges on the existing Grammar AST and IR pipeline.
 - Add unifying conflict counterexamples with complete competing derivation trees and bounded nonunifying fallback.
 - Add generated parser RBS output, shipped runtime signatures, and strict structured grammar diagnostics.
+- Support quoted, interpolated, and multiple Ruby heredocs plus recursively nested grouped EBNF.
 - Add complete quickstart, grammar, migration, architecture, and extension documentation with an executable README test.

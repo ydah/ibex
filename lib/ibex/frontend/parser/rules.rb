@@ -47,6 +47,7 @@ module Ibex
       def parse_item
         return parse_action if current.type == :action
         return parse_separated_list if separated_list?
+        return parse_group if current.type == :"("
 
         token = expect_symbol
         named_reference = parse_named_reference
@@ -68,12 +69,29 @@ module Ibex
       end
 
       def parse_suffix(item)
-        wrapper = EXTENDED_SUFFIXES[current.type]
-        return item unless wrapper
+        while (wrapper = EXTENDED_SUFFIXES[current.type])
+          extended_only!(current.location, "EBNF suffixes")
+          item = wrapper.new(item: item, loc: advance.location)
+        end
+        item
+      end
 
-        extended_only!(current.location, "EBNF suffixes")
-        location = advance.location
-        wrapper.new(item: item, loc: location)
+      def parse_group
+        opening = advance
+        extended_only!(opening.location, "EBNF groups")
+        alternatives = [[]]
+        until current.type == :")"
+          fail_at(opening.location, "unterminated EBNF group") if current.type == :eof || keyword?("end")
+          if accept(:|)
+            alternatives << []
+            next
+          end
+          fail_at(current.location, "actions inside EBNF groups are not supported") if current.type == :action
+
+          alternatives.last << parse_item
+        end
+        expect(:")")
+        parse_suffix(AST::Group.new(alternatives: alternatives, loc: opening.location))
       end
 
       def parse_separated_list
