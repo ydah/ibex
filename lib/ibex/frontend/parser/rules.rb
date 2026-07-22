@@ -3,7 +3,7 @@
 module Ibex
   module Frontend
     # Parses productions and extended RHS items.
-    module ParserRules
+    module BootstrapParserRules
       EXTENDED_SUFFIXES = { "?": AST::Optional, "*": AST::Star, "+": AST::Plus }.freeze
 
       private
