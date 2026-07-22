@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "ibex"
+
+if ARGV == ["--version"]
+  puts "ibex #{Ibex::VERSION}"
+else
+  warn "Usage: ibex --version"
+  exit 1
+end
