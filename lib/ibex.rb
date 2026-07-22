@@ -3,6 +3,8 @@
 require_relative "ibex/version"
 require_relative "ibex/runtime"
 require_relative "ibex/frontend"
+require_relative "ibex/ir"
+require_relative "ibex/normalize"
 
 # Ibex generates and runs Pure Ruby LR parsers.
 module Ibex
