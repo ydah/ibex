@@ -8,6 +8,7 @@ module Ibex
       DEFAULT_MAX_CONFIGURATIONS = ConflictSearch::DEFAULT_MAX_CONFIGURATIONS
 
       def initialize(automaton, max_tokens: DEFAULT_MAX_TOKENS, max_configurations: DEFAULT_MAX_CONFIGURATIONS)
+        ConflictSearchLimits.validate!(max_tokens: max_tokens, max_configurations: max_configurations)
         @automaton = automaton
         @grammar = automaton.grammar
         @max_tokens = max_tokens

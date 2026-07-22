@@ -4,13 +4,16 @@ module Ibex
   module LALR
     # Searches the parser state space for one input accepted through both sides of a conflict.
     class ConflictSearch
-      DEFAULT_MAX_TOKENS = 32
-      DEFAULT_MAX_CONFIGURATIONS = 50_000
+      include ConflictSearchLimits
+
+      DEFAULT_MAX_TOKENS = ConflictSearchLimits::DEFAULT_MAX_TOKENS
+      DEFAULT_MAX_CONFIGURATIONS = ConflictSearchLimits::DEFAULT_MAX_CONFIGURATIONS
 
       Configuration = Struct.new(:states, :nodes, keyword_init: true)
 
       def initialize(automaton, state, conflict, max_tokens: DEFAULT_MAX_TOKENS,
                      max_configurations: DEFAULT_MAX_CONFIGURATIONS)
+        ConflictSearchLimits.validate!(max_tokens: max_tokens, max_configurations: max_configurations)
         @automaton = automaton
         @grammar = automaton.grammar
         @state = state
@@ -46,7 +49,7 @@ module Ibex
       end
 
       def enqueue_prefixes(queue, visited, current, prefix)
-        return if prefix.length >= @max_tokens
+        return unless room_for_token?(prefix, [])
 
         @input_tokens.each do |token_id|
           advance(current, token_id, branch_conflicts: true).each do |status, candidate|
@@ -60,6 +63,8 @@ module Ibex
       end
 
       def unify_from(current, prefix)
+        return unless within_token_budget?(prefix, [])
+
         conflict_actions.combination(2) do |left_action, right_action|
           left_results = advance(current, @lookahead, forced_action: left_action, branch_conflicts: true)
           right_results = advance(current, @lookahead, forced_action: right_action, branch_conflicts: true)
@@ -81,7 +86,7 @@ module Ibex
           left_config, right_config, suffix = queue.shift
           accepted = accept_with_eof(left_config, right_config)
           return accepted_result(prefix, suffix, accepted[0], accepted[1], left_action, right_action) if accepted
-          next if prefix.length + suffix.length + 1 >= @max_tokens
+          next unless room_for_token?(prefix, suffix)
 
           enqueue_suffixes(queue, visited, left_config, right_config, suffix)
         end
@@ -114,6 +119,8 @@ module Ibex
       end
 
       def accepted_result(prefix, suffix, left, right, left_action, right_action)
+        return unless within_token_budget?(prefix, suffix)
+
         sentence = prefix.dup
         sentence << @lookahead unless @lookahead.zero?
         sentence.concat(suffix)
@@ -230,9 +237,7 @@ module Ibex
         configuration(states + [target], nodes + [{ symbol: symbol, production: production_id, children: children }])
       end
 
-      def configuration(states, nodes)
-        Configuration.new(states: states.freeze, nodes: nodes.freeze)
-      end
+      def configuration(states, nodes) = Configuration.new(states: states.freeze, nodes: nodes.freeze)
 
       def pair_key(left, right)
         [left.states, right.states]

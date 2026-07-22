@@ -111,9 +111,9 @@ ibex --warnings=all,error -C grammar.y
 Supported construction algorithms are `slr`, `lalr` (default), and canonical `lr1`. Reports retain precedence-resolved
 conflicts and distinguish unifying counterexamples from nonunifying reachability witnesses. Counterexample searches default to
 32 tokens and 50,000 explored configurations; `--counterexample-max-tokens=N` and
-`--counterexample-max-configurations=N` set positive per-run budgets. `--rbs` writes a signature beside the generated parser;
-`--rbs=FILE` selects another path. Application methods supplied as opaque `---- inner` code can be declared by reopening the
-generated class in an application RBS file.
+`--counterexample-max-configurations=N` set positive per-run budgets and request a report. `--rbs` writes a signature beside the
+generated parser; `--rbs=FILE` selects another path. Application methods supplied as opaque `---- inner` code can be declared by
+reopening the generated class in an application RBS file.
 
 `--warnings=all` prints unused terminals, unreachable nonterminals, duplicate productions, undeclared terminals, and empty-language
 diagnostics. Add `error` (`--warnings=all,error`, or simply `--warnings=error`) to make any such diagnostic fail the command.
