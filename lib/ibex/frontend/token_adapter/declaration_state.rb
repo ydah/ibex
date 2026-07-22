@@ -52,6 +52,8 @@ module Ibex
 
         # @rbs (Token? token) -> String?
         def expectation(token)
+          return "identifier" if @state == :pragma_value && token&.type != :identifier
+
           expected = EXPECTATIONS[@state]
           return expected if expected
 

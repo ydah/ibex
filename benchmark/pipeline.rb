@@ -9,7 +9,7 @@ $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "ibex"
 
 module PipelineBenchmark
-  STAGES = %i[parse normalize lalr table codegen].freeze
+  STAGES = %i[parse normalize lalr table codegen_with_tables].freeze
   DEFAULTS = { rules: 200, iterations: 5, seed: 12_345, json: false }.freeze
 
   module_function
@@ -71,7 +71,9 @@ module PipelineBenchmark
     grammar = measure(timings[:normalize]) { Ibex::Normalizer.new(ast).normalize }
     automaton = measure(timings[:lalr]) { Ibex::LALR::Builder.new(grammar).build }
     tables = measure(timings[:table]) { Ibex::Tables.build(automaton, format: :compact) }
-    output = measure(timings[:codegen]) { Ibex::Codegen::Ruby.new(automaton, table: :compact).generate }
+    output = measure(timings[:codegen_with_tables]) do
+      Ibex::Codegen::Ruby.new(automaton, table: :compact).generate
+    end
     { grammar: grammar, automaton: automaton, tables: tables, output: output }
   end
 
