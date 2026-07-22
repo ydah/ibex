@@ -21,13 +21,15 @@ semantic value. It performs the two lexical classifications that depend on front
 indentation-sensitive rule LHS boundaries.
 
 The former recursive-descent implementation is retained as the explicitly named `BootstrapParser`. Normal library loading does
-not require it. `Frontend::Regenerator` loads it only to parse `grammar.y`, then passes the AST through the ordinary Normalizer,
-LALR builder, compact-table builder, and Ruby generator. This breaks the cycle without introducing a pregenerated external tool
-or a runtime dependency.
+not require it. `Frontend::Regenerator` directly requires only the lexer/AST/bootstrap and downstream generation stages; it does
+not require the public frontend or committed `GeneratedParser`. It parses `grammar.y`, then passes the AST through the ordinary
+Normalizer, LALR builder, compact-table builder, and Ruby generator. This breaks the cycle even when the generated file is absent,
+without introducing a pregenerated external tool or a runtime dependency.
 
 Run `bundle exec rake frontend:generate` after changing the frontend grammar, semantic support, or generator output. The generated
-file is deterministic and committed. A test regenerates it in memory and requires a byte-for-byte match, while parity tests compare
-the generated and bootstrap ASTs and errors across compatible, extended, edge, and malformed grammars.
+file is deterministic and committed. A subprocess test removes the generated file from a temporary source copy, verifies that the
+regenerator does not define `GeneratedParser`, and requires byte-for-byte output equality. Parity tests compare generated and
+bootstrap ASTs and errors across compatible, extended, edge, and malformed grammars.
 
 ## Consequences
 
