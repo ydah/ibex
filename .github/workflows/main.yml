@@ -77,6 +77,8 @@ jobs:
         run: bundle exec rbs -r digest -r json -r optparse -I sig validate
       - name: Type check Ruby implementation
         run: bundle exec steep check
+      - name: Check documented type statistics
+        run: bundle exec ruby tool/type_stats.rb --check
 
   actionlint:
     runs-on: ubuntu-latest
