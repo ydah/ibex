@@ -9,20 +9,30 @@ module Ibex
       def render(automaton)
         grammar = automaton.grammar
         lines = ["Algorithm: #{automaton.algorithm}", "States: #{automaton.states.length}", ""]
+        examples = LALR::Counterexample.new(automaton).all.group_by { |example| example[:state] }
         automaton.states.each do |state|
-          lines << "State #{state.id}"
-          state.items.each { |item| lines << "  #{format_item(item, grammar)}" }
-          state.actions.each do |token_id, action|
-            lines << "  on #{grammar.symbol_by_id(token_id).name}: #{format_action(action)}"
-          end
-          state.gotos.each { |symbol_id, target| lines << "  goto #{grammar.symbol_by_id(symbol_id).name}: #{target}" }
-          state.conflicts.each { |conflict| lines << "  conflict: #{conflict.inspect}" }
-          lines << ""
+          append_state(lines, state, grammar, examples.fetch(state.id, []))
         end
         summary = automaton.conflict_summary
         lines << "Conflicts: #{summary[:sr]} shift/reduce, #{summary[:rr]} reduce/reduce"
         "#{lines.join("\n")}\n"
       end
+
+      def append_state(lines, state, grammar, examples)
+        lines << "State #{state.id}"
+        state.items.each { |item| lines << "  #{format_item(item, grammar)}" }
+        state.actions.each do |token_id, action|
+          lines << "  on #{grammar.symbol_by_id(token_id).name}: #{format_action(action)}"
+        end
+        state.gotos.each { |symbol_id, target| lines << "  goto #{grammar.symbol_by_id(symbol_id).name}: #{target}" }
+        state.conflicts.each { |conflict| lines << "  conflict: #{conflict.inspect}" }
+        examples.each do |example|
+          lines << "  witness: #{example[:sentence].join(' ')}"
+          example[:interpretations].each { |item| lines << "    #{item.inspect}" }
+        end
+        lines << ""
+      end
+      private_class_method :append_state
 
       def format_item(item, grammar)
         if item.production == LALR::Builder::AUGMENTED_PRODUCTION

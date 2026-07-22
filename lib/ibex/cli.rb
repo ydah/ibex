@@ -2,10 +2,13 @@
 
 require "optparse"
 require_relative "../ibex"
+require_relative "cli/outputs"
 
 module Ibex
   # Command-line pipeline coordinator.
   class CLI
+    include CLIOutputs
+
     def self.start(arguments, stdout: $stdout, stderr: $stderr)
       new(stdout: stdout, stderr: stderr).run(arguments)
     end
@@ -60,6 +63,7 @@ module Ibex
       options.on("-t", "--debug", "generate a debug-capable parser") { @options[:debug] = true }
       options.on("-g", "obsolete alias for --debug") { @options[:debug] = true }
       options.on("-v", "--verbose", "write an automaton report") { @options[:verbose] = true }
+      options.on("--counterexamples", "include conflict witnesses in a report") { @options[:verbose] = true }
       options.on("--dot=FILE", "write Graphviz DOT") { |value| @options[:dot] = value }
       options.on("--html=FILE", "write a self-contained HTML report") { |value| @options[:html] = value }
       options.on("-O", "--log-file=FILE", "automaton report path") do |value|
@@ -222,29 +226,6 @@ module Ibex
     def write_visualizations(automaton)
       File.write(@options[:dot], Codegen::Dot.render(automaton)) if @options[:dot]
       File.write(@options[:html], Codegen::HTML.render(automaton)) if @options[:html]
-    end
-
-    def report_conflicts(automaton, input_path)
-      summary = automaton.conflict_summary
-      unless summary[:expectation_met]
-        @stderr.puts("#{input_path}:1:1: #{summary[:sr]} shift/reduce conflicts; expected #{summary[:expected_sr]}")
-      end
-      @stderr.puts("#{input_path}:1:1: #{summary[:rr]} reduce/reduce conflicts") if summary[:rr].positive?
-    end
-
-    def write_report(automaton, input_path)
-      path = @options[:log_file] || default_output_path(input_path, ".output")
-      File.write(path, Codegen::Report.render(automaton))
-      report_status("wrote #{path}")
-    end
-
-    def default_output_path(input_path, extension)
-      replaced = input_path.sub(/\.[^.]+\z/, extension)
-      replaced == input_path ? "#{input_path}#{extension}" : replaced
-    end
-
-    def report_status(message)
-      @stderr.puts("ibex: #{message}") if @options[:status]
     end
   end
 end
