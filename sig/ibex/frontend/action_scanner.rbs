@@ -1,0 +1,50 @@
+# Generated from lib/ibex/frontend/action_scanner.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Extracts a balanced Ruby action while ignoring braces inside literals.
+    class ActionScanner
+      PAIRED_DELIMITERS: untyped
+
+      REGEX_PREFIXES: ::String
+
+      def initialize: (untyped cursor) -> untyped
+
+      def scan: () -> untyped
+
+      private
+
+      def scan_code: (untyped depth) -> untyped
+
+      def scan_special_character: () -> untyped
+
+      def scan_quoted: (untyped quote) -> untyped
+
+      def scan_interpolation: () -> untyped
+
+      def scan_percent_literal: () -> untyped
+
+      def scan_delimited: (untyped opener, untyped closer) -> untyped
+
+      def regexp_start?: () -> untyped
+
+      def scan_regexp: () -> untyped
+
+      def scan_comment: () -> untyped
+
+      def scan_character_literal: () -> untyped
+
+      def scan_heredoc: () -> untyped
+
+      def heredoc_opener: () -> untyped
+
+      def quoted_heredoc_identifier: (untyped prefix, untyped quote) -> untyped
+
+      def bare_heredoc_identifier: (untyped prefix) -> untyped
+
+      def scan_pending_heredocs: () -> untyped
+
+      def scan_heredoc_body: (untyped heredoc) -> untyped
+    end
+  end
+end

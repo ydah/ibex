@@ -1,0 +1,20 @@
+# Generated from lib/ibex/codegen/rbs.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Generates an RBS declaration for the public surface of a generated parser.
+    class RBS
+      def initialize: (untyped automaton, ?superclass: untyped) -> untyped
+
+      def generate: () -> untyped
+
+      private
+
+      def append_contract: (untyped lines) -> untyped
+
+      def class_parts: () -> untyped
+
+      def grammar_digest_comment: () -> untyped
+    end
+  end
+end

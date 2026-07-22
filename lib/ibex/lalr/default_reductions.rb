@@ -18,7 +18,8 @@ module Ibex
         default_action = select_default(state.actions, terminal_ids)
         return state unless default_action
 
-        actions = terminal_ids.each_with_object({}) do |token_id, result|
+        actions = {} #: Hash[untyped, untyped]
+        terminal_ids.each_with_object(actions) do |token_id, result|
           action = state.actions[token_id]
           result[token_id] = action || ERROR_ACTION unless action == default_action
         end

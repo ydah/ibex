@@ -1,0 +1,73 @@
+# Generated from lib/ibex/lalr/conflict_search.rb with RBS::Inline
+
+module Ibex
+  module LALR
+    # Searches the parser state space for one input accepted through both sides of a conflict.
+    class ConflictSearch
+      include ConflictSearchLimits
+
+      DEFAULT_MAX_TOKENS: untyped
+
+      DEFAULT_MAX_CONFIGURATIONS: untyped
+
+      class Configuration < Struct[untyped]
+        attr_accessor states(): untyped
+
+        attr_accessor nodes(): untyped
+
+        def self.new: (?states: untyped, ?nodes: untyped) -> instance
+                    | ({ ?states: untyped, ?nodes: untyped }) -> instance
+      end
+
+      def initialize: (untyped automaton, untyped state, untyped conflict, ?max_tokens: untyped, ?max_configurations: untyped) -> untyped
+
+      def call: () -> untyped
+
+      private
+
+      def conflict_configurations: (untyped current) -> untyped
+
+      def enqueue_prefixes: (untyped queue, untyped visited, untyped current, untyped prefix) -> untyped
+
+      def unify_from: (untyped current, untyped prefix) -> untyped
+
+      def search_common_suffix: (untyped left, untyped right, untyped prefix, untyped left_action, untyped right_action) -> untyped
+
+      def accept_with_eof: (untyped left_config, untyped right_config) -> untyped
+
+      def enqueue_suffixes: (untyped queue, untyped visited, untyped left_config, untyped right_config, untyped suffix) -> untyped
+
+      def shifted_results: (untyped current, untyped token_id) -> untyped
+
+      def accepted_result: (untyped prefix, untyped suffix, untyped left, untyped right, untyped left_action, untyped right_action) -> untyped
+
+      def interpretation: (untyped action, untyped current) -> untyped
+
+      def accepted_pair?: (untyped left, untyped right) -> untyped
+
+      def shifted_pair?: (untyped left, untyped right) -> untyped
+
+      def conflict_actions: () -> untyped
+
+      def advance: (untyped initial, untyped token_id, ?forced_action: untyped, ?stop_at: untyped, ?branch_conflicts: untyped) -> untyped
+
+      def actions_for: (untyped state_id, untyped token_id, untyped forced, untyped branch_conflicts) -> untyped
+
+      def actions_from: (untyped conflict) -> untyped
+
+      def apply_action: (untyped results, untyped queue, untyped current, untyped action, untyped token_id) -> untyped
+
+      def shift: (untyped current, untyped state_id, untyped token_id) -> untyped
+
+      def reduce: (untyped current, untyped production_id) -> untyped
+
+      def configuration: (untyped states, untyped nodes) -> untyped
+
+      def pair_key: (untyped left, untyped right) -> untyped
+
+      def count_configuration: () -> untyped
+
+      def exhausted?: () -> untyped
+    end
+  end
+end

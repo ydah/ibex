@@ -1,0 +1,20 @@
+# Generated from lib/ibex/frontend/token_adapter/delimiter_tracker.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    class TokenAdapter
+      # Tracks ordinary EBNF groups separately from separated-list calls.
+      class DelimiterTracker
+        attr_reader group_opening: untyped
+
+        attr_reader open_kind: untyped
+
+        def initialize: () -> untyped
+
+        def empty?: () -> untyped
+
+        def observe: (untyped token, untyped external, untyped previous_external) -> untyped
+      end
+    end
+  end
+end

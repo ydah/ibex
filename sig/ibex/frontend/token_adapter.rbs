@@ -1,0 +1,40 @@
+# Generated from lib/ibex/frontend/token_adapter.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Delivers lexer tokens through declaration and rule context classifiers.
+    class TokenAdapter
+      attr_reader eof_token: untyped
+
+      attr_reader last_token: untyped
+
+      attr_reader previous_external: untyped
+
+      def initialize: (untyped tokens) -> untyped
+
+      def next_token: () -> untyped
+
+      def conversion_name: () -> untyped
+
+      def declaration: () -> untyped
+
+      def precedence_closer: () -> untyped
+
+      def section: () -> untyped
+
+      def state: () -> untyped
+
+      def group_opening: () -> untyped
+
+      def open_delimiter_kind: () -> untyped
+
+      def expectation: (untyped token) -> untyped
+
+      private
+
+      def classify: (untyped token) -> untyped
+
+      def enter_rules: () -> untyped
+    end
+  end
+end

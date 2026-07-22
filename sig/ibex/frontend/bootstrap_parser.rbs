@@ -1,0 +1,48 @@
+# Generated from lib/ibex/frontend/bootstrap_parser.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Handwritten parser used only to regenerate the self-hosted frontend.
+    class BootstrapParser
+      include BootstrapParserDeclarations
+
+      include BootstrapParserRules
+
+      def initialize: (untyped source, ?file: untyped, ?mode: untyped) -> untyped
+
+      def parse: () -> untyped
+
+      private
+
+      def parse_constant_path: () -> untyped
+
+      def parse_symbol_name: () -> untyped
+
+      def expect_symbol: () -> untyped
+
+      def expect_one_of: (untyped values) -> untyped
+
+      def keyword?: (untyped value) -> untyped
+
+      def expect_keyword: (untyped value) -> untyped
+
+      def accept: (untyped type) -> untyped
+
+      def expect: (untyped type) -> untyped
+
+      def current: () -> untyped
+
+      def lookahead: () -> untyped
+
+      def advance: () -> untyped
+
+      def parse_user_code: () -> untyped
+
+      def extended_only!: (untyped location, untyped feature) -> untyped
+
+      def fail_expected: (untyped expected) -> untyped
+
+      def fail_at: (untyped location, untyped message) -> untyped
+    end
+  end
+end

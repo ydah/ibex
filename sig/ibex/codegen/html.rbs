@@ -1,0 +1,20 @@
+# Generated from lib/ibex/codegen/html.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Renders a self-contained navigable automaton report.
+    module HTML
+      def self?.render: (untyped automaton) -> untyped
+
+      def self?.state_sections: (untyped automaton, untyped grammar) -> untyped
+
+      def self?.item_html: (untyped item, untyped grammar) -> untyped
+
+      def self?.rule_sections: (untyped grammar) -> untyped
+
+      def self?.conflict_sections: (untyped automaton) -> untyped
+
+      def self?.escape: (untyped value) -> untyped
+    end
+  end
+end

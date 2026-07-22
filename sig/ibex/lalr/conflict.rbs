@@ -1,0 +1,26 @@
+# Generated from lib/ibex/lalr/conflict.rb with RBS::Inline
+
+module Ibex
+  module LALR
+    # Applies yacc-compatible precedence and ordering rules to action candidates.
+    class ConflictResolver
+      def initialize: (untyped grammar) -> untyped
+
+      def resolve: (untyped token_id, untyped candidates) -> untyped
+
+      private
+
+      def resolve_reductions: (untyped token_id, untyped reductions) -> untyped
+
+      def resolve_shift_reduce: (untyped token_id, untyped shift, untyped reduction) -> untyped
+
+      def precedence_choice: (untyped shift, untyped reduction, untyped token_precedence, untyped production_precedence) -> untyped
+
+      def associativity_choice: (untyped shift, untyped reduction, untyped associativity) -> untyped
+
+      def precedence_for_production: (untyped production_id) -> untyped
+
+      def token_name: (untyped token_id) -> untyped
+    end
+  end
+end

@@ -23,9 +23,10 @@ handwritten `BootstrapParser` is excluded from normal loading and exists only to
 [ADR 0015](decisions/0015-self-hosted-grammar-frontend.md) for the update procedure and boundary.
 
 The RBS generator emits the generated class namespace, superclass, parser-table constants, and `.parser_tables` contract. The
-gem also ships rbs-inline-generated signatures under `sig/` for the inherited parser API. CI rejects stale generated files,
-validates the RBS environment, and runs Steep against the annotated runtime implementation. User methods embedded as opaque Ruby
-source are not inferred; applications can reopen the generated class in their own RBS files to declare them.
+gem also ships a one-to-one rbs-inline-generated signature tree under `sig/` for every Ruby source in `lib/`, including the
+self-hosted parser. CI regenerates into an empty temporary directory, compares the complete trees, validates the RBS environment,
+and runs Steep against the entire library. Dynamic parser tables, open-ended AST fields, and user methods embedded as opaque Ruby
+source remain `untyped`; applications can reopen the generated class in their own RBS files to declare embedded methods.
 
 ## Grammar IR v1
 

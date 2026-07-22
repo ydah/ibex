@@ -148,14 +148,21 @@ Normal library and CLI execution use the generated parser. The handwritten `Boot
 workflow, whose direct dependency graph also works when the generated file is absent. Byte-comparison and AST/error parity tests
 prevent generated-source drift.
 
-Runtime signatures are generated from rbs-inline annotations and checked with Steep. To reproduce the type-checking CI job:
+Signatures for every Ruby source under `lib/` are generated from rbs-inline annotations and checked with Steep, including the
+self-hosted generated parser. To regenerate the committed signature tree and reproduce its validation locally:
 
 ```sh
 BUNDLE_GEMFILE=gemfiles/Gemfile bundle install
-BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec rbs-inline --base=lib --output=sig \
-  lib/ibex.rb lib/ibex/error.rb lib/ibex/runtime/parser.rb
+BUNDLE_GEMFILE=gemfiles/Gemfile ruby -e '
+  sources = Dir.glob("lib/**/*.rb").sort
+  exec("bundle", "exec", "rbs-inline", "--opt-out", "--base=lib", "--output=sig", *sources)
+'
 BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec rbs -I sig validate
 BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec steep check
 ```
+
+CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
+signature files both fail the build. Parser tables, open-ended AST fields, and embedded user Ruby remain intentionally `untyped`;
+the full source tree is still checked for declared methods, collection inference, control flow, and standard-library contracts.
 
 Ibex is available under the [MIT License](LICENSE.txt).

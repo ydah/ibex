@@ -1,0 +1,217 @@
+# Generated from lib/ibex/frontend/ast.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Grammar frontend node types.
+    module AST
+      # Adds deterministic, recursively serializable hashes to Struct nodes.
+      # @rbs module-self Struct[untyped]
+      module Node : Struct[untyped]
+        def to_h: () -> untyped
+
+        private
+
+        def serialize: (untyped value) -> untyped
+      end
+
+      class Root < Struct[untyped]
+        attr_accessor class_name(): untyped
+
+        attr_accessor superclass(): untyped
+
+        attr_accessor declarations(): untyped
+
+        attr_accessor rules(): untyped
+
+        attr_accessor user_code(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?class_name: untyped, ?superclass: untyped, ?declarations: untyped, ?rules: untyped, ?user_code: untyped, ?loc: untyped) -> instance
+                    | ({ ?class_name: untyped, ?superclass: untyped, ?declarations: untyped, ?rules: untyped, ?user_code: untyped, ?loc: untyped }) -> instance
+      end
+
+      class Tokens < Struct[untyped]
+        attr_accessor names(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?names: untyped, ?loc: untyped) -> instance
+                    | ({ ?names: untyped, ?loc: untyped }) -> instance
+      end
+
+      class Precedence < Struct[untyped]
+        attr_accessor direction(): untyped
+
+        attr_accessor levels(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?direction: untyped, ?levels: untyped, ?loc: untyped) -> instance
+                    | ({ ?direction: untyped, ?levels: untyped, ?loc: untyped }) -> instance
+      end
+
+      class PrecedenceLevel < Struct[untyped]
+        attr_accessor associativity(): untyped
+
+        attr_accessor symbols(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?associativity: untyped, ?symbols: untyped, ?loc: untyped) -> instance
+                    | ({ ?associativity: untyped, ?symbols: untyped, ?loc: untyped }) -> instance
+      end
+
+      class Options < Struct[untyped]
+        attr_accessor names(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?names: untyped, ?loc: untyped) -> instance
+                    | ({ ?names: untyped, ?loc: untyped }) -> instance
+      end
+
+      class Expect < Struct[untyped]
+        attr_accessor conflicts(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?conflicts: untyped, ?loc: untyped) -> instance
+                    | ({ ?conflicts: untyped, ?loc: untyped }) -> instance
+      end
+
+      class Start < Struct[untyped]
+        attr_accessor name(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?name: untyped, ?loc: untyped) -> instance
+                    | ({ ?name: untyped, ?loc: untyped }) -> instance
+      end
+
+      class Convert < Struct[untyped]
+        attr_accessor pairs(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?pairs: untyped, ?loc: untyped) -> instance
+                    | ({ ?pairs: untyped, ?loc: untyped }) -> instance
+      end
+
+      class Conversion < Struct[untyped]
+        attr_accessor name(): untyped
+
+        attr_accessor expression(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?name: untyped, ?expression: untyped, ?loc: untyped) -> instance
+                    | ({ ?name: untyped, ?expression: untyped, ?loc: untyped }) -> instance
+      end
+
+      class Rule < Struct[untyped]
+        attr_accessor lhs(): untyped
+
+        attr_accessor alternatives(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?lhs: untyped, ?alternatives: untyped, ?loc: untyped) -> instance
+                    | ({ ?lhs: untyped, ?alternatives: untyped, ?loc: untyped }) -> instance
+      end
+
+      class Alternative < Struct[untyped]
+        attr_accessor items(): untyped
+
+        attr_accessor action(): untyped
+
+        attr_accessor precedence(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?items: untyped, ?action: untyped, ?precedence: untyped, ?loc: untyped) -> instance
+                    | ({ ?items: untyped, ?action: untyped, ?precedence: untyped, ?loc: untyped }) -> instance
+      end
+
+      class SymbolReference < Struct[untyped]
+        attr_accessor name(): untyped
+
+        attr_accessor named_reference(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?name: untyped, ?named_reference: untyped, ?loc: untyped) -> instance
+                    | ({ ?name: untyped, ?named_reference: untyped, ?loc: untyped }) -> instance
+      end
+
+      class InlineAction < Struct[untyped]
+        attr_accessor code(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?code: untyped, ?loc: untyped) -> instance
+                    | ({ ?code: untyped, ?loc: untyped }) -> instance
+      end
+
+      class Optional < Struct[untyped]
+        attr_accessor item(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?item: untyped, ?loc: untyped) -> instance
+                    | ({ ?item: untyped, ?loc: untyped }) -> instance
+      end
+
+      class Star < Struct[untyped]
+        attr_accessor item(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?item: untyped, ?loc: untyped) -> instance
+                    | ({ ?item: untyped, ?loc: untyped }) -> instance
+      end
+
+      class Plus < Struct[untyped]
+        attr_accessor item(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?item: untyped, ?loc: untyped) -> instance
+                    | ({ ?item: untyped, ?loc: untyped }) -> instance
+      end
+
+      class Group < Struct[untyped]
+        attr_accessor alternatives(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?alternatives: untyped, ?loc: untyped) -> instance
+                    | ({ ?alternatives: untyped, ?loc: untyped }) -> instance
+      end
+
+      class SeparatedList < Struct[untyped]
+        attr_accessor item(): untyped
+
+        attr_accessor separator(): untyped
+
+        attr_accessor nonempty(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?item: untyped, ?separator: untyped, ?nonempty: untyped, ?loc: untyped) -> instance
+                    | ({ ?item: untyped, ?separator: untyped, ?nonempty: untyped, ?loc: untyped }) -> instance
+      end
+
+      class UserCode < Struct[untyped]
+        attr_accessor name(): untyped
+
+        attr_accessor code(): untyped
+
+        attr_accessor loc(): untyped
+
+        def self.new: (?name: untyped, ?code: untyped, ?loc: untyped) -> instance
+                    | ({ ?name: untyped, ?code: untyped, ?loc: untyped }) -> instance
+      end
+    end
+  end
+end

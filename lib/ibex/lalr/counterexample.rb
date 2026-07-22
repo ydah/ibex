@@ -34,7 +34,7 @@ module Ibex
       end
 
       def unifying_example(state, conflict, result)
-        { state: state.id, type: conflict[:type], symbol_path: [],
+        { state: state.id, type: conflict[:type], symbol_path: Array.new(0),
           sentence: names(result[:sentence_ids]), lookahead_index: result[:lookahead_index], unifying: true,
           interpretations: result[:interpretations] }
       end
@@ -49,7 +49,7 @@ module Ibex
       end
 
       def shortest_state_path(target)
-        queue = [[0, []]]
+        queue = [[0, Array.new(0)]] #: Array[[Integer, Array[Integer]]]
         visited = { 0 => true }
         until queue.empty?
           state_id, path = queue.shift

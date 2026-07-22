@@ -1,0 +1,43 @@
+# Generated from lib/ibex/frontend/lexer.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Tokenizes a racc-compatible grammar while preserving source locations.
+    class Lexer
+      PUNCTUATION: untyped
+
+      USER_CODE: ::Regexp
+
+      def initialize: (untyped source, ?file: untyped) -> untyped
+
+      def tokenize: () -> untyped
+
+      def next_token: () -> untyped
+
+      private
+
+      def skip_ignored: () -> untyped
+
+      def skip_block_comment: () -> untyped
+
+      def line_start?: () -> untyped
+
+      def scan_user_code: () -> untyped
+
+      def scan_scope: () -> untyped
+
+      def scan_identifier: () -> untyped
+
+      def scan_integer: () -> untyped
+
+      def scan_literal: () -> untyped
+
+      def scan_punctuation: () -> untyped
+
+      # @rbs (untyped type, Regexp pattern) ?{ (String) -> untyped } -> untyped
+      def scan_match: (untyped type, Regexp pattern) ?{ (String) -> untyped } -> untyped
+
+      def token: (untyped type, untyped value, ?untyped location) -> untyped
+    end
+  end
+end

@@ -9,16 +9,18 @@ module Ibex
       private
 
       def parse_rules
-        rules = []
+        # @type self: BootstrapParser
+        rules = [] #: Array[untyped]
         rules << parse_rule until keyword?("end") || current.type == :eof
         fail_expected("at least one rule") if rules.empty?
         rules
       end
 
       def parse_rule
+        # @type self: BootstrapParser
         lhs = expect(:identifier)
         expect(:":")
-        alternatives = []
+        alternatives = [] #: Array[untyped]
         loop do
           alternatives << parse_alternative(lhs)
           next if accept(:|)
@@ -30,8 +32,9 @@ module Ibex
       end
 
       def parse_alternative(lhs)
+        # @type self: BootstrapParser
         location = current.location
-        items = []
+        items = [] #: Array[untyped]
         precedence = nil
         until alternative_end?(lhs)
           if accept(:"=")
@@ -45,6 +48,7 @@ module Ibex
       end
 
       def parse_item
+        # @type self: BootstrapParser
         return parse_action if current.type == :action
         return parse_separated_list if separated_list?
         return parse_group if current.type == :"("
@@ -56,11 +60,13 @@ module Ibex
       end
 
       def parse_action
+        # @type self: BootstrapParser
         token = advance
         AST::InlineAction.new(code: token.value, loc: token.location)
       end
 
       def parse_named_reference
+        # @type self: BootstrapParser
         return nil unless current.type == :":"
 
         extended_only!(current.location, "named references")
@@ -69,6 +75,7 @@ module Ibex
       end
 
       def parse_suffix(item)
+        # @type self: BootstrapParser
         while (wrapper = EXTENDED_SUFFIXES[current.type])
           extended_only!(current.location, "EBNF suffixes")
           item = wrapper.new(item: item, loc: advance.location)
@@ -77,9 +84,10 @@ module Ibex
       end
 
       def parse_group
+        # @type self: BootstrapParser
         opening = advance
         extended_only!(opening.location, "EBNF groups")
-        alternatives = [[]]
+        alternatives = [[]] #: Array[Array[untyped]]
         until current.type == :")"
           fail_at(opening.location, "unterminated EBNF group") if current.type == :eof || keyword?("end")
           if accept(:|)
@@ -95,6 +103,7 @@ module Ibex
       end
 
       def parse_separated_list
+        # @type self: BootstrapParser
         function = advance
         extended_only!(function.location, "separated lists")
         expect(:"(")
@@ -107,14 +116,17 @@ module Ibex
       end
 
       def alternative_end?(lhs)
+        # @type self: BootstrapParser
         %i[| ; eof].include?(current.type) || keyword?("end") || rule_start?(lhs)
       end
 
       def rule_start?(lhs)
+        # @type self: BootstrapParser
         current.type == :identifier && lookahead.type == :":" && current.location.column <= lhs.location.column
       end
 
       def separated_list?
+        # @type self: BootstrapParser
         %w[separated_list separated_nonempty_list].include?(current.value) && lookahead.type == :"("
       end
     end

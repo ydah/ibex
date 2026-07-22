@@ -1,0 +1,16 @@
+# Generated from lib/ibex/normalize/declarations.rb with RBS::Inline
+
+module Ibex
+  # Declaration extraction used by Normalizer.
+  module NormalizeDeclarations
+    private
+
+    def read_declarations: () -> untyped
+
+    def read_declaration: (untyped declaration) -> untyped
+
+    def read_precedence: (untyped declaration) -> untyped
+
+    def read_option: (untyped name, untyped location) -> untyped
+  end
+end

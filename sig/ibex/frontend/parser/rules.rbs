@@ -1,0 +1,36 @@
+# Generated from lib/ibex/frontend/parser/rules.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Parses productions and extended RHS items.
+    module BootstrapParserRules
+      EXTENDED_SUFFIXES: untyped
+
+      private
+
+      def parse_rules: () -> untyped
+
+      def parse_rule: () -> untyped
+
+      def parse_alternative: (untyped lhs) -> untyped
+
+      def parse_item: () -> untyped
+
+      def parse_action: () -> untyped
+
+      def parse_named_reference: () -> untyped
+
+      def parse_suffix: (untyped item) -> untyped
+
+      def parse_group: () -> untyped
+
+      def parse_separated_list: () -> untyped
+
+      def alternative_end?: (untyped lhs) -> untyped
+
+      def rule_start?: (untyped lhs) -> untyped
+
+      def separated_list?: () -> untyped
+    end
+  end
+end

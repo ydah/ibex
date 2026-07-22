@@ -9,7 +9,7 @@ module Ibex
 
       def initialize(cursor)
         @cursor = cursor
-        @pending_heredocs = []
+        @pending_heredocs = [] #: Array[untyped]
       end
 
       def scan

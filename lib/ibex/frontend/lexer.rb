@@ -12,7 +12,7 @@ module Ibex
       end
 
       def tokenize
-        tokens = []
+        tokens = [] #: Array[untyped]
         loop do
           token = next_token
           tokens << token
@@ -113,6 +113,7 @@ module Ibex
         token(PUNCTUATION.fetch(character), character, location)
       end
 
+      # @rbs (untyped type, Regexp pattern) ?{ (String) -> untyped } -> untyped
       def scan_match(type, pattern)
         location = @cursor.location
         value = @cursor.rest.match(pattern)[0]

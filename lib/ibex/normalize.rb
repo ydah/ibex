@@ -16,10 +16,10 @@ module Ibex
     def initialize(ast, mode: :racc)
       @ast = ast
       @mode = mode
-      @symbols = []
-      @symbols_by_name = {}
-      @productions = []
-      @warnings = []
+      @symbols = [] #: Array[untyped]
+      @symbols_by_name = {} #: Hash[untyped, untyped]
+      @productions = [] #: Array[untyped]
+      @warnings = [] #: Array[untyped]
       @helper_sequence = 0
     end
 
@@ -101,7 +101,7 @@ module Ibex
 
     def normalized_user_code
       %w[header inner footer].to_h do |name|
-        [name, @ast.user_code.fetch(name, []).map(&:code).join]
+        [name, @ast.user_code.fetch(name, Array.new(0)).map(&:code).join]
       end
     end
 

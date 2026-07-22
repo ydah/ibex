@@ -1,0 +1,38 @@
+# Generated from lib/ibex/lalr/counterexample.rb with RBS::Inline
+
+module Ibex
+  module LALR
+    # Produces shortest-path conflict witnesses using Automaton IR only.
+    class Counterexample
+      DEFAULT_MAX_TOKENS: untyped
+
+      DEFAULT_MAX_CONFIGURATIONS: untyped
+
+      def initialize: (untyped automaton, ?max_tokens: untyped, ?max_configurations: untyped) -> untyped
+
+      def all: () -> untyped
+
+      private
+
+      def build_example: (untyped state, untyped conflict) -> untyped
+
+      def unifying_example: (untyped state, untyped conflict, untyped result) -> untyped
+
+      def reachability_example: (untyped state, untyped conflict) -> untyped
+
+      def shortest_state_path: (untyped target) -> untyped
+
+      def compute_shortest_yields: () -> untyped
+
+      def better_yield?: (untyped candidate, untyped current) -> untyped
+
+      def interpretations: (untyped conflict) -> untyped
+
+      def shift_interpretation: (untyped conflict) -> untyped
+
+      def reduce_interpretation: (untyped production_id) -> untyped
+
+      def names: (untyped symbol_ids) -> untyped
+    end
+  end
+end

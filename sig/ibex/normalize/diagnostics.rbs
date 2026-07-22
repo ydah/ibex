@@ -1,0 +1,24 @@
+# Generated from lib/ibex/normalize/diagnostics.rb with RBS::Inline
+
+module Ibex
+  # Static grammar diagnostics used by Normalizer.
+  module NormalizeDiagnostics
+    private
+
+    def validate_grammar: () -> untyped
+
+    def warn_duplicate_productions: () -> untyped
+
+    def warn_unreachable_nonterminals: () -> untyped
+
+    def reachable_symbol_ids: () -> untyped
+
+    def warn_unused_terminals: () -> untyped
+
+    def warn_empty_language: () -> untyped
+
+    def productive_terminal_ids: () -> untyped
+
+    def productive_terminal?: (untyped grammar_symbol) -> untyped
+  end
+end

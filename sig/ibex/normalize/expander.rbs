@@ -1,0 +1,46 @@
+# Generated from lib/ibex/normalize/expander.rb with RBS::Inline
+
+module Ibex
+  # Production and EBNF expansion used by Normalizer.
+  module NormalizeExpander
+    private
+
+    def normalize_user_productions: () -> untyped
+
+    def normalize_alternative: (untyped rule, untyped alternative) -> untyped
+
+    def normalize_item: (untyped item) -> untyped
+
+    def expand_inline_action: (untyped item, untyped context_length, untyped named_refs) -> untyped
+
+    def expand_optional: (untyped item) -> untyped
+
+    def expand_star: (untyped item) -> untyped
+
+    def expand_plus: (untyped item) -> untyped
+
+    def expand_separated_list: (untyped item) -> untyped
+
+    def expand_group: (untyped item) -> untyped
+
+    def group_value_expression: (untyped length) -> untyped
+
+    def reject_group_named_references: (untyped group) -> untyped
+
+    def named_reference_in: (untyped item) -> untyped
+
+    def new_helper: (untyped kind, untyped location) -> untyped
+
+    def synthetic_action: (untyped expression, untyped location) -> untyped
+
+    def synthetic_origin: (untyped kind, untyped item) -> untyped
+
+    def normalize_action: (untyped action, untyped named_refs) -> untyped
+
+    def add_named_reference: (untyped item, untyped refs, untyped index) -> untyped
+
+    def unwrap_reference: (untyped item) -> untyped
+
+    def add_production: (untyped lhs_name, untyped rhs_names, untyped action, untyped precedence_name, untyped origin) -> untyped
+  end
+end

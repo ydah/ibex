@@ -1,0 +1,103 @@
+# Generated from lib/ibex/ir/grammar_ir.rb with RBS::Inline
+
+module Ibex
+  module IR
+    SCHEMA_VERSION: ::Integer
+
+    def self?.deep_freeze: (untyped value) -> untyped
+
+    # An interned terminal or nonterminal.
+    class GrammarSymbol
+      attr_reader id: untyped
+
+      attr_reader name: untyped
+
+      attr_reader kind: untyped
+
+      attr_reader reserved: untyped
+
+      attr_reader precedence: untyped
+
+      attr_reader location: untyped
+
+      def self?.initialize: (id: untyped, name: untyped, kind: untyped, ?reserved: untyped, ?precedence: untyped, ?location: untyped) -> untyped
+
+      def self?.terminal?: () -> untyped
+
+      def self?.nonterminal?: () -> untyped
+
+      def self?.to_h: () -> untyped
+    end
+
+    # Opaque Ruby semantic action metadata.
+    class Action
+      attr_reader code: untyped
+
+      attr_reader location: untyped
+
+      attr_reader named_refs: untyped
+
+      attr_reader context_length: untyped
+
+      def self?.initialize: (code: untyped, location: untyped, ?named_refs: untyped, ?context_length: untyped) -> untyped
+
+      def self?.to_h: () -> untyped
+    end
+
+    # A normalized BNF production using symbol ids.
+    class Production
+      attr_reader id: untyped
+
+      attr_reader lhs: untyped
+
+      attr_reader rhs: untyped
+
+      attr_reader action: untyped
+
+      attr_reader precedence_override: untyped
+
+      attr_reader origin: untyped
+
+      def self?.initialize: (id: untyped, lhs: untyped, rhs: untyped, action: untyped, precedence_override: untyped, origin: untyped) -> untyped
+
+      def self?.to_h: () -> untyped
+    end
+
+    # Immutable normalized grammar exchanged between pipeline stages.
+    class Grammar
+      attr_reader class_name: untyped
+
+      attr_reader superclass: untyped
+
+      attr_reader start: untyped
+
+      attr_reader expect: untyped
+
+      attr_reader options: untyped
+
+      attr_reader symbols: untyped
+
+      attr_reader productions: untyped
+
+      attr_reader user_code: untyped
+
+      attr_reader conversions: untyped
+
+      attr_reader warnings: untyped
+
+      attr_reader schema_version: untyped
+
+      def self?.initialize: (class_name: untyped, superclass: untyped, start: untyped, expect: untyped, options: untyped, symbols: untyped, productions: untyped, user_code: untyped, conversions: untyped, warnings: untyped, ?schema_version: untyped) -> untyped
+
+      def self?.symbol: (untyped name) -> untyped
+
+      def self?.symbol_by_id: (untyped id) -> untyped
+
+      def self?.terminals: () -> untyped
+
+      def self?.nonterminals: () -> untyped
+
+      def self?.to_h: () -> untyped
+    end
+  end
+end

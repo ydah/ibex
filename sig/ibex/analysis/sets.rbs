@@ -1,0 +1,50 @@
+# Generated from lib/ibex/analysis/sets.rb with RBS::Inline
+
+module Ibex
+  module Analysis
+    # Computes nullable, FIRST, and FOLLOW sets over Grammar IR using integer bitsets.
+    class Sets
+      attr_reader nullable_bits: untyped
+
+      attr_reader first_bits: untyped
+
+      attr_reader follow_bits: untyped
+
+      def initialize: (untyped grammar) -> untyped
+
+      def nullable?: (untyped symbol) -> untyped
+
+      def first: (untyped symbol) -> untyped
+
+      def follow: (untyped symbol) -> untyped
+
+      def first_of_sequence: (untyped symbol_ids) -> untyped
+
+      def sequence_nullable?: (untyped symbol_ids) -> untyped
+
+      private
+
+      def compute_nullable: () -> untyped
+
+      def nullable_worklist: () -> untyped
+
+      def compute_first: () -> untyped
+
+      def compute_follow: () -> untyped
+
+      def initialize_follow: (untyped production, untyped dependencies) -> untyped
+
+      def propagate_bits: (untyped sets, untyped dependencies, untyped seeds) -> untyped
+
+      def nullable_id?: (untyped id) -> untyped
+
+      def terminal_names: (untyped bits) -> untyped
+
+      def symbol_id: (untyped symbol) -> untyped
+
+      def definition_for: (untyped symbol) -> untyped
+
+      def bit: (untyped id) -> untyped
+    end
+  end
+end

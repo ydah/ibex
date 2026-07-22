@@ -1,0 +1,14 @@
+# Generated from lib/ibex/frontend/regenerator.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Builds the committed frontend parser from its canonical Ibex grammar.
+    module Regenerator
+      GRAMMAR_PATH: untyped
+
+      def self?.generate: () -> untyped
+
+      def self?.relative_grammar_path: () -> untyped
+    end
+  end
+end

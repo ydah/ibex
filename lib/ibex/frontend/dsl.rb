@@ -4,13 +4,13 @@ module Ibex
   module Frontend
     # Builds the same Grammar AST as the text frontend through a Ruby API.
     module DSL
-      module_function
-
+      # @rbs (class_name: untyped, ?superclass: untyped, ?file: untyped) { (Builder) -> void } -> untyped
       def grammar(class_name:, superclass: nil, file: "(dsl)")
         builder = Builder.new(class_name: class_name, superclass: superclass, file: file)
         yield builder
         builder.to_ast
       end
+      module_function :grammar
 
       # Mutable definition context whose output is an immutable-shape AST.
       class Builder
@@ -19,9 +19,9 @@ module Ibex
           @superclass = superclass&.to_s
           @file = file
           @line = 1
-          @declarations = []
-          @rules = []
-          @user_code = Hash.new { |hash, key| hash[key] = [] }
+          @declarations = [] #: Array[untyped]
+          @rules = [] #: Array[untyped]
+          @user_code = Hash.new { |hash, key| hash[key] = Array.new(0) } #: Hash[untyped, Array[untyped]]
         end
 
         def token(*names)
@@ -46,6 +46,7 @@ module Ibex
           @declarations << AST::Convert.new(pairs: [pair], loc: location)
         end
 
+        # @rbs (?direction: untyped) { (PrecedenceBuilder) -> void } -> untyped
         def precedence(direction: :low_to_high)
           location = next_location
           builder = PrecedenceBuilder.new(self)
@@ -53,6 +54,7 @@ module Ibex
           @declarations << AST::Precedence.new(direction: direction, levels: builder.levels, loc: location)
         end
 
+        # @rbs (untyped lhs) { (RuleBuilder) -> void } -> untyped
         def rule(lhs)
           location = next_location
           builder = RuleBuilder.new(self, location)
@@ -112,7 +114,7 @@ module Ibex
 
         def initialize(grammar)
           @grammar = grammar
-          @levels = []
+          @levels = [] #: Array[untyped]
         end
 
         %i[left right nonassoc].each do |associativity|
@@ -130,7 +132,7 @@ module Ibex
         def initialize(grammar, default_location)
           @grammar = grammar
           @default_location = default_location
-          @alternatives = []
+          @alternatives = [] #: Array[untyped]
         end
 
         def alt(*items, action: nil, precedence: nil)

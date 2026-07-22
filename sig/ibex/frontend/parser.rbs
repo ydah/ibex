@@ -1,0 +1,14 @@
+# Generated from lib/ibex/frontend/parser.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Public grammar parser backed by Ibex's generated LR frontend.
+    class Parser
+      attr_reader implementation: untyped
+
+      def initialize: (untyped source, ?file: untyped, ?mode: untyped) -> untyped
+
+      def parse: () -> untyped
+    end
+  end
+end

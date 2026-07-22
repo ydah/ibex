@@ -1,0 +1,64 @@
+# Generated from lib/ibex/frontend/source_cursor.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # A source coordinate retained by frontend and IR objects.
+    class Location < Struct[untyped]
+      attr_accessor file(): untyped
+
+      attr_accessor line(): untyped
+
+      attr_accessor column(): untyped
+
+      def self.new: (?file: untyped, ?line: untyped, ?column: untyped) -> instance
+                  | ({ ?file: untyped, ?line: untyped, ?column: untyped }) -> instance
+    end
+
+    class Location
+      def to_h: () -> untyped
+
+      def to_s: () -> untyped
+    end
+
+    # A grammar token and its source coordinate.
+    class Token < Struct[untyped]
+      attr_accessor type(): untyped
+
+      attr_accessor value(): untyped
+
+      attr_accessor location(): untyped
+
+      def self.new: (?type: untyped, ?value: untyped, ?location: untyped) -> instance
+                  | ({ ?type: untyped, ?value: untyped, ?location: untyped }) -> instance
+    end
+
+    class Token
+      def to_h: () -> untyped
+    end
+
+    # Advances through source text while maintaining one-based coordinates.
+    class SourceCursor
+      attr_reader source: untyped
+
+      attr_reader file: untyped
+
+      attr_reader index: untyped
+
+      attr_reader line: untyped
+
+      attr_reader column: untyped
+
+      def initialize: (untyped source, untyped file) -> untyped
+
+      def eof?: () -> untyped
+
+      def peek: (?untyped offset) -> untyped
+
+      def rest: () -> untyped
+
+      def location: () -> untyped
+
+      def advance: (?untyped count) -> untyped
+    end
+  end
+end

@@ -10,12 +10,14 @@ module Ibex
       private
 
       def parse_declarations
-        declarations = []
+        # @type self: BootstrapParser
+        declarations = [] #: Array[untyped]
         declarations << parse_declaration until keyword?("rule") || current.type == :eof
         declarations
       end
 
       def parse_declaration
+        # @type self: BootstrapParser
         case current.value
         when "token" then parse_tokens
         when "prechigh", "preclow" then parse_precedence
@@ -28,13 +30,15 @@ module Ibex
       end
 
       def parse_tokens
+        # @type self: BootstrapParser
         location = advance.location
-        names = []
+        names = [] #: Array[untyped]
         names << parse_symbol_name until declaration_start?
         AST::Tokens.new(names: names, loc: location)
       end
 
       def parse_precedence
+        # @type self: BootstrapParser
         opening = advance
         closing = opening.value == "prechigh" ? "preclow" : "prechigh"
         levels = precedence_levels(closing)
@@ -44,10 +48,11 @@ module Ibex
       end
 
       def precedence_levels(closing)
-        levels = []
+        # @type self: BootstrapParser
+        levels = [] #: Array[untyped]
         until keyword?(closing) || current.type == :eof
           association = expect_one_of(ASSOCIATIVITIES)
-          symbols = []
+          symbols = [] #: Array[untyped]
           symbols << parse_symbol_name until association_start? || keyword?(closing) || current.type == :eof
           fail_at(association.location, "expected at least one precedence symbol") if symbols.empty?
           levels << AST::PrecedenceLevel.new(associativity: association.value.to_sym, symbols: symbols,
@@ -57,25 +62,29 @@ module Ibex
       end
 
       def parse_options
+        # @type self: BootstrapParser
         location = advance.location
-        names = []
+        names = [] #: Array[untyped]
         names << expect(:identifier).value until declaration_start?
         AST::Options.new(names: names, loc: location)
       end
 
       def parse_expect
+        # @type self: BootstrapParser
         location = advance.location
         AST::Expect.new(conflicts: expect(:integer).value, loc: location)
       end
 
       def parse_start
+        # @type self: BootstrapParser
         location = advance.location
         AST::Start.new(name: parse_symbol_name, loc: location)
       end
 
       def parse_convert
+        # @type self: BootstrapParser
         location = advance.location
-        pairs = []
+        pairs = [] #: Array[untyped]
         until keyword?("end") || current.type == :eof
           name_token = current
           name = parse_symbol_name
@@ -87,12 +96,14 @@ module Ibex
       end
 
       def tokens_on_line(line)
-        tokens = []
+        # @type self: BootstrapParser
+        tokens = [] #: Array[untyped]
         tokens << advance while current.type != :eof && current.location.line == line && !keyword?("end")
         tokens
       end
 
       def decode_conversion(tokens, location)
+        # @type self: BootstrapParser
         unless tokens.length == 1 && tokens.first.type == :literal
           fail_at(location, "expected a quoted Ruby conversion expression")
         end
@@ -106,10 +117,12 @@ module Ibex
       end
 
       def declaration_start?
+        # @type self: BootstrapParser
         current.type == :eof || (current.type == :identifier && DECLARATIONS.include?(current.value))
       end
 
       def association_start?
+        # @type self: BootstrapParser
         current.type == :identifier && ASSOCIATIVITIES.include?(current.value)
       end
     end

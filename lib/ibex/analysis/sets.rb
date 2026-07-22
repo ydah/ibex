@@ -66,7 +66,7 @@ module Ibex
       def nullable_worklist
         dependencies = Array.new(@grammar.symbols.length) { [] }
         remaining = Array.new(@grammar.productions.length)
-        queue = []
+        queue = [] #: Array[untyped]
         @grammar.productions.each do |production|
           next if production.rhs.any? { |id| @grammar.symbol_by_id(id).terminal? }
 
