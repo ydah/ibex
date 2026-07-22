@@ -4,9 +4,14 @@ module Ibex
   module LALR
     # Produces shortest-path conflict witnesses using Automaton IR only.
     class Counterexample
-      def initialize(automaton)
+      DEFAULT_MAX_TOKENS = ConflictSearch::DEFAULT_MAX_TOKENS
+      DEFAULT_MAX_CONFIGURATIONS = ConflictSearch::DEFAULT_MAX_CONFIGURATIONS
+
+      def initialize(automaton, max_tokens: DEFAULT_MAX_TOKENS, max_configurations: DEFAULT_MAX_CONFIGURATIONS)
         @automaton = automaton
         @grammar = automaton.grammar
+        @max_tokens = max_tokens
+        @max_configurations = max_configurations
         @shortest_yields = compute_shortest_yields
       end
 
@@ -19,7 +24,9 @@ module Ibex
       private
 
       def build_example(state, conflict)
-        unifying = ConflictSearch.new(@automaton, state, conflict).call
+        unifying = ConflictSearch.new(
+          @automaton, state, conflict, max_tokens: @max_tokens, max_configurations: @max_configurations
+        ).call
         return unifying_example(state, conflict, unifying) if unifying
 
         reachability_example(state, conflict)

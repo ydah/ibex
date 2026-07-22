@@ -2,11 +2,13 @@
 
 require "optparse"
 require_relative "../ibex"
+require_relative "cli/counterexample_options"
 require_relative "cli/outputs"
 
 module Ibex
   # Command-line pipeline coordinator.
   class CLI
+    include CLICounterexampleOptions
     include CLIOutputs
 
     def self.start(arguments, stdout: $stdout, stderr: $stderr)
@@ -17,6 +19,7 @@ module Ibex
       @stdout = stdout
       @stderr = stderr
       @options = { emit: "ruby", mode: :racc, table: :compact, line_convert: true }
+                 .merge(CLICounterexampleOptions::DEFAULTS)
     end
 
     def run(arguments)
@@ -66,7 +69,7 @@ module Ibex
       options.on("-t", "--debug", "generate a debug-capable parser") { @options[:debug] = true }
       options.on("-g", "obsolete alias for --debug") { @options[:debug] = true }
       options.on("-v", "--verbose", "write an automaton report") { @options[:verbose] = true }
-      options.on("--counterexamples", "include conflict counterexamples in a report") { @options[:verbose] = true }
+      add_counterexample_options(options)
       options.on("--rbs[=FILE]", "write an RBS signature (defaults beside parser)") do |value|
         @options[:rbs] = value || true
       end

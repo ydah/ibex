@@ -75,4 +75,45 @@ class CounterexampleTest < Minitest::Test
     assert_includes report, "shift derivation:"
     assert_includes report, "reduce derivation:"
   end
+
+  def test_search_budgets_are_forwarded_to_conflict_search
+    automaton = build("class P\nexpect 1\nrule\nstart: start start | TOKEN\nend\n")
+    captured = nil
+    search = Object.new
+    search.define_singleton_method(:call) { nil }
+
+    factory = lambda do |*_arguments, **options|
+      captured = options
+      search
+    end
+    Ibex::LALR::ConflictSearch.stub(:new, factory) do
+      Ibex::LALR::Counterexample.new(automaton, max_tokens: 7, max_configurations: 123).all
+    end
+
+    assert_equal({ max_tokens: 7, max_configurations: 123 }, captured)
+  end
+
+  def test_search_budget_defaults_remain_stable
+    assert_equal 32, Ibex::LALR::Counterexample::DEFAULT_MAX_TOKENS
+    assert_equal 50_000, Ibex::LALR::Counterexample::DEFAULT_MAX_CONFIGURATIONS
+  end
+
+  def test_report_search_budgets_can_force_a_nonunifying_fallback
+    automaton = build(<<~GRAMMAR)
+      class P
+      token IF THEN ELSE ID
+      expect 1
+      rule
+      stmt: IF expr THEN stmt
+          | IF expr THEN stmt ELSE stmt
+          | ID
+      expr: ID
+      end
+    GRAMMAR
+
+    token_limited = Ibex::Codegen::Report.render(automaton, max_tokens: 8)
+    configuration_limited = Ibex::Codegen::Report.render(automaton, max_configurations: 100)
+    assert_includes token_limited, "nonunifying witness:"
+    assert_includes configuration_limited, "nonunifying witness:"
+  end
 end
