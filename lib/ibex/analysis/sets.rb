@@ -49,52 +49,91 @@ module Ibex
       private
 
       def compute_nullable
-        loop do
-          before = @nullable_bits
-          @grammar.productions.each do |production|
-            @nullable_bits |= bit(production.lhs) if production.rhs.all? { |id| nullable_id?(id) }
+        dependencies, remaining, queue = nullable_worklist
+
+        until queue.empty?
+          id = queue.shift
+          next if nullable_id?(id)
+
+          @nullable_bits |= bit(id)
+          dependencies[id].each do |production|
+            remaining[production.id] -= 1
+            queue << production.lhs if remaining[production.id].zero?
           end
-          return if before == @nullable_bits
         end
       end
 
-      def compute_first
-        loop do
-          changed = false
-          @grammar.productions.each do |production|
-            previous = @first_bits[production.lhs]
-            @first_bits[production.lhs] |= first_of_sequence(production.rhs)
-            changed ||= previous != @first_bits[production.lhs]
-          end
-          return unless changed
+      def nullable_worklist
+        dependencies = Array.new(@grammar.symbols.length) { [] }
+        remaining = Array.new(@grammar.productions.length)
+        queue = []
+        @grammar.productions.each do |production|
+          next if production.rhs.any? { |id| @grammar.symbol_by_id(id).terminal? }
+
+          remaining[production.id] = production.rhs.length
+          production.rhs.each { |id| dependencies[id] << production }
+          queue << production.lhs if production.rhs.empty?
         end
+        [dependencies, remaining, queue]
+      end
+
+      def compute_first
+        dependencies = Array.new(@grammar.symbols.length) { [] }
+        @grammar.productions.each do |production|
+          production.rhs.each do |id|
+            dependencies[id] << production.lhs
+            break unless nullable_id?(id)
+          end
+        end
+
+        propagate_bits(@first_bits, dependencies, @grammar.terminals.map(&:id))
       end
 
       def compute_follow
         start_id = @grammar.symbol(@grammar.start).id
         @follow_bits[start_id] |= bit(0)
-        loop do
-          changed = false
-          @grammar.productions.each { |production| changed ||= propagate_follow(production) }
-          return unless changed
-        end
+        dependencies = Array.new(@grammar.symbols.length) { [] }
+        @grammar.productions.each { |production| initialize_follow(production, dependencies) }
+        seeds = @grammar.nonterminals.filter_map { |symbol| symbol.id unless @follow_bits[symbol.id].zero? }
+        propagate_bits(@follow_bits, dependencies, seeds)
       end
 
-      def propagate_follow(production)
-        changed = false
-        trailer = @follow_bits[production.lhs]
+      def initialize_follow(production, dependencies)
+        trailer = 0
+        suffix_nullable = true
         production.rhs.reverse_each do |id|
           definition = @grammar.symbol_by_id(id)
           if definition.nonterminal?
-            previous = @follow_bits[id]
             @follow_bits[id] |= trailer
-            changed ||= previous != @follow_bits[id]
+            dependencies[production.lhs] << id if suffix_nullable
             trailer = @first_bits[id] | (nullable_id?(id) ? trailer : 0)
+            suffix_nullable &&= nullable_id?(id)
           else
             trailer = @first_bits[id]
+            suffix_nullable = false
           end
         end
-        changed
+      end
+
+      def propagate_bits(sets, dependencies, seeds)
+        queue = seeds.dup
+        queued = Array.new(@grammar.symbols.length, false)
+        queue.each { |id| queued[id] = true }
+
+        until queue.empty?
+          source = queue.shift
+          queued[source] = false
+          dependencies[source].each do |target|
+            combined = sets[target] | sets[source]
+            next if combined == sets[target]
+
+            sets[target] = combined
+            next if queued[target]
+
+            queued[target] = true
+            queue << target
+          end
+        end
       end
 
       def nullable_id?(id)
