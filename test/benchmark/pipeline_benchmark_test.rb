@@ -17,7 +17,7 @@ class PipelineBenchmarkTest < Minitest::Test
     result = JSON.parse(stdout)
     assert_equal 6, result.fetch("grammar_rules")
     assert_equal 13, result.fetch("productions")
-    assert_equal %w[parse normalize lalr table codegen], result.fetch("stage_ms").keys
+    assert_equal %w[parse normalize lalr table codegen_with_tables], result.fetch("stage_ms").keys
     assert_operator result.fetch("states"), :>, 0
     assert_operator result.fetch("output_bytes"), :>, 0
     assert_match(/\A[0-9a-f]{64}\z/, result.fetch("result_sha256"))

@@ -119,7 +119,10 @@ class FrontendSelfHostTest < Minitest::Test
       "class P\npragma extended\nrule\ns: (A | B)+\nend\n",
       "class P\npragma future\nrule\ns: A\nend\n",
       "class P\npragma extended\npragma extended\nrule\ns: A\nend\n",
-      "class P\ntoken A\npragma extended\nrule\ns: A\nend\n"
+      "class P\ntoken A\npragma extended\nrule\ns: A\nend\n",
+      "class P\npragma",
+      "class P\npragma 1\nrule\ns: A\nend\n",
+      "class P\npragma 'extended'\nrule\ns: A\nend\n"
     ]
 
     assert_equal bootstrap(grammars[0]).to_h, generated(grammars[0]).to_h
