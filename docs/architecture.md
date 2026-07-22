@@ -69,7 +69,9 @@ values, and row-ownership checks; both expose equivalent lookups.
 
 The runtime maintains state and value stacks, pulls a lookahead only when required, and applies tagged `shift`, `reduce`,
 `accept`, and `error` actions. Recovery pops to a state that shifts token id 1, suppresses repeated reports for three successful
-shifts, and honors `yyerrok`.
+shifts, and honors `yyerrok`. No-op `on_shift`, `on_reduce`, and `on_error_recover` extension points observe successfully
+committed events without changing parser results; the recovery hook retains the pre-pop error context and is distinct from an
+ordinary token shift. Their ordering and payload contract is fixed by [ADR 0013](decisions/0013-runtime-observation-hooks.md).
 
 ## Clean-room boundary
 

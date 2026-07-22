@@ -18,4 +18,5 @@
 - Add generated parser RBS output, shipped runtime signatures, and strict structured grammar diagnostics.
 - Support quoted, interpolated, and multiple Ruby heredocs plus recursively nested grouped EBNF.
 - Define unknown external tokens to invoke `on_error` before yacc-style recovery.
+- Add post-commit shift, reduction, and successful-recovery observation hooks to the runtime.
 - Add complete quickstart, grammar, migration, architecture, and extension documentation with an executable README test.

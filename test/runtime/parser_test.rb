@@ -200,6 +200,89 @@ class RuntimeParserTest < Minitest::Test
     assert_nil RejectingCalculator.new([[:INT, 7]]).do_parse
   end
 
+  def test_shift_and_reduce_hooks_report_committed_events_in_order
+    parser = Calculator.new([[:INT, 1], ["+", :plus], [:INT, 2]])
+    events = []
+    parser.define_singleton_method(:on_shift) { |*payload| events << [:shift, *payload] }
+    parser.define_singleton_method(:on_reduce) { |*payload| events << [:reduce, *payload] }
+
+    assert_equal 3, parser.do_parse
+    assert_equal [
+      [:shift, 2, 1, 3],
+      [:reduce, 2, [1], 1],
+      [:reduce, 1, [1], 1],
+      [:shift, 3, :plus, 5],
+      [:shift, 2, 2, 3],
+      [:reduce, 2, [2], 2],
+      [:reduce, 0, [1, :plus, 2], 3]
+    ], events
+  end
+
+  def test_recovery_hook_preserves_the_original_error_context
+    parser = RecoveringStatements.new([[:INT, 99], [:BAD, "payload"], [";", :semicolon]])
+    errors = []
+    shifts = []
+    recoveries = []
+    parser.define_singleton_method(:on_error) do |token_id, value, value_stack|
+      errors << [token_id, value, value_stack.dup]
+      value_stack.clear
+    end
+    parser.define_singleton_method(:on_shift) { |*payload| shifts << payload }
+    parser.define_singleton_method(:on_error_recover) do |token_id, value, value_stack|
+      recoveries << [token_id, value, value_stack, expected_tokens]
+    end
+
+    assert_equal [:error], parser.do_parse
+    token_id, value, value_stack = errors.fetch(0)
+    assert_equal [[2, 99, 3], [3, :semicolon, 7]], shifts
+    refute_includes shifts.map(&:first), Ibex::Runtime::Parser::ERROR_TOKEN
+    assert_equal [[token_id, value, value_stack, [";"]]], recoveries
+  end
+
+  def test_recovery_hook_runs_for_yyerror_without_calling_on_error
+    parser = RecoveringStatements.new([[:INT, 1], [";", nil]])
+    recoveries = []
+    events = []
+    parser.define_singleton_method(:valid) do |_values, _stack|
+      yyerror
+      :semantic_error
+    end
+    parser.define_singleton_method(:on_reduce) { |*| events << :reduce }
+    parser.define_singleton_method(:on_error_recover) do |*payload|
+      events << :recover
+      recoveries << payload
+    end
+
+    assert_nil parser.do_parse
+    assert_empty parser.errors
+    assert_equal %i[reduce recover], events
+    assert_equal [[0, nil, [:semantic_error]]], recoveries
+  end
+
+  def test_recovery_hook_is_not_called_when_the_error_token_cannot_shift
+    parser = Calculator.new([["+", nil]])
+    recoveries = []
+    parser.define_singleton_method(:on_error) { |_token_id, _value, _stack| nil }
+    parser.define_singleton_method(:on_error_recover) { |*payload| recoveries << payload }
+
+    assert_nil parser.do_parse
+    assert_empty recoveries
+  end
+
+  def test_hook_exceptions_propagate
+    cases = [
+      [Calculator.new([[:INT, 1]]), :on_shift],
+      [Calculator.new([[:INT, 1]]), :on_reduce],
+      [RecoveringStatements.new([[:BAD, nil], [";", nil]]), :on_error_recover]
+    ]
+
+    cases.each do |parser, hook|
+      parser.define_singleton_method(hook) { |*| raise "#{hook} failed" }
+      error = assert_raises(RuntimeError) { parser.do_parse }
+      assert_equal "#{hook} failed", error.message
+    end
+  end
+
   def test_debug_trace_reports_core_operations
     output = StringIO.new
     parser = Calculator.new([[:INT, 1]])

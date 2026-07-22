@@ -6,6 +6,8 @@ module Ibex
     # Raised by the default parser error handler.
     class ParseError < StandardError; end
 
+    # rubocop:disable Metrics/ClassLength
+
     # Drives a table-defined LR parser without native extensions.
     #
     # Subclasses provide `.parser_tables`, returning `:tokens`, `:token_names`,
@@ -79,6 +81,21 @@ module Ibex
         suffix = expected.empty? ? "" : "; expected #{expected.join(', ')}"
         raise ParseError, "(input):1:1: unexpected #{token_to_str(token_id)}#{suffix} (#{value.inspect})"
       end
+
+      # Called after an ordinary input token is shifted. Override to observe
+      # the internal token id, semantic value, and destination state.
+      # @rbs (Integer token_id, untyped value, Integer state) -> void
+      def on_shift(_token_id, _value, _state); end
+
+      # Called after a production's semantic action and goto are committed.
+      # Override to observe its id, RHS values, and semantic result.
+      # @rbs (Integer production_id, Array[untyped] values, untyped result) -> void
+      def on_reduce(_production_id, _values, _result); end
+
+      # Called after the synthetic error token enters a recovery state.
+      # The payload describes the original error before recovery popped stacks.
+      # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> void
+      def on_error_recover(_token_id, _value, _value_stack); end
 
       # Return a human-readable name for an internal token id.
       # @rbs (Integer token_id) -> String
@@ -169,11 +186,14 @@ module Ibex
 
       # @rbs (Integer next_state) -> untyped
       def shift(next_state)
-        trace("shift #{token_to_str(@lookahead)} -> state #{next_state}")
+        token_id = @lookahead
+        value = @lookahead_value
+        trace("shift #{token_to_str(token_id)} -> state #{next_state}")
         @state_stack << next_state
-        @value_stack << @lookahead_value
+        @value_stack << value
         @lookahead = NO_LOOKAHEAD
         @recovery_shifts -= 1 if @recovery_shifts.positive?
+        on_shift(token_id, value, next_state)
         [:continue]
       end
 
@@ -182,6 +202,7 @@ module Ibex
         production = parser_tables.fetch(:productions).fetch(production_id)
         length = production.fetch(:length)
         values = @value_stack.last(length)
+        hook_values = values.dup
         @state_stack.pop(length)
         @value_stack.pop(length)
         result = reduction_value(production, values)
@@ -191,6 +212,7 @@ module Ibex
         @state_stack << next_state
         @value_stack << result
         trace("reduce #{production_id} (#{length}) -> state #{next_state}")
+        on_reduce(production_id, hook_values, result)
         return [:done, result] if @accept_requested
         return recover(report: false) if @semantic_error
 
@@ -217,10 +239,14 @@ module Ibex
           return [:continue]
         end
 
-        on_error(@lookahead, @lookahead_value, @value_stack.dup) if report
+        token_id = @lookahead
+        value = @lookahead_value
+        value_stack = @value_stack.dup
+        on_error(token_id, value, value_stack.dup) if report
         return [:done, nil] unless shift_error_token
 
         @recovery_shifts = RECOVERY_SHIFTS
+        on_error_recover(token_id, value, value_stack)
         [:continue]
       end
 
@@ -305,5 +331,6 @@ module Ibex
         @yydebug_output.puts("ibex: #{message}") if @yydebug
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end
