@@ -19,10 +19,11 @@ module Ibex
   module Frontend
     # Builds the committed frontend parser from its canonical Ibex grammar.
     module Regenerator
-      GRAMMAR_PATH = File.expand_path("grammar.y", File.dirname(__FILE__))
+      GRAMMAR_PATH = File.expand_path("grammar.y", File.dirname(__FILE__)) #: String
 
       module_function
 
+      # @rbs () -> String
       def generate
         source = File.read(GRAMMAR_PATH)
         ast = BootstrapParser.new(source, file: relative_grammar_path).parse
@@ -31,6 +32,7 @@ module Ibex
         Codegen::Ruby.new(automaton, table: :compact, line_convert: false).generate
       end
 
+      # @rbs () -> String
       def relative_grammar_path
         "lib/ibex/frontend/grammar.y"
       end

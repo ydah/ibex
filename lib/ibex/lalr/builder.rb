@@ -6,9 +6,9 @@ module Ibex
   module LALR
     # Builds canonical LR(1) states and merges states with equal LR(0) cores.
     class Builder
-      AUGMENTED_PRODUCTION = -1
+      AUGMENTED_PRODUCTION = -1 #: Integer
 
-      ALGORITHMS = %i[slr lalr lr1].freeze
+      ALGORITHMS = %i[slr lalr lr1].freeze #: Array[Symbol]
 
       # @rbs @grammar: IR::Grammar
       # @rbs @algorithm: Symbol

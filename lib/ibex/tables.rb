@@ -12,30 +12,33 @@ module Ibex
       attr_reader :checks #: Array[Integer?]
       attr_reader :row_count #: Integer
 
-      # @rbs (Array[Hash[Integer, untyped]] rows) -> Compact
-      def self.build(rows)
-        offsets = Array.new(rows.length, 0)
-        values = [] #: Array[untyped]
-        checks = [] #: Array[Integer?]
-        rows.each_index.sort_by { |row| [-rows[row].length, row] }.each do |row|
-          offset = find_offset(rows[row].keys, checks)
-          offsets[row] = offset
-          rows[row].each do |column, value|
-            index = offset + column
-            values[index] = value
-            checks[index] = row
+      class << self
+        # @rbs (Array[Hash[Integer, untyped]] rows) -> Compact
+        def build(rows)
+          offsets = Array.new(rows.length, 0)
+          values = [] #: Array[untyped]
+          checks = [] #: Array[Integer?]
+          rows.each_index.sort_by { |row| [-rows[row].length, row] }.each do |row|
+            offset = find_offset(rows[row].keys, checks)
+            offsets[row] = offset
+            rows[row].each do |column, value|
+              index = offset + column
+              values[index] = value
+              checks[index] = row
+            end
           end
+          new(offsets: offsets, values: values, checks: checks, row_count: rows.length)
         end
-        new(offsets: offsets, values: values, checks: checks, row_count: rows.length)
-      end
 
-      # @rbs (Array[Integer] columns, Array[Integer?] checks) -> Integer
-      def self.find_offset(columns, checks)
-        offset = 0
-        offset += 1 while columns.any? { |column| checks[offset + column] }
-        offset
+        private
+
+        # @rbs (Array[Integer] columns, Array[Integer?] checks) -> Integer
+        def find_offset(columns, checks)
+          offset = 0
+          offset += 1 while columns.any? { |column| checks[offset + column] }
+          offset
+        end
       end
-      private_class_method :find_offset
 
       # @rbs (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer) -> void
       def initialize(offsets:, values:, checks:, row_count:)
@@ -71,35 +74,43 @@ module Ibex
       end
     end
 
-    module_function
+    class << self
+      # @rbs (IR::Automaton automaton, ?format: Symbol | String) -> TableSet
+      def build(automaton, format: :compact)
+        action_rows = automaton.states.map do |state|
+          state.actions.transform_values do |action|
+            runtime_action(action)
+          end
+        end
+        goto_rows = automaton.states.map(&:gotos)
+        defaults = automaton.states.map do |state|
+          runtime_action(state.default_action) if state.default_action
+        end
+        if format.to_sym == :plain
+          return TableSet.new(actions: action_rows, gotos: goto_rows,
+                              default_actions: defaults)
+        end
+        raise ArgumentError, "unknown table format #{format.inspect}" unless format.to_sym == :compact
 
-    # @rbs (IR::Automaton automaton, ?format: Symbol | String) -> TableSet
-    def build(automaton, format: :compact)
-      action_rows = automaton.states.map { |state| state.actions.transform_values { |action| runtime_action(action) } }
-      goto_rows = automaton.states.map(&:gotos)
-      defaults = automaton.states.map do |state|
-        runtime_action(state.default_action) if state.default_action
+        TableSet.new(actions: Compact.build(action_rows), gotos: Compact.build(goto_rows), default_actions: defaults)
       end
-      return TableSet.new(actions: action_rows, gotos: goto_rows, default_actions: defaults) if format.to_sym == :plain
-      raise ArgumentError, "unknown table format #{format.inspect}" unless format.to_sym == :compact
 
-      TableSet.new(actions: Compact.build(action_rows), gotos: Compact.build(goto_rows), default_actions: defaults)
-    end
+      private
 
-    # @rbs (IR::parser_action action) -> IR::runtime_action
-    def runtime_action(action)
-      case action.fetch(:type).to_sym
-      when :shift
-        shift = action #: IR::shift_action
-        [:shift, shift.fetch(:state)]
-      when :reduce
-        reduce = action #: IR::reduce_action
-        [:reduce, reduce.fetch(:production)]
-      when :accept then [:accept]
-      when :error then [:error]
-      else raise Ibex::Error, "unknown parser action #{action.inspect}"
+      # @rbs (IR::parser_action action) -> IR::runtime_action
+      def runtime_action(action)
+        case action.fetch(:type).to_sym
+        when :shift
+          shift = action #: IR::shift_action
+          [:shift, shift.fetch(:state)]
+        when :reduce
+          reduce = action #: IR::reduce_action
+          [:reduce, reduce.fetch(:production)]
+        when :accept then [:accept]
+        when :error then [:error]
+        else raise Ibex::Error, "unknown parser action #{action.inspect}"
+        end
       end
     end
-    private_class_method :runtime_action
   end
 end

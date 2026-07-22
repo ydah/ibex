@@ -4,11 +4,13 @@ module Ibex
   module Frontend
     # Builds the committed frontend parser from its canonical Ibex grammar.
     module Regenerator
-      GRAMMAR_PATH: untyped
+      GRAMMAR_PATH: String
 
-      def self?.generate: () -> untyped
+      # @rbs () -> String
+      def self?.generate: () -> String
 
-      def self?.relative_grammar_path: () -> untyped
+      # @rbs () -> String
+      def self?.relative_grammar_path: () -> String
     end
   end
 end

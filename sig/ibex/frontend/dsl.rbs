@@ -116,8 +116,8 @@ module Ibex
         # @rbs (Builder grammar, Location default_location) -> void
         def initialize: (Builder grammar, Location default_location) -> void
 
-        # @rbs (*Object items, ?action: String?, ?precedence: Object?) -> void
-        def alt: (*Object items, ?action: String?, ?precedence: Object?) -> void
+        # @rbs (*Object items, ?action: Object?, ?precedence: Object?) -> void
+        def alt: (*Object items, ?action: Object?, ?precedence: Object?) -> void
       end
     end
   end

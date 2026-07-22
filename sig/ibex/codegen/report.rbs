@@ -5,26 +5,26 @@ module Ibex
     # Renders a human-readable state and conflict report from Automaton IR.
     module Report
       # @rbs (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> String
-      def self?.render: (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> String
+      def self.render: (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> String
 
       # @rbs (Array[String] lines, IR::AutomatonState state, IR::Grammar grammar,
       #   Array[IR::counterexample] examples) -> void
-      def self?.append_state: (Array[String] lines, IR::AutomatonState state, IR::Grammar grammar, Array[IR::counterexample] examples) -> void
+      private def self.append_state: (Array[String] lines, IR::AutomatonState state, IR::Grammar grammar, Array[IR::counterexample] examples) -> void
 
       # @rbs (Array[String] lines, IR::counterexample example) -> void
-      def self?.append_counterexample: (Array[String] lines, IR::counterexample example) -> void
+      private def self.append_counterexample: (Array[String] lines, IR::counterexample example) -> void
 
       # @rbs (Array[String] lines, untyped tree, String indentation) -> void
-      def self?.append_tree: (Array[String] lines, untyped tree, String indentation) -> void
+      private def self.append_tree: (Array[String] lines, untyped tree, String indentation) -> void
 
       # @rbs (IR::AutomatonItem item, IR::Grammar grammar) -> String
-      def self?.format_item: (IR::AutomatonItem item, IR::Grammar grammar) -> String
+      private def self.format_item: (IR::AutomatonItem item, IR::Grammar grammar) -> String
 
       # @rbs (IR::parser_action action) -> String
-      def self?.format_action: (IR::parser_action action) -> String
+      private def self.format_action: (IR::parser_action action) -> String
 
       # @rbs (IR::Grammar grammar, Integer id) -> String
-      def self?.symbol_name: (IR::Grammar grammar, Integer id) -> String
+      private def self.symbol_name: (IR::Grammar grammar, Integer id) -> String
     end
   end
 end

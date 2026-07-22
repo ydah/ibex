@@ -4,8 +4,10 @@ module Ibex
   module Frontend
     # Tokenizes a racc-compatible grammar while preserving source locations.
     class Lexer
-      PUNCTUATION = %w[: | ; = < > ? * + , ( )].to_h { |character| [character, character.to_sym] }.freeze
-      USER_CODE = /\A----[ \t]+(header|inner|footer)[ \t]*(?:\r?\n|\z)/
+      PUNCTUATION = %w[: | ; = < > ? * + , ( )].to_h do |character|
+        [character, character.to_sym]
+      end.freeze #: Hash[String, Symbol]
+      USER_CODE = /\A----[ \t]+(header|inner|footer)[ \t]*(?:\r?\n|\z)/ #: Regexp
 
       # @rbs @cursor: SourceCursor
 

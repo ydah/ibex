@@ -180,7 +180,7 @@ module Ibex
           @alternatives = [] #: Array[AST::Alternative]
         end
 
-        # @rbs (*Object items, ?action: String?, ?precedence: Object?) -> void
+        # @rbs (*Object items, ?action: Object?, ?precedence: Object?) -> void
         def alt(*items, action: nil, precedence: nil)
           location = @grammar.next_location || @default_location
           normalized = items.map { |item| @grammar.normalize_item(item) }

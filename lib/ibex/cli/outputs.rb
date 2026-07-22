@@ -11,7 +11,7 @@ module Ibex
         "duplicate production #{warning[:production]} (first defined as #{warning[:original]})"
       end,
       empty_language: ->(warning) { "start symbol #{warning[:symbol]} derives no terminal sentence" }
-    }.freeze
+    }.freeze #: Hash[Symbol, ^(IR::grammar_warning) -> String]
 
     private
 

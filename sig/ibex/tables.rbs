@@ -28,7 +28,7 @@ module Ibex
       def self.build: (Array[Hash[Integer, untyped]] rows) -> Compact
 
       # @rbs (Array[Integer] columns, Array[Integer?] checks) -> Integer
-      def self.find_offset: (Array[Integer] columns, Array[Integer?] checks) -> Integer
+      private def self.find_offset: (Array[Integer] columns, Array[Integer?] checks) -> Integer
 
       # @rbs (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer) -> void
       def initialize: (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer) -> void
@@ -41,9 +41,9 @@ module Ibex
     end
 
     # @rbs (IR::Automaton automaton, ?format: Symbol | String) -> TableSet
-    def self?.build: (IR::Automaton automaton, ?format: Symbol | String) -> TableSet
+    def self.build: (IR::Automaton automaton, ?format: Symbol | String) -> TableSet
 
     # @rbs (IR::parser_action action) -> IR::runtime_action
-    def self?.runtime_action: (IR::parser_action action) -> IR::runtime_action
+    private def self.runtime_action: (IR::parser_action action) -> IR::runtime_action
   end
 end

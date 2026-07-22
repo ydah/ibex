@@ -3,7 +3,7 @@
 module Ibex
   # Files, warnings, and progress emitted by CLI pipeline stages.
   module CLIOutputs
-    WARNING_MESSAGES: untyped
+    WARNING_MESSAGES: Hash[Symbol, ^(IR::grammar_warning) -> String]
 
     private
 

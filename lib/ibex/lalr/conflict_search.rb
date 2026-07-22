@@ -7,8 +7,8 @@ module Ibex
     class ConflictSearch
       include ConflictSearchLimits
 
-      DEFAULT_MAX_TOKENS = ConflictSearchLimits::DEFAULT_MAX_TOKENS
-      DEFAULT_MAX_CONFIGURATIONS = ConflictSearchLimits::DEFAULT_MAX_CONFIGURATIONS
+      DEFAULT_MAX_TOKENS = ConflictSearchLimits::DEFAULT_MAX_TOKENS #: Integer
+      DEFAULT_MAX_CONFIGURATIONS = ConflictSearchLimits::DEFAULT_MAX_CONFIGURATIONS #: Integer
 
       Configuration = Struct.new(
         :states, #: Array[Integer]

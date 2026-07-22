@@ -5,13 +5,13 @@ module Ibex
     class TokenAdapter
       # Classifies tokens through the class header and declaration section.
       class DeclarationState
-        DECLARATIONS: untyped
+        DECLARATIONS: Hash[String, [ external_token, Symbol ]]
 
-        ASSOCIATIONS: untyped
+        ASSOCIATIONS: Hash[String, external_token]
 
-        SCALAR_TYPES: untyped
+        SCALAR_TYPES: Hash[Symbol, external_token]
 
-        EXPECTATIONS: untyped
+        EXPECTATIONS: Hash[Symbol, String]
 
         attr_reader conversion_name: Token?
 

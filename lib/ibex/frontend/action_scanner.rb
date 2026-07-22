@@ -12,8 +12,8 @@ module Ibex
       #     location: Location
       #   }
 
-      PAIRED_DELIMITERS = { "(" => ")", "[" => "]", "{" => "}", "<" => ">" }.freeze
-      REGEX_PREFIXES = "=([{!,:;?&|+-*%^~<>"
+      PAIRED_DELIMITERS = { "(" => ")", "[" => "]", "{" => "}", "<" => ">" }.freeze #: Hash[String, String]
+      REGEX_PREFIXES = "=([{!,:;?&|+-*%^~<>" #: String
 
       # @rbs @cursor: SourceCursor
       # @rbs @pending_heredocs: Array[heredoc]

@@ -6,7 +6,7 @@ module Ibex
     DEFAULTS = {
       counterexample_max_tokens: LALR::Counterexample::DEFAULT_MAX_TOKENS,
       counterexample_max_configurations: LALR::Counterexample::DEFAULT_MAX_CONFIGURATIONS
-    }.freeze
+    }.freeze #: Hash[Symbol, Integer]
 
     private
 

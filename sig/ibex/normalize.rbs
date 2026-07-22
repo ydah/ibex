@@ -9,7 +9,7 @@ module Ibex
 
     include NormalizeDiagnostics
 
-    RESERVED_NAMES: untyped
+    RESERVED_NAMES: Array[String]
 
     @ast: Frontend::AST::Root
 
