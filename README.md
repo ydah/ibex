@@ -65,8 +65,9 @@ ruby calculator.rb
 From a checkout without installing the gem, use `bundle exec ruby -Ilib exe/ibex calculator.y` and
 `bundle exec ruby -Ilib calculator.rb` instead.
 
-Ibex generates compact tables by default. `--table=plain` produces inspectable Hash rows, while `-E` embeds the runtime into a
-single dependency-free output file.
+Ibex generates compact tables by default. Compatibility-safe default reductions shrink profitable states while retaining
+explicit error cells, including recovery and undeclared-token behavior. `--table=plain` produces inspectable Hash rows, while
+`-E` embeds the runtime into a single dependency-free output file.
 
 ## Lexer contract
 

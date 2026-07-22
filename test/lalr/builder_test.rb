@@ -87,12 +87,22 @@ class LALRBuilderTest < Minitest::Test
   end
 
   def test_automaton_round_trip_and_report
-    automaton = build("class P\nrule\nstart: TOKEN\nend\n")
+    automaton = build(<<~GRAMMAR)
+      class P
+      token A B C BAD
+      rule
+      start: list
+      list: list item | item
+      item: A | B | C
+      end
+    GRAMMAR
+    assert(automaton.states.any?(&:default_action))
     dumped = Ibex::IR::Serialize.dump(automaton)
     assert_equal dumped, Ibex::IR::Serialize.dump(Ibex::IR::Serialize.load(dumped))
     report = Ibex::Codegen::Report.render(automaton)
     assert_includes report, "State 0"
     assert_includes report, "$accept ->"
+    assert_includes report, "default: reduce"
     assert_includes report, "Conflicts: 0 shift/reduce"
   end
 

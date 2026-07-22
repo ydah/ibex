@@ -148,11 +148,11 @@ module Ibex
       # @rbs (untyped action) -> bool
       def error_action?: (untyped action) -> bool
 
+      # @rbs (Integer state) -> untyped
+      def default_action: (Integer state) -> untyped
+
       # @rbs (untyped table, Integer row, Integer column) -> untyped
       def table_lookup: (untyped table, Integer row, Integer column) -> untyped
-
-      # @rbs (untyped table, Integer row) -> untyped
-      def table_row: (untyped table, Integer row) -> untyped
 
       # @rbs (String message) -> void
       def trace: (String message) -> void

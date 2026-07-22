@@ -25,7 +25,8 @@ module Ibex
 
       def append_contract(lines)
         lines.push("  TOKEN_IDS: Hash[untyped, Integer]", "  TOKEN_NAMES: Hash[Integer, String]",
-                   "  ACTIONS: untyped", "  GOTOS: untyped", "  PRODUCTIONS: Array[Hash[Symbol, untyped]]",
+                   "  ACTIONS: untyped", "  GOTOS: untyped", "  DEFAULT_ACTIONS: Array[untyped]",
+                   "  PRODUCTIONS: Array[Hash[Symbol, untyped]]",
                    "  PARSER_TABLES: Hash[Symbol, untyped]", "  DEBUG_ENABLED: bool", "",
                    "  def self.parser_tables: () -> Hash[Symbol, untyped]")
       end

@@ -1,6 +1,6 @@
 # 0006: Automaton IR and default actions
 
-- Status: Accepted
+- Status: Superseded by [ADR 0014](0014-compatibility-safe-default-reductions.md)
 - Date: 2026-07-22
 
 ## Context

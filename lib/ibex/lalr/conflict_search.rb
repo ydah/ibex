@@ -182,7 +182,7 @@ module Ibex
         return [forced] if forced
 
         state = @automaton.states.fetch(state_id)
-        actions = [state.actions[token_id]].compact
+        actions = [state.actions[token_id] || state.default_action].compact
         return actions unless branch_conflicts
 
         token_name = @grammar.symbol_by_id(token_id).name
