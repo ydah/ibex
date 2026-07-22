@@ -76,6 +76,16 @@ class FrontendDSLTest < Minitest::Test
     assert_equal "HEADER\n", ir.user_code["header"]
   end
 
+  def test_rule_action_accepts_any_object_with_a_string_representation
+    action = Object.new
+    action.define_singleton_method(:to_s) { " result = :converted " }
+    ast = Ibex::Frontend::DSL.grammar(class_name: "ConvertedAction") do |grammar|
+      grammar.rule(:start) { |rule| rule.alt(:TOKEN, action: action) }
+    end
+
+    assert_equal " result = :converted ", ast.rules.first.alternatives.first.action.code
+  end
+
   private
 
   def without_locations(value)

@@ -5,7 +5,7 @@ module Ibex
     class TokenAdapter
       # Classifies context-dependent tokens in the grammar rule section.
       class RuleState
-        SCALAR_TYPES: untyped
+        SCALAR_TYPES: Hash[Symbol, external_token]
 
         attr_reader section: parser_section
 

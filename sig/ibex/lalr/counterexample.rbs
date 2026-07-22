@@ -4,9 +4,9 @@ module Ibex
   module LALR
     # Produces shortest-path conflict witnesses using Automaton IR only.
     class Counterexample
-      DEFAULT_MAX_TOKENS: untyped
+      DEFAULT_MAX_TOKENS: Integer
 
-      DEFAULT_MAX_CONFIGURATIONS: untyped
+      DEFAULT_MAX_CONFIGURATIONS: Integer
 
       # @rbs (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> void
       def initialize: (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> void

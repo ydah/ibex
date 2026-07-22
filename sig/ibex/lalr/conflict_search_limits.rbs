@@ -4,9 +4,9 @@ module Ibex
   module LALR
     # Validates search limits and measures sentences against the token budget.
     module ConflictSearchLimits
-      DEFAULT_MAX_TOKENS: ::Integer
+      DEFAULT_MAX_TOKENS: Integer
 
-      DEFAULT_MAX_CONFIGURATIONS: ::Integer
+      DEFAULT_MAX_CONFIGURATIONS: Integer
 
       # @rbs (max_tokens: Integer, max_configurations: Integer) -> void
       def self.validate!: (max_tokens: Integer, max_configurations: Integer) -> void

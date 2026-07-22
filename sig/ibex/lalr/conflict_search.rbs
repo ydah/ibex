@@ -7,9 +7,9 @@ module Ibex
     class ConflictSearch
       include ConflictSearchLimits
 
-      DEFAULT_MAX_TOKENS: untyped
+      DEFAULT_MAX_TOKENS: Integer
 
-      DEFAULT_MAX_CONFIGURATIONS: untyped
+      DEFAULT_MAX_CONFIGURATIONS: Integer
 
       class Configuration < Struct[Array[Integer] | Array[derivation_node]]
         attr_accessor states(): Array[Integer]

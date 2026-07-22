@@ -6,9 +6,9 @@ module Ibex
     class ActionScanner
       type heredoc = { identifier: String, indented: bool, length: Integer, location: Location }
 
-      PAIRED_DELIMITERS: untyped
+      PAIRED_DELIMITERS: Hash[String, String]
 
-      REGEX_PREFIXES: ::String
+      REGEX_PREFIXES: String
 
       @pending_heredocs: Array[heredoc]
 

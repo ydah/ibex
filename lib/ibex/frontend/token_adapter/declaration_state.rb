@@ -9,13 +9,17 @@ module Ibex
           "token" => %i[TOKEN token_symbols], "options" => %i[OPTIONS options_identifiers],
           "expect" => %i[EXPECT expect_integer], "start" => %i[START start_symbol],
           "convert" => %i[CONVERT convert_name], "rule" => %i[RULE rules]
-        }.freeze
-        ASSOCIATIONS = { "left" => :LEFT, "right" => :RIGHT, "nonassoc" => :NONASSOC }.freeze
-        SCALAR_TYPES = { literal: :LITERAL, integer: :INTEGER, action: :ACTION, user_code: :USER_CODE }.freeze
+        }.freeze #: Hash[String, [external_token, Symbol]]
+        ASSOCIATIONS = {
+          "left" => :LEFT, "right" => :RIGHT, "nonassoc" => :NONASSOC
+        }.freeze #: Hash[String, external_token]
+        SCALAR_TYPES = {
+          literal: :LITERAL, integer: :INTEGER, action: :ACTION, user_code: :USER_CODE
+        }.freeze #: Hash[Symbol, external_token]
         EXPECTATIONS = {
           class_keyword: "class", class_name: "identifier", superclass_name: "identifier",
           expect_integer: "integer", start_symbol: "a grammar symbol"
-        }.freeze
+        }.freeze #: Hash[Symbol, String]
 
         attr_reader :conversion_name #: Token?
         attr_reader :declaration #: Symbol?

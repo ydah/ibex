@@ -4,9 +4,9 @@ module Ibex
   module LALR
     # Builds canonical LR(1) states and merges states with equal LR(0) cores.
     class Builder
-      AUGMENTED_PRODUCTION: ::Integer
+      AUGMENTED_PRODUCTION: Integer
 
-      ALGORITHMS: untyped
+      ALGORITHMS: Array[Symbol]
 
       @resolver: ConflictResolver
 

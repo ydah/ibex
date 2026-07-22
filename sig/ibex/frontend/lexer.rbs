@@ -4,9 +4,9 @@ module Ibex
   module Frontend
     # Tokenizes a racc-compatible grammar while preserving source locations.
     class Lexer
-      PUNCTUATION: untyped
+      PUNCTUATION: Hash[String, Symbol]
 
-      USER_CODE: ::Regexp
+      USER_CODE: Regexp
 
       @cursor: SourceCursor
 

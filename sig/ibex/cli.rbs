@@ -75,8 +75,8 @@ module Ibex
     # @rbs () -> Integer
     def print_copyright: () -> Integer
 
-    # @rbs (untyped ast) -> Integer
-    def emit_ast: (untyped ast) -> Integer
+    # @rbs (Frontend::AST::Root ast) -> Integer
+    def emit_ast: (Frontend::AST::Root ast) -> Integer
 
     # @rbs (IR::Grammar grammar) -> Integer
     def emit_grammar: (IR::Grammar grammar) -> Integer

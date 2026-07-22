@@ -11,7 +11,7 @@ module Ibex
     include NormalizeExpander
     include NormalizeDiagnostics
 
-    RESERVED_NAMES = %w[result val _values].freeze
+    RESERVED_NAMES = %w[result val _values].freeze #: Array[String]
 
     # @rbs @ast: Frontend::AST::Root
     # @rbs @mode: Symbol

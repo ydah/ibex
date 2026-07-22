@@ -238,7 +238,7 @@ module Ibex
       0
     end
 
-    # @rbs (untyped ast) -> Integer
+    # @rbs (Frontend::AST::Root ast) -> Integer
     def emit_ast(ast)
       @stdout.puts(JSON.pretty_generate(ast.to_h))
       0

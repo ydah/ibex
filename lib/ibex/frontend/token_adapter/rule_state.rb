@@ -5,7 +5,9 @@ module Ibex
     class TokenAdapter
       # Classifies context-dependent tokens in the grammar rule section.
       class RuleState
-        SCALAR_TYPES = { literal: :LITERAL, integer: :INTEGER, action: :ACTION, user_code: :USER_CODE }.freeze
+        SCALAR_TYPES = {
+          literal: :LITERAL, integer: :INTEGER, action: :ACTION, user_code: :USER_CODE
+        }.freeze #: Hash[Symbol, external_token]
 
         attr_reader :section #: parser_section
         attr_reader :state #: Symbol
