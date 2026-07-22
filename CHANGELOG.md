@@ -9,3 +9,4 @@
 - Normalize grammars into immutable, versioned JSON IR with EBNF expansion and diagnostics.
 - Compute nullable, FIRST, and FOLLOW sets with deterministic integer bitsets.
 - Build deterministic LALR(1) automata, resolve and retain conflicts, and render state reports.
+- Generate plain or compact Ruby parsers with embedded runtime and source-line mapping support.

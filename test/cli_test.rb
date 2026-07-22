@@ -33,6 +33,19 @@ class CLITest < Minitest::Test
     end
   end
 
+  def test_generates_ruby_file
+    Tempfile.create(["grammar", ".y"]) do |grammar|
+      Tempfile.create(["parser", ".rb"]) do |output|
+        grammar.write("class P\nrule\nstart: TOKEN\nend\n")
+        grammar.flush
+        status = Ibex::CLI.start(["--table=plain", "-o", output.path, grammar.path],
+                                 stdout: StringIO.new, stderr: StringIO.new)
+        assert_equal 0, status
+        assert_includes File.read(output.path), "class P < Ibex::Runtime::Parser"
+      end
+    end
+  end
+
   def test_reports_cli_errors
     errors = StringIO.new
     assert_equal 1, Ibex::CLI.start([], stdout: StringIO.new, stderr: errors)

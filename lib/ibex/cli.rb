@@ -13,7 +13,7 @@ module Ibex
     def initialize(stdout:, stderr:)
       @stdout = stdout
       @stderr = stderr
-      @options = { emit: "ruby", mode: :racc }
+      @options = { emit: "ruby", mode: :racc, table: :compact, line_convert: true }
     end
 
     def run(arguments)
@@ -27,6 +27,7 @@ module Ibex
       grammar = Normalizer.new(ast, mode: @options[:mode]).normalize
       return emit_grammar(grammar) if @options[:emit] == "grammar-ir"
       return emit_automaton(grammar) if @options[:emit] == "automaton-ir"
+      return emit_ruby(grammar, path) if @options[:emit] == "ruby"
 
       raise Ibex::Error, "(cli):1:1: emit format #{@options[:emit].inspect} is not available yet"
     rescue OptionParser::ParseError, Ibex::Error, Errno::ENOENT => e
@@ -41,6 +42,13 @@ module Ibex
         options.banner = "Usage: ibex [options] grammarfile"
         options.on("--emit=FORMAT", "ast, grammar-ir, automaton-ir, or ruby") { |value| @options[:emit] = value }
         options.on("--mode=MODE", %w[racc extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
+        options.on("--table=FORMAT", %w[plain compact], "parser table format") do |value|
+          @options[:table] = value.to_sym
+        end
+        options.on("-o", "--output-file=FILE", "generated parser path") { |value| @options[:output] = value }
+        options.on("-E", "--embedded", "embed the Pure Ruby runtime") { @options[:embedded] = true }
+        options.on("-l", "--no-line-convert", "use generated-file action lines") { @options[:line_convert] = false }
+        options.on("-a", "--no-omit-actions", "generate implicit action methods") { @options[:omit_actions] = false }
         options.on("--version", "show version") { @options[:version] = true }
         options.on("--help", "show help") { @options[:help] = true }
       end
@@ -63,6 +71,17 @@ module Ibex
 
     def emit_automaton(grammar)
       @stdout.write(IR::Serialize.dump(LALR::Builder.new(grammar).build))
+      0
+    end
+
+    def emit_ruby(grammar, input_path)
+      automaton = LALR::Builder.new(grammar).build
+      source = Codegen::Ruby.new(
+        automaton, table: @options[:table], embedded: @options[:embedded],
+                   line_convert: @options[:line_convert], omit_action_call: @options[:omit_actions]
+      ).generate
+      output_path = @options[:output] || input_path.sub(/\.[^.]+\z/, ".rb")
+      File.write(output_path, source)
       0
     end
   end
