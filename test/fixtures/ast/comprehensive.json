@@ -1,0 +1,328 @@
+{
+  "node": "Root",
+  "class_name": "Demo::Parser",
+  "superclass": "BaseParser",
+  "declarations": [
+    {
+      "node": "Tokens",
+      "names": [
+        "INT",
+        "PLUS",
+        "','"
+      ],
+      "loc": {
+        "file": "comprehensive.y",
+        "line": 2,
+        "column": 1
+      }
+    },
+    {
+      "node": "Precedence",
+      "direction": "high_to_low",
+      "levels": [
+        {
+          "node": "PrecedenceLevel",
+          "associativity": "right",
+          "symbols": [
+            "UMINUS"
+          ],
+          "loc": {
+            "file": "comprehensive.y",
+            "line": 4,
+            "column": 3
+          }
+        },
+        {
+          "node": "PrecedenceLevel",
+          "associativity": "left",
+          "symbols": [
+            "PLUS"
+          ],
+          "loc": {
+            "file": "comprehensive.y",
+            "line": 5,
+            "column": 3
+          }
+        }
+      ],
+      "loc": {
+        "file": "comprehensive.y",
+        "line": 3,
+        "column": 1
+      }
+    },
+    {
+      "node": "Options",
+      "names": [
+        "no_result_var",
+        "omit_action_call"
+      ],
+      "loc": {
+        "file": "comprehensive.y",
+        "line": 7,
+        "column": 1
+      }
+    },
+    {
+      "node": "Expect",
+      "conflicts": 1,
+      "loc": {
+        "file": "comprehensive.y",
+        "line": 8,
+        "column": 1
+      }
+    },
+    {
+      "node": "Start",
+      "name": "program",
+      "loc": {
+        "file": "comprehensive.y",
+        "line": 9,
+        "column": 1
+      }
+    },
+    {
+      "node": "Convert",
+      "pairs": [
+        {
+          "node": "Conversion",
+          "name": "INT",
+          "expression": "\"IntegerToken\"",
+          "loc": {
+            "file": "comprehensive.y",
+            "line": 11,
+            "column": 3
+          }
+        },
+        {
+          "node": "Conversion",
+          "name": "PLUS",
+          "expression": ":plus",
+          "loc": {
+            "file": "comprehensive.y",
+            "line": 12,
+            "column": 3
+          }
+        }
+      ],
+      "loc": {
+        "file": "comprehensive.y",
+        "line": 10,
+        "column": 1
+      }
+    }
+  ],
+  "rules": [
+    {
+      "node": "Rule",
+      "lhs": "program",
+      "alternatives": [
+        {
+          "node": "Alternative",
+          "items": [
+            {
+              "node": "SymbolReference",
+              "name": "expressions",
+              "named_reference": null,
+              "loc": {
+                "file": "comprehensive.y",
+                "line": 15,
+                "column": 13
+              }
+            }
+          ],
+          "action": {
+            "node": "InlineAction",
+            "code": " result = val[0] ",
+            "loc": {
+              "file": "comprehensive.y",
+              "line": 15,
+              "column": 25
+            }
+          },
+          "precedence": null,
+          "loc": {
+            "file": "comprehensive.y",
+            "line": 15,
+            "column": 13
+          }
+        }
+      ],
+      "loc": {
+        "file": "comprehensive.y",
+        "line": 15,
+        "column": 3
+      }
+    },
+    {
+      "node": "Rule",
+      "lhs": "expressions",
+      "alternatives": [
+        {
+          "node": "Alternative",
+          "items": [
+            {
+              "node": "SymbolReference",
+              "name": "expression",
+              "named_reference": null,
+              "loc": {
+                "file": "comprehensive.y",
+                "line": 16,
+                "column": 17
+              }
+            }
+          ],
+          "action": null,
+          "precedence": null,
+          "loc": {
+            "file": "comprehensive.y",
+            "line": 16,
+            "column": 17
+          }
+        },
+        {
+          "node": "Alternative",
+          "items": [
+            {
+              "node": "SymbolReference",
+              "name": "expressions",
+              "named_reference": null,
+              "loc": {
+                "file": "comprehensive.y",
+                "line": 17,
+                "column": 17
+              }
+            },
+            {
+              "node": "SymbolReference",
+              "name": "PLUS",
+              "named_reference": null,
+              "loc": {
+                "file": "comprehensive.y",
+                "line": 17,
+                "column": 29
+              }
+            },
+            {
+              "node": "SymbolReference",
+              "name": "expression",
+              "named_reference": null,
+              "loc": {
+                "file": "comprehensive.y",
+                "line": 17,
+                "column": 34
+              }
+            }
+          ],
+          "action": {
+            "node": "InlineAction",
+            "code": " result = val[0] + [val[2]] ",
+            "loc": {
+              "file": "comprehensive.y",
+              "line": 17,
+              "column": 45
+            }
+          },
+          "precedence": null,
+          "loc": {
+            "file": "comprehensive.y",
+            "line": 17,
+            "column": 17
+          }
+        }
+      ],
+      "loc": {
+        "file": "comprehensive.y",
+        "line": 16,
+        "column": 3
+      }
+    },
+    {
+      "node": "Rule",
+      "lhs": "expression",
+      "alternatives": [
+        {
+          "node": "Alternative",
+          "items": [
+            {
+              "node": "SymbolReference",
+              "name": "INT",
+              "named_reference": null,
+              "loc": {
+                "file": "comprehensive.y",
+                "line": 18,
+                "column": 16
+              }
+            }
+          ],
+          "action": null,
+          "precedence": "UMINUS",
+          "loc": {
+            "file": "comprehensive.y",
+            "line": 18,
+            "column": 16
+          }
+        },
+        {
+          "node": "Alternative",
+          "items": [],
+          "action": null,
+          "precedence": null,
+          "loc": {
+            "file": "comprehensive.y",
+            "line": 20,
+            "column": 1
+          }
+        }
+      ],
+      "loc": {
+        "file": "comprehensive.y",
+        "line": 18,
+        "column": 3
+      }
+    }
+  ],
+  "user_code": {
+    "header": [
+      {
+        "node": "UserCode",
+        "name": "header",
+        "code": "require \"json\"\n",
+        "loc": {
+          "file": "comprehensive.y",
+          "line": 21,
+          "column": 1
+        }
+      }
+    ],
+    "inner": [
+      {
+        "node": "UserCode",
+        "name": "inner",
+        "code": "def helper = 1\n",
+        "loc": {
+          "file": "comprehensive.y",
+          "line": 23,
+          "column": 1
+        }
+      }
+    ],
+    "footer": [
+      {
+        "node": "UserCode",
+        "name": "footer",
+        "code": "Demo::Parser.new\n",
+        "loc": {
+          "file": "comprehensive.y",
+          "line": 25,
+          "column": 1
+        }
+      }
+    ]
+  },
+  "loc": {
+    "file": "comprehensive.y",
+    "line": 1,
+    "column": 1
+  }
+}

@@ -81,7 +81,7 @@ module Ibex
       end
 
       def scan_identifier
-        scan_match(:identifier, /\A[A-Za-z_][A-Za-z0-9_]*[!?]?/)
+        scan_match(:identifier, /\A[A-Za-z_][A-Za-z0-9_]*/)
       end
 
       def scan_integer
