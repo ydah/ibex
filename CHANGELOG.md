@@ -24,3 +24,7 @@
 - Add post-commit shift, reduction, and successful-recovery observation hooks to the runtime.
 - Add complete quickstart, grammar, migration, architecture, and extension documentation with an executable README test.
 - Self-host the grammar frontend from a committed Ibex grammar with deterministic regeneration and bootstrap parity checks.
+- Version generated parser tables and reject missing or unsupported formats before consuming input.
+- Add grammar-local `pragma extended` selection and document the action and named-reference boundary inside EBNF groups.
+- Add fixed-seed pipeline properties, versioned Grammar/Automaton IR fixtures, and a reproducible whole-builder benchmark.
+- Keep the whole-library Steep statistics in the README synchronized and enforce them in CI.

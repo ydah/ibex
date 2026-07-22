@@ -83,9 +83,12 @@ Ordinary shifts and the synthetic recovery-token shift use separate hooks; obser
 
 ## Extended mode
 
-`--mode=extended` enables optional, repeated, and separated values plus named references:
+`--mode=extended` enables optional, repeated, and separated values plus named references. A grammar can make the same choice
+locally with `pragma extended` immediately after its `class` header:
 
 ```text
+class ExtendedParser
+pragma extended
 rule
   arguments : separated_list(NUM, ',') { result = val[0] }
   sum       : NUM:left '+' NUM:right { result = left + right }
@@ -152,6 +155,14 @@ Normal library and CLI execution use the generated parser. The handwritten `Boot
 workflow, whose direct dependency graph also works when the generated file is absent. Byte-comparison and AST/error parity tests
 prevent generated-source drift.
 
+Fixed-seed property tests exercise SLR, LALR, and LR(1) pipeline invariants, while versioned Grammar and Automaton IR fixtures
+guard byte-stable schema compatibility. Intentional fixture updates are documented in `test/fixtures/ir/README.md`. Run the
+reproducible whole-builder benchmark without a timing pass/fail threshold with:
+
+```sh
+benchmark/pipeline.rb --rules 200 --iterations 5 --seed 12345
+```
+
 Signatures for every Ruby source under `lib/` are generated from rbs-inline annotations and checked with Steep, including the
 self-hosted generated parser. To regenerate the committed signature tree and reproduce its validation locally:
 
@@ -164,15 +175,20 @@ BUNDLE_GEMFILE=gemfiles/Gemfile ruby -e '
 BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec rbs -r digest -r json -r optparse -I sig validate
 BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec steep check
 BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec steep stats
+BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 ```
 
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
-signature files both fail the build. The current whole-library `steep stats` result is 3,631 typed calls and 426 untyped calls out
-of 4,057 (89.5% typed). The generated signature tree contains 387 explicit `untyped` occurrences across 16 files. Those boundaries
-are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime semantic values and
-parser-table cells, and embedded user Ruby. Token/location records, the complete grammar AST, parser classifier state, IR,
-the public Ruby DSL, bootstrap parser state, analysis, automaton construction, code generators, table construction, and CLI
-options use concrete domain types. The committed self-hosted parser remains in the Steep target; no library directory or generated
-source is excluded.
+signature files both fail the build.
+<!-- type-stats:start -->
+The current whole-library `steep stats` result is 3,768 typed calls and 449 untyped calls out of 4,217 (89.4% typed).
+The generated signature tree contains 397 explicit `untyped` occurrences across 16 files.
+<!-- type-stats:end -->
+
+Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime
+semantic values and parser-table cells, and embedded user Ruby. Token/location records, the complete grammar AST, parser
+classifier state, IR, the public Ruby DSL, bootstrap parser state, analysis, automaton construction, code generators, table
+construction, and CLI options use concrete domain types. The committed self-hosted parser remains in the Steep target; no library
+directory or generated source is excluded.
 
 Ibex is available under the [MIT License](LICENSE.txt).
