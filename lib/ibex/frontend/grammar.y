@@ -1,11 +1,11 @@
 class Ibex::Frontend::GeneratedParser < Ibex::Frontend::GeneratedParserBase
-token CLASS TOKEN PRECHIGH PRECLOW OPTIONS EXPECT START CONVERT RULE END
+token CLASS TOKEN PRECHIGH PRECLOW OPTIONS EXPECT START CONVERT PRAGMA RULE END
 token LEFT RIGHT NONASSOC IDENTIFIER LITERAL INTEGER ACTION USER_CODE LHS
 token SEPARATED_LIST SEPARATED_NONEMPTY_LIST
 rule
   grammar
-    : CLASS constant_path superclass declarations RULE rules END user_code
-      { result = build_root(val[0], val[1], val[2], val[3], val[5], val[7]) }
+    : CLASS constant_path superclass pragmas declarations RULE rules END user_code
+      { result = build_root(val[0], val[1], val[2], val[4], val[6], val[8]) }
 
   constant_path
     : IDENTIFIER                         { result = [val[0].value] }
@@ -14,6 +14,10 @@ rule
   superclass
     :                                    { result = nil }
     | '<' constant_path                  { result = val[1] }
+
+  pragmas
+    :
+    | pragmas PRAGMA IDENTIFIER
 
   declarations
     :                                    { result = Array.new(0) }

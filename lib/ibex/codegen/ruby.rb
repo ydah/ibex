@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../runtime/parser"
+
 module Ibex
   module Codegen
     # Generates a standalone Ruby parser class from Automaton IR.
@@ -75,13 +77,15 @@ module Ibex
       def append_tables(lines)
         table_set = Tables.build(@automaton, format: @table_format)
         indent = "  "
+        lines << "#{indent}PARSER_TABLE_FORMAT_VERSION = #{Runtime::PARSER_TABLE_FORMAT_VERSION}"
         lines << "#{indent}TOKEN_IDS = #{token_ids_literal}.freeze"
         lines << "#{indent}TOKEN_NAMES = #{token_names_literal}.freeze"
         lines << "#{indent}ACTIONS = #{table_literal(table_set.actions)}"
         lines << "#{indent}GOTOS = #{table_literal(table_set.gotos)}"
         lines << "#{indent}DEFAULT_ACTIONS = #{table_set.default_actions.inspect}.freeze"
         lines << "#{indent}PRODUCTIONS = #{productions_literal}.freeze"
-        lines << "#{indent}PARSER_TABLES = { tokens: TOKEN_IDS, token_names: TOKEN_NAMES, actions: ACTIONS,"
+        lines << "#{indent}PARSER_TABLES = { format_version: PARSER_TABLE_FORMAT_VERSION,"
+        lines << "#{indent}                  tokens: TOKEN_IDS, token_names: TOKEN_NAMES, actions: ACTIONS,"
         lines << "#{indent}                  gotos: GOTOS, default_actions: DEFAULT_ACTIONS,"
         lines << "#{indent}                  productions: PRODUCTIONS }.freeze"
         lines << "#{indent}def self.parser_tables = PARSER_TABLES"

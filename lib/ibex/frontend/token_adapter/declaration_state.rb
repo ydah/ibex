@@ -8,7 +8,8 @@ module Ibex
         DECLARATIONS = {
           "token" => %i[TOKEN token_symbols], "options" => %i[OPTIONS options_identifiers],
           "expect" => %i[EXPECT expect_integer], "start" => %i[START start_symbol],
-          "convert" => %i[CONVERT convert_name], "rule" => %i[RULE rules]
+          "convert" => %i[CONVERT convert_name], "pragma" => %i[PRAGMA pragma_value],
+          "rule" => %i[RULE rules]
         }.freeze #: Hash[String, [external_token, Symbol]]
         ASSOCIATIONS = {
           "left" => :LEFT, "right" => :RIGHT, "nonassoc" => :NONASSOC
@@ -44,6 +45,11 @@ module Ibex
           @state == :rules
         end
 
+        # @rbs () -> bool
+        def extended_pragma?
+          @extended_pragma == true
+        end
+
         # @rbs (Token? token) -> String?
         def expectation(token)
           expected = EXPECTATIONS[@state]
@@ -69,6 +75,7 @@ module Ibex
           when :token_symbols, :options_identifiers then declaration_symbol(token)
           when :precedence_association, :precedence_symbols then precedence_identifier(token)
           when :start_symbol then finish_single_symbol(:IDENTIFIER)
+          when :pragma_value then finish_pragma(token)
           when :convert_name then begin_conversion(token, :IDENTIFIER, remaining)
           else :IDENTIFIER
           end
@@ -102,6 +109,8 @@ module Ibex
           value = string_value(token)
           return begin_precedence(token) if %w[prechigh preclow].include?(value)
 
+          raise Ibex::Error, "#{token.location}: duplicate pragma extended" if value == "pragma" && @extended_pragma
+
           terminal, next_state = DECLARATIONS[value]
           return :IDENTIFIER unless terminal
 
@@ -109,6 +118,17 @@ module Ibex
           @declaration = value.to_sym unless terminal == :RULE
           @declaration = nil if terminal == :RULE
           terminal
+        end
+
+        # @rbs (Token token) -> external_token
+        def finish_pragma(token)
+          value = string_value(token)
+          raise Ibex::Error, "#{token.location}: unknown pragma #{value}" unless value == "extended"
+
+          @extended_pragma = true
+          @state = :declaration
+          @declaration = nil
+          :IDENTIFIER
         end
 
         # @rbs (Token token) -> external_token

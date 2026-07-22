@@ -25,6 +25,7 @@ module Ibex
         location = expect_keyword("class").location
         class_name = parse_constant_path
         superclass = accept(:<) ? parse_constant_path : nil
+        parse_pragmas
         declarations = parse_declarations
         expect_keyword("rule")
         rules = parse_rules

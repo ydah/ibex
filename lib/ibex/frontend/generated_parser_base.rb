@@ -235,7 +235,7 @@ module Ibex
 
       # @rbs (Location location, String feature) -> void
       def extended_only!(location, feature)
-        return if @mode == :extended
+        return if @mode == :extended || @adapter.extended_pragma?
 
         fail_at(location, "#{feature} require extended mode")
       end

@@ -1,12 +1,13 @@
 # Grammar reference
 
-Ibex's default `racc` mode accepts the compatible grammar described here. `--mode=extended` adds the explicitly marked syntax;
-it is never inferred in compatible mode.
+Ibex's default `racc` mode accepts the compatible grammar described here. `--mode=extended` or an explicit grammar-file
+`pragma extended` adds the marked syntax; extensions are never inferred from a production.
 
 ## File structure
 
 ```text
 class Namespace::Parser < OptionalSuperclass
+  pragma extended       # optional; must precede ordinary declarations
   declarations
 rule
   productions
@@ -23,6 +24,10 @@ The superclass defaults to `Ibex::Runtime::Parser`. Repeated user-code blocks re
 Grammar comments use `#` through end of line or `/* ... */`.
 
 ## Declarations
+
+- `pragma extended` enables extended syntax for this grammar even when the CLI uses its default or explicit `--mode=racc`.
+  It must immediately follow the class header, before every ordinary declaration. Unknown, duplicate, and misplaced pragmas
+  are positioned errors. The pragma is consumed by the frontend and is not stored in AST or Grammar IR output.
 
 - `token NAME ...` declares terminals for typo diagnostics. It is optional. Uppercase names and quoted strings are terminals;
   lowercase names are nonterminals unless they are `error`.
@@ -90,6 +95,9 @@ Parenthesized groups may contain sequences, alternatives, and nested EBNF, for e
 an empty group has `nil`. Named references must be unique in an outer alternative and cannot use `result`, `val`, or `_values`;
 references inside a group are rejected because the group is lowered behind one outer value slot. Text, DOT, and HTML reports
 render lowered helper nonterminals as their original EBNF expressions instead of exposing generated helper names.
+
+Actions and named references are supported on an outer production alternative, but not inside a parenthesized EBNF group.
+Move the action or binding to a separately named ordinary rule and reference that rule from the group.
 
 ## Strict diagnostics
 

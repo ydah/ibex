@@ -4,7 +4,7 @@ module Ibex
   module Frontend
     # Parses the declaration section of a grammar.
     module BootstrapParserDeclarations
-      DECLARATIONS = %w[token prechigh preclow options expect start convert rule].freeze #: Array[String]
+      DECLARATIONS = %w[token prechigh preclow options expect start convert pragma rule].freeze #: Array[String]
       ASSOCIATIVITIES = %w[left right nonassoc].freeze #: Array[String]
 
       private
@@ -17,6 +17,24 @@ module Ibex
         declarations
       end
 
+      # @rbs () -> void
+      def parse_pragmas
+        # @type self: BootstrapParser
+        seen = false
+        while keyword?("pragma")
+          keyword = current
+          fail_at(keyword.location, "duplicate pragma extended") if seen
+
+          advance
+          value = expect(:identifier)
+          name = token_string(value)
+          fail_at(value.location, "unknown pragma #{name}") unless name == "extended"
+
+          @mode = :extended
+          seen = true
+        end
+      end
+
       # @rbs () -> AST::declaration
       def parse_declaration
         # @type self: BootstrapParser
@@ -27,6 +45,7 @@ module Ibex
         when "expect" then parse_expect
         when "start" then parse_start
         when "convert" then parse_convert
+        when "pragma" then fail_at(current.location, "expected rule, got pragma")
         else fail_expected("a declaration or rule")
         end
       end

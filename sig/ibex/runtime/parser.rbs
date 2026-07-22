@@ -2,6 +2,9 @@
 
 module Ibex
   module Runtime
+    # Parser-table shape understood by this runtime.
+    PARSER_TABLE_FORMAT_VERSION: Integer
+
     # Raised by the default parser error handler.
     class ParseError < StandardError
     end
@@ -111,6 +114,9 @@ module Ibex
 
       # @rbs (^() -> untyped source) -> void
       def prepare_parse: (^() -> untyped source) -> void
+
+      # @rbs () -> void
+      def validate_parser_table_format!: () -> void
 
       # @rbs () -> untyped
       def action_for_current_state: () -> untyped

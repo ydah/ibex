@@ -45,6 +45,9 @@ class RubyCodegenTest < Minitest::Test
   def test_generated_compact_parser_calculates_with_precedence
     parser_class = evaluate(generate(calculator_source), "GeneratedCalc")
     tokens = [[:NUM, 2], ["+", nil], [:NUM, 3], ["*", nil], [:NUM, 4]]
+    assert_equal Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION, parser_class::PARSER_TABLE_FORMAT_VERSION
+    assert_equal parser_class::PARSER_TABLE_FORMAT_VERSION,
+                 parser_class::PARSER_TABLES.fetch(:format_version)
     assert_equal 14, parser_class.new.parse(tokens)
   end
 

@@ -77,8 +77,10 @@ associativity decisions; `rr` counts reduce/reduce cells.
 
 ## Runtime table contract
 
-Generated subclasses expose `.parser_tables` with external `tokens`, display `token_names`, ACTION and GOTO tables, per-state
-default actions, and production `{lhs,length,action}` records. Plain tables are arrays of Hash rows. Compact tables use row
+Generated subclasses expose `.parser_tables` with a required `format_version`, external `tokens`, display `token_names`, ACTION
+and GOTO tables, per-state default actions, and production `{lhs,length,action}` records. The runtime validates the version before
+reading input and rejects missing or unsupported formats with a regeneration instruction; see
+[ADR 0018](decisions/0018-parser-table-format-version.md). Plain tables are arrays of Hash rows. Compact tables use row
 displacement with offsets, values, and row-ownership checks; both expose equivalent lookups. Default reductions are restricted
 to known token ids, and explicit error masks preserve the pre-optimization result of every declared terminal cell, including
 the synthetic `error` terminal. The deterministic size policy is fixed by
