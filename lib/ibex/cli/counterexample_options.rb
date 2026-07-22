@@ -25,7 +25,10 @@ module Ibex
     end
 
     def positive_counterexample_limit(value, option)
-      return value if value.positive?
+      if value.positive?
+        @options[:verbose] = true
+        return value
+      end
 
       raise Ibex::Error, "(cli):1:1: #{option} must be positive"
     end

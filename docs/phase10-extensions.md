@@ -10,9 +10,10 @@ Because unifying-counterexample search is not guaranteed to terminate for every 
 token and configuration budgets. The defaults are 32 tokens and 50,000 explored configurations. Pass `max_tokens:` and
 `max_configurations:` to `Ibex::LALR::Counterexample.new` or `Ibex::Codegen::Report.render` to adjust them through the Ruby API.
 For generated reports, use the positive-integer CLI options `--counterexample-max-tokens=N` and
-`--counterexample-max-configurations=N`. If no common sentence is found within those budgets, the result is marked
-`unifying: false` and contains the deterministic shortest reachability witness. This distinction prevents a nonunifying
-diagnostic from being presented as proof of ambiguity.
+`--counterexample-max-configurations=N`; either option also requests a report. The token budget covers the complete returned
+sentence, including a non-EOF conflict lookahead; the EOF marker does not consume a token. If no common sentence is found within
+those budgets, the result is marked `unifying: false` and contains the deterministic shortest reachability witness. This
+distinction prevents a nonunifying diagnostic from being presented as proof of ambiguity.
 
 ## E7: Ruby DSL
 

@@ -98,6 +98,46 @@ class CounterexampleTest < Minitest::Test
     assert_equal 50_000, Ibex::LALR::Counterexample::DEFAULT_MAX_CONFIGURATIONS
   end
 
+  def test_token_budget_includes_a_non_eof_conflict_lookahead
+    automaton = build("class P\nexpect 1\nrule\nstart: start start | TOKEN\nend\n")
+
+    refute Ibex::LALR::Counterexample.new(automaton, max_tokens: 2).all.first[:unifying]
+    boundary = Ibex::LALR::Counterexample.new(automaton, max_tokens: 3).all.first
+    assert boundary[:unifying]
+    assert_equal 3, boundary[:sentence].length
+  end
+
+  def test_eof_conflict_lookahead_does_not_consume_the_token_budget
+    automaton = build(<<~GRAMMAR)
+      class P
+      rule
+      start: first | second
+      first: TOKEN
+      second: TOKEN
+      end
+    GRAMMAR
+
+    boundary = Ibex::LALR::Counterexample.new(automaton, max_tokens: 1).all.first
+    assert boundary[:unifying]
+    assert_equal ["TOKEN"], boundary[:sentence]
+  end
+
+  def test_public_search_budgets_require_positive_integers
+    automaton = build("class P\nrule\nstart: TOKEN\nend\n")
+    invalid_limits = { max_tokens: [0, "1"], max_configurations: [-1, 1.5] }
+
+    invalid_limits.each do |name, values|
+      values.each do |value|
+        options = { name => value }
+        error = assert_raises(ArgumentError) { Ibex::LALR::Counterexample.new(automaton, **options) }
+        assert_equal "#{name} must be a positive Integer", error.message
+
+        error = assert_raises(ArgumentError) { Ibex::Codegen::Report.render(automaton, **options) }
+        assert_equal "#{name} must be a positive Integer", error.message
+      end
+    end
+  end
+
   def test_report_search_budgets_can_force_a_nonunifying_fallback
     automaton = build(<<~GRAMMAR)
       class P
