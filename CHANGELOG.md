@@ -12,3 +12,4 @@
 - Generate plain or compact Ruby parsers with embedded runtime and source-line mapping support.
 - Complete the compatible CLI surface and add optional racc black-box result comparisons.
 - Add extended EBNF/named-reference integration, DOT/HTML reports, and resumable IR pipelines.
+- Add selectable SLR, LALR(1), and canonical LR(1) construction strategies.

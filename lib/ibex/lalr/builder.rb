@@ -8,8 +8,15 @@ module Ibex
     class Builder
       AUGMENTED_PRODUCTION = -1
 
-      def initialize(grammar)
+      ALGORITHMS = %i[slr lalr lr1].freeze
+
+      def initialize(grammar, algorithm: :lalr)
+        unless ALGORITHMS.include?(algorithm.to_sym)
+          raise ArgumentError, "unknown parser algorithm #{algorithm.inspect}"
+        end
+
         @grammar = grammar
+        @algorithm = algorithm.to_sym
         @sets = Analysis::Sets.new(grammar)
         @productions_by_lhs = grammar.productions.group_by(&:lhs)
         @resolver = ConflictResolver.new(grammar)
@@ -17,7 +24,7 @@ module Ibex
 
       def build
         canonical_states, canonical_transitions = canonical_collection
-        merged_items, merged_transitions = merge_lalr(canonical_states, canonical_transitions)
+        merged_items, merged_transitions = automaton_items(canonical_states, canonical_transitions)
         states = build_states(merged_items, merged_transitions)
         conflicts = states.flat_map(&:conflicts)
         shift_reduce = conflicts.select { |item| item[:type] == :shift_reduce }
@@ -27,7 +34,8 @@ module Ibex
                     rr: conflicts.count { |item| item[:type] == :reduce_reduce },
                     expected_sr: @grammar.expect,
                     expectation_met: counted_shift_reduce == @grammar.expect }
-        IR::Automaton.new(grammar: @grammar, states: states, conflict_summary: summary)
+        IR::Automaton.new(grammar: @grammar, states: states, conflict_summary: summary,
+                          algorithm: @algorithm == :lalr ? "lalr1" : @algorithm.to_s)
       end
 
       private
@@ -109,6 +117,40 @@ module Ibex
           edges.each { |symbol, target| merged_transitions[state_groups[state_id]][symbol] = state_groups[target] }
         end
         [merged, merged_transitions]
+      end
+
+      def automaton_items(canonical_states, canonical_transitions)
+        return [pack_canonical_items(canonical_states), canonical_transitions] if @algorithm == :lr1
+
+        items, transitions = merge_lalr(canonical_states, canonical_transitions)
+        apply_slr_lookaheads(items) if @algorithm == :slr
+        [items, transitions]
+      end
+
+      def pack_canonical_items(states)
+        states.map do |items|
+          packed = Hash.new { |hash, key| hash[key] = Set.new }
+          items.each { |production, dot, lookahead| packed[[production, dot]] << lookahead }
+          packed
+        end
+      end
+
+      def apply_slr_lookaheads(states)
+        states.each do |items|
+          items.each do |(production_id, dot), lookaheads|
+            next unless dot == rhs_for(production_id).length
+
+            lookaheads.replace(slr_lookaheads(production_id))
+          end
+        end
+      end
+
+      def slr_lookaheads(production_id)
+        return [0] if production_id == AUGMENTED_PRODUCTION
+
+        lhs = @grammar.productions.fetch(production_id).lhs
+        bits = @sets.follow_bits.fetch(lhs)
+        @grammar.terminals.filter_map { |terminal| terminal.id if bits.anybits?(1 << terminal.id) }
       end
 
       def build_states(merged_items, transitions)

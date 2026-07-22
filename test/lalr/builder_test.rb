@@ -3,10 +3,10 @@
 require_relative "../test_helper"
 
 class LALRBuilderTest < Minitest::Test
-  def build(source)
+  def build(source, algorithm: :lalr)
     ast = Ibex::Frontend::Parser.new(source, file: "builder.y").parse
     grammar = Ibex::Normalizer.new(ast).normalize
-    Ibex::LALR::Builder.new(grammar).build
+    Ibex::LALR::Builder.new(grammar, algorithm: algorithm).build
   end
 
   def test_builds_textbook_lalr_collection_deterministically
@@ -94,5 +94,41 @@ class LALRBuilderTest < Minitest::Test
     assert_includes report, "State 0"
     assert_includes report, "$accept ->"
     assert_includes report, "Conflicts: 0 shift/reduce"
+  end
+
+  def test_lr1_avoids_lalr_core_merge_conflicts
+    source = <<~GRAMMAR
+      class P
+      rule
+      start: 'a' first 'd'
+           | 'b' first 'e'
+           | 'a' second 'e'
+           | 'b' second 'd'
+      first: 'c'
+      second: 'c'
+      end
+    GRAMMAR
+    lalr = build(source, algorithm: :lalr)
+    lr1 = build(source, algorithm: :lr1)
+    assert_operator lalr.conflict_summary[:rr], :>, 0
+    assert_equal 0, lr1.conflict_summary[:rr]
+    assert_operator lr1.states.length, :>, lalr.states.length
+    assert_equal "lr1", lr1.algorithm
+  end
+
+  def test_lalr_avoids_slr_follow_set_conflict
+    source = <<~GRAMMAR
+      class P
+      rule
+      start: left '=' right | right
+      left: '*' right | ID
+      right: left
+      end
+    GRAMMAR
+    slr = build(source, algorithm: :slr)
+    lalr = build(source, algorithm: :lalr)
+    assert_operator slr.conflict_summary[:sr], :>, 0
+    assert_equal 0, lalr.conflict_summary[:sr]
+    assert_equal "slr", slr.algorithm
   end
 end
