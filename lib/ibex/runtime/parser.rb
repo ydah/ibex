@@ -170,9 +170,10 @@ module Ibex
       def action_for_current_state
         read_lookahead if @lookahead.equal?(NO_LOOKAHEAD)
         state = @state_stack.last
+        return [:error] unless parser_tables.fetch(:token_names).key?(@lookahead)
+
         explicit = table_lookup(parser_tables.fetch(:actions), state, @lookahead)
         return explicit if explicit
-        return [:error] unless parser_tables.fetch(:token_names).key?(@lookahead)
 
         default_action(state) || [:error]
       end

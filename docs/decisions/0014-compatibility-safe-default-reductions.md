@@ -25,9 +25,10 @@ of this domain. The default counts as one encoded entry and is selected only whe
 rewritten explicit entries + 1 < original explicit entries
 ```
 
-Generated plain and compact tables carry the same per-state default array. Runtime lookup checks an explicit cell first, then
-uses the default only for an internal id present in `token_names`; undeclared external tokens receive negative ids and therefore
-remain immediate errors. Conflict search applies the same explicit-then-default lookup.
+Generated plain and compact tables carry the same per-state default array. Runtime lookup first rejects ids absent from
+`token_names`, then checks an explicit cell before the default. Undeclared external tokens receive negative ids and therefore
+remain immediate errors. Compact-table lookup also rejects negative columns before indexing its storage arrays. Conflict search
+applies the same explicit-then-default lookup for known grammar terminals.
 
 ## Consequences
 

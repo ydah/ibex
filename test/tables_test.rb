@@ -27,6 +27,9 @@ class TablesTest < Minitest::Test
     actual_rows = rows.each_index.map { |index| compact.row(index) }
     assert_equal rows, actual_rows
     assert_nil compact.lookup(1, 1)
+    assert_nil compact.lookup(0, -1)
+    assert_nil compact.lookup(0, 100)
+    assert_empty compact.row(-1)
   end
 
   private

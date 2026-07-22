@@ -42,8 +42,11 @@ module Ibex
 
       def lookup(row, column)
         return nil unless row.between?(0, @row_count - 1)
+        return nil if column.negative?
 
         index = @offsets.fetch(row) + column
+        return nil unless index.between?(0, @checks.length - 1)
+
         @checks[index] == row ? @values[index] : nil
       end
 
