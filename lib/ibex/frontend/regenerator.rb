@@ -1,9 +1,19 @@
 # frozen_string_literal: true
 
-require_relative "../frontend"
+require_relative "../error"
+require_relative "../tables"
+require_relative "source_cursor"
+require_relative "action_scanner"
+require_relative "lexer"
+require_relative "ast"
 require_relative "parser/declarations"
 require_relative "parser/rules"
 require_relative "bootstrap_parser"
+require_relative "../ir"
+require_relative "../normalize"
+require_relative "../analysis"
+require_relative "../lalr"
+require_relative "../codegen/ruby"
 
 module Ibex
   module Frontend
