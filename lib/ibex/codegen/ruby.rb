@@ -42,7 +42,6 @@ module Ibex
         append_tables(lines)
         append_actions(lines)
         append_user_code(lines, "inner", indent: 2)
-        private_actions(lines)
         lines << "end"
         modules.reverse_each { lines << "end" }
         append_user_code(lines, "footer")
@@ -149,7 +148,7 @@ module Ibex
       # @rbs (Array[String] lines, IR::Production production) -> void
       def append_action_method(lines, production)
         action = production.action
-        lines << "  def _ibex_action_#{production.id}(val, _values)"
+        lines << "  private def _ibex_action_#{production.id}(val, _values)"
         lines << "    val = _values.last(#{action.context_length})" if action&.context_length&.positive?
         append_named_bindings(lines, action)
         if action
@@ -182,13 +181,6 @@ module Ibex
           action.code.lines.each { |line| lines << "    #{line.rstrip}" }
         end
         lines << "    result" if @grammar.options[:result_var]
-      end
-
-      # @rbs (Array[String] lines) -> void
-      def private_actions(lines)
-        productions = @grammar.productions.select { |production| action_method?(production) }
-        names = productions.map { |production| ":_ibex_action_#{production.id}" }
-        lines << "  private #{names.join(', ')}" unless names.empty?
       end
 
       # @rbs (IR::Production production) -> bool

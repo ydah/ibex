@@ -19,415 +19,414 @@ class GeneratedParser < Ibex::Frontend::GeneratedParserBase
   def self.parser_tables = PARSER_TABLES
   DEBUG_ENABLED = false
 
-  def _ibex_action_0(val, _values)
+  private def _ibex_action_0(val, _values)
     result = val[0]
      result = build_root(val[0], val[1], val[2], val[3], val[5], val[7])
     result
   end
 
-  def _ibex_action_1(val, _values)
+  private def _ibex_action_1(val, _values)
     result = val[0]
      result = [val[0].value]
     result
   end
 
-  def _ibex_action_2(val, _values)
+  private def _ibex_action_2(val, _values)
     result = val[0]
      result = val[0] + [val[2].value]
     result
   end
 
-  def _ibex_action_3(val, _values)
+  private def _ibex_action_3(val, _values)
     result = val[0]
      result = nil
     result
   end
 
-  def _ibex_action_4(val, _values)
+  private def _ibex_action_4(val, _values)
     result = val[0]
      result = val[1]
     result
   end
 
-  def _ibex_action_5(val, _values)
+  private def _ibex_action_5(val, _values)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  def _ibex_action_6(val, _values)
+  private def _ibex_action_6(val, _values)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  def _ibex_action_7(val, _values)
+  private def _ibex_action_7(val, _values)
     result = val[0]
      result = val[0]
     result
   end
 
-  def _ibex_action_8(val, _values)
+  private def _ibex_action_8(val, _values)
     result = val[0]
      result = val[0]
     result
   end
 
-  def _ibex_action_9(val, _values)
+  private def _ibex_action_9(val, _values)
     result = val[0]
      result = val[0]
     result
   end
 
-  def _ibex_action_10(val, _values)
+  private def _ibex_action_10(val, _values)
     result = val[0]
      result = val[0]
     result
   end
 
-  def _ibex_action_11(val, _values)
+  private def _ibex_action_11(val, _values)
     result = val[0]
      result = val[0]
     result
   end
 
-  def _ibex_action_12(val, _values)
+  private def _ibex_action_12(val, _values)
     result = val[0]
      result = val[0]
     result
   end
 
-  def _ibex_action_13(val, _values)
+  private def _ibex_action_13(val, _values)
     result = val[0]
      result = build_tokens(val[0], val[1])
     result
   end
 
-  def _ibex_action_14(val, _values)
+  private def _ibex_action_14(val, _values)
     result = val[0]
      result = build_precedence(val[0], :high_to_low, val[1])
     result
   end
 
-  def _ibex_action_15(val, _values)
+  private def _ibex_action_15(val, _values)
     result = val[0]
      result = build_precedence(val[0], :low_to_high, val[1])
     result
   end
 
-  def _ibex_action_16(val, _values)
+  private def _ibex_action_16(val, _values)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  def _ibex_action_17(val, _values)
+  private def _ibex_action_17(val, _values)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  def _ibex_action_18(val, _values)
+  private def _ibex_action_18(val, _values)
     result = val[0]
      result = build_precedence_level(val[0], val[1])
     result
   end
 
-  def _ibex_action_19(val, _values)
+  private def _ibex_action_19(val, _values)
     result = val[0]
      result = val[0]
     result
   end
 
-  def _ibex_action_20(val, _values)
+  private def _ibex_action_20(val, _values)
     result = val[0]
      result = val[0]
     result
   end
 
-  def _ibex_action_21(val, _values)
+  private def _ibex_action_21(val, _values)
     result = val[0]
      result = val[0]
     result
   end
 
-  def _ibex_action_22(val, _values)
+  private def _ibex_action_22(val, _values)
     result = val[0]
      result = build_options(val[0], val[1])
     result
   end
 
-  def _ibex_action_23(val, _values)
+  private def _ibex_action_23(val, _values)
     result = val[0]
      result = build_expect(val[0], val[1])
     result
   end
 
-  def _ibex_action_24(val, _values)
+  private def _ibex_action_24(val, _values)
     result = val[0]
      result = build_start(val[0], val[1].value)
     result
   end
 
-  def _ibex_action_25(val, _values)
+  private def _ibex_action_25(val, _values)
     result = val[0]
      result = build_convert(val[0], val[1])
     result
   end
 
-  def _ibex_action_26(val, _values)
+  private def _ibex_action_26(val, _values)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  def _ibex_action_27(val, _values)
+  private def _ibex_action_27(val, _values)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  def _ibex_action_28(val, _values)
+  private def _ibex_action_28(val, _values)
     result = val[0]
      result = build_conversion(val[0], val[1])
     result
   end
 
-  def _ibex_action_29(val, _values)
+  private def _ibex_action_29(val, _values)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  def _ibex_action_30(val, _values)
+  private def _ibex_action_30(val, _values)
     result = val[0]
      result = val[0] + [val[1].value]
     result
   end
 
-  def _ibex_action_31(val, _values)
+  private def _ibex_action_31(val, _values)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  def _ibex_action_32(val, _values)
+  private def _ibex_action_32(val, _values)
     result = val[0]
      result = val[0] + [val[1].value]
     result
   end
 
-  def _ibex_action_33(val, _values)
+  private def _ibex_action_33(val, _values)
     result = val[0]
      result = val[0]
     result
   end
 
-  def _ibex_action_34(val, _values)
+  private def _ibex_action_34(val, _values)
     result = val[0]
      result = val[0]
     result
   end
 
-  def _ibex_action_35(val, _values)
+  private def _ibex_action_35(val, _values)
     result = val[0]
      result = [val[0]]
     result
   end
 
-  def _ibex_action_36(val, _values)
+  private def _ibex_action_36(val, _values)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  def _ibex_action_37(val, _values)
+  private def _ibex_action_37(val, _values)
     result = val[0]
      result = build_rule(val[0], val[2])
     result
   end
 
-  def _ibex_action_40(val, _values)
+  private def _ibex_action_40(val, _values)
     result = val[0]
      result = [val[0]]
     result
   end
 
-  def _ibex_action_41(val, _values)
+  private def _ibex_action_41(val, _values)
     result = val[0]
      result = val[0] + [val[2]]
     result
   end
 
-  def _ibex_action_42(val, _values)
+  private def _ibex_action_42(val, _values)
     result = val[0]
      result = build_alternative(val[0], val[1])
     result
   end
 
-  def _ibex_action_43(val, _values)
+  private def _ibex_action_43(val, _values)
     result = val[0]
      result = nil
     result
   end
 
-  def _ibex_action_44(val, _values)
+  private def _ibex_action_44(val, _values)
     result = val[0]
      result = val[1]
     result
   end
 
-  def _ibex_action_45(val, _values)
+  private def _ibex_action_45(val, _values)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  def _ibex_action_46(val, _values)
+  private def _ibex_action_46(val, _values)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  def _ibex_action_47(val, _values)
+  private def _ibex_action_47(val, _values)
     result = val[0]
      result = val[0]
     result
   end
 
-  def _ibex_action_48(val, _values)
+  private def _ibex_action_48(val, _values)
     result = val[0]
      result = build_action(val[0])
     result
   end
 
-  def _ibex_action_49(val, _values)
+  private def _ibex_action_49(val, _values)
     result = val[0]
      result = val[0]
     result
   end
 
-  def _ibex_action_50(val, _values)
+  private def _ibex_action_50(val, _values)
     result = val[0]
      result = val[0]
     result
   end
 
-  def _ibex_action_51(val, _values)
+  private def _ibex_action_51(val, _values)
     result = val[0]
      result = build_symbol_reference(val[0], val[1], val[2])
     result
   end
 
-  def _ibex_action_52(val, _values)
+  private def _ibex_action_52(val, _values)
     result = val[0]
      result = nil
     result
   end
 
-  def _ibex_action_53(val, _values)
+  private def _ibex_action_53(val, _values)
     result = val[0]
      result = [val[0], val[1]]
     result
   end
 
-  def _ibex_action_54(val, _values)
+  private def _ibex_action_54(val, _values)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  def _ibex_action_55(val, _values)
+  private def _ibex_action_55(val, _values)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  def _ibex_action_56(val, _values)
+  private def _ibex_action_56(val, _values)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  def _ibex_action_57(val, _values)
+  private def _ibex_action_57(val, _values)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  def _ibex_action_58(val, _values)
+  private def _ibex_action_58(val, _values)
     result = val[0]
      result = build_group(val[0], val[1], val[3])
     result
   end
 
-  def _ibex_action_59(val, _values)
+  private def _ibex_action_59(val, _values)
     result = val[0]
      result = [val[0]]
     result
   end
 
-  def _ibex_action_60(val, _values)
+  private def _ibex_action_60(val, _values)
     result = val[0]
      result = val[0] + [val[2]]
     result
   end
 
-  def _ibex_action_61(val, _values)
+  private def _ibex_action_61(val, _values)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  def _ibex_action_62(val, _values)
+  private def _ibex_action_62(val, _values)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  def _ibex_action_63(val, _values)
+  private def _ibex_action_63(val, _values)
     result = val[0]
      result = val[0]
     result
   end
 
-  def _ibex_action_64(val, _values)
+  private def _ibex_action_64(val, _values)
     result = val[0]
      result = val[0]
     result
   end
 
-  def _ibex_action_65(val, _values)
+  private def _ibex_action_65(val, _values)
     result = val[0]
      result = val[0]
     result
   end
 
-  def _ibex_action_66(val, _values)
+  private def _ibex_action_66(val, _values)
     result = val[0]
      result = build_separated_list(val[0], val[2], val[4])
     result
   end
 
-  def _ibex_action_67(val, _values)
+  private def _ibex_action_67(val, _values)
     result = val[0]
      result = build_separated_list(val[0], val[2], val[4])
     result
   end
 
-  def _ibex_action_68(val, _values)
+  private def _ibex_action_68(val, _values)
     result = val[0]
      result = empty_user_code
     result
   end
 
-  def _ibex_action_69(val, _values)
+  private def _ibex_action_69(val, _values)
     result = val[0]
      result = append_user_code(val[0], val[1])
     result
   end
 
-  private :_ibex_action_0, :_ibex_action_1, :_ibex_action_2, :_ibex_action_3, :_ibex_action_4, :_ibex_action_5, :_ibex_action_6, :_ibex_action_7, :_ibex_action_8, :_ibex_action_9, :_ibex_action_10, :_ibex_action_11, :_ibex_action_12, :_ibex_action_13, :_ibex_action_14, :_ibex_action_15, :_ibex_action_16, :_ibex_action_17, :_ibex_action_18, :_ibex_action_19, :_ibex_action_20, :_ibex_action_21, :_ibex_action_22, :_ibex_action_23, :_ibex_action_24, :_ibex_action_25, :_ibex_action_26, :_ibex_action_27, :_ibex_action_28, :_ibex_action_29, :_ibex_action_30, :_ibex_action_31, :_ibex_action_32, :_ibex_action_33, :_ibex_action_34, :_ibex_action_35, :_ibex_action_36, :_ibex_action_37, :_ibex_action_40, :_ibex_action_41, :_ibex_action_42, :_ibex_action_43, :_ibex_action_44, :_ibex_action_45, :_ibex_action_46, :_ibex_action_47, :_ibex_action_48, :_ibex_action_49, :_ibex_action_50, :_ibex_action_51, :_ibex_action_52, :_ibex_action_53, :_ibex_action_54, :_ibex_action_55, :_ibex_action_56, :_ibex_action_57, :_ibex_action_58, :_ibex_action_59, :_ibex_action_60, :_ibex_action_61, :_ibex_action_62, :_ibex_action_63, :_ibex_action_64, :_ibex_action_65, :_ibex_action_66, :_ibex_action_67, :_ibex_action_68, :_ibex_action_69
 end
 end
 end

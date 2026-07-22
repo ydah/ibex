@@ -13,6 +13,7 @@ class FrontendSelfHostTest < Minitest::Test
     File.expand_path("../fixtures/grammar/#{name}", __dir__)
   end.freeze
   GENERATED = File.expand_path("../../lib/ibex/frontend/generated_parser.rb", __dir__)
+  GENERATED_SIGNATURE = File.expand_path("../../sig/ibex/frontend/generated_parser.rbs", __dir__)
   ROOT = File.expand_path("../..", __dir__)
   MALFORMED_GRAMMARS = [
     ["class P\ntoken X\n", :racc],
@@ -173,6 +174,21 @@ class FrontendSelfHostTest < Minitest::Test
 
   def test_committed_parser_matches_deterministic_regeneration
     assert_equal File.binread(GENERATED), Ibex::Frontend::Regenerator.generate
+  end
+
+  def test_self_hosted_action_methods_are_private_in_runtime_and_rbs
+    pattern = /\A_ibex_action_\d+\z/
+    runtime_private = Ibex::Frontend::GeneratedParser.private_instance_methods(false).grep(pattern).map(&:to_s).sort
+    runtime_public = Ibex::Frontend::GeneratedParser.public_instance_methods(false).grep(pattern)
+    signature = File.read(GENERATED_SIGNATURE)
+    rbs_private = signature.scan(/^\s+private def (_ibex_action_\d+):/).flatten.sort
+    rbs_public = signature.scan(/^\s+def (_ibex_action_\d+):/).flatten
+
+    assert_equal 68, runtime_private.length
+    assert_empty runtime_public
+    assert_equal runtime_private, rbs_private
+    assert_empty rbs_public
+    assert_respond_to Ibex::Frontend::GeneratedParser, :parser_tables
   end
 
   private
