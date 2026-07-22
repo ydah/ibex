@@ -2,8 +2,10 @@
 
 require_relative "../test_helper"
 require "ibex/frontend/regenerator"
+require "fileutils"
 require "open3"
 require "rbconfig"
+require "tmpdir"
 
 class FrontendSelfHostTest < Minitest::Test
   FIXTURE = File.expand_path("../fixtures/grammar/comprehensive.y", __dir__)
@@ -11,6 +13,7 @@ class FrontendSelfHostTest < Minitest::Test
     File.expand_path("../fixtures/grammar/#{name}", __dir__)
   end.freeze
   GENERATED = File.expand_path("../../lib/ibex/frontend/generated_parser.rb", __dir__)
+  ROOT = File.expand_path("../..", __dir__)
 
   def test_public_parser_uses_generated_implementation
     parser = Ibex::Frontend::Parser.new("class P\nrule\ns: X\nend\n")
@@ -28,6 +31,23 @@ class FrontendSelfHostTest < Minitest::Test
     _stdout, stderr, status = Open3.capture3(RbConfig.ruby, "-Ilib", "-e", script)
 
     assert status.success?, stderr
+  end
+
+  def test_regenerator_does_not_load_or_depend_on_generated_parser
+    Dir.mktmpdir("ibex-bootstrap") do |directory|
+      FileUtils.cp_r(File.join(ROOT, "lib"), directory)
+      FileUtils.rm(File.join(directory, "lib/ibex/frontend/generated_parser.rb"))
+      script = <<~RUBY
+        require "ibex/frontend/regenerator"
+        abort "generated parser loaded" if defined?(Ibex::Frontend::GeneratedParser)
+        STDOUT.binmode
+        STDOUT.write(Ibex::Frontend::Regenerator.generate)
+      RUBY
+      stdout, stderr, status = Open3.capture3(RbConfig.ruby, "-Ilib", "-e", script, chdir: directory)
+
+      assert status.success?, stderr
+      assert_equal File.binread(GENERATED), stdout
+    end
   end
 
   def test_adapter_preserves_original_token_and_location

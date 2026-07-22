@@ -2,6 +2,7 @@
 # rbs_inline: enabled
 
 require_relative "ibex/version"
+require_relative "ibex/error"
 require_relative "ibex/tables"
 require_relative "ibex/runtime"
 require_relative "ibex/frontend"
@@ -17,7 +18,5 @@ require_relative "ibex/codegen/html"
 
 # Ibex generates and runs Pure Ruby LR parsers.
 module Ibex
-  class Error < StandardError; end
-
   ParseError = Runtime::ParseError #: singleton(Runtime::ParseError)
 end
