@@ -36,9 +36,9 @@ module Ibex
         if @adapter.group_opening && token&.type == :action
           fail_at(token.location, "actions inside EBNF groups are not supported")
         end
-        if @adapter.group_opening && (token.nil? || token.type == :eof || token.value == "end")
-          fail_at(@adapter.group_opening.location, "unterminated EBNF group")
-        end
+        group_unterminated = @adapter.open_delimiter_kind == :group &&
+                             (token.nil? || token.type == :eof || token.value == "end")
+        fail_at(@adapter.group_opening.location, "unterminated EBNF group") if group_unterminated
         return unless @adapter.declaration == :convert && @adapter.conversion_name
 
         fail_at(@adapter.conversion_name.location, "expected a quoted Ruby conversion expression")
@@ -47,7 +47,14 @@ module Ibex
       def expected_description(token)
         declaration = declaration_expectation(token)
         return declaration if declaration
+        return ")" if @adapter.open_delimiter_kind == :separated
+
+        structural_expectation(token)
+      end
+
+      def structural_expectation(token)
         return ":" if @adapter.previous_external == :LHS
+        return "a declaration or rule" if @adapter.state == :declaration && token&.type != :eof
         return "rule" if @adapter.section == :declarations
         return "at least one rule" if @adapter.section == :user_code && token&.value == "end"
         return "end" if @adapter.section == :rules && @adapter.eof_token
@@ -136,7 +143,11 @@ module Ibex
       end
 
       def build_symbol_reference(token, named_reference, suffixes)
-        extended_only!(token.location, "named references") if named_reference
+        if named_reference
+          colon, name = named_reference
+          extended_only!(colon.location, "named references")
+          named_reference = name.value
+        end
         item = AST::SymbolReference.new(name: token.value, named_reference: named_reference, loc: token.location)
         apply_suffixes(item, suffixes)
       end

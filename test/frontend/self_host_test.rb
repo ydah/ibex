@@ -33,6 +33,17 @@ class FrontendSelfHostTest < Minitest::Test
     assert status.success?, stderr
   end
 
+  def test_frontend_can_be_required_standalone
+    script = <<~'RUBY'
+      require "ibex/frontend"
+      ast = Ibex::Frontend::Parser.new("class P\nrule\ns: X\nend\n").parse
+      abort "parse failed" unless ast.class_name == "P"
+    RUBY
+    _stdout, stderr, status = Open3.capture3(RbConfig.ruby, "-Ilib", "-e", script)
+
+    assert status.success?, stderr
+  end
+
   def test_regenerator_does_not_load_or_depend_on_generated_parser
     Dir.mktmpdir("ibex-bootstrap") do |directory|
       FileUtils.cp_r(File.join(ROOT, "lib"), directory)
@@ -75,6 +86,34 @@ class FrontendSelfHostTest < Minitest::Test
     end
   end
 
+  def test_contextual_keywords_match_bootstrap
+    grammars = [
+      "class class::start < rule::convert\nrule\nleft: X\nend\n",
+      "class P\nprechigh\nleft token start rule convert end\npreclow\nrule\ns: X\nend\n",
+      "class P\nconvert\ntoken 'x'\nstart 'y'\nrule 'z'\nend\nrule\nconvert: X\nend\n",
+      "class P\nrule\nstart: X\nrule: Y\nconvert: Z\nend\n"
+    ]
+    %w[token start rule convert end].each do |target|
+      grammars << "class P\nstart #{target}\nrule\ns: X\nend\n"
+    end
+
+    grammars.each { |source| assert_equal bootstrap(source).to_h, generated(source).to_h }
+  end
+
+  def test_semicolon_resets_indentation_sensitive_rule_boundary
+    source = "class P\nrule\nbase: A ;\n    deeper: B\nend\n"
+
+    assert_equal bootstrap(source).to_h, generated(source).to_h
+    assert_equal %w[base deeper], generated(source).rules.map(&:lhs)
+  end
+
+  def test_invalid_mode_is_rejected_before_malformed_source_is_lexed
+    bootstrap_error = assert_raises(ArgumentError) { bootstrap("{", mode: :invalid) }
+    generated_error = assert_raises(ArgumentError) { generated("{", mode: :invalid) }
+
+    assert_equal bootstrap_error.message, generated_error.message
+  end
+
   def test_generated_parser_matches_bootstrap_errors
     malformed = [
       ["class P\ntoken X\n", :racc],
@@ -86,7 +125,12 @@ class FrontendSelfHostTest < Minitest::Test
       ["class P\nrule\ns: ITEM*\nend\n", :racc],
       ["class P\nrule\ns: (A { x })\nend\n", :extended],
       ["class P\nrule\ns: (A\nend\n", :extended],
+      ["class P\nrule\ns: (separated_list(A, B) { x })\nend\n", :extended],
+      ["class P\nrule\ns: (separated_list(A, B\nend\n", :extended],
+      ["class P\nrule\ns: (separated_list(A, B)\nend\n", :extended],
       ["class P\nrule\ns A\nend\n", :racc],
+      ["class P\nrule\ns: ITEM:name\nend\n", :racc],
+      ["class P\nend\n", :racc],
       ["class P\nconvert\nX abc\nend\nrule\ns: X\nend\n", :racc],
       ["class P\nconvert\nX 'one' 'two'\nend\nrule\ns: X\nend\n", :racc]
     ]

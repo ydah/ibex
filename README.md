@@ -145,7 +145,8 @@ bundle exec ruby -Itest test/frontend/self_host_test.rb
 ```
 
 Normal library and CLI execution use the generated parser. The handwritten `BootstrapParser` is loaded only by this regeneration
-workflow; the byte-comparison and AST/error parity tests prevent generated-source drift.
+workflow, whose direct dependency graph also works when the generated file is absent. Byte-comparison and AST/error parity tests
+prevent generated-source drift.
 
 Runtime signatures are generated from rbs-inline annotations and checked with Steep. To reproduce the type-checking CI job:
 

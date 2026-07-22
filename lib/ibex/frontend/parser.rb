@@ -7,6 +7,8 @@ module Ibex
       attr_reader :implementation
 
       def initialize(source, file: "(grammar)", mode: :racc)
+        raise ArgumentError, "mode must be :racc or :extended" unless %i[racc extended].include?(mode)
+
         tokens = source.is_a?(Array) ? source : Lexer.new(source, file: file).tokenize
         @implementation = GeneratedParser.new(tokens, mode: mode)
       end

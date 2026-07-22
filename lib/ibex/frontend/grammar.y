@@ -115,7 +115,7 @@ rule
 
   named_reference
     :                                    { result = nil }
-    | ':' IDENTIFIER                     { result = val[1].value }
+    | ':' IDENTIFIER                     { result = [val[0], val[1]] }
 
   suffixes
     :                                    { result = [] }
