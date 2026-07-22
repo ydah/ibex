@@ -26,13 +26,39 @@ module Ibex
         end
         state.gotos.each { |symbol_id, target| lines << "  goto #{grammar.symbol_by_id(symbol_id).name}: #{target}" }
         state.conflicts.each { |conflict| lines << "  conflict: #{conflict.inspect}" }
-        examples.each do |example|
-          lines << "  witness: #{example[:sentence].join(' ')}"
-          example[:interpretations].each { |item| lines << "    #{item.inspect}" }
-        end
+        examples.each { |example| append_counterexample(lines, example) }
         lines << ""
       end
       private_class_method :append_state
+
+      def append_counterexample(lines, example)
+        label = example[:unifying] ? "unifying counterexample" : "nonunifying witness"
+        sentence = example[:sentence].dup.insert(example[:lookahead_index], "•").join(" ")
+        lines << "  #{label}: #{sentence}"
+        example[:interpretations].each do |interpretation|
+          lines << "    #{interpretation[:kind]} derivation:"
+          append_tree(lines, interpretation[:tree], "      ")
+        end
+      end
+      private_class_method :append_counterexample
+
+      def append_tree(lines, tree, indentation)
+        unless tree.is_a?(Hash)
+          lines << "#{indentation}#{tree}"
+          return
+        end
+
+        symbol = tree[:symbol] || tree[:token]
+        unless tree[:children]
+          lines << "#{indentation}#{symbol}"
+          return
+        end
+
+        production = tree[:production] ? " (production #{tree[:production]})" : ""
+        lines << "#{indentation}#{symbol}#{production}"
+        tree[:children].each { |child| append_tree(lines, child, "#{indentation}  ") }
+      end
+      private_class_method :append_tree
 
       def format_item(item, grammar)
         if item.production == LALR::Builder::AUGMENTED_PRODUCTION

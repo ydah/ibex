@@ -19,12 +19,25 @@ module Ibex
       private
 
       def build_example(state, conflict)
+        unifying = ConflictSearch.new(@automaton, state, conflict).call
+        return unifying_example(state, conflict, unifying) if unifying
+
+        reachability_example(state, conflict)
+      end
+
+      def unifying_example(state, conflict, result)
+        { state: state.id, type: conflict[:type], symbol_path: [],
+          sentence: names(result[:sentence_ids]), lookahead_index: result[:lookahead_index], unifying: true,
+          interpretations: result[:interpretations] }
+      end
+
+      def reachability_example(state, conflict)
         path = shortest_state_path(state.id)
         lookahead = @grammar.symbol(conflict[:symbol])
         terminal_ids = path.flat_map { |symbol_id| @shortest_yields[symbol_id] || [] }
         terminal_ids << lookahead.id if lookahead
         { state: state.id, type: conflict[:type], symbol_path: names(path), sentence: names(terminal_ids),
-          interpretations: interpretations(conflict) }
+          lookahead_index: terminal_ids.length - 1, unifying: false, interpretations: interpretations(conflict) }
       end
 
       def shortest_state_path(target)

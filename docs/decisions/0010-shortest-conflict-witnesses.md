@@ -1,6 +1,6 @@
 # 0010: Shortest conflict witnesses
 
-- Status: Accepted
+- Status: Superseded by 0011
 - Date: 2026-07-22
 
 ## Context

@@ -22,10 +22,15 @@ class CounterexampleTest < Minitest::Test
     GRAMMAR
     example = Ibex::LALR::Counterexample.new(automaton).all.first
     assert_equal :shift_reduce, example[:type]
-    assert_equal "ELSE", example[:sentence].last
+    assert example[:unifying]
+    assert_equal %w[IF ID THEN IF ID THEN ID ELSE ID], example[:sentence]
+    assert_equal "ELSE", example[:sentence][example[:lookahead_index]]
     kinds = example[:interpretations].map { |item| item[:kind] }
     assert_equal %i[shift reduce], kinds
-    assert example[:interpretations].last[:tree][:children].any?
+    trees = example[:interpretations].map { |item| item[:tree] }
+    tree_symbols = trees.map { |tree| tree[:symbol] }
+    assert_equal %w[stmt stmt], tree_symbols
+    refute_equal trees.first, trees.last
   end
 
   def test_reduce_reduce_witness_has_two_derivation_trees
@@ -39,14 +44,35 @@ class CounterexampleTest < Minitest::Test
     GRAMMAR
     example = Ibex::LALR::Counterexample.new(automaton).all.first
     assert_equal :reduce_reduce, example[:type]
+    assert example[:unifying]
+    assert_equal ["TOKEN"], example[:sentence]
     assert_equal 2, example[:interpretations].length
-    symbols = example[:interpretations].map { |item| item[:tree][:symbol] }
-    assert_equal %w[first second], symbols
+    productions = example[:interpretations].map { |item| item[:production] }
+    assert_equal [2, 3], productions
   end
 
-  def test_report_includes_shortest_witness
+  def test_falls_back_for_a_nonunifying_lalr_conflict
+    automaton = build(<<~GRAMMAR)
+      class P
+      rule
+      start: first 'a' 'd'
+           | second 'b' 'd'
+           | first 'b' 'e'
+           | second 'a' 'e'
+      first: 'c'
+      second: 'c'
+      end
+    GRAMMAR
+    examples = Ibex::LALR::Counterexample.new(automaton).all
+    assert examples.any?
+    refute examples.first[:unifying]
+  end
+
+  def test_report_includes_unifying_counterexample_and_derivations
     automaton = build("class P\nexpect 1\nrule\nstart: start start | TOKEN\nend\n")
     report = Ibex::Codegen::Report.render(automaton)
-    assert_includes report, "witness:"
+    assert_includes report, "unifying counterexample:"
+    assert_includes report, "shift derivation:"
+    assert_includes report, "reduce derivation:"
   end
 end

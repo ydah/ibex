@@ -2,10 +2,14 @@
 
 ## E3: conflict witnesses
 
-`Ibex::LALR::Counterexample` accepts only Automaton IR. It breadth-first searches transitions from state 0, expands nonterminal
-edges to their fixed-point shortest terminal yields, appends the conflict lookahead, and reports both competing actions. Reduce
-interpretations contain one-step derivation trees. These are deterministic reachability witnesses, not guaranteed fully unifying
-counterexamples.
+`Ibex::LALR::Counterexample` accepts only Automaton IR. It explores parser-stack configurations, forces each pair of competing
+actions at the requested conflict, and then searches for a common suffix that lets both branches accept the same terminal
+sentence. A successful result contains `unifying: true`, the conflict lookahead position, and both complete derivation trees.
+
+Because unifying-counterexample search is not guaranteed to terminate for every context-free grammar, the search has explicit
+token and configuration budgets. If no common sentence is found within those budgets, the result is marked `unifying: false`
+and contains the deterministic shortest reachability witness. This distinction prevents a nonunifying diagnostic from being
+presented as proof of ambiguity.
 
 ## E7: Ruby DSL
 
