@@ -1,0 +1,50 @@
+# Generated from lib/ibex/codegen/ruby.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Generates a standalone Ruby parser class from Automaton IR.
+    class Ruby
+      def initialize: (untyped automaton, ?table: untyped, ?embedded: untyped, ?line_convert: untyped, ?debug: untyped, ?omit_action_call: untyped, ?superclass: untyped, ?executable: untyped) -> untyped
+
+      def generate: () -> untyped
+
+      private
+
+      def append_runtime: (untyped lines) -> untyped
+
+      def embedded_source: (untyped relative_path) -> untyped
+
+      def append_tables: (untyped lines) -> untyped
+
+      def table_literal: (untyped table) -> untyped
+
+      def token_ids_literal: () -> untyped
+
+      def external_token_expression: (untyped terminal) -> untyped
+
+      def token_names_literal: () -> untyped
+
+      def productions_literal: () -> untyped
+
+      def append_actions: (untyped lines) -> untyped
+
+      def append_action_constant: (untyped lines, untyped production) -> untyped
+
+      def append_action_method: (untyped lines, untyped production) -> untyped
+
+      def append_named_bindings: (untyped lines, untyped action) -> untyped
+
+      def append_semantic_code: (untyped lines, untyped production) -> untyped
+
+      def private_actions: (untyped lines) -> untyped
+
+      def action_method?: (untyped production) -> untyped
+
+      def append_user_code: (untyped lines, untyped name, ?indent: untyped) -> untyped
+
+      def class_parts: () -> untyped
+
+      def grammar_digest_comment: () -> untyped
+    end
+  end
+end

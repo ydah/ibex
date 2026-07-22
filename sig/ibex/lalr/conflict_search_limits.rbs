@@ -1,0 +1,24 @@
+# Generated from lib/ibex/lalr/conflict_search_limits.rb with RBS::Inline
+
+module Ibex
+  module LALR
+    # Validates search limits and measures sentences against the token budget.
+    module ConflictSearchLimits
+      DEFAULT_MAX_TOKENS: ::Integer
+
+      DEFAULT_MAX_CONFIGURATIONS: ::Integer
+
+      def self.validate!: (max_tokens: untyped, max_configurations: untyped) -> untyped
+
+      def self.validate_limit!: (untyped name, untyped value) -> untyped
+
+      private
+
+      def within_token_budget?: (untyped prefix, untyped suffix) -> untyped
+
+      def room_for_token?: (untyped prefix, untyped suffix) -> untyped
+
+      def conflict_lookahead_length: () -> untyped
+    end
+  end
+end

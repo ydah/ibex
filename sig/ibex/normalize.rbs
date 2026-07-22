@@ -1,0 +1,44 @@
+# Generated from lib/ibex/normalize.rb with RBS::Inline
+
+module Ibex
+  # Converts a frontend AST into immutable Grammar IR.
+  class Normalizer
+    include NormalizeDeclarations
+
+    include NormalizeExpander
+
+    include NormalizeDiagnostics
+
+    RESERVED_NAMES: untyped
+
+    def initialize: (untyped ast, ?mode: untyped) -> untyped
+
+    def normalize: () -> untyped
+
+    private
+
+    def intern_reserved_symbols: () -> untyped
+
+    def intern_declared_terminals: () -> untyped
+
+    def intern_user_nonterminals: () -> untyped
+
+    def intern: (untyped name, untyped kind, ?reserved: untyped, ?location: untyped) -> untyped
+
+    def symbol: (untyped name) -> untyped
+
+    def symbol_for_reference: (untyped reference) -> untyped
+
+    def nonterminal_name?: (untyped name) -> untyped
+
+    def undefined_nonterminal: (untyped reference) -> untyped
+
+    def warn_undeclared_terminal: (untyped reference) -> untyped
+
+    def normalized_user_code: () -> untyped
+
+    def fail_at: (untyped location, untyped message) -> untyped
+
+    def fail_hash: (untyped location, untyped message) -> untyped
+  end
+end

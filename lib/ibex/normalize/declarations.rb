@@ -6,16 +6,18 @@ module Ibex
     private
 
     def read_declarations
-      @declared_tokens = {}
-      @precedence = {}
-      @precedence_locations = {}
+      # @type self: Normalizer
+      @declared_tokens = {} #: Hash[untyped, untyped]
+      @precedence = {} #: Hash[untyped, untyped]
+      @precedence_locations = {} #: Hash[untyped, untyped]
       @options = { result_var: true, omit_action_call: true }
       @expected_conflicts = 0
-      @conversions = {}
+      @conversions = {} #: Hash[untyped, untyped]
       @ast.declarations.each { |declaration| read_declaration(declaration) }
     end
 
     def read_declaration(declaration)
+      # @type self: Normalizer
       case declaration
       when Frontend::AST::Tokens then declaration.names.each { |name| @declared_tokens[name] = declaration.loc.to_h }
       when Frontend::AST::Precedence then read_precedence(declaration)
@@ -29,6 +31,7 @@ module Ibex
     end
 
     def read_precedence(declaration)
+      # @type self: Normalizer
       count = declaration.levels.length
       declaration.levels.each_with_index do |level, index|
         numeric_level = declaration.direction == :high_to_low ? count - index : index + 1
@@ -40,6 +43,7 @@ module Ibex
     end
 
     def read_option(name, location)
+      # @type self: Normalizer
       case name
       when "no_result_var" then @options[:result_var] = false
       when "result_var" then @options[:result_var] = true

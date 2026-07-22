@@ -8,7 +8,7 @@ module Ibex
         attr_reader :group_opening, :open_kind
 
         def initialize
-          @stack = []
+          @stack = [] #: Array[untyped]
         end
 
         def empty?

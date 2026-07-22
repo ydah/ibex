@@ -1,0 +1,28 @@
+# Generated from lib/ibex/ir/serialize.rb with RBS::Inline
+
+module Ibex
+  module IR
+    # Stable JSON serialization for versioned pipeline IR.
+    module Serialize
+      def self?.dump: (untyped value) -> untyped
+
+      def self?.load: (untyped source) -> untyped
+
+      def self?.validate_version: (untyped data) -> untyped
+
+      def self?.load_grammar: (untyped data) -> untyped
+
+      def self?.load_automaton: (untyped data) -> untyped
+
+      def self?.load_state: (untyped state, untyped grammar) -> untyped
+
+      def self?.symbol_keyed: (untyped values, untyped grammar, ?actions: untyped) -> untyped
+
+      def self?.normalize_action: (untyped value) -> untyped
+
+      def self?.load_production: (untyped production) -> untyped
+
+      def self?.symbolize: (untyped value) -> untyped
+    end
+  end
+end

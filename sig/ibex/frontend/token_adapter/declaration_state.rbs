@@ -1,0 +1,68 @@
+# Generated from lib/ibex/frontend/token_adapter/declaration_state.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    class TokenAdapter
+      # Classifies tokens through the class header and declaration section.
+      class DeclarationState
+        DECLARATIONS: untyped
+
+        ASSOCIATIONS: untyped
+
+        SCALAR_TYPES: untyped
+
+        EXPECTATIONS: untyped
+
+        attr_reader conversion_name: untyped
+
+        attr_reader declaration: untyped
+
+        attr_reader precedence_closer: untyped
+
+        attr_reader state: untyped
+
+        def initialize: () -> untyped
+
+        def classify: (untyped token, untyped remaining) -> untyped
+
+        def rules?: () -> untyped
+
+        def expectation: (untyped token) -> untyped
+
+        private
+
+        def classify_identifier: (untyped token, untyped remaining) -> untyped
+
+        def class_keyword: (untyped token) -> untyped
+
+        def constant_name: (untyped remaining) -> untyped
+
+        def begin_declaration: (untyped token) -> untyped
+
+        def begin_precedence: (untyped token) -> untyped
+
+        def declaration_symbol: (untyped token) -> untyped
+
+        def declaration_boundary?: (untyped value) -> untyped
+
+        def precedence_identifier: (untyped token) -> untyped
+
+        def finish_precedence: (untyped token) -> untyped
+
+        def begin_conversion: (untyped token, untyped type, untyped remaining) -> untyped
+
+        def classify_scalar: (untyped token, untyped remaining) -> untyped
+
+        def finish_single_symbol: (untyped type) -> untyped
+
+        def finish_conversion: (untyped type) -> untyped
+
+        def classify_punctuation: (untyped token) -> untyped
+
+        def validate_conversion_line: (untyped name, untyped remaining) -> untyped
+
+        def precedence_expectation: (untyped token) -> untyped
+      end
+    end
+  end
+end

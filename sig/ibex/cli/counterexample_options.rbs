@@ -1,0 +1,14 @@
+# Generated from lib/ibex/cli/counterexample_options.rb with RBS::Inline
+
+module Ibex
+  # Counterexample report limits and their command-line validation.
+  module CLICounterexampleOptions
+    DEFAULTS: untyped
+
+    private
+
+    def add_counterexample_options: (untyped options) -> untyped
+
+    def positive_counterexample_limit: (untyped value, untyped option) -> untyped
+  end
+end

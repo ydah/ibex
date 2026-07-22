@@ -1,0 +1,70 @@
+# Generated from lib/ibex/frontend/dsl.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Builds the same Grammar AST as the text frontend through a Ruby API.
+    module DSL
+      # @rbs (class_name: untyped, ?superclass: untyped, ?file: untyped) { (Builder) -> void } -> untyped
+      def self?.grammar: (class_name: untyped, ?superclass: untyped, ?file: untyped) { (Builder) -> void } -> untyped
+
+      # Mutable definition context whose output is an immutable-shape AST.
+      class Builder
+        def initialize: (class_name: untyped, superclass: untyped, file: untyped) -> untyped
+
+        def token: (*untyped names) -> untyped
+
+        def options: (*untyped names) -> untyped
+
+        def expect: (untyped conflicts) -> untyped
+
+        def start: (untyped name) -> untyped
+
+        def convert: (untyped name, untyped expression) -> untyped
+
+        # @rbs (?direction: untyped) { (PrecedenceBuilder) -> void } -> untyped
+        def precedence: (?direction: untyped) { (PrecedenceBuilder) -> void } -> untyped
+
+        # @rbs (untyped lhs) { (RuleBuilder) -> void } -> untyped
+        def rule: (untyped lhs) { (RuleBuilder) -> void } -> untyped
+
+        def user_code: (untyped name, untyped code) -> untyped
+
+        def ref: (untyped name, ?as: untyped) -> untyped
+
+        def optional: (untyped item) -> untyped
+
+        def star: (untyped item) -> untyped
+
+        def plus: (untyped item) -> untyped
+
+        def group: (*untyped alternatives) -> untyped
+
+        def separated_list: (untyped item, untyped separator, ?nonempty: untyped) -> untyped
+
+        def inline: (untyped code) -> untyped
+
+        def to_ast: () -> untyped
+
+        def normalize_item: (untyped item) -> untyped
+
+        def next_location: () -> untyped
+      end
+
+      # Collects ordered associativity levels.
+      class PrecedenceBuilder
+        attr_reader levels: untyped
+
+        def initialize: (untyped grammar) -> untyped
+      end
+
+      # Collects alternatives for one nonterminal.
+      class RuleBuilder
+        attr_reader alternatives: untyped
+
+        def initialize: (untyped grammar, untyped default_location) -> untyped
+
+        def alt: (*untyped items, ?action: untyped, ?precedence: untyped) -> untyped
+      end
+    end
+  end
+end

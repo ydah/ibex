@@ -28,7 +28,7 @@ module Ibex
       def call
         return unless @lookahead
 
-        queue = [[configuration([0], []), []]]
+        queue = [[configuration([0], Array.new(0)), Array.new(0)]] #: Array[untyped]
         visited = { [0] => true }
         until queue.empty? || exhausted?
           current, prefix = queue.shift
@@ -80,7 +80,7 @@ module Ibex
         return accepted_result(prefix, [], left, right, left_action, right_action) if accepted_pair?(left, right)
         return unless shifted_pair?(left, right)
 
-        queue = [[left.last, right.last, []]]
+        queue = [[left.last, right.last, Array.new(0)]] #: Array[untyped]
         visited = { pair_key(left.last, right.last) => true }
         until queue.empty? || exhausted?
           left_config, right_config, suffix = queue.shift
@@ -157,8 +157,8 @@ module Ibex
 
       def advance(initial, token_id, forced_action: nil, stop_at: nil, branch_conflicts: false)
         queue = [[initial, forced_action]]
-        visited = {}
-        results = []
+        visited = {} #: Hash[untyped, untyped]
+        results = [] #: Array[untyped]
         until queue.empty? || exhausted?
           current, forced = queue.shift
           if stop_at == current.states.last

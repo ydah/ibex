@@ -43,7 +43,7 @@ module Ibex
 
       def canonical_collection
         states = [closure(Set[[AUGMENTED_PRODUCTION, 0, 0]])]
-        transitions = []
+        transitions = [] #: Array[untyped]
         indexes = { item_key(states.first) => 0 }
         cursor = 0
         while cursor < states.length
@@ -72,7 +72,7 @@ module Ibex
           next unless grammar_symbol&.nonterminal?
 
           lookaheads = suffix_lookaheads(rhs[(dot + 1)..], lookahead)
-          @productions_by_lhs.fetch(grammar_symbol.id, []).each do |production|
+          @productions_by_lhs.fetch(grammar_symbol.id, Array.new(0)).each do |production|
             lookaheads.each { |token_id| enqueue_item(items, queue, [production.id, 0, token_id]) }
           end
         end
@@ -104,16 +104,20 @@ module Ibex
       end
 
       def merge_lalr(states, transitions)
-        groups = {}
+        groups = {} #: Hash[untyped, untyped]
         state_groups = states.map do |items|
           core = core_key(items)
           groups[core] ||= groups.length
         end
-        merged = Array.new(groups.length) { Hash.new { |hash, key| hash[key] = Set.new } }
+        merged = Array.new(groups.length) do
+          Hash.new { |hash, key| hash[key] = Set.new } #: Hash[untyped, Set[untyped]]
+        end
         states.each_with_index do |items, state_id|
           items.each { |production, dot, lookahead| merged[state_groups[state_id]][[production, dot]] << lookahead }
         end
-        merged_transitions = Array.new(groups.length) { {} }
+        merged_transitions = Array.new(groups.length) do
+          {} #: Hash[untyped, untyped]
+        end
         transitions.each_with_index do |edges, state_id|
           edges.each { |symbol, target| merged_transitions[state_groups[state_id]][symbol] = state_groups[target] }
         end
@@ -130,7 +134,7 @@ module Ibex
 
       def pack_canonical_items(states)
         states.map do |items|
-          packed = Hash.new { |hash, key| hash[key] = Set.new }
+          packed = Hash.new { |hash, key| hash[key] = Set.new } #: Hash[untyped, Set[untyped]]
           items.each { |production, dot, lookahead| packed[[production, dot]] << lookahead }
           packed
         end
@@ -164,8 +168,8 @@ module Ibex
       end
 
       def build_state(state_id, items, transitions)
-        candidates = Hash.new { |hash, key| hash[key] = [] }
-        gotos = {}
+        candidates = Hash.new { |hash, key| hash[key] = Array.new(0) } #: Hash[untyped, Array[untyped]]
+        gotos = {} #: Hash[untyped, untyped]
         transitions.each do |symbol_id, target|
           grammar_symbol = @grammar.symbol_by_id(symbol_id)
           if grammar_symbol.terminal?
@@ -196,8 +200,8 @@ module Ibex
       end
 
       def resolve_actions(candidates)
-        actions = {}
-        conflicts = []
+        actions = {} #: Hash[untyped, untyped]
+        conflicts = [] #: Array[untyped]
         candidates.keys.sort.each do |token_id|
           action, found = @resolver.resolve(token_id, candidates[token_id])
           actions[token_id] = action

@@ -6,14 +6,16 @@ module Ibex
     private
 
     def normalize_user_productions
+      # @type self: Normalizer
       @ast.rules.each do |rule|
         rule.alternatives.each { |alternative| normalize_alternative(rule, alternative) }
       end
     end
 
     def normalize_alternative(rule, alternative)
-      rhs = []
-      named_refs = []
+      # @type self: Normalizer
+      rhs = [] #: Array[untyped]
+      named_refs = [] #: Array[untyped]
       alternative.items.each do |item|
         if item.is_a?(Frontend::AST::InlineAction)
           rhs << expand_inline_action(item, rhs.length, named_refs)
@@ -29,6 +31,7 @@ module Ibex
     end
 
     def normalize_item(item)
+      # @type self: Normalizer
       return symbol_for_reference(item).name if item.is_a?(Frontend::AST::SymbolReference)
       return expand_group(item) if item.is_a?(Frontend::AST::Group)
       return expand_optional(item) if item.is_a?(Frontend::AST::Optional)
@@ -40,6 +43,7 @@ module Ibex
     end
 
     def expand_inline_action(item, context_length, named_refs)
+      # @type self: Normalizer
       helper = new_helper("inline", item.loc)
       action = IR::Action.new(code: item.code, location: item.loc.to_h, named_refs: named_refs.map(&:dup),
                               context_length: context_length)
@@ -48,6 +52,7 @@ module Ibex
     end
 
     def expand_optional(item)
+      # @type self: Normalizer
       base = normalize_item(item.item)
       helper = new_helper("optional", item.loc)
       add_production(helper, [], synthetic_action("nil", item.loc), nil, synthetic_origin(:optional, item))
@@ -56,6 +61,7 @@ module Ibex
     end
 
     def expand_star(item)
+      # @type self: Normalizer
       base = normalize_item(item.item)
       helper = new_helper("star", item.loc)
       add_production(helper, [], synthetic_action("[]", item.loc), nil, synthetic_origin(:star, item))
@@ -65,6 +71,7 @@ module Ibex
     end
 
     def expand_plus(item)
+      # @type self: Normalizer
       base = normalize_item(item.item)
       helper = new_helper("plus", item.loc)
       add_production(helper, [base], synthetic_action("[val[0]]", item.loc), nil, synthetic_origin(:plus, item))
@@ -74,6 +81,7 @@ module Ibex
     end
 
     def expand_separated_list(item)
+      # @type self: Normalizer
       base = normalize_item(item.item)
       separator = normalize_item(item.separator)
       helper = new_helper("separated_list", item.loc)
@@ -88,6 +96,7 @@ module Ibex
     end
 
     def expand_group(item)
+      # @type self: Normalizer
       reject_group_named_references(item)
       helper = new_helper("group", item.loc)
       item.alternatives.each do |alternative|
@@ -99,6 +108,7 @@ module Ibex
     end
 
     def group_value_expression(length)
+      # @type self: Normalizer
       return "nil" if length.zero?
       return "val[0]" if length == 1
 
@@ -106,11 +116,13 @@ module Ibex
     end
 
     def reject_group_named_references(group)
+      # @type self: Normalizer
       reference = group.alternatives.flatten.filter_map { |item| named_reference_in(item) }.first
       fail_at(reference.loc, "named references inside EBNF groups are not supported") if reference
     end
 
     def named_reference_in(item)
+      # @type self: Normalizer
       return item if item.is_a?(Frontend::AST::SymbolReference) && item.named_reference
       if item.is_a?(Frontend::AST::Group)
         return item.alternatives.flatten.filter_map { |child| named_reference_in(child) }.first
@@ -121,6 +133,7 @@ module Ibex
     end
 
     def new_helper(kind, location)
+      # @type self: Normalizer
       @helper_sequence += 1
       name = "$#{kind}_#{@helper_sequence}"
       intern(name, :nonterminal, location: location.to_h)
@@ -128,21 +141,25 @@ module Ibex
     end
 
     def synthetic_action(expression, location)
+      # @type self: Normalizer
       code = @options[:result_var] ? " result = #{expression} " : " #{expression} "
       IR::Action.new(code: code, location: location.to_h)
     end
 
     def synthetic_origin(kind, item)
+      # @type self: Normalizer
       { kind: :"#{kind}_expansion", loc: item.loc.to_h }
     end
 
     def normalize_action(action, named_refs)
+      # @type self: Normalizer
       return nil unless action
 
       IR::Action.new(code: action.code, location: action.loc.to_h, named_refs: named_refs)
     end
 
     def add_named_reference(item, refs, index)
+      # @type self: Normalizer
       reference = unwrap_reference(item)
       return unless reference&.named_reference
 
@@ -153,6 +170,7 @@ module Ibex
     end
 
     def unwrap_reference(item)
+      # @type self: Normalizer
       return item if item.is_a?(Frontend::AST::SymbolReference)
       return unwrap_reference(item.item) if item.respond_to?(:item)
 
@@ -160,6 +178,7 @@ module Ibex
     end
 
     def add_production(lhs_name, rhs_names, action, precedence_name, origin)
+      # @type self: Normalizer
       lhs = symbol(lhs_name) || intern(lhs_name, :nonterminal, location: origin[:loc])
       rhs = rhs_names.map { |name| symbol(name)&.id || fail_hash(origin[:loc], "undefined symbol #{name}") }
       precedence = precedence_name && symbol(precedence_name)

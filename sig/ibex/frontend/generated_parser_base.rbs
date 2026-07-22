@@ -1,0 +1,66 @@
+# Generated from lib/ibex/frontend/generated_parser_base.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Semantic support and token delivery for the generated grammar parser.
+    class GeneratedParserBase < Runtime::Parser
+      def initialize: (untyped tokens, ?mode: untyped) -> untyped
+
+      def parse: () -> untyped
+
+      def next_token: () -> untyped
+
+      def on_error: (untyped _token_id, untyped value, untyped _value_stack) -> untyped
+
+      private
+
+      def raise_contextual_error: (untyped token) -> untyped
+
+      def expected_description: (untyped token) -> untyped
+
+      def structural_expectation: (untyped token) -> untyped
+
+      def build_root: (untyped class_token, untyped class_parts, untyped superclass, untyped declarations, untyped rules, untyped user_code) -> untyped
+
+      def build_tokens: (untyped keyword, untyped names) -> untyped
+
+      def build_precedence: (untyped keyword, untyped direction, untyped levels) -> untyped
+
+      def build_precedence_level: (untyped association, untyped symbols) -> untyped
+
+      def build_options: (untyped keyword, untyped names) -> untyped
+
+      def build_expect: (untyped keyword, untyped integer) -> untyped
+
+      def build_start: (untyped keyword, untyped name) -> untyped
+
+      def build_convert: (untyped keyword, untyped pairs) -> untyped
+
+      def build_conversion: (untyped name_token, untyped literal_token) -> untyped
+
+      def build_rule: (untyped lhs, untyped alternatives) -> untyped
+
+      def build_alternative: (untyped items, untyped precedence) -> untyped
+
+      def item_start_location: (untyped item) -> untyped
+
+      def build_symbol_reference: (untyped token, untyped named_reference, untyped suffixes) -> untyped
+
+      def build_action: (untyped token) -> untyped
+
+      def build_group: (untyped opening, untyped alternatives, untyped suffixes) -> untyped
+
+      def build_separated_list: (untyped function, untyped item, untyped separator) -> untyped
+
+      def apply_suffixes: (untyped item, untyped suffixes) -> untyped
+
+      def append_user_code: (untyped blocks, untyped token) -> untyped
+
+      def empty_user_code: () -> untyped
+
+      def extended_only!: (untyped location, untyped feature) -> untyped
+
+      def fail_at: (untyped location, untyped message) -> untyped
+    end
+  end
+end

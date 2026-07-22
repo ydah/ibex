@@ -1,0 +1,50 @@
+# Generated from lib/ibex/frontend/token_adapter/rule_state.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    class TokenAdapter
+      # Classifies context-dependent tokens in the grammar rule section.
+      class RuleState
+        SCALAR_TYPES: untyped
+
+        attr_reader section: untyped
+
+        attr_reader state: untyped
+
+        def initialize: () -> untyped
+
+        def classify: (untyped token, untyped remaining, last_external: untyped, previous_external: untyped) -> untyped
+
+        def group_opening: () -> untyped
+
+        def open_delimiter_kind: () -> untyped
+
+        def expectation: (untyped token) -> untyped
+
+        private
+
+        def classify_identifier: (untyped token, untyped remaining, untyped last_external, untyped previous_external) -> untyped
+
+        def rule_lhs: (untyped token) -> untyped
+
+        def named_reference_name?: (untyped last_external, untyped previous_external) -> untyped
+
+        def rule_boundary?: (untyped token, untyped following) -> untyped
+
+        def start_rule: (untyped token) -> untyped
+
+        def finish_rules: () -> untyped
+
+        def separated_list_call?: (untyped token, untyped following) -> untyped
+
+        def separated_terminal: (untyped token) -> untyped
+
+        def classify_punctuation: (untyped token) -> untyped
+
+        def reset_rule_boundary: () -> untyped
+
+        def rules_lhs_expectation: (untyped token) -> untyped
+      end
+    end
+  end
+end

@@ -1,0 +1,6 @@
+# Generated from lib/ibex/version.rb with RBS::Inline
+
+# Ibex generates and runs Pure Ruby LR parsers.
+module Ibex
+  VERSION: ::String
+end

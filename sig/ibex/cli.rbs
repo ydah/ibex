@@ -1,0 +1,66 @@
+# Generated from lib/ibex/cli.rb with RBS::Inline
+
+module Ibex
+  # Command-line pipeline coordinator.
+  class CLI
+    include CLICounterexampleOptions
+
+    include CLIOutputs
+
+    def self.start: (untyped arguments, ?stdout: untyped, ?stderr: untyped) -> untyped
+
+    def initialize: (stdout: untyped, stderr: untyped) -> untyped
+
+    def run: (untyped arguments) -> untyped
+
+    private
+
+    def option_parser: () -> untyped
+
+    def add_pipeline_options: (untyped options) -> untyped
+
+    def add_output_options: (untyped options) -> untyped
+
+    def add_compatibility_options: (untyped options) -> untyped
+
+    def add_information_options: (untyped options) -> untyped
+
+    def informational_result: (untyped parser) -> untyped
+
+    def input_path: (untyped remaining) -> untyped
+
+    def process_grammar: (untyped path) -> untyped
+
+    def process_ir: (untyped path) -> untyped
+
+    def dispatch_grammar: (untyped grammar, untyped path) -> untyped
+
+    def dispatch_automaton: (untyped automaton, untyped path) -> untyped
+
+    def print_version: () -> untyped
+
+    def print_help: (untyped parser) -> untyped
+
+    def print_copyright: () -> untyped
+
+    def emit_ast: (untyped ast) -> untyped
+
+    def emit_grammar: (untyped grammar) -> untyped
+
+    def emit_automaton: (untyped grammar, untyped input_path) -> untyped
+
+    def emit_ruby: (untyped grammar, untyped input_path) -> untyped
+
+    def generate_ruby: (untyped automaton, untyped input_path) -> untyped
+
+    def write_rbs: (untyped automaton, untyped output_path) -> untyped
+
+    def emit_loaded_automaton: (untyped automaton, untyped input_path) -> untyped
+
+    def build_automaton: (untyped grammar, untyped input_path) -> untyped
+
+    def prepare_loaded_automaton: (untyped automaton, untyped input_path) -> untyped
+
+    def write_visualizations: (untyped automaton) -> untyped
+  end
+end

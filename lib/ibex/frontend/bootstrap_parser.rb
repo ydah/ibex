@@ -90,7 +90,7 @@ module Ibex
       end
 
       def parse_user_code
-        blocks = Hash.new { |hash, key| hash[key] = [] }
+        blocks = Hash.new { |hash, key| hash[key] = Array.new(0) } #: Hash[untyped, Array[untyped]]
         while current.type == :user_code
           token = advance
           value = token.value

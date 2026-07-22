@@ -1,0 +1,66 @@
+# Generated from lib/ibex/ir/automaton_ir.rb with RBS::Inline
+
+module Ibex
+  module IR
+    # A merged LALR item with its lookahead token ids.
+    class AutomatonItem
+      attr_reader production: untyped
+
+      attr_reader dot: untyped
+
+      attr_reader lookaheads: untyped
+
+      def initialize: (production: untyped, dot: untyped, lookaheads: untyped) -> untyped
+
+      def to_h: (untyped grammar) -> untyped
+    end
+
+    # A deterministic LALR automaton state.
+    class AutomatonState
+      attr_reader id: untyped
+
+      attr_reader items: untyped
+
+      attr_reader transitions: untyped
+
+      attr_reader actions: untyped
+
+      attr_reader gotos: untyped
+
+      attr_reader default_action: untyped
+
+      attr_reader conflicts: untyped
+
+      def initialize: (id: untyped, items: untyped, transitions: untyped, actions: untyped, gotos: untyped, ?default_action: untyped, ?conflicts: untyped) -> untyped
+
+      def to_h: (untyped grammar) -> untyped
+
+      private
+
+      def named_keys: (untyped values, untyped grammar) -> untyped
+    end
+
+    # Immutable LALR automaton and its source grammar.
+    class Automaton
+      attr_reader algorithm: untyped
+
+      attr_reader grammar_digest: untyped
+
+      attr_reader grammar: untyped
+
+      attr_reader states: untyped
+
+      attr_reader conflict_summary: untyped
+
+      attr_reader schema_version: untyped
+
+      def initialize: (grammar: untyped, states: untyped, conflict_summary: untyped, ?algorithm: untyped, ?grammar_digest: untyped, ?schema_version: untyped) -> untyped
+
+      def to_h: () -> untyped
+
+      private
+
+      def digest_for: (untyped grammar) -> untyped
+    end
+  end
+end

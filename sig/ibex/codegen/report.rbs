@@ -1,0 +1,20 @@
+# Generated from lib/ibex/codegen/report.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Renders a human-readable state and conflict report from Automaton IR.
+    module Report
+      def self?.render: (untyped automaton, ?max_tokens: untyped, ?max_configurations: untyped) -> untyped
+
+      def self?.append_state: (untyped lines, untyped state, untyped grammar, untyped examples) -> untyped
+
+      def self?.append_counterexample: (untyped lines, untyped example) -> untyped
+
+      def self?.append_tree: (untyped lines, untyped tree, untyped indentation) -> untyped
+
+      def self?.format_item: (untyped item, untyped grammar) -> untyped
+
+      def self?.format_action: (untyped action) -> untyped
+    end
+  end
+end

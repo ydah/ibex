@@ -16,7 +16,7 @@ rule
     | '<' constant_path                  { result = val[1] }
 
   declarations
-    :                                    { result = [] }
+    :                                    { result = Array.new(0) }
     | declarations declaration           { result = val[0] + [val[1]] }
 
   declaration
@@ -35,7 +35,7 @@ rule
     | PRECLOW precedence_levels PRECHIGH { result = build_precedence(val[0], :low_to_high, val[1]) }
 
   precedence_levels
-    :                                    { result = [] }
+    :                                    { result = Array.new(0) }
     | precedence_levels precedence_level { result = val[0] + [val[1]] }
 
   precedence_level
@@ -59,18 +59,18 @@ rule
     : CONVERT conversions END            { result = build_convert(val[0], val[1]) }
 
   conversions
-    :                                    { result = [] }
+    :                                    { result = Array.new(0) }
     | conversions conversion             { result = val[0] + [val[1]] }
 
   conversion
     : grammar_symbol LITERAL              { result = build_conversion(val[0], val[1]) }
 
   identifiers
-    :                                    { result = [] }
+    :                                    { result = Array.new(0) }
     | identifiers IDENTIFIER              { result = val[0] + [val[1].value] }
 
   symbols
-    :                                    { result = [] }
+    :                                    { result = Array.new(0) }
     | symbols grammar_symbol              { result = val[0] + [val[1].value] }
 
   grammar_symbol
@@ -100,7 +100,7 @@ rule
     | '=' grammar_symbol                 { result = val[1] }
 
   items
-    :                                    { result = [] }
+    :                                    { result = Array.new(0) }
     | items item                         { result = val[0] + [val[1]] }
 
   item
@@ -118,7 +118,7 @@ rule
     | ':' IDENTIFIER                     { result = [val[0], val[1]] }
 
   suffixes
-    :                                    { result = [] }
+    :                                    { result = Array.new(0) }
     | suffixes '?'                       { result = val[0] + [val[1]] }
     | suffixes '*'                       { result = val[0] + [val[1]] }
     | suffixes '+'                       { result = val[0] + [val[1]] }
@@ -132,7 +132,7 @@ rule
     | group_alternatives '|' group_items { result = val[0] + [val[2]] }
 
   group_items
-    :                                    { result = [] }
+    :                                    { result = Array.new(0) }
     | group_items group_item_element      { result = val[0] + [val[1]] }
 
   group_item_element

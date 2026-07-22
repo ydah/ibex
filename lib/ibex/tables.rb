@@ -11,8 +11,8 @@ module Ibex
 
       def self.build(rows)
         offsets = Array.new(rows.length, 0)
-        values = []
-        checks = []
+        values = [] #: Array[untyped]
+        checks = [] #: Array[untyped]
         rows.each_index.sort_by { |row| [-rows[row].length, row] }.each do |row|
           offset = find_offset(rows[row].keys, checks)
           offsets[row] = offset
@@ -53,7 +53,7 @@ module Ibex
       def row(row)
         return {} unless row.between?(0, @row_count - 1)
 
-        result = {}
+        result = {} #: Hash[Integer, untyped]
         @checks.each_index do |index|
           next unless @checks[index] == row
 

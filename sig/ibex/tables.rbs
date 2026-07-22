@@ -1,0 +1,42 @@
+# Generated from lib/ibex/tables.rb with RBS::Inline
+
+module Ibex
+  # Parser table construction and row-displacement compression.
+  module Tables
+    class TableSet < Struct[untyped]
+      attr_accessor actions(): untyped
+
+      attr_accessor gotos(): untyped
+
+      attr_accessor default_actions(): untyped
+
+      def self.new: (?actions: untyped, ?gotos: untyped, ?default_actions: untyped) -> instance
+                  | ({ ?actions: untyped, ?gotos: untyped, ?default_actions: untyped }) -> instance
+    end
+
+    # Sparse table represented by per-row offsets and ownership checks.
+    class Compact
+      attr_reader offsets: untyped
+
+      attr_reader values: untyped
+
+      attr_reader checks: untyped
+
+      attr_reader row_count: untyped
+
+      def self.build: (untyped rows) -> untyped
+
+      def self.find_offset: (untyped columns, untyped checks) -> untyped
+
+      def initialize: (offsets: untyped, values: untyped, checks: untyped, row_count: untyped) -> untyped
+
+      def lookup: (untyped row, untyped column) -> untyped
+
+      def row: (untyped row) -> untyped
+    end
+
+    def self?.build: (untyped automaton, ?format: untyped) -> untyped
+
+    def self?.runtime_action: (untyped action) -> untyped
+  end
+end

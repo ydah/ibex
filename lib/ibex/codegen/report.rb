@@ -14,7 +14,7 @@ module Ibex
           automaton, max_tokens: max_tokens, max_configurations: max_configurations
         ).all.group_by { |example| example[:state] }
         automaton.states.each do |state|
-          append_state(lines, state, grammar, examples.fetch(state.id, []))
+          append_state(lines, state, grammar, examples.fetch(state.id, Array.new(0)))
         end
         summary = automaton.conflict_summary
         lines << "Conflicts: #{summary[:sr]} shift/reduce, #{summary[:rr]} reduce/reduce"

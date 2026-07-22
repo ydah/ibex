@@ -1,0 +1,12 @@
+# Generated from lib/ibex/codegen/dot.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Renders Graphviz DOT from Automaton IR.
+    module Dot
+      def self?.render: (untyped automaton) -> untyped
+
+      def self?.escape: (untyped value) -> untyped
+    end
+  end
+end

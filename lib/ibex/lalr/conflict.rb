@@ -10,10 +10,10 @@ module Ibex
 
       def resolve(token_id, candidates)
         actions = candidates.uniq
-        return [actions.first, []] if actions.length <= 1
+        return [actions.first, Array.new(0)] if actions.length <= 1
 
         accept = actions.find { |action| action[:type] == :accept }
-        return [accept, []] if accept
+        return [accept, Array.new(0)] if accept
 
         shift = actions.find { |action| action[:type] == :shift }
         reductions = actions.select { |action| action[:type] == :reduce }.sort_by { |action| action[:production] }
@@ -28,8 +28,8 @@ module Ibex
       private
 
       def resolve_reductions(token_id, reductions)
-        return [nil, []] if reductions.empty?
-        return [reductions.first, []] if reductions.length == 1
+        return [nil, Array.new(0)] if reductions.empty?
+        return [reductions.first, Array.new(0)] if reductions.length == 1
 
         chosen = reductions.first
         conflict = { type: :reduce_reduce, symbol: token_name(token_id),

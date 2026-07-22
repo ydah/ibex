@@ -3,7 +3,9 @@
 module Ibex
   module Frontend
     # A source coordinate retained by frontend and IR objects.
-    Location = Struct.new(:file, :line, :column, keyword_init: true) do
+    Location = Struct.new(:file, :line, :column, keyword_init: true)
+
+    class Location
       def to_h
         { file: file, line: line, column: column }
       end
@@ -14,7 +16,9 @@ module Ibex
     end
 
     # A grammar token and its source coordinate.
-    Token = Struct.new(:type, :value, :location, keyword_init: true) do
+    Token = Struct.new(:type, :value, :location, keyword_init: true)
+
+    class Token
       def to_h
         { type: type, value: value, location: location.to_h }
       end

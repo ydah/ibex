@@ -1,0 +1,24 @@
+# Generated from lib/ibex/cli/outputs.rb with RBS::Inline
+
+module Ibex
+  # Files, warnings, and progress emitted by CLI pipeline stages.
+  module CLIOutputs
+    WARNING_MESSAGES: untyped
+
+    private
+
+    def warning_categories: (untyped value) -> untyped
+
+    def handle_grammar_warnings: (untyped grammar, untyped input_path) -> untyped
+
+    def format_grammar_warning: (untyped warning, untyped input_path) -> untyped
+
+    def report_conflicts: (untyped automaton, untyped input_path) -> untyped
+
+    def write_report: (untyped automaton, untyped input_path) -> untyped
+
+    def default_output_path: (untyped input_path, untyped extension) -> untyped
+
+    def report_status: (untyped message) -> untyped
+  end
+end

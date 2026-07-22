@@ -1,0 +1,54 @@
+# Generated from lib/ibex/lalr/builder.rb with RBS::Inline
+
+module Ibex
+  module LALR
+    # Builds canonical LR(1) states and merges states with equal LR(0) cores.
+    class Builder
+      AUGMENTED_PRODUCTION: ::Integer
+
+      ALGORITHMS: untyped
+
+      def initialize: (untyped grammar, ?algorithm: untyped) -> untyped
+
+      def build: () -> untyped
+
+      private
+
+      def canonical_collection: () -> untyped
+
+      def closure: (untyped seed) -> untyped
+
+      def suffix_lookaheads: (untyped suffix, untyped inherited) -> untyped
+
+      def enqueue_item: (untyped items, untyped queue, untyped item) -> untyped
+
+      def next_symbols: (untyped items) -> untyped
+
+      def go_to: (untyped items, untyped symbol_id) -> untyped
+
+      def merge_lalr: (untyped states, untyped transitions) -> untyped
+
+      def automaton_items: (untyped canonical_states, untyped canonical_transitions) -> untyped
+
+      def pack_canonical_items: (untyped states) -> untyped
+
+      def apply_slr_lookaheads: (untyped states) -> untyped
+
+      def slr_lookaheads: (untyped production_id) -> untyped
+
+      def build_states: (untyped merged_items, untyped transitions) -> untyped
+
+      def build_state: (untyped state_id, untyped items, untyped transitions) -> untyped
+
+      def add_completed_actions: (untyped items, untyped candidates) -> untyped
+
+      def resolve_actions: (untyped candidates) -> untyped
+
+      def rhs_for: (untyped production_id) -> untyped
+
+      def core_key: (untyped items) -> untyped
+
+      def item_key: (untyped items) -> untyped
+    end
+  end
+end

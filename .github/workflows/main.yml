@@ -64,9 +64,15 @@ jobs:
           bundler-cache: true
       - name: Check generated RBS signatures
         run: |
-          bundle exec rbs-inline --base=lib --output="$RUNNER_TEMP/sig" \
-            lib/ibex.rb lib/ibex/error.rb lib/ibex/runtime/parser.rb
-          diff -ru sig "$RUNNER_TEMP/sig"
+          ruby -rfileutils -e '
+            output = File.join(ENV.fetch("RUNNER_TEMP"), "ibex-signatures")
+            FileUtils.rm_rf(output)
+            sources = Dir.glob("lib/**/*.rb").sort
+            abort "no Ruby sources found" if sources.empty?
+            command = ["bundle", "exec", "rbs-inline", "--opt-out", "--base=lib", "--output=#{output}", *sources]
+            abort "RBS generation failed" unless system(*command)
+          '
+          diff -ru sig "$RUNNER_TEMP/ibex-signatures"
       - name: Validate RBS signatures
         run: bundle exec rbs -I sig validate
       - name: Type check Ruby implementation

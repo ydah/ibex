@@ -19,7 +19,7 @@ module Ibex
   module Frontend
     # Builds the committed frontend parser from its canonical Ibex grammar.
     module Regenerator
-      GRAMMAR_PATH = File.expand_path("grammar.y", __dir__)
+      GRAMMAR_PATH = File.expand_path("grammar.y", File.dirname(__FILE__))
 
       module_function
 

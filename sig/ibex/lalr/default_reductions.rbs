@@ -1,0 +1,16 @@
+# Generated from lib/ibex/lalr/default_reductions.rb with RBS::Inline
+
+module Ibex
+  module LALR
+    # Selects size-reducing default actions without changing any terminal cell.
+    module DefaultReductions
+      ERROR_ACTION: untyped
+
+      def self?.apply: (untyped states, terminal_ids: untyped) -> untyped
+
+      def self?.optimize: (untyped state, terminal_ids: untyped) -> untyped
+
+      def self?.select_default: (untyped actions, untyped terminal_ids) -> untyped
+    end
+  end
+end

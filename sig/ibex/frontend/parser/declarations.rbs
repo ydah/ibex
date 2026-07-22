@@ -1,0 +1,40 @@
+# Generated from lib/ibex/frontend/parser/declarations.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Parses the declaration section of a grammar.
+    module BootstrapParserDeclarations
+      DECLARATIONS: untyped
+
+      ASSOCIATIVITIES: untyped
+
+      private
+
+      def parse_declarations: () -> untyped
+
+      def parse_declaration: () -> untyped
+
+      def parse_tokens: () -> untyped
+
+      def parse_precedence: () -> untyped
+
+      def precedence_levels: (untyped closing) -> untyped
+
+      def parse_options: () -> untyped
+
+      def parse_expect: () -> untyped
+
+      def parse_start: () -> untyped
+
+      def parse_convert: () -> untyped
+
+      def tokens_on_line: (untyped line) -> untyped
+
+      def decode_conversion: (untyped tokens, untyped location) -> untyped
+
+      def declaration_start?: () -> untyped
+
+      def association_start?: () -> untyped
+    end
+  end
+end

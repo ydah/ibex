@@ -5,6 +5,7 @@ module Ibex
     # Grammar frontend node types.
     module AST
       # Adds deterministic, recursively serializable hashes to Struct nodes.
+      # @rbs module-self Struct[untyped]
       module Node
         def to_h
           fields = each_pair.to_h { |name, value| [name, serialize(value)] }
