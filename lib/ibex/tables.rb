@@ -3,7 +3,7 @@
 module Ibex
   # Parser table construction and row-displacement compression.
   module Tables
-    TableSet = Struct.new(:actions, :gotos, keyword_init: true)
+    TableSet = Struct.new(:actions, :gotos, :default_actions, keyword_init: true)
 
     # Sparse table represented by per-row offsets and ownership checks.
     class Compact
@@ -65,10 +65,13 @@ module Ibex
     def build(automaton, format: :compact)
       action_rows = automaton.states.map { |state| state.actions.transform_values { |action| runtime_action(action) } }
       goto_rows = automaton.states.map(&:gotos)
-      return TableSet.new(actions: action_rows, gotos: goto_rows) if format.to_sym == :plain
+      defaults = automaton.states.map do |state|
+        runtime_action(state.default_action) if state.default_action
+      end
+      return TableSet.new(actions: action_rows, gotos: goto_rows, default_actions: defaults) if format.to_sym == :plain
       raise ArgumentError, "unknown table format #{format.inspect}" unless format.to_sym == :compact
 
-      TableSet.new(actions: Compact.build(action_rows), gotos: Compact.build(goto_rows))
+      TableSet.new(actions: Compact.build(action_rows), gotos: Compact.build(goto_rows), default_actions: defaults)
     end
 
     def runtime_action(action)

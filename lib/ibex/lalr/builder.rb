@@ -26,6 +26,7 @@ module Ibex
         canonical_states, canonical_transitions = canonical_collection
         merged_items, merged_transitions = automaton_items(canonical_states, canonical_transitions)
         states = build_states(merged_items, merged_transitions)
+        states = DefaultReductions.apply(states, terminal_ids: @grammar.terminals.map(&:id))
         conflicts = states.flat_map(&:conflicts)
         shift_reduce = conflicts.select { |item| item[:type] == :shift_reduce }
         counted_shift_reduce = shift_reduce.count { |item| item.dig(:resolution, :by) == :default_shift }

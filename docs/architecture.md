@@ -55,7 +55,8 @@ Each state contains:
 - merged items `{production, dot, lookaheads}`;
 - named `transitions`;
 - resolved terminal `actions` and nonterminal `gotos`;
-- `default_action` (currently always null to preserve immediate error cells);
+- an optional reduce `default_action`, selected only when explicit error masks preserve every terminal lookup and reduce the
+  total encoded ACTION entries;
 - every conflict, including precedence-resolved conflicts and the resolution reason.
 
 `conflict_summary.sr` counts unresolved default-shift conflicts for `expect`; `resolved_sr` counts retained precedence or
@@ -63,9 +64,12 @@ associativity decisions; `rr` counts reduce/reduce cells.
 
 ## Runtime table contract
 
-Generated subclasses expose `.parser_tables` with external `tokens`, display `token_names`, ACTION and GOTO tables, and
-production `{lhs,length,action}` records. Plain tables are arrays of Hash rows. Compact tables use row displacement with offsets,
-values, and row-ownership checks; both expose equivalent lookups.
+Generated subclasses expose `.parser_tables` with external `tokens`, display `token_names`, ACTION and GOTO tables, per-state
+default actions, and production `{lhs,length,action}` records. Plain tables are arrays of Hash rows. Compact tables use row
+displacement with offsets, values, and row-ownership checks; both expose equivalent lookups. Default reductions are restricted
+to known token ids, and explicit error masks preserve the pre-optimization result of every declared terminal cell, including
+the synthetic `error` terminal. The deterministic size policy is fixed by
+[ADR 0014](decisions/0014-compatibility-safe-default-reductions.md).
 
 The runtime maintains state and value stacks, pulls a lookahead only when required, and applies tagged `shift`, `reduce`,
 `accept`, and `error` actions. Recovery pops to a state that shifts token id 1, suppresses repeated reports for three successful

@@ -4,19 +4,21 @@ require_relative "test_helper"
 
 class TablesTest < Minitest::Test
   def test_plain_and_compact_tables_are_equivalent
-    ast = Ibex::Frontend::Parser.new("class P\nrule\nstart: TOKEN\nend\n", file: "table.y").parse
+    source = <<~GRAMMAR
+      class P
+      token A B C BAD
+      rule
+      start: list
+      list: list item | item
+      item: A | B | C
+      end
+    GRAMMAR
+    ast = Ibex::Frontend::Parser.new(source, file: "table.y").parse
     automaton = Ibex::LALR::Builder.new(Ibex::Normalizer.new(ast).normalize).build
     plain = Ibex::Tables.build(automaton, format: :plain)
     compact = Ibex::Tables.build(automaton, format: :compact)
 
-    automaton.states.each do |state|
-      automaton.grammar.symbols.each do |grammar_symbol|
-        plain_action = plain.actions.fetch(state.id, {})[grammar_symbol.id]
-        plain_goto = plain.gotos.fetch(state.id, {})[grammar_symbol.id]
-        assert plain_action == compact.actions.lookup(state.id, grammar_symbol.id)
-        assert plain_goto == compact.gotos.lookup(state.id, grammar_symbol.id)
-      end
-    end
+    automaton.states.each { |state| assert_state_tables(automaton, plain, compact, state) }
   end
 
   def test_compact_rows_preserve_explicit_entries
@@ -25,5 +27,25 @@ class TablesTest < Minitest::Test
     actual_rows = rows.each_index.map { |index| compact.row(index) }
     assert_equal rows, actual_rows
     assert_nil compact.lookup(1, 1)
+  end
+
+  private
+
+  def assert_state_tables(automaton, plain, compact, state)
+    expected_default = plain.default_actions[state.id]
+    actual_default = compact.default_actions[state.id]
+    expected_default ? assert_equal(expected_default, actual_default) : assert_nil(actual_default)
+    automaton.grammar.symbols.each { |grammar_symbol| assert_table_cells(plain, compact, state, grammar_symbol) }
+  end
+
+  def assert_table_cells(plain, compact, state, grammar_symbol)
+    row = state.id
+    column = grammar_symbol.id
+    assert_optional_equal(plain.actions.fetch(row, {})[column], compact.actions.lookup(row, column))
+    assert_optional_equal(plain.gotos.fetch(row, {})[column], compact.gotos.lookup(row, column))
+  end
+
+  def assert_optional_equal(expected, actual)
+    expected.nil? ? assert_nil(actual) : assert_equal(expected, actual)
   end
 end

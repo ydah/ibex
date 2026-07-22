@@ -131,8 +131,9 @@ module Ibex
       def expected_tokens
         return [] if @state_stack.empty?
 
-        actions = table_row(parser_tables.fetch(:actions), @state_stack.last)
-        actions.filter_map do |token_id, action|
+        state = @state_stack.last
+        parser_tables.fetch(:token_names).keys.filter_map do |token_id|
+          action = table_lookup(parser_tables.fetch(:actions), state, token_id) || default_action(state) || [:error]
           token_to_str(token_id) unless error_action?(action) || token_id == ERROR_TOKEN
         end
       end
@@ -170,7 +171,10 @@ module Ibex
         read_lookahead if @lookahead.equal?(NO_LOOKAHEAD)
         state = @state_stack.last
         explicit = table_lookup(parser_tables.fetch(:actions), state, @lookahead)
-        explicit || parser_tables.fetch(:default_actions, EMPTY_ROW)[state] || [:error]
+        return explicit if explicit
+        return [:error] unless parser_tables.fetch(:token_names).key?(@lookahead)
+
+        default_action(state) || [:error]
       end
 
       # @rbs (untyped action) -> untyped
@@ -312,18 +316,16 @@ module Ibex
         action.nil? || action.first == :error
       end
 
+      # @rbs (Integer state) -> untyped
+      def default_action(state)
+        parser_tables.fetch(:default_actions, EMPTY_ROW)[state]
+      end
+
       # @rbs (untyped table, Integer row, Integer column) -> untyped
       def table_lookup(table, row, column)
         return table.lookup(row, column) if table.respond_to?(:lookup)
 
         table.fetch(row, EMPTY_ROW)[column]
-      end
-
-      # @rbs (untyped table, Integer row) -> untyped
-      def table_row(table, row)
-        return table.row(row) if table.respond_to?(:row)
-
-        table.fetch(row, EMPTY_ROW)
       end
 
       # @rbs (String message) -> void

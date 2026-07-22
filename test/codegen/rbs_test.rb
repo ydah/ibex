@@ -13,6 +13,7 @@ class RBSCodegenTest < Minitest::Test
     assert_includes signature, "module API"
     assert_includes signature, "class Generated < Custom::Parser"
     assert_includes signature, "TOKEN_IDS: Hash[untyped, Integer]"
+    assert_includes signature, "DEFAULT_ACTIONS: Array[untyped]"
     assert_includes signature, "def self.parser_tables: () -> Hash[Symbol, untyped]"
   end
 end

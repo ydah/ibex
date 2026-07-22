@@ -27,6 +27,7 @@ module Ibex
         state.actions.each do |token_id, action|
           lines << "  on #{grammar.symbol_by_id(token_id).name}: #{format_action(action)}"
         end
+        lines << "  default: #{format_action(state.default_action)}" if state.default_action
         state.gotos.each { |symbol_id, target| lines << "  goto #{grammar.symbol_by_id(symbol_id).name}: #{target}" }
         state.conflicts.each { |conflict| lines << "  conflict: #{conflict.inspect}" }
         examples.each { |example| append_counterexample(lines, example) }
