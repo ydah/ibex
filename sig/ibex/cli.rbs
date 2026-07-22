@@ -7,7 +7,7 @@ module Ibex
     def write: (String) -> untyped
   end
 
-  type cli_options = { emit: String, mode: Symbol, table: Symbol, line_convert: bool, counterexample_max_tokens: Integer, counterexample_max_configurations: Integer, ?from: String, ?algorithm: Symbol, ?warnings: Array[Symbol], ?output: String, ?embedded: bool, ?debug: bool, ?verbose: bool, ?rbs: String | true, ?dot: String, ?html: String, ?log_file: String, ?executable: String, ?frozen: bool, ?omit_actions: bool, ?superclass: String, ?check_only: bool, ?status: bool, ?profile: bool, ?debug_flags: String, ?version: bool, ?runtime_version: bool, ?copyright: bool, ?help: bool }
+  type cli_options = { emit: String, mode: Symbol, table: Symbol, line_convert: bool, ?line_convert_all: bool, counterexample_max_tokens: Integer, counterexample_max_configurations: Integer, ?from: String, ?algorithm: Symbol, ?warnings: Array[Symbol], ?output: String, ?embedded: bool, ?debug: bool, ?verbose: bool, ?rbs: String | true, ?dot: String, ?html: String, ?log_file: String, ?executable: String, ?frozen: bool, ?omit_actions: bool, ?superclass: String, ?check_only: bool, ?status: bool, ?profile: bool, ?debug_flags: String, ?version: bool, ?runtime_version: bool, ?copyright: bool, ?help: bool }
 
   # Command-line pipeline coordinator.
   # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.

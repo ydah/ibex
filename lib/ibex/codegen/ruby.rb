@@ -9,20 +9,23 @@ module Ibex
       # @rbs @table_format: Symbol
       # @rbs @embedded: bool
       # @rbs @line_convert: bool
+      # @rbs @line_convert_all: bool
       # @rbs @debug: bool
       # @rbs @omit_action_call: bool
       # @rbs @superclass: String
       # @rbs @executable: String?
 
-      # @rbs (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool, ?debug: bool,
-      #   ?omit_action_call: bool?, ?superclass: String?, ?executable: String?) -> void
+      # @rbs (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool,
+      #   ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?,
+      #   ?executable: String?) -> void
       def initialize(automaton, table: :compact, embedded: false, line_convert: true, debug: false,
-                     omit_action_call: nil, superclass: nil, executable: nil)
+                     line_convert_all: false, omit_action_call: nil, superclass: nil, executable: nil)
         @automaton = automaton
         @grammar = automaton.grammar
         @table_format = table.to_sym
         @embedded = embedded
         @line_convert = line_convert
+        @line_convert_all = line_convert_all
         @debug = debug
         @omit_action_call = omit_action_call.nil? ? @grammar.options[:omit_action_call] : omit_action_call
         @superclass = superclass || @grammar.superclass || "Ibex::Runtime::Parser"
@@ -194,8 +197,23 @@ module Ibex
         return if code.nil? || code.empty?
 
         prefix = " " * indent
-        code.lines.each { |line| lines << "#{prefix}#{line.rstrip}" }
+        chunks = @grammar.user_code_chunks.fetch(name, Array.new(0))
+        if map_user_code?(name) && !chunks.empty?
+          chunks.each do |chunk|
+            location = chunk.location
+            lines << "#{prefix}eval(#{chunk.code.dump}, binding, #{location[:file].inspect}, #{location[:line]})"
+          end
+        elsif @line_convert_all
+          raise Ibex::Error, "(codegen):1:1: source locations are required to convert #{name} user code"
+        else
+          code.lines.each { |line| lines << "#{prefix}#{line.rstrip}" }
+        end
         lines << ""
+      end
+
+      # @rbs (String name) -> bool
+      def map_user_code?(name)
+        @line_convert_all || (@line_convert && name == "inner")
       end
 
       # @rbs () -> [Array[String], String]

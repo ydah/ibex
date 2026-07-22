@@ -52,7 +52,7 @@ module Ibex
       IR::Grammar.new(class_name: @ast.class_name, superclass: @ast.superclass, start: @start_name,
                       expect: @expected_conflicts, options: @options, symbols: @symbols,
                       productions: @productions, user_code: normalized_user_code,
-                      conversions: @conversions, warnings: @warnings)
+                      conversions: @conversions, warnings: @warnings, user_code_chunks: normalized_user_code_chunks)
     end
 
     private
@@ -137,6 +137,18 @@ module Ibex
       %w[header inner footer].to_h do |name|
         [name, @ast.user_code.fetch(name, Array.new(0)).map(&:code).join]
       end
+    end
+
+    # @rbs () -> IR::user_code_chunks
+    def normalized_user_code_chunks
+      chunks_by_name = %w[header inner footer].to_h do |name|
+        chunks = @ast.user_code.fetch(name, Array.new(0)).map do |block|
+          location = block.loc.to_h.merge(line: block.loc.line + 1, column: 1)
+          IR::UserCodeChunk.new(code: block.code, location: location)
+        end
+        [name, chunks]
+      end
+      chunks_by_name.reject { |_name, chunks| chunks.empty? }
     end
 
     # @rbs (Frontend::Location location, String message) -> bot

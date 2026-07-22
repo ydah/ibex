@@ -74,6 +74,19 @@ module Ibex
       def to_h: () -> Hash[Symbol, untyped]
     end
 
+    # One opaque user-code block and the location of its first code line.
+    class UserCodeChunk
+      attr_reader code: String
+
+      attr_reader location: location
+
+      # @rbs (code: String, location: location) -> void
+      def initialize: (code: String, location: location) -> void
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
+    end
+
     # Immutable normalized grammar exchanged between pipeline stages.
     class Grammar
       attr_reader class_name: String
@@ -92,6 +105,8 @@ module Ibex
 
       attr_reader user_code: Hash[String, String]
 
+      attr_reader user_code_chunks: user_code_chunks
+
       attr_reader conversions: Hash[String, String]
 
       attr_reader warnings: Array[grammar_warning]
@@ -100,8 +115,9 @@ module Ibex
 
       # @rbs (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options,
       #   symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String],
-      #   conversions: Hash[String, String], warnings: Array[grammar_warning], ?schema_version: Integer) -> void
-      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?schema_version: Integer) -> void
+      #   conversions: Hash[String, String], warnings: Array[grammar_warning], ?user_code_chunks: user_code_chunks?,
+      #   ?schema_version: Integer) -> void
+      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?user_code_chunks: user_code_chunks?, ?schema_version: Integer) -> void
 
       # @rbs (String name) -> GrammarSymbol?
       def symbol: (String name) -> GrammarSymbol?
@@ -117,6 +133,11 @@ module Ibex
 
       # @rbs () -> Hash[Symbol, untyped]
       def to_h: () -> Hash[Symbol, untyped]
+
+      private
+
+      # @rbs () -> void
+      def validate_user_code_chunks: () -> void
     end
   end
 end

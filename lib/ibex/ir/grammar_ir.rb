@@ -100,6 +100,24 @@ module Ibex
       end
     end
 
+    # One opaque user-code block and the location of its first code line.
+    class UserCodeChunk
+      attr_reader :code #: String
+      attr_reader :location #: location
+
+      # @rbs (code: String, location: location) -> void
+      def initialize(code:, location:)
+        @code = code.freeze
+        @location = IR.deep_freeze(location)
+        freeze
+      end
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h
+        { code: @code, loc: @location }
+      end
+    end
+
     # Immutable normalized grammar exchanged between pipeline stages.
     class Grammar
       attr_reader :class_name #: String
@@ -110,15 +128,17 @@ module Ibex
       attr_reader :symbols #: Array[GrammarSymbol]
       attr_reader :productions #: Array[Production]
       attr_reader :user_code #: Hash[String, String]
+      attr_reader :user_code_chunks #: user_code_chunks
       attr_reader :conversions #: Hash[String, String]
       attr_reader :warnings #: Array[grammar_warning]
       attr_reader :schema_version #: Integer
 
       # @rbs (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options,
       #   symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String],
-      #   conversions: Hash[String, String], warnings: Array[grammar_warning], ?schema_version: Integer) -> void
+      #   conversions: Hash[String, String], warnings: Array[grammar_warning], ?user_code_chunks: user_code_chunks?,
+      #   ?schema_version: Integer) -> void
       def initialize(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
-                     conversions:, warnings:, schema_version: SCHEMA_VERSION)
+                     conversions:, warnings:, user_code_chunks: nil, schema_version: SCHEMA_VERSION)
         @class_name = class_name.freeze
         @superclass = superclass&.freeze
         @start = start.freeze
@@ -127,6 +147,8 @@ module Ibex
         @symbols = symbols.freeze
         @productions = productions.freeze
         @user_code = IR.deep_freeze(user_code)
+        @user_code_chunks = IR.deep_freeze(user_code_chunks || {})
+        validate_user_code_chunks
         @conversions = IR.deep_freeze(conversions)
         @warnings = IR.deep_freeze(warnings)
         @schema_version = schema_version
@@ -146,10 +168,24 @@ module Ibex
 
       # @rbs () -> Hash[Symbol, untyped]
       def to_h
-        { ibex_ir: "grammar", schema_version: @schema_version, class_name: @class_name, superclass: @superclass,
-          start: @start, expect: @expect, options: @options, symbols: @symbols.map(&:to_h),
-          productions: @productions.map(&:to_h), user_code: @user_code, conversions: @conversions,
-          warnings: @warnings }
+        value = { ibex_ir: "grammar", schema_version: @schema_version, class_name: @class_name, superclass: @superclass,
+                  start: @start, expect: @expect, options: @options, symbols: @symbols.map(&:to_h),
+                  productions: @productions.map(&:to_h), user_code: @user_code, conversions: @conversions,
+                  warnings: @warnings } #: Hash[Symbol, untyped]
+        value[:user_code_chunks] = @user_code_chunks.transform_values { |chunks| chunks.map(&:to_h) } \
+          unless @user_code_chunks.empty?
+        value
+      end
+
+      private
+
+      # @rbs () -> void
+      def validate_user_code_chunks
+        @user_code_chunks.each do |name, chunks|
+          next if chunks.map(&:code).join == @user_code.fetch(name, "")
+
+          raise Ibex::Error, "(ir):1:1: user-code chunks do not match the concatenated #{name} section"
+        end
       end
     end
   end

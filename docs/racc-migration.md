@@ -23,7 +23,7 @@ copy racc's internal table arrays, internal method names, native runtime, or gen
 | `-F`, `--frozen` | Accepted; Ibex always emits frozen-string magic comments |
 | `--rbs[=FILE]` | Ibex extension; emit a generated parser signature |
 | `--warnings=all,error` | Ibex extension; display or promote structured grammar diagnostics |
-| `--line-convert-all`, `-l` | Enable the default source mapping or disable it |
+| `--line-convert-all`, `-l` | Map header/inner/footer too, or disable all source mapping |
 | `-a` | Generate methods for implicit actions |
 | `--superclass` | Override the grammar superclass |
 | `-C`, `-S` | Check only; show pipeline status |
@@ -31,6 +31,8 @@ copy racc's internal table arrays, internal method names, native runtime, or gen
 | `--version`, `--runtime-version`, `--copyright`, `--help` | Informational output |
 
 Ibex defaults to `<input>.rb`; racc 1.8.1 was observed to default to `<input>.tab.rb`. Use `-o` for portable scripts.
+By default, semantic actions and `inner` methods report grammar-file lines while `header` and `footer` retain generated-file
+lines. `--line-convert-all` maps every user-code section; `-l` maps none. The mapping is retained through IR JSON resumption.
 
 ## Known differences
 
