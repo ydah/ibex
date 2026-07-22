@@ -36,8 +36,9 @@ Ibex defaults to `<input>.rb`; racc 1.8.1 was observed to default to `<input>.ta
 
 - Generated source and internal table representations are intentionally different.
 - `.output` report formatting is independent and contains additional resolved-conflict and witness data.
-- An undeclared invalid token was observed to enter racc's `error` production without `on_error`; Ibex currently reports the
-  unknown lookahead through `on_error`. Declared invalid tokens match in the black-box recovery probe.
+- An undeclared invalid token was observed to enter racc's `error` production without `on_error`. Ibex intentionally reports the
+  unknown lookahead through `on_error` first, then recovers if the callback returns. Declared invalid tokens match in the
+  black-box recovery probe.
 - `require "racc/parser"` replacement and previously generated racc parser table compatibility are out of scope.
 
 See [compatibility observations](compat-notes.md) for the tested version and probe set.
