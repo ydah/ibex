@@ -16,6 +16,9 @@ Style/StringLiterals:
 Metrics/AbcSize:
   Max: 25
 
+Metrics/ClassLength:
+  Max: 200
+
 Metrics/MethodLength:
   Max: 30
 
