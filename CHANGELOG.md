@@ -10,3 +10,4 @@
 - Compute nullable, FIRST, and FOLLOW sets with deterministic integer bitsets.
 - Build deterministic LALR(1) automata, resolve and retain conflicts, and render state reports.
 - Generate plain or compact Ruby parsers with embedded runtime and source-line mapping support.
+- Complete the compatible CLI surface and add optional racc black-box result comparisons.

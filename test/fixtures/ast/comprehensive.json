@@ -87,7 +87,7 @@
         {
           "node": "Conversion",
           "name": "INT",
-          "expression": "\"IntegerToken\"",
+          "expression": "IntegerToken",
           "loc": {
             "file": "comprehensive.y",
             "line": 11,

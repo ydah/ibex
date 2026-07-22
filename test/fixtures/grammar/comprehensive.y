@@ -8,8 +8,8 @@ options no_result_var omit_action_call
 expect 1
 start program
 convert
-  INT "IntegerToken"
-  PLUS :plus
+  INT 'IntegerToken'
+  PLUS ':plus'
 end
 rule
   program : expressions { result = val[0] }

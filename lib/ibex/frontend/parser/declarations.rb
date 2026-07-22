@@ -79,8 +79,7 @@ module Ibex
         until keyword?("end") || current.type == :eof
           name_token = current
           name = parse_symbol_name
-          expression = tokens_on_line(name_token.location.line).map(&:value).join
-          fail_at(name_token.location, "expected a conversion expression") if expression.empty?
+          expression = decode_conversion(tokens_on_line(name_token.location.line), name_token.location)
           pairs << AST::Conversion.new(name: name, expression: expression, loc: name_token.location)
         end
         expect_keyword("end")
@@ -91,6 +90,19 @@ module Ibex
         tokens = []
         tokens << advance while current.type != :eof && current.location.line == line && !keyword?("end")
         tokens
+      end
+
+      def decode_conversion(tokens, location)
+        unless tokens.length == 1 && tokens.first.type == :literal
+          fail_at(location, "expected a quoted Ruby conversion expression")
+        end
+
+        literal = tokens.first.value
+        return literal.undump if literal.start_with?('"')
+
+        literal[1...-1].gsub("\\'", "'").gsub("\\\\", "\\")
+      rescue RuntimeError => e
+        fail_at(location, "invalid conversion expression: #{e.message}")
       end
 
       def declaration_start?
