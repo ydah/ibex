@@ -3,6 +3,10 @@
 module Ibex
   # Parser table construction and row-displacement compression.
   module Tables
+    private def runtime_action: (IR::parser_action action) -> IR::runtime_action
+
+    private def self.runtime_action: (IR::parser_action action) -> IR::runtime_action
+
     class TableSet < Struct[untyped]
       attr_accessor actions(): untyped
 
@@ -41,9 +45,6 @@ module Ibex
     end
 
     # @rbs (IR::Automaton automaton, ?format: Symbol | String) -> TableSet
-    def self.build: (IR::Automaton automaton, ?format: Symbol | String) -> TableSet
-
-    # @rbs (IR::parser_action action) -> IR::runtime_action
-    private def self.runtime_action: (IR::parser_action action) -> IR::runtime_action
+    def self?.build: (IR::Automaton automaton, ?format: Symbol | String) -> TableSet
   end
 end

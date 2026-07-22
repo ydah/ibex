@@ -4,16 +4,17 @@ module Ibex
   module LALR
     # Selects size-reducing default actions without changing any terminal cell.
     module DefaultReductions
+      private def select_default: (Hash[Integer, IR::parser_action] actions, Array[Integer] terminal_ids) -> IR::parser_action?
+
+      private def self.select_default: (Hash[Integer, IR::parser_action] actions, Array[Integer] terminal_ids) -> IR::parser_action?
+
       ERROR_ACTION: IR::error_action
 
       # @rbs (Array[IR::AutomatonState] states, terminal_ids: Array[Integer]) -> Array[IR::AutomatonState]
-      def self.apply: (Array[IR::AutomatonState] states, terminal_ids: Array[Integer]) -> Array[IR::AutomatonState]
+      def self?.apply: (Array[IR::AutomatonState] states, terminal_ids: Array[Integer]) -> Array[IR::AutomatonState]
 
       # @rbs (IR::AutomatonState state, terminal_ids: Array[Integer]) -> IR::AutomatonState
-      def self.optimize: (IR::AutomatonState state, terminal_ids: Array[Integer]) -> IR::AutomatonState
-
-      # @rbs (Hash[Integer, IR::parser_action] actions, Array[Integer] terminal_ids) -> IR::parser_action?
-      private def self.select_default: (Hash[Integer, IR::parser_action] actions, Array[Integer] terminal_ids) -> IR::parser_action?
+      def self?.optimize: (IR::AutomatonState state, terminal_ids: Array[Integer]) -> IR::AutomatonState
     end
   end
 end

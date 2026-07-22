@@ -4,27 +4,43 @@ module Ibex
   module IR
     # Stable JSON serialization for versioned pipeline IR.
     module Serialize
-      # @rbs (Grammar | Automaton value) -> String
-      def self.dump: (Grammar | Automaton value) -> String
-
-      # @rbs (String source) -> (Grammar | Automaton)
-      def self.load: (String source) -> (Grammar | Automaton)
+      private def validate_version: (untyped data) -> untyped
 
       private def self.validate_version: (untyped data) -> untyped
 
+      private def load_grammar: (untyped data) -> untyped
+
       private def self.load_grammar: (untyped data) -> untyped
+
+      private def load_automaton: (untyped data) -> untyped
 
       private def self.load_automaton: (untyped data) -> untyped
 
+      private def load_state: (untyped state, untyped grammar) -> untyped
+
       private def self.load_state: (untyped state, untyped grammar) -> untyped
+
+      private def symbol_keyed: (untyped values, untyped grammar, ?actions: untyped) -> untyped
 
       private def self.symbol_keyed: (untyped values, untyped grammar, ?actions: untyped) -> untyped
 
+      private def normalize_action: (untyped value) -> untyped
+
       private def self.normalize_action: (untyped value) -> untyped
+
+      private def load_production: (untyped production) -> untyped
 
       private def self.load_production: (untyped production) -> untyped
 
+      private def symbolize: (untyped value) -> untyped
+
       private def self.symbolize: (untyped value) -> untyped
+
+      # @rbs (Grammar | Automaton value) -> String
+      def self?.dump: (Grammar | Automaton value) -> String
+
+      # @rbs (String source) -> (Grammar | Automaton)
+      def self?.load: (String source) -> (Grammar | Automaton)
     end
   end
 end
