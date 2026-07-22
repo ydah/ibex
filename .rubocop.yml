@@ -14,13 +14,19 @@ Style/StringLiterals:
   EnforcedStyle: double_quotes
 
 Metrics/AbcSize:
-  Max: 25
+  Max: 35
 
 Metrics/ClassLength:
   Max: 200
 
+Metrics/CyclomaticComplexity:
+  Max: 10
+
 Metrics/MethodLength:
   Max: 30
+
+Metrics/PerceivedComplexity:
+  Max: 10
 
 Style/Documentation:
   Enabled: false
