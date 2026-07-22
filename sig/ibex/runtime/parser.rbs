@@ -69,6 +69,21 @@ module Ibex
       # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> untyped
       def on_error: (Integer token_id, untyped value, Array[untyped] value_stack) -> untyped
 
+      # Called after an ordinary input token is shifted. Override to observe
+      # the internal token id, semantic value, and destination state.
+      # @rbs (Integer token_id, untyped value, Integer state) -> void
+      def on_shift: (Integer token_id, untyped value, Integer state) -> void
+
+      # Called after a production's semantic action and goto are committed.
+      # Override to observe its id, RHS values, and semantic result.
+      # @rbs (Integer production_id, Array[untyped] values, untyped result) -> void
+      def on_reduce: (Integer production_id, Array[untyped] values, untyped result) -> void
+
+      # Called after the synthetic error token enters a recovery state.
+      # The payload describes the original error before recovery popped stacks.
+      # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> void
+      def on_error_recover: (Integer token_id, untyped value, Array[untyped] value_stack) -> void
+
       # Return a human-readable name for an internal token id.
       # @rbs (Integer token_id) -> String
       def token_to_str: (Integer token_id) -> String

@@ -76,6 +76,9 @@ Bare grammar tokens normally use Ruby symbols (`:NUM`), and quoted grammar token
 
 The default `on_error(token_id, value, value_stack)` raises `Ibex::ParseError`. Override it to use yacc-style `error` recovery.
 Semantic actions can call `yyerror`, `yyerrok`, or `yyaccept`, and `expected_tokens` reports valid lookaheads in the current state.
+Parser subclasses can also override `on_shift(token_id, value, state)`,
+`on_reduce(production_id, values, result)`, and `on_error_recover(token_id, value, value_stack)` as no-op-by-default observers.
+Ordinary shifts and the synthetic recovery-token shift use separate hooks; observer return values never replace semantic values.
 
 ## Extended mode
 

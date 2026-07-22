@@ -65,6 +65,12 @@ The default `on_error(token_id, value, value_stack)` raises `Ibex::ParseError`. 
 production to recover. Unknown external token objects receive a temporary negative internal id, remain printable through
 `token_to_str`, and always invoke `on_error` before recovery is attempted.
 
+Three optional observer methods default to no-ops. `on_shift(token_id, value, state)` follows each ordinary input-token shift;
+`on_reduce(production_id, values, result)` follows a completed semantic action and goto; and
+`on_error_recover(token_id, value, value_stack)` follows a successful synthetic `error` shift while retaining the original
+unexpected-token context. Hook return values are ignored and exceptions propagate. See
+[ADR 0013](decisions/0013-runtime-observation-hooks.md) for exact ordering and snapshot semantics.
+
 ## Extended EBNF and names
 
 Extended mode supports:
