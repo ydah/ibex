@@ -3,3 +3,5 @@
 source "https://rubygems.org"
 
 gem "rbs", "4.0.3", require: false
+gem "rbs-inline", "0.14.0", require: false
+gem "steep", "2.0.0", require: false
