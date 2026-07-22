@@ -139,7 +139,7 @@ class BlackBoxCompatibilityTest < Minitest::Test
       ibex_parser = File.join(directory, "ibex_parser.rb")
       File.write(grammar, source)
       _out, racc_errors, racc_status = Open3.capture3("racc", "-o", racc_parser, grammar)
-      _out, ibex_errors, ibex_status = Open3.capture3(RbConfig.ruby, "-Ilib", "bin/ibex", "-o", ibex_parser, grammar,
+      _out, ibex_errors, ibex_status = Open3.capture3(RbConfig.ruby, "-Ilib", "exe/ibex", "-o", ibex_parser, grammar,
                                                       chdir: File.expand_path("../..", __dir__))
       assert racc_status.success?, racc_errors
       assert ibex_status.success?, ibex_errors

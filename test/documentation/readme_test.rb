@@ -16,7 +16,7 @@ class ReadmeTest < Minitest::Test
     Dir.mktmpdir("ibex-readme") do |directory|
       grammar_path = File.join(directory, "calculator.y")
       File.write(grammar_path, grammar[1])
-      _output, errors, status = Open3.capture3(RbConfig.ruby, "-Ilib", "bin/ibex", grammar_path, chdir: ROOT)
+      _output, errors, status = Open3.capture3(RbConfig.ruby, "-Ilib", "exe/ibex", grammar_path, chdir: ROOT)
       assert status.success?, errors
 
       parser_path = File.join(directory, "calculator.rb")

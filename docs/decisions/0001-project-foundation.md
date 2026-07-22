@@ -10,7 +10,7 @@ Minitest, zero runtime dependencies, and a phase-oriented directory structure.
 
 ## Decision
 
-Use Minitest and RuboCop as development-only dependencies, support Ruby 3.0 and later, and expose `bin/ibex` as the gem
+Use Minitest and RuboCop as development-only dependencies, support Ruby 3.0 and later, and expose `exe/ibex` as the gem
 executable. Modules are added when their phase gains behavior instead of committing empty placeholders.
 
 ## Consequences

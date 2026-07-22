@@ -62,7 +62,7 @@ ruby calculator.rb
 # 14
 ```
 
-From a checkout without installing the gem, use `bundle exec ruby -Ilib bin/ibex calculator.y` and
+From a checkout without installing the gem, use `bundle exec ruby -Ilib exe/ibex calculator.y` and
 `bundle exec ruby -Ilib calculator.rb` instead.
 
 Ibex generates compact tables by default. `--table=plain` produces inspectable Hash rows, while `-E` embeds the runtime into a

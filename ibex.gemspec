@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
         f.start_with?(*%w[Gemfile .gitignore test/ .github/ .idea/ docs/decisions/])
     end
   end
-  spec.bindir = "bin"
+  spec.bindir = "exe"
   spec.executables = ["ibex"]
   spec.require_paths = ["lib"]
 end
