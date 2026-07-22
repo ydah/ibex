@@ -26,6 +26,7 @@ module Ibex
       ast = Frontend::Parser.new(File.read(path), file: path, mode: @options[:mode]).parse
       grammar = Normalizer.new(ast, mode: @options[:mode]).normalize
       return emit_grammar(grammar) if @options[:emit] == "grammar-ir"
+      return emit_automaton(grammar) if @options[:emit] == "automaton-ir"
 
       raise Ibex::Error, "(cli):1:1: emit format #{@options[:emit].inspect} is not available yet"
     rescue OptionParser::ParseError, Ibex::Error, Errno::ENOENT => e
@@ -57,6 +58,11 @@ module Ibex
 
     def emit_grammar(grammar)
       @stdout.write(IR::Serialize.dump(grammar))
+      0
+    end
+
+    def emit_automaton(grammar)
+      @stdout.write(IR::Serialize.dump(LALR::Builder.new(grammar).build))
       0
     end
   end
