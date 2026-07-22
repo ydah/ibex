@@ -83,9 +83,22 @@ class RubyCodegenTest < Minitest::Test
     generated = generate(source, omit_action_call: false)
     parser_class = evaluate(generated, "UserCodeParser")
     assert parser_class.new.marker
-    assert_includes generated, "def _ibex_action_0"
+    assert_includes generated, "private def _ibex_action_0"
+    refute_match(/^\s+private :_ibex_action_/, generated)
     assert_operator generated.index("HEADER_MARK"), :<, generated.index("class UserCodeParser")
     assert_operator generated.index("FOOTER_MARK"), :>, generated.index("class UserCodeParser")
+  end
+
+  def test_generated_action_methods_are_private_without_changing_user_methods
+    generated = generate(calculator_source)
+    parser_class = evaluate(generated, "GeneratedCalc")
+    action_methods = parser_class.private_instance_methods(false).grep(/\A_ibex_action_\d+\z/)
+
+    assert_equal 3, action_methods.length
+    assert_empty parser_class.public_instance_methods(false).grep(/\A_ibex_action_\d+\z/)
+    assert_includes parser_class.public_instance_methods(false), :parse
+    assert_includes parser_class.public_instance_methods(false), :next_token
+    assert_equal 5, parser_class.new.parse([[:NUM, 2], ["+", nil], [:NUM, 3]])
   end
 
   def test_default_line_mapping_points_to_grammar
