@@ -45,30 +45,20 @@ module Ibex
       end
 
       def expected_description(token)
-        declaration = declaration_expectation(token)
-        return declaration if declaration
+        expectation = @adapter.expectation(token)
+        return expectation if expectation
         return ")" if @adapter.open_delimiter_kind == :separated
 
         structural_expectation(token)
       end
 
       def structural_expectation(token)
-        return ":" if @adapter.previous_external == :LHS
-        return "a declaration or rule" if @adapter.state == :declaration && token&.type != :eof
         return "rule" if @adapter.section == :declarations
         return "at least one rule" if @adapter.section == :user_code && token&.value == "end"
+        return "eof" if @adapter.section == :user_code
         return "end" if @adapter.section == :rules && @adapter.eof_token
 
         "grammar syntax"
-      end
-
-      def declaration_expectation(token)
-        if @adapter.declaration == :precedence
-          return @adapter.precedence_closer if token&.type == :eof
-
-          return "left or right or nonassoc"
-        end
-        "end" if @adapter.declaration == :convert
       end
 
       def build_root(class_token, class_parts, superclass, declarations, rules, user_code)

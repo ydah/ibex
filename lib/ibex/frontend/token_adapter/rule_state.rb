@@ -35,14 +35,25 @@ module Ibex
           @delimiters.open_kind
         end
 
+        def expectation(token)
+          if @state == :rules_lhs && @section == :rules
+            "identifier"
+          elsif @state == :rule_colon
+            ":"
+          elsif @state == :rule_rhs && %w[) ,].include?(token&.value)
+            "a grammar symbol"
+          end
+        end
+
         private
 
         def classify_identifier(token, remaining, last_external, previous_external)
           return rule_lhs(token) if @state == :rules_lhs
           return :IDENTIFIER unless @state == :rule_rhs
           return :IDENTIFIER if named_reference_name?(last_external, previous_external)
-          return start_rule(token) if rule_boundary?(token, remaining.first)
+          return :IDENTIFIER if token.value == "end" && @delimiters.open_kind == :separated
           return finish_rules if token.value == "end"
+          return start_rule(token) if rule_boundary?(token, remaining.first)
           return separated_terminal(token) if separated_list_call?(token, remaining.first)
 
           :IDENTIFIER
@@ -64,7 +75,7 @@ module Ibex
         end
 
         def rule_boundary?(token, following)
-          following.type == :":" && token.location.column <= @lhs_column
+          @delimiters.empty? && following.type == :":" && token.location.column <= @lhs_column
         end
 
         def start_rule(token)

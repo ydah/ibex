@@ -65,7 +65,7 @@ jobs:
       - name: Check generated RBS signatures
         run: |
           bundle exec rbs-inline --base=lib --output="$RUNNER_TEMP/sig" \
-            lib/ibex.rb lib/ibex/runtime/parser.rb
+            lib/ibex.rb lib/ibex/error.rb lib/ibex/runtime/parser.rb
           diff -ru sig "$RUNNER_TEMP/sig"
       - name: Validate RBS signatures
         run: bundle exec rbs -I sig validate
