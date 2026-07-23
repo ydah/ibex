@@ -26,16 +26,21 @@ module Ibex
       attr_reader :reserved #: bool
       attr_reader :precedence #: precedence?
       attr_reader :location #: location?
+      attr_reader :display_name #: String?
+      attr_reader :semantic_type #: String?
 
       # @rbs (id: Integer, name: String, kind: Symbol, ?reserved: bool, ?precedence: precedence?,
-      #   ?location: location?) -> void
-      def initialize(id:, name:, kind:, reserved: false, precedence: nil, location: nil)
+      #   ?location: location?, ?display_name: String?, ?semantic_type: String?) -> void
+      def initialize(id:, name:, kind:, reserved: false, precedence: nil, location: nil, display_name: nil,
+                     semantic_type: nil)
         @id = id
         @name = name.freeze
         @kind = kind.to_sym
         @reserved = reserved
         @precedence = IR.deep_freeze(precedence)
         @location = IR.deep_freeze(location)
+        @display_name = display_name&.freeze
+        @semantic_type = semantic_type&.freeze
         freeze
       end
 
@@ -46,7 +51,11 @@ module Ibex
 
       # @rbs () -> Hash[Symbol, untyped]
       def to_h
-        { id: @id, name: @name, kind: @kind, reserved: @reserved, prec: @precedence, loc: @location }
+        value = { id: @id, name: @name, kind: @kind, reserved: @reserved,
+                  prec: @precedence, loc: @location } #: Hash[Symbol, untyped]
+        value[:display_name] = @display_name if @display_name
+        value[:semantic_type] = @semantic_type if @semantic_type
+        value
       end
     end
 

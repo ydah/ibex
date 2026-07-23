@@ -38,6 +38,10 @@ module Ibex
       #   private def self.symbol_name: (Hash[Integer, String] labels, Integer id) -> String
       #   private def tree_label: (IR::Grammar grammar, Hash[Integer, String] labels, untyped value) -> untyped
       #   private def self.tree_label: (IR::Grammar grammar, Hash[Integer, String] labels, untyped value) -> untyped
+      #   private def display_conflict: (IR::conflict conflict, IR::Grammar grammar,
+      #     Hash[Integer, String] labels) -> Hash[Symbol, untyped]
+      #   private def self.display_conflict: (IR::conflict conflict, IR::Grammar grammar,
+      #     Hash[Integer, String] labels) -> Hash[Symbol, untyped]
 
       # @rbs (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> String
       def render(automaton, max_tokens: LALR::Counterexample::DEFAULT_MAX_TOKENS,
@@ -69,7 +73,9 @@ module Ibex
         end
         lines << "  default: #{format_action(state.default_action)}" if state.default_action
         state.gotos.each { |symbol_id, target| lines << "  goto #{symbol_name(labels, symbol_id)}: #{target}" }
-        state.conflicts.each { |conflict| lines << "  conflict: #{conflict.inspect}" }
+        state.conflicts.each do |conflict|
+          lines << "  conflict: #{display_conflict(conflict, grammar, labels).inspect}"
+        end
         examples.each { |example| append_counterexample(lines, example, grammar, labels) }
         lines << ""
       end
@@ -77,7 +83,8 @@ module Ibex
       # @rbs skip
       def append_counterexample(lines, example, grammar, labels)
         label = example[:unifying] ? "unifying counterexample" : "nonunifying witness"
-        sentence = example[:sentence].dup.insert(example[:lookahead_index], "•").join(" ")
+        sentence = example[:sentence].map { |name| tree_label(grammar, labels, name) }
+        sentence = sentence.dup.insert(example[:lookahead_index], "•").join(" ")
         lines << "  #{label}: #{sentence}"
         example[:interpretations].each do |interpretation|
           lines << "    #{interpretation[:kind]} derivation:"
@@ -106,7 +113,10 @@ module Ibex
       # @rbs skip
       def format_item(item, grammar, labels)
         if item.production == LALR::Builder::AUGMENTED_PRODUCTION
-          rhs = [grammar.start]
+          start = grammar.symbol(grammar.start)
+          raise Ibex::Error, "missing start symbol #{grammar.start}" unless start
+
+          rhs = [symbol_name(labels, start.id)]
           lhs = "$accept"
         else
           production = grammar.productions.fetch(item.production)
@@ -137,12 +147,20 @@ module Ibex
         symbol = grammar.symbol(value.to_s)
         symbol ? symbol_name(labels, symbol.id) : value
       end
+
+      # @rbs skip
+      def display_conflict(conflict, grammar, labels)
+        symbol = grammar.symbol(conflict[:symbol])
+        return conflict unless symbol
+
+        conflict.merge(symbol: symbol_name(labels, symbol.id))
+      end
       module_function :append_state, :append_counterexample, :append_tree, :format_item, :format_action, :symbol_name,
-                      :tree_label
+                      :tree_label, :display_conflict
 
       class << self
         private :append_state, :append_counterexample, :append_tree, :format_item, :format_action, :symbol_name,
-                :tree_label
+                :tree_label, :display_conflict
       end
     end
   end

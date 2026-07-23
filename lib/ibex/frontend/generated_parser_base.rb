@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require_relative "generated_parser_metadata"
+
 module Ibex
   module Frontend
     # Semantic support and token delivery for the generated grammar parser.
     class GeneratedParserBase < Runtime::Parser
+      include GeneratedParserMetadata
+
       # @rbs @adapter: TokenAdapter
       # @rbs @mode: Symbol
 
@@ -12,7 +16,7 @@ module Ibex
         raise ArgumentError, "mode must be :racc or :extended" unless %i[racc extended].include?(mode)
 
         super()
-        @adapter = TokenAdapter.new(tokens)
+        @adapter = TokenAdapter.new(tokens, extended: mode == :extended)
         @mode = mode
       end
 

@@ -3,7 +3,10 @@
 require "optparse"
 require_relative "../ibex"
 require_relative "cli/counterexample_options"
+require_relative "cli/error_messages"
+require_relative "cli/ir_tools"
 require_relative "cli/outputs"
+require_relative "cli/samples"
 
 module Ibex
   # @rbs!
@@ -28,12 +31,23 @@ module Ibex
   #     ?verbose: bool,
   #     ?rbs: String | true,
   #     ?dot: String,
+  #     ?mermaid: String,
   #     ?html: String,
+  #     ?railroad: String,
+  #     ?messages: String,
+  #     ?messages_update: String | true,
+  #     ?messages_algorithm_explicit: bool,
+  #     ?sample_count: Integer,
+  #     ?sample_seed: Integer,
+  #     ?sample_max_tokens: Integer,
+  #     ?sample_max_depth: Integer,
+  #     ?sample_max_expansions: Integer,
   #     ?log_file: String,
   #     ?executable: String,
   #     ?frozen: bool,
   #     ?omit_actions: bool,
   #     ?superclass: String,
+  #     ?verify_output: bool,
   #     ?check_only: bool,
   #     ?status: bool,
   #     ?profile: bool,
@@ -48,7 +62,10 @@ module Ibex
   # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.
   class CLI
     include CLICounterexampleOptions
+    include CLIErrorMessages
+    include CLIIRTools
     include CLIOutputs
+    include CLISamples
 
     # @rbs @stdout: _CLIOutput
     # @rbs @stderr: _CLIOutput
@@ -69,12 +86,21 @@ module Ibex
 
     # @rbs (Array[String] arguments) -> Integer
     def run(arguments)
+      return run_error_messages_command(arguments.drop(1)) if arguments.first == "errors"
+      return run_samples_command(arguments.drop(1)) if arguments.first == "samples"
+      return run_validate_ir_command(arguments.drop(1)) if arguments.first == "validate-ir"
+      return run_compare_command(arguments.drop(1)) if arguments.first == "compare"
+
       parser = option_parser
       remaining = parser.parse(arguments)
       information = informational_result(parser)
       return information unless information.nil?
 
-      process_grammar(input_path(remaining))
+      validate_messages_options
+      validate_generation_options
+      path = input_path(remaining)
+      validate_generation_paths!(path)
+      process_grammar(path)
     rescue OptionParser::ParseError, Ibex::Error, Errno::ENOENT => e
       @stderr.puts(e.message)
       1
@@ -88,14 +114,21 @@ module Ibex
         options.banner = "Usage: ibex [options] grammarfile"
         add_pipeline_options(options)
         add_output_options(options)
+        add_error_messages_generation_option(options)
         add_compatibility_options(options)
         add_information_options(options)
+        options.separator("")
+        options.separator("Subcommands:")
+        options.separator("    errors --update[=FILE]  update state-specific syntax error messages")
+        options.separator("    samples                   generate bounded terminal sentences")
+        options.separator("    validate-ir FILE          validate a versioned IR document")
+        options.separator("    compare BEFORE AFTER      compare two versioned IR documents")
       end
     end
 
     # @rbs (OptionParser options) -> void
     def add_pipeline_options(options)
-      options.on("--emit=FORMAT", "ast, grammar-ir, automaton-ir, or ruby") { |value| @options[:emit] = value }
+      options.on("--emit=FORMAT", "ast, sets, grammar-ir, automaton-ir, or ruby") { |value| @options[:emit] = value }
       options.on("--from=FORMAT", %w[grammar-ir automaton-ir], "resume from IR JSON") do |value|
         @options[:from] = value
       end
@@ -123,7 +156,11 @@ module Ibex
         @options[:rbs] = value || true
       end
       options.on("--dot=FILE", "write Graphviz DOT") { |value| @options[:dot] = value }
+      options.on("--mermaid=FILE", "write a Mermaid flowchart") { |value| @options[:mermaid] = value }
       options.on("--html=FILE", "write a self-contained HTML report") { |value| @options[:html] = value }
+      options.on("--railroad=FILE", "write a self-contained SVG railroad diagram") do |value|
+        @options[:railroad] = value
+      end
       options.on("-O", "--log-file=FILE", "automaton report path") do |value|
         @options[:verbose] = true
         @options[:log_file] = value
@@ -146,6 +183,7 @@ module Ibex
       end
       options.on("-a", "--no-omit-actions", "generate implicit action methods") { @options[:omit_actions] = false }
       options.on("--superclass=CLASS", "override parser superclass") { |value| @options[:superclass] = value }
+      options.on("--check", "verify generated parser content without rewriting") { @options[:verify_output] = true }
       options.on("-C", "--check-only", "check grammar and exit") { @options[:check_only] = true }
       options.on("-S", "--output-status", "show pipeline status") { @options[:status] = true }
       options.on("-P", "accept the compatibility profiling flag") { @options[:profile] = true }
@@ -177,6 +215,76 @@ module Ibex
       path
     end
 
+    # @rbs () -> void
+    def validate_generation_options
+      return unless @options[:verify_output]
+
+      raise Ibex::Error, "(cli):1:1: --check requires --emit=ruby" unless @options[:emit] == "ruby"
+      raise Ibex::Error, "(cli):1:1: --check and --check-only cannot be combined" if @options[:check_only]
+    end
+
+    # @rbs (String input_path) -> void
+    def validate_generation_paths!(input_path)
+      paths = generation_paths(input_path).filter_map do |kind, path|
+        [kind, path] if path
+      end #: Array[[Symbol, String]]
+      collision = paths.combination(2).find do |pair|
+        left = pair.fetch(0)
+        right = pair.fetch(1)
+        same_file_target?(left.fetch(1), right.fetch(1))
+      end
+      return unless collision
+
+      labels = collision.map { |kind, path| "#{kind}=#{path}" }
+      raise Ibex::Error, "(cli):1:1: paths must be distinct: #{labels.join(', ')}"
+    end
+
+    # @rbs (String left, String right) -> bool
+    def same_file_target?(left, right)
+      expanded_left = File.expand_path(left)
+      expanded_right = File.expand_path(right)
+      return true if expanded_left == expanded_right
+
+      return true if File.exist?(expanded_left) && File.exist?(expanded_right) &&
+                     File.identical?(expanded_left, expanded_right)
+
+      canonical_target_path(expanded_left) == canonical_target_path(expanded_right)
+    rescue SystemCallError
+      expanded_left == expanded_right
+    end
+
+    # @rbs (String path) -> String
+    def canonical_target_path(path)
+      return File.realpath(path) if File.exist?(path)
+
+      suffix = [] #: Array[String]
+      cursor = path
+      until File.exist?(cursor)
+        parent = File.dirname(cursor)
+        return path if parent == cursor
+
+        suffix.unshift(File.basename(cursor))
+        cursor = parent
+      end
+      File.join(File.realpath(cursor), *suffix)
+    end
+
+    # @rbs (String input_path) -> Hash[Symbol, String?]
+    def generation_paths(input_path)
+      paths = { input: input_path, messages: @options[:messages] } #: Hash[Symbol, String?]
+      if @options[:emit] == "ruby" && !@options[:check_only]
+        output = @options[:output] || default_output_path(input_path, ".rb")
+        paths[:parser] = output
+        paths[:rbs] = rbs_output_path(output) if @options[:rbs]
+      end
+      unless @options[:verify_output]
+        paths.merge!(dot: @options[:dot], mermaid: @options[:mermaid], html: @options[:html],
+                     railroad: @options[:railroad])
+        paths[:report] = @options[:log_file] || default_output_path(input_path, ".output") if @options[:verbose]
+      end
+      paths
+    end
+
     # @rbs (String path) -> Integer
     def process_grammar(path)
       return process_ir(path) if @options[:from]
@@ -192,7 +300,7 @@ module Ibex
     # @rbs (String path) -> Integer
     def process_ir(path)
       report_status("reading #{path}")
-      value = IR::Serialize.load(File.read(path))
+      value = IR::Validator.validate(File.read(path))
       expected = @options[:from] == "grammar-ir" ? IR::Grammar : IR::Automaton
       raise Ibex::Error, "#{path}:1:1: expected #{@options[:from]} input" unless value.is_a?(expected)
 
@@ -205,6 +313,9 @@ module Ibex
     def dispatch_grammar(grammar, path)
       handle_grammar_warnings(grammar, path)
       return 0 if @options[:check_only]
+
+      write_railroad(grammar) unless @options[:verify_output]
+      return emit_sets(grammar) if @options[:emit] == "sets"
       return emit_grammar(grammar) if @options[:emit] == "grammar-ir"
       return emit_automaton(grammar, path) if @options[:emit] == "automaton-ir"
       return emit_ruby(grammar, path) if @options[:emit] == "ruby"
@@ -216,6 +327,9 @@ module Ibex
     def dispatch_automaton(automaton, path)
       handle_grammar_warnings(automaton.grammar, path)
       return 0 if @options[:check_only]
+
+      write_railroad(automaton.grammar) unless @options[:verify_output]
+      return emit_sets(automaton.grammar) if @options[:emit] == "sets"
       return emit_grammar(automaton.grammar) if @options[:emit] == "grammar-ir"
       return emit_loaded_automaton(automaton, path) if @options[:emit] == "automaton-ir"
 
@@ -257,6 +371,19 @@ module Ibex
       0
     end
 
+    # @rbs (IR::Grammar grammar) -> Integer
+    def emit_sets(grammar)
+      sets = Analysis::Sets.new(grammar)
+      nonterminals = grammar.nonterminals.sort_by(&:name)
+      output = {
+        nullable: nonterminals.filter_map { |symbol| symbol.name if sets.nullable?(symbol) },
+        first: nonterminals.to_h { |symbol| [symbol.name, sets.first(symbol).sort] },
+        follow: nonterminals.to_h { |symbol| [symbol.name, sets.follow(symbol).sort] }
+      }
+      @stdout.puts(JSON.pretty_generate(output))
+      0
+    end
+
     # @rbs (IR::Grammar grammar, String input_path) -> Integer
     def emit_automaton(grammar, input_path)
       @stdout.write(IR::Serialize.dump(build_automaton(grammar, input_path)))
@@ -276,9 +403,11 @@ module Ibex
                    line_convert: @options.fetch(:line_convert), debug: @options.fetch(:debug, false),
                    line_convert_all: @options.fetch(:line_convert_all, false),
                    omit_action_call: @options[:omit_actions], superclass: @options[:superclass],
-                   executable: @options[:executable]
+                   executable: @options[:executable], error_messages: configured_error_messages(automaton)
       ).generate
       output_path = @options[:output] || default_output_path(input_path, ".rb")
+      return verify_generated_outputs(automaton, output_path, source) if @options[:verify_output]
+
       File.write(output_path, source)
       File.chmod(0o755, output_path) if @options[:executable]
       report_status("wrote #{output_path}")
@@ -286,15 +415,44 @@ module Ibex
       0
     end
 
+    # @rbs (IR::Automaton automaton, String output_path, String source) -> Integer
+    def verify_generated_outputs(automaton, output_path, source)
+      verify_file(output_path, source, "parser")
+      verify_file(rbs_output_path(output_path), rbs_source(automaton), "RBS signature") if @options[:rbs]
+      report_status("verified #{output_path}")
+      0
+    end
+
+    # @rbs (String path, String source, String label) -> void
+    def verify_file(path, source, label)
+      raise Ibex::Error, "#{path}:1:1: generated #{label} is missing" unless File.exist?(path)
+      return if File.binread(path) == source
+
+      raise Ibex::Error, "#{path}:1:1: generated #{label} is stale; regenerate it with the same options"
+    end
+
     # @rbs (IR::Automaton automaton, String output_path) -> void
     def write_rbs(automaton, output_path)
+      path = rbs_output_path(output_path)
+      source = rbs_source(automaton)
+      File.write(path, source)
+      report_status("wrote #{path}")
+    end
+
+    # @rbs (String output_path) -> String
+    def rbs_output_path(output_path)
       configured_path = @options[:rbs]
       path = configured_path == true ? default_output_path(output_path, ".rbs") : configured_path
       raise ArgumentError, "RBS output path is required" unless path.is_a?(String)
 
-      source = Codegen::RBS.new(automaton, superclass: @options[:superclass]).generate
-      File.write(path, source)
-      report_status("wrote #{path}")
+      path
+    end
+
+    # @rbs (IR::Automaton automaton) -> String
+    def rbs_source(automaton)
+      Codegen::RBS.new(
+        automaton, superclass: @options[:superclass], omit_action_call: @options[:omit_actions]
+      ).generate
     end
 
     # @rbs (IR::Automaton automaton, String input_path) -> Integer
@@ -309,24 +467,34 @@ module Ibex
       report_status("building LALR automaton")
       automaton = LALR::Builder.new(grammar, algorithm: @options[:algorithm] || :lalr).build
       report_conflicts(automaton, input_path)
-      write_report(automaton, input_path) if @options[:verbose]
-      write_visualizations(automaton)
+      suggest_lr1(automaton, input_path)
+      write_report(automaton, input_path) if @options[:verbose] && !@options[:verify_output]
+      write_visualizations(automaton) unless @options[:verify_output]
       automaton
     end
 
     # @rbs (IR::Automaton automaton, String input_path) -> void
     def prepare_loaded_automaton(automaton, input_path)
       report_conflicts(automaton, input_path)
-      write_report(automaton, input_path) if @options[:verbose]
-      write_visualizations(automaton)
+      suggest_lr1(automaton, input_path)
+      write_report(automaton, input_path) if @options[:verbose] && !@options[:verify_output]
+      write_visualizations(automaton) unless @options[:verify_output]
     end
 
     # @rbs (IR::Automaton automaton) -> void
     def write_visualizations(automaton)
       dot_path = @options[:dot]
+      mermaid_path = @options[:mermaid]
       html_path = @options[:html]
       File.write(dot_path, Codegen::Dot.render(automaton)) if dot_path
+      File.write(mermaid_path, Codegen::Mermaid.render(automaton)) if mermaid_path
       File.write(html_path, Codegen::HTML.render(automaton)) if html_path
+    end
+
+    # @rbs (IR::Grammar grammar) -> void
+    def write_railroad(grammar)
+      path = @options[:railroad]
+      File.write(path, Codegen::Railroad.render(grammar)) if path
     end
   end
   # rubocop:enable Metrics/ClassLength

@@ -28,3 +28,9 @@
 - Add grammar-local `pragma extended` selection and document the action and named-reference boundary inside EBNF groups.
 - Add fixed-seed pipeline properties, versioned Grammar/Automaton IR fixtures, and a reproducible whole-builder benchmark.
 - Keep the whole-library Steep statistics in the README synchronized and enforce them in CI.
+- Add typed symbol/display declarations, state-specific `.messages`, structured located errors, caller-driven push parsing, and
+  dependency-free JSON Lines tracing.
+- Add FIRST/FOLLOW output, Mermaid and interactive HTML reports, railroad SVGs, generated-output checks, Rake integration,
+  bounded samples, IR validation/comparison, and published JSON Schemas.
+- Compile mapped actions once at class load, optimize compact-table placement, make safe generated tables Ractor-shareable, and
+  exercise real example grammars plus frozen-string and experimental TruffleRuby CI.

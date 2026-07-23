@@ -4,7 +4,9 @@ module Ibex
   module Frontend
     # Parses the declaration section of a grammar.
     module BootstrapParserDeclarations
-      DECLARATIONS = %w[token prechigh preclow options expect start convert pragma rule].freeze #: Array[String]
+      DECLARATIONS = %w[
+        token prechigh preclow options expect start convert display type pragma rule
+      ].freeze #: Array[String]
       ASSOCIATIVITIES = %w[left right nonassoc].freeze #: Array[String]
 
       private
@@ -45,6 +47,8 @@ module Ibex
         when "expect" then parse_expect
         when "start" then parse_start
         when "convert" then parse_convert
+        when "display" then parse_symbol_metadata(AST::DisplayName, "display")
+        when "type" then parse_symbol_metadata(AST::SemanticType, "type")
         when "pragma" then fail_at(current.location, "expected rule, got pragma")
         else fail_expected("a declaration or rule")
         end
@@ -124,6 +128,27 @@ module Ibex
         AST::Convert.new(pairs: pairs, loc: location)
       end
 
+      # @rbs (singleton(AST::DisplayName) | singleton(AST::SemanticType) node_class, String feature) ->
+      #   (AST::DisplayName | AST::SemanticType)
+      def parse_symbol_metadata(node_class, feature)
+        # @type self: BootstrapParser
+        keyword = advance
+        extended_only!(keyword.location, "#{feature} declarations")
+        name = expect_symbol
+        value = expect_metadata_value
+        validate_metadata_line(keyword, name, value, feature)
+        decoded = decode_quoted_literal(value, feature)
+        node_class.new(name: token_string(name), value: decoded, loc: keyword.location)
+      end
+
+      # @rbs () -> Token
+      def expect_metadata_value
+        # @type self: BootstrapParser
+        return advance if current.type == :literal
+
+        fail_expected("a quoted string")
+      end
+
       # @rbs (Integer line) -> Array[Token]
       def tokens_on_line(line)
         # @type self: BootstrapParser
@@ -147,10 +172,41 @@ module Ibex
         fail_at(location, "invalid conversion expression: #{e.message}")
       end
 
+      # @rbs (Token keyword, Token name, Token value, String feature) -> void
+      def validate_metadata_line(keyword, name, value, feature)
+        # @type self: BootstrapParser
+        return if keyword.location.line == name.location.line && name.location.line == value.location.line
+
+        fail_at(keyword.location, "#{feature} declaration must be written on one line")
+      end
+
+      # @rbs (Token token, String feature) -> String
+      def decode_quoted_literal(token, feature)
+        # @type self: BootstrapParser
+        literal = token_string(token)
+        decoded = if literal.start_with?('"')
+                    literal.undump
+                  else
+                    (literal[1...-1] || "").gsub("\\'", "'").gsub("\\\\", "\\")
+                  end
+        fail_at(token.location, "#{feature} value must not be empty") if decoded.strip.empty?
+        fail_at(token.location, "#{feature} value must be a single line") if decoded.match?(/[\r\n]/)
+        fail_at(token.location, "#{feature} value must not contain control characters") if
+          decoded.match?(/[[:cntrl:]]/)
+
+        decoded
+      rescue RuntimeError => e
+        fail_at(token.location, "invalid #{feature} value: #{e.message}")
+      end
+
       # @rbs () -> bool
       def declaration_start?
         # @type self: BootstrapParser
-        current.type == :eof || (current.type == :identifier && DECLARATIONS.include?(current.value))
+        return true if current.type == :eof
+        return false unless current.type == :identifier && DECLARATIONS.include?(current.value)
+        return false if %w[display type].include?(current.value) && @mode != :extended
+
+        true
       end
 
       # @rbs () -> bool

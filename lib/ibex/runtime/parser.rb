@@ -17,7 +17,7 @@ module Ibex
       attr_reader :suggestions #: Array[String]
 
       # rubocop:disable Layout/LineLength
-      # @rbs (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: untyped, ?expected_tokens: Array[String], ?location: untyped, ?state: Integer?, ?suggestions: Array[String]) -> void
+      # @rbs (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: untyped, ?expected_tokens: Array[String], ?location: untyped, ?state: Integer?, ?suggestions: Array[String], ?detail: String?) -> void
       # rubocop:enable Layout/LineLength
       def initialize(
         message = nil,
@@ -27,7 +27,8 @@ module Ibex
         expected_tokens: [],
         location: nil,
         state: nil,
-        suggestions: []
+        suggestions: [],
+        detail: nil
       )
         @token_id = token_id
         @token_name = token_name
@@ -36,6 +37,7 @@ module Ibex
         @location = location
         @state = state
         @suggestions = suggestions.dup.freeze
+        @detail = detail
         super(message || diagnostic_message)
       end
 
@@ -52,7 +54,8 @@ module Ibex
       # @rbs () -> String
       def diagnostic_message
         expected = @expected_tokens.empty? ? "" : "; expected #{@expected_tokens.join(', ')}"
-        message = "#{location_label}: unexpected #{@token_name || @token_id}#{expected} (#{@token_value.inspect})"
+        default = "unexpected #{@token_name || @token_id}#{expected} (#{@token_value.inspect})"
+        message = "#{location_label}: #{@detail || default}"
         source_line = location_value(:source_line)
         column = location_value(:column)
         message += "\n#{source_line}\n#{' ' * [column.to_i - 1, 0].max}^" if source_line
@@ -75,7 +78,8 @@ module Ibex
     # Drives a table-defined LR parser without native extensions.
     #
     # Subclasses provide `.parser_tables`, returning `:tokens`, `:token_names`,
-    # `:actions`, `:gotos`, and `:productions`. Actions are represented by
+    # `:actions`, `:gotos`, and `:productions`, with optional
+    # `:default_actions` and `:error_messages`. Actions are represented by
     # `[:shift, state]`, `[:reduce, production]`, `[:accept]`, or `[:error]`.
     class Parser
       EOF_TOKEN = 0 #: Integer
@@ -201,14 +205,16 @@ module Ibex
       def on_error(token_id, value, _value_stack)
         expected = expected_tokens
         token_name = token_to_str(token_id)
+        state = @state_stack.last
         raise ParseError.new(
           token_id: token_id,
           token_name: token_name,
           token_value: value,
           expected_tokens: expected,
           location: @lookahead_location,
-          state: @state_stack.last,
-          suggestions: token_suggestions(token_name, expected)
+          state: state,
+          suggestions: token_suggestions(token_name, expected),
+          detail: parser_tables.fetch(:error_messages, EMPTY_ROW)[state]
         )
       end
 
@@ -308,8 +314,9 @@ module Ibex
           outcome = perform(action_for_current_state)
           if %i[accepted done].include?(outcome.first)
             finish_push_session
-            status = outcome.first == :accepted ? :accepted : :rejected
-            return [status, outcome.fetch(1)]
+            return [:accepted, outcome.fetch(1)] if outcome.first == :accepted
+
+            return [:rejected, outcome.fetch(1)]
           end
           return :need_more if @lookahead.equal?(NO_LOOKAHEAD)
         end

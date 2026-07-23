@@ -31,8 +31,8 @@ module Ibex
       # @rbs (Array[Hash[Integer, untyped]] rows) -> Compact
       def self.build: (Array[Hash[Integer, untyped]] rows) -> Compact
 
-      # @rbs (Array[Integer] columns, Array[Integer?] checks) -> Integer
-      private def self.find_offset: (Array[Integer] columns, Array[Integer?] checks) -> Integer
+      # @rbs (Array[Integer] columns, Array[Integer?] checks, Hash[Array[Integer], Integer] next_offsets) -> Integer
+      private def self.find_offset: (Array[Integer] columns, Array[Integer?] checks, Hash[Array[Integer], Integer] next_offsets) -> Integer
 
       # @rbs (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer) -> void
       def initialize: (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer) -> void

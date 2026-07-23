@@ -5,7 +5,8 @@ module Ibex
     # Grammar frontend node types.
     module AST
       # @rbs!
-      #   type declaration = Tokens | Precedence | Options | Expect | Start | Convert
+      #   type symbol_metadata = DisplayName | SemanticType
+      #   type declaration = Tokens | Precedence | Options | Expect | Start | Convert | symbol_metadata
       #   type item = SymbolReference | InlineAction | Optional | Star | Plus | Group | SeparatedList
       #   type user_code = Hash[String, Array[UserCode]]
 
@@ -81,6 +82,18 @@ module Ibex
       Conversion = Struct.new(
         :name, #: String
         :expression, #: String
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      DisplayName = Struct.new(
+        :name, #: String
+        :value, #: String
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      SemanticType = Struct.new(
+        :name, #: String
+        :value, #: String
         :loc, #: Location
         keyword_init: true
       ) { include Node }

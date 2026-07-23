@@ -1,0 +1,51 @@
+# Generated from lib/ibex/samples.rb with RBS::Inline
+
+module Ibex
+  # Generates bounded terminal sentences from Grammar IR.
+  class Samples
+    DEFAULT_MAX_EXPANSIONS: Integer
+
+    # @rbs (IR::Grammar grammar, ?seed: Integer, ?max_tokens: Integer, ?max_depth: Integer,
+    #   ?max_expansions: Integer) -> void
+    def initialize: (IR::Grammar grammar, ?seed: Integer, ?max_tokens: Integer, ?max_depth: Integer, ?max_expansions: Integer) -> void
+
+    # @rbs (?count: Integer) -> Array[Array[String]]
+    def generate: (?count: Integer) -> Array[Array[String]]
+
+    private
+
+    # @rbs () -> Hash[Integer, Integer?]
+    def compute_minimum_costs: () -> Hash[Integer, Integer?]
+
+    # @rbs () -> Hash[Integer, Integer?]
+    def compute_minimum_heights: () -> Hash[Integer, Integer?]
+
+    # @rbs (Integer terminal_value) { (IR::Production, Hash[Integer, Integer?]) -> Integer? }
+    #   -> Hash[Integer, Integer?]
+    def compute_minimum_values: (Integer terminal_value) { (IR::Production, Hash[Integer, Integer?]) -> Integer? } -> Hash[Integer, Integer?]
+
+    # @rbs (Hash[Integer, Integer?] values, Integer terminal_value) -> Array[Integer]
+    def seed_terminal_values: (Hash[Integer, Integer?] values, Integer terminal_value) -> Array[Integer]
+
+    # @rbs (Hash[Integer, Integer?] values, Array[Integer] queue, Integer symbol_id, Integer? candidate) -> void
+    def update_minimum: (Hash[Integer, Integer?] values, Array[Integer] queue, Integer symbol_id, Integer? candidate) -> void
+
+    # @rbs (IR::Production production, Hash[Integer, Integer?] values) -> Array[Integer]?
+    def resolved_rhs_values: (IR::Production production, Hash[Integer, Integer?] values) -> Array[Integer]?
+
+    # @rbs (IR::GrammarSymbol start, Integer remaining_expansions) -> [Array[String], Integer]
+    def expand: (IR::GrammarSymbol start, Integer remaining_expansions) -> [ Array[String], Integer ]
+
+    # @rbs (Integer nonterminal_id, Integer budget, Integer depth) -> IR::Production
+    def choose_production: (Integer nonterminal_id, Integer budget, Integer depth) -> IR::Production
+
+    # @rbs (Integer symbol_id) -> Integer
+    def minimum_cost!: (Integer symbol_id) -> Integer
+
+    # @rbs (IR::Production production) -> Integer?
+    def production_cost: (IR::Production production) -> Integer?
+
+    # @rbs (IR::Production production) -> Integer?
+    def production_height: (IR::Production production) -> Integer?
+  end
+end

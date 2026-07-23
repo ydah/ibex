@@ -1,0 +1,86 @@
+# Generated from lib/ibex/codegen/railroad.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Renders normalized Grammar IR as a self-contained SVG railroad diagram.
+    module Railroad
+      CHAR_WIDTH: Integer
+
+      BOX_HEIGHT: Integer
+
+      BOX_PADDING: Integer
+
+      TRACK_GAP: Integer
+
+      ROW_HEIGHT: Integer
+
+      SECTION_HEADER: Integer
+
+      SECTION_GAP: Integer
+
+      PAGE_PADDING: Integer
+
+      TITLE_HEIGHT: Integer
+
+      EPSILON_WIDTH: Integer
+
+      START_RADIUS: Integer
+
+      END_RADIUS: Integer
+
+      MIN_RAIL_X: Integer
+
+      # @rbs STYLE: String
+      STYLE: ::String
+
+      # @rbs (IR::Grammar grammar) -> String
+      def self.render: (IR::Grammar grammar) -> String
+
+      # @rbs (IR::Grammar grammar) -> Array[[IR::GrammarSymbol, Array[IR::Production]]]
+      private def self.production_groups: (IR::Grammar grammar) -> Array[[ IR::GrammarSymbol, Array[IR::Production] ]]
+
+      # @rbs (IR::Grammar grammar, Array[[IR::GrammarSymbol, Array[IR::Production]]] groups,
+      #   Hash[Integer, String] labels, Integer rail_x) -> Integer
+      private def self.document_width: (IR::Grammar grammar, Array[[ IR::GrammarSymbol, Array[IR::Production] ]] groups, Hash[Integer, String] labels, Integer rail_x) -> Integer
+
+      # @rbs (Array[[IR::GrammarSymbol, Array[IR::Production]]] groups) -> Integer
+      private def self.document_height: (Array[[ IR::GrammarSymbol, Array[IR::Production] ]] groups) -> Integer
+
+      # @rbs (IR::Grammar grammar, Integer width, Integer height) -> Array[String]
+      private def self.document_start: (IR::Grammar grammar, Integer width, Integer height) -> Array[String]
+
+      # @rbs (Array[String] lines, IR::Grammar grammar,
+      #   Array[[IR::GrammarSymbol, Array[IR::Production]]] groups,
+      #   Hash[Integer, String] labels, Integer rail_x) -> void
+      private def self.append_sections: (Array[String] lines, IR::Grammar grammar, Array[[ IR::GrammarSymbol, Array[IR::Production] ]] groups, Hash[Integer, String] labels, Integer rail_x) -> void
+
+      # @rbs (Array[String] lines, IR::Grammar grammar, Array[IR::Production] productions,
+      #   Hash[Integer, String] labels, Integer rail_x) -> void
+      private def self.append_productions: (Array[String] lines, IR::Grammar grammar, Array[IR::Production] productions, Hash[Integer, String] labels, Integer rail_x) -> void
+
+      # @rbs (IR::Grammar grammar, IR::Production production, Hash[Integer, String] labels,
+      #   Integer rail_x, Integer offset_y) -> Array[String]
+      private def self.production_lines: (IR::Grammar grammar, IR::Production production, Hash[Integer, String] labels, Integer rail_x, Integer offset_y) -> Array[String]
+
+      # @rbs (Array[String] lines, IR::Grammar grammar, IR::Production production,
+      #   Hash[Integer, String] labels, Integer cursor) -> Integer
+      private def self.append_rhs: (Array[String] lines, IR::Grammar grammar, IR::Production production, Hash[Integer, String] labels, Integer cursor) -> Integer
+
+      # @rbs (Array[String] lines, Integer cursor) -> Integer
+      private def self.append_epsilon: (Array[String] lines, Integer cursor) -> Integer
+
+      # @rbs (IR::Grammar grammar, IR::Production production, Hash[Integer, String] labels,
+      #   Integer rail_x) -> Integer
+      private def self.row_end_x: (IR::Grammar grammar, IR::Production production, Hash[Integer, String] labels, Integer rail_x) -> Integer
+
+      # @rbs (String value) -> Integer
+      private def self.label_width: (String value) -> Integer
+
+      # @rbs (Integer from, Integer to) -> String
+      private def self.track: (Integer from, Integer to) -> String
+
+      # @rbs (String | Integer value) -> String
+      private def self.escape: (String | Integer value) -> String
+    end
+  end
+end

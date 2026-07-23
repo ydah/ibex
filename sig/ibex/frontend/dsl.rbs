@@ -41,6 +41,12 @@ module Ibex
         # @rbs (Object name, Object expression) -> void
         def convert: (Object name, Object expression) -> void
 
+        # @rbs (Object name, Object value) -> void
+        def display: (Object name, Object value) -> void
+
+        # @rbs (Object name, Object value) -> void
+        def type: (Object name, Object value) -> void
+
         # @rbs (?direction: Symbol) { (PrecedenceBuilder) -> void } -> void
         def precedence: (?direction: Symbol) { (PrecedenceBuilder) -> void } -> void
 
@@ -79,6 +85,11 @@ module Ibex
 
         # @rbs () -> Location
         def next_location: () -> Location
+
+        private
+
+        # @rbs (Object value, String feature) -> String
+        def metadata_value: (Object value, String feature) -> String
       end
 
       # Collects ordered associativity levels.

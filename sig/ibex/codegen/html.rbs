@@ -8,6 +8,22 @@ module Ibex
 
       private def self.state_sections: (IR::Automaton automaton, IR::Grammar grammar, Hash[Integer, String] labels) -> String
 
+      private def controls: (IR::Automaton automaton) -> String
+
+      private def self.controls: (IR::Automaton automaton) -> String
+
+      private def styles: () -> String
+
+      private def self.styles: () -> String
+
+      private def interaction_script: () -> String
+
+      private def self.interaction_script: () -> String
+
+      private def one_hop_neighbors: (IR::Automaton automaton, Integer state_id) -> Array[Integer]
+
+      private def self.one_hop_neighbors: (IR::Automaton automaton, Integer state_id) -> Array[Integer]
+
       private def item_html: (IR::AutomatonItem item, IR::Grammar grammar, Hash[Integer, String] labels) -> String
 
       private def self.item_html: (IR::AutomatonItem item, IR::Grammar grammar, Hash[Integer, String] labels) -> String
@@ -16,9 +32,9 @@ module Ibex
 
       private def self.rule_sections: (IR::Grammar grammar, Hash[Integer, String] labels) -> String
 
-      private def conflict_sections: (IR::Automaton automaton) -> String
+      private def conflict_sections: (IR::Automaton automaton, IR::Grammar grammar, Hash[Integer, String] labels) -> String
 
-      private def self.conflict_sections: (IR::Automaton automaton) -> String
+      private def self.conflict_sections: (IR::Automaton automaton, IR::Grammar grammar, Hash[Integer, String] labels) -> String
 
       private def escape: (String value) -> String
 

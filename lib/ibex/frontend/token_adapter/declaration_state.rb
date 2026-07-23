@@ -9,6 +9,7 @@ module Ibex
           "token" => %i[TOKEN token_symbols], "options" => %i[OPTIONS options_identifiers],
           "expect" => %i[EXPECT expect_integer], "start" => %i[START start_symbol],
           "convert" => %i[CONVERT convert_name], "pragma" => %i[PRAGMA pragma_value],
+          "display" => %i[DISPLAY display_symbol], "type" => %i[TYPE type_symbol],
           "rule" => %i[RULE rules]
         }.freeze #: Hash[String, [external_token, Symbol]]
         ASSOCIATIONS = {
@@ -19,7 +20,9 @@ module Ibex
         }.freeze #: Hash[Symbol, external_token]
         EXPECTATIONS = {
           class_keyword: "class", class_name: "identifier", superclass_name: "identifier",
-          expect_integer: "integer", start_symbol: "a grammar symbol"
+          expect_integer: "integer", start_symbol: "a grammar symbol",
+          display_symbol: "a grammar symbol", type_symbol: "a grammar symbol",
+          display_value: "a quoted string", type_value: "a quoted string"
         }.freeze #: Hash[Symbol, String]
 
         attr_reader :conversion_name #: Token?
@@ -27,8 +30,11 @@ module Ibex
         attr_reader :precedence_closer #: String?
         attr_reader :state #: Symbol
 
-        # @rbs () -> void
-        def initialize
+        # @rbs @extended_mode: bool
+
+        # @rbs (?extended: bool) -> void
+        def initialize(extended: false)
+          @extended_mode = extended
           @state = :class_keyword
         end
 
@@ -77,6 +83,7 @@ module Ibex
           when :token_symbols, :options_identifiers then declaration_symbol(token)
           when :precedence_association, :precedence_symbols then precedence_identifier(token)
           when :start_symbol then finish_single_symbol(:IDENTIFIER)
+          when :display_symbol, :type_symbol then begin_metadata_value(:IDENTIFIER)
           when :pragma_value then finish_pragma(token)
           when :convert_name then begin_conversion(token, :IDENTIFIER, remaining)
           else :IDENTIFIER
@@ -151,6 +158,8 @@ module Ibex
 
         # @rbs (String value) -> bool
         def declaration_boundary?(value)
+          return false if %w[display type].include?(value) && !(@extended_mode || extended_pragma?)
+
           DECLARATIONS.key?(value) || %w[prechigh preclow].include?(value)
         end
 
@@ -189,16 +198,50 @@ module Ibex
         # @rbs (Token token, Array[Token] remaining) -> external_token
         def classify_scalar(token, remaining)
           type = SCALAR_TYPES.fetch(token.type)
-          return finish_single_symbol(type) if @state == :expect_integer && type == :INTEGER
-          return finish_single_symbol(type) if @state == :start_symbol && type == :LITERAL
-          return begin_conversion(token, type, remaining) if @state == :convert_name && type == :LITERAL
-          return finish_conversion(type) if @state == :convert_expression && type == :LITERAL
+          classified = classify_single_symbol(type) || classify_metadata(type) ||
+                       classify_conversion(token, type, remaining)
 
-          type
+          classified || type
+        end
+
+        # @rbs (external_token type) -> external_token?
+        def classify_single_symbol(type)
+          return finish_single_symbol(type) if @state == :expect_integer && type == :INTEGER
+
+          finish_single_symbol(type) if @state == :start_symbol && type == :LITERAL
+        end
+
+        # @rbs (external_token type) -> external_token?
+        def classify_metadata(type)
+          return unless type == :LITERAL
+          return begin_metadata_value(type) if %i[display_symbol type_symbol].include?(@state)
+
+          finish_metadata_value(type) if %i[display_value type_value].include?(@state)
+        end
+
+        # @rbs (Token token, external_token type, Array[Token] remaining) -> external_token?
+        def classify_conversion(token, type, remaining)
+          return unless type == :LITERAL
+          return begin_conversion(token, type, remaining) if @state == :convert_name
+
+          finish_conversion(type) if @state == :convert_expression
         end
 
         # @rbs (external_token type) -> external_token
         def finish_single_symbol(type)
+          @state = :declaration
+          @declaration = nil
+          type
+        end
+
+        # @rbs (external_token type) -> external_token
+        def begin_metadata_value(type)
+          @state = @state == :display_symbol ? :display_value : :type_value
+          type
+        end
+
+        # @rbs (external_token type) -> external_token
+        def finish_metadata_value(type)
           @state = :declaration
           @declaration = nil
           type

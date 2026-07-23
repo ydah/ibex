@@ -11,13 +11,23 @@ module Ibex
       #     Hash[Integer, String] labels) -> String
       #   private def self.state_sections: (IR::Automaton automaton, IR::Grammar grammar,
       #     Hash[Integer, String] labels) -> String
+      #   private def controls: (IR::Automaton automaton) -> String
+      #   private def self.controls: (IR::Automaton automaton) -> String
+      #   private def styles: () -> String
+      #   private def self.styles: () -> String
+      #   private def interaction_script: () -> String
+      #   private def self.interaction_script: () -> String
+      #   private def one_hop_neighbors: (IR::Automaton automaton, Integer state_id) -> Array[Integer]
+      #   private def self.one_hop_neighbors: (IR::Automaton automaton, Integer state_id) -> Array[Integer]
       #   private def item_html: (IR::AutomatonItem item, IR::Grammar grammar, Hash[Integer, String] labels) -> String
       #   private def self.item_html: (IR::AutomatonItem item, IR::Grammar grammar,
       #     Hash[Integer, String] labels) -> String
       #   private def rule_sections: (IR::Grammar grammar, Hash[Integer, String] labels) -> String
       #   private def self.rule_sections: (IR::Grammar grammar, Hash[Integer, String] labels) -> String
-      #   private def conflict_sections: (IR::Automaton automaton) -> String
-      #   private def self.conflict_sections: (IR::Automaton automaton) -> String
+      #   private def conflict_sections: (IR::Automaton automaton, IR::Grammar grammar,
+      #     Hash[Integer, String] labels) -> String
+      #   private def self.conflict_sections: (IR::Automaton automaton, IR::Grammar grammar,
+      #     Hash[Integer, String] labels) -> String
       #   private def escape: (String value) -> String
       #   private def self.escape: (String value) -> String
       #   private def symbol_name: (Hash[Integer, String] labels, Integer id) -> String
@@ -30,12 +40,14 @@ module Ibex
         <<~HTML
           <!doctype html>
           <html lang="en"><head><meta charset="utf-8"><title>Ibex automaton</title>
-          <style>body{font:14px system-ui;margin:2rem;max-width:90rem}code{white-space:pre-wrap}.state{border:1px solid #bbb;padding:1rem;margin:1rem 0}.conflict{color:#a00}a{color:#075985}</style>
+          #{styles}
           </head><body><h1>Ibex #{escape(automaton.algorithm)} automaton</h1>
           <nav><a href="#rules">Rules</a> · <a href="#conflicts">Conflicts</a></nav>
-          #{state_sections(automaton, grammar, labels)}
+          #{controls(automaton)}
+          <main id="states">#{state_sections(automaton, grammar, labels)}</main>
           <h2 id="rules">Rules</h2>#{rule_sections(grammar, labels)}
-          <h2 id="conflicts">Conflicts</h2>#{conflict_sections(automaton)}
+          <h2 id="conflicts">Conflicts</h2>#{conflict_sections(automaton, grammar, labels)}
+          #{interaction_script}
           </body></html>
         HTML
       end
@@ -45,6 +57,62 @@ module Ibex
       private
 
       # @rbs skip
+      def styles
+        <<~HTML
+          <style>
+          body{font:14px system-ui;margin:2rem;max-width:90rem}code{white-space:pre-wrap}
+          .controls{align-items:center;display:flex;flex-wrap:wrap;gap:1rem;margin:1rem 0}
+          .state{border:1px solid #bbb;padding:1rem;margin:1rem 0}.state[hidden]{display:none}
+          .conflict-state{background:#fff7f7;border:2px solid #b91c1c}.conflict{color:#a00}a{color:#075985}
+          </style>
+        HTML
+      end
+
+      # @rbs skip
+      def interaction_script
+        <<~HTML
+          <script>
+          (() => {
+            const search = document.getElementById("state-search");
+            const conflictOnly = document.getElementById("conflict-only");
+            const neighborhood = document.getElementById("conflict-neighborhood");
+            const states = Array.from(document.querySelectorAll(".state"));
+            const update = () => {
+              const query = search.value.trim().toLowerCase();
+              const focus = neighborhood.value;
+              states.forEach((state) => {
+                const matchesText = !query || state.textContent.toLowerCase().includes(query);
+                const matchesConflict = !conflictOnly.checked || state.classList.contains("conflict-state");
+                const nearby = !focus || state.dataset.neighbors.split(" ").includes(focus);
+                state.hidden = !(matchesText && matchesConflict && nearby);
+              });
+            };
+            search.addEventListener("input", update);
+            conflictOnly.addEventListener("change", update);
+            neighborhood.addEventListener("change", update);
+          })();
+          </script>
+        HTML
+      end
+
+      # @rbs skip
+      def controls(automaton)
+        options = automaton.states.filter_map do |state|
+          next if state.conflicts.empty?
+
+          %(<option value="#{state.id}">State #{state.id}</option>)
+        end.join
+        <<~HTML
+          <div class="controls">
+          <label>Search states <input id="state-search" type="search" aria-controls="states"></label>
+          <label><input id="conflict-only" type="checkbox"> Conflicts only</label>
+          <label>Conflict neighborhood
+          <select id="conflict-neighborhood"><option value="">All states</option>#{options}</select></label>
+          </div>
+        HTML
+      end
+
+      # @rbs skip
       def state_sections(automaton, grammar, labels)
         automaton.states.map do |state|
           transitions = state.transitions.map do |symbol_id, target|
@@ -52,11 +120,23 @@ module Ibex
             "<li>#{symbol} → <a href=\"#state-#{target}\">state #{target}</a></li>"
           end.join
           items = state.items.map { |item| item_html(item, grammar, labels) }.join
+          class_name = state.conflicts.empty? ? "state" : "state conflict-state"
+          neighbors = one_hop_neighbors(automaton, state.id).join(" ")
           <<~HTML
-            <section class="state" id="state-#{state.id}"><h2>State #{state.id}</h2>
+            <section class="#{class_name}" id="state-#{state.id}" data-state-id="#{state.id}" data-neighbors="#{neighbors}">
+            <h2>State #{state.id}</h2>
             <ul>#{transitions}</ul><ul>#{items}</ul></section>
           HTML
         end.join
+      end
+
+      # @rbs skip
+      def one_hop_neighbors(automaton, state_id)
+        outgoing = automaton.states.fetch(state_id).transitions.values
+        incoming = automaton.states.filter_map do |state|
+          state.id if state.transitions.value?(state_id)
+        end
+        ([state_id] + outgoing + incoming).uniq.sort
       end
 
       # @rbs skip
@@ -81,11 +161,13 @@ module Ibex
       end
 
       # @rbs skip
-      def conflict_sections(automaton)
+      def conflict_sections(automaton, grammar, labels)
         conflicts = automaton.states.flat_map do |state|
           state.conflicts.map do |conflict|
             link = "<a href=\"#state-#{state.id}\">state #{state.id}</a>"
-            "<li class=\"conflict\">#{link}: #{escape(conflict.inspect)}</li>"
+            symbol = grammar.symbol(conflict[:symbol])
+            displayed = symbol ? conflict.merge(symbol: symbol_name(labels, symbol.id)) : conflict
+            "<li class=\"conflict\">#{link}: #{escape(displayed.inspect)}</li>"
           end
         end
         conflicts.empty? ? "<p>None</p>" : "<ul>#{conflicts.join}</ul>"
@@ -100,10 +182,12 @@ module Ibex
       def symbol_name(labels, id)
         labels.fetch(id) { raise Ibex::Error, "missing grammar symbol id #{id}" }
       end
-      module_function :state_sections, :item_html, :rule_sections, :conflict_sections, :escape, :symbol_name
+      module_function :styles, :interaction_script, :controls, :state_sections, :one_hop_neighbors
+      module_function :item_html, :rule_sections, :conflict_sections, :escape, :symbol_name
 
       class << self
-        private :state_sections, :item_html, :rule_sections, :conflict_sections, :escape, :symbol_name
+        private :styles, :interaction_script, :controls, :state_sections, :one_hop_neighbors
+        private :item_html, :rule_sections, :conflict_sections, :escape, :symbol_name
       end
     end
   end

@@ -18,12 +18,14 @@ Gem::Specification.new do |spec|
   spec.metadata["rubygems_mfa_required"] = "true"
 
   gemspec = File.basename(__FILE__)
-  spec.files = IO.popen(%w[git ls-files -z], chdir: __dir__, err: IO::NULL) do |ls|
+  tracked_files = IO.popen(%w[git ls-files -z], chdir: __dir__, err: IO::NULL) do |ls|
     ls.readlines("\x0", chomp: true).reject do |f|
       (f == gemspec) ||
         f.start_with?(*%w[Gemfile .gitignore test/ benchmark/ tool/ .github/ .idea/ docs/decisions/])
     end
   end
+  schema_files = %w[schema/grammar-ir-v1.schema.json schema/automaton-ir-v1.schema.json]
+  spec.files = (tracked_files + schema_files).uniq.sort
   spec.bindir = "exe"
   spec.executables = ["ibex"]
   spec.require_paths = ["lib"]

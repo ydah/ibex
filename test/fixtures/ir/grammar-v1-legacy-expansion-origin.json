@@ -1,0 +1,66 @@
+{
+  "ibex_ir": "grammar",
+  "schema_version": 1,
+  "class_name": "LegacyExpansionOriginParser",
+  "superclass": null,
+  "start": "start",
+  "expect": 0,
+  "options": {
+    "result_var": true,
+    "omit_action_call": true
+  },
+  "symbols": [
+    {
+      "id": 0,
+      "name": "$eof",
+      "kind": "terminal",
+      "reserved": true,
+      "prec": null,
+      "loc": null
+    },
+    {
+      "id": 1,
+      "name": "error",
+      "kind": "terminal",
+      "reserved": true,
+      "prec": null,
+      "loc": null
+    },
+    {
+      "id": 2,
+      "name": "start",
+      "kind": "nonterminal",
+      "reserved": false,
+      "prec": null,
+      "loc": {
+        "file": "legacy-origin.y",
+        "line": 3,
+        "column": 1
+      }
+    }
+  ],
+  "productions": [
+    {
+      "id": 0,
+      "lhs": 2,
+      "rhs": [],
+      "action": null,
+      "prec_override": null,
+      "origin": {
+        "kind": "optional_expansion",
+        "loc": {
+          "file": "legacy-origin.y",
+          "line": 3,
+          "column": 8
+        }
+      }
+    }
+  ],
+  "user_code": {
+    "header": "",
+    "inner": "",
+    "footer": ""
+  },
+  "conversions": {},
+  "warnings": []
+}

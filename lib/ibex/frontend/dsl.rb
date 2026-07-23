@@ -60,6 +60,18 @@ module Ibex
           @declarations << AST::Convert.new(pairs: [pair], loc: location)
         end
 
+        # @rbs (Object name, Object value) -> void
+        def display(name, value)
+          @declarations << AST::DisplayName.new(name: name.to_s, value: metadata_value(value, "display"),
+                                                loc: next_location)
+        end
+
+        # @rbs (Object name, Object value) -> void
+        def type(name, value)
+          @declarations << AST::SemanticType.new(name: name.to_s, value: metadata_value(value, "type"),
+                                                 loc: next_location)
+        end
+
         # @rbs (?direction: Symbol) { (PrecedenceBuilder) -> void } -> void
         def precedence(direction: :low_to_high)
           location = next_location
@@ -133,6 +145,19 @@ module Ibex
           location = Location.new(file: @file, line: @line, column: 1)
           @line += 1
           location
+        end
+
+        private
+
+        # @rbs (Object value, String feature) -> String
+        def metadata_value(value, feature)
+          string = value.to_s
+          raise ArgumentError, "#{feature} value must not be empty" if string.strip.empty?
+          raise ArgumentError, "#{feature} value must be a single line" if string.match?(/[\r\n]/)
+          raise ArgumentError, "#{feature} value must not contain control characters" if
+            string.match?(/[[:cntrl:]]/)
+
+          string
         end
       end
 

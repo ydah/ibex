@@ -36,6 +36,14 @@ module Ibex
 
       private def self.load_user_code_chunks: (untyped chunks) -> untyped
 
+      private def load_symbol_metadata: (untyped symbol, String field) -> String?
+
+      private def self.load_symbol_metadata: (untyped symbol, String field) -> String?
+
+      private def symbol_source_position: (untyped symbol) -> String
+
+      private def self.symbol_source_position: (untyped symbol) -> String
+
       private def symbolize: (untyped value) -> untyped
 
       private def self.symbolize: (untyped value) -> untyped

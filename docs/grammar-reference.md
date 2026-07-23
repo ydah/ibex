@@ -40,6 +40,11 @@ Grammar comments use `#` through end of line or `/* ... */`.
 - `start name` overrides the first rule as the start symbol.
 - `convert ... end` changes external token objects. The second column is a quoted string containing Ruby source, not the value
   itself: `NUM ':number'` uses `:number`, while `NUM '"number"'` uses the String `"number"`.
+- Extended mode accepts `display SYMBOL "human name"` to give a terminal or nonterminal a human-facing label without changing
+  its identity. Runtime errors, `expected_tokens`, and text, graph, and HTML reports prefer that label.
+- Extended mode accepts `type SYMBOL "RBS type"` to describe the symbol's semantic value. Display labels and type spellings
+  must be non-empty quoted values on the declaration line. Type spellings are copied as opaque RBS and should be checked with
+  normal RBS validation.
 
 ## Productions and actions
 
@@ -93,8 +98,8 @@ Extended mode supports:
 Parenthesized groups may contain sequences, alternatives, and nested EBNF, for example `(KEY VALUE)*`, `(A | B)+`, or
 `separated_list((KEY VALUE), ',')`. A one-item group has that item's value; a multi-item group has an Array of its item values;
 an empty group has `nil`. Named references must be unique in an outer alternative and cannot use `result`, `val`, or `_values`;
-references inside a group are rejected because the group is lowered behind one outer value slot. Text, DOT, and HTML reports
-render lowered helper nonterminals as their original EBNF expressions instead of exposing generated helper names.
+references inside a group are rejected because the group is lowered behind one outer value slot. Text, DOT, Mermaid, and HTML
+reports render lowered helper nonterminals as their original EBNF expressions instead of exposing generated helper names.
 
 Actions and named references are supported on an outer production alternative, but not inside a parenthesized EBNF group.
 Move the action or binding to a separately named ordinary rule and reference that rule from the group.
@@ -102,9 +107,42 @@ Move the action or binding to a separately named ordinary rule and reference tha
 ## Strict diagnostics
 
 Grammar IR retains structured diagnostics for undeclared or unused terminals, unreachable nonterminals, duplicate productions,
-and a start symbol that cannot derive any terminal sentence. They remain silent by default for compatibility. `--warnings=all`
-prints them, `--warnings=all,error` or `--warnings=error` promotes them to command failures, and `--warnings=none` explicitly
-suppresses them.
+unused precedence declarations, explicitly declared terminals used only by unreachable rules, and a start symbol that cannot
+derive any terminal sentence. They remain silent by default for compatibility. `--warnings=all` prints them,
+`--warnings=all,error` or `--warnings=error` promotes them to command failures, and `--warnings=none` explicitly suppresses them.
+An unexpected LALR conflict also gets an advisory `--algorithm=lr1` note when canonical LR(1) removes at least one unresolved
+conflict; this note does not change generation or exit status.
+
+## State-specific error messages
+
+`ibex errors --update grammar.y` writes `grammar.messages`; use `--update=FILE`, `--algorithm=NAME`, or an IR `--from` option to
+select another destination or automaton. The UTF-8 line-oriented format keeps message text separate from generated Ruby:
+
+```text
+# ibex-messages v1
+state 4
+# expected: "(", INT
+| An expression must start here.
+| Use an integer or an opening parenthesis.
+end
+```
+
+Blank lines and comments are ignored. Message lines start with `|`; multiple lines are joined with newlines, and `\\`, `\n`,
+`\t`, and `\r` are the supported escapes. Re-running `errors --update` retains message bodies for matching state numbers and
+moves disappeared states to `removed N` entries for review. State numbers belong to one generated automaton and may change after
+grammar, algorithm, option, or generator changes, so always review retained and removed entries after updating.
+
+Pass the reviewed file to Ruby generation with `--messages=grammar.messages`. An active state absent from the current automaton is
+an error with an instruction to update; removed entries are ignored. A matching message replaces only the generic syntax-error
+sentence, while structured token, location, expected-token, suggestion, source-line, and caret data remain available.
+
+## Analysis and visualizations
+
+`--emit=sets` writes deterministic JSON containing nullable nonterminals and their FIRST and FOLLOW sets. `--dot=FILE` and
+`--mermaid=FILE` write automaton graphs. `--html=FILE` writes a self-contained report with state search, conflict highlighting,
+and a filter that keeps a selected conflict state and its one-hop neighbors. All three visualizations can be produced while
+generating Ruby or when resuming from Automaton IR. `--railroad=FILE` writes a self-contained SVG railroad diagram from normalized
+Grammar IR, so it is also available before automaton construction and when resuming from Grammar or Automaton IR.
 
 ## Ruby DSL
 
@@ -123,5 +161,5 @@ end
 grammar_ir = Ibex::Normalizer.new(ast).normalize
 ```
 
-The builder also provides `options`, `expect`, `start`, `convert`, `user_code`, `ref(as:)`, `optional`, `star`, `plus`,
-`separated_list`, and `inline`.
+The builder also provides `options`, `expect`, `start`, `convert`, `display`, `type`, `user_code`, `ref(as:)`, `optional`,
+`star`, `plus`, `separated_list`, and `inline`.

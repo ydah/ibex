@@ -24,6 +24,10 @@ module Ibex
     # @rbs @declared_tokens: Hash[String, IR::location]
     # @rbs @precedence: Hash[String, IR::precedence]
     # @rbs @precedence_locations: Hash[String, IR::location]
+    # @rbs @display_names: Hash[String, String]
+    # @rbs @display_name_locations: Hash[String, IR::location]
+    # @rbs @semantic_types: Hash[String, String]
+    # @rbs @semantic_type_locations: Hash[String, IR::location]
     # @rbs @options: IR::grammar_options
     # @rbs @expected_conflicts: Integer
     # @rbs @conversions: Hash[String, String]
@@ -90,7 +94,8 @@ module Ibex
 
       precedence = @precedence[name]
       definition = IR::GrammarSymbol.new(id: @symbols.length, name: name, kind: kind, reserved: reserved,
-                                         precedence: precedence, location: location)
+                                         precedence: precedence, location: location, display_name: @display_names[name],
+                                         semantic_type: @semantic_types[name])
       @symbols << definition
       @symbols_by_name[name] = definition
       definition

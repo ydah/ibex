@@ -4,7 +4,9 @@ module Ibex
   module Frontend
     # Grammar frontend node types.
     module AST
-      type declaration = Tokens | Precedence | Options | Expect | Start | Convert
+      type symbol_metadata = DisplayName | SemanticType
+
+      type declaration = Tokens | Precedence | Options | Expect | Start | Convert | symbol_metadata
 
       type item = SymbolReference | InlineAction | Optional | Star | Plus | Group | SeparatedList
 
@@ -113,6 +115,28 @@ module Ibex
 
         def self.new: (?name: String, ?expression: String, ?loc: Location) -> instance
                     | ({ ?name: String, ?expression: String, ?loc: Location }) -> instance
+      end
+
+      class DisplayName < Struct[String | Location]
+        attr_accessor name(): String
+
+        attr_accessor value(): String
+
+        attr_accessor loc(): Location
+
+        def self.new: (?name: String, ?value: String, ?loc: Location) -> instance
+                    | ({ ?name: String, ?value: String, ?loc: Location }) -> instance
+      end
+
+      class SemanticType < Struct[String | Location]
+        attr_accessor name(): String
+
+        attr_accessor value(): String
+
+        attr_accessor loc(): Location
+
+        def self.new: (?name: String, ?value: String, ?loc: Location) -> instance
+                    | ({ ?name: String, ?value: String, ?loc: Location }) -> instance
       end
 
       class Rule < Struct[String | Array[Alternative] | Location]

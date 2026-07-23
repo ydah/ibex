@@ -1,5 +1,5 @@
 class Ibex::Frontend::GeneratedParser < Ibex::Frontend::GeneratedParserBase
-token CLASS TOKEN PRECHIGH PRECLOW OPTIONS EXPECT START CONVERT PRAGMA RULE END
+token CLASS TOKEN PRECHIGH PRECLOW OPTIONS EXPECT START CONVERT DISPLAY TYPE PRAGMA RULE END
 token LEFT RIGHT NONASSOC IDENTIFIER LITERAL INTEGER ACTION USER_CODE LHS
 token SEPARATED_LIST SEPARATED_NONEMPTY_LIST
 rule
@@ -30,6 +30,8 @@ rule
     | expect_declaration                 { result = val[0] }
     | start_declaration                  { result = val[0] }
     | convert_declaration                { result = val[0] }
+    | display_declaration                { result = val[0] }
+    | type_declaration                   { result = val[0] }
 
   token_declaration
     : TOKEN symbols                      { result = build_tokens(val[0], val[1]) }
@@ -68,6 +70,12 @@ rule
 
   conversion
     : grammar_symbol LITERAL              { result = build_conversion(val[0], val[1]) }
+
+  display_declaration
+    : DISPLAY grammar_symbol LITERAL       { result = build_display_name(val[0], val[1], val[2]) }
+
+  type_declaration
+    : TYPE grammar_symbol LITERAL          { result = build_semantic_type(val[0], val[1], val[2]) }
 
   identifiers
     :                                    { result = Array.new(0) }

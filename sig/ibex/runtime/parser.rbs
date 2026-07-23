@@ -7,12 +7,42 @@ module Ibex
 
     # Raised by the default parser error handler.
     class ParseError < StandardError
+      attr_reader token_id: Integer?
+
+      attr_reader token_name: String?
+
+      attr_reader token_value: untyped
+
+      attr_reader expected_tokens: Array[String]
+
+      attr_reader location: untyped
+
+      attr_reader state: Integer?
+
+      attr_reader suggestions: Array[String]
+
+      # rubocop:disable Layout/LineLength
+      # @rbs (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: untyped, ?expected_tokens: Array[String], ?location: untyped, ?state: Integer?, ?suggestions: Array[String], ?detail: String?) -> void
+      # rubocop:enable Layout/LineLength
+      def initialize: (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: untyped, ?expected_tokens: Array[String], ?location: untyped, ?state: Integer?, ?suggestions: Array[String], ?detail: String?) -> void
+
+      # @rbs () -> String
+      def location_label: () -> String
+
+      private
+
+      # @rbs () -> String
+      def diagnostic_message: () -> String
+
+      # @rbs (Symbol key) -> untyped
+      def location_value: (Symbol key) -> untyped
     end
 
     # Drives a table-defined LR parser without native extensions.
     #
     # Subclasses provide `.parser_tables`, returning `:tokens`, `:token_names`,
-    # `:actions`, `:gotos`, and `:productions`. Actions are represented by
+    # `:actions`, `:gotos`, and `:productions`, with optional
+    # `:default_actions` and `:error_messages`. Actions are represented by
     # `[:shift, state]`, `[:reduce, production]`, `[:accept]`, or `[:error]`.
     class Parser
       EOF_TOKEN: Integer
@@ -39,6 +69,8 @@ module Ibex
 
       @lookahead_value: untyped
 
+      @lookahead_location: untyped
+
       @recovery_shifts: Integer
 
       @semantic_error: bool
@@ -48,6 +80,10 @@ module Ibex
       @unknown_token_id: Integer?
 
       @unknown_token_name: String?
+
+      @push_status: :idle | :active | :finished
+
+      @driver_status: :idle | :pull | :push
 
       attr_accessor yydebug: bool
 
@@ -64,9 +100,26 @@ module Ibex
       # @rbs (untyped receiver, Symbol method_id) -> untyped
       def yyparse: (untyped receiver, Symbol method_id) -> untyped
 
-      # Override in pull parsers. Return `[token, value]`, `false`, or `nil`.
-      # @rbs () -> ([untyped, untyped] | false | nil)
-      def next_token: () -> ([ untyped, untyped ] | false | nil)
+      # Supply one token to a caller-driven parser session.
+      # Returns `:need_more` after consuming it, `[:accepted, result]` after
+      # acceptance, or `[:rejected, result]` after recovery terminates.
+      # rubocop:disable Layout/LineLength
+      # @rbs (untyped token, ?untyped value, ?untyped location) -> (:need_more | [:accepted, untyped] | [:rejected, untyped])
+      # rubocop:enable Layout/LineLength
+      def push: (untyped token, ?untyped value, ?untyped location) -> (:need_more | [ :accepted, untyped ] | [ :rejected, untyped ])
+
+      # Supply EOF to a caller-driven parser session and return its result.
+      # @rbs (?location: untyped) -> untyped
+      def finish: (?location: untyped) -> untyped
+
+      # Discard a caller-driven session so this parser can accept a new one.
+      # @rbs () -> nil
+      def reset_push: () -> nil
+
+      # Override in pull parsers. Return `[token, value]`,
+      # `[token, value, location]`, `false`, or `nil`.
+      # @rbs () -> ([untyped, untyped] | [untyped, untyped, untyped] | false | nil)
+      def next_token: () -> ([ untyped, untyped ] | [ untyped, untyped, untyped ] | false | nil)
 
       # Override to recover from syntax errors. The default always raises.
       # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> untyped
@@ -112,6 +165,21 @@ module Ibex
       # @rbs (^() -> untyped source) -> untyped
       def drive_parser: (^() -> untyped source) -> untyped
 
+      # @rbs () -> void
+      def start_push_session: () -> void
+
+      # @rbs () -> (:need_more | [:accepted, untyped] | [:rejected, untyped])
+      def run_push_lookahead: () -> (:need_more | [ :accepted, untyped ] | [ :rejected, untyped ])
+
+      # @rbs () { () -> untyped } -> untyped
+      def run_push_driver: () { () -> untyped } -> untyped
+
+      # @rbs () -> void
+      def ensure_driver_available!: () -> void
+
+      # @rbs () -> void
+      def finish_push_session: () -> void
+
       # @rbs (^() -> untyped source) -> void
       def prepare_parse: (^() -> untyped source) -> void
 
@@ -153,6 +221,15 @@ module Ibex
 
       # @rbs (untyped action) -> bool
       def error_action?: (untyped action) -> bool
+
+      # @rbs (String actual, Array[String] expected) -> Array[String]
+      def token_suggestions: (String actual, Array[String] expected) -> Array[String]
+
+      # @rbs (String token_name) -> String?
+      def normalized_token_word: (String token_name) -> String?
+
+      # @rbs (String left, String right) -> Integer
+      def edit_distance: (String left, String right) -> Integer
 
       # @rbs (Integer state) -> untyped
       def default_action: (Integer state) -> untyped

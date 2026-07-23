@@ -73,12 +73,15 @@ explicit error cells, including recovery and undeclared-token behavior. `--table
 
 ## Lexer contract
 
-Ibex does not generate a lexer. A pull parser implements `next_token` and returns `[token, value]`; `false` or `nil` marks EOF.
+Ibex does not generate a lexer. A pull parser implements `next_token` and returns `[token, value]` or
+`[token, value, location]`; `false` or `nil` marks EOF.
 Bare grammar tokens normally use Ruby symbols (`:NUM`), and quoted grammar tokens use strings (`'+'`). A push source can call
 `yyparse(receiver, method_name)` where the receiver method yields the same pairs.
 
 The default `on_error(token_id, value, value_stack)` raises `Ibex::ParseError`. Override it to use yacc-style `error` recovery.
 Semantic actions can call `yyerror`, `yyerrok`, or `yyaccept`, and `expected_tokens` reports valid lookaheads in the current state.
+`push(token, value, location)` / `finish(location:)` provide caller-driven streaming. The default `ParseError` exposes token,
+expected-token, state, location, and spelling-suggestion attributes and renders source lines with a caret when available.
 Parser subclasses can also override `on_shift(token_id, value, state)`,
 `on_reduce(production_id, values, result)`, and `on_error_recover(token_id, value, value_stack)` as no-op-by-default observers.
 Ordinary shifts and the synthetic recovery-token shift use separate hooks; observer return values never replace semantic values.
@@ -101,6 +104,14 @@ rule
 end
 ```
 
+Extended declarations can add human-readable diagnostics and generated action types:
+
+```text
+display NUM "number"
+type NUM "Integer"
+type expr "AST::Expression"
+```
+
 The value conventions are `nil` or a value for `?`, and arrays for `*`, `+`, `separated_list`, and
 `separated_nonempty_list`. Parenthesized sequences and alternatives can be nested; multi-item groups produce an Array value.
 Text, DOT, and HTML automaton reports label lowered helper symbols with these source-level EBNF expressions.
@@ -111,11 +122,17 @@ Text, DOT, and HTML automaton reports label lowered helper symbols with these so
 ibex --emit=grammar-ir grammar.y > grammar.json
 ibex --from=grammar-ir --emit=automaton-ir grammar.json > automaton.json
 ibex --from=automaton-ir -o parser.rb automaton.json
-ibex -v --dot=states.dot --html=states.html grammar.y
+ibex -v --dot=states.dot --mermaid=states.mmd --html=states.html --railroad=grammar.svg grammar.y
 ibex --algorithm=lr1 grammar.y
 ibex --counterexamples --counterexample-max-tokens=64 --counterexample-max-configurations=100000 grammar.y
 ibex --rbs -o parser.rb grammar.y
 ibex --warnings=all,error -C grammar.y
+ibex errors --update grammar.y
+ibex --messages=grammar.messages grammar.y
+ibex --check --rbs grammar.y
+ibex samples --count=10 --seed=42 grammar.y
+ibex validate-ir grammar.json
+ibex compare before.json after.json
 ```
 
 Supported construction algorithms are `slr`, `lalr` (default), and canonical `lr1`. Reports retain precedence-resolved
@@ -125,11 +142,16 @@ conflicts and distinguish unifying counterexamples from nonunifying reachability
 generated parser; `--rbs=FILE` selects another path. Application methods supplied as opaque `---- inner` code can be declared by
 reopening the generated class in an application RBS file.
 
-`--warnings=all` prints unused terminals, unreachable nonterminals, duplicate productions, undeclared terminals, and empty-language
-diagnostics. Add `error` (`--warnings=all,error`, or simply `--warnings=error`) to make any such diagnostic fail the command.
+`--warnings=all` prints unused terminals and precedence declarations, unreachable terminals and nonterminals, duplicate
+productions, undeclared terminals, and empty-language diagnostics. Add `error` (`--warnings=all,error`, or simply
+`--warnings=error`) to make any such diagnostic fail the command.
 Action exceptions and `inner` methods point back to their `.y` lines by default. `--line-convert-all` extends that mapping to
 `header` and `footer`; `-l` disables every source-line conversion. User-code chunk locations survive Grammar/Automaton IR JSON
 round trips, so resumed generation has the same backtraces as direct generation.
+
+`Ibex::Runtime::JSONLTracer.attach(parser, io:)` streams committed shifts, reductions, and recoveries without replacing existing
+hooks. `require "ibex/rake_task"` provides timestamp-aware parser generation for Rakefiles. Versioned JSON Schemas are shipped in
+`schema/`, and `examples/` contains calculator, JSON, INI, and tiny-language parsers backed only by the standard library.
 
 ## Documentation
 
@@ -163,6 +185,7 @@ reproducible whole-builder benchmark without a timing pass/fail threshold with:
 
 ```sh
 benchmark/pipeline.rb --rules 200 --iterations 5 --seed 12345
+benchmark/examples.rb --generation-iterations 5 --runtime-iterations 100
 ```
 
 Signatures for every Ruby source under `lib/` are generated from rbs-inline annotations and checked with Steep, including the
@@ -174,7 +197,7 @@ BUNDLE_GEMFILE=gemfiles/Gemfile ruby -e '
   sources = Dir.glob("lib/**/*.rb").sort
   exec("bundle", "exec", "rbs-inline", "--opt-out", "--base=lib", "--output=sig", *sources)
 '
-BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec rbs -r digest -r json -r optparse -I sig validate
+BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec rbs -r digest -r json -r optparse -r tempfile -I sig validate
 BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec steep check
 BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec steep stats
 BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
@@ -183,8 +206,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 3,771 typed calls and 449 untyped calls out of 4,220 (89.4% typed).
-The generated signature tree contains 397 explicit `untyped` occurrences across 16 files.
+The current whole-library `steep stats` result is 5,597 typed calls and 665 untyped calls out of 6,262 (89.4% typed).
+The generated signature tree contains 586 explicit `untyped` occurrences across 22 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

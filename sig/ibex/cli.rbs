@@ -7,14 +7,20 @@ module Ibex
     def write: (String) -> untyped
   end
 
-  type cli_options = { emit: String, mode: Symbol, table: Symbol, line_convert: bool, ?line_convert_all: bool, counterexample_max_tokens: Integer, counterexample_max_configurations: Integer, ?from: String, ?algorithm: Symbol, ?warnings: Array[Symbol], ?output: String, ?embedded: bool, ?debug: bool, ?verbose: bool, ?rbs: String | true, ?dot: String, ?html: String, ?log_file: String, ?executable: String, ?frozen: bool, ?omit_actions: bool, ?superclass: String, ?check_only: bool, ?status: bool, ?profile: bool, ?debug_flags: String, ?version: bool, ?runtime_version: bool, ?copyright: bool, ?help: bool }
+  type cli_options = { emit: String, mode: Symbol, table: Symbol, line_convert: bool, ?line_convert_all: bool, counterexample_max_tokens: Integer, counterexample_max_configurations: Integer, ?from: String, ?algorithm: Symbol, ?warnings: Array[Symbol], ?output: String, ?embedded: bool, ?debug: bool, ?verbose: bool, ?rbs: String | true, ?dot: String, ?mermaid: String, ?html: String, ?railroad: String, ?messages: String, ?messages_update: String | true, ?messages_algorithm_explicit: bool, ?sample_count: Integer, ?sample_seed: Integer, ?sample_max_tokens: Integer, ?sample_max_depth: Integer, ?sample_max_expansions: Integer, ?log_file: String, ?executable: String, ?frozen: bool, ?omit_actions: bool, ?superclass: String, ?verify_output: bool, ?check_only: bool, ?status: bool, ?profile: bool, ?debug_flags: String, ?version: bool, ?runtime_version: bool, ?copyright: bool, ?help: bool }
 
   # Command-line pipeline coordinator.
   # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.
   class CLI
     include CLICounterexampleOptions
 
+    include CLIErrorMessages
+
+    include CLIIRTools
+
     include CLIOutputs
+
+    include CLISamples
 
     @options: cli_options
 
@@ -54,6 +60,21 @@ module Ibex
     # @rbs (Array[String] remaining) -> String
     def input_path: (Array[String] remaining) -> String
 
+    # @rbs () -> void
+    def validate_generation_options: () -> void
+
+    # @rbs (String input_path) -> void
+    def validate_generation_paths!: (String input_path) -> void
+
+    # @rbs (String left, String right) -> bool
+    def same_file_target?: (String left, String right) -> bool
+
+    # @rbs (String path) -> String
+    def canonical_target_path: (String path) -> String
+
+    # @rbs (String input_path) -> Hash[Symbol, String?]
+    def generation_paths: (String input_path) -> Hash[Symbol, String?]
+
     # @rbs (String path) -> Integer
     def process_grammar: (String path) -> Integer
 
@@ -81,6 +102,9 @@ module Ibex
     # @rbs (IR::Grammar grammar) -> Integer
     def emit_grammar: (IR::Grammar grammar) -> Integer
 
+    # @rbs (IR::Grammar grammar) -> Integer
+    def emit_sets: (IR::Grammar grammar) -> Integer
+
     # @rbs (IR::Grammar grammar, String input_path) -> Integer
     def emit_automaton: (IR::Grammar grammar, String input_path) -> Integer
 
@@ -90,8 +114,20 @@ module Ibex
     # @rbs (IR::Automaton automaton, String input_path) -> Integer
     def generate_ruby: (IR::Automaton automaton, String input_path) -> Integer
 
+    # @rbs (IR::Automaton automaton, String output_path, String source) -> Integer
+    def verify_generated_outputs: (IR::Automaton automaton, String output_path, String source) -> Integer
+
+    # @rbs (String path, String source, String label) -> void
+    def verify_file: (String path, String source, String label) -> void
+
     # @rbs (IR::Automaton automaton, String output_path) -> void
     def write_rbs: (IR::Automaton automaton, String output_path) -> void
+
+    # @rbs (String output_path) -> String
+    def rbs_output_path: (String output_path) -> String
+
+    # @rbs (IR::Automaton automaton) -> String
+    def rbs_source: (IR::Automaton automaton) -> String
 
     # @rbs (IR::Automaton automaton, String input_path) -> Integer
     def emit_loaded_automaton: (IR::Automaton automaton, String input_path) -> Integer
@@ -104,5 +140,8 @@ module Ibex
 
     # @rbs (IR::Automaton automaton) -> void
     def write_visualizations: (IR::Automaton automaton) -> void
+
+    # @rbs (IR::Grammar grammar) -> void
+    def write_railroad: (IR::Grammar grammar) -> void
   end
 end

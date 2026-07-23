@@ -32,6 +32,10 @@ module Ibex
 
       private def self.tree_label: (IR::Grammar grammar, Hash[Integer, String] labels, untyped value) -> untyped
 
+      private def display_conflict: (IR::conflict conflict, IR::Grammar grammar, Hash[Integer, String] labels) -> Hash[Symbol, untyped]
+
+      private def self.display_conflict: (IR::conflict conflict, IR::Grammar grammar, Hash[Integer, String] labels) -> Hash[Symbol, untyped]
+
       # @rbs (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> String
       def self?.render: (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> String
     end

@@ -10,10 +10,23 @@ module Ibex
     # @rbs () -> void
     def validate_grammar
       # @type self: Normalizer
+      validate_symbol_metadata
       warn_duplicate_productions
       warn_unreachable_nonterminals
+      warn_unreachable_terminals
       warn_unused_terminals
+      warn_unused_precedence
       warn_empty_language
+    end
+
+    # @rbs () -> void
+    def validate_symbol_metadata
+      # @type self: Normalizer
+      { display: @display_name_locations, type: @semantic_type_locations }.each do |label, locations|
+        locations.each do |name, location|
+          fail_hash(location, "#{label} declaration references undefined symbol #{name}") unless symbol(name)
+        end
+      end
     end
 
     # @rbs () -> void
@@ -64,6 +77,35 @@ module Ibex
         next if grammar_symbol.reserved || used.include?(grammar_symbol.id) || @precedence.key?(grammar_symbol.name)
 
         @warnings << { type: :unused_terminal, symbol: grammar_symbol.name, loc: grammar_symbol.location }
+      end
+    end
+
+    # @rbs () -> void
+    def warn_unreachable_terminals
+      # @type self: Normalizer
+      reachable = reachable_symbol_ids
+      used = @productions.flat_map(&:rhs).to_set
+      @declared_tokens.each_key do |name|
+        grammar_symbol = required_symbol(name)
+        next unless used.include?(grammar_symbol.id)
+        next if reachable.include?(grammar_symbol.id)
+
+        @warnings << { type: :unreachable_terminal, symbol: name, loc: @declared_tokens[name] }
+      end
+    end
+
+    # @rbs () -> void
+    def warn_unused_precedence
+      # @type self: Normalizer
+      referenced = @productions.each_with_object(Set.new) do |production, symbol_ids|
+        production.rhs.each { |id| symbol_ids << id }
+        symbol_ids << production.precedence_override if production.precedence_override
+      end
+      @precedence.each_key do |name|
+        grammar_symbol = required_symbol(name)
+        next if referenced.include?(grammar_symbol.id)
+
+        @warnings << { type: :unused_precedence, symbol: name, loc: @precedence_locations[name] }
       end
     end
 

@@ -11,6 +11,13 @@ module Ibex
     # @rbs (Frontend::AST::declaration declaration) -> void
     def read_declaration: (Frontend::AST::declaration declaration) -> void
 
+    # @rbs (Frontend::AST::symbol_metadata declaration) -> void
+    def read_symbol_metadata_declaration: (Frontend::AST::symbol_metadata declaration) -> void
+
+    # @rbs (Frontend::AST::symbol_metadata declaration, Hash[String, String] values,
+    #   Hash[String, IR::location] locations, String label) -> void
+    def read_symbol_metadata: (Frontend::AST::symbol_metadata declaration, Hash[String, String] values, Hash[String, IR::location] locations, String label) -> void
+
     # @rbs (Frontend::AST::Precedence declaration) -> void
     def read_precedence: (Frontend::AST::Precedence declaration) -> void
 
