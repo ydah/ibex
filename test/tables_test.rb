@@ -32,7 +32,57 @@ class TablesTest < Minitest::Test
     assert_empty compact.row(-1)
   end
 
+  def test_compact_layout_remains_deterministic_when_rows_share_anchor_columns
+    rows = [
+      { 1 => :a, 5 => :b },
+      { 1 => :c, 3 => :d },
+      { 1 => :e, 5 => :f },
+      { 2 => :g },
+      {},
+      { 1 => :h, 2 => :i, 5 => :j }
+    ]
+
+    compact = Ibex::Tables::Compact.build(rows)
+
+    assert_equal [2, 3, 7, 7, 0, 0], compact.offsets
+    assert_equal [nil, :h, :i, :a, :c, :j, :d, :b, :e, :g, nil, nil, :f], compact.values
+    assert_equal [nil, 5, 5, 0, 1, 5, 1, 0, 2, 3, nil, nil, 2], compact.checks
+    actual_rows = rows.each_index.map { |row| compact.row(row) }
+    assert_equal rows, actual_rows
+  end
+
+  def test_optimized_offset_search_matches_naive_layout
+    random = Random.new(12_345)
+    rows = Array.new(80) do |row|
+      columns = (0..24).to_a.sample(random.rand(0..6), random: random)
+      columns.to_h { |column| [column, [row, column]] }
+    end
+    expected_offsets, expected_values, expected_checks = naive_layout(rows)
+
+    compact = Ibex::Tables::Compact.build(rows)
+
+    assert_equal expected_offsets, compact.offsets
+    assert_equal expected_values, compact.values
+    assert_equal expected_checks, compact.checks
+  end
+
   private
+
+  def naive_layout(rows)
+    offsets = Array.new(rows.length, 0)
+    values = []
+    checks = []
+    rows.each_index.sort_by { |row| [-rows[row].length, row] }.each do |row|
+      offset = 0
+      offset += 1 while rows[row].keys.any? { |column| checks[offset + column] }
+      offsets[row] = offset
+      rows[row].each do |column, value|
+        values[offset + column] = value
+        checks[offset + column] = row
+      end
+    end
+    [offsets, values, checks]
+  end
 
   def assert_state_tables(automaton, plain, compact, state)
     expected_default = plain.default_actions[state.id]
