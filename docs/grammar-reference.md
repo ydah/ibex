@@ -70,7 +70,8 @@ to `header` and `footer`; `-l` keeps all backtraces on generated-file lines.
 
 The action scanner handles nested braces, quoted/backtick strings and interpolation, `%q/%Q/%w/%W/%i/%I/%x/%r/%s`, regular
 expressions, comments, character literals, and unquoted, single-quoted, double-quoted, or backtick heredocs. Indented, squiggly,
-interpolated, and multiple heredocs on one opener line are supported. See [lexer coverage](lexer-coverage.md).
+interpolated, and multiple heredocs on one opener line are supported. Heredoc terminators follow their indentation mode, and
+multiple openers on one line are consumed in source order.
 
 ## Runtime errors
 
