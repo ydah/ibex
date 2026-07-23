@@ -1,5 +1,7 @@
 # Ibex
 
+[![Gem Version](https://badge.fury.io/rb/ibex.svg)](https://badge.fury.io/rb/ibex) [![CI](https://github.com/ydah/ibex/actions/workflows/main.yml/badge.svg)](https://github.com/ydah/ibex/actions/workflows/main.yml)
+
 Ibex is a Pure Ruby LR parser generator. It accepts racc-compatible grammar files, generates parsers with the familiar
 `do_parse` / `yyparse` API, and requires no C or Java extension. Its staged Grammar IR and Automaton IR can also drive extended
 EBNF syntax, diagnostics, visualizations, and alternate LR construction algorithms.
