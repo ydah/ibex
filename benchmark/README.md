@@ -13,3 +13,15 @@ for machine-readable output.
 
 Wall-clock values are observational and intentionally have no pass/fail threshold. Identical iterations must produce the
 same digest, so deterministic output regressions still fail immediately.
+
+Run the self-authored calculator, JSON, INI, and tiny-language grammars across
+plain/compact tables and mapped/direct semantic actions with:
+
+```sh
+benchmark/examples.rb --generation-iterations 3 --runtime-iterations 100
+```
+
+This second benchmark measures a complete grammar-to-Ruby build and repeated
+parses for every variant. `--json` emits results suitable for external
+collection. CI performs only a small deterministic smoke run; timing values
+remain observational and never act as a pass/fail threshold.
