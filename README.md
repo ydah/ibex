@@ -158,8 +158,6 @@ hooks. `require "ibex/rake_task"` provides timestamp-aware parser generation for
 - [Grammar reference](docs/grammar-reference.md)
 - [racc migration guide](docs/racc-migration.md)
 - [Architecture and IR schemas](docs/architecture.md)
-- [Compatibility observations](docs/compat-notes.md)
-- [Phase 10 extensions](docs/phase10-extensions.md)
 
 ## Development
 

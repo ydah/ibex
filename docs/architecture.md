@@ -85,6 +85,18 @@ associativity decisions; `rr` counts reduce/reduce cells.
 FIRST/FOLLOW maps for nonterminals. DOT, Mermaid, and the self-contained searchable HTML report are deterministic presentation
 views over Automaton IR.
 
+## Construction algorithms and counterexamples
+
+The builder uses canonical LR(1) item sets as its common starting point. The `lr1` strategy retains those states, `lalr` merges
+states with equal LR(0) cores, and `slr` applies FOLLOW sets to completed items in LR(0) states. All strategies use the same
+conflict resolver and produce the same Automaton IR shape.
+
+`Ibex::LALR::Counterexample` consumes only Automaton IR. For each conflict it explores parser-stack configurations, forces the
+competing actions, and searches for a common accepting suffix. A successful result contains both complete derivation trees and is
+marked `unifying: true`. Search defaults to 32 tokens and 50,000 configurations; the Ruby and CLI APIs can set both positive
+budgets. If no common sentence is found within them, the result is explicitly marked nonunifying and contains the deterministic
+shortest reachability witness instead of claiming ambiguity.
+
 ## Runtime table contract
 
 Generated subclasses expose `.parser_tables` with a required `format_version`, external `tokens`, display `token_names`, ACTION

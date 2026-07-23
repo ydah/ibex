@@ -35,6 +35,16 @@ Ibex defaults to `<input>.rb`; racc 1.8.1 was observed to default to `<input>.ta
 By default, semantic actions and `inner` methods report grammar-file lines while `header` and `footer` retain generated-file
 lines. `--line-convert-all` maps every user-code section; `-l` maps none. The mapping is retained through IR JSON resumption.
 
+## Compatibility baseline
+
+The compatibility claims above were checked on 2026-07-22 against racc 1.8.1 using only its public documentation, `racc --help`,
+and black-box execution. Ibex does not inspect racc implementation files or generated source. Self-authored probes compare
+observable results for arithmetic precedence, empty rules, string tokens, `convert`, `no_result_var`, inline actions,
+dangling-else `expect`, error recovery, source-line conversion, and a generated 500-production grammar.
+
+Precedence-resolved conflicts remain visible in Automaton IR but are excluded from the CLI conflict count and `expect`. Error
+recovery probes compare result values and the public `on_error` arguments. These tests skip when the `racc` executable is absent.
+
 ## Known differences
 
 - Generated source and internal table representations are intentionally different.
@@ -43,5 +53,3 @@ lines. `--line-convert-all` maps every user-code section; `-l` maps none. The ma
   unknown lookahead through `on_error` first, then recovers if the callback returns. Declared invalid tokens match in the
   black-box recovery probe.
 - `require "racc/parser"` replacement and previously generated racc parser table compatibility are out of scope.
-
-See [compatibility observations](compat-notes.md) for the tested version and probe set.
