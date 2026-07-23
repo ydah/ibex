@@ -15,11 +15,11 @@ module Ibex
       # @rbs @rules: RuleState?
       # @rbs @last_external: external_token?
 
-      # @rbs (Array[Token] tokens) -> void
-      def initialize(tokens)
+      # @rbs (Array[Token] tokens, ?extended: bool) -> void
+      def initialize(tokens, extended: false)
         @tokens = tokens
         @index = 0
-        @declarations = DeclarationState.new
+        @declarations = DeclarationState.new(extended: extended)
         @classifier = @declarations
       end
 

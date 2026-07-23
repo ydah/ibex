@@ -10,7 +10,7 @@ Ruby DSL ────────┴─> Grammar AST -> Normalizer -> Grammar IR
                                                     |
                                       SLR/LALR/LR1 Builder -> Automaton IR
                                                                     |
-                              Ruby/RBS generators / report / DOT / HTML / counterexamples
+                              Ruby/RBS generators / report / DOT / Mermaid / HTML / counterexamples
 ```
 
 Frontend changes stop at the Normalizer. Algorithm strategies consume Grammar IR and produce identical Automaton IR shapes.
@@ -22,7 +22,10 @@ the semantic values passed through `TokenAdapter`, preserving their `Location` i
 handwritten `BootstrapParser` is excluded from normal loading and exists only to break the regeneration cycle. See
 [ADR 0015](decisions/0015-self-hosted-grammar-frontend.md) for the update procedure and boundary.
 
-The RBS generator emits the generated class namespace, superclass, parser-table constants, and `.parser_tables` contract. The
+The RBS generator emits the generated class namespace, superclass, parser-table constants, `.parser_tables` contract, and
+private reduction-method signatures. Declared symbol types refine the RHS tuple and LHS result independently, with `untyped`
+used at undeclared boundaries. Default source mapping compiles opaque action methods with `class_eval` when the generated class
+loads; the signatures do not make those bodies visible to Steep. The
 gem also ships a one-to-one rbs-inline-generated signature tree under `sig/` for every Ruby source in `lib/`, including the
 self-hosted parser. CI regenerates into an empty temporary directory, compares the complete trees, validates the RBS environment,
 and runs Steep against the entire library. Token/location records, grammar AST nodes, parser classifier and bootstrap state, the
@@ -44,15 +47,18 @@ Top-level fields:
 | `user_code`, `conversions`, `warnings` | Concatenated code, external token expressions, structured diagnostics |
 | `user_code_chunks` | Optional opaque chunks with first-code-line locations for compatible source mapping |
 
-Warning records use stable type names (`undeclared_terminal`, `unused_terminal`, `unreachable_nonterminal`,
-`duplicate_production`, and `empty_language`) and retain source locations. The CLI applies display/error policy at the boundary;
-normalization and IR serialization do not discard diagnostics.
+Warning records use the additive type vocabulary `undeclared_terminal`, `unused_terminal`, `unused_precedence`,
+`unreachable_terminal`, `unreachable_nonterminal`, `duplicate_production`, and `empty_language`, and retain source locations.
+Schema-v1 readers must ignore warning types they do not recognize. The CLI applies display/error policy at the boundary;
+normalization and IR serialization do not discard diagnostics. See
+[ADR 0021](decisions/0021-diagnostic-outputs-and-warning-vocabulary.md).
 
-A symbol has `id`, `name`, `kind`, `reserved`, optional `prec {associativity, level}`, and `loc`. A production has `id`, `lhs`,
-`rhs`, optional `action`, optional `prec_override`, and `origin`. Synthetic EBNF origins include an additive, deterministic
-`expression` label used by text, DOT, and HTML presentation while numeric symbol identities remain unchanged. An action has opaque
-`code`, `loc`, `named_refs [{name,index}]`, and `context_length`; middle-action helpers use the last field to view preceding stack
-values.
+A symbol has `id`, `name`, `kind`, `reserved`, optional `prec {associativity, level}`, `loc`, `display_name`, and
+`semantic_type`. The last two fields are omitted when undeclared, so older schema-v1 documents remain byte-stable and loadable.
+A production has `id`, `lhs`, `rhs`, optional `action`, optional `prec_override`, and `origin`. Synthetic EBNF origins include
+an additive, deterministic `expression` label used by text, DOT, and HTML presentation while numeric symbol identities remain
+unchanged. An action has opaque `code`, `loc`, `named_refs [{name,index}]`, and `context_length`; middle-action helpers use the
+last field to view preceding stack values.
 
 IR objects and nested collections are frozen. JSON keys have deterministic order, so dump/load/dump is byte-stable. Incompatible
 schema changes require a new version. The additive `user_code_chunks` field is optional so older schema-v1 JSON remains loadable;
@@ -74,6 +80,10 @@ Each state contains:
 
 `conflict_summary.sr` counts unresolved default-shift conflicts for `expect`; `resolved_sr` counts retained precedence or
 associativity decisions; `rr` counts reduce/reduce cells.
+
+`--emit=sets` is a deterministic analysis view rather than another IR: it emits lexically sorted nullable nonterminals and
+FIRST/FOLLOW maps for nonterminals. DOT, Mermaid, and the self-contained searchable HTML report are deterministic presentation
+views over Automaton IR.
 
 ## Runtime table contract
 

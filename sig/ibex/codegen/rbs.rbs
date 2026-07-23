@@ -10,8 +10,10 @@ module Ibex
 
       @superclass: String
 
-      # @rbs (IR::Automaton automaton, ?superclass: String?) -> void
-      def initialize: (IR::Automaton automaton, ?superclass: String?) -> void
+      @omit_action_call: bool
+
+      # @rbs (IR::Automaton automaton, ?superclass: String?, ?omit_action_call: bool?) -> void
+      def initialize: (IR::Automaton automaton, ?superclass: String?, ?omit_action_call: bool?) -> void
 
       # @rbs () -> String
       def generate: () -> String
@@ -20,6 +22,15 @@ module Ibex
 
       # @rbs (Array[String] lines) -> void
       def append_contract: (Array[String] lines) -> void
+
+      # @rbs (Array[String] lines) -> void
+      def append_actions: (Array[String] lines) -> void
+
+      # @rbs (IR::Production production) -> bool
+      def action_method?: (IR::Production production) -> bool
+
+      # @rbs (Integer symbol_id) -> String
+      def semantic_type: (Integer symbol_id) -> String
 
       # @rbs () -> [Array[String], String]
       def class_parts: () -> [ Array[String], String ]

@@ -7,12 +7,14 @@ module Ibex
       # @rbs @automaton: IR::Automaton
       # @rbs @grammar: IR::Grammar
       # @rbs @superclass: String
+      # @rbs @omit_action_call: bool
 
-      # @rbs (IR::Automaton automaton, ?superclass: String?) -> void
-      def initialize(automaton, superclass: nil)
+      # @rbs (IR::Automaton automaton, ?superclass: String?, ?omit_action_call: bool?) -> void
+      def initialize(automaton, superclass: nil, omit_action_call: nil)
         @automaton = automaton
         @grammar = automaton.grammar
         @superclass = superclass || @grammar.superclass || "Ibex::Runtime::Parser"
+        @omit_action_call = omit_action_call.nil? ? @grammar.options[:omit_action_call] : omit_action_call
       end
 
       # @rbs () -> String
@@ -22,6 +24,7 @@ module Ibex
         modules.each { |name| lines << "module #{name}" }
         lines << "class #{class_name} < #{@superclass}"
         append_contract(lines)
+        append_actions(lines)
         lines << "end"
         modules.reverse_each { lines << "end" }
         "#{lines.join("\n")}\n"
@@ -34,9 +37,33 @@ module Ibex
         lines.push("  PARSER_TABLE_FORMAT_VERSION: Integer",
                    "  TOKEN_IDS: Hash[untyped, Integer]", "  TOKEN_NAMES: Hash[Integer, String]",
                    "  ACTIONS: untyped", "  GOTOS: untyped", "  DEFAULT_ACTIONS: Array[untyped]",
-                   "  PRODUCTIONS: Array[Hash[Symbol, untyped]]",
+                   "  PRODUCTIONS: Array[Hash[Symbol, untyped]]", "  ERROR_MESSAGES: Hash[Integer, String]",
                    "  PARSER_TABLES: Hash[Symbol, untyped]", "  DEBUG_ENABLED: bool", "",
                    "  def self.parser_tables: () -> Hash[Symbol, untyped]")
+      end
+
+      # @rbs (Array[String] lines) -> void
+      def append_actions(lines)
+        actions = @grammar.productions.select { |production| action_method?(production) }
+        return if actions.empty?
+
+        lines << ""
+        actions.each do |production|
+          parameters = production.rhs.map { |symbol_id| semantic_type(symbol_id) }.join(", ")
+          result = semantic_type(production.lhs)
+          lines << "  private def _ibex_action_#{production.id}: ([#{parameters}], Array[untyped]) -> #{result}"
+        end
+      end
+
+      # @rbs (IR::Production production) -> bool
+      def action_method?(production)
+        !!(production.action || !@omit_action_call)
+      end
+
+      # @rbs (Integer symbol_id) -> String
+      def semantic_type(symbol_id)
+        symbol = @grammar.symbol_by_id(symbol_id) || raise(Ibex::Error, "missing grammar symbol id #{symbol_id}")
+        symbol.semantic_type || "untyped"
       end
 
       # @rbs () -> [Array[String], String]

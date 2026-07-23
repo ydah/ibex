@@ -11,8 +11,6 @@ module Ibex
 
     RESERVED_NAMES: Array[String]
 
-    @ast: Frontend::AST::Root
-
     @mode: Symbol
 
     @symbols: Array[IR::GrammarSymbol]
@@ -31,6 +29,14 @@ module Ibex
 
     @precedence_locations: Hash[String, IR::location]
 
+    @display_names: Hash[String, String]
+
+    @display_name_locations: Hash[String, IR::location]
+
+    @semantic_types: Hash[String, String]
+
+    @semantic_type_locations: Hash[String, IR::location]
+
     @options: IR::grammar_options
 
     @expected_conflicts: Integer
@@ -42,6 +48,8 @@ module Ibex
     @start_name: String
 
     @start_location: Frontend::Location?
+
+    @ast: Frontend::AST::Root
 
     # @rbs (Frontend::AST::Root ast, ?mode: Symbol | String) -> void
     def initialize: (Frontend::AST::Root ast, ?mode: Symbol | String) -> void

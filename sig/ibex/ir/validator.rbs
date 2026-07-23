@@ -1,0 +1,16 @@
+# Generated from lib/ibex/ir/validator.rb with RBS::Inline
+
+module Ibex
+  module IR
+    # Validates a serialized public IR document before constructing immutable IR objects.
+    module Validator
+      POSITION: ::String
+
+      # @rbs (String source) -> (Grammar | Automaton)
+      def self?.validate: (String source) -> (Grammar | Automaton)
+
+      # @rbs (Automaton automaton) -> void
+      def self?.validate_automaton_digest: (Automaton automaton) -> void
+    end
+  end
+end

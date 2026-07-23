@@ -11,6 +11,10 @@ module Ibex
       @declared_tokens = {} #: Hash[String, IR::location]
       @precedence = {} #: Hash[String, IR::precedence]
       @precedence_locations = {} #: Hash[String, IR::location]
+      @display_names = {} #: Hash[String, String]
+      @display_name_locations = {} #: Hash[String, IR::location]
+      @semantic_types = {} #: Hash[String, String]
+      @semantic_type_locations = {} #: Hash[String, IR::location]
       @options = { result_var: true, omit_action_call: true }
       @expected_conflicts = 0
       @conversions = {} #: Hash[String, String]
@@ -29,7 +33,30 @@ module Ibex
         @explicit_start = declaration.name
         @start_location = declaration.loc
       when Frontend::AST::Convert then declaration.pairs.each { |pair| @conversions[pair.name] = pair.expression }
+      else read_symbol_metadata_declaration(declaration)
       end
+    end
+
+    # @rbs (Frontend::AST::symbol_metadata declaration) -> void
+    def read_symbol_metadata_declaration(declaration)
+      # @type self: Normalizer
+      if declaration.is_a?(Frontend::AST::DisplayName)
+        read_symbol_metadata(declaration, @display_names, @display_name_locations, "display")
+      else
+        read_symbol_metadata(declaration, @semantic_types, @semantic_type_locations, "type")
+      end
+    end
+
+    # @rbs (Frontend::AST::symbol_metadata declaration, Hash[String, String] values,
+    #   Hash[String, IR::location] locations, String label) -> void
+    def read_symbol_metadata(declaration, values, locations, label)
+      # @type self: Normalizer
+      if values.key?(declaration.name)
+        fail_at(declaration.loc, "duplicate #{label} declaration for #{declaration.name}")
+      end
+
+      values[declaration.name] = declaration.value
+      locations[declaration.name] = declaration.loc.to_h
     end
 
     # @rbs (Frontend::AST::Precedence declaration) -> void

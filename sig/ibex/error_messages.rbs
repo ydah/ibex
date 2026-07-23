@@ -1,0 +1,65 @@
+# Generated from lib/ibex/error_messages.rb with RBS::Inline
+
+module Ibex
+  # Parses, validates, and deterministically updates state-specific syntax
+  # error messages.
+  module ErrorMessages
+    HEADER: ::String
+
+    # One active or archived state entry with its source line.
+    class Entry
+      attr_reader state: Integer
+
+      attr_reader status: :active | :removed
+
+      attr_reader message: String?
+
+      attr_reader line: Integer
+
+      # @rbs (state: Integer, status: :active | :removed, message: String?, line: Integer) -> void
+      def initialize: (state: Integer, status: :active | :removed, message: String?, line: Integer) -> void
+    end
+
+    # Immutable parsed messages document.
+    class Document
+      attr_reader entries: Array[Entry]
+
+      # @rbs (entries: Array[Entry]) -> void
+      def initialize: (entries: Array[Entry]) -> void
+    end
+
+    # @rbs (String source, file: String) -> Document
+    def self?.parse: (String source, file: String) -> Document
+
+    # @rbs (String path) -> Document
+    def self?.load: (String path) -> Document
+
+    # @rbs (IR::Automaton automaton) -> Array[IR::AutomatonState]
+    def self?.error_states: (IR::Automaton automaton) -> Array[IR::AutomatonState]
+
+    # @rbs (IR::Automaton automaton, ?existing: Document?) -> String
+    def self?.render: (IR::Automaton automaton, ?existing: Document?) -> String
+
+    # @rbs (Document document, IR::Automaton automaton, file: String) -> Hash[Integer, String]
+    def self?.messages_for: (Document document, IR::Automaton automaton, file: String) -> Hash[Integer, String]
+
+    # @rbs (Array[String] lines, :active | :removed status, Integer state, String? message,
+    #   ?expected: Array[String]?) -> void
+    def self?.append_entry: (Array[String] lines, :active | :removed status, Integer state, String? message, ?expected: Array[String]?) -> void
+
+    # @rbs (String line) -> String
+    def encode_line: (String line) -> String
+
+    # @rbs (IR::Automaton automaton, IR::AutomatonState state) -> Array[String]
+    def expected_tokens: (IR::Automaton automaton, IR::AutomatonState state) -> Array[String]
+
+    # @rbs (IR::Automaton automaton) -> Array[IR::GrammarSymbol]
+    def ordinary_terminals: (IR::Automaton automaton) -> Array[IR::GrammarSymbol]
+
+    # @rbs (IR::parser_action? action) -> bool
+    def error_action?: (IR::parser_action? action) -> bool
+
+    # @rbs (String file, Integer line, Integer column, String message) -> bot
+    def fail_at: (String file, Integer line, Integer column, String message) -> bot
+  end
+end

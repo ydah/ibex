@@ -17,6 +17,9 @@ module Ibex
 
       PRODUCTIONS: untyped
 
+      # @type var error_messages: Hash[Integer, String]
+      ERROR_MESSAGES: Hash[Integer, String]
+
       PARSER_TABLES: untyped
 
       def self.parser_tables: () -> untyped
@@ -99,13 +102,13 @@ module Ibex
 
       private def _ibex_action_39: (untyped val, untyped _values) -> untyped
 
+      private def _ibex_action_40: (untyped val, untyped _values) -> untyped
+
+      private def _ibex_action_41: (untyped val, untyped _values) -> untyped
+
       private def _ibex_action_42: (untyped val, untyped _values) -> untyped
 
       private def _ibex_action_43: (untyped val, untyped _values) -> untyped
-
-      private def _ibex_action_44: (untyped val, untyped _values) -> untyped
-
-      private def _ibex_action_45: (untyped val, untyped _values) -> untyped
 
       private def _ibex_action_46: (untyped val, untyped _values) -> untyped
 
@@ -158,6 +161,14 @@ module Ibex
       private def _ibex_action_70: (untyped val, untyped _values) -> untyped
 
       private def _ibex_action_71: (untyped val, untyped _values) -> untyped
+
+      private def _ibex_action_72: (untyped val, untyped _values) -> untyped
+
+      private def _ibex_action_73: (untyped val, untyped _values) -> untyped
+
+      private def _ibex_action_74: (untyped val, untyped _values) -> untyped
+
+      private def _ibex_action_75: (untyped val, untyped _values) -> untyped
     end
   end
 end

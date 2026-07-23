@@ -1,0 +1,96 @@
+# Generated from lib/ibex/ir/validator/automaton.rb with RBS::Inline
+
+module Ibex
+  module IR
+    module Validator
+      # Structural and referential validation for an Automaton IR v1 JSON object.
+      # rubocop:disable Metrics/ClassLength -- inline type contracts accompany one cohesive document validator.
+      class AutomatonDocument < Base
+        ROOT_REQUIRED: Array[String]
+
+        STATE_REQUIRED: Array[String]
+
+        ACTION_TYPES: Array[String]
+
+        RESOLUTION_KINDS: Array[String]
+
+        @grammar: GrammarDocument
+
+        @states_by_id: Hash[Integer, Hash[String, untyped]]
+
+        @data: Hash[String, untyped]
+
+        # @rbs (Hash[String, untyped] data) -> void
+        def initialize: (Hash[String, untyped] data) -> void
+
+        # @rbs () -> self
+        def validate: () -> self
+
+        private
+
+        # @rbs () -> void
+        def validate_digest: () -> void
+
+        # @rbs () -> void
+        def validate_state_records: () -> void
+
+        # @rbs () -> void
+        def validate_state_contents: () -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_items: (untyped value, String path) -> void
+
+        # @rbs (Integer production_id, untyped dot_value, String path) -> void
+        def validate_item_production: (Integer production_id, untyped dot_value, String path) -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_lookaheads: (untyped value, String path) -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_transitions: (untyped value, String path) -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_actions: (untyped value, String path) -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_gotos: (untyped value, String path) -> void
+
+        # @rbs (untyped value, String path, ?kind: String?) { (untyped, String, Hash[String, untyped]) -> void } -> void
+        def symbol_map: (untyped value, String path, ?kind: String?) { (untyped, String, Hash[String, untyped]) -> void } -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_state_reference: (untyped value, String path) -> void
+
+        # @rbs (untyped value, String path, ?nullable: bool) -> void
+        def validate_parser_action: (untyped value, String path, ?nullable: bool) -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_production_reference: (untyped value, String path) -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_conflicts: (untyped value, String path) -> void
+
+        # @rbs (Hash[String, untyped] conflict, String path) -> void
+        def validate_shift_reduce: (Hash[String, untyped] conflict, String path) -> void
+
+        # @rbs (Hash[String, untyped] conflict, String path) -> void
+        def validate_reduce_reduce: (Hash[String, untyped] conflict, String path) -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_conflict_symbol: (untyped value, String path) -> void
+
+        # @rbs (untyped value, String path, ?reductions: Array[Integer]?) -> void
+        def validate_resolution: (untyped value, String path, ?reductions: Array[Integer]?) -> void
+
+        # @rbs () -> void
+        def validate_conflict_summary: () -> void
+
+        # @rbs (Hash[String, untyped] summary, String path) -> void
+        def validate_conflict_counts: (Hash[String, untyped] summary, String path) -> void
+
+        # @rbs (Hash[String, untyped] summary, String path) -> void
+        def validate_expectation: (Hash[String, untyped] summary, String path) -> void
+      end
+    end
+  end
+end

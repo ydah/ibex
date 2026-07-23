@@ -1,0 +1,42 @@
+# Generated from lib/ibex/runtime/jsonl_tracer.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    # Emits committed parser observer events as JSON Lines.
+    module JSONLTracer
+      interface _TraceOutput
+        def puts: (String) -> untyped
+      end
+
+      # Hook layer installed on an individual parser's singleton class.
+      module Hooks
+        def token_to_str: (Integer) -> String
+
+        @ibex_jsonl_trace_output: _TraceOutput?
+
+        # @rbs (Integer token_id, untyped value, Integer state) -> void
+        def on_shift: (Integer token_id, untyped value, Integer state) -> void
+
+        # @rbs (Integer production_id, Array[untyped] values, untyped result) -> void
+        def on_reduce: (Integer production_id, Array[untyped] values, untyped result) -> void
+
+        # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> void
+        def on_error_recover: (Integer token_id, untyped value, Array[untyped] value_stack) -> void
+
+        private
+
+        # @rbs (_TraceOutput output) -> void
+        def ibex_jsonl_trace_output=: (_TraceOutput output) -> void
+
+        # @rbs (**untyped event) -> void
+        def write_trace: (**untyped event) -> void
+
+        # @rbs (untyped value) -> String
+        def safe_inspect: (untyped value) -> String
+      end
+
+      # @rbs [P < Parser] (P parser, io: _TraceOutput) -> P
+      def self.attach: [P < Parser] (P parser, io: _TraceOutput) -> P
+    end
+  end
+end

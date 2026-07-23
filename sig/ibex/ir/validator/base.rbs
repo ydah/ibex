@@ -1,0 +1,65 @@
+# Generated from lib/ibex/ir/validator/base.rb with RBS::Inline
+
+module Ibex
+  module IR
+    module Validator
+      # Shared JSON-shape checks for the two version-1 IR documents.
+      class Base
+        POSITION: ::String
+
+        private
+
+        # @rbs (untyped value, String path, Array[String] required, ?Array[String] optional) -> Hash[String, untyped]
+        def record: (untyped value, String path, Array[String] required, ?Array[String] optional) -> Hash[String, untyped]
+
+        # @rbs (untyped value, String path) -> Hash[String, untyped]
+        def object: (untyped value, String path) -> Hash[String, untyped]
+
+        # @rbs (untyped value, String path) -> Array[untyped]
+        def array: (untyped value, String path) -> Array[untyped]
+
+        # @rbs (untyped value, String path) -> String
+        def string: (untyped value, String path) -> String
+
+        # @rbs (untyped value, String path) -> String
+        def nonempty_string: (untyped value, String path) -> String
+
+        # @rbs (untyped value, String path) -> Integer
+        def integer: (untyped value, String path) -> Integer
+
+        # @rbs (untyped value, String path) -> Integer
+        def nonnegative_integer: (untyped value, String path) -> Integer
+
+        # @rbs (untyped value, String path) -> bool
+        def boolean: (untyped value, String path) -> bool
+
+        # @rbs (untyped value, String path, untyped expected) -> void
+        def literal: (untyped value, String path, untyped expected) -> void
+
+        # @rbs (untyped value, String path, Array[String] values) -> String
+        def enum: (untyped value, String path, Array[String] values) -> String
+
+        # @rbs (untyped value, String path, ?nullable: bool) -> void
+        def location: (untyped value, String path, ?nullable: bool) -> void
+
+        # @rbs (untyped value, String path) -> Integer
+        def positive_integer: (untyped value, String path) -> Integer
+
+        # @rbs (untyped value, String path) -> String?
+        def nullable_string: (untyped value, String path) -> String?
+
+        # @rbs (untyped value, String path) -> void
+        def metadata: (untyped value, String path) -> void
+
+        # @rbs (Hash[String, untyped] value, String key, String path) -> untyped
+        def field: (Hash[String, untyped] value, String key, String path) -> untyped
+
+        # @rbs (String path, String key) -> String
+        def child_path: (String path, String key) -> String
+
+        # @rbs (String path, String message) -> bot
+        def invalid: (String path, String message) -> bot
+      end
+    end
+  end
+end

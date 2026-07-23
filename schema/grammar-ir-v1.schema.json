@@ -1,0 +1,421 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/grammar-ir-v1.schema.json",
+  "title": "Ibex Grammar IR version 1",
+  "description": "The normalized grammar exchanged between Ibex frontend and analysis stages.",
+  "type": "object",
+  "required": [
+    "ibex_ir",
+    "schema_version",
+    "class_name",
+    "superclass",
+    "start",
+    "expect",
+    "options",
+    "symbols",
+    "productions",
+    "user_code",
+    "conversions",
+    "warnings"
+  ],
+  "properties": {
+    "ibex_ir": {
+      "const": "grammar"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "class_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "superclass": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "start": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expect": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "options": {
+      "$ref": "#/$defs/options"
+    },
+    "symbols": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/symbol"
+      },
+      "minItems": 2
+    },
+    "productions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/production"
+      }
+    },
+    "user_code": {
+      "$ref": "#/$defs/string_map"
+    },
+    "conversions": {
+      "$ref": "#/$defs/string_map"
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/warning"
+      }
+    },
+    "user_code_chunks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/user_code_chunk"
+        }
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "location": {
+      "type": "object",
+      "required": [
+        "file",
+        "line",
+        "column"
+      ],
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "column": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "nullable_location": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/location"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "metadata": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "not": {
+            "pattern": "[\\u0000-\\u001F\\u007F-\\u009F]"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "precedence": {
+      "type": "object",
+      "required": [
+        "associativity",
+        "level"
+      ],
+      "properties": {
+        "associativity": {
+          "enum": [
+            "left",
+            "right",
+            "nonassoc"
+          ]
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "options": {
+      "type": "object",
+      "required": [
+        "result_var",
+        "omit_action_call"
+      ],
+      "properties": {
+        "result_var": {
+          "type": "boolean"
+        },
+        "omit_action_call": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "symbol": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "kind",
+        "reserved",
+        "prec",
+        "loc"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "terminal",
+            "nonterminal"
+          ]
+        },
+        "reserved": {
+          "type": "boolean"
+        },
+        "prec": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/precedence"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "loc": {
+          "$ref": "#/$defs/nullable_location"
+        },
+        "display_name": {
+          "$ref": "#/$defs/metadata"
+        },
+        "semantic_type": {
+          "$ref": "#/$defs/metadata"
+        }
+      },
+      "additionalProperties": false
+    },
+    "named_ref": {
+      "type": "object",
+      "required": [
+        "name",
+        "index"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "index": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "action": {
+      "type": "object",
+      "required": [
+        "code",
+        "loc",
+        "named_refs",
+        "context_length"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "loc": {
+          "$ref": "#/$defs/location"
+        },
+        "named_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/named_ref"
+          }
+        },
+        "context_length": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "user_origin": {
+      "type": "object",
+      "required": [
+        "kind",
+        "loc"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "user",
+            "inline_action"
+          ]
+        },
+        "loc": {
+          "$ref": "#/$defs/location"
+        }
+      },
+      "additionalProperties": false
+    },
+    "expansion_origin": {
+      "type": "object",
+      "required": [
+        "kind",
+        "loc"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "optional_expansion",
+            "star_expansion",
+            "plus_expansion",
+            "separated_list_expansion",
+            "group_expansion"
+          ]
+        },
+        "expression": {
+          "type": "string"
+        },
+        "loc": {
+          "$ref": "#/$defs/location"
+        }
+      },
+      "additionalProperties": false
+    },
+    "origin": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/user_origin"
+        },
+        {
+          "$ref": "#/$defs/expansion_origin"
+        }
+      ]
+    },
+    "production": {
+      "type": "object",
+      "required": [
+        "id",
+        "lhs",
+        "rhs",
+        "action",
+        "prec_override",
+        "origin"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lhs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rhs": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "action": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/action"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "prec_override": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "origin": {
+          "$ref": "#/$defs/origin"
+        }
+      },
+      "additionalProperties": false
+    },
+    "string_map": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "warning": {
+      "type": "object",
+      "required": [
+        "type",
+        "loc"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "symbol": {
+          "type": "string",
+          "minLength": 1
+        },
+        "production": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "original": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "loc": {
+          "$ref": "#/$defs/nullable_location"
+        }
+      },
+      "additionalProperties": false
+    },
+    "user_code_chunk": {
+      "type": "object",
+      "required": [
+        "code",
+        "loc"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "loc": {
+          "$ref": "#/$defs/location"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

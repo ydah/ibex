@@ -1,0 +1,110 @@
+# Generated from lib/ibex/ir/validator/grammar.rb with RBS::Inline
+
+module Ibex
+  module IR
+    module Validator
+      # Structural and referential validation for a Grammar IR v1 JSON object.
+      # rubocop:disable Metrics/ClassLength -- inline type contracts accompany one cohesive document validator.
+      class GrammarDocument < Base
+        ROOT_REQUIRED: Array[String]
+
+        ROOT_OPTIONAL: Array[String]
+
+        SYMBOL_REQUIRED: Array[String]
+
+        SYMBOL_OPTIONAL: Array[String]
+
+        PRODUCTION_REQUIRED: Array[String]
+
+        ORIGIN_KINDS: Array[String]
+
+        attr_reader symbols_by_id: Hash[Integer, Hash[String, untyped]]
+
+        attr_reader symbols_by_name: Hash[String, Hash[String, untyped]]
+
+        attr_reader productions_by_id: Hash[Integer, Hash[String, untyped]]
+
+        @path: String
+
+        @data: Hash[String, untyped]
+
+        # @rbs (Hash[String, untyped] data, ?path: String) -> void
+        def initialize: (Hash[String, untyped] data, ?path: String) -> void
+
+        # @rbs () -> self
+        def validate: () -> self
+
+        private
+
+        # @rbs () -> void
+        def validate_envelope: () -> void
+
+        # @rbs () -> void
+        def validate_header: () -> void
+
+        # @rbs () -> void
+        def validate_options: () -> void
+
+        # @rbs () -> void
+        def validate_symbols: () -> void
+
+        # @rbs (untyped value, Integer index) -> void
+        def validate_symbol: (untyped value, Integer index) -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_precedence: (untyped value, String path) -> void
+
+        # @rbs () -> void
+        def validate_reserved_symbols: () -> void
+
+        # @rbs (Integer id, String name) -> void
+        def validate_reserved_symbol: (Integer id, String name) -> void
+
+        # @rbs () -> void
+        def validate_start: () -> void
+
+        # @rbs () -> void
+        def validate_productions: () -> void
+
+        # @rbs (untyped value, Integer index) -> void
+        def validate_production: (untyped value, Integer index) -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_lhs: (untyped value, String path) -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_rhs: (untyped value, String path) -> void
+
+        # @rbs (untyped value, String path, rhs_length: Integer) -> void
+        def validate_action: (untyped value, String path, rhs_length: Integer) -> void
+
+        # @rbs (untyped value, String path, limit: Integer) -> void
+        def validate_named_refs: (untyped value, String path, limit: Integer) -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_precedence_override: (untyped value, String path) -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_origin: (untyped value, String path) -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_string_map: (untyped value, String path) -> void
+
+        # @rbs () -> void
+        def validate_warnings: () -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_warning: (untyped value, String path) -> void
+
+        # @rbs (Hash[String, untyped] warning, String path) -> void
+        def validate_warning_symbol: (Hash[String, untyped] warning, String path) -> void
+
+        # @rbs (Hash[String, untyped] warning, String field_name, String path) -> void
+        def validate_warning_production: (Hash[String, untyped] warning, String field_name, String path) -> void
+
+        # @rbs () -> void
+        def validate_user_code_chunks: () -> void
+      end
+    end
+  end
+end

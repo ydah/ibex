@@ -1,0 +1,28 @@
+# Generated from lib/ibex/cli/samples.rb with RBS::Inline
+
+module Ibex
+  # CLI entry point for bounded grammar sentence generation.
+  module CLISamples
+    private def print_help: (OptionParser) -> Integer
+
+    private def input_path: (Array[String]) -> String
+
+    private def handle_grammar_warnings: (IR::Grammar, String) -> void
+
+    private def warning_categories: (String) -> Array[Symbol]
+
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_samples_command: (Array[String] arguments) -> Integer
+
+    # @rbs () -> OptionParser
+    def samples_option_parser: () -> OptionParser
+
+    # @rbs (String path) -> IR::Grammar
+    def grammar_for_samples: (String path) -> IR::Grammar
+
+    # @rbs (String name, Integer value) -> Integer
+    def positive_sample_option!: (String name, Integer value) -> Integer
+  end
+end

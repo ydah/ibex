@@ -76,6 +76,21 @@ class FrontendDSLTest < Minitest::Test
     assert_equal "HEADER\n", ir.user_code["header"]
   end
 
+  def test_dsl_supports_symbol_display_names_and_semantic_types
+    ast = Ibex::Frontend::DSL.grammar(class_name: "Typed") do |grammar|
+      grammar.token(:NUM)
+      grammar.display(:NUM, "number")
+      grammar.type(:NUM, "Integer")
+      grammar.type(:start, "AST::Node")
+      grammar.rule(:start) { |rule| rule.alt(:NUM) }
+    end
+    ir = Ibex::Normalizer.new(ast, mode: :extended).normalize
+
+    assert_equal "number", ir.symbol("NUM").display_name
+    assert_equal "Integer", ir.symbol("NUM").semantic_type
+    assert_equal "AST::Node", ir.symbol("start").semantic_type
+  end
+
   def test_rule_action_accepts_any_object_with_a_string_representation
     action = Object.new
     action.define_singleton_method(:to_s) { " result = :converted " }

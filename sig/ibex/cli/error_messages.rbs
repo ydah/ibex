@@ -1,0 +1,53 @@
+# Generated from lib/ibex/cli/error_messages.rb with RBS::Inline
+
+module Ibex
+  # CLI subcommand and generation-file handling for state-specific errors.
+  module CLIErrorMessages
+    private def print_help: (OptionParser) -> Integer
+
+    private def input_path: (Array[String]) -> String
+
+    private def warning_categories: (String) -> Array[Symbol]
+
+    private def report_status: (String) -> void
+
+    private def handle_grammar_warnings: (IR::Grammar, String) -> void
+
+    private def build_automaton: (IR::Grammar, String) -> IR::Automaton
+
+    private def prepare_loaded_automaton: (IR::Automaton, String) -> void
+
+    private def default_output_path: (String, String) -> String
+
+    private def same_file_target?: (String, String) -> bool
+
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_error_messages_command: (Array[String] arguments) -> Integer
+
+    # @rbs () -> OptionParser
+    def error_messages_option_parser: () -> OptionParser
+
+    # @rbs (OptionParser options) -> void
+    def add_error_messages_generation_option: (OptionParser options) -> void
+
+    # @rbs (String input_path) -> IR::Automaton
+    def automaton_for_error_messages: (String input_path) -> IR::Automaton
+
+    # @rbs (String input_path) -> IR::Automaton
+    def automaton_from_ir_for_messages: (String input_path) -> IR::Automaton
+
+    # @rbs (IR::Automaton automaton, String input_path) -> void
+    def write_error_messages: (IR::Automaton automaton, String input_path) -> void
+
+    # @rbs (String path) -> Integer
+    def messages_file_mode: (String path) -> Integer
+
+    # @rbs (IR::Automaton automaton) -> Hash[Integer, String]
+    def configured_error_messages: (IR::Automaton automaton) -> Hash[Integer, String]
+
+    # @rbs () -> void
+    def validate_messages_options: () -> void
+  end
+end

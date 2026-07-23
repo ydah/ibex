@@ -6,6 +6,8 @@ module Ibex
     WARNING_MESSAGES = {
       undeclared_terminal: ->(warning) { "undeclared terminal #{warning[:symbol]}" },
       unused_terminal: ->(warning) { "unused terminal #{warning[:symbol]}" },
+      unused_precedence: ->(warning) { "unused precedence #{warning[:symbol]}" },
+      unreachable_terminal: ->(warning) { "declared terminal #{warning[:symbol]} is unreachable" },
       unreachable_nonterminal: ->(warning) { "unreachable nonterminal #{warning[:symbol]}" },
       duplicate_production: lambda do |warning|
         "duplicate production #{warning[:production]} (first defined as #{warning[:original]})"
@@ -60,6 +62,31 @@ module Ibex
         @stderr.puts("#{input_path}:1:1: #{summary[:sr]} shift/reduce conflicts; expected #{summary[:expected_sr]}")
       end
       @stderr.puts("#{input_path}:1:1: #{summary[:rr]} reduce/reduce conflicts") if summary[:rr].positive?
+    end
+
+    # @rbs (IR::Automaton automaton, String input_path) -> void
+    def suggest_lr1(automaton, input_path)
+      return unless automaton.algorithm == "lalr1"
+      return unless [nil, :lalr].include?(@options[:algorithm])
+
+      summary = automaton.conflict_summary
+      return if summary[:expectation_met] && summary[:rr].zero?
+
+      lr1 = LALR::Builder.new(automaton.grammar, algorithm: :lr1).build
+      removed_sr = [summary[:sr] - lr1.conflict_summary[:sr], 0].max
+      removed_rr = [summary[:rr] - lr1.conflict_summary[:rr], 0].max
+      avoided = [] #: Array[String]
+      avoided << conflict_count(removed_sr, "shift/reduce") if removed_sr.positive?
+      avoided << conflict_count(removed_rr, "reduce/reduce") if removed_rr.positive?
+      return if avoided.empty?
+
+      @stderr.puts("#{input_path}:1:1: note: --algorithm=lr1 avoids #{avoided.join(' and ')}; " \
+                   "consider --algorithm=lr1")
+    end
+
+    # @rbs (Integer count, String kind) -> String
+    def conflict_count(count, kind)
+      "#{count} #{kind} conflict#{'s' unless count == 1}"
     end
 
     # @rbs (IR::Automaton automaton, String input_path) -> void

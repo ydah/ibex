@@ -6,7 +6,7 @@ module Ibex
     module SymbolLabels
       # @rbs (IR::Grammar grammar) -> Hash[Integer, String]
       def self.build(grammar)
-        labels = grammar.symbols.to_h { |symbol| [symbol.id, symbol.name] }
+        labels = grammar.symbols.to_h { |symbol| [symbol.id, symbol.display_name || symbol.name] }
         grammar.productions.each do |production|
           expression = production.origin[:expression]
           labels[production.lhs] = expression if expression.is_a?(String)

@@ -7,4 +7,5 @@ target :library do
   library "digest"
   library "json"
   library "optparse"
+  library "tempfile"
 end

@@ -21,8 +21,10 @@ module Ibex
 
         attr_reader state: Symbol
 
-        # @rbs () -> void
-        def initialize: () -> void
+        @extended_mode: bool
+
+        # @rbs (?extended: bool) -> void
+        def initialize: (?extended: bool) -> void
 
         # @rbs (Token token, Array[Token] remaining) -> external_token
         def classify: (Token token, Array[Token] remaining) -> external_token
@@ -74,8 +76,23 @@ module Ibex
         # @rbs (Token token, Array[Token] remaining) -> external_token
         def classify_scalar: (Token token, Array[Token] remaining) -> external_token
 
+        # @rbs (external_token type) -> external_token?
+        def classify_single_symbol: (external_token type) -> external_token?
+
+        # @rbs (external_token type) -> external_token?
+        def classify_metadata: (external_token type) -> external_token?
+
+        # @rbs (Token token, external_token type, Array[Token] remaining) -> external_token?
+        def classify_conversion: (Token token, external_token type, Array[Token] remaining) -> external_token?
+
         # @rbs (external_token type) -> external_token
         def finish_single_symbol: (external_token type) -> external_token
+
+        # @rbs (external_token type) -> external_token
+        def begin_metadata_value: (external_token type) -> external_token
+
+        # @rbs (external_token type) -> external_token
+        def finish_metadata_value: (external_token type) -> external_token
 
         # @rbs (external_token type) -> external_token
         def finish_conversion: (external_token type) -> external_token

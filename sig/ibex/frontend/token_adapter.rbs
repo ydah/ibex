@@ -22,8 +22,8 @@ module Ibex
 
       @tokens: Array[Token]
 
-      # @rbs (Array[Token] tokens) -> void
-      def initialize: (Array[Token] tokens) -> void
+      # @rbs (Array[Token] tokens, ?extended: bool) -> void
+      def initialize: (Array[Token] tokens, ?extended: bool) -> void
 
       # @rbs () -> ([external_token, Token] | false)
       def next_token: () -> ([ external_token, Token ] | false)

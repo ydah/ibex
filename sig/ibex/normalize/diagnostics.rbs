@@ -9,6 +9,9 @@ module Ibex
     def validate_grammar: () -> void
 
     # @rbs () -> void
+    def validate_symbol_metadata: () -> void
+
+    # @rbs () -> void
     def warn_duplicate_productions: () -> void
 
     # @rbs () -> void
@@ -19,6 +22,12 @@ module Ibex
 
     # @rbs () -> void
     def warn_unused_terminals: () -> void
+
+    # @rbs () -> void
+    def warn_unreachable_terminals: () -> void
+
+    # @rbs () -> void
+    def warn_unused_precedence: () -> void
 
     # @rbs () -> void
     def warn_empty_language: () -> void

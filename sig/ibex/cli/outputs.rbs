@@ -20,6 +20,12 @@ module Ibex
     def report_conflicts: (IR::Automaton automaton, String input_path) -> void
 
     # @rbs (IR::Automaton automaton, String input_path) -> void
+    def suggest_lr1: (IR::Automaton automaton, String input_path) -> void
+
+    # @rbs (Integer count, String kind) -> String
+    def conflict_count: (Integer count, String kind) -> String
+
+    # @rbs (IR::Automaton automaton, String input_path) -> void
     def write_report: (IR::Automaton automaton, String input_path) -> void
 
     # @rbs (String input_path, String extension) -> String

@@ -1,0 +1,34 @@
+# Generated from lib/ibex/rake_task.rb with RBS::Inline
+
+module Ibex
+  # Declares grammar-to-parser generation in a Rakefile.
+  class RakeTask < Rake::TaskLib
+    attr_accessor grammar: String?
+
+    attr_accessor output: String?
+
+    attr_accessor options: Array[String]
+
+    # @rbs (String | Symbol name) ?{ (RakeTask) -> void } -> void
+    def initialize: (String | Symbol name) ?{ (RakeTask) -> void } -> void
+
+    private
+
+    # @rbs () -> void
+    def define: () -> void
+  end
+end
+
+module Rake
+  class TaskLib
+    def initialize: () -> void
+  end
+
+  class Task
+    def self.define_task: (Hash[String | Symbol, String]) -> Task
+                        | (Hash[String | Symbol, String]) { () -> void } -> Task
+  end
+
+  class FileTask < Task
+  end
+end

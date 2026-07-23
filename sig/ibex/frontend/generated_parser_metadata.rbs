@@ -1,0 +1,23 @@
+# Generated from lib/ibex/frontend/generated_parser_metadata.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Builds extended symbol metadata declarations for the generated grammar parser.
+    module GeneratedParserMetadata
+      private
+
+      # @rbs (Token keyword, Token name, Token value) -> AST::DisplayName
+      def build_display_name: (Token keyword, Token name, Token value) -> AST::DisplayName
+
+      # @rbs (Token keyword, Token name, Token value) -> AST::SemanticType
+      def build_semantic_type: (Token keyword, Token name, Token value) -> AST::SemanticType
+
+      # @rbs (singleton(AST::DisplayName) | singleton(AST::SemanticType) node_class,
+      #   Token keyword, Token name, Token value, String feature) -> (AST::DisplayName | AST::SemanticType)
+      def build_symbol_metadata: (singleton(AST::DisplayName) | singleton(AST::SemanticType) node_class, Token keyword, Token name, Token value, String feature) -> (AST::DisplayName | AST::SemanticType)
+
+      # @rbs (Token token, String feature) -> String
+      def decode_metadata_value: (Token token, String feature) -> String
+    end
+  end
+end

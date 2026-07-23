@@ -40,11 +40,24 @@ module Ibex
       # @rbs () -> AST::Convert
       def parse_convert: () -> AST::Convert
 
+      # @rbs (singleton(AST::DisplayName) | singleton(AST::SemanticType) node_class, String feature) ->
+      #   (AST::DisplayName | AST::SemanticType)
+      def parse_symbol_metadata: (singleton(AST::DisplayName) | singleton(AST::SemanticType) node_class, String feature) -> (AST::DisplayName | AST::SemanticType)
+
+      # @rbs () -> Token
+      def expect_metadata_value: () -> Token
+
       # @rbs (Integer line) -> Array[Token]
       def tokens_on_line: (Integer line) -> Array[Token]
 
       # @rbs (Array[Token] tokens, Location location) -> String
       def decode_conversion: (Array[Token] tokens, Location location) -> String
+
+      # @rbs (Token keyword, Token name, Token value, String feature) -> void
+      def validate_metadata_line: (Token keyword, Token name, Token value, String feature) -> void
+
+      # @rbs (Token token, String feature) -> String
+      def decode_quoted_literal: (Token token, String feature) -> String
 
       # @rbs () -> bool
       def declaration_start?: () -> bool

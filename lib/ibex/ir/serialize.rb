@@ -23,6 +23,10 @@ module Ibex
       #   private def self.load_production: (untyped production) -> untyped
       #   private def load_user_code_chunks: (untyped chunks) -> untyped
       #   private def self.load_user_code_chunks: (untyped chunks) -> untyped
+      #   private def load_symbol_metadata: (untyped symbol, String field) -> String?
+      #   private def self.load_symbol_metadata: (untyped symbol, String field) -> String?
+      #   private def symbol_source_position: (untyped symbol) -> String
+      #   private def self.symbol_source_position: (untyped symbol) -> String
       #   private def symbolize: (untyped value) -> untyped
       #   private def self.symbolize: (untyped value) -> untyped
 
@@ -63,7 +67,9 @@ module Ibex
         symbols = data.fetch("symbols").map do |symbol|
           GrammarSymbol.new(id: symbol.fetch("id"), name: symbol.fetch("name"), kind: symbol.fetch("kind"),
                             reserved: symbol.fetch("reserved"), precedence: symbolize(symbol["prec"]),
-                            location: symbolize(symbol["loc"]))
+                            location: symbolize(symbol["loc"]),
+                            display_name: load_symbol_metadata(symbol, "display_name"),
+                            semantic_type: load_symbol_metadata(symbol, "semantic_type"))
         end
         productions = data.fetch("productions").map { |production| load_production(production) }
         Grammar.new(class_name: data.fetch("class_name"), superclass: data["superclass"], start: data.fetch("start"),
@@ -135,6 +141,34 @@ module Ibex
       end
 
       # @rbs skip
+      def load_symbol_metadata(symbol, field)
+        value = symbol[field]
+        return nil if value.nil?
+
+        position = symbol_source_position(symbol)
+        raise Ibex::Error, "#{position}: #{field} must be a String or null" unless value.is_a?(String)
+        raise Ibex::Error, "#{position}: #{field} must not be empty" if value.strip.empty?
+        raise Ibex::Error, "#{position}: #{field} must be a single line" if value.match?(/[\r\n]/)
+        raise Ibex::Error, "#{position}: #{field} must not contain control characters" if
+          value.match?(/[[:cntrl:]]/)
+
+        value
+      end
+
+      # @rbs skip
+      def symbol_source_position(symbol)
+        location = symbol["loc"]
+        return "(ir):1:1" unless location.is_a?(Hash)
+
+        file = location["file"]
+        line = location["line"]
+        column = location["column"]
+        return "(ir):1:1" unless file.is_a?(String) && line.is_a?(Integer) && column.is_a?(Integer)
+
+        "#{file}:#{line}:#{column}"
+      end
+
+      # @rbs skip
       def symbolize(value)
         case value
         when Array then value.map { |item| symbolize(item) }
@@ -143,11 +177,13 @@ module Ibex
         end
       end
       module_function :validate_version, :load_grammar, :load_automaton, :load_state, :symbol_keyed,
-                      :normalize_action, :load_production, :load_user_code_chunks, :symbolize
+                      :normalize_action, :load_production, :load_user_code_chunks, :load_symbol_metadata,
+                      :symbol_source_position, :symbolize
 
       class << self
         private :validate_version, :load_grammar, :load_automaton, :load_state, :symbol_keyed,
-                :normalize_action, :load_production, :load_user_code_chunks, :symbolize
+                :normalize_action, :load_production, :load_user_code_chunks, :load_symbol_metadata,
+                :symbol_source_position, :symbolize
       end
     end
   end

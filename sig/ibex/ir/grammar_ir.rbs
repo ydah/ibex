@@ -21,9 +21,13 @@ module Ibex
 
       attr_reader location: location?
 
+      attr_reader display_name: String?
+
+      attr_reader semantic_type: String?
+
       # @rbs (id: Integer, name: String, kind: Symbol, ?reserved: bool, ?precedence: precedence?,
-      #   ?location: location?) -> void
-      def initialize: (id: Integer, name: String, kind: Symbol, ?reserved: bool, ?precedence: precedence?, ?location: location?) -> void
+      #   ?location: location?, ?display_name: String?, ?semantic_type: String?) -> void
+      def initialize: (id: Integer, name: String, kind: Symbol, ?reserved: bool, ?precedence: precedence?, ?location: location?, ?display_name: String?, ?semantic_type: String?) -> void
 
       # @rbs () -> bool
       def terminal?: () -> bool

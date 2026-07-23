@@ -60,6 +60,44 @@ class FrontendParserTest < Minitest::Test
     assert_instance_of Ibex::Frontend::AST::Star, items.last
   end
 
+  def test_parses_extended_symbol_display_and_type_declarations
+    source = <<~GRAMMAR
+      class P
+      pragma extended
+      display NUM "number"
+      type NUM "Integer"
+      type expression "AST::Expression"
+      rule
+      expression: NUM
+      end
+    GRAMMAR
+    declarations = parse(source).declarations
+
+    display, token_type, expression_type = declarations
+    assert_instance_of Ibex::Frontend::AST::DisplayName, display
+    assert_equal %w[NUM number], [display.name, display.value]
+    assert_instance_of Ibex::Frontend::AST::SemanticType, token_type
+    assert_equal %w[NUM Integer], [token_type.name, token_type.value]
+    assert_equal ["expression", "AST::Expression"], [expression_type.name, expression_type.value]
+  end
+
+  def test_rejects_symbol_metadata_in_racc_mode_and_empty_values
+    error = assert_raises(Ibex::Error) do
+      parse("class P\ndisplay NUM \"number\"\nrule\ns: NUM\nend\n")
+    end
+    assert_equal "grammar.y:2:1: display declarations require extended mode", error.message
+
+    error = assert_raises(Ibex::Error) do
+      parse("class P\ntype NUM \"Integer\"\nrule\ns: NUM\nend\n")
+    end
+    assert_equal "grammar.y:2:1: type declarations require extended mode", error.message
+
+    error = assert_raises(Ibex::Error) do
+      parse("class P\npragma extended\ntype NUM \"\"\nrule\ns: NUM\nend\n")
+    end
+    assert_equal "grammar.y:3:10: type value must not be empty", error.message
+  end
+
   def test_rejects_unknown_duplicate_and_misplaced_pragmas_with_locations
     error = assert_raises(Ibex::Error) { parse("class P\npragma future\nrule\ns: X\nend\n") }
     assert_equal "grammar.y:2:8: unknown pragma future", error.message

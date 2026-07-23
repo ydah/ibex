@@ -203,7 +203,7 @@ class FrontendSelfHostTest < Minitest::Test
     rbs_private = signature.scan(/^\s+private def (_ibex_action_\d+):/).flatten.sort
     rbs_public = signature.scan(/^\s+def (_ibex_action_\d+):/).flatten
 
-    assert_equal 68, runtime_private.length
+    assert_equal 72, runtime_private.length
     assert_empty runtime_public
     assert_equal runtime_private, rbs_private
     assert_empty rbs_public

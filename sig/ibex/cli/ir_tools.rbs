@@ -1,0 +1,35 @@
+# Generated from lib/ibex/cli/ir_tools.rb with RBS::Inline
+
+module Ibex
+  # CLI validation and structural comparison for versioned IR documents.
+  module CLIIRTools
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_validate_ir_command: (Array[String] arguments) -> Integer
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_compare_command: (Array[String] arguments) -> Integer
+
+    # @rbs (Array[String] arguments, String command) -> String
+    def single_ir_path: (Array[String] arguments, String command) -> String
+
+    # @rbs (IR::Grammar | IR::Automaton before, IR::Grammar | IR::Automaton after) -> Hash[Symbol, untyped]
+    def compare_ir: (IR::Grammar | IR::Automaton before, IR::Grammar | IR::Automaton after) -> Hash[Symbol, untyped]
+
+    # @rbs (IR::Grammar before, IR::Grammar after) -> Hash[Symbol, untyped]
+    def compare_grammars: (IR::Grammar before, IR::Grammar after) -> Hash[Symbol, untyped]
+
+    # @rbs (IR::Grammar grammar) -> Array[String]
+    def production_shapes: (IR::Grammar grammar) -> Array[String]
+
+    # @rbs (IR::Automaton automaton) -> Integer
+    def transition_count: (IR::Automaton automaton) -> Integer
+
+    # @rbs (IR::Automaton automaton, Symbol kind) -> Integer
+    def summary_count: (IR::Automaton automaton, Symbol kind) -> Integer
+
+    # @rbs (Integer before, Integer after) -> Hash[Symbol, Integer]
+    def numeric_change: (Integer before, Integer after) -> Hash[Symbol, Integer]
+  end
+end

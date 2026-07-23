@@ -4,6 +4,8 @@ module Ibex
   module Codegen
     # Generates a standalone Ruby parser class from Automaton IR.
     class Ruby
+      @error_messages: Hash[Integer, String]
+
       @executable: String?
 
       @superclass: String
@@ -26,8 +28,8 @@ module Ibex
 
       # @rbs (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool,
       #   ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?,
-      #   ?executable: String?) -> void
-      def initialize: (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool, ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?, ?executable: String?) -> void
+      #   ?executable: String?, ?error_messages: Hash[Integer, String]) -> void
+      def initialize: (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool, ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?, ?executable: String?, ?error_messages: Hash[Integer, String]) -> void
 
       # @rbs () -> String
       def generate: () -> String
@@ -42,6 +44,12 @@ module Ibex
 
       # @rbs (Array[String] lines) -> void
       def append_tables: (Array[String] lines) -> void
+
+      # Custom conversion expressions can return caller-owned mutable or
+      # inherently unshareable objects, so only standard token mappings are
+      # safe to freeze transitively.
+      # @rbs () -> bool
+      def shareable_parser_tables?: () -> bool
 
       # @rbs (untyped table) -> String
       def table_literal: (untyped table) -> String
@@ -58,11 +66,17 @@ module Ibex
       # @rbs () -> String
       def productions_literal: () -> String
 
+      # @rbs () -> String
+      def error_messages_literal: () -> String
+
       # @rbs (Array[String] lines) -> void
       def append_actions: (Array[String] lines) -> void
 
       # @rbs (Array[String] lines, IR::Production production) -> void
-      def append_action_constant: (Array[String] lines, IR::Production production) -> void
+      def append_compiled_action_method: (Array[String] lines, IR::Production production) -> void
+
+      # @rbs (IR::Production production, IR::Action action) -> String
+      def compiled_action_method_source: (IR::Production production, IR::Action action) -> String
 
       # @rbs (Array[String] lines, IR::Production production) -> void
       def append_action_method: (Array[String] lines, IR::Production production) -> void

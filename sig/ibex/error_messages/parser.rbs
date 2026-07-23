@@ -1,0 +1,53 @@
+# Generated from lib/ibex/error_messages/parser.rb with RBS::Inline
+
+module Ibex
+  module ErrorMessages
+    # Strict line-oriented parser for the ibex-messages v1 format.
+    class Parser
+      ESCAPES: untyped
+
+      @file: String
+
+      @lines: Array[String]
+
+      # @rbs (String source, file: String) -> void
+      def initialize: (String source, file: String) -> void
+
+      # @rbs () -> Document
+      def parse: () -> Document
+
+      private
+
+      # @rbs () -> void
+      def validate_header: () -> void
+
+      # @rbs (Hash[Integer, Integer] declarations, Integer state, Integer index, String line) -> void
+      def reject_duplicate: (Hash[Integer, Integer] declarations, Integer state, Integer index, String line) -> void
+
+      # @rbs (Integer opening_index, Integer state, :active | :removed status) -> [Entry, Integer]
+      def parse_entry: (Integer opening_index, Integer state, :active | :removed status) -> [ Entry, Integer ]
+
+      # @rbs (Array[String] message_lines, Integer opening_index, Integer index, Integer state,
+      #   :active | :removed status) -> [Entry, Integer]
+      def close_entry: (Array[String] message_lines, Integer opening_index, Integer index, Integer state, :active | :removed status) -> [ Entry, Integer ]
+
+      # @rbs (Array[String] message_lines, String line, Integer index) -> void
+      def read_entry_line: (Array[String] message_lines, String line, Integer index) -> void
+
+      # @rbs (String content, Integer line, Integer content_column) -> String
+      def decode_line: (String content, Integer line, Integer content_column) -> String
+
+      # @rbs (String line) -> bool
+      def ignorable?: (String line) -> bool
+
+      # @rbs () -> String
+      def top_level_expectation: () -> String
+
+      # @rbs (String line) -> Integer
+      def column: (String line) -> Integer
+
+      # @rbs (Integer line, Integer column, String message) -> bot
+      def fail_at: (Integer line, Integer column, String message) -> bot
+    end
+  end
+end

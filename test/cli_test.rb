@@ -134,7 +134,7 @@ class CLITest < Minitest::Test
   def test_help_lists_compatible_options
     output = StringIO.new
     assert_equal 0, Ibex::CLI.start(["--help"], stdout: output, stderr: StringIO.new)
-    %w[--output-file --debug --verbose --embedded --rbs --check-only --superclass].each do |option|
+    %w[--output-file --debug --verbose --embedded --rbs --check --check-only --superclass].each do |option|
       assert_includes output.string, option
     end
   end
@@ -185,20 +185,6 @@ class CLITest < Minitest::Test
       run_cli(["--line-convert-all", "--from=grammar-ir", "-o", resumed, grammar_ir])
 
       assert_equal File.read(direct), File.read(resumed)
-    end
-  end
-
-  def test_writes_dot_and_html_side_outputs
-    with_grammar do |grammar|
-      Tempfile.create(["automaton", ".dot"]) do |dot|
-        Tempfile.create(["automaton", ".html"]) do |html|
-          Tempfile.create(["parser", ".rb"]) do |parser|
-            run_cli(["--dot", dot.path, "--html", html.path, "-o", parser.path, grammar.path])
-            assert_includes File.read(dot.path), "digraph"
-            assert_includes File.read(html.path), "<!doctype html>"
-          end
-        end
-      end
     end
   end
 

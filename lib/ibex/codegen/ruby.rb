@@ -16,12 +16,14 @@ module Ibex
       # @rbs @omit_action_call: bool
       # @rbs @superclass: String
       # @rbs @executable: String?
+      # @rbs @error_messages: Hash[Integer, String]
 
       # @rbs (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool,
       #   ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?,
-      #   ?executable: String?) -> void
+      #   ?executable: String?, ?error_messages: Hash[Integer, String]) -> void
       def initialize(automaton, table: :compact, embedded: false, line_convert: true, debug: false,
-                     line_convert_all: false, omit_action_call: nil, superclass: nil, executable: nil)
+                     line_convert_all: false, omit_action_call: nil, superclass: nil, executable: nil,
+                     error_messages: {})
         @automaton = automaton
         @grammar = automaton.grammar
         @table_format = table.to_sym
@@ -32,6 +34,7 @@ module Ibex
         @omit_action_call = omit_action_call.nil? ? @grammar.options[:omit_action_call] : omit_action_call
         @superclass = superclass || @grammar.superclass || "Ibex::Runtime::Parser"
         @executable = executable
+        @error_messages = error_messages.sort.to_h.freeze
       end
 
       # @rbs () -> String
@@ -59,6 +62,7 @@ module Ibex
       def append_runtime(lines)
         if @embedded
           lines << embedded_source("../runtime/parser.rb")
+          lines << embedded_source("../runtime/jsonl_tracer.rb")
           lines << embedded_source("../../ibex/tables.rb")
         else
           lines << 'require "ibex/runtime"'
@@ -84,13 +88,27 @@ module Ibex
         lines << "#{indent}GOTOS = #{table_literal(table_set.gotos)}"
         lines << "#{indent}DEFAULT_ACTIONS = #{table_set.default_actions.inspect}.freeze"
         lines << "#{indent}PRODUCTIONS = #{productions_literal}.freeze"
+        lines << "#{indent}error_messages = #{error_messages_literal} # @type var error_messages: Hash[Integer, String]"
+        lines << "#{indent}ERROR_MESSAGES = error_messages.freeze #: Hash[Integer, String]"
         lines << "#{indent}PARSER_TABLES = { format_version: PARSER_TABLE_FORMAT_VERSION,"
         lines << "#{indent}                  tokens: TOKEN_IDS, token_names: TOKEN_NAMES, actions: ACTIONS,"
         lines << "#{indent}                  gotos: GOTOS, default_actions: DEFAULT_ACTIONS,"
-        lines << "#{indent}                  productions: PRODUCTIONS }.freeze"
+        lines << "#{indent}                  productions: PRODUCTIONS, error_messages: ERROR_MESSAGES }.freeze"
+        if shareable_parser_tables?
+          lines << "#{indent}Ractor.make_shareable(PARSER_TABLES) " \
+                   "if defined?(Ractor) && Ractor.respond_to?(:make_shareable)"
+        end
         lines << "#{indent}def self.parser_tables = PARSER_TABLES"
         lines << "#{indent}DEBUG_ENABLED = #{@debug}"
         lines << ""
+      end
+
+      # Custom conversion expressions can return caller-owned mutable or
+      # inherently unshareable objects, so only standard token mappings are
+      # safe to freeze transitively.
+      # @rbs () -> bool
+      def shareable_parser_tables?
+        @grammar.conversions.empty?
       end
 
       # @rbs (untyped table) -> String
@@ -122,7 +140,9 @@ module Ibex
 
       # @rbs () -> String
       def token_names_literal
-        entries = @grammar.terminals.map { |terminal| "#{terminal.id} => #{terminal.name.inspect}" }
+        entries = @grammar.terminals.map do |terminal|
+          "#{terminal.id} => #{(terminal.display_name || terminal.name).inspect}"
+        end
         "{ #{entries.join(', ')} }"
       end
 
@@ -135,21 +155,52 @@ module Ibex
         "[#{entries.join(', ')}]"
       end
 
+      # @rbs () -> String
+      def error_messages_literal
+        return "{}" if @error_messages.empty?
+
+        entries = @error_messages.map { |state, message| "#{state} => #{message.inspect}" }
+        "{ #{entries.join(', ')} }"
+      end
+
       # @rbs (Array[String] lines) -> void
       def append_actions(lines)
         @grammar.productions.each do |production|
           next unless action_method?(production)
 
-          append_action_constant(lines, production)
-          append_action_method(lines, production)
+          if production.action && @line_convert
+            append_compiled_action_method(lines, production)
+          else
+            append_action_method(lines, production)
+          end
         end
       end
 
       # @rbs (Array[String] lines, IR::Production production) -> void
-      def append_action_constant(lines, production)
-        return unless production.action && @line_convert
+      def append_compiled_action_method(lines, production)
+        action = production.action || raise(Ibex::Error, "missing semantic action")
+        source = compiled_action_method_source(production, action)
+        lines << "  class_eval(#{source.dump}, #{action.location[:file].inspect}, #{action.location[:line]})"
+        lines << ""
+      end
 
-        lines << "  ACTION_CODE_#{production.id} = #{production.action.code.inspect}.freeze"
+      # @rbs (IR::Production production, IR::Action action) -> String
+      def compiled_action_method_source(production, action)
+        source = "private def _ibex_action_#{production.id}(val, _values); "
+        source << "val = _values.last(#{action.context_length}); " if action.context_length.positive?
+        action.named_refs.each { |reference| source << "#{reference[:name]} = val[#{reference[:index]}]; " }
+        if action.named_refs.any?
+          names = action.named_refs.map { |reference| reference[:name] }
+          source << "_ibex_named_values = [#{names.join(', ')}]; "
+        end
+        if @grammar.options[:result_var]
+          source << "result = val[0]; "
+          source << action.code
+          source << "\nresult"
+        else
+          source << action.code
+        end
+        source << "\nend"
       end
 
       # @rbs (Array[String] lines, IR::Production production) -> void
@@ -180,13 +231,7 @@ module Ibex
       def append_semantic_code(lines, production)
         action = production.action || raise(Ibex::Error, "missing semantic action")
         lines << "    result = val[0]" if @grammar.options[:result_var]
-        if @line_convert
-          evaluation = "eval(ACTION_CODE_#{production.id}, binding, #{action.location[:file].inspect}, " \
-                       "#{action.location[:line]})"
-          lines << "    #{@grammar.options[:result_var] ? evaluation : "return #{evaluation}"}"
-        else
-          action.code.lines.each { |line| lines << "    #{line.rstrip}" }
-        end
+        action.code.lines.each { |line| lines << "    #{line.rstrip}" }
         lines << "    result" if @grammar.options[:result_var]
       end
 
