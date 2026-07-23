@@ -22,8 +22,9 @@ module Ibex
           offsets = Array.new(rows.length, 0)
           values = [] #: Array[untyped]
           checks = [] #: Array[Integer?]
+          next_offsets = {} #: Hash[Array[Integer], Integer]
           rows.each_index.sort_by { |row| [-rows[row].length, row] }.each do |row|
-            offset = find_offset(rows[row].keys, checks)
+            offset = find_offset(rows[row].keys, checks, next_offsets)
             offsets[row] = offset
             rows[row].each do |column, value|
               index = offset + column
@@ -36,10 +37,14 @@ module Ibex
 
         private
 
-        # @rbs (Array[Integer] columns, Array[Integer?] checks) -> Integer
-        def find_offset(columns, checks)
-          offset = 0
+        # @rbs (Array[Integer] columns, Array[Integer?] checks, Hash[Array[Integer], Integer] next_offsets) -> Integer
+        def find_offset(columns, checks, next_offsets)
+          return 0 if columns.empty?
+
+          signature = columns.sort
+          offset = next_offsets.fetch(signature, 0)
           offset += 1 while columns.any? { |column| checks[offset + column] }
+          next_offsets[signature] = offset + 1
           offset
         end
       end
