@@ -50,8 +50,11 @@ module Ibex
         lines << ""
         actions.each do |production|
           parameters = production.rhs.map { |symbol_id| semantic_type(symbol_id) }.join(", ")
+          locations = Array.new(production.rhs.length, "untyped").join(", ")
           result = semantic_type(production.lhs)
-          lines << "  private def _ibex_action_#{production.id}: ([#{parameters}], Array[untyped]) -> #{result}"
+          lines << "  private def _ibex_action_#{production.id}: " \
+                   "([#{parameters}], Array[untyped], [#{locations}], Array[untyped], " \
+                   "Ibex::Runtime::LocationSpan?) -> #{result}"
         end
       end
 

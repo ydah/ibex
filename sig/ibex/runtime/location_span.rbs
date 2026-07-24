@@ -1,0 +1,64 @@
+# Generated from lib/ibex/runtime/location_span.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    # The deterministic source span assigned to a reduced nonterminal.
+    #
+    # Terminal stack entries retain the application-owned location object
+    # supplied by the lexer. A reduction wraps the outer boundaries in this
+    # immutable value so actions can distinguish synthesized spans.
+    class LocationSpan
+      attr_reader start: untyped
+
+      attr_reader finish: untyped
+
+      # @rbs (start: untyped, finish: untyped, ?empty: bool) -> void
+      def initialize: (start: untyped, finish: untyped, ?empty: bool) -> void
+
+      # Build a span for an LR reduction. Nonempty reductions cover the first
+      # through last located RHS entry. Empty reductions are zero-width at the
+      # current lookahead location.
+      # @rbs (Array[untyped] locations, lookahead: untyped) -> LocationSpan?
+      def self.for_reduction: (Array[untyped] locations, lookahead: untyped) -> LocationSpan?
+
+      # Whether this is the zero-width span of an empty production.
+      # @rbs () -> bool
+      def empty?: () -> bool
+
+      # @rbs () -> untyped
+      def file: () -> untyped
+
+      # @rbs () -> untyped
+      def line: () -> untyped
+
+      # @rbs () -> untyped
+      def column: () -> untyped
+
+      # @rbs () -> untyped
+      def source_line: () -> untyped
+
+      # @rbs () -> untyped
+      def end_file: () -> untyped
+
+      # @rbs () -> untyped
+      def end_line: () -> untyped
+
+      # @rbs () -> untyped
+      def end_column: () -> untyped
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
+
+      # @rbs (untyped location) -> untyped
+      private def self.boundary_start: (untyped location) -> untyped
+
+      # @rbs (untyped location) -> untyped
+      private def self.boundary_finish: (untyped location) -> untyped
+
+      private
+
+      # @rbs (untyped location, Symbol key) -> untyped
+      def location_value: (untyped location, Symbol key) -> untyped
+    end
+  end
+end

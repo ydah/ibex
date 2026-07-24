@@ -39,7 +39,8 @@ class RBSCodegenTest < Minitest::Test
     signature = Ibex::Codegen::RBS.new(automaton).generate
 
     assert_includes signature,
-                    "private def _ibex_action_0: ([Integer, untyped], Array[untyped]) -> String"
+                    "private def _ibex_action_0: ([Integer, untyped], Array[untyped], [untyped, untyped], " \
+                    "Array[untyped], Ibex::Runtime::LocationSpan?) -> String"
   end
 
   def test_generates_contracts_for_requested_implicit_action_methods
@@ -49,7 +50,9 @@ class RBSCodegenTest < Minitest::Test
     automaton = Ibex::LALR::Builder.new(grammar).build
     signature = Ibex::Codegen::RBS.new(automaton, omit_action_call: false).generate
 
-    assert_includes signature, "private def _ibex_action_0: ([untyped], Array[untyped]) -> untyped"
+    assert_includes signature,
+                    "private def _ibex_action_0: ([untyped], Array[untyped], [untyped], Array[untyped], " \
+                    "Ibex::Runtime::LocationSpan?) -> untyped"
   end
 
   def test_generated_metadata_signatures_pass_rbs_validation
@@ -71,13 +74,16 @@ class RBSCodegenTest < Minitest::Test
     implicit = Ibex::Codegen::RBS.new(automaton, omit_action_call: false).generate
 
     assert_includes explicit,
-                    "private def _ibex_action_0: ([Array[String | nil]], Array[untyped]) -> " \
+                    "private def _ibex_action_0: ([Array[String | nil]], Array[untyped], [untyped], " \
+                    "Array[untyped], Ibex::Runtime::LocationSpan?) -> " \
                     "([Integer, String] | nil)"
     assert_includes explicit,
-                    "private def _ibex_action_1: ([], Array[untyped]) -> ([Integer, String] | nil)"
+                    "private def _ibex_action_1: ([], Array[untyped], [], Array[untyped], " \
+                    "Ibex::Runtime::LocationSpan?) -> ([Integer, String] | nil)"
     refute_includes explicit, "private def _ibex_action_2:"
     assert_includes implicit,
-                    "private def _ibex_action_2: ([Array[String | nil]], Array[untyped]) -> untyped"
+                    "private def _ibex_action_2: ([Array[String | nil]], Array[untyped], [untyped], " \
+                    "Array[untyped], Ibex::Runtime::LocationSpan?) -> untyped"
 
     assert_rbs_valid(explicit)
     assert_rbs_valid(implicit)
@@ -94,6 +100,8 @@ class RBSCodegenTest < Minitest::Test
       File.write(File.join(directory, "runtime.rbs"), <<~RBS)
         module Ibex
           module Runtime
+            class LocationSpan
+            end
             class Parser
             end
           end

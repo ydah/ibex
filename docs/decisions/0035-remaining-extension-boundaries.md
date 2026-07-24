@@ -16,7 +16,8 @@ The following work requires a separately reviewed phase and ADR:
 - Parameterized user rules, `%inline`, grammar includes, and rule doc comments restart with a comment-preserving source model,
   explicit name/parameter hygiene, cross-file location rules, and a Grammar IR schema-version plan.
 - Full `@1`/`@$` semantic locations restart with a parallel location stack, reduction-span rules, generated-action syntax, and
-  typed action contracts. Optional lookahead locations and structured errors remain the compatible first layer.
+  typed action contracts. [ADR 0036](0036-semantic-location-stack-and-spans.md) satisfies and supersedes this boundary; optional
+  lookahead locations and structured errors remain its compatible first layer.
 - Static checking inside opaque semantic-action bodies restarts with an opt-in extracted-source contract that preserves grammar
   backtraces and lets Steep associate each body with the generated reduction signature. The current generated RBS deliberately
   types the method boundary without claiming to check the body.

@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
 require_relative "../runtime/parser"
+require_relative "ruby_actions"
 
 module Ibex
   module Codegen
     # Generates a standalone Ruby parser class from Automaton IR.
     class Ruby
+      include RubyActions
+
       # @rbs @automaton: IR::Automaton
       # @rbs @grammar: IR::Grammar
       # @rbs @table_format: Symbol
@@ -61,6 +64,7 @@ module Ibex
       # @rbs (Array[String] lines) -> void
       def append_runtime(lines)
         if @embedded
+          lines << embedded_source("../runtime/location_span.rb")
           lines << embedded_source("../runtime/parser.rb")
           lines << embedded_source("../runtime/jsonl_tracer.rb")
           lines << embedded_source("../../ibex/tables.rb")
@@ -161,83 +165,6 @@ module Ibex
 
         entries = @error_messages.map { |state, message| "#{state} => #{message.inspect}" }
         "{ #{entries.join(', ')} }"
-      end
-
-      # @rbs (Array[String] lines) -> void
-      def append_actions(lines)
-        @grammar.productions.each do |production|
-          next unless action_method?(production)
-
-          if production.action && @line_convert
-            append_compiled_action_method(lines, production)
-          else
-            append_action_method(lines, production)
-          end
-        end
-      end
-
-      # @rbs (Array[String] lines, IR::Production production) -> void
-      def append_compiled_action_method(lines, production)
-        action = production.action || raise(Ibex::Error, "missing semantic action")
-        source = compiled_action_method_source(production, action)
-        lines << "  class_eval(#{source.dump}, #{action.location[:file].inspect}, #{action.location[:line]})"
-        lines << ""
-      end
-
-      # @rbs (IR::Production production, IR::Action action) -> String
-      def compiled_action_method_source(production, action)
-        source = "private def _ibex_action_#{production.id}(val, _values); "
-        source << "val = _values.last(#{action.context_length}); " if action.context_length.positive?
-        action.named_refs.each { |reference| source << "#{reference[:name]} = val[#{reference[:index]}]; " }
-        if action.named_refs.any?
-          names = action.named_refs.map { |reference| reference[:name] }
-          source << "_ibex_named_values = [#{names.join(', ')}]; "
-        end
-        if @grammar.options[:result_var]
-          source << "result = val[0]; "
-          source << action.code
-          source << "\nresult"
-        else
-          source << action.code
-        end
-        source << "\nend"
-      end
-
-      # @rbs (Array[String] lines, IR::Production production) -> void
-      def append_action_method(lines, production)
-        action = production.action
-        lines << "  private def _ibex_action_#{production.id}(val, _values)"
-        lines << "    val = _values.last(#{action.context_length})" if action&.context_length&.positive?
-        append_named_bindings(lines, action)
-        if action
-          append_semantic_code(lines, production)
-        else
-          lines << "    val[0]"
-        end
-        lines << "  end"
-        lines << ""
-      end
-
-      # @rbs (Array[String] lines, IR::Action? action) -> void
-      def append_named_bindings(lines, action)
-        return unless action&.named_refs&.any?
-
-        action.named_refs.each { |reference| lines << "    #{reference[:name]} = val[#{reference[:index]}]" }
-        names = action.named_refs.map { |reference| reference[:name] }
-        lines << "    _ibex_named_values = [#{names.join(', ')}]"
-      end
-
-      # @rbs (Array[String] lines, IR::Production production) -> void
-      def append_semantic_code(lines, production)
-        action = production.action || raise(Ibex::Error, "missing semantic action")
-        lines << "    result = val[0]" if @grammar.options[:result_var]
-        action.code.lines.each { |line| lines << "    #{line.rstrip}" }
-        lines << "    result" if @grammar.options[:result_var]
-      end
-
-      # @rbs (IR::Production production) -> bool
-      def action_method?(production)
-        !!(production.action || !@omit_action_call)
       end
 
       # @rbs (Array[String] lines, String name, ?indent: Integer) -> void

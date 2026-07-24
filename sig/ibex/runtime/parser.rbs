@@ -65,6 +65,8 @@ module Ibex
 
       @value_stack: Array[untyped]
 
+      @location_stack: Array[untyped]
+
       @lookahead: untyped
 
       @lookahead_value: untyped
@@ -198,8 +200,14 @@ module Ibex
       # @rbs (Integer production_id) -> untyped
       def reduce: (Integer production_id) -> untyped
 
-      # @rbs (Hash[Symbol, untyped] production, Array[untyped] values) -> untyped
-      def reduction_value: (Hash[Symbol, untyped] production, Array[untyped] values) -> untyped
+      # @rbs (Hash[Symbol, untyped] production, Array[untyped] values,
+      #   Array[untyped] locations, LocationSpan? location) -> untyped
+      def reduction_value: (Hash[Symbol, untyped] production, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> untyped
+
+      # Keep the historical two-argument runtime action contract working while
+      # generated actions opt into the location-aware five-argument contract.
+      # @rbs (untyped callable, Array[untyped] arguments) -> Array[untyped]
+      def compatible_action_arguments: (untyped callable, Array[untyped] arguments) -> Array[untyped]
 
       # @rbs (?report: bool) -> untyped
       def recover: (?report: bool) -> untyped

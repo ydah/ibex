@@ -138,6 +138,22 @@ class RuntimeParserTest < Minitest::Test
     end
   end
 
+  class LocationAwareRecoveringStatements < RecoveringStatements
+    TABLES = RecoveringStatements::TABLES.merge(
+      productions: RecoveringStatements::TABLES[:productions].each_with_index.map do |production, index|
+        index == 3 ? production.merge(action: :invalid_with_locations) : production
+      end
+    ).freeze
+
+    def self.parser_tables = TABLES
+
+    private
+
+    def invalid_with_locations(_values, _stack, locations, _location_stack, location)
+      [locations, location]
+    end
+  end
+
   def test_do_parse_handles_symbol_string_and_false_eof
     parser = Calculator.new([[:INT, 1], ["+", "+"], ["(", "("], [:INT, 2], ["+", "+"], [:INT, 3], [")", ")"], false])
     assert_equal 6, parser.do_parse
@@ -186,6 +202,19 @@ class RuntimeParserTest < Minitest::Test
     parser = RecoveringStatements.new(tokens)
     parser.do_parse
     assert_equal [":BAD", ":BAD"], parser.errors
+  end
+
+  def test_error_recovery_keeps_the_location_stack_parallel
+    unexpected = { file: "recover.txt", line: 2, column: 3 }
+    semicolon = { file: "recover.txt", line: 2, column: 7 }
+    parser = LocationAwareRecoveringStatements.new([[:BAD, nil, unexpected], [";", nil, semicolon]])
+
+    locations, span = parser.do_parse.fetch(0)
+
+    assert_same unexpected, locations.fetch(0)
+    assert_same semicolon, locations.fetch(1)
+    assert_same unexpected, span.start
+    assert_same semicolon, span.finish
   end
 
   def test_yyerrok_resumes_error_reporting_immediately

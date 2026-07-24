@@ -75,6 +75,11 @@ explicit error cells, including recovery and undeclared-token behavior. `--table
 
 Ibex does not generate a lexer. A pull parser implements `next_token` and returns `[token, value]` or
 `[token, value, location]`; `false` or `nil` marks EOF.
+
+Generated actions can read the location parallel to `val[0]`, `val[1]`, and so on as `@1`, `@2`, and so on; `@$` is the
+immutable span of the current reduction. Empty and middle actions use a zero-width span at the current lookahead. Location-less
+tokens remain supported and produce `nil` entries.
+
 Bare grammar tokens normally use Ruby symbols (`:NUM`), and quoted grammar tokens use strings (`'+'`). A push source can call
 `yyparse(receiver, method_name)` where the receiver method yields the same pairs.
 
@@ -204,8 +209,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 5,597 typed calls and 665 untyped calls out of 6,262 (89.4% typed).
-The generated signature tree contains 586 explicit `untyped` occurrences across 22 files.
+The current whole-library `steep stats` result is 5,712 typed calls and 673 untyped calls out of 6,385 (89.5% typed).
+The generated signature tree contains 849 explicit `untyped` occurrences across 23 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime
