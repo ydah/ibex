@@ -28,7 +28,8 @@ module Ibex
         if locations.empty?
           return unless lookahead
 
-          return new(start: boundary_start(lookahead), finish: boundary_finish(lookahead), empty: true)
+          boundary = boundary_start(lookahead)
+          return new(start: boundary, finish: boundary, empty: true)
         end
 
         located = locations.compact
@@ -56,13 +57,25 @@ module Ibex
       def source_line = location_value(@start, :source_line)
 
       # @rbs () -> untyped
-      def end_file = location_value(@finish, :end_file) || location_value(@finish, :file)
+      def end_file
+        return file if empty?
+
+        location_value(@finish, :end_file) || location_value(@finish, :file)
+      end
 
       # @rbs () -> untyped
-      def end_line = location_value(@finish, :end_line) || location_value(@finish, :line)
+      def end_line
+        return line if empty?
+
+        location_value(@finish, :end_line) || location_value(@finish, :line)
+      end
 
       # @rbs () -> untyped
-      def end_column = location_value(@finish, :end_column) || location_value(@finish, :column)
+      def end_column
+        return column if empty?
+
+        location_value(@finish, :end_column) || location_value(@finish, :column)
+      end
 
       # @rbs () -> Hash[Symbol, untyped]
       def to_h

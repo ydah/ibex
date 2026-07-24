@@ -38,4 +38,25 @@ class ActionLocationsCodegenTest < Minitest::Test
                    error.message)
     end
   end
+
+  def test_multibyte_offsets_and_interpolated_heredocs_are_rewritten_safely
+    source = <<~'RUBY'
+      prefix = "日本語😀𠮷"; first = @1
+      text = <<~TEXT
+        literal 😀𠮷 @1 @$
+        semantic=#{@2[:line]} / #{@$&.column}
+      TEXT
+      result = [first, @2, @$, text]
+    RUBY
+
+    rewritten = Ibex::Codegen::ActionLocations.new(source, maximum: 2, location: LOCATION).rewrite
+
+    assert_includes rewritten, 'prefix = "日本語😀𠮷"; first = _ibex_locations[0]'
+    assert_includes rewritten, "  literal 😀𠮷 @1 @$"
+    assert_includes rewritten,
+                    "semantic=\#{_ibex_locations[1][:line]} / \#{_ibex_location&.column}"
+    assert_includes rewritten, "result = [first, _ibex_locations[1], _ibex_location, text]"
+    assert_equal Encoding::UTF_8, rewritten.encoding
+    assert_predicate rewritten, :valid_encoding?
+  end
 end

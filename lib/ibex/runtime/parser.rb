@@ -83,9 +83,14 @@ module Ibex
     # `:actions`, `:gotos`, and `:productions`, with optional
     # `:default_actions` and `:error_messages`. Actions are represented by
     # `[:shift, state]`, `[:reduce, production]`, `[:accept]`, or `[:error]`.
+    # Generated production entries mark their five-argument semantic methods
+    # with `location_action: true`; unmarked application actions retain the
+    # historical two-argument contract. The marker is honored only for the
+    # generated `_ibex_action_N` Symbol shape, never for application callables.
     class Parser
       EOF_TOKEN = 0 #: Integer
       ERROR_TOKEN = 1 #: Integer
+      GENERATED_ACTION_NAME = /\A_ibex_action_\d+\z/ #: Regexp
       NO_LOOKAHEAD = Object.new.freeze #: Object
       RECOVERY_SHIFTS = 3 #: Integer
       empty_row = {} # @type var empty_row: Hash[Integer, untyped]
@@ -459,17 +464,17 @@ module Ibex
         return values.first unless action
 
         arguments = [values, @value_stack.dup, locations, @location_stack.dup, location]
-        return instance_exec(*compatible_action_arguments(action, arguments), &action) if action.respond_to?(:call)
+        arguments = arguments.take(2) unless generated_location_action?(production, action)
+        return instance_exec(*arguments, &action) if action.respond_to?(:call)
 
-        callable = method(action)
-        callable.call(*compatible_action_arguments(callable, arguments))
+        method(action).call(*arguments)
       end
 
-      # Keep the historical two-argument runtime action contract working while
-      # generated actions opt into the location-aware five-argument contract.
-      # @rbs (untyped callable, Array[untyped] arguments) -> Array[untyped]
-      def compatible_action_arguments(callable, arguments)
-        callable.arity == 2 ? arguments.take(2) : arguments
+      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
+      def generated_location_action?(production, action)
+        production[:location_action] == true &&
+          action.is_a?(Symbol) &&
+          action.to_s.match?(GENERATED_ACTION_NAME)
       end
 
       # @rbs (?report: bool) -> untyped

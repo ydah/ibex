@@ -80,8 +80,9 @@ Generated actions can read the location parallel to `val[0]`, `val[1]`, and so o
 immutable span of the current reduction. Empty and middle actions use a zero-width span at the current lookahead. Location-less
 tokens remain supported and produce `nil` entries.
 
-Bare grammar tokens normally use Ruby symbols (`:NUM`), and quoted grammar tokens use strings (`'+'`). A push source can call
-`yyparse(receiver, method_name)` where the receiver method yields the same pairs.
+Bare grammar tokens normally use Ruby symbols (`:NUM`), and quoted grammar tokens use strings (`'+'`). A yielding source can call
+`yyparse(receiver, method_name)` where the receiver method yields the same two- or three-element token arrays, including the
+optional location.
 
 The default `on_error(token_id, value, value_stack)` raises `Ibex::ParseError`. Override it to use yacc-style `error` recovery.
 Semantic actions can call `yyerror`, `yyerrok`, or `yyaccept`, and `expected_tokens` reports valid lookaheads in the current state.
@@ -209,8 +210,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 5,712 typed calls and 673 untyped calls out of 6,385 (89.5% typed).
-The generated signature tree contains 849 explicit `untyped` occurrences across 23 files.
+The current whole-library `steep stats` result is 5,719 typed calls and 673 untyped calls out of 6,392 (89.5% typed).
+The generated signature tree contains 847 explicit `untyped` occurrences across 23 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

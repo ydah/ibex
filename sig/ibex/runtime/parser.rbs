@@ -44,10 +44,16 @@ module Ibex
     # `:actions`, `:gotos`, and `:productions`, with optional
     # `:default_actions` and `:error_messages`. Actions are represented by
     # `[:shift, state]`, `[:reduce, production]`, `[:accept]`, or `[:error]`.
+    # Generated production entries mark their five-argument semantic methods
+    # with `location_action: true`; unmarked application actions retain the
+    # historical two-argument contract. The marker is honored only for the
+    # generated `_ibex_action_N` Symbol shape, never for application callables.
     class Parser
       EOF_TOKEN: Integer
 
       ERROR_TOKEN: Integer
+
+      GENERATED_ACTION_NAME: Regexp
 
       NO_LOOKAHEAD: Object
 
@@ -204,10 +210,8 @@ module Ibex
       #   Array[untyped] locations, LocationSpan? location) -> untyped
       def reduction_value: (Hash[Symbol, untyped] production, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> untyped
 
-      # Keep the historical two-argument runtime action contract working while
-      # generated actions opt into the location-aware five-argument contract.
-      # @rbs (untyped callable, Array[untyped] arguments) -> Array[untyped]
-      def compatible_action_arguments: (untyped callable, Array[untyped] arguments) -> Array[untyped]
+      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
+      def generated_location_action?: (Hash[Symbol, untyped] production, untyped action) -> bool
 
       # @rbs (?report: bool) -> untyped
       def recover: (?report: bool) -> untyped
