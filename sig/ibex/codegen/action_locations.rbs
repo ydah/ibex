@@ -1,0 +1,32 @@
+# Generated from lib/ibex/codegen/action_locations.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Rewrites semantic-location expressions without touching Ruby literals,
+    # comments, heredoc bodies, or ordinary instance/class variables.
+    class ActionLocations
+      @source: String
+
+      @maximum: Integer
+
+      @location: IR::location
+
+      # @rbs (String source, maximum: Integer, location: IR::location) -> void
+      def initialize: (String source, maximum: Integer, location: IR::location) -> void
+
+      # @rbs () -> String
+      def rewrite: () -> String
+
+      private
+
+      # @rbs () -> Array[[Integer, String]]
+      def semantic_references: () -> Array[[ Integer, String ]]
+
+      # @rbs () -> Array[Integer]
+      def line_offsets: () -> Array[Integer]
+
+      # @rbs (String spelling) -> String
+      def replacement_for: (String spelling) -> String
+    end
+  end
+end

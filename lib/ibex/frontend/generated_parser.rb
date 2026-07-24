@@ -24,433 +24,433 @@ class GeneratedParser < Ibex::Frontend::GeneratedParserBase
   def self.parser_tables = PARSER_TABLES
   DEBUG_ENABLED = false
 
-  private def _ibex_action_0(val, _values)
+  private def _ibex_action_0(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_root(val[0], val[1], val[2], val[4], val[6], val[8])
     result
   end
 
-  private def _ibex_action_1(val, _values)
+  private def _ibex_action_1(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = [val[0].value]
     result
   end
 
-  private def _ibex_action_2(val, _values)
+  private def _ibex_action_2(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0] + [val[2].value]
     result
   end
 
-  private def _ibex_action_3(val, _values)
+  private def _ibex_action_3(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = nil
     result
   end
 
-  private def _ibex_action_4(val, _values)
+  private def _ibex_action_4(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[1]
     result
   end
 
-  private def _ibex_action_7(val, _values)
+  private def _ibex_action_7(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_8(val, _values)
+  private def _ibex_action_8(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_9(val, _values)
+  private def _ibex_action_9(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_10(val, _values)
+  private def _ibex_action_10(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_11(val, _values)
+  private def _ibex_action_11(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_12(val, _values)
+  private def _ibex_action_12(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_13(val, _values)
+  private def _ibex_action_13(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_14(val, _values)
+  private def _ibex_action_14(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_15(val, _values)
+  private def _ibex_action_15(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_16(val, _values)
+  private def _ibex_action_16(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_17(val, _values)
+  private def _ibex_action_17(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_tokens(val[0], val[1])
     result
   end
 
-  private def _ibex_action_18(val, _values)
+  private def _ibex_action_18(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_precedence(val[0], :high_to_low, val[1])
     result
   end
 
-  private def _ibex_action_19(val, _values)
+  private def _ibex_action_19(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_precedence(val[0], :low_to_high, val[1])
     result
   end
 
-  private def _ibex_action_20(val, _values)
+  private def _ibex_action_20(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_21(val, _values)
+  private def _ibex_action_21(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_22(val, _values)
+  private def _ibex_action_22(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_precedence_level(val[0], val[1])
     result
   end
 
-  private def _ibex_action_23(val, _values)
+  private def _ibex_action_23(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_24(val, _values)
+  private def _ibex_action_24(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_25(val, _values)
+  private def _ibex_action_25(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_26(val, _values)
+  private def _ibex_action_26(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_options(val[0], val[1])
     result
   end
 
-  private def _ibex_action_27(val, _values)
+  private def _ibex_action_27(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_expect(val[0], val[1])
     result
   end
 
-  private def _ibex_action_28(val, _values)
+  private def _ibex_action_28(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_start(val[0], val[1].value)
     result
   end
 
-  private def _ibex_action_29(val, _values)
+  private def _ibex_action_29(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_convert(val[0], val[1])
     result
   end
 
-  private def _ibex_action_30(val, _values)
+  private def _ibex_action_30(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_31(val, _values)
+  private def _ibex_action_31(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_32(val, _values)
+  private def _ibex_action_32(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_conversion(val[0], val[1])
     result
   end
 
-  private def _ibex_action_33(val, _values)
+  private def _ibex_action_33(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_display_name(val[0], val[1], val[2])
     result
   end
 
-  private def _ibex_action_34(val, _values)
+  private def _ibex_action_34(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_semantic_type(val[0], val[1], val[2])
     result
   end
 
-  private def _ibex_action_35(val, _values)
+  private def _ibex_action_35(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_36(val, _values)
+  private def _ibex_action_36(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0] + [val[1].value]
     result
   end
 
-  private def _ibex_action_37(val, _values)
+  private def _ibex_action_37(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_38(val, _values)
+  private def _ibex_action_38(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0] + [val[1].value]
     result
   end
 
-  private def _ibex_action_39(val, _values)
+  private def _ibex_action_39(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_40(val, _values)
+  private def _ibex_action_40(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_41(val, _values)
+  private def _ibex_action_41(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = [val[0]]
     result
   end
 
-  private def _ibex_action_42(val, _values)
+  private def _ibex_action_42(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_43(val, _values)
+  private def _ibex_action_43(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_rule(val[0], val[2])
     result
   end
 
-  private def _ibex_action_46(val, _values)
+  private def _ibex_action_46(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = [val[0]]
     result
   end
 
-  private def _ibex_action_47(val, _values)
+  private def _ibex_action_47(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0] + [val[2]]
     result
   end
 
-  private def _ibex_action_48(val, _values)
+  private def _ibex_action_48(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_alternative(val[0], val[1])
     result
   end
 
-  private def _ibex_action_49(val, _values)
+  private def _ibex_action_49(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = nil
     result
   end
 
-  private def _ibex_action_50(val, _values)
+  private def _ibex_action_50(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[1]
     result
   end
 
-  private def _ibex_action_51(val, _values)
+  private def _ibex_action_51(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_52(val, _values)
+  private def _ibex_action_52(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_53(val, _values)
+  private def _ibex_action_53(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_54(val, _values)
+  private def _ibex_action_54(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_action(val[0])
     result
   end
 
-  private def _ibex_action_55(val, _values)
+  private def _ibex_action_55(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_56(val, _values)
+  private def _ibex_action_56(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_57(val, _values)
+  private def _ibex_action_57(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_symbol_reference(val[0], val[1], val[2])
     result
   end
 
-  private def _ibex_action_58(val, _values)
+  private def _ibex_action_58(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = nil
     result
   end
 
-  private def _ibex_action_59(val, _values)
+  private def _ibex_action_59(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = [val[0], val[1]]
     result
   end
 
-  private def _ibex_action_60(val, _values)
+  private def _ibex_action_60(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_61(val, _values)
+  private def _ibex_action_61(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_62(val, _values)
+  private def _ibex_action_62(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_63(val, _values)
+  private def _ibex_action_63(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_64(val, _values)
+  private def _ibex_action_64(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_group(val[0], val[1], val[3])
     result
   end
 
-  private def _ibex_action_65(val, _values)
+  private def _ibex_action_65(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = [val[0]]
     result
   end
 
-  private def _ibex_action_66(val, _values)
+  private def _ibex_action_66(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0] + [val[2]]
     result
   end
 
-  private def _ibex_action_67(val, _values)
+  private def _ibex_action_67(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_68(val, _values)
+  private def _ibex_action_68(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_69(val, _values)
+  private def _ibex_action_69(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_70(val, _values)
+  private def _ibex_action_70(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_71(val, _values)
+  private def _ibex_action_71(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_72(val, _values)
+  private def _ibex_action_72(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_separated_list(val[0], val[2], val[4])
     result
   end
 
-  private def _ibex_action_73(val, _values)
+  private def _ibex_action_73(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = build_separated_list(val[0], val[2], val[4])
     result
   end
 
-  private def _ibex_action_74(val, _values)
+  private def _ibex_action_74(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = empty_user_code
     result
   end
 
-  private def _ibex_action_75(val, _values)
+  private def _ibex_action_75(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
     result = val[0]
      result = append_user_code(val[0], val[1])
     result

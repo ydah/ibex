@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 # rbs_inline: enabled
 
+require_relative "location_span" unless defined?(Ibex::Runtime::LocationSpan)
+
 module Ibex
   module Runtime
     # Parser-table shape understood by this runtime.
@@ -95,6 +97,7 @@ module Ibex
       # @rbs @source: (^() -> untyped)?
       # @rbs @state_stack: Array[Integer]
       # @rbs @value_stack: Array[untyped]
+      # @rbs @location_stack: Array[untyped]
       # @rbs @lookahead: untyped
       # @rbs @lookahead_value: untyped
       # @rbs @lookahead_location: untyped
@@ -116,6 +119,7 @@ module Ibex
         @source = nil
         @state_stack = []
         @value_stack = []
+        @location_stack = []
         @lookahead = NO_LOOKAHEAD
         @lookahead_value = nil
         @lookahead_location = nil
@@ -187,6 +191,7 @@ module Ibex
         @source = nil
         @state_stack = []
         @value_stack = []
+        @location_stack = []
         @lookahead = NO_LOOKAHEAD
         @lookahead_value = nil
         @lookahead_location = nil
@@ -354,6 +359,7 @@ module Ibex
         @source = source
         @state_stack = [0]
         @value_stack = []
+        @location_stack = []
         @lookahead = NO_LOOKAHEAD
         @lookahead_value = nil
         @lookahead_location = nil
@@ -408,9 +414,11 @@ module Ibex
       def shift(next_state)
         token_id = @lookahead
         value = @lookahead_value
+        location = @lookahead_location
         trace("shift #{token_to_str(token_id)} -> state #{next_state}")
         @state_stack << next_state
         @value_stack << value
+        @location_stack << location
         @lookahead = NO_LOOKAHEAD
         @lookahead_location = nil
         @recovery_shifts -= 1 if @recovery_shifts.positive?
@@ -423,15 +431,19 @@ module Ibex
         production = parser_tables.fetch(:productions).fetch(production_id)
         length = production.fetch(:length)
         values = @value_stack.last(length)
+        locations = @location_stack.last(length)
         hook_values = values.dup
         @state_stack.pop(length)
         @value_stack.pop(length)
-        result = reduction_value(production, values)
+        @location_stack.pop(length)
+        location = LocationSpan.for_reduction(locations, lookahead: @lookahead_location)
+        result = reduction_value(production, values, locations, location)
         next_state = table_lookup(parser_tables.fetch(:gotos), @state_stack.last, production.fetch(:lhs))
         raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
 
         @state_stack << next_state
         @value_stack << result
+        @location_stack << location
         trace("reduce #{production_id} (#{length}) -> state #{next_state}")
         on_reduce(production_id, hook_values, result)
         return [:accepted, result] if @accept_requested
@@ -440,13 +452,24 @@ module Ibex
         [:continue]
       end
 
-      # @rbs (Hash[Symbol, untyped] production, Array[untyped] values) -> untyped
-      def reduction_value(production, values)
+      # @rbs (Hash[Symbol, untyped] production, Array[untyped] values,
+      #   Array[untyped] locations, LocationSpan? location) -> untyped
+      def reduction_value(production, values, locations, location)
         action = production[:action]
         return values.first unless action
-        return instance_exec(values, @value_stack.dup, &action) if action.respond_to?(:call)
 
-        __send__(action, values, @value_stack.dup)
+        arguments = [values, @value_stack.dup, locations, @location_stack.dup, location]
+        return instance_exec(*compatible_action_arguments(action, arguments), &action) if action.respond_to?(:call)
+
+        callable = method(action)
+        callable.call(*compatible_action_arguments(callable, arguments))
+      end
+
+      # Keep the historical two-argument runtime action contract working while
+      # generated actions opt into the location-aware five-argument contract.
+      # @rbs (untyped callable, Array[untyped] arguments) -> Array[untyped]
+      def compatible_action_arguments(callable, arguments)
+        callable.arity == 2 ? arguments.take(2) : arguments
       end
 
       # @rbs (?report: bool) -> untyped
@@ -480,6 +503,7 @@ module Ibex
             trace("recover: shift error -> state #{action.fetch(1)}")
             @state_stack << action.fetch(1)
             @value_stack << nil
+            @location_stack << @lookahead_location
             return true
           end
           return false if @state_stack.length == 1
@@ -487,6 +511,7 @@ module Ibex
           trace("recover: pop state #{@state_stack.last}")
           @state_stack.pop
           @value_stack.pop
+          @location_stack.pop
         end
       end
 

@@ -65,6 +65,13 @@ Actions are opaque Ruby between balanced braces. `val` contains RHS values, `res
 of the surrounding value stack. With `no_result_var`, the action's evaluated value is used directly. A middle action becomes an
 empty helper production and consumes one value position in the enclosing RHS.
 
+When a lexer returns `[token, value, location]`, actions can read the corresponding locations as `@1`, `@2`, and so on. `@$`
+is the current reduction's immutable `Ibex::Runtime::LocationSpan`. A nonempty span covers the first through last located RHS
+entry; an empty production is zero-width at the current lookahead and remains unlocated if no lookahead location was supplied.
+A middle action follows that empty-production rule, while its numbered locations address the visible left context. Numbered
+references outside the action's value range are generation errors. Location expressions in strings, regular expressions,
+symbols, comments, and heredoc bodies remain literal text, and ordinary Ruby instance variables are unchanged.
+
 Action and `inner` backtraces use the original grammar filename and line by default. `--line-convert-all` applies the same mapping
 to `header` and `footer`; `-l` keeps all backtraces on generated-file lines.
 

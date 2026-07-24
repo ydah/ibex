@@ -24,8 +24,10 @@ handwritten `BootstrapParser` is excluded from normal loading and exists only to
 
 The RBS generator emits the generated class namespace, superclass, parser-table constants, `.parser_tables` contract, and
 private reduction-method signatures. Declared symbol types refine the RHS tuple and LHS result independently, with `untyped`
-used at undeclared boundaries. Default source mapping compiles opaque action methods with `class_eval` when the generated class
-loads; the signatures do not make those bodies visible to Steep. The
+used at undeclared boundaries. Reduction methods also receive a location tuple, surrounding location stack, and optional
+`Runtime::LocationSpan`; the runtime maintains that stack in parallel with semantic values for every driver and recovery path.
+Default source mapping compiles opaque action methods with `class_eval` when the generated class loads; the signatures do not
+make those bodies visible to Steep. The
 gem also ships a one-to-one rbs-inline-generated signature tree under `sig/` for every Ruby source in `lib/`, including the
 self-hosted parser. CI regenerates into an empty temporary directory, compares the complete trees, validates the RBS environment,
 and runs Steep against the entire library. Token/location records, grammar AST nodes, parser classifier and bootstrap state, the
