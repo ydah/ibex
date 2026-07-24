@@ -6,6 +6,9 @@ class SemanticLocationsCodegenTest < Minitest::Test
   def test_pull_yyparse_and_push_share_location_semantics
     [true, false].each do |line_convert|
       parser_class = build_parser(line_convert: line_convert)
+      parser_class::PRODUCTIONS.each do |production|
+        assert_equal true, production[:location_action] if production[:action]
+      end
 
       %i[pull yyparse push].each do |driver|
         first = { file: "#{driver}.txt", line: 1, column: 2 }
@@ -135,6 +138,8 @@ class SemanticLocationsCodegenTest < Minitest::Test
     assert span.empty?
     assert_same location, span.start
     assert_same location, span.finish
+    assert_equal location[:line], span.end_line
+    assert_equal location[:column], span.end_column
   end
 
   def assert_span(span, first, last)

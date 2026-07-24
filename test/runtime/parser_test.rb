@@ -139,9 +139,10 @@ class RuntimeParserTest < Minitest::Test
   end
 
   class LocationAwareRecoveringStatements < RecoveringStatements
+    LOCATION_ACTION = :_ibex_action_3 # rubocop:disable Naming/VariableNumber
     TABLES = RecoveringStatements::TABLES.merge(
       productions: RecoveringStatements::TABLES[:productions].each_with_index.map do |production, index|
-        index == 3 ? production.merge(action: :invalid_with_locations) : production
+        index == 3 ? production.merge(action: LOCATION_ACTION, location_action: true) : production
       end
     ).freeze
 
@@ -149,7 +150,7 @@ class RuntimeParserTest < Minitest::Test
 
     private
 
-    def invalid_with_locations(_values, _stack, locations, _location_stack, location)
+    define_method(LOCATION_ACTION) do |_values, _stack, locations, _location_stack, location|
       [locations, location]
     end
   end

@@ -23,15 +23,33 @@ class RuntimeLocationSpanTest < Minitest::Test
   end
 
   def test_empty_reduction_is_zero_width_at_lookahead
-    lookahead = { "file" => "input.txt", "line" => 4, "column" => 7 }
+    lookahead = {
+      "file" => "input.txt", "line" => 4, "column" => 7,
+      "end_file" => "input.txt", "end_line" => 6, "end_column" => 20
+    }
 
     span = Ibex::Runtime::LocationSpan.for_reduction([], lookahead: lookahead)
 
     assert_same lookahead, span.start
     assert_same lookahead, span.finish
     assert span.empty?
+    assert_equal "input.txt", span.end_file
     assert_equal 4, span.end_line
     assert_equal 7, span.end_column
+  end
+
+  def test_empty_reduction_uses_the_start_of_a_span_lookahead
+    start = { file: "input.txt", line: 2, column: 3, end_line: 2, end_column: 8 }
+    finish = { file: "input.txt", line: 5, column: 9 }
+    lookahead = Ibex::Runtime::LocationSpan.new(start: start, finish: finish)
+
+    span = Ibex::Runtime::LocationSpan.for_reduction([], lookahead: lookahead)
+
+    assert_same start, span.start
+    assert_same start, span.finish
+    assert span.empty?
+    assert_equal 2, span.end_line
+    assert_equal 3, span.end_column
   end
 
   def test_reduction_without_any_location_remains_unlocated

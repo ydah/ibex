@@ -68,7 +68,8 @@ empty helper production and consumes one value position in the enclosing RHS.
 When a lexer returns `[token, value, location]`, actions can read the corresponding locations as `@1`, `@2`, and so on. `@$`
 is the current reduction's immutable `Ibex::Runtime::LocationSpan`. A nonempty span covers the first through last located RHS
 entry; an empty production is zero-width at the current lookahead and remains unlocated if no lookahead location was supplied.
-A middle action follows that empty-production rule, while its numbered locations address the visible left context. Numbered
+A zero-width span's `end_*` coordinates equal its start even if the lookahead supplies wider end coordinates. A middle action
+follows that empty-production rule, while its numbered locations address the visible left context. Numbered
 references outside the action's value range are generation errors. Location expressions in strings, regular expressions,
 symbols, comments, and heredoc bodies remain literal text, and ordinary Ruby instance variables are unchanged.
 

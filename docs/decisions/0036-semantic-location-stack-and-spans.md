@@ -23,8 +23,9 @@ Every reduction computes an immutable `Ibex::Runtime::LocationSpan`:
 
 - A nonempty reduction covers the first through last non-`nil` RHS location. Nested spans contribute their outer start and finish
   boundaries. If the RHS has no located entry, the result location is `nil`.
-- An empty reduction is a zero-width span whose start and finish are the current lookahead location. It is `nil` when that
-  lookahead is unlocated.
+- An empty reduction is a zero-width span whose start and finish are the current lookahead's start boundary. Its `end_*` readers
+  equal its start coordinate even when the lookahead object carries a wider end coordinate. It is `nil` when that lookahead is
+  unlocated.
 - A middle action remains an empty helper reduction. Its `@$` is therefore zero-width at the following lookahead, while `@1`,
   `@2`, and so on address the left-context locations exposed to that action.
 
@@ -39,9 +40,11 @@ standard `Ripper` lexer to rewrite only code-level references, including interpo
 variables and occurrences in literal content, comments, regular expressions, symbols, and heredoc bodies are unchanged.
 
 Generated reduction methods receive the RHS values, surrounding value stack, RHS locations, surrounding location stack, and
-reduction span. Generated RBS declares that five-argument private contract. The runtime continues to invoke historical
-two-argument application actions with two arguments based on their arity, preserving hand-written parser tables and older
-generated action methods.
+reduction span. Generated RBS declares that five-argument private contract, and generated production entries explicitly opt into
+it with `location_action: true`. The runtime honors that marker only for generated `_ibex_action_N` Symbol methods; application
+callables cannot be upgraded accidentally by a stray marker. Every other application method or callable continues to receive
+exactly two arguments, regardless of optional or rest parameters, preserving hand-written parser tables and older generated
+action methods.
 
 This decision supersedes the semantic-location deferral in ADR 0035 and completes the phase deferred by ADR 0026. Other deferred
 extensions in ADR 0035 are unchanged.
