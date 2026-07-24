@@ -9,5 +9,6 @@ class SchemaFilesPackagingTest < Minitest::Test
     assert_includes specification.files, "schema/grammar-ir-v1.schema.json"
     assert_includes specification.files, "schema/automaton-ir-v1.schema.json"
     assert_includes specification.files, "schema/explain-v1.schema.json"
+    assert_includes specification.files, "schema/benchmark-v1.schema.json"
   end
 end

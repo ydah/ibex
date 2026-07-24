@@ -8,6 +8,8 @@ module Ibex
 
       ALGORITHMS: Array[Symbol]
 
+      @metrics: BuildMetrics?
+
       @resolver: ConflictResolver
 
       @productions_by_lhs: Hash[Integer, Array[IR::Production]]
@@ -17,6 +19,8 @@ module Ibex
       @algorithm: Symbol
 
       @grammar: IR::Grammar
+
+      attr_reader metrics: BuildMetrics?
 
       # @rbs (IR::Grammar grammar, ?algorithm: Symbol | String) -> void
       def initialize: (IR::Grammar grammar, ?algorithm: Symbol | String) -> void

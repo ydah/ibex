@@ -25,6 +25,27 @@ class LALRBuilderTest < Minitest::Test
     assert(first.states.any? { |state| state.actions.values.any? { |action| action[:type] == :accept } })
   end
 
+  def test_exposes_immutable_structural_build_metrics
+    ast = Ibex::Frontend::Parser.new(<<~GRAMMAR, file: "metrics.y").parse
+      class P
+      rule
+      start: pair pair
+      pair: 'c' pair | 'd'
+      end
+    GRAMMAR
+    grammar = Ibex::Normalizer.new(ast).normalize
+    builder = Ibex::LALR::Builder.new(grammar)
+
+    assert_nil builder.metrics
+    automaton = builder.build
+    metrics = builder.metrics
+
+    assert_equal 10, metrics.canonical_states
+    assert_equal automaton.states.length, metrics.final_states
+    assert_predicate metrics, :frozen?
+    assert_raises(FrozenError) { metrics.instance_variable_set(:@final_states, 0) }
+  end
+
   def test_dangling_else_records_default_shift_and_expectation
     automaton = build(<<~GRAMMAR)
       class P

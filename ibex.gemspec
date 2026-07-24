@@ -24,7 +24,12 @@ Gem::Specification.new do |spec|
         f.start_with?(*%w[Gemfile .gitignore test/ benchmark/ tool/ .github/ .idea/ docs/decisions/])
     end
   end
-  schema_files = %w[schema/grammar-ir-v1.schema.json schema/automaton-ir-v1.schema.json schema/explain-v1.schema.json]
+  schema_files = %w[
+    schema/grammar-ir-v1.schema.json
+    schema/automaton-ir-v1.schema.json
+    schema/explain-v1.schema.json
+    schema/benchmark-v1.schema.json
+  ]
   spec.files = (tracked_files + schema_files).uniq.sort
   spec.bindir = "exe"
   spec.executables = ["ibex"]

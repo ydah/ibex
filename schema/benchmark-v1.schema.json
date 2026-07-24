@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/benchmark-v1.schema.json",
+  "title": "Ibex benchmark artifact v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "artifact",
+    "schema_version",
+    "recorded_at",
+    "environment",
+    "configuration",
+    "measurements",
+    "structure",
+    "digests"
+  ],
+  "properties": {
+    "artifact": { "const": "ibex_benchmark" },
+    "schema_version": { "const": 1 },
+    "recorded_at": { "type": "string", "format": "date-time" },
+    "environment": { "$ref": "#/$defs/environment" },
+    "configuration": { "$ref": "#/$defs/configuration" },
+    "measurements": { "$ref": "#/$defs/measurements" },
+    "structure": { "$ref": "#/$defs/structure" },
+    "digests": { "$ref": "#/$defs/digests" }
+  },
+  "$defs": {
+    "nonNegativeNumber": {
+      "type": "number",
+      "minimum": 0
+    },
+    "nonNegativeInteger": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ruby_engine",
+        "ruby_version",
+        "ruby_platform",
+        "ibex_version",
+        "host_os",
+        "host_cpu",
+        "processors"
+      ],
+      "properties": {
+        "ruby_engine": { "type": "string", "minLength": 1 },
+        "ruby_version": { "type": "string", "minLength": 1 },
+        "ruby_platform": { "type": "string", "minLength": 1 },
+        "ibex_version": { "type": "string", "minLength": 1 },
+        "host_os": { "type": "string", "minLength": 1 },
+        "host_cpu": { "type": "string", "minLength": 1 },
+        "processors": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "grammar",
+        "input",
+        "seed",
+        "build_iterations",
+        "runtime_iterations"
+      ],
+      "properties": {
+        "grammar": { "type": "string", "minLength": 1 },
+        "input": { "type": "string", "minLength": 1 },
+        "seed": { "type": "integer" },
+        "build_iterations": { "type": "integer", "minimum": 1 },
+        "runtime_iterations": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "measurements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generation_ms",
+        "runtime_parse_ms",
+        "peak_rss_bytes",
+        "stage_ms"
+      ],
+      "properties": {
+        "generation_ms": { "$ref": "#/$defs/nonNegativeNumber" },
+        "runtime_parse_ms": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["plain", "compact"],
+          "properties": {
+            "plain": { "$ref": "#/$defs/nonNegativeNumber" },
+            "compact": { "$ref": "#/$defs/nonNegativeNumber" }
+          }
+        },
+        "peak_rss_bytes": {
+          "oneOf": [
+            { "$ref": "#/$defs/nonNegativeInteger" },
+            { "type": "null" }
+          ]
+        },
+        "stage_ms": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "parse",
+            "normalize",
+            "automaton",
+            "table_plain",
+            "table_compact",
+            "codegen_plain",
+            "codegen_compact"
+          ],
+          "properties": {
+            "parse": { "$ref": "#/$defs/nonNegativeNumber" },
+            "normalize": { "$ref": "#/$defs/nonNegativeNumber" },
+            "automaton": { "$ref": "#/$defs/nonNegativeNumber" },
+            "table_plain": { "$ref": "#/$defs/nonNegativeNumber" },
+            "table_compact": { "$ref": "#/$defs/nonNegativeNumber" },
+            "codegen_plain": { "$ref": "#/$defs/nonNegativeNumber" },
+            "codegen_compact": { "$ref": "#/$defs/nonNegativeNumber" }
+          }
+        }
+      }
+    },
+    "table": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action_cells",
+        "goto_cells",
+        "default_cells",
+        "total_cells",
+        "bytes"
+      ],
+      "properties": {
+        "action_cells": { "$ref": "#/$defs/nonNegativeInteger" },
+        "goto_cells": { "$ref": "#/$defs/nonNegativeInteger" },
+        "default_cells": { "$ref": "#/$defs/nonNegativeInteger" },
+        "total_cells": { "$ref": "#/$defs/nonNegativeInteger" },
+        "bytes": { "$ref": "#/$defs/nonNegativeInteger" }
+      }
+    },
+    "variantSizes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plain", "compact"],
+      "properties": {
+        "plain": { "$ref": "#/$defs/nonNegativeInteger" },
+        "compact": { "$ref": "#/$defs/nonNegativeInteger" }
+      }
+    },
+    "structure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "productions",
+        "canonical_intermediate_states",
+        "final_states",
+        "tables",
+        "generated_output_bytes"
+      ],
+      "properties": {
+        "productions": { "$ref": "#/$defs/nonNegativeInteger" },
+        "canonical_intermediate_states": { "$ref": "#/$defs/nonNegativeInteger" },
+        "final_states": { "$ref": "#/$defs/nonNegativeInteger" },
+        "tables": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["plain", "compact"],
+          "properties": {
+            "plain": { "$ref": "#/$defs/table" },
+            "compact": { "$ref": "#/$defs/table" }
+          }
+        },
+        "generated_output_bytes": { "$ref": "#/$defs/variantSizes" }
+      }
+    },
+    "digests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "grammar_source_sha256",
+        "runtime_input_sha256",
+        "grammar_ir_sha256",
+        "automaton_ir_sha256",
+        "plain_tables_sha256",
+        "compact_tables_sha256",
+        "plain_output_sha256",
+        "compact_output_sha256",
+        "runtime_result_sha256",
+        "artifact_sha256"
+      ],
+      "properties": {
+        "grammar_source_sha256": { "$ref": "#/$defs/sha256" },
+        "runtime_input_sha256": { "$ref": "#/$defs/sha256" },
+        "grammar_ir_sha256": { "$ref": "#/$defs/sha256" },
+        "automaton_ir_sha256": { "$ref": "#/$defs/sha256" },
+        "plain_tables_sha256": { "$ref": "#/$defs/sha256" },
+        "compact_tables_sha256": { "$ref": "#/$defs/sha256" },
+        "plain_output_sha256": { "$ref": "#/$defs/sha256" },
+        "compact_output_sha256": { "$ref": "#/$defs/sha256" },
+        "runtime_result_sha256": { "$ref": "#/$defs/sha256" },
+        "artifact_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  }
+}
