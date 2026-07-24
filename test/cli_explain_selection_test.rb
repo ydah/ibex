@@ -37,6 +37,31 @@ class CLIExplainSelectionTest < Minitest::Test
     end
   end
 
+  def test_empty_selection_does_not_construct_counterexample_search
+    source = <<~GRAMMAR
+      class P
+      token NUM
+      expect 1
+      rule
+      expr: expr expr | NUM
+      end
+    GRAMMAR
+    calls = 0
+    factory = lambda do |*_arguments, **_options|
+      calls += 1
+      raise "counterexample search must not be constructed"
+    end
+
+    with_grammar(source) do |path|
+      Ibex::LALR::Counterexample.stub(:new, factory) do
+        result = invoke(["explain", "--format=json", "--state=0", "--token=NUM", path])
+        assert_equal 0, result.fetch(:status), result.fetch(:stderr)
+        assert_empty JSON.parse(result.fetch(:stdout)).fetch("conflicts")
+      end
+    end
+    assert_equal 0, calls
+  end
+
   private
 
   def build_automaton(source)
