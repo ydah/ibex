@@ -126,16 +126,16 @@ class RuntimeActionContractTest < Minitest::Test
 
     def self.parser_tables = TABLES
 
+    # Intentionally omit respond_to_missing? to preserve the historical
+    # hand-written action shape that Method#call could not dispatch.
+    # rubocop:disable Style/MissingRespondToMissing
     def method_missing(name, *arguments)
       return super unless name == :dynamic_action
 
       @action_argument_count = arguments.length
       arguments.fetch(0).fetch(0)
     end
-
-    def respond_to_missing?(name, include_private = false)
-      name == :dynamic_action || super
-    end
+    # rubocop:enable Style/MissingRespondToMissing
   end
 
   def test_unmarked_optional_and_rest_methods_always_receive_two_arguments
