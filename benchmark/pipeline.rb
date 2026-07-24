@@ -33,9 +33,9 @@ module PipelineBenchmark
       report = BenchmarkSupport::Artifact.new(ROOT, options).run
     end
     report.fetch(:measurements)[:peak_rss_bytes] = peak_rss
-    output = options.fetch(:json) ? JSON.generate(report) : text_report(report)
-    write_output(options[:output], output) if options[:output]
-    puts output
+    json = JSON.generate(report)
+    write_output(options[:output], json) if options[:output]
+    puts(options.fetch(:json) ? json : text_report(report))
   end
 
   def parse_options(argv)
@@ -50,7 +50,7 @@ module PipelineBenchmark
       end
       parser.on("--seed N", Integer, "fixed workload seed") { |value| options[:seed] = value }
       parser.on("--json", "emit an ibex_benchmark v1 JSON document") { options[:json] = true }
-      parser.on("--output PATH", "also write the report to PATH") { |value| options[:output] = value }
+      parser.on("--output PATH", "write the JSON artifact to PATH") { |value| options[:output] = value }
     end.parse!(argv)
     raise OptionParser::InvalidArgument, "iterations must be positive" unless options.fetch(:iterations).positive?
     unless options.fetch(:runtime_iterations).positive?
@@ -71,13 +71,15 @@ module PipelineBenchmark
   def text_report(report)
     structure = report.fetch(:structure)
     measurements = report.fetch(:measurements)
+    runtime = measurements.fetch(:runtime_parse_ms)
     lines = [
       "Ibex representative benchmark (schema v#{report.fetch(:schema_version)})",
       "productions: #{structure.fetch(:productions)}",
       "canonical states: #{structure.fetch(:canonical_intermediate_states)}",
       "final states: #{structure.fetch(:final_states)}",
       "generation: #{format('%.3f', measurements.fetch(:generation_ms))} ms",
-      "runtime parse: #{format('%.3f', measurements.fetch(:runtime_parse_ms))} ms",
+      "runtime parse (plain): #{format('%.3f', runtime.fetch(:plain))} ms",
+      "runtime parse (compact): #{format('%.3f', runtime.fetch(:compact))} ms",
       "peak RSS: #{measurements.fetch(:peak_rss_bytes) || 'unavailable'} bytes",
       "stage averages:"
     ]

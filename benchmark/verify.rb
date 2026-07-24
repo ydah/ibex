@@ -20,8 +20,10 @@ module BenchmarkVerification
     baseline = JSON.parse(File.read(File.expand_path(argv.fetch(0), ROOT)))
     validate!(baseline)
     observed = BenchmarkSupport::Artifact.new(ROOT, options_from(baseline)).run
+    observed_document = stringify(observed)
+    validate!(observed_document)
     expected_projection = deterministic_projection(baseline)
-    observed_projection = deterministic_projection(stringify(observed))
+    observed_projection = deterministic_projection(observed_document)
     raise "benchmark structure or digest drifted from the baseline" unless observed_projection == expected_projection
 
     puts "benchmark artifact schema and deterministic structure verified"
