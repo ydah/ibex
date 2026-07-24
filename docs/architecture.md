@@ -91,7 +91,9 @@ views over Automaton IR.
 
 The builder uses canonical LR(1) item sets as its common starting point. The `lr1` strategy retains those states, `lalr` merges
 states with equal LR(0) cores, and `slr` applies FOLLOW sets to completed items in LR(0) states. All strategies use the same
-conflict resolver and produce the same Automaton IR shape.
+conflict resolver and produce the same Automaton IR shape. After a build, the builder exposes a frozen diagnostic `metrics`
+value containing only canonical-intermediate and final state counts. It is deliberately outside Automaton IR because it describes
+the chosen construction strategy rather than the resulting parser.
 
 `Ibex::LALR::Counterexample` consumes only Automaton IR. For each conflict it explores parser-stack configurations, forces the
 competing actions, and searches for a common accepting suffix. A successful result contains both complete derivation trees and is
@@ -103,6 +105,11 @@ shortest reachability witness instead of claiming ambiguity.
 `Counterexample#for_conflict` to search only the selected entries, then renders text or the versioned `explain` JSON analysis
 shape. `Counterexample#all` retains its original all-conflict behavior. The view performs no additional parser analysis and does
 not extend Grammar or Automaton IR.
+
+The repository's self-authored representative grammar feeds the versioned `ibex_benchmark` v1 document. Its JSON Schema is
+shipped beside the IR schemas, while committed environment-specific observations live under `benchmark/results/v1`. Timing and
+peak RSS remain non-gating; CI reproduces only deterministic structure and digests. See
+[ADR 0038](decisions/0038-versioned-benchmark-evidence.md).
 
 ## Runtime table contract
 
