@@ -5,8 +5,10 @@ require_relative "location_span" unless defined?(Ibex::Runtime::LocationSpan)
 
 module Ibex
   module Runtime
-    # Parser-table shape understood by this runtime.
-    PARSER_TABLE_FORMAT_VERSION = 1 #: Integer
+    # Current parser-table shape emitted by the generator.
+    PARSER_TABLE_FORMAT_VERSION = 2 #: Integer
+    # Parser-table shapes this runtime can execute.
+    SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS = [1, PARSER_TABLE_FORMAT_VERSION].freeze #: Array[Integer]
 
     # Raised by the default parser error handler.
     class ParseError < StandardError
@@ -83,10 +85,10 @@ module Ibex
     # `:actions`, `:gotos`, and `:productions`, with optional
     # `:default_actions` and `:error_messages`. Actions are represented by
     # `[:shift, state]`, `[:reduce, production]`, `[:accept]`, or `[:error]`.
-    # Generated production entries mark their five-argument semantic methods
-    # with `location_action: true`; unmarked application actions retain the
-    # historical two-argument contract. The marker is honored only for the
-    # generated `_ibex_action_N` Symbol shape, never for application callables.
+    # Format-v2 generated production entries mark their five-argument semantic
+    # methods with `location_action: true`; v1 and unmarked application actions
+    # retain the historical two-argument contract. The marker is honored only
+    # for the generated `_ibex_action_N` Symbol shape, never for callables.
     class Parser
       EOF_TOKEN = 0 #: Integer
       ERROR_TOKEN = 1 #: Integer
@@ -385,11 +387,12 @@ module Ibex
         end
 
         actual = tables.fetch(:format_version)
-        return if actual == PARSER_TABLE_FORMAT_VERSION
+        return if SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS.include?(actual)
 
         raise ParseError,
               "(tables):1:1: unsupported parser table format version #{actual.inspect} for #{self.class}; " \
-              "runtime supports #{PARSER_TABLE_FORMAT_VERSION}; regenerate the parser with the installed Ibex version"
+              "runtime supports #{SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS.join(', ')}; " \
+              "regenerate the parser with the installed Ibex version"
       end
 
       # @rbs () -> untyped
@@ -467,12 +470,13 @@ module Ibex
         arguments = arguments.take(2) unless generated_location_action?(production, action)
         return instance_exec(*arguments, &action) if action.respond_to?(:call)
 
-        method(action).call(*arguments)
+        __send__(action, *arguments)
       end
 
       # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
       def generated_location_action?(production, action)
-        production[:location_action] == true &&
+        parser_tables.fetch(:format_version) == PARSER_TABLE_FORMAT_VERSION &&
+          production[:location_action] == true &&
           action.is_a?(Symbol) &&
           action.to_s.match?(GENERATED_ACTION_NAME)
       end

@@ -41,10 +41,10 @@ variables and occurrences in literal content, comments, regular expressions, sym
 
 Generated reduction methods receive the RHS values, surrounding value stack, RHS locations, surrounding location stack, and
 reduction span. Generated RBS declares that five-argument private contract, and generated production entries explicitly opt into
-it with `location_action: true`. The runtime honors that marker only for generated `_ibex_action_N` Symbol methods; application
-callables cannot be upgraded accidentally by a stray marker. Every other application method or callable continues to receive
-exactly two arguments, regardless of optional or rest parameters, preserving hand-written parser tables and older generated
-action methods.
+it with `location_action: true` under parser table format v2. The runtime honors that marker only for v2 generated
+`_ibex_action_N` Symbol methods; v1 actions and application callables cannot be upgraded accidentally by a stray marker. Every
+other application method or callable continues to receive exactly two arguments, regardless of optional or rest parameters,
+preserving hand-written tables and v1 generated action methods.
 
 This decision supersedes the semantic-location deferral in ADR 0035 and completes the phase deferred by ADR 0026. Other deferred
 extensions in ADR 0035 are unchanged.

@@ -2,8 +2,11 @@
 
 module Ibex
   module Runtime
-    # Parser-table shape understood by this runtime.
+    # Current parser-table shape emitted by the generator.
     PARSER_TABLE_FORMAT_VERSION: Integer
+
+    # Parser-table shapes this runtime can execute.
+    SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS: Array[Integer]
 
     # Raised by the default parser error handler.
     class ParseError < StandardError
@@ -44,10 +47,10 @@ module Ibex
     # `:actions`, `:gotos`, and `:productions`, with optional
     # `:default_actions` and `:error_messages`. Actions are represented by
     # `[:shift, state]`, `[:reduce, production]`, `[:accept]`, or `[:error]`.
-    # Generated production entries mark their five-argument semantic methods
-    # with `location_action: true`; unmarked application actions retain the
-    # historical two-argument contract. The marker is honored only for the
-    # generated `_ibex_action_N` Symbol shape, never for application callables.
+    # Format-v2 generated production entries mark their five-argument semantic
+    # methods with `location_action: true`; v1 and unmarked application actions
+    # retain the historical two-argument contract. The marker is honored only
+    # for the generated `_ibex_action_N` Symbol shape, never for callables.
     class Parser
       EOF_TOKEN: Integer
 

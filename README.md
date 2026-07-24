@@ -210,7 +210,7 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 5,719 typed calls and 673 untyped calls out of 6,392 (89.5% typed).
+The current whole-library `steep stats` result is 5,723 typed calls and 673 untyped calls out of 6,396 (89.5% typed).
 The generated signature tree contains 847 explicit `untyped` occurrences across 23 files.
 <!-- type-stats:end -->
 

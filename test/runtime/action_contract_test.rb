@@ -98,6 +98,46 @@ class RuntimeActionContractTest < Minitest::Test
     end
   end
 
+  class VersionOneGeneratedShapeParser < BaseParser
+    ACTION_NAME = :_ibex_action_0 # rubocop:disable Naming/VariableNumber
+    TABLES = RuntimeActionContractTest::TABLES.merge(
+      format_version: 1,
+      productions: [{ lhs: 3, length: 1, action: ACTION_NAME, location_action: true }]
+    ).freeze
+
+    attr_reader :action_argument_count
+
+    def self.parser_tables = TABLES
+
+    private
+
+    define_method(ACTION_NAME) do |values, _stack|
+      @action_argument_count = 2
+      values.fetch(0)
+    end
+  end
+
+  class MethodMissingParser < BaseParser
+    TABLES = RuntimeActionContractTest::TABLES.merge(
+      productions: [{ lhs: 3, length: 1, action: :dynamic_action }]
+    ).freeze
+
+    attr_reader :action_argument_count
+
+    def self.parser_tables = TABLES
+
+    def method_missing(name, *arguments)
+      return super unless name == :dynamic_action
+
+      @action_argument_count = arguments.length
+      arguments.fetch(0).fetch(0)
+    end
+
+    def respond_to_missing?(name, include_private = false)
+      name == :dynamic_action || super
+    end
+  end
+
   def test_unmarked_optional_and_rest_methods_always_receive_two_arguments
     optional = OptionalMethodParser.new([%i[TOKEN value]])
     rest = RestMethodParser.new([%i[TOKEN value]])
@@ -124,5 +164,19 @@ class RuntimeActionContractTest < Minitest::Test
     assert_equal [token_location], locations
     assert_same token_location, span.start
     assert_same token_location, span.finish
+  end
+
+  def test_version_one_generated_shape_ignores_the_location_marker
+    parser = VersionOneGeneratedShapeParser.new([%i[TOKEN value]])
+
+    assert_equal :value, parser.do_parse
+    assert_equal 2, parser.action_argument_count
+  end
+
+  def test_symbol_action_dispatches_through_method_missing
+    parser = MethodMissingParser.new([%i[TOKEN value]])
+
+    assert_equal :value, parser.do_parse
+    assert_equal 2, parser.action_argument_count
   end
 end
