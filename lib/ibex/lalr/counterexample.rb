@@ -29,8 +29,8 @@ module Ibex
         state = @automaton.states.find { |candidate| candidate.id == state_id }
         raise ArgumentError, "unknown automaton state #{state_id}" unless state
 
-        unless conflict_index.between?(0, state.conflicts.length - 1)
-          raise ArgumentError, "unknown conflict #{conflict_index} in automaton state #{state_id}"
+        unless conflict_index.is_a?(Integer) && conflict_index >= 0 && conflict_index < state.conflicts.length
+          raise ArgumentError, "conflict index #{conflict_index.inspect} is invalid for automaton state #{state_id}"
         end
 
         conflict = state.conflicts.fetch(conflict_index)

@@ -108,6 +108,8 @@ module Ibex
       # @rbs () -> Array[explain_entry]
       def select_entries
         selections = selected_conflicts
+        return [] if selections.empty?
+
         counterexamples = LALR::Counterexample.new(
           @automaton, max_tokens: @max_tokens, max_configurations: @max_configurations
         )

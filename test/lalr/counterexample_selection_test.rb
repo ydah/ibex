@@ -30,17 +30,19 @@ class CounterexampleSelectionTest < Minitest::Test
     end
   end
 
-  def test_rejects_unknown_state_and_conflict_index
+  def test_rejects_unknown_state_and_invalid_conflict_indexes
     automaton = build("class P\nexpect 1\nrule\nstart: start start | TOKEN\nend\n")
     counterexamples = Ibex::LALR::Counterexample.new(automaton)
     state = automaton.states.find { |candidate| !candidate.conflicts.empty? }
 
     error = assert_raises(ArgumentError) { counterexamples.for_conflict(999, 0) }
     assert_equal "unknown automaton state 999", error.message
-    error = assert_raises(ArgumentError) { counterexamples.for_conflict(state.id, 999) }
-    assert_equal "unknown conflict 999 in automaton state #{state.id}", error.message
-    error = assert_raises(ArgumentError) { counterexamples.for_conflict(state.id, -1) }
-    assert_equal "unknown conflict -1 in automaton state #{state.id}", error.message
+    invalid = [nil, "0", -1, 999]
+    invalid.each do |conflict_index|
+      error = assert_raises(ArgumentError) { counterexamples.for_conflict(state.id, conflict_index) }
+      expected = "conflict index #{conflict_index.inspect} is invalid for automaton state #{state.id}"
+      assert_equal expected, error.message
+    end
   end
 
   def test_all_retains_all_conflict_search_behavior
