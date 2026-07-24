@@ -107,7 +107,7 @@ module Ibex
       path = input_path(remaining)
       validate_generation_paths!(path)
       process_grammar(path)
-    rescue OptionParser::ParseError, Ibex::Error, Errno::ENOENT => e
+    rescue OptionParser::ParseError, Ibex::Error, SystemCallError => e
       @stderr.puts(e.message)
       1
     end

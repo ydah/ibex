@@ -14,6 +14,9 @@ module Ibex
       # @rbs () -> Array[IR::counterexample]
       def all: () -> Array[IR::counterexample]
 
+      # @rbs (Integer state_id, Integer conflict_index) -> IR::counterexample
+      def for_conflict: (Integer state_id, Integer conflict_index) -> IR::counterexample
+
       private
 
       # @rbs (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample

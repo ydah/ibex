@@ -143,6 +143,25 @@ class CLIExplainTest < Minitest::Test
     end
   end
 
+  def test_extended_mode_accepts_extended_grammar_without_a_pragma
+    source = <<~GRAMMAR
+      class P
+      token NUM
+      rule
+      start: NUM?
+      end
+    GRAMMAR
+    with_grammar(source) do |path|
+      default = invoke(["explain", path])
+      assert_equal 1, default.fetch(:status)
+      assert_empty default.fetch(:stdout)
+
+      extended = invoke(["explain", "--mode=extended", "--format=json", path])
+      assert_equal 0, extended.fetch(:status), extended.fetch(:stderr)
+      assert_empty JSON.parse(extended.fetch(:stdout)).fetch("conflicts")
+    end
+  end
+
   def test_help_and_option_errors_are_scoped_to_the_subcommand
     main_help = invoke(%w[--help])
     assert_includes main_help.fetch(:stdout), "explain"
@@ -150,7 +169,7 @@ class CLIExplainTest < Minitest::Test
     help = invoke(%w[explain --help])
     assert_equal 0, help.fetch(:status)
     options = %w[
-      --state --token --format --algorithm --counterexample-max-tokens --counterexample-max-configurations
+      --state --token --format --algorithm --mode --counterexample-max-tokens --counterexample-max-configurations
     ]
     options.each do |option|
       assert_includes help.fetch(:stdout), option

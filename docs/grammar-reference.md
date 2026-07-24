@@ -155,9 +155,10 @@ Grammar IR, so it is also available before automaton construction and when resum
 
 `ibex explain grammar.y` is the focused conflict view. `--state=N` and `--token=NAME` select their intersection;
 `--format=text|json` chooses step-by-step text or the version-1 document described by `schema/explain-v1.schema.json`.
-`--algorithm=slr|lalr|lr1` selects construction, and both counterexample budget options bound its witness search. Token selectors
-prefer a canonical grammar name, then an exact unique display name. Unknown or ambiguous selectors are errors; valid selectors
-with no matching conflict succeed with an empty result.
+`--algorithm=slr|lalr|lr1` selects construction, `--mode=racc|extended` applies the same frontend mode as generation, and both
+counterexample budget options bound its witness search. Search runs only after state and token selection and only for matching
+conflicts. Token selectors prefer a canonical grammar name, then an exact unique display name. Unknown or ambiguous selectors
+are errors; valid selectors with no matching conflict succeed with an empty result.
 
 ## Ruby DSL
 

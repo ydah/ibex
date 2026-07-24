@@ -3,6 +3,12 @@
 module Ibex
   module Codegen
     # @rbs!
+    #   type explain_selection = {
+    #     state: IR::AutomatonState,
+    #     conflict: IR::conflict,
+    #     conflict_index: Integer
+    #   }
+    #
     #   type explain_entry = {
     #     state: IR::AutomatonState,
     #     conflict: IR::conflict,
@@ -101,18 +107,28 @@ module Ibex
 
       # @rbs () -> Array[explain_entry]
       def select_entries
-        examples = LALR::Counterexample.new(
+        selections = selected_conflicts
+        counterexamples = LALR::Counterexample.new(
           @automaton, max_tokens: @max_tokens, max_configurations: @max_configurations
-        ).all
-        index = 0
+        )
+        selections.map do |selection|
+          state = selection.fetch(:state)
+          {
+            state: state,
+            conflict: selection.fetch(:conflict),
+            example: counterexamples.for_conflict(state.id, selection.fetch(:conflict_index))
+          }
+        end
+      end
+
+      # @rbs () -> Array[explain_selection]
+      def selected_conflicts
         @automaton.states.flat_map do |state|
-          state.conflicts.filter_map do |conflict|
-            example = examples.fetch(index)
-            index += 1
+          state.conflicts.each_with_index.filter_map do |conflict, conflict_index|
             next if @state_selector && state.id != @state_selector
             next if @token_selector && conflict[:symbol] != @token_selector.name
 
-            { state: state, conflict: conflict, example: example }
+            { state: state, conflict: conflict, conflict_index: conflict_index }
           end
         end
       end
