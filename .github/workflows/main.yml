@@ -7,6 +7,11 @@ on:
 
   pull_request:
 
+  workflow_dispatch:
+
+  schedule:
+    - cron: '27 3 * * 1'
+
 permissions:
   contents: read
 
@@ -98,6 +103,24 @@ jobs:
         run: bundle exec steep check
       - name: Check documented type statistics
         run: bundle exec ruby tool/type_stats.rb --check
+
+  benchmark:
+    runs-on: ubuntu-latest
+    name: Benchmark artifact
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@a30dfa457ad68707b8b910ac3a244714b61c0626 # v1.320.0
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+      - name: Validate schema and reproduce deterministic structure
+        run: bundle exec ruby benchmark/verify.rb benchmark/results/v1/representative-ruby-4.0.0-arm64-darwin24.json
+      - name: Record full observational benchmark
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: bundle exec ruby benchmark/pipeline.rb --iterations 3 --runtime-iterations 1000 --seed 12345 --json
 
   actionlint:
     runs-on: ubuntu-latest

@@ -15,6 +15,9 @@ module Ibex
       # @rbs @sets: Analysis::Sets
       # @rbs @productions_by_lhs: Hash[Integer, Array[IR::Production]]
       # @rbs @resolver: ConflictResolver
+      # @rbs @metrics: BuildMetrics?
+
+      attr_reader :metrics #: BuildMetrics?
 
       # @rbs (IR::Grammar grammar, ?algorithm: Symbol | String) -> void
       def initialize(grammar, algorithm: :lalr)
@@ -27,6 +30,7 @@ module Ibex
         @sets = Analysis::Sets.new(grammar)
         @productions_by_lhs = grammar.productions.group_by(&:lhs)
         @resolver = ConflictResolver.new(grammar)
+        @metrics = nil
       end
 
       # @rbs () -> IR::Automaton
@@ -43,6 +47,7 @@ module Ibex
                     rr: conflicts.count { |item| item[:type] == :reduce_reduce },
                     expected_sr: @grammar.expect,
                     expectation_met: counted_shift_reduce == @grammar.expect } #: IR::conflict_summary
+        @metrics = BuildMetrics.new(canonical_states: canonical_states.length, final_states: states.length)
         IR::Automaton.new(grammar: @grammar, states: states, conflict_summary: summary,
                           algorithm: @algorithm == :lalr ? "lalr1" : @algorithm.to_s)
       end
@@ -102,10 +107,7 @@ module Ibex
 
       # @rbs (item_set items, Array[lr_item] queue, lr_item item) -> void
       def enqueue_item(items, queue, item)
-        return if items.include?(item)
-
-        items << item
-        queue << item
+        queue << item if items.add?(item)
       end
 
       # @rbs (item_set items) -> Array[Integer]

@@ -9,7 +9,12 @@ class IRJSONSchemaTest < Minitest::Test
   DRAFT_2020_12 = "https://json-schema.org/draft/2020-12/schema"
 
   def test_public_schemas_are_valid_json_schema_2020_12_documents
-    %w[grammar-ir-v1.schema.json automaton-ir-v1.schema.json explain-v1.schema.json].each do |name|
+    %w[
+      grammar-ir-v1.schema.json
+      automaton-ir-v1.schema.json
+      explain-v1.schema.json
+      benchmark-v1.schema.json
+    ].each do |name|
       schema = load_json(File.join(SCHEMA_ROOT, name))
 
       assert_equal DRAFT_2020_12, schema.fetch("$schema")

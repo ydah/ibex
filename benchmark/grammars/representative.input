@@ -1,0 +1,51 @@
+import standard.collections as collections;
+from standard.math import clamp as bounded, sum;
+
+type Pair<T> = (T, T);
+type Mapper<T> = fn(T) -> T;
+type Matrix<T> = [[T]];
+
+enum Result<T> {
+  Ok(T),
+  Error(T)
+}
+
+const origin: Pair<Number> = (0);
+let seed: Number = 17;
+
+fn fibonacci(n: Number) -> Number {
+  if n < 2 {
+    return n;
+  } else {
+    return fibonacci(n - 1) + fibonacci(n - 2);
+  }
+}
+
+fn transform<T>(items: [T], mapper: Mapper<T>) -> [T] {
+  let output: [T] = [];
+  for item in items {
+    output = output + [mapper(item)];
+  }
+  return output;
+}
+
+fn classify(value: Number) -> String {
+  match value {
+    case 0 -> return "zero";
+    case 1 if value == 1 -> return "one";
+    default -> return "many";
+  }
+}
+
+fn main() -> Number {
+  let values: [Number] = [1, 2, 3, 5, 8, 13];
+  let summary = ["ibex", true, values[2]];
+  let total: Number = 0;
+  for value in values {
+    total = total + fibonacci(value);
+  }
+  while total < 100 {
+    total = total + 1;
+  }
+  return total;
+}
