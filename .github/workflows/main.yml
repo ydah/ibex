@@ -120,7 +120,17 @@ jobs:
         run: bundle exec ruby benchmark/verify.rb benchmark/results/v1/representative-ruby-4.0.0-arm64-darwin24.json
       - name: Record full observational benchmark
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-        run: bundle exec ruby benchmark/pipeline.rb --iterations 3 --runtime-iterations 1000 --seed 12345 --json
+        env:
+          BENCHMARK_OUTPUT: benchmark-output/ibex-benchmark-${{ github.sha }}-ruby-3.4-${{ runner.os }}-${{ runner.arch }}.json
+        run: bundle exec ruby benchmark/pipeline.rb --iterations 3 --runtime-iterations 1000 --seed 12345 --output "$BENCHMARK_OUTPUT"
+      - name: Preserve full observational benchmark
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ibex-benchmark-${{ github.run_id }}-${{ github.run_attempt }}
+          path: benchmark-output/*.json
+          if-no-files-found: error
+          retention-days: 30
 
   actionlint:
     runs-on: ubuntu-latest
