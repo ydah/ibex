@@ -36,7 +36,8 @@ met:
 - **Direct LALR lookaheads:** a representative real-grammar benchmark shows
   canonical LR(1) construction is a material time or memory bottleneck, and
   fixed-seed tests can compare the new relation-based builder with the current
-  canonical-and-merge result.
+  canonical-and-merge result. [ADR 0038](0038-versioned-benchmark-evidence.md)
+  supplies this evidence and supersedes this entry boundary.
 - **IELR:** direct LALR is stable, a published algorithm is selected, and the
   phase has fixtures proving LALR inadequacy, LR(1) correctness, and the
   intended state-count bound.
@@ -54,7 +55,8 @@ met:
 - **Benchmark history and Pages/YARD publication:** representative benchmarks
   and a public-API documentation boundary exist first; repository Pages
   settings, write permissions, retention, and deployment ownership are then
-  approved explicitly.
+  approved explicitly. ADR 0038 satisfies the representative benchmark and
+  history prerequisite only; the publication ownership boundary remains.
 
 ## Consequences
 

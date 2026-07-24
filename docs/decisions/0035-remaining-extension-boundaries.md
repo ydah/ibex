@@ -32,7 +32,9 @@ The following work requires a separately reviewed phase and ADR:
 - Automated `migrate-check` and racc differential-harness generation restart with an explicit application-code execution
   boundary and sandbox story.
 - Chain-rule elimination and generated `case` dispatch restart only after the real-grammar benchmark demonstrates a repeatable
-  runtime or size win and an ADR specifies source-map, table-version, and debugging consequences.
+  runtime or size win and an ADR specifies source-map, table-version, and debugging consequences. [ADR
+  0038](0038-versioned-benchmark-evidence.md) supplies the shared baseline and defines the candidate evidence gate; neither
+  optimization becomes the default without its own qualifying comparison.
 
 Direct LALR, IELR, ruby.wasm, mutation testing, and Pages/YARD publication retain the entry criteria in ADR 0024. GLR, PEG,
 incremental parsing, and an integrated lexer remain outside the focused deterministic-LR product scope.
