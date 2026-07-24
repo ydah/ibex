@@ -4,6 +4,7 @@ require "optparse"
 require_relative "../ibex"
 require_relative "cli/counterexample_options"
 require_relative "cli/error_messages"
+require_relative "cli/explain"
 require_relative "cli/ir_tools"
 require_relative "cli/outputs"
 require_relative "cli/samples"
@@ -55,7 +56,10 @@ module Ibex
   #     ?version: bool,
   #     ?runtime_version: bool,
   #     ?copyright: bool,
-  #     ?help: bool
+  #     ?help: bool,
+  #     ?explain_state: Integer,
+  #     ?explain_token: String,
+  #     ?explain_format: String
   #   }
 
   # Command-line pipeline coordinator.
@@ -63,6 +67,7 @@ module Ibex
   class CLI
     include CLICounterexampleOptions
     include CLIErrorMessages
+    include CLIExplain
     include CLIIRTools
     include CLIOutputs
     include CLISamples
@@ -87,6 +92,7 @@ module Ibex
     # @rbs (Array[String] arguments) -> Integer
     def run(arguments)
       return run_error_messages_command(arguments.drop(1)) if arguments.first == "errors"
+      return run_explain_command(arguments.drop(1)) if arguments.first == "explain"
       return run_samples_command(arguments.drop(1)) if arguments.first == "samples"
       return run_validate_ir_command(arguments.drop(1)) if arguments.first == "validate-ir"
       return run_compare_command(arguments.drop(1)) if arguments.first == "compare"
@@ -120,6 +126,7 @@ module Ibex
         options.separator("")
         options.separator("Subcommands:")
         options.separator("    errors --update[=FILE]  update state-specific syntax error messages")
+        options.separator("    explain                   explain selected parser conflicts")
         options.separator("    samples                   generate bounded terminal sentences")
         options.separator("    validate-ir FILE          validate a versioned IR document")
         options.separator("    compare BEFORE AFTER      compare two versioned IR documents")

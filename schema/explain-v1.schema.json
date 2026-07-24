@@ -1,0 +1,403 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/explain-v1.schema.json",
+  "title": "Ibex conflict explanation version 1",
+  "description": "A deterministic analysis view over selected conflicts and their counterexamples.",
+  "type": "object",
+  "required": [
+    "ibex_explain",
+    "schema_version",
+    "algorithm",
+    "selectors",
+    "search",
+    "summary",
+    "conflicts"
+  ],
+  "properties": {
+    "ibex_explain": {
+      "const": "conflicts"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "algorithm": {
+      "enum": [
+        "slr",
+        "lalr1",
+        "lr1"
+      ]
+    },
+    "selectors": {
+      "$ref": "#/$defs/selectors"
+    },
+    "search": {
+      "$ref": "#/$defs/search"
+    },
+    "summary": {
+      "$ref": "#/$defs/summary"
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/conflict"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "symbol_reference": {
+      "type": "object",
+      "required": [
+        "name",
+        "display_name",
+        "label"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "display_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "token_selector": {
+      "type": "object",
+      "required": [
+        "name",
+        "display_name",
+        "label",
+        "query"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "display_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "query": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "selectors": {
+      "type": "object",
+      "required": [
+        "state",
+        "token"
+      ],
+      "properties": {
+        "state": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "token": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/token_selector"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "search": {
+      "type": "object",
+      "required": [
+        "max_tokens",
+        "max_configurations"
+      ],
+      "properties": {
+        "max_tokens": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_configurations": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "matched_conflicts",
+        "unifying_counterexamples",
+        "nonunifying_witnesses"
+      ],
+      "properties": {
+        "matched_conflicts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unifying_counterexamples": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "nonunifying_witnesses": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "shift_alternative": {
+      "type": "object",
+      "required": [
+        "kind",
+        "state"
+      ],
+      "properties": {
+        "kind": {
+          "const": "shift"
+        },
+        "state": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "reduce_alternative": {
+      "type": "object",
+      "required": [
+        "kind",
+        "production"
+      ],
+      "properties": {
+        "kind": {
+          "const": "reduce"
+        },
+        "production": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "resolution": {
+      "type": "object",
+      "required": [
+        "by",
+        "chose"
+      ],
+      "properties": {
+        "by": {
+          "enum": [
+            "definition_order",
+            "default_shift",
+            "precedence",
+            "associativity"
+          ]
+        },
+        "chose": {
+          "oneOf": [
+            {
+              "enum": [
+                "shift",
+                "reduce",
+                "error"
+              ]
+            },
+            {
+              "type": "integer",
+              "minimum": 0
+            }
+          ]
+        },
+        "associativity": {
+          "enum": [
+            "left",
+            "right",
+            "nonassoc"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "tree": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/symbol_reference"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "symbol": {
+              "$ref": "#/$defs/symbol_reference"
+            },
+            "token": {
+              "$ref": "#/$defs/symbol_reference"
+            },
+            "production": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/tree"
+              }
+            }
+          },
+          "anyOf": [
+            {
+              "required": [
+                "symbol"
+              ]
+            },
+            {
+              "required": [
+                "token"
+              ]
+            }
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "interpretation": {
+      "type": "object",
+      "required": [
+        "kind",
+        "tree"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "shift",
+            "reduce"
+          ]
+        },
+        "state": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "production": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tree": {
+          "$ref": "#/$defs/tree"
+        }
+      },
+      "additionalProperties": false
+    },
+    "witness": {
+      "type": "object",
+      "required": [
+        "kind",
+        "sentence",
+        "lookahead_index",
+        "symbol_path",
+        "interpretations"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "unifying_counterexample",
+            "nonunifying_witness"
+          ]
+        },
+        "sentence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/symbol_reference"
+          }
+        },
+        "lookahead_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "symbol_path": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/symbol_reference"
+          }
+        },
+        "interpretations": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/interpretation"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "conflict": {
+      "type": "object",
+      "required": [
+        "state",
+        "type",
+        "token",
+        "alternatives",
+        "resolution",
+        "witness"
+      ],
+      "properties": {
+        "state": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "type": {
+          "enum": [
+            "shift_reduce",
+            "reduce_reduce"
+          ]
+        },
+        "token": {
+          "$ref": "#/$defs/symbol_reference"
+        },
+        "alternatives": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/shift_alternative"
+              },
+              {
+                "$ref": "#/$defs/reduce_alternative"
+              }
+            ]
+          }
+        },
+        "resolution": {
+          "$ref": "#/$defs/resolution"
+        },
+        "witness": {
+          "$ref": "#/$defs/witness"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

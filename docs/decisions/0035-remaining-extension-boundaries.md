@@ -26,8 +26,9 @@ The following work requires a separately reviewed phase and ADR:
 - `fmt` and LSP restart after a lossless concrete syntax tree preserves comments and whitespace. Watch mode restarts with a
   portable event/polling policy and atomic regeneration contract.
 - Production/state coverage and an interactive debugger restart with a stable event schema that extends, rather than exposes,
-  private parser stacks. The push API and JSON Lines tracer are their current foundation. A separate `explain` command is not
-  added while verbose reports already render every conflict witness and competing derivation.
+  private parser stacks. The push API and JSON Lines tracer are their current foundation. [ADR
+  0037](0037-versioned-conflict-explanations.md) supersedes the boundary against a separate `explain` command with a thin,
+  versioned view over existing Automaton IR and counterexamples; it does not supersede the runtime-event prerequisite.
 - Automated `migrate-check` and racc differential-harness generation restart with an explicit application-code execution
   boundary and sandbox story.
 - Chain-rule elimination and generated `case` dispatch restart only after the real-grammar benchmark demonstrates a repeatable
