@@ -53,5 +53,5 @@ extensions in ADR 0035 are unchanged.
 
 Pull `do_parse`, yielding `yyparse`, and caller-driven `push` use identical location semantics. AST-building actions can retain
 token objects or immutable nonterminal spans without consulting parser internals. Location-less lexers remain valid and produce
-`nil` semantic locations rather than fabricated coordinates. Generated action signatures grow, but the runtime's arity bridge
-keeps the prior two-argument extension contract operational.
+`nil` semantic locations rather than fabricated coordinates. Generated action signatures grow, but the versioned
+`location_action` marker bridge keeps the prior two-argument extension contract operational for v1 and application actions.
