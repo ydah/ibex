@@ -153,6 +153,12 @@ and a filter that keeps a selected conflict state and its one-hop neighbors. All
 generating Ruby or when resuming from Automaton IR. `--railroad=FILE` writes a self-contained SVG railroad diagram from normalized
 Grammar IR, so it is also available before automaton construction and when resuming from Grammar or Automaton IR.
 
+`ibex explain grammar.y` is the focused conflict view. `--state=N` and `--token=NAME` select their intersection;
+`--format=text|json` chooses step-by-step text or the version-1 document described by `schema/explain-v1.schema.json`.
+`--algorithm=slr|lalr|lr1` selects construction, and both counterexample budget options bound its witness search. Token selectors
+prefer a canonical grammar name, then an exact unique display name. Unknown or ambiguous selectors are errors; valid selectors
+with no matching conflict succeed with an empty result.
+
 ## Ruby DSL
 
 The DSL builds the same AST and IR without evaluating grammar text:

@@ -1,0 +1,77 @@
+# Generated from lib/ibex/codegen/explain.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    type explain_entry = { state: IR::AutomatonState, conflict: IR::conflict, example: IR::counterexample }
+
+    # Renders a selected conflict explanation from Automaton IR and counterexamples.
+    # rubocop:disable Metrics/ClassLength -- inline contracts and two stable output formats stay near selection policy.
+    class Explain
+      SCHEMA_VERSION: Integer
+
+      # @rbs (IR::Automaton automaton, ?state: Integer?, ?token: String?, ?max_tokens: Integer,
+      #   ?max_configurations: Integer) -> void
+      def initialize: (IR::Automaton automaton, ?state: Integer?, ?token: String?, ?max_tokens: Integer, ?max_configurations: Integer) -> void
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
+
+      # @rbs () -> String
+      def render_text: () -> String
+
+      private
+
+      # @rbs (String? query) -> IR::GrammarSymbol?
+      def resolve_token: (String? query) -> IR::GrammarSymbol?
+
+      # @rbs () -> void
+      def validate_state!: () -> void
+
+      # @rbs () -> Array[explain_entry]
+      def select_entries: () -> Array[explain_entry]
+
+      # @rbs (explain_entry entry) -> Hash[Symbol, untyped]
+      def conflict_document: (explain_entry entry) -> Hash[Symbol, untyped]
+
+      # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
+      def conflict_alternatives: (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
+
+      # @rbs (IR::interpretation interpretation) -> Hash[Symbol, untyped]
+      def interpretation_document: (IR::interpretation interpretation) -> Hash[Symbol, untyped]
+
+      # @rbs (untyped tree) -> untyped
+      def tree_document: (untyped tree) -> untyped
+
+      # @rbs (Hash[Symbol, untyped] value) -> Hash[Symbol, untyped]
+      def string_values: (Hash[Symbol, untyped] value) -> Hash[Symbol, untyped]
+
+      # @rbs (String name) -> Hash[Symbol, untyped]
+      def symbol_reference: (String name) -> Hash[Symbol, untyped]
+
+      # @rbs (IR::GrammarSymbol symbol, ?query: String?) -> Hash[Symbol, untyped]
+      def token_reference: (IR::GrammarSymbol symbol, ?query: String?) -> Hash[Symbol, untyped]
+
+      # @rbs (Array[String] lines, explain_entry entry, Integer number) -> void
+      def append_conflict: (Array[String] lines, explain_entry entry, Integer number) -> void
+
+      # @rbs (Array[String] lines, IR::AutomatonState state, IR::conflict conflict,
+      #   IR::counterexample example) -> void
+      def append_witness_steps: (Array[String] lines, IR::AutomatonState state, IR::conflict conflict, IR::counterexample example) -> void
+
+      # @rbs (Array[String] lines, IR::counterexample example) -> void
+      def append_interpretations: (Array[String] lines, IR::counterexample example) -> void
+
+      # @rbs (Hash[Symbol, untyped] alternative) -> String
+      def alternative_text: (Hash[Symbol, untyped] alternative) -> String
+
+      # @rbs (Array[String] lines, untyped tree, String prefix, String connector) -> void
+      def append_tree: (Array[String] lines, untyped tree, String prefix, String connector) -> void
+
+      # @rbs (IR::GrammarSymbol symbol, ?query: String?) -> String
+      def token_label: (IR::GrammarSymbol symbol, ?query: String?) -> String
+
+      # @rbs (String name) -> String
+      def display_name: (String name) -> String
+    end
+  end
+end

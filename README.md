@@ -131,6 +131,7 @@ ibex --from=automaton-ir -o parser.rb automaton.json
 ibex -v --dot=states.dot --mermaid=states.mmd --html=states.html --railroad=grammar.svg grammar.y
 ibex --algorithm=lr1 grammar.y
 ibex --counterexamples --counterexample-max-tokens=64 --counterexample-max-configurations=100000 grammar.y
+ibex explain --state=7 --token=ELSE --format=json grammar.y
 ibex --rbs -o parser.rb grammar.y
 ibex --warnings=all,error -C grammar.y
 ibex errors --update grammar.y
@@ -144,9 +145,16 @@ ibex compare before.json after.json
 Supported construction algorithms are `slr`, `lalr` (default), and canonical `lr1`. Reports retain precedence-resolved
 conflicts and distinguish unifying counterexamples from nonunifying reachability witnesses. Counterexample searches default to
 32 tokens and 50,000 explored configurations; `--counterexample-max-tokens=N` and
-`--counterexample-max-configurations=N` set positive per-run budgets and request a report. `--rbs` writes a signature beside the
-generated parser; `--rbs=FILE` selects another path. Application methods supplied as opaque `---- inner` code can be declared by
-reopening the generated class in an application RBS file.
+`--counterexample-max-configurations=N` set positive per-run budgets and request a report.
+
+`ibex explain [--state=N] [--token=NAME] [--format=text|json] [--algorithm=slr|lalr|lr1] grammar.y` presents only the
+selected conflicts and their competing derivations. State and token selectors can be combined. A token canonical grammar name
+takes priority; otherwise an exact, unambiguous `display` name is accepted. Valid selectors with no matching conflict produce a
+successful empty view. The JSON analysis document is versioned by `schema/explain-v1.schema.json`; diagnostics remain on stderr.
+The two counterexample budget options are also accepted by this subcommand.
+
+`--rbs` writes a signature beside the generated parser; `--rbs=FILE` selects another path. Application methods supplied as
+opaque `---- inner` code can be declared by reopening the generated class in an application RBS file.
 
 `--warnings=all` prints unused terminals and precedence declarations, unreachable terminals and nonterminals, duplicate
 productions, undeclared terminals, and empty-language diagnostics. Add `error` (`--warnings=all,error`, or simply
@@ -210,8 +218,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 5,723 typed calls and 673 untyped calls out of 6,396 (89.5% typed).
-The generated signature tree contains 847 explicit `untyped` occurrences across 23 files.
+The current whole-library `steep stats` result is 5,910 typed calls and 755 untyped calls out of 6,665 (88.7% typed).
+The generated signature tree contains 871 explicit `untyped` occurrences across 24 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

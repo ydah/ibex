@@ -1,0 +1,23 @@
+# Generated from lib/ibex/cli/explain.rb with RBS::Inline
+
+module Ibex
+  # Dedicated command-line view for selected parser conflicts.
+  module CLIExplain
+    private def print_help: (OptionParser) -> Integer
+
+    private def input_path: (Array[String]) -> String
+
+    private def positive_counterexample_limit: (Integer, String) -> Integer
+
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_explain_command: (Array[String] arguments) -> Integer
+
+    # @rbs () -> OptionParser
+    def explain_option_parser: () -> OptionParser
+
+    # @rbs (OptionParser options) -> void
+    def add_explain_search_options: (OptionParser options) -> void
+  end
+end
