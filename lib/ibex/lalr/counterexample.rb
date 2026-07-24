@@ -24,6 +24,19 @@ module Ibex
         end
       end
 
+      # @rbs (Integer state_id, Integer conflict_index) -> IR::counterexample
+      def for_conflict(state_id, conflict_index)
+        state = @automaton.states.find { |candidate| candidate.id == state_id }
+        raise ArgumentError, "unknown automaton state #{state_id}" unless state
+
+        unless conflict_index.between?(0, state.conflicts.length - 1)
+          raise ArgumentError, "unknown conflict #{conflict_index} in automaton state #{state_id}"
+        end
+
+        conflict = state.conflicts.fetch(conflict_index)
+        build_example(state, conflict)
+      end
+
       private
 
       # @rbs (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample

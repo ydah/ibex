@@ -147,11 +147,13 @@ conflicts and distinguish unifying counterexamples from nonunifying reachability
 32 tokens and 50,000 explored configurations; `--counterexample-max-tokens=N` and
 `--counterexample-max-configurations=N` set positive per-run budgets and request a report.
 
-`ibex explain [--state=N] [--token=NAME] [--format=text|json] [--algorithm=slr|lalr|lr1] grammar.y` presents only the
-selected conflicts and their competing derivations. State and token selectors can be combined. A token canonical grammar name
-takes priority; otherwise an exact, unambiguous `display` name is accepted. Valid selectors with no matching conflict produce a
-successful empty view. The JSON analysis document is versioned by `schema/explain-v1.schema.json`; diagnostics remain on stderr.
-The two counterexample budget options are also accepted by this subcommand.
+`ibex explain [--state=N] [--token=NAME] [--format=text|json] [--algorithm=slr|lalr|lr1]
+[--mode=racc|extended] grammar.y` presents only the selected conflicts and their competing derivations. State and token
+selectors can be combined, and witness search runs only for matching conflicts. A token canonical grammar name takes priority;
+otherwise an exact, unambiguous `display` name is accepted. Valid selectors with no matching conflict produce a successful empty
+view. `--mode=extended` enables extended syntax for grammars without a `pragma extended` declaration. The JSON analysis document
+is versioned by `schema/explain-v1.schema.json`; diagnostics remain on stderr. The two counterexample budget options are also
+accepted by this subcommand.
 
 `--rbs` writes a signature beside the generated parser; `--rbs=FILE` selects another path. Application methods supplied as
 opaque `---- inner` code can be declared by reopening the generated class in an application RBS file.
@@ -218,7 +220,7 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 5,910 typed calls and 755 untyped calls out of 6,665 (88.7% typed).
+The current whole-library `steep stats` result is 5,919 typed calls and 767 untyped calls out of 6,686 (88.5% typed).
 The generated signature tree contains 871 explicit `untyped` occurrences across 24 files.
 <!-- type-stats:end -->
 

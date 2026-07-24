@@ -2,6 +2,8 @@
 
 module Ibex
   module Codegen
+    type explain_selection = { state: IR::AutomatonState, conflict: IR::conflict, conflict_index: Integer }
+
     type explain_entry = { state: IR::AutomatonState, conflict: IR::conflict, example: IR::counterexample }
 
     # Renders a selected conflict explanation from Automaton IR and counterexamples.
@@ -29,6 +31,9 @@ module Ibex
 
       # @rbs () -> Array[explain_entry]
       def select_entries: () -> Array[explain_entry]
+
+      # @rbs () -> Array[explain_selection]
+      def selected_conflicts: () -> Array[explain_selection]
 
       # @rbs (explain_entry entry) -> Hash[Symbol, untyped]
       def conflict_document: (explain_entry entry) -> Hash[Symbol, untyped]

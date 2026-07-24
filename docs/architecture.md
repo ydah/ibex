@@ -99,8 +99,10 @@ marked `unifying: true`. Search defaults to 32 tokens and 50,000 configurations;
 budgets. If no common sentence is found within them, the result is explicitly marked nonunifying and contains the deterministic
 shortest reachability witness instead of claiming ambiguity.
 
-`Ibex::Codegen::Explain` filters those immutable conflicts by state and canonical token identity, then renders text or the
-versioned `explain` JSON analysis shape. It performs no additional parser analysis and does not extend Grammar or Automaton IR.
+`Ibex::Codegen::Explain` filters those immutable conflicts by state and canonical token identity before asking
+`Counterexample#for_conflict` to search only the selected entries, then renders text or the versioned `explain` JSON analysis
+shape. `Counterexample#all` retains its original all-conflict behavior. The view performs no additional parser analysis and does
+not extend Grammar or Automaton IR.
 
 ## Runtime table contract
 

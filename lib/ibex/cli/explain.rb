@@ -45,6 +45,7 @@ module Ibex
         options.on("--algorithm=NAME", %w[slr lalr lr1], "parser construction algorithm") do |value|
           @options[:algorithm] = value.to_sym
         end
+        options.on("--mode=MODE", %w[racc extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
         add_explain_search_options(options)
         options.on("--help", "show help") { @options[:help] = true }
       end

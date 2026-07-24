@@ -15,9 +15,10 @@ selection, machine-readable output, and a focused step-by-step view now justifie
 ## Decision
 
 Add `ibex explain` as a read-only view over a freshly built Automaton IR and
-`Ibex::LALR::Counterexample`. It supports the three existing construction algorithms, optional state and token selectors, text
-or JSON output, and the existing positive counterexample search budgets. State and token selectors may be combined and select
-their intersection.
+`Ibex::LALR::Counterexample`. It supports the three existing construction algorithms, racc and extended frontend modes, optional
+state and token selectors, text or JSON output, and the existing positive counterexample search budgets. State and token
+selectors may be combined and select their intersection. The view filters conflicts before calling the selected-conflict
+counterexample API, so excluded conflicts consume no search budget; the existing all-conflict API remains compatible.
 
 A token selector first matches the unique canonical Grammar IR symbol name. Only when no canonical name matches does it match an
 exact `display_name`. Duplicate display names are rejected with the sorted canonical candidates rather than selecting one.
@@ -33,6 +34,9 @@ the algorithm, resolved selectors, budgets, counts, conflicts, canonical and dis
 derivation trees. It is not Grammar or Automaton IR and does not change either IR schema version. JSON is the only stdout content;
 option, file, grammar, and selector diagnostics go to stderr. Successful empty and nonempty views exit zero, while diagnostics
 exit one.
+
+The common CLI boundary converts all `SystemCallError` file failures, including missing, unreadable, and directory input paths,
+to one stderr diagnostic and exit one. Such failures do not write partial analysis output to stdout.
 
 This decision supersedes only ADR 0035's boundary against adding a separate `explain` command. The stable runtime-event
 prerequisite for the interactive debugger and production/state coverage remains in force.
