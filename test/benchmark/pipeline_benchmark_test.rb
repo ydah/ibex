@@ -1,51 +1,66 @@
 # frozen_string_literal: true
 
 require_relative "../test_helper"
-require "fileutils"
+require_relative "../../benchmark/pipeline"
 require "json"
 require "json_schemer"
 require "open3"
 require "rbconfig"
+require "tmpdir"
 
 class PipelineBenchmarkTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   SCRIPT = File.join(ROOT, "benchmark/pipeline.rb")
-  RESULT = File.join(ROOT, "tmp/benchmark-current.json")
   SCHEMA = File.join(ROOT, "schema/benchmark-v1.schema.json")
 
   def test_documented_non_json_command_writes_a_valid_current_artifact
-    command = [
+    Dir.mktmpdir("ibex-benchmark-test-") do |directory|
+      result_path = File.join(directory, "current.json")
+      stdout, stderr, status = Open3.capture3(*command(result_path), chdir: ROOT)
+      assert status.success?, "benchmark failed:\n#{stderr}\n#{stdout}"
+
+      assert_includes stdout, "runtime parse (plain):"
+      assert_includes stdout, "runtime parse (compact):"
+      result = JSON.parse(File.read(result_path))
+      assert_valid_schema(result)
+      assert_valid_schema(JSON.parse(json_stdout(result)))
+      assert_equal "ibex_benchmark", result.fetch("artifact")
+      assert_equal 1, result.fetch("schema_version")
+      assert_equal expected_structure, result.fetch("structure")
+      assert_equal(
+        "9ce19ee60fed0e8c24747ba77b05ea052864f854fd33e13956a39a17fa8ee98b",
+        result.dig("digests", "artifact_sha256")
+      )
+      assert_equal(
+        %w[parse normalize automaton table_plain table_compact codegen_plain codegen_compact],
+        result.dig("measurements", "stage_ms").keys
+      )
+      result.dig("measurements", "runtime_parse_ms").each_value { |value| assert_operator value, :>=, 0 }
+    end
+  end
+
+  private
+
+  def command(result_path)
+    [
       RbConfig.ruby, SCRIPT,
       "--iterations", "1",
       "--runtime-iterations", "10",
       "--seed", "12345",
-      "--output", "tmp/benchmark-current.json"
+      "--output", result_path
     ]
-    stdout, stderr, status = Open3.capture3(*command, chdir: ROOT)
-    assert status.success?, "benchmark failed:\n#{stderr}\n#{stdout}"
-
-    assert_includes stdout, "runtime parse (plain):"
-    assert_includes stdout, "runtime parse (compact):"
-    result = JSON.parse(File.read(RESULT))
-    errors = JSONSchemer.schema(JSON.parse(File.read(SCHEMA))).validate(result).to_a
-    assert_empty errors
-    assert_equal "ibex_benchmark", result.fetch("artifact")
-    assert_equal 1, result.fetch("schema_version")
-    assert_equal expected_structure, result.fetch("structure")
-    assert_equal(
-      "9ce19ee60fed0e8c24747ba77b05ea052864f854fd33e13956a39a17fa8ee98b",
-      result.dig("digests", "artifact_sha256")
-    )
-    assert_equal(
-      %w[parse normalize automaton table_plain table_compact codegen_plain codegen_compact],
-      result.dig("measurements", "stage_ms").keys
-    )
-    result.dig("measurements", "runtime_parse_ms").each_value { |value| assert_operator value, :>=, 0 }
-  ensure
-    FileUtils.rm_f(RESULT)
   end
 
-  private
+  def assert_valid_schema(document)
+    errors = JSONSchemer.schema(JSON.parse(File.read(SCHEMA))).validate(document).to_a
+    assert_empty errors
+  end
+
+  def json_stdout(result)
+    report = JSON.parse(JSON.generate(result), symbolize_names: true)
+    options = PipelineBenchmark.parse_options(["--json"])
+    PipelineBenchmark.render_output(report, json: options.fetch(:json))
+  end
 
   def expected_structure
     {
