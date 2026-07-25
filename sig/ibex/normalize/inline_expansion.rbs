@@ -1,0 +1,117 @@
+# Generated from lib/ibex/normalize/inline_expansion.rb with RBS::Inline
+
+module Ibex
+  # Deterministically substitutes inline-rule productions before LR construction.
+  # rubocop:disable Metrics/ModuleLength -- expansion, action plans, and id remapping share one invariant.
+  module NormalizeInlineExpansion
+    private
+
+    # @rbs () -> void
+    def expand_inline_rules: () -> void
+
+    # Explicit heap frames avoid tying grammar depth to the Ruby call stack.
+    # The single-definition path reuses its accumulated arrays, so a long
+    # acyclic chain remains linear in the size of its final action plan.
+    # @rbs (IR::Production production, Hash[Integer, Array[IR::Production]] definitions) ->
+    #   Array[Hash[Symbol, untyped]]
+    def expand_inline_production: (IR::Production production, Hash[Integer, Array[IR::Production]] definitions) -> Array[Hash[Symbol, untyped]]
+
+    # @rbs (Array[Hash[Symbol, untyped]] frames, Hash[Integer, Array[IR::Production]] definitions,
+    #   Array[Array[Hash[Symbol, untyped]]] worklist, Array[Hash[Symbol, untyped]] variants,
+    #   IR::location? location) -> void
+    def drain_inline_expansion_frames: (Array[Hash[Symbol, untyped]] frames, Hash[Integer, Array[IR::Production]] definitions, Array[Array[Hash[Symbol, untyped]]] worklist, Array[Hash[Symbol, untyped]] variants, IR::location? location) -> void
+
+    # @rbs (Array[Hash[Symbol, untyped]] frames, Hash[Integer, Array[IR::Production]] definitions,
+    #   Array[Array[Hash[Symbol, untyped]]] worklist, Array[Hash[Symbol, untyped]] variants,
+    #   IR::location? location) -> bool
+    def advance_inline_expansion_frame?: (Array[Hash[Symbol, untyped]] frames, Hash[Integer, Array[IR::Production]] definitions, Array[Array[Hash[Symbol, untyped]]] worklist, Array[Hash[Symbol, untyped]] variants, IR::location? location) -> bool
+
+    # @rbs (Array[Hash[Symbol, untyped]] frames, Array[IR::Production] choices, Integer symbol_id,
+    #   Array[Array[Hash[Symbol, untyped]]] worklist) -> void
+    def schedule_inline_choice_branches: (Array[Hash[Symbol, untyped]] frames, Array[IR::Production] choices, Integer symbol_id, Array[Array[Hash[Symbol, untyped]]] worklist) -> void
+
+    # @rbs (Array[Hash[Symbol, untyped]] frames, Array[Hash[Symbol, untyped]] variants,
+    #   Array[Array[Hash[Symbol, untyped]]] worklist, IR::location? location) -> bool
+    def complete_inline_expansion_frame?: (Array[Hash[Symbol, untyped]] frames, Array[Hash[Symbol, untyped]] variants, Array[Array[Hash[Symbol, untyped]]] worklist, IR::location? location) -> bool
+
+    # @rbs (IR::Production production, Integer? symbol_id) -> Hash[Symbol, untyped]
+    def inline_expansion_frame: (IR::Production production, Integer? symbol_id) -> Hash[Symbol, untyped]
+
+    # @rbs (Array[Hash[Symbol, untyped]] frames) -> Array[Hash[Symbol, untyped]]
+    def clone_inline_expansion_frames: (Array[Hash[Symbol, untyped]] frames) -> Array[Hash[Symbol, untyped]]
+
+    # @rbs (IR::Production production) -> Hash[Symbol, untyped]
+    def empty_inline_variant: (IR::Production production) -> Hash[Symbol, untyped]
+
+    # @rbs (Hash[Symbol, untyped] variant, Integer symbol_id) -> Hash[Symbol, untyped]
+    def append_inline_symbol: (Hash[Symbol, untyped] variant, Integer symbol_id) -> Hash[Symbol, untyped]
+
+    # @rbs (Hash[Symbol, untyped] parent, Hash[Symbol, untyped] child) -> Hash[Symbol, untyped]
+    def combine_inline_variant: (Hash[Symbol, untyped] parent, Hash[Symbol, untyped] child) -> Hash[Symbol, untyped]
+
+    # @rbs (Hash[Symbol, untyped] parent, Hash[Symbol, untyped] child,
+    #   Integer physical_offset, Integer step_offset) -> Array[Hash[Symbol, untyped]]
+    def combined_inline_steps: (Hash[Symbol, untyped] parent, Hash[Symbol, untyped] child, Integer physical_offset, Integer step_offset) -> Array[Hash[Symbol, untyped]]
+
+    # @rbs (Array[untyped] left, Array[untyped] right) -> Array[untyped]
+    def append_inline_array: (Array[untyped] left, Array[untyped] right) -> Array[untyped]
+
+    # @rbs (Hash[Symbol, untyped] parent, Hash[Symbol, untyped] child) -> Integer?
+    def combined_inline_precedence: (Hash[Symbol, untyped] parent, Hash[Symbol, untyped] child) -> Integer?
+
+    # @rbs (Hash[Symbol, untyped] parent, Hash[Symbol, untyped] child,
+    #   Integer physical_offset, Integer step_offset) -> Array[Hash[Symbol, untyped]]
+    def remap_inline_steps: (Hash[Symbol, untyped] parent, Hash[Symbol, untyped] child, Integer physical_offset, Integer step_offset) -> Array[Hash[Symbol, untyped]]
+
+    # @rbs (Array[Symbol | Integer] reference, Integer physical_offset, Integer step_offset) ->
+    #   Array[Symbol | Integer]
+    def remap_inline_reference: (Array[Symbol | Integer] reference, Integer physical_offset, Integer step_offset) -> Array[Symbol | Integer]
+
+    # @rbs (Hash[Symbol, untyped] variant, IR::Production production) -> Hash[Symbol, untyped]
+    def finish_inline_precedence: (Hash[Symbol, untyped] variant, IR::Production production) -> Hash[Symbol, untyped]
+
+    # @rbs (Hash[Symbol, untyped] variant, IR::Production production, Integer symbol_id) ->
+    #   Hash[Symbol, untyped]
+    def finish_inline_choice: (Hash[Symbol, untyped] variant, IR::Production production, Integer symbol_id) -> Hash[Symbol, untyped]
+
+    # @rbs (IR::Production production, Array[Array[Symbol | Integer]] inputs, Integer lookahead,
+    #   Symbol kind, String? rule) -> Hash[Symbol, untyped]
+    def inline_action_step: (IR::Production production, Array[Array[Symbol | Integer]] inputs, Integer lookahead, Symbol kind, String? rule) -> Hash[Symbol, untyped]
+
+    # @rbs (IR::Production production, Hash[Symbol, untyped] variant, Integer id) -> IR::Production
+    def composed_inline_production: (IR::Production production, Hash[Symbol, untyped] variant, Integer id) -> IR::Production
+
+    # @rbs (IR::Production production, Integer physical_length, Array[Hash[Symbol, untyped]]) -> IR::Action
+    def composed_inline_action: (IR::Production production, Integer physical_length, Array[Hash[Symbol, untyped]]) -> IR::Action
+
+    # @rbs (Array[Symbol | Integer] reference, Integer physical_length) -> Integer
+    def resolve_inline_reference: (Array[Symbol | Integer] reference, Integer physical_length) -> Integer
+
+    # @rbs (Integer rhs_length) -> String
+    def inline_implicit_code: (Integer rhs_length) -> String
+
+    # @rbs (IR::location location) -> IR::source_provenance
+    def inline_source_provenance: (IR::location location) -> IR::source_provenance
+
+    # @rbs (IR::Production production, Hash[Symbol, untyped] variant) -> IR::production_expansion
+    def inline_production_expansion: (IR::Production production, Hash[Symbol, untyped] variant) -> IR::production_expansion
+
+    # @rbs (IR::Production production, Integer id) -> IR::Production
+    def copy_inline_production: (IR::Production production, Integer id) -> IR::Production
+
+    # @rbs (IR::Production production) -> void
+    def charge_inline_expansion!: (IR::Production production) -> void
+
+    # @rbs (Integer count, IR::location? location) -> void
+    def enforce_inline_choice_limit!: (Integer count, IR::location? location) -> void
+
+    # @rbs (Array[IR::Production] productions) -> void
+    def rebuild_inline_symbols: (Array[IR::Production] productions) -> void
+
+    # @rbs (IR::GrammarSymbol definition, Integer id) -> IR::GrammarSymbol
+    def remap_inline_symbol: (IR::GrammarSymbol definition, Integer id) -> IR::GrammarSymbol
+
+    # @rbs (IR::Production production, Integer id, Hash[Integer, Integer] id_map) -> IR::Production
+    def remap_inline_production: (IR::Production production, Integer id, Hash[Integer, Integer] id_map) -> IR::Production
+  end
+end

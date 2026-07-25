@@ -58,7 +58,7 @@ specialization completes. Each source item is lowered before an unrelated later 
 production order of ordinary recursive lowering without tying a configured limit to the Ruby call stack.
 
 The public normalizer defaults to at most 1,000 distinct parameter specializations and 16 actively expanding parameter calls.
-Both positive limits are configurable through `max_parameter_specializations:` and `max_parameter_depth:`. Exceeding either
+Both positive-Integer limits are configurable through `max_parameter_specializations:` and `max_parameter_depth:`. Exceeding either
 limit raises a deterministic error at the call that would cross it. This bounds argument-growing recursion without relying on a
 Ruby `SystemStackError`.
 

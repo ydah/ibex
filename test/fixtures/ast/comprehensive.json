@@ -154,7 +154,8 @@
         "line": 15,
         "column": 3
       },
-      "documentation": null
+      "documentation": null,
+      "inline": false
     },
     {
       "node": "Rule",
@@ -239,7 +240,8 @@
         "line": 16,
         "column": 3
       },
-      "documentation": null
+      "documentation": null,
+      "inline": false
     },
     {
       "node": "Rule",
@@ -285,7 +287,8 @@
         "line": 18,
         "column": 3
       },
-      "documentation": null
+      "documentation": null,
+      "inline": false
     }
   ],
   "user_code": {

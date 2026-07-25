@@ -156,7 +156,9 @@ module Ibex
           generated_action = action_method?(production)
           action = generated_action ? ":_ibex_action_#{production.id}" : "nil"
           location_action = generated_action ? ", location_action: true" : ""
-          "{ lhs: #{production.lhs}, length: #{production.rhs.length}, action: #{action}#{location_action} }"
+          composition_action = composed_action?(production) ? ", composition_action: true" : ""
+          "{ lhs: #{production.lhs}, length: #{production.rhs.length}, action: #{action}" \
+            "#{location_action}#{composition_action} }"
         end
         "[#{entries.join(', ')}]"
       end

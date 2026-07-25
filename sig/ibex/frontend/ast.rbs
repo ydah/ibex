@@ -2,7 +2,7 @@
 
 module Ibex
   module Frontend
-    # Keeps the public Rule constructor compatible with ASTs built before parameters existed.
+    # Keeps the public Rule constructor compatible with ASTs built before parameters and inline rules existed.
     module ASTRuleDefaults
       # @rbs (*untyped arguments, **untyped keywords) -> void
       def initialize: (*untyped arguments, **untyped keywords) -> void
@@ -18,14 +18,15 @@ module Ibex
 
       type user_code = Hash[String, Array[UserCode]]
 
-      class Rule < Struct[String | Array[String] | Array[Alternative] | Location | String?]
+      class Rule < Struct[String | Array[String] | Array[Alternative] | Location | String? | bool]
         attr_accessor lhs: String
         attr_accessor parameters: Array[String]
         attr_accessor alternatives: Array[Alternative]
         attr_accessor loc: Location
         attr_accessor documentation: String?
-        def self.new: (?lhs: String, ?parameters: Array[String]?, ?alternatives: Array[Alternative], ?loc: Location, ?documentation: String?) -> instance
-                    | ({ ?lhs: String, ?parameters: Array[String]?, ?alternatives: Array[Alternative], ?loc: Location, ?documentation: String? }) -> instance
+        attr_accessor inline: bool
+        def self.new: (?lhs: String, ?parameters: Array[String]?, ?alternatives: Array[Alternative], ?loc: Location, ?documentation: String?, ?inline: bool?) -> instance
+                    | ({ ?lhs: String, ?parameters: Array[String]?, ?alternatives: Array[Alternative], ?loc: Location, ?documentation: String?, ?inline: bool? }) -> instance
       end
 
       # Adds deterministic, recursively serializable hashes to Struct nodes.

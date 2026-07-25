@@ -1,6 +1,6 @@
 class Ibex::Frontend::GeneratedParser < Ibex::Frontend::GeneratedParserBase
 token CLASS FRAGMENT INCLUDE TOKEN PRECHIGH PRECLOW OPTIONS EXPECT START CONVERT DISPLAY TYPE PRAGMA RULE END
-token LEFT RIGHT NONASSOC IDENTIFIER LITERAL INTEGER ACTION USER_CODE LHS PARAMETERIZED_REFERENCE
+token LEFT RIGHT NONASSOC IDENTIFIER LITERAL INTEGER ACTION USER_CODE INLINE LHS PARAMETERIZED_REFERENCE
 token SEPARATED_LIST SEPARATED_NONEMPTY_LIST
 rule
   document
@@ -110,8 +110,12 @@ rule
     | rules rule_definition              { result = val[0] + [val[1]] }
 
   rule_definition
-    : LHS rule_parameters ':' alternatives semicolon
-      { result = build_rule(val[0], val[1], val[3]) }
+    : inline_marker LHS rule_parameters ':' alternatives semicolon
+      { result = build_rule(val[0], val[1], val[2], val[4]) }
+
+  inline_marker
+    :                                    { result = nil }
+    | INLINE                             { result = val[0] }
 
   rule_parameters
     :                                    { result = nil }

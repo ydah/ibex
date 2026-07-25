@@ -368,6 +368,107 @@
           "items": {
             "$ref": "#/$defs/action_fragment"
           }
+        },
+        "plan": {
+          "$ref": "#/$defs/action_composition_plan"
+        }
+      },
+      "additionalProperties": false
+    },
+    "action_composition_step": {
+      "type": "object",
+      "required": [
+        "kind",
+        "rule",
+        "code",
+        "loc",
+        "named_refs",
+        "context_length",
+        "inputs",
+        "stack_inputs",
+        "lookahead",
+        "result_var"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "rule",
+            "inline"
+          ]
+        },
+        "rule": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "loc": {
+          "$ref": "grammar-ir-v1.schema.json#/$defs/location"
+        },
+        "named_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "grammar-ir-v1.schema.json#/$defs/named_ref"
+          }
+        },
+        "context_length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "stack_inputs": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "lookahead": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "result_var": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "action_composition_plan": {
+      "type": "object",
+      "required": [
+        "version",
+        "physical",
+        "steps"
+      ],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "physical": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/action_composition_step"
+          }
         }
       },
       "additionalProperties": false

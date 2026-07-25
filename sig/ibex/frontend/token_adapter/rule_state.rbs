@@ -35,6 +35,9 @@ module Ibex
 
         private
 
+        # @rbs () -> external_token
+        def classify_inline: () -> external_token
+
         # @rbs (Token token, Array[Token] remaining, external_token? last_external,
         #   external_token? previous_external) -> external_token
         def classify_identifier: (Token token, Array[Token] remaining, external_token? last_external, external_token? previous_external) -> external_token

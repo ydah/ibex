@@ -22,7 +22,9 @@ The following work requires a separately reviewed phase and ADR:
   0043](0043-lossless-rule-documentation.md) satisfies and supersedes the rule-documentation boundary with segment-positioned
   attachment, repeated-rule semantics, and escaped standalone renderers. [ADR
   0044](0044-parameterized-user-rules.md) satisfies and supersedes the parameterized-rule boundary with byte-adjacent syntax,
-  structural hygiene, memoized specialization, and deterministic work limits. Inline rules remain deferred.
+  structural hygiene, memoized specialization, and deterministic work limits. [ADR
+  0045](0045-bounded-inline-rule-expansion.md) satisfies and supersedes the inline-rule boundary with bounded structural
+  expansion and resumable semantic-action plans.
 - Full `@1`/`@$` semantic locations restart with a parallel location stack, reduction-span rules, generated-action syntax, and
   typed action contracts. [ADR 0036](0036-semantic-location-stack-and-spans.md) satisfies and supersedes this boundary; optional
   lookahead locations and structured errors remain its compatible first layer.

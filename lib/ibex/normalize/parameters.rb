@@ -53,12 +53,16 @@ module Ibex
       # @type self: Normalizer
       @helper_sequence += 1
       name = "$parameter_#{@helper_sequence}"
-      intern(
+      definition = intern(
         name, :nonterminal,
         location: reference.loc.to_h,
         documentation: @rule_documentation[reference.name],
         metadata_name: reference.name
       )
+      if @inline_rule_names.include?(reference.name)
+        @inline_symbol_ids << definition.id
+        @inline_rule_by_symbol[definition.id] = reference.name
+      end
       name
     end
 
@@ -128,7 +132,7 @@ module Ibex
       )
       rule = Frontend::AST::Rule.new(
         lhs: frame.fetch(:helper), parameters: [], alternatives: [alternative], loc: template.loc,
-        documentation: template.documentation
+        documentation: template.documentation, inline: false
       )
       frame[:alternative_index] = index + 1
       frame[:current] = [template, rule, alternative]

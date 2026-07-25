@@ -1,0 +1,40 @@
+# Generated from lib/ibex/normalize/inline_validation.rb with RBS::Inline
+
+module Ibex
+  # Static validation and collection for rules eliminated by inline expansion.
+  module NormalizeInlineValidation
+    private
+
+    # @rbs () -> void
+    def gather_inline_rules: () -> void
+
+    # @rbs () -> void
+    def validate_inline_terminal_collisions: () -> void
+
+    # @rbs () -> void
+    def validate_inline_start: () -> void
+
+    # @rbs () -> void
+    def validate_inline_cycles: () -> void
+
+    # A formal is live for cycle analysis only when substituting its actual can
+    # introduce a grammar reference. Calls propagate liveness through their
+    # callee's live positions until the finite formal set reaches a fixed point.
+    # @rbs () -> Hash[String, Set[Integer]]
+    def parameter_formal_liveness: () -> Hash[String, Set[Integer]]
+
+    # @rbs (Frontend::AST::item item, Array[String] formals,
+    #   Hash[String, Set[Integer]] liveness, Set[Integer] found) -> void
+    def collect_live_formals: (Frontend::AST::item item, Array[String] formals, Hash[String, Set[Integer]] liveness, Set[Integer] found) -> void
+
+    # Structural AST traversal necessarily branches once for each public item shape.
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # @rbs (Frontend::AST::item item, Array[String] formals, Set[String] names,
+    #   Array[[String, Frontend::Location]] edges, Hash[String, Set[Integer]] liveness) -> void
+    def collect_inline_edges: (Frontend::AST::item item, Array[String] formals, Set[String] names, Array[[ String, Frontend::Location ]] edges, Hash[String, Set[Integer]] liveness) -> void
+
+    # @rbs (String name, Hash[String, Array[[String, Frontend::Location]]] graph,
+    #   Hash[String, Symbol] states) -> void
+    def visit_inline_cycle: (String name, Hash[String, Array[[ String, Frontend::Location ]]] graph, Hash[String, Symbol] states) -> void
+  end
+end

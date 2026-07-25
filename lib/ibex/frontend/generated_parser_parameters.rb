@@ -13,6 +13,22 @@ module Ibex
         [opening, parameters.map { |parameter| token_string(parameter) }]
       end
 
+      # @rbs (Token? inline_marker, Token lhs, [Token, Array[String]]? parameter_clause,
+      #   Array[AST::Alternative] alternatives) -> AST::Rule
+      def build_rule(inline_marker, lhs, parameter_clause, alternatives)
+        # @type self: GeneratedParserBase
+        extended_only!(inline_marker.location, "inline rules") if inline_marker
+        parameters = [] #: Array[String]
+        if parameter_clause
+          opening, parameters = parameter_clause
+          require_adjacency!(lhs, opening, "parameter list must immediately follow rule name")
+        end
+        AST::Rule.new(
+          lhs: token_string(lhs), parameters: parameters, alternatives: alternatives, loc: lhs.location,
+          inline: !!inline_marker
+        )
+      end
+
       # @rbs (Token callee, Token opening, Array[AST::item] arguments,
       #   [Token, Token]? named_reference, Array[Token] suffixes) -> AST::item
       def build_parameterized_reference(callee, opening, arguments, named_reference, suffixes)

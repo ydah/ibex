@@ -165,10 +165,41 @@ using a formal as a callee are rejected to avoid ambiguous capture.
 The Normalizer memoizes a specialization before expanding its body, so direct and mutual same-argument recursion reuse one
 internal `$parameter_N` nonterminal. Resumable item and EBNF continuations on an explicit depth-first worklist preserve ordinary
 helper and production order while bounding argument-growing recursion without relying on the Ruby stack. The defaults are
-1,000 distinct specializations and 16 active expansions; programmatic callers can configure positive
+1,000 distinct specializations and 16 active expansions; programmatic callers can configure positive-Integer
 `max_parameter_specializations:` and `max_parameter_depth:` values. Specialized productions retain template actions,
 precedence, types, documentation, locations, and include chains. Grammar IR v2 records
 `expansion.parameter {rule, arguments}`; v1 output omits the expansion record.
+
+### Inline rules (extended mode)
+
+`%inline` directly before a definition marks a reusable phrase for structural substitution:
+
+```text
+  %inline atom: NUM:value { result = value }
+              | '(' expression ')' { result = val[1] }
+  %inline pair(X): X X { result = val }
+  expression: pair(atom):values { result = values }
+```
+
+The marker must be the exact `%inline` directive followed by whitespace; `%` inside Ruby actions remains Ruby. Inline
+definitions work in roots and fragments and may be plain or parameterized. They do not become final Grammar IR symbols or
+productions. Every definition of a name must agree on its inline marking and parameter formals. Inline rules cannot collide
+with terminals or be the start symbol. Direct, mutual, or indirect cycles whose path contains an inline rule are rejected,
+including cycles through ordinary rules, nested EBNF, and parameterized calls.
+
+Alternatives are substituted left-to-right before LR construction. Nested or repeated uses form a deterministic cartesian
+product. The caller's explicit precedence override wins; otherwise the rightmost precedence-contributing inline phrase retains
+its explicit override, and flattened terminals retain normal rightmost-terminal precedence. `Ibex::Normalizer` accepts a
+positive-Integer `max_inline_expansions:` limit, defaulting to 10,000 materialized productions. Parameter actuals contribute
+cycle edges only when their callee position is transitively live, and both cycle validation and expansion use heap worklists so
+grammar nesting is independent of the Ruby call stack.
+
+Eliminated reductions still run their explicit or implicit actions in logical post-order. Named references, `val`, `_values`,
+`@N`, `@$`, empty spans, middle actions, `result`/`no_result_var`, and parser instance methods retain their logical rule view.
+Grammar IR v2 serializes the executable sequence in `action.composition.plan` and records
+`expansion.inline {rule}`; dump/load followed by code generation preserves it. `yyaccept` and `yyerror` stop the remaining
+logical fragments and caller after the current fragment completes, and `yyerrok` does not erase that `yyerror`. Version 1 omits
+both metadata families.
 
 The action scanner handles nested braces, quoted/backtick strings and interpolation, `%q/%Q/%w/%W/%i/%I/%x/%r/%s`, regular
 expressions, comments, character literals, and unquoted, single-quoted, double-quoted, or backtick heredocs. Indented, squiggly,
