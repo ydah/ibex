@@ -81,6 +81,18 @@ module Ibex
       #   ?algorithm: String, ?grammar_digest: String?, ?schema_version: Integer) -> void
       def initialize(grammar:, states:, conflict_summary:, algorithm: "lalr1", grammar_digest: nil,
                      schema_version: SCHEMA_VERSION)
+        unless SUPPORTED_SCHEMA_VERSIONS.include?(schema_version)
+          raise Ibex::Error, "unsupported automaton schema_version #{schema_version.inspect}"
+        end
+
+        grammar = Migration.to_v2(grammar) if schema_version >= 2 && grammar.schema_version != schema_version
+        raise Ibex::Error, "automaton migration did not produce a grammar" unless grammar.is_a?(Grammar)
+        unless grammar.schema_version == schema_version
+          raise Ibex::Error,
+                "automaton schema_version #{schema_version} requires Grammar IR v#{schema_version}, " \
+                "got v#{grammar.schema_version}"
+        end
+
         @algorithm = algorithm.freeze
         @grammar = grammar
         @grammar_digest = (grammar_digest || digest_for(grammar)).freeze

@@ -3,18 +3,26 @@
 module Ibex
   module IR
     module Validator
-      # Structural and referential validation for a Grammar IR v1 JSON object.
+      # Structural and referential validation for a versioned Grammar IR JSON object.
       # rubocop:disable Metrics/ClassLength -- inline type contracts accompany one cohesive document validator.
       class GrammarDocument < Base
         ROOT_REQUIRED: Array[String]
 
         ROOT_OPTIONAL: Array[String]
 
+        V2_ROOT_REQUIRED: Array[String]
+
         SYMBOL_REQUIRED: Array[String]
 
         SYMBOL_OPTIONAL: Array[String]
 
+        V2_SYMBOL_REQUIRED: Array[String]
+
         PRODUCTION_REQUIRED: Array[String]
+
+        V2_PRODUCTION_REQUIRED: Array[String]
+
+        V2_ACTION_REQUIRED: Array[String]
 
         ORIGIN_KINDS: Array[String]
 
@@ -24,12 +32,14 @@ module Ibex
 
         attr_reader productions_by_id: Hash[Integer, Hash[String, untyped]]
 
+        @version: Integer
+
         @path: String
 
         @data: Hash[String, untyped]
 
-        # @rbs (Hash[String, untyped] data, ?path: String) -> void
-        def initialize: (Hash[String, untyped] data, ?path: String) -> void
+        # @rbs (Hash[String, untyped] data, ?path: String, ?version: Integer) -> void
+        def initialize: (Hash[String, untyped] data, ?path: String, ?version: Integer) -> void
 
         # @rbs () -> self
         def validate: () -> self
@@ -104,6 +114,27 @@ module Ibex
 
         # @rbs () -> void
         def validate_user_code_chunks: () -> void
+
+        # @rbs (untyped value, String path, ?nullable: bool) -> void
+        def validate_source_provenance: (untyped value, String path, ?nullable: bool) -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_byte_span: (untyped value, String path) -> void
+
+        # @rbs () -> void
+        def validate_migration: () -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_expansion: (untyped value, String path) -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_parameter_expansion: (untyped value, String path) -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_inline_expansion: (untyped value, String path) -> void
+
+        # @rbs (untyped value, String path) -> void
+        def validate_action_composition: (untyped value, String path) -> void
       end
     end
   end

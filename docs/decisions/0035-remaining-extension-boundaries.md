@@ -14,7 +14,9 @@ compatibility, source mapping, or runtime determinism.
 The following work requires a separately reviewed phase and ADR:
 
 - Parameterized user rules, `%inline`, grammar includes, and rule doc comments restart with a comment-preserving source model,
-  explicit name/parameter hygiene, cross-file location rules, and a Grammar IR schema-version plan.
+  explicit name/parameter hygiene, cross-file location rules, and a Grammar IR schema-version plan. [ADR
+  0039](0039-versioned-ir-v2-migration.md) satisfies the schema-version prerequisite and reserves explicit nullable provenance,
+  documentation, expansion, and composed-action records; the source-model and hygiene prerequisites remain.
 - Full `@1`/`@$` semantic locations restart with a parallel location stack, reduction-span rules, generated-action syntax, and
   typed action contracts. [ADR 0036](0036-semantic-location-stack-and-spans.md) satisfies and supersedes this boundary; optional
   lookahead locations and structured errors remain its compatible first layer.

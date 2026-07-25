@@ -19,13 +19,14 @@ module Ibex
 
         type = data.fetch("ibex_ir") { raise Ibex::Error, "#{POSITION}: missing ibex_ir discriminator" }
         version = data["schema_version"]
-        unless version == SCHEMA_VERSION
-          raise Ibex::Error, "#{POSITION}: unsupported schema_version #{version.inspect}; expected #{SCHEMA_VERSION}"
+        unless SUPPORTED_SCHEMA_VERSIONS.include?(version)
+          expected = SUPPORTED_SCHEMA_VERSIONS.join(", ")
+          raise Ibex::Error, "#{POSITION}: unsupported schema_version #{version.inspect}; expected one of #{expected}"
         end
 
         case type
-        when "grammar" then GrammarDocument.new(data).validate
-        when "automaton" then AutomatonDocument.new(data).validate
+        when "grammar" then GrammarDocument.new(data, version: version).validate
+        when "automaton" then AutomatonDocument.new(data, version: version).validate
         else raise Ibex::Error, "#{POSITION}: unsupported IR type #{type.inspect}"
         end
         value = Serialize.load(source)

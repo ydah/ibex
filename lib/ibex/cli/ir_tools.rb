@@ -1,8 +1,20 @@
 # frozen_string_literal: true
 
+require "tempfile"
+
 module Ibex
+  # @rbs!
+  #   type migrate_ir_options = {
+  #     paths: Array[String],
+  #     ?to: Integer,
+  #     ?output: String
+  #   }
+
   # CLI validation and structural comparison for versioned IR documents.
   module CLIIRTools
+    # @rbs!
+    #   private def same_file_target?: (String left, String right) -> bool
+
     private
 
     # @rbs (Array[String] arguments) -> Integer
@@ -26,6 +38,65 @@ module Ibex
 
       @stdout.puts(JSON.pretty_generate(compare_ir(before, after)))
       0
+    end
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_migrate_ir_command(arguments)
+      settings = migrate_ir_options(arguments)
+      input = single_ir_path(settings.fetch(:paths), "migrate-ir")
+      output = settings[:output]
+      if output && same_file_target?(input, output)
+        raise Ibex::Error, "(cli):1:1: migrate-ir input and output paths must be distinct"
+      end
+
+      value = IR::Validator.validate(File.read(input))
+      target = settings[:to] || raise(Ibex::Error, "(cli):1:1: migrate-ir requires --to=VERSION")
+      unless IR::SUPPORTED_SCHEMA_VERSIONS.include?(target)
+        raise Ibex::Error, "(cli):1:1: unsupported migration target schema_version #{target}"
+      end
+      if target < value.schema_version
+        raise Ibex::Error,
+              "(cli):1:1: downgrading schema_version #{value.schema_version} to #{target} is not supported"
+      end
+
+      source = IR::Serialize.dump(IR::Migration.to_version(value, to: target))
+      output ? atomic_write_ir(output, source) : @stdout.write(source)
+      0
+    end
+
+    # @rbs (Array[String] arguments) -> migrate_ir_options
+    def migrate_ir_options(arguments)
+      settings = { paths: [] } #: migrate_ir_options
+      parser = OptionParser.new do |options|
+        options.banner = "Usage: ibex migrate-ir INPUT --to=VERSION [-o FILE]"
+        options.on("--to=VERSION", Integer, "target schema version") { |value| settings[:to] = value }
+        options.on("-o FILE", "--output=FILE", "write atomically to FILE") { |value| settings[:output] = value }
+      end
+      settings[:paths] = parser.parse(arguments)
+      settings
+    end
+
+    # @rbs (String path, String source) -> void
+    def atomic_write_ir(path, source)
+      target_path = File.symlink?(path) ? File.realpath(path) : path
+      directory = File.dirname(File.expand_path(target_path))
+      basename = File.basename(target_path)
+      Tempfile.create([".#{basename}.", ".tmp"], directory) do |temporary|
+        temporary.binmode
+        temporary.write(source)
+        temporary.flush
+        temporary.fsync
+        temporary.chmod(ir_file_mode(target_path))
+        temporary.close
+        File.rename(temporary.path, target_path)
+      end
+    end
+
+    # @rbs (String path) -> Integer
+    def ir_file_mode(path)
+      return File.stat(path).mode & 0o777 if File.exist?(path)
+
+      0o666 & ~File.umask
     end
 
     # @rbs (Array[String] arguments, String command) -> String

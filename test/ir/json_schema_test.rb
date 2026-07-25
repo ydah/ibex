@@ -12,6 +12,8 @@ class IRJSONSchemaTest < Minitest::Test
     %w[
       grammar-ir-v1.schema.json
       automaton-ir-v1.schema.json
+      grammar-ir-v2.schema.json
+      automaton-ir-v2.schema.json
       explain-v1.schema.json
       benchmark-v1.schema.json
     ].each do |name|
@@ -63,6 +65,27 @@ class IRJSONSchemaTest < Minitest::Test
     assert_empty schemer.validate(fixture("automaton-v1.json")).to_a
   end
 
+  def test_v2_schemas_accept_default_and_migrated_golden_documents
+    grammar = schema("grammar-ir-v2.schema.json")
+    automaton = schema("automaton-ir-v2.schema.json")
+    resolver = lambda do |uri|
+      {
+        grammar_schema.fetch("$id") => grammar_schema,
+        automaton_schema.fetch("$id") => automaton_schema,
+        grammar.fetch("$id") => grammar,
+        automaton.fetch("$id") => automaton
+      }[uri.to_s]
+    end
+
+    grammar_schemer = JSONSchemer.schema(grammar, ref_resolver: resolver)
+    assert_empty grammar_schemer.validate(fixture("grammar-v2.json")).to_a
+    assert_empty grammar_schemer.validate(fixture("grammar-v1-migrated-v2.json")).to_a
+
+    automaton_schemer = JSONSchemer.schema(automaton, ref_resolver: resolver)
+    assert_empty automaton_schemer.validate(fixture("automaton-v2.json")).to_a
+    assert_empty automaton_schemer.validate(fixture("automaton-v1-migrated-v2.json")).to_a
+  end
+
   private
 
   def grammar_schema
@@ -71,6 +94,10 @@ class IRJSONSchemaTest < Minitest::Test
 
   def automaton_schema
     @automaton_schema ||= load_json(File.join(SCHEMA_ROOT, "automaton-ir-v1.schema.json"))
+  end
+
+  def schema(name)
+    load_json(File.join(SCHEMA_ROOT, name))
   end
 
   def fixture(name)

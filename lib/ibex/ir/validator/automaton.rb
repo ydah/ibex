@@ -3,7 +3,7 @@
 module Ibex
   module IR
     module Validator
-      # Structural and referential validation for an Automaton IR v1 JSON object.
+      # Structural and referential validation for a versioned Automaton IR JSON object.
       # rubocop:disable Metrics/ClassLength -- inline type contracts accompany one cohesive document validator.
       class AutomatonDocument < Base
         ROOT_REQUIRED = %w[
@@ -16,11 +16,13 @@ module Ibex
         # @rbs @data: Hash[String, untyped]
         # @rbs @states_by_id: Hash[Integer, Hash[String, untyped]]
         # @rbs @grammar: GrammarDocument
+        # @rbs @version: Integer
 
-        # @rbs (Hash[String, untyped] data) -> void
-        def initialize(data)
+        # @rbs (Hash[String, untyped] data, ?version: Integer) -> void
+        def initialize(data, version: data.fetch("schema_version"))
           super()
           @data = data
+          @version = version
           @states_by_id = {} #: Hash[Integer, Hash[String, untyped]]
         end
 
@@ -28,10 +30,12 @@ module Ibex
         def validate
           record(@data, "$", ROOT_REQUIRED)
           literal(@data["ibex_ir"], "$.ibex_ir", "automaton")
-          literal(@data["schema_version"], "$.schema_version", SCHEMA_VERSION)
+          literal(@data["schema_version"], "$.schema_version", @version)
           enum(@data["algorithm"], "$.algorithm", %w[slr lalr1 lr1])
           validate_digest
-          @grammar = GrammarDocument.new(object(@data["grammar"], "$.grammar"), path: "$.grammar").validate
+          grammar = object(@data["grammar"], "$.grammar")
+          literal(grammar["schema_version"], "$.grammar.schema_version", @version)
+          @grammar = GrammarDocument.new(grammar, path: "$.grammar", version: @version).validate
           validate_state_records
           validate_state_contents
           validate_conflict_summary

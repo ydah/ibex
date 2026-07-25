@@ -3,7 +3,7 @@
 module Ibex
   module IR
     module Validator
-      # Structural and referential validation for a Grammar IR v1 JSON object.
+      # Structural and referential validation for a versioned Grammar IR JSON object.
       # rubocop:disable Metrics/ClassLength -- inline type contracts accompany one cohesive document validator.
       class GrammarDocument < Base
         ROOT_REQUIRED = %w[
@@ -11,9 +11,13 @@ module Ibex
           conversions warnings
         ].freeze #: Array[String]
         ROOT_OPTIONAL = %w[user_code_chunks].freeze #: Array[String]
+        V2_ROOT_REQUIRED = %w[source_provenance migration].freeze #: Array[String]
         SYMBOL_REQUIRED = %w[id name kind reserved prec loc].freeze #: Array[String]
         SYMBOL_OPTIONAL = %w[display_name semantic_type].freeze #: Array[String]
+        V2_SYMBOL_REQUIRED = %w[doc].freeze #: Array[String]
         PRODUCTION_REQUIRED = %w[id lhs rhs action prec_override origin].freeze #: Array[String]
+        V2_PRODUCTION_REQUIRED = %w[doc expansion].freeze #: Array[String]
+        V2_ACTION_REQUIRED = %w[composition].freeze #: Array[String]
         ORIGIN_KINDS = %w[
           optional_expansion star_expansion plus_expansion separated_list_expansion group_expansion
         ].freeze #: Array[String]
@@ -24,12 +28,14 @@ module Ibex
 
         # @rbs @data: Hash[String, untyped]
         # @rbs @path: String
+        # @rbs @version: Integer
 
-        # @rbs (Hash[String, untyped] data, ?path: String) -> void
-        def initialize(data, path: "$")
+        # @rbs (Hash[String, untyped] data, ?path: String, ?version: Integer) -> void
+        def initialize(data, path: "$", version: data.fetch("schema_version"))
           super()
           @data = data
           @path = path
+          @version = version
           @symbols_by_id = {}
           @symbols_by_name = {}
           @productions_by_id = {}
@@ -37,7 +43,8 @@ module Ibex
 
         # @rbs () -> self
         def validate
-          record(@data, @path, ROOT_REQUIRED, ROOT_OPTIONAL)
+          required = ROOT_REQUIRED + (@version >= 2 ? V2_ROOT_REQUIRED : [])
+          record(@data, @path, required, ROOT_OPTIONAL)
           validate_envelope
           validate_header
           validate_options
@@ -49,6 +56,10 @@ module Ibex
           validate_string_map(@data["conversions"], "#{@path}.conversions")
           validate_warnings
           validate_user_code_chunks if @data.key?("user_code_chunks")
+          if @version >= 2
+            validate_source_provenance(@data["source_provenance"], "#{@path}.source_provenance")
+            validate_migration
+          end
           self
         end
 
@@ -57,7 +68,7 @@ module Ibex
         # @rbs () -> void
         def validate_envelope
           literal(@data["ibex_ir"], "#{@path}.ibex_ir", "grammar")
-          literal(@data["schema_version"], "#{@path}.schema_version", SCHEMA_VERSION)
+          literal(@data["schema_version"], "#{@path}.schema_version", @version)
         end
 
         # @rbs () -> void
@@ -86,7 +97,8 @@ module Ibex
         # @rbs (untyped value, Integer index) -> void
         def validate_symbol(value, index)
           path = "#{@path}.symbols[#{index}]"
-          symbol = record(value, path, SYMBOL_REQUIRED, SYMBOL_OPTIONAL)
+          required = SYMBOL_REQUIRED + (@version >= 2 ? V2_SYMBOL_REQUIRED : [])
+          symbol = record(value, path, required, SYMBOL_OPTIONAL)
           id = nonnegative_integer(symbol["id"], "#{path}.id")
           invalid("#{path}.id", "must equal its array index #{index}") unless id == index
           name = nonempty_string(symbol["name"], "#{path}.name")
@@ -98,6 +110,7 @@ module Ibex
           validate_precedence(symbol["prec"], "#{path}.prec")
           location(symbol["loc"], "#{path}.loc")
           SYMBOL_OPTIONAL.each { |key| metadata(symbol[key], "#{path}.#{key}") if symbol.key?(key) }
+          nullable_string(symbol["doc"], "#{path}.doc") if @version >= 2
         end
 
         # @rbs (untyped value, String path) -> void
@@ -141,7 +154,8 @@ module Ibex
         # @rbs (untyped value, Integer index) -> void
         def validate_production(value, index)
           path = "#{@path}.productions[#{index}]"
-          production = record(value, path, PRODUCTION_REQUIRED)
+          required = PRODUCTION_REQUIRED + (@version >= 2 ? V2_PRODUCTION_REQUIRED : [])
+          production = record(value, path, required)
           id = nonnegative_integer(production["id"], "#{path}.id")
           invalid("#{path}.id", "must equal its array index #{index}") unless id == index
           @productions_by_id[id] = production
@@ -150,6 +164,10 @@ module Ibex
           validate_action(production["action"], "#{path}.action", rhs_length: production["rhs"].length)
           validate_precedence_override(production["prec_override"], "#{path}.prec_override")
           validate_origin(production["origin"], "#{path}.origin")
+          return unless @version >= 2
+
+          nullable_string(production["doc"], "#{path}.doc")
+          validate_expansion(production["expansion"], "#{path}.expansion")
         end
 
         # @rbs (untyped value, String path) -> void
@@ -172,11 +190,13 @@ module Ibex
         def validate_action(value, path, rhs_length:)
           return if value.nil?
 
-          action = record(value, path, %w[code loc named_refs context_length])
+          required = %w[code loc named_refs context_length] + (@version >= 2 ? V2_ACTION_REQUIRED : [])
+          action = record(value, path, required)
           string(action["code"], "#{path}.code")
           location(action["loc"], "#{path}.loc", nullable: false)
           context_length = nonnegative_integer(action["context_length"], "#{path}.context_length")
           validate_named_refs(action["named_refs"], "#{path}.named_refs", limit: [rhs_length, context_length].max)
+          validate_action_composition(action["composition"], "#{path}.composition") if @version >= 2
         end
 
         # @rbs (untyped value, String path, limit: Integer) -> void
@@ -264,6 +284,89 @@ module Ibex
               string(chunk["code"], "#{chunk_path}.code")
               location(chunk["loc"], "#{chunk_path}.loc", nullable: false)
             end
+          end
+        end
+
+        # @rbs (untyped value, String path, ?nullable: bool) -> void
+        def validate_source_provenance(value, path, nullable: true)
+          return if nullable && value.nil?
+
+          source = record(value, path, %w[file root byte_span])
+          nullable_string(source["file"], "#{path}.file")
+          nullable_string(source["root"], "#{path}.root")
+          validate_byte_span(source["byte_span"], "#{path}.byte_span")
+        end
+
+        # @rbs (untyped value, String path) -> void
+        def validate_byte_span(value, path)
+          return if value.nil?
+
+          span = record(value, path, %w[start end])
+          start_byte = nonnegative_integer(span["start"], "#{path}.start")
+          end_byte = nonnegative_integer(span["end"], "#{path}.end")
+          invalid("#{path}.end", "must be greater than or equal to start") if end_byte < start_byte
+        end
+
+        # @rbs () -> void
+        def validate_migration
+          path = "#{@path}.migration"
+          value = @data["migration"]
+          return if value.nil?
+
+          migration = record(value, path, %w[from_schema_version unavailable])
+          literal(migration["from_schema_version"], "#{path}.from_schema_version", 1)
+          values = array(migration["unavailable"], "#{path}.unavailable")
+          invalid("#{path}.unavailable", "must not be empty") if values.empty?
+          values.each_with_index do |name, index|
+            enum(name, "#{path}.unavailable[#{index}]", Migration::UNAVAILABLE_V1_METADATA)
+          end
+          invalid("#{path}.unavailable", "must contain unique names") unless values.uniq.length == values.length
+        end
+
+        # @rbs (untyped value, String path) -> void
+        def validate_expansion(value, path)
+          return if value.nil?
+
+          expansion = record(value, path, %w[parameter inline include_chain])
+          validate_parameter_expansion(expansion["parameter"], "#{path}.parameter")
+          validate_inline_expansion(expansion["inline"], "#{path}.inline")
+          array(expansion["include_chain"], "#{path}.include_chain").each_with_index do |source, index|
+            validate_source_provenance(source, "#{path}.include_chain[#{index}]", nullable: false)
+          end
+        end
+
+        # @rbs (untyped value, String path) -> void
+        def validate_parameter_expansion(value, path)
+          return if value.nil?
+
+          parameter = record(value, path, %w[rule arguments])
+          nonempty_string(parameter["rule"], "#{path}.rule")
+          array(parameter["arguments"], "#{path}.arguments").each_with_index do |argument, index|
+            nonempty_string(argument, "#{path}.arguments[#{index}]")
+          end
+        end
+
+        # @rbs (untyped value, String path) -> void
+        def validate_inline_expansion(value, path)
+          return if value.nil?
+
+          inline = record(value, path, %w[rule])
+          nonempty_string(inline["rule"], "#{path}.rule")
+        end
+
+        # @rbs (untyped value, String path) -> void
+        def validate_action_composition(value, path)
+          return if value.nil?
+
+          composition = record(value, path, %w[strategy fragments])
+          literal(composition["strategy"], "#{path}.strategy", "sequence")
+          fragments = array(composition["fragments"], "#{path}.fragments")
+          invalid("#{path}.fragments", "must not be empty") if fragments.empty?
+          fragments.each_with_index do |value, index|
+            fragment_path = "#{path}.fragments[#{index}]"
+            fragment = record(value, fragment_path, %w[kind source])
+            enum(fragment["kind"], "#{fragment_path}.kind", %w[rule inline])
+            validate_source_provenance(fragment["source"], "#{fragment_path}.source")
           end
         end
       end

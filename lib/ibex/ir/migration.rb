@@ -1,0 +1,90 @@
+# frozen_string_literal: true
+
+module Ibex
+  module IR
+    # Meaning-preserving upgrades between published IR schema versions.
+    module Migration
+      UNAVAILABLE_V1_METADATA = %w[
+        source_provenance
+        symbol_docs
+        production_docs
+        production_expansion
+        action_composition
+      ].freeze #: Array[String]
+
+      # @rbs (Grammar | Automaton value, ?to: Integer) -> (Grammar | Automaton)
+      def to_version(value, to: SCHEMA_VERSION)
+        return value if value.schema_version == to
+        return to_v2(value) if value.schema_version == 1 && to == 2
+
+        raise Ibex::Error,
+              "(ir):1:1: cannot migrate schema_version #{value.schema_version} to #{to}; only 1 to 2 is supported"
+      end
+      module_function :to_version
+
+      # @rbs (Grammar | Automaton value) -> (Grammar | Automaton)
+      def to_v2(value)
+        return value if value.schema_version == 2
+        unless value.schema_version == 1
+          raise Ibex::Error, "(ir):1:1: cannot migrate unsupported schema_version #{value.schema_version}"
+        end
+
+        return migrate_grammar(value) if value.is_a?(Grammar)
+        return migrate_automaton(value) if value.is_a?(Automaton)
+
+        raise Ibex::Error, "(ir):1:1: cannot migrate unsupported IR object #{value.class}"
+      end
+      module_function :to_v2
+
+      # @rbs (Grammar grammar) -> Grammar
+      def migrate_grammar(grammar)
+        symbols = grammar.symbols.map do |symbol|
+          GrammarSymbol.new(
+            id: symbol.id, name: symbol.name, kind: symbol.kind, reserved: symbol.reserved,
+            precedence: symbol.precedence, location: symbol.location, display_name: symbol.display_name,
+            semantic_type: symbol.semantic_type
+          )
+        end
+        productions = grammar.productions.map do |production|
+          Production.new(
+            id: production.id, lhs: production.lhs, rhs: production.rhs,
+            action: migrate_action(production.action), precedence_override: production.precedence_override,
+            origin: production.origin
+          )
+        end
+        Grammar.new(
+          class_name: grammar.class_name, superclass: grammar.superclass, start: grammar.start,
+          expect: grammar.expect, options: grammar.options, symbols: symbols, productions: productions,
+          user_code: grammar.user_code, user_code_chunks: grammar.user_code_chunks,
+          conversions: grammar.conversions, warnings: grammar.warnings, schema_version: 2,
+          migration: { from_schema_version: 1, unavailable: UNAVAILABLE_V1_METADATA }
+        )
+      end
+      module_function :migrate_grammar
+
+      # @rbs (Action? action) -> Action?
+      def migrate_action(action)
+        return nil unless action
+
+        Action.new(
+          code: action.code, location: action.location, named_refs: action.named_refs,
+          context_length: action.context_length
+        )
+      end
+      module_function :migrate_action
+
+      # @rbs (Automaton automaton) -> Automaton
+      def migrate_automaton(automaton)
+        Automaton.new(
+          grammar: migrate_grammar(automaton.grammar), states: automaton.states,
+          conflict_summary: automaton.conflict_summary, algorithm: automaton.algorithm, schema_version: 2
+        )
+      end
+      module_function :migrate_automaton
+
+      class << self
+        private :migrate_grammar, :migrate_action, :migrate_automaton
+      end
+    end
+  end
+end

@@ -57,7 +57,8 @@ module Ibex
       IR::Grammar.new(class_name: @ast.class_name, superclass: @ast.superclass, start: @start_name,
                       expect: @expected_conflicts, options: @options, symbols: @symbols,
                       productions: @productions, user_code: normalized_user_code,
-                      conversions: @conversions, warnings: @warnings, user_code_chunks: normalized_user_code_chunks)
+                      conversions: @conversions, warnings: @warnings, user_code_chunks: normalized_user_code_chunks,
+                      source_provenance: { file: @ast.loc.file, root: nil, byte_span: nil })
     end
 
     private

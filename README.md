@@ -168,6 +168,9 @@ round trips, so resumed generation has the same backtraces as direct generation.
 `Ibex::Runtime::JSONLTracer.attach(parser, io:)` streams committed shifts, reductions, and recoveries without replacing existing
 hooks. `require "ibex/rake_task"` provides timestamp-aware parser generation for Rakefiles. Versioned JSON Schemas are shipped in
 `schema/`, and `examples/` contains calculator, JSON, INI, and tiny-language parsers backed only by the standard library.
+New pipeline output is Grammar/Automaton IR version 2; version-1 documents remain valid and byte-stable. Upgrade either document
+kind with `ibex migrate-ir INPUT --to=2` or write atomically with `-o FILE`. The version-2 contract reserves nullable source,
+documentation, expansion, and composed-action metadata; see [ADR 0039](docs/decisions/0039-versioned-ir-v2-migration.md).
 
 ## Documentation
 
@@ -194,7 +197,8 @@ workflow, whose direct dependency graph also works when the generated file is ab
 prevent generated-source drift.
 
 Fixed-seed property tests exercise SLR, LALR, and LR(1) pipeline invariants, while versioned Grammar and Automaton IR fixtures
-guard byte-stable schema compatibility. Intentional fixture updates are documented in `test/fixtures/ir/README.md`. The
+guard byte-stable version-1 reads, version-2 output, and deterministic migration. Intentional fixture updates are documented in
+`test/fixtures/ir/README.md`. The
 self-authored representative grammar records versioned `ibex_benchmark` artifacts without a timing or memory pass/fail threshold:
 
 ```sh
@@ -226,8 +230,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 5,929 typed calls and 767 untyped calls out of 6,696 (88.5% typed).
-The generated signature tree contains 871 explicit `untyped` occurrences across 24 files.
+The current whole-library `steep stats` result is 6,194 typed calls and 782 untyped calls out of 6,976 (88.8% typed).
+The generated signature tree contains 883 explicit `untyped` occurrences across 24 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime
