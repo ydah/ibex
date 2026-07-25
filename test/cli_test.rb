@@ -134,7 +134,8 @@ class CLITest < Minitest::Test
   def test_help_lists_compatible_options
     output = StringIO.new
     assert_equal 0, Ibex::CLI.start(["--help"], stdout: output, stderr: StringIO.new)
-    %w[--output-file --debug --verbose --embedded --rbs --check --check-only --superclass].each do |option|
+    compatible = %w[--output-file --debug --verbose --embedded --rbs --action-source --check --check-only --superclass]
+    compatible.each do |option|
       assert_includes output.string, option
     end
   end

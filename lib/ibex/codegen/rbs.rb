@@ -49,14 +49,50 @@ module Ibex
 
         lines << ""
         actions.each do |production|
-          parameters = production.rhs.map { |symbol_id| semantic_type(symbol_id) }.join(", ")
-          locations = Array.new(production.rhs.length, "untyped").join(", ")
-          result = semantic_type(production.lhs)
-          lookahead = composed_action?(production) ? ", untyped" : ""
-          lines << "  private def _ibex_action_#{production.id}: " \
-                   "([#{parameters}], Array[untyped], [#{locations}], Array[untyped], " \
-                   "Ibex::Runtime::LocationSpan?#{lookahead}) -> #{result}"
+          append_action_signature(lines, production)
+          append_composed_fragment_signatures(lines, production) if composed_action?(production)
         end
+      end
+
+      # @rbs (Array[String] lines, IR::Production production) -> void
+      def append_action_signature(lines, production)
+        parameters = production.rhs.map { |symbol_id| semantic_type(symbol_id) }.join(", ")
+        locations = Array.new(production.rhs.length, "untyped").join(", ")
+        result = semantic_type(production.lhs)
+        lookahead = composed_action?(production) ? ", untyped" : ""
+        lines << "  private def _ibex_action_#{production.id}: " \
+                 "([#{parameters}], Array[untyped], [#{locations}], Array[untyped], " \
+                 "Ibex::Runtime::LocationSpan?#{lookahead}) -> #{result}"
+      end
+
+      # @rbs (Array[String] lines, IR::Production production) -> void
+      def append_composed_fragment_signatures(lines, production)
+        plan = production.action&.composition&.dig(:plan)
+        raise Ibex::Error, "missing action composition plan" unless plan
+
+        plan.fetch(:steps).each_with_index do |step, index|
+          next unless step[:code]
+
+          inputs = step.fetch(:inputs).map do |slot|
+            composition_slot_type(production, plan, slot, index)
+          end
+          locations = Array.new(inputs.length, "untyped").join(", ")
+          result = step[:result_type] || "untyped"
+          lines << "  private def _ibex_inline_fragment_#{production.id}_#{index}: " \
+                   "([#{inputs.join(', ')}], Array[untyped], [#{locations}], Array[untyped], " \
+                   "Ibex::Runtime::LocationSpan?) -> #{result}"
+        end
+      end
+
+      # @rbs (IR::Production production, Hash[Symbol, untyped] plan, Integer slot, Integer step_index) -> String
+      def composition_slot_type(production, plan, slot, step_index)
+        physical = plan.fetch(:physical)
+        return semantic_type(production.rhs.fetch(slot)) if slot < physical
+
+        prior_index = slot - physical
+        raise Ibex::Error, "invalid composed action slot #{slot}" if prior_index >= step_index
+
+        plan.fetch(:steps).fetch(prior_index)[:result_type] || "untyped"
       end
 
       # @rbs (IR::Production production) -> bool

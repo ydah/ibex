@@ -33,6 +33,7 @@ module Ibex
   #     ?debug: bool,
   #     ?verbose: bool,
   #     ?rbs: String | true,
+  #     ?action_source: String | true,
   #     ?dot: String,
   #     ?mermaid: String,
   #     ?html: String,
@@ -178,9 +179,7 @@ module Ibex
       options.on("-g", "obsolete alias for --debug") { @options[:debug] = true }
       options.on("-v", "--verbose", "write an automaton report") { @options[:verbose] = true }
       add_counterexample_options(options)
-      options.on("--rbs[=FILE]", "write an RBS signature (defaults beside parser)") do |value|
-        @options[:rbs] = value || true
-      end
+      add_signature_output_options(options)
       options.on("--dot=FILE", "write Graphviz DOT") { |value| @options[:dot] = value }
       options.on("--mermaid=FILE", "write a Mermaid flowchart") { |value| @options[:mermaid] = value }
       options.on("--html=FILE", "write a self-contained HTML report") { |value| @options[:html] = value }
@@ -193,6 +192,16 @@ module Ibex
       end
       options.on("-e", "--executable [RUBY]", "add a shebang") do |value|
         @options[:executable] = value || "/usr/bin/env ruby"
+      end
+    end
+
+    # @rbs (OptionParser options) -> void
+    def add_signature_output_options(options)
+      options.on("--rbs[=FILE]", "write an RBS signature (defaults beside parser)") do |value|
+        @options[:rbs] = value || true
+      end
+      options.on("--action-source[=FILE]", "write static-check-only action Ruby (defaults beside parser)") do |value|
+        @options[:action_source] = value || true
       end
     end
 
@@ -243,6 +252,10 @@ module Ibex
 
     # @rbs () -> void
     def validate_generation_options
+      if @options[:action_source]
+        raise Ibex::Error, "(cli):1:1: --action-source requires --emit=ruby" unless @options[:emit] == "ruby"
+        raise Ibex::Error, "(cli):1:1: --action-source and --check-only cannot be combined" if @options[:check_only]
+      end
       return unless @options[:verify_output]
 
       raise Ibex::Error, "(cli):1:1: --check requires --emit=ruby" unless @options[:emit] == "ruby"
@@ -279,19 +292,25 @@ module Ibex
       expanded_left == expanded_right
     end
 
-    # @rbs (String path) -> String
-    def canonical_target_path(path)
-      return File.realpath(path) if File.exist?(path)
-
+    # @rbs (String path, ?Hash[String, bool] seen) -> String
+    def canonical_target_path(path, seen = {})
       suffix = [] #: Array[String]
-      cursor = path
-      until File.exist?(cursor)
+      cursor = File.expand_path(path)
+      until File.exist?(cursor) || File.symlink?(cursor)
         parent = File.dirname(cursor)
         return path if parent == cursor
 
         suffix.unshift(File.basename(cursor))
         cursor = parent
       end
+      if File.symlink?(cursor)
+        raise Errno::ELOOP, cursor if seen[cursor]
+
+        seen[cursor] = true
+        target = File.expand_path(File.readlink(cursor), File.dirname(cursor))
+        return File.join(canonical_target_path(target, seen), *suffix)
+      end
+
       File.join(File.realpath(cursor), *suffix)
     end
 
@@ -302,6 +321,7 @@ module Ibex
         output = @options[:output] || default_output_path(input_path, ".rb")
         paths[:parser] = output
         paths[:rbs] = rbs_output_path(output) if @options[:rbs]
+        paths[:action_source] = action_source_output_path(output) if @options[:action_source]
       end
       unless @options[:verify_output]
         paths.merge!(dot: @options[:dot], mermaid: @options[:mermaid], html: @options[:html],
@@ -442,8 +462,10 @@ module Ibex
                    executable: @options[:executable], error_messages: configured_error_messages(automaton)
       ).generate
       output_path = @options[:output] || default_output_path(input_path, ".rb")
-      return verify_generated_outputs(automaton, output_path, source) if @options[:verify_output]
+      action_source = action_source_source(automaton) if @options[:action_source]
+      return verify_generated_outputs(automaton, output_path, source, action_source) if @options[:verify_output]
 
+      write_action_source(output_path, action_source) if action_source
       File.write(output_path, source)
       File.chmod(0o755, output_path) if @options[:executable]
       report_status("wrote #{output_path}")
@@ -451,10 +473,11 @@ module Ibex
       0
     end
 
-    # @rbs (IR::Automaton automaton, String output_path, String source) -> Integer
-    def verify_generated_outputs(automaton, output_path, source)
+    # @rbs (IR::Automaton automaton, String output_path, String source, String? action_source) -> Integer
+    def verify_generated_outputs(automaton, output_path, source, action_source)
       verify_file(output_path, source, "parser")
       verify_file(rbs_output_path(output_path), rbs_source(automaton), "RBS signature") if @options[:rbs]
+      verify_file(action_source_output_path(output_path), action_source, "action source") if action_source
       report_status("verified #{output_path}")
       0
     end
@@ -489,6 +512,27 @@ module Ibex
       Codegen::RBS.new(
         automaton, superclass: @options[:superclass], omit_action_call: @options[:omit_actions]
       ).generate
+    end
+
+    # @rbs (String output_path, String source) -> void
+    def write_action_source(output_path, source)
+      path = action_source_output_path(output_path)
+      File.write(path, source)
+      report_status("wrote #{path}")
+    end
+
+    # @rbs (String output_path) -> String
+    def action_source_output_path(output_path)
+      configured_path = @options[:action_source]
+      path = configured_path == true ? default_output_path(output_path, ".actions.rb") : configured_path
+      raise Ibex::Error, "(cli):1:1: action source output path is required" unless path.is_a?(String) && !path.empty?
+
+      path
+    end
+
+    # @rbs (IR::Automaton automaton) -> String
+    def action_source_source(automaton)
+      Codegen::ActionSource.new(automaton, omit_action_call: @options[:omit_actions]).generate
     end
 
     # @rbs (IR::Automaton automaton, String input_path) -> Integer

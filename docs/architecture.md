@@ -10,7 +10,7 @@ Ruby DSL ───────────────────────�
                                                     |
                                       SLR/LALR/LR1 Builder -> Automaton IR
                                                                     |
-                              Ruby/RBS generators / report / DOT / Mermaid / HTML / counterexamples
+                       Ruby/RBS/action-shadow generators / report / DOT / Mermaid / HTML / counterexamples
 ```
 
 Frontend changes stop at the Normalizer. Algorithm strategies consume Grammar IR and produce identical Automaton IR shapes.
@@ -52,7 +52,8 @@ precedence, metadata, documentation, locations, and definition include chains fl
 Inline definitions are lowered temporarily, then a bounded deterministic post-pass substitutes marked alternatives through
 ordinary, parameterized, and EBNF productions before diagnostics and LR construction. It removes every marked symbol and
 production, remaps the dense symbol/production ids, and retains eliminated semantic reductions as a versioned post-order
-action plan. The plan addresses flattened physical values followed by earlier logical results, reconstructs surrounding stack
+action plan. The plan addresses flattened physical values followed by earlier logical results, records a nullable semantic
+`result_type` on every newly emitted step, reconstructs surrounding stack
 prefixes and semantic spans, and remains executable after IR serialization. Cycle validation covers paths through ordinary
 rules and templates; the default 10,000-production cartesian budget is configurable. See
 [ADR 0045](decisions/0045-bounded-inline-rule-expansion.md).
@@ -67,11 +68,15 @@ failure through the same diagnostic schema, while actual resolution I/O failures
 analysis only through `ibex diagnose`; see [ADR 0041](decisions/0041-bounded-frontend-diagnostics.md).
 
 The RBS generator emits the generated class namespace, superclass, parser-table constants, `.parser_tables` contract, and
-private reduction-method signatures. Declared symbol types refine the RHS tuple and LHS result independently, with `untyped`
-used at undeclared boundaries. Reduction methods also receive a location tuple, surrounding location stack, and optional
+private reduction and composed-fragment signatures. Declared symbol types refine the RHS tuple and LHS result independently,
+with `untyped` used at undeclared boundaries; composed inputs resolve either a physical symbol type or an earlier plan step's
+`result_type`. Reduction methods also receive a location tuple, surrounding location stack, and optional
 `Runtime::LocationSpan`; the runtime maintains that stack in parallel with semantic values for every driver and recovery path.
-Default source mapping compiles opaque action methods with `class_eval` when the generated class loads; the signatures do not
-make those bodies visible to Steep. The
+Default source mapping compiles opaque action methods with `class_eval` when the generated class loads. The opt-in action-shadow
+generator makes those exact method bodies visible to Steep without runtime loading: runtime and shadow output share one method
+source builder, while the shadow omits parser infrastructure and every user-code section. Ibex only generates this source;
+executing Steep remains an application/CI boundary. See [ADR
+0046](decisions/0046-static-action-shadow-source.md). The
 gem also ships a one-to-one rbs-inline-generated signature tree under `sig/` for every Ruby source in `lib/`, including the
 self-hosted parser. CI regenerates into an empty temporary directory, compares the complete trees, validates the RBS environment,
 and runs Steep against the entire library. Token/location records, grammar AST nodes, parser classifier and bootstrap state, the
@@ -116,7 +121,7 @@ New normalized grammars use version 2. It keeps every version-1 semantic field a
 | grammar | `source_provenance {file, root, byte_span {start,end}}` and optional `migration` loss record |
 | symbol | `doc` |
 | production | `doc` and `expansion {parameter, inline, include_chain}` |
-| action | `composition {strategy, fragments, plan {version, physical, steps}}` |
+| action | `composition {strategy, fragments, plan {version, physical, steps}}`; new steps include nullable `result_type` |
 
 The source-only text frontend supplies the source filename and leaves unknown metadata null. A resolved grammar also supplies its
 canonical source root and each production's include chain while preserving its original-file origin. Lossless rule comments
@@ -124,6 +129,8 @@ populate symbol and user-production documentation, including through fragment re
 undocumented. Parameterized specializations populate `expansion.parameter` with the template name and canonical structural
 arguments while retaining the definition's include chain. Version-1 upgrades mark every unrecoverable metadata family in
 `migration.unavailable` instead of guessing.
+For compatibility with version-2 documents produced before ADR 0046, the input schema also accepts an absent composition-step
+`result_type`; generators treat it as `untyped`.
 `Serialize.load` and `Validator.validate` accept both versions; a loaded version-1 object dumps with the original version-1
 shape. `IR::Migration.to_version` upgrades version 1 to 2 and is idempotent at version 2. The CLI exposes this as
 `ibex migrate-ir INPUT --to=2 [-o FILE]`; file output uses an atomic same-directory rename and refuses to alias the input.

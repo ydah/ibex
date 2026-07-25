@@ -253,6 +253,7 @@ ibex --algorithm=lr1 grammar.y
 ibex --counterexamples --counterexample-max-tokens=64 --counterexample-max-configurations=100000 grammar.y
 ibex explain --state=7 --token=ELSE --format=json grammar.y
 ibex --rbs -o parser.rb grammar.y
+ibex --rbs --action-source -o parser.rb grammar.y
 ibex --warnings=all,error -C grammar.y
 ibex errors --update grammar.y
 ibex --messages=grammar.messages grammar.y
@@ -275,8 +276,13 @@ view. `--mode=extended` enables extended syntax for grammars without a `pragma e
 is versioned by `schema/explain-v1.schema.json`; diagnostics remain on stderr. The two counterexample budget options are also
 accepted by this subcommand.
 
-`--rbs` writes a signature beside the generated parser; `--rbs=FILE` selects another path. Application methods supplied as
-opaque `---- inner` code can be declared by reopening the generated class in an application RBS file.
+`--rbs` writes a signature beside the generated parser; `--rbs=FILE` selects another path. `--action-source[=FILE]` additionally
+writes a static-check-only Ruby shadow containing the real private semantic-action methods. Its default path replaces the parser
+extension with `.actions.rb` (`parser.rb` becomes `parser.actions.rb`). The shadow deliberately contains no runtime require,
+parser tables, generated driver, superclass, or `header`/`inner`/`footer` code and must never be loaded or executed. Ibex does
+not invoke Steep: add the generated RBS and shadow to an application Steep target and run `steep check` explicitly in application
+CI. `--check --rbs --action-source` verifies all three requested generated files without rewriting them. Application methods
+supplied as opaque `---- inner` code can be declared by reopening the generated class in an application RBS file.
 
 `--warnings=all` prints unused terminals and precedence declarations, unreachable terminals and nonterminals, duplicate
 productions, undeclared terminals, and empty-language diagnostics. Add `error` (`--warnings=all,error`, or simply
@@ -286,7 +292,9 @@ Action exceptions and `inner` methods point back to their `.y` lines by default.
 round trips, so resumed generation has the same backtraces as direct generation.
 
 `Ibex::Runtime::JSONLTracer.attach(parser, io:)` streams committed shifts, reductions, and recoveries without replacing existing
-hooks. `require "ibex/rake_task"` provides timestamp-aware parser generation for Rakefiles. Versioned JSON Schemas are shipped in
+hooks. `require "ibex/rake_task"` provides timestamp-aware parser generation for Rakefiles. Set
+`task.action_source = true` for the default shadow path or assign an explicit String path; the shadow becomes a timestamp-aware
+file prerequisite of the parser target. Versioned JSON Schemas are shipped in
 `schema/`, and `examples/` contains calculator, JSON, INI, and tiny-language parsers backed only by the standard library.
 New pipeline output is Grammar/Automaton IR version 2; version-1 documents remain valid and byte-stable. Upgrade either document
 kind with `ibex migrate-ir INPUT --to=2` or write atomically with `-o FILE`. The version-2 contract reserves nullable source,
@@ -323,7 +331,7 @@ self-authored representative grammar records versioned `ibex_benchmark` artifact
 
 ```sh
 benchmark/pipeline.rb --iterations 1 --runtime-iterations 10 --seed 12345 --output tmp/benchmark-current.json
-bundle exec ruby benchmark/verify.rb benchmark/results/v1/2026-07-25-c55ff20e58e6-ruby-4.0.0-arm64-darwin24.json
+bundle exec ruby benchmark/verify.rb benchmark/results/v1/2026-07-25-706e9e3cd90f-ruby-4.0.0-arm64-darwin24.json
 benchmark/examples.rb --generation-iterations 5 --runtime-iterations 100
 ```
 
@@ -350,8 +358,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 8,594 typed calls and 1,125 untyped calls out of 9,719 (88.4% typed).
-The generated signature tree contains 1,202 explicit `untyped` occurrences across 35 files.
+The current whole-library `steep stats` result is 8,771 typed calls and 1,140 untyped calls out of 9,911 (88.5% typed).
+The generated signature tree contains 1,210 explicit `untyped` occurrences across 38 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

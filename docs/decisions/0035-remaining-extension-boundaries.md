@@ -30,7 +30,9 @@ The following work requires a separately reviewed phase and ADR:
   lookahead locations and structured errors remain its compatible first layer.
 - Static checking inside opaque semantic-action bodies restarts with an opt-in extracted-source contract that preserves grammar
   backtraces and lets Steep associate each body with the generated reduction signature. The current generated RBS deliberately
-  types the method boundary without claiming to check the body.
+  types the method boundary without claiming to check the body. [ADR
+  0046](0046-static-action-shadow-source.md) satisfies and supersedes this boundary with a non-executable action shadow, shared
+  runtime method-source builder, composed-fragment contracts, and an explicit Steep execution boundary.
 - CPCT+-class repair and batch frontend diagnostics restart with a repair-cost policy, ambiguity/deduplication rules, bounded
   search budgets, and fixtures proving recovery continues at useful synchronization points. [ADR
   0041](0041-bounded-frontend-diagnostics.md) satisfies and supersedes the batch frontend diagnostic boundary with conservative

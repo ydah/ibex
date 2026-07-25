@@ -20,7 +20,7 @@ module Ibex
 
     type action_fragment = { kind: :rule | :inline, source: source_provenance? }
 
-    type action_composition_step = { kind: :rule | :inline, rule: String?, code: String?, loc: location, named_refs: Array[named_ref], context_length: Integer, inputs: Array[Integer], stack_inputs: Array[Integer], lookahead: Integer?, result_var: bool }
+    type action_composition_step = { kind: :rule | :inline, rule: String?, code: String?, loc: location, named_refs: Array[named_ref], context_length: Integer, inputs: Array[Integer], stack_inputs: Array[Integer], lookahead: Integer?, result_var: bool, result_type: String? }
 
     type action_composition_plan = { version: Integer, physical: Integer, steps: Array[action_composition_step] }
 

@@ -15,6 +15,10 @@ dependency-free boundary.
 and can optionally expose a named aggregate task. Generation calls the public CLI coordinator in-process and forwards an explicit
 array of options.
 
+ADR 0046 adds optional `action_source`: `nil` keeps the original one-output graph, `true` derives `.actions.rb` beside the parser,
+and a non-empty String selects an explicit shadow path. When enabled, the shadow is its own file task and a parser prerequisite;
+one CLI invocation writes the shadow before the parser so normal Rake timestamp checks do not run generation twice.
+
 The task integration is opt-in. The main library and generated parsers do not require Rake, and the gem does not add a runtime
 dependency. Applications using this adapter must include Rake in their own development or build dependencies.
 

@@ -267,7 +267,8 @@ module Ibex
         inputs: inputs,
         stack_inputs: [],
         lookahead: lookahead,
-        result_var: @options.fetch(:result_var)
+        result_var: @options.fetch(:result_var),
+        result_type: @symbols.fetch(production.lhs).semantic_type
       }
     end
 
@@ -293,22 +294,7 @@ module Ibex
       fragments = steps.map do |step|
         { kind: step.fetch(:kind), source: inline_source_provenance(step.fetch(:loc)) }
       end
-      plan_steps = steps.each_with_index.map do |step, _index|
-        {
-          kind: step.fetch(:kind),
-          rule: step[:rule],
-          code: step[:code],
-          loc: step.fetch(:loc),
-          named_refs: step.fetch(:named_refs),
-          context_length: step.fetch(:context_length),
-          inputs: step.fetch(:inputs).map { |reference| resolve_inline_reference(reference, physical_length) },
-          stack_inputs: step.fetch(:stack_inputs).map do |reference|
-            resolve_inline_reference(reference, physical_length)
-          end,
-          lookahead: step.fetch(:lookahead) < physical_length ? step.fetch(:lookahead) : nil,
-          result_var: step.fetch(:result_var)
-        }
-      end
+      plan_steps = steps.map { |step| composition_plan_step(step, physical_length) }
       composition = {
         strategy: "sequence",
         fragments: fragments,
@@ -319,6 +305,25 @@ module Ibex
         location: action&.location || production.origin.fetch(:loc),
         composition: composition
       )
+    end
+
+    # @rbs (Hash[Symbol, untyped] step, Integer physical_length) -> Hash[Symbol, untyped]
+    def composition_plan_step(step, physical_length)
+      {
+        kind: step.fetch(:kind),
+        rule: step[:rule],
+        code: step[:code],
+        loc: step.fetch(:loc),
+        named_refs: step.fetch(:named_refs),
+        context_length: step.fetch(:context_length),
+        inputs: step.fetch(:inputs).map { |reference| resolve_inline_reference(reference, physical_length) },
+        stack_inputs: step.fetch(:stack_inputs).map do |reference|
+          resolve_inline_reference(reference, physical_length)
+        end,
+        lookahead: step.fetch(:lookahead) < physical_length ? step.fetch(:lookahead) : nil,
+        result_var: step.fetch(:result_var),
+        result_type: step[:result_type]
+      }
     end
 
     # @rbs (Array[Symbol | Integer] reference, Integer physical_length) -> Integer

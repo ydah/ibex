@@ -103,8 +103,11 @@ module Ibex
 
     # @rbs (String input_path, String extension) -> String
     def default_output_path(input_path, extension)
-      replaced = input_path.sub(/\.[^.]+\z/, extension)
-      replaced == input_path ? "#{input_path}#{extension}" : replaced
+      directory = File.dirname(input_path)
+      basename = File.basename(input_path)
+      replaced = basename.sub(/\.[^.]+\z/, extension)
+      replaced = "#{basename}#{extension}" if replaced == basename
+      directory == "." ? replaced : File.join(directory, replaced)
     end
 
     # @rbs (String message) -> void

@@ -444,6 +444,12 @@
         },
         "result_var": {
           "type": "boolean"
+        },
+        "result_type": {
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "additionalProperties": false

@@ -4,13 +4,13 @@ module Ibex
   module Codegen
     # Generates an RBS declaration for the public surface of a generated parser.
     class RBS
-      @automaton: IR::Automaton
-
-      @grammar: IR::Grammar
+      @omit_action_call: bool
 
       @superclass: String
 
-      @omit_action_call: bool
+      @grammar: IR::Grammar
+
+      @automaton: IR::Automaton
 
       # @rbs (IR::Automaton automaton, ?superclass: String?, ?omit_action_call: bool?) -> void
       def initialize: (IR::Automaton automaton, ?superclass: String?, ?omit_action_call: bool?) -> void
@@ -25,6 +25,15 @@ module Ibex
 
       # @rbs (Array[String] lines) -> void
       def append_actions: (Array[String] lines) -> void
+
+      # @rbs (Array[String] lines, IR::Production production) -> void
+      def append_action_signature: (Array[String] lines, IR::Production production) -> void
+
+      # @rbs (Array[String] lines, IR::Production production) -> void
+      def append_composed_fragment_signatures: (Array[String] lines, IR::Production production) -> void
+
+      # @rbs (IR::Production production, Hash[Symbol, untyped] plan, Integer slot, Integer step_index) -> String
+      def composition_slot_type: (IR::Production production, Hash[Symbol, untyped] plan, Integer slot, Integer step_index) -> String
 
       # @rbs (IR::Production production) -> bool
       def action_method?: (IR::Production production) -> bool

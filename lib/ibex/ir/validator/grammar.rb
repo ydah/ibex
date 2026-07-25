@@ -397,7 +397,8 @@ module Ibex
         def validate_action_composition_step(value, path, physical, step_index)
           step = record(
             value, path,
-            %w[kind rule code loc named_refs context_length inputs stack_inputs lookahead result_var]
+            %w[kind rule code loc named_refs context_length inputs stack_inputs lookahead result_var],
+            %w[result_type]
           )
           kind = enum(step["kind"], "#{path}.kind", %w[rule inline])
           rule = nullable_string(step["rule"], "#{path}.rule")
@@ -413,6 +414,7 @@ module Ibex
           validate_named_refs(step["named_refs"], "#{path}.named_refs", limit: [inputs.length, context].max)
           validate_action_lookahead(step["lookahead"], "#{path}.lookahead", physical)
           boolean(step["result_var"], "#{path}.result_var")
+          nullable_string(step["result_type"], "#{path}.result_type")
         end
 
         # @rbs (Array[untyped] inputs, String path, Integer limit) -> void

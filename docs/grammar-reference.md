@@ -108,7 +108,8 @@ filesystem read failures remain CLI invocation errors on stderr and do not produ
   its identity. Runtime errors, `expected_tokens`, and text, graph, and HTML reports prefer that label.
 - Extended mode accepts `type SYMBOL "RBS type"` to describe the symbol's semantic value. Display labels and type spellings
   must be non-empty quoted values on the declaration line. Type spellings are copied as opaque RBS and should be checked with
-  normal RBS validation.
+  normal RBS validation. A type declared for an eliminated `%inline` rule is retained on its composition-plan result; a display
+  label for an eliminated inline rule is rejected because no runtime or diagnostic symbol remains to consume it.
 
 ## Productions and actions
 
