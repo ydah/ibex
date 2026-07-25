@@ -1,0 +1,7 @@
+# Generated from lib/ibex/lsp.rb with RBS::Inline
+
+module Ibex
+  # Language Server Protocol support for grammar workspaces.
+  module LSP
+  end
+end

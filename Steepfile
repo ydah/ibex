@@ -8,4 +8,5 @@ target :library do
   library "json"
   library "optparse"
   library "tempfile"
+  library "uri"
 end

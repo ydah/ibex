@@ -1,0 +1,24 @@
+# Generated from lib/ibex/lsp/document_handlers.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # Applies full-text LSP document notifications to the overlay-backed store.
+    module DocumentHandlers
+      include RequestSupport
+
+      private
+
+      # @rbs (untyped raw_params) -> nil
+      def did_open: (untyped raw_params) -> nil
+
+      # @rbs (untyped raw_params) -> nil
+      def did_change: (untyped raw_params) -> nil
+
+      # @rbs (untyped raw_params) -> nil
+      def did_save: (untyped raw_params) -> nil
+
+      # @rbs (untyped raw_params) -> nil
+      def did_close: (untyped raw_params) -> nil
+    end
+  end
+end

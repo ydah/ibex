@@ -37,9 +37,9 @@ The following work requires a separately reviewed phase and ADR:
   search budgets, and fixtures proving recovery continues at useful synchronization points. [ADR
   0041](0041-bounded-frontend-diagnostics.md) satisfies and supersedes the batch frontend diagnostic boundary with conservative
   source-region recovery; CPCT+-class runtime repair remains deferred.
-- `fmt` and LSP restart after a lossless concrete syntax tree preserves comments and whitespace. [ADR
-  0040](0040-lossless-frontend-source-document.md) satisfies that prerequisite. Watch mode restarts with a portable
-  event/polling policy and atomic regeneration contract.
+- [ADR 0047](0047-semantics-preserving-grammar-formatting.md) and [ADR
+  0048](0048-overlay-workspaces-and-lsp.md) complete `fmt` and the stdio LSP over the lossless source contract from ADR 0040.
+  Watch mode still restarts with a portable event/polling policy and atomic regeneration contract.
 - Production/state coverage and an interactive debugger restart with a stable event schema that extends, rather than exposes,
   private parser stacks. The push API and JSON Lines tracer are their current foundation. [ADR
   0037](0037-versioned-conflict-explanations.md) supersedes the boundary against a separate `explain` command with a thin,

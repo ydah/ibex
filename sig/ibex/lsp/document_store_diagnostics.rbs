@@ -1,0 +1,20 @@
+# Generated from lib/ibex/lsp/document_store_diagnostics.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # Owns per-document and per-root diagnostic aggregation for DocumentStore.
+    module DocumentStoreDiagnostics
+      private
+
+      # @rbs (String root, Array[String] files, Hash[String, WorkspaceAnalyzer::analyzed_document] analyzed,
+      #   Array[WorkspaceAnalyzer::lsp_diagnostic] errors) -> void
+      def replace_root_diagnostics: (String root, Array[String] files, Hash[String, WorkspaceAnalyzer::analyzed_document] analyzed, Array[WorkspaceAnalyzer::lsp_diagnostic] errors) -> void
+
+      # @rbs (String path) -> Array[WorkspaceAnalyzer::lsp_diagnostic]
+      def aggregated_diagnostics: (String path) -> Array[WorkspaceAnalyzer::lsp_diagnostic]
+
+      # @rbs () -> Array[WorkspaceAnalyzer::lsp_diagnostic]
+      def empty_diagnostics: () -> Array[WorkspaceAnalyzer::lsp_diagnostic]
+    end
+  end
+end

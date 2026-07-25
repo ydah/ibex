@@ -1,0 +1,87 @@
+# Generated from lib/ibex/lsp/symbol_index_builder.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # Builds source occurrences and hover metadata from lossless frontend documents.
+    class SymbolIndexBuilder
+      include SymbolIndexSourceQueries
+
+      include SymbolIndexPrecedenceReferences
+
+      # @rbs (DocumentStore store, Array[String] files) -> void
+      def initialize: (DocumentStore store, Array[String] files) -> void
+
+      # @rbs () -> [Array[SymbolOccurrence], Hash[String, Frontend::SourceDocument]]
+      def build: () -> [ Array[SymbolOccurrence], Hash[String, Frontend::SourceDocument] ]
+
+      private
+
+      # @rbs () -> void
+      def collect_documents: () -> void
+
+      # @rbs (String path, Frontend::SourceDocument document) -> void
+      def collect_definitions: (String path, Frontend::SourceDocument document) -> void
+
+      # @rbs (String path, Frontend::SourceDocument document, Frontend::AST::declaration declaration,
+      #   Frontend::Location? following) -> void
+      def collect_declaration: (String path, Frontend::SourceDocument document, Frontend::AST::declaration declaration, Frontend::Location? following) -> void
+
+      # @rbs (Frontend::AST::Precedence declaration) -> void
+      def collect_precedence: (Frontend::AST::Precedence declaration) -> void
+
+      # @rbs (String path, Array[Frontend::Token] tokens, Frontend::AST::Include declaration) -> void
+      def collect_include: (String path, Array[Frontend::Token] tokens, Frontend::AST::Include declaration) -> void
+
+      # @rbs (String path, Frontend::SourceDocument document, Frontend::AST::Rule rule) -> void
+      def collect_rule_definition: (String path, Frontend::SourceDocument document, Frontend::AST::Rule rule) -> void
+
+      # @rbs (String path, Frontend::SourceDocument document, Frontend::AST::Rule rule,
+      #   Frontend::Token lhs_token) -> void
+      def collect_parameters: (String path, Frontend::SourceDocument document, Frontend::AST::Rule rule, Frontend::Token lhs_token) -> void
+
+      # @rbs (String path, Frontend::SourceDocument document) -> void
+      def collect_references: (String path, Frontend::SourceDocument document) -> void
+
+      # @rbs (String path, Frontend::SourceDocument document, Frontend::AST::declaration declaration,
+      #   Frontend::Location? following) -> void
+      def collect_declaration_references: (String path, Frontend::SourceDocument document, Frontend::AST::declaration declaration, Frontend::Location? following) -> void
+
+      # @rbs (String path, Frontend::SourceDocument document, Frontend::AST::Rule rule,
+      #   Frontend::Location? following_rule) -> void
+      def collect_rule_references: (String path, Frontend::SourceDocument document, Frontend::AST::Rule rule, Frontend::Location? following_rule) -> void
+
+      # @rbs (String path, Frontend::SourceDocument document, Frontend::AST::item item,
+      #   Frontend::AST::Rule rule, Integer rule_id) -> void
+      def collect_item: (String path, Frontend::SourceDocument document, Frontend::AST::item item, Frontend::AST::Rule rule, Integer rule_id) -> void
+
+      # @rbs (String path, Frontend::SourceDocument document,
+      #   Frontend::AST::SymbolReference | Frontend::AST::ParameterizedReference item,
+      #   Frontend::AST::Rule rule, Integer rule_id) -> void
+      def collect_named_item: (String path, Frontend::SourceDocument document, Frontend::AST::SymbolReference | Frontend::AST::ParameterizedReference item, Frontend::AST::Rule rule, Integer rule_id) -> void
+
+      # @rbs (String path, Frontend::Token token, String name) -> void
+      def add_global_reference: (String path, Frontend::Token token, String name) -> void
+
+      # @rbs (Symbol kind, String name) -> Hash[Symbol, untyped]
+      def symbol_data: (Symbol kind, String name) -> Hash[Symbol, untyped]
+
+      # @rbs (String path, Array[Frontend::Token] tokens, Array[String] names, Symbol kind, Symbol role) -> void
+      def add_named_tokens: (String path, Array[Frontend::Token] tokens, Array[String] names, Symbol kind, Symbol role) -> void
+
+      # @rbs (**untyped attributes) -> void
+      def add_occurrence: (**untyped attributes) -> void
+
+      # @rbs (String name) -> Array[untyped]
+      def global_key: (String name) -> Array[untyped]
+
+      # @rbs (String path, Integer rule_id, String name) -> Array[untyped]
+      def parameter_key: (String path, Integer rule_id, String name) -> Array[untyped]
+
+      # @rbs (Array[String] parameters) -> String
+      def parameter_signature: (Array[String] parameters) -> String
+
+      # @rbs (Frontend::AST::Include declaration) -> String?
+      def canonical_include_target: (Frontend::AST::Include declaration) -> String?
+    end
+  end
+end

@@ -1,0 +1,78 @@
+# Generated from lib/ibex/lsp/symbol_index.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # Answers source navigation and guarded workspace rename operations.
+    class SymbolIndex
+      IDENTIFIER: Regexp
+
+      RESERVED: Array[String]
+
+      # @rbs (DocumentStore store, String path) -> void
+      def initialize: (DocumentStore store, String path) -> void
+
+      # @rbs (String path, Hash[String, untyped] position) -> Array[Hash[String, untyped]]
+      def definition: (String path, Hash[String, untyped] position) -> Array[Hash[String, untyped]]
+
+      # @rbs (String path, Hash[String, untyped] position, ?include_declaration: bool) ->
+      #   Array[Hash[String, untyped]]
+      def references: (String path, Hash[String, untyped] position, ?include_declaration: bool) -> Array[Hash[String, untyped]]
+
+      # @rbs (String path, Hash[String, untyped] position) -> Hash[String, untyped]?
+      def prepare_rename: (String path, Hash[String, untyped] position) -> Hash[String, untyped]?
+
+      # @rbs (String path, Hash[String, untyped] position, String new_name) -> Hash[String, untyped]
+      def rename: (String path, Hash[String, untyped] position, String new_name) -> Hash[String, untyped]
+
+      # @rbs (String path, Hash[String, untyped] position) -> Hash[String, untyped]?
+      def hover: (String path, Hash[String, untyped] position) -> Hash[String, untyped]?
+
+      private
+
+      # @rbs (String path, Hash[String, untyped] position) -> SymbolOccurrence?
+      def occurrence_at: (String path, Hash[String, untyped] position) -> SymbolOccurrence?
+
+      # @rbs (Array[untyped] key, ?role: Symbol?) -> Array[SymbolOccurrence]
+      def matching: (Array[untyped] key, ?role: Symbol?) -> Array[SymbolOccurrence]
+
+      # @rbs (SymbolOccurrence occurrence) -> Hash[String, untyped]
+      def location: (SymbolOccurrence occurrence) -> Hash[String, untyped]
+
+      # @rbs (SymbolOccurrence occurrence) -> Hash[String, untyped]
+      def include_target_location: (SymbolOccurrence occurrence) -> Hash[String, untyped]
+
+      # @rbs (SymbolOccurrence occurrence) -> Hash[String, Hash[String, Integer]]
+      def range: (SymbolOccurrence occurrence) -> Hash[String, Hash[String, Integer]]
+
+      # @rbs (String path, Hash[String, untyped] position) -> SymbolOccurrence
+      def renameable_occurrence: (String path, Hash[String, untyped] position) -> SymbolOccurrence
+
+      # @rbs (SymbolOccurrence occurrence, String new_name) -> void
+      def validate_new_name: (SymbolOccurrence occurrence, String new_name) -> void
+
+      # @rbs (SymbolOccurrence candidate, SymbolOccurrence occurrence) -> bool
+      def collision_scope?: (SymbolOccurrence candidate, SymbolOccurrence occurrence) -> bool
+
+      # @rbs (Array[SymbolOccurrence] entries) -> void
+      def validate_nonoverlapping: (Array[SymbolOccurrence] entries) -> void
+
+      # @rbs (Array[SymbolOccurrence] entries) -> void
+      def validate_unshared: (Array[SymbolOccurrence] entries) -> void
+
+      # @rbs () -> void
+      def ensure_fresh!: () -> void
+
+      # @rbs (Array[SymbolOccurrence] entries, String new_name) -> Hash[String, String]
+      def changed_sources: (Array[SymbolOccurrence] entries, String new_name) -> Hash[String, String]
+
+      # @rbs (SymbolOccurrence occurrence) -> String?
+      def hover_value: (SymbolOccurrence occurrence) -> String?
+
+      # @rbs (SymbolOccurrence occurrence) -> String
+      def rule_hover: (SymbolOccurrence occurrence) -> String
+
+      # @rbs (SymbolOccurrence occurrence) -> String
+      def terminal_hover: (SymbolOccurrence occurrence) -> String
+    end
+  end
+end

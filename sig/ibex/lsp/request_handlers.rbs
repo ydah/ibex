@@ -1,0 +1,26 @@
+# Generated from lib/ibex/lsp/request_handlers.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # Dispatches the finite LSP surface to focused lifecycle, document, and navigation handlers.
+    module RequestHandlers
+      include InitializationHandlers
+
+      include DocumentHandlers
+
+      include NavigationHandlers
+
+      include RequestSupport
+
+      HANDLERS: Hash[String, Symbol]
+
+      private
+
+      # @rbs (String method, untyped params) -> untyped
+      def dispatch: (String method, untyped params) -> untyped
+
+      # @rbs (untyped params) -> nil
+      def cancel_request: (untyped params) -> nil
+    end
+  end
+end

@@ -1,0 +1,94 @@
+# Generated from lib/ibex/lsp/document_store.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # Owns open buffers, parsed snapshots, include closures, and reverse dependencies.
+    class DocumentStore
+      include DocumentStoreValidation
+
+      include DocumentStoreDiagnostics
+
+      type snapshot = { uri: String, path: String, version: Integer?, source: String, open: bool, document: Frontend::SourceDocument? }
+
+      type publication = { uri: String, ?version: Integer, diagnostics: Array[WorkspaceAnalyzer::lsp_diagnostic] }
+
+      attr_reader loader: Frontend::SourceLoader
+
+      attr_reader workspace: Workspace
+
+      # @rbs (Workspace workspace, Frontend::SourceLoader loader) -> void
+      def initialize: (Workspace workspace, Frontend::SourceLoader loader) -> void
+
+      # @rbs (String uri, Integer version, String source) -> Array[publication]
+      def open: (String uri, Integer version, String source) -> Array[publication]
+
+      # @rbs (String uri, Integer version, String source) -> Array[publication]
+      def change: (String uri, Integer version, String source) -> Array[publication]
+
+      # @rbs (String uri, ?source: String?) -> Array[publication]
+      def save: (String uri, ?source: String?) -> Array[publication]
+
+      # Clear the open version first, then replace it with a disk snapshot if one exists.
+      # @rbs (String uri) -> Array[publication]
+      def close: (String uri) -> Array[publication]
+
+      # @rbs (String path) -> snapshot?
+      def snapshot_for: (String path) -> snapshot?
+
+      # Preserve the URI spelling used to open a document; closed files use their canonical URI.
+      # @rbs (String path) -> String
+      def uri_for: (String path) -> String
+
+      # @rbs (String path) -> Array[String]
+      def files_for: (String path) -> Array[String]
+
+      # @rbs (String path) -> Array[Frontend::Resolution]
+      def resolutions_for: (String path) -> Array[Frontend::Resolution]
+
+      # @rbs (String path) -> Array[String]
+      def roots_for: (String path) -> Array[String]
+
+      private
+
+      # @rbs (String path) -> Array[publication]
+      def refresh: (String path) -> Array[publication]
+
+      # @rbs (String path) -> Array[publication]
+      def refresh_dependents: (String path) -> Array[publication]
+
+      # @rbs (String root) -> void
+      def refresh_root: (String root) -> void
+
+      # @rbs () -> void
+      def rebuild_reverse_dependencies: () -> void
+
+      # @rbs (String path) -> Array[String]
+      def affected_roots: (String path) -> Array[String]
+
+      # @rbs (String path, WorkspaceAnalyzer::analyzed_document analyzed, ?own_diagnostics: bool) -> void
+      def update_snapshot: (String path, WorkspaceAnalyzer::analyzed_document analyzed, ?own_diagnostics: bool) -> void
+
+      # @rbs (String path, Frontend::SourceDocument? document) -> void
+      def update_root_membership: (String path, Frontend::SourceDocument? document) -> void
+
+      # @rbs (Array[String] paths) -> Array[publication]
+      def publish_paths: (Array[String] paths) -> Array[publication]
+
+      # @rbs (String uri, String path, Integer? version, String source, bool open,
+      #   Frontend::SourceDocument? document) -> snapshot
+      def snapshot: (String uri, String path, Integer? version, String source, bool open, Frontend::SourceDocument? document) -> snapshot
+
+      # @rbs (String path, String uri) -> snapshot
+      def open_snapshot: (String path, String uri) -> snapshot
+
+      # @rbs () -> Array[String]
+      def empty_paths: () -> Array[String]
+
+      # @rbs (String path) -> void
+      def remove_path: (String path) -> void
+
+      # @rbs (String path) -> void
+      def remove_root_state: (String path) -> void
+    end
+  end
+end

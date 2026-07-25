@@ -1,0 +1,69 @@
+# Generated from lib/ibex/lsp/workspace_analyzer.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # Parses workspace sources, discovers safe include closures, and renders diagnostics.
+    class WorkspaceAnalyzer
+      GLOB_CHARACTERS: Regexp
+
+      WINDOWS_ABSOLUTE: Regexp
+
+      type lsp_diagnostic = Hash[String, untyped]
+
+      type analyzed_document = { source: String, document: Frontend::SourceDocument?, diagnostics: Array[lsp_diagnostic] }
+
+      # @rbs (Workspace workspace, Frontend::SourceLoader loader) -> void
+      def initialize: (Workspace workspace, Frontend::SourceLoader loader) -> void
+
+      # @rbs (String path) -> analyzed_document
+      def analyze: (String path) -> analyzed_document
+
+      # @rbs (String root) -> [Array[String], Hash[String, analyzed_document]]
+      def closure: (String root) -> [ Array[String], Hash[String, analyzed_document] ]
+
+      # @rbs (String root) -> [Frontend::Resolution?, Array[lsp_diagnostic]]
+      def resolve: (String root) -> [ Frontend::Resolution?, Array[lsp_diagnostic] ]
+
+      private
+
+      # @rbs (String path, String source) -> analyzed_document
+      def analyze_root: (String path, String source) -> analyzed_document
+
+      # @rbs (String path, String source) -> analyzed_document
+      def analyze_fragment: (String path, String source) -> analyzed_document
+
+      # @rbs (String source, String path) -> bool
+      def fragment_source?: (String source, String path) -> bool
+
+      # @rbs (Frontend::SourceDocument? document) -> Array[String]
+      def dependencies: (Frontend::SourceDocument? document) -> Array[String]
+
+      # @rbs (Frontend::AST::Include include_node) -> String
+      def canonical_include: (Frontend::AST::Include include_node) -> String
+
+      # @rbs (Frontend::AST::Include include_node) -> bot
+      def invalid_include: (Frontend::AST::Include include_node) -> bot
+
+      # @rbs (String message, String source, String fallback_path) -> lsp_diagnostic
+      def diagnostic: (String message, String source, String fallback_path) -> lsp_diagnostic
+
+      # @rbs (Frontend::Diagnostic diagnostic, String source) -> lsp_diagnostic
+      def frontend_diagnostic: (Frontend::Diagnostic diagnostic, String source) -> lsp_diagnostic
+
+      # @rbs (String message, String fallback_path) -> [String, Integer, Integer, String]
+      def diagnostic_parts: (String message, String fallback_path) -> [ String, Integer, Integer, String ]
+
+      # @rbs (String source, Integer line, Integer column) -> Hash[String, Hash[String, Integer]]
+      def diagnostic_range: (String source, Integer line, Integer column) -> Hash[String, Hash[String, Integer]]
+
+      # @rbs (String path) -> String
+      def readable_source: (String path) -> String
+
+      # @rbs (String message, String fallback) -> String
+      def file_for_error: (String message, String fallback) -> String
+
+      # @rbs (String message, String fallback) -> String
+      def source_for_error: (String message, String fallback) -> String
+    end
+  end
+end

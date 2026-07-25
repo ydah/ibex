@@ -9,6 +9,7 @@ require_relative "cli/error_messages"
 require_relative "cli/explain"
 require_relative "cli/formatting"
 require_relative "cli/ir_tools"
+require_relative "cli/lsp"
 require_relative "cli/outputs"
 require_relative "cli/samples"
 
@@ -72,6 +73,19 @@ module Ibex
   # Command-line pipeline coordinator.
   # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.
   class CLI
+    SUBCOMMAND_HANDLERS = {
+      "diagnose" => :run_diagnose_command,
+      "doc" => :run_documentation_command,
+      "errors" => :run_error_messages_command,
+      "explain" => :run_explain_command,
+      "fmt" => :run_format_command,
+      "lsp" => :run_lsp_command,
+      "samples" => :run_samples_command,
+      "validate-ir" => :run_validate_ir_command,
+      "compare" => :run_compare_command,
+      "migrate-ir" => :run_migrate_ir_command
+    }.freeze #: Hash[String, Symbol]
+
     include CLICounterexampleOptions
     include CLIDiagnostics
     include CLIDocumentation
@@ -79,6 +93,7 @@ module Ibex
     include CLIExplain
     include CLIFormatting
     include CLIIRTools
+    include CLILSP
     include CLIOutputs
     include CLISamples
 
@@ -125,18 +140,8 @@ module Ibex
 
     # @rbs (Array[String] arguments) -> Integer?
     def dispatch_subcommand(arguments)
-      remaining = arguments.drop(1)
-      case arguments.first
-      when "diagnose" then run_diagnose_command(remaining)
-      when "doc" then run_documentation_command(remaining)
-      when "errors" then run_error_messages_command(remaining)
-      when "explain" then run_explain_command(remaining)
-      when "fmt" then run_format_command(remaining)
-      when "samples" then run_samples_command(remaining)
-      when "validate-ir" then run_validate_ir_command(remaining)
-      when "compare" then run_compare_command(remaining)
-      when "migrate-ir" then run_migrate_ir_command(remaining)
-      end
+      handler = SUBCOMMAND_HANDLERS[arguments.first]
+      handler && send(handler, arguments.drop(1))
     end
 
     # @rbs () -> OptionParser
@@ -155,6 +160,7 @@ module Ibex
         options.separator("    errors --update[=FILE]  update state-specific syntax error messages")
         options.separator("    explain                   explain selected parser conflicts")
         options.separator("    fmt                       format grammar source")
+        options.separator("    lsp                       run the language server over stdio")
         options.separator("    samples                   generate bounded terminal sentences")
         options.separator("    validate-ir FILE          validate a versioned IR document")
         options.separator("    compare BEFORE AFTER      compare two versioned IR documents")

@@ -1,0 +1,40 @@
+# Generated from lib/ibex/lsp/position_codec.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # Converts between frontend byte offsets and zero-based LSP UTF-16 positions.
+    class PositionCodec
+      # @rbs (String source) -> void
+      def initialize: (String source) -> void
+
+      # @rbs (Integer byte_offset) -> Hash[String, Integer]
+      def position: (Integer byte_offset) -> Hash[String, Integer]
+
+      # @rbs (Hash[String, untyped] position) -> Integer
+      def byte_offset: (Hash[String, untyped] position) -> Integer
+
+      # @rbs (Frontend::SourceSpan span) -> Hash[String, Hash[String, Integer]]
+      def range: (Frontend::SourceSpan span) -> Hash[String, Hash[String, Integer]]
+
+      private
+
+      # @rbs () -> Array[Integer]
+      def build_line_starts: () -> Array[Integer]
+
+      # @rbs (Integer line) -> Integer
+      def content_end: (Integer line) -> Integer
+
+      # @rbs (String text) -> Integer
+      def utf16_length: (String text) -> Integer
+
+      # @rbs (String text, Integer units) -> Integer
+      def byte_length_at_utf16: (String text, Integer units) -> Integer
+
+      # @rbs (Hash[String, untyped] position, String name) -> Integer
+      def integer_member: (Hash[String, untyped] position, String name) -> Integer
+
+      # @rbs (Integer byte_offset) -> void
+      def validate_byte_offset: (Integer byte_offset) -> void
+    end
+  end
+end

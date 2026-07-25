@@ -1,0 +1,40 @@
+# Generated from lib/ibex/lsp/request_support.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # Shared publication, state, and parameter validation for request handlers.
+    module RequestSupport
+      private
+
+      # @rbs (Array[DocumentStore::publication] publications) -> void
+      def publish: (Array[DocumentStore::publication] publications) -> void
+
+      # @rbs (String uri, Integer version) -> bool
+      def stale_publication?: (String uri, Integer version) -> bool
+
+      # @rbs (untyped value) -> Hash[String, untyped]
+      def params_hash: (untyped value) -> Hash[String, untyped]
+
+      # @rbs (Hash[String, untyped] value, String name) -> Hash[String, untyped]
+      def hash_member: (Hash[String, untyped] value, String name) -> Hash[String, untyped]
+
+      # @rbs (Hash[String, untyped] value, String name) -> String
+      def string_member: (Hash[String, untyped] value, String name) -> String
+
+      # @rbs (Hash[String, untyped] value, String name) -> Integer
+      def integer_member: (Hash[String, untyped] value, String name) -> Integer
+
+      # @rbs (Symbol state) -> void
+      def require_state!: (Symbol state) -> void
+
+      # @rbs () -> void
+      def require_running!: () -> void
+
+      # @rbs () -> DocumentStore
+      def store: () -> DocumentStore
+
+      # @rbs () -> Workspace
+      def workspace: () -> Workspace
+    end
+  end
+end

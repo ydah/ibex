@@ -1,0 +1,26 @@
+# Generated from lib/ibex/lsp/document_store_validation.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # Validates versions, source bounds, and prospective multi-file workspace edits.
+    module DocumentStoreValidation
+      # @rbs (Hash[String, String] replacements) -> bool
+      def valid_replacements?: (Hash[String, String] replacements) -> bool
+
+      private
+
+      # @rbs (Integer version) -> void
+      def validate_version: (Integer version) -> void
+
+      # @rbs (String source) -> void
+      def validate_source: (String source) -> void
+
+      # @rbs (String path, String source) -> void
+      def parse_candidate: (String path, String source) -> void
+
+      # Resolve disk independently from overlay aliases before removing an open buffer.
+      # @rbs (String path, String uri) -> String?
+      def disk_path_for_close: (String path, String uri) -> String?
+    end
+  end
+end

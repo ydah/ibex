@@ -1,0 +1,35 @@
+# Generated from lib/ibex/lsp/transport.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # Reads and writes bounded LSP JSON-RPC messages over Content-Length framing.
+    class Transport
+      HEADER_SEPARATOR: ::String
+
+      # @rbs (untyped input, untyped output) -> void
+      def initialize: (untyped input, untyped output) -> void
+
+      # @rbs () -> Hash[String, untyped]?
+      def read_message: () -> Hash[String, untyped]?
+
+      # @rbs (Hash[String, untyped] message) -> void
+      def write_message: (Hash[String, untyped] message) -> void
+
+      private
+
+      # @rbs () -> String?
+      def read_header: () -> String?
+
+      # @rbs (String header) -> Integer
+      def content_length: (String header) -> Integer
+
+      # @rbs (Integer length) -> String
+      def read_bytes: (Integer length) -> String
+
+      # IO#read(length) may wait for the entire length on a live pipe. readpartial
+      # lets the stdio server process the bytes that are already available.
+      # @rbs (Integer length) -> String?
+      def read_chunk: (Integer length) -> String?
+    end
+  end
+end

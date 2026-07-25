@@ -16,6 +16,8 @@ module Ibex
   # Command-line pipeline coordinator.
   # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.
   class CLI
+    SUBCOMMAND_HANDLERS: Hash[String, Symbol]
+
     include CLICounterexampleOptions
 
     include CLIDiagnostics
@@ -29,6 +31,8 @@ module Ibex
     include CLIFormatting
 
     include CLIIRTools
+
+    include CLILSP
 
     include CLIOutputs
 
