@@ -32,6 +32,16 @@ locations and copy-enriches generated Root/Fragment nodes; occupied opaque-segme
 [ADR 0040](decisions/0040-lossless-frontend-source-document.md) and [ADR
 0043](decisions/0043-lossless-rule-documentation.md).
 
+`Frontend::Formatter` classifies the document's existing semantic tokens, replaces only whitespace/newline trivia, and protects
+token, comment, action, heredoc, marker, and user-code bytes. It reparses the rendered root or fragment in the same frontend mode
+and compares ASTs with an explicit work stack after removing location fields. The CLI's stdout, batch check, and transactional
+in-place surfaces are therefore downstream consumers of `SourceDocument`, not an alternate grammar parser. Existing newline
+segment spellings and blank-line counts survive required line boundaries; new boundaries use the first newline even when it is
+inside opaque text. Batch stages and hard-link backups live beside each resolved target. Alias rejection, reverse rollback, and
+all-directory synchronization preserve full file modes and relative or absolute symlink identities. Backups are synchronized
+before installation; a failed restore preserves its backup, while post-commit cleanup problems are status-0 warnings. See [ADR
+0047](decisions/0047-semantics-preserving-grammar-formatting.md).
+
 Extended grammar paths cross an explicit `Frontend::Resolver` boundary. Roots retain class, start, options, and user code;
 fragments contain composable declarations and rules. Canonical realpaths define DFS order, diamond deduplication, cycle identity,
 and the Rake dependency closure. Canonical dirname ancestry keeps every resolved target below the root grammar directory after

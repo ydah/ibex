@@ -40,11 +40,18 @@ module Ibex
       # @rbs () -> SourceDocument
       def parse_document: () -> SourceDocument
 
+      # Parse either a root grammar or an explicit fragment and return its lossless source model.
+      # @rbs () -> SourceDocument
+      def parse_source_document: () -> SourceDocument
+
       # Parse with conservative boundary recovery and collect multiple errors.
       # @rbs (?max_diagnostics: Integer) -> ParseResult
       def parse_with_diagnostics: (?max_diagnostics: Integer) -> ParseResult
 
       private
+
+      # @rbs () -> SourceDocument
+      def source_document!: () -> SourceDocument
 
       # @rbs () -> (AST::Root | AST::Fragment)
       def parse_node: () -> (AST::Root | AST::Fragment)

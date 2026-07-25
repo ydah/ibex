@@ -1,0 +1,135 @@
+# Generated from lib/ibex/frontend/formatter.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Deterministically formats grammar trivia and rejects any semantic change.
+    # rubocop:disable Metrics/ClassLength -- token layout policy stays together so adjacency rules remain auditable.
+    class Formatter
+      DECLARATION_STARTS: Array[Symbol]
+
+      ASSOCIATIONS: Array[Symbol]
+
+      CALLABLES: Array[Symbol]
+
+      SUFFIXES: Array[String]
+
+      CLOSERS: Array[String]
+
+      ADJACENT_AFTER: Array[String]
+
+      type formatter_element = { segment: Segment, external: external_token?, role: Symbol?, gap: Array[Segment] }
+
+      # @rbs (String source, ?file: String, ?mode: Symbol) -> String
+      def self.format: (String source, ?file: String, ?mode: Symbol) -> String
+
+      # @rbs (?mode: Symbol) -> void
+      def initialize: (?mode: Symbol) -> void
+
+      # @rbs (String source, ?file: String) -> String
+      def format: (String source, ?file: String) -> String
+
+      private
+
+      # @rbs (SourceDocument document) -> String
+      def render: (SourceDocument document) -> String
+
+      # @rbs (SourceDocument document) -> Array[formatter_element]
+      def build_elements: (SourceDocument document) -> Array[formatter_element]
+
+      # @rbs (Array[Token] tokens) -> Hash[Integer, external_token]
+      def external_types: (Array[Token] tokens) -> Hash[Integer, external_token]
+
+      # @rbs (Array[formatter_element] elements) -> void
+      def annotate_roles: (Array[formatter_element] elements) -> void
+
+      # @rbs (Array[formatter_element] elements) -> void
+      def annotate_comment_indentation: (Array[formatter_element] elements) -> void
+
+      # @rbs (external_token external, Hash[Symbol, untyped] state) -> Symbol?
+      def token_role: (external_token external, Hash[Symbol, untyped] state) -> Symbol?
+
+      # @rbs (external_token external, Hash[Symbol, untyped] state) -> Symbol?
+      def document_token_role: (external_token external, Hash[Symbol, untyped] state) -> Symbol?
+
+      # @rbs (Hash[Symbol, untyped] state) -> Symbol?
+      def section_end_role: (Hash[Symbol, untyped] state) -> Symbol?
+
+      # @rbs (external_token external, Hash[Symbol, untyped] state) -> Symbol?
+      def rule_token_role: (external_token external, Hash[Symbol, untyped] state) -> Symbol?
+
+      # @rbs (external_token external, Hash[Symbol, untyped] state) -> Symbol
+      def precedence_role: (external_token external, Hash[Symbol, untyped] state) -> Symbol
+
+      # @rbs (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
+      def advance_role_state: (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
+
+      # @rbs (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
+      def advance_precedence_state: (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
+
+      # @rbs (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
+      def advance_conversion_state: (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
+
+      # @rbs (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
+      def advance_rule_state: (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
+
+      # @rbs (formatter_element? previous, formatter_element current) -> String
+      def separator: (formatter_element? previous, formatter_element current) -> String
+
+      # @rbs (formatter_element current, Array[Segment] gap) -> String
+      def leading_separator: (formatter_element current, Array[Segment] gap) -> String
+
+      # @rbs (formatter_element previous, Array[Segment] gap) -> String
+      def trailing_separator: (formatter_element previous, Array[Segment] gap) -> String
+
+      # @rbs (Segment previous, Segment current) -> bool
+      def direct_opaque_pair?: (Segment previous, Segment current) -> bool
+
+      # @rbs (Segment segment) -> bool
+      def comment?: (Segment segment) -> bool
+
+      # @rbs (formatter_element previous, formatter_element current, Array[Segment] gap) -> String
+      def comment_separator: (formatter_element previous, formatter_element current, Array[Segment] gap) -> String
+
+      # @rbs (formatter_element previous, formatter_element current) -> Symbol
+      def separator_kind: (formatter_element previous, formatter_element current) -> Symbol
+
+      # @rbs (external_token? previous_external, external_token? current_external,
+      #   Symbol? previous_role, Symbol? current_role) -> bool
+      def adjacent_tokens?: (external_token? previous_external, external_token? current_external, Symbol? previous_role, Symbol? current_role) -> bool
+
+      # @rbs (Symbol? previous_role, Symbol? current_role, formatter_element previous,
+      #   formatter_element current) -> bool
+      def line_boundary?: (Symbol? previous_role, Symbol? current_role, formatter_element previous, formatter_element current) -> bool
+
+      # @rbs (formatter_element element) -> Integer
+      def indentation: (formatter_element element) -> Integer
+
+      # @rbs (Symbol kind, Array[Segment] gap, Integer indentation) -> String
+      def render_separator: (Symbol kind, Array[Segment] gap, Integer indentation) -> String
+
+      # @rbs (Array[Segment] gap) -> bool
+      def newline_in?: (Array[Segment] gap) -> bool
+
+      # @rbs (String text) -> bool
+      def text_ends_with_newline?: (String text) -> bool
+
+      # @rbs (untyped left, untyped right) -> bool
+      def same_semantic_projection?: (untyped left, untyped right) -> bool
+
+      # @rbs (untyped left, untyped right) -> bool
+      def comparable_semantic_values?: (untyped left, untyped right) -> bool
+
+      # @rbs (Hash[untyped, untyped] left, untyped right) -> bool
+      def comparable_semantic_hashes?: (Hash[untyped, untyped] left, untyped right) -> bool
+
+      # @rbs (Array[[untyped, untyped]] pending, untyped left, untyped right) -> void
+      def append_semantic_children: (Array[[ untyped, untyped ]] pending, untyped left, untyped right) -> void
+
+      # @rbs (Struct[untyped] value) -> Array[Symbol]
+      def semantic_members: (Struct[untyped] value) -> Array[Symbol]
+
+      # @rbs (Hash[untyped, untyped] value) -> Array[untyped]
+      def semantic_keys: (Hash[untyped, untyped] value) -> Array[untyped]
+    end
+  end
+end

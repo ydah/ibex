@@ -52,16 +52,19 @@ module Ibex
       # Parse the grammar and return its lossless source model.
       # @rbs () -> SourceDocument
       def parse_document
-        source_document_error_message = @source_document_error_message
-        raise Ibex::Error, source_document_error_message if source_document_error_message
+        parsed_document = @parsed_document
+        return parsed_document if parsed_document && parsed_document.ast.is_a?(AST::Root)
 
-        source_document = @source_document
-        raise ArgumentError, "parse_document requires String source" unless source_document
+        @parsed_document = source_document!.with_ast(parse)
+      end
 
+      # Parse either a root grammar or an explicit fragment and return its lossless source model.
+      # @rbs () -> SourceDocument
+      def parse_source_document
         parsed_document = @parsed_document
         return parsed_document if parsed_document
 
-        @parsed_document = source_document.with_ast(parse)
+        @parsed_document = source_document!.with_ast(parse_node)
       end
 
       # Parse with conservative boundary recovery and collect multiple errors.
@@ -92,6 +95,17 @@ module Ibex
       end
 
       private
+
+      # @rbs () -> SourceDocument
+      def source_document!
+        source_document_error_message = @source_document_error_message
+        raise Ibex::Error, source_document_error_message if source_document_error_message
+
+        source_document = @source_document
+        raise ArgumentError, "source document parsing requires String source" unless source_document
+
+        source_document
+      end
 
       # @rbs () -> (AST::Root | AST::Fragment)
       def parse_node

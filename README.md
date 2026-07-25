@@ -159,6 +159,25 @@ accepted input bytes must be valid UTF-8. Actions, every supported heredoc form,
 while user-code markers and repeated blocks remain separate. `Token#to_h` remains unchanged; documented rules add the nullable
 AST and reserved Grammar IR v2 fields described below.
 
+Format a root grammar or an explicit fragment through the same lossless frontend:
+
+```sh
+ibex fmt grammar.y
+ibex fmt --check grammar.y grammar/expression.y
+ibex fmt --write --mode=extended grammar.y grammar/expression.y
+printf 'class P rule value:TOKEN end' | ibex fmt --stdin-filename=pipe.y -
+```
+
+The formatter changes only whitespace and newline trivia. Token spelling, comments, Ruby actions and heredocs, user-code bodies,
+and their order remain byte-for-byte intact. Existing CRLF/LF choices and blank lines are retained at required line boundaries.
+New boundaries use the first newline anywhere in the source, including opaque Ruby. The result is reparsed in the same mode and
+an iterative, stack-safe comparison rejects it unless its location-free semantic AST equals the original; formatting is
+idempotent. `--check` visits every file and exits 1 for parse failures or differences. `--write` rejects aliased targets, stages
+the whole batch in target directories, synchronizes hard-link backups before installation, and rolls every file back if a
+rename or directory synchronization fails. A failed restore preserves and reports its backup; cleanup trouble after a committed
+batch is a status-0 warning. Full modes and relative or absolute symlink targets are preserved. See [ADR
+0047](docs/decisions/0047-semantics-preserving-grammar-formatting.md).
+
 ## Grammar fragments
 
 Extended mode can compose grammars without giving included files root ownership:
@@ -245,6 +264,7 @@ The command exits successfully only for an error-free grammar. Its versioned JSO
 ```sh
 ibex diagnose --format=json grammar.y
 ibex doc --format=html -o grammar.html grammar.y
+ibex fmt --check grammar.y grammar/expression.y
 ibex --emit=grammar-ir grammar.y > grammar.json
 ibex --from=grammar-ir --emit=automaton-ir grammar.json > automaton.json
 ibex --from=automaton-ir -o parser.rb automaton.json
@@ -358,8 +378,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 8,771 typed calls and 1,140 untyped calls out of 9,911 (88.5% typed).
-The generated signature tree contains 1,210 explicit `untyped` occurrences across 38 files.
+The current whole-library `steep stats` result is 9,296 typed calls and 1,169 untyped calls out of 10,465 (88.8% typed).
+The generated signature tree contains 1,258 explicit `untyped` occurrences across 39 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime
