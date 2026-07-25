@@ -203,7 +203,7 @@ self-authored representative grammar records versioned `ibex_benchmark` artifact
 
 ```sh
 benchmark/pipeline.rb --iterations 1 --runtime-iterations 10 --seed 12345 --output tmp/benchmark-current.json
-bundle exec ruby benchmark/verify.rb benchmark/results/v1/representative-ruby-4.0.0-arm64-darwin24.json
+bundle exec ruby benchmark/verify.rb benchmark/results/v1/2026-07-25-c55ff20e58e6-ruby-4.0.0-arm64-darwin24.json
 benchmark/examples.rb --generation-iterations 5 --runtime-iterations 100
 ```
 
