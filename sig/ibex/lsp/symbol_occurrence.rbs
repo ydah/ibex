@@ -1,0 +1,25 @@
+# Generated from lib/ibex/lsp/symbol_occurrence.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # A source-backed grammar symbol definition or reference.
+    class SymbolOccurrence < Struct[String | Symbol | Array[untyped] | Frontend::SourceSpan | Hash[Symbol, untyped]]
+      attr_accessor name(): String
+
+      attr_accessor kind(): Symbol
+
+      attr_accessor role(): Symbol
+
+      attr_accessor key(): Array[untyped]
+
+      attr_accessor path(): String
+
+      attr_accessor span(): Frontend::SourceSpan
+
+      attr_accessor data(): Hash[Symbol, untyped]
+
+      def self.new: (?name: String, ?kind: Symbol, ?role: Symbol, ?key: Array[untyped], ?path: String, ?span: Frontend::SourceSpan, ?data: Hash[Symbol, untyped]) -> instance
+                  | ({ ?name: String, ?kind: Symbol, ?role: Symbol, ?key: Array[untyped], ?path: String, ?span: Frontend::SourceSpan, ?data: Hash[Symbol, untyped] }) -> instance
+    end
+  end
+end

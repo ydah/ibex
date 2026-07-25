@@ -1,0 +1,26 @@
+# Generated from lib/ibex/lsp/symbol_index_source_queries.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # Locates lossless frontend tokens used by the symbol index.
+    module SymbolIndexSourceQueries
+      private
+
+      # @rbs (Frontend::SourceDocument document, Frontend::Location start,
+      #   Frontend::Location? finish) -> Array[Frontend::Token]
+      def tokens_between: (Frontend::SourceDocument document, Frontend::Location start, Frontend::Location? finish) -> Array[Frontend::Token]
+
+      # @rbs (Frontend::SourceDocument document, Frontend::Location location, String value) -> Frontend::Token?
+      def token_at: (Frontend::SourceDocument document, Frontend::Location location, String value) -> Frontend::Token?
+
+      # @rbs (Frontend::SourceDocument document, Frontend::Token lhs_token) -> Array[Frontend::Token]
+      def parameter_tokens: (Frontend::SourceDocument document, Frontend::Token lhs_token) -> Array[Frontend::Token]
+
+      # @rbs (Frontend::AST::declaration declaration) -> Array[String]
+      def declaration_reference_names: (Frontend::AST::declaration declaration) -> Array[String]
+
+      # @rbs (Frontend::Location left, Frontend::Location right) -> bool
+      def location_before?: (Frontend::Location left, Frontend::Location right) -> bool
+    end
+  end
+end

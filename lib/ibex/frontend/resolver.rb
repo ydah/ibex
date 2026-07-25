@@ -12,6 +12,7 @@ module Ibex
 
       # @rbs @input_path: String
       # @rbs @mode: Symbol
+      # @rbs @loader: SourceLoader
       # @rbs @root_path: String
       # @rbs @root_directory: String
       # @rbs @files: Array[String]
@@ -19,12 +20,13 @@ module Ibex
       # @rbs @loaded: Hash[String, bool]
       # @rbs @include_chains: Hash[AST::Rule, Array[IR::source_provenance]]
 
-      # @rbs (String path, ?mode: Symbol) -> void
-      def initialize(path, mode: :racc)
+      # @rbs (String path, ?mode: Symbol, ?loader: SourceLoader) -> void
+      def initialize(path, mode: :racc, loader: SourceLoader.new)
         raise ArgumentError, "mode must be :racc or :extended" unless %i[racc extended].include?(mode)
 
         @input_path = path
         @mode = mode
+        @loader = loader
       end
 
       # @rbs () -> Resolution
@@ -67,8 +69,8 @@ module Ibex
 
       # @rbs () -> String
       def canonical_root
-        path = File.realpath(@input_path)
-        raise Ibex::Error, "#{@input_path}:1:1: root grammar must be a file" unless File.file?(path)
+        path = @loader.canonical_path(@input_path)
+        raise Ibex::Error, "#{@input_path}:1:1: root grammar must be a file" unless @loader.file?(path)
 
         path
       rescue SystemCallError => e
@@ -77,14 +79,14 @@ module Ibex
 
       # @rbs (String path) -> AST::Root
       def parse_root(path)
-        Parser.new(File.binread(path), file: path, mode: @mode).parse
+        Parser.new(@loader.read(path), file: path, mode: @mode).parse
       rescue SystemCallError => e
         raise ResolutionIOError, "#{path}:1:1: cannot read grammar: #{e.message}"
       end
 
       # @rbs (String path) -> AST::Fragment
       def parse_fragment(path)
-        Parser.new(File.binread(path), file: path, mode: :extended).parse_fragment
+        Parser.new(@loader.read(path), file: path, mode: :extended).parse_fragment
       rescue SystemCallError => e
         raise ResolutionIOError, "#{path}:1:1: cannot read fragment: #{e.message}"
       end
@@ -131,8 +133,8 @@ module Ibex
       def canonical_include(include_node)
         validate_include_path(include_node)
         candidate = File.expand_path(include_node.path, File.dirname(include_node.loc.file))
-        canonical = File.realpath(candidate)
-        unless File.file?(canonical)
+        canonical = @loader.canonical_path(candidate)
+        unless @loader.file?(canonical)
           fail_include(include_node, "include path is not a file: #{include_node.path.inspect}")
         end
 

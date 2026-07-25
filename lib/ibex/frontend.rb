@@ -23,6 +23,7 @@ require_relative "frontend/diagnostic_recovery"
 require_relative "frontend/parser"
 require_relative "frontend/formatter"
 require_relative "frontend/resolution"
+require_relative "frontend/source_loader"
 require_relative "frontend/resolver"
 require_relative "frontend/dsl"
 

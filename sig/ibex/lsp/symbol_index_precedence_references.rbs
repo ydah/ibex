@@ -1,0 +1,18 @@
+# Generated from lib/ibex/lsp/symbol_index_precedence_references.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # Indexes rule-scoped item and alternative precedence references.
+    module SymbolIndexPrecedenceReferences
+      private
+
+      # @rbs (String path, Frontend::SourceDocument document, Frontend::AST::Alternative alternative,
+      #   Frontend::Location? following, Frontend::AST::Rule rule, Integer rule_id) -> void
+      def collect_alternative_precedence: (String path, Frontend::SourceDocument document, Frontend::AST::Alternative alternative, Frontend::Location? following, Frontend::AST::Rule rule, Integer rule_id) -> void
+
+      # @rbs (String path, Frontend::Token token, String name, Frontend::AST::Rule rule,
+      #   Integer rule_id) -> void
+      def add_rule_reference: (String path, Frontend::Token token, String name, Frontend::AST::Rule rule, Integer rule_id) -> void
+    end
+  end
+end

@@ -1,0 +1,30 @@
+# Generated from lib/ibex/lsp/initialization_handlers.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # Handles initialize/initialized/shutdown/exit lifecycle transitions.
+    module InitializationHandlers
+      include RequestSupport
+
+      private
+
+      # @rbs (untyped raw_params) -> Hash[String, untyped]
+      def initialize_workspace: (untyped raw_params) -> Hash[String, untyped]
+
+      # @rbs (untyped params) -> nil
+      def initialized_notification: (untyped params) -> nil
+
+      # @rbs (untyped params) -> nil
+      def shutdown_request: (untyped params) -> nil
+
+      # @rbs (untyped params) -> nil
+      def exit_notification: (untyped params) -> nil
+
+      # @rbs () -> Hash[String, untyped]
+      def capabilities: () -> Hash[String, untyped]
+
+      # @rbs (Hash[String, untyped] params) -> Array[String]
+      def initialization_roots: (Hash[String, untyped] params) -> Array[String]
+    end
+  end
+end

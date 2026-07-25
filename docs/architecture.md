@@ -42,6 +42,14 @@ all-directory synchronization preserve full file modes and relative or absolute 
 before installation; a failed restore preserves its backup, while post-commit cleanup problems are status-0 warnings. See [ADR
 0047](decisions/0047-semantics-preserving-grammar-formatting.md).
 
+`Frontend::SourceLoader` is the shared disk/overlay read boundary. Resolver's default loader retains canonical filesystem
+behavior; LSP injects open buffers, including safe new files, while the resolver continues to enforce realpath containment,
+symlink escape rejection, cycle identity, and diamond deduplication. `LSP::DocumentStore` layers monotonic open versions,
+root/include closures, reverse dependencies, and disk restoration over that loader. `PositionCodec` is the only UTF-16 adapter
+over frontend byte/scalar spans. `SymbolIndex` derives navigation and guarded rename edits from parsed nodes and lossless tokens,
+never from opaque Ruby or textual scanning. Content-Length transport, lifecycle handling, and request handlers remain separate
+from workspace semantics; see [ADR 0048](decisions/0048-overlay-workspaces-and-lsp.md).
+
 Extended grammar paths cross an explicit `Frontend::Resolver` boundary. Roots retain class, start, options, and user code;
 fragments contain composable declarations and rules. Canonical realpaths define DFS order, diamond deduplication, cycle identity,
 and the Rake dependency closure. Canonical dirname ancestry keeps every resolved target below the root grammar directory after

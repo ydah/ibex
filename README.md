@@ -178,6 +178,20 @@ rename or directory synchronization fails. A failed restore preserves and report
 batch is a status-0 warning. Full modes and relative or absolute symlink targets are preserved. See [ADR
 0047](docs/decisions/0047-semantics-preserving-grammar-formatting.md).
 
+## Language server
+
+Run the dependency-free LSP 3.17 server over stdio:
+
+```sh
+ibex lsp --stdio
+```
+
+It publishes bounded diagnostics for open roots and their disk or unsaved fragment closure, and provides definition,
+references, guarded cross-file rename, and grammar-aware hover. Only local file URIs within initialized workspace roots are
+accepted. UTF-16 editor positions are converted to the frontend's byte/scalar spans without executing actions, heredocs, or
+user code. See [editor setup](docs/editor-setup.md) and [ADR
+0048](docs/decisions/0048-overlay-workspaces-and-lsp.md).
+
 ## Grammar fragments
 
 Extended mode can compose grammars without giving included files root ownership:
@@ -378,8 +392,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 9,296 typed calls and 1,169 untyped calls out of 10,465 (88.8% typed).
-The generated signature tree contains 1,258 explicit `untyped` occurrences across 39 files.
+The current whole-library `steep stats` result is 10,490 typed calls and 1,421 untyped calls out of 11,911 (88.1% typed).
+The generated signature tree contains 1,411 explicit `untyped` occurrences across 53 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

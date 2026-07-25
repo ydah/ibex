@@ -21,4 +21,21 @@ class SchemaFilesPackagingTest < Minitest::Test
     assert_includes specification.files, "sig/ibex/cli/formatting.rbs"
     assert_includes specification.files, "sig/ibex/frontend/formatter.rbs"
   end
+
+  def test_lsp_sources_and_signatures_are_packaged_in_the_gem
+    specification = Gem::Specification.load(File.expand_path("../../ibex.gemspec", __dir__))
+
+    assert_includes specification.files, "lib/ibex/cli/lsp.rb"
+    assert_includes specification.files, "lib/ibex/frontend/source_loader.rb"
+    assert_includes specification.files, "lib/ibex/lsp.rb"
+    assert_includes specification.files, "lib/ibex/lsp/document_store_diagnostics.rb"
+    assert_includes specification.files, "lib/ibex/lsp/server.rb"
+    assert_includes specification.files, "lib/ibex/lsp/symbol_index_precedence_references.rb"
+    assert_includes specification.files, "sig/ibex/cli/lsp.rbs"
+    assert_includes specification.files, "sig/ibex/frontend/source_loader.rbs"
+    assert_includes specification.files, "sig/ibex/lsp.rbs"
+    assert_includes specification.files, "sig/ibex/lsp/document_store_diagnostics.rbs"
+    assert_includes specification.files, "sig/ibex/lsp/server.rbs"
+    assert_includes specification.files, "sig/ibex/lsp/symbol_index_precedence_references.rbs"
+  end
 end

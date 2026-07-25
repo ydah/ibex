@@ -87,6 +87,14 @@ directory synchronization fails. Same-directory hard-link backups are synchroniz
 could not be restored is retained and reported; cleanup failures after every target was committed are reported as status-0
 warnings because they do not undo the committed update.
 
+`ibex lsp [--stdio]` serves the same lossless frontend over LSP 3.17 Content-Length-framed standard IO. Initialization requires a
+local `rootUri` or initial `workspaceFolders`; every document URI must remain within those canonical roots. The server uses
+full-text synchronization and UTF-16 positions. Open buffers override disk throughout fragment resolution, so changing or
+creating an included fragment re-diagnoses all known dependent roots. It supports diagnostics, definition, references,
+prepare-rename, rename, and hover. Rename accepts only defined identifiers, checks scope/collisions, includes open versions in
+the workspace edit, and reparses/re-resolves every affected closure before returning edits. Grammar actions, heredocs, and user
+code are never executed. See [editor setup](editor-setup.md).
+
 `parse_with_diagnostics(max_diagnostics: 20)` collects up to the limit independently from the lexical and syntax phases, merges
 them in source order, and returns the globally earliest records. Recovery is deliberately limited to complete declarations,
 rules, or outer alternatives at balanced delimiters, so an error inside a nested group cannot synchronize at that group's `|`.

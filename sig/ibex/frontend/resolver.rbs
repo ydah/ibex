@@ -24,12 +24,14 @@ module Ibex
 
       @root_path: String
 
+      @loader: SourceLoader
+
       @mode: Symbol
 
       @input_path: String
 
-      # @rbs (String path, ?mode: Symbol) -> void
-      def initialize: (String path, ?mode: Symbol) -> void
+      # @rbs (String path, ?mode: Symbol, ?loader: SourceLoader) -> void
+      def initialize: (String path, ?mode: Symbol, ?loader: SourceLoader) -> void
 
       # @rbs () -> Resolution
       def resolve: () -> Resolution

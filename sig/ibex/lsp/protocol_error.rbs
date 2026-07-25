@@ -1,0 +1,32 @@
+# Generated from lib/ibex/lsp/protocol_error.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # Resource bounds shared by transport and open-document validation.
+    module Limits
+      MAX_HEADER_BYTES: untyped
+
+      MAX_MESSAGE_BYTES: untyped
+
+      MAX_DOCUMENT_BYTES: untyped
+
+      MAX_OUTPUT_BYTES: untyped
+
+      MAX_ERROR_MESSAGE_CHARACTERS: ::Integer
+
+      MAX_REQUEST_ID_BYTES: ::Integer
+    end
+
+    # Bounded protocol and workspace failures with their JSON-RPC error code.
+    class ProtocolError < Ibex::Error
+      attr_reader code: Integer
+
+      attr_reader request_id: String | Integer | nil
+
+      attr_reader fatal: bool
+
+      # @rbs (String message, ?code: Integer, ?request_id: String | Integer | nil, ?fatal: bool) -> void
+      def initialize: (String message, ?code: Integer, ?request_id: String | Integer | nil, ?fatal: bool) -> void
+    end
+  end
+end

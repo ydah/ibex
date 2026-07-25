@@ -1,0 +1,14 @@
+# Generated from lib/ibex/cli/lsp.rb with RBS::Inline
+
+module Ibex
+  # CLI boundary for the stdio-only language server.
+  module CLILSP
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_lsp_command: (Array[String] arguments) -> Integer
+
+    # @rbs (Hash[Symbol, bool] settings) -> OptionParser
+    def lsp_option_parser: (Hash[Symbol, bool] settings) -> OptionParser
+  end
+end

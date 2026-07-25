@@ -1,0 +1,53 @@
+# Generated from lib/ibex/frontend/source_loader.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Resolves canonical grammar paths and reads either open-buffer overlays or disk.
+    class SourceLoader
+      @overlays: Hash[String, String]
+
+      @aliases: Hash[String, String]
+
+      # @rbs (?overlays: Hash[String, String]) -> void
+      def initialize: (?overlays: Hash[String, String]) -> void
+
+      # Canonicalize an existing file, or a missing path explicitly allowed by an open overlay.
+      # @rbs (String path, ?base: String, ?allow_missing: bool) -> String
+      def canonical_path: (String path, ?base: String, ?allow_missing: bool) -> String
+
+      # @rbs (String path) -> String
+      def read: (String path) -> String
+
+      # @rbs (String path) -> bool
+      def file?: (String path) -> bool
+
+      # @rbs (String path) -> bool
+      def overlay?: (String path) -> bool
+
+      # Install or replace an editor buffer without writing it to disk.
+      # @rbs (String path, String source) -> String
+      def set_overlay: (String path, String source) -> String
+
+      # Remove an editor buffer and return its canonical path.
+      # @rbs (String path) -> String
+      def delete_overlay: (String path) -> String
+
+      # Read disk while deliberately bypassing an open overlay.
+      # @rbs (String path) -> String
+      def disk_source: (String path) -> String
+
+      # @rbs (String path) -> bool
+      def disk_file?: (String path) -> bool
+
+      # Resolve the current disk target without consulting overlay aliases.
+      # @rbs (String path) -> String
+      def disk_path: (String path) -> String
+
+      private
+
+      # Resolve the nearest existing ancestor so symlink escapes remain visible for new files.
+      # @rbs (String expanded) -> String
+      def canonical_missing_path: (String expanded) -> String
+    end
+  end
+end

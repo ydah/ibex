@@ -1,0 +1,30 @@
+# Generated from lib/ibex/lsp/navigation_handlers.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # Serves symbol navigation, rename, and hover requests.
+    module NavigationHandlers
+      include RequestSupport
+
+      private
+
+      # @rbs (untyped raw_params) -> Array[Hash[String, untyped]]
+      def definition: (untyped raw_params) -> Array[Hash[String, untyped]]
+
+      # @rbs (untyped raw_params) -> Array[Hash[String, untyped]]
+      def references: (untyped raw_params) -> Array[Hash[String, untyped]]
+
+      # @rbs (untyped raw_params) -> Hash[String, untyped]?
+      def prepare_rename: (untyped raw_params) -> Hash[String, untyped]?
+
+      # @rbs (untyped raw_params) -> Hash[String, untyped]
+      def rename: (untyped raw_params) -> Hash[String, untyped]
+
+      # @rbs (untyped raw_params) -> Hash[String, untyped]?
+      def hover: (untyped raw_params) -> Hash[String, untyped]?
+
+      # @rbs (untyped raw_params) { (SymbolIndex, String, Hash[String, untyped]) -> untyped } -> untyped
+      def with_index: (untyped raw_params) { (SymbolIndex, String, Hash[String, untyped]) -> untyped } -> untyped
+    end
+  end
+end

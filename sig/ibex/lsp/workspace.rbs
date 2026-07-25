@@ -1,0 +1,41 @@
+# Generated from lib/ibex/lsp/workspace.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # Converts file URIs to canonical paths constrained to initialized workspace roots.
+    class Workspace
+      attr_reader roots: Array[String]
+
+      # @rbs (Array[String] root_uris, Frontend::SourceLoader loader) -> void
+      def initialize: (Array[String] root_uris, Frontend::SourceLoader loader) -> void
+
+      # @rbs (String uri, ?allow_missing: bool) -> String
+      def path: (String uri, ?allow_missing: bool) -> String
+
+      # @rbs (String path) -> String
+      def uri: (String path) -> String
+
+      # @rbs (String path) -> String?
+      def root_for: (String path) -> String?
+
+      private
+
+      # URI is a stdlib boundary whose implementation class varies by scheme.
+      # @rbs (String uri) -> untyped
+      def parse_file_uri: (String uri) -> untyped
+
+      # Ruby's URI::File may discard userinfo and port, so validate the raw authority first.
+      # @rbs (String uri) -> void
+      def validate_raw_authority!: (String uri) -> void
+
+      # @rbs (String uri) -> String
+      def canonical_root: (String uri) -> String
+
+      # @rbs (String encoded) -> String
+      def decode_path: (String encoded) -> String
+
+      # @rbs (String path, String root) -> bool
+      def inside?: (String path, String root) -> bool
+    end
+  end
+end
