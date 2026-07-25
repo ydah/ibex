@@ -69,6 +69,7 @@ module Ibex
         return scan_user_code if line_start? && @cursor.rest.start_with?("----")
         return ActionScanner.new(@cursor).scan if character == "{"
         return scan_scope if @cursor.rest.start_with?("::")
+        return scan_inline_directive if @cursor.rest.match?(/\A%inline(?=\s|\z)/)
 
         scan_regular_token(character)
       end
@@ -171,6 +172,11 @@ module Ibex
         location = @cursor.location
         @cursor.advance(2)
         token(:scope, "::", location)
+      end
+
+      # @rbs () -> Token
+      def scan_inline_directive
+        scan_match(:inline, /\A%inline/)
       end
 
       # @rbs () -> Token

@@ -2,15 +2,17 @@
 
 module Ibex
   module Frontend
-    # Keeps the public Rule constructor compatible with ASTs built before parameters existed.
+    # Keeps the public Rule constructor compatible with ASTs built before parameters and inline rules existed.
     module ASTRuleDefaults
       # @rbs (*untyped arguments, **untyped keywords) -> void
       def initialize(*arguments, **keywords)
         if arguments.empty?
-          keywords = keywords.merge(parameters: keywords[:parameters] || [])
+          keywords = keywords.merge(parameters: keywords[:parameters] || [], inline: keywords[:inline] || false)
         elsif arguments.one? && arguments.first.is_a?(Hash)
           attributes = arguments.first
-          arguments = [attributes.merge(parameters: attributes[:parameters] || [])]
+          arguments = [
+            attributes.merge(parameters: attributes[:parameters] || [], inline: attributes[:inline] || false)
+          ]
         end
         super(*arguments, **keywords) # rubocop:disable Style/SuperArguments
       end
@@ -24,16 +26,17 @@ module Ibex
       #   type item = SymbolReference | ParameterizedReference | InlineAction | Optional | Star | Plus | Group |
       #     SeparatedList
       #   type user_code = Hash[String, Array[UserCode]]
-      #   class Rule < Struct[String | Array[String] | Array[Alternative] | Location | String?]
+      #   class Rule < Struct[String | Array[String] | Array[Alternative] | Location | String? | bool]
       #     attr_accessor lhs: String
       #     attr_accessor parameters: Array[String]
       #     attr_accessor alternatives: Array[Alternative]
       #     attr_accessor loc: Location
       #     attr_accessor documentation: String?
+      #     attr_accessor inline: bool
       #     def self.new: (?lhs: String, ?parameters: Array[String]?, ?alternatives: Array[Alternative],
-      #       ?loc: Location, ?documentation: String?) -> instance
+      #       ?loc: Location, ?documentation: String?, ?inline: bool?) -> instance
       #       | ({ ?lhs: String, ?parameters: Array[String]?, ?alternatives: Array[Alternative],
-      #         ?loc: Location, ?documentation: String? }) -> instance
+      #         ?loc: Location, ?documentation: String?, ?inline: bool? }) -> instance
       #   end
 
       # Adds deterministic, recursively serializable hashes to Struct nodes.
@@ -139,6 +142,7 @@ module Ibex
         :alternatives, #: Array[Alternative]
         :loc, #: Location
         :documentation, #: String?
+        :inline, #: bool
         keyword_init: true
       ) { include Node, ASTRuleDefaults }
       Alternative = Struct.new(

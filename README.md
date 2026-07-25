@@ -94,7 +94,8 @@ Ordinary shifts and the synthetic recovery-token shift use separate hooks; obser
 
 ## Extended mode
 
-`--mode=extended` enables optional, repeated, and separated values, named references, and parameterized rule templates. A
+`--mode=extended` enables optional, repeated, and separated values, named references, parameterized rule templates, and inline
+rules. A
 grammar can make the same choice locally with `pragma extended` immediately after its `class` header:
 
 ```text
@@ -109,7 +110,9 @@ rule
   pairs     : (KEY VALUE)*
   list(X)   : X:item { result = [item] }
             | list(X) ',' X { result = val[0] + [val[2]] }
+  %inline signed(X): '-' X { result = -val[1] }
   numbers   : list(NUM)
+  negative  : signed(NUM)
 end
 ```
 
@@ -129,7 +132,13 @@ Parameterized definitions do not become standalone productions. A call such as `
 argument list and reused by direct or mutual recursion. The callee and `(` must be adjacent: `ITEM (A | B)` remains an ordinary
 symbol followed by a group. Calls can be nested and can carry the same named-reference and suffix syntax as symbols. Normalizer
 defaults bound argument-growing expansion to 1,000 specializations and 16 active calls; library callers can lower or raise those
-positive limits with `max_parameter_specializations:` and `max_parameter_depth:`.
+positive-Integer limits with `max_parameter_specializations:` and `max_parameter_depth:`.
+
+`%inline` definitions are structurally substituted before LR construction and do not remain as grammar symbols or
+productions. Plain and parameterized inline rules may be nested, repeated, and combined with EBNF. Their actions, named values,
+semantic locations, and precedence remain observable through a serialized composition plan. Recursive paths involving an
+inline rule are rejected. Cartesian expansion defaults to at most 10,000 materialized productions; library callers can set a
+positive-Integer `max_inline_expansions:` on `Ibex::Normalizer`.
 
 ## Lossless frontend source
 
@@ -341,8 +350,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 8,039 typed calls and 972 untyped calls out of 9,011 (89.2% typed).
-The generated signature tree contains 1,080 explicit `untyped` occurrences across 33 files.
+The current whole-library `steep stats` result is 8,594 typed calls and 1,125 untyped calls out of 9,719 (88.4% typed).
+The generated signature tree contains 1,202 explicit `untyped` occurrences across 35 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

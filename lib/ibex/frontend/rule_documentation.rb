@@ -15,6 +15,9 @@ module Ibex
       # @rbs (SourceDocument document) -> void
       def initialize(document)
         @segments_by_line = index_segments(document) #: Hash[Integer, Array[Segment]]
+        @inline_lines = document.tokens.filter_map do |token|
+          token.location.line if token.type == :inline
+        end #: Array[Integer]
       end
 
       # @rbs (AST::Root | AST::Fragment node) -> (AST::Root | AST::Fragment)
@@ -36,8 +39,15 @@ module Ibex
       def documented_rule(rule)
         AST::Rule.new(
           lhs: rule.lhs, parameters: rule.parameters, alternatives: rule.alternatives, loc: rule.loc,
-          documentation: documentation_before(rule.loc.line)
+          documentation: documentation_before(documentation_anchor(rule)), inline: rule.inline
         )
+      end
+
+      # @rbs (AST::Rule rule) -> Integer
+      def documentation_anchor(rule)
+        return rule.loc.line unless rule.inline
+
+        @inline_lines.reverse_each.find { |line| line <= rule.loc.line } || rule.loc.line
       end
 
       # @rbs (Integer rule_line) -> String?

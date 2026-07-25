@@ -47,10 +47,12 @@ module Ibex
     # `:actions`, `:gotos`, and `:productions`, with optional
     # `:default_actions` and `:error_messages`. Actions are represented by
     # `[:shift, state]`, `[:reduce, production]`, `[:accept]`, or `[:error]`.
-    # Format-v2 generated production entries mark their five-argument semantic
-    # methods with `location_action: true`; v1 and unmarked application actions
-    # retain the historical two-argument contract. The marker is honored only
-    # for the generated `_ibex_action_N` Symbol shape, never for callables.
+    # Format-v2 and v3 generated production entries mark their five-argument
+    # semantic methods with `location_action: true`. Format-v3 composed actions
+    # additionally use `composition_action: true` for the six-argument contract
+    # carrying the lookahead location. V1 and unmarked application actions
+    # retain the historical two-argument contract. Markers are honored only for
+    # the generated `_ibex_action_N` Symbol shape, never for callables.
     class Parser
       EOF_TOKEN: Integer
 
@@ -197,6 +199,9 @@ module Ibex
       # @rbs () -> void
       def validate_parser_table_format!: () -> void
 
+      # @rbs (Hash[Symbol, untyped] tables) -> void
+      def validate_composition_action_contract!: (Hash[Symbol, untyped] tables) -> void
+
       # @rbs () -> untyped
       def action_for_current_state: () -> untyped
 
@@ -215,6 +220,12 @@ module Ibex
 
       # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
       def generated_location_action?: (Hash[Symbol, untyped] production, untyped action) -> bool
+
+      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
+      def generated_composition_action?: (Hash[Symbol, untyped] production, untyped action) -> bool
+
+      # @rbs (untyped action) -> bool
+      def generated_action_symbol?: (untyped action) -> bool
 
       # @rbs (?report: bool) -> untyped
       def recover: (?report: bool) -> untyped

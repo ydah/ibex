@@ -133,8 +133,20 @@ module Ibex
         # @rbs (untyped value, String path) -> void
         def validate_inline_expansion: (untyped value, String path) -> void
 
-        # @rbs (untyped value, String path) -> void
-        def validate_action_composition: (untyped value, String path) -> void
+        # @rbs (untyped value, String path, rhs_length: Integer) -> void
+        def validate_action_composition: (untyped value, String path, rhs_length: Integer) -> void
+
+        # @rbs (untyped value, String path, Integer rhs_length, Array[untyped] fragments) -> void
+        def validate_action_composition_plan: (untyped value, String path, Integer rhs_length, Array[untyped] fragments) -> void
+
+        # @rbs (untyped value, String path, Integer physical, Integer step_index) -> void
+        def validate_action_composition_step: (untyped value, String path, Integer physical, Integer step_index) -> void
+
+        # @rbs (Array[untyped] inputs, String path, Integer limit) -> void
+        def validate_action_slots: (Array[untyped] inputs, String path, Integer limit) -> void
+
+        # @rbs (untyped value, String path, Integer physical) -> void
+        def validate_action_lookahead: (untyped value, String path, Integer physical) -> void
       end
     end
   end

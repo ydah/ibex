@@ -9,6 +9,10 @@ module Ibex
       # @rbs (Token opening, Array[Token] parameters) -> [Token, Array[String]]
       def build_rule_parameters: (Token opening, Array[Token] parameters) -> [ Token, Array[String] ]
 
+      # @rbs (Token? inline_marker, Token lhs, [Token, Array[String]]? parameter_clause,
+      #   Array[AST::Alternative] alternatives) -> AST::Rule
+      def build_rule: (Token? inline_marker, Token lhs, [ Token, Array[String] ]? parameter_clause, Array[AST::Alternative] alternatives) -> AST::Rule
+
       # @rbs (Token callee, Token opening, Array[AST::item] arguments,
       #   [Token, Token]? named_reference, Array[Token] suffixes) -> AST::item
       def build_parameterized_reference: (Token callee, Token opening, Array[AST::item] arguments, [ Token, Token ]? named_reference, Array[Token] suffixes) -> AST::item

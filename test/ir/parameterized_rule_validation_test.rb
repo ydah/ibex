@@ -67,10 +67,13 @@ class IRParameterizedRuleValidationTest < Minitest::Test
     assert_equal "parameter.y:1:1: grammar has no start rule", error.message
   end
 
-  def test_rejects_nonpositive_budget_options
+  def test_budget_options_require_positive_integers
     ast = parse("start: NUM")
-    assert_raises(ArgumentError) { Ibex::Normalizer.new(ast, max_parameter_specializations: 0) }
-    assert_raises(ArgumentError) { Ibex::Normalizer.new(ast, max_parameter_depth: 0) }
+    options = %i[max_parameter_specializations max_parameter_depth max_inline_expansions]
+    options.product([0, -1, 1.0, "1", nil]).each do |name, value|
+      error = assert_raises(ArgumentError) { Ibex::Normalizer.new(ast, **{ name => value }) }
+      assert_equal "#{name} must be a positive Integer", error.message
+    end
   end
 
   def test_argument_growing_recursion_reaches_a_high_configured_limit_without_using_the_ruby_stack

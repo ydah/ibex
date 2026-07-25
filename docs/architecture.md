@@ -49,6 +49,14 @@ limits bound argument-growing recursion. Template actions,
 precedence, metadata, documentation, locations, and definition include chains flow into the specialized productions; see
 [ADR 0044](decisions/0044-parameterized-user-rules.md).
 
+Inline definitions are lowered temporarily, then a bounded deterministic post-pass substitutes marked alternatives through
+ordinary, parameterized, and EBNF productions before diagnostics and LR construction. It removes every marked symbol and
+production, remaps the dense symbol/production ids, and retains eliminated semantic reductions as a versioned post-order
+action plan. The plan addresses flattened physical values followed by earlier logical results, reconstructs surrounding stack
+prefixes and semantic spans, and remains executable after IR serialization. Cycle validation covers paths through ordinary
+rules and templates; the default 10,000-production cartesian budget is configurable. See
+[ADR 0045](decisions/0045-bounded-inline-rule-expansion.md).
+
 The strict generated frontend remains the grammar authority during batch diagnostics. A diagnostic parse retries it after
 suppressing only a whole declaration, whole rule, or outer alternative at balanced delimiters. Each retry must remove a new
 original token and both attempts and emitted diagnostics are bounded. Lexical and syntax phases collect independently before a
@@ -108,7 +116,7 @@ New normalized grammars use version 2. It keeps every version-1 semantic field a
 | grammar | `source_provenance {file, root, byte_span {start,end}}` and optional `migration` loss record |
 | symbol | `doc` |
 | production | `doc` and `expansion {parameter, inline, include_chain}` |
-| action | `composition {strategy, fragments}` |
+| action | `composition {strategy, fragments, plan {version, physical, steps}}` |
 
 The source-only text frontend supplies the source filename and leaves unknown metadata null. A resolved grammar also supplies its
 canonical source root and each production's include chain while preserving its original-file origin. Lossless rule comments
@@ -178,8 +186,9 @@ peak RSS remain non-gating; CI reproduces only deterministic structure and diges
 
 Generated subclasses expose `.parser_tables` with a required `format_version`, external `tokens`, display `token_names`, ACTION
 and GOTO tables, per-state default actions, and production `{lhs,length,action}` records. The runtime validates the version before
-reading input and rejects missing or unsupported formats with a regeneration instruction. The generator emits v2, while the
-runtime accepts v1's two-argument actions as well as v2's explicitly marked five-argument location actions; see
+reading input and rejects missing or unsupported formats with a regeneration instruction. The generator emits v3, while the
+runtime accepts v1's two-argument actions, v2/v3 explicitly marked five-argument location actions, and v3 explicitly marked
+six-argument composed actions. Inconsistent v3 composition markers fail before input; see
 [ADR 0018](decisions/0018-parser-table-format-version.md). Plain tables are arrays of Hash rows. Compact tables use row
 displacement with offsets, values, and row-ownership checks; both expose equivalent lookups. Default reductions are restricted
 to known token ids, and explicit error masks preserve the pre-optimization result of every declared terminal cell, including

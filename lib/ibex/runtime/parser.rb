@@ -6,9 +6,9 @@ require_relative "location_span" unless defined?(Ibex::Runtime::LocationSpan)
 module Ibex
   module Runtime
     # Current parser-table shape emitted by the generator.
-    PARSER_TABLE_FORMAT_VERSION = 2 #: Integer
+    PARSER_TABLE_FORMAT_VERSION = 3 #: Integer
     # Parser-table shapes this runtime can execute.
-    SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS = [1, PARSER_TABLE_FORMAT_VERSION].freeze #: Array[Integer]
+    SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS = [1, 2, PARSER_TABLE_FORMAT_VERSION].freeze #: Array[Integer]
 
     # Raised by the default parser error handler.
     class ParseError < StandardError
@@ -85,10 +85,12 @@ module Ibex
     # `:actions`, `:gotos`, and `:productions`, with optional
     # `:default_actions` and `:error_messages`. Actions are represented by
     # `[:shift, state]`, `[:reduce, production]`, `[:accept]`, or `[:error]`.
-    # Format-v2 generated production entries mark their five-argument semantic
-    # methods with `location_action: true`; v1 and unmarked application actions
-    # retain the historical two-argument contract. The marker is honored only
-    # for the generated `_ibex_action_N` Symbol shape, never for callables.
+    # Format-v2 and v3 generated production entries mark their five-argument
+    # semantic methods with `location_action: true`. Format-v3 composed actions
+    # additionally use `composition_action: true` for the six-argument contract
+    # carrying the lookahead location. V1 and unmarked application actions
+    # retain the historical two-argument contract. Markers are honored only for
+    # the generated `_ibex_action_N` Symbol shape, never for callables.
     class Parser
       EOF_TOKEN = 0 #: Integer
       ERROR_TOKEN = 1 #: Integer
@@ -387,12 +389,26 @@ module Ibex
         end
 
         actual = tables.fetch(:format_version)
-        return if SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS.include?(actual)
+        unless SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS.include?(actual)
+          raise ParseError,
+                "(tables):1:1: unsupported parser table format version #{actual.inspect} for #{self.class}; " \
+                "runtime supports #{SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS.join(', ')}; " \
+                "regenerate the parser with the installed Ibex version"
+        end
 
-        raise ParseError,
-              "(tables):1:1: unsupported parser table format version #{actual.inspect} for #{self.class}; " \
-              "runtime supports #{SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS.join(', ')}; " \
-              "regenerate the parser with the installed Ibex version"
+        validate_composition_action_contract!(tables) if actual == PARSER_TABLE_FORMAT_VERSION
+      end
+
+      # @rbs (Hash[Symbol, untyped] tables) -> void
+      def validate_composition_action_contract!(tables)
+        tables.fetch(:productions).each_with_index do |production, index|
+          next unless production[:composition_action] == true
+          next if production[:location_action] == true && generated_action_symbol?(production[:action])
+
+          raise ParseError,
+                "(tables):1:1: parser table format version 3 production #{index} has an inconsistent " \
+                ":composition_action marker; a generated action Symbol with :location_action is required"
+        end
       end
 
       # @rbs () -> untyped
@@ -468,6 +484,7 @@ module Ibex
 
         arguments = [values, @value_stack.dup, locations, @location_stack.dup, location]
         arguments = arguments.take(2) unless generated_location_action?(production, action)
+        arguments << @lookahead_location if generated_composition_action?(production, action)
         return instance_exec(*arguments, &action) if action.respond_to?(:call)
 
         __send__(action, *arguments)
@@ -475,10 +492,21 @@ module Ibex
 
       # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
       def generated_location_action?(production, action)
-        parser_tables.fetch(:format_version) == PARSER_TABLE_FORMAT_VERSION &&
+        parser_tables.fetch(:format_version) >= 2 &&
           production[:location_action] == true &&
-          action.is_a?(Symbol) &&
-          action.to_s.match?(GENERATED_ACTION_NAME)
+          generated_action_symbol?(action)
+      end
+
+      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
+      def generated_composition_action?(production, action)
+        parser_tables.fetch(:format_version) == PARSER_TABLE_FORMAT_VERSION &&
+          production[:composition_action] == true &&
+          generated_location_action?(production, action)
+      end
+
+      # @rbs (untyped action) -> bool
+      def generated_action_symbol?(action)
+        action.is_a?(Symbol) && action.to_s.match?(GENERATED_ACTION_NAME)
       end
 
       # @rbs (?report: bool) -> untyped

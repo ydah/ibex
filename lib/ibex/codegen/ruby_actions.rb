@@ -7,6 +7,7 @@ module Ibex
   module Codegen
     # Semantic-action method generation shared by direct and source-mapped
     # Ruby output.
+    # rubocop:disable Metrics/ModuleLength -- action emission keeps shared naming and mapping invariants together.
     module RubyActions
       # @rbs @grammar: IR::Grammar
       # @rbs @line_convert: bool
@@ -19,12 +20,107 @@ module Ibex
         @grammar.productions.each do |production|
           next unless action_method?(production)
 
-          if production.action && @line_convert
+          if composed_action?(production)
+            append_composed_action_method(lines, production)
+          elsif production.action && @line_convert
             append_compiled_action_method(lines, production)
           else
             append_action_method(lines, production)
           end
         end
+      end
+
+      # @rbs (Array[String] lines, IR::Production production) -> void
+      def append_composed_action_method(lines, production)
+        action = production.action || raise(Ibex::Error, "missing composed semantic action")
+        plan = action.composition&.dig(:plan) || raise(Ibex::Error, "missing action composition plan")
+        steps = plan.fetch(:steps)
+        steps.each_with_index do |step, index|
+          append_composed_fragment_method(lines, production, step, index) if step[:code]
+        end
+        append_composed_orchestrator(lines, production, plan)
+      end
+
+      # @rbs (Array[String] lines, IR::Production production, Hash[Symbol, untyped] step, Integer index) -> void
+      def append_composed_fragment_method(lines, production, step, index)
+        source = composed_fragment_method_source(production, step, index)
+        if @line_convert
+          location = step.fetch(:loc)
+          lines << "  class_eval(#{source.dump}, #{location[:file].inspect}, #{location[:line]})"
+        else
+          source.lines.each { |line| lines << "  #{line.rstrip}" }
+        end
+        lines << ""
+      end
+
+      # @rbs (IR::Production production, Hash[Symbol, untyped] step, Integer index) -> String
+      def composed_fragment_method_source(production, step, index)
+        source = "private def #{composed_fragment_name(production, index)}" \
+                 "(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location); "
+        context_length = step.fetch(:context_length)
+        if context_length.positive?
+          source << "val = _values.last(#{context_length}); "
+          source << "_ibex_locations = _ibex_location_stack.last(#{context_length}); "
+        end
+        named_refs = step.fetch(:named_refs)
+        named_refs.each { |reference| source << "#{reference[:name]} = val[#{reference[:index]}]; " }
+        unless named_refs.empty?
+          names = named_refs.map { |reference| reference[:name] }
+          source << "_ibex_named_values = [#{names.join(', ')}]; "
+        end
+        source << "result = val[0]; " if step.fetch(:result_var)
+        source << composed_semantic_code(step)
+        source << "\nresult" if step.fetch(:result_var)
+        source << "\nend"
+      end
+
+      # @rbs (Hash[Symbol, untyped] step) -> String
+      def composed_semantic_code(step)
+        maximum = [step.fetch(:inputs).length, step.fetch(:context_length)].max
+        ActionLocations.new(
+          step.fetch(:code), maximum: maximum, location: step.fetch(:loc)
+        ).rewrite
+      end
+
+      # @rbs (IR::Production production, Integer index) -> String
+      def composed_fragment_name(production, index)
+        "_ibex_inline_fragment_#{production.id}_#{index}"
+      end
+
+      # @rbs (Array[String] lines, IR::Production production, Hash[Symbol, untyped] plan) -> void
+      def append_composed_orchestrator(lines, production, plan)
+        lines << "  private def _ibex_action_#{production.id}" \
+                 "(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location, " \
+                 "_ibex_lookahead_location)"
+        lines << "    _ibex_composed_values = val.dup"
+        lines << "    _ibex_composed_locations = _ibex_locations.dup"
+        plan.fetch(:steps).each_with_index do |step, index|
+          append_composed_step(lines, production, step, index)
+        end
+        lines.push("    _ibex_composed_values.last", "  end", "")
+      end
+
+      # @rbs (Array[String] lines, IR::Production production, Hash[Symbol, untyped] step, Integer index) -> void
+      def append_composed_step(lines, production, step, index)
+        inputs = step.fetch(:inputs)
+        lines << "    _ibex_step_values = _ibex_composed_values.values_at(#{inputs.join(', ')})"
+        lines << "    _ibex_step_locations = _ibex_composed_locations.values_at(#{inputs.join(', ')})"
+        lookahead = step[:lookahead]
+        boundary = lookahead ? "_ibex_locations[#{lookahead}]" : "_ibex_lookahead_location"
+        lines << "    _ibex_step_location = Ibex::Runtime::LocationSpan.for_reduction(" \
+                 "_ibex_step_locations, lookahead: #{boundary})"
+        result = if step[:code]
+                   stack_inputs = step.fetch(:stack_inputs)
+                   "#{composed_fragment_name(production, index)}(" \
+                     "_ibex_step_values, _values + _ibex_composed_values.values_at(#{stack_inputs.join(', ')}), " \
+                     "_ibex_step_locations, _ibex_location_stack + " \
+                     "_ibex_composed_locations.values_at(#{stack_inputs.join(', ')}), _ibex_step_location)"
+                 else
+                   "_ibex_step_values[0]"
+                 end
+        lines << "    _ibex_composed_values << #{result}"
+        lines << "    _ibex_composed_locations << _ibex_step_location"
+        lines << "    return _ibex_composed_values.last if @accept_requested || @semantic_error"
       end
 
       # @rbs (Array[String] lines, IR::Production production) -> void
@@ -110,6 +206,12 @@ module Ibex
       def action_method?(production)
         !!(production.action || !@omit_action_call)
       end
+
+      # @rbs (IR::Production production) -> bool
+      def composed_action?(production)
+        production.action&.composition&.dig(:plan, :version) == 1
+      end
     end
+    # rubocop:enable Metrics/ModuleLength
   end
 end

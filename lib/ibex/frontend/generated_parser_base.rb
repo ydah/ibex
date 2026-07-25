@@ -162,17 +162,6 @@ module Ibex
         fail_at(name_token.location, "invalid conversion expression: #{e.message}")
       end
 
-      # @rbs (Token lhs, [Token, Array[String]]? parameter_clause,
-      #   Array[AST::Alternative] alternatives) -> AST::Rule
-      def build_rule(lhs, parameter_clause, alternatives)
-        parameters = [] #: Array[String]
-        if parameter_clause
-          opening, parameters = parameter_clause
-          require_adjacency!(lhs, opening, "parameter list must immediately follow rule name")
-        end
-        AST::Rule.new(lhs: token_string(lhs), parameters: parameters, alternatives: alternatives, loc: lhs.location)
-      end
-
       # @rbs (Array[AST::item] items, Token? precedence) -> AST::Alternative
       def build_alternative(items, precedence)
         last_token = @adapter.last_token

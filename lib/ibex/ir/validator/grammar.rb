@@ -196,7 +196,11 @@ module Ibex
           location(action["loc"], "#{path}.loc", nullable: false)
           context_length = nonnegative_integer(action["context_length"], "#{path}.context_length")
           validate_named_refs(action["named_refs"], "#{path}.named_refs", limit: [rhs_length, context_length].max)
-          validate_action_composition(action["composition"], "#{path}.composition") if @version >= 2
+          return unless @version >= 2
+
+          validate_action_composition(
+            action["composition"], "#{path}.composition", rhs_length: rhs_length
+          )
         end
 
         # @rbs (untyped value, String path, limit: Integer) -> void
@@ -354,11 +358,11 @@ module Ibex
           nonempty_string(inline["rule"], "#{path}.rule")
         end
 
-        # @rbs (untyped value, String path) -> void
-        def validate_action_composition(value, path)
+        # @rbs (untyped value, String path, rhs_length: Integer) -> void
+        def validate_action_composition(value, path, rhs_length:)
           return if value.nil?
 
-          composition = record(value, path, %w[strategy fragments])
+          composition = record(value, path, %w[strategy fragments], %w[plan])
           literal(composition["strategy"], "#{path}.strategy", "sequence")
           fragments = array(composition["fragments"], "#{path}.fragments")
           invalid("#{path}.fragments", "must not be empty") if fragments.empty?
@@ -368,6 +372,64 @@ module Ibex
             enum(fragment["kind"], "#{fragment_path}.kind", %w[rule inline])
             validate_source_provenance(fragment["source"], "#{fragment_path}.source")
           end
+          validate_action_composition_plan(composition["plan"], "#{path}.plan", rhs_length, fragments) if
+            composition.key?("plan")
+        end
+
+        # @rbs (untyped value, String path, Integer rhs_length, Array[untyped] fragments) -> void
+        def validate_action_composition_plan(value, path, rhs_length, fragments)
+          plan = record(value, path, %w[version physical steps])
+          literal(plan["version"], "#{path}.version", 1)
+          physical = nonnegative_integer(plan["physical"], "#{path}.physical")
+          invalid("#{path}.physical", "must equal production RHS length #{rhs_length}") unless physical == rhs_length
+          steps = array(plan["steps"], "#{path}.steps")
+          invalid("#{path}.steps", "must not be empty") if steps.empty?
+          invalid("#{path}.steps", "must align one-to-one with fragments") unless steps.length == fragments.length
+          steps.each_with_index do |step, index|
+            validate_action_composition_step(step, "#{path}.steps[#{index}]", physical, index)
+            next if step["kind"] == fragments.fetch(index)["kind"]
+
+            invalid("#{path}.steps[#{index}].kind", "must match the corresponding fragment")
+          end
+        end
+
+        # @rbs (untyped value, String path, Integer physical, Integer step_index) -> void
+        def validate_action_composition_step(value, path, physical, step_index)
+          step = record(
+            value, path,
+            %w[kind rule code loc named_refs context_length inputs stack_inputs lookahead result_var]
+          )
+          kind = enum(step["kind"], "#{path}.kind", %w[rule inline])
+          rule = nullable_string(step["rule"], "#{path}.rule")
+          invalid("#{path}.rule", "must name an inline rule") if kind == "inline" && (!rule || rule.empty?)
+          nullable_string(step["code"], "#{path}.code")
+          location(step["loc"], "#{path}.loc", nullable: false)
+          context = nonnegative_integer(step["context_length"], "#{path}.context_length")
+          inputs = array(step["inputs"], "#{path}.inputs")
+          limit = physical + step_index
+          validate_action_slots(inputs, "#{path}.inputs", limit)
+          stack_inputs = array(step["stack_inputs"], "#{path}.stack_inputs")
+          validate_action_slots(stack_inputs, "#{path}.stack_inputs", limit)
+          validate_named_refs(step["named_refs"], "#{path}.named_refs", limit: [inputs.length, context].max)
+          validate_action_lookahead(step["lookahead"], "#{path}.lookahead", physical)
+          boolean(step["result_var"], "#{path}.result_var")
+        end
+
+        # @rbs (Array[untyped] inputs, String path, Integer limit) -> void
+        def validate_action_slots(inputs, path, limit)
+          inputs.each_with_index do |input, index|
+            slot_path = "#{path}[#{index}]"
+            slot = nonnegative_integer(input, slot_path)
+            invalid(slot_path, "must reference an available slot below #{limit}") if slot >= limit
+          end
+        end
+
+        # @rbs (untyped value, String path, Integer physical) -> void
+        def validate_action_lookahead(value, path, physical)
+          return if value.nil?
+
+          boundary = nonnegative_integer(value, path)
+          invalid(path, "must reference a physical slot below #{physical}") if boundary >= physical
         end
       end
       # rubocop:enable Metrics/ClassLength

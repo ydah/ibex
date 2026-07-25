@@ -66,6 +66,9 @@ module Ibex
       def scan_scope: () -> Token
 
       # @rbs () -> Token
+      def scan_inline_directive: () -> Token
+
+      # @rbs () -> Token
       def scan_identifier: () -> Token
 
       # @rbs () -> Token

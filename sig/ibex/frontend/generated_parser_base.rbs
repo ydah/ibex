@@ -73,10 +73,6 @@ module Ibex
       # @rbs (Token name_token, Token literal_token) -> AST::Conversion
       def build_conversion: (Token name_token, Token literal_token) -> AST::Conversion
 
-      # @rbs (Token lhs, [Token, Array[String]]? parameter_clause,
-      #   Array[AST::Alternative] alternatives) -> AST::Rule
-      def build_rule: (Token lhs, [ Token, Array[String] ]? parameter_clause, Array[AST::Alternative] alternatives) -> AST::Rule
-
       # @rbs (Array[AST::item] items, Token? precedence) -> AST::Alternative
       def build_alternative: (Array[AST::item] items, Token? precedence) -> AST::Alternative
 

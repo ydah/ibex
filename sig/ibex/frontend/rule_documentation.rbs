@@ -20,6 +20,9 @@ module Ibex
       # @rbs (AST::Rule rule) -> AST::Rule
       def documented_rule: (AST::Rule rule) -> AST::Rule
 
+      # @rbs (AST::Rule rule) -> Integer
+      def documentation_anchor: (AST::Rule rule) -> Integer
+
       # @rbs (Integer rule_line) -> String?
       def documentation_before: (Integer rule_line) -> String?
 

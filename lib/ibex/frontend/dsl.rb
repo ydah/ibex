@@ -85,7 +85,9 @@ module Ibex
           location = next_location
           builder = RuleBuilder.new(self, location)
           yield builder
-          @rules << AST::Rule.new(lhs: lhs.to_s, parameters: [], alternatives: builder.alternatives, loc: location)
+          @rules << AST::Rule.new(
+            lhs: lhs.to_s, parameters: [], alternatives: builder.alternatives, loc: location, inline: false
+          )
         end
 
         # @rbs (Object name, Object code) -> void

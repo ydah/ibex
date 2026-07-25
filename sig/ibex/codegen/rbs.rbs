@@ -29,6 +29,9 @@ module Ibex
       # @rbs (IR::Production production) -> bool
       def action_method?: (IR::Production production) -> bool
 
+      # @rbs (IR::Production production) -> bool
+      def composed_action?: (IR::Production production) -> bool
+
       # @rbs (Integer symbol_id) -> String
       def semantic_type: (Integer symbol_id) -> String
 

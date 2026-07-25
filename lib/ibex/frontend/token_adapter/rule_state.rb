@@ -28,6 +28,8 @@ module Ibex
         def classify(token, remaining, last_external:, previous_external:)
           external = if token.type == :identifier
                        classify_identifier(token, remaining, last_external, previous_external)
+                     elsif token.type == :inline
+                       classify_inline
                      elsif SCALAR_TYPES.key?(token.type)
                        SCALAR_TYPES.fetch(token.type)
                      else
@@ -59,6 +61,12 @@ module Ibex
         end
 
         private
+
+        # @rbs () -> external_token
+        def classify_inline
+          reset_rule_boundary if @state == :rule_rhs && @delimiters.empty?
+          :INLINE
+        end
 
         # @rbs (Token token, Array[Token] remaining, external_token? last_external,
         #   external_token? previous_external) -> external_token

@@ -7,6 +7,8 @@ module Ibex
 
     include NormalizeParameterValidation
 
+    include NormalizeInlineValidation
+
     include NormalizeParameterSubstitution
 
     include NormalizeParameterEbnfLowering
@@ -19,6 +21,8 @@ module Ibex
 
     include NormalizeExpander
 
+    include NormalizeInlineExpansion
+
     include NormalizeDiagnostics
 
     RESERVED_NAMES: Array[String]
@@ -26,6 +30,14 @@ module Ibex
     DEFAULT_MAX_PARAMETER_SPECIALIZATIONS: ::Integer
 
     DEFAULT_MAX_PARAMETER_DEPTH: ::Integer
+
+    DEFAULT_MAX_INLINE_EXPANSIONS: ::Integer
+
+    @start_location: Frontend::Location?
+
+    @start_name: String
+
+    @explicit_start: String?
 
     @conversions: Hash[String, String]
 
@@ -51,14 +63,6 @@ module Ibex
 
     @warnings: Array[IR::grammar_warning]
 
-    @productions: Array[IR::Production]
-
-    @explicit_start: String?
-
-    @start_name: String
-
-    @start_location: Frontend::Location?
-
     @parameter_templates: Hash[String, Array[Frontend::AST::Rule]]
 
     @parameter_formals: Hash[String, Array[String]]
@@ -79,6 +83,18 @@ module Ibex
 
     @rule_documentation: Hash[String, String]
 
+    @inline_rule_names: Set[String]
+
+    @inline_symbol_ids: Set[Integer]
+
+    @inline_rule_by_symbol: Hash[Integer, String]
+
+    @max_inline_expansions: Integer
+
+    @inline_expansion_count: Integer
+
+    @productions: Array[IR::Production]
+
     @symbols_by_name: Hash[String, IR::GrammarSymbol]
 
     @symbols: Array[IR::GrammarSymbol]
@@ -92,13 +108,17 @@ module Ibex
     @ast: Frontend::AST::Root
 
     # @rbs (Frontend::AST::Root | Frontend::AST::Fragment | Frontend::Resolution input,
-    #   ?mode: Symbol | String, ?max_parameter_specializations: Integer, ?max_parameter_depth: Integer) -> void
-    def initialize: (Frontend::AST::Root | Frontend::AST::Fragment | Frontend::Resolution input, ?mode: Symbol | String, ?max_parameter_specializations: Integer, ?max_parameter_depth: Integer) -> void
+    #   ?mode: Symbol | String, ?max_parameter_specializations: Integer, ?max_parameter_depth: Integer,
+    #   ?max_inline_expansions: Integer) -> void
+    def initialize: (Frontend::AST::Root | Frontend::AST::Fragment | Frontend::Resolution input, ?mode: Symbol | String, ?max_parameter_specializations: Integer, ?max_parameter_depth: Integer, ?max_inline_expansions: Integer) -> void
 
     # @rbs () -> IR::Grammar
     def normalize: () -> IR::Grammar
 
     private
+
+    # @rbs (Symbol name, untyped value) -> void
+    def validate_positive_limit!: (Symbol name, untyped value) -> void
 
     # @rbs () -> void
     def intern_reserved_symbols: () -> void
@@ -108,6 +128,15 @@ module Ibex
 
     # @rbs () -> void
     def intern_user_nonterminals: () -> void
+
+    # @rbs () -> String?
+    def normalized_start_name: () -> String?
+
+    # @rbs (Frontend::AST::Rule rule) -> bool
+    def start_rule_candidate?: (Frontend::AST::Rule rule) -> bool
+
+    # @rbs (Frontend::AST::Rule rule) -> void
+    def intern_user_nonterminal: (Frontend::AST::Rule rule) -> void
 
     # @rbs () -> Hash[String, String]
     def validated_rule_documentation: () -> Hash[String, String]

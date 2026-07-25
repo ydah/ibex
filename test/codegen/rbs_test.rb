@@ -55,6 +55,28 @@ class RBSCodegenTest < Minitest::Test
                     "Ibex::Runtime::LocationSpan?) -> untyped"
   end
 
+  def test_composed_action_contract_uses_flattened_rhs_and_runtime_lookahead
+    source = <<~GRAMMAR
+      class InlineTypedParser
+      pragma extended
+      type TOKEN "Integer"
+      type start "String"
+      rule
+      %inline helper: TOKEN
+      start: helper helper { result = val.join }
+      end
+    GRAMMAR
+    ast = Ibex::Frontend::Parser.new(source, file: "inline-typed.y", mode: :extended).parse
+    grammar = Ibex::Normalizer.new(ast, mode: :extended).normalize
+    automaton = Ibex::LALR::Builder.new(grammar).build
+    signature = Ibex::Codegen::RBS.new(automaton).generate
+
+    assert_includes signature,
+                    "private def _ibex_action_0: ([Integer, Integer], Array[untyped], [untyped, untyped], " \
+                    "Array[untyped], Ibex::Runtime::LocationSpan?, untyped) -> String"
+    assert_rbs_valid(signature)
+  end
+
   def test_generated_metadata_signatures_pass_rbs_validation
     source = <<~GRAMMAR
       class TypedParser

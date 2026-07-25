@@ -22,9 +22,16 @@ to regenerate the parser with the installed Ibex version.
 
 Changing the meaning or required shape of parser tables requires incrementing this format version. Additive fields that old
 runtimes safely ignore do not by themselves require an increment. Version 2 adds the generated-action `location_action` contract:
-v2 `_ibex_action_N` methods marked with that field receive five location-aware arguments. The current runtime retains v1 in its
-accepted set and invokes every v1 action with the historical two arguments, even if an audited hand-written v1 table happens to
-contain a field with the same name. Older runtimes that accept only v1 reject v2 tables before token consumption.
+v2 `_ibex_action_N` methods marked with that field receive five location-aware arguments. Version 3 retains that contract and
+adds `composition_action`; a generated Symbol action carrying both markers receives the runtime lookahead location as a sixth
+argument. The v3 marker combination is validated before input, and an inconsistent composition marker is rejected instead of
+guessing a call shape.
+
+The current runtime accepts v1, v2, and v3. It invokes every v1 action with the historical two arguments, even if an audited
+hand-written v1 table happens to contain newer marker names. V2 continues to honor generated location actions with exactly five
+arguments and ignores a stray composition marker. V3 grants the six-argument contract only to generated `_ibex_action_N`
+Symbols carrying both `location_action` and `composition_action`; ordinary v3 generated location actions continue to receive
+five. Application methods and callables retain two arguments. Older runtimes reject newer versions before token consumption.
 
 ## Consequences
 

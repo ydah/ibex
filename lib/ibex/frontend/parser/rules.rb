@@ -22,6 +22,8 @@ module Ibex
       # @rbs () -> AST::Rule
       def parse_rule
         # @type self: BootstrapParser
+        inline = accept(:inline)
+        extended_only!(inline.location, "inline rules") if inline
         lhs = expect(:identifier)
         parameters = parse_rule_parameters(lhs)
         expect(:":")
@@ -33,7 +35,10 @@ module Ibex
           accept(:";")
           break
         end
-        AST::Rule.new(lhs: token_string(lhs), parameters: parameters, alternatives: alternatives, loc: lhs.location)
+        AST::Rule.new(
+          lhs: token_string(lhs), parameters: parameters, alternatives: alternatives, loc: lhs.location,
+          inline: !!inline
+        )
       end
 
       # @rbs (Token lhs) -> AST::Alternative
@@ -137,7 +142,7 @@ module Ibex
       # @rbs (Token lhs) -> bool
       def alternative_end?(lhs)
         # @type self: BootstrapParser
-        %i[| ; eof].include?(current.type) || keyword?("end") || rule_start?(lhs)
+        %i[| ; inline eof].include?(current.type) || keyword?("end") || rule_start?(lhs)
       end
 
       # @rbs (Token lhs) -> bool

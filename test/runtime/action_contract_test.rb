@@ -102,7 +102,9 @@ class RuntimeActionContractTest < Minitest::Test
     ACTION_NAME = :_ibex_action_0 # rubocop:disable Naming/VariableNumber
     TABLES = RuntimeActionContractTest::TABLES.merge(
       format_version: 1,
-      productions: [{ lhs: 3, length: 1, action: ACTION_NAME, location_action: true }]
+      productions: [
+        { lhs: 3, length: 1, action: ACTION_NAME, location_action: true, composition_action: true }
+      ]
     ).freeze
 
     attr_reader :action_argument_count
@@ -115,6 +117,57 @@ class RuntimeActionContractTest < Minitest::Test
       @action_argument_count = 2
       values.fetch(0)
     end
+  end
+
+  class VersionTwoGeneratedShapeParser < BaseParser
+    ACTION_NAME = :_ibex_action_0 # rubocop:disable Naming/VariableNumber
+    TABLES = RuntimeActionContractTest::TABLES.merge(
+      format_version: 2,
+      productions: [
+        { lhs: 3, length: 1, action: ACTION_NAME, location_action: true, composition_action: true }
+      ]
+    ).freeze
+
+    attr_reader :action_argument_count
+
+    def self.parser_tables = TABLES
+
+    private
+
+    define_method(ACTION_NAME) do |values, _stack, _locations, _location_stack, _location|
+      @action_argument_count = 5
+      values.fetch(0)
+    end
+  end
+
+  class VersionThreeComposedShapeParser < BaseParser
+    ACTION_NAME = :_ibex_action_0 # rubocop:disable Naming/VariableNumber
+    TABLES = RuntimeActionContractTest::TABLES.merge(
+      productions: [
+        { lhs: 3, length: 1, action: ACTION_NAME, location_action: true, composition_action: true }
+      ]
+    ).freeze
+
+    attr_reader :action_argument_count
+
+    def self.parser_tables = TABLES
+
+    private
+
+    define_method(ACTION_NAME) do |values, _stack, _locations, _location_stack, _location, _lookahead|
+      @action_argument_count = 6
+      values.fetch(0)
+    end
+  end
+
+  class InconsistentCompositionParser < BaseParser
+    ACTION_NAME = :_ibex_action_0 # rubocop:disable Naming/VariableNumber
+    TABLES = RuntimeActionContractTest::TABLES.merge(
+      productions: [{ lhs: 3, length: 1, action: ACTION_NAME, composition_action: true }]
+    ).freeze
+
+    def self.parser_tables = TABLES
+    def next_token = raise("inconsistent parser read a token")
   end
 
   class MethodMissingParser < BaseParser
@@ -171,6 +224,29 @@ class RuntimeActionContractTest < Minitest::Test
 
     assert_equal :value, parser.do_parse
     assert_equal 2, parser.action_argument_count
+  end
+
+  def test_version_two_honors_locations_but_ignores_the_composition_marker
+    parser = VersionTwoGeneratedShapeParser.new([%i[TOKEN value]])
+
+    assert_equal :value, parser.do_parse
+    assert_equal 5, parser.action_argument_count
+  end
+
+  def test_version_three_composition_marker_receives_the_lookahead_location
+    parser = VersionThreeComposedShapeParser.new([%i[TOKEN value]])
+
+    assert_equal :value, parser.do_parse
+    assert_equal 6, parser.action_argument_count
+  end
+
+  def test_version_three_rejects_an_inconsistent_composition_marker_before_input
+    error = assert_raises(Ibex::Runtime::ParseError) do
+      InconsistentCompositionParser.new([%i[TOKEN value]]).do_parse
+    end
+
+    assert_match(/version 3 production 0/, error.message)
+    assert_match(/inconsistent :composition_action marker/, error.message)
   end
 
   def test_symbol_action_dispatches_through_method_missing

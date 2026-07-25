@@ -3,12 +3,14 @@
 require_relative "normalize/declarations"
 require_relative "normalize/expression"
 require_relative "normalize/parameter_validation"
+require_relative "normalize/inline_validation"
 require_relative "normalize/parameter_substitution"
 require_relative "normalize/parameter_ebnf_lowering"
 require_relative "normalize/parameter_lowering"
 require_relative "normalize/parameters"
 require_relative "normalize/named_references"
 require_relative "normalize/expander"
+require_relative "normalize/inline_expansion"
 require_relative "normalize/diagnostics"
 require_relative "frontend/resolution"
 
@@ -17,17 +19,20 @@ module Ibex
   class Normalizer
     include NormalizeDeclarations
     include NormalizeParameterValidation
+    include NormalizeInlineValidation
     include NormalizeParameterSubstitution
     include NormalizeParameterEbnfLowering
     include NormalizeParameterLowering
     include NormalizeParameters
     include NormalizeNamedReferences
     include NormalizeExpander
+    include NormalizeInlineExpansion
     include NormalizeDiagnostics
 
     RESERVED_NAMES = %w[result val _values].freeze #: Array[String]
     DEFAULT_MAX_PARAMETER_SPECIALIZATIONS = 1_000
     DEFAULT_MAX_PARAMETER_DEPTH = 16
+    DEFAULT_MAX_INLINE_EXPANSIONS = 10_000
 
     # @rbs @ast: Frontend::AST::Root
     # @rbs @resolution: Frontend::Resolution?
@@ -61,15 +66,21 @@ module Ibex
     # @rbs @max_parameter_depth: Integer
     # @rbs @current_parameter_expansion: IR::parameter_expansion?
     # @rbs @rule_documentation: Hash[String, String]
+    # @rbs @inline_rule_names: Set[String]
+    # @rbs @inline_symbol_ids: Set[Integer]
+    # @rbs @inline_rule_by_symbol: Hash[Integer, String]
+    # @rbs @max_inline_expansions: Integer
+    # @rbs @inline_expansion_count: Integer
 
     # @rbs (Frontend::AST::Root | Frontend::AST::Fragment | Frontend::Resolution input,
-    #   ?mode: Symbol | String, ?max_parameter_specializations: Integer, ?max_parameter_depth: Integer) -> void
+    #   ?mode: Symbol | String, ?max_parameter_specializations: Integer, ?max_parameter_depth: Integer,
+    #   ?max_inline_expansions: Integer) -> void
     def initialize(input, mode: :racc, max_parameter_specializations: DEFAULT_MAX_PARAMETER_SPECIALIZATIONS,
-                   max_parameter_depth: DEFAULT_MAX_PARAMETER_DEPTH)
-      unless max_parameter_specializations.positive?
-        raise ArgumentError, "max_parameter_specializations must be positive"
-      end
-      raise ArgumentError, "max_parameter_depth must be positive" unless max_parameter_depth.positive?
+                   max_parameter_depth: DEFAULT_MAX_PARAMETER_DEPTH,
+                   max_inline_expansions: DEFAULT_MAX_INLINE_EXPANSIONS)
+      validate_positive_limit!(:max_parameter_specializations, max_parameter_specializations)
+      validate_positive_limit!(:max_parameter_depth, max_parameter_depth)
+      validate_positive_limit!(:max_inline_expansions, max_inline_expansions)
 
       @resolution = input if input.is_a?(Frontend::Resolution)
       ast = input.is_a?(Frontend::Resolution) ? input.root : input
@@ -90,16 +101,22 @@ module Ibex
       @parameter_worklist_active = false
       @max_parameter_specializations = max_parameter_specializations
       @max_parameter_depth = max_parameter_depth
+      @max_inline_expansions = max_inline_expansions
+      @inline_expansion_count = 0
+      @inline_symbol_ids = Set.new #: Set[Integer]
+      @inline_rule_by_symbol = {} #: Hash[Integer, String]
     end
 
     # @rbs () -> IR::Grammar
     def normalize
       read_declarations
       gather_parameter_templates
+      gather_inline_rules
       intern_reserved_symbols
       intern_declared_terminals
       intern_user_nonterminals
       normalize_user_productions
+      expand_inline_rules
       validate_grammar
       IR::Grammar.new(class_name: @ast.class_name, superclass: @ast.superclass, start: @start_name,
                       expect: @expected_conflicts, options: @options, symbols: @symbols,
@@ -111,6 +128,13 @@ module Ibex
     end
 
     private
+
+    # @rbs (Symbol name, untyped value) -> void
+    def validate_positive_limit!(name, value)
+      return if value.is_a?(Integer) && value.positive?
+
+      raise ArgumentError, "#{name} must be a positive Integer"
+    end
 
     # @rbs () -> void
     def intern_reserved_symbols
@@ -127,13 +151,34 @@ module Ibex
     # @rbs () -> void
     def intern_user_nonterminals
       @ast.rules.reject { |rule| parameterized_rule?(rule) }.each do |rule|
-        intern(rule.lhs, :nonterminal, location: rule.loc.to_h, documentation: @rule_documentation[rule.lhs])
+        intern_user_nonterminal(rule)
       end
-      @start_name = @explicit_start || @ast.rules.find { |rule| !parameterized_rule?(rule) }&.lhs
+      @start_name = normalized_start_name
       fail_at(@ast.loc, "grammar has no start rule") unless @start_name
       return if symbol(@start_name)&.nonterminal?
 
       fail_at(@start_location || @ast.loc, "undefined start symbol #{@start_name}")
+    end
+
+    # @rbs () -> String?
+    def normalized_start_name
+      @explicit_start || @ast.rules.find { |rule| start_rule_candidate?(rule) }&.lhs
+    end
+
+    # @rbs (Frontend::AST::Rule rule) -> bool
+    def start_rule_candidate?(rule)
+      !parameterized_rule?(rule) && !rule.inline
+    end
+
+    # @rbs (Frontend::AST::Rule rule) -> void
+    def intern_user_nonterminal(rule)
+      definition = intern(
+        rule.lhs, :nonterminal, location: rule.loc.to_h, documentation: @rule_documentation[rule.lhs]
+      )
+      return unless rule.inline
+
+      @inline_symbol_ids << definition.id
+      @inline_rule_by_symbol[definition.id] = rule.lhs
     end
 
     # @rbs () -> Hash[String, String]

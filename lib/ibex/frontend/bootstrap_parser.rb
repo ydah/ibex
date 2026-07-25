@@ -37,6 +37,20 @@ module Ibex
                       rules: rules, user_code: user_code, loc: location)
       end
 
+      # @rbs () -> AST::Fragment
+      def parse_fragment
+        location = expect_keyword("fragment").location
+        extended_only!(location, "fragments")
+        declarations = parse_declarations
+        expect_keyword("rule")
+        rules = keyword?("end") ? Array.new(0) : parse_rules #: Array[AST::Rule]
+        expect_keyword("end")
+        user_code = parse_user_code
+        fail_at(user_code.values.flatten.first.loc, "user code is not allowed in fragments") unless user_code.empty?
+        expect(:eof)
+        AST::Fragment.new(declarations: declarations, rules: rules, loc: location)
+      end
+
       private
 
       # @rbs () -> String

@@ -22,6 +22,9 @@ module Ibex
       # @rbs () -> AST::Root
       def parse: () -> AST::Root
 
+      # @rbs () -> AST::Fragment
+      def parse_fragment: () -> AST::Fragment
+
       private
 
       # @rbs () -> String
