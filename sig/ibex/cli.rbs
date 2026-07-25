@@ -14,6 +14,8 @@ module Ibex
   class CLI
     include CLICounterexampleOptions
 
+    include CLIDiagnostics
+
     include CLIErrorMessages
 
     include CLIExplain
@@ -40,6 +42,9 @@ module Ibex
     def run: (Array[String] arguments) -> Integer
 
     private
+
+    # @rbs (Array[String] arguments) -> Integer?
+    def dispatch_subcommand: (Array[String] arguments) -> Integer?
 
     # @rbs () -> OptionParser
     def option_parser: () -> OptionParser

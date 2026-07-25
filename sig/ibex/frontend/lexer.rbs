@@ -8,6 +8,8 @@ module Ibex
 
       USER_CODE: Regexp
 
+      @active_token_start: SourcePosition?
+
       @eof_token: Token?
 
       @emitted_tokens: Array[Token]

@@ -1,0 +1,25 @@
+# Generated from lib/ibex/frontend/lexer_recovery.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    class Lexer
+      # Recover lexical failures while retaining every source byte.
+      # @rbs (?max_diagnostics: Integer) -> [SourceDocument, Array[Diagnostic]]
+      def tokenize_document_recovering: (?max_diagnostics: Integer) -> [ SourceDocument, Array[Diagnostic] ]
+
+      private
+
+      # @rbs (Exception error, capture: bool) -> Diagnostic?
+      def recover_lexical_error: (Exception error, capture: bool) -> Diagnostic?
+
+      # @rbs (Exception error, SourcePosition fallback) -> [Location, String]
+      def lexical_error_details: (Exception error, SourcePosition fallback) -> [ Location, String ]
+
+      # @rbs (SourcePosition start) -> void
+      def emit_invalid_segment: (SourcePosition start) -> void
+
+      # @rbs (Exception error, SourcePosition start) -> void
+      def advance_after_lexical_error: (Exception error, SourcePosition start) -> void
+    end
+  end
+end

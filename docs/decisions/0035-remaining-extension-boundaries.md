@@ -25,7 +25,9 @@ The following work requires a separately reviewed phase and ADR:
   backtraces and lets Steep associate each body with the generated reduction signature. The current generated RBS deliberately
   types the method boundary without claiming to check the body.
 - CPCT+-class repair and batch frontend diagnostics restart with a repair-cost policy, ambiguity/deduplication rules, bounded
-  search budgets, and fixtures proving recovery continues at useful synchronization points.
+  search budgets, and fixtures proving recovery continues at useful synchronization points. [ADR
+  0041](0041-bounded-frontend-diagnostics.md) satisfies and supersedes the batch frontend diagnostic boundary with conservative
+  source-region recovery; CPCT+-class runtime repair remains deferred.
 - `fmt` and LSP restart after a lossless concrete syntax tree preserves comments and whitespace. [ADR
   0040](0040-lossless-frontend-source-document.md) satisfies that prerequisite. Watch mode restarts with a portable
   event/polling policy and atomic regeneration contract.

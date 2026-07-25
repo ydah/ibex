@@ -1,0 +1,53 @@
+# Generated from lib/ibex/frontend/diagnostic.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # An immutable machine-readable frontend error.
+    class Diagnostic
+      attr_reader code: String
+
+      attr_reader phase: Symbol
+
+      attr_reader message: String
+
+      attr_reader location: Location
+
+      attr_reader span: SourceSpan?
+
+      attr_reader expected: Array[String]
+
+      attr_reader received: String?
+
+      # @rbs (code: String, phase: Symbol, message: String, location: Location, ?span: SourceSpan?,
+      #   ?expected: Array[String], ?received: String?, ?rendered: String?) -> void
+      def initialize: (code: String, phase: Symbol, message: String, location: Location, ?span: SourceSpan?, ?expected: Array[String], ?received: String?, ?rendered: String?) -> void
+
+      # @rbs () -> String
+      def severity: () -> String
+
+      # @rbs () -> String
+      def to_s: () -> String
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
+    end
+
+    # Immutable output from a diagnostic parse.
+    class ParseResult
+      attr_reader diagnostics: Array[Diagnostic]
+
+      attr_reader ast: AST::Root?
+
+      attr_reader document: SourceDocument?
+
+      # @rbs (diagnostics: Array[Diagnostic], ast: AST::Root?, document: SourceDocument?) -> void
+      def initialize: (diagnostics: Array[Diagnostic], ast: AST::Root?, document: SourceDocument?) -> void
+
+      # @rbs () -> bool
+      def success?: () -> bool
+
+      # @rbs () -> bool
+      def partial?: () -> bool
+    end
+  end
+end

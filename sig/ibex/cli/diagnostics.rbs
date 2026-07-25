@@ -1,0 +1,31 @@
+# Generated from lib/ibex/cli/diagnostics.rb with RBS::Inline
+
+module Ibex
+  # Batch frontend diagnostics subcommand.
+  module CLIDiagnostics
+    DIAGNOSTICS_SCHEMA_VERSION: Integer
+
+    DEFAULT_MAX_DIAGNOSTICS: Integer
+
+    type diagnostic_settings = { format: String, max_diagnostics: Integer, mode: Symbol, ?help: bool }
+
+    private def input_path: (Array[String]) -> String
+
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_diagnose_command: (Array[String] arguments) -> Integer
+
+    # @rbs (diagnostic_settings settings) -> OptionParser
+    def diagnostics_option_parser: (diagnostic_settings settings) -> OptionParser
+
+    # @rbs (String value) -> Integer
+    def positive_diagnostic_limit: (String value) -> Integer
+
+    # @rbs (Frontend::ParseResult result, format: String) -> void
+    def write_diagnostics: (Frontend::ParseResult result, format: String) -> void
+
+    # @rbs (Frontend::ParseResult result) -> Hash[String, untyped]
+    def diagnostics_document: (Frontend::ParseResult result) -> Hash[String, untyped]
+  end
+end

@@ -4,13 +4,27 @@ module Ibex
   module Frontend
     # Public grammar parser backed by Ibex's generated LR frontend.
     class Parser
+      DEFAULT_MAX_DIAGNOSTICS: Integer
+
+      STRICT_LEXICAL_DIAGNOSTIC_LIMIT: Integer
+
       attr_reader implementation: GeneratedParser
 
-      @source_document: SourceDocument?
+      @lexical_diagnostics: Array[Diagnostic]
+
+      @mode: Symbol
+
+      @tokens: Array[Token]
+
+      @source_document_error_message: String?
+
+      @parse_error_message: String?
+
+      @ast: AST::Root?
 
       @parsed_document: SourceDocument?
 
-      @ast: AST::Root?
+      @source_document: SourceDocument?
 
       # @rbs (String | Array[Token] source, ?file: String, ?mode: Symbol) -> void
       def initialize: (String | Array[Token] source, ?file: String, ?mode: Symbol) -> void
@@ -21,6 +35,27 @@ module Ibex
       # Parse the grammar and return its lossless source model.
       # @rbs () -> SourceDocument
       def parse_document: () -> SourceDocument
+
+      # Parse with conservative boundary recovery and collect multiple errors.
+      # @rbs (?max_diagnostics: Integer) -> ParseResult
+      def parse_with_diagnostics: (?max_diagnostics: Integer) -> ParseResult
+
+      private
+
+      # @rbs (String source, String file) -> Array[Token]
+      def tokenize_source: (String source, String file) -> Array[Token]
+
+      # @rbs (Integer max_diagnostics) -> Array[Diagnostic]
+      def lexical_diagnostics_for: (Integer max_diagnostics) -> Array[Diagnostic]
+
+      # @rbs (Array[Diagnostic] lexical, Array[Diagnostic] syntax, Integer limit) -> Array[Diagnostic]
+      def merge_diagnostics: (Array[Diagnostic] lexical, Array[Diagnostic] syntax, Integer limit) -> Array[Diagnostic]
+
+      # @rbs (Diagnostic diagnostic) -> [String, String, Integer, Integer, String]
+      def diagnostic_key: (Diagnostic diagnostic) -> [ String, String, Integer, Integer, String ]
+
+      # @rbs (Diagnostic diagnostic) -> [String, Integer, Integer, String, String]
+      def diagnostic_sort_key: (Diagnostic diagnostic) -> [ String, Integer, Integer, String, String ]
     end
   end
 end

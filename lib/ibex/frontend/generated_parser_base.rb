@@ -8,6 +8,8 @@ module Ibex
     class GeneratedParserBase < Runtime::Parser
       include GeneratedParserMetadata
 
+      attr_reader :diagnostic_token #: Token?
+
       # @rbs @adapter: TokenAdapter
       # @rbs @mode: Symbol
 
@@ -27,12 +29,18 @@ module Ibex
 
       # @rbs () -> ([external_token, Token] | false)
       def next_token
-        @adapter.next_token
+        delivered = @adapter.next_token
+        @diagnostic_token = delivered ? delivered.fetch(1) : @adapter.eof_token
+        delivered
+      rescue Ibex::Error
+        @diagnostic_token = @adapter.last_token || @adapter.eof_token
+        raise
       end
 
       # @rbs (Integer? _token_id, Token? value, Array[untyped] _value_stack) -> bot
       def on_error(_token_id, value, _value_stack)
         token = value || @adapter.eof_token
+        @diagnostic_token = token
         raise_contextual_error(token)
 
         received = token&.value || token&.type || :eof

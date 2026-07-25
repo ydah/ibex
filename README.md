@@ -140,9 +140,23 @@ Segment spans are half-open zero-based byte ranges with one-based line and Unico
 accepted input bytes must be valid UTF-8. Actions, every supported heredoc form, and user-code bodies are retained as opaque text,
 while user-code markers and repeated blocks remain separate. `Token#to_h`, AST output, and normalized IR are unchanged.
 
+For bounded multi-error analysis, use `Parser#parse_with_diagnostics(max_diagnostics: 20)`. Lexical and syntax analysis each
+collect at most that limit before the result selects the globally earliest records in source order. Its immutable result has
+machine-coded diagnostics and, when recovery reaches EOF, an explicitly partial AST containing later valid constructs. A result
+with diagnostics is never successful, and its original source document deliberately keeps `document.ast == nil`.
+
+```sh
+ibex diagnose grammar.y
+ibex diagnose --format=json --max-diagnostics=10 grammar.y
+```
+
+The command exits successfully only for an error-free grammar. Its versioned JSON contract is
+`schema/frontend-diagnostics-v1.schema.json`; diagnostic analysis does not generate or execute a parser.
+
 ## Pipeline and diagnostics
 
 ```sh
+ibex diagnose --format=json grammar.y
 ibex --emit=grammar-ir grammar.y > grammar.json
 ibex --from=grammar-ir --emit=automaton-ir grammar.json > automaton.json
 ibex --from=automaton-ir -o parser.rb automaton.json
@@ -248,8 +262,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 6,468 typed calls and 792 untyped calls out of 7,260 (89.1% typed).
-The generated signature tree contains 885 explicit `untyped` occurrences across 25 files.
+The current whole-library `steep stats` result is 6,885 typed calls and 804 untyped calls out of 7,689 (89.5% typed).
+The generated signature tree contains 889 explicit `untyped` occurrences across 27 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime
