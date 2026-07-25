@@ -90,7 +90,10 @@ module Ibex
 
     # @rbs () -> void
     def intern_user_nonterminals
-      @ast.rules.each { |rule| intern(rule.lhs, :nonterminal, location: rule.loc.to_h) }
+      documentation = validated_rule_documentation
+      @ast.rules.each do |rule|
+        intern(rule.lhs, :nonterminal, location: rule.loc.to_h, documentation: documentation[rule.lhs])
+      end
       @start_name = @explicit_start || @ast.rules.first&.lhs
       fail_at(@ast.loc, "grammar has no start rule") unless @start_name
       return if symbol(@start_name)&.nonterminal?
@@ -98,8 +101,24 @@ module Ibex
       fail_at(@start_location || @ast.loc, "undefined start symbol #{@start_name}")
     end
 
-    # @rbs (String name, Symbol kind, ?reserved: bool, ?location: IR::location?) -> IR::GrammarSymbol
-    def intern(name, kind, reserved: false, location: nil)
+    # @rbs () -> Hash[String, String]
+    def validated_rule_documentation
+      documentation = {} #: Hash[String, String]
+      @ast.rules.each do |rule|
+        text = rule.documentation
+        next unless text
+
+        existing = documentation[rule.lhs]
+        fail_at(rule.loc, "conflicting documentation for rule #{rule.lhs}") if existing && existing != text
+
+        documentation[rule.lhs] ||= text
+      end
+      documentation
+    end
+
+    # @rbs (String name, Symbol kind, ?reserved: bool, ?location: IR::location?,
+    #   ?documentation: String?) -> IR::GrammarSymbol
+    def intern(name, kind, reserved: false, location: nil, documentation: nil)
       existing = symbol(name)
       if existing
         fail_hash(location, "symbol #{name} is both terminal and nonterminal") if existing.kind != kind
@@ -109,7 +128,7 @@ module Ibex
       precedence = @precedence[name]
       definition = IR::GrammarSymbol.new(id: @symbols.length, name: name, kind: kind, reserved: reserved,
                                          precedence: precedence, location: location, display_name: @display_names[name],
-                                         semantic_type: @semantic_types[name])
+                                         semantic_type: @semantic_types[name], documentation: documentation)
       @symbols << definition
       @symbols_by_name[name] = definition
       definition

@@ -60,7 +60,7 @@ module Ibex
     def unwrap_reference: (Frontend::AST::item item) -> Frontend::AST::SymbolReference?
 
     # @rbs (String lhs_name, Array[String] rhs_names, IR::Action? action, String? precedence_name,
-    #   Hash[Symbol, untyped] origin) -> void
-    def add_production: (String lhs_name, Array[String] rhs_names, IR::Action? action, String? precedence_name, Hash[Symbol, untyped] origin) -> void
+    #   Hash[Symbol, untyped] origin, ?String? documentation) -> void
+    def add_production: (String lhs_name, Array[String] rhs_names, IR::Action? action, String? precedence_name, Hash[Symbol, untyped] origin, ?String? documentation) -> void
   end
 end

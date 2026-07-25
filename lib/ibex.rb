@@ -23,6 +23,7 @@ require_relative "ibex/codegen/dot"
 require_relative "ibex/codegen/mermaid"
 require_relative "ibex/codegen/html"
 require_relative "ibex/codegen/railroad"
+require_relative "ibex/codegen/documentation"
 
 # Ibex generates and runs Pure Ruby LR parsers.
 module Ibex

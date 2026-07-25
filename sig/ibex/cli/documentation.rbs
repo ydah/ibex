@@ -1,0 +1,25 @@
+# Generated from lib/ibex/cli/documentation.rb with RBS::Inline
+
+module Ibex
+  # Generates standalone grammar documentation from the canonical include closure.
+  module CLIDocumentation
+    type documentation_settings = { format: String, mode: Symbol, ?output: String, ?help: bool }
+
+    private def input_path: (Array[String]) -> String
+
+    private def same_file_target?: (String left, String right) -> bool
+
+    private def atomic_write_ir: (String path, String source) -> void
+
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_documentation_command: (Array[String] arguments) -> Integer
+
+    # @rbs (String output, Array[String] grammar_files) -> void
+    def reject_documentation_output_collision: (String output, Array[String] grammar_files) -> void
+
+    # @rbs (documentation_settings settings) -> OptionParser
+    def documentation_option_parser: (documentation_settings settings) -> OptionParser
+  end
+end

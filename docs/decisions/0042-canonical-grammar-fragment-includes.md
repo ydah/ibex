@@ -54,8 +54,9 @@ makes symlink aliases participate in cycle detection and prevents symlink escape
 
 The Normalizer rejects an unresolved `AST::Include` or `AST::Fragment`. Passing a `Resolution` supplies Grammar IR version 2
 with the canonical root directory in `source_provenance.root`, the original rule file in `origin.loc`, and a complete
-`expansion.include_chain`. Documentation fields remain `nil`. Version-1 production serialization still omits all version-2
-documentation and expansion fields.
+`expansion.include_chain`. ADR 0043 later attaches lossless rule documentation before resolution; fragment documentation follows
+the same merge, location, identity, and deep-freeze rules and populates version-2 symbol and production fields. Version-1
+production serialization still omits all version-2 documentation and expansion fields.
 
 Every CLI command that consumes a grammar path uses the same Resolver, including generation, checks, AST/IR output, diagnostics,
 `explain`, `samples`, and `errors`. `ibex diagnose` turns the first resolver grammar failure into an immutable syntax-phase
@@ -78,4 +79,4 @@ included fragment as a prerequisite, so changing any one invalidates the output.
 - Diagnostics distinguish grammar-graph failures from actual filesystem I/O failures.
 - Invalid Rake graphs cannot silently reuse a stale generated target.
 - CLI, Rake, and normalized IR observe one include order and one dependency closure.
-- Parameterized rules, inline rules, and rule documentation remain separate extension work.
+- Parameterized and inline rules remain separate extension work.

@@ -10,7 +10,9 @@ class CLIRailroadTest < Minitest::Test
       status = run_cli(["--railroad=#{railroad}", "-o", parser, grammar])
 
       assert_equal 0, status
-      assert_includes File.read(railroad), "<svg"
+      source = File.read(railroad)
+      assert_includes source, "<svg"
+      assert_includes source, "Documented start"
       assert File.exist?(parser)
     end
   end
@@ -55,7 +57,7 @@ class CLIRailroadTest < Minitest::Test
       grammar = File.join(directory, "grammar.y")
       railroad = File.join(directory, "grammar.svg")
       parser = File.join(directory, "parser.rb")
-      File.write(grammar, "class Diagram\nrule\nstart: TOKEN | empty\nempty:\nend\n")
+      File.write(grammar, "class Diagram\nrule\n## Documented start\nstart: TOKEN | empty\nempty:\nend\n")
       yield grammar, railroad, parser
     end
   end

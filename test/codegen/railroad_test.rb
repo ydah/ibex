@@ -41,6 +41,28 @@ class RailroadTest < Minitest::Test
     assert_includes svg, "Diagram\uFFFDInjected"
   end
 
+  def test_renders_escaped_wrapped_rule_documentation_without_overlapping_productions
+    description = "<unsafe>& #{'documented ' * 12}"
+    source = <<~GRAMMAR
+      class Diagram
+      rule
+      ## #{description}
+      ## second line
+      start: TOKEN
+      end
+    GRAMMAR
+    ast = Ibex::Frontend::Parser.new(source, file: "diagram.y", mode: :extended).parse
+    svg = Ibex::Codegen::Railroad.render(Ibex::Normalizer.new(ast, mode: :extended).normalize)
+
+    assert_includes svg, "<desc>&lt;unsafe&gt;&amp;"
+    assert_includes svg, "class=\"rule-documentation\""
+    assert_operator svg.scan("class=\"rule-documentation\"").length, :>=, 3
+    refute_includes svg, "<unsafe>"
+    documentation_y = svg[/class="rule-documentation" x="\d+" y="(\d+)"/, 1].to_i
+    production_y = svg[/class="production"[^>]+translate\(0 (\d+)\)/, 1].to_i
+    assert_operator production_y, :>, documentation_y
+  end
+
   private
 
   def diagram_grammar

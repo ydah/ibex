@@ -138,7 +138,8 @@ document.slice(document.tokens.first.span)
 
 Segment spans are half-open zero-based byte ranges with one-based line and Unicode-scalar columns. CRLF is one line break;
 accepted input bytes must be valid UTF-8. Actions, every supported heredoc form, and user-code bodies are retained as opaque text,
-while user-code markers and repeated blocks remain separate. `Token#to_h`, AST output, and normalized IR are unchanged.
+while user-code markers and repeated blocks remain separate. `Token#to_h` remains unchanged; documented rules add the nullable
+AST and reserved Grammar IR v2 fields described below.
 
 ## Grammar fragments
 
@@ -180,6 +181,34 @@ cross-file resolution or fragment syntax failure through its normal text/JSON di
 remain invocation errors on stderr. Rake tasks resolve and validate the complete include graph while the task is defined, so an
 invalid graph fails even when an older generated target is newer than the root grammar.
 
+## Rule documentation
+
+Consecutive `##` comments on the immediately preceding lines document a rule:
+
+```text
+rule
+## Parses an expression.
+## Preserves source order.
+expression: NUMBER | expression '+' NUMBER
+end
+```
+
+Indentation before `##` is allowed. A blank line, ordinary `#` comment, block comment, token, or opaque Ruby action breaks the
+attachment. Ibex strips `##` and one optional following space while preserving internal lines. Repeated definitions may reuse
+the same text; a different later description is a positioned error. Included fragment documentation is retained in resolved
+Grammar IR version 2, while version-1 output continues to omit documentation fields.
+
+Render standalone documentation to stdout or atomically to a file:
+
+```sh
+ibex doc grammar.y
+ibex doc --format=html -o grammar.html grammar.y
+ibex doc --format=railroad --mode=extended -o grammar.svg grammar.y
+```
+
+Markdown, self-contained accessible HTML, and railroad SVG escape grammar-controlled text. Existing `--railroad=FILE` output
+also displays wrapped rule documentation.
+
 For bounded multi-error analysis, use `Parser#parse_with_diagnostics(max_diagnostics: 20)`. Lexical and syntax analysis each
 collect at most that limit before the result selects the globally earliest records in source order. Its immutable result has
 machine-coded diagnostics and, when recovery reaches EOF, an explicitly partial AST containing later valid constructs. A result
@@ -197,6 +226,7 @@ The command exits successfully only for an error-free grammar. Its versioned JSO
 
 ```sh
 ibex diagnose --format=json grammar.y
+ibex doc --format=html -o grammar.html grammar.y
 ibex --emit=grammar-ir grammar.y > grammar.json
 ibex --from=grammar-ir --emit=automaton-ir grammar.json > automaton.json
 ibex --from=automaton-ir -o parser.rb automaton.json
@@ -302,7 +332,7 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 7,160 typed calls and 822 untyped calls out of 7,982 (89.7% typed).
+The current whole-library `steep stats` result is 7,429 typed calls and 840 untyped calls out of 8,269 (89.8% typed).
 The generated signature tree contains 935 explicit `untyped` occurrences across 28 files.
 <!-- type-stats:end -->
 

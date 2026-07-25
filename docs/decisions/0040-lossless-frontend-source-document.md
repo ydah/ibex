@@ -40,14 +40,17 @@ Grammar input bytes are interpreted as UTF-8 without transcoding. The frontend d
 and rejects an invalid byte sequence before tokenization. This preserves every accepted byte and never mutates the caller's
 string. LSP UTF-16 code-unit conversion is intentionally a later adapter over this byte/scalar contract.
 
-`Token#span` is an optional in-memory field. `Token#to_h`, AST hashes, normalized IR, and all existing locations remain
-unchanged. Segment and CST collections are immutable; semantic token objects retain their existing compatibility behavior.
+`Token#span` is an optional in-memory field. `Token#to_h`, normalized IR, and all existing locations remain unchanged by this
+decision. ADR 0043 later uses segment positions to add nullable documentation to `AST::Rule` and reserved Grammar IR v2 fields
+without changing token serialization. Segment and CST collections are immutable; semantic token objects retain their existing
+compatibility behavior.
 
 ## Consequences
 
 - `document.render == input` is a checked invariant, including comments, trailing whitespace, CRLF, Ruby actions, heredocs,
   repeated user code, and EOF.
-- Formatting, doc-comment attachment, includes, and LSP work can share one source contract without altering grammar meaning.
+- Formatting, includes, and LSP work can share one source contract without altering grammar meaning. ADR 0043 completes
+  doc-comment attachment on this model.
 - Byte slicing is exact and editor coordinate conversion has one documented starting point.
 - Invalid UTF-8 fails earlier and more clearly than an incidental regular-expression or token error.
 - The CST does not claim semantic nesting. Tools that need grammar meaning use `SourceDocument#ast`; tools that need exact text

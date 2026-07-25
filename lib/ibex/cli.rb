@@ -4,6 +4,7 @@ require "optparse"
 require_relative "../ibex"
 require_relative "cli/counterexample_options"
 require_relative "cli/diagnostics"
+require_relative "cli/documentation"
 require_relative "cli/error_messages"
 require_relative "cli/explain"
 require_relative "cli/ir_tools"
@@ -68,6 +69,7 @@ module Ibex
   class CLI
     include CLICounterexampleOptions
     include CLIDiagnostics
+    include CLIDocumentation
     include CLIErrorMessages
     include CLIExplain
     include CLIIRTools
@@ -118,6 +120,7 @@ module Ibex
       remaining = arguments.drop(1)
       case arguments.first
       when "diagnose" then run_diagnose_command(remaining)
+      when "doc" then run_documentation_command(remaining)
       when "errors" then run_error_messages_command(remaining)
       when "explain" then run_explain_command(remaining)
       when "samples" then run_samples_command(remaining)
@@ -139,6 +142,7 @@ module Ibex
         options.separator("")
         options.separator("Subcommands:")
         options.separator("    diagnose                  collect frontend diagnostics")
+        options.separator("    doc                       render grammar documentation")
         options.separator("    errors --update[=FILE]  update state-specific syntax error messages")
         options.separator("    explain                   explain selected parser conflicts")
         options.separator("    samples                   generate bounded terminal sentences")

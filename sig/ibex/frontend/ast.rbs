@@ -159,15 +159,17 @@ module Ibex
                     | ({ ?name: String, ?value: String, ?loc: Location }) -> instance
       end
 
-      class Rule < Struct[String | Array[Alternative] | Location]
+      class Rule < Struct[String | Array[Alternative] | Location | String?]
         attr_accessor lhs(): String
 
         attr_accessor alternatives(): Array[Alternative]
 
         attr_accessor loc(): Location
 
-        def self.new: (?lhs: String, ?alternatives: Array[Alternative], ?loc: Location) -> instance
-                    | ({ ?lhs: String, ?alternatives: Array[Alternative], ?loc: Location }) -> instance
+        attr_accessor documentation(): String?
+
+        def self.new: (?lhs: String, ?alternatives: Array[Alternative], ?loc: Location, ?documentation: String?) -> instance
+                    | ({ ?lhs: String, ?alternatives: Array[Alternative], ?loc: Location, ?documentation: String? }) -> instance
       end
 
       class Alternative < Struct[Array[item] | InlineAction? | String? | Location]
