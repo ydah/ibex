@@ -27,7 +27,10 @@ returns a `SourceDocument` whose source, token-indexed segments, and AST come fr
 `SourceSpan` uses half-open zero-based byte offsets and one-based Unicode-scalar line/column positions. Actions and user-code
 bodies remain opaque segments; whitespace, line breaks, both comment forms, user-code markers, and EOF remain individually traversable.
 `render`, byte slicing, and byte/line/column conversion provide the common source contract for formatter, documentation, include,
-and language-server layers. See [ADR 0040](decisions/0040-lossless-frontend-source-document.md).
+and language-server layers. `RuleDocumentation` correlates immediately preceding `##` comment-only lines with semantic rule
+locations and copy-enriches generated Root/Fragment nodes; occupied opaque-segment lines are never scanned as comments. See
+[ADR 0040](decisions/0040-lossless-frontend-source-document.md) and [ADR
+0043](decisions/0043-lossless-rule-documentation.md).
 
 Extended grammar paths cross an explicit `Frontend::Resolver` boundary. Roots retain class, start, options, and user code;
 fragments contain composable declarations and rules. Canonical realpaths define DFS order, diamond deduplication, cycle identity,
@@ -99,11 +102,17 @@ New normalized grammars use version 2. It keeps every version-1 semantic field a
 | action | `composition {strategy, fragments}` |
 
 The source-only text frontend supplies the source filename and leaves unknown metadata null. A resolved grammar also supplies its
-canonical source root and each production's include chain while preserving its original-file origin; documentation remains null.
-Version-1 upgrades mark every unrecoverable metadata family in `migration.unavailable` instead of guessing.
+canonical source root and each production's include chain while preserving its original-file origin. Lossless rule comments
+populate symbol and user-production documentation, including through fragment resolution; synthetic EBNF helpers remain
+undocumented. Version-1 upgrades mark every unrecoverable metadata family in `migration.unavailable` instead of guessing.
 `Serialize.load` and `Validator.validate` accept both versions; a loaded version-1 object dumps with the original version-1
 shape. `IR::Migration.to_version` upgrades version 1 to 2 and is idempotent at version 2. The CLI exposes this as
 `ibex migrate-ir INPUT --to=2 [-o FILE]`; file output uses an atomic same-directory rename and refuses to alias the input.
+
+`Codegen::Documentation` renders normalized user rules and alternatives as escaped Markdown, self-contained accessible HTML, or
+railroad SVG. The railroad renderer includes visible wrapped rule descriptions in its section-height calculation and exposes the
+full escaped text through SVG descriptions. `ibex doc` resolves the same canonical include graph and writes to stdout or an
+atomic file without generating or executing application parser code.
 
 ## Automaton IR versions 1 and 2
 

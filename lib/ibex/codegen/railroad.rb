@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "symbol_labels"
+require_relative "railroad_documentation"
 
 module Ibex
   module Codegen
@@ -24,6 +25,7 @@ module Ibex
         text { fill: #172033; font: 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
         .diagram-title { font-size: 18px; font-weight: 700; }
         .rule-name { font-weight: 700; }
+        .rule-documentation { fill: #4b5565; font: 12px system-ui, sans-serif; }
         .production-id { fill: #697386; font-size: 11px; text-anchor: end; }
         .track { fill: none; stroke: #697386; stroke-width: 2; }
         .start { fill: #172033; }
@@ -35,6 +37,8 @@ module Ibex
         .symbol-label { text-anchor: middle; }
         .epsilon { fill: #697386; font-style: italic; text-anchor: middle; }
       CSS
+
+      extend RailroadDocumentation
 
       class << self
         # @rbs (IR::Grammar grammar) -> String
@@ -63,12 +67,17 @@ module Ibex
         def document_width(grammar, groups, labels, rail_x)
           rows = groups.flat_map(&:last)
           widest = rows.map { |production| row_end_x(grammar, production, labels, rail_x) }.max
-          [widest.to_i + PAGE_PADDING, label_width("#{grammar.class_name} grammar") + (PAGE_PADDING * 2), 360].max
+          documentation_width = groups.flat_map { |symbol, _| documentation_lines(symbol.documentation) }
+                                      .map { |line| label_width(line) + (PAGE_PADDING * 2) }.max
+          [widest.to_i + PAGE_PADDING, documentation_width.to_i,
+           label_width("#{grammar.class_name} grammar") + (PAGE_PADDING * 2), 360].max
         end
 
         # @rbs (Array[[IR::GrammarSymbol, Array[IR::Production]]] groups) -> Integer
         def document_height(groups)
-          sections = groups.sum { |_symbol, productions| SECTION_HEADER + ([productions.length, 1].max * ROW_HEIGHT) }
+          sections = groups.sum do |symbol, productions|
+            section_header_height(symbol) + ([productions.length, 1].max * ROW_HEIGHT)
+          end
           TITLE_HEIGHT + sections + (SECTION_GAP * [groups.length - 1, 0].max) + PAGE_PADDING
         end
 
@@ -95,21 +104,23 @@ module Ibex
           groups.each do |symbol, productions|
             lines << %(  <g id="nonterminal-#{escape(symbol.id)}" class="rule" transform="translate(0 #{y})">)
             lines << %(    <text class="rule-name" x="#{PAGE_PADDING}" y="20">#{escape(labels.fetch(symbol.id))}</text>)
-            append_productions(lines, grammar, productions, labels, rail_x)
+            append_rule_documentation(lines, symbol)
+            header_height = section_header_height(symbol)
+            append_productions(lines, grammar, productions, labels, rail_x, header_height)
             lines << "  </g>"
-            y += SECTION_HEADER + ([productions.length, 1].max * ROW_HEIGHT) + SECTION_GAP
+            y += header_height + ([productions.length, 1].max * ROW_HEIGHT) + SECTION_GAP
           end
         end
 
         # @rbs (Array[String] lines, IR::Grammar grammar, Array[IR::Production] productions,
-        #   Hash[Integer, String] labels, Integer rail_x) -> void
-        def append_productions(lines, grammar, productions, labels, rail_x)
+        #   Hash[Integer, String] labels, Integer rail_x, Integer header_height) -> void
+        def append_productions(lines, grammar, productions, labels, rail_x, header_height)
           if productions.empty?
-            lines << %(    <text class="epsilon" x="#{rail_x}" y="#{SECTION_HEADER + 18}">∅</text>)
+            lines << %(    <text class="epsilon" x="#{rail_x}" y="#{header_height + 18}">∅</text>)
             return
           end
           productions.each_with_index do |production, index|
-            y = SECTION_HEADER + (index * ROW_HEIGHT) + (BOX_HEIGHT / 2)
+            y = header_height + (index * ROW_HEIGHT) + (BOX_HEIGHT / 2)
             lines.concat(production_lines(grammar, production, labels, rail_x, y))
           end
         end
@@ -179,19 +190,6 @@ module Ibex
         def label_width(value)
           glyph_width = value.each_char.sum { |character| character.ascii_only? ? CHAR_WIDTH : CHAR_WIDTH * 2 }
           [glyph_width + BOX_PADDING, 38].max
-        end
-
-        # @rbs (Integer from, Integer to) -> String
-        def track(from, to)
-          %(<line class="track" x1="#{from}" y1="0" x2="#{to}" y2="0"/>)
-        end
-
-        # @rbs (String | Integer value) -> String
-        def escape(value)
-          xml = value.to_s.encode(Encoding::UTF_8, invalid: :replace, undef: :replace)
-                     .gsub(/[^\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD\u{10000}-\u{10FFFF}]/u, "\uFFFD")
-          xml.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")
-             .gsub('"', "&quot;").gsub("'", "&apos;")
         end
       end
     end

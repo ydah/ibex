@@ -16,6 +16,8 @@ module Ibex
 
     include CLIDiagnostics
 
+    include CLIDocumentation
+
     include CLIErrorMessages
 
     include CLIExplain

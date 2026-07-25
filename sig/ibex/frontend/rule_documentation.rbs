@@ -1,0 +1,39 @@
+# Generated from lib/ibex/frontend/rule_documentation.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Attaches immediately preceding lossless line-comment blocks to parsed rules.
+    class RuleDocumentation
+      EMPTY_SEGMENTS: Array[Segment]
+
+      # @rbs (AST::Root | AST::Fragment node, SourceDocument document) -> (AST::Root | AST::Fragment)
+      def self.enrich: (AST::Root | AST::Fragment node, SourceDocument document) -> (AST::Root | AST::Fragment)
+
+      # @rbs (SourceDocument document) -> void
+      def initialize: (SourceDocument document) -> void
+
+      # @rbs (AST::Root | AST::Fragment node) -> (AST::Root | AST::Fragment)
+      def enrich: (AST::Root | AST::Fragment node) -> (AST::Root | AST::Fragment)
+
+      private
+
+      # @rbs (AST::Rule rule) -> AST::Rule
+      def documented_rule: (AST::Rule rule) -> AST::Rule
+
+      # @rbs (Integer rule_line) -> String?
+      def documentation_before: (Integer rule_line) -> String?
+
+      # @rbs (Integer line) -> String?
+      def documentation_line: (Integer line) -> String?
+
+      # @rbs (Segment segment, Segment comment) -> bool
+      def documentation_line_segment?: (Segment segment, Segment comment) -> bool
+
+      # @rbs (SourceDocument document) -> Hash[Integer, Array[Segment]]
+      def index_segments: (SourceDocument document) -> Hash[Integer, Array[Segment]]
+
+      # @rbs (Segment segment) -> Array[Integer]
+      def covered_lines: (Segment segment) -> Array[Integer]
+    end
+  end
+end

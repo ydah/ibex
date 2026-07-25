@@ -49,6 +49,9 @@ module Ibex
       # @rbs () -> (AST::Root | AST::Fragment)
       def parse_node: () -> (AST::Root | AST::Fragment)
 
+      # @rbs (AST::Root | AST::Fragment node) -> (AST::Root | AST::Fragment)
+      def enrich_rule_documentation: (AST::Root | AST::Fragment node) -> (AST::Root | AST::Fragment)
+
       # @rbs (AST::Root | AST::Fragment | nil node, Array[Diagnostic] diagnostics) ->
       #   [AST::Root?, Array[Diagnostic]]
       def root_diagnostic_result: (AST::Root | AST::Fragment | nil node, Array[Diagnostic] diagnostics) -> [ AST::Root?, Array[Diagnostic] ]

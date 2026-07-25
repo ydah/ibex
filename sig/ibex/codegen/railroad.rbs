@@ -33,6 +33,8 @@ module Ibex
       # @rbs STYLE: String
       STYLE: ::String
 
+      extend RailroadDocumentation
+
       # @rbs (IR::Grammar grammar) -> String
       def self.render: (IR::Grammar grammar) -> String
 
@@ -55,8 +57,8 @@ module Ibex
       private def self.append_sections: (Array[String] lines, IR::Grammar grammar, Array[[ IR::GrammarSymbol, Array[IR::Production] ]] groups, Hash[Integer, String] labels, Integer rail_x) -> void
 
       # @rbs (Array[String] lines, IR::Grammar grammar, Array[IR::Production] productions,
-      #   Hash[Integer, String] labels, Integer rail_x) -> void
-      private def self.append_productions: (Array[String] lines, IR::Grammar grammar, Array[IR::Production] productions, Hash[Integer, String] labels, Integer rail_x) -> void
+      #   Hash[Integer, String] labels, Integer rail_x, Integer header_height) -> void
+      private def self.append_productions: (Array[String] lines, IR::Grammar grammar, Array[IR::Production] productions, Hash[Integer, String] labels, Integer rail_x, Integer header_height) -> void
 
       # @rbs (IR::Grammar grammar, IR::Production production, Hash[Integer, String] labels,
       #   Integer rail_x, Integer offset_y) -> Array[String]
@@ -75,12 +77,6 @@ module Ibex
 
       # @rbs (String value) -> Integer
       private def self.label_width: (String value) -> Integer
-
-      # @rbs (Integer from, Integer to) -> String
-      private def self.track: (Integer from, Integer to) -> String
-
-      # @rbs (String | Integer value) -> String
-      private def self.escape: (String | Integer value) -> String
     end
   end
 end

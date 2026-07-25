@@ -11,6 +11,8 @@ module Ibex
 
     RESERVED_NAMES: Array[String]
 
+    @resolution: Frontend::Resolution?
+
     @current_include_chain: Array[IR::source_provenance]
 
     @mode: Symbol
@@ -51,8 +53,6 @@ module Ibex
 
     @start_location: Frontend::Location?
 
-    @resolution: Frontend::Resolution?
-
     @ast: Frontend::AST::Root
 
     # @rbs (Frontend::AST::Root | Frontend::AST::Fragment | Frontend::Resolution input,
@@ -73,8 +73,12 @@ module Ibex
     # @rbs () -> void
     def intern_user_nonterminals: () -> void
 
-    # @rbs (String name, Symbol kind, ?reserved: bool, ?location: IR::location?) -> IR::GrammarSymbol
-    def intern: (String name, Symbol kind, ?reserved: bool, ?location: IR::location?) -> IR::GrammarSymbol
+    # @rbs () -> Hash[String, String]
+    def validated_rule_documentation: () -> Hash[String, String]
+
+    # @rbs (String name, Symbol kind, ?reserved: bool, ?location: IR::location?,
+    #   ?documentation: String?) -> IR::GrammarSymbol
+    def intern: (String name, Symbol kind, ?reserved: bool, ?location: IR::location?, ?documentation: String?) -> IR::GrammarSymbol
 
     # @rbs (String name) -> IR::GrammarSymbol?
     def symbol: (String name) -> IR::GrammarSymbol?

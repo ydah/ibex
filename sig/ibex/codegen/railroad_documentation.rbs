@@ -1,0 +1,31 @@
+# Generated from lib/ibex/codegen/railroad_documentation.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Documentation layout helpers mixed into the railroad renderer singleton.
+    module RailroadDocumentation
+      DOCUMENTATION_COLUMNS: Integer
+
+      DOCUMENTATION_LINE_HEIGHT: Integer
+
+      DOCUMENTATION_GAP: Integer
+
+      private
+
+      # @rbs (Array[String] lines, IR::GrammarSymbol symbol) -> void
+      def append_rule_documentation: (Array[String] lines, IR::GrammarSymbol symbol) -> void
+
+      # @rbs (IR::GrammarSymbol symbol) -> Integer
+      def section_header_height: (IR::GrammarSymbol symbol) -> Integer
+
+      # @rbs (String? documentation) -> Array[String]
+      def documentation_lines: (String? documentation) -> Array[String]
+
+      # @rbs (String | Integer value) -> String
+      def escape: (String | Integer value) -> String
+
+      # @rbs (Integer from, Integer to) -> String
+      def track: (Integer from, Integer to) -> String
+    end
+  end
+end

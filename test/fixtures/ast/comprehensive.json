@@ -152,7 +152,8 @@
         "file": "comprehensive.y",
         "line": 15,
         "column": 3
-      }
+      },
+      "documentation": null
     },
     {
       "node": "Rule",
@@ -235,7 +236,8 @@
         "file": "comprehensive.y",
         "line": 16,
         "column": 3
-      }
+      },
+      "documentation": null
     },
     {
       "node": "Rule",
@@ -279,7 +281,8 @@
         "file": "comprehensive.y",
         "line": 18,
         "column": 3
-      }
+      },
+      "documentation": null
     }
   ],
   "user_code": {

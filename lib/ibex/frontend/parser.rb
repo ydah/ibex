@@ -80,6 +80,7 @@ module Ibex
           @tokens, mode: @mode, max_diagnostics: max_diagnostics
         )
         node, syntax_diagnostics = recovery.parse
+        node = enrich_rule_documentation(node) if node
         ast, syntax_diagnostics = root_diagnostic_result(node, syntax_diagnostics)
         diagnostics = merge_diagnostics(lexical_diagnostics, syntax_diagnostics, max_diagnostics)
         document = if diagnostics.empty? && ast
@@ -104,11 +105,19 @@ module Ibex
         return node if node
 
         begin
-          @parsed_node = @implementation.parse
+          @parsed_node = enrich_rule_documentation(@implementation.parse)
         rescue Ibex::Error => e
           @parse_error_message = e.message.dup.freeze
           raise
         end
+      end
+
+      # @rbs (AST::Root | AST::Fragment node) -> (AST::Root | AST::Fragment)
+      def enrich_rule_documentation(node)
+        source_document = @source_document
+        return node unless source_document
+
+        RuleDocumentation.enrich(node, source_document)
       end
 
       # @rbs (AST::Root | AST::Fragment | nil node, Array[Diagnostic] diagnostics) ->

@@ -1,0 +1,50 @@
+# Generated from lib/ibex/codegen/documentation.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Renders normalized user rules as deterministic Markdown, HTML, or railroad SVG.
+    module Documentation
+      FORMATS: Array[String]
+
+      # @rbs (IR::Grammar grammar, format: String | Symbol) -> String
+      def self.render: (IR::Grammar grammar, format: String | Symbol) -> String
+
+      # @rbs (IR::Grammar grammar) -> String
+      private def self.render_markdown: (IR::Grammar grammar) -> String
+
+      # @rbs (Array[String] lines, String? documentation) -> void
+      private def self.append_markdown_documentation: (Array[String] lines, String? documentation) -> void
+
+      # @rbs (IR::Grammar grammar, IR::Production production, Hash[Integer, String] labels) -> String
+      private def self.markdown_alternative: (IR::Grammar grammar, IR::Production production, Hash[Integer, String] labels) -> String
+
+      # @rbs (IR::Grammar grammar) -> String
+      private def self.render_html: (IR::Grammar grammar) -> String
+
+      # @rbs (String title) -> Array[String]
+      private def self.html_start: (String title) -> Array[String]
+
+      # @rbs (Array[String] lines, IR::Grammar grammar, IR::GrammarSymbol symbol,
+      #   Array[IR::Production] productions, Hash[Integer, String] labels) -> void
+      private def self.append_html_rule: (Array[String] lines, IR::Grammar grammar, IR::GrammarSymbol symbol, Array[IR::Production] productions, Hash[Integer, String] labels) -> void
+
+      # @rbs (IR::Grammar grammar, IR::Production production, Hash[Integer, String] labels) -> String
+      private def self.html_alternative: (IR::Grammar grammar, IR::Production production, Hash[Integer, String] labels) -> String
+
+      # @rbs (IR::Grammar grammar) -> Array[[IR::GrammarSymbol, Array[IR::Production]]]
+      private def self.rule_groups: (IR::Grammar grammar) -> Array[[ IR::GrammarSymbol, Array[IR::Production] ]]
+
+      # @rbs (String value) -> String
+      private def self.markdown_code: (String value) -> String
+
+      # @rbs (String value) -> bool
+      private def self.markdown_code_padding?: (String value) -> bool
+
+      # @rbs (String value) -> String
+      private def self.markdown_escape: (String value) -> String
+
+      # @rbs (String value) -> String
+      private def self.html_escape: (String value) -> String
+    end
+  end
+end

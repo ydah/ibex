@@ -112,6 +112,7 @@ module Ibex
         :lhs, #: String
         :alternatives, #: Array[Alternative]
         :loc, #: Location
+        :documentation, #: String?
         keyword_init: true
       ) { include Node }
       Alternative = Struct.new(

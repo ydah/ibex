@@ -47,6 +47,28 @@ returns the merged root and canonical dependency closure. `Parser#parse_fragment
 including AST strings and locations and defensively copied include provenance. Canonical directory ancestry, rather than a
 string-prefix comparison, enforces the source-root boundary and remains valid when the source root is a filesystem or drive root.
 
+Immediately preceding `##` line comments attach documentation to a rule:
+
+```text
+  ## First line
+  ##  one extra leading space is retained
+  value: TOKEN
+```
+
+Indentation before the comment is ignored. Ibex removes `##` and one optional space, so the example stores
+`"First line\n one extra leading space is retained"`. The lines must be consecutive and directly above the LHS. Blank lines,
+ordinary `#` comments, block comments, grammar tokens, and opaque actions or heredocs break attachment. The association uses
+lossless segment spans rather than rescanning raw text. Documentation works in roots and fragments and is nullable on
+`AST::Rule`.
+
+For repeated definitions, every normalized user production keeps its definition's documentation. The nonterminal symbol uses
+the first nonnil text; a different later nonnil text is a positioned error, while the same text is accepted. Grammar IR v2
+serializes `doc` on symbols and productions. Version 1 omits those fields.
+
+`ibex doc [--format=markdown|html|railroad] [-o FILE] [--mode=MODE] grammar.y` renders the canonical resolved grammar. Output
+defaults to Markdown on stdout. HTML is accessible and self-contained, railroad output includes visible wrapped descriptions,
+and all formats escape grammar-controlled text. `-o` writes atomically and cannot alias the input grammar.
+
 The programmatic frontend can preserve this file exactly with
 `Ibex::Frontend::Parser.new(source, file: path).parse_document`. The returned source document contains the same semantic AST as
 `parse` plus immutable token, whitespace, line-break, comment, action, user-code marker/body, and EOF segments. `render` reproduces the input
@@ -69,7 +91,8 @@ filesystem read failures remain CLI invocation errors on stderr and do not produ
   are positioned errors. The pragma is consumed by the frontend and is not stored in AST or Grammar IR output.
 - `include "relative/path.y"` inserts one explicit fragment through the canonical resolver. It is available only in extended
   mode and is intentionally not followed by the source-only `Parser` API.
-
+- `## text` is a lossless line comment rather than a parser declaration. A consecutive block immediately above a rule supplies
+  its documentation as described above.
 - `token NAME ...` declares terminals for typo diagnostics. It is optional. Uppercase names and quoted strings are terminals;
   lowercase names are nonterminals unless they are `error`.
 - A `prechigh ... preclow` block lists precedence from high to low; `preclow ... prechigh` lists it from low to high. Each level
