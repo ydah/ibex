@@ -16,6 +16,13 @@ module Ibex
     # @rbs (Array[String] arguments) -> Integer
     def run_diagnose_command: (Array[String] arguments) -> Integer
 
+    # Cross-file recovery is deliberately bounded to the first resolver error.
+    # @rbs (Frontend::ParseResult result, String path, Symbol mode) -> Frontend::ParseResult
+    def resolve_diagnostic_result: (Frontend::ParseResult result, String path, Symbol mode) -> Frontend::ParseResult
+
+    # @rbs (Ibex::Error error, String fallback_file) -> Frontend::Diagnostic
+    def resolution_diagnostic: (Ibex::Error error, String fallback_file) -> Frontend::Diagnostic
+
     # @rbs (diagnostic_settings settings) -> OptionParser
     def diagnostics_option_parser: (diagnostic_settings settings) -> OptionParser
 

@@ -1,0 +1,81 @@
+# Generated from lib/ibex/frontend/resolver.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # An actual filesystem read failure while resolving a grammar closure.
+    class ResolutionIOError < Ibex::Error
+    end
+
+    # Loads an explicit root grammar and resolves its extended-mode fragment graph.
+    class Resolver
+      GLOB_CHARACTERS: Regexp
+
+      WINDOWS_ABSOLUTE: Regexp
+
+      @include_chains: Hash[AST::Rule, Array[IR::source_provenance]]
+
+      @loaded: Hash[String, bool]
+
+      @visiting: Array[String]
+
+      @files: Array[String]
+
+      @root_directory: String
+
+      @root_path: String
+
+      @mode: Symbol
+
+      @input_path: String
+
+      # @rbs (String path, ?mode: Symbol) -> void
+      def initialize: (String path, ?mode: Symbol) -> void
+
+      # @rbs () -> Resolution
+      def resolve: () -> Resolution
+
+      # @rbs () -> Array[String]
+      def dependencies: () -> Array[String]
+
+      private
+
+      # @rbs () -> void
+      def prepare_resolution: () -> void
+
+      # @rbs () -> String
+      def canonical_root: () -> String
+
+      # @rbs (String path) -> AST::Root
+      def parse_root: (String path) -> AST::Root
+
+      # @rbs (String path) -> AST::Fragment
+      def parse_fragment: (String path) -> AST::Fragment
+
+      # @rbs (AST::Root | AST::Fragment node, Array[IR::source_provenance] chain) ->
+      #   [Array[AST::declaration], Array[AST::Rule]]
+      def expand_node: (AST::Root | AST::Fragment node, Array[IR::source_provenance] chain) -> [ Array[AST::declaration], Array[AST::Rule] ]
+
+      # @rbs (AST::Include include_node, Array[IR::source_provenance] chain) ->
+      #   [Array[AST::declaration], Array[AST::Rule]]
+      def expand_include: (AST::Include include_node, Array[IR::source_provenance] chain) -> [ Array[AST::declaration], Array[AST::Rule] ]
+
+      # @rbs (AST::Include include_node) -> String
+      def canonical_include: (AST::Include include_node) -> String
+
+      # @rbs (AST::Include include_node) -> void
+      def validate_include_path: (AST::Include include_node) -> void
+
+      # @rbs (String path) -> bool
+      def inside_root?: (String path) -> bool
+
+      # @rbs (AST::Include include_node, String target) -> void
+      def reject_cycle: (AST::Include include_node, String target) -> void
+
+      # @rbs (String file) -> IR::source_provenance
+      def source_provenance: (String file) -> IR::source_provenance
+
+      # @rbs (AST::Include include_node, String message) -> bot
+      def fail_include: (AST::Include include_node, String message) -> bot
+    end
+  end
+end

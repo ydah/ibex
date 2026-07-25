@@ -16,6 +16,12 @@ module Ibex
 
     # @rbs () -> void
     def define: () -> void
+
+    # @rbs (String source) -> Array[String]
+    def grammar_prerequisites: (String source) -> Array[String]
+
+    # @rbs () -> Symbol
+    def configured_mode: () -> Symbol
   end
 end
 
@@ -25,8 +31,8 @@ module Rake
   end
 
   class Task
-    def self.define_task: (Hash[String | Symbol, String]) -> Task
-                        | (Hash[String | Symbol, String]) { () -> void } -> Task
+    def self.define_task: (Hash[String | Symbol, String | Array[String]]) -> Task
+                        | (Hash[String | Symbol, String | Array[String]]) { () -> void } -> Task
   end
 
   class FileTask < Task

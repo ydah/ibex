@@ -17,7 +17,9 @@ The following work requires a separately reviewed phase and ADR:
   explicit name/parameter hygiene, cross-file location rules, and a Grammar IR schema-version plan. [ADR
   0039](0039-versioned-ir-v2-migration.md) satisfies the schema-version prerequisite and reserves explicit nullable provenance,
   documentation, expansion, and composed-action records. [ADR 0040](0040-lossless-frontend-source-document.md) satisfies the
-  source-model prerequisite; explicit name/parameter hygiene and cross-file composition rules remain.
+  source-model prerequisite. [ADR 0042](0042-canonical-grammar-fragment-includes.md) satisfies and supersedes the grammar-include
+  boundary with explicit fragment ownership, canonical containment, and cross-file composition. Parameterized and inline rules,
+  their name hygiene, and rule documentation remain deferred.
 - Full `@1`/`@$` semantic locations restart with a parallel location stack, reduction-span rules, generated-action syntax, and
   typed action contracts. [ADR 0036](0036-semantic-location-stack-and-spans.md) satisfies and supersedes this boundary; optional
   lookahead locations and structured errors remain its compatible first layer.

@@ -6,6 +6,8 @@ module Ibex
     class GeneratedParserBase < Runtime::Parser
       include GeneratedParserMetadata
 
+      include GeneratedParserIncludes
+
       attr_reader diagnostic_token: Token?
 
       @mode: Symbol
@@ -15,8 +17,8 @@ module Ibex
       # @rbs (Array[Token] tokens, ?mode: Symbol) -> void
       def initialize: (Array[Token] tokens, ?mode: Symbol) -> void
 
-      # @rbs () -> AST::Root
-      def parse: () -> AST::Root
+      # @rbs () -> (AST::Root | AST::Fragment)
+      def parse: () -> (AST::Root | AST::Fragment)
 
       # @rbs () -> ([external_token, Token] | false)
       def next_token: () -> ([ external_token, Token ] | false)

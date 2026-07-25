@@ -9,6 +9,7 @@ module Ibex
     def normalize_user_productions
       # @type self: Normalizer
       @ast.rules.each do |rule|
+        @current_include_chain = @resolution&.include_chain_for(rule) || []
         rule.alternatives.each { |alternative| normalize_alternative(rule, alternative) }
       end
     end
@@ -212,7 +213,8 @@ module Ibex
       precedence = precedence_name && symbol(precedence_name)
       fail_hash(origin[:loc], "undefined precedence symbol #{precedence_name}") if precedence_name && !precedence
       @productions << IR::Production.new(id: @productions.length, lhs: lhs.id, rhs: rhs, action: action,
-                                         precedence_override: precedence&.id, origin: origin)
+                                         precedence_override: precedence&.id, origin: origin,
+                                         expansion: resolved_expansion)
     end
   end
 end

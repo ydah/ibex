@@ -12,7 +12,7 @@ module Ibex
 
       # @rbs @source_document: SourceDocument?
       # @rbs @parsed_document: SourceDocument?
-      # @rbs @ast: AST::Root?
+      # @rbs @parsed_node: AST::Root | AST::Fragment | nil
       # @rbs @parse_error_message: String?
       # @rbs @source_document_error_message: String?
       # @rbs @tokens: Array[Token]
@@ -34,21 +34,19 @@ module Ibex
 
       # @rbs () -> AST::Root
       def parse
-        lexical = @lexical_diagnostics.first
-        raise Ibex::Error, lexical.to_s if lexical
+        node = parse_node
+        return node if node.is_a?(AST::Root)
 
-        parse_error_message = @parse_error_message
-        raise Ibex::Error, parse_error_message if parse_error_message
+        raise Ibex::Error, "#{node.loc}: fragment input requires Parser#parse_fragment"
+      end
 
-        ast = @ast
-        return ast if ast
+      # Parse an explicit fragment without resolving its includes.
+      # @rbs () -> AST::Fragment
+      def parse_fragment
+        node = parse_node
+        return node if node.is_a?(AST::Fragment)
 
-        begin
-          @ast = @implementation.parse
-        rescue Ibex::Error => e
-          @parse_error_message = e.message.dup.freeze
-          raise
-        end
+        raise Ibex::Error, "#{node.loc}: root grammar input cannot be parsed as a fragment"
       end
 
       # Parse the grammar and return its lossless source model.
@@ -81,7 +79,8 @@ module Ibex
         recovery = DiagnosticRecovery.new(
           @tokens, mode: @mode, max_diagnostics: max_diagnostics
         )
-        ast, syntax_diagnostics = recovery.parse
+        node, syntax_diagnostics = recovery.parse
+        ast, syntax_diagnostics = root_diagnostic_result(node, syntax_diagnostics)
         diagnostics = merge_diagnostics(lexical_diagnostics, syntax_diagnostics, max_diagnostics)
         document = if diagnostics.empty? && ast
                      @source_document&.with_ast(ast)
@@ -92,6 +91,37 @@ module Ibex
       end
 
       private
+
+      # @rbs () -> (AST::Root | AST::Fragment)
+      def parse_node
+        lexical = @lexical_diagnostics.first
+        raise Ibex::Error, lexical.to_s if lexical
+
+        parse_error_message = @parse_error_message
+        raise Ibex::Error, parse_error_message if parse_error_message
+
+        node = @parsed_node
+        return node if node
+
+        begin
+          @parsed_node = @implementation.parse
+        rescue Ibex::Error => e
+          @parse_error_message = e.message.dup.freeze
+          raise
+        end
+      end
+
+      # @rbs (AST::Root | AST::Fragment | nil node, Array[Diagnostic] diagnostics) ->
+      #   [AST::Root?, Array[Diagnostic]]
+      def root_diagnostic_result(node, diagnostics)
+        return [node, diagnostics] unless node.is_a?(AST::Fragment)
+
+        diagnostic = Diagnostic.new(
+          code: "frontend.syntax_error", phase: :syntax,
+          message: "fragment input requires Parser#parse_fragment", location: node.loc
+        )
+        [nil, diagnostics + [diagnostic]]
+      end
 
       # @rbs (String source, String file) -> Array[Token]
       def tokenize_source(source, file)

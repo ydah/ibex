@@ -5,6 +5,8 @@ module Ibex
     class TokenAdapter
       # Classifies tokens through the class header and declaration section.
       class DeclarationState
+        include DeclarationDocumentState
+
         DECLARATIONS: Hash[String, [ external_token, Symbol ]]
 
         ASSOCIATIONS: Hash[String, external_token]
@@ -20,6 +22,8 @@ module Ibex
         attr_reader precedence_closer: String?
 
         attr_reader state: Symbol
+
+        @fragment: bool?
 
         @extended_mode: bool
 
@@ -42,9 +46,6 @@ module Ibex
 
         # @rbs (Token token, Array[Token] remaining) -> external_token
         def classify_identifier: (Token token, Array[Token] remaining) -> external_token
-
-        # @rbs (Token token) -> external_token
-        def class_keyword: (Token token) -> external_token
 
         # @rbs (Array[Token] remaining) -> external_token
         def constant_name: (Array[Token] remaining) -> external_token

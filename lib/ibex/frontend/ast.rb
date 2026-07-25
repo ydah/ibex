@@ -6,7 +6,7 @@ module Ibex
     module AST
       # @rbs!
       #   type symbol_metadata = DisplayName | SemanticType
-      #   type declaration = Tokens | Precedence | Options | Expect | Start | Convert | symbol_metadata
+      #   type declaration = Include | Tokens | Precedence | Options | Expect | Start | Convert | symbol_metadata
       #   type item = SymbolReference | InlineAction | Optional | Star | Plus | Group | SeparatedList
       #   type user_code = Hash[String, Array[UserCode]]
 
@@ -42,6 +42,17 @@ module Ibex
       ) do
         include Node
       end
+      Fragment = Struct.new(
+        :declarations, #: Array[declaration]
+        :rules, #: Array[Rule]
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      Include = Struct.new(
+        :path, #: String
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
       Tokens = Struct.new(
         :names, #: Array[String]
         :loc, #: Location

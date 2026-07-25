@@ -58,8 +58,11 @@ only as `ParseResult#ast`, with `partial? == true`. When diagnostics exist, the 
 can return a partial AST but has no source document.
 
 `ibex diagnose [--format=text|json] [--max-diagnostics=N] [--mode=racc|extended] grammar.y` is the explicit CLI boundary. It
-never generates a parser or executes application code. Text and JSON go to stdout; invocation and I/O failures go to stderr.
-The command exits zero only for a complete error-free parse. JSON uses the shipped
+never generates a parser or executes application code. After an error-free root parse, extended-mode include resolution may
+add the first cross-file security, missing-target, cycle, or fragment-syntax failure as `frontend.resolution_error`; recovery
+across files is deliberately bounded to that single record and exposes no AST. Text and JSON go to stdout. A structured
+`ResolutionIOError` keeps permission and other actual root/fragment read failures in the invocation-error path on stderr, with
+no JSON envelope. The command exits zero only for a complete error-free parse. JSON uses the shipped
 `schema/frontend-diagnostics-v1.schema.json` envelope and requires every diagnostic's stable machine code.
 
 ## Consequences

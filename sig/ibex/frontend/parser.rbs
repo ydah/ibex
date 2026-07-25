@@ -20,7 +20,7 @@ module Ibex
 
       @parse_error_message: String?
 
-      @ast: AST::Root?
+      @parsed_node: AST::Root | AST::Fragment | nil
 
       @parsed_document: SourceDocument?
 
@@ -32,6 +32,10 @@ module Ibex
       # @rbs () -> AST::Root
       def parse: () -> AST::Root
 
+      # Parse an explicit fragment without resolving its includes.
+      # @rbs () -> AST::Fragment
+      def parse_fragment: () -> AST::Fragment
+
       # Parse the grammar and return its lossless source model.
       # @rbs () -> SourceDocument
       def parse_document: () -> SourceDocument
@@ -41,6 +45,13 @@ module Ibex
       def parse_with_diagnostics: (?max_diagnostics: Integer) -> ParseResult
 
       private
+
+      # @rbs () -> (AST::Root | AST::Fragment)
+      def parse_node: () -> (AST::Root | AST::Fragment)
+
+      # @rbs (AST::Root | AST::Fragment | nil node, Array[Diagnostic] diagnostics) ->
+      #   [AST::Root?, Array[Diagnostic]]
+      def root_diagnostic_result: (AST::Root | AST::Fragment | nil node, Array[Diagnostic] diagnostics) -> [ AST::Root?, Array[Diagnostic] ]
 
       # @rbs (String source, String file) -> Array[Token]
       def tokenize_source: (String source, String file) -> Array[Token]

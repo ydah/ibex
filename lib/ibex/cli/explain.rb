@@ -7,6 +7,7 @@ module Ibex
     #   private def print_help: (OptionParser) -> Integer
     #   private def input_path: (Array[String]) -> String
     #   private def positive_counterexample_limit: (Integer, String) -> Integer
+    #   private def normalize_grammar_path: (String) -> IR::Grammar
 
     private
 
@@ -17,9 +18,7 @@ module Ibex
       return print_help(parser) if @options[:help]
 
       path = input_path(remaining)
-      source = File.read(path)
-      ast = Frontend::Parser.new(source, file: path, mode: @options[:mode]).parse
-      grammar = Normalizer.new(ast, mode: @options[:mode]).normalize
+      grammar = normalize_grammar_path(path)
       automaton = LALR::Builder.new(grammar, algorithm: @options[:algorithm] || :lalr).build
       explanation = Codegen::Explain.new(
         automaton, state: @options[:explain_state], token: @options[:explain_token],

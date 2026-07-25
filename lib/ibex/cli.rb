@@ -312,11 +312,21 @@ module Ibex
       return process_ir(path) if @options[:from]
 
       report_status("reading #{path}")
-      ast = Frontend::Parser.new(File.read(path), file: path, mode: @options[:mode]).parse
-      return emit_ast(ast) if @options[:emit] == "ast"
+      resolution = resolve_grammar_path(path)
+      return emit_ast(resolution.root) if @options[:emit] == "ast"
 
-      grammar = Normalizer.new(ast, mode: @options[:mode]).normalize
+      grammar = Normalizer.new(resolution, mode: @options[:mode]).normalize
       dispatch_grammar(grammar, path)
+    end
+
+    # @rbs (String path) -> Frontend::Resolution
+    def resolve_grammar_path(path)
+      Frontend::Resolver.new(path, mode: @options[:mode]).resolve
+    end
+
+    # @rbs (String path) -> IR::Grammar
+    def normalize_grammar_path(path)
+      Normalizer.new(resolve_grammar_path(path), mode: @options[:mode]).normalize
     end
 
     # @rbs (String path) -> Integer

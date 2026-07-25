@@ -22,7 +22,7 @@ module Ibex
         @suppressed = {} #: Hash[Integer, bool]
       end
 
-      # @rbs () -> [AST::Root?, Array[Diagnostic]]
+      # @rbs () -> [AST::Root | AST::Fragment | nil, Array[Diagnostic]]
       def parse
         ast = parse_until_stable
         [ast, sorted_diagnostics]
@@ -30,7 +30,7 @@ module Ibex
 
       private
 
-      # @rbs () -> AST::Root?
+      # @rbs () -> (AST::Root | AST::Fragment | nil)
       def parse_until_stable
         attempts = 0
         loop do

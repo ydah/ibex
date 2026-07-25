@@ -9,6 +9,8 @@ module Ibex
 
     private def positive_counterexample_limit: (Integer, String) -> Integer
 
+    private def normalize_grammar_path: (String) -> IR::Grammar
+
     private
 
     # @rbs (Array[String] arguments) -> Integer

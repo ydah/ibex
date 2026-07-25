@@ -17,13 +17,13 @@ module Ibex
       # @rbs (Array[Token] tokens, mode: Symbol, max_diagnostics: Integer) -> void
       def initialize: (Array[Token] tokens, mode: Symbol, max_diagnostics: Integer) -> void
 
-      # @rbs () -> [AST::Root?, Array[Diagnostic]]
-      def parse: () -> [ AST::Root?, Array[Diagnostic] ]
+      # @rbs () -> [AST::Root | AST::Fragment | nil, Array[Diagnostic]]
+      def parse: () -> [ AST::Root | AST::Fragment | nil, Array[Diagnostic] ]
 
       private
 
-      # @rbs () -> AST::Root?
-      def parse_until_stable: () -> AST::Root?
+      # @rbs () -> (AST::Root | AST::Fragment | nil)
+      def parse_until_stable: () -> (AST::Root | AST::Fragment | nil)
 
       # @rbs () -> Array[Token]
       def working_tokens: () -> Array[Token]

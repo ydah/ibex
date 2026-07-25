@@ -11,6 +11,8 @@ module Ibex
 
     private def warning_categories: (String) -> Array[Symbol]
 
+    private def normalize_grammar_path: (String) -> IR::Grammar
+
     private
 
     # @rbs (Array[String] arguments) -> Integer

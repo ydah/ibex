@@ -11,6 +11,15 @@ module Ibex
     # @rbs (Frontend::AST::declaration declaration) -> void
     def read_declaration: (Frontend::AST::declaration declaration) -> void
 
+    # @rbs (Frontend::AST::Tokens declaration) -> void
+    def read_tokens: (Frontend::AST::Tokens declaration) -> void
+
+    # @rbs (Frontend::AST::Options declaration) -> void
+    def read_options: (Frontend::AST::Options declaration) -> void
+
+    # @rbs (Frontend::AST::Convert declaration) -> void
+    def read_conversions: (Frontend::AST::Convert declaration) -> void
+
     # @rbs (Frontend::AST::symbol_metadata declaration) -> void
     def read_symbol_metadata_declaration: (Frontend::AST::symbol_metadata declaration) -> void
 
