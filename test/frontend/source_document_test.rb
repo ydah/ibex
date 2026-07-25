@@ -37,6 +37,21 @@ class SourceDocumentTest < Minitest::Test
     assert_same ast_first_parser.parse, ast_first_parser.parse_document.ast
   end
 
+  def test_parse_source_document_accepts_roots_and_extended_fragments
+    root_parser = Ibex::Frontend::Parser.new("class P\nrule\nvalue: X\nend\n", file: "root.y")
+    root_document = root_parser.parse_source_document
+    assert_instance_of Ibex::Frontend::AST::Root, root_document.ast
+    assert_same root_document, root_parser.parse_document
+
+    source = "fragment\ntoken X\nrule\nvalue: X\nend\n"
+    fragment_parser = Ibex::Frontend::Parser.new(source, file: "fragment.y", mode: :extended)
+    fragment_document = fragment_parser.parse_source_document
+    assert_instance_of Ibex::Frontend::AST::Fragment, fragment_document.ast
+    assert_equal source, fragment_document.render
+    error = assert_raises(Ibex::Error) { fragment_parser.parse_document }
+    assert_match(/fragment input requires Parser#parse_fragment/, error.message)
+  end
+
   def test_cst_classifies_trivia_actions_and_duplicate_user_code
     document = Ibex::Frontend::Parser.new(LOSSLESS_SOURCE, file: "lossless.y").parse_document
     kinds = document.cst.map(&:kind)

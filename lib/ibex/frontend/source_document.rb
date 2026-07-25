@@ -99,10 +99,10 @@ module Ibex
       attr_reader :file #: String
       attr_reader :tokens #: Array[Token]
       attr_reader :cst #: CST::Document
-      attr_reader :ast #: AST::Root?
+      attr_reader :ast #: AST::Root | AST::Fragment | nil
 
       # @rbs (source: String, file: String, tokens: Array[Token], cst: CST::Document,
-      #   ?ast: AST::Root?) -> void
+      #   ?ast: AST::Root | AST::Fragment | nil) -> void
       def initialize(source:, file:, tokens:, cst:, ast: nil)
         @source = SourceEncoding.validated_utf8(source, file)
         @file = file.dup.freeze
@@ -164,7 +164,7 @@ module Ibex
         index && tokens[index]
       end
 
-      # @rbs (AST::Root ast) -> SourceDocument
+      # @rbs (AST::Root | AST::Fragment ast) -> SourceDocument
       def with_ast(ast)
         self.class.new(source: source, file: file, tokens: tokens, cst: cst, ast: ast)
       end

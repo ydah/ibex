@@ -7,6 +7,10 @@ module Ibex
     def write: (String) -> untyped
   end
 
+  interface _CLIInput
+    def read: () -> String
+  end
+
   type cli_options = { emit: String, mode: Symbol, table: Symbol, line_convert: bool, ?line_convert_all: bool, counterexample_max_tokens: Integer, counterexample_max_configurations: Integer, ?from: String, ?algorithm: Symbol, ?warnings: Array[Symbol], ?output: String, ?embedded: bool, ?debug: bool, ?verbose: bool, ?rbs: String | true, ?action_source: String | true, ?dot: String, ?mermaid: String, ?html: String, ?railroad: String, ?messages: String, ?messages_update: String | true, ?messages_algorithm_explicit: bool, ?sample_count: Integer, ?sample_seed: Integer, ?sample_max_tokens: Integer, ?sample_max_depth: Integer, ?sample_max_expansions: Integer, ?log_file: String, ?executable: String, ?frozen: bool, ?omit_actions: bool, ?superclass: String, ?verify_output: bool, ?check_only: bool, ?status: bool, ?profile: bool, ?debug_flags: String, ?version: bool, ?runtime_version: bool, ?copyright: bool, ?help: bool, ?explain_state: Integer, ?explain_token: String, ?explain_format: String }
 
   # Command-line pipeline coordinator.
@@ -22,6 +26,8 @@ module Ibex
 
     include CLIExplain
 
+    include CLIFormatting
+
     include CLIIRTools
 
     include CLIOutputs
@@ -34,11 +40,12 @@ module Ibex
 
     @stdout: _CLIOutput
 
-    # @rbs (Array[String] arguments, ?stdout: _CLIOutput, ?stderr: _CLIOutput) -> Integer
-    def self.start: (Array[String] arguments, ?stdout: _CLIOutput, ?stderr: _CLIOutput) -> Integer
+    # @rbs (Array[String] arguments, ?stdin: _CLIInput, ?stdout: _CLIOutput,
+    #   ?stderr: _CLIOutput) -> Integer
+    def self.start: (Array[String] arguments, ?stdin: _CLIInput, ?stdout: _CLIOutput, ?stderr: _CLIOutput) -> Integer
 
-    # @rbs (stdout: _CLIOutput, stderr: _CLIOutput) -> void
-    def initialize: (stdout: _CLIOutput, stderr: _CLIOutput) -> void
+    # @rbs (?stdin: _CLIInput, stdout: _CLIOutput, stderr: _CLIOutput) -> void
+    def initialize: (stdout: _CLIOutput, stderr: _CLIOutput, ?stdin: _CLIInput) -> void
 
     # @rbs (Array[String] arguments) -> Integer
     def run: (Array[String] arguments) -> Integer

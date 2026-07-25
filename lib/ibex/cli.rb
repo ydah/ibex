@@ -7,6 +7,7 @@ require_relative "cli/diagnostics"
 require_relative "cli/documentation"
 require_relative "cli/error_messages"
 require_relative "cli/explain"
+require_relative "cli/formatting"
 require_relative "cli/ir_tools"
 require_relative "cli/outputs"
 require_relative "cli/samples"
@@ -16,6 +17,9 @@ module Ibex
   #   interface _CLIOutput
   #     def puts: (*untyped) -> untyped
   #     def write: (String) -> untyped
+  #   end
+  #   interface _CLIInput
+  #     def read: () -> String
   #   end
   #   type cli_options = {
   #     emit: String,
@@ -73,6 +77,7 @@ module Ibex
     include CLIDocumentation
     include CLIErrorMessages
     include CLIExplain
+    include CLIFormatting
     include CLIIRTools
     include CLIOutputs
     include CLISamples
@@ -81,13 +86,15 @@ module Ibex
     # @rbs @stderr: _CLIOutput
     # @rbs @options: cli_options
 
-    # @rbs (Array[String] arguments, ?stdout: _CLIOutput, ?stderr: _CLIOutput) -> Integer
-    def self.start(arguments, stdout: $stdout, stderr: $stderr)
-      new(stdout: stdout, stderr: stderr).run(arguments)
+    # @rbs (Array[String] arguments, ?stdin: _CLIInput, ?stdout: _CLIOutput,
+    #   ?stderr: _CLIOutput) -> Integer
+    def self.start(arguments, stdin: $stdin, stdout: $stdout, stderr: $stderr)
+      new(stdin: stdin, stdout: stdout, stderr: stderr).run(arguments)
     end
 
-    # @rbs (stdout: _CLIOutput, stderr: _CLIOutput) -> void
-    def initialize(stdout:, stderr:)
+    # @rbs (?stdin: _CLIInput, stdout: _CLIOutput, stderr: _CLIOutput) -> void
+    def initialize(stdout:, stderr:, stdin: $stdin)
+      @stdin = stdin
       @stdout = stdout
       @stderr = stderr
       @options = { emit: "ruby", mode: :racc, table: :compact, line_convert: true }
@@ -109,7 +116,7 @@ module Ibex
       path = input_path(remaining)
       validate_generation_paths!(path)
       process_grammar(path)
-    rescue OptionParser::ParseError, Ibex::Error, SystemCallError => e
+    rescue OptionParser::ParseError, Ibex::Error, SystemCallError, SystemStackError => e
       @stderr.puts(e.message)
       1
     end
@@ -124,6 +131,7 @@ module Ibex
       when "doc" then run_documentation_command(remaining)
       when "errors" then run_error_messages_command(remaining)
       when "explain" then run_explain_command(remaining)
+      when "fmt" then run_format_command(remaining)
       when "samples" then run_samples_command(remaining)
       when "validate-ir" then run_validate_ir_command(remaining)
       when "compare" then run_compare_command(remaining)
@@ -146,6 +154,7 @@ module Ibex
         options.separator("    doc                       render grammar documentation")
         options.separator("    errors --update[=FILE]  update state-specific syntax error messages")
         options.separator("    explain                   explain selected parser conflicts")
+        options.separator("    fmt                       format grammar source")
         options.separator("    samples                   generate bounded terminal sentences")
         options.separator("    validate-ir FILE          validate a versioned IR document")
         options.separator("    compare BEFORE AFTER      compare two versioned IR documents")

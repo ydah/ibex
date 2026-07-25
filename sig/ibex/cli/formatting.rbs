@@ -1,0 +1,103 @@
+# Generated from lib/ibex/cli/formatting.rb with RBS::Inline
+
+module Ibex
+  # CLI coordination for deterministic, semantics-preserving grammar formatting.
+  # rubocop:disable Metrics/ModuleLength -- transaction lifecycle stays cohesive and auditable.
+  module CLIFormatting
+    type formatting_settings = { paths: Array[String], mode: Symbol, check: bool, write: bool, ?stdin_filename: String, ?help: bool }
+
+    type formatting_result = { path: String, label: String, source: String, formatted: String }
+
+    type formatting_target = { path: String, label: String, target: String, formatted: String, mode: Integer, directory: String, basename: String, changed: bool, installed: bool, ?stage: String, ?backup: String }
+
+    type formatting_cleanup_result = { errors: Array[String], remaining: Array[String] }
+
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_format_command: (Array[String] arguments) -> Integer
+
+    # @rbs (Array[String] arguments) -> formatting_settings
+    def formatting_options: (Array[String] arguments) -> formatting_settings
+
+    # @rbs (formatting_settings settings) -> OptionParser
+    def formatting_option_parser: (formatting_settings settings) -> OptionParser
+
+    # @rbs (formatting_settings settings) -> void
+    def validate_formatting_settings!: (formatting_settings settings) -> void
+
+    # @rbs (formatting_settings settings, Array[String] paths) -> void
+    def validate_formatting_operation!: (formatting_settings settings, Array[String] paths) -> void
+
+    # @rbs (formatting_settings settings, Array[String] paths) -> void
+    def validate_formatting_stdin!: (formatting_settings settings, Array[String] paths) -> void
+
+    # @rbs (formatting_settings settings) -> [Array[formatting_result], bool]
+    def prepare_formatting_results: (formatting_settings settings) -> [ Array[formatting_result], bool ]
+
+    # @rbs (Array[formatting_result] results) -> Integer
+    def check_formatting_results: (Array[formatting_result] results) -> Integer
+
+    # @rbs (Array[formatting_result] results) -> Integer
+    def write_formatting_results: (Array[formatting_result] results) -> Integer
+
+    # @rbs (Array[formatting_result] results) -> Array[formatting_target]
+    def formatting_targets: (Array[formatting_result] results) -> Array[formatting_target]
+
+    # @rbs (Array[formatting_target] targets) -> void
+    def validate_unique_formatting_targets!: (Array[formatting_target] targets) -> void
+
+    # @rbs (Array[formatting_target] targets) -> [formatting_target, formatting_target]?
+    def duplicate_formatting_target_pair: (Array[formatting_target] targets) -> [ formatting_target, formatting_target ]?
+
+    # @rbs (Array[formatting_target] targets) -> void
+    def transactionally_write_formatted: (Array[formatting_target] targets) -> void
+
+    # @rbs (Array[formatting_target] targets) -> void
+    def stage_formatting_targets: (Array[formatting_target] targets) -> void
+
+    # @rbs (Array[formatting_target] targets) -> void
+    def backup_formatting_targets: (Array[formatting_target] targets) -> void
+
+    # @rbs (Array[formatting_target] targets) -> void
+    def install_formatting_targets: (Array[formatting_target] targets) -> void
+
+    # @rbs (Array[formatting_target] targets) -> Array[String]
+    def rollback_formatting_targets: (Array[formatting_target] targets) -> Array[String]
+
+    # @rbs (Array[formatting_target] targets, preserve_installed_backups: bool) ->
+    #   formatting_cleanup_result
+    def cleanup_formatting_artifacts: (Array[formatting_target] targets, preserve_installed_backups: bool) -> formatting_cleanup_result
+
+    # @rbs (String path) -> String?
+    def remove_formatting_artifact: (String path) -> String?
+
+    # @rbs (StandardError error, Array[String] rollback_errors,
+    #   formatting_cleanup_result cleanup, Array[String] sync_errors) -> Ibex::Error
+    def formatting_transaction_error: (StandardError error, Array[String] rollback_errors, formatting_cleanup_result cleanup, Array[String] sync_errors) -> Ibex::Error
+
+    # @rbs (formatting_cleanup_result cleanup, Array[String] sync_errors) -> void
+    def report_formatting_cleanup_warning: (formatting_cleanup_result cleanup, Array[String] sync_errors) -> void
+
+    # @rbs (Array[formatting_target] targets) -> void
+    def sync_formatting_directories!: (Array[formatting_target] targets) -> void
+
+    # @rbs (Array[formatting_target] targets) -> Array[String]
+    def sync_formatting_directories_best_effort: (Array[formatting_target] targets) -> Array[String]
+
+    # @rbs (Array[formatting_target] targets) -> Array[String]
+    def sync_formatting_directories: (Array[formatting_target] targets) -> Array[String]
+
+    # @rbs (String directory) -> void
+    def sync_formatting_directory: (String directory) -> void
+
+    # @rbs (String value) -> String
+    def formatting_label: (String value) -> String
+
+    # @rbs (String value) -> bool
+    def formatting_control_bytes?: (String value) -> bool
+
+    # @rbs (Integer byte) -> bool
+    def control_byte?: (Integer byte) -> bool
+  end
+end

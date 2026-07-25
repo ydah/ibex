@@ -68,11 +68,11 @@ module Ibex
 
       attr_reader cst: CST::Document
 
-      attr_reader ast: AST::Root?
+      attr_reader ast: AST::Root | AST::Fragment | nil
 
       # @rbs (source: String, file: String, tokens: Array[Token], cst: CST::Document,
-      #   ?ast: AST::Root?) -> void
-      def initialize: (source: String, file: String, tokens: Array[Token], cst: CST::Document, ?ast: AST::Root?) -> void
+      #   ?ast: AST::Root | AST::Fragment | nil) -> void
+      def initialize: (source: String, file: String, tokens: Array[Token], cst: CST::Document, ?ast: AST::Root | AST::Fragment | nil) -> void
 
       # @rbs () -> String
       def render: () -> String
@@ -92,8 +92,8 @@ module Ibex
       # @rbs (Segment segment) -> Token?
       def token_for: (Segment segment) -> Token?
 
-      # @rbs (AST::Root ast) -> SourceDocument
-      def with_ast: (AST::Root ast) -> SourceDocument
+      # @rbs (AST::Root | AST::Fragment ast) -> SourceDocument
+      def with_ast: (AST::Root | AST::Fragment ast) -> SourceDocument
 
       private
 

@@ -74,6 +74,18 @@ The programmatic frontend can preserve this file exactly with
 `parse` plus immutable token, whitespace, line-break, comment, action, user-code marker/body, and EOF segments. `render` reproduces the input
 bytes; spans and `slice` use zero-based half-open byte offsets. Line and column positions remain one-based and count Unicode
 scalar values. Input is interpreted as UTF-8 without transcoding and invalid byte sequences are rejected before lexing.
+`parse_source_document` accepts either a root or, in extended mode, an explicit fragment.
+
+`ibex fmt [--mode=racc|extended] grammar.y` formats to stdout. `fmt --check FILE...` reports all invalid or noncanonical files,
+and `fmt --write FILE...` validates and stages the complete batch before transactionally replacing changed files. Standard input
+is available as `fmt -`; `--stdin-filename=FILE` supplies its control-byte-free diagnostic name. Check and write modes require
+file paths. Formatting changes only whitespace/newline trivia, retains token, comment, action/heredoc, and user-code bytes in
+order, and preserves existing mixed newline spellings at required boundaries. A new boundary uses the first newline even inside
+opaque text. The output must reparse to an identical location-free AST through a stack-safe iterative comparison and is
+idempotent. Write mode rejects aliased targets, preserves full modes and symlinks, and rolls back every target if rename or
+directory synchronization fails. Same-directory hard-link backups are synchronized before installation. A backup whose target
+could not be restored is retained and reported; cleanup failures after every target was committed are reported as status-0
+warnings because they do not undo the committed update.
 
 `parse_with_diagnostics(max_diagnostics: 20)` collects up to the limit independently from the lexical and syntax phases, merges
 them in source order, and returns the globally earliest records. Recovery is deliberately limited to complete declarations,

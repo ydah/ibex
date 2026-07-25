@@ -14,7 +14,11 @@ class SchemaFilesPackagingTest < Minitest::Test
     assert_includes specification.files, "schema/benchmark-v1.schema.json"
     assert_includes specification.files, "lib/ibex/codegen/action_method_source.rb"
     assert_includes specification.files, "lib/ibex/codegen/action_source.rb"
+    assert_includes specification.files, "lib/ibex/cli/formatting.rb"
+    assert_includes specification.files, "lib/ibex/frontend/formatter.rb"
     assert_includes specification.files, "sig/ibex/codegen/action_method_source.rbs"
     assert_includes specification.files, "sig/ibex/codegen/action_source.rbs"
+    assert_includes specification.files, "sig/ibex/cli/formatting.rbs"
+    assert_includes specification.files, "sig/ibex/frontend/formatter.rbs"
   end
 end
