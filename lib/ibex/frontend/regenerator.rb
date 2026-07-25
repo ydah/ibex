@@ -2,7 +2,9 @@
 
 require_relative "../error"
 require_relative "../tables"
+require_relative "source_span"
 require_relative "source_cursor"
+require_relative "source_document"
 require_relative "action_scanner"
 require_relative "lexer"
 require_relative "ast"

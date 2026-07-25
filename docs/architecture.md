@@ -3,8 +3,8 @@
 Ibex keeps syntax, grammar meaning, automaton construction, and output concerns behind two versioned immutable contracts.
 
 ```text
-.y Lexer -> Token adapter -> self-hosted LR Parser ─┐
-Ruby DSL ────────┴─> Grammar AST -> Normalizer -> Grammar IR
+.y Lexer -> Token + lossless CST -> Token adapter -> self-hosted LR Parser ─┐
+Ruby DSL ──────────────────────────────────────┴─> Grammar AST -> Normalizer -> Grammar IR
                                                     |
                                                set analysis
                                                     |
@@ -21,6 +21,13 @@ The text frontend's canonical syntax is `lib/ibex/frontend/grammar.y`. Ibex gene
 the semantic values passed through `TokenAdapter`, preserving their `Location` in AST nodes and diagnostics. The explicitly named
 handwritten `BootstrapParser` is excluded from normal loading and exists only to break the regeneration cycle. See
 [ADR 0015](decisions/0015-self-hosted-grammar-frontend.md) for the update procedure and boundary.
+
+The lexer also retains an immutable lexical CST without changing the semantic token stream. `Frontend::Parser#parse_document`
+returns a `SourceDocument` whose source, token-indexed segments, and AST come from that single lexer/parser pass.
+`SourceSpan` uses half-open zero-based byte offsets and one-based Unicode-scalar line/column positions. Actions and user-code
+bodies remain opaque segments; whitespace, line breaks, both comment forms, user-code markers, and EOF remain individually traversable.
+`render`, byte slicing, and byte/line/column conversion provide the common source contract for formatter, documentation, include,
+and language-server layers. See [ADR 0040](decisions/0040-lossless-frontend-source-document.md).
 
 The RBS generator emits the generated class namespace, superclass, parser-table constants, `.parser_tables` contract, and
 private reduction-method signatures. Declared symbol types refine the RHS tuple and LHS result independently, with `untyped`

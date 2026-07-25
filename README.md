@@ -122,6 +122,24 @@ The value conventions are `nil` or a value for `?`, and arrays for `*`, `+`, `se
 `separated_nonempty_list`. Parenthesized sequences and alternatives can be nested; multi-item groups produce an Array value.
 Text, DOT, and HTML automaton reports label lowered helper symbols with these source-level EBNF expressions.
 
+## Lossless frontend source
+
+Tools that need exact grammar text can parse once and keep the semantic AST beside comments, whitespace, and opaque Ruby:
+
+```ruby
+parser = Ibex::Frontend::Parser.new(File.binread("grammar.y"), file: "grammar.y")
+document = parser.parse_document
+
+document.ast       # the same AST returned by parser.parse
+document.cst       # immutable token/trivia segments
+document.render    # byte-for-byte original source
+document.slice(document.tokens.first.span)
+```
+
+Segment spans are half-open zero-based byte ranges with one-based line and Unicode-scalar columns. CRLF is one line break;
+accepted input bytes must be valid UTF-8. Actions, every supported heredoc form, and user-code bodies are retained as opaque text,
+while user-code markers and repeated blocks remain separate. `Token#to_h`, AST output, and normalized IR are unchanged.
+
 ## Pipeline and diagnostics
 
 ```sh
@@ -230,8 +248,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 6,194 typed calls and 782 untyped calls out of 6,976 (88.8% typed).
-The generated signature tree contains 883 explicit `untyped` occurrences across 24 files.
+The current whole-library `steep stats` result is 6,468 typed calls and 792 untyped calls out of 7,260 (89.1% typed).
+The generated signature tree contains 885 explicit `untyped` occurrences across 25 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

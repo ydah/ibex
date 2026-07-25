@@ -1,0 +1,53 @@
+# Generated from lib/ibex/frontend/source_span.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Normalizes grammar source without changing its bytes.
+    module SourceEncoding
+      # @rbs (String source, String file) -> String
+      def self.validated_utf8: (String source, String file) -> String
+    end
+
+    # An immutable position in grammar source.
+    class SourcePosition
+      attr_reader byte_offset: Integer
+
+      attr_reader line: Integer
+
+      attr_reader column: Integer
+
+      # @rbs (byte_offset: Integer, line: Integer, column: Integer) -> void
+      def initialize: (byte_offset: Integer, line: Integer, column: Integer) -> void
+
+      # @rbs () -> Hash[Symbol, Integer]
+      def to_h: () -> Hash[Symbol, Integer]
+    end
+
+    # An immutable half-open byte span in one grammar source.
+    class SourceSpan
+      attr_reader file: String
+
+      attr_reader start: SourcePosition
+
+      attr_reader finish: SourcePosition
+
+      # @rbs (file: String, start: SourcePosition, finish: SourcePosition) -> void
+      def initialize: (file: String, start: SourcePosition, finish: SourcePosition) -> void
+
+      # @rbs () -> Integer
+      def start_byte: () -> Integer
+
+      # @rbs () -> Integer
+      def end_byte: () -> Integer
+
+      # @rbs () -> Integer
+      def length: () -> Integer
+
+      # @rbs () -> bool
+      def empty?: () -> bool
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
+    end
+  end
+end

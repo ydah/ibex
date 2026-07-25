@@ -16,7 +16,8 @@ The following work requires a separately reviewed phase and ADR:
 - Parameterized user rules, `%inline`, grammar includes, and rule doc comments restart with a comment-preserving source model,
   explicit name/parameter hygiene, cross-file location rules, and a Grammar IR schema-version plan. [ADR
   0039](0039-versioned-ir-v2-migration.md) satisfies the schema-version prerequisite and reserves explicit nullable provenance,
-  documentation, expansion, and composed-action records; the source-model and hygiene prerequisites remain.
+  documentation, expansion, and composed-action records. [ADR 0040](0040-lossless-frontend-source-document.md) satisfies the
+  source-model prerequisite; explicit name/parameter hygiene and cross-file composition rules remain.
 - Full `@1`/`@$` semantic locations restart with a parallel location stack, reduction-span rules, generated-action syntax, and
   typed action contracts. [ADR 0036](0036-semantic-location-stack-and-spans.md) satisfies and supersedes this boundary; optional
   lookahead locations and structured errors remain its compatible first layer.
@@ -25,8 +26,9 @@ The following work requires a separately reviewed phase and ADR:
   types the method boundary without claiming to check the body.
 - CPCT+-class repair and batch frontend diagnostics restart with a repair-cost policy, ambiguity/deduplication rules, bounded
   search budgets, and fixtures proving recovery continues at useful synchronization points.
-- `fmt` and LSP restart after a lossless concrete syntax tree preserves comments and whitespace. Watch mode restarts with a
-  portable event/polling policy and atomic regeneration contract.
+- `fmt` and LSP restart after a lossless concrete syntax tree preserves comments and whitespace. [ADR
+  0040](0040-lossless-frontend-source-document.md) satisfies that prerequisite. Watch mode restarts with a portable
+  event/polling policy and atomic regeneration contract.
 - Production/state coverage and an interactive debugger restart with a stable event schema that extends, rather than exposes,
   private parser stacks. The push API and JSON Lines tracer are their current foundation. [ADR
   0037](0037-versioned-conflict-explanations.md) supersedes the boundary against a separate `explain` command with a thin,

@@ -10,10 +10,15 @@ module Ibex
       USER_CODE = /\A----[ \t]+(header|inner|footer)[ \t]*(?:\r?\n|\z)/ #: Regexp
 
       # @rbs @cursor: SourceCursor
+      # @rbs @segments: Array[Segment]
+      # @rbs @emitted_tokens: Array[Token]
+      # @rbs @eof_token: Token?
 
       # @rbs (String source, ?file: String) -> void
       def initialize(source, file: "(grammar)")
         @cursor = SourceCursor.new(source, file)
+        @segments = [] #: Array[Segment]
+        @emitted_tokens = [] #: Array[Token]
       end
 
       # @rbs () -> Array[Token]
@@ -26,11 +31,35 @@ module Ibex
         end
       end
 
+      # @rbs () -> SourceDocument
+      def tokenize_document
+        tokenize unless @eof_token
+        cst = CST::Document.new(@segments)
+        SourceDocument.new(source: @cursor.source, file: @cursor.file, tokens: @emitted_tokens, cst: cst)
+      end
+
       # @rbs () -> Token
       def next_token
-        skip_ignored
-        return token(:eof, nil) if @cursor.eof?
+        eof_token = @eof_token
+        return eof_token if eof_token
 
+        skip_ignored
+        start = @cursor.position
+        scanned = if @cursor.eof?
+                    token(:eof, nil)
+                  else
+                    scan_from_cursor
+                  end
+        emit_token(scanned, start) unless scanned.span
+        @emitted_tokens << scanned
+        @eof_token = scanned if scanned.type == :eof
+        scanned
+      end
+
+      private
+
+      # @rbs () -> Token
+      def scan_from_cursor
         character = @cursor.peek || ""
 
         return scan_user_code if line_start? && @cursor.rest.start_with?("----")
@@ -39,8 +68,6 @@ module Ibex
 
         scan_regular_token(character)
       end
-
-      private
 
       # @rbs (String character) -> Token
       def scan_regular_token(character)
@@ -55,9 +82,12 @@ module Ibex
       # @rbs () -> void
       def skip_ignored
         loop do
-          @cursor.advance while @cursor.peek&.match?(/\s/)
-          if @cursor.peek == "#"
-            @cursor.advance until @cursor.eof? || @cursor.peek == "\n"
+          if newline?
+            scan_newline
+          elsif @cursor.peek&.match?(/\s/)
+            scan_whitespace
+          elsif @cursor.peek == "#"
+            scan_line_comment
           elsif @cursor.rest.start_with?("/*")
             skip_block_comment
           else
@@ -67,12 +97,40 @@ module Ibex
       end
 
       # @rbs () -> void
+      def scan_whitespace
+        start = @cursor.position
+        @cursor.advance while @cursor.peek&.match?(/\s/) && !newline?
+        emit_segment(:whitespace, start)
+      end
+
+      # @rbs () -> bool
+      def newline?
+        @cursor.peek == "\n" || @cursor.rest.start_with?("\r\n")
+      end
+
+      # @rbs () -> void
+      def scan_newline
+        start = @cursor.position
+        @cursor.advance(@cursor.rest.start_with?("\r\n") ? 2 : 1)
+        emit_segment(:newline, start)
+      end
+
+      # @rbs () -> void
+      def scan_line_comment
+        start = @cursor.position
+        @cursor.advance until @cursor.eof? || @cursor.peek == "\n"
+        emit_segment(:line_comment, start)
+      end
+
+      # @rbs () -> void
       def skip_block_comment
+        start = @cursor.position
         location = @cursor.location
         finish = @cursor.source.index("*/", @cursor.index + 2)
         raise Ibex::Error, "#{location}: unterminated block comment" unless finish
 
         @cursor.advance(finish + 2 - @cursor.index)
+        emit_segment(:block_comment, start)
       end
 
       # @rbs () -> bool
@@ -82,6 +140,7 @@ module Ibex
 
       # @rbs () -> Token
       def scan_user_code
+        start_position = @cursor.position
         location = @cursor.location
         match = @cursor.rest.match(USER_CODE)
         raise Ibex::Error, "#{location}: expected ---- header, inner, or footer" unless match
@@ -91,11 +150,16 @@ module Ibex
         raise Ibex::Error, "#{location}: expected ---- header, inner, or footer" unless name && marker
 
         @cursor.advance(marker.length)
+        emit_segment(
+          :user_code_marker, start_position, token_type: :user_code, token_index: @emitted_tokens.length
+        )
+        body_position = @cursor.position
         start = @cursor.index
         finish = @cursor.source.index(/^----/, start) || @cursor.source.length
         @cursor.advance(finish - start)
         code = @cursor.source[start...finish] || ""
-        token(:user_code, { name: name, code: code }, location)
+        emit_segment(:user_code_body, body_position)
+        token(:user_code, { name: name, code: code }, location, @cursor.span_from(start_position))
       end
 
       # @rbs () -> Token
@@ -156,9 +220,28 @@ module Ibex
         token(type, value, location)
       end
 
-      # @rbs (Symbol type, token_value value, ?Location location) -> Token
-      def token(type, value, location = @cursor.location)
-        Token.new(type: type, value: value, location: location)
+      # @rbs (Symbol type, token_value value, ?Location location, ?SourceSpan? span) -> Token
+      def token(type, value, location = @cursor.location, span = nil)
+        Token.new(type: type, value: value, location: location, span: span)
+      end
+
+      # @rbs (Token token, SourcePosition start) -> void
+      def emit_token(token, start)
+        token.span = @cursor.span_from(start)
+        kind = case token.type
+               when :action then :action
+               when :eof then :eof
+               else :token
+               end
+        emit_segment(kind, start, token_type: token.type, token_index: @emitted_tokens.length)
+      end
+
+      # @rbs (Symbol kind, SourcePosition start, ?token_type: Symbol?, ?token_index: Integer?) -> void
+      def emit_segment(kind, start, token_type: nil, token_index: nil)
+        span = @cursor.span_from(start)
+        text = @cursor.source.byteslice(span.start_byte, span.length) || ""
+        @segments << Segment.new(kind: kind, span: span, text: text,
+                                 token_type: token_type, token_index: token_index)
       end
     end
   end
