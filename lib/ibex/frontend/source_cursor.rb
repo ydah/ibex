@@ -27,6 +27,7 @@ module Ibex
       :type, #: Symbol
       :value, #: token_value
       :location, #: Location
+      :span, #: SourceSpan?
       keyword_init: true
     )
 
@@ -42,14 +43,16 @@ module Ibex
       attr_reader :source #: String
       attr_reader :file #: String
       attr_reader :index #: Integer
+      attr_reader :byte_offset #: Integer
       attr_reader :line #: Integer
       attr_reader :column #: Integer
 
       # @rbs (String source, String file) -> void
       def initialize(source, file)
-        @source = source
-        @file = file
+        @source = SourceEncoding.validated_utf8(source, file)
+        @file = file.dup.freeze
         @index = 0
+        @byte_offset = 0
         @line = 1
         @column = 1
       end
@@ -74,6 +77,16 @@ module Ibex
         Location.new(file: @file, line: @line, column: @column)
       end
 
+      # @rbs () -> SourcePosition
+      def position
+        SourcePosition.new(byte_offset: @byte_offset, line: @line, column: @column)
+      end
+
+      # @rbs (SourcePosition start) -> SourceSpan
+      def span_from(start)
+        SourceSpan.new(file: @file, start: start, finish: position)
+      end
+
       # @rbs (?Integer count) -> void
       def advance(count = 1)
         count.times do
@@ -81,6 +94,7 @@ module Ibex
           break unless character
 
           @index += 1
+          @byte_offset += character.bytesize
           if character == "\n"
             @line += 1
             @column = 1

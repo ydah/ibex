@@ -1,0 +1,119 @@
+# Generated from lib/ibex/frontend/source_document.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # An immutable lexical unit or trivia slice in a concrete syntax tree.
+    class Segment
+      TRIVIA_KINDS: Array[Symbol]
+
+      OPAQUE_KINDS: Array[Symbol]
+
+      attr_reader kind: Symbol
+
+      attr_reader span: SourceSpan
+
+      attr_reader text: String
+
+      attr_reader token_type: Symbol?
+
+      attr_reader token_index: Integer?
+
+      # @rbs (kind: Symbol, span: SourceSpan, text: String, ?token_type: Symbol?,
+      #   ?token_index: Integer?) -> void
+      def initialize: (kind: Symbol, span: SourceSpan, text: String, ?token_type: Symbol?, ?token_index: Integer?) -> void
+
+      # @rbs () -> bool
+      def trivia?: () -> bool
+
+      # @rbs () -> bool
+      def opaque?: () -> bool
+
+      # @rbs () -> bool
+      def token?: () -> bool
+
+      # @rbs () -> String
+      def render: () -> String
+    end
+
+    module CST
+      # The immutable lexical root of a grammar source document.
+      class Document
+        include Enumerable[Segment]
+
+        attr_reader segments: Array[Segment]
+
+        # @rbs (Array[Segment] segments) -> void
+        def initialize: (Array[Segment] segments) -> void
+
+        def each: () -> Enumerator[Segment, Document]
+                | () { (Segment) -> void } -> Document
+
+        # @rbs () -> String
+        def render: () -> String
+
+        private
+
+        # @rbs (Array[Segment] segments) -> void
+        def validate_contiguous: (Array[Segment] segments) -> void
+      end
+    end
+
+    # Lossless grammar source plus its semantic parse and lexical concrete syntax tree.
+    class SourceDocument
+      attr_reader source: String
+
+      attr_reader file: String
+
+      attr_reader tokens: Array[Token]
+
+      attr_reader cst: CST::Document
+
+      attr_reader ast: AST::Root?
+
+      # @rbs (source: String, file: String, tokens: Array[Token], cst: CST::Document,
+      #   ?ast: AST::Root?) -> void
+      def initialize: (source: String, file: String, tokens: Array[Token], cst: CST::Document, ?ast: AST::Root?) -> void
+
+      # @rbs () -> String
+      def render: () -> String
+
+      # @rbs (SourceSpan span) -> String
+      def slice: (SourceSpan span) -> String
+
+      # @rbs (Integer byte_offset) -> SourcePosition
+      def position_at: (Integer byte_offset) -> SourcePosition
+
+      # @rbs (Integer line, Integer column) -> Integer
+      def byte_offset_at: (Integer line, Integer column) -> Integer
+
+      # @rbs (Integer start_byte, Integer end_byte) -> SourceSpan
+      def span: (Integer start_byte, Integer end_byte) -> SourceSpan
+
+      # @rbs (Segment segment) -> Token?
+      def token_for: (Segment segment) -> Token?
+
+      # @rbs (AST::Root ast) -> SourceDocument
+      def with_ast: (AST::Root ast) -> SourceDocument
+
+      private
+
+      # @rbs () -> Array[Integer]
+      def build_line_starts: () -> Array[Integer]
+
+      # @rbs () -> void
+      def validate_render: () -> void
+
+      # @rbs () -> bool
+      def full_source_coverage?: () -> bool
+
+      # @rbs () -> bool
+      def segment_slices_match?: () -> bool
+
+      # @rbs (Integer byte_offset) -> void
+      def validate_byte_offset: (Integer byte_offset) -> void
+
+      # @rbs (SourceSpan span) -> void
+      def validate_span: (SourceSpan span) -> void
+    end
+  end
+end

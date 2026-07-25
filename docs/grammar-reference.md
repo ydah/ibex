@@ -23,6 +23,12 @@ Ruby copied after the parser class
 The superclass defaults to `Ibex::Runtime::Parser`. Repeated user-code blocks retain their source order and are concatenated.
 Grammar comments use `#` through end of line or `/* ... */`.
 
+The programmatic frontend can preserve this file exactly with
+`Ibex::Frontend::Parser.new(source, file: path).parse_document`. The returned source document contains the same semantic AST as
+`parse` plus immutable token, whitespace, line-break, comment, action, user-code marker/body, and EOF segments. `render` reproduces the input
+bytes; spans and `slice` use zero-based half-open byte offsets. Line and column positions remain one-based and count Unicode
+scalar values. Input is interpreted as UTF-8 without transcoding and invalid byte sequences are rejected before lexing.
+
 ## Declarations
 
 - `pragma extended` enables extended syntax for this grammar even when the CLI uses its default or explicit `--mode=racc`.

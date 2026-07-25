@@ -23,15 +23,17 @@ module Ibex
     end
 
     # A grammar token and its source coordinate.
-    class Token < Struct[Symbol | token_value | Location]
+    class Token < Struct[Symbol | token_value | Location | SourceSpan?]
       attr_accessor type(): Symbol
 
       attr_accessor value(): token_value
 
       attr_accessor location(): Location
 
-      def self.new: (?type: Symbol, ?value: token_value, ?location: Location) -> instance
-                  | ({ ?type: Symbol, ?value: token_value, ?location: Location }) -> instance
+      attr_accessor span(): SourceSpan?
+
+      def self.new: (?type: Symbol, ?value: token_value, ?location: Location, ?span: SourceSpan?) -> instance
+                  | ({ ?type: Symbol, ?value: token_value, ?location: Location, ?span: SourceSpan? }) -> instance
     end
 
     class Token
@@ -46,6 +48,8 @@ module Ibex
       attr_reader file: String
 
       attr_reader index: Integer
+
+      attr_reader byte_offset: Integer
 
       attr_reader line: Integer
 
@@ -65,6 +69,12 @@ module Ibex
 
       # @rbs () -> Location
       def location: () -> Location
+
+      # @rbs () -> SourcePosition
+      def position: () -> SourcePosition
+
+      # @rbs (SourcePosition start) -> SourceSpan
+      def span_from: (SourcePosition start) -> SourceSpan
 
       # @rbs (?Integer count) -> void
       def advance: (?Integer count) -> void

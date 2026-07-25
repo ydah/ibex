@@ -6,11 +6,21 @@ module Ibex
     class Parser
       attr_reader implementation: GeneratedParser
 
+      @source_document: SourceDocument?
+
+      @parsed_document: SourceDocument?
+
+      @ast: AST::Root?
+
       # @rbs (String | Array[Token] source, ?file: String, ?mode: Symbol) -> void
       def initialize: (String | Array[Token] source, ?file: String, ?mode: Symbol) -> void
 
       # @rbs () -> AST::Root
       def parse: () -> AST::Root
+
+      # Parse the grammar and return its lossless source model.
+      # @rbs () -> SourceDocument
+      def parse_document: () -> SourceDocument
     end
   end
 end

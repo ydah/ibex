@@ -8,6 +8,12 @@ module Ibex
 
       USER_CODE: Regexp
 
+      @eof_token: Token?
+
+      @emitted_tokens: Array[Token]
+
+      @segments: Array[Segment]
+
       @cursor: SourceCursor
 
       # @rbs (String source, ?file: String) -> void
@@ -16,16 +22,34 @@ module Ibex
       # @rbs () -> Array[Token]
       def tokenize: () -> Array[Token]
 
+      # @rbs () -> SourceDocument
+      def tokenize_document: () -> SourceDocument
+
       # @rbs () -> Token
       def next_token: () -> Token
 
       private
+
+      # @rbs () -> Token
+      def scan_from_cursor: () -> Token
 
       # @rbs (String character) -> Token
       def scan_regular_token: (String character) -> Token
 
       # @rbs () -> void
       def skip_ignored: () -> void
+
+      # @rbs () -> void
+      def scan_whitespace: () -> void
+
+      # @rbs () -> bool
+      def newline?: () -> bool
+
+      # @rbs () -> void
+      def scan_newline: () -> void
+
+      # @rbs () -> void
+      def scan_line_comment: () -> void
 
       # @rbs () -> void
       def skip_block_comment: () -> void
@@ -54,8 +78,14 @@ module Ibex
       # @rbs (Symbol type, Regexp pattern) ?{ (String) -> token_value } -> Token
       def scan_match: (Symbol type, Regexp pattern) ?{ (String) -> token_value } -> Token
 
-      # @rbs (Symbol type, token_value value, ?Location location) -> Token
-      def token: (Symbol type, token_value value, ?Location location) -> Token
+      # @rbs (Symbol type, token_value value, ?Location location, ?SourceSpan? span) -> Token
+      def token: (Symbol type, token_value value, ?Location location, ?SourceSpan? span) -> Token
+
+      # @rbs (Token token, SourcePosition start) -> void
+      def emit_token: (Token token, SourcePosition start) -> void
+
+      # @rbs (Symbol kind, SourcePosition start, ?token_type: Symbol?, ?token_index: Integer?) -> void
+      def emit_segment: (Symbol kind, SourcePosition start, ?token_type: Symbol?, ?token_index: Integer?) -> void
     end
   end
 end
