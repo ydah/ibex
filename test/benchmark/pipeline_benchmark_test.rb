@@ -28,7 +28,7 @@ class PipelineBenchmarkTest < Minitest::Test
       assert_equal 1, result.fetch("schema_version")
       assert_equal expected_structure, result.fetch("structure")
       assert_equal(
-        "9ce19ee60fed0e8c24747ba77b05ea052864f854fd33e13956a39a17fa8ee98b",
+        "7972cffa77bcabdd04a10a185f375fc79eb515b7f5d1584209e34e2c5ff02196",
         result.dig("digests", "artifact_sha256")
       )
       assert_equal(

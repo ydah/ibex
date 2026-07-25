@@ -36,8 +36,12 @@ unchanged; every new entry follows the reviewed naming contract below.
 Validate a baseline and rebuild its deterministic projection with:
 
 ```sh
-bundle exec ruby benchmark/verify.rb benchmark/results/v1/representative-ruby-4.0.0-arm64-darwin24.json
+bundle exec ruby benchmark/verify.rb benchmark/results/v1/2026-07-25-c55ff20e58e6-ruby-4.0.0-arm64-darwin24.json
 ```
+
+The dated baseline is tied to the IR version-2 implementation commit. It preserves the previous structure and runtime result;
+Grammar/Automaton IR and generated-output digests changed because canonical version-2 metadata and the generated identity header
+changed. The original version-1 observation remains unchanged for history.
 
 CI performs this schema and structure check on every change. The scheduled and manually dispatched workflow additionally runs
 three complete builds and 1,000 parses per format. It writes
