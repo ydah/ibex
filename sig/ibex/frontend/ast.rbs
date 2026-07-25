@@ -6,7 +6,7 @@ module Ibex
     module AST
       type symbol_metadata = DisplayName | SemanticType
 
-      type declaration = Tokens | Precedence | Options | Expect | Start | Convert | symbol_metadata
+      type declaration = Include | Tokens | Precedence | Options | Expect | Start | Convert | symbol_metadata
 
       type item = SymbolReference | InlineAction | Optional | Star | Plus | Group | SeparatedList
 
@@ -37,6 +37,26 @@ module Ibex
 
         def self.new: (?class_name: String, ?superclass: String?, ?declarations: Array[declaration], ?rules: Array[Rule], ?user_code: user_code, ?loc: Location) -> instance
                     | ({ ?class_name: String, ?superclass: String?, ?declarations: Array[declaration], ?rules: Array[Rule], ?user_code: user_code, ?loc: Location }) -> instance
+      end
+
+      class Fragment < Struct[Array[declaration] | Array[Rule] | Location]
+        attr_accessor declarations(): Array[declaration]
+
+        attr_accessor rules(): Array[Rule]
+
+        attr_accessor loc(): Location
+
+        def self.new: (?declarations: Array[declaration], ?rules: Array[Rule], ?loc: Location) -> instance
+                    | ({ ?declarations: Array[declaration], ?rules: Array[Rule], ?loc: Location }) -> instance
+      end
+
+      class Include < Struct[String | Location]
+        attr_accessor path(): String
+
+        attr_accessor loc(): Location
+
+        def self.new: (?path: String, ?loc: Location) -> instance
+                    | ({ ?path: String, ?loc: Location }) -> instance
       end
 
       class Tokens < Struct[Array[String] | Location]

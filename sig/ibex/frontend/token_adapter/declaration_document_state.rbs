@@ -1,0 +1,21 @@
+# Generated from lib/ibex/frontend/token_adapter/declaration_document_state.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    class TokenAdapter
+      # Root/fragment header and include-path transitions for declaration classification.
+      module DeclarationDocumentState
+        private
+
+        # @rbs (Token token) -> external_token
+        def class_keyword: (Token token) -> external_token
+
+        # @rbs (external_token type) -> external_token?
+        def classify_include: (external_token type) -> external_token?
+
+        # @rbs (Token token, String value) -> void
+        def reject_fragment_pragma: (Token token, String value) -> void
+      end
+    end
+  end
+end

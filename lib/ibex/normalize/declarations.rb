@@ -25,16 +25,34 @@ module Ibex
     def read_declaration(declaration)
       # @type self: Normalizer
       case declaration
-      when Frontend::AST::Tokens then declaration.names.each { |name| @declared_tokens[name] = declaration.loc.to_h }
+      when Frontend::AST::Tokens then read_tokens(declaration)
       when Frontend::AST::Precedence then read_precedence(declaration)
-      when Frontend::AST::Options then declaration.names.each { |name| read_option(name, declaration.loc) }
+      when Frontend::AST::Options then read_options(declaration)
       when Frontend::AST::Expect then @expected_conflicts = declaration.conflicts
       when Frontend::AST::Start
         @explicit_start = declaration.name
         @start_location = declaration.loc
-      when Frontend::AST::Convert then declaration.pairs.each { |pair| @conversions[pair.name] = pair.expression }
-      else read_symbol_metadata_declaration(declaration)
+      when Frontend::AST::Convert then read_conversions(declaration)
+      when Frontend::AST::DisplayName, Frontend::AST::SemanticType then read_symbol_metadata_declaration(declaration)
+      when Frontend::AST::Include then fail_at(declaration.loc, "includes must be resolved before normalization")
       end
+    end
+
+    # @rbs (Frontend::AST::Tokens declaration) -> void
+    def read_tokens(declaration)
+      # @type self: Normalizer
+      declaration.names.each { |name| @declared_tokens[name] = declaration.loc.to_h }
+    end
+
+    # @rbs (Frontend::AST::Options declaration) -> void
+    def read_options(declaration)
+      declaration.names.each { |name| read_option(name, declaration.loc) }
+    end
+
+    # @rbs (Frontend::AST::Convert declaration) -> void
+    def read_conversions(declaration)
+      # @type self: Normalizer
+      declaration.pairs.each { |pair| @conversions[pair.name] = pair.expression }
     end
 
     # @rbs (Frontend::AST::symbol_metadata declaration) -> void

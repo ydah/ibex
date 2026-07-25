@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require_relative "generated_parser_metadata"
+require_relative "generated_parser_includes"
 
 module Ibex
   module Frontend
     # Semantic support and token delivery for the generated grammar parser.
     class GeneratedParserBase < Runtime::Parser
       include GeneratedParserMetadata
+      include GeneratedParserIncludes
 
       attr_reader :diagnostic_token #: Token?
 
@@ -22,7 +24,7 @@ module Ibex
         @mode = mode
       end
 
-      # @rbs () -> AST::Root
+      # @rbs () -> (AST::Root | AST::Fragment)
       def parse
         do_parse
       end

@@ -5,6 +5,7 @@ require "json"
 require "json_schemer"
 require "stringio"
 require "tempfile"
+require "tmpdir"
 
 class CLIDiagnosticsTest < Minitest::Test
   MULTIPLE_ERRORS = <<~GRAMMAR
@@ -85,6 +86,64 @@ class CLIDiagnosticsTest < Minitest::Test
     assert_match(/Usage: ibex diagnose/, help.fetch(:stdout))
   end
 
+  def test_included_fragment_syntax_error_is_one_schema_valid_diagnostic
+    include_grammar("fragment\nrule\nhelper: )\nend\n") do |root, fragment|
+      result = invoke(["diagnose", "--mode=extended", "--format=json", root])
+      diagnostic = assert_resolution_diagnostic(result)
+
+      assert_equal File.realpath(fragment), diagnostic.fetch("location").fetch("file")
+      assert_match(/expected a grammar symbol/, diagnostic.fetch("message"))
+    end
+  end
+
+  def test_missing_include_is_one_schema_valid_diagnostic
+    include_grammar(nil) do |root, _fragment|
+      result = invoke(["diagnose", "--mode=extended", "--format=json", root])
+      diagnostic = assert_resolution_diagnostic(result)
+
+      assert_equal File.realpath(root), diagnostic.fetch("location").fetch("file")
+      assert_match(/include file does not exist/, diagnostic.fetch("message"))
+
+      text = invoke(["diagnose", "--mode=extended", root])
+      assert_equal 1, text.fetch(:status)
+      assert_empty text.fetch(:stderr)
+      assert_equal 1, text.fetch(:stdout).lines.length
+      assert_match(/root\.y:2:1: include file does not exist/, text.fetch(:stdout))
+    end
+  end
+
+  def test_unsafe_include_is_one_schema_valid_diagnostic
+    Dir.mktmpdir("ibex-diagnostics-security") do |directory|
+      root = File.join(directory, "root.y")
+      File.write(root, "class P\ninclude \"../escape.y\"\nrule\nstart: TOKEN\nend\n")
+
+      result = invoke(["diagnose", "--mode=extended", "--format=json", root])
+      diagnostic = assert_resolution_diagnostic(result)
+
+      assert_equal File.realpath(root), diagnostic.fetch("location").fetch("file")
+      assert_match(/parent traversal/, diagnostic.fetch("message"))
+    end
+  end
+
+  def test_included_fragment_read_error_remains_a_cli_io_error
+    include_grammar("fragment\nrule\nhelper: TOKEN\nend\n") do |root, fragment|
+      canonical_fragment = File.realpath(fragment)
+      binread = File.method(:binread)
+      reader = lambda do |path, *arguments|
+        raise Errno::EACCES, path if path == canonical_fragment
+
+        binread.call(path, *arguments)
+      end
+
+      File.stub(:binread, reader) do
+        result = invoke(["diagnose", "--mode=extended", "--format=json", root])
+        assert_equal 1, result.fetch(:status)
+        assert_empty result.fetch(:stdout)
+        assert_match(/Permission denied.*fragment\.y/, result.fetch(:stderr))
+      end
+    end
+  end
+
   private
 
   def grammar_file
@@ -93,6 +152,29 @@ class CLIDiagnosticsTest < Minitest::Test
       file.flush
       yield file.path
     end
+  end
+
+  def include_grammar(fragment_source)
+    Dir.mktmpdir("ibex-diagnostics-include") do |directory|
+      root = File.join(directory, "root.y")
+      fragment = File.join(directory, "fragment.y")
+      File.write(root, "class P\ninclude \"fragment.y\"\nrule\nstart: helper\nend\n")
+      File.write(fragment, fragment_source) if fragment_source
+      yield root, fragment
+    end
+  end
+
+  def assert_resolution_diagnostic(result)
+    document = JSON.parse(result.fetch(:stdout))
+    assert_equal 1, result.fetch(:status)
+    assert_empty result.fetch(:stderr)
+    assert SCHEMA.valid?(document), SCHEMA.validate(document).to_a.inspect
+    assert_equal false, document.fetch("success")
+    assert_equal false, document.fetch("ast_available")
+    assert_equal 1, document.fetch("diagnostics").length
+    diagnostic = document.fetch("diagnostics").fetch(0)
+    assert_equal "frontend.resolution_error", diagnostic.fetch("code")
+    diagnostic
   end
 
   def invoke(arguments)

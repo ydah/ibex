@@ -15,6 +15,7 @@ module Ibex
     #   private def prepare_loaded_automaton: (IR::Automaton, String) -> void
     #   private def default_output_path: (String, String) -> String
     #   private def same_file_target?: (String, String) -> bool
+    #   private def normalize_grammar_path: (String) -> IR::Grammar
 
     private
 
@@ -66,9 +67,7 @@ module Ibex
       return automaton_from_ir_for_messages(input_path) if @options[:from]
 
       report_status("reading #{input_path}")
-      source = File.read(input_path)
-      ast = Frontend::Parser.new(source, file: input_path, mode: @options[:mode]).parse
-      grammar = Normalizer.new(ast, mode: @options[:mode]).normalize
+      grammar = normalize_grammar_path(input_path)
       handle_grammar_warnings(grammar, input_path)
       build_automaton(grammar, input_path)
     end

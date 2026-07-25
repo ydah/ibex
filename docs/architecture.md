@@ -3,8 +3,8 @@
 Ibex keeps syntax, grammar meaning, automaton construction, and output concerns behind two versioned immutable contracts.
 
 ```text
-.y Lexer -> Token + lossless CST -> Token adapter -> self-hosted LR Parser ─┐
-Ruby DSL ──────────────────────────────────────┴─> Grammar AST -> Normalizer -> Grammar IR
+.y root/fragments -> Lexer/CST -> self-hosted LR Parser -> canonical Resolver ─┐
+Ruby DSL ───────────────────────────────────────────────────────┴─> Grammar AST -> Normalizer -> Grammar IR
                                                     |
                                                set analysis
                                                     |
@@ -29,13 +29,22 @@ bodies remain opaque segments; whitespace, line breaks, both comment forms, user
 `render`, byte slicing, and byte/line/column conversion provide the common source contract for formatter, documentation, include,
 and language-server layers. See [ADR 0040](decisions/0040-lossless-frontend-source-document.md).
 
+Extended grammar paths cross an explicit `Frontend::Resolver` boundary. Roots retain class, start, options, and user code;
+fragments contain composable declarations and rules. Canonical realpaths define DFS order, diamond deduplication, cycle identity,
+and the Rake dependency closure. Canonical dirname ancestry keeps every resolved target below the root grammar directory after
+symlink resolution, including when that directory is a filesystem or drive root. The source-only Parser never follows an
+include. A `Resolution` recursively freezes its owned AST and defensive provenance copies while retaining rule identity for
+include-chain lookup. Rake resolves this closure at task definition and refuses invalid graphs before timestamp checks can reuse
+a stale output; see [ADR 0042](decisions/0042-canonical-grammar-fragment-includes.md).
+
 The strict generated frontend remains the grammar authority during batch diagnostics. A diagnostic parse retries it after
 suppressing only a whole declaration, whole rule, or outer alternative at balanced delimiters. Each retry must remove a new
 original token and both attempts and emitted diagnostics are bounded. Lexical and syntax phases collect independently before a
 global source-order limit is applied, so an earlier syntax error cannot be hidden by a later lexical error. Machine-readable
 diagnostics retain source spans, defensive locations, and stable codes. A repaired AST is marked partial by `ParseResult`, and
-is not attached to the unchanged source document. The CLI exposes this analysis only through `ibex diagnose`; see [ADR
-0041](decisions/0041-bounded-frontend-diagnostics.md).
+is not attached to the unchanged source document. After a successful root parse, the CLI reports the first resolver grammar
+failure through the same diagnostic schema, while actual resolution I/O failures remain invocation errors. The CLI exposes this
+analysis only through `ibex diagnose`; see [ADR 0041](decisions/0041-bounded-frontend-diagnostics.md).
 
 The RBS generator emits the generated class namespace, superclass, parser-table constants, `.parser_tables` contract, and
 private reduction-method signatures. Declared symbol types refine the RHS tuple and LHS result independently, with `untyped`
@@ -89,11 +98,12 @@ New normalized grammars use version 2. It keeps every version-1 semantic field a
 | production | `doc` and `expansion {parameter, inline, include_chain}` |
 | action | `composition {strategy, fragments}` |
 
-The current text frontend supplies the source filename and leaves unknown metadata null. Version-1 upgrades mark every
-unrecoverable metadata family in `migration.unavailable` instead of guessing. `Serialize.load` and `Validator.validate` accept
-both versions; a loaded version-1 object dumps with the original version-1 shape. `IR::Migration.to_version` upgrades version 1
-to 2 and is idempotent at version 2. The CLI exposes this as `ibex migrate-ir INPUT --to=2 [-o FILE]`; file output uses an atomic
-same-directory rename and refuses to alias the input.
+The source-only text frontend supplies the source filename and leaves unknown metadata null. A resolved grammar also supplies its
+canonical source root and each production's include chain while preserving its original-file origin; documentation remains null.
+Version-1 upgrades mark every unrecoverable metadata family in `migration.unavailable` instead of guessing.
+`Serialize.load` and `Validator.validate` accept both versions; a loaded version-1 object dumps with the original version-1
+shape. `IR::Migration.to_version` upgrades version 1 to 2 and is idempotent at version 2. The CLI exposes this as
+`ibex migrate-ir INPUT --to=2 [-o FILE]`; file output uses an atomic same-directory rename and refuses to alias the input.
 
 ## Automaton IR versions 1 and 2
 

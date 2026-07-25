@@ -8,6 +8,7 @@ module Ibex
     #   private def input_path: (Array[String]) -> String
     #   private def handle_grammar_warnings: (IR::Grammar, String) -> void
     #   private def warning_categories: (String) -> Array[Symbol]
+    #   private def normalize_grammar_path: (String) -> IR::Grammar
 
     private
 
@@ -65,11 +66,7 @@ module Ibex
 
     # @rbs (String path) -> IR::Grammar
     def grammar_for_samples(path)
-      unless @options[:from]
-        source = File.read(path)
-        ast = Frontend::Parser.new(source, file: path, mode: @options[:mode]).parse
-        return Normalizer.new(ast, mode: @options[:mode]).normalize
-      end
+      return normalize_grammar_path(path) unless @options[:from]
 
       value = IR::Validator.validate(File.read(path))
       expected = @options[:from] == "grammar-ir" ? IR::Grammar : IR::Automaton

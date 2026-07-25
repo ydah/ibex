@@ -16,12 +16,16 @@ class CLISystemErrorTest < Minitest::Test
   end
 
   def test_permission_error_is_one_stderr_diagnostic
-    File.stub(:read, ->(*) { raise Errno::EACCES, "/locked/grammar.y" }) do
-      result = invoke(["/locked/grammar.y"])
-      assert_equal 1, result.fetch(:status)
-      assert_empty result.fetch(:stdout)
-      assert_equal 1, result.fetch(:stderr).lines.length
-      assert_match(/Permission denied.*grammar\.y/, result.fetch(:stderr))
+    File.stub(:realpath, "/locked/grammar.y") do
+      File.stub(:file?, true) do
+        File.stub(:binread, ->(*) { raise Errno::EACCES, "/locked/grammar.y" }) do
+          result = invoke(["/locked/grammar.y"])
+          assert_equal 1, result.fetch(:status)
+          assert_empty result.fetch(:stdout)
+          assert_equal 1, result.fetch(:stderr).lines.length
+          assert_match(/Permission denied.*grammar\.y/, result.fetch(:stderr))
+        end
+      end
     end
   end
 

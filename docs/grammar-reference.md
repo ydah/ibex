@@ -23,6 +23,30 @@ Ruby copied after the parser class
 The superclass defaults to `Ibex::Runtime::Parser`. Repeated user-code blocks retain their source order and are concatenated.
 Grammar comments use `#` through end of line or `/* ... */`.
 
+Extended roots may include explicit fragment files:
+
+```text
+fragment
+  token SHARED
+  include "nested/expressions.y"
+rule
+  shared_rule: SHARED
+end
+```
+
+Fragments own no class, superclass, pragma, options, expected-conflict count, start symbol, or user-code blocks. Their `rule`
+section may be empty. Token, precedence, conversion, display, and type declarations are merged with their original locations.
+`include "relative/path.y"` appears in the declaration section of a root or fragment and requires extended mode. Paths are
+resolved relative to the including file, must be double-quoted and relative, cannot contain parent traversal, globs, or NUL, and
+must resolve through symlinks to a regular file below the root grammar's canonical directory.
+
+Resolution is deterministic depth-first order at include sites. A canonical file reached twice through a diamond is merged only
+at its first occurrence; a cycle reports its exact canonical path loop. `Frontend::Resolver.new(path, mode: :extended).resolve`
+returns the merged root and canonical dependency closure. `Parser#parse_fragment` parses fragment text without I/O, while normal
+`Parser#parse` continues to return only a root and rejects fragment input. The exposed resolution is recursively immutable,
+including AST strings and locations and defensively copied include provenance. Canonical directory ancestry, rather than a
+string-prefix comparison, enforces the source-root boundary and remains valid when the source root is a filesystem or drive root.
+
 The programmatic frontend can preserve this file exactly with
 `Ibex::Frontend::Parser.new(source, file: path).parse_document`. The returned source document contains the same semantic AST as
 `parse` plus immutable token, whitespace, line-break, comment, action, user-code marker/body, and EOF segments. `render` reproduces the input
@@ -33,13 +57,18 @@ scalar values. Input is interpreted as UTF-8 without transcoding and invalid byt
 them in source order, and returns the globally earliest records. Recovery is deliberately limited to complete declarations,
 rules, or outer alternatives at balanced delimiters, so an error inside a nested group cannot synchronize at that group's `|`.
 The result may expose a partial AST containing later valid rules, but `success?` remains false and the original source document
-does not adopt that AST. `ibex diagnose` renders the same records as text or versioned JSON.
+does not adopt that AST. `ibex diagnose` renders the same records as text or versioned JSON. After a clean root parse it resolves
+includes and emits the first cross-file security, missing-target, cycle, or fragment-syntax failure as
+`frontend.resolution_error`; cross-file recovery is intentionally bounded to that one record. Permission and other actual
+filesystem read failures remain CLI invocation errors on stderr and do not produce a JSON envelope.
 
 ## Declarations
 
 - `pragma extended` enables extended syntax for this grammar even when the CLI uses its default or explicit `--mode=racc`.
   It must immediately follow the class header, before every ordinary declaration. Unknown, duplicate, and misplaced pragmas
   are positioned errors. The pragma is consumed by the frontend and is not stored in AST or Grammar IR output.
+- `include "relative/path.y"` inserts one explicit fragment through the canonical resolver. It is available only in extended
+  mode and is intentionally not followed by the source-only `Parser` API.
 
 - `token NAME ...` declares terminals for typo diagnostics. It is optional. Uppercase names and quoted strings are terminals;
   lowercase names are nonterminals unless they are `error`.

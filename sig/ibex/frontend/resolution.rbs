@@ -1,0 +1,33 @@
+# Generated from lib/ibex/frontend/resolution.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Immutable result of resolving one root grammar and its fragment closure.
+    class Resolution
+      EMPTY_CHAIN: Array[IR::source_provenance]
+
+      attr_reader root: AST::Root
+
+      attr_reader root_path: String
+
+      attr_reader root_directory: String
+
+      attr_reader files: Array[String]
+
+      # @rbs (root: AST::Root, root_path: String, root_directory: String, files: Array[String],
+      #   include_chains: Hash[AST::Rule, Array[IR::source_provenance]]) -> void
+      def initialize: (root: AST::Root, root_path: String, root_directory: String, files: Array[String], include_chains: Hash[AST::Rule, Array[IR::source_provenance]]) -> void
+
+      # @rbs (AST::Rule rule) -> Array[IR::source_provenance]
+      def include_chain_for: (AST::Rule rule) -> Array[IR::source_provenance]
+
+      private
+
+      # @rbs (untyped value) -> untyped
+      def deep_freeze_ast: (untyped value) -> untyped
+
+      # @rbs (IR::source_provenance entry) -> IR::source_provenance
+      def copy_provenance: (IR::source_provenance entry) -> IR::source_provenance
+    end
+  end
+end

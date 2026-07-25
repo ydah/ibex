@@ -5,7 +5,10 @@ module Ibex
     class TokenAdapter
       # Classifies tokens through the class header and declaration section.
       class DeclarationState
+        include DeclarationDocumentState
+
         DECLARATIONS = {
+          "include" => %i[INCLUDE include_path],
           "token" => %i[TOKEN token_symbols], "options" => %i[OPTIONS options_identifiers],
           "expect" => %i[EXPECT expect_integer], "start" => %i[START start_symbol],
           "convert" => %i[CONVERT convert_name], "pragma" => %i[PRAGMA pragma_value],
@@ -21,6 +24,7 @@ module Ibex
         EXPECTATIONS = {
           class_keyword: "class", class_name: "identifier", superclass_name: "identifier",
           expect_integer: "integer", start_symbol: "a grammar symbol",
+          include_path: "a double-quoted relative path",
           display_symbol: "a grammar symbol", type_symbol: "a grammar symbol",
           display_value: "a quoted string", type_value: "a quoted string"
         }.freeze #: Hash[Symbol, String]
@@ -31,6 +35,7 @@ module Ibex
         attr_reader :state #: Symbol
 
         # @rbs @extended_mode: bool
+        # @rbs @fragment: bool?
 
         # @rbs (?extended: bool) -> void
         def initialize(extended: false)
@@ -90,14 +95,6 @@ module Ibex
           end
         end
 
-        # @rbs (Token token) -> external_token
-        def class_keyword(token)
-          return :IDENTIFIER unless string_value(token) == "class"
-
-          @state = :class_name
-          :CLASS
-        end
-
         # @rbs (Array[Token] remaining) -> external_token
         def constant_name(remaining)
           following = remaining.first
@@ -117,6 +114,8 @@ module Ibex
         def begin_declaration(token)
           value = string_value(token)
           return begin_precedence(token) if %w[prechigh preclow].include?(value)
+
+          reject_fragment_pragma(token, value)
 
           raise Ibex::Error, "#{token.location}: duplicate pragma extended" if value == "pragma" && @extended_pragma
 
@@ -198,7 +197,7 @@ module Ibex
         # @rbs (Token token, Array[Token] remaining) -> external_token
         def classify_scalar(token, remaining)
           type = SCALAR_TYPES.fetch(token.type)
-          classified = classify_single_symbol(type) || classify_metadata(type) ||
+          classified = classify_include(type) || classify_single_symbol(type) || classify_metadata(type) ||
                        classify_conversion(token, type, remaining)
 
           classified || type

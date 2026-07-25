@@ -85,6 +85,12 @@ module Ibex
     # @rbs (String path) -> Integer
     def process_grammar: (String path) -> Integer
 
+    # @rbs (String path) -> Frontend::Resolution
+    def resolve_grammar_path: (String path) -> Frontend::Resolution
+
+    # @rbs (String path) -> IR::Grammar
+    def normalize_grammar_path: (String path) -> IR::Grammar
+
     # @rbs (String path) -> Integer
     def process_ir: (String path) -> Integer
 

@@ -21,6 +21,8 @@ module Ibex
 
     private def same_file_target?: (String, String) -> bool
 
+    private def normalize_grammar_path: (String) -> IR::Grammar
+
     private
 
     # @rbs (Array[String] arguments) -> Integer

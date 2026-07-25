@@ -36,8 +36,37 @@ module Ibex
       path = input_path(remaining)
       result = Frontend::Parser.new(File.binread(path), file: path, mode: settings.fetch(:mode))
                                .parse_with_diagnostics(max_diagnostics: settings.fetch(:max_diagnostics))
+      result = resolve_diagnostic_result(result, path, settings.fetch(:mode)) if result.success?
       write_diagnostics(result, format: settings.fetch(:format))
       result.success? ? 0 : 1
+    end
+
+    # Cross-file recovery is deliberately bounded to the first resolver error.
+    # @rbs (Frontend::ParseResult result, String path, Symbol mode) -> Frontend::ParseResult
+    def resolve_diagnostic_result(result, path, mode)
+      Frontend::Resolver.new(path, mode: mode).resolve
+      result
+    rescue Frontend::ResolutionIOError
+      raise
+    rescue Ibex::Error => e
+      Frontend::ParseResult.new(diagnostics: [resolution_diagnostic(e, path)], ast: nil, document: nil)
+    end
+
+    # @rbs (Ibex::Error error, String fallback_file) -> Frontend::Diagnostic
+    def resolution_diagnostic(error, fallback_file)
+      match = error.message.match(/\A(.+):(\d+):(\d+): (.*)\z/m)
+      location = if match
+                   Frontend::Location.new(
+                     file: match[1].to_s, line: Integer(match[2].to_s), column: Integer(match[3].to_s)
+                   )
+                 else
+                   Frontend::Location.new(file: fallback_file, line: 1, column: 1)
+                 end
+      message = match ? match[4].to_s : error.message
+      Frontend::Diagnostic.new(
+        code: "frontend.resolution_error", phase: :syntax, message: message,
+        location: location, rendered: error.message
+      )
     end
 
     # @rbs (diagnostic_settings settings) -> OptionParser

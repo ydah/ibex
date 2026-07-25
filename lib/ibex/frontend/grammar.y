@@ -1,11 +1,23 @@
 class Ibex::Frontend::GeneratedParser < Ibex::Frontend::GeneratedParserBase
-token CLASS TOKEN PRECHIGH PRECLOW OPTIONS EXPECT START CONVERT DISPLAY TYPE PRAGMA RULE END
+token CLASS FRAGMENT INCLUDE TOKEN PRECHIGH PRECLOW OPTIONS EXPECT START CONVERT DISPLAY TYPE PRAGMA RULE END
 token LEFT RIGHT NONASSOC IDENTIFIER LITERAL INTEGER ACTION USER_CODE LHS
 token SEPARATED_LIST SEPARATED_NONEMPTY_LIST
 rule
+  document
+    : grammar                            { result = val[0] }
+    | fragment                           { result = val[0] }
+
   grammar
     : CLASS constant_path superclass pragmas declarations RULE rules END user_code
       { result = build_root(val[0], val[1], val[2], val[4], val[6], val[8]) }
+
+  fragment
+    : FRAGMENT declarations RULE fragment_rules END user_code
+      { result = build_fragment(val[0], val[1], val[3], val[5]) }
+
+  fragment_rules
+    :                                    { result = Array.new(0) }
+    | rules                              { result = val[0] }
 
   constant_path
     : IDENTIFIER                         { result = [val[0].value] }
@@ -24,7 +36,8 @@ rule
     | declarations declaration           { result = val[0] + [val[1]] }
 
   declaration
-    : token_declaration                  { result = val[0] }
+    : include_declaration                { result = val[0] }
+    | token_declaration                  { result = val[0] }
     | precedence_declaration             { result = val[0] }
     | options_declaration                { result = val[0] }
     | expect_declaration                 { result = val[0] }
@@ -32,6 +45,9 @@ rule
     | convert_declaration                { result = val[0] }
     | display_declaration                { result = val[0] }
     | type_declaration                   { result = val[0] }
+
+  include_declaration
+    : INCLUDE LITERAL                    { result = build_include(val[0], val[1]) }
 
   token_declaration
     : TOKEN symbols                      { result = build_tokens(val[0], val[1]) }

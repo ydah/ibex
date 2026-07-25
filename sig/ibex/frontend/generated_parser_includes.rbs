@@ -1,0 +1,20 @@
+# Generated from lib/ibex/frontend/generated_parser_includes.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Semantic builders for fragment and include frontend nodes.
+    module GeneratedParserIncludes
+      private
+
+      # @rbs (Token keyword, Array[AST::declaration] declarations, Array[AST::Rule] rules,
+      #   AST::user_code user_code) -> AST::Fragment
+      def build_fragment: (Token keyword, Array[AST::declaration] declarations, Array[AST::Rule] rules, AST::user_code user_code) -> AST::Fragment
+
+      # @rbs (Token keyword, Token path) -> AST::Include
+      def build_include: (Token keyword, Token path) -> AST::Include
+
+      # @rbs (Array[AST::declaration] declarations) -> void
+      def reject_fragment_root_declarations: (Array[AST::declaration] declarations) -> void
+    end
+  end
+end

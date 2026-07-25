@@ -11,6 +11,8 @@ module Ibex
 
     RESERVED_NAMES: Array[String]
 
+    @current_include_chain: Array[IR::source_provenance]
+
     @mode: Symbol
 
     @symbols: Array[IR::GrammarSymbol]
@@ -49,10 +51,13 @@ module Ibex
 
     @start_location: Frontend::Location?
 
+    @resolution: Frontend::Resolution?
+
     @ast: Frontend::AST::Root
 
-    # @rbs (Frontend::AST::Root ast, ?mode: Symbol | String) -> void
-    def initialize: (Frontend::AST::Root ast, ?mode: Symbol | String) -> void
+    # @rbs (Frontend::AST::Root | Frontend::AST::Fragment | Frontend::Resolution input,
+    #   ?mode: Symbol | String) -> void
+    def initialize: (Frontend::AST::Root | Frontend::AST::Fragment | Frontend::Resolution input, ?mode: Symbol | String) -> void
 
     # @rbs () -> IR::Grammar
     def normalize: () -> IR::Grammar
@@ -100,5 +105,8 @@ module Ibex
 
     # @rbs (IR::location? location, String message) -> bot
     def fail_hash: (IR::location? location, String message) -> bot
+
+    # @rbs () -> IR::production_expansion?
+    def resolved_expansion: () -> IR::production_expansion?
   end
 end

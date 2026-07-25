@@ -140,6 +140,46 @@ Segment spans are half-open zero-based byte ranges with one-based line and Unico
 accepted input bytes must be valid UTF-8. Actions, every supported heredoc form, and user-code bodies are retained as opaque text,
 while user-code markers and repeated blocks remain separate. `Token#to_h`, AST output, and normalized IR are unchanged.
 
+## Grammar fragments
+
+Extended mode can compose grammars without giving included files root ownership:
+
+```text
+# grammar.y
+class Parser
+include "grammar/expression.y"
+rule
+start: expression
+end
+
+# grammar/expression.y
+fragment
+token NUMBER
+rule
+expression: NUMBER
+end
+```
+
+Use `--mode=extended` or place `pragma extended` after the root class header. Fragments cannot define a class, superclass, start,
+options, expected conflicts, pragma, or user-code blocks. Resolution is depth-first and diamond-deduplicated by canonical
+realpath. Includes must remain inside the root grammar directory after symlink resolution; absolute paths, parent traversal,
+globs, NUL, missing paths, and directories are rejected.
+
+CLI grammar commands resolve fragments automatically. Programmatic filesystem use is explicit:
+
+```ruby
+resolution = Ibex::Frontend::Resolver.new("grammar.y", mode: :extended).resolve
+grammar_ir = Ibex::Normalizer.new(resolution, mode: :extended).normalize
+resolution.files # canonical DFS dependency closure
+```
+
+`Parser#parse` and `Parser#parse_fragment` only parse supplied source and never follow paths. Resolved Grammar IR version 2 stores
+the canonical source root, original production locations, and include chains; version-1 output retains its existing shape.
+`Resolution` recursively freezes its resolved AST and defensively copied provenance. `ibex diagnose` reports the first
+cross-file resolution or fragment syntax failure through its normal text/JSON diagnostic stream; actual filesystem read failures
+remain invocation errors on stderr. Rake tasks resolve and validate the complete include graph while the task is defined, so an
+invalid graph fails even when an older generated target is newer than the root grammar.
+
 For bounded multi-error analysis, use `Parser#parse_with_diagnostics(max_diagnostics: 20)`. Lexical and syntax analysis each
 collect at most that limit before the result selects the globally earliest records in source order. Its immutable result has
 machine-coded diagnostics and, when recovery reaches EOF, an explicitly partial AST containing later valid constructs. A result
@@ -262,8 +302,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 6,885 typed calls and 804 untyped calls out of 7,689 (89.5% typed).
-The generated signature tree contains 889 explicit `untyped` occurrences across 27 files.
+The current whole-library `steep stats` result is 7,160 typed calls and 822 untyped calls out of 7,982 (89.7% typed).
+The generated signature tree contains 935 explicit `untyped` occurrences across 28 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

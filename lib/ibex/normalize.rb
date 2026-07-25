@@ -4,6 +4,7 @@ require_relative "normalize/declarations"
 require_relative "normalize/expression"
 require_relative "normalize/expander"
 require_relative "normalize/diagnostics"
+require_relative "frontend/resolution"
 
 module Ibex
   # Converts a frontend AST into immutable Grammar IR.
@@ -15,6 +16,8 @@ module Ibex
     RESERVED_NAMES = %w[result val _values].freeze #: Array[String]
 
     # @rbs @ast: Frontend::AST::Root
+    # @rbs @resolution: Frontend::Resolution?
+    # @rbs @current_include_chain: Array[IR::source_provenance]
     # @rbs @mode: Symbol
     # @rbs @symbols: Array[IR::GrammarSymbol]
     # @rbs @symbols_by_name: Hash[String, IR::GrammarSymbol]
@@ -35,8 +38,15 @@ module Ibex
     # @rbs @start_name: String
     # @rbs @start_location: Frontend::Location?
 
-    # @rbs (Frontend::AST::Root ast, ?mode: Symbol | String) -> void
-    def initialize(ast, mode: :racc)
+    # @rbs (Frontend::AST::Root | Frontend::AST::Fragment | Frontend::Resolution input,
+    #   ?mode: Symbol | String) -> void
+    def initialize(input, mode: :racc)
+      @resolution = input if input.is_a?(Frontend::Resolution)
+      ast = input.is_a?(Frontend::Resolution) ? input.root : input
+      fail_at(ast.loc, "fragments must be resolved before normalization") if ast.is_a?(Frontend::AST::Fragment)
+      unresolved = ast.declarations.find { |declaration| declaration.is_a?(Frontend::AST::Include) }
+      fail_at(unresolved.loc, "includes must be resolved before normalization") if unresolved
+
       @ast = ast
       @mode = mode
       @symbols = [] #: Array[IR::GrammarSymbol]
@@ -44,6 +54,7 @@ module Ibex
       @productions = [] #: Array[IR::Production]
       @warnings = [] #: Array[IR::grammar_warning]
       @helper_sequence = 0
+      @current_include_chain = [] #: Array[IR::source_provenance]
     end
 
     # @rbs () -> IR::Grammar
@@ -58,7 +69,9 @@ module Ibex
                       expect: @expected_conflicts, options: @options, symbols: @symbols,
                       productions: @productions, user_code: normalized_user_code,
                       conversions: @conversions, warnings: @warnings, user_code_chunks: normalized_user_code_chunks,
-                      source_provenance: { file: @ast.loc.file, root: nil, byte_span: nil })
+                      source_provenance: {
+                        file: @ast.loc.file, root: @resolution&.root_directory, byte_span: nil
+                      })
     end
 
     private
@@ -167,6 +180,13 @@ module Ibex
     def fail_hash(location, message)
       rendered = location ? "#{location[:file]}:#{location[:line]}:#{location[:column]}" : "(grammar):1:1"
       raise Ibex::Error, "#{rendered}: #{message}"
+    end
+
+    # @rbs () -> IR::production_expansion?
+    def resolved_expansion
+      return unless @resolution
+
+      { parameter: nil, inline: nil, include_chain: @current_include_chain }
     end
   end
 end
