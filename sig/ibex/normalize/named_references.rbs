@@ -1,0 +1,20 @@
+# Generated from lib/ibex/normalize/named_references.rb with RBS::Inline
+
+module Ibex
+  # Named-reference collection and validation shared by ordinary and parameterized items.
+  module NormalizeNamedReferences
+    private
+
+    # @rbs (Frontend::AST::Group group) -> void
+    def reject_group_named_references: (Frontend::AST::Group group) -> void
+
+    # @rbs (Frontend::AST::item item) -> (Frontend::AST::SymbolReference | Frontend::AST::ParameterizedReference)?
+    def named_reference_in: (Frontend::AST::item item) -> (Frontend::AST::SymbolReference | Frontend::AST::ParameterizedReference)?
+
+    # @rbs (Frontend::AST::item item, Array[IR::named_ref] refs, Integer index) -> void
+    def add_named_reference: (Frontend::AST::item item, Array[IR::named_ref] refs, Integer index) -> void
+
+    # @rbs (Frontend::AST::item item) -> (Frontend::AST::SymbolReference | Frontend::AST::ParameterizedReference)?
+    def unwrap_reference: (Frontend::AST::item item) -> (Frontend::AST::SymbolReference | Frontend::AST::ParameterizedReference)?
+  end
+end

@@ -23,8 +23,14 @@ module Ibex
         # @rbs (Token token, external_token external, external_token? previous_external) -> void
         def observe(token, external, previous_external)
           if external == "("
-            separated = %i[SEPARATED_LIST SEPARATED_NONEMPTY_LIST].include?(previous_external)
-            @stack << [separated ? :separated : :group, token] #: [delimiter_kind, Token]
+            kind = if %i[SEPARATED_LIST SEPARATED_NONEMPTY_LIST].include?(previous_external)
+                     :separated
+                   elsif %i[LHS PARAMETERIZED_REFERENCE].include?(previous_external)
+                     :parameter
+                   else
+                     :group
+                   end #: delimiter_kind
+            @stack << [kind, token] #: [delimiter_kind, Token]
           elsif external == ")"
             @stack.pop
           end

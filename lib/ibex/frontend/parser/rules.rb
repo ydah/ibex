@@ -23,6 +23,7 @@ module Ibex
       def parse_rule
         # @type self: BootstrapParser
         lhs = expect(:identifier)
+        parameters = parse_rule_parameters(lhs)
         expect(:":")
         alternatives = [] #: Array[AST::Alternative]
         loop do
@@ -32,7 +33,7 @@ module Ibex
           accept(:";")
           break
         end
-        AST::Rule.new(lhs: token_string(lhs), alternatives: alternatives, loc: lhs.location)
+        AST::Rule.new(lhs: token_string(lhs), parameters: parameters, alternatives: alternatives, loc: lhs.location)
       end
 
       # @rbs (Token lhs) -> AST::Alternative
@@ -62,6 +63,7 @@ module Ibex
         # @type self: BootstrapParser
         return parse_action if current.type == :action
         return parse_separated_list if separated_list?
+        return parse_parameterized_reference if parameterized_call?
         return parse_group if current.type == :"("
 
         token = expect_symbol
@@ -105,7 +107,7 @@ module Ibex
         extended_only!(opening.location, "EBNF groups")
         alternatives = [[]] #: Array[Array[AST::item]]
         until current.type == :")"
-          fail_at(opening.location, "unterminated EBNF group") if current.type == :eof || keyword?("end")
+          fail_at(opening.location, "unterminated EBNF group") if current.type == :eof
           if accept(:|)
             alternatives << []
             next
@@ -141,7 +143,10 @@ module Ibex
       # @rbs (Token lhs) -> bool
       def rule_start?(lhs)
         # @type self: BootstrapParser
-        current.type == :identifier && lookahead.type == :":" && current.location.column <= lhs.location.column
+        return false unless current.type == :identifier && current.location.column <= lhs.location.column
+        return true if lookahead.type == :":"
+
+        parameterized_rule_start?
       end
 
       # @rbs () -> bool

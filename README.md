@@ -94,8 +94,8 @@ Ordinary shifts and the synthetic recovery-token shift use separate hooks; obser
 
 ## Extended mode
 
-`--mode=extended` enables optional, repeated, and separated values plus named references. A grammar can make the same choice
-locally with `pragma extended` immediately after its `class` header:
+`--mode=extended` enables optional, repeated, and separated values, named references, and parameterized rule templates. A
+grammar can make the same choice locally with `pragma extended` immediately after its `class` header:
 
 ```text
 class ExtendedParser
@@ -107,6 +107,9 @@ rule
   many      : NUM*
   some      : NUM+
   pairs     : (KEY VALUE)*
+  list(X)   : X:item { result = [item] }
+            | list(X) ',' X { result = val[0] + [val[2]] }
+  numbers   : list(NUM)
 end
 ```
 
@@ -121,6 +124,12 @@ type expr "AST::Expression"
 The value conventions are `nil` or a value for `?`, and arrays for `*`, `+`, `separated_list`, and
 `separated_nonempty_list`. Parenthesized sequences and alternatives can be nested; multi-item groups produce an Array value.
 Text, DOT, and HTML automaton reports label lowered helper symbols with these source-level EBNF expressions.
+
+Parameterized definitions do not become standalone productions. A call such as `list(NUM)` is specialized once per structural
+argument list and reused by direct or mutual recursion. The callee and `(` must be adjacent: `ITEM (A | B)` remains an ordinary
+symbol followed by a group. Calls can be nested and can carry the same named-reference and suffix syntax as symbols. Normalizer
+defaults bound argument-growing expansion to 1,000 specializations and 16 active calls; library callers can lower or raise those
+positive limits with `max_parameter_specializations:` and `max_parameter_depth:`.
 
 ## Lossless frontend source
 
@@ -290,7 +299,7 @@ Ibex's grammar frontend is self-hosted. Edit `lib/ibex/frontend/grammar.y`, then
 
 ```sh
 bundle exec rake frontend:generate
-git diff --exit-code -- lib/ibex/frontend/generated_parser.rb
+bundle exec rake frontend:check
 bundle exec ruby -Itest test/frontend/self_host_test.rb
 ```
 
@@ -332,8 +341,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 7,429 typed calls and 840 untyped calls out of 8,269 (89.8% typed).
-The generated signature tree contains 935 explicit `untyped` occurrences across 28 files.
+The current whole-library `steep stats` result is 8,039 typed calls and 972 untyped calls out of 9,011 (89.2% typed).
+The generated signature tree contains 1,080 explicit `untyped` occurrences across 33 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

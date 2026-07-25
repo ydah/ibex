@@ -6,6 +6,7 @@ module Ibex
     class BootstrapParser
       include BootstrapParserDeclarations
       include BootstrapParserRules
+      include BootstrapParserParameters
 
       # @rbs @tokens: Array[Token]
       # @rbs @index: Integer

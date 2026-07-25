@@ -58,4 +58,4 @@ replaced when parsing or normalization fails.
 - Repeated rules retain production-level provenance without giving a symbol conflicting descriptions.
 - Version-1 IR remains byte-shape compatible, while version 2 and resumed pipelines preserve documentation.
 - Markdown, HTML, and SVG outputs escape source-controlled text and require no external assets or scripts.
-- Parameterized and inline user rules remain separate extension work.
+- ADR 0044 propagates template documentation to parameterized specializations; inline user rules remain separate extension work.

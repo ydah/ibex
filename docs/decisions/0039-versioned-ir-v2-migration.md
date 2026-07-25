@@ -26,10 +26,11 @@ Grammar IR version 2 adds nullable but explicit metadata keys:
 - action `composition` can retain an ordered sequence of rule and inline fragments; and
 - grammar `migration` records the source version and metadata that an upgrade could not reconstruct.
 
-The current text frontend records the known grammar filename and uses `null` for the unknown root and byte span. Other new
-metadata remains `null` until the corresponding frontend feature supplies it. Version-1 migration does not infer provenance or
-documentation from nearby locations. It writes `migration.from_schema_version: 1` and explicitly lists unavailable source,
-documentation, expansion, and action-composition metadata.
+The current text frontend records the known grammar filename and uses `null` for the unknown root and byte span. ADRs 0042,
+0043, and 0044 populate include chains, documentation, and parameter specialization respectively; unsupported metadata remains
+`null`. Version-1 migration does not infer provenance or documentation from nearby locations. It writes
+`migration.from_schema_version: 1` and explicitly lists unavailable source, documentation, expansion, and action-composition
+metadata.
 
 Automaton IR version 2 always embeds Grammar IR version 2. Upgrading an automaton upgrades the embedded grammar and recalculates
 the SHA-256 digest over its canonical version-2 serialization. A new automaton built from a version-1 grammar performs the same

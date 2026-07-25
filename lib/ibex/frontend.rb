@@ -32,6 +32,6 @@ module Ibex
     #   type token_value = String | Integer | user_code_token | nil
     #   type external_token = Symbol | String
     #   type parser_section = :declarations | :rules | :user_code
-    #   type delimiter_kind = :group | :separated
+    #   type delimiter_kind = :group | :separated | :parameter
   end
 end

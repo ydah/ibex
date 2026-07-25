@@ -1,0 +1,44 @@
+# Generated from lib/ibex/normalize/parameter_validation.rb with RBS::Inline
+
+module Ibex
+  # Static validation and collection of parameterized user rule definitions.
+  module NormalizeParameterValidation
+    private
+
+    # @rbs () -> void
+    def gather_parameter_templates: () -> void
+
+    # @rbs (Frontend::AST::Rule rule, Hash[String, Frontend::AST::Rule] plain_rules) -> void
+    def gather_parameterized_rule: (Frontend::AST::Rule rule, Hash[String, Frontend::AST::Rule] plain_rules) -> void
+
+    # @rbs (Frontend::AST::Rule rule) -> void
+    def validate_parameter_formals: (Frontend::AST::Rule rule) -> void
+
+    # @rbs (Frontend::AST::Rule rule) -> bot
+    def reject_mixed_parameterized_rule: (Frontend::AST::Rule rule) -> bot
+
+    # @rbs () -> void
+    def validate_parameter_terminal_collisions: () -> void
+
+    # @rbs (Frontend::AST::Rule rule) -> void
+    def validate_parameter_references: (Frontend::AST::Rule rule) -> void
+
+    # @rbs (Frontend::AST::item item, Array[String] formals, inside_argument: bool) -> void
+    def validate_parameter_item: (Frontend::AST::item item, Array[String] formals, inside_argument: bool) -> void
+
+    # @rbs (Frontend::AST::ParameterizedReference item, Array[String] formals, inside_argument: bool) -> void
+    def validate_parameterized_item: (Frontend::AST::ParameterizedReference item, Array[String] formals, inside_argument: bool) -> void
+
+    # @rbs (Frontend::AST::SymbolReference | Frontend::AST::ParameterizedReference item) -> bot
+    def reject_argument_named_reference: (Frontend::AST::SymbolReference | Frontend::AST::ParameterizedReference item) -> bot
+
+    # @rbs (Frontend::AST::ParameterizedReference reference) -> void
+    def validate_parameter_call: (Frontend::AST::ParameterizedReference reference) -> void
+
+    # @rbs (Frontend::AST::Rule rule) -> bool
+    def parameterized_rule?: (Frontend::AST::Rule rule) -> bool
+
+    # @rbs (String name) -> bool
+    def parameter_template?: (String name) -> bool
+  end
+end

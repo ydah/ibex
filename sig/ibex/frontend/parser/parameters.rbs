@@ -1,0 +1,28 @@
+# Generated from lib/ibex/frontend/parser/parameters.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Parses extended-mode parameter lists and parameterized references during bootstrap.
+    module BootstrapParserParameters
+      private
+
+      # @rbs (Token lhs) -> Array[String]
+      def parse_rule_parameters: (Token lhs) -> Array[String]
+
+      # @rbs () -> AST::item
+      def parse_parameterized_reference: () -> AST::item
+
+      # @rbs () -> bool
+      def parameterized_call?: () -> bool
+
+      # @rbs () -> bool
+      def parameterized_rule_start?: () -> bool
+
+      # @rbs (Array[Token] tail) -> bool
+      def parameter_definition_tail?: (Array[Token] tail) -> bool
+
+      # @rbs (Token left, Token right) -> bool
+      def adjacent_tokens?: (Token left, Token right) -> bool
+    end
+  end
+end

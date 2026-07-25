@@ -20,26 +20,35 @@ module Ibex
     # @rbs (Frontend::AST::Optional item) -> String
     def expand_optional: (Frontend::AST::Optional item) -> String
 
+    # @rbs (Frontend::AST::Optional item, String base) -> String
+    def build_optional: (Frontend::AST::Optional item, String base) -> String
+
     # @rbs (Frontend::AST::Star item) -> String
     def expand_star: (Frontend::AST::Star item) -> String
+
+    # @rbs (Frontend::AST::Star item, String base) -> String
+    def build_star: (Frontend::AST::Star item, String base) -> String
 
     # @rbs (Frontend::AST::Plus item) -> String
     def expand_plus: (Frontend::AST::Plus item) -> String
 
+    # @rbs (Frontend::AST::Plus item, String base) -> String
+    def build_plus: (Frontend::AST::Plus item, String base) -> String
+
     # @rbs (Frontend::AST::SeparatedList item) -> String
     def expand_separated_list: (Frontend::AST::SeparatedList item) -> String
+
+    # @rbs (Frontend::AST::SeparatedList item, String base, String separator) -> String
+    def build_separated_list: (Frontend::AST::SeparatedList item, String base, String separator) -> String
 
     # @rbs (Frontend::AST::Group item) -> String
     def expand_group: (Frontend::AST::Group item) -> String
 
+    # @rbs (String helper, Array[String] rhs, Frontend::AST::Group item) -> void
+    def add_group_production: (String helper, Array[String] rhs, Frontend::AST::Group item) -> void
+
     # @rbs (Integer length) -> String
     def group_value_expression: (Integer length) -> String
-
-    # @rbs (Frontend::AST::Group group) -> void
-    def reject_group_named_references: (Frontend::AST::Group group) -> void
-
-    # @rbs (Frontend::AST::item item) -> Frontend::AST::SymbolReference?
-    def named_reference_in: (Frontend::AST::item item) -> Frontend::AST::SymbolReference?
 
     # @rbs (String kind, Frontend::Location location) -> String
     def new_helper: (String kind, Frontend::Location location) -> String
@@ -52,12 +61,6 @@ module Ibex
 
     # @rbs (Frontend::AST::InlineAction? action, Array[IR::named_ref] named_refs) -> IR::Action?
     def normalize_action: (Frontend::AST::InlineAction? action, Array[IR::named_ref] named_refs) -> IR::Action?
-
-    # @rbs (Frontend::AST::item item, Array[IR::named_ref] refs, Integer index) -> void
-    def add_named_reference: (Frontend::AST::item item, Array[IR::named_ref] refs, Integer index) -> void
-
-    # @rbs (Frontend::AST::item item) -> Frontend::AST::SymbolReference?
-    def unwrap_reference: (Frontend::AST::item item) -> Frontend::AST::SymbolReference?
 
     # @rbs (String lhs_name, Array[String] rhs_names, IR::Action? action, String? precedence_name,
     #   Hash[Symbol, untyped] origin, ?String? documentation) -> void

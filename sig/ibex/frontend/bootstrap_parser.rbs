@@ -8,6 +8,8 @@ module Ibex
 
       include BootstrapParserRules
 
+      include BootstrapParserParameters
+
       @mode: Symbol
 
       @index: Integer

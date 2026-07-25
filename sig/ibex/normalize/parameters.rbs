@@ -1,0 +1,37 @@
+# Generated from lib/ibex/normalize/parameters.rb with RBS::Inline
+
+module Ibex
+  # Iterative, hygienic specialization of validated parameterized user rules.
+  module NormalizeParameters
+    private
+
+    # @rbs (Frontend::AST::ParameterizedReference reference) -> String
+    def specialize_parameterized_reference: (Frontend::AST::ParameterizedReference reference) -> String
+
+    # @rbs (Frontend::AST::ParameterizedReference reference, Integer depth) -> [String, bool]
+    def schedule_parameter_specialization: (Frontend::AST::ParameterizedReference reference, Integer depth) -> [ String, bool ]
+
+    # @rbs (Frontend::AST::ParameterizedReference reference, Integer depth) -> void
+    def enforce_parameter_limits!: (Frontend::AST::ParameterizedReference reference, Integer depth) -> void
+
+    # @rbs (Frontend::AST::ParameterizedReference reference) -> String
+    def new_parameter_helper: (Frontend::AST::ParameterizedReference reference) -> String
+
+    # @rbs (Frontend::AST::ParameterizedReference reference, String helper,
+    #   Array[Frontend::AST::item] arguments, Array[String] rendered_arguments, Integer depth) ->
+    #   Hash[Symbol, untyped]
+    def parameter_frame: (Frontend::AST::ParameterizedReference reference, String helper, Array[Frontend::AST::item] arguments, Array[String] rendered_arguments, Integer depth) -> Hash[Symbol, untyped]
+
+    # @rbs () -> void
+    def drain_parameter_worklist: () -> void
+
+    # @rbs (Hash[Symbol, untyped] frame) -> bool
+    def prepare_parameter_alternative?: (Hash[Symbol, untyped] frame) -> bool
+
+    # @rbs (Hash[Symbol, untyped] frame, Frontend::AST::Rule template, Integer index) -> void
+    def prepare_parameter_alternative_entry: (Hash[Symbol, untyped] frame, Frontend::AST::Rule template, Integer index) -> void
+
+    # @rbs (Hash[Symbol, untyped] frame) -> void
+    def clear_parameter_alternative: (Hash[Symbol, untyped] frame) -> void
+  end
+end

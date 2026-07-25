@@ -140,6 +140,36 @@ symbols, comments, and heredoc bodies remain literal text, and ordinary Ruby ins
 Action and `inner` backtraces use the original grammar filename and line by default. `--line-convert-all` applies the same mapping
 to `header` and `footer`; `-l` keeps all backtraces on generated-file lines.
 
+### Parameterized rules (extended mode)
+
+A parameterized rule is a structural template:
+
+```text
+  list(X): X:value { result = [value] }
+         | list(X) ',' X { result = val[0] + [val[2]] }
+  wrapped(X): (X | list(X))?
+  numbers: wrapped(list(NUM)):items { result = items }
+```
+
+The ordered formals are identifiers and calls may be nested. The callee and opening parenthesis must be byte-adjacent.
+Consequently, `list(NUM)` is a call while `ITEM (A | B)` retains its existing meaning as a symbol followed by an EBNF group.
+A named reference or `?`, `*`, or `+` after the closing parenthesis applies to the specialized result.
+
+Templates are not standalone nonterminals and cannot be the start symbol. Repeated definitions must use the same ordered
+formals. Duplicate formals, mixed plain/template definitions, terminal collisions, undefined templates, and arity mismatches
+are positioned errors. Formal occurrences are replaced structurally through nested calls, groups, suffixes, and separated
+lists. `X:value` applies `value` to the substituted symbol or call. A formal `= X` precedence override requires that invocation
+to pass one plain symbol for `X`; ordinary precedence overrides are retained unchanged. Named references inside arguments and
+using a formal as a callee are rejected to avoid ambiguous capture.
+
+The Normalizer memoizes a specialization before expanding its body, so direct and mutual same-argument recursion reuse one
+internal `$parameter_N` nonterminal. Resumable item and EBNF continuations on an explicit depth-first worklist preserve ordinary
+helper and production order while bounding argument-growing recursion without relying on the Ruby stack. The defaults are
+1,000 distinct specializations and 16 active expansions; programmatic callers can configure positive
+`max_parameter_specializations:` and `max_parameter_depth:` values. Specialized productions retain template actions,
+precedence, types, documentation, locations, and include chains. Grammar IR v2 records
+`expansion.parameter {rule, arguments}`; v1 output omits the expansion record.
+
 The action scanner handles nested braces, quoted/backtick strings and interpolation, `%q/%Q/%w/%W/%i/%I/%x/%r/%s`, regular
 expressions, comments, character literals, and unquoted, single-quoted, double-quoted, or backtick heredocs. Indented, squiggly,
 interpolated, and multiple heredocs on one opener line are supported. Heredoc terminators follow their indentation mode, and

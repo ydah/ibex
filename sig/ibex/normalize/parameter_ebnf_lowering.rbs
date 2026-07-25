@@ -1,0 +1,32 @@
+# Generated from lib/ibex/normalize/parameter_ebnf_lowering.rb with RBS::Inline
+
+module Ibex
+  # Resumable EBNF lowering used inside specialized parameter alternatives.
+  module NormalizeParameterEbnfLowering
+    private
+
+    # @rbs (Hash[Symbol, untyped] frame,
+    #   Frontend::AST::Optional | Frontend::AST::Star | Frontend::AST::Plus item) -> void
+    def lower_parameter_suffix: (Hash[Symbol, untyped] frame, Frontend::AST::Optional | Frontend::AST::Star | Frontend::AST::Plus item) -> void
+
+    # @rbs (Hash[Symbol, untyped] frame,
+    #   Frontend::AST::Optional | Frontend::AST::Star | Frontend::AST::Plus item) -> void
+    def finish_parameter_suffix: (Hash[Symbol, untyped] frame, Frontend::AST::Optional | Frontend::AST::Star | Frontend::AST::Plus item) -> void
+
+    # @rbs (Hash[Symbol, untyped] frame, Frontend::AST::SeparatedList item) -> void
+    def lower_parameter_separated_list: (Hash[Symbol, untyped] frame, Frontend::AST::SeparatedList item) -> void
+
+    # @rbs (Hash[Symbol, untyped] frame, Frontend::AST::SeparatedList item) -> void
+    def finish_parameter_separated_list: (Hash[Symbol, untyped] frame, Frontend::AST::SeparatedList item) -> void
+
+    # @rbs (Hash[Symbol, untyped] frame, Frontend::AST::Group item) -> void
+    def lower_parameter_group: (Hash[Symbol, untyped] frame, Frontend::AST::Group item) -> void
+
+    # @rbs (Hash[Symbol, untyped] frame, String helper, Frontend::AST::Group item,
+    #   Array[Frontend::AST::item] alternative) -> void
+    def start_parameter_group_alternative: (Hash[Symbol, untyped] frame, String helper, Frontend::AST::Group item, Array[Frontend::AST::item] alternative) -> void
+
+    # @rbs (Hash[Symbol, untyped] frame, String helper, Frontend::AST::Group item, Integer length) -> void
+    def finish_parameter_group_alternative: (Hash[Symbol, untyped] frame, String helper, Frontend::AST::Group item, Integer length) -> void
+  end
+end

@@ -8,6 +8,8 @@ module Ibex
 
       include GeneratedParserIncludes
 
+      include GeneratedParserParameters
+
       attr_reader diagnostic_token: Token?
 
       @mode: Symbol
@@ -71,8 +73,9 @@ module Ibex
       # @rbs (Token name_token, Token literal_token) -> AST::Conversion
       def build_conversion: (Token name_token, Token literal_token) -> AST::Conversion
 
-      # @rbs (Token lhs, Array[AST::Alternative] alternatives) -> AST::Rule
-      def build_rule: (Token lhs, Array[AST::Alternative] alternatives) -> AST::Rule
+      # @rbs (Token lhs, [Token, Array[String]]? parameter_clause,
+      #   Array[AST::Alternative] alternatives) -> AST::Rule
+      def build_rule: (Token lhs, [ Token, Array[String] ]? parameter_clause, Array[AST::Alternative] alternatives) -> AST::Rule
 
       # @rbs (Array[AST::item] items, Token? precedence) -> AST::Alternative
       def build_alternative: (Array[AST::item] items, Token? precedence) -> AST::Alternative
@@ -82,6 +85,9 @@ module Ibex
 
       # @rbs (Token token, [Token, Token]? named_reference, Array[Token] suffixes) -> AST::item
       def build_symbol_reference: (Token token, [ Token, Token ]? named_reference, Array[Token] suffixes) -> AST::item
+
+      # @rbs ([Token, Token]? named_reference) -> String?
+      def named_reference_value: ([ Token, Token ]? named_reference) -> String?
 
       # @rbs (Token token) -> AST::InlineAction
       def build_action: (Token token) -> AST::InlineAction

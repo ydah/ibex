@@ -2,13 +2,39 @@
 
 module Ibex
   module Frontend
+    # Keeps the public Rule constructor compatible with ASTs built before parameters existed.
+    module ASTRuleDefaults
+      # @rbs (*untyped arguments, **untyped keywords) -> void
+      def initialize(*arguments, **keywords)
+        if arguments.empty?
+          keywords = keywords.merge(parameters: keywords[:parameters] || [])
+        elsif arguments.one? && arguments.first.is_a?(Hash)
+          attributes = arguments.first
+          arguments = [attributes.merge(parameters: attributes[:parameters] || [])]
+        end
+        super(*arguments, **keywords) # rubocop:disable Style/SuperArguments
+      end
+    end
+
     # Grammar frontend node types.
     module AST
       # @rbs!
       #   type symbol_metadata = DisplayName | SemanticType
       #   type declaration = Include | Tokens | Precedence | Options | Expect | Start | Convert | symbol_metadata
-      #   type item = SymbolReference | InlineAction | Optional | Star | Plus | Group | SeparatedList
+      #   type item = SymbolReference | ParameterizedReference | InlineAction | Optional | Star | Plus | Group |
+      #     SeparatedList
       #   type user_code = Hash[String, Array[UserCode]]
+      #   class Rule < Struct[String | Array[String] | Array[Alternative] | Location | String?]
+      #     attr_accessor lhs: String
+      #     attr_accessor parameters: Array[String]
+      #     attr_accessor alternatives: Array[Alternative]
+      #     attr_accessor loc: Location
+      #     attr_accessor documentation: String?
+      #     def self.new: (?lhs: String, ?parameters: Array[String]?, ?alternatives: Array[Alternative],
+      #       ?loc: Location, ?documentation: String?) -> instance
+      #       | ({ ?lhs: String, ?parameters: Array[String]?, ?alternatives: Array[Alternative],
+      #         ?loc: Location, ?documentation: String? }) -> instance
+      #   end
 
       # Adds deterministic, recursively serializable hashes to Struct nodes.
       # @rbs module-self Struct[untyped]
@@ -39,9 +65,7 @@ module Ibex
         :user_code, #: user_code
         :loc, #: Location
         keyword_init: true
-      ) do
-        include Node
-      end
+      ) { include Node }
       Fragment = Struct.new(
         :declarations, #: Array[declaration]
         :rules, #: Array[Rule]
@@ -108,13 +132,15 @@ module Ibex
         :loc, #: Location
         keyword_init: true
       ) { include Node }
+      # @rbs skip
       Rule = Struct.new(
         :lhs, #: String
+        :parameters, #: Array[String]
         :alternatives, #: Array[Alternative]
         :loc, #: Location
         :documentation, #: String?
         keyword_init: true
-      ) { include Node }
+      ) { include Node, ASTRuleDefaults }
       Alternative = Struct.new(
         :items, #: Array[item]
         :action, #: InlineAction?
@@ -124,6 +150,13 @@ module Ibex
       ) { include Node }
       SymbolReference = Struct.new(
         :name, #: String
+        :named_reference, #: String?
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      ParameterizedReference = Struct.new(
+        :name, #: String
+        :arguments, #: Array[item]
         :named_reference, #: String?
         :loc, #: Location
         keyword_init: true

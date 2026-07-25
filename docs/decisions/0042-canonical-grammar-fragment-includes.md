@@ -56,7 +56,8 @@ The Normalizer rejects an unresolved `AST::Include` or `AST::Fragment`. Passing 
 with the canonical root directory in `source_provenance.root`, the original rule file in `origin.loc`, and a complete
 `expansion.include_chain`. ADR 0043 later attaches lossless rule documentation before resolution; fragment documentation follows
 the same merge, location, identity, and deep-freeze rules and populates version-2 symbol and production fields. Version-1
-production serialization still omits all version-2 documentation and expansion fields.
+production serialization still omits all version-2 documentation and expansion fields. ADR 0044 later treats parameterized
+definitions in fragments as templates and retains each definition's include chain on every specialized production.
 
 Every CLI command that consumes a grammar path uses the same Resolver, including generation, checks, AST/IR output, diagnostics,
 `explain`, `samples`, and `errors`. `ibex diagnose` turns the first resolver grammar failure into an immutable syntax-phase
