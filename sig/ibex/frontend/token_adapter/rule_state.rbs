@@ -39,6 +39,9 @@ module Ibex
         #   external_token? previous_external) -> external_token
         def classify_identifier: (Token token, Array[Token] remaining, external_token? last_external, external_token? previous_external) -> external_token
 
+        # @rbs (Token token, Array[Token] remaining) -> external_token
+        def classify_rhs_identifier: (Token token, Array[Token] remaining) -> external_token
+
         # @rbs (Token token) -> external_token
         def rule_lhs: (Token token) -> external_token
 
@@ -47,6 +50,12 @@ module Ibex
 
         # @rbs (Token token, Token following) -> bool
         def rule_boundary?: (Token token, Token following) -> bool
+
+        # @rbs (Token token, Array[Token] remaining) -> bool
+        def parameterized_rule_boundary?: (Token token, Array[Token] remaining) -> bool
+
+        # @rbs (Array[Token] tail) -> bool
+        def parameter_definition_tail?: (Array[Token] tail) -> bool
 
         # @rbs (Token token) -> external_token
         def start_rule: (Token token) -> external_token
@@ -59,6 +68,12 @@ module Ibex
 
         # @rbs (Token token) -> external_token
         def separated_terminal: (Token token) -> external_token
+
+        # @rbs (Token token, Token following) -> bool
+        def parameterized_call?: (Token token, Token following) -> bool
+
+        # @rbs (Token left, Token right) -> bool
+        def adjacent?: (Token left, Token right) -> bool
 
         # @rbs (Token token) -> external_token
         def classify_punctuation: (Token token) -> external_token

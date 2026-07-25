@@ -1,0 +1,42 @@
+# Generated from lib/ibex/normalize/parameter_substitution.rb with RBS::Inline
+
+module Ibex
+  # Structural, sharing-preserving substitution for parameterized user rules.
+  module NormalizeParameterSubstitution
+    private
+
+    # @rbs (Frontend::AST::Alternative alternative, Hash[String, Frontend::AST::item] bindings) ->
+    #   Frontend::AST::Alternative
+    def substitute_parameter_alternative: (Frontend::AST::Alternative alternative, Hash[String, Frontend::AST::item] bindings) -> Frontend::AST::Alternative
+
+    # @rbs (Frontend::AST::Alternative alternative, Hash[String, Frontend::AST::item] bindings) -> String?
+    def substitute_parameter_precedence: (Frontend::AST::Alternative alternative, Hash[String, Frontend::AST::item] bindings) -> String?
+
+    # @rbs (Frontend::AST::item item, Hash[String, Frontend::AST::item] bindings) -> Frontend::AST::item
+    def substitute_parameter_item: (Frontend::AST::item item, Hash[String, Frontend::AST::item] bindings) -> Frontend::AST::item
+
+    # @rbs (Frontend::AST::SymbolReference formal, Frontend::AST::item argument) -> Frontend::AST::item
+    def substitute_formal_reference: (Frontend::AST::SymbolReference formal, Frontend::AST::item argument) -> Frontend::AST::item
+
+    # @rbs (Frontend::AST::item item, ?Hash[String, Frontend::AST::item] bindings) -> Frontend::AST::item
+    def clone_parameter_item: (Frontend::AST::item item, ?Hash[String, Frontend::AST::item] bindings) -> Frontend::AST::item
+
+    # @rbs (Frontend::AST::SymbolReference item, Hash[String, Frontend::AST::item] bindings) -> Frontend::AST::item
+    def clone_parameter_symbol: (Frontend::AST::SymbolReference item, Hash[String, Frontend::AST::item] bindings) -> Frontend::AST::item
+
+    # @rbs (Frontend::AST::ParameterizedReference item, Hash[String, Frontend::AST::item] bindings) ->
+    #   Frontend::AST::ParameterizedReference
+    def clone_parameter_call: (Frontend::AST::ParameterizedReference item, Hash[String, Frontend::AST::item] bindings) -> Frontend::AST::ParameterizedReference
+
+    # @rbs (Frontend::AST::Group item, Hash[String, Frontend::AST::item] bindings) -> Frontend::AST::Group
+    def clone_parameter_group: (Frontend::AST::Group item, Hash[String, Frontend::AST::item] bindings) -> Frontend::AST::Group
+
+    # @rbs (Frontend::AST::Optional | Frontend::AST::Star | Frontend::AST::Plus item,
+    #   Hash[String, Frontend::AST::item] bindings) -> Frontend::AST::item
+    def clone_parameter_suffix: (Frontend::AST::Optional | Frontend::AST::Star | Frontend::AST::Plus item, Hash[String, Frontend::AST::item] bindings) -> Frontend::AST::item
+
+    # @rbs (Frontend::AST::SeparatedList item, Hash[String, Frontend::AST::item] bindings) ->
+    #   Frontend::AST::SeparatedList
+    def clone_parameter_separated_list: (Frontend::AST::SeparatedList item, Hash[String, Frontend::AST::item] bindings) -> Frontend::AST::SeparatedList
+  end
+end

@@ -24,7 +24,8 @@ module Ibex
       # @type self: Normalizer
       { display: @display_name_locations, type: @semantic_type_locations }.each do |label, locations|
         locations.each do |name, location|
-          fail_hash(location, "#{label} declaration references undefined symbol #{name}") unless symbol(name)
+          fail_hash(location, "#{label} declaration references undefined symbol #{name}") unless
+            symbol(name) || parameter_template?(name)
         end
       end
     end

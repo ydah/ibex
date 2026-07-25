@@ -3,52 +3,73 @@
 module Ibex
   # Deterministically renders frontend EBNF items for production origin metadata.
   module NormalizeExpression
-    # @rbs!
-    #   private def render_reference: (Frontend::AST::SymbolReference item) -> String
-    #   private def self.render_reference: (Frontend::AST::SymbolReference item) -> String
-    #   private def render_group: (Frontend::AST::Group item) -> String
-    #   private def self.render_group: (Frontend::AST::Group item) -> String
-    #   private def render_separated_list: (Frontend::AST::SeparatedList item) -> String
-    #   private def self.render_separated_list: (Frontend::AST::SeparatedList item) -> String
-
-    # @rbs (Frontend::AST::item item) -> String
-    def render(item)
-      case item
-      when Frontend::AST::SymbolReference then render_reference(item)
-      when Frontend::AST::Group then render_group(item)
-      when Frontend::AST::Optional then "#{render(item.item)}?"
-      when Frontend::AST::Star then "#{render(item.item)}*"
-      when Frontend::AST::Plus then "#{render(item.item)}+"
-      when Frontend::AST::SeparatedList then render_separated_list(item)
-      else raise Ibex::Error, "#{item.loc}: cannot render unsupported EBNF expression"
-      end
-    end
-    module_function :render
-
-    # @rbs skip
-    private
-
-    # @rbs skip
-    def render_reference(item)
-      suffix = item.named_reference ? ":#{item.named_reference}" : ""
-      "#{item.name}#{suffix}"
-    end
-
-    # @rbs skip
-    def render_group(item)
-      alternatives = item.alternatives.map { |items| items.map { |child| render(child) }.join(" ") }
-      "(#{alternatives.join(' | ')})"
-    end
-
-    # @rbs skip
-    def render_separated_list(item)
-      name = item.nonempty ? "separated_nonempty_list" : "separated_list"
-      "#{name}(#{render(item.item)}, #{render(item.separator)})"
-    end
-    module_function :render_reference, :render_group, :render_separated_list
-
     class << self
-      private :render_reference, :render_group, :render_separated_list
+      # @rbs (Frontend::AST::item item) -> String
+      def render(item)
+        pending = [item] #: Array[untyped]
+        output = [] #: Array[String]
+        until pending.empty?
+          current = pending.pop
+          if current.is_a?(String)
+            output << current
+            next
+          end
+
+          push_render_item(pending, current)
+        end
+        output.join
+      end
+
+      private
+
+      # @rbs (Array[untyped] pending, Frontend::AST::item item) -> void
+      def push_render_item(pending, item)
+        case item
+        when Frontend::AST::SymbolReference
+          pending << "#{item.name}#{":#{item.named_reference}" if item.named_reference}"
+        when Frontend::AST::ParameterizedReference
+          push_render_parameterized_reference(pending, item)
+        when Frontend::AST::Group
+          push_render_group(pending, item)
+        when Frontend::AST::Optional
+          pending.push("?", item.item)
+        when Frontend::AST::Star
+          pending.push("*", item.item)
+        when Frontend::AST::Plus
+          pending.push("+", item.item)
+        when Frontend::AST::SeparatedList
+          name = item.nonempty ? "separated_nonempty_list" : "separated_list"
+          pending.push(")", item.separator, ", ", item.item, "(", name)
+        else
+          raise Ibex::Error, "#{item.loc}: cannot render unsupported EBNF expression"
+        end
+      end
+
+      # @rbs (Array[untyped] pending, Frontend::AST::ParameterizedReference item) -> void
+      def push_render_parameterized_reference(pending, item)
+        pending << ":#{item.named_reference}" if item.named_reference
+        pending << ")"
+        push_render_items(pending, item.arguments, ", ")
+        pending.push("(", item.name)
+      end
+
+      # @rbs (Array[untyped] pending, Frontend::AST::Group item) -> void
+      def push_render_group(pending, item)
+        pending << ")"
+        (item.alternatives.length - 1).downto(0) do |index|
+          pending << " | " if index < item.alternatives.length - 1
+          push_render_items(pending, item.alternatives.fetch(index), " ")
+        end
+        pending << "("
+      end
+
+      # @rbs (Array[untyped] pending, Array[Frontend::AST::item] items, String separator) -> void
+      def push_render_items(pending, items, separator)
+        (items.length - 1).downto(0) do |index|
+          pending << separator if index < items.length - 1
+          pending << items.fetch(index)
+        end
+      end
     end
   end
 end

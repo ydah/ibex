@@ -3,19 +3,19 @@
 module Ibex
   # Deterministically renders frontend EBNF items for production origin metadata.
   module NormalizeExpression
-    private def render_reference: (Frontend::AST::SymbolReference item) -> String
-
-    private def self.render_reference: (Frontend::AST::SymbolReference item) -> String
-
-    private def render_group: (Frontend::AST::Group item) -> String
-
-    private def self.render_group: (Frontend::AST::Group item) -> String
-
-    private def render_separated_list: (Frontend::AST::SeparatedList item) -> String
-
-    private def self.render_separated_list: (Frontend::AST::SeparatedList item) -> String
-
     # @rbs (Frontend::AST::item item) -> String
-    def self?.render: (Frontend::AST::item item) -> String
+    def self.render: (Frontend::AST::item item) -> String
+
+    # @rbs (Array[untyped] pending, Frontend::AST::item item) -> void
+    private def self.push_render_item: (Array[untyped] pending, Frontend::AST::item item) -> void
+
+    # @rbs (Array[untyped] pending, Frontend::AST::ParameterizedReference item) -> void
+    private def self.push_render_parameterized_reference: (Array[untyped] pending, Frontend::AST::ParameterizedReference item) -> void
+
+    # @rbs (Array[untyped] pending, Frontend::AST::Group item) -> void
+    private def self.push_render_group: (Array[untyped] pending, Frontend::AST::Group item) -> void
+
+    # @rbs (Array[untyped] pending, Array[Frontend::AST::item] items, String separator) -> void
+    private def self.push_render_items: (Array[untyped] pending, Array[Frontend::AST::item] items, String separator) -> void
   end
 end

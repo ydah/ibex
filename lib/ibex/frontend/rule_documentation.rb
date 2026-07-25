@@ -35,7 +35,7 @@ module Ibex
       # @rbs (AST::Rule rule) -> AST::Rule
       def documented_rule(rule)
         AST::Rule.new(
-          lhs: rule.lhs, alternatives: rule.alternatives, loc: rule.loc,
+          lhs: rule.lhs, parameters: rule.parameters, alternatives: rule.alternatives, loc: rule.loc,
           documentation: documentation_before(rule.loc.line)
         )
       end

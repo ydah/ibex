@@ -116,6 +116,7 @@
     {
       "node": "Rule",
       "lhs": "program",
+      "parameters": [],
       "alternatives": [
         {
           "node": "Alternative",
@@ -158,6 +159,7 @@
     {
       "node": "Rule",
       "lhs": "expressions",
+      "parameters": [],
       "alternatives": [
         {
           "node": "Alternative",
@@ -242,6 +244,7 @@
     {
       "node": "Rule",
       "lhs": "expression",
+      "parameters": [],
       "alternatives": [
         {
           "node": "Alternative",

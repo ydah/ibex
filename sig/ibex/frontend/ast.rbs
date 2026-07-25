@@ -2,15 +2,31 @@
 
 module Ibex
   module Frontend
+    # Keeps the public Rule constructor compatible with ASTs built before parameters existed.
+    module ASTRuleDefaults
+      # @rbs (*untyped arguments, **untyped keywords) -> void
+      def initialize: (*untyped arguments, **untyped keywords) -> void
+    end
+
     # Grammar frontend node types.
     module AST
       type symbol_metadata = DisplayName | SemanticType
 
       type declaration = Include | Tokens | Precedence | Options | Expect | Start | Convert | symbol_metadata
 
-      type item = SymbolReference | InlineAction | Optional | Star | Plus | Group | SeparatedList
+      type item = SymbolReference | ParameterizedReference | InlineAction | Optional | Star | Plus | Group | SeparatedList
 
       type user_code = Hash[String, Array[UserCode]]
+
+      class Rule < Struct[String | Array[String] | Array[Alternative] | Location | String?]
+        attr_accessor lhs: String
+        attr_accessor parameters: Array[String]
+        attr_accessor alternatives: Array[Alternative]
+        attr_accessor loc: Location
+        attr_accessor documentation: String?
+        def self.new: (?lhs: String, ?parameters: Array[String]?, ?alternatives: Array[Alternative], ?loc: Location, ?documentation: String?) -> instance
+                    | ({ ?lhs: String, ?parameters: Array[String]?, ?alternatives: Array[Alternative], ?loc: Location, ?documentation: String? }) -> instance
+      end
 
       # Adds deterministic, recursively serializable hashes to Struct nodes.
       # @rbs module-self Struct[untyped]
@@ -159,19 +175,6 @@ module Ibex
                     | ({ ?name: String, ?value: String, ?loc: Location }) -> instance
       end
 
-      class Rule < Struct[String | Array[Alternative] | Location | String?]
-        attr_accessor lhs(): String
-
-        attr_accessor alternatives(): Array[Alternative]
-
-        attr_accessor loc(): Location
-
-        attr_accessor documentation(): String?
-
-        def self.new: (?lhs: String, ?alternatives: Array[Alternative], ?loc: Location, ?documentation: String?) -> instance
-                    | ({ ?lhs: String, ?alternatives: Array[Alternative], ?loc: Location, ?documentation: String? }) -> instance
-      end
-
       class Alternative < Struct[Array[item] | InlineAction? | String? | Location]
         attr_accessor items(): Array[item]
 
@@ -194,6 +197,19 @@ module Ibex
 
         def self.new: (?name: String, ?named_reference: String?, ?loc: Location) -> instance
                     | ({ ?name: String, ?named_reference: String?, ?loc: Location }) -> instance
+      end
+
+      class ParameterizedReference < Struct[String | Array[item] | String? | Location]
+        attr_accessor name(): String
+
+        attr_accessor arguments(): Array[item]
+
+        attr_accessor named_reference(): String?
+
+        attr_accessor loc(): Location
+
+        def self.new: (?name: String, ?arguments: Array[item], ?named_reference: String?, ?loc: Location) -> instance
+                    | ({ ?name: String, ?arguments: Array[item], ?named_reference: String?, ?loc: Location }) -> instance
       end
 
       class InlineAction < Struct[String | Location]

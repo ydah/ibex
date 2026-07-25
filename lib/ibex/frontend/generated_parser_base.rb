@@ -2,6 +2,7 @@
 
 require_relative "generated_parser_metadata"
 require_relative "generated_parser_includes"
+require_relative "generated_parser_parameters"
 
 module Ibex
   module Frontend
@@ -9,6 +10,7 @@ module Ibex
     class GeneratedParserBase < Runtime::Parser
       include GeneratedParserMetadata
       include GeneratedParserIncludes
+      include GeneratedParserParameters
 
       attr_reader :diagnostic_token #: Token?
 
@@ -83,7 +85,7 @@ module Ibex
       def expected_description(token)
         expectation = @adapter.expectation(token)
         return expectation if expectation
-        return ")" if @adapter.open_delimiter_kind == :separated
+        return ")" if %i[separated parameter].include?(@adapter.open_delimiter_kind)
 
         structural_expectation(token)
       end
@@ -160,9 +162,15 @@ module Ibex
         fail_at(name_token.location, "invalid conversion expression: #{e.message}")
       end
 
-      # @rbs (Token lhs, Array[AST::Alternative] alternatives) -> AST::Rule
-      def build_rule(lhs, alternatives)
-        AST::Rule.new(lhs: token_string(lhs), alternatives: alternatives, loc: lhs.location)
+      # @rbs (Token lhs, [Token, Array[String]]? parameter_clause,
+      #   Array[AST::Alternative] alternatives) -> AST::Rule
+      def build_rule(lhs, parameter_clause, alternatives)
+        parameters = [] #: Array[String]
+        if parameter_clause
+          opening, parameters = parameter_clause
+          require_adjacency!(lhs, opening, "parameter list must immediately follow rule name")
+        end
+        AST::Rule.new(lhs: token_string(lhs), parameters: parameters, alternatives: alternatives, loc: lhs.location)
       end
 
       # @rbs (Array[AST::item] items, Token? precedence) -> AST::Alternative
@@ -194,14 +202,19 @@ module Ibex
 
       # @rbs (Token token, [Token, Token]? named_reference, Array[Token] suffixes) -> AST::item
       def build_symbol_reference(token, named_reference, suffixes)
-        if named_reference
-          colon, name = named_reference
-          extended_only!(colon.location, "named references")
-          named_reference = token_string(name)
-        end
-        item = AST::SymbolReference.new(name: token_string(token), named_reference: named_reference,
-                                        loc: token.location)
+        item = AST::SymbolReference.new(
+          name: token_string(token), named_reference: named_reference_value(named_reference), loc: token.location
+        )
         apply_suffixes(item, suffixes)
+      end
+
+      # @rbs ([Token, Token]? named_reference) -> String?
+      def named_reference_value(named_reference)
+        return unless named_reference
+
+        colon, name = named_reference
+        extended_only!(colon.location, "named references")
+        token_string(name)
       end
 
       # @rbs (Token token) -> AST::InlineAction

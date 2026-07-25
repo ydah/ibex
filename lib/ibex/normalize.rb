@@ -2,6 +2,12 @@
 
 require_relative "normalize/declarations"
 require_relative "normalize/expression"
+require_relative "normalize/parameter_validation"
+require_relative "normalize/parameter_substitution"
+require_relative "normalize/parameter_ebnf_lowering"
+require_relative "normalize/parameter_lowering"
+require_relative "normalize/parameters"
+require_relative "normalize/named_references"
 require_relative "normalize/expander"
 require_relative "normalize/diagnostics"
 require_relative "frontend/resolution"
@@ -10,10 +16,18 @@ module Ibex
   # Converts a frontend AST into immutable Grammar IR.
   class Normalizer
     include NormalizeDeclarations
+    include NormalizeParameterValidation
+    include NormalizeParameterSubstitution
+    include NormalizeParameterEbnfLowering
+    include NormalizeParameterLowering
+    include NormalizeParameters
+    include NormalizeNamedReferences
     include NormalizeExpander
     include NormalizeDiagnostics
 
     RESERVED_NAMES = %w[result val _values].freeze #: Array[String]
+    DEFAULT_MAX_PARAMETER_SPECIALIZATIONS = 1_000
+    DEFAULT_MAX_PARAMETER_DEPTH = 16
 
     # @rbs @ast: Frontend::AST::Root
     # @rbs @resolution: Frontend::Resolution?
@@ -37,10 +51,26 @@ module Ibex
     # @rbs @explicit_start: String?
     # @rbs @start_name: String
     # @rbs @start_location: Frontend::Location?
+    # @rbs @parameter_templates: Hash[String, Array[Frontend::AST::Rule]]
+    # @rbs @parameter_formals: Hash[String, Array[String]]
+    # @rbs @parameter_specializations: Hash[[String, Array[String]], String]
+    # @rbs @parameter_worklist: Array[Hash[Symbol, untyped]]
+    # @rbs @parameter_worklist_active: bool
+    # @rbs @parameter_current_depth: Integer?
+    # @rbs @max_parameter_specializations: Integer
+    # @rbs @max_parameter_depth: Integer
+    # @rbs @current_parameter_expansion: IR::parameter_expansion?
+    # @rbs @rule_documentation: Hash[String, String]
 
     # @rbs (Frontend::AST::Root | Frontend::AST::Fragment | Frontend::Resolution input,
-    #   ?mode: Symbol | String) -> void
-    def initialize(input, mode: :racc)
+    #   ?mode: Symbol | String, ?max_parameter_specializations: Integer, ?max_parameter_depth: Integer) -> void
+    def initialize(input, mode: :racc, max_parameter_specializations: DEFAULT_MAX_PARAMETER_SPECIALIZATIONS,
+                   max_parameter_depth: DEFAULT_MAX_PARAMETER_DEPTH)
+      unless max_parameter_specializations.positive?
+        raise ArgumentError, "max_parameter_specializations must be positive"
+      end
+      raise ArgumentError, "max_parameter_depth must be positive" unless max_parameter_depth.positive?
+
       @resolution = input if input.is_a?(Frontend::Resolution)
       ast = input.is_a?(Frontend::Resolution) ? input.root : input
       fail_at(ast.loc, "fragments must be resolved before normalization") if ast.is_a?(Frontend::AST::Fragment)
@@ -55,11 +85,17 @@ module Ibex
       @warnings = [] #: Array[IR::grammar_warning]
       @helper_sequence = 0
       @current_include_chain = [] #: Array[IR::source_provenance]
+      @parameter_specializations = {} #: Hash[[String, Array[String]], String]
+      @parameter_worklist = [] #: Array[Hash[Symbol, untyped]]
+      @parameter_worklist_active = false
+      @max_parameter_specializations = max_parameter_specializations
+      @max_parameter_depth = max_parameter_depth
     end
 
     # @rbs () -> IR::Grammar
     def normalize
       read_declarations
+      gather_parameter_templates
       intern_reserved_symbols
       intern_declared_terminals
       intern_user_nonterminals
@@ -90,11 +126,10 @@ module Ibex
 
     # @rbs () -> void
     def intern_user_nonterminals
-      documentation = validated_rule_documentation
-      @ast.rules.each do |rule|
-        intern(rule.lhs, :nonterminal, location: rule.loc.to_h, documentation: documentation[rule.lhs])
+      @ast.rules.reject { |rule| parameterized_rule?(rule) }.each do |rule|
+        intern(rule.lhs, :nonterminal, location: rule.loc.to_h, documentation: @rule_documentation[rule.lhs])
       end
-      @start_name = @explicit_start || @ast.rules.first&.lhs
+      @start_name = @explicit_start || @ast.rules.find { |rule| !parameterized_rule?(rule) }&.lhs
       fail_at(@ast.loc, "grammar has no start rule") unless @start_name
       return if symbol(@start_name)&.nonterminal?
 
@@ -117,8 +152,8 @@ module Ibex
     end
 
     # @rbs (String name, Symbol kind, ?reserved: bool, ?location: IR::location?,
-    #   ?documentation: String?) -> IR::GrammarSymbol
-    def intern(name, kind, reserved: false, location: nil, documentation: nil)
+    #   ?documentation: String?, ?metadata_name: String?) -> IR::GrammarSymbol
+    def intern(name, kind, reserved: false, location: nil, documentation: nil, metadata_name: nil)
       existing = symbol(name)
       if existing
         fail_hash(location, "symbol #{name} is both terminal and nonterminal") if existing.kind != kind
@@ -126,9 +161,11 @@ module Ibex
       end
 
       precedence = @precedence[name]
+      metadata_key = metadata_name || name
       definition = IR::GrammarSymbol.new(id: @symbols.length, name: name, kind: kind, reserved: reserved,
-                                         precedence: precedence, location: location, display_name: @display_names[name],
-                                         semantic_type: @semantic_types[name], documentation: documentation)
+                                         precedence: precedence, location: location,
+                                         display_name: @display_names[metadata_key],
+                                         semantic_type: @semantic_types[metadata_key], documentation: documentation)
       @symbols << definition
       @symbols_by_name[name] = definition
       definition
@@ -148,6 +185,9 @@ module Ibex
     def symbol_for_reference(reference)
       existing = symbol(reference.name)
       return existing if existing
+
+      fail_at(reference.loc, "parameterized rule #{reference.name} requires arguments") if
+        parameter_template?(reference.name)
       return undefined_nonterminal(reference) if nonterminal_name?(reference.name)
 
       warn_undeclared_terminal(reference)
@@ -203,9 +243,9 @@ module Ibex
 
     # @rbs () -> IR::production_expansion?
     def resolved_expansion
-      return unless @resolution
+      return unless @resolution || @current_parameter_expansion
 
-      { parameter: nil, inline: nil, include_chain: @current_include_chain }
+      { parameter: @current_parameter_expansion, inline: nil, include_chain: @current_include_chain }
     end
   end
 end

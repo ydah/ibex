@@ -5,47 +5,53 @@ module Ibex
   class Normalizer
     include NormalizeDeclarations
 
+    include NormalizeParameterValidation
+
+    include NormalizeParameterSubstitution
+
+    include NormalizeParameterEbnfLowering
+
+    include NormalizeParameterLowering
+
+    include NormalizeParameters
+
+    include NormalizeNamedReferences
+
     include NormalizeExpander
 
     include NormalizeDiagnostics
 
     RESERVED_NAMES: Array[String]
 
-    @resolution: Frontend::Resolution?
+    DEFAULT_MAX_PARAMETER_SPECIALIZATIONS: ::Integer
 
-    @current_include_chain: Array[IR::source_provenance]
+    DEFAULT_MAX_PARAMETER_DEPTH: ::Integer
 
-    @mode: Symbol
-
-    @symbols: Array[IR::GrammarSymbol]
-
-    @symbols_by_name: Hash[String, IR::GrammarSymbol]
-
-    @productions: Array[IR::Production]
-
-    @warnings: Array[IR::grammar_warning]
-
-    @helper_sequence: Integer
-
-    @declared_tokens: Hash[String, IR::location]
-
-    @precedence: Hash[String, IR::precedence]
-
-    @precedence_locations: Hash[String, IR::location]
-
-    @display_names: Hash[String, String]
-
-    @display_name_locations: Hash[String, IR::location]
-
-    @semantic_types: Hash[String, String]
-
-    @semantic_type_locations: Hash[String, IR::location]
-
-    @options: IR::grammar_options
+    @conversions: Hash[String, String]
 
     @expected_conflicts: Integer
 
-    @conversions: Hash[String, String]
+    @options: IR::grammar_options
+
+    @semantic_type_locations: Hash[String, IR::location]
+
+    @semantic_types: Hash[String, String]
+
+    @display_name_locations: Hash[String, IR::location]
+
+    @display_names: Hash[String, String]
+
+    @precedence_locations: Hash[String, IR::location]
+
+    @precedence: Hash[String, IR::precedence]
+
+    @declared_tokens: Hash[String, IR::location]
+
+    @helper_sequence: Integer
+
+    @warnings: Array[IR::grammar_warning]
+
+    @productions: Array[IR::Production]
 
     @explicit_start: String?
 
@@ -53,11 +59,41 @@ module Ibex
 
     @start_location: Frontend::Location?
 
+    @parameter_templates: Hash[String, Array[Frontend::AST::Rule]]
+
+    @parameter_formals: Hash[String, Array[String]]
+
+    @parameter_specializations: Hash[[ String, Array[String] ], String]
+
+    @parameter_worklist: Array[Hash[Symbol, untyped]]
+
+    @parameter_worklist_active: bool
+
+    @parameter_current_depth: Integer?
+
+    @max_parameter_specializations: Integer
+
+    @max_parameter_depth: Integer
+
+    @current_parameter_expansion: IR::parameter_expansion?
+
+    @rule_documentation: Hash[String, String]
+
+    @symbols_by_name: Hash[String, IR::GrammarSymbol]
+
+    @symbols: Array[IR::GrammarSymbol]
+
+    @mode: Symbol
+
+    @current_include_chain: Array[IR::source_provenance]
+
+    @resolution: Frontend::Resolution?
+
     @ast: Frontend::AST::Root
 
     # @rbs (Frontend::AST::Root | Frontend::AST::Fragment | Frontend::Resolution input,
-    #   ?mode: Symbol | String) -> void
-    def initialize: (Frontend::AST::Root | Frontend::AST::Fragment | Frontend::Resolution input, ?mode: Symbol | String) -> void
+    #   ?mode: Symbol | String, ?max_parameter_specializations: Integer, ?max_parameter_depth: Integer) -> void
+    def initialize: (Frontend::AST::Root | Frontend::AST::Fragment | Frontend::Resolution input, ?mode: Symbol | String, ?max_parameter_specializations: Integer, ?max_parameter_depth: Integer) -> void
 
     # @rbs () -> IR::Grammar
     def normalize: () -> IR::Grammar
@@ -77,8 +113,8 @@ module Ibex
     def validated_rule_documentation: () -> Hash[String, String]
 
     # @rbs (String name, Symbol kind, ?reserved: bool, ?location: IR::location?,
-    #   ?documentation: String?) -> IR::GrammarSymbol
-    def intern: (String name, Symbol kind, ?reserved: bool, ?location: IR::location?, ?documentation: String?) -> IR::GrammarSymbol
+    #   ?documentation: String?, ?metadata_name: String?) -> IR::GrammarSymbol
+    def intern: (String name, Symbol kind, ?reserved: bool, ?location: IR::location?, ?documentation: String?, ?metadata_name: String?) -> IR::GrammarSymbol
 
     # @rbs (String name) -> IR::GrammarSymbol?
     def symbol: (String name) -> IR::GrammarSymbol?

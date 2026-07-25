@@ -67,14 +67,21 @@ module Ibex
           return :IDENTIFIER unless @state == :rule_rhs
           return :IDENTIFIER if named_reference_name?(last_external, previous_external)
 
+          classify_rhs_identifier(token, remaining)
+        end
+
+        # @rbs (Token token, Array[Token] remaining) -> external_token
+        def classify_rhs_identifier(token, remaining)
           value = string_value(token)
-          return :IDENTIFIER if value == "end" && @delimiters.open_kind == :separated
+          return :IDENTIFIER if value == "end" && @delimiters.open_kind
           return finish_rules if value == "end"
 
           following = remaining.first
           return :IDENTIFIER unless following
-          return start_rule(token) if rule_boundary?(token, following)
+          return start_rule(token) if rule_boundary?(token, following) ||
+                                      parameterized_rule_boundary?(token, remaining)
           return separated_terminal(token) if separated_list_call?(token, following)
+          return :PARAMETERIZED_REFERENCE if parameterized_call?(token, following)
 
           :IDENTIFIER
         end
@@ -105,6 +112,26 @@ module Ibex
           @delimiters.empty? && following.type == :":" && token.location.column <= lhs_column
         end
 
+        # @rbs (Token token, Array[Token] remaining) -> bool
+        def parameterized_rule_boundary?(token, remaining)
+          lhs_column = @lhs_column
+          opening = remaining.first
+          return false unless lhs_column && @delimiters.empty? && token.location.column <= lhs_column
+          return false unless opening&.type == :"(" && adjacent?(token, opening)
+
+          parameter_definition_tail?(remaining.drop(1))
+        end
+
+        # @rbs (Array[Token] tail) -> bool
+        def parameter_definition_tail?(tail)
+          closing = tail.index { |entry| entry.type == :")" }
+          return false unless closing && tail[closing + 1]&.type == :":"
+
+          formals = tail.take(closing)
+          !formals.empty? && formals.length.odd? &&
+            formals.each_with_index.all? { |entry, index| entry.type == (index.even? ? :identifier : :",") }
+        end
+
         # @rbs (Token token) -> external_token
         def start_rule(token)
           @rule_seen = true
@@ -127,6 +154,21 @@ module Ibex
         # @rbs (Token token) -> external_token
         def separated_terminal(token)
           string_value(token) == "separated_list" ? :SEPARATED_LIST : :SEPARATED_NONEMPTY_LIST
+        end
+
+        # @rbs (Token token, Token following) -> bool
+        def parameterized_call?(token, following)
+          following.type == :"(" && adjacent?(token, following)
+        end
+
+        # @rbs (Token left, Token right) -> bool
+        def adjacent?(left, right)
+          left_span = left.span
+          right_span = right.span
+          return left_span.end_byte == right_span.start_byte if left_span && right_span
+
+          left.location.line == right.location.line &&
+            left.location.column + string_value(left).length == right.location.column
         end
 
         # @rbs (Token token) -> external_token

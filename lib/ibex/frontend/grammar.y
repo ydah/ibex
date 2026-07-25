@@ -1,6 +1,6 @@
 class Ibex::Frontend::GeneratedParser < Ibex::Frontend::GeneratedParserBase
 token CLASS FRAGMENT INCLUDE TOKEN PRECHIGH PRECLOW OPTIONS EXPECT START CONVERT DISPLAY TYPE PRAGMA RULE END
-token LEFT RIGHT NONASSOC IDENTIFIER LITERAL INTEGER ACTION USER_CODE LHS
+token LEFT RIGHT NONASSOC IDENTIFIER LITERAL INTEGER ACTION USER_CODE LHS PARAMETERIZED_REFERENCE
 token SEPARATED_LIST SEPARATED_NONEMPTY_LIST
 rule
   document
@@ -110,7 +110,16 @@ rule
     | rules rule_definition              { result = val[0] + [val[1]] }
 
   rule_definition
-    : LHS ':' alternatives semicolon     { result = build_rule(val[0], val[2]) }
+    : LHS rule_parameters ':' alternatives semicolon
+      { result = build_rule(val[0], val[1], val[3]) }
+
+  rule_parameters
+    :                                    { result = nil }
+    | '(' formal_parameters ')'          { result = build_rule_parameters(val[0], val[1]) }
+
+  formal_parameters
+    : IDENTIFIER                         { result = [val[0]] }
+    | formal_parameters ',' IDENTIFIER   { result = val[0] + [val[2]] }
 
   semicolon
     :
@@ -133,6 +142,7 @@ rule
 
   item
     : symbol_item                        { result = val[0] }
+    | parameterized_item                 { result = val[0] }
     | ACTION                             { result = build_action(val[0]) }
     | group_item                         { result = val[0] }
     | separated_item                     { result = val[0] }
@@ -140,6 +150,25 @@ rule
   symbol_item
     : grammar_symbol named_reference suffixes
       { result = build_symbol_reference(val[0], val[1], val[2]) }
+
+  parameterized_item
+    : PARAMETERIZED_REFERENCE '(' parameter_arguments ')' named_reference suffixes
+      { result = build_parameterized_reference(val[0], val[1], val[2], val[4], val[5]) }
+
+  parameter_arguments
+    :                                    { result = Array.new(0) }
+    | parameter_argument_list            { result = val[0] }
+
+  parameter_argument_list
+    : parameter_argument                 { result = [val[0]] }
+    | parameter_argument_list ',' parameter_argument
+      { result = val[0] + [val[2]] }
+
+  parameter_argument
+    : symbol_item                        { result = val[0] }
+    | parameterized_item                 { result = val[0] }
+    | group_item                         { result = val[0] }
+    | separated_item                     { result = val[0] }
 
   named_reference
     :                                    { result = nil }
@@ -165,6 +194,7 @@ rule
 
   group_item_element
     : symbol_item                        { result = val[0] }
+    | parameterized_item                 { result = val[0] }
     | group_item                         { result = val[0] }
     | separated_item                     { result = val[0] }
 

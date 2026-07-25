@@ -40,6 +40,15 @@ include. A `Resolution` recursively freezes its owned AST and defensive provenan
 include-chain lookup. Rake resolves this closure at task definition and refuses invalid graphs before timestamp checks can reuse
 a stale output; see [ADR 0042](decisions/0042-canonical-grammar-fragment-includes.md).
 
+Extended parameterized definitions remain structural AST templates rather than grammar symbols. The Normalizer validates the
+complete template graph, interns an impossible `$parameter_N` helper for each canonical call, records that helper in a memo
+before expanding its body, and substitutes formals through nested EBNF and calls. Resumable alternative, item, and EBNF
+continuations on an explicit depth-first worklist preserve ordinary lowering order and active-depth semantics without consuming
+the Ruby call stack. Same-argument recursion therefore closes over the memo, while configurable specialization and active-depth
+limits bound argument-growing recursion. Template actions,
+precedence, metadata, documentation, locations, and definition include chains flow into the specialized productions; see
+[ADR 0044](decisions/0044-parameterized-user-rules.md).
+
 The strict generated frontend remains the grammar authority during batch diagnostics. A diagnostic parse retries it after
 suppressing only a whole declaration, whole rule, or outer alternative at balanced delimiters. Each retry must remove a new
 original token and both attempts and emitted diagnostics are bounded. Lexical and syntax phases collect independently before a
@@ -104,7 +113,9 @@ New normalized grammars use version 2. It keeps every version-1 semantic field a
 The source-only text frontend supplies the source filename and leaves unknown metadata null. A resolved grammar also supplies its
 canonical source root and each production's include chain while preserving its original-file origin. Lossless rule comments
 populate symbol and user-production documentation, including through fragment resolution; synthetic EBNF helpers remain
-undocumented. Version-1 upgrades mark every unrecoverable metadata family in `migration.unavailable` instead of guessing.
+undocumented. Parameterized specializations populate `expansion.parameter` with the template name and canonical structural
+arguments while retaining the definition's include chain. Version-1 upgrades mark every unrecoverable metadata family in
+`migration.unavailable` instead of guessing.
 `Serialize.load` and `Validator.validate` accept both versions; a loaded version-1 object dumps with the original version-1
 shape. `IR::Migration.to_version` upgrades version 1 to 2 and is idempotent at version 2. The CLI exposes this as
 `ibex migrate-ir INPUT --to=2 [-o FILE]`; file output uses an atomic same-directory rename and refuses to alias the input.

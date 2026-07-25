@@ -9,7 +9,7 @@ require "tmpdir"
 
 class FrontendSelfHostTest < Minitest::Test
   FIXTURE = File.expand_path("../fixtures/grammar/comprehensive.y", __dir__)
-  EXTENDED_FIXTURES = %w[extended.y edge.y].map do |name|
+  EXTENDED_FIXTURES = %w[extended.y edge.y parameterized.y].map do |name|
     File.expand_path("../fixtures/grammar/#{name}", __dir__)
   end.freeze
   GENERATED = File.expand_path("../../lib/ibex/frontend/generated_parser.rb", __dir__)
@@ -203,7 +203,7 @@ class FrontendSelfHostTest < Minitest::Test
     rbs_private = signature.scan(/^\s+private def (_ibex_action_\d+):/).flatten.sort
     rbs_public = signature.scan(/^\s+def (_ibex_action_\d+):/).flatten
 
-    assert_equal 79, runtime_private.length
+    assert_equal 94, runtime_private.length
     assert_empty runtime_public
     assert_equal runtime_private, rbs_private
     assert_empty rbs_public

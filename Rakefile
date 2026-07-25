@@ -20,6 +20,15 @@ namespace :frontend do
     output = File.expand_path("lib/ibex/frontend/generated_parser.rb", __dir__)
     File.write(output, Ibex::Frontend::Regenerator.generate)
   end
+
+  desc "Verify that the self-hosted grammar parser is current"
+  task :check do
+    require_relative "lib/ibex/frontend/regenerator"
+
+    output = File.expand_path("lib/ibex/frontend/generated_parser.rb", __dir__)
+    abort "self-hosted grammar parser is stale; run bundle exec rake frontend:generate" unless
+      File.binread(output) == Ibex::Frontend::Regenerator.generate
+  end
 end
 
 task default: %i[test lint]

@@ -1,0 +1,35 @@
+# Generated from lib/ibex/normalize/parameter_lowering.rb with RBS::Inline
+
+module Ibex
+  # Resumable, source-ordered lowering for specialized parameter alternatives.
+  module NormalizeParameterLowering
+    private
+
+    # @rbs (Hash[Symbol, untyped] frame) -> void
+    def advance_parameter_alternative: (Hash[Symbol, untyped] frame) -> void
+
+    # @rbs (Hash[Symbol, untyped] frame) { () -> void } -> void
+    def with_parameter_frame_context: (Hash[Symbol, untyped] frame) { () -> void } -> void
+
+    # @rbs (Hash[Symbol, untyped] frame) -> bool
+    def parameter_items_remaining?: (Hash[Symbol, untyped] frame) -> bool
+
+    # @rbs (Hash[Symbol, untyped] frame) -> void
+    def start_parameter_item: (Hash[Symbol, untyped] frame) -> void
+
+    # @rbs (Hash[Symbol, untyped] frame, Array[untyped] operation) -> void
+    def process_parameter_operation: (Hash[Symbol, untyped] frame, Array[untyped] operation) -> void
+
+    # @rbs (Hash[Symbol, untyped] frame, Frontend::AST::item item) -> void
+    def lower_parameter_item: (Hash[Symbol, untyped] frame, Frontend::AST::item item) -> void
+
+    # @rbs (Hash[Symbol, untyped] frame, Frontend::AST::ParameterizedReference item) -> void
+    def lower_parameter_call: (Hash[Symbol, untyped] frame, Frontend::AST::ParameterizedReference item) -> void
+
+    # @rbs (Hash[Symbol, untyped] frame, Frontend::AST::item item) -> void
+    def finish_parameter_item: (Hash[Symbol, untyped] frame, Frontend::AST::item item) -> void
+
+    # @rbs (Hash[Symbol, untyped] frame) -> void
+    def finish_parameter_alternative: (Hash[Symbol, untyped] frame) -> void
+  end
+end

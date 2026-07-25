@@ -9,6 +9,8 @@ module Ibex
     def normalize_user_productions
       # @type self: Normalizer
       @ast.rules.each do |rule|
+        next if parameterized_rule?(rule)
+
         @current_include_chain = @resolution&.include_chain_for(rule) || []
         rule.alternatives.each { |alternative| normalize_alternative(rule, alternative) }
       end
@@ -37,6 +39,7 @@ module Ibex
     def normalize_item(item)
       # @type self: Normalizer
       return symbol_for_reference(item).name if item.is_a?(Frontend::AST::SymbolReference)
+      return specialize_parameterized_reference(item) if item.is_a?(Frontend::AST::ParameterizedReference)
       return expand_group(item) if item.is_a?(Frontend::AST::Group)
       return expand_optional(item) if item.is_a?(Frontend::AST::Optional)
       return expand_star(item) if item.is_a?(Frontend::AST::Star)
@@ -60,6 +63,12 @@ module Ibex
     def expand_optional(item)
       # @type self: Normalizer
       base = normalize_item(item.item)
+      build_optional(item, base)
+    end
+
+    # @rbs (Frontend::AST::Optional item, String base) -> String
+    def build_optional(item, base)
+      # @type self: Normalizer
       helper = new_helper("optional", item.loc)
       add_production(helper, [], synthetic_action("nil", item.loc), nil, synthetic_origin(:optional, item))
       add_production(helper, [base], synthetic_action("val[0]", item.loc), nil, synthetic_origin(:optional, item))
@@ -70,6 +79,12 @@ module Ibex
     def expand_star(item)
       # @type self: Normalizer
       base = normalize_item(item.item)
+      build_star(item, base)
+    end
+
+    # @rbs (Frontend::AST::Star item, String base) -> String
+    def build_star(item, base)
+      # @type self: Normalizer
       helper = new_helper("star", item.loc)
       add_production(helper, [], synthetic_action("[]", item.loc), nil, synthetic_origin(:star, item))
       add_production(helper, [helper, base], synthetic_action("val[0] + [val[1]]", item.loc), nil,
@@ -81,6 +96,12 @@ module Ibex
     def expand_plus(item)
       # @type self: Normalizer
       base = normalize_item(item.item)
+      build_plus(item, base)
+    end
+
+    # @rbs (Frontend::AST::Plus item, String base) -> String
+    def build_plus(item, base)
+      # @type self: Normalizer
       helper = new_helper("plus", item.loc)
       add_production(helper, [base], synthetic_action("[val[0]]", item.loc), nil, synthetic_origin(:plus, item))
       add_production(helper, [helper, base], synthetic_action("val[0] + [val[1]]", item.loc), nil,
@@ -93,6 +114,12 @@ module Ibex
       # @type self: Normalizer
       base = normalize_item(item.item)
       separator = normalize_item(item.separator)
+      build_separated_list(item, base, separator)
+    end
+
+    # @rbs (Frontend::AST::SeparatedList item, String base, String separator) -> String
+    def build_separated_list(item, base, separator)
+      # @type self: Normalizer
       helper = new_helper("separated_list", item.loc)
       unless item.nonempty
         add_production(helper, [], synthetic_action("[]", item.loc), nil, synthetic_origin(:separated_list, item))
@@ -111,10 +138,16 @@ module Ibex
       helper = new_helper("group", item.loc)
       item.alternatives.each do |alternative|
         rhs = alternative.map { |child| normalize_item(child) }
-        expression = group_value_expression(rhs.length)
-        add_production(helper, rhs, synthetic_action(expression, item.loc), nil, synthetic_origin(:group, item))
+        add_group_production(helper, rhs, item)
       end
       helper
+    end
+
+    # @rbs (String helper, Array[String] rhs, Frontend::AST::Group item) -> void
+    def add_group_production(helper, rhs, item)
+      # @type self: Normalizer
+      expression = group_value_expression(rhs.length)
+      add_production(helper, rhs, synthetic_action(expression, item.loc), nil, synthetic_origin(:group, item))
     end
 
     # @rbs (Integer length) -> String
@@ -124,28 +157,6 @@ module Ibex
       return "val[0]" if length == 1
 
       "val"
-    end
-
-    # @rbs (Frontend::AST::Group group) -> void
-    def reject_group_named_references(group)
-      # @type self: Normalizer
-      reference = group.alternatives.flatten.filter_map { |item| named_reference_in(item) }.first
-      fail_at(reference.loc, "named references inside EBNF groups are not supported") if reference
-    end
-
-    # @rbs (Frontend::AST::item item) -> Frontend::AST::SymbolReference?
-    def named_reference_in(item)
-      # @type self: Normalizer
-      return item if item.is_a?(Frontend::AST::SymbolReference) && item.named_reference
-      if item.is_a?(Frontend::AST::Group)
-        return item.alternatives.flatten.filter_map { |child| named_reference_in(child) }.first
-      end
-      if item.is_a?(Frontend::AST::Optional) || item.is_a?(Frontend::AST::Star) ||
-         item.is_a?(Frontend::AST::Plus) || item.is_a?(Frontend::AST::SeparatedList)
-        return named_reference_in(item.item)
-      end
-
-      nil
     end
 
     # @rbs (String kind, Frontend::Location location) -> String
@@ -176,32 +187,6 @@ module Ibex
       return nil unless action
 
       IR::Action.new(code: action.code, location: action.loc.to_h, named_refs: named_refs)
-    end
-
-    # @rbs (Frontend::AST::item item, Array[IR::named_ref] refs, Integer index) -> void
-    def add_named_reference(item, refs, index)
-      # @type self: Normalizer
-      reference = unwrap_reference(item)
-      return unless reference
-
-      name = reference.named_reference
-      return unless name
-
-      fail_at(reference.loc, "reserved named reference #{name}") if Normalizer::RESERVED_NAMES.include?(name)
-      fail_at(reference.loc, "duplicate named reference #{name}") if refs.any? { |entry| entry[:name] == name }
-      refs << { name: name, index: index }
-    end
-
-    # @rbs (Frontend::AST::item item) -> Frontend::AST::SymbolReference?
-    def unwrap_reference(item)
-      # @type self: Normalizer
-      return item if item.is_a?(Frontend::AST::SymbolReference)
-      if item.is_a?(Frontend::AST::Optional) || item.is_a?(Frontend::AST::Star) ||
-         item.is_a?(Frontend::AST::Plus) || item.is_a?(Frontend::AST::SeparatedList)
-        return unwrap_reference(item.item)
-      end
-
-      nil
     end
 
     # @rbs (String lhs_name, Array[String] rhs_names, IR::Action? action, String? precedence_name,
