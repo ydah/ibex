@@ -27,6 +27,8 @@ Gem::Specification.new do |spec|
   schema_files = %w[
     schema/grammar-ir-v1.schema.json
     schema/automaton-ir-v1.schema.json
+    schema/grammar-ir-v2.schema.json
+    schema/automaton-ir-v2.schema.json
     schema/explain-v1.schema.json
     schema/benchmark-v1.schema.json
   ]

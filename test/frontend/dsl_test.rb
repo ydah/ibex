@@ -108,7 +108,7 @@ class FrontendDSLTest < Minitest::Test
     when Array then value.map { |item| without_locations(item) }
     when Hash
       value.each_with_object({}) do |(key, item), result|
-        result[key] = without_locations(item) unless key.to_sym == :loc
+        result[key] = without_locations(item) unless %i[loc source_provenance].include?(key.to_sym)
       end
     else value
     end

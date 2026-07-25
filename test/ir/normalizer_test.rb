@@ -10,6 +10,8 @@ class NormalizerTest < Minitest::Test
 
   def test_reserves_symbols_and_round_trips_stably
     grammar = normalize("class P\ntoken INT\nrule\nstart: INT\nend\n")
+    assert_equal 2, grammar.schema_version
+    assert_equal({ file: "normalize.y", root: nil, byte_span: nil }, grammar.source_provenance)
     assert_equal ["$eof", "error"], grammar.symbols.first(2).map(&:name)
     assert_equal [0, 1], grammar.symbols.first(2).map(&:id)
 
@@ -124,7 +126,7 @@ class NormalizerTest < Minitest::Test
     assert_equal [6, 8], loaded_lines
   end
 
-  def test_loads_schema_v1_grammar_without_user_code_chunks
+  def test_loads_schema_v2_grammar_without_user_code_chunks
     grammar = normalize("class P\nrule\nstart: TOKEN\nend\n")
     data = JSON.parse(Ibex::IR::Serialize.dump(grammar))
     data.delete("user_code_chunks")
@@ -174,6 +176,6 @@ class NormalizerTest < Minitest::Test
     error = assert_raises(Ibex::Error) do
       Ibex::IR::Serialize.load('{"ibex_ir":"grammar","schema_version":99}')
     end
-    assert_equal "(ir):1:1: unsupported schema_version 99; expected 1", error.message
+    assert_equal "(ir):1:1: unsupported schema_version 99; expected one of 1, 2", error.message
   end
 end

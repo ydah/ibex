@@ -96,6 +96,7 @@ module Ibex
       return run_samples_command(arguments.drop(1)) if arguments.first == "samples"
       return run_validate_ir_command(arguments.drop(1)) if arguments.first == "validate-ir"
       return run_compare_command(arguments.drop(1)) if arguments.first == "compare"
+      return run_migrate_ir_command(arguments.drop(1)) if arguments.first == "migrate-ir"
 
       parser = option_parser
       remaining = parser.parse(arguments)
@@ -130,6 +131,7 @@ module Ibex
         options.separator("    samples                   generate bounded terminal sentences")
         options.separator("    validate-ir FILE          validate a versioned IR document")
         options.separator("    compare BEFORE AFTER      compare two versioned IR documents")
+        options.separator("    migrate-ir INPUT --to=2   migrate a versioned IR document")
       end
     end
 

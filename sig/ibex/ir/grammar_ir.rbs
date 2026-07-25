@@ -4,6 +4,8 @@ module Ibex
   module IR
     SCHEMA_VERSION: ::Integer
 
+    SUPPORTED_SCHEMA_VERSIONS: Array[Integer]
+
     # @rbs (untyped value) -> untyped
     def self?.deep_freeze: (untyped value) -> untyped
 
@@ -25,9 +27,11 @@ module Ibex
 
       attr_reader semantic_type: String?
 
+      attr_reader documentation: String?
+
       # @rbs (id: Integer, name: String, kind: Symbol, ?reserved: bool, ?precedence: precedence?,
-      #   ?location: location?, ?display_name: String?, ?semantic_type: String?) -> void
-      def initialize: (id: Integer, name: String, kind: Symbol, ?reserved: bool, ?precedence: precedence?, ?location: location?, ?display_name: String?, ?semantic_type: String?) -> void
+      #   ?location: location?, ?display_name: String?, ?semantic_type: String?, ?documentation: String?) -> void
+      def initialize: (id: Integer, name: String, kind: Symbol, ?reserved: bool, ?precedence: precedence?, ?location: location?, ?display_name: String?, ?semantic_type: String?, ?documentation: String?) -> void
 
       # @rbs () -> bool
       def terminal?: () -> bool
@@ -35,8 +39,8 @@ module Ibex
       # @rbs () -> bool
       def nonterminal?: () -> bool
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      # @rbs (?schema_version: Integer) -> Hash[Symbol, untyped]
+      def to_h: (?schema_version: Integer) -> Hash[Symbol, untyped]
     end
 
     # Opaque Ruby semantic action metadata.
@@ -49,11 +53,14 @@ module Ibex
 
       attr_reader context_length: Integer
 
-      # @rbs (code: String, location: location, ?named_refs: Array[named_ref], ?context_length: Integer) -> void
-      def initialize: (code: String, location: location, ?named_refs: Array[named_ref], ?context_length: Integer) -> void
+      attr_reader composition: action_composition?
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      # @rbs (code: String, location: location, ?named_refs: Array[named_ref], ?context_length: Integer,
+      #   ?composition: action_composition?) -> void
+      def initialize: (code: String, location: location, ?named_refs: Array[named_ref], ?context_length: Integer, ?composition: action_composition?) -> void
+
+      # @rbs (?schema_version: Integer) -> Hash[Symbol, untyped]
+      def to_h: (?schema_version: Integer) -> Hash[Symbol, untyped]
     end
 
     # A normalized BNF production using symbol ids.
@@ -70,12 +77,16 @@ module Ibex
 
       attr_reader origin: Hash[Symbol, untyped]
 
-      # @rbs (id: Integer, lhs: Integer, rhs: Array[Integer], action: Action?, precedence_override: Integer?,
-      #   origin: Hash[Symbol, untyped]) -> void
-      def initialize: (id: Integer, lhs: Integer, rhs: Array[Integer], action: Action?, precedence_override: Integer?, origin: Hash[Symbol, untyped]) -> void
+      attr_reader documentation: String?
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      attr_reader expansion: production_expansion?
+
+      # @rbs (id: Integer, lhs: Integer, rhs: Array[Integer], action: Action?, precedence_override: Integer?,
+      #   origin: Hash[Symbol, untyped], ?documentation: String?, ?expansion: production_expansion?) -> void
+      def initialize: (id: Integer, lhs: Integer, rhs: Array[Integer], action: Action?, precedence_override: Integer?, origin: Hash[Symbol, untyped], ?documentation: String?, ?expansion: production_expansion?) -> void
+
+      # @rbs (?schema_version: Integer) -> Hash[Symbol, untyped]
+      def to_h: (?schema_version: Integer) -> Hash[Symbol, untyped]
     end
 
     # One opaque user-code block and the location of its first code line.
@@ -117,11 +128,17 @@ module Ibex
 
       attr_reader schema_version: Integer
 
+      attr_reader source_provenance: source_provenance?
+
+      attr_reader migration: migration_metadata?
+
       # @rbs (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options,
       #   symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String],
       #   conversions: Hash[String, String], warnings: Array[grammar_warning], ?user_code_chunks: user_code_chunks?,
-      #   ?schema_version: Integer) -> void
-      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?user_code_chunks: user_code_chunks?, ?schema_version: Integer) -> void
+      #   ?schema_version: Integer, ?source_provenance: source_provenance?,
+      #   ?migration: migration_metadata?) -> void
+      # rubocop:disable Metrics/ParameterLists -- immutable versioned IR is constructed from explicit public fields.
+      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?user_code_chunks: user_code_chunks?, ?schema_version: Integer, ?source_provenance: source_provenance?, ?migration: migration_metadata?) -> void
 
       # @rbs (String name) -> GrammarSymbol?
       def symbol: (String name) -> GrammarSymbol?

@@ -1,8 +1,12 @@
 # Generated from lib/ibex/cli/ir_tools.rb with RBS::Inline
 
 module Ibex
+  type migrate_ir_options = { paths: Array[String], ?to: Integer, ?output: String }
+
   # CLI validation and structural comparison for versioned IR documents.
   module CLIIRTools
+    private def same_file_target?: (String left, String right) -> bool
+
     private
 
     # @rbs (Array[String] arguments) -> Integer
@@ -10,6 +14,18 @@ module Ibex
 
     # @rbs (Array[String] arguments) -> Integer
     def run_compare_command: (Array[String] arguments) -> Integer
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_migrate_ir_command: (Array[String] arguments) -> Integer
+
+    # @rbs (Array[String] arguments) -> migrate_ir_options
+    def migrate_ir_options: (Array[String] arguments) -> migrate_ir_options
+
+    # @rbs (String path, String source) -> void
+    def atomic_write_ir: (String path, String source) -> void
+
+    # @rbs (String path) -> Integer
+    def ir_file_mode: (String path) -> Integer
 
     # @rbs (Array[String] arguments, String command) -> String
     def single_ir_path: (Array[String] arguments, String command) -> String

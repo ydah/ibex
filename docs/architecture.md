@@ -35,7 +35,7 @@ Ruby DSL, IR records, and automaton actions use concrete domain types. Generated
 cells, decoded JSON values, and user methods embedded as opaque Ruby source remain `untyped`; applications can reopen the generated
 class in their own RBS files to declare embedded methods.
 
-## Grammar IR v1
+## Grammar IR versions 1 and 2
 
 Top-level fields:
 
@@ -62,11 +62,25 @@ an additive, deterministic `expression` label used by text, DOT, and HTML presen
 unchanged. An action has opaque `code`, `loc`, `named_refs [{name,index}]`, and `context_length`; middle-action helpers use the
 last field to view preceding stack values.
 
-IR objects and nested collections are frozen. JSON keys have deterministic order, so dump/load/dump is byte-stable. Incompatible
-schema changes require a new version. The additive `user_code_chunks` field is optional so older schema-v1 JSON remains loadable;
-new text-front-end IR retains it to make direct and resumed `--line-convert-all` generation identical.
+IR objects and nested collections are frozen. JSON keys have deterministic order, so dump/load/dump is byte-stable. The additive
+`user_code_chunks` field remains optional in version 1 so older JSON stays loadable.
 
-## Automaton IR v1
+New normalized grammars use version 2. It keeps every version-1 semantic field and adds explicit nullable metadata:
+
+| Record | Version-2 metadata |
+|---|---|
+| grammar | `source_provenance {file, root, byte_span {start,end}}` and optional `migration` loss record |
+| symbol | `doc` |
+| production | `doc` and `expansion {parameter, inline, include_chain}` |
+| action | `composition {strategy, fragments}` |
+
+The current text frontend supplies the source filename and leaves unknown metadata null. Version-1 upgrades mark every
+unrecoverable metadata family in `migration.unavailable` instead of guessing. `Serialize.load` and `Validator.validate` accept
+both versions; a loaded version-1 object dumps with the original version-1 shape. `IR::Migration.to_version` upgrades version 1
+to 2 and is idempotent at version 2. The CLI exposes this as `ibex migrate-ir INPUT --to=2 [-o FILE]`; file output uses an atomic
+same-directory rename and refuses to alias the input.
+
+## Automaton IR versions 1 and 2
 
 Top-level fields are `ibex_ir: "automaton"`, `schema_version`, `algorithm`, `grammar_digest`, embedded `grammar`, `states`, and
 `conflict_summary`. Embedding Grammar IR makes automaton JSON sufficient for code generation after `--from=automaton-ir`.
@@ -82,6 +96,10 @@ Each state contains:
 
 `conflict_summary.sr` counts unresolved default-shift conflicts for `expect`; `resolved_sr` counts retained precedence or
 associativity decisions; `rr` counts reduce/reduce cells.
+
+New automata use version 2 and always embed Grammar IR version 2. Migration recalculates `grammar_digest` from the upgraded
+canonical grammar. Version-1 automata remain loadable, validatable, and byte-stable. Published Draft 2020-12 contracts for both
+versions live under `schema/`; see [ADR 0039](decisions/0039-versioned-ir-v2-migration.md).
 
 `--emit=sets` is a deterministic analysis view rather than another IR: it emits lexically sorted nullable nonterminals and
 FIRST/FOLLOW maps for nonterminals. DOT, Mermaid, and the self-contained searchable HTML report are deterministic presentation

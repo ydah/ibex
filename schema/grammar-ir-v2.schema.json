@@ -1,0 +1,475 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/grammar-ir-v2.schema.json",
+  "title": "Ibex Grammar IR version 2",
+  "description": "The normalized grammar plus nullable provenance, documentation, expansion, and action-composition metadata.",
+  "type": "object",
+  "required": [
+    "ibex_ir",
+    "schema_version",
+    "class_name",
+    "superclass",
+    "start",
+    "expect",
+    "options",
+    "symbols",
+    "productions",
+    "user_code",
+    "conversions",
+    "warnings",
+    "source_provenance",
+    "migration"
+  ],
+  "properties": {
+    "ibex_ir": {
+      "const": "grammar"
+    },
+    "schema_version": {
+      "const": 2
+    },
+    "class_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "superclass": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "start": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expect": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "options": {
+      "$ref": "grammar-ir-v1.schema.json#/$defs/options"
+    },
+    "symbols": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "$ref": "#/$defs/symbol"
+      }
+    },
+    "productions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/production"
+      }
+    },
+    "user_code": {
+      "$ref": "grammar-ir-v1.schema.json#/$defs/string_map"
+    },
+    "conversions": {
+      "$ref": "grammar-ir-v1.schema.json#/$defs/string_map"
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "grammar-ir-v1.schema.json#/$defs/warning"
+      }
+    },
+    "user_code_chunks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "grammar-ir-v1.schema.json#/$defs/user_code_chunk"
+        }
+      }
+    },
+    "source_provenance": {
+      "$ref": "#/$defs/nullable_source_provenance"
+    },
+    "migration": {
+      "$ref": "#/$defs/nullable_migration"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "nullable_documentation": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "byte_span": {
+      "type": "object",
+      "required": [
+        "start",
+        "end"
+      ],
+      "properties": {
+        "start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "nullable_byte_span": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/byte_span"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "source_provenance": {
+      "type": "object",
+      "required": [
+        "file",
+        "root",
+        "byte_span"
+      ],
+      "properties": {
+        "file": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "root": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "byte_span": {
+          "$ref": "#/$defs/nullable_byte_span"
+        }
+      },
+      "additionalProperties": false
+    },
+    "nullable_source_provenance": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/source_provenance"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "migration": {
+      "type": "object",
+      "required": [
+        "from_schema_version",
+        "unavailable"
+      ],
+      "properties": {
+        "from_schema_version": {
+          "const": 1
+        },
+        "unavailable": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "source_provenance",
+              "symbol_docs",
+              "production_docs",
+              "production_expansion",
+              "action_composition"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "nullable_migration": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/migration"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "symbol": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "kind",
+        "reserved",
+        "prec",
+        "loc",
+        "doc"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "terminal",
+            "nonterminal"
+          ]
+        },
+        "reserved": {
+          "type": "boolean"
+        },
+        "prec": {
+          "oneOf": [
+            {
+              "$ref": "grammar-ir-v1.schema.json#/$defs/precedence"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "loc": {
+          "$ref": "grammar-ir-v1.schema.json#/$defs/nullable_location"
+        },
+        "display_name": {
+          "$ref": "grammar-ir-v1.schema.json#/$defs/metadata"
+        },
+        "semantic_type": {
+          "$ref": "grammar-ir-v1.schema.json#/$defs/metadata"
+        },
+        "doc": {
+          "$ref": "#/$defs/nullable_documentation"
+        }
+      },
+      "additionalProperties": false
+    },
+    "parameter_expansion": {
+      "type": "object",
+      "required": [
+        "rule",
+        "arguments"
+      ],
+      "properties": {
+        "rule": {
+          "type": "string",
+          "minLength": 1
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "inline_expansion": {
+      "type": "object",
+      "required": [
+        "rule"
+      ],
+      "properties": {
+        "rule": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "production_expansion": {
+      "type": "object",
+      "required": [
+        "parameter",
+        "inline",
+        "include_chain"
+      ],
+      "properties": {
+        "parameter": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/parameter_expansion"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "inline": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/inline_expansion"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "include_chain": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source_provenance"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "nullable_production_expansion": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/production_expansion"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "action_fragment": {
+      "type": "object",
+      "required": [
+        "kind",
+        "source"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "rule",
+            "inline"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/nullable_source_provenance"
+        }
+      },
+      "additionalProperties": false
+    },
+    "action_composition": {
+      "type": "object",
+      "required": [
+        "strategy",
+        "fragments"
+      ],
+      "properties": {
+        "strategy": {
+          "const": "sequence"
+        },
+        "fragments": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/action_fragment"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "nullable_action_composition": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/action_composition"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "action": {
+      "type": "object",
+      "required": [
+        "code",
+        "loc",
+        "named_refs",
+        "context_length",
+        "composition"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "loc": {
+          "$ref": "grammar-ir-v1.schema.json#/$defs/location"
+        },
+        "named_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "grammar-ir-v1.schema.json#/$defs/named_ref"
+          }
+        },
+        "context_length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "composition": {
+          "$ref": "#/$defs/nullable_action_composition"
+        }
+      },
+      "additionalProperties": false
+    },
+    "production": {
+      "type": "object",
+      "required": [
+        "id",
+        "lhs",
+        "rhs",
+        "action",
+        "prec_override",
+        "origin",
+        "doc",
+        "expansion"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lhs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rhs": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "action": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/action"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "prec_override": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "origin": {
+          "$ref": "grammar-ir-v1.schema.json#/$defs/origin"
+        },
+        "doc": {
+          "$ref": "#/$defs/nullable_documentation"
+        },
+        "expansion": {
+          "$ref": "#/$defs/nullable_production_expansion"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

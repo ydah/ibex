@@ -28,9 +28,9 @@ module Ibex
 
       private def self.normalize_action: (untyped value) -> untyped
 
-      private def load_production: (untyped production) -> untyped
+      private def load_production: (untyped production, Integer schema_version) -> untyped
 
-      private def self.load_production: (untyped production) -> untyped
+      private def self.load_production: (untyped production, Integer schema_version) -> untyped
 
       private def load_user_code_chunks: (untyped chunks) -> untyped
 

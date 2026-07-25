@@ -1,0 +1,25 @@
+# Generated from lib/ibex/ir/migration.rb with RBS::Inline
+
+module Ibex
+  module IR
+    # Meaning-preserving upgrades between published IR schema versions.
+    module Migration
+      UNAVAILABLE_V1_METADATA: Array[String]
+
+      # @rbs (Grammar | Automaton value, ?to: Integer) -> (Grammar | Automaton)
+      def self?.to_version: (Grammar | Automaton value, ?to: Integer) -> (Grammar | Automaton)
+
+      # @rbs (Grammar | Automaton value) -> (Grammar | Automaton)
+      def self?.to_v2: (Grammar | Automaton value) -> (Grammar | Automaton)
+
+      # @rbs (Grammar grammar) -> Grammar
+      def self?.migrate_grammar: (Grammar grammar) -> Grammar
+
+      # @rbs (Action? action) -> Action?
+      def self?.migrate_action: (Action? action) -> Action?
+
+      # @rbs (Automaton automaton) -> Automaton
+      def self?.migrate_automaton: (Automaton automaton) -> Automaton
+    end
+  end
+end

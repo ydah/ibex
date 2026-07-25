@@ -19,6 +19,42 @@ class IRValidatorTest < Minitest::Test
     assert_equal "lalr1", value.algorithm
   end
 
+  def test_validates_and_loads_v2_fixtures
+    grammar = Ibex::IR::Validator.validate(fixture("grammar-v2.json"))
+    automaton = Ibex::IR::Validator.validate(fixture("automaton-v2.json"))
+
+    assert_equal 2, grammar.schema_version
+    assert_equal 2, automaton.schema_version
+    assert_equal 2, automaton.grammar.schema_version
+  end
+
+  def test_preserves_populated_v2_metadata
+    document = grammar_with_populated_v2_metadata
+
+    grammar = Ibex::IR::Validator.validate(JSON.generate(document))
+
+    assert_equal "Numeric token", grammar.symbol("NUMBER").documentation
+    assert_equal "Adds a number", grammar.productions.fetch(1).documentation
+    assert_equal "list", grammar.productions.fetch(1).expansion.dig(:parameter, :rule)
+    assert_equal "sequence", grammar.productions.fetch(1).action.composition.fetch(:strategy)
+    dumped = Ibex::IR::Serialize.dump(grammar)
+    assert_equal dumped, Ibex::IR::Serialize.dump(Ibex::IR::Serialize.load(dumped))
+  end
+
+  def test_rejects_an_invalid_v2_byte_span
+    document = parsed_fixture("grammar-v2.json")
+    document["source_provenance"] = {
+      "file" => "grammar.y", "root" => nil, "byte_span" => { "start" => 9, "end" => 3 }
+    }
+
+    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
+
+    assert_equal(
+      "(ir):1:1: $.source_provenance.byte_span.end must be greater than or equal to start",
+      error.message
+    )
+  end
+
   def test_accepts_legacy_expansion_origin_without_expression
     source = fixture("grammar-v1-legacy-expansion-origin.json")
     value = Ibex::IR::Validator.validate(source)
@@ -157,7 +193,7 @@ class IRValidatorTest < Minitest::Test
     document = parsed_fixture("grammar-v1.json")
     document["schema_version"] = 99
     unsupported = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
-    assert_equal "(ir):1:1: unsupported schema_version 99; expected 1", unsupported.message
+    assert_equal "(ir):1:1: unsupported schema_version 99; expected one of 1, 2", unsupported.message
   end
 
   private
@@ -168,6 +204,35 @@ class IRValidatorTest < Minitest::Test
 
   def parsed_fixture(name)
     JSON.parse(fixture(name))
+  end
+
+  def grammar_with_populated_v2_metadata
+    document = parsed_fixture("grammar-v2.json")
+    document["source_provenance"] = source_provenance("grammar.y", start_byte: 4, end_byte: 120)
+    document.fetch("symbols").fetch(2)["doc"] = "Numeric token"
+    populate_production_metadata(document.fetch("productions").fetch(1))
+    document
+  end
+
+  def populate_production_metadata(production)
+    production["doc"] = "Adds a number"
+    production["expansion"] = {
+      "parameter" => { "rule" => "list", "arguments" => ["NUMBER"] },
+      "inline" => { "rule" => "atom" },
+      "include_chain" => [source_provenance("shared.y", start_byte: 0, end_byte: 8)]
+    }
+    production.fetch("action")["composition"] = {
+      "strategy" => "sequence",
+      "fragments" => [
+        { "kind" => "rule", "source" => source_provenance("grammar.y") },
+        { "kind" => "inline", "source" => nil }
+      ]
+    }
+  end
+
+  def source_provenance(file, start_byte: nil, end_byte: nil)
+    span = { "start" => start_byte, "end" => end_byte } if start_byte && end_byte
+    { "file" => file, "root" => "/workspace", "byte_span" => span }
   end
 
   def automaton_with_reduce_reduce_conflict(reductions:, chose:)

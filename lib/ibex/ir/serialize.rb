@@ -19,8 +19,8 @@ module Ibex
       #   private def self.symbol_keyed: (untyped values, untyped grammar, ?actions: untyped) -> untyped
       #   private def normalize_action: (untyped value) -> untyped
       #   private def self.normalize_action: (untyped value) -> untyped
-      #   private def load_production: (untyped production) -> untyped
-      #   private def self.load_production: (untyped production) -> untyped
+      #   private def load_production: (untyped production, Integer schema_version) -> untyped
+      #   private def self.load_production: (untyped production, Integer schema_version) -> untyped
       #   private def load_user_code_chunks: (untyped chunks) -> untyped
       #   private def self.load_user_code_chunks: (untyped chunks) -> untyped
       #   private def load_symbol_metadata: (untyped symbol, String field) -> String?
@@ -56,27 +56,32 @@ module Ibex
       # @rbs skip
       def validate_version(data)
         version = data["schema_version"]
-        return if version == SCHEMA_VERSION
+        return if SUPPORTED_SCHEMA_VERSIONS.include?(version)
 
-        raise Ibex::Error, "(ir):1:1: unsupported schema_version #{version.inspect}; expected #{SCHEMA_VERSION}"
+        expected = SUPPORTED_SCHEMA_VERSIONS.join(", ")
+        raise Ibex::Error, "(ir):1:1: unsupported schema_version #{version.inspect}; expected one of #{expected}"
       end
 
       # @rbs skip
       def load_grammar(data)
         empty_chunks = {} #: Hash[String, untyped]
+        schema_version = data.fetch("schema_version")
         symbols = data.fetch("symbols").map do |symbol|
           GrammarSymbol.new(id: symbol.fetch("id"), name: symbol.fetch("name"), kind: symbol.fetch("kind"),
                             reserved: symbol.fetch("reserved"), precedence: symbolize(symbol["prec"]),
                             location: symbolize(symbol["loc"]),
                             display_name: load_symbol_metadata(symbol, "display_name"),
-                            semantic_type: load_symbol_metadata(symbol, "semantic_type"))
+                            semantic_type: load_symbol_metadata(symbol, "semantic_type"),
+                            documentation: symbol["doc"])
         end
-        productions = data.fetch("productions").map { |production| load_production(production) }
+        productions = data.fetch("productions").map { |production| load_production(production, schema_version) }
         Grammar.new(class_name: data.fetch("class_name"), superclass: data["superclass"], start: data.fetch("start"),
                     expect: data.fetch("expect"), options: symbolize(data.fetch("options")), symbols: symbols,
                     productions: productions, user_code: data.fetch("user_code"),
                     conversions: data.fetch("conversions"), warnings: symbolize(data.fetch("warnings")),
-                    user_code_chunks: load_user_code_chunks(data.fetch("user_code_chunks", empty_chunks)))
+                    user_code_chunks: load_user_code_chunks(data.fetch("user_code_chunks", empty_chunks)),
+                    schema_version: schema_version, source_provenance: symbolize(data["source_provenance"]),
+                    migration: symbolize(data["migration"]))
       end
 
       # @rbs skip
@@ -84,7 +89,8 @@ module Ibex
         grammar = load_grammar(data.fetch("grammar"))
         states = data.fetch("states").map { |state| load_state(state, grammar) }
         Automaton.new(grammar: grammar, states: states, conflict_summary: symbolize(data.fetch("conflict_summary")),
-                      algorithm: data.fetch("algorithm"), grammar_digest: data.fetch("grammar_digest"))
+                      algorithm: data.fetch("algorithm"), grammar_digest: data.fetch("grammar_digest"),
+                      schema_version: data.fetch("schema_version"))
       end
 
       # @rbs skip
@@ -118,16 +124,18 @@ module Ibex
       end
 
       # @rbs skip
-      def load_production(production)
+      def load_production(production, schema_version)
         action_data = production["action"]
         action = if action_data
                    Action.new(code: action_data.fetch("code"), location: symbolize(action_data["loc"]),
                               named_refs: symbolize(action_data.fetch("named_refs")),
-                              context_length: action_data.fetch("context_length"))
+                              context_length: action_data.fetch("context_length"),
+                              composition: symbolize(action_data["composition"]))
                  end
         Production.new(id: production.fetch("id"), lhs: production.fetch("lhs"), rhs: production.fetch("rhs"),
                        action: action, precedence_override: production["prec_override"],
-                       origin: symbolize(production.fetch("origin")))
+                       origin: symbolize(production.fetch("origin")), documentation: production["doc"],
+                       expansion: schema_version >= 2 ? symbolize(production["expansion"]) : nil)
       end
 
       # @rbs skip

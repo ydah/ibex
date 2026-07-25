@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "ir/grammar_ir"
+require_relative "ir/migration"
 require_relative "ir/automaton_ir"
 require_relative "ir/serialize"
 require_relative "ir/validator"
@@ -12,6 +13,18 @@ module Ibex
     #   type location = { file: String, line: Integer, column: Integer }
     #   type precedence = { associativity: Symbol, level: Integer }
     #   type named_ref = { name: String, index: Integer }
+    #   type byte_span = { start: Integer, end: Integer }
+    #   type source_provenance = { file: String?, root: String?, byte_span: byte_span? }
+    #   type parameter_expansion = { rule: String, arguments: Array[String] }
+    #   type inline_expansion = { rule: String }
+    #   type production_expansion = {
+    #     parameter: parameter_expansion?,
+    #     inline: inline_expansion?,
+    #     include_chain: Array[source_provenance]
+    #   }
+    #   type action_fragment = { kind: Symbol, source: source_provenance? }
+    #   type action_composition = { strategy: String, fragments: Array[action_fragment] }
+    #   type migration_metadata = { from_schema_version: Integer, unavailable: Array[String] }
     #   type user_code_chunks = Hash[String, Array[UserCodeChunk]]
     #   type grammar_options = { result_var: bool, omit_action_call: bool }
     #   type grammar_warning = {

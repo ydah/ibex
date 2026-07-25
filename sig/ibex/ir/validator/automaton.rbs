@@ -3,7 +3,7 @@
 module Ibex
   module IR
     module Validator
-      # Structural and referential validation for an Automaton IR v1 JSON object.
+      # Structural and referential validation for a versioned Automaton IR JSON object.
       # rubocop:disable Metrics/ClassLength -- inline type contracts accompany one cohesive document validator.
       class AutomatonDocument < Base
         ROOT_REQUIRED: Array[String]
@@ -14,14 +14,16 @@ module Ibex
 
         RESOLUTION_KINDS: Array[String]
 
+        @version: Integer
+
         @grammar: GrammarDocument
 
         @states_by_id: Hash[Integer, Hash[String, untyped]]
 
         @data: Hash[String, untyped]
 
-        # @rbs (Hash[String, untyped] data) -> void
-        def initialize: (Hash[String, untyped] data) -> void
+        # @rbs (Hash[String, untyped] data, ?version: Integer) -> void
+        def initialize: (Hash[String, untyped] data, ?version: Integer) -> void
 
         # @rbs () -> self
         def validate: () -> self
