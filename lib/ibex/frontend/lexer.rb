@@ -13,6 +13,7 @@ module Ibex
       # @rbs @segments: Array[Segment]
       # @rbs @emitted_tokens: Array[Token]
       # @rbs @eof_token: Token?
+      # @rbs @active_token_start: SourcePosition?
 
       # @rbs (String source, ?file: String) -> void
       def initialize(source, file: "(grammar)")
@@ -43,8 +44,10 @@ module Ibex
         eof_token = @eof_token
         return eof_token if eof_token
 
+        @active_token_start = nil
         skip_ignored
         start = @cursor.position
+        @active_token_start = start
         scanned = if @cursor.eof?
                     token(:eof, nil)
                   else
@@ -53,6 +56,7 @@ module Ibex
         emit_token(scanned, start) unless scanned.span
         @emitted_tokens << scanned
         @eof_token = scanned if scanned.type == :eof
+        @active_token_start = nil
         scanned
       end
 

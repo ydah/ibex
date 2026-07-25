@@ -1,0 +1,98 @@
+# Generated from lib/ibex/frontend/diagnostic_recovery.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Re-runs the generated parser after suppressing only conservative source regions.
+    class DiagnosticRecovery
+      DECLARATION_STARTS: Array[String]
+
+      @suppressed: Hash[Integer, bool]
+
+      @max_diagnostics: Integer
+
+      @mode: Symbol
+
+      @tokens: Array[Token]
+
+      # @rbs (Array[Token] tokens, mode: Symbol, max_diagnostics: Integer) -> void
+      def initialize: (Array[Token] tokens, mode: Symbol, max_diagnostics: Integer) -> void
+
+      # @rbs () -> [AST::Root?, Array[Diagnostic]]
+      def parse: () -> [ AST::Root?, Array[Diagnostic] ]
+
+      private
+
+      # @rbs () -> AST::Root?
+      def parse_until_stable: () -> AST::Root?
+
+      # @rbs () -> Array[Token]
+      def working_tokens: () -> Array[Token]
+
+      # @rbs (Diagnostic diagnostic) -> void
+      def append_diagnostic: (Diagnostic diagnostic) -> void
+
+      # @rbs (Diagnostic diagnostic) -> [String, String, Integer, Integer, String]
+      def diagnostic_key: (Diagnostic diagnostic) -> [ String, String, Integer, Integer, String ]
+
+      # @rbs () -> Array[Diagnostic]
+      def sorted_diagnostics: () -> Array[Diagnostic]
+
+      # @rbs (Diagnostic diagnostic) -> [String, Integer, Integer, String, String]
+      def diagnostic_sort_key: (Diagnostic diagnostic) -> [ String, Integer, Integer, String, String ]
+
+      # @rbs (Token? token, Exception error) -> Range[Integer]?
+      def suppression_range: (Token? token, Exception error) -> Range[Integer]?
+
+      # @rbs (Token? token) -> Integer?
+      def token_index: (Token? token) -> Integer?
+
+      # @rbs (String message) -> Integer?
+      def token_index_for_message: (String message) -> Integer?
+
+      # @rbs () -> Integer?
+      def rule_marker_index: () -> Integer?
+
+      # @rbs (Integer failure, Integer rule_marker) -> Range[Integer]?
+      def declaration_range: (Integer failure, Integer rule_marker) -> Range[Integer]?
+
+      # @rbs (Integer index) -> bool
+      def declaration_start?: (Integer index) -> bool
+
+      # @rbs (Integer start, Integer rule_marker, Array[Integer] starts) -> Integer
+      def declaration_finish: (Integer start, Integer rule_marker, Array[Integer] starts) -> Integer
+
+      # @rbs (Integer start, Integer fallback, String closer) -> Integer
+      def matching_declaration_end: (Integer start, Integer fallback, String closer) -> Integer
+
+      # @rbs (Integer failure, Integer rule_marker) -> Range[Integer]?
+      def rule_range: (Integer failure, Integer rule_marker) -> Range[Integer]?
+
+      # @rbs (Integer rule_marker) -> Integer
+      def grammar_end_index: (Integer rule_marker) -> Integer
+
+      # @rbs (Integer rule_marker, Integer grammar_end) -> Array[Integer]
+      def rule_definition_starts: (Integer rule_marker, Integer grammar_end) -> Array[Integer]
+
+      # @rbs (Integer index, Integer? lhs_column) -> bool
+      def lhs_candidate?: (Integer index, Integer? lhs_column) -> bool
+
+      # @rbs (Integer failure, Integer start, Integer finish) -> Range[Integer]?
+      def alternative_range: (Integer failure, Integer start, Integer finish) -> Range[Integer]?
+
+      # @rbs (Integer? previous, Integer? following, Integer colon, Integer finish) -> Range[Integer]?
+      def alternative_slice: (Integer? previous, Integer? following, Integer colon, Integer finish) -> Range[Integer]?
+
+      # @rbs (Integer start, Integer finish) -> Array[Integer]
+      def top_level_pipes: (Integer start, Integer finish) -> Array[Integer]
+
+      # @rbs (Range[Integer] range) -> bool
+      def suppress: (Range[Integer] range) -> bool
+
+      # @rbs (Exception error, Token? token, phase: Symbol) -> Diagnostic
+      def diagnostic_from: (Exception error, Token? token, phase: Symbol) -> Diagnostic
+
+      # @rbs (String message) -> [Array[String], String?]
+      def expected_and_received: (String message) -> [ Array[String], String? ]
+    end
+  end
+end

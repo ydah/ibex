@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ydah/ibex/schema/frontend-diagnostics-v1.schema.json",
+  "title": "Ibex frontend diagnostics v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ibex_diagnostics",
+    "schema_version",
+    "success",
+    "ast_available",
+    "diagnostics"
+  ],
+  "properties": {
+    "ibex_diagnostics": {
+      "const": "frontend"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "success": {
+      "type": "boolean"
+    },
+    "ast_available": {
+      "type": "boolean"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/diagnostic"
+      }
+    }
+  },
+  "$defs": {
+    "position": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "byte_offset",
+        "line",
+        "column"
+      ],
+      "properties": {
+        "byte_offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "column": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file",
+        "line",
+        "column"
+      ],
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "column": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "span": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "file",
+        "start",
+        "end"
+      ],
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "start": {
+          "$ref": "#/$defs/position"
+        },
+        "end": {
+          "$ref": "#/$defs/position"
+        }
+      }
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "severity",
+        "phase",
+        "message",
+        "location",
+        "span",
+        "expected",
+        "received"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "severity": {
+          "const": "error"
+        },
+        "phase": {
+          "enum": [
+            "lexical",
+            "syntax"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/$defs/location"
+        },
+        "span": {
+          "$ref": "#/$defs/span"
+        },
+        "expected": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "received": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

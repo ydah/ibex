@@ -6,6 +6,8 @@ module Ibex
     class GeneratedParserBase < Runtime::Parser
       include GeneratedParserMetadata
 
+      attr_reader diagnostic_token: Token?
+
       @mode: Symbol
 
       @adapter: TokenAdapter

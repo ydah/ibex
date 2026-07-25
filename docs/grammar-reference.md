@@ -29,6 +29,12 @@ The programmatic frontend can preserve this file exactly with
 bytes; spans and `slice` use zero-based half-open byte offsets. Line and column positions remain one-based and count Unicode
 scalar values. Input is interpreted as UTF-8 without transcoding and invalid byte sequences are rejected before lexing.
 
+`parse_with_diagnostics(max_diagnostics: 20)` collects up to the limit independently from the lexical and syntax phases, merges
+them in source order, and returns the globally earliest records. Recovery is deliberately limited to complete declarations,
+rules, or outer alternatives at balanced delimiters, so an error inside a nested group cannot synchronize at that group's `|`.
+The result may expose a partial AST containing later valid rules, but `success?` remains false and the original source document
+does not adopt that AST. `ibex diagnose` renders the same records as text or versioned JSON.
+
 ## Declarations
 
 - `pragma extended` enables extended syntax for this grammar even when the CLI uses its default or explicit `--mode=racc`.

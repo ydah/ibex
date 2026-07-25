@@ -3,6 +3,7 @@
 require "optparse"
 require_relative "../ibex"
 require_relative "cli/counterexample_options"
+require_relative "cli/diagnostics"
 require_relative "cli/error_messages"
 require_relative "cli/explain"
 require_relative "cli/ir_tools"
@@ -66,6 +67,7 @@ module Ibex
   # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.
   class CLI
     include CLICounterexampleOptions
+    include CLIDiagnostics
     include CLIErrorMessages
     include CLIExplain
     include CLIIRTools
@@ -91,12 +93,8 @@ module Ibex
 
     # @rbs (Array[String] arguments) -> Integer
     def run(arguments)
-      return run_error_messages_command(arguments.drop(1)) if arguments.first == "errors"
-      return run_explain_command(arguments.drop(1)) if arguments.first == "explain"
-      return run_samples_command(arguments.drop(1)) if arguments.first == "samples"
-      return run_validate_ir_command(arguments.drop(1)) if arguments.first == "validate-ir"
-      return run_compare_command(arguments.drop(1)) if arguments.first == "compare"
-      return run_migrate_ir_command(arguments.drop(1)) if arguments.first == "migrate-ir"
+      subcommand = dispatch_subcommand(arguments)
+      return subcommand unless subcommand.nil?
 
       parser = option_parser
       remaining = parser.parse(arguments)
@@ -115,6 +113,20 @@ module Ibex
 
     private
 
+    # @rbs (Array[String] arguments) -> Integer?
+    def dispatch_subcommand(arguments)
+      remaining = arguments.drop(1)
+      case arguments.first
+      when "diagnose" then run_diagnose_command(remaining)
+      when "errors" then run_error_messages_command(remaining)
+      when "explain" then run_explain_command(remaining)
+      when "samples" then run_samples_command(remaining)
+      when "validate-ir" then run_validate_ir_command(remaining)
+      when "compare" then run_compare_command(remaining)
+      when "migrate-ir" then run_migrate_ir_command(remaining)
+      end
+    end
+
     # @rbs () -> OptionParser
     def option_parser
       OptionParser.new do |options|
@@ -126,6 +138,7 @@ module Ibex
         add_information_options(options)
         options.separator("")
         options.separator("Subcommands:")
+        options.separator("    diagnose                  collect frontend diagnostics")
         options.separator("    errors --update[=FILE]  update state-specific syntax error messages")
         options.separator("    explain                   explain selected parser conflicts")
         options.separator("    samples                   generate bounded terminal sentences")

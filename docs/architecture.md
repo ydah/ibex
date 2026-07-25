@@ -29,6 +29,14 @@ bodies remain opaque segments; whitespace, line breaks, both comment forms, user
 `render`, byte slicing, and byte/line/column conversion provide the common source contract for formatter, documentation, include,
 and language-server layers. See [ADR 0040](decisions/0040-lossless-frontend-source-document.md).
 
+The strict generated frontend remains the grammar authority during batch diagnostics. A diagnostic parse retries it after
+suppressing only a whole declaration, whole rule, or outer alternative at balanced delimiters. Each retry must remove a new
+original token and both attempts and emitted diagnostics are bounded. Lexical and syntax phases collect independently before a
+global source-order limit is applied, so an earlier syntax error cannot be hidden by a later lexical error. Machine-readable
+diagnostics retain source spans, defensive locations, and stable codes. A repaired AST is marked partial by `ParseResult`, and
+is not attached to the unchanged source document. The CLI exposes this analysis only through `ibex diagnose`; see [ADR
+0041](decisions/0041-bounded-frontend-diagnostics.md).
+
 The RBS generator emits the generated class namespace, superclass, parser-table constants, `.parser_tables` contract, and
 private reduction-method signatures. Declared symbol types refine the RHS tuple and LHS result independently, with `untyped`
 used at undeclared boundaries. Reduction methods also receive a location tuple, surrounding location stack, and optional
