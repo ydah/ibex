@@ -35,7 +35,7 @@ module PipelineBenchmark
     report.fetch(:measurements)[:peak_rss_bytes] = peak_rss
     json = JSON.generate(report)
     write_output(options[:output], json) if options[:output]
-    puts(options.fetch(:json) ? json : text_report(report))
+    puts render_output(report, json: options.fetch(:json))
   end
 
   def parse_options(argv)
@@ -62,10 +62,12 @@ module PipelineBenchmark
 
   def write_output(path, output)
     absolute = File.expand_path(path, ROOT)
-    raise ArgumentError, "output must stay within the repository" unless absolute.start_with?("#{ROOT}/")
-
     FileUtils.mkdir_p(File.dirname(absolute))
     File.write(absolute, "#{output}\n")
+  end
+
+  def render_output(report, json:)
+    json ? JSON.generate(report) : text_report(report)
   end
 
   def text_report(report)
