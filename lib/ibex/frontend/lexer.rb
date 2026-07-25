@@ -118,7 +118,7 @@ module Ibex
       # @rbs () -> void
       def scan_line_comment
         start = @cursor.position
-        @cursor.advance until @cursor.eof? || @cursor.peek == "\n"
+        @cursor.advance until @cursor.eof? || newline?
         emit_segment(:line_comment, start)
       end
 

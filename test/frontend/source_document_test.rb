@@ -68,6 +68,17 @@ class SourceDocumentTest < Minitest::Test
     assert_raises(ArgumentError) { document.position_at(emoji_offset + 1) }
   end
 
+  def test_crlf_after_line_comment_is_one_newline_segment
+    source = "class P\r\n# 😀 comment\r\nrule\r\nvalue: WORD\r\nend\r\n"
+    document = Ibex::Frontend::Parser.new(source, file: "unicode.y").parse_document
+    comment = document.cst.find { |segment| segment.kind == :line_comment }
+    newline_after_comment = document.cst.segments.fetch(document.cst.segments.index(comment) + 1)
+
+    assert_equal "# 😀 comment", comment.text
+    assert_equal :newline, newline_after_comment.kind
+    assert_equal "\r\n", newline_after_comment.text
+  end
+
   def test_token_spans_slice_source_without_changing_token_serialization
     source = "class P\r\n# 😀 comment\r\nrule\r\nvalue: WORD\r\nend\r\n"
     document = Ibex::Frontend::Parser.new(source, file: "unicode.y").parse_document
