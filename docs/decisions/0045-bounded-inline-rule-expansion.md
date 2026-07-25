@@ -53,15 +53,18 @@ nullable source provenance, while their corresponding plan steps retain inline `
 version 1, the physical RHS width, and
 post-order steps. Each step records its logical input slots, action code or an implicit default, action location, named
 references, result-variable mode, context length, surrounding-stack input slots, and the physical boundary used as an
-empty-reduction lookahead. Slot numbers first address flattened RHS values and then earlier step results. The last step is the
-caller result. This representation is fully serialized and validated, so code generation after Grammar or Automaton IR reload
-has the same semantics.
+empty-reduction lookahead. [ADR 0046](0046-static-action-shadow-source.md) makes new output include a nullable `result_type` on
+each step while accepting older v2 input where it is absent. Slot numbers first address flattened RHS values and then earlier
+step results. The last step is the caller result.
+This representation is fully serialized and validated, so code generation after Grammar or Automaton IR reload has the same
+semantics and static fragment types.
 
 Generated Ruby keeps non-composed action methods byte-for-byte on the existing path. A composed production receives its
 flattened values and locations, evaluates private source-mapped fragment methods in logical reduction order, reconstructs one
 logical value and `LocationSpan` per eliminated reduction, then runs the caller fragment. Empty inline spans use the next
 physical location, or the runtime lookahead at the end of the production. Direct and source-mapped output share the same plan.
-Generated RBS describes the flattened production tuple; fragment helpers are private implementation details. Parser table
+Generated RBS describes the flattened production tuple. ADR 0046 additionally describes private fragment helpers so extracted
+action bodies can be checked without exposing them as public API. Parser table
 format v3 marks composed actions explicitly and supplies the runtime lookahead as their sixth argument; v1 and v2 call shapes
 remain unchanged. After every logical fragment, `yyaccept` or `yyerror` short-circuits the remaining fragments and caller.
 `yyerrok` does not cancel a semantic `yyerror` raised in that fragment.

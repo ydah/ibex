@@ -9,6 +9,8 @@ module Ibex
 
     attr_accessor options: Array[String]
 
+    attr_accessor action_source: String | true | nil
+
     # @rbs (String | Symbol name) ?{ (RakeTask) -> void } -> void
     def initialize: (String | Symbol name) ?{ (RakeTask) -> void } -> void
 
@@ -16,6 +18,12 @@ module Ibex
 
     # @rbs () -> void
     def define: () -> void
+
+    # @rbs (String target) -> String?
+    def configured_action_source: (String target) -> String?
+
+    # @rbs (String target) -> String
+    def default_action_source_path: (String target) -> String
 
     # @rbs (String source) -> Array[String]
     def grammar_prerequisites: (String source) -> Array[String]
@@ -32,7 +40,7 @@ module Rake
 
   class Task
     def self.define_task: (Hash[String | Symbol, String | Array[String]]) -> Task
-                        | (Hash[String | Symbol, String | Array[String]]) { () -> void } -> Task
+                        | (Hash[String | Symbol, String | Array[String]]) { (untyped, untyped) -> void } -> Task
   end
 
   class FileTask < Task

@@ -84,6 +84,9 @@ module Ibex
     # @rbs (IR::Production production, Integer physical_length, Array[Hash[Symbol, untyped]]) -> IR::Action
     def composed_inline_action: (IR::Production production, Integer physical_length, Array[Hash[Symbol, untyped]]) -> IR::Action
 
+    # @rbs (Hash[Symbol, untyped] step, Integer physical_length) -> Hash[Symbol, untyped]
+    def composition_plan_step: (Hash[Symbol, untyped] step, Integer physical_length) -> Hash[Symbol, untyped]
+
     # @rbs (Array[Symbol | Integer] reference, Integer physical_length) -> Integer
     def resolve_inline_reference: (Array[Symbol | Integer] reference, Integer physical_length) -> Integer
 

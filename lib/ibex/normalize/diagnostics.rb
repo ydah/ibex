@@ -25,7 +25,7 @@ module Ibex
       { display: @display_name_locations, type: @semantic_type_locations }.each do |label, locations|
         locations.each do |name, location|
           fail_hash(location, "#{label} declaration references undefined symbol #{name}") unless
-            symbol(name) || parameter_template?(name)
+            symbol(name) || parameter_template?(name) || (label == :type && @inline_rule_names.include?(name))
         end
       end
     end

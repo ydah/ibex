@@ -60,9 +60,10 @@ class RBSCodegenTest < Minitest::Test
       class InlineTypedParser
       pragma extended
       type TOKEN "Integer"
+      type helper "Integer"
       type start "String"
       rule
-      %inline helper: TOKEN
+      %inline helper: TOKEN { result = val[0] + 1 }
       start: helper helper { result = val.join }
       end
     GRAMMAR
@@ -74,6 +75,15 @@ class RBSCodegenTest < Minitest::Test
     assert_includes signature,
                     "private def _ibex_action_0: ([Integer, Integer], Array[untyped], [untyped, untyped], " \
                     "Array[untyped], Ibex::Runtime::LocationSpan?, untyped) -> String"
+    assert_includes signature,
+                    "private def _ibex_inline_fragment_0_0: ([Integer], Array[untyped], [untyped], " \
+                    "Array[untyped], Ibex::Runtime::LocationSpan?) -> Integer"
+    assert_includes signature,
+                    "private def _ibex_inline_fragment_0_1: ([Integer], Array[untyped], [untyped], " \
+                    "Array[untyped], Ibex::Runtime::LocationSpan?) -> Integer"
+    assert_includes signature,
+                    "private def _ibex_inline_fragment_0_2: ([Integer, Integer], Array[untyped], " \
+                    "[untyped, untyped], Array[untyped], Ibex::Runtime::LocationSpan?) -> String"
     assert_rbs_valid(signature)
   end
 

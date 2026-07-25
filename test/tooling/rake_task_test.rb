@@ -128,4 +128,89 @@ class RakeTaskTest < Minitest::Test
       assert_equal expected, Rake::Task[output].prerequisites
     end
   end
+
+  def test_action_source_true_defines_and_generates_the_default_shadow_target
+    Dir.mktmpdir do |directory|
+      grammar = File.join(directory, "parser.y")
+      output = File.join(directory, "parser.rb")
+      action_source = File.join(directory, "parser.actions.rb")
+      File.write(grammar, "class Parser\nrule\nstart: TOKEN { result = val[0] }\nend\n")
+
+      Ibex::RakeTask.new(output) do |task|
+        task.grammar = grammar
+        task.action_source = true
+      end
+
+      assert Rake::Task.task_defined?(action_source)
+      assert_equal [grammar], Rake::Task[action_source].prerequisites
+      assert_equal [grammar, action_source], Rake::Task[output].prerequisites
+      Rake::Task[output].invoke
+      assert File.exist?(output)
+      assert File.exist?(action_source)
+      assert_includes File.read(action_source), "DO NOT LOAD OR EXECUTE"
+    end
+  end
+
+  def test_action_source_accepts_an_explicit_path_and_regenerates_a_missing_shadow
+    Dir.mktmpdir do |directory|
+      grammar = File.join(directory, "parser.y")
+      output = File.join(directory, "parser.rb")
+      action_source = File.join(directory, "semantic-actions.rb")
+      File.write(grammar, "class Parser\nrule\nstart: TOKEN { result = val[0] }\nend\n")
+
+      Ibex::RakeTask.new(output) do |task|
+        task.grammar = grammar
+        task.action_source = action_source
+      end
+      Rake::Task[output].invoke
+      File.delete(action_source)
+      Rake::Task[output].reenable
+      Rake::Task[action_source].reenable
+      Rake::Task[output].invoke
+
+      assert File.exist?(action_source)
+      assert_match(/^private def _ibex_action_0/, File.read(action_source))
+    end
+  end
+
+  def test_action_source_true_stays_beside_an_extensionless_output_in_a_dotted_directory
+    Dir.mktmpdir do |directory|
+      output_directory = File.join(directory, "generated.v1")
+      Dir.mkdir(output_directory)
+      grammar = File.join(directory, "parser.y")
+      output = File.join(output_directory, "parser")
+      action_source = File.join(output_directory, "parser.actions.rb")
+      File.write(grammar, "class Parser\nrule\nstart: TOKEN { result = val[0] }\nend\n")
+
+      Ibex::RakeTask.new(:generate_extensionless_parser) do |task|
+        task.grammar = grammar
+        task.output = output
+        task.action_source = true
+      end
+      Rake::Task[:generate_extensionless_parser].invoke
+
+      assert File.exist?(output)
+      assert File.exist?(action_source)
+      assert_equal [grammar, action_source], Rake::Task[output].prerequisites
+      refute File.exist?(File.join(directory, "generated.actions.rb"))
+    end
+  end
+
+  def test_action_source_rejects_empty_and_parser_paths
+    Dir.mktmpdir do |directory|
+      grammar = File.join(directory, "parser.y")
+      output = File.join(directory, "parser.rb")
+      File.write(grammar, "class Parser\nrule\nstart: TOKEN\nend\n")
+
+      ["", output].each do |action_source|
+        error = assert_raises(ArgumentError) do
+          Ibex::RakeTask.new(output) do |task|
+            task.grammar = grammar
+            task.action_source = action_source
+          end
+        end
+        assert_match(/action_source/, error.message)
+      end
+    end
+  end
 end

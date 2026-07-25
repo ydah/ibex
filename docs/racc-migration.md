@@ -23,6 +23,7 @@ copy racc's internal table arrays, internal method names, native runtime, or gen
 | `-E`, `--embedded` | Embed the Pure Ruby runtime |
 | `-F`, `--frozen` | Accepted; Ibex always emits frozen-string magic comments |
 | `--rbs[=FILE]` | Ibex extension; emit a generated parser signature |
+| `--action-source[=FILE]` | Ibex extension; emit a non-executable Steep shadow of semantic methods |
 | `--warnings=all,error` | Ibex extension; display or promote structured grammar diagnostics |
 | `--line-convert-all`, `-l` | Map header/inner/footer too, or disable all source mapping |
 | `-a` | Generate methods for implicit actions |
@@ -34,6 +35,9 @@ copy racc's internal table arrays, internal method names, native runtime, or gen
 Ibex defaults to `<input>.rb`; racc 1.8.1 was observed to default to `<input>.tab.rb`. Use `-o` for portable scripts.
 By default, semantic actions and `inner` methods report grammar-file lines while `header` and `footer` retain generated-file
 lines. `--line-convert-all` maps every user-code section; `-l` maps none. The mapping is retained through IR JSON resumption.
+For static action checking, combine `--rbs --action-source`; configure the generated `.rbs` and `.actions.rb` in the
+application's Steep target, and run Steep separately. The shadow is check-only input and must not replace or be required by the
+runtime parser.
 
 ## Compatibility baseline
 

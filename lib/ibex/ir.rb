@@ -33,7 +33,8 @@ module Ibex
     #     inputs: Array[Integer],
     #     stack_inputs: Array[Integer],
     #     lookahead: Integer?,
-    #     result_var: bool
+    #     result_var: bool,
+    #     result_type: String?
     #   }
     #   type action_composition_plan = {
     #     version: Integer,

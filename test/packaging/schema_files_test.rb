@@ -8,7 +8,13 @@ class SchemaFilesPackagingTest < Minitest::Test
 
     assert_includes specification.files, "schema/grammar-ir-v1.schema.json"
     assert_includes specification.files, "schema/automaton-ir-v1.schema.json"
+    assert_includes specification.files, "schema/grammar-ir-v2.schema.json"
+    assert_includes specification.files, "schema/automaton-ir-v2.schema.json"
     assert_includes specification.files, "schema/explain-v1.schema.json"
     assert_includes specification.files, "schema/benchmark-v1.schema.json"
+    assert_includes specification.files, "lib/ibex/codegen/action_method_source.rb"
+    assert_includes specification.files, "lib/ibex/codegen/action_source.rb"
+    assert_includes specification.files, "sig/ibex/codegen/action_method_source.rbs"
+    assert_includes specification.files, "sig/ibex/codegen/action_source.rbs"
   end
 end

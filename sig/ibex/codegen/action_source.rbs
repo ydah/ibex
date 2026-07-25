@@ -1,0 +1,45 @@
+# Generated from lib/ibex/codegen/action_source.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Generates static-check-only Ruby containing semantic action methods.
+    class ActionSource
+      @automaton: IR::Automaton
+
+      @grammar: IR::Grammar
+
+      @omit_action_call: bool
+
+      @method_source: ActionMethodSource
+
+      # @rbs (IR::Automaton automaton, ?omit_action_call: bool?) -> void
+      def initialize: (IR::Automaton automaton, ?omit_action_call: bool?) -> void
+
+      # @rbs () -> String
+      def generate: () -> String
+
+      private
+
+      # @rbs (Array[String] lines) -> void
+      def append_actions: (Array[String] lines) -> void
+
+      # @rbs (Array[String] lines, IR::Production production) -> void
+      def append_composed_actions: (Array[String] lines, IR::Production production) -> void
+
+      # @rbs (Array[String] lines, IR::Production production) -> void
+      def append_action: (Array[String] lines, IR::Production production) -> void
+
+      # @rbs (Array[String] lines, IR::location location, String source) -> void
+      def append_method: (Array[String] lines, IR::location location, String source) -> void
+
+      # @rbs (IR::Production production) -> bool
+      def composed_action?: (IR::Production production) -> bool
+
+      # @rbs () -> [Array[String], String]
+      def class_parts: () -> [ Array[String], String ]
+
+      # @rbs () -> String
+      def grammar_digest_comment: () -> String
+    end
+  end
+end

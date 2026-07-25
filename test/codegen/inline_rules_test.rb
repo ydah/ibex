@@ -26,6 +26,17 @@ class CodegenInlineRulesTest < Minitest::Test
                  parser_class.new.parse_tokens([[:A, 3], [:B, 4]])
   end
 
+  def test_no_line_convert_preserves_heredoc_columns_in_composed_fragments
+    generated = generate(inline_heredoc_source, line_convert: false)
+    refute_includes generated, "\n  HELPER\n"
+    assert_includes generated, "\n  CALLER }\n"
+    refute_includes generated, "\n    CALLER }\n"
+    parser_class = evaluate(generated, "InlineHeredoc")
+
+    assert_equal ["helper 7\n", "caller helper 7\n"],
+                 parser_class.new.parse_tokens([[:A, 7]])
+  end
+
   def test_reconstructs_the_surrounding_value_stack_for_inline_actions
     source = <<~GRAMMAR
       class InlineStack
@@ -119,6 +130,31 @@ class CodegenInlineRulesTest < Minitest::Test
       end
       ---- inner
       def factor = 2
+      def parse_tokens(tokens) = (@tokens = tokens; do_parse)
+      def next_token = @tokens.shift
+    GRAMMAR
+  end
+
+  def inline_heredoc_source
+    <<~'GRAMMAR'
+      class InlineHeredoc
+      pragma extended
+      token A
+      rule
+      %inline helper: A {
+        text = <<HELPER
+      helper #{val[0]}
+      HELPER
+        result = text
+      }
+      start: helper {
+        text = <<~"CALLER }"
+          caller #{val[0].strip}
+        CALLER }
+        result = [val[0], text]
+      }
+      end
+      ---- inner
       def parse_tokens(tokens) = (@tokens = tokens; do_parse)
       def next_token = @tokens.shift
     GRAMMAR

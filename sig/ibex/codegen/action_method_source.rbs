@@ -1,0 +1,45 @@
+# Generated from lib/ibex/codegen/action_method_source.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Builds semantic method source shared by runtime and static shadow output.
+    class ActionMethodSource
+      @grammar: IR::Grammar
+
+      # @rbs (IR::Grammar grammar) -> void
+      def initialize: (IR::Grammar grammar) -> void
+
+      # @rbs (IR::Production production, Hash[Symbol, untyped] step, Integer index) -> String
+      def composed_fragment_method_source: (IR::Production production, Hash[Symbol, untyped] step, Integer index) -> String
+
+      # @rbs (IR::Production production, Integer index) -> String
+      def composed_fragment_name: (IR::Production production, Integer index) -> String
+
+      # @rbs (IR::Production production) -> String
+      def compiled_action_method_source: (IR::Production production) -> String
+
+      # @rbs (IR::Production production) -> String
+      def direct_action_method_source: (IR::Production production) -> String
+
+      # @rbs (String source) -> bool
+      def column_sensitive?: (String source) -> bool
+
+      private
+
+      # @rbs (Hash[Symbol, untyped] step) -> String
+      def composed_semantic_code: (Hash[Symbol, untyped] step) -> String
+
+      # @rbs (String source, Array[IR::named_ref] named_refs) -> void
+      def append_named_values: (String source, Array[IR::named_ref] named_refs) -> void
+
+      # @rbs (String source, IR::Production production, IR::Action action) -> void
+      def append_action_body: (String source, IR::Production production, IR::Action action) -> void
+
+      # @rbs (Array[String] lines, IR::Production production, IR::Action? action) -> void
+      def append_direct_action_body: (Array[String] lines, IR::Production production, IR::Action? action) -> void
+
+      # @rbs (IR::Production production, IR::Action action) -> String
+      def semantic_action_code: (IR::Production production, IR::Action action) -> String
+    end
+  end
+end

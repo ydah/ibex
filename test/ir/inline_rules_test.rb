@@ -116,9 +116,12 @@ class IRInlineRulesTest < Minitest::Test
       class P
       pragma extended
       token A
+      type A "Integer"
+      type helper "Integer"
+      type start "String"
       rule
       %inline helper: A:value { result = value }
-      start: helper
+      start: helper { result = val[0].to_s }
       end
     GRAMMAR
     dumped = Ibex::IR::Serialize.dump(grammar)
@@ -126,6 +129,8 @@ class IRInlineRulesTest < Minitest::Test
     plan = loaded.productions.first.action.composition.fetch(:plan)
     assert_equal 1, plan.fetch(:version)
     assert_equal 1, plan.fetch(:physical)
+    result_types = plan.fetch(:steps).map { |step| step[:result_type] }
+    assert_equal %w[Integer String], result_types
     assert_schema_valid(JSON.parse(dumped))
 
     v1_action = grammar.productions.first.action.to_h(schema_version: 1)
@@ -149,6 +154,53 @@ class IRInlineRulesTest < Minitest::Test
 
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
     assert_includes error.message, "must reference an available slot"
+  end
+
+  def test_v2_validator_accepts_missing_result_type_as_legacy_untyped
+    grammar = normalize(<<~GRAMMAR)
+      class P
+      pragma extended
+      token A
+      type A "Integer"
+      type helper "Integer"
+      type start "String"
+      rule
+      %inline helper: A { result = val[0] }
+      start: helper { result = val[0].to_s }
+      end
+    GRAMMAR
+    document = JSON.parse(Ibex::IR::Serialize.dump(grammar))
+    steps = document.fetch("productions").first.dig("action", "composition", "plan", "steps")
+    result_types_present = steps.all? { |step| step.key?("result_type") }
+    assert result_types_present
+    step = steps.first
+    step.delete("result_type")
+
+    loaded = Ibex::IR::Validator.validate(JSON.generate(document))
+    loaded_step = loaded.productions.first.action.composition.dig(:plan, :steps).first
+    refute loaded_step.key?(:result_type)
+    assert_schema_valid(JSON.parse(Ibex::IR::Serialize.dump(loaded)))
+    signature = Ibex::Codegen::RBS.new(Ibex::LALR::Builder.new(loaded).build).generate
+    assert_includes signature, "private def _ibex_inline_fragment_0_0: ([Integer], Array[untyped], [untyped], " \
+                               "Array[untyped], Ibex::Runtime::LocationSpan?) -> untyped"
+    assert_includes signature, "private def _ibex_inline_fragment_0_1: ([untyped], Array[untyped], [untyped], " \
+                               "Array[untyped], Ibex::Runtime::LocationSpan?) -> String"
+  end
+
+  def test_inline_type_is_retained_for_composition_but_eliminated_display_is_rejected
+    error = assert_raises(Ibex::Error) do
+      normalize(<<~GRAMMAR)
+        class P
+        pragma extended
+        display helper "unused label"
+        rule
+        %inline helper: A
+        start: helper
+        end
+      GRAMMAR
+    end
+
+    assert_includes error.message, "display declaration references undefined symbol helper"
   end
 
   private
