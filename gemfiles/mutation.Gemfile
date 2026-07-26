@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-gemspec path: ".."
+gemspec name: "ibex", path: ".."
 
 gem "json_schemer", "~> 2.5", require: false
 gem "minitest", "~> 5.0", require: false

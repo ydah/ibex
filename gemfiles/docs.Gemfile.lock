@@ -2,6 +2,8 @@ PATH
   remote: ..
   specs:
     ibex (0.1.0)
+      ibex-runtime (~> 0.1.0)
+    ibex-runtime (0.1.0)
 
 GEM
   remote: https://rubygems.org/
@@ -19,6 +21,7 @@ DEPENDENCIES
 CHECKSUMS
   bundler (4.0.13) sha256=19f08be7f27022cf0b89f27da0b044ae075e8270a9ef44ad248a932614e1ca3b
   ibex (0.1.0)
+  ibex-runtime (0.1.0)
   yard (0.9.45) sha256=52e211493f7cb8a3ebf7e104a25a1e73937a3103092545d34cb88fafebb3dc51
 
 BUNDLED WITH
