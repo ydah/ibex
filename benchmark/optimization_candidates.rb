@@ -53,28 +53,62 @@ module OptimizationCandidates
       [variant, observations]
     end
     assert_equivalent!(variants)
+    report_document(options, variants, candidate_statistics(variants))
+  end
+
+  def candidate_statistics(variants)
     baseline = median(variants.fetch("table").map { |entry| entry.fetch("runtime_ms") })
     candidate = median(variants.fetch("case").map { |entry| entry.fetch("runtime_ms") })
     baseline_bytes = variants.fetch("table").first.fetch("generated_bytes")
     candidate_bytes = variants.fetch("case").first.fetch("generated_bytes")
     runtime_improvement = percentage(baseline - candidate, baseline)
     size_change = percentage(candidate_bytes - baseline_bytes, baseline_bytes)
-    qualifies = runtime_improvement >= 5.0 && size_change < 5.0
+    {
+      baseline: baseline,
+      candidate: candidate,
+      baseline_bytes: baseline_bytes,
+      candidate_bytes: candidate_bytes,
+      runtime_improvement: runtime_improvement,
+      size_change: size_change,
+      qualifies: runtime_improvement >= 5.0 && size_change < 5.0
+    }
+  end
 
+  def report_document(options, variants, statistics)
+    reference = variants.fetch("table").first
     {
       experiment: "ibex_optimization_candidates",
       schema_version: 1,
       recorded_at: Time.now.utc.iso8601,
       environment: environment,
       configuration: options.except(:output),
-      observations: variants,
-      medians: { table_runtime_ms: baseline, case_runtime_ms: candidate },
+      observations: {
+        table_runtime_ms: variants.fetch("table").map { |entry| entry.fetch("runtime_ms") },
+        case_runtime_ms: variants.fetch("case").map { |entry| entry.fetch("runtime_ms") }
+      },
+      medians: {
+        table_runtime_ms: statistics.fetch(:baseline),
+        case_runtime_ms: statistics.fetch(:candidate)
+      },
+      structure: candidate_structure(statistics),
+      digests: {
+        source_sha256: reference.fetch("source_sha256"),
+        automaton_sha256: reference.fetch("automaton_sha256"),
+        result_sha256: reference.fetch("result_sha256")
+      },
       comparison: {
-        case_runtime_improvement_percent: runtime_improvement,
-        case_generated_size_change_percent: size_change,
-        case_qualifies: qualifies
+        case_runtime_improvement_percent: statistics.fetch(:runtime_improvement),
+        case_generated_size_change_percent: statistics.fetch(:size_change),
+        case_qualifies: statistics.fetch(:qualifies)
       },
       chain_rule_audit: chain_rule_audit
+    }
+  end
+
+  def candidate_structure(statistics)
+    {
+      table_generated_bytes: statistics.fetch(:baseline_bytes),
+      case_generated_bytes: statistics.fetch(:candidate_bytes)
     }
   end
 
