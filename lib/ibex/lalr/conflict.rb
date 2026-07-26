@@ -90,6 +90,7 @@ module Ibex
         when :left then [reduction, { by: :associativity, associativity: :left, chose: :reduce }]
         when :right then [shift, { by: :associativity, associativity: :right, chose: :shift }]
         when :nonassoc then [{ type: :error }, { by: :associativity, associativity: :nonassoc, chose: :error }]
+        when :precedence then [shift, { by: :default_shift, chose: :shift }]
         else raise Ibex::Error, "unknown associativity #{associativity.inspect}"
         end
       end

@@ -17,6 +17,7 @@ module Ibex
       @semantic_type_locations = {} #: Hash[String, IR::location]
       @options = { result_var: true, omit_action_call: true }
       @expected_conflicts = 0
+      @expected_rr_conflicts = nil
       @conversions = {} #: Hash[String, String]
       @ast.declarations.each { |declaration| read_declaration(declaration) }
     end
@@ -29,6 +30,7 @@ module Ibex
       when Frontend::AST::Precedence then read_precedence(declaration)
       when Frontend::AST::Options then read_options(declaration)
       when Frontend::AST::Expect then @expected_conflicts = declaration.conflicts
+      when Frontend::AST::ExpectRR then @expected_rr_conflicts = declaration.conflicts
       when Frontend::AST::Start
         @explicit_start = declaration.name
         @start_location = declaration.loc
@@ -42,6 +44,12 @@ module Ibex
     def read_tokens(declaration)
       # @type self: Normalizer
       declaration.names.each { |name| @declared_tokens[name] = declaration.loc.to_h }
+      (declaration.aliases || {}).each do |name, value|
+        fail_at(declaration.loc, "duplicate display declaration for #{name}") if @display_names.key?(name)
+
+        @display_names[name] = value
+        @display_name_locations[name] = declaration.loc.to_h
+      end
     end
 
     # @rbs (Frontend::AST::Options declaration) -> void

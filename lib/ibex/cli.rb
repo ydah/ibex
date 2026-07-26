@@ -484,7 +484,10 @@ module Ibex
     # @rbs (IR::Grammar grammar, String path) -> Integer
     def dispatch_grammar(grammar, path)
       handle_grammar_warnings(grammar, path)
-      return 0 if @options[:check_only]
+      if @options[:check_only]
+        build_automaton(grammar, path) if @options[:warnings]&.include?(:error)
+        return 0
+      end
 
       write_railroad(grammar) unless @options[:verify_output]
       return emit_sets(grammar) if @options[:emit] == "sets"

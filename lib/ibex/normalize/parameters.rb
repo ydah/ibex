@@ -8,8 +8,7 @@ module Ibex
     # @rbs (Frontend::AST::ParameterizedReference reference) -> String
     def specialize_parameterized_reference(reference)
       # @type self: Normalizer
-      depth = (@parameter_current_depth || 0) + 1
-      helper, scheduled = schedule_parameter_specialization(reference, depth)
+      helper, scheduled = schedule_parameter_specialization(reference)
       if scheduled && @parameter_worklist_active
         raise Ibex::Error, "#{reference.loc}: internal parameter worklist ordering failure"
       end
@@ -18,8 +17,8 @@ module Ibex
       helper
     end
 
-    # @rbs (Frontend::AST::ParameterizedReference reference, Integer depth) -> [String, bool]
-    def schedule_parameter_specialization(reference, depth)
+    # @rbs (Frontend::AST::ParameterizedReference reference) -> [String, bool]
+    def schedule_parameter_specialization(reference)
       # @type self: Normalizer
       arguments = reference.arguments
       rendered_arguments = arguments.map { |argument| NormalizeExpression.render(argument) }
@@ -27,25 +26,69 @@ module Ibex
       existing = @parameter_specializations[key]
       return [existing, false] if existing
 
-      enforce_parameter_limits!(reference, depth)
+      enforce_parameter_limits!(reference)
       helper = new_parameter_helper(reference)
       @parameter_specializations[key] = helper
-      @parameter_worklist << parameter_frame(reference, helper, arguments, rendered_arguments, depth)
+      @parameter_worklist << parameter_frame(reference, helper, arguments, rendered_arguments)
       [helper, true]
     end
 
-    # @rbs (Frontend::AST::ParameterizedReference reference, Integer depth) -> void
-    def enforce_parameter_limits!(reference, depth)
+    # @rbs (Frontend::AST::ParameterizedReference reference) -> void
+    def enforce_parameter_limits!(reference)
       # @type self: Normalizer
-      if @parameter_specializations.length >= @max_parameter_specializations
-        fail_at(
-          reference.loc,
-          "parameter specialization limit of #{@max_parameter_specializations} exceeded"
-        )
+      cyclic = @parameter_worklist.reverse.find do |frame|
+        frame.fetch(:reference).name == reference.name &&
+          growing_parameter_arguments?(reference.arguments, frame.fetch(:arguments))
       end
-      return if depth <= @max_parameter_depth
+      if cyclic
+        path = (@parameter_worklist.drop_while { |frame| frame != cyclic } + [{ reference: reference }])
+               .map { |frame| frame.fetch(:reference).name }
+        fail_at(reference.loc, "cyclic parameter specialization #{path.join(' -> ')}")
+      end
+      return unless @parameter_specializations.length >= @max_parameter_specializations
 
-      fail_at(reference.loc, "parameter expansion depth limit of #{@max_parameter_depth} exceeded")
+      fail_at(
+        reference.loc,
+        "parameter specialization limit of #{@max_parameter_specializations} exceeded"
+      )
+    end
+
+    # A constructor-growing recursive call can create infinitely many distinct
+    # specializations. Calls whose arguments shrink or merely change are
+    # allowed; they may reach a memoized fixed point after finite expansion.
+    # @rbs (Array[Frontend::AST::item] candidates, Array[Frontend::AST::item] ancestors) -> bool
+    def growing_parameter_arguments?(candidates, ancestors)
+      return false unless candidates.length == ancestors.length
+
+      contained = candidates.each_index.all? do |index|
+        candidate = candidates.fetch(index)
+        ancestor = ancestors.fetch(index)
+        parameter_argument_contains?(candidate, NormalizeExpression.render(ancestor))
+      end
+      contained && candidates.each_index.any? do |index|
+        candidate = candidates.fetch(index)
+        ancestor = ancestors.fetch(index)
+        NormalizeExpression.render(candidate) != NormalizeExpression.render(ancestor)
+      end
+    end
+
+    # @rbs (Frontend::AST::item candidate, String target) -> bool
+    def parameter_argument_contains?(candidate, target)
+      pending = [candidate] #: Array[Frontend::AST::item]
+      until pending.empty?
+        item = pending.pop
+        raise Ibex::Error, "missing parameter argument" unless item
+
+        return true if NormalizeExpression.render(item) == target
+
+        case item
+        when Frontend::AST::ParameterizedReference then pending.concat(item.arguments)
+        when Frontend::AST::Group then item.alternatives.each { |alternative| pending.concat(alternative) }
+        when Frontend::AST::Optional, Frontend::AST::Star, Frontend::AST::Plus then pending << item.item
+        when Frontend::AST::SeparatedList then pending.push(item.item, item.separator)
+        end
+      end
+      false
     end
 
     # @rbs (Frontend::AST::ParameterizedReference reference) -> String
@@ -67,13 +110,14 @@ module Ibex
     end
 
     # @rbs (Frontend::AST::ParameterizedReference reference, String helper,
-    #   Array[Frontend::AST::item] arguments, Array[String] rendered_arguments, Integer depth) ->
+    #   Array[Frontend::AST::item] arguments, Array[String] rendered_arguments) ->
     #   Hash[Symbol, untyped]
-    def parameter_frame(reference, helper, arguments, rendered_arguments, depth)
+    def parameter_frame(reference, helper, arguments, rendered_arguments)
       # @type self: Normalizer
       formals = @parameter_formals.fetch(reference.name)
       {
         reference: reference,
+        arguments: arguments,
         helper: helper,
         bindings: formals.zip(arguments).to_h,
         rendered_arguments: rendered_arguments,
@@ -85,8 +129,7 @@ module Ibex
         rhs: [],
         named_refs: [],
         operations: [],
-        values: [],
-        depth: depth
+        values: []
       }
     end
 

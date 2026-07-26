@@ -3,11 +3,13 @@
 module Ibex
   module Frontend
     # Parses the declaration section of a grammar.
+    # rubocop:disable Metrics/ModuleLength, Metrics/CyclomaticComplexity
+    # Bootstrap declarations intentionally mirror the generated frontend's complete declaration vocabulary.
     module BootstrapParserDeclarations
       DECLARATIONS = %w[
-        token prechigh preclow options expect start convert display type pragma rule
+        token prechigh preclow options expect expect_rr start convert display type pragma rule
       ].freeze #: Array[String]
-      ASSOCIATIVITIES = %w[left right nonassoc].freeze #: Array[String]
+      ASSOCIATIVITIES = %w[left right nonassoc precedence].freeze #: Array[String]
 
       private
 
@@ -45,6 +47,7 @@ module Ibex
         when "prechigh", "preclow" then parse_precedence
         when "options" then parse_options
         when "expect" then parse_expect
+        when "expect_rr" then parse_expect_rr
         when "start" then parse_start
         when "convert" then parse_convert
         when "display" then parse_symbol_metadata(AST::DisplayName, "display")
@@ -59,8 +62,17 @@ module Ibex
         # @type self: BootstrapParser
         location = advance.location
         names = [] #: Array[String]
-        names << parse_symbol_name until declaration_start?
-        AST::Tokens.new(names: names, loc: location)
+        aliases = {} #: Hash[String, String]
+        until declaration_start?
+          name_token = expect_symbol
+          name = token_string(name_token)
+          names << name
+          next unless @mode == :extended && name_token.type == :identifier &&
+                      current.type == :literal && current.location.line == name_token.location.line
+
+          aliases[name] = decode_quoted_literal(advance, "token alias")
+        end
+        AST::Tokens.new(names: names, aliases: aliases.empty? ? nil : aliases, loc: location)
       end
 
       # @rbs () -> AST::Precedence
@@ -81,6 +93,7 @@ module Ibex
         levels = [] #: Array[AST::PrecedenceLevel]
         until keyword?(closing) || current.type == :eof
           association = expect_one_of(ASSOCIATIVITIES)
+          extended_only!(association.location, "%precedence") if token_string(association) == "precedence"
           symbols = [] #: Array[String]
           symbols << parse_symbol_name until association_start? || keyword?(closing) || current.type == :eof
           fail_at(association.location, "expected at least one precedence symbol") if symbols.empty?
@@ -104,6 +117,14 @@ module Ibex
         # @type self: BootstrapParser
         location = advance.location
         AST::Expect.new(conflicts: token_integer(expect(:integer)), loc: location)
+      end
+
+      # @rbs () -> AST::ExpectRR
+      def parse_expect_rr
+        # @type self: BootstrapParser
+        location = advance.location
+        extended_only!(location, "expect-rr declarations")
+        AST::ExpectRR.new(conflicts: token_integer(expect(:integer)), loc: location)
       end
 
       # @rbs () -> AST::Start
@@ -215,5 +236,6 @@ module Ibex
         current.type == :identifier && ASSOCIATIVITIES.include?(current.value)
       end
     end
+    # rubocop:enable Metrics/ModuleLength, Metrics/CyclomaticComplexity
   end
 end

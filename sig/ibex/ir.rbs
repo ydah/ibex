@@ -54,7 +54,7 @@ module Ibex
 
     type conflict = shift_reduce_conflict | reduce_reduce_conflict
 
-    type conflict_summary = { sr: Integer, resolved_sr: Integer, rr: Integer, expected_sr: Integer, expectation_met: bool }
+    type conflict_summary = { sr: Integer, resolved_sr: Integer, rr: Integer, expected_sr: Integer, expectation_met: bool, ?expected_rr: Integer, ?rr_expectation_met: bool }
 
     type interpretation = Hash[Symbol, untyped]
 

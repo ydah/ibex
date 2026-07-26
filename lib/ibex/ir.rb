@@ -73,7 +73,9 @@ module Ibex
     #     resolved_sr: Integer,
     #     rr: Integer,
     #     expected_sr: Integer,
-    #     expectation_met: bool
+    #     expectation_met: bool,
+    #     ?expected_rr: Integer,
+    #     ?rr_expectation_met: bool
     #   }
     #   type interpretation = Hash[Symbol, untyped]
     #   type counterexample = {

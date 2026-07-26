@@ -9,7 +9,7 @@ Grammar symbol names serve two different roles today: they are stable parser ide
 runtime errors and generated reports. Grammars also have no way to describe semantic value types, so generated parser signatures
 cannot give reduction methods useful parameter and return types.
 
-Reinterpreting `token NUM "number"` would not be compatibility-safe because the existing racc-compatible grammar treats `NUM`
+Reinterpreting `token NUM "number"` in compatible mode would not be safe because the existing grammar treats `NUM`
 and `"number"` as two token declarations. RBS syntax is also broad enough that parsing it inside the dependency-free grammar
 frontend would introduce an unrelated language implementation and a runtime dependency.
 
@@ -22,6 +22,9 @@ display NUM "number"
 type NUM "Integer"
 type expression "AST::Expression"
 ```
+
+Extended mode additionally accepts `token NUM "number"` as display-name shorthand. Compatible mode retains the original
+two-terminal interpretation. This additive shorthand is specified by [ADR 0060](0060-declaration-contracts-and-structural-parameter-cycles.md).
 
 Both declarations consist of a symbol and one quoted, single-line, non-empty string without control characters. The frontend
 decodes the quoted value but otherwise treats a type spelling as opaque. RBS tooling remains responsible for validating the

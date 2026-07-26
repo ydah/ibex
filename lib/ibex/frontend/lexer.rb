@@ -8,6 +8,12 @@ module Ibex
         [character, character.to_sym]
       end.freeze #: Hash[String, Symbol]
       USER_CODE = /\A----[ \t]+(header|inner|footer)[ \t]*(?:\r?\n|\z)/ #: Regexp
+      PERCENT_DIRECTIVES = {
+        "%expect-rr" => [:identifier, "expect_rr"],
+        "%precedence" => [:identifier, "precedence"],
+        "%inline" => [:inline, "%inline"],
+        "%empty" => [:empty, "%empty"]
+      }.freeze #: Hash[String, [Symbol, String]]
 
       # @rbs @cursor: SourceCursor
       # @rbs @segments: Array[Segment]
@@ -69,7 +75,7 @@ module Ibex
         return scan_user_code if line_start? && @cursor.rest.start_with?("----")
         return ActionScanner.new(@cursor).scan if character == "{"
         return scan_scope if @cursor.rest.start_with?("::")
-        return scan_inline_directive if @cursor.rest.match?(/\A%inline(?=\s|\z)/)
+        return scan_percent_directive if @cursor.peek == "%"
 
         scan_regular_token(character)
       end
@@ -175,8 +181,16 @@ module Ibex
       end
 
       # @rbs () -> Token
-      def scan_inline_directive
-        scan_match(:inline, /\A%inline/)
+      def scan_percent_directive
+        location = @cursor.location
+        directive = PERCENT_DIRECTIVES.each_key.find do |candidate|
+          @cursor.rest.match?(/\A#{Regexp.escape(candidate)}(?=\s|\z)/)
+        end
+        raise Ibex::Error, "#{location}: unexpected character \"%\"" unless directive
+
+        type, value = PERCENT_DIRECTIVES.fetch(directive)
+        @cursor.advance(directive.length)
+        token(type, value, location)
       end
 
       # @rbs () -> Token

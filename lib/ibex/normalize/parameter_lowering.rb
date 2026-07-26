@@ -26,18 +26,15 @@ module Ibex
       template, = frame.fetch(:current)
       previous_chain = @current_include_chain
       previous_expansion = @current_parameter_expansion
-      previous_depth = @parameter_current_depth
       reference = frame.fetch(:reference)
       @current_include_chain = @resolution&.include_chain_for(template) || []
       @current_parameter_expansion = {
         rule: reference.name, arguments: frame.fetch(:rendered_arguments)
       }
-      @parameter_current_depth = frame.fetch(:depth)
       yield
     ensure
       @current_include_chain = previous_chain
       @current_parameter_expansion = previous_expansion
-      @parameter_current_depth = previous_depth
     end
 
     # @rbs (Hash[Symbol, untyped] frame) -> bool
@@ -102,7 +99,7 @@ module Ibex
     # @rbs (Hash[Symbol, untyped] frame, Frontend::AST::ParameterizedReference item) -> void
     def lower_parameter_call(frame, item)
       # @type self: Normalizer
-      helper, = schedule_parameter_specialization(item, frame.fetch(:depth) + 1)
+      helper, = schedule_parameter_specialization(item)
       frame.fetch(:values) << helper
     end
 

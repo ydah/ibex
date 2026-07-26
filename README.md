@@ -174,10 +174,15 @@ end
 Extended declarations can add human-readable diagnostics and generated action types:
 
 ```text
+token PLUS "+"
 display NUM "number"
 type NUM "Integer"
 type expr "AST::Expression"
+%expect-rr 0
 ```
+
+Precedence blocks also accept `%precedence TOKEN` for precedence without associativity, and productions may use `%empty` as
+their sole RHS item. `--warnings=error` promotes mismatched `expect` and `%expect-rr` declarations to generation errors.
 
 The value conventions are `nil` or a value for `?`, and arrays for `*`, `+`, `separated_list`, and
 `separated_nonempty_list`. Parenthesized sequences and alternatives can be nested; multi-item groups produce an Array value.
@@ -186,8 +191,9 @@ Text, DOT, and HTML automaton reports label lowered helper symbols with these so
 Parameterized definitions do not become standalone productions. A call such as `list(NUM)` is specialized once per structural
 argument list and reused by direct or mutual recursion. The callee and `(` must be adjacent: `ITEM (A | B)` remains an ordinary
 symbol followed by a group. Calls can be nested and can carry the same named-reference and suffix syntax as symbols. Normalizer
-defaults bound argument-growing expansion to 1,000 specializations and 16 active calls; library callers can lower or raise those
-positive-Integer limits with `max_parameter_specializations:` and `max_parameter_depth:`.
+defaults to at most 1,000 specializations; library callers can lower or raise the positive-Integer
+`max_parameter_specializations:` limit. Argument-changing recursive instantiation is rejected by
+structural cycle detection rather than by a depth boundary.
 
 `%inline` definitions are structurally substituted before LR construction and do not remain as grammar symbols or
 productions. Plain and parameterized inline rules may be nested, repeated, and combined with EBNF. Their actions, named values,

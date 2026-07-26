@@ -3,6 +3,8 @@
 module Ibex
   module Frontend
     # Parses the declaration section of a grammar.
+    # rubocop:disable Metrics/ModuleLength, Metrics/CyclomaticComplexity
+    # Bootstrap declarations intentionally mirror the generated frontend's complete declaration vocabulary.
     module BootstrapParserDeclarations
       DECLARATIONS: Array[String]
 
@@ -33,6 +35,9 @@ module Ibex
 
       # @rbs () -> AST::Expect
       def parse_expect: () -> AST::Expect
+
+      # @rbs () -> AST::ExpectRR
+      def parse_expect_rr: () -> AST::ExpectRR
 
       # @rbs () -> AST::Start
       def parse_start: () -> AST::Start

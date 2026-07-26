@@ -45,6 +45,10 @@
       "type": "integer",
       "minimum": 0
     },
+    "expect_rr": {
+      "type": "integer",
+      "minimum": 0
+    },
     "options": {
       "$ref": "grammar-ir-v1.schema.json#/$defs/options"
     },

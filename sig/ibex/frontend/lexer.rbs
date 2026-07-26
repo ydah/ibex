@@ -8,6 +8,8 @@ module Ibex
 
       USER_CODE: Regexp
 
+      PERCENT_DIRECTIVES: Hash[String, [ Symbol, String ]]
+
       @active_token_start: SourcePosition?
 
       @eof_token: Token?
@@ -66,7 +68,7 @@ module Ibex
       def scan_scope: () -> Token
 
       # @rbs () -> Token
-      def scan_inline_directive: () -> Token
+      def scan_percent_directive: () -> Token
 
       # @rbs () -> Token
       def scan_identifier: () -> Token

@@ -172,6 +172,21 @@ class NormalizerTest < Minitest::Test
     assert_equal 3, warning.dig(:loc, :line)
   end
 
+  def test_explicit_empty_suppresses_the_implicit_empty_warning
+    explicit = normalize("class P\npragma extended\nrule\nstart: %empty\nend\n", mode: :extended)
+    implicit = normalize("class P\npragma extended\nrule\nstart:\nend\n", mode: :extended)
+
+    refute_includes explicit.warnings.map { |warning| warning[:type] }, :implicit_empty
+    assert_includes implicit.warnings.map { |warning| warning[:type] }, :implicit_empty
+  end
+
+  def test_rejects_empty_marker_mixed_with_rhs_symbols
+    error = assert_raises(Ibex::Error) do
+      normalize("class P\npragma extended\nrule\nstart: %empty TOKEN\nend\n", mode: :extended)
+    end
+    assert_equal "normalize.y:4:8: %empty must be the only item in an alternative", error.message
+  end
+
   def test_rejects_unknown_schema_version_with_position
     error = assert_raises(Ibex::Error) do
       Ibex::IR::Serialize.load('{"ibex_ir":"grammar","schema_version":99}')

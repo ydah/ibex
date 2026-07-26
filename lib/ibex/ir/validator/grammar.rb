@@ -10,7 +10,7 @@ module Ibex
           ibex_ir schema_version class_name superclass start expect options symbols productions user_code
           conversions warnings
         ].freeze #: Array[String]
-        ROOT_OPTIONAL = %w[user_code_chunks].freeze #: Array[String]
+        ROOT_OPTIONAL = %w[user_code_chunks expect_rr].freeze #: Array[String]
         V2_ROOT_REQUIRED = %w[source_provenance migration].freeze #: Array[String]
         SYMBOL_REQUIRED = %w[id name kind reserved prec loc].freeze #: Array[String]
         SYMBOL_OPTIONAL = %w[display_name semantic_type].freeze #: Array[String]
@@ -77,6 +77,7 @@ module Ibex
           nullable_string(@data["superclass"], "#{@path}.superclass")
           nonempty_string(@data["start"], "#{@path}.start")
           nonnegative_integer(@data["expect"], "#{@path}.expect")
+          nonnegative_integer(@data["expect_rr"], "#{@path}.expect_rr") if @data.key?("expect_rr")
         end
 
         # @rbs () -> void
@@ -118,7 +119,7 @@ module Ibex
           return if value.nil?
 
           precedence = record(value, path, %w[associativity level])
-          enum(precedence["associativity"], "#{path}.associativity", %w[left right nonassoc])
+          enum(precedence["associativity"], "#{path}.associativity", %w[left right nonassoc precedence])
           positive_integer(precedence["level"], "#{path}.level")
         end
 

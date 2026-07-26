@@ -348,6 +348,13 @@
         },
         "expectation_met": {
           "type": "boolean"
+        },
+        "expected_rr": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rr_expectation_met": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false

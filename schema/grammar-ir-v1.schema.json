@@ -43,6 +43,10 @@
       "type": "integer",
       "minimum": 0
     },
+    "expect_rr": {
+      "type": "integer",
+      "minimum": 0
+    },
     "options": {
       "$ref": "#/$defs/options"
     },
@@ -141,7 +145,8 @@
           "enum": [
             "left",
             "right",
-            "nonassoc"
+            "nonassoc",
+            "precedence"
           ]
         },
         "level": {

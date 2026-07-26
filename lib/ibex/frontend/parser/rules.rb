@@ -67,6 +67,12 @@ module Ibex
       def parse_item
         # @type self: BootstrapParser
         return parse_action if current.type == :action
+
+        if current.type == :empty
+          token = advance
+          extended_only!(token.location, "%empty")
+          return AST::Empty.new(loc: token.location)
+        end
         return parse_separated_list if separated_list?
         return parse_parameterized_reference if parameterized_call?
         return parse_group if current.type == :"("

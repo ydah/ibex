@@ -155,14 +155,9 @@ class IRParameterizedRulesTest < Minitest::Test
       end
     GRAMMAR
     error = assert_raises(Ibex::Error) do
-      normalize(source, max_parameter_specializations: 3, max_parameter_depth: 100)
+      normalize(source, max_parameter_specializations: 3)
     end
-    assert_equal "parameter.y:5:10: parameter specialization limit of 3 exceeded", error.message
-
-    error = assert_raises(Ibex::Error) do
-      normalize(source, max_parameter_specializations: 100, max_parameter_depth: 3)
-    end
-    assert_equal "parameter.y:5:10: parameter expansion depth limit of 3 exceeded", error.message
+    assert_equal "parameter.y:5:10: cyclic parameter specialization grow -> grow", error.message
 
     finite = source.sub("grow((X))", "X | grow(X)")
     assert_equal(

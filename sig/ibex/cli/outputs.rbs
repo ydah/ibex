@@ -21,6 +21,9 @@ module Ibex
     # @rbs (IR::Automaton automaton, String input_path) -> void
     def report_conflicts: (IR::Automaton automaton, String input_path) -> void
 
+    # @rbs (IR::conflict_summary summary, String input_path) -> Array[String]
+    def conflict_messages: (IR::conflict_summary summary, String input_path) -> Array[String]
+
     # @rbs (IR::Automaton automaton, String input_path) -> void
     def suggest_ielr: (IR::Automaton automaton, String input_path) -> void
 

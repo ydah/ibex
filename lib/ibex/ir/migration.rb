@@ -54,7 +54,8 @@ module Ibex
         end
         Grammar.new(
           class_name: grammar.class_name, superclass: grammar.superclass, start: grammar.start,
-          expect: grammar.expect, options: grammar.options, symbols: symbols, productions: productions,
+          expect: grammar.expect, expect_rr: grammar.expect_rr, options: grammar.options,
+          symbols: symbols, productions: productions,
           user_code: grammar.user_code, user_code_chunks: grammar.user_code_chunks,
           conversions: grammar.conversions, warnings: grammar.warnings, schema_version: 2,
           migration: { from_schema_version: 1, unavailable: UNAVAILABLE_V1_METADATA }

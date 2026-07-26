@@ -19,12 +19,14 @@ module Ibex
     end
 
     # Grammar frontend node types.
+    # rubocop:disable Metrics/ModuleLength -- the public node vocabulary is intentionally kept together.
     module AST
       # @rbs!
       #   type symbol_metadata = DisplayName | SemanticType
-      #   type declaration = Include | Tokens | Precedence | Options | Expect | Start | Convert | symbol_metadata
+      #   type declaration = Include | Tokens | Precedence | Options | Expect | ExpectRR | Start | Convert |
+      #     symbol_metadata
       #   type item = SymbolReference | ParameterizedReference | InlineAction | Optional | Star | Plus | Group |
-      #     SeparatedList
+      #     SeparatedList | Empty
       #   type user_code = Hash[String, Array[UserCode]]
       #   class Rule < Struct[String | Array[String] | Array[Alternative] | Location | String? | bool]
       #     attr_accessor lhs: String
@@ -44,6 +46,8 @@ module Ibex
       module Node
         def to_h
           fields = each_pair.to_h { |name, value| [name, serialize(value)] }
+          fields.delete(:aliases) if self.class.name.end_with?("::Tokens") && !fields[:aliases]
+          fields.delete(:extended) if self.class.name.end_with?("::Root") && !fields[:extended]
           { node: self.class.name.split("::").last }.merge(fields)
         end
 
@@ -67,6 +71,7 @@ module Ibex
         :rules, #: Array[Rule]
         :user_code, #: user_code
         :loc, #: Location
+        :extended, #: bool?
         keyword_init: true
       ) { include Node }
       Fragment = Struct.new(
@@ -82,6 +87,7 @@ module Ibex
       ) { include Node }
       Tokens = Struct.new(
         :names, #: Array[String]
+        :aliases, #: Hash[String, String]?
         :loc, #: Location
         keyword_init: true
       ) { include Node }
@@ -103,6 +109,11 @@ module Ibex
         keyword_init: true
       ) { include Node }
       Expect = Struct.new(
+        :conflicts, #: Integer
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      ExpectRR = Struct.new(
         :conflicts, #: Integer
         :loc, #: Location
         keyword_init: true
@@ -170,6 +181,10 @@ module Ibex
         :loc, #: Location
         keyword_init: true
       ) { include Node }
+      Empty = Struct.new(
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
       Optional = Struct.new(
         :item, #: item
         :loc, #: Location
@@ -204,5 +219,6 @@ module Ibex
         keyword_init: true
       ) { include Node }
     end
+    # rubocop:enable Metrics/ModuleLength
   end
 end

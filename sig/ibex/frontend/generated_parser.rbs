@@ -142,6 +142,10 @@ module Ibex
 
       private def _ibex_action_56: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
 
+      private def _ibex_action_57: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
+
+      private def _ibex_action_58: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
+
       private def _ibex_action_59: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
 
       private def _ibex_action_60: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
@@ -151,10 +155,6 @@ module Ibex
       private def _ibex_action_62: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
 
       private def _ibex_action_63: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
-
-      private def _ibex_action_64: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
-
-      private def _ibex_action_65: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
 
       private def _ibex_action_66: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
 
@@ -223,6 +223,22 @@ module Ibex
       private def _ibex_action_98: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
 
       private def _ibex_action_99: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
+
+      private def _ibex_action_100: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
+
+      private def _ibex_action_101: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
+
+      private def _ibex_action_102: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
+
+      private def _ibex_action_103: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
+
+      private def _ibex_action_104: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
+
+      private def _ibex_action_105: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
+
+      private def _ibex_action_106: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
+
+      private def _ibex_action_107: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
     end
   end
 end
