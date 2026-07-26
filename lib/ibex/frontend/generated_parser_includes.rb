@@ -20,15 +20,16 @@ module Ibex
       # @rbs (Token keyword, Token path) -> AST::Include
       def build_include(keyword, path)
         # @type self: GeneratedParserBase
-        extended_only!(keyword.location, "includes")
+        label = token_string(keyword)
+        extended_only!(keyword.location, "#{label}s")
         value = token_string(path)
         unless value.start_with?('"') && value.end_with?('"')
-          fail_at(path.location, "include path must use a double-quoted string")
+          fail_at(path.location, "#{label} path must use a double-quoted string")
         end
 
         AST::Include.new(path: value.undump, loc: keyword.location)
       rescue RuntimeError => e
-        fail_at(path.location, "invalid include path: #{e.message}")
+        fail_at(path.location, "invalid #{label} path: #{e.message}")
       end
 
       # @rbs (Array[AST::declaration] declarations) -> void

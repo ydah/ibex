@@ -14,6 +14,7 @@ module Ibex
 
         DECLARATIONS = {
           "include" => %i[INCLUDE include_path],
+          "import" => %i[IMPORT include_path],
           "token" => %i[TOKEN token_symbols], "options" => %i[OPTIONS options_identifiers],
           "expect" => %i[EXPECT expect_integer], "start" => %i[START start_first_symbol],
           "expect_rr" => %i[EXPECT_RR expect_rr_integer],

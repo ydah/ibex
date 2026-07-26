@@ -7,7 +7,7 @@ module Ibex
     # Bootstrap declarations intentionally mirror the generated frontend's complete declaration vocabulary.
     module BootstrapParserDeclarations
       DECLARATIONS = %w[
-        token prechigh preclow options expect expect_rr start recover on_error_reduce
+        include import token prechigh preclow options expect expect_rr start recover on_error_reduce
         test lexer convert display type param printer pragma rule
       ].freeze #: Array[String]
       ASSOCIATIVITIES = %w[left right nonassoc precedence].freeze #: Array[String]
@@ -42,6 +42,7 @@ module Ibex
       def parse_declaration
         # @type self: BootstrapParser
         case current.value
+        when "include", "import" then parse_import
         when "token" then parse_tokens
         when "prechigh", "preclow" then parse_precedence
         when "options" then parse_options
@@ -60,6 +61,25 @@ module Ibex
         when "pragma" then fail_at(current.location, "expected rule, got pragma")
         else fail_expected("a declaration or rule")
         end
+      end
+
+      # @rbs () -> AST::Include
+      def parse_import
+        # @type self: BootstrapParser
+        keyword = advance
+        extended_only!(keyword.location, "#{keyword.value}s")
+        path = expect(:literal)
+        value = token_string(path)
+        unless value.start_with?('"') && value.end_with?('"')
+          fail_at(path.location, "#{keyword.value} path must use a double-quoted string")
+        end
+
+        decoded = begin
+          value.undump
+        rescue RuntimeError => e
+          fail_at(path.location, "invalid #{keyword.value} path: #{e.message}")
+        end
+        AST::Include.new(path: decoded, loc: keyword.location)
       end
 
       # @rbs () -> AST::Tokens

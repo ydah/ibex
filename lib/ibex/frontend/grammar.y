@@ -1,5 +1,5 @@
 class Ibex::Frontend::GeneratedParser < Ibex::Frontend::GeneratedParserBase
-token CLASS FRAGMENT INCLUDE TOKEN PRECHIGH PRECLOW OPTIONS EXPECT EXPECT_RR START RECOVER ON_ERROR_REDUCE TEST LEXER
+token CLASS FRAGMENT INCLUDE IMPORT TOKEN PRECHIGH PRECLOW OPTIONS EXPECT EXPECT_RR START RECOVER ON_ERROR_REDUCE TEST LEXER
 token CONVERT DISPLAY TYPE PARAM PRINTER PRAGMA RULE END
 token LEFT RIGHT NONASSOC PRECEDENCE IDENTIFIER LITERAL INTEGER ACTION USER_CODE INLINE EMPTY LHS
 token PARAMETERIZED_REFERENCE TOKEN_ALIAS NODE
@@ -57,6 +57,7 @@ rule
 
   include_declaration
     : INCLUDE LITERAL                    { result = build_include(val[0], val[1]) }
+    | IMPORT LITERAL                     { result = build_include(val[0], val[1]) }
 
   token_declaration
     : TOKEN token_entries                { result = build_tokens(val[0], val[1]) }

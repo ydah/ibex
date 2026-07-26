@@ -105,6 +105,13 @@ class FrontendSelfHostTest < Minitest::Test
                  generated(source, file: "comprehensive.y").to_h
   end
 
+  def test_generated_parser_matches_bootstrap_for_imports
+    source = "class P\nimport \"fragment.y\"\nrule\nstart: TOKEN\nend\n"
+
+    assert_equal bootstrap(source, file: "imports.y", mode: :extended).to_h,
+                 generated(source, file: "imports.y", mode: :extended).to_h
+  end
+
   def test_generated_parser_matches_bootstrap_for_extended_and_edge_grammars
     EXTENDED_FIXTURES.each do |path|
       source = File.read(path)
@@ -203,7 +210,7 @@ class FrontendSelfHostTest < Minitest::Test
     rbs_private = signature.scan(/^\s+private def (_ibex_action_\d+):/).flatten.sort
     rbs_public = signature.scan(/^\s+def (_ibex_action_\d+):/).flatten
 
-    assert_equal 134, runtime_private.length
+    assert_equal 135, runtime_private.length
     assert_empty runtime_public
     assert_equal runtime_private, rbs_private
     assert_empty rbs_public
