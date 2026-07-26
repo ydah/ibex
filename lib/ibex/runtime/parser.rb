@@ -147,6 +147,8 @@ module Ibex
       # @rbs @source: (^() -> untyped)?
       # @rbs @state_stack: Array[Integer]
       # @rbs @value_stack: Array[untyped]
+      # @rbs @vstack: Array[untyped]
+      # @rbs @racc_vstack: Array[untyped]
       # @rbs @location_stack: Array[untyped]?
       # @rbs @lookahead: untyped
       # @rbs @lookahead_value: untyped
@@ -177,58 +179,47 @@ module Ibex
       # @rbs @resource_limits: ResourceLimits
       # @rbs @recovery_attempts: Integer
 
-      attr_accessor :yydebug #: bool
-      attr_writer :yydebug_output #: IO
-      attr_reader :repair_policy #: RepairPolicy?
-      attr_reader :resource_limits #: ResourceLimits
-
-      # rubocop:disable Metrics/MethodLength -- initialization mirrors the complete mutable session state.
       # @rbs (?resource_limits: ResourceLimits) -> void
       def initialize(resource_limits: ResourceLimits.new)
-        unless resource_limits.is_a?(ResourceLimits)
-          raise ArgumentError, "resource_limits must be an Ibex::Runtime::ResourceLimits"
-        end
-
-        @resource_limits = resource_limits
-        @yydebug = false
-        @yydebug_output = $stderr
-        @source = nil
-        @state_stack = []
-        @value_stack = []
-        @location_stack = nil
-        @lookahead = NO_LOOKAHEAD
-        @lookahead_value = nil
-        @lookahead_location = nil
-        @recovery_shifts = 0
-        @semantic_error = false
-        @accept_requested = false
-        @unknown_token_id = nil
-        @push_status = :idle
-        @driver_status = :idle
-        @runtime_driver_thread = nil
-        @runtime_observers = nil
-        @runtime_event_sequence = 0
-        @runtime_lookahead_token_display = nil
-        @runtime_observation_mutex = Mutex.new
-        @repair_policy = nil
-        @repair_input_buffer = nil
-        @repair_selected = false
-        @semantic_locations = nil
-        @semantic_location_names = nil
-        @semantic_result_location = nil
-        @trace_value_printer = nil
-        @sync_recovery_context = nil
-        @sync_recovery_token_data = nil
-        @sync_recovery_observers = nil
-        @cst_errors = []
-        @recovery_attempts = 0
+        validate_resource_limits!(resource_limits)
+        initialize_runtime_state(resource_limits, preserve_existing: false)
       end
-      # rubocop:enable Metrics/MethodLength
+
+      # @rbs () -> bool
+      def yydebug
+        ensure_runtime_initialized!
+        @yydebug
+      end
+
+      # @rbs (bool enabled) -> bool
+      def yydebug=(enabled)
+        ensure_runtime_initialized!
+        @yydebug = enabled
+      end
+
+      # @rbs (IO output) -> IO
+      def yydebug_output=(output)
+        ensure_runtime_initialized!
+        @yydebug_output = output
+      end
+
+      # @rbs () -> RepairPolicy?
+      def repair_policy
+        ensure_runtime_initialized!
+        @repair_policy
+      end
+
+      # @rbs () -> ResourceLimits
+      def resource_limits
+        ensure_runtime_initialized!
+        @resource_limits
+      end
 
       # Enable bounded automatic repair for the next parser session.
       # Assign nil to restore the compatible yacc-only behavior.
       # @rbs (RepairPolicy? policy) -> RepairPolicy?
       def repair_policy=(policy)
+        ensure_runtime_initialized!
         unless policy.nil? || policy.is_a?(RepairPolicy)
           raise ArgumentError, "repair_policy must be an Ibex::Runtime::RepairPolicy or nil"
         end
@@ -246,9 +237,8 @@ module Ibex
       # Replace the limits used by future sessions.
       # @rbs (ResourceLimits limits) -> ResourceLimits
       def resource_limits=(limits)
-        unless limits.is_a?(ResourceLimits)
-          raise ArgumentError, "resource_limits must be an Ibex::Runtime::ResourceLimits"
-        end
+        ensure_runtime_initialized!
+        validate_resource_limits!(limits)
 
         @runtime_observation_mutex.synchronize do
           ensure_driver_available_without_lock!
@@ -327,12 +317,13 @@ module Ibex
       # Discard a caller-driven session so this parser can accept a new one.
       # @rbs () -> nil
       def reset_push
+        ensure_runtime_initialized!
         @runtime_observation_mutex.synchronize do
           ensure_driver_available_without_lock!
           @push_status = :idle
           @source = nil
           @state_stack = []
-          @value_stack = []
+          install_value_stack([])
           @location_stack = nil
           @lookahead = NO_LOOKAHEAD
           @lookahead_value = nil
@@ -413,6 +404,7 @@ module Ibex
       # Install an opt-in value formatter for human-readable yydebug traces.
       # @rbs ((^(untyped) -> untyped)? printer) -> (^(untyped) -> untyped)?
       def trace_value_printer=(printer)
+        ensure_runtime_initialized!
         unless printer.nil? || printer.respond_to?(:call)
           raise ArgumentError, "trace value printer must respond to call or be nil"
         end
@@ -457,6 +449,7 @@ module Ibex
       # Return token names accepted in the current parser state.
       # @rbs () -> Array[String]
       def expected_tokens
+        ensure_runtime_initialized!
         return expected_tokens_exact if parser_tables[:exact_expected_tokens]
         return [] if @state_stack.empty?
 
@@ -471,6 +464,7 @@ module Ibex
       # Semantic actions are not evaluated during this lookahead correction.
       # @rbs () -> Array[String]
       def expected_tokens_exact
+        ensure_runtime_initialized!
         return [] if @state_stack.empty?
 
         parser_tables.fetch(:token_names).keys.filter_map do |token_id|
@@ -511,6 +505,77 @@ module Ibex
       end
 
       private
+
+      # Racc-generated parsers commonly define an application initializer
+      # without calling super. Complete only missing runtime state so those
+      # initializers retain values they deliberately configured.
+      # @rbs () -> void
+      def ensure_runtime_initialized!
+        return if defined?(@runtime_observation_mutex) && @runtime_observation_mutex
+
+        limits = if defined?(@resource_limits) && @resource_limits.is_a?(ResourceLimits)
+                   @resource_limits
+                 else
+                   ResourceLimits.new
+                 end
+        initialize_runtime_state(limits, preserve_existing: true)
+      end
+
+      # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
+      # The explicit branches keep every runtime ivar typed while preserving application-owned values.
+      # @rbs (ResourceLimits resource_limits, preserve_existing: bool) -> void
+      def initialize_runtime_state(resource_limits, preserve_existing:)
+        @resource_limits = resource_limits unless preserve_existing && defined?(@resource_limits)
+        @yydebug = false unless preserve_existing && defined?(@yydebug)
+        @yydebug_output = $stderr unless preserve_existing && defined?(@yydebug_output)
+        @source = nil unless preserve_existing && defined?(@source)
+        @state_stack = [] unless preserve_existing && defined?(@state_stack)
+        install_value_stack([]) unless preserve_existing && defined?(@value_stack)
+        @location_stack = nil unless preserve_existing && defined?(@location_stack)
+        @lookahead = NO_LOOKAHEAD unless preserve_existing && defined?(@lookahead)
+        @lookahead_value = nil unless preserve_existing && defined?(@lookahead_value)
+        @lookahead_location = nil unless preserve_existing && defined?(@lookahead_location)
+        @recovery_shifts = 0 unless preserve_existing && defined?(@recovery_shifts)
+        @semantic_error = false unless preserve_existing && defined?(@semantic_error)
+        @accept_requested = false unless preserve_existing && defined?(@accept_requested)
+        @unknown_token_id = nil unless preserve_existing && defined?(@unknown_token_id)
+        @push_status = :idle unless preserve_existing && defined?(@push_status)
+        @driver_status = :idle unless preserve_existing && defined?(@driver_status)
+        @runtime_driver_thread = nil unless preserve_existing && defined?(@runtime_driver_thread)
+        @runtime_observers = nil unless preserve_existing && defined?(@runtime_observers)
+        @runtime_event_sequence = 0 unless preserve_existing && defined?(@runtime_event_sequence)
+        @runtime_lookahead_token_display = nil unless preserve_existing && defined?(@runtime_lookahead_token_display)
+        @runtime_observation_mutex = Mutex.new unless preserve_existing && defined?(@runtime_observation_mutex)
+        @repair_policy = nil unless preserve_existing && defined?(@repair_policy)
+        @repair_input_buffer = nil unless preserve_existing && defined?(@repair_input_buffer)
+        @repair_selected = false unless preserve_existing && defined?(@repair_selected)
+        @semantic_locations = nil unless preserve_existing && defined?(@semantic_locations)
+        @semantic_location_names = nil unless preserve_existing && defined?(@semantic_location_names)
+        @semantic_result_location = nil unless preserve_existing && defined?(@semantic_result_location)
+        @trace_value_printer = nil unless preserve_existing && defined?(@trace_value_printer)
+        @sync_recovery_context = nil unless preserve_existing && defined?(@sync_recovery_context)
+        @sync_recovery_token_data = nil unless preserve_existing && defined?(@sync_recovery_token_data)
+        @sync_recovery_observers = nil unless preserve_existing && defined?(@sync_recovery_observers)
+        @cst_errors = [] unless preserve_existing && defined?(@cst_errors)
+        @recovery_attempts = 0 unless preserve_existing && defined?(@recovery_attempts)
+      end
+      # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
+
+      # @rbs (ResourceLimits resource_limits) -> void
+      def validate_resource_limits!(resource_limits)
+        return if resource_limits.is_a?(ResourceLimits)
+
+        raise ArgumentError, "resource_limits must be an Ibex::Runtime::ResourceLimits"
+      end
+
+      # Keep the two historical value-stack names as read-compatible aliases.
+      # Applications must not mutate or replace these internal arrays.
+      # @rbs (Array[untyped] values) -> void
+      def install_value_stack(values)
+        @value_stack = values
+        @vstack = values
+        @racc_vstack = values
+      end
 
       # @rbs (Integer token_id) -> bool
       def exact_lookahead_accepted?(token_id)
@@ -573,6 +638,7 @@ module Ibex
 
       # @rbs (^() -> untyped source, ?initial_state: Integer?) -> untyped
       def drive_parser(source, initial_state: nil)
+        ensure_runtime_initialized!
         @runtime_observation_mutex.synchronize do
           ensure_driver_available_without_lock!
           if @push_status == :active
@@ -630,6 +696,7 @@ module Ibex
 
       # @rbs () { () -> untyped } -> untyped
       def run_push_driver
+        ensure_runtime_initialized!
         @runtime_observation_mutex.synchronize do
           ensure_driver_available_without_lock!
           @driver_status = :push
@@ -678,7 +745,7 @@ module Ibex
 
         @source = source
         @state_stack = [initial_state]
-        @value_stack = []
+        install_value_stack([])
         @location_stack = track_locations?(tables) ? [] : nil
         @lookahead = NO_LOOKAHEAD
         @lookahead_value = nil
@@ -1179,7 +1246,7 @@ module Ibex
         unless shift_error_token
           if state_stack
             @state_stack = state_stack
-            @value_stack = value_stack || []
+            install_value_stack(value_stack || [])
             @location_stack = location_stack
             return begin_sync_recovery(context, token_data, recovery_observers)
           end

@@ -90,6 +90,8 @@ module Ibex
 
       EMPTY_LOCATION_NAMES: Hash[Symbol, Integer]
 
+      @lookahead_value: untyped
+
       @lookahead_location: untyped
 
       @recovery_shifts: Integer
@@ -106,13 +108,13 @@ module Ibex
 
       @driver_status: :idle | :pull | :push
 
-      @runtime_driver_thread: Thread?
-
-      @lookahead_value: untyped
-
       @lookahead: untyped
 
       @location_stack: Array[untyped]?
+
+      @racc_vstack: Array[untyped]
+
+      @vstack: Array[untyped]
 
       @value_stack: Array[untyped]
 
@@ -158,17 +160,25 @@ module Ibex
 
       @runtime_observers: Hash[Observation::Subscription, Proc]?
 
-      attr_accessor yydebug: bool
+      @runtime_driver_thread: Thread?
 
-      attr_writer yydebug_output: IO
-
-      attr_reader repair_policy: RepairPolicy?
-
-      attr_reader resource_limits: ResourceLimits
-
-      # rubocop:disable Metrics/MethodLength -- initialization mirrors the complete mutable session state.
       # @rbs (?resource_limits: ResourceLimits) -> void
       def initialize: (?resource_limits: ResourceLimits) -> void
+
+      # @rbs () -> bool
+      def yydebug: () -> bool
+
+      # @rbs (bool enabled) -> bool
+      def yydebug=: (bool enabled) -> bool
+
+      # @rbs (IO output) -> IO
+      def yydebug_output=: (IO output) -> IO
+
+      # @rbs () -> RepairPolicy?
+      def repair_policy: () -> RepairPolicy?
+
+      # @rbs () -> ResourceLimits
+      def resource_limits: () -> ResourceLimits
 
       # Enable bounded automatic repair for the next parser session.
       # Assign nil to restore the compatible yacc-only behavior.
@@ -291,6 +301,25 @@ module Ibex
       def result_loc: () -> untyped
 
       private
+
+      # Racc-generated parsers commonly define an application initializer
+      # without calling super. Complete only missing runtime state so those
+      # initializers retain values they deliberately configured.
+      # @rbs () -> void
+      def ensure_runtime_initialized!: () -> void
+
+      # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
+      # The explicit branches keep every runtime ivar typed while preserving application-owned values.
+      # @rbs (ResourceLimits resource_limits, preserve_existing: bool) -> void
+      def initialize_runtime_state: (ResourceLimits resource_limits, preserve_existing: bool) -> void
+
+      # @rbs (ResourceLimits resource_limits) -> void
+      def validate_resource_limits!: (ResourceLimits resource_limits) -> void
+
+      # Keep the two historical value-stack names as read-compatible aliases.
+      # Applications must not mutate or replace these internal arrays.
+      # @rbs (Array[untyped] values) -> void
+      def install_value_stack: (Array[untyped] values) -> void
 
       # @rbs (Integer token_id) -> bool
       def exact_lookahead_accepted?: (Integer token_id) -> bool
