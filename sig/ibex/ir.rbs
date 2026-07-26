@@ -14,6 +14,8 @@ module Ibex
 
     type parser_parameter = { name: String, semantic_type: String? }
 
+    type value_printer = { symbol: String, code: String, loc: location }
+
     type parameter_expansion = { rule: String, arguments: Array[String] }
 
     type inline_expansion = { rule: String }

@@ -58,6 +58,12 @@
         "$ref": "#/$defs/parser_parameter"
       }
     },
+    "printers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/value_printer"
+      }
+    },
     "symbols": {
       "type": "array",
       "minItems": 2,
@@ -118,6 +124,27 @@
             "null"
           ],
           "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "value_printer": {
+      "type": "object",
+      "required": [
+        "symbol",
+        "code",
+        "loc"
+      ],
+      "properties": {
+        "symbol": {
+          "type": "string",
+          "minLength": 1
+        },
+        "code": {
+          "type": "string"
+        },
+        "loc": {
+          "$ref": "grammar-ir-v1.schema.json#/$defs/location"
         }
       },
       "additionalProperties": false

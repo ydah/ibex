@@ -35,6 +35,8 @@ module Ibex
 
     @explicit_start: String?
 
+    @value_printers: Hash[String, IR::value_printer]
+
     @parser_parameters: Array[IR::parser_parameter]
 
     @conversions: Hash[String, String]

@@ -79,6 +79,14 @@ module Ibex
         lines.join("\n")
       end
 
+      # @rbs (Integer symbol_id, IR::value_printer printer) -> String
+      def value_printer_method_source(symbol_id, printer)
+        source = "private def _ibex_value_printer_#{symbol_id}(value); "
+        append_parameter_values(source)
+        source << printer[:code]
+        source << "\nend"
+      end
+
       # @rbs (String source) -> bool
       def column_sensitive?(source)
         tokens = Object.const_get(:Ripper).__send__(:lex, source)

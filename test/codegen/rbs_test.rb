@@ -52,6 +52,8 @@ class RBSCodegenTest < Minitest::Test
       pragma extended
       %param context "Hash[Symbol, Integer]"
       %param lexer
+      type TOKEN "Integer"
+      %printer TOKEN { value.to_s }
       rule
       start: TOKEN { result = context.fetch(:offset) + lexer.fetch(:factor) }
       end
@@ -65,6 +67,7 @@ class RBSCodegenTest < Minitest::Test
     assert_includes signature, "@lexer: untyped"
     assert_includes signature,
                     "def initialize: (context: Hash[Symbol, Integer], lexer: untyped, **untyped) -> void"
+    assert_match(/private def _ibex_value_printer_\d+: \(Integer value\) -> untyped/, signature)
     assert_rbs_valid(signature)
   end
 

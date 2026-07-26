@@ -622,7 +622,7 @@ module Ibex
         value = @lookahead_value
         location = @lookahead_location
         token_display = token_to_str(token_id)
-        trace("shift #{token_display}#{trace_value_suffix(value)} -> state #{next_state}")
+        trace("shift #{token_display}#{trace_value_suffix(value, token_id)} -> state #{next_state}")
         event_observers = runtime_observer_snapshot if @runtime_observers
         event_data = if event_observers
                        runtime_token_data(
@@ -666,12 +666,10 @@ module Ibex
         @state_stack << next_state
         push_location(location)
         @value_stack << result
-        trace("reduce #{production_id} (#{length}) -> state #{next_state}")
-        if event_observers
-          event_data = runtime_reduce_data(
-            production_id, production, length, pre_state, post_state, next_state, result, location
-          )
-        end
+        trace_reduction(production_id, length, production.fetch(:lhs), result, next_state)
+        event_data = build_reduce_event_data(
+          event_observers, production_id, production, length, pre_state, post_state, next_state, result, location
+        )
         on_reduce(production_id, hook_values, result)
         on_reduce_location(production_id, hook_values, result, locations.dup, location)
         emit_runtime_event(:reduce, event_data, observers: event_observers) if event_data
@@ -679,6 +677,24 @@ module Ibex
         return recover(report: false) if @semantic_error
 
         [:continue]
+      end
+
+      # @rbs (Integer production_id, Integer length, Integer lhs, untyped result, Integer next_state) -> void
+      def trace_reduction(production_id, length, lhs, result, next_state)
+        trace("reduce #{production_id} (#{length})#{trace_value_suffix(result, lhs)} -> state #{next_state}")
+      end
+
+      # @rbs (Array[Proc]? observers, Integer production_id, Hash[Symbol, untyped] production, Integer length,
+      #   Integer? pre_state, Integer? post_state, Integer next_state, untyped result,
+      #   LocationSpan? location) -> Hash[String, untyped]?
+      def build_reduce_event_data(
+        observers, production_id, production, length, pre_state, post_state, next_state, result, location
+      )
+        return unless observers
+
+        runtime_reduce_data(
+          production_id, production, length, pre_state, post_state, next_state, result, location
+        )
       end
 
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length,
@@ -1293,12 +1309,20 @@ module Ibex
         @yydebug_output.puts("ibex: #{message}") if @yydebug
       end
 
-      # @rbs (untyped value) -> String
-      def trace_value_suffix(value)
-        printer = @trace_value_printer
-        return "" unless printer
+      # @rbs (untyped value, Integer symbol_id) -> String
+      def trace_value_suffix(value, symbol_id)
+        return "" unless @yydebug
 
-        " value=#{printer.call(value)}"
+        printer = @trace_value_printer
+        rendered = if printer
+                     printer.call(value)
+                   else
+                     method_name = parser_tables.fetch(:value_printers, EMPTY_ROW)[symbol_id]
+                     return "" unless method_name
+
+                     __send__(method_name, value)
+                   end
+        " value=#{rendered}"
       rescue StandardError => e
         " value=<printer error: #{e.class}>"
       end

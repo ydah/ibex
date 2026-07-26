@@ -5,7 +5,7 @@ module Ibex
     # Re-runs the generated parser after suppressing only conservative source regions.
     class DiagnosticRecovery
       DECLARATION_STARTS = %w[
-        pragma token prechigh preclow options expect expect_rr start convert display type param
+        pragma token prechigh preclow options expect expect_rr start convert display type param printer
       ].freeze #: Array[String]
 
       # @rbs @tokens: Array[Token]

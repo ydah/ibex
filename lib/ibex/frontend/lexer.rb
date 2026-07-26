@@ -12,6 +12,7 @@ module Ibex
         "%expect-rr" => [:identifier, "expect_rr"],
         "%precedence" => [:identifier, "precedence"],
         "%param" => [:identifier, "param"],
+        "%printer" => [:identifier, "printer"],
         "%inline" => [:inline, "%inline"],
         "%empty" => [:empty, "%empty"]
       }.freeze #: Hash[String, [Symbol, String]]

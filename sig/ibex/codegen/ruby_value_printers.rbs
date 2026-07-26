@@ -1,0 +1,28 @@
+# Generated from lib/ibex/codegen/ruby_value_printers.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Emits declarative value-printer tables and methods for Ruby parsers.
+    module RubyValuePrinters
+      @grammar: IR::Grammar
+
+      @line_convert: bool
+
+      @value_printer_action_method_source: ActionMethodSource?
+
+      private
+
+      # @rbs (Array[String] lines, String indent) -> void
+      def append_value_printer_table: (Array[String] lines, String indent) -> void
+
+      # @rbs (Array[String] lines) -> void
+      def append_value_printers: (Array[String] lines) -> void
+
+      # @rbs (Array[String] lines, IR::value_printer printer) -> void
+      def append_value_printer: (Array[String] lines, IR::value_printer printer) -> void
+
+      # @rbs () -> ActionMethodSource
+      def value_printer_action_method_source: () -> ActionMethodSource
+    end
+  end
+end

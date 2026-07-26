@@ -97,6 +97,24 @@ class IRValidatorTest < Minitest::Test
     assert_equal "(ir):1:1: $.params[2].name must not be a Ruby keyword", error.message
   end
 
+  def test_validates_optional_v2_value_printers
+    document = parsed_fixture("grammar-v2.json")
+    document["printers"] = [
+      {
+        "symbol" => "NUMBER",
+        "code" => "value.to_s",
+        "loc" => { "file" => "grammar.y", "line" => 2, "column" => 1 }
+      }
+    ]
+
+    grammar = Ibex::IR::Validator.validate(JSON.generate(document))
+    assert_equal "NUMBER", grammar.value_printers.fetch(0).fetch(:symbol)
+
+    document["printers"][0]["symbol"] = "MISSING"
+    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
+    assert_equal '(ir):1:1: $.printers[0].symbol references missing symbol "MISSING"', error.message
+  end
+
   def test_rejects_invalid_json_with_a_position
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate("{") }
 

@@ -268,7 +268,10 @@ Optional observer methods default to no-ops. `on_shift(token_id, value, state)` 
 unexpected-token context. Their `on_shift_location`, `on_reduce_location`, and `on_error_recover_location` companions add
 locations while preserving the original hook signatures. `on_discard(token_id, value, location, reason)` reports an
 application token removed by yacc recovery. Hook return values are ignored and exceptions propagate. `trace_value_printer=`
-opts a parser into value rendering in `yydebug`; without it, traces never expose semantic values. See
+opts a parser into value rendering in `yydebug`; without it, traces never expose semantic values. Extended grammars may define
+symbol-specific `%printer SYMBOL { Ruby expression }` formatters. Their `value` local has the symbol's declared semantic type,
+and declared `%param` locals are also available. A programmatic printer overrides generated symbol formatters. Neither form is
+called unless `yydebug` is true, and formatter failures are rendered by exception class without inspecting the value. See
 [ADR 0013](decisions/0013-runtime-observation-hooks.md) for exact ordering and snapshot semantics.
 
 For external tooling, `observe { |event| ... }` registers an ordered observer and returns an opaque subscription accepted by

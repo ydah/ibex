@@ -20,6 +20,7 @@ module Ibex
       @expected_rr_conflicts = nil
       @conversions = {} #: Hash[String, String]
       @parser_parameters = [] #: Array[IR::parser_parameter]
+      @value_printers = {} #: Hash[String, IR::value_printer]
       @ast.declarations.each { |declaration| read_declaration(declaration) }
     end
 
@@ -36,18 +37,44 @@ module Ibex
         @explicit_start = declaration.name
         @start_location = declaration.loc
       when Frontend::AST::Convert then read_conversions(declaration)
-      when Frontend::AST::DisplayName, Frontend::AST::SemanticType, Frontend::AST::Parameter
+      when Frontend::AST::DisplayName, Frontend::AST::SemanticType, Frontend::AST::Parameter, Frontend::AST::Printer
         read_extended_declaration(declaration)
       when Frontend::AST::Include then fail_at(declaration.loc, "includes must be resolved before normalization")
       end
     end
 
-    # @rbs (Frontend::AST::symbol_metadata | Frontend::AST::Parameter declaration) -> void
+    # @rbs (Frontend::AST::symbol_metadata | Frontend::AST::Parameter | Frontend::AST::Printer declaration) -> void
     def read_extended_declaration(declaration)
       if declaration.is_a?(Frontend::AST::Parameter)
         read_parser_parameter(declaration)
+      elsif declaration.is_a?(Frontend::AST::Printer)
+        read_value_printer(declaration)
       else
         read_symbol_metadata_declaration(declaration)
+      end
+    end
+
+    # @rbs (Frontend::AST::Printer declaration) -> void
+    def read_value_printer(declaration)
+      # @type self: Normalizer
+      if @value_printers.key?(declaration.name)
+        fail_at(declaration.loc, "duplicate %printer declaration for #{declaration.name}")
+      end
+
+      @value_printers[declaration.name] = {
+        symbol: declaration.name, code: declaration.code, loc: declaration.loc.to_h
+      }
+    end
+
+    # @rbs () -> void
+    def validate_value_printers
+      @value_printers.each_value do |printer|
+        next if @symbols_by_name.key?(printer[:symbol])
+
+        location = printer[:loc]
+        raise Ibex::Error,
+              "#{location[:file]}:#{location[:line]}:#{location[:column]}: " \
+              "%printer references missing symbol #{printer[:symbol]}"
       end
     end
 

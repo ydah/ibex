@@ -103,7 +103,8 @@ Location-aware companions add the relevant token/reduction locations without cha
 `on_discard(token_id, value, location, reason)` observes application tokens removed by yacc recovery. Ordinary shifts and the
 synthetic recovery-token shift use separate hooks; observer return values never replace semantic values. Assign
 `trace_value_printer` to a callable to append deliberately formatted semantic values to `yydebug`; values remain hidden by
-default.
+default. Extended grammars can instead declare symbol-specific formatters such as
+`%printer NUM { "number=#{value}" }`; these also run only while `yydebug` is enabled.
 
 Tooling can register an ordered runtime observer with `parser.observe { |event| ... }` and remove it with
 `parser.unobserve(subscription)`. The versioned immutable events cover parser start, committed shifts and reductions, syntax and
@@ -190,6 +191,7 @@ type expr "AST::Expression"
 %expect-rr 0
 %param context "ParserContext"
 %param lexer
+%printer NUM { "number=#{value}" }
 ```
 
 Precedence blocks also accept `%precedence TOKEN` for precedence without associativity, and productions may use `%empty` as
@@ -499,8 +501,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 13,711 typed calls and 1,865 untyped calls out of 15,576 (88.0% typed).
-The generated signature tree contains 1,962 explicit `untyped` occurrences across 77 files.
+The current whole-library `steep stats` result is 13,862 typed calls and 1,884 untyped calls out of 15,746 (88.0% typed).
+The generated signature tree contains 1,982 explicit `untyped` occurrences across 77 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

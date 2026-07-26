@@ -24,6 +24,7 @@ module Ibex
         modules.each { |name| lines << "module #{name}" }
         lines << "class #{class_name} < #{@superclass}"
         append_contract(lines)
+        append_value_printer_signatures(lines)
         append_actions(lines)
         lines << "end"
         modules.reverse_each { lines << "end" }
@@ -57,6 +58,16 @@ module Ibex
         end
         lines << ""
         lines << "  def initialize: (#{keywords.join(', ')}, **untyped) -> void"
+      end
+
+      # @rbs (Array[String] lines) -> void
+      def append_value_printer_signatures(lines)
+        @grammar.value_printers.each do |printer|
+          symbol = @grammar.symbol(printer[:symbol]) || raise(Ibex::Error, "missing printer symbol #{printer[:symbol]}")
+          lines << ""
+          lines << "  private def _ibex_value_printer_#{symbol.id}: " \
+                   "(#{symbol.semantic_type || 'untyped'} value) -> untyped"
+        end
       end
 
       # @rbs (Array[String] lines) -> void

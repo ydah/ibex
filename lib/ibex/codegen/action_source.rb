@@ -32,6 +32,7 @@ module Ibex
         modules, class_name = class_parts
         modules.each { |name| lines << "module #{name}" }
         lines << "class #{class_name}"
+        append_value_printers(lines)
         append_actions(lines)
         lines << "end"
         modules.reverse_each { lines << "end" }
@@ -39,6 +40,14 @@ module Ibex
       end
 
       private
+
+      # @rbs (Array[String] lines) -> void
+      def append_value_printers(lines)
+        @grammar.value_printers.each do |printer|
+          symbol = @grammar.symbol(printer[:symbol]) || raise(Ibex::Error, "missing printer symbol #{printer[:symbol]}")
+          append_method(lines, printer[:loc], @method_source.value_printer_method_source(symbol.id, printer))
+        end
+      end
 
       # @rbs (Array[String] lines) -> void
       def append_actions(lines)

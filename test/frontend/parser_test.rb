@@ -123,10 +123,28 @@ class FrontendParserTest < Minitest::Test
     assert_instance_of Ibex::Frontend::AST::Parameter, lexer
   end
 
+  def test_parses_symbol_value_printers
+    source = <<~GRAMMAR
+      class P
+      pragma extended
+      %printer NUM { "number=\#{value}" }
+      %printer start { value.inspect }
+      rule
+      start: NUM
+      end
+    GRAMMAR
+    token_printer, rule_printer = parse(source).declarations
+
+    assert_equal ["NUM", " \"number=\#{value}\" "], [token_printer.name, token_printer.code]
+    assert_equal ["start", " value.inspect "], [rule_printer.name, rule_printer.code]
+    assert_instance_of Ibex::Frontend::AST::Printer, token_printer
+  end
+
   def test_rejects_new_declarations_without_extended_mode
     {
       "%expect-rr 0" => "expect-rr declarations require extended mode",
       "%param context" => "%param require extended mode",
+      "%printer PLUS { value }" => "%printer require extended mode",
       "prechigh\n%precedence PLUS\npreclow" => "%precedence require extended mode"
     }.each do |declaration, message|
       error = assert_raises(Ibex::Error) do

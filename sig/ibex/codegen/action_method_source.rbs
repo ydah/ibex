@@ -21,6 +21,9 @@ module Ibex
       # @rbs (IR::Production production) -> String
       def direct_action_method_source: (IR::Production production) -> String
 
+      # @rbs (Integer symbol_id, IR::value_printer printer) -> String
+      def value_printer_method_source: (Integer symbol_id, IR::value_printer printer) -> String
+
       # @rbs (String source) -> bool
       def column_sensitive?: (String source) -> bool
 

@@ -290,6 +290,14 @@ module Ibex
       # @rbs (Integer production_id) -> untyped
       def reduce: (Integer production_id) -> untyped
 
+      # @rbs (Integer production_id, Integer length, Integer lhs, untyped result, Integer next_state) -> void
+      def trace_reduction: (Integer production_id, Integer length, Integer lhs, untyped result, Integer next_state) -> void
+
+      # @rbs (Array[Proc]? observers, Integer production_id, Hash[Symbol, untyped] production, Integer length,
+      #   Integer? pre_state, Integer? post_state, Integer next_state, untyped result,
+      #   LocationSpan? location) -> Hash[String, untyped]?
+      def build_reduce_event_data: (Array[Proc]? observers, Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer? pre_state, Integer? post_state, Integer next_state, untyped result, LocationSpan? location) -> Hash[String, untyped]?
+
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length,
       #   Integer? pre_state, Integer? post_state, Integer next_state, untyped result,
       #   LocationSpan? location) -> Hash[String, untyped]
@@ -461,8 +469,8 @@ module Ibex
       # @rbs (String message) -> void
       def trace: (String message) -> void
 
-      # @rbs (untyped value) -> String
-      def trace_value_suffix: (untyped value) -> String
+      # @rbs (untyped value, Integer symbol_id) -> String
+      def trace_value_suffix: (untyped value, Integer symbol_id) -> String
     end
   end
 end
