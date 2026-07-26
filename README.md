@@ -21,6 +21,12 @@ The versioned [JSON error UX comparison](docs/error-ux.md) publishes ten
 reproducible malformed-input snapshots against the public racc callback and the
 measured bounded-repair result.
 
+The current [v1.0 readiness report](docs/release-readiness.md) publishes three
+public-gem migration PoCs, external performance comparisons, the 501-production
+scale result, and the remaining release blockers. [Stability and
+deprecation](docs/stability.md) defines the stable, preview, and experimental
+surfaces; the current v1.0 decision is HOLD.
+
 Check all parser conflicts for a concrete ambiguous sentence before generation:
 
 ```sh
