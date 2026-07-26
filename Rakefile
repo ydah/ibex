@@ -31,4 +31,14 @@ namespace :frontend do
   end
 end
 
+namespace :quality do
+  desc "Run the bounded mutation suite for compact parser tables"
+  task :mutation do
+    sh(
+      { "BUNDLE_GEMFILE" => "gemfiles/mutation.Gemfile" },
+      "bundle", "exec", "mutant", "run"
+    )
+  end
+end
+
 task default: %i[test lint]

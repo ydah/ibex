@@ -448,6 +448,16 @@ as `schema/benchmark-v2.schema.json`; append-only v1 history retains its origina
 readable report and writes JSON to the requested path; see
 [the benchmark guide](benchmark/README.md) for baseline, CI retention, and append-only history policy.
 
+Compact row-displacement tables have a bounded mutation gate. Its dependency set is isolated from supported application Rubies:
+
+```sh
+BUNDLE_GEMFILE=gemfiles/mutation.Gemfile bundle install
+bundle exec rake quality:mutation
+```
+
+The task selects only `Ibex::Tables::Compact#initialize`, runs two workers, and enables the Minitest coverage mapping only for
+that process.
+
 Signatures for every Ruby source under `lib/` are generated from rbs-inline annotations and checked with Steep, including the
 self-hosted generated parser. To regenerate the committed signature tree and reproduce its validation locally:
 

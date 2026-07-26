@@ -3,6 +3,8 @@
 require_relative "test_helper"
 
 class TablesTest < Minitest::Test
+  cover "Ibex::Tables::Compact#initialize" if ENV["IBEX_MUTATION"] == "1"
+
   def test_plain_and_compact_tables_are_equivalent
     source = <<~GRAMMAR
       class P
@@ -30,6 +32,22 @@ class TablesTest < Minitest::Test
     assert_nil compact.lookup(0, -1)
     assert_nil compact.lookup(0, 100)
     assert_empty compact.row(-1)
+  end
+
+  def test_compact_table_owns_an_immutable_layout
+    offsets = [0]
+    values = [:value]
+    checks = [0]
+    compact = Ibex::Tables::Compact.new(offsets: offsets, values: values, checks: checks, row_count: 1)
+
+    assert_predicate compact, :frozen?
+    assert_same offsets, compact.offsets
+    assert_same values, compact.values
+    assert_same checks, compact.checks
+    assert_predicate compact.offsets, :frozen?
+    assert_predicate compact.values, :frozen?
+    assert_predicate compact.checks, :frozen?
+    assert_equal 1, compact.row_count
   end
 
   def test_compact_layout_remains_deterministic_when_rows_share_anchor_columns

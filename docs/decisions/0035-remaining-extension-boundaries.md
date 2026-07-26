@@ -60,8 +60,9 @@ The following work requires a separately reviewed phase and ADR:
 
 [ADR 0054](0054-direct-lalr-lookahead-propagation.md) completes Direct LALR with byte-equivalence coverage and a canonical
 reference strategy. [ADR 0055](0055-ielr-inadequacy-elimination.md) completes the IELR backend with a conservative
-LR(1)-equivalent partition. ruby.wasm, mutation testing, and Pages/YARD publication retain the remaining entry criteria in ADR
-0024. GLR, PEG, incremental parsing, and an integrated lexer remain outside the focused deterministic-LR product scope.
+LR(1)-equivalent partition. [ADR 0057](0057-bounded-mutation-testing.md) completes mutation testing with an isolated current-MRI
+toolchain and bounded compact-layout subject. ruby.wasm and Pages/YARD publication retain the remaining entry criteria in
+ADR 0024. GLR, PEG, incremental parsing, and an integrated lexer remain outside the focused deterministic-LR product scope.
 
 ## Consequences
 
