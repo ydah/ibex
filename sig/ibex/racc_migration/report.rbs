@@ -1,0 +1,53 @@
+# Generated from lib/ibex/racc_migration/report.rb with RBS::Inline
+
+module Ibex
+  module RaccMigration
+    # One immutable migration compatibility observation.
+    class Finding
+      SEVERITIES: Array[Symbol]
+
+      attr_reader code: String
+
+      attr_reader severity: Symbol
+
+      attr_reader message: String
+
+      attr_reader location: Frontend::Location?
+
+      attr_reader suggestion: String
+
+      # @rbs (code: String, severity: Symbol, message: String, location: Frontend::Location?,
+      #   suggestion: String) -> void
+      def initialize: (code: String, severity: Symbol, message: String, location: Frontend::Location?, suggestion: String) -> void
+
+      # @rbs () -> Hash[String, untyped]
+      def to_h: () -> Hash[String, untyped]
+    end
+
+    # Versioned result of checking one grammar without executing its code.
+    class Report
+      SCHEMA_VERSION: Integer
+
+      attr_reader file: String
+
+      attr_reader class_name: String?
+
+      attr_reader findings: Array[Finding]
+
+      # @rbs (file: String, class_name: String?, findings: Array[Finding]) -> void
+      def initialize: (file: String, class_name: String?, findings: Array[Finding]) -> void
+
+      # @rbs () -> bool
+      def compatible?: () -> bool
+
+      # @rbs () -> Hash[String, untyped]
+      def to_h: () -> Hash[String, untyped]
+
+      # @rbs (*untyped) -> String
+      def to_json: (*untyped) -> String
+
+      # @rbs () -> String
+      def to_text: () -> String
+    end
+  end
+end

@@ -1,0 +1,16 @@
+# Generated from lib/ibex/racc_migration/harness.rb with RBS::Inline
+
+module Ibex
+  module RaccMigration
+    # Emits, but never executes, a subprocess-separated differential harness.
+    class Harness
+      CLASS_NAME: Regexp
+
+      # @rbs (String class_name) -> String
+      def self.generate: (String class_name) -> String
+
+      # @rbs () -> String
+      def self.template: () -> String
+    end
+  end
+end

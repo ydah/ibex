@@ -44,6 +44,8 @@ module Ibex
 
     include CLIOutputs
 
+    include CLIRaccMigration
+
     include CLISamples
 
     include CLIWatch

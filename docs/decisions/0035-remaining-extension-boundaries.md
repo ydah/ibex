@@ -51,8 +51,8 @@ The following work requires a separately reviewed phase and ADR:
   0052](0052-safe-automaton-table-simulation.md) satisfies the debugger phase with a bounded, semantic-action-free Automaton IR
   table interpreter and token-at-a-time sessions. [ADR 0037](0037-versioned-conflict-explanations.md) supersedes the boundary
   against a separate `explain` command with a thin, versioned view over existing Automaton IR and counterexamples.
-- Automated `migrate-check` and racc differential-harness generation restart with an explicit application-code execution
-  boundary and sandbox story.
+- [ADR 0056](0056-static-racc-migration-and-generated-harness.md) completes automated `migrate-check` and differential-harness
+  generation by keeping checks static and making generated-harness execution an explicit bounded child-process boundary.
 - Chain-rule elimination and generated `case` dispatch restart only after the real-grammar benchmark demonstrates a repeatable
   runtime or size win and an ADR specifies source-map, table-version, and debugging consequences. [ADR
   0038](0038-versioned-benchmark-evidence.md) supplies the shared baseline and defines the candidate evidence gate; neither
