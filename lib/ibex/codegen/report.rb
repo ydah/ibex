@@ -42,6 +42,8 @@ module Ibex
       #     Hash[Integer, String] labels) -> Hash[Symbol, untyped]
       #   private def self.display_conflict: (IR::conflict conflict, IR::Grammar grammar,
       #     Hash[Integer, String] labels) -> Hash[Symbol, untyped]
+      #   private def format_value: (untyped value) -> String
+      #   private def self.format_value: (untyped value) -> String
 
       # @rbs (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> String
       def render(automaton, max_tokens: LALR::Counterexample::DEFAULT_MAX_TOKENS,
@@ -77,7 +79,7 @@ module Ibex
         lines << "  default: #{format_action(state.default_action)}" if state.default_action
         state.gotos.each { |symbol_id, target| lines << "  goto #{symbol_name(labels, symbol_id)}: #{target}" }
         state.conflicts.each do |conflict|
-          lines << "  conflict: #{display_conflict(conflict, grammar, labels).inspect}"
+          lines << "  conflict: #{format_value(display_conflict(conflict, grammar, labels))}"
         end
         examples.each { |example| append_counterexample(lines, example, grammar, labels) }
         lines << ""
@@ -156,12 +158,30 @@ module Ibex
 
         conflict.merge(symbol: symbol_name(labels, symbol.id))
       end
+
+      # Keep reports byte-identical across Ruby versions whose Hash#inspect
+      # formatting differs for symbol keys.
+      # @rbs skip
+      def format_value(value)
+        case value
+        when Hash
+          entries = value.map do |key, item|
+            label = key.is_a?(Symbol) ? "#{key}:" : "#{format_value(key)} =>"
+            "#{label} #{format_value(item)}"
+          end
+          "{#{entries.join(', ')}}"
+        when Array
+          "[#{value.map { |item| format_value(item) }.join(', ')}]"
+        else
+          value.inspect
+        end
+      end
       module_function :append_state, :append_counterexample, :append_tree, :format_item, :format_action, :symbol_name,
-                      :tree_label, :display_conflict
+                      :tree_label, :display_conflict, :format_value
 
       class << self
         private :append_state, :append_counterexample, :append_tree, :format_item, :format_action, :symbol_name,
-                :tree_label, :display_conflict
+                :tree_label, :display_conflict, :format_value
       end
     end
   end

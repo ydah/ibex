@@ -110,9 +110,23 @@ class GeneratedLexerTest < Minitest::Test
       Fiber.yield("345 wo")
       "rld"
     end
+    fiber.define_singleton_method(:respond_to?) do |name, include_all = false|
+      name == :alive? ? false : super(name, include_all)
+    end
 
     assert_equal [12_345, "world"], parser_class.new.parse(io)
     assert_equal [12_345, "world"], parser_class.new.parse(fiber)
+  end
+
+  def test_fiber_errors_from_the_source_are_not_hidden
+    fiber = Fiber.new { raise FiberError, "source failed" }
+    fiber.define_singleton_method(:respond_to?) do |name, include_all = false|
+      name == :alive? ? false : super(name, include_all)
+    end
+    input = Ibex::Runtime::LexerInput.new(fiber)
+
+    error = assert_raises(FiberError) { input.read_more? }
+    assert_equal "source failed", error.message
   end
 
   def test_unicode_locations_report_grapheme_and_byte_coordinates

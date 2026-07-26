@@ -76,14 +76,21 @@ module Ibex
 
       # @rbs (Fiber source) -> untyped
       def resume_fiber(source)
-        unless source.alive?
+        supports_alive = source.respond_to?(:alive?)
+        if supports_alive && !source.alive?
           @eof = true
           return
         end
 
         value = source.resume
-        @eof = true unless source.alive?
+        @eof = true if supports_alive && !source.alive?
         value
+      rescue FiberError => e
+        terminated = /\A(?:dead fiber called|attempt to resume a terminated fiber)\z/.match?(e.message)
+        raise unless !supports_alive && terminated
+
+        @eof = true
+        nil
       end
 
       # @rbs (String chunk) -> void
