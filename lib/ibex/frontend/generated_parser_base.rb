@@ -354,6 +354,13 @@ module Ibex
         blocks
       end
 
+      # @rbs (Token token, AST::user_code blocks) -> AST::user_code
+      def prepend_user_code(token, blocks)
+        result = append_user_code(empty_user_code, token)
+        blocks.each { |name, chunks| result[name].concat(chunks) }
+        result
+      end
+
       # @rbs () -> AST::user_code
       def empty_user_code
         Hash.new { |hash, key| hash[key] = [] } #: AST::user_code

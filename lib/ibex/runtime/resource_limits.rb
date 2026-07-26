@@ -33,14 +33,14 @@ module Ibex
 
       private
 
-      # @rbs (untyped value, Symbol name) -> void
+      # @rbs (Integer value, Symbol name) -> void
       def validate_positive_integer(value, name)
         return if value.is_a?(Integer) && value.positive?
 
         raise ArgumentError, "#{name} must be a positive Integer"
       end
 
-      # @rbs (untyped value, Symbol name) -> void
+      # @rbs (Integer value, Symbol name) -> void
       def validate_nonnegative_integer(value, name)
         return if value.is_a?(Integer) && value >= 0
 

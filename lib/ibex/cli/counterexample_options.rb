@@ -3,6 +3,8 @@
 module Ibex
   # Counterexample report limits and their command-line validation.
   module CLICounterexampleOptions
+    # @rbs @options: cli_options
+
     DEFAULTS = {
       counterexample_max_tokens: LALR::Counterexample::DEFAULT_MAX_TOKENS,
       counterexample_max_configurations: LALR::Counterexample::DEFAULT_MAX_CONFIGURATIONS

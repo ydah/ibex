@@ -14,7 +14,7 @@ module Ibex
       def parse_rules
         # @type self: BootstrapParser
         rules = [] #: Array[AST::Rule]
-        rules << parse_rule until keyword?("end") || current.type == :eof
+        rules << parse_rule until keyword?("end") || %i[eof user_code].include?(current.type)
         fail_expected("at least one rule") if rules.empty?
         rules
       end
@@ -169,7 +169,7 @@ module Ibex
       # @rbs (Token lhs) -> bool
       def alternative_end?(lhs)
         # @type self: BootstrapParser
-        %i[| ; inline node eof].include?(current.type) || keyword?("end") || rule_start?(lhs)
+        %i[| ; inline node eof user_code].include?(current.type) || keyword?("end") || rule_start?(lhs)
       end
 
       # @rbs (Token lhs) -> bool

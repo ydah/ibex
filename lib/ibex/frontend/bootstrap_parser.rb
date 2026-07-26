@@ -31,7 +31,7 @@ module Ibex
         declarations = parse_declarations
         expect_keyword("rule")
         rules = parse_rules
-        expect_keyword("end")
+        expect_keyword("end") unless current.type == :user_code
         user_code = parse_user_code
         expect(:eof)
         AST::Root.new(class_name: class_name, superclass: superclass, declarations: declarations,

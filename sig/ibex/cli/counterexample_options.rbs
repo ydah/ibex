@@ -3,6 +3,8 @@
 module Ibex
   # Counterexample report limits and their command-line validation.
   module CLICounterexampleOptions
+    @options: cli_options
+
     DEFAULTS: Hash[Symbol, Integer]
 
     private

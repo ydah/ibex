@@ -12,6 +12,11 @@ rule
   grammar
     : CLASS constant_path superclass pragmas declarations RULE rules END user_code
       { result = build_root(val[0], val[1], val[2], val[4], val[6], val[8]) }
+    | CLASS constant_path superclass pragmas declarations RULE rules required_user_code
+      { result = build_root(val[0], val[1], val[2], val[4], val[6], val[7]) }
+
+  required_user_code
+    : USER_CODE user_code                { result = prepend_user_code(val[0], val[1]) }
 
   fragment
     : FRAGMENT declarations RULE fragment_rules END user_code
