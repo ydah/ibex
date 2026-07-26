@@ -104,6 +104,7 @@ module Ibex
         lines << "#{indent}PARSER_TABLES = { format_version: PARSER_TABLE_FORMAT_VERSION,"
         lines << "#{indent}                  grammar_digest: GRAMMAR_DIGEST,"
         lines << "#{indent}                  state_count: STATE_COUNT, production_count: PRODUCTION_COUNT,"
+        lines << "#{indent}                  uses_locations: #{uses_locations?},"
         lines << "#{indent}                  tokens: TOKEN_IDS, token_names: TOKEN_NAMES, actions: ACTIONS,"
         lines << "#{indent}                  gotos: GOTOS, default_actions: DEFAULT_ACTIONS,"
         lines << "#{indent}                  productions: PRODUCTIONS, error_messages: ERROR_MESSAGES }.freeze"
@@ -174,10 +175,32 @@ module Ibex
           action = generated_action ? ":_ibex_action_#{production.id}" : "nil"
           location_action = generated_action ? ", location_action: true" : ""
           composition_action = composed_action?(production) ? ", composition_action: true" : ""
+          location_context, named_locations = production_location_metadata(production.action)
           "{ lhs: #{production.lhs}, length: #{production.rhs.length}, action: #{action}" \
-            "#{location_action}#{composition_action} }"
+            "#{location_action}#{composition_action}#{location_context}#{named_locations} }"
         end
         "[#{entries.join(', ')}]"
+      end
+
+      # @rbs (IR::Action? action) -> [String, String]
+      def production_location_metadata(action)
+        return ["", ""] unless action
+
+        context = action.context_length.positive? ? ", location_context_length: #{action.context_length}" : ""
+        names = action.named_refs.to_h { |reference| [reference[:name].to_sym, reference[:index]] }
+        named = names.empty? ? "" : ", location_names: #{names.inspect}.freeze"
+        [context, named]
+      end
+
+      # @rbs () -> bool
+      def uses_locations?
+        @grammar.productions.any? do |production|
+          action = production.action
+          action && (
+            !action.composition.nil? ||
+            action.code.match?(/@(?:\$|\d+)|\bresult_loc\b|\bloc\s*\(/)
+          )
+        end
       end
 
       # @rbs () -> String

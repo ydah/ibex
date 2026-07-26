@@ -72,8 +72,8 @@ Extended parameterized definitions remain structural AST templates rather than g
 complete template graph, interns an impossible `$parameter_N` helper for each canonical call, records that helper in a memo
 before expanding its body, and substitutes formals through nested EBNF and calls. Resumable alternative, item, and EBNF
 continuations on an explicit depth-first worklist preserve ordinary lowering order and active-depth semantics without consuming
-the Ruby call stack. Same-argument recursion therefore closes over the memo, while configurable specialization and active-depth
-limits bound argument-growing recursion. Template actions,
+the Ruby call stack. Same-argument recursion therefore closes over the memo, while a configurable total-specialization budget
+and structural constructor-growth detection bound argument-growing recursion without an arbitrary depth cutoff. Template actions,
 precedence, metadata, documentation, locations, and definition include chains flow into the specialized productions; see
 [ADR 0044](decisions/0044-parameterized-user-rules.md).
 
@@ -99,7 +99,10 @@ The RBS generator emits the generated class namespace, superclass, parser-table 
 private reduction and composed-fragment signatures. Declared symbol types refine the RHS tuple and LHS result independently,
 with `untyped` used at undeclared boundaries; composed inputs resolve either a physical symbol type or an earlier plan step's
 `result_type`. Reduction methods also receive a location tuple, surrounding location stack, and optional
-`Runtime::LocationSpan`; the runtime maintains that stack in parallel with semantic values for every driver and recovery path.
+`Runtime::LocationSpan`. Generated tables mark whether actions require locations. The runtime leaves the location stack
+unallocated for ordinary two-element-token parses and creates or backfills it only when an action, tooling observer, or
+three-element token requires it. The public immutable `Ibex::Location` range and `loc`/`result_loc` action helpers sit above the
+same stack contract.
 Default source mapping compiles opaque action methods with `class_eval` when the generated class loads. The opt-in action-shadow
 generator makes those exact method bodies visible to Steep without runtime loading: runtime and shadow output share one method
 source builder, while the shadow omits parser infrastructure and every user-code section. Ibex only generates this source;
@@ -237,9 +240,10 @@ the synthetic `error` terminal. The deterministic size policy is fixed by
 
 The runtime maintains state and value stacks, pulls a lookahead only when required, and applies tagged `shift`, `reduce`,
 `accept`, and `error` actions. Recovery pops to a state that shifts token id 1, suppresses repeated reports for three successful
-shifts, and honors `yyerrok`. No-op `on_shift`, `on_reduce`, and `on_error_recover` extension points observe successfully
+shifts, and honors `yyerrok`. No-op shift, reduce, recovery, location-aware, and discard extension points observe successfully
 committed events without changing parser results; the recovery hook retains the pre-pop error context and is distinct from an
-ordinary token shift. Their ordering and payload contract is fixed by [ADR 0013](decisions/0013-runtime-observation-hooks.md).
+ordinary token shift. A configured value printer affects only human `yydebug` output. Their ordering and payload contract is
+extended additively by [ADR 0061](decisions/0061-lazy-semantic-locations-and-runtime-observation.md).
 
 The separate `Runtime::Parser#observe` API publishes ordered, immutable schema-v1 events for tooling. Its bounded sanitizer
 copies only JSON data and never retains application identities or private stacks. With no observer, parse transitions construct

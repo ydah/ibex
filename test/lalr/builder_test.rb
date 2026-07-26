@@ -180,6 +180,23 @@ class LALRBuilderTest < Minitest::Test
     assert summary[:rr_expectation_met]
   end
 
+  def test_conflicts_caused_by_midrule_actions_retain_source_attribution
+    automaton = build(<<~GRAMMAR)
+      class P
+      pragma extended
+      rule
+      start: A { result = val[0] } B | A B
+      end
+    GRAMMAR
+
+    conflict = automaton.states.flat_map(&:conflicts).fetch(0)
+    assert_equal :shift_reduce, conflict[:type]
+    assert_equal "B", conflict[:symbol]
+    assert_equal [{ file: "builder.y", line: 4, column: 10 }], conflict[:midrule_origins]
+    serialized = Ibex::IR::Serialize.dump(automaton)
+    assert_equal serialized, Ibex::IR::Serialize.dump(Ibex::IR::Validator.validate(serialized))
+  end
+
   def test_automaton_round_trip_and_report
     automaton = build(<<~GRAMMAR)
       class P

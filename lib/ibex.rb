@@ -3,6 +3,7 @@
 
 require_relative "ibex/version"
 require_relative "ibex/error"
+require_relative "ibex/location"
 require_relative "ibex/error_messages"
 require_relative "ibex/artifact_set"
 require_relative "ibex/generation_input"

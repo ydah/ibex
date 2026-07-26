@@ -79,6 +79,9 @@ module Ibex
         def validate_reduce_reduce: (Hash[String, untyped] conflict, String path) -> void
 
         # @rbs (untyped value, String path) -> void
+        def validate_midrule_origins: (untyped value, String path) -> void
+
+        # @rbs (untyped value, String path) -> void
         def validate_conflict_symbol: (untyped value, String path) -> void
 
         # @rbs (untyped value, String path, ?reductions: Array[Integer]?) -> void

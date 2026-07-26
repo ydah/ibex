@@ -5,6 +5,7 @@ require "json_schemer"
 require "stringio"
 require "tmpdir"
 
+# rubocop:disable Metrics/ClassLength -- cases exercise one CLI analysis contract.
 class CLIExplainTest < Minitest::Test
   SCHEMA = File.expand_path("../schema/explain-v1.schema.json", __dir__)
 
@@ -162,6 +163,29 @@ class CLIExplainTest < Minitest::Test
     end
   end
 
+  def test_midrule_conflict_origins_are_visible_in_text_and_json
+    source = <<~GRAMMAR
+      class P
+      pragma extended
+      rule
+      start: A { result = val[0] } B | A B
+      end
+    GRAMMAR
+    with_grammar(source) do |path|
+      canonical_path = File.realpath(path)
+      text = invoke(["explain", path])
+      assert_equal 0, text.fetch(:status), text.fetch(:stderr)
+      assert_includes text.fetch(:stdout), "Midrule action origin: #{canonical_path}:4:10"
+
+      result = invoke(["explain", "--format=json", path])
+      document = JSON.parse(result.fetch(:stdout))
+      assert_equal [{ "file" => canonical_path, "line" => 4, "column" => 10 }],
+                   document.dig("conflicts", 0, "midrule_origins")
+      schema = JSON.parse(File.read(SCHEMA))
+      assert_empty JSONSchemer.schema(schema).validate(document).to_a
+    end
+  end
+
   def test_help_and_option_errors_are_scoped_to_the_subcommand
     main_help = invoke(%w[--help])
     assert_includes main_help.fetch(:stdout), "explain"
@@ -230,3 +254,4 @@ class CLIExplainTest < Minitest::Test
     GRAMMAR
   end
 end
+# rubocop:enable Metrics/ClassLength

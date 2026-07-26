@@ -71,6 +71,12 @@ module Ibex
       # @rbs () -> String
       def productions_literal: () -> String
 
+      # @rbs (IR::Action? action) -> [String, String]
+      def production_location_metadata: (IR::Action? action) -> [ String, String ]
+
+      # @rbs () -> bool
+      def uses_locations?: () -> bool
+
       # @rbs () -> String
       def error_messages_literal: () -> String
 

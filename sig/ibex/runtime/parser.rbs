@@ -68,6 +68,12 @@ module Ibex
 
       EMPTY_ROW: Hash[Integer, untyped]
 
+      EMPTY_LOCATION_NAMES: Hash[Symbol, Integer]
+
+      @unknown_token_name: String?
+
+      @unknown_token_id: Integer?
+
       @accept_requested: bool
 
       @semantic_error: bool
@@ -80,7 +86,7 @@ module Ibex
 
       @lookahead: untyped
 
-      @location_stack: Array[untyped]
+      @location_stack: Array[untyped]?
 
       @value_stack: Array[untyped]
 
@@ -91,10 +97,6 @@ module Ibex
       @yydebug_output: IO
 
       @yydebug: bool
-
-      @unknown_token_id: Integer?
-
-      @unknown_token_name: String?
 
       @push_status: :idle | :active | :finished
 
@@ -115,6 +117,14 @@ module Ibex
       @repair_input_buffer: Array[RepairInput]?
 
       @repair_selected: bool
+
+      @semantic_locations: Array[untyped]?
+
+      @semantic_location_names: Hash[Symbol, Integer]?
+
+      @semantic_result_location: untyped
+
+      @trace_value_printer: (^(untyped) -> untyped)?
 
       attr_accessor yydebug: bool
 
@@ -169,15 +179,38 @@ module Ibex
       # @rbs (Integer token_id, untyped value, Integer state) -> void
       def on_shift: (Integer token_id, untyped value, Integer state) -> void
 
+      # Location-aware shift observer. The compatible hook above retains its
+      # original signature and runs first.
+      # @rbs (Integer token_id, untyped value, Integer state, untyped location) -> void
+      def on_shift_location: (Integer token_id, untyped value, Integer state, untyped location) -> void
+
       # Called after a production's semantic action and goto are committed.
       # Override to observe its id, RHS values, and semantic result.
       # @rbs (Integer production_id, Array[untyped] values, untyped result) -> void
       def on_reduce: (Integer production_id, Array[untyped] values, untyped result) -> void
 
+      # Location-aware reduction observer.
+      # @rbs (Integer production_id, Array[untyped] values, untyped result,
+      #   Array[untyped] locations, untyped result_location) -> void
+      def on_reduce_location: (Integer production_id, Array[untyped] values, untyped result, Array[untyped] locations, untyped result_location) -> void
+
       # Called after the synthetic error token enters a recovery state.
       # The payload describes the original error before recovery popped stacks.
       # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> void
       def on_error_recover: (Integer token_id, untyped value, Array[untyped] value_stack) -> void
+
+      # Location-aware recovery observer.
+      # @rbs (Integer token_id, untyped value, Array[untyped] value_stack,
+      #   untyped location, Integer state) -> void
+      def on_error_recover_location: (Integer token_id, untyped value, Array[untyped] value_stack, untyped location, Integer state) -> void
+
+      # Called when yacc recovery discards an application token.
+      # @rbs (Integer token_id, untyped value, untyped location, Symbol reason) -> void
+      def on_discard: (Integer token_id, untyped value, untyped location, Symbol reason) -> void
+
+      # Install an opt-in value formatter for human-readable yydebug traces.
+      # @rbs ((^(untyped) -> untyped)? printer) -> (^(untyped) -> untyped)?
+      def trace_value_printer=: ((^(untyped) -> untyped)? printer) -> (^(untyped) -> untyped)?
 
       # Called once after a repair is selected and before its edited token
       # prefix is replayed through normal parser actions.
@@ -203,6 +236,15 @@ module Ibex
       # Return token names accepted in the current parser state.
       # @rbs () -> Array[String]
       def expected_tokens: () -> Array[String]
+
+      # Return the location of a one-based RHS position or named reference
+      # while a semantic action is running.
+      # @rbs (Integer | Symbol | String reference) -> untyped
+      def loc: (Integer | Symbol | String reference) -> untyped
+
+      # Return the synthesized span of the reduction being evaluated.
+      # @rbs () -> untyped
+      def result_loc: () -> untyped
 
       private
 
@@ -401,11 +443,26 @@ module Ibex
       # @rbs (Integer state) -> untyped
       def default_action: (Integer state) -> untyped
 
+      # @rbs (Hash[Symbol, untyped] tables) -> bool
+      def track_locations?: (Hash[Symbol, untyped] tables) -> bool
+
+      # Keep allocation out of the ordinary two-element lexer path. If a
+      # location first appears after values have already shifted, backfill the
+      # parallel prefix with nil exactly once.
+      # @rbs (untyped location) -> void
+      def push_location: (untyped location) -> void
+
+      # @rbs (Integer length) -> Array[untyped]
+      def pop_reduction_locations: (Integer length) -> Array[untyped]
+
       # @rbs (untyped table, Integer row, Integer column) -> untyped
       def table_lookup: (untyped table, Integer row, Integer column) -> untyped
 
       # @rbs (String message) -> void
       def trace: (String message) -> void
+
+      # @rbs (untyped value) -> String
+      def trace_value_suffix: (untyped value) -> String
     end
   end
 end

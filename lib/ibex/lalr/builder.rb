@@ -248,8 +248,27 @@ module Ibex
         end
         add_completed_actions(items, candidates)
         actions, conflicts = resolve_actions(candidates)
+        conflicts = conflicts.map { |conflict| attribute_midrule_conflict(conflict) }
         IR::AutomatonState.new(id: state_id, items: items, transitions: transitions, actions: actions,
                                gotos: gotos, conflicts: conflicts)
+      end
+
+      # Conflict hashes are produced locally immediately before this boundary.
+      # Keeping the parameter untyped avoids duplicating both discriminated
+      # hash variants solely to add their common optional provenance field.
+      # @rbs (untyped conflict) -> IR::conflict
+      def attribute_midrule_conflict(conflict)
+        production_ids = if conflict[:type] == :shift_reduce
+                           [conflict[:reduce]]
+                         else
+                           conflict[:reductions]
+                         end
+        origins = production_ids.filter_map do |production_id|
+          production = @grammar.productions.fetch(production_id)
+          production.origin[:loc] if production.origin[:kind] == :inline_action
+        end
+        conflict[:midrule_origins] = origins.uniq unless origins.empty?
+        conflict
       end
 
       # @rbs (Array[IR::AutomatonItem] items, Hash[Integer, Array[IR::parser_action]] candidates) -> void

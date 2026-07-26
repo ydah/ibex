@@ -225,6 +225,13 @@
         },
         "resolution": {
           "$ref": "#/$defs/resolution"
+        },
+        "midrule_origins": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "grammar-ir-v1.schema.json#/$defs/location"
+          }
         }
       },
       "additionalProperties": false
@@ -256,6 +263,13 @@
         },
         "resolution": {
           "$ref": "#/$defs/resolution"
+        },
+        "midrule_origins": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "grammar-ir-v1.schema.json#/$defs/location"
+          }
         }
       },
       "additionalProperties": false

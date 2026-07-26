@@ -186,16 +186,18 @@ module Ibex
 
         # @rbs (Hash[String, untyped] conflict, String path) -> void
         def validate_shift_reduce(conflict, path)
-          record(conflict, path, %w[type symbol shift_to reduce resolution])
+          record(conflict, path, %w[type symbol shift_to reduce resolution], %w[midrule_origins])
           validate_conflict_symbol(conflict["symbol"], "#{path}.symbol")
           validate_state_reference(conflict["shift_to"], "#{path}.shift_to")
           validate_production_reference(conflict["reduce"], "#{path}.reduce")
           validate_resolution(conflict["resolution"], "#{path}.resolution")
+          validate_midrule_origins(conflict["midrule_origins"], "#{path}.midrule_origins") if
+            conflict.key?("midrule_origins")
         end
 
         # @rbs (Hash[String, untyped] conflict, String path) -> void
         def validate_reduce_reduce(conflict, path)
-          record(conflict, path, %w[type symbol reductions resolution])
+          record(conflict, path, %w[type symbol reductions resolution], %w[midrule_origins])
           validate_conflict_symbol(conflict["symbol"], "#{path}.symbol")
           reductions = array(conflict["reductions"], "#{path}.reductions")
           invalid("#{path}.reductions", "must contain at least two productions") if reductions.length < 2
@@ -206,6 +208,15 @@ module Ibex
             invalid("#{path}.reductions", "must contain unique production ids")
           end
           validate_resolution(conflict["resolution"], "#{path}.resolution", reductions: reductions)
+          validate_midrule_origins(conflict["midrule_origins"], "#{path}.midrule_origins") if
+            conflict.key?("midrule_origins")
+        end
+
+        # @rbs (untyped value, String path) -> void
+        def validate_midrule_origins(value, path)
+          origins = array(value, path)
+          invalid(path, "must not be empty") if origins.empty?
+          origins.each_with_index { |origin, index| location(origin, "#{path}[#{index}]") }
         end
 
         # @rbs (untyped value, String path) -> void

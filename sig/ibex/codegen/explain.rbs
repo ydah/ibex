@@ -59,6 +59,9 @@ module Ibex
       # @rbs (Array[String] lines, explain_entry entry, Integer number) -> void
       def append_conflict: (Array[String] lines, explain_entry entry, Integer number) -> void
 
+      # @rbs (Array[String] lines, IR::conflict conflict) -> void
+      def append_midrule_origins: (Array[String] lines, IR::conflict conflict) -> void
+
       # @rbs (Array[String] lines, IR::AutomatonState state, IR::conflict conflict,
       #   IR::counterexample example) -> void
       def append_witness_steps: (Array[String] lines, IR::AutomatonState state, IR::conflict conflict, IR::counterexample example) -> void
