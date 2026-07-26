@@ -3,6 +3,7 @@
 
 require_relative "location_span" unless defined?(Ibex::Runtime::LocationSpan)
 require_relative "observation" unless defined?(Ibex::Runtime::Observation)
+require_relative "resource_limits" unless defined?(Ibex::Runtime::ResourceLimits)
 require_relative "repair" unless defined?(Ibex::Runtime::RepairPolicy)
 require_relative "repair_search" unless defined?(Ibex::Runtime::RepairSearch)
 require_relative "parser_sync_recovery" unless defined?(Ibex::Runtime::ParserSyncRecovery)
@@ -85,6 +86,32 @@ module Ibex
       end
     end
 
+    # Raised when a configured parser-session resource budget is exhausted.
+    class ResourceLimitError < ParseError
+      attr_reader :resource #: Symbol
+      attr_reader :limit #: Integer
+      attr_reader :observed #: Integer
+
+      # @rbs (resource: Symbol, limit: Integer, observed: Integer, state: Integer?, location: untyped) -> void
+      def initialize(resource:, limit:, observed:, state:, location:)
+        @resource = resource
+        @limit = limit
+        @observed = observed
+        super(
+          "parser resource limit exceeded: #{resource} is #{observed}, configured maximum is #{limit}",
+          state: state, location: location
+        )
+      end
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h
+        {
+          type: :resource_limit, resource: @resource, limit: @limit, observed: @observed,
+          state: state, location: location
+        }.freeze
+      end
+    end
+
     # rubocop:disable Metrics/ClassLength
 
     # Drives a table-defined LR parser without native extensions.
@@ -147,14 +174,22 @@ module Ibex
       # @rbs @sync_recovery_token_data: Hash[String, untyped]?
       # @rbs @sync_recovery_observers: Array[Proc]?
       # @rbs @cst_errors: Array[CST::Error]
+      # @rbs @resource_limits: ResourceLimits
+      # @rbs @recovery_attempts: Integer
 
       attr_accessor :yydebug #: bool
       attr_writer :yydebug_output #: IO
       attr_reader :repair_policy #: RepairPolicy?
+      attr_reader :resource_limits #: ResourceLimits
 
       # rubocop:disable Metrics/MethodLength -- initialization mirrors the complete mutable session state.
-      # @rbs () -> void
-      def initialize
+      # @rbs (?resource_limits: ResourceLimits) -> void
+      def initialize(resource_limits: ResourceLimits.new)
+        unless resource_limits.is_a?(ResourceLimits)
+          raise ArgumentError, "resource_limits must be an Ibex::Runtime::ResourceLimits"
+        end
+
+        @resource_limits = resource_limits
         @yydebug = false
         @yydebug_output = $stderr
         @source = nil
@@ -186,6 +221,7 @@ module Ibex
         @sync_recovery_token_data = nil
         @sync_recovery_observers = nil
         @cst_errors = []
+        @recovery_attempts = 0
       end
       # rubocop:enable Metrics/MethodLength
 
@@ -204,6 +240,23 @@ module Ibex
           end
 
           @repair_policy = policy
+        end
+      end
+
+      # Replace the limits used by future sessions.
+      # @rbs (ResourceLimits limits) -> ResourceLimits
+      def resource_limits=(limits)
+        unless limits.is_a?(ResourceLimits)
+          raise ArgumentError, "resource_limits must be an Ibex::Runtime::ResourceLimits"
+        end
+
+        @runtime_observation_mutex.synchronize do
+          ensure_driver_available_without_lock!
+          if @push_status == :active
+            raise ParseError, "(resource):1:1: resource_limits cannot change during an active push session"
+          end
+
+          @resource_limits = limits
         end
       end
 
@@ -635,6 +688,7 @@ module Ibex
         @accept_requested = false
         @unknown_token_id = nil
         @cst_errors = []
+        @recovery_attempts = 0
         trace("start state #{initial_state}")
         @runtime_event_sequence = 0
         return unless @runtime_observers
@@ -754,6 +808,7 @@ module Ibex
                          state: next_state
                        ).merge("from_state" => @state_stack.last).freeze
                      end
+        ensure_stack_capacity!
         @state_stack << next_state
         push_location(location)
         @value_stack << value
@@ -784,9 +839,8 @@ module Ibex
         next_state = table_lookup(parser_tables.fetch(:gotos), @state_stack.last, production.fetch(:lhs))
         raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
 
-        @state_stack << next_state
-        push_location(location)
-        @value_stack << result
+        ensure_stack_capacity!
+        push_reduction_result(next_state, result, location)
         trace_reduction(production_id, length, production.fetch(:lhs), result, next_state)
         event_data = build_reduce_event_data(
           event_observers, production_id, production, length, pre_state, post_state, next_state, result, location
@@ -798,6 +852,13 @@ module Ibex
         return recover(report: false) if @semantic_error
 
         [:continue]
+      end
+
+      # @rbs (Integer next_state, untyped result, untyped location) -> void
+      def push_reduction_result(next_state, result, location)
+        @state_stack << next_state
+        push_location(location)
+        @value_stack << result
       end
 
       # @rbs (Integer production_id, Integer length, Integer lhs, untyped result, Integer next_state) -> void
@@ -1052,6 +1113,7 @@ module Ibex
 
       # @rbs (bool report) -> untyped
       def begin_recovery(report)
+        consume_recovery_attempt!
         repair = report ? selected_repair : nil
         return [:repair_pending] if repair.equal?(RepairSearch::NEED_INPUT)
 
@@ -1247,6 +1309,7 @@ module Ibex
           action = table_lookup(parser_tables.fetch(:actions), @state_stack.last, ERROR_TOKEN)
           if action&.first == :shift
             trace("recover: shift error -> state #{action.fetch(1)}")
+            ensure_stack_capacity!
             @state_stack << action.fetch(1)
             push_location(@lookahead_location)
             @value_stack << nil
@@ -1259,6 +1322,30 @@ module Ibex
           @value_stack.pop
           @location_stack&.pop
         end
+      end
+
+      # @rbs () -> void
+      def ensure_stack_capacity!
+        observed = @state_stack.length + 1
+        limit = @resource_limits.max_stack_depth
+        return if observed <= limit
+
+        raise ResourceLimitError.new(
+          resource: :stack_depth, limit: limit, observed: observed,
+          state: @state_stack.last, location: @lookahead_location
+        )
+      end
+
+      # @rbs () -> void
+      def consume_recovery_attempt!
+        @recovery_attempts += 1
+        limit = @resource_limits.max_recovery_attempts
+        return if @recovery_attempts <= limit
+
+        raise ResourceLimitError.new(
+          resource: :recovery_attempts, limit: limit, observed: @recovery_attempts,
+          state: @state_stack.last, location: @lookahead_location
+        )
       end
 
       # @rbs () -> (RepairPlan | Object | nil)

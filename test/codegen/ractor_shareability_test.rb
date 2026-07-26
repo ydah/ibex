@@ -21,6 +21,35 @@ class RactorShareabilityCodegenTest < Minitest::Test
     end
   end
 
+  def test_distinct_instances_parse_concurrently_in_threads
+    parser_class = generate_parser
+    threads = 8.times.map do |value|
+      Thread.new do
+        parser = parser_class.new
+        parser.push(:VALUE, value)
+        parser.finish
+      end
+    end
+
+    assert_equal (0...8).to_a, threads.map(&:value)
+  end
+
+  def test_distinct_instances_parse_in_ractors_with_shared_tables
+    skip "Ractor is unavailable" unless defined?(Ractor) && Ractor.respond_to?(:shareable?)
+
+    parser_class = generate_parser
+    ractors = 2.times.map do |value|
+      Ractor.new(parser_class, value) do |klass, input|
+        parser = klass.new
+        parser.push(:VALUE, input)
+        parser.finish
+      end
+    end
+
+    results = ractors.map { |ractor| ractor.respond_to?(:value) ? ractor.value : ractor.take }
+    assert_equal [0, 1], results
+  end
+
   def test_thread_conversion_does_not_make_parser_loading_fail
     source = <<~GRAMMAR
       class ThreadTokenParser

@@ -20,6 +20,27 @@ module Ibex
       include RubyLexer
       include RubyAST
 
+      EMBEDDED_RUNTIME_SOURCES = %w[
+        ../runtime/location_span.rb
+        ../runtime/cst.rb
+        ../runtime/ast_data.rb
+        ../runtime/resource_limits.rb
+        ../runtime/event_sanitizer.rb
+        ../runtime/event.rb
+        ../runtime/observation.rb
+        ../runtime/repair.rb
+        ../runtime/repair_priority_queue.rb
+        ../runtime/repair_search.rb
+        ../runtime/parser_sync_recovery.rb
+        ../runtime/parser.rb
+        ../runtime/lexer_input.rb
+        ../runtime/generated_lexer.rb
+        ../runtime/jsonl_tracer.rb
+        ../runtime/event_jsonl_tracer.rb
+        ../../ibex/tables.rb
+      ].freeze #: Array[String]
+      private_constant :EMBEDDED_RUNTIME_SOURCES
+
       # @rbs @automaton: IR::Automaton
       # @rbs @grammar: IR::Grammar
       # @rbs @table_format: Symbol
@@ -85,22 +106,7 @@ module Ibex
       # @rbs (Array[String] lines) -> void
       def append_runtime(lines)
         if @embedded
-          lines << embedded_source("../runtime/location_span.rb")
-          lines << embedded_source("../runtime/cst.rb")
-          lines << embedded_source("../runtime/ast_data.rb")
-          lines << embedded_source("../runtime/event_sanitizer.rb")
-          lines << embedded_source("../runtime/event.rb")
-          lines << embedded_source("../runtime/observation.rb")
-          lines << embedded_source("../runtime/repair.rb")
-          lines << embedded_source("../runtime/repair_priority_queue.rb")
-          lines << embedded_source("../runtime/repair_search.rb")
-          lines << embedded_source("../runtime/parser_sync_recovery.rb")
-          lines << embedded_source("../runtime/parser.rb")
-          lines << embedded_source("../runtime/lexer_input.rb")
-          lines << embedded_source("../runtime/generated_lexer.rb")
-          lines << embedded_source("../runtime/jsonl_tracer.rb")
-          lines << embedded_source("../runtime/event_jsonl_tracer.rb")
-          lines << embedded_source("../../ibex/tables.rb")
+          EMBEDDED_RUNTIME_SOURCES.each { |path| lines << embedded_source(path) }
         else
           lines << 'require "ibex/runtime"'
           lines << 'require "ibex/tables"' if @table_format == :compact

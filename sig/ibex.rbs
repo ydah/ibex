@@ -3,4 +3,6 @@
 # Ibex generates and runs Pure Ruby LR parsers.
 module Ibex
   ParseError: singleton(Runtime::ParseError)
+
+  ResourceLimitError: singleton(Runtime::ResourceLimitError)
 end

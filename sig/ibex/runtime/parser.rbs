@@ -43,6 +43,21 @@ module Ibex
       def location_value: (Symbol key) -> untyped
     end
 
+    # Raised when a configured parser-session resource budget is exhausted.
+    class ResourceLimitError < ParseError
+      attr_reader resource: Symbol
+
+      attr_reader limit: Integer
+
+      attr_reader observed: Integer
+
+      # @rbs (resource: Symbol, limit: Integer, observed: Integer, state: Integer?, location: untyped) -> void
+      def initialize: (resource: Symbol, limit: Integer, observed: Integer, state: Integer?, location: untyped) -> void
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
+    end
+
     # Drives a table-defined LR parser without native extensions.
     #
     # Subclasses provide `.parser_tables`, returning `:tokens`, `:token_names`,
@@ -75,21 +90,23 @@ module Ibex
 
       EMPTY_LOCATION_NAMES: Hash[Symbol, Integer]
 
-      @driver_status: :idle | :pull | :push
-
-      @push_status: :idle | :active | :finished
-
-      @unknown_token_name: String?
-
-      @unknown_token_id: Integer?
-
-      @accept_requested: bool
-
-      @semantic_error: bool
+      @lookahead_location: untyped
 
       @recovery_shifts: Integer
 
-      @lookahead_location: untyped
+      @semantic_error: bool
+
+      @accept_requested: bool
+
+      @unknown_token_id: Integer?
+
+      @unknown_token_name: String?
+
+      @push_status: :idle | :active | :finished
+
+      @driver_status: :idle | :pull | :push
+
+      @runtime_driver_thread: Thread?
 
       @lookahead_value: untyped
 
@@ -107,37 +124,39 @@ module Ibex
 
       @yydebug: bool
 
-      @runtime_driver_thread: Thread?
+      @recovery_attempts: Integer
 
-      @runtime_observers: Hash[Observation::Subscription, Proc]?
+      @resource_limits: ResourceLimits
 
-      @runtime_event_sequence: Integer
-
-      @runtime_lookahead_token_display: untyped
-
-      @runtime_observation_mutex: Mutex
-
-      @repair_policy: RepairPolicy?
-
-      @repair_input_buffer: Array[RepairInput]?
-
-      @repair_selected: bool
-
-      @semantic_locations: Array[untyped]?
-
-      @semantic_location_names: Hash[Symbol, Integer]?
-
-      @semantic_result_location: untyped
-
-      @trace_value_printer: (^(untyped) -> untyped)?
-
-      @sync_recovery_context: Hash[Symbol, untyped]?
-
-      @sync_recovery_token_data: Hash[String, untyped]?
+      @cst_errors: Array[CST::Error]
 
       @sync_recovery_observers: Array[Proc]?
 
-      @cst_errors: Array[CST::Error]
+      @sync_recovery_token_data: Hash[String, untyped]?
+
+      @sync_recovery_context: Hash[Symbol, untyped]?
+
+      @trace_value_printer: (^(untyped) -> untyped)?
+
+      @semantic_result_location: untyped
+
+      @semantic_location_names: Hash[Symbol, Integer]?
+
+      @semantic_locations: Array[untyped]?
+
+      @repair_selected: bool
+
+      @repair_input_buffer: Array[RepairInput]?
+
+      @repair_policy: RepairPolicy?
+
+      @runtime_observation_mutex: Mutex
+
+      @runtime_lookahead_token_display: untyped
+
+      @runtime_event_sequence: Integer
+
+      @runtime_observers: Hash[Observation::Subscription, Proc]?
 
       attr_accessor yydebug: bool
 
@@ -145,14 +164,20 @@ module Ibex
 
       attr_reader repair_policy: RepairPolicy?
 
+      attr_reader resource_limits: ResourceLimits
+
       # rubocop:disable Metrics/MethodLength -- initialization mirrors the complete mutable session state.
-      # @rbs () -> void
-      def initialize: () -> void
+      # @rbs (?resource_limits: ResourceLimits) -> void
+      def initialize: (?resource_limits: ResourceLimits) -> void
 
       # Enable bounded automatic repair for the next parser session.
       # Assign nil to restore the compatible yacc-only behavior.
       # @rbs (RepairPolicy? policy) -> RepairPolicy?
       def repair_policy=: (RepairPolicy? policy) -> RepairPolicy?
+
+      # Replace the limits used by future sessions.
+      # @rbs (ResourceLimits limits) -> ResourceLimits
+      def resource_limits=: (ResourceLimits limits) -> ResourceLimits
 
       # Pull tokens from `next_token` and parse them.
       # @rbs () -> untyped
@@ -327,6 +352,9 @@ module Ibex
       # @rbs (Integer production_id) -> untyped
       def reduce: (Integer production_id) -> untyped
 
+      # @rbs (Integer next_state, untyped result, untyped location) -> void
+      def push_reduction_result: (Integer next_state, untyped result, untyped location) -> void
+
       # @rbs (Integer production_id, Integer length, Integer lhs, untyped result, Integer next_state) -> void
       def trace_reduction: (Integer production_id, Integer length, Integer lhs, untyped result, Integer next_state) -> void
 
@@ -448,6 +476,12 @@ module Ibex
 
       # @rbs () -> bool
       def shift_error_token: () -> bool
+
+      # @rbs () -> void
+      def ensure_stack_capacity!: () -> void
+
+      # @rbs () -> void
+      def consume_recovery_attempt!: () -> void
 
       # @rbs () -> (RepairPlan | Object | nil)
       def selected_repair: () -> (RepairPlan | Object | nil)
