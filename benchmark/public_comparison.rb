@@ -16,6 +16,7 @@ module PublicPerformanceComparison
   SCRIPT = File.join(ROOT, "benchmark/public_comparison.rb")
   MANIFEST = File.join(ROOT, "benchmark/public_workloads.json")
   SCHEMA = File.join(ROOT, "schema/public-performance-comparison-v1.schema.json")
+  ROOT_IDENTITY_KEYS = %i[git_revision git_dirty git_tracked_dirty git_untracked_dirty].freeze
   THIRD_PARTY_WARNING = "This benchmark executes code from the supplied third-party checkouts. " \
                         "Verify each path and revision."
   DEFAULTS = {
@@ -39,13 +40,17 @@ module PublicPerformanceComparison
 
     options, manifest = parse_options(arguments)
     warn "WARNING: #{THIRD_PARTY_WARNING}"
-    verify_root!(options)
+    initial_environment = verify_root!(options)
     checkouts = verify_checkouts(options, manifest)
     observations = collect_observations(options, manifest, checkouts)
     verified_checkouts = verify_checkouts(options, manifest)
     assert_checkouts_unchanged!(checkouts, verified_checkouts)
+    final_environment = PerformanceComparison.environment
+    verified_environment = assert_root_unchanged!(initial_environment, final_environment, options)
     require_relative "support/public_comparison_report"
-    report = BenchmarkSupport::PublicComparisonReport.build(options, manifest, checkouts, observations)
+    report = BenchmarkSupport::PublicComparisonReport.build(
+      options, manifest, checkouts, observations, environment: verified_environment
+    )
     validate_report!(report)
     output = "#{JSON.pretty_generate(report)}\n"
     write_output(options[:output], output) if options[:output]
@@ -81,6 +86,15 @@ module PublicPerformanceComparison
 
     changed = (before.keys | after.keys).reject { |identifier| before[identifier] == after[identifier] }
     raise "public checkouts changed during observation collection: #{changed.join(', ')}"
+  end
+
+  def assert_root_unchanged!(before, after, options)
+    before_identity = before.slice(*ROOT_IDENTITY_KEYS)
+    after_identity = after.slice(*ROOT_IDENTITY_KEYS)
+    raise "Ibex repository root changed during observation collection" unless before_identity == after_identity
+
+    verify_root!(options, before)
+    verify_root!(options, after)
   end
 
   def collect_observations(options, manifest, checkouts)

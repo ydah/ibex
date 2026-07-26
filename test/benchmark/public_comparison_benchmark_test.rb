@@ -6,6 +6,28 @@ require_relative "../../benchmark/support/public_comparison_report"
 require "json_schemer"
 require "tmpdir"
 
+class PublicComparisonRootIdentityTest < Minitest::Test
+  def test_repository_root_identity_must_not_change_during_collection
+    options, = PublicPerformanceComparison.parse_options(["--smoke"])
+    before = {
+      git_revision: "1" * 40,
+      git_dirty: false,
+      git_tracked_dirty: false,
+      git_untracked_dirty: false
+    }
+    assert_same before, PublicPerformanceComparison.assert_root_unchanged!(before, before, options)
+
+    PublicPerformanceComparison::ROOT_IDENTITY_KEYS.each do |key|
+      after = before.dup
+      after[key] = key == :git_revision ? "2" * 40 : true
+      error = assert_raises(RuntimeError) do
+        PublicPerformanceComparison.assert_root_unchanged!(before, after, options)
+      end
+      assert_includes error.message, "changed during observation collection"
+    end
+  end
+end
+
 class PublicComparisonBenchmarkTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   SCHEMA = File.join(ROOT, "schema/public-performance-comparison-v1.schema.json")
@@ -76,11 +98,13 @@ class PublicComparisonBenchmarkTest < Minitest::Test
   end
 
   def test_report_validates_against_its_separate_schema
-    report = build_smoke_report
+    environment = PerformanceComparison.environment
+    report = build_smoke_report(environment: environment)
     errors = JSONSchemer.schema(JSON.parse(File.read(SCHEMA))).validate(JSON.parse(JSON.generate(report))).to_a
 
     assert_empty errors
     assert_same report, PublicPerformanceComparison.validate_report!(report)
+    assert_same environment, report.fetch(:environment)
     assert_equal "diagnostic_smoke", report.fetch(:evidence_kind)
     assert_equal "end_to_end_lexer_inclusive", report.dig(:configuration, :runtime_scope)
     assert report.dig(:projects, 0, :scenarios, :warm_runtime_reuse, :comparison, :result_equivalent)
@@ -110,7 +134,11 @@ class PublicComparisonBenchmarkTest < Minitest::Test
 
     error = assert_raises(RuntimeError) do
       BenchmarkSupport::PublicComparisonReport.build(
-        options, manifest, { "namae" => fake_checkout }, { "namae" => fake_observations }
+        options,
+        manifest,
+        { "namae" => fake_checkout },
+        { "namae" => fake_observations },
+        environment: PerformanceComparison.environment
       )
     end
     assert_includes error.message, "has 1 observations; expected 2"
@@ -149,11 +177,15 @@ class PublicComparisonBenchmarkTest < Minitest::Test
 
   private
 
-  def build_smoke_report
+  def build_smoke_report(environment: PerformanceComparison.environment)
     options, manifest = PublicPerformanceComparison.parse_options(["--smoke", "--project", "namae"])
     options[:allow_dirty] = true
     BenchmarkSupport::PublicComparisonReport.build(
-      options, manifest, { "namae" => fake_checkout }, { "namae" => fake_observations }
+      options,
+      manifest,
+      { "namae" => fake_checkout },
+      { "namae" => fake_observations },
+      environment: environment
     )
   end
 

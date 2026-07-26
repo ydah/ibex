@@ -10,8 +10,7 @@ module BenchmarkSupport
   module PublicComparisonReport
     module_function
 
-    def build(options, manifest, checkouts, observations)
-      environment = PerformanceComparison.environment
+    def build(options, manifest, checkouts, observations, environment:)
       assert_formal_eligibility!(options, checkouts, environment)
       projects = options.fetch(:projects).map do |identifier|
         project_report(

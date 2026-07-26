@@ -212,6 +212,11 @@ repeats the complete checkout verification after collecting observations and
 rejects any metadata change before emitting a report. The Git tree identity
 avoids opening external generated parser outputs.
 
+The Ibex root receives the same before/after boundary: its revision plus
+aggregate, tracked, and untracked dirty state must remain identical, and both
+samples must be clean for formal evidence. The verified final environment is
+the one embedded in the report.
+
 Workers alternate implementation order and reject effective YJIT, `RUBYOPT`,
 backend, result, repeated-result-sequence, or observation-count mismatches.
 Formal reports are native-Racc-only and always contain exactly the configured

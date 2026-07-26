@@ -62,6 +62,12 @@ origin, status, grammar digest, lockfile digest, and library-tree verification.
 Any difference from the pre-run metadata aborts report emission. Formal runs
 therefore begin and end with the exact clean checkout identity.
 
+The orchestrator also captures the Ibex root environment before workers start
+and again after they finish. Its Git revision and aggregate, tracked, and
+untracked dirty identity must remain unchanged; formal samples must be clean
+at both boundaries. Report assembly receives the verified final environment
+instead of performing another uncorrelated sample.
+
 Public workloads intentionally omit a pretokenized/core scenario. Adding a
 token driver would rewrite third-party grammar behavior and measure an
 invented integration. Lexer-inclusive public timing answers the application
