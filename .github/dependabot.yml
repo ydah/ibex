@@ -38,3 +38,21 @@ updates:
         update-types:
           - "minor"
           - "patch"
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+    groups:
+      browser-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"

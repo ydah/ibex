@@ -1,0 +1,11 @@
+--no-private
+--protected
+--markup markdown
+--readme README.md
+--title "Ibex API Reference"
+--output-dir tmp/site/api
+--tag rbs:RBS
+--hide-tag rbs
+--fail-on-warning
+--exclude lib/ibex/frontend/generated_parser.rb
+lib/**/*.rb
