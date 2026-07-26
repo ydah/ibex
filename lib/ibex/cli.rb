@@ -3,6 +3,7 @@
 require "optparse"
 require_relative "../ibex"
 require_relative "cli/counterexample_options"
+require_relative "cli/coverage"
 require_relative "cli/diagnostics"
 require_relative "cli/documentation"
 require_relative "cli/error_messages"
@@ -79,6 +80,7 @@ module Ibex
   class CLI
     SUBCOMMAND_HANDLERS = {
       "diagnose" => :run_diagnose_command,
+      "coverage" => :run_coverage_command,
       "doc" => :run_documentation_command,
       "errors" => :run_error_messages_command,
       "explain" => :run_explain_command,
@@ -91,6 +93,7 @@ module Ibex
     }.freeze #: Hash[String, Symbol]
 
     include CLICounterexampleOptions
+    include CLICoverage
     include CLIDiagnostics
     include CLIDocumentation
     include CLIErrorMessages
@@ -170,6 +173,7 @@ module Ibex
         add_information_options(options)
         options.separator("")
         options.separator("Subcommands:")
+        options.separator("    coverage                  collect, merge, or check runtime coverage")
         options.separator("    diagnose                  collect frontend diagnostics")
         options.separator("    doc                       render grammar documentation")
         options.separator("    errors --update[=FILE]  update state-specific syntax error messages")

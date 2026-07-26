@@ -1,0 +1,76 @@
+# Generated from lib/ibex/coverage/collector.rb with RBS::Inline
+
+module Ibex
+  module Coverage
+    # Strictly turns one or more complete parse sessions into a coverage report.
+    class Collector
+      @expected_sequence: Integer
+
+      @in_session: bool
+
+      @production_hits: Hash[Integer, Integer]
+
+      @state_hits: Hash[Integer, Integer]
+
+      @event_count: Integer
+
+      @sessions: Integer
+
+      @production_count: Integer?
+
+      @state_count: Integer?
+
+      @table_format_version: Integer?
+
+      @grammar_digest: String?
+
+      # @rbs () -> void
+      def initialize: () -> void
+
+      # @rbs (String path) -> Report
+      def self.collect_file: (String path) -> Report
+
+      # @rbs (Hash[String, untyped] document, source: String, line: Integer) -> void
+      def consume: (Hash[String, untyped] document, source: String, line: Integer) -> void
+
+      # @rbs (source: String) -> Report
+      def finish: (source: String) -> Report
+
+      private
+
+      # @rbs (Hash[untyped, untyped] data, untyped sequence, String source, Integer line) -> void
+      def start_session: (Hash[untyped, untyped] data, untyped sequence, String source, Integer line) -> void
+
+      # @rbs (String event, Hash[untyped, untyped] data, untyped sequence, String source, Integer line) -> void
+      def consume_session_event: (String event, Hash[untyped, untyped] data, untyped sequence, String source, Integer line) -> void
+
+      # @rbs (Hash[untyped, untyped] data, String source, Integer line)
+      #   -> [[String, Integer, Integer, Integer], Integer]
+      def session_metadata: (Hash[untyped, untyped] data, String source, Integer line) -> [ [ String, Integer, Integer, Integer ], Integer ]
+
+      # @rbs ([String, Integer, Integer, Integer] metadata, String source, Integer line) -> void
+      def establish_metadata: ([ String, Integer, Integer, Integer ] metadata, String source, Integer line) -> void
+
+      # @rbs (String source, Integer line) -> void
+      def validate_metadata!: (String source, Integer line) -> void
+
+      # @rbs (untyped id, String source, Integer line) -> void
+      def hit_state: (untyped id, String source, Integer line) -> void
+
+      # @rbs (untyped id, String source, Integer line) -> void
+      def hit_production: (untyped id, String source, Integer line) -> void
+
+      # @rbs (untyped id, Integer total) -> bool
+      def valid_id?: (untyped id, Integer total) -> bool
+
+      # @rbs (Hash[Integer, Integer] hits, Integer id, String kind, String source, Integer line) -> void
+      def increment: (Hash[Integer, Integer] hits, Integer id, String kind, String source, Integer line) -> void
+
+      # @rbs [T] (T? value) -> T
+      def required_metadata: [T] (T? value) -> T
+
+      # @rbs (String source, Integer line, String message) -> bot
+      def invalid: (String source, Integer line, String message) -> bot
+    end
+  end
+end

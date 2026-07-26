@@ -1,0 +1,100 @@
+# Generated from lib/ibex/coverage/report.rb with RBS::Inline
+
+module Ibex
+  module Coverage
+    # Versioned, mergeable runtime coverage result.
+    class Report
+      IDENTIFIER: String
+
+      SCHEMA_VERSION: Integer
+
+      MAX_DOCUMENT_BYTES: Integer
+
+      MAX_TOTAL: Integer
+
+      MAX_COUNT: Integer
+
+      ROOT_KEYS: Array[String]
+
+      TOTAL_KEYS: Array[String]
+
+      HIT_KEYS: Array[String]
+
+      attr_reader grammar_digest: String
+
+      attr_reader table_format_version: Integer
+
+      attr_reader state_count: Integer
+
+      attr_reader production_count: Integer
+
+      attr_reader sessions: Integer
+
+      attr_reader event_count: Integer
+
+      attr_reader state_hits: Hash[Integer, Integer]
+
+      attr_reader production_hits: Hash[Integer, Integer]
+
+      # rubocop:disable Layout/LineLength
+      # @rbs (grammar_digest: String, table_format_version: Integer, state_count: Integer, production_count: Integer, sessions: Integer, event_count: Integer, state_hits: Hash[Integer, Integer], production_hits: Hash[Integer, Integer]) -> void
+      def initialize: (grammar_digest: String, table_format_version: Integer, state_count: Integer, production_count: Integer, sessions: Integer, event_count: Integer, state_hits: Hash[Integer, Integer], production_hits: Hash[Integer, Integer]) -> void
+
+      # @rbs () -> Hash[String, untyped]
+      def to_h: () -> Hash[String, untyped]
+
+      # @rbs (*untyped) -> String
+      def to_json: (*untyped) -> String
+
+      # @rbs (String path) -> Report
+      def self.load_file: (String path) -> Report
+
+      # @rbs (untyped value, source: String) -> Report
+      def self.from_h: (untyped value, source: String) -> Report
+
+      # @rbs (Array[Report] reports) -> Report
+      def self.merge: (Array[Report] reports) -> Report
+
+      private
+
+      # @rbs (untyped input) -> String
+      def validate_digest: (untyped input) -> String
+
+      # @rbs (untyped input, String name) -> Integer
+      def positive_integer: (untyped input, String name) -> Integer
+
+      # @rbs (untyped input, String name, minimum: Integer) -> Integer
+      def total_integer: (untyped input, String name, minimum: Integer) -> Integer
+
+      # @rbs (Hash[Integer, Integer] input, Integer total, String kind) -> Hash[Integer, Integer]
+      def validate_hits: (Hash[Integer, Integer] input, Integer total, String kind) -> Hash[Integer, Integer]
+
+      # @rbs (Hash[Integer, Integer] hits) -> Array[Hash[String, Integer]]
+      def hit_documents: (Hash[Integer, Integer] hits) -> Array[Hash[String, Integer]]
+
+      # @rbs () -> void
+      def validate_event_bounds: () -> void
+
+      # @rbs (untyped value, String source, String name) -> Hash[String, untyped]
+      private def self.string_hash: (untyped value, String source, String name) -> Hash[String, untyped]
+
+      # @rbs (untyped value, untyped total, String source, String kind) -> Hash[Integer, Integer]
+      private def self.parse_hits: (untyped value, untyped total, String source, String kind) -> Hash[Integer, Integer]
+
+      # @rbs (untyped entry, untyped total, Integer previous, String source, String kind) -> [Integer, Integer]
+      private def self.parse_hit: (untyped entry, untyped total, Integer previous, String source, String kind) -> [ Integer, Integer ]
+
+      # @rbs (Report expected, Report actual) -> void
+      private def self.ensure_compatible: (Report expected, Report actual) -> void
+
+      # @rbs (Array[Integer] values, String name) -> Integer
+      private def self.checked_sum: (Array[Integer] values, String name) -> Integer
+
+      # @rbs (Array[Hash[Integer, Integer]] collections, String kind) -> Hash[Integer, Integer]
+      private def self.merge_hits: (Array[Hash[Integer, Integer]] collections, String kind) -> Hash[Integer, Integer]
+
+      # @rbs (String source, String message) -> bot
+      private def self.invalid: (String source, String message) -> bot
+    end
+  end
+end
