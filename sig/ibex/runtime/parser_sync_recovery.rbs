@@ -17,7 +17,7 @@ module Ibex
 
       private def continue_recovery: () -> untyped
 
-      private def reject_recovery_eof: () -> [ :done, nil ]
+      private def reject_recovery_eof: () -> [ :done, CST::Node? ]
 
       private def finish_recovery: (untyped, untyped, untyped, untyped, Integer, Array[untyped], Hash[String, untyped]?, String, Array[Proc]?) -> [ :continue ]
 
@@ -48,8 +48,8 @@ module Ibex
       # @rbs () -> [:continue]
       def finish_sync_recovery: () -> [ :continue ]
 
-      # @rbs () -> [:done, nil]
-      def reject_sync_recovery_eof: () -> [ :done, nil ]
+      # @rbs () -> [:done, CST::Node?]
+      def reject_sync_recovery_eof: () -> [ :done, CST::Node? ]
 
       # @rbs () -> void
       def clear_sync_recovery: () -> void

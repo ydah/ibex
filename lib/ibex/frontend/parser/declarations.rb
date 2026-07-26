@@ -25,18 +25,16 @@ module Ibex
       # @rbs () -> void
       def parse_pragmas
         # @type self: BootstrapParser
-        seen = false
         while keyword?("pragma")
           keyword = current
-          fail_at(keyword.location, "duplicate pragma extended") if seen
-
           advance
           value = expect(:identifier)
           name = token_string(value)
-          fail_at(value.location, "unknown pragma #{name}") unless name == "extended"
+          fail_at(value.location, "unknown pragma #{name}") unless %w[extended cst].include?(name)
+          fail_at(keyword.location, "duplicate pragma #{name}") if @pragmas[name]
 
+          @pragmas[name] = true
           @mode = :extended
-          seen = true
         end
       end
 

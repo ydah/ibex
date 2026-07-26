@@ -102,6 +102,19 @@ A handwritten pull lexer remains fully supported: implement `next_token` and ret
 `[token, value, location]`; `false` or `nil` marks EOF. See the
 [lexer migration guide](docs/lexer-migration.md) for the one-to-one mapping.
 
+## Concrete syntax trees
+
+Add `pragma cst` after the class header to make every action-free production
+return immutable `Ibex::Runtime::CST::Node` values. Terminal occurrences retain
+their symbol, semantic value, and location. Syntax and lexical failures return
+trees containing `CST::Error`; bounded repair insertions appear as
+`CST::Missing`, so the default CST parser always returns a tree.
+
+Generated lexers attach skipped text to the next terminal by default and keep
+final trivia on the root. Pass `--cst-trivia=drop` to discard it, or
+`--cst-trivia=attach` to state the default explicitly. Parsers without
+`pragma cst` keep the compatible semantic-value behavior and table shape.
+
 `Ibex::Location.new(line:, column:, ...)` is the immutable built-in range type; applications may continue to pass hashes or
 their own location objects. `location.join(other)` and `Ibex::Location.join(locations)` compute covering ranges when every
 location belongs to the same file.
@@ -185,7 +198,8 @@ error masks take precedence over default reductions. See [ADR
 
 `--mode=extended` enables optional, repeated, and separated values, named references, parameterized rule templates, and inline
 rules. A
-grammar can make the same choice locally with `pragma extended` immediately after its `class` header:
+grammar can make the same choice locally with `pragma extended` immediately after its `class` header.
+`pragma cst` also enables extended syntax while opting into automatic concrete trees:
 
 ```text
 class ExtendedParser

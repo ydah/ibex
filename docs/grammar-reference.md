@@ -8,6 +8,7 @@ Ibex's default `racc` mode accepts the compatible grammar described here. `--mod
 ```text
 class Namespace::Parser < OptionalSuperclass
   pragma extended       # optional; must precede ordinary declarations
+  pragma cst            # optional automatic concrete-tree mode
   declarations
 rule
   productions
@@ -110,6 +111,8 @@ filesystem read failures remain CLI invocation errors on stderr and do not produ
   It must immediately follow the class header, before every ordinary declaration. Unknown, duplicate, and misplaced pragmas
   are positioned errors. The frontend records the effective mode on the root AST, and Grammar IR v2 records extended mode
   additively so downstream generators preserve its runtime behavior.
+- `pragma cst` enables extended syntax and automatic concrete-tree construction for action-free productions. Distinct pragmas
+  may be combined in the class header; repeating either one is an error. Grammar IR v2 stores the optional `cst: true` setting.
 - `include "relative/path.y"` inserts one explicit fragment through the canonical resolver. It is available only in extended
   mode and is intentionally not followed by the source-only `Parser` API.
 - `## text` is a lossless line comment rather than a parser declaration. A consecutive block immediately above a rule supplies
@@ -188,6 +191,29 @@ flags common nested-quantifier shapes as `lexer_redos`; `--warnings=all,error`
 promotes the warning to an error. This heuristic is not a proof of safety.
 Applications must still bound untrusted input and review patterns. See the
 [lexer migration guide](lexer-migration.md) and [ADR 0071](decisions/0071-versioned-generated-lexer.md).
+
+## Concrete syntax trees
+
+With `pragma cst`, a production without an explicit semantic action reduces to
+`Ibex::Runtime::CST::Node`. It stores the nonterminal name, production id,
+ordered children, and synthesized location. Terminals are `CST::Token` values
+with their grammar symbol, application semantic value, original location, and
+leading trivia. All tree arrays and values are immutable and expose
+`deconstruct`/`deconstruct_keys` for pattern matching.
+
+The generated lexer defaults to `--cst-trivia=attach`: every skipped match is a
+`CST::Trivia` attached to the following token, and skipped text at EOF is
+retained as root trailing trivia. `--cst-trivia=drop` omits both. Handwritten
+lexers retain their existing contract; a location hash may optionally provide
+`leading_trivia`.
+
+Default CST error handling does not raise merely because the input is invalid.
+An unshiftable or discarded input token becomes `CST::Error`, a bounded repair
+insertion becomes `CST::Missing`, and an unrecoverable parse returns a
+synthetic start node. Generated-lexer no-match errors return the same shape
+with reason `:lexical`. Application hooks that intentionally raise remain
+application-owned. See
+[ADR 0072](decisions/0072-error-tolerant-concrete-trees.md).
 
 ## Productions and actions
 

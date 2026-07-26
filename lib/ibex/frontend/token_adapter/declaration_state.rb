@@ -58,10 +58,13 @@ module Ibex
 
         # @rbs @extended_mode: bool
         # @rbs @fragment: bool?
+        # @rbs @pragmas: Hash[String, bool]
+        # @rbs @pragma_location: Location?
 
         # @rbs (?extended: bool) -> void
         def initialize(extended: false)
           @extended_mode = extended
+          @pragmas = {} #: Hash[String, bool]
           @state = :class_keyword
         end
 
@@ -80,7 +83,12 @@ module Ibex
 
         # @rbs () -> bool
         def extended_pragma?
-          @extended_pragma == true
+          @pragmas["extended"] == true
+        end
+
+        # @rbs () -> bool
+        def cst_pragma?
+          @pragmas["cst"] == true
         end
 
         # @rbs (Token? token) -> String?
@@ -151,11 +159,10 @@ module Ibex
 
           reject_fragment_pragma(token, value)
 
-          raise Ibex::Error, "#{token.location}: duplicate pragma extended" if value == "pragma" && @extended_pragma
-
           terminal, next_state = DECLARATIONS[value]
           return :IDENTIFIER unless terminal
 
+          @pragma_location = token.location if terminal == :PRAGMA
           @token_alias_candidate = nil
           @state = next_state
           @declaration = value.to_sym unless terminal == :RULE
@@ -166,9 +173,13 @@ module Ibex
         # @rbs (Token token) -> external_token
         def finish_pragma(token)
           value = string_value(token)
-          raise Ibex::Error, "#{token.location}: unknown pragma #{value}" unless value == "extended"
+          raise Ibex::Error, "#{token.location}: unknown pragma #{value}" unless %w[extended cst].include?(value)
 
-          @extended_pragma = true
+          location = @pragma_location || token.location
+          raise Ibex::Error, "#{location}: duplicate pragma #{value}" if @pragmas[value]
+
+          @pragmas[value] = true
+          @pragma_location = nil
           @state = :declaration
           @declaration = nil
           :IDENTIFIER
@@ -192,9 +203,14 @@ module Ibex
 
         # @rbs (String value) -> bool
         def declaration_boundary?(value)
-          return false if %w[display type param printer].include?(value) && !(@extended_mode || extended_pragma?)
+          return false if %w[display type param printer].include?(value) && !extended_features?
 
           DECLARATIONS.key?(value) || %w[prechigh preclow].include?(value)
+        end
+
+        # @rbs () -> bool
+        def extended_features?
+          @extended_mode || extended_pragma? || cst_pragma?
         end
 
         # @rbs (Token token) -> external_token
@@ -262,7 +278,7 @@ module Ibex
         # @rbs (Token token, external_token type) -> external_token?
         def classify_token_alias(token, type)
           candidate = @token_alias_candidate
-          return unless (@extended_mode || extended_pragma?) && @state == :token_symbols &&
+          return unless extended_features? && @state == :token_symbols &&
                         type == :LITERAL && candidate
           return unless candidate.location.line == token.location.line
 

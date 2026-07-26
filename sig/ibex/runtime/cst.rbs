@@ -1,0 +1,108 @@
+# Generated from lib/ibex/runtime/cst.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    # Immutable concrete syntax tree values produced by `pragma cst` parsers.
+    module CST
+      # Ignored lexer text retained by the attach trivia policy.
+      class Trivia
+        attr_reader text: String
+
+        attr_reader location: untyped
+
+        # @rbs (text: String, location: untyped) -> void
+        def initialize: (text: String, location: untyped) -> void
+
+        # @rbs () -> Hash[Symbol, untyped]
+        def to_h: () -> Hash[Symbol, untyped]
+      end
+
+      # A terminal occurrence in source order.
+      class Token
+        attr_reader symbol: String
+
+        attr_reader value: untyped
+
+        attr_reader location: untyped
+
+        attr_reader leading_trivia: Array[Trivia]
+
+        # @rbs (symbol: String, value: untyped, location: untyped, ?leading_trivia: Array[Trivia]) -> void
+        def initialize: (symbol: String, value: untyped, location: untyped, ?leading_trivia: Array[Trivia]) -> void
+
+        # @rbs () -> Symbol
+        def kind: () -> Symbol
+
+        # @rbs () -> Array[untyped]
+        def children: () -> Array[untyped]
+
+        # @rbs () -> Array[untyped]
+        def deconstruct: () -> Array[untyped]
+
+        # @rbs (Array[Symbol]?) -> Hash[Symbol, untyped]
+        def deconstruct_keys: (Array[Symbol]?) -> Hash[Symbol, untyped]
+
+        # @rbs () -> Hash[Symbol, untyped]
+        def to_h: () -> Hash[Symbol, untyped]
+      end
+
+      # A token synthesized by bounded repair.
+      class Missing < Token
+        # @rbs () -> Symbol
+        def kind: () -> Symbol
+      end
+
+      # Invalid or discarded source retained in an error-tolerant tree.
+      class Error < Token
+        attr_reader reason: Symbol
+
+        # @rbs (symbol: String, value: untyped, location: untyped, ?reason: Symbol,
+        #   ?leading_trivia: Array[Trivia]) -> void
+        def initialize: (symbol: String, value: untyped, location: untyped, ?reason: Symbol, ?leading_trivia: Array[Trivia]) -> void
+
+        # @rbs () -> Symbol
+        def kind: () -> Symbol
+
+        # @rbs (Array[Symbol]?) -> Hash[Symbol, untyped]
+        def deconstruct_keys: (Array[Symbol]?) -> Hash[Symbol, untyped]
+      end
+
+      # A reduced nonterminal and its source-ordered children.
+      class Node
+        include Enumerable[Token | Node]
+
+        attr_reader symbol: String
+
+        attr_reader production_id: Integer
+
+        attr_reader children: Array[Token | Node]
+
+        attr_reader location: untyped
+
+        attr_reader trailing_trivia: Array[Trivia]
+
+        # @rbs (symbol: String, production_id: Integer, children: Array[Token | Node],
+        #   location: untyped, ?trailing_trivia: Array[Trivia]) -> void
+        def initialize: (symbol: String, production_id: Integer, children: Array[Token | Node], location: untyped, ?trailing_trivia: Array[Trivia]) -> void
+
+        # @rbs () -> Symbol
+        def kind: () -> Symbol
+
+        def each: () -> Enumerator[Token | Node, Node]
+                | () { (Token | Node) -> void } -> Node
+
+        # @rbs () -> Array[Token | Node]
+        def deconstruct: () -> Array[Token | Node]
+
+        # @rbs (Array[Symbol]?) -> Hash[Symbol, untyped]
+        def deconstruct_keys: (Array[Symbol]?) -> Hash[Symbol, untyped]
+
+        # @rbs () -> Hash[Symbol, untyped]
+        def to_h: () -> Hash[Symbol, untyped]
+
+        # @rbs (Array[Trivia]) -> Node
+        def with_trailing_trivia: (Array[Trivia]) -> Node
+      end
+    end
+  end
+end

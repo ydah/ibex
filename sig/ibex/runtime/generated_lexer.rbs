@@ -4,8 +4,11 @@ module Ibex
   module Runtime
     # Runtime contract mixed into parser classes that declare a lexer.
     # rubocop:disable Metrics/ModuleLength -- matching, actions, state, and positions share one session invariant.
-    module GeneratedLexer
+    # @rbs module-self Parser
+    module GeneratedLexer : Parser
       NO_EMISSION: Object
+
+      @lexer_pending_trivia: Array[CST::Trivia]
 
       @lexer_skip_requested: bool
 
@@ -80,6 +83,18 @@ module Ibex
       # Return the text consumed by the active lexer action.
       # @rbs () -> String?
       def lexeme: () -> String?
+
+      # @rbs (String text, Hash[Symbol, untyped] location) -> void
+      def retain_cst_trivia: (String text, Hash[Symbol, untyped] location) -> void
+
+      # @rbs (Hash[Symbol, untyped] location) -> Hash[Symbol, untyped]
+      def attach_cst_trivia: (Hash[Symbol, untyped] location) -> Hash[Symbol, untyped]
+
+      # @rbs () -> Array[CST::Trivia]
+      def take_cst_trailing_trivia: () -> Array[CST::Trivia]
+
+      # @rbs () -> Symbol
+      def cst_trivia_policy: () -> Symbol
 
       # Push a named lexer state.
       # @rbs (Symbol | String state) -> Symbol

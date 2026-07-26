@@ -27,6 +27,15 @@ state-indexed rules. Per-parser mutable input, position, emission, and state
 stacks live in `Runtime::GeneratedLexer`, never in the tables. See
 [ADR 0071](decisions/0071-versioned-generated-lexer.md).
 
+`pragma cst` adds an optional Grammar IR v2 flag and CST-only RHS/symbol
+metadata to generated tables. `Runtime::Parser` builds immutable concrete
+nodes only for action-free reductions, leaving ordinary parser stacks and
+explicit action contracts unchanged. Generated lexer skips become attached or
+dropped trivia according to the generation policy. Parser failures, repair
+insertions, and lexer failures become explicit `Error`/`Missing` terminals;
+unrecoverable CST sessions still return a synthetic start tree. See
+[ADR 0072](decisions/0072-error-tolerant-concrete-trees.md).
+
 The text frontend's canonical syntax is `lib/ibex/frontend/grammar.y`. Ibex generates and commits
 `lib/ibex/frontend/generated_parser.rb`; the public `Frontend::Parser` always delegates to that class. Lexer `Token` objects remain
 the semantic values passed through `TokenAdapter`, preserving their `Location` in AST nodes and diagnostics. The explicitly named

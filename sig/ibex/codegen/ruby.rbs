@@ -15,33 +15,35 @@ module Ibex
 
       include RubyLexer
 
-      @error_messages: Hash[Integer, String | { id: String, message: String }]
-
-      @executable: String?
-
-      @superclass: String
-
-      @omit_action_call: bool
-
-      @debug: bool
-
-      @line_convert_all: bool
-
-      @line_convert: bool
-
-      @embedded: bool
-
-      @table_format: Symbol
+      @automaton: IR::Automaton
 
       @grammar: IR::Grammar
 
-      @automaton: IR::Automaton
+      @table_format: Symbol
+
+      @embedded: bool
+
+      @line_convert: bool
+
+      @line_convert_all: bool
+
+      @debug: bool
+
+      @omit_action_call: bool
+
+      @superclass: String
+
+      @executable: String?
+
+      @cst_trivia: Symbol
+
+      @error_messages: Hash[Integer, String | { id: String, message: String }]
 
       # @rbs (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool,
       #   ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?,
-      #   ?executable: String?,
+      #   ?executable: String?, ?cst_trivia: Symbol | String,
       #   ?error_messages: Hash[Integer, String | { id: String, message: String }]) -> void
-      def initialize: (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool, ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?, ?executable: String?, ?error_messages: Hash[Integer, String | { id: String, message: String }]) -> void
+      def initialize: (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool, ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?, ?executable: String?, ?cst_trivia: Symbol | String, ?error_messages: Hash[Integer, String | { id: String, message: String }]) -> void
 
       # @rbs () -> String
       def generate: () -> String
@@ -82,6 +84,9 @@ module Ibex
       def token_names_literal: () -> String
 
       # @rbs () -> String
+      def symbol_names_literal: () -> String
+
+      # @rbs () -> String
       def productions_literal: () -> String
 
       # Reductions that are the sole non-error behavior of a state may run
@@ -98,6 +103,9 @@ module Ibex
 
       # @rbs () -> bool
       def uses_locations?: () -> bool
+
+      # @rbs () -> bool
+      def cst?: () -> bool
 
       # @rbs (Array[String] lines, String name, ?indent: Integer) -> void
       def append_user_code: (Array[String] lines, String name, ?indent: Integer) -> void

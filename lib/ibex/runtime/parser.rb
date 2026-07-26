@@ -146,11 +146,13 @@ module Ibex
       # @rbs @sync_recovery_context: Hash[Symbol, untyped]?
       # @rbs @sync_recovery_token_data: Hash[String, untyped]?
       # @rbs @sync_recovery_observers: Array[Proc]?
+      # @rbs @cst_errors: Array[CST::Error]
 
       attr_accessor :yydebug #: bool
       attr_writer :yydebug_output #: IO
       attr_reader :repair_policy #: RepairPolicy?
 
+      # rubocop:disable Metrics/MethodLength -- initialization mirrors the complete mutable session state.
       # @rbs () -> void
       def initialize
         @yydebug = false
@@ -183,7 +185,9 @@ module Ibex
         @sync_recovery_context = nil
         @sync_recovery_token_data = nil
         @sync_recovery_observers = nil
+        @cst_errors = []
       end
+      # rubocop:enable Metrics/MethodLength
 
       # Enable bounded automatic repair for the next parser session.
       # Assign nil to restore the compatible yacc-only behavior.
@@ -299,6 +303,7 @@ module Ibex
       # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> untyped
       def on_error(token_id, value, _value_stack)
         return if @repair_selected
+        return if cst_enabled?
 
         expected = expected_tokens
         token_name = token_to_str(token_id)
@@ -629,6 +634,7 @@ module Ibex
         reset_parse_recovery_state
         @accept_requested = false
         @unknown_token_id = nil
+        @cst_errors = []
         trace("start state #{initial_state}")
         @runtime_event_sequence = 0
         return unless @runtime_observers
@@ -722,7 +728,7 @@ module Ibex
         when :shift then shift(action.fetch(1))
         when :reduce then reduce(action.fetch(1))
         when :accept
-          result = @value_stack.last
+          result = finalize_cst(@value_stack.last)
           emit_accept_event(EventSanitizer.value(result), "table") if @runtime_observers
           [:accepted, result]
         when :error then recover
@@ -774,7 +780,7 @@ module Ibex
         @value_stack.pop(length)
         post_state = @state_stack.last if event_observers
         location = LocationSpan.for_reduction(locations, lookahead: @lookahead_location)
-        result = reduction_value(production, values, locations, location)
+        result = reduction_value(production_id, production, values, locations, location)
         next_state = table_lookup(parser_tables.fetch(:gotos), @state_stack.last, production.fetch(:lhs))
         raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
 
@@ -830,18 +836,19 @@ module Ibex
 
       # @rbs (untyped result) -> [:accepted, untyped]
       def accept_reduction(result)
+        result = finalize_cst(result)
         emit_accept_event(EventSanitizer.value(result), "semantic") if @runtime_observers
         [:accepted, result]
       end
 
-      # @rbs (Hash[Symbol, untyped] production, Array[untyped] values,
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
       #   Array[untyped] locations, LocationSpan? location) -> untyped
-      def reduction_value(production, values, locations, location)
+      def reduction_value(production_id, production, values, locations, location)
         previous_locations = @semantic_locations
         previous_names = @semantic_location_names
         previous_result_location = @semantic_result_location
         action = production[:action]
-        return values.first unless action
+        return actionless_reduction_value(production_id, production, values, locations, location) unless action
 
         context_length = production.fetch(:location_context_length, 0)
         action_locations = if context_length.positive?
@@ -862,6 +869,14 @@ module Ibex
         @semantic_result_location = previous_result_location
       end
 
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
+      #   Array[untyped] locations, LocationSpan? location) -> untyped
+      def actionless_reduction_value(production_id, production, values, locations, location)
+        return values.first unless cst_enabled?
+
+        cst_reduction_value(production_id, production, values, locations, location)
+      end
+
       # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
       def generated_location_action?(production, action)
         parser_tables.fetch(:format_version) >= 2 &&
@@ -879,6 +894,115 @@ module Ibex
       # @rbs (untyped action) -> bool
       def generated_action_symbol?(action)
         action.is_a?(Symbol) && action.to_s.match?(GENERATED_ACTION_NAME)
+      end
+
+      # @rbs () -> bool
+      def cst_enabled?
+        parser_tables[:cst] == true
+      end
+
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
+      #   Array[untyped] locations, LocationSpan? location) -> CST::Node
+      def cst_reduction_value(production_id, production, values, locations, location)
+        rhs = production.fetch(:rhs)
+        children = @cst_errors.dup #: Array[CST::Token | CST::Node]
+        @cst_errors.clear
+        rhs.each_with_index do |symbol_id, index|
+          value = values[index]
+          child = if value.is_a?(CST::Token) || value.is_a?(CST::Node)
+                    value
+                  else
+                    cst_token(symbol_id, value, locations[index])
+                  end
+          children << child
+        end
+        CST::Node.new(
+          symbol: cst_symbol_name(production.fetch(:lhs)), production_id: production_id,
+          children: children, location: location
+        )
+      end
+
+      # @rbs (Integer symbol_id, untyped value, untyped location) -> CST::Token
+      def cst_token(symbol_id, value, location)
+        symbol = cst_symbol_name(symbol_id)
+        repair = cst_location_value(location, :ibex_repair)
+        trivia = cst_location_value(location, :leading_trivia)
+        leading = trivia.is_a?(Array) ? trivia.grep(CST::Trivia) : [] #: Array[CST::Trivia]
+        if repair == :insert
+          CST::Missing.new(symbol: symbol, value: value, location: location, leading_trivia: leading)
+        elsif repair == :replace || symbol == "error"
+          CST::Error.new(symbol: symbol, value: value, location: location, reason: repair || :syntax,
+                         leading_trivia: leading)
+        else
+          CST::Token.new(symbol: symbol, value: value, location: location, leading_trivia: leading)
+        end
+      end
+
+      # @rbs (Integer token_id, untyped value, untyped location, Symbol reason) -> void
+      def capture_cst_error(token_id, value, location, reason)
+        return unless cst_enabled?
+        return if token_id == EOF_TOKEN
+
+        @cst_errors << CST::Error.new(
+          symbol: token_to_str(token_id), value: value, location: location, reason: reason
+        )
+      end
+
+      # @rbs (untyped value) -> CST::Node
+      def finalize_cst(value)
+        return value unless cst_enabled?
+
+        node = if value.is_a?(CST::Node)
+                 value
+               else
+                 child = if value.is_a?(CST::Token)
+                           value
+                         else
+                           CST::Token.new(symbol: parser_tables.fetch(:cst_start), value: value, location: nil)
+                         end
+                 CST::Node.new(
+                   symbol: parser_tables.fetch(:cst_start), production_id: -1,
+                   children: @cst_errors + [child], location: child.location
+                 )
+               end
+        @cst_errors.clear
+        return node unless respond_to?(:take_cst_trailing_trivia, true)
+
+        trailing = __send__(:take_cst_trailing_trivia)
+        trailing.empty? ? node : node.with_trailing_trivia(trailing)
+      end
+
+      # @rbs () -> CST::Node
+      def failed_cst
+        capture_cst_error(@lookahead, @lookahead_value, @lookahead_location, :syntax) if @cst_errors.empty?
+        CST::Node.new(
+          symbol: parser_tables.fetch(:cst_start), production_id: -1,
+          children: @cst_errors.dup, location: @lookahead_location
+        )
+      end
+
+      # @rbs (ParseError error) -> CST::Node
+      def cst_lexical_failure(error)
+        error_node = CST::Error.new(
+          symbol: "lexer input", value: error.token_value, location: error.location, reason: :lexical
+        )
+        CST::Node.new(
+          symbol: parser_tables.fetch(:cst_start), production_id: -1,
+          children: [error_node], location: error.location
+        )
+      end
+
+      # @rbs (Integer symbol_id) -> String
+      def cst_symbol_name(symbol_id)
+        parser_tables.fetch(:symbol_names).fetch(symbol_id)
+      end
+
+      # @rbs (untyped location, Symbol key) -> untyped
+      def cst_location_value(location, key)
+        return location[key] || location[key.to_s] if location.is_a?(Hash)
+        return location.public_send(key) if location.respond_to?(key)
+
+        nil
       end
 
       # @rbs (?report: bool) -> untyped
@@ -905,14 +1029,14 @@ module Ibex
         [:continue]
       end
 
-      # @rbs () -> [:done, nil]
+      # @rbs () -> [:done, CST::Node?]
       def reject_recovery_eof
         if @runtime_observers
           observers = runtime_observer_snapshot
           data = runtime_current_token_data
           emit_reject_event("eof_during_recovery", data, observers: observers)
         end
-        [:done, nil]
+        [:done, cst_enabled? ? failed_cst : nil]
       end
 
       # @rbs (String token_display) -> Hash[String, untyped]
@@ -932,6 +1056,7 @@ module Ibex
         return [:repair_pending] if repair.equal?(RepairSearch::NEED_INPUT)
 
         context = recovery_context(report)
+        capture_cst_error(context[:token_id], context[:value], context[:location], context[:reason].to_sym)
         token_data, recovery_observers = publish_error_context(context)
         notify_error_handler(context, repair) if report
         return commit_repair(repair) if repair.is_a?(RepairPlan)
@@ -1023,7 +1148,8 @@ module Ibex
       end
 
       # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,
-      #   Integer original_state, Hash[String, untyped]? token_data, Array[Proc]? observers) -> [:done, nil]
+      #   Integer original_state, Hash[String, untyped]? token_data,
+      #   Array[Proc]? observers) -> [:done, CST::Node?]
       def reject_without_recovery(token_id, token_display, value, location, original_state, token_data, observers)
         if observers
           reject_data = token_data || runtime_original_token_data(
@@ -1035,7 +1161,7 @@ module Ibex
             observers: observers
           )
         end
-        [:done, nil]
+        [:done, cst_enabled? ? failed_cst : nil]
       end
 
       # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,
@@ -1217,7 +1343,23 @@ module Ibex
 
       # @rbs (RepairEdit edit, value: untyped, location: untyped) -> RepairInput
       def synthetic_repair_input(edit, value:, location:)
+        location = cst_repair_location(location, edit.kind) if cst_enabled?
         RepairInput.new(token_id: edit.token_id, token_name: edit.token_name, value: value, location: location)
+      end
+
+      # @rbs (untyped location, Symbol kind) -> Hash[Symbol, untyped]
+      def cst_repair_location(location, kind)
+        return location.merge(ibex_repair: kind).freeze if location.is_a?(Hash)
+
+        {
+          file: cst_location_value(location, :file),
+          line: cst_location_value(location, :line),
+          column: cst_location_value(location, :column),
+          end_line: cst_location_value(location, :end_line),
+          end_column: cst_location_value(location, :end_column),
+          origin: location,
+          ibex_repair: kind
+        }.freeze
       end
 
       # @rbs (RepairPlan plan) -> String

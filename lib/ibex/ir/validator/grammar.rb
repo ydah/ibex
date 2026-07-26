@@ -95,9 +95,15 @@ module Ibex
         # @rbs () -> void
         def validate_options
           path = "#{@path}.options"
-          options = record(@data["options"], path, %w[result_var omit_action_call])
+          options = record(@data["options"], path, %w[result_var omit_action_call], %w[cst])
           boolean(options["result_var"], "#{path}.result_var")
           boolean(options["omit_action_call"], "#{path}.omit_action_call")
+          return unless options.key?("cst")
+
+          invalid("#{path}.cst", "requires schema_version 2") unless @version >= 2
+          literal(options["cst"], "#{path}.cst", true)
+          invalid("#{@path}.mode", "must be extended when CST construction is enabled") unless
+            @data["mode"] == "extended"
         end
 
         # @rbs () -> void

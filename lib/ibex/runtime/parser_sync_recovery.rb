@@ -12,7 +12,7 @@ module Ibex
       #   private def token_to_str: (untyped) -> String
       #   private def trace: (String) -> void
       #   private def continue_recovery: () -> untyped
-      #   private def reject_recovery_eof: () -> [:done, nil]
+      #   private def reject_recovery_eof: () -> [:done, CST::Node?]
       #   private def finish_recovery: (untyped, untyped, untyped, untyped, Integer, Array[untyped],
       #     Hash[String, untyped]?, String, Array[Proc]?) -> [:continue]
 
@@ -87,7 +87,7 @@ module Ibex
         )
       end
 
-      # @rbs () -> [:done, nil]
+      # @rbs () -> [:done, CST::Node?]
       def reject_sync_recovery_eof
         clear_sync_recovery
         reject_recovery_eof

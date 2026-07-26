@@ -33,6 +33,7 @@ module Ibex
   #     emit: String,
   #     mode: Symbol,
   #     table: Symbol,
+  #     ?cst_trivia: Symbol,
   #     line_convert: bool,
   #     ?line_convert_all: bool,
   #     counterexample_max_tokens: Integer,
@@ -214,6 +215,9 @@ module Ibex
       options.on("--mode=MODE", %w[racc extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
       options.on("--table=FORMAT", %w[plain compact], "parser table format") do |value|
         @options[:table] = value.to_sym
+      end
+      options.on("--cst-trivia=POLICY", %w[attach drop], "retain or discard lexer trivia in CST output") do |value|
+        @options[:cst_trivia] = value.to_sym
       end
       options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
         @options[:algorithm] = value.to_sym
@@ -609,7 +613,8 @@ module Ibex
                    line_convert: @options.fetch(:line_convert), debug: @options.fetch(:debug, false),
                    line_convert_all: @options.fetch(:line_convert_all, false),
                    omit_action_call: @options[:omit_actions], superclass: @options[:superclass],
-                   executable: @options[:executable], error_messages: configured_error_messages(automaton)
+                   executable: @options[:executable], cst_trivia: @options.fetch(:cst_trivia, :attach),
+                   error_messages: configured_error_messages(automaton)
       ).generate
       output_path = @options[:output] || default_output_path(input_path, ".rb")
       action_source = action_source_source(automaton) if @options[:action_source]

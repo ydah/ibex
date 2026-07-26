@@ -106,7 +106,8 @@ module Ibex
       def build_root(class_token, class_parts, superclass, declarations, rules, user_code)
         AST::Root.new(class_name: class_parts.join("::"), superclass: superclass&.join("::"),
                       declarations: declarations, rules: rules, user_code: user_code, loc: class_token.location,
-                      extended: @mode == :extended || @adapter.extended_pragma?)
+                      extended: @mode == :extended || @adapter.extended_pragma? || @adapter.cst_pragma?,
+                      cst: @adapter.cst_pragma?)
       end
 
       # @rbs (Token keyword, Array[[String, String?]] entries) -> AST::Tokens
@@ -350,7 +351,7 @@ module Ibex
 
       # @rbs (Location location, String feature) -> void
       def extended_only!(location, feature)
-        return if @mode == :extended || @adapter.extended_pragma?
+        return if @mode == :extended || @adapter.extended_pragma? || @adapter.cst_pragma?
 
         fail_at(location, "#{feature} require extended mode")
       end

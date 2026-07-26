@@ -48,7 +48,10 @@ module Ibex
         def to_h
           fields = each_pair.to_h { |name, value| [name, serialize(value)] }
           fields.delete(:aliases) if self.class.name.end_with?("::Tokens") && !fields[:aliases]
-          fields.delete(:extended) if self.class.name.end_with?("::Root") && !fields[:extended]
+          if self.class.name.end_with?("::Root")
+            fields.delete(:extended) unless fields[:extended]
+            fields.delete(:cst) unless fields[:cst]
+          end
           { node: self.class.name.split("::").last }.merge(fields)
         end
 
@@ -73,6 +76,7 @@ module Ibex
         :user_code, #: user_code
         :loc, #: Location
         :extended, #: bool?
+        :cst, #: bool?
         keyword_init: true
       ) { include Node }
       Fragment = Struct.new(

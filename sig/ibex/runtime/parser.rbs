@@ -137,12 +137,15 @@ module Ibex
 
       @sync_recovery_observers: Array[Proc]?
 
+      @cst_errors: Array[CST::Error]
+
       attr_accessor yydebug: bool
 
       attr_writer yydebug_output: IO
 
       attr_reader repair_policy: RepairPolicy?
 
+      # rubocop:disable Metrics/MethodLength -- initialization mirrors the complete mutable session state.
       # @rbs () -> void
       def initialize: () -> void
 
@@ -340,9 +343,13 @@ module Ibex
       # @rbs (untyped result) -> [:accepted, untyped]
       def accept_reduction: (untyped result) -> [ :accepted, untyped ]
 
-      # @rbs (Hash[Symbol, untyped] production, Array[untyped] values,
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
       #   Array[untyped] locations, LocationSpan? location) -> untyped
-      def reduction_value: (Hash[Symbol, untyped] production, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> untyped
+      def reduction_value: (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> untyped
+
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
+      #   Array[untyped] locations, LocationSpan? location) -> untyped
+      def actionless_reduction_value: (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> untyped
 
       # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
       def generated_location_action?: (Hash[Symbol, untyped] production, untyped action) -> bool
@@ -353,14 +360,42 @@ module Ibex
       # @rbs (untyped action) -> bool
       def generated_action_symbol?: (untyped action) -> bool
 
+      # @rbs () -> bool
+      def cst_enabled?: () -> bool
+
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
+      #   Array[untyped] locations, LocationSpan? location) -> CST::Node
+      def cst_reduction_value: (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> CST::Node
+
+      # @rbs (Integer symbol_id, untyped value, untyped location) -> CST::Token
+      def cst_token: (Integer symbol_id, untyped value, untyped location) -> CST::Token
+
+      # @rbs (Integer token_id, untyped value, untyped location, Symbol reason) -> void
+      def capture_cst_error: (Integer token_id, untyped value, untyped location, Symbol reason) -> void
+
+      # @rbs (untyped value) -> CST::Node
+      def finalize_cst: (untyped value) -> CST::Node
+
+      # @rbs () -> CST::Node
+      def failed_cst: () -> CST::Node
+
+      # @rbs (ParseError error) -> CST::Node
+      def cst_lexical_failure: (ParseError error) -> CST::Node
+
+      # @rbs (Integer symbol_id) -> String
+      def cst_symbol_name: (Integer symbol_id) -> String
+
+      # @rbs (untyped location, Symbol key) -> untyped
+      def cst_location_value: (untyped location, Symbol key) -> untyped
+
       # @rbs (?report: bool) -> untyped
       def recover: (?report: bool) -> untyped
 
       # @rbs () -> untyped
       def continue_recovery: () -> untyped
 
-      # @rbs () -> [:done, nil]
-      def reject_recovery_eof: () -> [ :done, nil ]
+      # @rbs () -> [:done, CST::Node?]
+      def reject_recovery_eof: () -> [ :done, CST::Node? ]
 
       # @rbs (String token_display) -> Hash[String, untyped]
       def runtime_discard_data: (String token_display) -> Hash[String, untyped]
@@ -389,8 +424,9 @@ module Ibex
       def runtime_original_token_data: (untyped token_id, untyped token_display, untyped value, untyped location, Integer state) -> Hash[String, untyped]
 
       # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,
-      #   Integer original_state, Hash[String, untyped]? token_data, Array[Proc]? observers) -> [:done, nil]
-      def reject_without_recovery: (untyped token_id, untyped token_display, untyped value, untyped location, Integer original_state, Hash[String, untyped]? token_data, Array[Proc]? observers) -> [ :done, nil ]
+      #   Integer original_state, Hash[String, untyped]? token_data,
+      #   Array[Proc]? observers) -> [:done, CST::Node?]
+      def reject_without_recovery: (untyped token_id, untyped token_display, untyped value, untyped location, Integer original_state, Hash[String, untyped]? token_data, Array[Proc]? observers) -> [ :done, CST::Node? ]
 
       # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,
       #   Integer original_state, Array[untyped] value_stack, Hash[String, untyped]? token_data,
@@ -436,6 +472,9 @@ module Ibex
 
       # @rbs (RepairEdit edit, value: untyped, location: untyped) -> RepairInput
       def synthetic_repair_input: (RepairEdit edit, value: untyped, location: untyped) -> RepairInput
+
+      # @rbs (untyped location, Symbol kind) -> Hash[Symbol, untyped]
+      def cst_repair_location: (untyped location, Symbol kind) -> Hash[Symbol, untyped]
 
       # @rbs (RepairPlan plan) -> String
       def repair_trace: (RepairPlan plan) -> String
