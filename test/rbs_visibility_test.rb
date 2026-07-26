@@ -22,7 +22,7 @@ class RBSVisibilityTest < Minitest::Test
     [Ibex::Tables, "tables.rbs", %i[build], %i[runtime_action]]
   ].freeze
   SINGLETON_ONLY_TARGETS = [
-    [Ibex::Tables::Compact, "tables.rbs", %i[build], %i[find_offset]]
+    [Ibex::Tables::Compact, "tables/compact.rbs", %i[build], %i[find_offset]]
   ].freeze
   TARGETS = (MODULE_FUNCTION_TARGETS + SINGLETON_ONLY_TARGETS).freeze
   HELPER_INSTANCE_CALLS = [

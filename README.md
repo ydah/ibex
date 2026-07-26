@@ -16,7 +16,8 @@ measured bounded-repair result.
 
 ## Requirements and installation
 
-Ibex supports Ruby 3.0 or later and has no runtime gem dependencies. From a source checkout:
+Ibex supports Ruby 3.0 or later. The generator depends only on the separately versioned `ibex-runtime` package; the runtime
+itself has no third-party gem dependencies. From a source checkout:
 
 ```sh
 bundle install
@@ -27,8 +28,13 @@ Build and install the local gem when you want the `ibex` executable on your `PAT
 
 ```sh
 gem build ibex.gemspec
+gem build ibex-runtime.gemspec
+gem install ./ibex-runtime-0.1.0.gem
 gem install ./ibex-0.1.0.gem
 ```
+
+Production applications that only execute generated parsers may install `ibex-runtime` alone. Normal generated files require
+`ibex/runtime`; `ibex -E` continues to emit a dependency-free parser with the runtime embedded.
 
 ## Three-minute calculator
 
@@ -591,7 +597,7 @@ CI performs generation in a clean temporary directory and compares the complete 
 signature files both fail the build.
 <!-- type-stats:start -->
 The current whole-library `steep stats` result is 16,639 typed calls and 2,230 untyped calls out of 18,869 (88.2% typed).
-The generated signature tree contains 2,328 explicit `untyped` occurrences across 87 files.
+The generated signature tree contains 2,328 explicit `untyped` occurrences across 88 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

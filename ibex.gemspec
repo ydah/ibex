@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "lib/ibex/version"
+require_relative "lib/ibex/runtime/version"
 
 Gem::Specification.new do |spec|
   spec.name = "ibex"
@@ -17,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.metadata["source_code_uri"] = "#{spec.homepage}/tree/main"
   spec.metadata["rubygems_mfa_required"] = "true"
 
-  gemspec = File.basename(__FILE__)
+  gemspecs = %w[ibex.gemspec ibex-runtime.gemspec]
   development_files = %w[
     .gitignore
     .yardopts
@@ -38,7 +39,10 @@ Gem::Specification.new do |spec|
   ]
   tracked_files = IO.popen(%w[git ls-files -z], chdir: __dir__, err: IO::NULL) do |ls|
     ls.readlines("\x0", chomp: true).reject do |f|
-      f == gemspec || development_files.include?(f) || f.start_with?(*development_directories)
+      runtime_file = f == "lib/ibex/runtime.rb" || f.start_with?("lib/ibex/runtime/", "sig/ibex/runtime") ||
+                     f == "lib/ibex/tables/compact.rb" || f == "sig/ibex/tables/compact.rbs"
+      gemspecs.include?(f) || runtime_file || development_files.include?(f) ||
+        f.start_with?(*development_directories)
     end
   end
   schema_files = %w[
@@ -60,4 +64,5 @@ Gem::Specification.new do |spec|
   spec.bindir = "exe"
   spec.executables = ["ibex"]
   spec.require_paths = ["lib"]
+  spec.add_dependency "ibex-runtime", "~> #{Ibex::Runtime::VERSION}"
 end

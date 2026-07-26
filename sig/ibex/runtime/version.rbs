@@ -1,0 +1,7 @@
+# Generated from lib/ibex/runtime/version.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    VERSION: ::String
+  end
+end

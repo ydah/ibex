@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
-require "bundler/gem_tasks"
+require "bundler/gem_helper"
 require "rake/testtask"
+
+Bundler::GemHelper.install_tasks(name: "ibex")
 
 Rake::TestTask.new(:test) do |task|
   task.libs << "test"
@@ -30,6 +32,13 @@ namespace :frontend do
     output = File.expand_path("lib/ibex/frontend/generated_parser.rb", __dir__)
     abort "self-hosted grammar parser is stale; run bundle exec rake frontend:generate" unless
       File.binread(output) == Ibex::Frontend::Regenerator.generate
+  end
+end
+
+namespace :runtime do
+  desc "Build the standalone runtime gem"
+  task :build do
+    sh "gem", "build", "ibex-runtime.gemspec"
   end
 end
 
