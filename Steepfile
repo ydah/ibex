@@ -8,5 +8,7 @@ target :library do
   library "json"
   library "optparse"
   library "tempfile"
+  library "timeout"
+  library "tmpdir"
   library "uri"
 end

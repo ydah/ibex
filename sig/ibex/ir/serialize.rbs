@@ -40,6 +40,10 @@ module Ibex
 
       private def self.load_symbol_metadata: (untyped symbol, String field) -> String?
 
+      private def load_grammar_tests: (untyped tests) -> untyped
+
+      private def self.load_grammar_tests: (untyped tests) -> untyped
+
       private def symbol_source_position: (untyped symbol) -> String
 
       private def self.symbol_source_position: (untyped symbol) -> String

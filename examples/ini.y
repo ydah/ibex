@@ -1,5 +1,7 @@
 class Examples::INIParser
+pragma extended
 token SECTION KEY VALUE NEWLINE
+%test accept "[app]\nname=ibex\n"
 rule
   document : lines { result = build_document(val[0]) }
   lines    : lines line { result = val[1] ? val[0] + [val[1]] : val[0] }

@@ -161,6 +161,22 @@ class IRJSONSchemaTest < Minitest::Test
     assert_empty JSONSchemer.schema(grammar, ref_resolver: resolver).validate(document).to_a
   end
 
+  def test_v2_grammar_schema_accepts_grammar_tests
+    grammar = schema("grammar-ir-v2.schema.json")
+    resolver = ->(uri) { grammar_schema if uri.to_s == grammar_schema.fetch("$id") }
+    document = fixture("grammar-v2.json")
+    document["mode"] = "extended"
+    document["tests"] = [
+      {
+        "expectation" => "accept",
+        "source" => "ok",
+        "loc" => { "file" => "grammar.y", "line" => 3, "column" => 1 }
+      }
+    ]
+
+    assert_empty JSONSchemer.schema(grammar, ref_resolver: resolver).validate(document).to_a
+  end
+
   private
 
   def grammar_schema

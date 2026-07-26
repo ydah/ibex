@@ -10,6 +10,7 @@ require_relative "cli/documentation"
 require_relative "cli/error_messages"
 require_relative "cli/explain"
 require_relative "cli/formatting"
+require_relative "cli/grammar_tests"
 require_relative "cli/generation_artifacts"
 require_relative "cli/ir_tools"
 require_relative "cli/lsp"
@@ -90,6 +91,7 @@ module Ibex
       "errors" => :run_error_messages_command,
       "explain" => :run_explain_command,
       "fmt" => :run_format_command,
+      "test" => :run_grammar_tests_command,
       "lsp" => :run_lsp_command,
       "migrate-check" => :run_migrate_check_command,
       "migrate-harness" => :run_migrate_harness_command,
@@ -107,6 +109,7 @@ module Ibex
     include CLIErrorMessages
     include CLIExplain
     include CLIFormatting
+    include CLIGrammarTests
     include CLIGenerationArtifacts
     include CLIIRTools
     include CLILSP
@@ -189,6 +192,7 @@ module Ibex
         options.separator("    errors --list|--update  list or update example-keyed syntax error messages")
         options.separator("    explain                   explain selected parser conflicts")
         options.separator("    fmt                       format grammar source")
+        options.separator("    test                      run grammar-declared source examples")
         options.separator("    lsp                       run the language server over stdio")
         options.separator("    migrate-check             statically check a racc grammar migration")
         options.separator("    migrate-harness           generate a differential subprocess harness")

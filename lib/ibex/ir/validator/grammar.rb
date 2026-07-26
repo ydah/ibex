@@ -12,7 +12,7 @@ module Ibex
         ].freeze #: Array[String]
         ROOT_OPTIONAL = %w[user_code_chunks expect_rr].freeze #: Array[String]
         V2_ROOT_REQUIRED = %w[source_provenance migration].freeze #: Array[String]
-        V2_ROOT_OPTIONAL = %w[params printers recovery mode starts].freeze #: Array[String]
+        V2_ROOT_OPTIONAL = %w[params printers tests recovery mode starts].freeze #: Array[String]
         SYMBOL_REQUIRED = %w[id name kind reserved prec loc].freeze #: Array[String]
         SYMBOL_OPTIONAL = %w[display_name semantic_type].freeze #: Array[String]
         V2_SYMBOL_REQUIRED = %w[doc].freeze #: Array[String]
@@ -57,6 +57,7 @@ module Ibex
           validate_parser_parameters if @data.key?("params")
           validate_symbols
           validate_value_printers if @data.key?("printers")
+          validate_grammar_tests if @data.key?("tests")
           validate_reserved_symbols
           validate_start
           validate_recovery if @data.key?("recovery")
@@ -125,6 +126,22 @@ module Ibex
             names[name] = true
             string(printer["code"], "#{path}.code")
             location(printer["loc"], "#{path}.loc", nullable: false)
+          end
+        end
+
+        # @rbs () -> void
+        def validate_grammar_tests
+          invalid("#{@path}.mode", "must be extended for grammar tests") unless @data["mode"] == "extended"
+          seen = {} #: Hash[[String, String], bool]
+          array(@data["tests"], "#{@path}.tests").each_with_index do |value, index|
+            path = "#{@path}.tests[#{index}]"
+            test = record(value, path, %w[expectation source loc])
+            expectation = enum(test["expectation"], "#{path}.expectation", %w[accept reject])
+            source = string(test["source"], "#{path}.source")
+            key = [expectation, source] #: [String, String]
+            invalid(path, "duplicates grammar test") if seen[key]
+            seen[key] = true
+            location(test["loc"], "#{path}.loc", nullable: false)
           end
         end
 

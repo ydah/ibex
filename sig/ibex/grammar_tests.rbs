@@ -1,0 +1,66 @@
+# Generated from lib/ibex/grammar_tests.rb with RBS::Inline
+
+module Ibex
+  # Executes grammar-declared source examples against one generated parser.
+  module GrammarTests
+    DEFAULT_TIMEOUT: ::Integer
+
+    RESULT_MARKER: ::String
+
+    class Result < Struct[Symbol | String? | IR::location]
+      attr_accessor expectation(): Symbol
+
+      attr_accessor actual(): Symbol
+
+      attr_accessor error_class(): String?
+
+      attr_accessor error_message(): String?
+
+      attr_accessor location(): IR::location
+
+      def self.new: (?expectation: Symbol, ?actual: Symbol, ?error_class: String?, ?error_message: String?, ?location: IR::location) -> instance
+                  | ({ ?expectation: Symbol, ?actual: Symbol, ?error_class: String?, ?error_message: String?, ?location: IR::location }) -> instance
+    end
+
+    class Result
+      # @rbs () -> bool
+      def passed?: () -> bool
+    end
+
+    # Runs all examples in one isolated process while creating a fresh parser
+    # instance for every case.
+    class Runner
+      CHILD_RUNNER: ::String
+
+      @automaton: IR::Automaton
+
+      @timeout: Integer
+
+      # @rbs (IR::Automaton automaton, ?timeout: Integer) -> void
+      def initialize: (IR::Automaton automaton, ?timeout: Integer) -> void
+
+      # @rbs () -> Array[Result]
+      def run: () -> Array[Result]
+
+      private
+
+      # @rbs () -> String
+      def generated_parser: () -> String
+
+      # @rbs (String parser_path, String runner_path) -> Array[Result]
+      def execute_child: (String parser_path, String runner_path) -> Array[Result]
+
+      # @rbs (Integer pid) -> Process::Status
+      def wait_for_child: (Integer pid) -> Process::Status
+
+      # @rbs (Process::Status status, String errors) -> bot
+      def raise_child_failure: (Process::Status status, String errors) -> bot
+
+      # @rbs (String output) -> Array[Result]
+      def decode_results: (String output) -> Array[Result]
+
+      # @rbs (IR::grammar_test test, untyped document) -> Result
+      def build_result: (IR::grammar_test test, untyped document) -> Result
+    end
+  end
+end

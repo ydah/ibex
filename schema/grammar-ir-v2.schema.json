@@ -79,6 +79,12 @@
         "$ref": "#/$defs/value_printer"
       }
     },
+    "tests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/grammar_test"
+      }
+    },
     "recovery": {
       "$ref": "#/$defs/recovery_policy"
     },
@@ -125,6 +131,29 @@
   },
   "additionalProperties": false,
   "$defs": {
+    "grammar_test": {
+      "type": "object",
+      "required": [
+        "expectation",
+        "source",
+        "loc"
+      ],
+      "properties": {
+        "expectation": {
+          "enum": [
+            "accept",
+            "reject"
+          ]
+        },
+        "source": {
+          "type": "string"
+        },
+        "loc": {
+          "$ref": "grammar-ir-v1.schema.json#/$defs/location"
+        }
+      },
+      "additionalProperties": false
+    },
     "recovery_policy": {
       "type": "object",
       "required": [
@@ -287,7 +316,8 @@
               "symbol_docs",
               "production_docs",
               "production_expansion",
-              "action_composition"
+              "action_composition",
+              "grammar_tests"
             ]
           }
         }

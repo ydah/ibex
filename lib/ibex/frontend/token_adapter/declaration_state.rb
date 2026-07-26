@@ -16,6 +16,7 @@ module Ibex
           "expect_rr" => %i[EXPECT_RR expect_rr_integer],
           "recover" => %i[RECOVER recover_kind],
           "on_error_reduce" => %i[ON_ERROR_REDUCE on_error_reduce_first_symbol],
+          "test" => %i[TEST test_expectation],
           "convert" => %i[CONVERT convert_name], "pragma" => %i[PRAGMA pragma_value],
           "display" => %i[DISPLAY display_symbol], "type" => %i[TYPE type_symbol],
           "param" => %i[PARAM param_name],
@@ -39,7 +40,8 @@ module Ibex
           printer_symbol: "a grammar symbol", printer_action: "an action",
           recover_kind: "sync", recovery_colon: ":", recovery_first_symbol: "a grammar symbol",
           recovery_symbols: "a grammar symbol", on_error_reduce_first_symbol: "a grammar symbol",
-          on_error_reduce_symbols: "a grammar symbol"
+          on_error_reduce_symbols: "a grammar symbol", test_expectation: "accept or reject",
+          test_source: "a double-quoted string"
         }.freeze #: Hash[Symbol, String]
 
         attr_reader :conversion_name #: Token?
@@ -111,6 +113,7 @@ module Ibex
           when :recover_kind then begin_recovery_colon(token)
           when :recovery_first_symbol then continue_recovery_symbols(:IDENTIFIER)
           when :on_error_reduce_first_symbol then continue_on_error_reduce_symbols(:IDENTIFIER)
+          when :test_expectation then begin_test_source(token)
           when :pragma_value then finish_pragma(token)
           when :convert_name then begin_conversion(token, :IDENTIFIER, remaining)
           else :IDENTIFIER
@@ -221,7 +224,7 @@ module Ibex
         def classify_scalar(token, remaining)
           type = SCALAR_TYPES.fetch(token.type)
           classified = classify_token_alias(token, type) || classify_include(type) || classify_single_symbol(type) ||
-                       classify_metadata(type) || classify_printer(type) ||
+                       classify_metadata(type) || classify_printer(type) || classify_grammar_test(type) ||
                        classify_conversion(token, type, remaining)
 
           classified || type
@@ -270,6 +273,15 @@ module Ibex
         def classify_printer(type)
           return begin_printer_action(type) if @state == :printer_symbol && type == :LITERAL
           return unless @state == :printer_action && type == :ACTION
+
+          @state = :declaration
+          @declaration = nil
+          type
+        end
+
+        # @rbs (external_token type) -> external_token?
+        def classify_grammar_test(type)
+          return unless @state == :test_source && type == :LITERAL
 
           @state = :declaration
           @declaration = nil
@@ -330,6 +342,12 @@ module Ibex
         # @rbs (Token token) -> external_token
         def begin_recovery_colon(_token)
           @state = :recovery_colon
+          :IDENTIFIER
+        end
+
+        # @rbs (Token token) -> external_token
+        def begin_test_source(_token)
+          @state = :test_source
           :IDENTIFIER
         end
 

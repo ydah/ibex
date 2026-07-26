@@ -293,6 +293,12 @@ source stored in Grammar IR. Immutable steps expose state, lookahead, selected a
 depth. Action and stack budgets bound default/epsilon cycles and growth. The text/JSON CLI and versioned output contract are
 fixed by [ADR 0052](decisions/0052-safe-automaton-table-simulation.md).
 
+Grammar IR v2 may carry ordered accept/reject source tests without adding them to parser tables. `GrammarTests::Runner` generates
+one embedded parser and executes fresh parser instances in a separate Ruby process, distinguishing `ParseError` rejection from
+lexer/application errors and bounding the whole suite by a timeout. The separate runner loads the generated file, so guarded
+footer programs stay inactive. The source contract, isolation boundary, and CI behavior are fixed by
+[ADR 0069](decisions/0069-grammar-declared-source-tests.md).
+
 ## Clean-room boundary
 
 Implementation work uses public racc documentation, CLI black-box behavior, and published LR algorithms only. racc implementation

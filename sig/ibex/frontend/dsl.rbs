@@ -44,6 +44,12 @@ module Ibex
         # @rbs (*Object names) -> void
         def on_error_reduce: (*Object names) -> void
 
+        # @rbs (Object source) -> void
+        def test_accept: (Object source) -> void
+
+        # @rbs (Object source) -> void
+        def test_reject: (Object source) -> void
+
         # @rbs (Object name, Object expression) -> void
         def convert: (Object name, Object expression) -> void
 

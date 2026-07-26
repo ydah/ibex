@@ -36,6 +36,8 @@ module Ibex
 
     include CLIFormatting
 
+    include CLIGrammarTests
+
     include CLIGenerationArtifacts
 
     include CLIIRTools

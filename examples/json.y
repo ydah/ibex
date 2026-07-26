@@ -1,5 +1,8 @@
 class Examples::JSONParser
+pragma extended
 token STRING NUMBER TRUE FALSE NULL
+%test accept "{\"ok\":[true,null]}"
+%test reject "{\"ok\":}"
 rule
   document : value { result = val[0] }
   value    : object { result = val[0] }

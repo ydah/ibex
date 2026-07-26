@@ -2,7 +2,7 @@
   "ibex_ir": "automaton",
   "schema_version": 2,
   "algorithm": "lalr1",
-  "grammar_digest": "sha256:09f9632409b8accff7d33567c7d540abb06f16b7aa920b35977b7b55cbb4e8db",
+  "grammar_digest": "sha256:9b0c88913ee20c77120e2206efed47b3d4f03480ac531d45f985323346ef1cf7",
   "grammar": {
     "ibex_ir": "grammar",
     "schema_version": 2,
@@ -189,7 +189,8 @@
         "symbol_docs",
         "production_docs",
         "production_expansion",
-        "action_composition"
+        "action_composition",
+        "grammar_tests"
       ]
     }
   },

@@ -13,7 +13,7 @@ module Ibex
     module AST
       type symbol_metadata = DisplayName | SemanticType
 
-      type declaration = Include | Tokens | Precedence | Options | Expect | ExpectRR | Start | Recovery | OnErrorReduce | Convert | Parameter | Printer | symbol_metadata
+      type declaration = Include | Tokens | Precedence | Options | Expect | ExpectRR | Start | Recovery | OnErrorReduce | GrammarTest | Convert | Parameter | Printer | symbol_metadata
 
       type item = SymbolReference | ParameterizedReference | InlineAction | Optional | Star | Plus | Group | SeparatedList | Empty
 
@@ -164,6 +164,17 @@ module Ibex
 
         def self.new: (?names: Array[String], ?loc: Location) -> instance
                     | ({ ?names: Array[String], ?loc: Location }) -> instance
+      end
+
+      class GrammarTest < Struct[Symbol | String | Location]
+        attr_accessor expectation(): Symbol
+
+        attr_accessor source(): String
+
+        attr_accessor loc(): Location
+
+        def self.new: (?expectation: Symbol, ?source: String, ?loc: Location) -> instance
+                    | ({ ?expectation: Symbol, ?source: String, ?loc: Location }) -> instance
       end
 
       class Convert < Struct[Array[Conversion] | Location]

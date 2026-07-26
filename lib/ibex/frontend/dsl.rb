@@ -63,6 +63,16 @@ module Ibex
           @declarations << AST::OnErrorReduce.new(names: names.map(&:to_s), loc: next_location)
         end
 
+        # @rbs (Object source) -> void
+        def test_accept(source)
+          @declarations << AST::GrammarTest.new(expectation: :accept, source: source.to_s, loc: next_location)
+        end
+
+        # @rbs (Object source) -> void
+        def test_reject(source)
+          @declarations << AST::GrammarTest.new(expectation: :reject, source: source.to_s, loc: next_location)
+        end
+
         # @rbs (Object name, Object expression) -> void
         def convert(name, expression)
           location = next_location

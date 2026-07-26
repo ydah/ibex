@@ -8,7 +8,7 @@ module Ibex
     module BootstrapParserDeclarations
       DECLARATIONS = %w[
         token prechigh preclow options expect expect_rr start recover on_error_reduce
-        convert display type param printer pragma rule
+        test convert display type param printer pragma rule
       ].freeze #: Array[String]
       ASSOCIATIVITIES = %w[left right nonassoc precedence].freeze #: Array[String]
 
@@ -52,6 +52,7 @@ module Ibex
         when "start" then parse_start
         when "recover" then parse_recovery
         when "on_error_reduce" then parse_on_error_reduce
+        when "test" then parse_grammar_test
         when "convert" then parse_convert
         when "display" then parse_symbol_metadata(AST::DisplayName, "display")
         when "type" then parse_symbol_metadata(AST::SemanticType, "type")
@@ -188,6 +189,26 @@ module Ibex
         names = [parse_symbol_name]
         names << parse_symbol_name until declaration_start?
         AST::OnErrorReduce.new(names: names, loc: keyword.location)
+      end
+
+      # @rbs () -> AST::GrammarTest
+      def parse_grammar_test
+        # @type self: BootstrapParser
+        keyword = advance
+        extended_only!(keyword.location, "%test")
+        expectation = token_string(expect(:identifier))
+        fail_at(keyword.location, "expected accept or reject, got #{expectation}") unless
+          %w[accept reject].include?(expectation)
+        source = expect(:literal)
+        literal = token_string(source)
+        fail_at(source.location, "%test source must use a double-quoted string") unless literal.start_with?('"')
+        decoded = begin
+          literal.undump
+        rescue RuntimeError => e
+          fail_at(source.location, "invalid %test source: #{e.message}")
+        end
+
+        AST::GrammarTest.new(expectation: expectation.to_sym, source: decoded, loc: keyword.location)
       end
 
       # @rbs () -> AST::Convert

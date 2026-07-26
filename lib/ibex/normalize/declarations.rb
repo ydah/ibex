@@ -25,6 +25,7 @@ module Ibex
       @recovery_sync_location = nil #: Frontend::Location?
       @on_error_reduce_groups = [] #: Array[Array[String]]
       @on_error_reduce_locations = {} #: Hash[String, Frontend::Location]
+      @grammar_tests = [] #: Array[IR::grammar_test]
       @ast.declarations.each { |declaration| read_declaration(declaration) }
     end
 
@@ -37,7 +38,7 @@ module Ibex
       when Frontend::AST::Options then read_options(declaration)
       when Frontend::AST::Expect then @expected_conflicts = declaration.conflicts
       when Frontend::AST::ExpectRR then @expected_rr_conflicts = declaration.conflicts
-      when Frontend::AST::Start, Frontend::AST::Recovery, Frontend::AST::OnErrorReduce
+      when Frontend::AST::Start, Frontend::AST::Recovery, Frontend::AST::OnErrorReduce, Frontend::AST::GrammarTest
         read_parser_control_declaration(declaration)
       when Frontend::AST::Convert then read_conversions(declaration)
       when Frontend::AST::DisplayName, Frontend::AST::SemanticType, Frontend::AST::Parameter, Frontend::AST::Printer

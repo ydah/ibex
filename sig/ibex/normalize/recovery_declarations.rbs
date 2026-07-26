@@ -5,8 +5,12 @@ module Ibex
   module NormalizeRecoveryDeclarations
     private
 
-    # @rbs (Frontend::AST::Start | Frontend::AST::Recovery | Frontend::AST::OnErrorReduce declaration) -> void
-    def read_parser_control_declaration: (Frontend::AST::Start | Frontend::AST::Recovery | Frontend::AST::OnErrorReduce declaration) -> void
+    # @rbs (Frontend::AST::Start | Frontend::AST::Recovery | Frontend::AST::OnErrorReduce |
+    #   Frontend::AST::GrammarTest declaration) -> void
+    def read_parser_control_declaration: (Frontend::AST::Start | Frontend::AST::Recovery | Frontend::AST::OnErrorReduce | Frontend::AST::GrammarTest declaration) -> void
+
+    # @rbs (Frontend::AST::GrammarTest declaration) -> void
+    def read_grammar_test: (Frontend::AST::GrammarTest declaration) -> void
 
     # @rbs (Frontend::AST::Recovery declaration) -> void
     def read_recovery_declaration: (Frontend::AST::Recovery declaration) -> void

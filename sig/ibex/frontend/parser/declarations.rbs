@@ -54,6 +54,9 @@ module Ibex
       # @rbs () -> AST::OnErrorReduce
       def parse_on_error_reduce: () -> AST::OnErrorReduce
 
+      # @rbs () -> AST::GrammarTest
+      def parse_grammar_test: () -> AST::GrammarTest
+
       # @rbs () -> AST::Convert
       def parse_convert: () -> AST::Convert
 
