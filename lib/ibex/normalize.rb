@@ -58,6 +58,7 @@ module Ibex
     # @rbs @expected_rr_conflicts: Integer?
     # @rbs @conversions: Hash[String, String]
     # @rbs @parser_parameters: Array[IR::parser_parameter]
+    # @rbs @value_printers: Hash[String, IR::value_printer]
     # @rbs @explicit_start: String?
     # @rbs @start_name: String
     # @rbs @start_location: Frontend::Location?
@@ -117,11 +118,13 @@ module Ibex
       intern_user_nonterminals
       normalize_user_productions
       expand_inline_rules
+      validate_value_printers
       validate_grammar
       IR::Grammar.new(class_name: @ast.class_name, superclass: @ast.superclass, start: @start_name,
                       expect: @expected_conflicts, options: @options, symbols: @symbols,
                       expect_rr: @expected_rr_conflicts,
                       parser_parameters: @parser_parameters,
+                      value_printers: @value_printers.values,
                       productions: @productions, user_code: normalized_user_code,
                       conversions: @conversions, warnings: @warnings, user_code_chunks: normalized_user_code_chunks,
                       source_provenance: {

@@ -2,12 +2,14 @@
 
 require_relative "../runtime/parser"
 require_relative "ruby_actions"
+require_relative "ruby_value_printers"
 
 module Ibex
   module Codegen
     # Generates a standalone Ruby parser class from Automaton IR.
     class Ruby
       include RubyActions
+      include RubyValuePrinters
 
       # @rbs @automaton: IR::Automaton
       # @rbs @grammar: IR::Grammar
@@ -52,6 +54,7 @@ module Ibex
         lines << "class #{class_name} < #{@superclass}"
         append_tables(lines)
         append_parameter_initializer(lines)
+        append_value_printers(lines)
         append_actions(lines)
         append_user_code(lines, "inner", indent: 2)
         lines << "end"
@@ -100,22 +103,30 @@ module Ibex
         lines << "#{indent}GOTOS = #{table_literal(table_set.gotos)}"
         lines << "#{indent}DEFAULT_ACTIONS = #{table_set.default_actions.inspect}.freeze"
         lines << "#{indent}PRODUCTIONS = #{productions_literal}.freeze"
+        append_value_printer_table(lines, indent)
         lines << "#{indent}error_messages = #{error_messages_literal} # @type var error_messages: Hash[Integer, String]"
         lines << "#{indent}ERROR_MESSAGES = error_messages.freeze #: Hash[Integer, String]"
+        append_parser_tables(lines, indent)
+        lines << "#{indent}def self.parser_tables = PARSER_TABLES"
+        lines << "#{indent}DEBUG_ENABLED = #{@debug}"
+        lines << ""
+      end
+
+      # @rbs (Array[String] lines, String indent) -> void
+      def append_parser_tables(lines, indent)
         lines << "#{indent}PARSER_TABLES = { format_version: PARSER_TABLE_FORMAT_VERSION,"
         lines << "#{indent}                  grammar_digest: GRAMMAR_DIGEST,"
         lines << "#{indent}                  state_count: STATE_COUNT, production_count: PRODUCTION_COUNT,"
         lines << "#{indent}                  uses_locations: #{uses_locations?},"
         lines << "#{indent}                  tokens: TOKEN_IDS, token_names: TOKEN_NAMES, actions: ACTIONS,"
         lines << "#{indent}                  gotos: GOTOS, default_actions: DEFAULT_ACTIONS,"
-        lines << "#{indent}                  productions: PRODUCTIONS, error_messages: ERROR_MESSAGES }.freeze"
-        if shareable_parser_tables?
-          lines << "#{indent}Ractor.make_shareable(PARSER_TABLES) " \
-                   "if defined?(Ractor) && Ractor.respond_to?(:make_shareable)"
-        end
-        lines << "#{indent}def self.parser_tables = PARSER_TABLES"
-        lines << "#{indent}DEBUG_ENABLED = #{@debug}"
-        lines << ""
+        value_printers = @grammar.value_printers.empty? ? "" : " value_printers: VALUE_PRINTERS,"
+        lines << "#{indent}                  productions: PRODUCTIONS,#{value_printers} " \
+                 "error_messages: ERROR_MESSAGES }.freeze"
+        return unless shareable_parser_tables?
+
+        lines << "#{indent}Ractor.make_shareable(PARSER_TABLES) " \
+                 "if defined?(Ractor) && Ractor.respond_to?(:make_shareable)"
       end
 
       # @rbs (Array[String] lines, String indent) -> void

@@ -21,6 +21,9 @@ module Ibex
       private
 
       # @rbs (Array[String] lines) -> void
+      def append_value_printers: (Array[String] lines) -> void
+
+      # @rbs (Array[String] lines) -> void
       def append_actions: (Array[String] lines) -> void
 
       # @rbs (Array[String] lines, IR::Production production) -> void

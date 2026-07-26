@@ -124,7 +124,7 @@ Top-level fields:
 | `ibex_ir`, `schema_version` | `"grammar"`, `1` |
 | `class_name`, `superclass` | Generated Ruby class contract |
 | `start`, `expect`, `options` | Start name, unresolved S/R expectation, result/action flags |
-| optional `params` | Generated-constructor keywords and nullable semantic types |
+| optional `params`, `printers` | Generated-constructor keywords and symbol-specific debug value formatters |
 | `symbols` | Interned terminals and nonterminals; `$eof` id 0 and `error` id 1 |
 | `productions` | Numeric LHS/RHS ids, action, precedence override, source origin |
 | `user_code`, `conversions`, `warnings` | Concatenated code, external token expressions, structured diagnostics |
@@ -244,7 +244,9 @@ The runtime maintains state and value stacks, pulls a lookahead only when requir
 shifts, and honors `yyerrok`. No-op shift, reduce, recovery, location-aware, and discard extension points observe successfully
 committed events without changing parser results; the recovery hook retains the pre-pop error context and is distinct from an
 ordinary token shift. A configured value printer affects only human `yydebug` output. Their ordering and payload contract is
-extended additively by [ADR 0061](decisions/0061-lazy-semantic-locations-and-runtime-observation.md).
+extended additively by [ADR 0061](decisions/0061-lazy-semantic-locations-and-runtime-observation.md). Grammar-declared
+symbol printers are optional IR v2 metadata compiled into private methods and an id-indexed table; see
+[ADR 0063](decisions/0063-declarative-debug-value-printers.md).
 
 The separate `Runtime::Parser#observe` API publishes ordered, immutable schema-v1 events for tooling. Its bounded sanitizer
 copies only JSON data and never retains application identities or private stacks. With no observer, parse transitions construct

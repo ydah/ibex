@@ -78,6 +78,11 @@ module Ibex
           @declarations << AST::Parameter.new(name: name.to_s, semantic_type: type, loc: next_location)
         end
 
+        # @rbs (Object name, Object code) -> void
+        def printer(name, code)
+          @declarations << AST::Printer.new(name: name.to_s, code: code.to_s, loc: next_location)
+        end
+
         # @rbs (?direction: Symbol) { (PrecedenceBuilder) -> void } -> void
         def precedence(direction: :low_to_high)
           location = next_location

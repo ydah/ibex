@@ -88,6 +88,9 @@ module Ibex
         # @rbs (external_token type) -> external_token?
         def classify_metadata: (external_token type) -> external_token?
 
+        # @rbs (external_token type) -> external_token?
+        def classify_printer: (external_token type) -> external_token?
+
         # @rbs (Token token, external_token type, Array[Token] remaining) -> external_token?
         def classify_conversion: (Token token, external_token type, Array[Token] remaining) -> external_token?
 
@@ -99,6 +102,9 @@ module Ibex
 
         # @rbs () -> external_token
         def begin_param_type: () -> external_token
+
+        # @rbs (external_token type) -> external_token
+        def begin_printer_action: (external_token type) -> external_token
 
         # @rbs (external_token type) -> external_token
         def finish_param_type: (external_token type) -> external_token

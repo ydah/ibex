@@ -17,6 +17,7 @@ module Ibex
           "convert" => %i[CONVERT convert_name], "pragma" => %i[PRAGMA pragma_value],
           "display" => %i[DISPLAY display_symbol], "type" => %i[TYPE type_symbol],
           "param" => %i[PARAM param_name],
+          "printer" => %i[PRINTER printer_symbol],
           "rule" => %i[RULE rules]
         }.freeze #: Hash[String, [external_token, Symbol]]
         ASSOCIATIONS = {
@@ -31,7 +32,8 @@ module Ibex
           include_path: "a double-quoted relative path",
           display_symbol: "a grammar symbol", type_symbol: "a grammar symbol",
           display_value: "a quoted string", type_value: "a quoted string",
-          param_name: "an identifier", param_type: "a quoted type or declaration"
+          param_name: "an identifier", param_type: "a quoted type or declaration",
+          printer_symbol: "a grammar symbol", printer_action: "an action"
         }.freeze #: Hash[Symbol, String]
 
         attr_reader :conversion_name #: Token?
@@ -98,6 +100,7 @@ module Ibex
           when :start_symbol then finish_single_symbol(:IDENTIFIER)
           when :display_symbol, :type_symbol then begin_metadata_value(:IDENTIFIER)
           when :param_name then begin_param_type
+          when :printer_symbol then begin_printer_action(:IDENTIFIER)
           when :pragma_value then finish_pragma(token)
           when :convert_name then begin_conversion(token, :IDENTIFIER, remaining)
           else :IDENTIFIER
@@ -167,7 +170,7 @@ module Ibex
 
         # @rbs (String value) -> bool
         def declaration_boundary?(value)
-          return false if %w[display type param].include?(value) && !(@extended_mode || extended_pragma?)
+          return false if %w[display type param printer].include?(value) && !(@extended_mode || extended_pragma?)
 
           DECLARATIONS.key?(value) || %w[prechigh preclow].include?(value)
         end
@@ -208,7 +211,7 @@ module Ibex
         def classify_scalar(token, remaining)
           type = SCALAR_TYPES.fetch(token.type)
           classified = classify_token_alias(token, type) || classify_include(type) || classify_single_symbol(type) ||
-                       classify_metadata(type) ||
+                       classify_metadata(type) || classify_printer(type) ||
                        classify_conversion(token, type, remaining)
 
           classified || type
@@ -241,6 +244,16 @@ module Ibex
           finish_metadata_value(type) if %i[display_value type_value].include?(@state)
         end
 
+        # @rbs (external_token type) -> external_token?
+        def classify_printer(type)
+          return begin_printer_action(type) if @state == :printer_symbol && type == :LITERAL
+          return unless @state == :printer_action && type == :ACTION
+
+          @state = :declaration
+          @declaration = nil
+          type
+        end
+
         # @rbs (Token token, external_token type, Array[Token] remaining) -> external_token?
         def classify_conversion(token, type, remaining)
           return unless type == :LITERAL
@@ -266,6 +279,12 @@ module Ibex
         def begin_param_type
           @state = :param_type
           :IDENTIFIER
+        end
+
+        # @rbs (external_token type) -> external_token
+        def begin_printer_action(type)
+          @state = :printer_action
+          type
         end
 
         # @rbs (external_token type) -> external_token

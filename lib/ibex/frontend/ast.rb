@@ -24,7 +24,7 @@ module Ibex
       # @rbs!
       #   type symbol_metadata = DisplayName | SemanticType
       #   type declaration = Include | Tokens | Precedence | Options | Expect | ExpectRR | Start | Convert |
-      #     Parameter | symbol_metadata
+      #     Parameter | Printer | symbol_metadata
       #   type item = SymbolReference | ParameterizedReference | InlineAction | Optional | Star | Plus | Group |
       #     SeparatedList | Empty
       #   type user_code = Hash[String, Array[UserCode]]
@@ -149,6 +149,12 @@ module Ibex
       Parameter = Struct.new(
         :name, #: String
         :semantic_type, #: String?
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      Printer = Struct.new(
+        :name, #: String
+        :code, #: String
         :loc, #: Location
         keyword_init: true
       ) { include Node }

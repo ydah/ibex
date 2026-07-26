@@ -11,8 +11,14 @@ module Ibex
     # @rbs (Frontend::AST::declaration declaration) -> void
     def read_declaration: (Frontend::AST::declaration declaration) -> void
 
-    # @rbs (Frontend::AST::symbol_metadata | Frontend::AST::Parameter declaration) -> void
-    def read_extended_declaration: (Frontend::AST::symbol_metadata | Frontend::AST::Parameter declaration) -> void
+    # @rbs (Frontend::AST::symbol_metadata | Frontend::AST::Parameter | Frontend::AST::Printer declaration) -> void
+    def read_extended_declaration: (Frontend::AST::symbol_metadata | Frontend::AST::Parameter | Frontend::AST::Printer declaration) -> void
+
+    # @rbs (Frontend::AST::Printer declaration) -> void
+    def read_value_printer: (Frontend::AST::Printer declaration) -> void
+
+    # @rbs () -> void
+    def validate_value_printers: () -> void
 
     # @rbs (Frontend::AST::Parameter declaration) -> void
     def read_parser_parameter: (Frontend::AST::Parameter declaration) -> void

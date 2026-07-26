@@ -128,6 +128,47 @@ class NormalizerTest < Minitest::Test
     refute_includes Ibex::IR::Serialize.dump(plain), '"params"'
   end
 
+  def test_value_printers_round_trip_as_optional_v2_metadata
+    grammar = normalize(<<~'GRAMMAR', mode: :extended)
+      class P
+      pragma extended
+      %printer TOKEN { "token=#{value}" }
+      %printer start { value.inspect }
+      rule
+      start: TOKEN
+      end
+    GRAMMAR
+
+    assert_equal(
+      %w[TOKEN start],
+      grammar.value_printers.map { |printer| printer[:symbol] }
+    )
+    dumped = Ibex::IR::Serialize.dump(grammar)
+    assert_equal grammar.value_printers, Ibex::IR::Serialize.load(dumped).value_printers
+    assert_includes dumped, '"printers"'
+
+    plain = normalize("class P\nrule\nstart: TOKEN\nend\n")
+    refute_includes Ibex::IR::Serialize.dump(plain), '"printers"'
+  end
+
+  def test_rejects_duplicate_or_missing_value_printer_symbols
+    duplicate = <<~GRAMMAR
+      class P
+      pragma extended
+      %printer TOKEN { value }
+      %printer TOKEN { value.inspect }
+      rule
+      start: TOKEN
+      end
+    GRAMMAR
+    error = assert_raises(Ibex::Error) { normalize(duplicate) }
+    assert_includes error.message, "duplicate %printer declaration for TOKEN"
+
+    missing = "class P\npragma extended\n%printer MISSING { value }\nrule\nstart: TOKEN\nend\n"
+    error = assert_raises(Ibex::Error) { normalize(missing) }
+    assert_includes error.message, "%printer references missing symbol MISSING"
+  end
+
   def test_rejects_duplicate_or_keyword_constructor_parameters
     duplicate = <<~GRAMMAR
       class P

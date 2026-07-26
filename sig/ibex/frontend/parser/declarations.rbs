@@ -42,6 +42,9 @@ module Ibex
       # @rbs () -> AST::Parameter
       def parse_parameter: () -> AST::Parameter
 
+      # @rbs () -> AST::Printer
+      def parse_printer: () -> AST::Printer
+
       # @rbs () -> AST::Start
       def parse_start: () -> AST::Start
 

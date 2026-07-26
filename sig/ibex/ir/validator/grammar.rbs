@@ -63,6 +63,9 @@ module Ibex
         def validate_parser_parameters: () -> void
 
         # @rbs () -> void
+        def validate_value_printers: () -> void
+
+        # @rbs () -> void
         def validate_symbols: () -> void
 
         # @rbs (untyped value, Integer index) -> void

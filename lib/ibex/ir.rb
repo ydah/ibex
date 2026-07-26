@@ -16,6 +16,7 @@ module Ibex
     #   type byte_span = { start: Integer, end: Integer }
     #   type source_provenance = { file: String?, root: String?, byte_span: byte_span? }
     #   type parser_parameter = { name: String, semantic_type: String? }
+    #   type value_printer = { symbol: String, code: String, loc: location }
     #   type parameter_expansion = { rule: String, arguments: Array[String] }
     #   type inline_expansion = { rule: String }
     #   type production_expansion = {

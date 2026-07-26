@@ -171,6 +171,12 @@ module Ibex
         AST::Parameter.new(name: token_string(name), semantic_type: semantic_type, loc: keyword.location)
       end
 
+      # @rbs (Token keyword, Token symbol, Token action) -> AST::Printer
+      def build_printer(keyword, symbol, action)
+        extended_only!(keyword.location, "%printer")
+        AST::Printer.new(name: token_string(symbol), code: token_string(action), loc: keyword.location)
+      end
+
       # @rbs (Token keyword, String name) -> AST::Start
       def build_start(keyword, name)
         AST::Start.new(name: name, loc: keyword.location)

@@ -61,6 +61,17 @@ class FrontendDSLTest < Minitest::Test
     )
   end
 
+  def test_dsl_supports_value_printers
+    ast = Ibex::Frontend::DSL.grammar(class_name: "Printed") do |grammar|
+      grammar.printer(:TOKEN, "\"token=\#{value}\"")
+      grammar.rule(:start) { |rule| rule.alt(:TOKEN) }
+    end
+
+    ir = Ibex::Normalizer.new(ast, mode: :extended).normalize
+    assert_equal "TOKEN", ir.value_printers.fetch(0).fetch(:symbol)
+    assert_equal "\"token=\#{value}\"", ir.value_printers.fetch(0).fetch(:code)
+  end
+
   def test_dsl_supports_nested_groups
     ast = Ibex::Frontend::DSL.grammar(class_name: "DSLGroup") do |grammar|
       grammar.rule(:start) do |rule|

@@ -12,7 +12,7 @@ module Ibex
         ].freeze #: Array[String]
         ROOT_OPTIONAL = %w[user_code_chunks expect_rr].freeze #: Array[String]
         V2_ROOT_REQUIRED = %w[source_provenance migration].freeze #: Array[String]
-        V2_ROOT_OPTIONAL = %w[params].freeze #: Array[String]
+        V2_ROOT_OPTIONAL = %w[params printers].freeze #: Array[String]
         SYMBOL_REQUIRED = %w[id name kind reserved prec loc].freeze #: Array[String]
         SYMBOL_OPTIONAL = %w[display_name semantic_type].freeze #: Array[String]
         V2_SYMBOL_REQUIRED = %w[doc].freeze #: Array[String]
@@ -56,6 +56,7 @@ module Ibex
           validate_options
           validate_parser_parameters if @data.key?("params")
           validate_symbols
+          validate_value_printers if @data.key?("printers")
           validate_reserved_symbols
           validate_start
           validate_productions
@@ -107,6 +108,21 @@ module Ibex
             invalid("#{path}.name", "duplicates parameter #{name.inspect}") if names.key?(name)
             names[name] = true
             metadata(parameter["semantic_type"], "#{path}.semantic_type")
+          end
+        end
+
+        # @rbs () -> void
+        def validate_value_printers
+          names = {} #: Hash[String, bool]
+          array(@data["printers"], "#{@path}.printers").each_with_index do |value, index|
+            path = "#{@path}.printers[#{index}]"
+            printer = record(value, path, %w[symbol code loc])
+            name = nonempty_string(printer["symbol"], "#{path}.symbol")
+            invalid("#{path}.symbol", "references missing symbol #{name.inspect}") unless @symbols_by_name.key?(name)
+            invalid("#{path}.symbol", "duplicates printer for #{name.inspect}") if names.key?(name)
+            names[name] = true
+            string(printer["code"], "#{path}.code")
+            location(printer["loc"], "#{path}.loc", nullable: false)
           end
         end
 

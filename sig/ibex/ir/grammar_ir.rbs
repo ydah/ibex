@@ -116,6 +116,8 @@ module Ibex
 
       attr_reader parser_parameters: Array[parser_parameter]
 
+      attr_reader value_printers: Array[value_printer]
+
       attr_reader options: grammar_options
 
       attr_reader symbols: Array[GrammarSymbol]
@@ -141,9 +143,10 @@ module Ibex
       #   symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String],
       #   conversions: Hash[String, String], warnings: Array[grammar_warning], ?user_code_chunks: user_code_chunks?,
       #   ?schema_version: Integer, ?source_provenance: source_provenance?,
-      #   ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter]) -> void
+      #   ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter],
+      #   ?value_printers: Array[value_printer]) -> void
       # rubocop:disable Metrics/ParameterLists -- immutable versioned IR is constructed from explicit public fields.
-      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?expect_rr: Integer?, ?user_code_chunks: user_code_chunks?, ?schema_version: Integer, ?source_provenance: source_provenance?, ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter]) -> void
+      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?expect_rr: Integer?, ?user_code_chunks: user_code_chunks?, ?schema_version: Integer, ?source_provenance: source_provenance?, ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter], ?value_printers: Array[value_printer]) -> void
 
       # @rbs (String name) -> GrammarSymbol?
       def symbol: (String name) -> GrammarSymbol?
