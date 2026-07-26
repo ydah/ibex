@@ -1,0 +1,37 @@
+# Generated from lib/ibex/artifact_set.rb with RBS::Inline
+
+module Ibex
+  # One fully rendered file in a parser generation.
+  class Artifact
+    attr_reader kind: Symbol
+
+    attr_reader path: String
+
+    attr_reader content: String
+
+    attr_reader mode: Integer?
+
+    # @rbs (kind: Symbol, path: String, content: String, ?mode: Integer?) -> void
+    def initialize: (kind: Symbol, path: String, content: String, ?mode: Integer?) -> void
+  end
+
+  # A generation's rendered outputs before any target is changed.
+  class ArtifactSet
+    include Enumerable[Artifact]
+
+    # @rbs () -> void
+    def initialize: () -> void
+
+    # @rbs (kind: Symbol, path: String, content: String, ?mode: Integer?) -> Artifact
+    def add: (kind: Symbol, path: String, content: String, ?mode: Integer?) -> Artifact
+
+    def each: () -> Enumerator[Artifact, ArtifactSet]
+            | () { (Artifact) -> void } -> ArtifactSet
+
+    # @rbs () -> Array[Artifact]
+    def to_a: () -> Array[Artifact]
+
+    # @rbs () -> bool
+    def empty?: () -> bool
+  end
+end

@@ -288,6 +288,8 @@ ibex --counterexamples --counterexample-max-tokens=64 --counterexample-max-confi
 ibex explain --state=7 --token=ELSE --format=json grammar.y
 ibex --rbs -o parser.rb grammar.y
 ibex --rbs --action-source -o parser.rb grammar.y
+ibex --manifest -o parser.rb grammar.y
+ibex --watch --manifest -o parser.rb grammar.y
 ibex --warnings=all,error -C grammar.y
 ibex errors --update grammar.y
 ibex --messages=grammar.messages grammar.y
@@ -317,6 +319,18 @@ parser tables, generated driver, superclass, or `header`/`inner`/`footer` code a
 not invoke Steep: add the generated RBS and shadow to an application Steep target and run `steep check` explicitly in application
 CI. `--check --rbs --action-source` verifies all three requested generated files without rewriting them. Application methods
 supplied as opaque `---- inner` code can be declared by reopening the generated class in an application RBS file.
+
+Parser generation renders every requested output before changing any target, then stages, synchronizes, and publishes companion
+files, the parser, and finally an opt-in manifest. `--manifest[=FILE]` writes version-1 JSON beside the parser by default with
+canonical input digests, generation options, and output paths, sizes, and SHA-256 digests. `--check --manifest` verifies the
+would-be files without rewriting them. A reader that needs a coherent multi-file generation should read the manifest, verify
+every listed artifact, and restart from a newly read manifest after any missing file or mismatch.
+
+`--watch` regenerates Ruby file outputs after the root grammar, an included fragment, a failed include path, a message file, or
+a repairable output changes. It keeps the last successful generation after an error, suppresses duplicate unchanged errors, and
+exits with status 130/143 for `SIGINT`/`SIGTERM`. It cannot be combined with stdin, `--from`, `--check`, or `--check-only`, and
+`Ibex::RakeTask` deliberately rejects it. See [ADR
+0049](docs/decisions/0049-transactional-generation-and-watch-mode.md) for the publication and reader contracts.
 
 `--warnings=all` prints unused terminals and precedence declarations, unreachable terminals and nonterminals, duplicate
 productions, undeclared terminals, and empty-language diagnostics. Add `error` (`--warnings=all,error`, or simply
@@ -392,8 +406,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 10,490 typed calls and 1,421 untyped calls out of 11,911 (88.1% typed).
-The generated signature tree contains 1,411 explicit `untyped` occurrences across 53 files.
+The current whole-library `steep stats` result is 11,256 typed calls and 1,588 untyped calls out of 12,844 (87.6% typed).
+The generated signature tree contains 1,472 explicit `untyped` occurrences across 60 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

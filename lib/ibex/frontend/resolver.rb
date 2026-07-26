@@ -19,6 +19,9 @@ module Ibex
       # @rbs @visiting: Array[String]
       # @rbs @loaded: Hash[String, bool]
       # @rbs @include_chains: Hash[AST::Rule, Array[IR::source_provenance]]
+      # @rbs @attempted_paths: Array[String]
+
+      attr_reader :attempted_paths #: Array[String]
 
       # @rbs (String path, ?mode: Symbol, ?loader: SourceLoader) -> void
       def initialize(path, mode: :racc, loader: SourceLoader.new)
@@ -27,6 +30,7 @@ module Ibex
         @input_path = path
         @mode = mode
         @loader = loader
+        @attempted_paths = [File.expand_path(path)]
       end
 
       # @rbs () -> Resolution
@@ -54,6 +58,12 @@ module Ibex
         resolve.files
       end
 
+      # Source bytes actually consumed by the parser, in resolution order.
+      # @rbs () -> Array[GenerationInput]
+      def source_records
+        @loader.read_records
+      end
+
       private
 
       # @rbs () -> void
@@ -65,6 +75,7 @@ module Ibex
         @loaded = {} #: Hash[String, bool]
         chains = {} #: Hash[AST::Rule, Array[IR::source_provenance]]
         @include_chains = chains.compare_by_identity
+        @attempted_paths = [File.expand_path(@input_path)]
       end
 
       # @rbs () -> String
@@ -72,6 +83,7 @@ module Ibex
         path = @loader.canonical_path(@input_path)
         raise Ibex::Error, "#{@input_path}:1:1: root grammar must be a file" unless @loader.file?(path)
 
+        @loader.record_access(path, @input_path)
         path
       rescue SystemCallError => e
         raise ResolutionIOError, "#{@input_path}:1:1: cannot read root grammar: #{e.message}"
@@ -133,6 +145,7 @@ module Ibex
       def canonical_include(include_node)
         validate_include_path(include_node)
         candidate = File.expand_path(include_node.path, File.dirname(include_node.loc.file))
+        @attempted_paths << candidate unless @attempted_paths.include?(candidate)
         canonical = @loader.canonical_path(candidate)
         unless @loader.file?(canonical)
           fail_include(include_node, "include path is not a file: #{include_node.path.inspect}")
@@ -142,6 +155,7 @@ module Ibex
           message = "include resolves outside the root grammar directory: #{include_node.path.inspect}"
           fail_include(include_node, message)
         end
+        @loader.record_access(canonical, candidate)
         canonical
       rescue Errno::ENOENT, Errno::ENOTDIR
         fail_include(include_node, "include file does not exist: #{include_node.path.inspect}")

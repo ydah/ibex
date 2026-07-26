@@ -16,6 +16,7 @@ module Ibex
     #   private def default_output_path: (String, String) -> String
     #   private def same_file_target?: (String, String) -> bool
     #   private def normalize_grammar_path: (String) -> IR::Grammar
+    #   private def record_generation_input: (String, String) -> GenerationInput
 
     private
 
@@ -129,7 +130,9 @@ module Ibex
       path = @options[:messages]
       return {} unless path
 
-      document = ErrorMessages.load(path)
+      source = File.binread(path)
+      record_generation_input(path, source)
+      document = ErrorMessages.parse(source, file: path)
       ErrorMessages.messages_for(document, automaton, file: path)
     end
 

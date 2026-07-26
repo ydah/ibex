@@ -8,10 +8,12 @@ require_relative "cli/documentation"
 require_relative "cli/error_messages"
 require_relative "cli/explain"
 require_relative "cli/formatting"
+require_relative "cli/generation_artifacts"
 require_relative "cli/ir_tools"
 require_relative "cli/lsp"
 require_relative "cli/outputs"
 require_relative "cli/samples"
+require_relative "cli/watch"
 
 module Ibex
   # @rbs!
@@ -39,6 +41,8 @@ module Ibex
   #     ?verbose: bool,
   #     ?rbs: String | true,
   #     ?action_source: String | true,
+  #     ?manifest: String | true,
+  #     ?watch: bool,
   #     ?dot: String,
   #     ?mermaid: String,
   #     ?html: String,
@@ -92,29 +96,39 @@ module Ibex
     include CLIErrorMessages
     include CLIExplain
     include CLIFormatting
+    include CLIGenerationArtifacts
     include CLIIRTools
     include CLILSP
     include CLIOutputs
     include CLISamples
+    include CLIWatch
 
     # @rbs @stdout: _CLIOutput
     # @rbs @stderr: _CLIOutput
     # @rbs @options: cli_options
 
-    # @rbs (Array[String] arguments, ?stdin: _CLIInput, ?stdout: _CLIOutput,
-    #   ?stderr: _CLIOutput) -> Integer
-    def self.start(arguments, stdin: $stdin, stdout: $stdout, stderr: $stderr)
-      new(stdin: stdin, stdout: stdout, stderr: stderr).run(arguments)
+    # rubocop:disable Layout/LineLength
+    # @rbs (Array[String] arguments, ?stdin: _CLIInput, ?stdout: _CLIOutput, ?stderr: _CLIOutput, ?watch_clock: (^() -> Float)?, ?watch_sleeper: (^(Float) -> void)?, ?watch_iteration_hook: (^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil))?) -> Integer
+    def self.start(arguments, stdin: $stdin, stdout: $stdout, stderr: $stderr, watch_clock: nil, watch_sleeper: nil,
+                   watch_iteration_hook: nil)
+      new(
+        stdin: stdin, stdout: stdout, stderr: stderr, watch_clock: watch_clock,
+        watch_sleeper: watch_sleeper, watch_iteration_hook: watch_iteration_hook
+      ).run(arguments)
     end
 
-    # @rbs (?stdin: _CLIInput, stdout: _CLIOutput, stderr: _CLIOutput) -> void
-    def initialize(stdout:, stderr:, stdin: $stdin)
+    # @rbs (?stdin: _CLIInput, stdout: _CLIOutput, stderr: _CLIOutput, ?watch_clock: (^() -> Float)?, ?watch_sleeper: (^(Float) -> void)?, ?watch_iteration_hook: (^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil))?) -> void
+    def initialize(stdout:, stderr:, stdin: $stdin, watch_clock: nil, watch_sleeper: nil, watch_iteration_hook: nil)
       @stdin = stdin
       @stdout = stdout
       @stderr = stderr
+      @watch_clock = watch_clock || -> { Process.clock_gettime(Process::CLOCK_MONOTONIC) }
+      @watch_sleeper = watch_sleeper || ->(seconds) { sleep(seconds) }
+      @watch_iteration_hook = watch_iteration_hook || ->(_event, _iteration, _paths) {}
       @options = { emit: "ruby", mode: :racc, table: :compact, line_convert: true }
                  .merge(CLICounterexampleOptions::DEFAULTS)
     end
+    # rubocop:enable Layout/LineLength
 
     # @rbs (Array[String] arguments) -> Integer
     def run(arguments)
@@ -123,6 +137,7 @@ module Ibex
 
       parser = option_parser
       remaining = parser.parse(arguments)
+      validate_watch_information_options
       information = informational_result(parser)
       return information unless information.nil?
 
@@ -130,7 +145,7 @@ module Ibex
       validate_generation_options
       path = input_path(remaining)
       validate_generation_paths!(path)
-      process_grammar(path)
+      @options[:watch] ? run_watch(path) : process_grammar(path)
     rescue OptionParser::ParseError, Ibex::Error, SystemCallError, SystemStackError => e
       @stderr.puts(e.message)
       1
@@ -184,6 +199,7 @@ module Ibex
       options.on("--warnings=CATEGORIES", "all, error, all,error, or none") do |value|
         @options[:warnings] = warning_categories(value)
       end
+      options.on("--watch", "regenerate file outputs when grammar sources change") { @options[:watch] = true }
     end
 
     # @rbs (OptionParser options) -> void
@@ -195,6 +211,9 @@ module Ibex
       options.on("-v", "--verbose", "write an automaton report") { @options[:verbose] = true }
       add_counterexample_options(options)
       add_signature_output_options(options)
+      options.on("--manifest[=FILE]", "write a generation manifest (defaults beside parser)") do |value|
+        @options[:manifest] = value || true
+      end
       options.on("--dot=FILE", "write Graphviz DOT") { |value| @options[:dot] = value }
       options.on("--mermaid=FILE", "write a Mermaid flowchart") { |value| @options[:mermaid] = value }
       options.on("--html=FILE", "write a self-contained HTML report") { |value| @options[:html] = value }
@@ -267,21 +286,65 @@ module Ibex
 
     # @rbs () -> void
     def validate_generation_options
-      if @options[:action_source]
-        raise Ibex::Error, "(cli):1:1: --action-source requires --emit=ruby" unless @options[:emit] == "ruby"
-        raise Ibex::Error, "(cli):1:1: --action-source and --check-only cannot be combined" if @options[:check_only]
-      end
+      validate_watch_generation_options if @options[:watch]
+      validate_manifest_generation_options
+      validate_action_source_generation_options
+      validate_verification_generation_options
+    end
+
+    # @rbs () -> void
+    def validate_manifest_generation_options
+      return unless @options[:manifest]
+
+      raise Ibex::Error, "(cli):1:1: --manifest requires --emit=ruby" unless @options[:emit] == "ruby"
+      raise Ibex::Error, "(cli):1:1: --manifest and --check-only cannot be combined" if @options[:check_only]
+    end
+
+    # @rbs () -> void
+    def validate_action_source_generation_options
+      return unless @options[:action_source]
+
+      raise Ibex::Error, "(cli):1:1: --action-source requires --emit=ruby" unless @options[:emit] == "ruby"
+      raise Ibex::Error, "(cli):1:1: --action-source and --check-only cannot be combined" if @options[:check_only]
+    end
+
+    # @rbs () -> void
+    def validate_verification_generation_options
       return unless @options[:verify_output]
 
       raise Ibex::Error, "(cli):1:1: --check requires --emit=ruby" unless @options[:emit] == "ruby"
       raise Ibex::Error, "(cli):1:1: --check and --check-only cannot be combined" if @options[:check_only]
     end
 
-    # @rbs (String input_path) -> void
-    def validate_generation_paths!(input_path)
-      paths = generation_paths(input_path).filter_map do |kind, path|
+    # @rbs () -> void
+    def validate_watch_information_options
+      return unless @options[:watch]
+      return unless %i[version runtime_version copyright help].any? { |key| @options[key] }
+
+      raise Ibex::Error, "(cli):1:1: --watch cannot be combined with information options"
+    end
+
+    # @rbs () -> void
+    def validate_watch_generation_options
+      raise Ibex::Error, "(cli):1:1: --watch cannot be combined with --from" if @options[:from]
+      raise Ibex::Error, "(cli):1:1: --watch cannot be combined with --check" if @options[:verify_output]
+      raise Ibex::Error, "(cli):1:1: --watch cannot be combined with --check-only" if @options[:check_only]
+      return if @options[:emit] == "ruby"
+
+      raise Ibex::Error, "(cli):1:1: --watch requires --emit=ruby with file outputs"
+    end
+
+    # @rbs (String input_path, ?source_paths: Array[String]) -> void
+    def validate_generation_paths!(input_path, source_paths: [input_path])
+      outputs = generation_paths(input_path).except(:input, :messages)
+      paths = outputs.filter_map do |kind, path|
         [kind, path] if path
       end #: Array[[Symbol, String]]
+      source_entries = source_paths.map.with_index do |path, index|
+        [index.zero? ? :input : :"include_#{index}", path]
+      end
+      source_entries << [:messages, @options[:messages]] if @options[:messages]
+      paths.concat(source_entries)
       collision = paths.combination(2).find do |pair|
         left = pair.fetch(0)
         right = pair.fetch(1)
@@ -302,9 +365,21 @@ module Ibex
       return true if File.exist?(expanded_left) && File.exist?(expanded_right) &&
                      File.identical?(expanded_left, expanded_right)
 
-      canonical_target_path(expanded_left) == canonical_target_path(expanded_right)
+      portable_target_key(expanded_left) == portable_target_key(expanded_right)
     rescue SystemCallError
       expanded_left == expanded_right
+    end
+
+    # @rbs (String path) -> [String, String]
+    def portable_target_key(path)
+      canonical = canonical_target_path(path)
+      basename = File.basename(canonical)
+      folded = if basename.encoding == Encoding::UTF_8 && basename.valid_encoding?
+                 basename.unicode_normalize(:nfc).downcase(:fold).unicode_normalize(:nfc)
+               else
+                 basename.downcase
+               end
+      [File.dirname(canonical), folded]
     end
 
     # @rbs (String path, ?Hash[String, bool] seen) -> String
@@ -337,6 +412,7 @@ module Ibex
         paths[:parser] = output
         paths[:rbs] = rbs_output_path(output) if @options[:rbs]
         paths[:action_source] = action_source_output_path(output) if @options[:action_source]
+        paths[:manifest] = manifest_output_path_for(output) if @options[:manifest]
       end
       unless @options[:verify_output]
         paths.merge!(dot: @options[:dot], mermaid: @options[:mermaid], html: @options[:html],
@@ -350,8 +426,12 @@ module Ibex
     def process_grammar(path)
       return process_ir(path) if @options[:from]
 
+      begin_artifact_generation
       report_status("reading #{path}")
       resolution = resolve_grammar_path(path)
+      @generation_inputs = @last_resolver.source_records
+      @generation_sources = @generation_inputs.map(&:path)
+      validate_generation_paths!(path, source_paths: resolution.files)
       return emit_ast(resolution.root) if @options[:emit] == "ast"
 
       grammar = Normalizer.new(resolution, mode: @options[:mode]).normalize
@@ -360,7 +440,9 @@ module Ibex
 
     # @rbs (String path) -> Frontend::Resolution
     def resolve_grammar_path(path)
-      Frontend::Resolver.new(path, mode: @options[:mode]).resolve
+      loader = Frontend::SourceLoader.new(record_reads: true)
+      @last_resolver = Frontend::Resolver.new(path, mode: @options[:mode], loader: loader)
+      @last_resolver.resolve
     end
 
     # @rbs (String path) -> IR::Grammar
@@ -370,8 +452,12 @@ module Ibex
 
     # @rbs (String path) -> Integer
     def process_ir(path)
+      begin_artifact_generation
       report_status("reading #{path}")
-      value = IR::Validator.validate(File.read(path))
+      source = File.binread(path)
+      input = record_generation_input(path, source)
+      validate_generation_paths!(path, source_paths: [input.path])
+      value = IR::Validator.validate(source)
       expected = @options[:from] == "grammar-ir" ? IR::Grammar : IR::Automaton
       raise Ibex::Error, "#{path}:1:1: expected #{@options[:from]} input" unless value.is_a?(expected)
 
@@ -438,6 +524,7 @@ module Ibex
 
     # @rbs (IR::Grammar grammar) -> Integer
     def emit_grammar(grammar)
+      finish_artifact_generation(@generation_sources)
       @stdout.write(IR::Serialize.dump(grammar))
       0
     end
@@ -451,13 +538,16 @@ module Ibex
         first: nonterminals.to_h { |symbol| [symbol.name, sets.first(symbol).sort] },
         follow: nonterminals.to_h { |symbol| [symbol.name, sets.follow(symbol).sort] }
       }
+      finish_artifact_generation(@generation_sources)
       @stdout.puts(JSON.pretty_generate(output))
       0
     end
 
     # @rbs (IR::Grammar grammar, String input_path) -> Integer
     def emit_automaton(grammar, input_path)
-      @stdout.write(IR::Serialize.dump(build_automaton(grammar, input_path)))
+      automaton = build_automaton(grammar, input_path)
+      finish_artifact_generation(@generation_sources)
+      @stdout.write(IR::Serialize.dump(automaton))
       0
     end
 
@@ -478,14 +568,10 @@ module Ibex
       ).generate
       output_path = @options[:output] || default_output_path(input_path, ".rb")
       action_source = action_source_source(automaton) if @options[:action_source]
-      return verify_generated_outputs(automaton, output_path, source, action_source) if @options[:verify_output]
-
       write_action_source(output_path, action_source) if action_source
-      File.write(output_path, source)
-      File.chmod(0o755, output_path) if @options[:executable]
-      report_status("wrote #{output_path}")
+      register_artifact(:parser, output_path, source, mode: (0o755 if @options[:executable]), status: true)
       write_rbs(automaton, output_path) if @options[:rbs]
-      0
+      finish_artifact_generation(@generation_sources)
     end
 
     # @rbs (IR::Automaton automaton, String output_path, String source, String? action_source) -> Integer
@@ -509,8 +595,7 @@ module Ibex
     def write_rbs(automaton, output_path)
       path = rbs_output_path(output_path)
       source = rbs_source(automaton)
-      File.write(path, source)
-      report_status("wrote #{path}")
+      register_artifact(:rbs, path, source, status: true)
     end
 
     # @rbs (String output_path) -> String
@@ -532,8 +617,7 @@ module Ibex
     # @rbs (String output_path, String source) -> void
     def write_action_source(output_path, source)
       path = action_source_output_path(output_path)
-      File.write(path, source)
-      report_status("wrote #{path}")
+      register_artifact(:action_source, path, source, status: true)
     end
 
     # @rbs (String output_path) -> String
@@ -553,6 +637,7 @@ module Ibex
     # @rbs (IR::Automaton automaton, String input_path) -> Integer
     def emit_loaded_automaton(automaton, input_path)
       prepare_loaded_automaton(automaton, input_path)
+      finish_artifact_generation(@generation_sources)
       @stdout.write(IR::Serialize.dump(automaton))
       0
     end
@@ -581,15 +666,23 @@ module Ibex
       dot_path = @options[:dot]
       mermaid_path = @options[:mermaid]
       html_path = @options[:html]
-      File.write(dot_path, Codegen::Dot.render(automaton)) if dot_path
-      File.write(mermaid_path, Codegen::Mermaid.render(automaton)) if mermaid_path
-      File.write(html_path, Codegen::HTML.render(automaton)) if html_path
+      register_artifact(:dot, dot_path, Codegen::Dot.render(automaton)) if dot_path
+      register_artifact(:mermaid, mermaid_path, Codegen::Mermaid.render(automaton)) if mermaid_path
+      register_artifact(:html, html_path, Codegen::HTML.render(automaton)) if html_path
     end
 
     # @rbs (IR::Grammar grammar) -> void
     def write_railroad(grammar)
       path = @options[:railroad]
-      File.write(path, Codegen::Railroad.render(grammar)) if path
+      register_artifact(:railroad, path, Codegen::Railroad.render(grammar)) if path
+    end
+
+    # @rbs (String output_path) -> String
+    def manifest_output_path_for(output_path)
+      configured = @options[:manifest]
+      return configured if configured.is_a?(String) && !configured.empty?
+
+      default_output_path(output_path, ".ibex.json")
     end
   end
   # rubocop:enable Metrics/ClassLength

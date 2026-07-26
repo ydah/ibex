@@ -1,0 +1,7 @@
+# Generated from lib/ibex/watch.rb with RBS::Inline
+
+module Ibex
+  # Portable polling support for repeatable parser generation.
+  module Watch
+  end
+end

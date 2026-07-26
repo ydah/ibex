@@ -1,0 +1,43 @@
+# Generated from lib/ibex/cli/watch.rb with RBS::Inline
+
+module Ibex
+  # Long-running CLI generation over stable source snapshots.
+  module CLIWatch
+    private def process_grammar: (String) -> Integer
+
+    private def generation_artifacts: () -> ArtifactSet
+
+    private def report_status: (String) -> void
+
+    # Rendered watch generation awaiting its stability-guarded publication.
+    class Build
+      attr_reader artifacts: ArtifactSet
+
+      attr_reader statuses: Array[String]
+
+      attr_reader source_paths: Array[String]
+
+      attr_reader attempted_paths: Array[String]
+
+      attr_reader source_records: Array[GenerationInput]
+
+      # rubocop:disable Layout/LineLength
+      # @rbs (artifacts: ArtifactSet, statuses: Array[String], source_paths: Array[String], attempted_paths: Array[String], source_records: Array[GenerationInput]) -> void
+      def initialize: (artifacts: ArtifactSet, statuses: Array[String], source_paths: Array[String], attempted_paths: Array[String], source_records: Array[GenerationInput]) -> void
+    end
+
+    private
+
+    # @rbs (String path) -> Integer
+    def run_watch: (String path) -> Integer
+
+    # @rbs (String path) -> Build
+    def prepare_watch_generation: (String path) -> Build
+
+    # @rbs (Build build, Watch::SourceSnapshot snapshot, ^() -> bool continue) -> void
+    def publish_watch_generation: (Build build, Watch::SourceSnapshot snapshot, ^() -> bool continue) -> void
+
+    # @rbs (String path) -> Array[String]
+    def watch_failure_paths: (String path) -> Array[String]
+  end
+end

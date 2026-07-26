@@ -11,7 +11,7 @@ module Ibex
     def read: () -> String
   end
 
-  type cli_options = { emit: String, mode: Symbol, table: Symbol, line_convert: bool, ?line_convert_all: bool, counterexample_max_tokens: Integer, counterexample_max_configurations: Integer, ?from: String, ?algorithm: Symbol, ?warnings: Array[Symbol], ?output: String, ?embedded: bool, ?debug: bool, ?verbose: bool, ?rbs: String | true, ?action_source: String | true, ?dot: String, ?mermaid: String, ?html: String, ?railroad: String, ?messages: String, ?messages_update: String | true, ?messages_algorithm_explicit: bool, ?sample_count: Integer, ?sample_seed: Integer, ?sample_max_tokens: Integer, ?sample_max_depth: Integer, ?sample_max_expansions: Integer, ?log_file: String, ?executable: String, ?frozen: bool, ?omit_actions: bool, ?superclass: String, ?verify_output: bool, ?check_only: bool, ?status: bool, ?profile: bool, ?debug_flags: String, ?version: bool, ?runtime_version: bool, ?copyright: bool, ?help: bool, ?explain_state: Integer, ?explain_token: String, ?explain_format: String }
+  type cli_options = { emit: String, mode: Symbol, table: Symbol, line_convert: bool, ?line_convert_all: bool, counterexample_max_tokens: Integer, counterexample_max_configurations: Integer, ?from: String, ?algorithm: Symbol, ?warnings: Array[Symbol], ?output: String, ?embedded: bool, ?debug: bool, ?verbose: bool, ?rbs: String | true, ?action_source: String | true, ?manifest: String | true, ?watch: bool, ?dot: String, ?mermaid: String, ?html: String, ?railroad: String, ?messages: String, ?messages_update: String | true, ?messages_algorithm_explicit: bool, ?sample_count: Integer, ?sample_seed: Integer, ?sample_max_tokens: Integer, ?sample_max_depth: Integer, ?sample_max_expansions: Integer, ?log_file: String, ?executable: String, ?frozen: bool, ?omit_actions: bool, ?superclass: String, ?verify_output: bool, ?check_only: bool, ?status: bool, ?profile: bool, ?debug_flags: String, ?version: bool, ?runtime_version: bool, ?copyright: bool, ?help: bool, ?explain_state: Integer, ?explain_token: String, ?explain_format: String }
 
   # Command-line pipeline coordinator.
   # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.
@@ -30,6 +30,8 @@ module Ibex
 
     include CLIFormatting
 
+    include CLIGenerationArtifacts
+
     include CLIIRTools
 
     include CLILSP
@@ -38,18 +40,20 @@ module Ibex
 
     include CLISamples
 
+    include CLIWatch
+
     @options: cli_options
 
     @stderr: _CLIOutput
 
     @stdout: _CLIOutput
 
-    # @rbs (Array[String] arguments, ?stdin: _CLIInput, ?stdout: _CLIOutput,
-    #   ?stderr: _CLIOutput) -> Integer
-    def self.start: (Array[String] arguments, ?stdin: _CLIInput, ?stdout: _CLIOutput, ?stderr: _CLIOutput) -> Integer
+    # rubocop:disable Layout/LineLength
+    # @rbs (Array[String] arguments, ?stdin: _CLIInput, ?stdout: _CLIOutput, ?stderr: _CLIOutput, ?watch_clock: (^() -> Float)?, ?watch_sleeper: (^(Float) -> void)?, ?watch_iteration_hook: (^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil))?) -> Integer
+    def self.start: (Array[String] arguments, ?stdin: _CLIInput, ?stdout: _CLIOutput, ?stderr: _CLIOutput, ?watch_clock: (^() -> Float)?, ?watch_sleeper: (^(Float) -> void)?, ?watch_iteration_hook: (^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil))?) -> Integer
 
-    # @rbs (?stdin: _CLIInput, stdout: _CLIOutput, stderr: _CLIOutput) -> void
-    def initialize: (stdout: _CLIOutput, stderr: _CLIOutput, ?stdin: _CLIInput) -> void
+    # @rbs (?stdin: _CLIInput, stdout: _CLIOutput, stderr: _CLIOutput, ?watch_clock: (^() -> Float)?, ?watch_sleeper: (^(Float) -> void)?, ?watch_iteration_hook: (^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil))?) -> void
+    def initialize: (stdout: _CLIOutput, stderr: _CLIOutput, ?stdin: _CLIInput, ?watch_clock: (^() -> Float)?, ?watch_sleeper: (^(Float) -> void)?, ?watch_iteration_hook: (^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil))?) -> void
 
     # @rbs (Array[String] arguments) -> Integer
     def run: (Array[String] arguments) -> Integer
@@ -86,11 +90,29 @@ module Ibex
     # @rbs () -> void
     def validate_generation_options: () -> void
 
-    # @rbs (String input_path) -> void
-    def validate_generation_paths!: (String input_path) -> void
+    # @rbs () -> void
+    def validate_manifest_generation_options: () -> void
+
+    # @rbs () -> void
+    def validate_action_source_generation_options: () -> void
+
+    # @rbs () -> void
+    def validate_verification_generation_options: () -> void
+
+    # @rbs () -> void
+    def validate_watch_information_options: () -> void
+
+    # @rbs () -> void
+    def validate_watch_generation_options: () -> void
+
+    # @rbs (String input_path, ?source_paths: Array[String]) -> void
+    def validate_generation_paths!: (String input_path, ?source_paths: Array[String]) -> void
 
     # @rbs (String left, String right) -> bool
     def same_file_target?: (String left, String right) -> bool
+
+    # @rbs (String path) -> [String, String]
+    def portable_target_key: (String path) -> [ String, String ]
 
     # @rbs (String path, ?Hash[String, bool] seen) -> String
     def canonical_target_path: (String path, ?Hash[String, bool] seen) -> String
@@ -181,5 +203,8 @@ module Ibex
 
     # @rbs (IR::Grammar grammar) -> void
     def write_railroad: (IR::Grammar grammar) -> void
+
+    # @rbs (String output_path) -> String
+    def manifest_output_path_for: (String output_path) -> String
   end
 end

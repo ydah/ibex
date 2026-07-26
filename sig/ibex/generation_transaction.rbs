@@ -1,0 +1,76 @@
+# Generated from lib/ibex/generation_transaction.rb with RBS::Inline
+
+module Ibex
+  # Publishes a rendered ArtifactSet with rollback and a manifest-last marker.
+  class GenerationTransaction
+    include GenerationTransactionRecovery
+
+    include GenerationTransactionValidation
+
+    class SourceChanged < Ibex::Error
+    end
+
+    class Error < Ibex::Error
+      attr_reader rollback_failed: bool
+
+      attr_reader recovery_artifacts: Array[String]
+
+      # @rbs (String message, ?rollback_failed: bool, ?recovery_artifacts: Array[String]) -> void
+      def initialize: (String message, ?rollback_failed: bool, ?recovery_artifacts: Array[String]) -> void
+    end
+
+    # rubocop:disable Layout/LineLength
+    # @rbs (ArtifactSet artifacts, ?warning: ^(String) -> void, ?stability_check: ^() -> bool, ?source_records: Array[GenerationInput], ?lock_sleeper: ^(Float) -> void) -> void
+    def initialize: (ArtifactSet artifacts, ?warning: ^(String) -> void, ?stability_check: ^() -> bool, ?source_records: Array[GenerationInput], ?lock_sleeper: ^(Float) -> void) -> void
+
+    # @rbs () -> void
+    def commit: () -> void
+
+    private
+
+    # @rbs () -> void
+    def prepare_records: () -> void
+
+    # @rbs (Artifact artifact, String target) -> Integer
+    def target_mode: (Artifact artifact, String target) -> Integer
+
+    # @rbs () -> void
+    def acquire_locks: () -> void
+
+    # @rbs (File lock, String path) -> void
+    def acquire_lock: (File lock, String path) -> void
+
+    # @rbs (String target) -> String
+    def lock_path: (String target) -> String
+
+    # @rbs () -> void
+    def stage_records: () -> void
+
+    # @rbs () -> void
+    def backup_records: () -> void
+
+    # @rbs (String directory, String suffix) -> String
+    def vacant_temporary_path: (String directory, String suffix) -> String
+
+    # @rbs (Symbol group) -> void
+    def install_group: (Symbol group) -> void
+
+    # @rbs (Artifact artifact) -> Symbol
+    def publication_group: (Artifact artifact) -> Symbol
+
+    # @rbs () -> void
+    def sync_directories!: () -> void
+
+    # @rbs () -> void
+    def cleanup_success: () -> void
+
+    # @rbs (Exception error) -> void
+    def report_post_commit_failure: (Exception error) -> void
+
+    # @rbs (String message) -> void
+    def warn_best_effort: (String message) -> void
+
+    # @rbs () -> void
+    def release_locks: () -> void
+  end
+end

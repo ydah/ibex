@@ -1,0 +1,42 @@
+# Generated from lib/ibex/watch/source_snapshot.rb with RBS::Inline
+
+module Ibex
+  module Watch
+    # Stable metadata and content fingerprints for watched source paths.
+    class SourceSnapshot
+      attr_reader paths: Array[String]
+
+      # @rbs (Array[String] paths) -> void
+      def initialize: (Array[String] paths) -> void
+
+      # @rbs (SourceSnapshot other) -> bool
+      def ==: (SourceSnapshot other) -> bool
+
+      # Every path in this snapshot must have had the same value in the older snapshot.
+      # @rbs (SourceSnapshot older) -> bool
+      def unchanged_since?: (SourceSnapshot older) -> bool
+
+      attr_reader entries: Hash[String, Hash[Symbol, untyped]]
+
+      # @rbs (String path) -> Hash[Symbol, untyped]?
+      def entry: (String path) -> Hash[Symbol, untyped]?
+
+      private
+
+      # @rbs (String path) -> Hash[Symbol, untyped]
+      def fingerprint: (String path) -> Hash[Symbol, untyped]
+
+      # @rbs (File::Stat stat) -> Hash[Symbol, untyped]
+      def stat_signature: (File::Stat stat) -> Hash[Symbol, untyped]
+
+      # @rbs (File::Stat stat) -> Symbol
+      def file_kind: (File::Stat stat) -> Symbol
+
+      # @rbs (Time time) -> Integer
+      def nanoseconds: (Time time) -> Integer
+
+      # @rbs (Hash[Symbol, untyped] value, String path) -> void
+      def add_resolved_target: (Hash[Symbol, untyped] value, String path) -> void
+    end
+  end
+end

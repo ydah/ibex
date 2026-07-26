@@ -1,0 +1,36 @@
+# Generated from lib/ibex/generation_transaction_recovery.rb with RBS::Inline
+
+module Ibex
+  # Failure recovery and best-effort cleanup for GenerationTransaction.
+  module GenerationTransactionRecovery
+    private
+
+    # @rbs (Exception cause) -> bot
+    def handle_failure: (Exception cause) -> bot
+
+    # @rbs (Exception cause, Array[String] rollback, Array[String] cleanup, Array[String] sync) -> bool
+    def source_change_clean?: (Exception cause, Array[String] rollback, Array[String] cleanup, Array[String] sync) -> bool
+
+    # rubocop:disable Layout/LineLength
+    # @rbs (Exception cause, Array[String] rollback, Array[String] cleanup, Array[String] sync, Array[String] recovery) -> Array[String]
+    def failure_details: (Exception cause, Array[String] rollback, Array[String] cleanup, Array[String] sync, Array[String] recovery) -> Array[String]
+
+    # @rbs () -> Array[String]
+    def recovery_artifacts: () -> Array[String]
+
+    # @rbs () -> Array[String]
+    def rollback: () -> Array[String]
+
+    # @rbs (Hash[Symbol, untyped] record) -> void
+    def rollback_record: (Hash[Symbol, untyped] record) -> void
+
+    # @rbs (preserve_backups: bool) -> Array[String]
+    def cleanup_artifacts: (preserve_backups: bool) -> Array[String]
+
+    # @rbs (String path, Array[String] failures) -> void
+    def remove_artifact: (String path, Array[String] failures) -> void
+
+    # @rbs () -> Array[String]
+    def sync_directories_best_effort: () -> Array[String]
+  end
+end

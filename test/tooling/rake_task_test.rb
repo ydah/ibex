@@ -54,6 +54,22 @@ class RakeTaskTest < Minitest::Test
     assert_match(/grammar is required/, error.message)
   end
 
+  def test_rejects_watch_mode_in_task_options
+    Dir.mktmpdir do |directory|
+      grammar = File.join(directory, "parser.y")
+      File.write(grammar, "class Parser\nrule\nstart: TOKEN\nend\n")
+
+      error = assert_raises(ArgumentError) do
+        Ibex::RakeTask.new(:parser) do |task|
+          task.grammar = grammar
+          task.options = ["--watch"]
+        end
+      end
+
+      assert_match(/must not include --watch/, error.message)
+    end
+  end
+
   def test_up_to_date_file_task_does_not_rewrite_the_target
     Dir.mktmpdir do |directory|
       grammar = File.join(directory, "parser.y")

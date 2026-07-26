@@ -12,6 +12,7 @@ class SchemaFilesPackagingTest < Minitest::Test
     assert_includes specification.files, "schema/automaton-ir-v2.schema.json"
     assert_includes specification.files, "schema/explain-v1.schema.json"
     assert_includes specification.files, "schema/benchmark-v1.schema.json"
+    assert_includes specification.files, "schema/generation-manifest-v1.schema.json"
     assert_includes specification.files, "lib/ibex/codegen/action_method_source.rb"
     assert_includes specification.files, "lib/ibex/codegen/action_source.rb"
     assert_includes specification.files, "lib/ibex/cli/formatting.rb"
@@ -37,5 +38,27 @@ class SchemaFilesPackagingTest < Minitest::Test
     assert_includes specification.files, "sig/ibex/lsp/document_store_diagnostics.rbs"
     assert_includes specification.files, "sig/ibex/lsp/server.rbs"
     assert_includes specification.files, "sig/ibex/lsp/symbol_index_precedence_references.rbs"
+  end
+
+  def test_transaction_and_watch_sources_and_signatures_are_packaged_in_the_gem
+    specification = Gem::Specification.load(File.expand_path("../../ibex.gemspec", __dir__))
+    relative_paths = %w[
+      ibex/artifact_set
+      ibex/cli/generation_artifacts
+      ibex/cli/watch
+      ibex/generation_input
+      ibex/generation_manifest
+      ibex/generation_transaction
+      ibex/generation_transaction_recovery
+      ibex/generation_transaction_validation
+      ibex/watch
+      ibex/watch/runner
+      ibex/watch/source_snapshot
+    ]
+
+    relative_paths.each do |path|
+      assert_includes specification.files, "lib/#{path}.rb"
+      assert_includes specification.files, "sig/#{path}.rbs"
+    end
   end
 end
