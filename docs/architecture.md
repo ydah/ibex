@@ -251,6 +251,12 @@ table format, and totals and uses checked addition. The coverage CLI only reads 
 Ruby or executes semantic actions; collection, merge, threshold, and atomic-output policy are fixed by
 [ADR 0051](decisions/0051-deterministic-runtime-coverage.md).
 
+`TableSimulation::Simulator` is a separate state-stack interpreter over validated Automaton IR. It resolves an explicit ACTION
+cell before a default action, so explicit error masks remain authoritative, and never evaluates the opaque semantic-action
+source stored in Grammar IR. Immutable steps expose state, lookahead, selected action source, reduction/goto metadata, and stack
+depth. Action and stack budgets bound default/epsilon cycles and growth. The text/JSON CLI and versioned output contract are
+fixed by [ADR 0052](decisions/0052-safe-automaton-table-simulation.md).
+
 ## Clean-room boundary
 
 Implementation work uses public racc documentation, CLI black-box behavior, and published LR algorithms only. racc implementation

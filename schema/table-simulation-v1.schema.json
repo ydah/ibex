@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/table-simulation-v1.schema.json",
+  "title": "Ibex table simulation v1",
+  "type": "object",
+  "required": [
+    "ibex_table_simulation",
+    "schema_version",
+    "grammar_digest",
+    "algorithm",
+    "tokens",
+    "status",
+    "steps"
+  ],
+  "properties": {
+    "ibex_table_simulation": { "const": "table-simulation" },
+    "schema_version": { "const": 1 },
+    "grammar_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "algorithm": { "enum": ["slr", "lalr1", "lr1"] },
+    "tokens": {
+      "type": "array",
+      "items": { "type": "string" },
+      "maxItems": 100000
+    },
+    "status": { "enum": ["accepted", "error"] },
+    "steps": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": { "$ref": "#/$defs/step" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "step": {
+      "type": "object",
+      "required": [
+        "sequence",
+        "state",
+        "token_id",
+        "token",
+        "action",
+        "action_source",
+        "production_id",
+        "lhs",
+        "rhs_length",
+        "target_state",
+        "stack_depth_before",
+        "stack_depth_after"
+      ],
+      "properties": {
+        "sequence": { "type": "integer", "minimum": 1 },
+        "state": { "type": "integer", "minimum": 0 },
+        "token_id": { "type": "integer", "minimum": 0 },
+        "token": { "type": "string" },
+        "action": { "enum": ["shift", "reduce", "accept", "error"] },
+        "action_source": { "enum": ["explicit", "default", "implicit"] },
+        "production_id": { "type": ["integer", "null"], "minimum": 0 },
+        "lhs": { "type": ["string", "null"] },
+        "rhs_length": { "type": ["integer", "null"], "minimum": 0 },
+        "target_state": { "type": ["integer", "null"], "minimum": 0 },
+        "stack_depth_before": { "type": "integer", "minimum": 1 },
+        "stack_depth_after": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    }
+  }
+}

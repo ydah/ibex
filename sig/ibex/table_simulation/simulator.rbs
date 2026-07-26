@@ -1,0 +1,98 @@
+# Generated from lib/ibex/table_simulation/simulator.rb with RBS::Inline
+
+module Ibex
+  module TableSimulation
+    # Deterministic, semantic-action-free table interpreter.
+    class Simulator
+      DEFAULT_MAX_STEPS: Integer
+
+      DEFAULT_MAX_STACK: Integer
+
+      EOF_NAME: String
+
+      ERROR_NAME: String
+
+      IMPLICIT_ERROR: IR::error_action
+
+      attr_reader automaton: IR::Automaton
+
+      attr_reader max_steps: Integer
+
+      attr_reader max_stack: Integer
+
+      attr_reader eof: IR::GrammarSymbol
+
+      # @rbs (IR::Automaton automaton, ?max_steps: Integer, ?max_stack: Integer) -> void
+      def initialize: (IR::Automaton automaton, ?max_steps: Integer, ?max_stack: Integer) -> void
+
+      # @rbs () -> Session
+      def start: () -> Session
+
+      # @rbs (Array[String] tokens) -> Result
+      def simulate: (Array[String] tokens) -> Result
+
+      # @rbs (String spelling) -> IR::GrammarSymbol
+      def terminal: (String spelling) -> IR::GrammarSymbol
+
+      private
+
+      # @rbs (Array[IR::GrammarSymbol] terminals) -> Hash[String, Array[IR::GrammarSymbol]]
+      def terminal_aliases: (Array[IR::GrammarSymbol] terminals) -> Hash[String, Array[IR::GrammarSymbol]]
+    end
+
+    # Stateful token-at-a-time table simulation session.
+    class Session
+      @tokens: Array[String]
+
+      @steps: Array[Step]
+
+      attr_reader status: Symbol?
+
+      # @rbs (Simulator simulator) -> void
+      def initialize: (Simulator simulator) -> void
+
+      # @rbs (String spelling) -> Array[Step]
+      def push: (String spelling) -> Array[Step]
+
+      # @rbs () -> Array[Step]
+      def steps: () -> Array[Step]
+
+      # @rbs () -> Array[String]
+      def tokens: () -> Array[String]
+
+      # @rbs () -> Result
+      def finish: () -> Result
+
+      private
+
+      # @rbs (IR::GrammarSymbol terminal, eof: bool) -> Array[Step]
+      def process: (IR::GrammarSymbol terminal, eof: bool) -> Array[Step]
+
+      # @rbs (IR::AutomatonState state, Integer token_id) -> [IR::parser_action, String]
+      def action_for: (IR::AutomatonState state, Integer token_id) -> [ IR::parser_action, String ]
+
+      # @rbs (IR::AutomatonState state, IR::GrammarSymbol terminal, IR::parser_action action, String source) -> void
+      def record_shift: (IR::AutomatonState state, IR::GrammarSymbol terminal, IR::parser_action action, String source) -> void
+
+      # @rbs (IR::AutomatonState state, IR::GrammarSymbol terminal, IR::parser_action action, String source) -> void
+      def record_reduce: (IR::AutomatonState state, IR::GrammarSymbol terminal, IR::parser_action action, String source) -> void
+
+      # @rbs (IR::AutomatonState state, IR::GrammarSymbol terminal, String action, String source) -> void
+      def record_terminal: (IR::AutomatonState state, IR::GrammarSymbol terminal, String action, String source) -> void
+
+      # @rbs (IR::AutomatonState state, IR::GrammarSymbol terminal, String action, String source,
+      #   before: Integer, ?production_id: Integer?, ?lhs: String?, ?rhs_length: Integer?,
+      #   ?target_state: Integer?) -> void
+      def append_step: (IR::AutomatonState state, IR::GrammarSymbol terminal, String action, String source, before: Integer, ?production_id: Integer?, ?lhs: String?, ?rhs_length: Integer?, ?target_state: Integer?) -> void
+
+      # @rbs () -> IR::AutomatonState
+      def current_state: () -> IR::AutomatonState
+
+      # @rbs () -> void
+      def enforce_stack_budget!: () -> void
+
+      # @rbs () -> void
+      def ensure_active!: () -> void
+    end
+  end
+end

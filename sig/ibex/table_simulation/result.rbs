@@ -1,0 +1,32 @@
+# Generated from lib/ibex/table_simulation/result.rb with RBS::Inline
+
+module Ibex
+  module TableSimulation
+    # Final immutable simulation document.
+    class Result
+      IDENTIFIER: String
+
+      SCHEMA_VERSION: Integer
+
+      attr_reader grammar_digest: String
+
+      attr_reader algorithm: String
+
+      attr_reader tokens: Array[String]
+
+      attr_reader status: Symbol
+
+      attr_reader steps: Array[Step]
+
+      # @rbs (grammar_digest: String, algorithm: String, tokens: Array[String], status: Symbol,
+      #   steps: Array[Step]) -> void
+      def initialize: (grammar_digest: String, algorithm: String, tokens: Array[String], status: Symbol, steps: Array[Step]) -> void
+
+      # @rbs () -> Hash[String, untyped]
+      def to_h: () -> Hash[String, untyped]
+
+      # @rbs (*untyped) -> String
+      def to_json: (*untyped) -> String
+    end
+  end
+end
