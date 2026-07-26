@@ -59,7 +59,7 @@ class LSPDocumentStoreSecurityTest < Minitest::Test
   end
 
   def file_uri(path)
-    "file://#{URI::RFC2396_PARSER.escape(path)}"
+    "file://#{TestURI::PARSER.escape(path)}"
   end
 
   def overlay_source

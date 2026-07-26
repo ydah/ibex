@@ -78,6 +78,6 @@ class LSPWorkspaceTest < Minitest::Test
   private
 
   def file_uri(path)
-    "file://#{URI::RFC2396_PARSER.escape(path)}"
+    "file://#{TestURI::PARSER.escape(path)}"
   end
 end

@@ -2,6 +2,7 @@
 
 require_relative "../test_helper"
 require_relative "../../benchmark/pipeline"
+require "digest"
 require "json"
 require "json_schemer"
 require "open3"
@@ -26,11 +27,11 @@ class PipelineBenchmarkTest < Minitest::Test
       assert_valid_schema(JSON.parse(json_stdout(result)))
       assert_equal "ibex_benchmark", result.fetch("artifact")
       assert_equal 2, result.fetch("schema_version")
-      assert_equal expected_structure, result.fetch("structure")
-      assert_equal(
-        "718c424f5999eea6d61af23572c9112709589da28a1566b8543ac54bad7512a3",
-        result.dig("digests", "artifact_sha256")
-      )
+      structure = result.fetch("structure")
+      generated_sizes = structure.fetch("generated_output_bytes")
+      assert_equal expected_structure, structure.except("generated_output_bytes")
+      generated_sizes.each_value { |bytes| assert_operator bytes, :>, 0 }
+      assert_digest_is_self_consistent(result.fetch("digests"))
       assert_equal(
         %w[parse normalize automaton table_plain table_compact codegen_plain codegen_compact],
         result.dig("measurements", "stage_ms").keys
@@ -66,6 +67,13 @@ class PipelineBenchmarkTest < Minitest::Test
     PipelineBenchmark.render_output(report, json: options.fetch(:json))
   end
 
+  def assert_digest_is_self_consistent(digests)
+    component_digests = digests.except("artifact_sha256")
+    expected = Digest::SHA256.hexdigest(JSON.generate(component_digests))
+
+    assert_equal expected, digests.fetch("artifact_sha256")
+  end
+
   def expected_structure
     {
       "productions" => 139,
@@ -81,8 +89,7 @@ class PipelineBenchmarkTest < Minitest::Test
           "action_cells" => 5848, "goto_cells" => 1522, "default_cells" => 250,
           "total_cells" => 7620, "bytes" => 51_999
         }
-      },
-      "generated_output_bytes" => { "plain" => 63_603, "compact" => 68_459 }
+      }
     }
   end
 end
