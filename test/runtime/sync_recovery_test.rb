@@ -4,6 +4,46 @@ require_relative "../test_helper"
 require "stringio"
 
 class RuntimeSyncRecoveryTest < Minitest::Test
+  class PopStateSyncParser < Ibex::Runtime::Parser
+    TABLES = {
+      format_version: Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION,
+      tokens: { ITEM: 2, ";" => 3, BAD: 4 },
+      token_names: { 0 => "$eof", 1 => "error", 2 => "ITEM", 3 => ";", 4 => "BAD" },
+      actions: [
+        { 2 => [:shift, 1], 3 => [:shift, 3] },
+        { 4 => [:reduce, 0] },
+        { 4 => [:error] },
+        { 0 => [:accept] },
+        {}
+      ],
+      gotos: [{ 5 => 2, 6 => 4 }, {}, {}, {}, {}],
+      productions: [{ lhs: 5, length: 1 }, { lhs: 6, length: 1 }],
+      eager_reductions: [nil, nil, [:reduce, 1], nil, nil],
+      recovery_sync_tokens: [3]
+    }.freeze
+
+    attr_reader :recovery_states
+
+    def self.parser_tables = TABLES
+
+    def initialize
+      super
+      @recovery_states = []
+    end
+
+    def parse_tokens(tokens)
+      @tokens = tokens
+      do_parse
+    end
+
+    def next_token = @tokens.shift
+    def on_error(*) = nil
+
+    def on_error_recover_location(_token_id, _value, _stack, _location, state)
+      @recovery_states << state
+    end
+  end
+
   SYNC_GRAMMAR = <<~GRAMMAR
     class SyncParser
     pragma extended
@@ -138,6 +178,51 @@ class RuntimeSyncRecoveryTest < Minitest::Test
 
     assert_equal ["ibex: recover: synchronized before ';' in state 1\n"],
                  output.string.lines.grep(/synchronized/)
+  end
+
+  def test_pull_sync_recovery_pop_does_not_dispatch_dormant_trace_payloads
+    parser = PopStateSyncParser.new
+    trace_calls = 0
+    parser.define_singleton_method(:trace) { |_message| trace_calls += 1 }
+
+    assert_equal :sync, parser.parse_tokens([%i[ITEM item], %i[BAD bad], [";", :sync]])
+    assert_equal [0], parser.recovery_states
+    assert_equal 0, trace_calls
+  end
+
+  def test_push_sync_recovery_pop_does_not_dispatch_dormant_trace_payloads
+    parser = PopStateSyncParser.new
+    trace_calls = 0
+    parser.define_singleton_method(:trace) { |_message| trace_calls += 1 }
+
+    assert_equal :need_more, parser.push(:ITEM, :item)
+    assert_equal :need_more, parser.push(:BAD, :bad)
+    assert_equal :need_more, parser.push(";", :sync)
+    assert_equal :sync, parser.finish
+    assert_equal [0], parser.recovery_states
+    assert_equal 0, trace_calls
+  end
+
+  def test_sync_recovery_pop_debug_message_bytes_are_stable_for_pull_and_push
+    pull = PopStateSyncParser.new
+    pull_output = StringIO.new
+    pull.yydebug = true
+    pull.yydebug_output = pull_output
+    assert_equal :sync, pull.parse_tokens([%i[ITEM item], %i[BAD bad], [";", :sync]])
+
+    push = PopStateSyncParser.new
+    push_output = StringIO.new
+    push.yydebug = true
+    push.yydebug_output = push_output
+    push.push(:ITEM, :item)
+    push.push(:BAD, :bad)
+    push.push(";", :sync)
+    assert_equal :sync, push.finish
+
+    assert_equal ["ibex: recover: pop state 4 for sync token\n"],
+                 pull_output.string.lines.grep(/for sync token/)
+    assert_equal ["ibex: recover: pop state 2 for sync token\n"],
+                 push_output.string.lines.grep(/for sync token/)
   end
 
   def test_on_error_reduce_commits_the_declared_semantic_reduction_before_reporting
