@@ -12,6 +12,8 @@ module Ibex
         action_composition
         grammar_tests
         lexer
+        cst
+        ast_nodes
       ].freeze #: Array[String]
 
       # @rbs (Grammar | Automaton value, ?to: Integer) -> (Grammar | Automaton)

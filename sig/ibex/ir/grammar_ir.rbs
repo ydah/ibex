@@ -81,9 +81,12 @@ module Ibex
 
       attr_reader expansion: production_expansion?
 
+      attr_reader node: node_annotation?
+
       # @rbs (id: Integer, lhs: Integer, rhs: Array[Integer], action: Action?, precedence_override: Integer?,
-      #   origin: Hash[Symbol, untyped], ?documentation: String?, ?expansion: production_expansion?) -> void
-      def initialize: (id: Integer, lhs: Integer, rhs: Array[Integer], action: Action?, precedence_override: Integer?, origin: Hash[Symbol, untyped], ?documentation: String?, ?expansion: production_expansion?) -> void
+      #   origin: Hash[Symbol, untyped], ?documentation: String?, ?expansion: production_expansion?,
+      #   ?node: node_annotation?) -> void
+      def initialize: (id: Integer, lhs: Integer, rhs: Array[Integer], action: Action?, precedence_override: Integer?, origin: Hash[Symbol, untyped], ?documentation: String?, ?expansion: production_expansion?, ?node: node_annotation?) -> void
 
       # @rbs (?schema_version: Integer) -> Hash[Symbol, untyped]
       def to_h: (?schema_version: Integer) -> Hash[Symbol, untyped]

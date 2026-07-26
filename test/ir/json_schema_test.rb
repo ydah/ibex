@@ -131,6 +131,20 @@ class IRJSONSchemaTest < Minitest::Test
     refute_empty JSONSchemer.schema(grammar_schema).validate(legacy).to_a
   end
 
+  def test_v2_grammar_schema_accepts_ast_node_metadata
+    grammar = schema("grammar-ir-v2.schema.json")
+    resolver = ->(uri) { grammar_schema if uri.to_s == grammar_schema.fetch("$id") }
+    document = fixture("grammar-v2.json")
+    document.fetch("productions").fetch(0)["node"] = {
+      "name" => "Root",
+      "fields" => ["value"],
+      "loc" => { "file" => "grammar.y", "line" => 10, "column" => 18 }
+    }
+
+    assert_empty JSONSchemer.schema(grammar, ref_resolver: resolver).validate(document).to_a
+    assert Ibex::IR::Validator.validate(JSON.generate(document)).productions.fetch(0).node
+  end
+
   def test_v2_schemas_accept_multiple_starts_and_entry_states
     grammar = schema("grammar-ir-v2.schema.json")
     automaton = schema("automaton-ir-v2.schema.json")

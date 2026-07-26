@@ -294,6 +294,14 @@ module Ibex
       private def _ibex_action_132: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
 
       private def _ibex_action_133: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
+
+      private def _ibex_action_134: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
+
+      private def _ibex_action_135: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
+
+      private def _ibex_action_136: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
+
+      private def _ibex_action_137: (untyped val, untyped _values, untyped _ibex_locations, untyped _ibex_location_stack, untyped _ibex_location) -> untyped
     end
   end
 end

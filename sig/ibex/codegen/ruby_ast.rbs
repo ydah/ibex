@@ -1,0 +1,34 @@
+# Generated from lib/ibex/codegen/ruby_ast.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Generates typed AST data classes and traversal bases from @node metadata.
+    module RubyAST
+      private
+
+      # @rbs (Array[String] lines) -> void
+      def append_ast: (Array[String] lines) -> void
+
+      # @rbs () -> Hash[String, IR::node_annotation]
+      def ast_node_definitions: () -> Hash[String, IR::node_annotation]
+
+      # @rbs (Array[String] lines, Hash[String, IR::node_annotation] definitions) -> void
+      def append_visitor: (Array[String] lines, Hash[String, IR::node_annotation] definitions) -> void
+
+      # @rbs (Array[String] lines) -> void
+      def append_visit_children: (Array[String] lines) -> void
+
+      # @rbs (Array[String] lines, Hash[String, IR::node_annotation] definitions) -> void
+      def append_listener: (Array[String] lines, Hash[String, IR::node_annotation] definitions) -> void
+
+      # @rbs (Array[String] lines, Hash[String, IR::node_annotation] definitions, :enter | :exit kind) -> void
+      def append_listener_dispatch: (Array[String] lines, Hash[String, IR::node_annotation] definitions, :enter | :exit kind) -> void
+
+      # @rbs (IR::Production production) -> String
+      def ast_node_action_source: (IR::Production production) -> String
+
+      # @rbs (String name) -> String
+      def ast_method_name: (String name) -> String
+    end
+  end
+end

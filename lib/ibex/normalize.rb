@@ -11,6 +11,7 @@ require_relative "normalize/parameter_ebnf_lowering"
 require_relative "normalize/parameter_lowering"
 require_relative "normalize/parameters"
 require_relative "normalize/named_references"
+require_relative "normalize/nodes"
 require_relative "normalize/expander"
 require_relative "normalize/inline_expansion"
 require_relative "normalize/diagnostics"
@@ -29,6 +30,7 @@ module Ibex
     include NormalizeParameterLowering
     include NormalizeParameters
     include NormalizeNamedReferences
+    include NormalizeNodes
     include NormalizeExpander
     include NormalizeInlineExpansion
     include NormalizeDiagnostics
@@ -84,6 +86,7 @@ module Ibex
     # @rbs @inline_rule_by_symbol: Hash[Integer, String]
     # @rbs @max_inline_expansions: Integer
     # @rbs @inline_expansion_count: Integer
+    # @rbs @node_shapes: Hash[String, Array[String]]
 
     # @rbs (Frontend::AST::Root | Frontend::AST::Fragment | Frontend::Resolution input,
     #   ?mode: Symbol | String, ?max_parameter_specializations: Integer,

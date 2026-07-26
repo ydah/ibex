@@ -15,6 +15,7 @@ module Ibex
         # @rbs @delimiters: DelimiterTracker
         # @rbs @lhs_column: Integer?
         # @rbs @rule_seen: bool?
+        # @rbs @node_annotation: bool?
 
         # @rbs () -> void
         def initialize
@@ -28,6 +29,9 @@ module Ibex
         def classify(token, remaining, last_external:, previous_external:)
           external = if token.type == :identifier
                        classify_identifier(token, remaining, last_external, previous_external)
+                     elsif token.type == :node
+                       @node_annotation = true
+                       :NODE
                      elsif token.type == :inline
                        classify_inline
                      elsif token.type == :empty
@@ -38,6 +42,7 @@ module Ibex
                        classify_punctuation(token)
                      end
           @delimiters.observe(token, external, last_external)
+          @node_annotation = false if token.type == :")" && @node_annotation
           external
         end
 
@@ -73,6 +78,7 @@ module Ibex
         # @rbs (Token token, Array[Token] remaining, external_token? last_external,
         #   external_token? previous_external) -> external_token
         def classify_identifier(token, remaining, last_external, previous_external)
+          return :IDENTIFIER if @node_annotation
           return rule_lhs(token) if @state == :rules_lhs
           return :IDENTIFIER unless @state == :rule_rhs
           return :IDENTIFIER if named_reference_name?(last_external, previous_external)

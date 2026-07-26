@@ -52,6 +52,7 @@ module Ibex
             fields.delete(:extended) unless fields[:extended]
             fields.delete(:cst) unless fields[:cst]
           end
+          fields.delete(:node_annotation) if self.class.name.end_with?("::Alternative") && !fields[:node_annotation]
           { node: self.class.name.split("::").last }.merge(fields)
         end
 
@@ -213,6 +214,13 @@ module Ibex
         :items, #: Array[item]
         :action, #: InlineAction?
         :precedence, #: String?
+        :node_annotation, #: NodeAnnotation?
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      NodeAnnotation = Struct.new(
+        :name, #: String
+        :fields, #: Array[String]
         :loc, #: Location
         keyword_init: true
       ) { include Node }

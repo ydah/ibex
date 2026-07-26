@@ -107,8 +107,11 @@ module Ibex
       # @rbs (Token name_token, Token literal_token) -> AST::Conversion
       def build_conversion: (Token name_token, Token literal_token) -> AST::Conversion
 
-      # @rbs (Array[AST::item] items, Token? precedence) -> AST::Alternative
-      def build_alternative: (Array[AST::item] items, Token? precedence) -> AST::Alternative
+      # @rbs (Array[AST::item] items, Token? precedence, AST::NodeAnnotation? node_annotation) -> AST::Alternative
+      def build_alternative: (Array[AST::item] items, Token? precedence, AST::NodeAnnotation? node_annotation) -> AST::Alternative
+
+      # @rbs (Token marker, Token name, Array[Token] fields) -> AST::NodeAnnotation
+      def build_node_annotation: (Token marker, Token name, Array[Token] fields) -> AST::NodeAnnotation
 
       # @rbs (Token token) -> AST::Empty
       def build_empty: (Token token) -> AST::Empty

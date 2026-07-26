@@ -3,7 +3,7 @@ pragma extended
 token CLASS FRAGMENT INCLUDE TOKEN PRECHIGH PRECLOW OPTIONS EXPECT EXPECT_RR START RECOVER ON_ERROR_REDUCE TEST LEXER
 token CONVERT DISPLAY TYPE PARAM PRINTER PRAGMA RULE END
 token LEFT RIGHT NONASSOC PRECEDENCE IDENTIFIER LITERAL INTEGER ACTION USER_CODE INLINE EMPTY LHS
-token PARAMETERIZED_REFERENCE TOKEN_ALIAS
+token PARAMETERIZED_REFERENCE TOKEN_ALIAS NODE
 token SEPARATED_LIST SEPARATED_NONEMPTY_LIST STATE DO SKIP ON REGEXP
 rule
   document
@@ -208,7 +208,17 @@ rule
     | alternatives '|' alternative       { result = val[0] + [val[2]] }
 
   alternative
-    : items precedence_override          { result = build_alternative(val[0], val[1]) }
+    : items precedence_override node_annotation
+                                         { result = build_alternative(val[0], val[1], val[2]) }
+
+  node_annotation
+    :                                    { result = nil }
+    | NODE IDENTIFIER '(' node_fields ')'
+                                         { result = build_node_annotation(val[0], val[1], val[3]) }
+
+  node_fields
+    :                                    { result = Array.new(0) }
+    | formal_parameters                  { result = val[0] }
 
   precedence_override
     :                                    { result = nil }

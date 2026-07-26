@@ -66,7 +66,7 @@ module Ibex
     def normalize_action: (Frontend::AST::InlineAction? action, Array[IR::named_ref] named_refs) -> IR::Action?
 
     # @rbs (String lhs_name, Array[String] rhs_names, IR::Action? action, String? precedence_name,
-    #   Hash[Symbol, untyped] origin, ?String? documentation) -> void
-    def add_production: (String lhs_name, Array[String] rhs_names, IR::Action? action, String? precedence_name, Hash[Symbol, untyped] origin, ?String? documentation) -> void
+    #   Hash[Symbol, untyped] origin, ?String? documentation, ?IR::node_annotation? node) -> void
+    def add_production: (String lhs_name, Array[String] rhs_names, IR::Action? action, String? precedence_name, Hash[Symbol, untyped] origin, ?String? documentation, ?IR::node_annotation? node) -> void
   end
 end

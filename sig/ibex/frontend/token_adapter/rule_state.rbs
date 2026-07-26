@@ -11,6 +11,8 @@ module Ibex
 
         attr_reader state: Symbol
 
+        @node_annotation: bool?
+
         @rule_seen: bool?
 
         @lhs_column: Integer?

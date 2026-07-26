@@ -153,6 +153,32 @@
       },
       "additionalProperties": false
     },
+    "node_annotation": {
+      "type": "object",
+      "required": [
+        "name",
+        "fields",
+        "loc"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Za-z0-9_]*$"
+        },
+        "fields": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z_][a-zA-Z0-9_]*$"
+          }
+        },
+        "loc": {
+          "$ref": "grammar-ir-v1.schema.json#/$defs/location"
+        }
+      },
+      "additionalProperties": false
+    },
     "grammar_test": {
       "type": "object",
       "required": [
@@ -340,7 +366,9 @@
                 "production_expansion",
                 "action_composition",
                 "grammar_tests",
-                "lexer"
+                "lexer",
+                "cst",
+                "ast_nodes"
             ]
           }
         }
@@ -733,6 +761,16 @@
         },
         "expansion": {
           "$ref": "#/$defs/nullable_production_expansion"
+        },
+        "node": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/node_annotation"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "additionalProperties": false

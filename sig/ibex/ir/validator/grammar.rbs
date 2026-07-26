@@ -104,6 +104,9 @@ module Ibex
         # @rbs (untyped value, Integer index) -> void
         def validate_production: (untyped value, Integer index) -> void
 
+        # @rbs (untyped value, String path, rhs_length: Integer) -> void
+        def validate_node_annotation: (untyped value, String path, rhs_length: Integer) -> void
+
         # @rbs (untyped value, String path) -> void
         def validate_lhs: (untyped value, String path) -> void
 

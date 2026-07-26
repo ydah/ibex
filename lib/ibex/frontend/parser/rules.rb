@@ -60,7 +60,28 @@ module Ibex
           items.pop
           action = last_item
         end
-        AST::Alternative.new(items: items, action: action, precedence: precedence, loc: location)
+        node_annotation = parse_node_annotation
+        AST::Alternative.new(
+          items: items, action: action, precedence: precedence, node_annotation: node_annotation, loc: location
+        )
+      end
+
+      # @rbs () -> AST::NodeAnnotation?
+      def parse_node_annotation
+        # @type self: BootstrapParser
+        marker = accept(:node)
+        return unless marker
+
+        extended_only!(marker.location, "@node")
+        name = expect(:identifier)
+        expect(:"(")
+        fields = [] #: Array[String]
+        unless current.type == :")"
+          fields << token_string(expect(:identifier))
+          fields << token_string(expect(:identifier)) while accept(:",")
+        end
+        expect(:")")
+        AST::NodeAnnotation.new(name: token_string(name), fields: fields, loc: marker.location)
       end
 
       # @rbs () -> AST::item
@@ -148,7 +169,7 @@ module Ibex
       # @rbs (Token lhs) -> bool
       def alternative_end?(lhs)
         # @type self: BootstrapParser
-        %i[| ; inline eof].include?(current.type) || keyword?("end") || rule_start?(lhs)
+        %i[| ; inline node eof].include?(current.type) || keyword?("end") || rule_start?(lhs)
       end
 
       # @rbs (Token lhs) -> bool

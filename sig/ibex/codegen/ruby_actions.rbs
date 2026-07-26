@@ -5,13 +5,15 @@ module Ibex
     # Semantic-action method generation shared by direct and source-mapped
     # Ruby output.
     module RubyActions
-      @grammar: IR::Grammar
+      include RubyAST
 
-      @line_convert: bool
+      @action_method_source: ActionMethodSource?
 
       @omit_action_call: bool
 
-      @action_method_source: ActionMethodSource?
+      @line_convert: bool
+
+      @grammar: IR::Grammar
 
       private
 
