@@ -227,6 +227,10 @@ class RuntimeParserTest < Minitest::Test
     assert_equal 7, Calculator.new([[:INT, 7], nil]).do_parse
   end
 
+  def test_parser_exposes_the_compatible_parse_error_constant
+    assert_same Ibex::Runtime::ParseError, Ibex::Runtime::Parser::ParseError
+  end
+
   def test_application_initializer_without_super_gets_runtime_defaults_lazily
     parser = LegacyInitializerCalculator.new([[:INT, 7], nil])
     events = []

@@ -131,6 +131,7 @@ module Ibex
       include Observation
       include ParserSyncRecovery
 
+      ParseError = Ibex::Runtime::ParseError #: singleton(Ibex::Runtime::ParseError)
       EOF_TOKEN = 0 #: Integer
       ERROR_TOKEN = 1 #: Integer
       GENERATED_ACTION_NAME = /\A_ibex_action_\d+\z/ #: Regexp
