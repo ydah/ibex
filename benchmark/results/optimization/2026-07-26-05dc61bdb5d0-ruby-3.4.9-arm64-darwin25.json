@@ -1,0 +1,57 @@
+{
+  "experiment": "ibex_optimization_candidates",
+  "schema_version": 1,
+  "recorded_at": "2026-07-26T03:52:53Z",
+  "environment": {
+    "ruby_engine": "ruby",
+    "ruby_version": "3.4.9",
+    "ruby_platform": "arm64-darwin25",
+    "host_os": "darwin25",
+    "host_cpu": "arm64"
+  },
+  "configuration": {
+    "runs": 5,
+    "warmup": 100,
+    "iterations": 1000
+  },
+  "observations": {
+    "table_runtime_ms": [
+      2.350462,
+      1.873645,
+      1.885949,
+      1.90411,
+      1.836986
+    ],
+    "case_runtime_ms": [
+      1.593746,
+      1.604004,
+      1.603412,
+      1.586091,
+      1.591851
+    ]
+  },
+  "medians": {
+    "table_runtime_ms": 1.885949,
+    "case_runtime_ms": 1.593746
+  },
+  "structure": {
+    "table_generated_bytes": 68459,
+    "case_generated_bytes": 204124
+  },
+  "digests": {
+    "source_sha256": "67f98993230a3435c1b1a8b4797d33790b88ba58a0acdd44d68fafb05e8c6344",
+    "automaton_sha256": "e36c0fdb5bdbe30a8315357c53ff031ef44a787bebc278780a6a15ff448da3c1",
+    "result_sha256": "7f6d75faa3875294b0fdf70c8964f8247f334e77908603958510989b109603de"
+  },
+  "comparison": {
+    "case_runtime_improvement_percent": 15.494,
+    "case_generated_size_change_percent": 198.17,
+    "case_qualifies": false
+  },
+  "chain_rule_audit": {
+    "productions": 139,
+    "unit_productions": 45,
+    "actionless_unit_productions": 39,
+    "action_unit_productions": 6
+  }
+}
