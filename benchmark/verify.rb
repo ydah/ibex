@@ -10,7 +10,6 @@ require_relative "support/benchmark_artifact"
 
 module BenchmarkVerification
   ROOT = File.expand_path("..", __dir__)
-  SCHEMA = File.join(ROOT, "schema/benchmark-v1.schema.json")
 
   module_function
 
@@ -30,7 +29,16 @@ module BenchmarkVerification
   end
 
   def validate!(document)
-    errors = JSONSchemer.schema(JSON.parse(File.read(SCHEMA))).validate(document).to_a
+    version = document.fetch("schema_version")
+    schema_path = File.join(ROOT, "schema/benchmark-v#{version}.schema.json")
+    raise "unsupported benchmark schema version #{version.inspect}" unless File.file?(schema_path)
+
+    schema = JSON.parse(File.read(schema_path))
+    resolver = lambda do |uri|
+      path = File.join(ROOT, "schema", File.basename(uri.path))
+      JSON.parse(File.read(path)) if File.file?(path)
+    end
+    errors = JSONSchemer.schema(schema, ref_resolver: resolver).validate(document).to_a
     return if errors.empty?
 
     raise "invalid benchmark artifact:\n#{errors.map { |error| error.fetch('error') }.join("\n")}"
@@ -45,7 +53,8 @@ module BenchmarkVerification
       iterations: 1,
       runtime_iterations: 1,
       json: true,
-      output: nil
+      output: nil,
+      schema_version: baseline.fetch("schema_version")
     }
   end
 

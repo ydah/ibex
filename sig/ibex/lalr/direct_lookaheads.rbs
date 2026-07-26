@@ -1,0 +1,69 @@
+# Generated from lib/ibex/lalr/direct_lookaheads.rb with RBS::Inline
+
+module Ibex
+  module LALR
+    # Builds an LR(0) collection and propagates LALR(1) lookaheads directly
+    # over item occurrences. Canonical LR(1) states are never materialized.
+    class DirectLookaheads
+      AUGMENTED_PRODUCTION: Integer
+
+      @terminal_ids: Array[Integer]
+
+      @productions_by_lhs: Hash[Integer, Array[IR::Production]]
+
+      @sets: Analysis::Sets
+
+      @grammar: IR::Grammar
+
+      # @rbs (IR::Grammar grammar, Analysis::Sets sets) -> void
+      def initialize: (IR::Grammar grammar, Analysis::Sets sets) -> void
+
+      # @rbs () -> [Array[packed_items], transitions]
+      def build: () -> [ Array[packed_items], transitions ]
+
+      private
+
+      # @rbs () -> [Array[core_set], transitions]
+      def lr0_collection: () -> [ Array[core_set], transitions ]
+
+      # @rbs (core_set seed) -> core_set
+      def closure: (core_set seed) -> core_set
+
+      # @rbs (core_set items) -> Array[Integer]
+      def next_symbols: (core_set items) -> Array[Integer]
+
+      # @rbs (core_set items, Integer symbol_id) -> core_set
+      def go_to: (core_set items, Integer symbol_id) -> core_set
+
+      # @rbs (Array[core_set] states) -> Array[packed_items]
+      def empty_lookaheads: (Array[core_set] states) -> Array[packed_items]
+
+      # @rbs (Array[core_set] states, transitions transitions, Array[packed_items] lookaheads) ->
+      #   Hash[lookahead_node, Array[lookahead_node]]
+      def propagation_graph: (Array[core_set] states, transitions transitions, Array[packed_items] lookaheads) -> Hash[lookahead_node, Array[lookahead_node]]
+
+      # @rbs (Hash[lookahead_node, Array[lookahead_node]] edges, transitions transitions,
+      #   Integer state_id, Integer production_id, Integer dot) -> void
+      def add_transition_edge: (Hash[lookahead_node, Array[lookahead_node]] edges, transitions transitions, Integer state_id, Integer production_id, Integer dot) -> void
+
+      # @rbs (Hash[lookahead_node, Array[lookahead_node]] edges, Array[packed_items] lookaheads,
+      #   Integer state_id, Integer production_id, Integer dot) -> void
+      def add_closure_relations: (Hash[lookahead_node, Array[lookahead_node]] edges, Array[packed_items] lookaheads, Integer state_id, Integer production_id, Integer dot) -> void
+
+      # @rbs (Array[packed_items] lookaheads, Hash[lookahead_node, Array[lookahead_node]] edges) -> void
+      def propagate: (Array[packed_items] lookaheads, Hash[lookahead_node, Array[lookahead_node]] edges) -> void
+
+      # @rbs (Array[packed_items] lookaheads, lookahead_node node) -> Set[Integer]
+      def node_set: (Array[packed_items] lookaheads, lookahead_node node) -> Set[Integer]
+
+      # @rbs (Integer bits) -> Array[Integer]
+      def terminal_ids: (Integer bits) -> Array[Integer]
+
+      # @rbs (Integer production_id) -> Array[Integer]
+      def rhs_for: (Integer production_id) -> Array[Integer]
+
+      # @rbs (core_set items) -> Array[item_core]
+      def item_key: (core_set items) -> Array[item_core]
+    end
+  end
+end

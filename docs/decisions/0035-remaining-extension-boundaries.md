@@ -58,8 +58,9 @@ The following work requires a separately reviewed phase and ADR:
   0038](0038-versioned-benchmark-evidence.md) supplies the shared baseline and defines the candidate evidence gate; neither
   optimization becomes the default without its own qualifying comparison.
 
-Direct LALR, IELR, ruby.wasm, mutation testing, and Pages/YARD publication retain the entry criteria in ADR 0024. GLR, PEG,
-incremental parsing, and an integrated lexer remain outside the focused deterministic-LR product scope.
+[ADR 0054](0054-direct-lalr-lookahead-propagation.md) completes Direct LALR with byte-equivalence coverage and a canonical
+reference strategy. IELR, ruby.wasm, mutation testing, and Pages/YARD publication retain the remaining entry criteria in ADR
+0024. GLR, PEG, incremental parsing, and an integrated lexer remain outside the focused deterministic-LR product scope.
 
 ## Consequences
 

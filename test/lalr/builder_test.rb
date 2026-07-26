@@ -2,11 +2,12 @@
 
 require_relative "../test_helper"
 
+# rubocop:disable Metrics/ClassLength -- the cases exercise one public builder contract across all strategies.
 class LALRBuilderTest < Minitest::Test
-  def build(source, algorithm: :lalr)
+  def build(source, algorithm: :lalr, lalr_strategy: :direct)
     ast = Ibex::Frontend::Parser.new(source, file: "builder.y").parse
     grammar = Ibex::Normalizer.new(ast).normalize
-    Ibex::LALR::Builder.new(grammar, algorithm: algorithm).build
+    Ibex::LALR::Builder.new(grammar, algorithm: algorithm, lalr_strategy: lalr_strategy).build
   end
 
   def test_builds_textbook_lalr_collection_deterministically
@@ -40,10 +41,63 @@ class LALRBuilderTest < Minitest::Test
     automaton = builder.build
     metrics = builder.metrics
 
-    assert_equal 10, metrics.canonical_states
+    assert_equal 7, metrics.construction_states
+    assert_nil metrics.canonical_states
     assert_equal automaton.states.length, metrics.final_states
+    assert_equal :direct_lalr, metrics.strategy
     assert_predicate metrics, :frozen?
     assert_raises(FrozenError) { metrics.instance_variable_set(:@final_states, 0) }
+  end
+
+  def test_direct_lalr_is_byte_identical_to_canonical_merge
+    source = <<~GRAMMAR
+      class P
+      token IF THEN ELSE ID
+      expect 1
+      rule
+      start: statements
+      statements: statements statement | statement
+      statement: IF value THEN statement
+               | IF value THEN statement ELSE statement
+               | ID
+      value: ID
+      end
+    GRAMMAR
+
+    direct = build(source)
+    reference = build(source, lalr_strategy: :canonical_merge)
+
+    assert_equal Ibex::IR::Serialize.dump(reference), Ibex::IR::Serialize.dump(direct)
+  end
+
+  def test_canonical_merge_remains_an_explicit_reference_strategy
+    ast = Ibex::Frontend::Parser.new(<<~GRAMMAR, file: "reference.y").parse
+      class P
+      rule
+      start: pair pair
+      pair: 'c' pair | 'd'
+      end
+    GRAMMAR
+    grammar = Ibex::Normalizer.new(ast).normalize
+    builder = Ibex::LALR::Builder.new(grammar, lalr_strategy: :canonical_merge)
+
+    builder.build
+    metrics = builder.metrics
+    assert_equal 10, metrics.construction_states
+    assert_equal 10, metrics.canonical_states
+    assert_equal :canonical_merge, metrics.strategy
+  end
+
+  def test_rejects_unknown_lalr_strategy
+    grammar = build(<<~GRAMMAR).grammar
+      class P
+      rule
+      start:
+      end
+    GRAMMAR
+
+    error = assert_raises(ArgumentError) { Ibex::LALR::Builder.new(grammar, lalr_strategy: :mystery) }
+    assert_includes error.message, "unknown LALR construction strategy"
   end
 
   def test_dangling_else_records_default_shift_and_expectation
@@ -175,3 +229,4 @@ class LALRBuilderTest < Minitest::Test
     assert_equal "slr", slr.algorithm
   end
 end
+# rubocop:enable Metrics/ClassLength

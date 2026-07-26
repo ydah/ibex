@@ -1,6 +1,6 @@
 # 0008: Parser construction strategies
 
-- Status: Accepted
+- Status: Superseded by ADR 0054
 - Date: 2026-07-22
 
 ## Context

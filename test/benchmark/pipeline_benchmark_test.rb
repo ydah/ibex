@@ -11,7 +11,7 @@ require "tmpdir"
 class PipelineBenchmarkTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   SCRIPT = File.join(ROOT, "benchmark/pipeline.rb")
-  SCHEMA = File.join(ROOT, "schema/benchmark-v1.schema.json")
+  SCHEMA = File.join(ROOT, "schema/benchmark-v2.schema.json")
 
   def test_documented_non_json_command_writes_a_valid_current_artifact
     Dir.mktmpdir("ibex-benchmark-test-") do |directory|
@@ -25,7 +25,7 @@ class PipelineBenchmarkTest < Minitest::Test
       assert_valid_schema(result)
       assert_valid_schema(JSON.parse(json_stdout(result)))
       assert_equal "ibex_benchmark", result.fetch("artifact")
-      assert_equal 1, result.fetch("schema_version")
+      assert_equal 2, result.fetch("schema_version")
       assert_equal expected_structure, result.fetch("structure")
       assert_equal(
         "718c424f5999eea6d61af23572c9112709589da28a1566b8543ac54bad7512a3",
@@ -52,7 +52,11 @@ class PipelineBenchmarkTest < Minitest::Test
   end
 
   def assert_valid_schema(document)
-    errors = JSONSchemer.schema(JSON.parse(File.read(SCHEMA))).validate(document).to_a
+    resolver = lambda do |uri|
+      path = File.join(ROOT, "schema", File.basename(uri.path))
+      JSON.parse(File.read(path)) if File.file?(path)
+    end
+    errors = JSONSchemer.schema(JSON.parse(File.read(SCHEMA)), ref_resolver: resolver).validate(document).to_a
     assert_empty errors
   end
 
@@ -65,7 +69,8 @@ class PipelineBenchmarkTest < Minitest::Test
   def expected_structure
     {
       "productions" => 139,
-      "canonical_intermediate_states" => 1294,
+      "construction_strategy" => "direct_lalr",
+      "construction_intermediate_states" => 250,
       "final_states" => 250,
       "tables" => {
         "plain" => {

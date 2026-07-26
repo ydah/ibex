@@ -37,7 +37,8 @@ met:
   canonical LR(1) construction is a material time or memory bottleneck, and
   fixed-seed tests can compare the new relation-based builder with the current
   canonical-and-merge result. [ADR 0038](0038-versioned-benchmark-evidence.md)
-  supplies this evidence and supersedes this entry boundary.
+  supplied this evidence, and [ADR 0054](0054-direct-lalr-lookahead-propagation.md) completes the direct construction phase with
+  a deterministic LR(0)-item propagation graph and a retained reference strategy.
 - **IELR:** direct LALR is stable, a published algorithm is selected, and the
   phase has fixtures proving LALR inadequacy, LR(1) correctness, and the
   intended state-count bound.

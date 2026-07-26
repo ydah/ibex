@@ -6,11 +6,15 @@ module Ibex
 
     type item_core = [ Integer, Integer ]
 
+    type core_set = Set[item_core]
+
     type item_set = Set[lr_item]
 
     type packed_items = Hash[item_core, Set[Integer]]
 
     type transitions = Array[Hash[Integer, Integer]]
+
+    type lookahead_node = [ Integer, Integer, Integer ]
 
     type derivation_node = Hash[Symbol, untyped]
 

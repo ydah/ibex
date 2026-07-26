@@ -16,6 +16,7 @@ class PipelineInvariantsTest < Minitest::Test
         automaton = Ibex::LALR::Builder.new(grammar, algorithm: algorithm).build
         rebuilt = Ibex::LALR::Builder.new(grammar, algorithm: algorithm).build
         assert_equal serialize(automaton), serialize(rebuilt), "#{algorithm} seed #{seed} was not deterministic"
+        assert_direct_reference_equivalence(grammar, automaton, seed, algorithm) unless algorithm == :lr1
         assert_automaton_invariants(automaton, seed, algorithm)
         assert_table_equivalence(automaton, seed, algorithm)
       end
@@ -73,6 +74,13 @@ class PipelineInvariantsTest < Minitest::Test
     end
     assert automaton.states.any? { |state| state.actions.values.any? { |action| action[:type] == :accept } },
            context(seed, algorithm, "missing accept action")
+  end
+
+  def assert_direct_reference_equivalence(grammar, direct, seed, algorithm)
+    reference = Ibex::LALR::Builder.new(
+      grammar, algorithm: algorithm, lalr_strategy: :canonical_merge
+    ).build
+    assert_equal serialize(reference), serialize(direct), context(seed, algorithm, "direct/reference mismatch")
   end
 
   def assert_items(grammar, state, seed, algorithm)

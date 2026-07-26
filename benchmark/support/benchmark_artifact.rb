@@ -43,7 +43,7 @@ module BenchmarkSupport
     def build_once(source)
       ast = measure(:parse) { Ibex::Frontend::Parser.new(source, file: @options.fetch(:grammar)).parse }
       grammar = measure(:normalize) { Ibex::Normalizer.new(ast).normalize }
-      builder = Ibex::LALR::Builder.new(grammar)
+      builder = Ibex::LALR::Builder.new(grammar, lalr_strategy: lalr_strategy)
       automaton = measure(:automaton) { builder.build }
       plain_tables = measure(:table_plain) { Ibex::Tables.build(automaton, format: :plain) }
       compact_tables = measure(:table_compact) { Ibex::Tables.build(automaton, format: :compact) }
@@ -96,7 +96,7 @@ module BenchmarkSupport
       digests = digests_for(source, input, result, runtime, plain, compact)
       {
         artifact: "ibex_benchmark",
-        schema_version: 1,
+        schema_version: schema_version,
         recorded_at: Time.now.utc.iso8601,
         environment: environment,
         configuration: configuration,
@@ -123,13 +123,22 @@ module BenchmarkSupport
         plain: result.fetch(:plain_output).bytesize,
         compact: result.fetch(:compact_output).bytesize
       }
-      {
+      common = {
         productions: result.fetch(:grammar).productions.length,
-        canonical_intermediate_states: metrics.canonical_states,
         final_states: metrics.final_states,
         tables: { plain: plain.fetch(:summary), compact: compact.fetch(:summary) },
         generated_output_bytes: outputs
       }
+      if schema_version == 1
+        return common.merge(
+          canonical_intermediate_states: metrics.canonical_states || raise("missing canonical state count")
+        )
+      end
+
+      common.merge(
+        construction_strategy: metrics.strategy.to_s,
+        construction_intermediate_states: metrics.construction_states
+      )
     end
 
     def digests_for(source, input, result, runtime, plain, compact)
@@ -172,6 +181,14 @@ module BenchmarkSupport
         build_iterations: @options.fetch(:iterations),
         runtime_iterations: @options.fetch(:runtime_iterations)
       }
+    end
+
+    def schema_version
+      @options.fetch(:schema_version, 2)
+    end
+
+    def lalr_strategy
+      schema_version == 1 ? :canonical_merge : :direct
     end
 
     def workload_input(input)

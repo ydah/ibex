@@ -14,22 +14,24 @@ For a lower-noise local observation, increase both iteration counts only after t
 exercises declarations, generic types, functions, control flow, pattern matching, postfix expressions, and both generated table
 formats. The fixed seed adds a deterministic workload declaration.
 
-JSON output follows `schema/benchmark-v1.schema.json` and carries the `ibex_benchmark` discriminator with `schema_version: 1`.
+Current JSON output follows `schema/benchmark-v2.schema.json` and carries the `ibex_benchmark` discriminator with
+`schema_version: 2`. Immutable historical documents continue to follow `schema/benchmark-v1.schema.json`.
 It records:
 
 - generation and per-stage wall-clock averages;
 - plain and compact generated-parser runtime averages;
 - process peak RSS when `/proc` or `ps` exposes it;
-- productions, canonical intermediate states, and final LALR states;
+- productions, construction strategy, intermediate construction states, and final parser states;
 - physical table cells and deterministic serialized bytes for both formats;
 - generated Ruby bytes; and
 - source, input, IR, table, output, runtime-result, and aggregate SHA-256 digests.
 
 Wall-clock and RSS values are observations only and never pass/fail thresholds. Structural counts and digests are deterministic:
-identical iterations fail immediately if they diverge. `Ibex::LALR::Builder#metrics` exposes the two state counts as a frozen
-diagnostic value after `build`.
+identical iterations fail immediately if they diverge. `Ibex::LALR::Builder#metrics` exposes the strategy, construction/final
+counts, and a canonical count only when that collection was actually built.
 
-Committed history lives under `benchmark/results/v1/`; filenames describe the measured revision and environment rather than a
+Committed v1 history lives under `benchmark/results/v1/`; new reviewed results live under the directory matching their schema
+version. Filenames describe the measured revision and environment rather than a
 portable speed score. Every artifact contains the complete Ruby, Ibex, OS, CPU, and processor metadata needed to interpret its
 observations. The initial `representative-ruby-4.0.0-arm64-darwin24.json` baseline predates the revision-naming rule and remains
 unchanged; every new entry follows the reviewed naming contract below.
@@ -57,7 +59,7 @@ To append a reviewed result:
 3. Compare performance only with entries whose complete `environment` and `configuration` objects are identical. Different Ruby,
    OS, CPU, processor count, seed, workload, or iteration counts start a separate series.
 4. Rename the accepted file to
-   `YYYY-MM-DD-<revision12>-ruby-<version>-<ruby-platform>.json`, add it under `benchmark/results/v1/`, and review the environment,
+   `YYYY-MM-DD-<revision12>-ruby-<version>-<ruby-platform>.json`, add it under `benchmark/results/v<schema>/`, and review the environment,
    observations, structure, and digests in the change.
 
 History is append-only: never replace or delete an earlier observation to make a new result appear better. Rejected or expired CI
