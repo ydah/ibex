@@ -27,6 +27,8 @@ module Ibex
       # @rbs @input_tokens: Array[Integer]
       # @rbs @initial_state: Integer
 
+      attr_reader :explored #: Integer
+
       # @rbs (IR::Automaton automaton, IR::AutomatonState state, IR::conflict conflict,
       #   ?max_tokens: Integer, ?max_configurations: Integer) -> void
       def initialize(automaton, state, conflict, max_tokens: DEFAULT_MAX_TOKENS,
@@ -62,6 +64,9 @@ module Ibex
         end
         nil
       end
+
+      # @rbs () -> bool
+      def exhausted? = @explored >= @max_configurations
 
       private
 
@@ -327,9 +332,6 @@ module Ibex
 
       # @rbs () -> Integer
       def count_configuration = (@explored += 1)
-
-      # @rbs () -> bool
-      def exhausted? = @explored >= @max_configurations
     end
     # rubocop:enable Metrics/ClassLength
   end

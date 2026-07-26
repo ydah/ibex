@@ -14,6 +14,15 @@ The versioned [JSON error UX comparison](docs/error-ux.md) publishes ten
 reproducible malformed-input snapshots against the public racc callback and the
 measured bounded-repair result.
 
+Check all parser conflicts for a concrete ambiguous sentence before generation:
+
+```sh
+exe/ibex check --ambiguity --algorithm=lr1 grammar.y
+```
+
+The search is explicitly bounded (`--max-tokens`, `--max-configurations`). Exit 1 means an ambiguous sentence was found, exit 2
+means the configuration budget was exhausted, and exit 0 means none was found within the stated bounds.
+
 ## Requirements and installation
 
 Ibex supports Ruby 3.0 or later. The generator depends only on the separately versioned `ibex-runtime` package; the runtime
@@ -596,7 +605,7 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 16,639 typed calls and 2,230 untyped calls out of 18,869 (88.2% typed).
+The current whole-library `steep stats` result is 16,742 typed calls and 2,250 untyped calls out of 18,992 (88.2% typed).
 The generated signature tree contains 2,328 explicit `untyped` occurrences across 88 files.
 <!-- type-stats:end -->
 
