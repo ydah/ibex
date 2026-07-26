@@ -1,0 +1,21 @@
+---
+usage: opensource
+includes:
+  - lib
+requires:
+  - ./test/tables_test
+environment_variables:
+  IBEX_MUTATION: "1"
+integration:
+  name: minitest
+jobs: 2
+mutation:
+  operators: light
+  timeout: 1.0
+coverage_criteria:
+  timeout: true
+  process_abort: false
+  test_result: true
+matcher:
+  subjects:
+    - Ibex::Tables::Compact#initialize

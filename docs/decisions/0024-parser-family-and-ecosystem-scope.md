@@ -53,7 +53,9 @@ met:
   are agreed before site implementation.
 - **Mutation testing:** an actively maintained Minitest integration supports
   the project's Ruby versions and license policy, and a bounded core namespace
-  plus CI time budget is selected.
+  plus CI time budget is selected. [ADR 0057](0057-bounded-mutation-testing.md)
+  completes this phase with an isolated dependency set, an MRI 4.0 analysis
+  runtime, and the bounded `Ibex::Tables::Compact*` subject.
 - **Benchmark history and Pages/YARD publication:** representative benchmarks
   and a public-API documentation boundary exist first; repository Pages
   settings, write permissions, retention, and deployment ownership are then
