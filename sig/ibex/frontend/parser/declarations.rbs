@@ -21,6 +21,9 @@ module Ibex
       # @rbs () -> AST::declaration
       def parse_declaration: () -> AST::declaration
 
+      # @rbs () -> AST::Include
+      def parse_import: () -> AST::Include
+
       # @rbs () -> AST::Tokens
       def parse_tokens: () -> AST::Tokens
 

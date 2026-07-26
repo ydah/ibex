@@ -90,7 +90,8 @@ only candidates whose complete canonical source closure and failed include attem
 publication. Portable polling, bounded debounce, failure deduplication, and cancellable nonblocking locks keep the last successful
 generation usable while a source is invalid; see [ADR 0049](decisions/0049-transactional-generation-and-watch-mode.md).
 
-Extended grammar paths cross an explicit `Frontend::Resolver` boundary. Roots retain class, start, options, and user code;
+Extended grammar paths cross an explicit `Frontend::Resolver` boundary. The canonical `import` declaration and compatible
+`include` spelling share this boundary. Roots retain class, start, options, and user code;
 fragments contain composable declarations and rules. Canonical realpaths define DFS order, diamond deduplication, cycle identity,
 and the Rake dependency closure. Canonical dirname ancestry keeps every resolved target below the root grammar directory after
 symlink resolution, including when that directory is a filesystem or drive root. The source-only Parser never follows an

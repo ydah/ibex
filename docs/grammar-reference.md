@@ -24,12 +24,12 @@ Ruby copied after the parser class
 The superclass defaults to `Ibex::Runtime::Parser`. Repeated user-code blocks retain their source order and are concatenated.
 Grammar comments use `#` through end of line or `/* ... */`.
 
-Extended roots may include explicit fragment files:
+Extended roots may import explicit fragment files:
 
 ```text
 fragment
   token SHARED
-  include "nested/expressions.y"
+  import "nested/expressions.y"
 rule
   shared_rule: SHARED
 end
@@ -37,7 +37,8 @@ end
 
 Fragments own no class, superclass, pragma, options, expected-conflict count, start symbol, or user-code blocks. Their `rule`
 section may be empty. Token, precedence, conversion, display, and type declarations are merged with their original locations.
-`include "relative/path.y"` appears in the declaration section of a root or fragment and requires extended mode. Paths are
+`import "relative/path.y"` appears in the declaration section of a root or fragment and requires extended mode. The older
+`include` spelling remains a compatible alias. Paths are
 resolved relative to the including file, must be double-quoted and relative, cannot contain parent traversal, globs, or NUL, and
 must resolve through symlinks to a regular file below the root grammar's canonical directory.
 
@@ -113,8 +114,9 @@ filesystem read failures remain CLI invocation errors on stderr and do not produ
   additively so downstream generators preserve its runtime behavior.
 - `pragma cst` enables extended syntax and automatic concrete-tree construction for action-free productions. Distinct pragmas
   may be combined in the class header; repeating either one is an error. Grammar IR v2 stores the optional `cst: true` setting.
-- `include "relative/path.y"` inserts one explicit fragment through the canonical resolver. It is available only in extended
-  mode and is intentionally not followed by the source-only `Parser` API.
+- `import "relative/path.y"` inserts one explicit fragment through the canonical resolver. `include` is an accepted
+  compatibility spelling. Imports are available only in extended mode. Parsing source text alone performs no filesystem
+  access; path-based callers use `Frontend::Resolver` to resolve the import graph.
 - `## text` is a lossless line comment rather than a parser declaration. A consecutive block immediately above a rule supplies
   its documentation as described above.
 - `token NAME ...` declares terminals for typo diagnostics. It is optional. Uppercase names and quoted strings are terminals;

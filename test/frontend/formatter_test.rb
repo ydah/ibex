@@ -37,6 +37,14 @@ class FrontendFormatterTest < Minitest::Test
     assert_instance_of Ibex::Frontend::AST::Fragment, document.ast
   end
 
+  def test_formats_import_as_a_declaration
+    source = "class P import \"tokens.y\" token A rule start:A end"
+    expected = "class P\nimport \"tokens.y\"\ntoken A\nrule\n  start : A\nend\n"
+
+    assert_equal expected, format(source, mode: :extended)
+    assert_equal expected, format(expected, mode: :extended)
+  end
+
   def test_preserves_comments_actions_heredocs_and_user_code_byte_for_byte
     source = <<~'GRAMMAR'
       class   P
