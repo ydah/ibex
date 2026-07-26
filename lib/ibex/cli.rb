@@ -2,6 +2,7 @@
 
 require "optparse"
 require_relative "../ibex"
+require_relative "cli/ambiguity"
 require_relative "cli/counterexample_options"
 require_relative "cli/coverage"
 require_relative "cli/debug"
@@ -78,13 +79,16 @@ module Ibex
   #     ?help: bool,
   #     ?explain_state: Integer,
   #     ?explain_token: String,
-  #     ?explain_format: String
+  #     ?explain_format: String,
+  #     ?check_ambiguity: bool,
+  #     ?check_format: String
   #   }
 
   # Command-line pipeline coordinator.
   # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.
   class CLI
     SUBCOMMAND_HANDLERS = {
+      "check" => :run_check_command,
       "diagnose" => :run_diagnose_command,
       "coverage" => :run_coverage_command,
       "debug" => :run_debug_command,
@@ -103,6 +107,7 @@ module Ibex
     }.freeze #: Hash[String, Symbol]
 
     include CLICounterexampleOptions
+    include CLIAmbiguity
     include CLICoverage
     include CLIDebug
     include CLIDiagnostics
@@ -186,6 +191,7 @@ module Ibex
         add_information_options(options)
         options.separator("")
         options.separator("Subcommands:")
+        options.separator("    check --ambiguity         search for ambiguity within explicit budgets")
         options.separator("    coverage                  collect, merge, or check runtime coverage")
         options.separator("    debug AUTOMATON [TOKEN]  simulate validated Automaton IR tables")
         options.separator("    diagnose                  collect frontend diagnostics")

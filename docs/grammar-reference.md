@@ -398,6 +398,12 @@ For external tooling, `observe { |event| ... }` registers an ordered observer an
 `schema/runtime-event-v1.schema.json`; write and serialization failures propagate. This API is separate from the legacy
 hook-shaped `Runtime::JSONLTracer`. See [ADR 0050](decisions/0050-stable-immutable-runtime-events.md).
 
+Every parser instance owns immutable `Runtime::ResourceLimits`. The defaults allow a 10,000-entry LR state stack and 100
+recovery entries per parse. Pass `resource_limits:` to the generated parser constructor or replace it while the instance is
+idle. Stack shifts/gotos and recovery entries that exceed their budget raise `Ibex::ResourceLimitError` with structured
+resource, limit, observed value, state, and location data. Concurrent parses share immutable generated tables but must use
+distinct parser instances.
+
 Assign an immutable `Ibex::Runtime::RepairPolicy` before parsing to opt into bounded insertion, deletion, and replacement search.
 The default costs are 1/1/2 with maximum cost 3, 5,000 configurations/table actions, eight lookahead records, three successful
 shifts, and a 256-state simulated stack. `on_repair(plan)` observes the selected immutable edits after the one `on_error` call and
@@ -461,6 +467,12 @@ derive any terminal sentence. They remain silent by default for compatibility. `
 `--warnings=all,error` or `--warnings=error` promotes them to command failures, and `--warnings=none` explicitly suppresses them.
 An unexpected LALR conflict also gets an advisory `--algorithm=ielr` note when IELR removes at least one unresolved
 conflict; this note does not change generation or exit status.
+
+`ibex check --ambiguity grammar.y` searches every parser conflict for a complete sentence accepted through two interpretations.
+`--max-tokens` and `--max-configurations` bound the search per conflict; `--algorithm=lr1` excludes conflicts introduced only by
+LALR merging. Exit status 1 means a concrete ambiguity was found, 2 means a configuration budget was exhausted, and 0 means no
+ambiguity was found within the declared bounds. The last result is not a general proof of unambiguity. `--format=json` emits
+the versioned check result and explored counts.
 
 When an empty helper created for a middle action participates in a conflict, Automaton IR, text reports, HTML, and
 `ibex explain` retain the action's source location as `midrule_origins`. This makes the otherwise synthetic reduction traceable

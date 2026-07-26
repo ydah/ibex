@@ -1,0 +1,60 @@
+# Generated from lib/ibex/codegen/ambiguity.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    type ambiguity_search = { max_tokens: Integer, max_configurations: Integer }
+
+    type ambiguity_summary = { conflicts: Integer, ambiguous: Integer, not_found: Integer, configuration_budget_exhausted: Integer }
+
+    type ambiguity_check = { state: Integer, type: String, token: String, result: String, sentence: Array[String], lookahead_index: Integer?, interpretations: Array[IR::interpretation], explored_configurations: Integer, configuration_budget_exhausted: bool }
+
+    type ambiguity_document = { ibex_check: String, schema_version: Integer, algorithm: String, search: ambiguity_search, status: String, summary: ambiguity_summary, conflicts: Array[ambiguity_check] }
+
+    # Renders a bounded ambiguity search over every parser conflict.
+    class Ambiguity
+      SCHEMA_VERSION: Integer
+
+      @checks: Array[ambiguity_check]
+
+      @max_configurations: Integer
+
+      @max_tokens: Integer
+
+      @grammar: IR::Grammar
+
+      @automaton: IR::Automaton
+
+      # @rbs (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> void
+      def initialize: (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> void
+
+      # @rbs () -> Integer
+      def exit_status: () -> Integer
+
+      # @rbs () -> ambiguity_document
+      def to_h: () -> ambiguity_document
+
+      # @rbs () -> String
+      def render_text: () -> String
+
+      private
+
+      # @rbs () -> String
+      def status: () -> String
+
+      # @rbs () -> ambiguity_summary
+      def summary: () -> ambiguity_summary
+
+      # @rbs () -> Array[ambiguity_check]
+      def check_conflicts: () -> Array[ambiguity_check]
+
+      # @rbs (IR::AutomatonState state, IR::conflict conflict) -> ambiguity_check
+      def check_conflict: (IR::AutomatonState state, IR::conflict conflict) -> ambiguity_check
+
+      # @rbs (Array[Integer] ids) -> Array[String]
+      def symbol_names: (Array[Integer] ids) -> Array[String]
+
+      # @rbs (Array[String] lines, ambiguity_check check, Integer number) -> void
+      def append_check: (Array[String] lines, ambiguity_check check, Integer number) -> void
+    end
+  end
+end

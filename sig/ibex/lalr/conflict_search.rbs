@@ -40,12 +40,17 @@ module Ibex
 
       @automaton: IR::Automaton
 
+      attr_reader explored: Integer
+
       # @rbs (IR::Automaton automaton, IR::AutomatonState state, IR::conflict conflict,
       #   ?max_tokens: Integer, ?max_configurations: Integer) -> void
       def initialize: (IR::Automaton automaton, IR::AutomatonState state, IR::conflict conflict, ?max_tokens: Integer, ?max_configurations: Integer) -> void
 
       # @rbs () -> search_result?
       def call: () -> search_result?
+
+      # @rbs () -> bool
+      def exhausted?: () -> bool
 
       private
 
@@ -125,9 +130,6 @@ module Ibex
 
       # @rbs () -> Integer
       def count_configuration: () -> Integer
-
-      # @rbs () -> bool
-      def exhausted?: () -> bool
     end
   end
 end

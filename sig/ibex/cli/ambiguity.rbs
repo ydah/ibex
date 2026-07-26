@@ -1,0 +1,22 @@
+# Generated from lib/ibex/cli/ambiguity.rb with RBS::Inline
+
+module Ibex
+  # Bounded grammar ambiguity checking for CI and human inspection.
+  module CLIAmbiguity
+    private def print_help: (OptionParser) -> Integer
+
+    private def input_path: (Array[String]) -> String
+
+    private def positive_counterexample_limit: (Integer, String) -> Integer
+
+    private def normalize_grammar_path: (String) -> IR::Grammar
+
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_check_command: (Array[String] arguments) -> Integer
+
+    # @rbs () -> OptionParser
+    def ambiguity_option_parser: () -> OptionParser
+  end
+end
