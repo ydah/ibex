@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'"
+    >
+    <title>Experimental — Ibex documentation</title>
+    <meta name="description" content="Ibex research surfaces, budgets, evidence, and adoption boundaries.">
+    <link rel="stylesheet" href="../styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="../" aria-label="Ibex home">IBEX<span aria-hidden="true">_</span></a>
+      <nav aria-label="Primary">
+        <a href="../compatibility/">Compatibility</a>
+        <a href="../extensions/">Extended</a>
+        <a aria-current="page" href="./">Experimental</a>
+        <a href="../gallery/">Gallery</a>
+      </nav>
+    </header>
+
+    <main class="docs-main">
+      <header class="docs-heading">
+        <span class="maturity maturity-experimental">Experimental</span>
+        <p class="eyebrow">EVIDENCE BEFORE PROMOTION</p>
+        <h1>Research features keep visible boundaries.</h1>
+        <p>
+          Experimental surfaces require explicit activation, publish resource budgets and failure
+          modes, and may change or remain outside the stable contract.
+        </p>
+      </header>
+
+      <div class="doc-grid">
+        <article class="doc-card">
+          <h2>Bounded minimum repair</h2>
+          <p>
+            Optional insertion, deletion, and replacement search interprets tables without running
+            actions, then replays one selected repair through the normal runtime.
+          </p>
+          <a href="https://github.com/ydah/ibex/blob/main/docs/error-ux.md">Measured error UX evidence →</a>
+        </article>
+        <article class="doc-card">
+          <h2>Algorithm research</h2>
+          <p>
+            IELR and future generalized or incremental approaches are evaluated against explicit
+            correctness, table-size, performance, and maintenance gates.
+          </p>
+          <a href="https://github.com/ydah/ibex/tree/main/docs/decisions">Read architectural decisions →</a>
+        </article>
+        <article class="doc-card">
+          <h2>Hard budgets</h2>
+          <p>
+            Ambiguity, counterexample, repair, and parser-session work is bounded. Exhaustion is a
+            first-class result or structured exception rather than an unreported fallback.
+          </p>
+          <a href="../api/">Inspect budget APIs →</a>
+        </article>
+        <article class="doc-card">
+          <h2>Promotion policy</h2>
+          <p>
+            Promotion requires a public contract, representative use, adversarial tests,
+            performance evidence, migration notes, and complete documentation.
+          </p>
+          <a href="../compatibility/">Return to the stable contract →</a>
+        </article>
+      </div>
+
+      <aside class="callout">
+        <h2>Adoption guidance</h2>
+        <p>
+          Pin versions, test budget exhaustion, and avoid making experimental output a persistent
+          interchange contract unless its documentation explicitly says otherwise.
+        </p>
+      </aside>
+    </main>
+
+    <footer>
+      <p>Experimental means usable with an explicit risk boundary.</p>
+      <a href="../gallery/">Try maintained examples</a>
+    </footer>
+  </body>
+</html>

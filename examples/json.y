@@ -2,6 +2,7 @@ class Examples::JSONParser
 pragma extended
 token STRING NUMBER TRUE FALSE NULL
 %test accept "{\"ok\":[true,null]}"
+%test accept "{\"object\":{},\"array\":[],\"string\":\"ibex\",\"number\":1,\"false\":false,\"many\":[1,2]}"
 %test reject "{\"ok\":}"
 lexer
   skip /\s+/

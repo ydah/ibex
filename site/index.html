@@ -19,6 +19,8 @@
     <header class="site-header">
       <a class="brand" href="./" aria-label="Ibex home">IBEX<span aria-hidden="true">_</span></a>
       <nav aria-label="Primary">
+        <a href="./compatibility/">Docs</a>
+        <a href="./gallery/">Gallery</a>
         <a href="./playground/">Playground</a>
         <a href="./api/">API</a>
         <a href="https://github.com/ydah/ibex">GitHub</a>
@@ -55,6 +57,37 @@
           <h2>Stable IR</h2>
           <p>Validate, compare, migrate, visualize, and reuse versioned grammar and automaton data.</p>
         </article>
+      </section>
+
+      <section class="volume-section" aria-labelledby="volumes-title">
+        <div class="section-heading">
+          <p class="eyebrow">DOCUMENTATION BY MATURITY</p>
+          <h2 id="volumes-title">Choose the contract you need.</h2>
+          <p>
+            Compatibility guarantees, opt-in language features, and research surfaces are
+            documented separately so their support level is explicit.
+          </p>
+        </div>
+        <div class="volume-grid">
+          <a class="volume-card" href="./compatibility/">
+            <span class="maturity maturity-stable">Compatibility</span>
+            <h3>Depend on the stable core</h3>
+            <p>Generate and run racc-compatible parsers with a permanent behavior boundary.</p>
+            <span class="card-link">Read the compatibility volume →</span>
+          </a>
+          <a class="volume-card" href="./extensions/">
+            <span class="maturity maturity-preview">Extended</span>
+            <h3>Opt into richer grammars</h3>
+            <p>Use typed values, lexer integration, EBNF, trees, diagnostics, and tooling.</p>
+            <span class="card-link">Read the extensions volume →</span>
+          </a>
+          <a class="volume-card" href="./experimental/">
+            <span class="maturity maturity-experimental">Experimental</span>
+            <h3>Evaluate research surfaces</h3>
+            <p>Understand bounded repair and research algorithms before adopting them.</p>
+            <span class="card-link">Read the experimental volume →</span>
+          </a>
+        </div>
       </section>
 
       <section class="manifesto">

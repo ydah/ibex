@@ -7,7 +7,7 @@ module Ibex
 
     RESULT_MARKER: ::String
 
-    class Result < Struct[Symbol | String? | IR::location]
+    class Result < Struct[Symbol | String? | IR::location | Array[Integer]]
       attr_accessor expectation(): Symbol
 
       attr_accessor actual(): Symbol
@@ -18,13 +18,37 @@ module Ibex
 
       attr_accessor location(): IR::location
 
-      def self.new: (?expectation: Symbol, ?actual: Symbol, ?error_class: String?, ?error_message: String?, ?location: IR::location) -> instance
-                  | ({ ?expectation: Symbol, ?actual: Symbol, ?error_class: String?, ?error_message: String?, ?location: IR::location }) -> instance
+      attr_accessor production_ids(): Array[Integer]
+
+      def self.new: (?expectation: Symbol, ?actual: Symbol, ?error_class: String?, ?error_message: String?, ?location: IR::location, ?production_ids: Array[Integer]) -> instance
+                  | ({ ?expectation: Symbol, ?actual: Symbol, ?error_class: String?, ?error_message: String?, ?location: IR::location, ?production_ids: Array[Integer] }) -> instance
     end
 
     class Result
       # @rbs () -> bool
       def passed?: () -> bool
+    end
+
+    class ProductionCoverage < Struct[Array[Integer] | Integer]
+      attr_accessor covered_ids(): Array[Integer]
+
+      attr_accessor missing_ids(): Array[Integer]
+
+      attr_accessor production_count(): Integer
+
+      def self.new: (?covered_ids: Array[Integer], ?missing_ids: Array[Integer], ?production_count: Integer) -> instance
+                  | ({ ?covered_ids: Array[Integer], ?missing_ids: Array[Integer], ?production_count: Integer }) -> instance
+    end
+
+    class ProductionCoverage
+      # @rbs () -> Float
+      def percentage: () -> Float
+
+      # @rbs (Integer minimum) -> bool
+      def meets?: (Integer minimum) -> bool
+
+      # @rbs () -> bool
+      def complete?: () -> bool
     end
 
     # Runs all examples in one isolated process while creating a fresh parser
@@ -41,6 +65,9 @@ module Ibex
 
       # @rbs () -> Array[Result]
       def run: () -> Array[Result]
+
+      # @rbs (Array[Result] results) -> ProductionCoverage
+      def production_coverage: (Array[Result] results) -> ProductionCoverage
 
       private
 

@@ -10,6 +10,13 @@ Try a grammar in the [browser playground](https://ydah.github.io/ibex/playground
 [API reference](https://ydah.github.io/ibex/api/). The playground runs locally in a Web Worker: grammar source is not uploaded,
 and semantic action bodies are not executed.
 
+Documentation is separated by support level: the
+[compatibility contract](https://ydah.github.io/ibex/compatibility/),
+[opt-in extensions](https://ydah.github.io/ibex/extensions/), and
+[experimental surfaces](https://ydah.github.io/ibex/experimental/) do not share an implicit maturity level. The
+[grammar gallery](https://ydah.github.io/ibex/gallery/) contains executable JSON, CSV, calculator, INI, and small-language
+examples whose declared `%test` cases must reach 100% production coverage in CI.
+
 The versioned [JSON error UX comparison](docs/error-ux.md) publishes ten
 reproducible malformed-input snapshots against the public racc callback and the
 measured bounded-repair result.
@@ -605,7 +612,7 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 16,742 typed calls and 2,250 untyped calls out of 18,992 (88.2% typed).
+The current whole-library `steep stats` result is 16,799 typed calls and 2,254 untyped calls out of 19,053 (88.2% typed).
 The generated signature tree contains 2,328 explicit `untyped` occurrences across 88 files.
 <!-- type-stats:end -->
 

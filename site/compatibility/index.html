@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'"
+    >
+    <title>Compatibility — Ibex documentation</title>
+    <meta name="description" content="The stable racc-compatible Ibex grammar and runtime contract.">
+    <link rel="stylesheet" href="../styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="../" aria-label="Ibex home">IBEX<span aria-hidden="true">_</span></a>
+      <nav aria-label="Primary">
+        <a aria-current="page" href="./">Compatibility</a>
+        <a href="../extensions/">Extended</a>
+        <a href="../experimental/">Experimental</a>
+        <a href="../gallery/">Gallery</a>
+      </nav>
+    </header>
+
+    <main class="docs-main">
+      <header class="docs-heading">
+        <span class="maturity maturity-stable">Compatibility</span>
+        <p class="eyebrow">PERMANENT DEFAULT CONTRACT</p>
+        <h1>Replace racc without rewriting your parser.</h1>
+        <p>
+          Compatible mode preserves yacc-style grammar input, token contracts, semantic actions,
+          error callbacks, and the familiar <code>do_parse</code>/<code>yyparse</code> runtime API.
+        </p>
+      </header>
+
+      <div class="doc-grid">
+        <article class="doc-card">
+          <h2>Grammar and generation</h2>
+          <ul>
+            <li>racc-compatible declarations, precedence, actions, and user-code sections</li>
+            <li>Deterministic LALR(1) output with compact or inspectable tables</li>
+            <li>Standalone embedded output with <code>-E</code></li>
+          </ul>
+          <a href="https://github.com/ydah/ibex/blob/main/docs/grammar-reference.md">Grammar reference →</a>
+        </article>
+        <article class="doc-card">
+          <h2>Runtime contract</h2>
+          <ul>
+            <li>Pull, yielding, and caller-driven push parsing</li>
+            <li>Compatible error recovery and callbacks</li>
+            <li>Immutable shared tables and isolated parser sessions</li>
+          </ul>
+          <a href="../api/">Browse the runtime API →</a>
+        </article>
+        <article class="doc-card">
+          <h2>Migration evidence</h2>
+          <p>
+            Static checks and a subprocess differential harness expose unsupported constructs and
+            compare parser observations before a migration is accepted.
+          </p>
+          <a href="https://github.com/ydah/ibex/blob/main/docs/racc-migration.md">Migration guide →</a>
+        </article>
+        <article class="doc-card">
+          <h2>Compatibility boundary</h2>
+          <p>
+            Opt-in improvements never silently replace compatible behavior. Extended syntax,
+            exact lookahead defaults, and research algorithms require an explicit mode or option.
+          </p>
+          <a href="https://github.com/ydah/ibex/blob/main/docs/architecture.md">Architecture and invariants →</a>
+        </article>
+      </div>
+    </main>
+
+    <footer>
+      <p>Compatibility first. Extensions stay opt-in.</p>
+      <a href="../extensions/">Continue to extended mode</a>
+    </footer>
+  </body>
+</html>

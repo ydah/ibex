@@ -9,6 +9,7 @@ module Ibex
     #     algorithm: Symbol,
     #     entry_isolation: bool,
     #     timeout: Integer,
+    #     coverage: Integer?,
     #     ?help: bool
     #   }
     #   private def print_help: (OptionParser) -> Integer
@@ -21,11 +22,14 @@ module Ibex
     # @rbs (Array[String] arguments) -> Integer
     def run_grammar_tests_command(arguments)
       settings = {
-        mode: :racc, algorithm: :lalr, entry_isolation: false, timeout: GrammarTests::DEFAULT_TIMEOUT
+        mode: :racc, algorithm: :lalr, entry_isolation: false, timeout: GrammarTests::DEFAULT_TIMEOUT, coverage: nil
       } #: grammar_test_settings
       options = grammar_test_option_parser(settings)
       remaining = options.parse(arguments)
       return print_help(options) if settings[:help]
+      unless settings[:coverage].nil? || settings[:coverage].between?(1, 100)
+        raise OptionParser::InvalidArgument, "coverage must be between 1 and 100"
+      end
 
       path = single_grammar_test_path(remaining, options)
       @options[:mode] = settings[:mode]
@@ -35,8 +39,13 @@ module Ibex
       grammar = Normalizer.new(resolution, mode: settings[:mode]).normalize
       handle_grammar_warnings(grammar, path)
       automaton = build_automaton(grammar, path)
-      results = GrammarTests::Runner.new(automaton, timeout: settings[:timeout]).run
-      render_grammar_test_results(results)
+      runner = GrammarTests::Runner.new(automaton, timeout: settings[:timeout])
+      results = runner.run
+      failures = render_grammar_test_results(results)
+      coverage = settings[:coverage]
+      return failures unless coverage
+
+      render_grammar_test_coverage(runner.production_coverage(results), coverage, failures)
     end
 
     # @rbs (grammar_test_settings settings) -> OptionParser
@@ -54,6 +63,9 @@ module Ibex
           raise OptionParser::InvalidArgument, "timeout must be positive" unless value.positive?
 
           settings[:timeout] = value
+        end
+        options.on("--coverage=PERCENT", Integer, "require production coverage (1..100)") do |value|
+          settings[:coverage] = value
         end
         options.on("-h", "--help", "show this help") { settings[:help] = true }
       end
@@ -82,6 +94,19 @@ module Ibex
       end
       @stdout.puts("#{results.length} tests, #{failures} failures")
       failures.zero? ? 0 : 1
+    end
+
+    # @rbs (GrammarTests::ProductionCoverage coverage, Integer minimum, Integer failures) -> Integer
+    def render_grammar_test_coverage(coverage, minimum, failures)
+      @stdout.puts(
+        format(
+          "production coverage: %<covered>d/%<total>d (%<percentage>.1f%%), required %<minimum>d%%",
+          covered: coverage.covered_ids.length, total: coverage.production_count,
+          percentage: coverage.percentage, minimum: minimum
+        )
+      )
+      @stdout.puts("missing production ids: #{coverage.missing_ids.join(', ')}") unless coverage.complete?
+      failures.zero? && coverage.meets?(minimum) ? 0 : 1
     end
 
     # @rbs (GrammarTests::Result result) -> String

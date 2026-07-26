@@ -14,13 +14,34 @@ function rubyString(vm, value) {
 test("site is self-hosted and applies a restrictive policy", async () => {
   const pages = await Promise.all([
     readFile(new URL("index.html", output), "utf8"),
-    readFile(new URL("playground/index.html", output), "utf8")
+    readFile(new URL("playground/index.html", output), "utf8"),
+    readFile(new URL("compatibility/index.html", output), "utf8"),
+    readFile(new URL("extensions/index.html", output), "utf8"),
+    readFile(new URL("experimental/index.html", output), "utf8"),
+    readFile(new URL("gallery/index.html", output), "utf8")
   ]);
 
   for (const html of pages) {
     assert.match(html, /Content-Security-Policy/);
     assert.match(html, /wasm-unsafe-eval/);
     assert.doesNotMatch(html, /<(?:script|link)\b[^>]+(?:src|href)=["']https?:\/\//);
+  }
+});
+
+test("documentation separates maturity levels and publishes the covered gallery", async () => {
+  const home = await readFile(new URL("index.html", output), "utf8");
+  const compatibility = await readFile(new URL("compatibility/index.html", output), "utf8");
+  const extensions = await readFile(new URL("extensions/index.html", output), "utf8");
+  const experimental = await readFile(new URL("experimental/index.html", output), "utf8");
+  const gallery = await readFile(new URL("gallery/index.html", output), "utf8");
+
+  assert.match(home, /DOCUMENTATION BY MATURITY/);
+  assert.match(compatibility, /PERMANENT DEFAULT CONTRACT/);
+  assert.match(extensions, /EXPLICIT OPT-IN SURFACE/);
+  assert.match(experimental, /EVIDENCE BEFORE PROMOTION/);
+  assert.match(gallery, /100% production coverage in CI/);
+  for (const grammar of ["calculator.y", "csv.y", "ini.y", "json.y", "tiny_language.y"]) {
+    assert.match(gallery, new RegExp(grammar.replace(".", "\\.")));
   }
 });
 

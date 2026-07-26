@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'"
+    >
+    <title>Extensions — Ibex documentation</title>
+    <meta name="description" content="Opt-in Ibex grammar, lexer, tree, type, and diagnostic features.">
+    <link rel="stylesheet" href="../styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="../" aria-label="Ibex home">IBEX<span aria-hidden="true">_</span></a>
+      <nav aria-label="Primary">
+        <a href="../compatibility/">Compatibility</a>
+        <a aria-current="page" href="./">Extended</a>
+        <a href="../experimental/">Experimental</a>
+        <a href="../gallery/">Gallery</a>
+      </nav>
+    </header>
+
+    <main class="docs-main">
+      <header class="docs-heading">
+        <span class="maturity maturity-preview">Extended</span>
+        <p class="eyebrow">EXPLICIT OPT-IN SURFACE</p>
+        <h1>Raise the grammar’s ceiling.</h1>
+        <p>
+          Select <code>pragma extended</code> or <code>--mode=extended</code> for features that
+          enrich the grammar while lowering to the same deterministic parser pipeline.
+        </p>
+      </header>
+
+      <div class="doc-grid">
+        <article class="doc-card">
+          <h2>Expressive grammars</h2>
+          <p>
+            EBNF groups, parameterized and inline rules, middle actions, multiple entries,
+            imports, token aliases, explicit empty rules, and constructor parameters.
+          </p>
+          <a href="https://github.com/ydah/ibex/blob/main/docs/grammar-reference.md">Extended grammar reference →</a>
+        </article>
+        <article class="doc-card">
+          <h2>Integrated lexing</h2>
+          <p>
+            Longest-match rules, lexical states, Unicode-aware locations, and streaming String,
+            IO, or Fiber input are generated beside the parser.
+          </p>
+          <a href="https://github.com/ydah/ibex/blob/main/docs/lexer-migration.md">Lexer migration guide →</a>
+        </article>
+        <article class="doc-card">
+          <h2>Trees and types</h2>
+          <p>
+            Error-tolerant CST output and <code>@node</code> Data ASTs can generate exhaustive
+            visitors, listeners, and semantic-value RBS.
+          </p>
+          <a href="../gallery/">See complete grammars →</a>
+        </article>
+        <article class="doc-card">
+          <h2>Diagnostics and tooling</h2>
+          <p>
+            Exact expected tokens, conflict explanations, bounded ambiguity checks, formatting,
+            LSP support, diagrams, grammar tests, and production coverage share versioned IR.
+          </p>
+          <a href="../playground/">Inspect a grammar in the browser →</a>
+        </article>
+      </div>
+
+      <aside class="callout">
+        <h2>Support-level rule</h2>
+        <p>
+          Extended features are opt-in and may mature independently. Their documented syntax and
+          generated contracts are tested, but they do not alter compatible-mode defaults.
+        </p>
+      </aside>
+    </main>
+
+    <footer>
+      <p>Every extension crosses an explicit mode boundary.</p>
+      <a href="../experimental/">Review experimental surfaces</a>
+    </footer>
+  </body>
+</html>

@@ -2,6 +2,7 @@ class Examples::TinyLanguageParser
 pragma extended
 token IDENTIFIER NUMBER PRINT
 %test accept "value=1+2*3; print value;"
+%test accept "value=(8-2)/3;"
 %test reject "print ;"
 rule
   program    : statements { result = val[0] }

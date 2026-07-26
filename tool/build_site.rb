@@ -7,6 +7,7 @@ ROOT = Pathname(__dir__).join("..").expand_path
 OUTPUT = ROOT.join("tmp/site")
 STATIC_ROOT = ROOT.join("site")
 PLAYGROUND_OUTPUT = OUTPUT.join("playground")
+DOCUMENTATION_VOLUMES = %w[compatibility extensions experimental gallery].freeze
 RUBY_ENTRIES = %w[
   lib/ibex/version.rb
   lib/ibex/error.rb
@@ -63,5 +64,10 @@ FileUtils.mkdir_p(PLAYGROUND_OUTPUT)
 FileUtils.cp(STATIC_ROOT.join("index.html"), OUTPUT)
 FileUtils.cp(STATIC_ROOT.join("styles.css"), OUTPUT)
 FileUtils.cp(STATIC_ROOT.join("playground/index.html"), PLAYGROUND_OUTPUT)
+DOCUMENTATION_VOLUMES.each do |volume|
+  destination = OUTPUT.join(volume)
+  FileUtils.mkdir_p(destination)
+  FileUtils.cp(STATIC_ROOT.join(volume, "index.html"), destination)
+end
 PLAYGROUND_OUTPUT.join("ibex.rb").write(bundled_ruby_source)
 OUTPUT.join(".nojekyll").write("")

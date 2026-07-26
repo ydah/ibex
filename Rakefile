@@ -58,10 +58,10 @@ namespace :quality do
 end
 
 namespace :grammar do
-  desc "Run source examples declared in gallery grammars"
+  desc "Run source examples and require complete production coverage in gallery grammars"
   task :test do
     Dir.glob("examples/*.y").each do |path|
-      sh "bundle", "exec", "ruby", "-Ilib", "exe/ibex", "test", path
+      sh "bundle", "exec", "ruby", "-Ilib", "exe/ibex", "test", "--mode=extended", "--coverage=100", path
     end
   end
 end
