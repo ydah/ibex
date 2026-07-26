@@ -310,6 +310,9 @@ before normal action replay. Insertions carry nil values, replacements retain th
 continues into yacc recovery without reporting the incident twice. Push parsing may return `:need_more` while retaining the
 unexpected token. Semantic `yyerror` is not automatically repaired. See [ADR
 0053](decisions/0053-bounded-minimum-cost-runtime-repair.md).
+The gallery JSON [error UX evidence](error-ux.md) records the SP-4 baseline:
+8 of 10 selected plans were assessed useful, so the bounded single-plan feature
+continues as an explicit experimental option.
 
 The versioned stream can be converted to grammar-test coverage with `ibex coverage collect EVENTS.jsonl`, combined across
 processes with `coverage merge`, and gated with `coverage check --min-states=PERCENT --min-productions=PERCENT`. State coverage

@@ -14,6 +14,7 @@ class SchemaFilesPackagingTest < Minitest::Test
       schema/explain-v1.schema.json
       schema/benchmark-v1.schema.json
       schema/benchmark-v2.schema.json
+      schema/error-ux-v1.schema.json
       schema/migration-check-v1.schema.json
       schema/generation-manifest-v1.schema.json
       lib/ibex/codegen/action_method_source.rb

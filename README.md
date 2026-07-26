@@ -10,6 +10,10 @@ Try a grammar in the [browser playground](https://ydah.github.io/ibex/playground
 [API reference](https://ydah.github.io/ibex/api/). The playground runs locally in a Web Worker: grammar source is not uploaded,
 and semantic action bodies are not executed.
 
+The versioned [JSON error UX comparison](docs/error-ux.md) publishes ten
+reproducible malformed-input snapshots against the public racc callback and the
+measured bounded-repair result.
+
 ## Requirements and installation
 
 Ibex supports Ruby 3.0 or later and has no runtime gem dependencies. From a source checkout:

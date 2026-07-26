@@ -49,6 +49,7 @@ Gem::Specification.new do |spec|
     schema/explain-v1.schema.json
     schema/benchmark-v1.schema.json
     schema/benchmark-v2.schema.json
+    schema/error-ux-v1.schema.json
     schema/generation-manifest-v1.schema.json
     schema/runtime-event-v1.schema.json
     schema/runtime-coverage-v1.schema.json
