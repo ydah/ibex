@@ -72,7 +72,10 @@ module Ibex
       expected = @options[:from] == "grammar-ir" ? IR::Grammar : IR::Automaton
       raise Ibex::Error, "#{path}:1:1: expected #{@options[:from]} input" unless value.is_a?(expected)
 
-      value.is_a?(IR::Grammar) ? value : value.grammar
+      return value if value.is_a?(IR::Grammar)
+      return value.grammar if value.is_a?(IR::Automaton)
+
+      raise Ibex::Error, "#{path}:1:1: expected #{@options[:from]} input"
     end
 
     # @rbs (String name, Integer value) -> Integer

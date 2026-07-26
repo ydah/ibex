@@ -158,6 +158,7 @@ module Ibex
       attr_reader :parser_parameters #: Array[parser_parameter]
       attr_reader :value_printers #: Array[value_printer]
       attr_reader :grammar_tests #: Array[grammar_test]
+      attr_reader :lexer #: Lexer?
       attr_reader :recovery #: recovery_policy
       attr_reader :options #: grammar_options
       attr_reader :symbols #: Array[GrammarSymbol]
@@ -177,14 +178,14 @@ module Ibex
       #   ?schema_version: Integer, ?source_provenance: source_provenance?,
       #   ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter],
       #   ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test],
-      #   ?recovery: recovery_policy?,
+      #   ?recovery: recovery_policy?, ?lexer: Lexer?,
       #   ?mode: grammar_mode, ?starts: Array[String]?) -> void
       # rubocop:disable Metrics/AbcSize, Metrics/ParameterLists
       # Immutable versioned IR is constructed from explicit public fields.
       def initialize(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
                      conversions:, warnings:, user_code_chunks: nil, schema_version: SCHEMA_VERSION,
                      source_provenance: nil, migration: nil, expect_rr: nil, parser_parameters: [], value_printers: [],
-                     grammar_tests: [], recovery: nil, mode: :racc, starts: nil)
+                     grammar_tests: [], recovery: nil, lexer: nil, mode: :racc, starts: nil)
         validate_mode(mode)
         normalized_starts = validate_starts(start, starts, mode)
 
@@ -198,6 +199,7 @@ module Ibex
         @parser_parameters = IR.deep_freeze(parser_parameters)
         @value_printers = IR.deep_freeze(value_printers)
         @grammar_tests = IR.deep_freeze(grammar_tests)
+        @lexer = lexer
         @recovery = IR.deep_freeze(recovery || { sync_tokens: [], on_error_reduce: [] })
         @options = IR.deep_freeze(options)
         @symbols = symbols.freeze
@@ -275,6 +277,7 @@ module Ibex
         value[:params] = @parser_parameters unless @parser_parameters.empty?
         value[:printers] = @value_printers unless @value_printers.empty?
         value[:tests] = @grammar_tests unless @grammar_tests.empty? || @schema_version < 2
+        value[:lexer] = @lexer.to_h if @lexer && @schema_version >= 2
       end
 
       # @rbs (Hash[Symbol, untyped] value) -> void

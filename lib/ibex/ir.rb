@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "ir/grammar_ir"
+require_relative "ir/lexer_ir"
 require_relative "ir/migration"
 require_relative "ir/automaton_ir"
 require_relative "ir/serialize"
@@ -22,6 +23,7 @@ module Ibex
     #     on_error_reduce: Array[Array[String]]
     #   }
     #   type grammar_test = { expectation: :accept | :reject, source: String, loc: location }
+    #   type lexer_warning = { type: :redos, rule: Integer, loc: location }
     #   type parameter_expansion = { rule: String, arguments: Array[String] }
     #   type inline_expansion = { rule: String }
     #   type production_expansion = {

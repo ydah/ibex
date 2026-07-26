@@ -11,6 +11,7 @@ class SchemaFilesPackagingTest < Minitest::Test
       schema/automaton-ir-v1.schema.json
       schema/grammar-ir-v2.schema.json
       schema/automaton-ir-v2.schema.json
+      schema/lexer-ir-v1.schema.json
       schema/explain-v1.schema.json
       schema/benchmark-v1.schema.json
       schema/benchmark-v2.schema.json

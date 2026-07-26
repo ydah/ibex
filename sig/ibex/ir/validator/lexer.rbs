@@ -1,0 +1,37 @@
+# Generated from lib/ibex/ir/validator/lexer.rb with RBS::Inline
+
+module Ibex
+  module IR
+    module Validator
+      # Structural validation for the independently versioned Lexer IR.
+      class LexerDocument < Base
+        ROOT_REQUIRED: Array[String]
+
+        RULE_REQUIRED: Array[String]
+
+        # @rbs (Hash[String, untyped] data, ?path: String) -> void
+        def initialize: (Hash[String, untyped] data, ?path: String) -> void
+
+        # @rbs () -> self
+        def validate: () -> self
+
+        private
+
+        # @rbs () -> void
+        def validate_states: () -> void
+
+        # @rbs () -> void
+        def validate_rules: () -> void
+
+        # @rbs (Hash[String, untyped] rule, String path, String options) -> void
+        def validate_pattern: (Hash[String, untyped] rule, String path, String options) -> void
+
+        # @rbs () -> void
+        def validate_warnings: () -> void
+
+        # @rbs () -> void
+        def validate_source_provenance: () -> void
+      end
+    end
+  end
+end

@@ -26,6 +26,30 @@ class CLITest < Minitest::Test
     end
   end
 
+  def test_emits_independently_versioned_lexer_ir
+    path = File.expand_path("fixtures/grammar/lexer.y", __dir__)
+    output = StringIO.new
+    status = Ibex::CLI.start(
+      ["--mode=extended", "--emit=lexer-ir", path], stdout: output, stderr: StringIO.new
+    )
+    document = JSON.parse(output.string)
+
+    assert_equal 0, status
+    assert_equal "lexer", document.fetch("ibex_ir")
+    assert_equal 1, document.fetch("schema_version")
+  end
+
+  def test_rejects_lexer_ir_output_without_a_lexer_declaration
+    Tempfile.create(["grammar", ".y"]) do |file|
+      file.write("class P\nrule\nstart: TOKEN\nend\n")
+      file.flush
+      errors = StringIO.new
+
+      assert_equal 1, Ibex::CLI.start(["--emit=lexer-ir", file.path], stdout: StringIO.new, stderr: errors)
+      assert_includes errors.string, "grammar does not declare a lexer"
+    end
+  end
+
   def test_emits_automaton_ir
     Tempfile.create(["grammar", ".y"]) do |file|
       file.write("class P\nrule\nstart: TOKEN\nend\n")

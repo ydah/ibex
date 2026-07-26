@@ -3,6 +3,7 @@
 module Ibex
   module IR
     # Stable JSON serialization for versioned pipeline IR.
+    # rubocop:disable Metrics/ModuleLength -- explicit versioned fields keep serialization changes auditable.
     module Serialize
       private def validate_version: (untyped data) -> untyped
 
@@ -15,6 +16,10 @@ module Ibex
       private def load_automaton: (untyped data) -> untyped
 
       private def self.load_automaton: (untyped data) -> untyped
+
+      private def load_lexer: (untyped data) -> untyped
+
+      private def self.load_lexer: (untyped data) -> untyped
 
       private def load_state: (untyped state, untyped grammar) -> untyped
 
@@ -52,11 +57,11 @@ module Ibex
 
       private def self.symbolize: (untyped value) -> untyped
 
-      # @rbs (Grammar | Automaton value) -> String
-      def self?.dump: (Grammar | Automaton value) -> String
+      # @rbs (Grammar | Automaton | Lexer value) -> String
+      def self?.dump: (Grammar | Automaton | Lexer value) -> String
 
-      # @rbs (String source) -> (Grammar | Automaton)
-      def self?.load: (String source) -> (Grammar | Automaton)
+      # @rbs (String source) -> (Grammar | Automaton | Lexer)
+      def self?.load: (String source) -> (Grammar | Automaton | Lexer)
     end
   end
 end

@@ -26,11 +26,12 @@ module Ibex
       @on_error_reduce_groups = [] #: Array[Array[String]]
       @on_error_reduce_locations = {} #: Hash[String, Frontend::Location]
       @grammar_tests = [] #: Array[IR::grammar_test]
+      @lexer_declaration = nil #: Frontend::AST::Lexer?
       @ast.declarations.each { |declaration| read_declaration(declaration) }
     end
 
     # @rbs (Frontend::AST::declaration declaration) -> void
-    def read_declaration(declaration)
+    def read_declaration(declaration) # rubocop:disable Metrics/CyclomaticComplexity
       # @type self: Normalizer
       case declaration
       when Frontend::AST::Tokens then read_tokens(declaration)
@@ -40,6 +41,9 @@ module Ibex
       when Frontend::AST::ExpectRR then @expected_rr_conflicts = declaration.conflicts
       when Frontend::AST::Start, Frontend::AST::Recovery, Frontend::AST::OnErrorReduce, Frontend::AST::GrammarTest
         read_parser_control_declaration(declaration)
+      when Frontend::AST::Lexer
+        fail_at(declaration.loc, "duplicate lexer declaration") if @lexer_declaration
+        @lexer_declaration = declaration
       when Frontend::AST::Convert then read_conversions(declaration)
       when Frontend::AST::DisplayName, Frontend::AST::SemanticType, Frontend::AST::Parameter, Frontend::AST::Printer
         read_extended_declaration(declaration)

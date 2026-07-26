@@ -1,0 +1,34 @@
+# Generated from lib/ibex/normalize/lexer.rb with RBS::Inline
+
+module Ibex
+  # Lexer declaration normalization and static safety checks.
+  module NormalizeLexer
+    private
+
+    # @rbs () -> IR::Lexer?
+    def normalize_lexer: () -> IR::Lexer?
+
+    # @rbs (Frontend::AST::LexerState definition, Array[String] states, Array[IR::LexerRule] rules,
+    #   Array[Hash[Symbol, untyped]] warnings) -> void
+    def normalize_lexer_state: (Frontend::AST::LexerState definition, Array[String] states, Array[IR::LexerRule] rules, Array[Hash[Symbol, untyped]] warnings) -> void
+
+    # @rbs (Frontend::AST::LexerRule definition, String state, Integer id,
+    #   Array[Hash[Symbol, untyped]] warnings) -> IR::LexerRule
+    def normalize_lexer_rule: (Frontend::AST::LexerRule definition, String state, Integer id, Array[Hash[Symbol, untyped]] warnings) -> IR::LexerRule
+
+    # @rbs (Frontend::AST::LexerRule definition) -> void
+    def validate_lexer_token: (Frontend::AST::LexerRule definition) -> void
+
+    # @rbs (Frontend::AST::LexerRule definition) -> [String, String]
+    def normalize_lexer_pattern: (Frontend::AST::LexerRule definition) -> [ String, String ]
+
+    # @rbs (String raw, Frontend::Location location) -> String
+    def decode_lexer_literal: (String raw, Frontend::Location location) -> String
+
+    # @rbs (Frontend::AST::LexerRule definition, String source, String options) -> void
+    def validate_lexer_regexp: (Frontend::AST::LexerRule definition, String source, String options) -> void
+
+    # @rbs (String source) -> bool
+    def risky_lexer_pattern?: (String source) -> bool
+  end
+end

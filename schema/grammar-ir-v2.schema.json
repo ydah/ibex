@@ -88,6 +88,9 @@
     "recovery": {
       "$ref": "#/$defs/recovery_policy"
     },
+    "lexer": {
+      "$ref": "lexer-ir-v1.schema.json"
+    },
     "symbols": {
       "type": "array",
       "minItems": 2,
@@ -315,9 +318,10 @@
               "source_provenance",
               "symbol_docs",
               "production_docs",
-              "production_expansion",
-              "action_composition",
-              "grammar_tests"
+                "production_expansion",
+                "action_composition",
+                "grammar_tests",
+                "lexer"
             ]
           }
         }

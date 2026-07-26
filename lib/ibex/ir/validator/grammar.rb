@@ -12,7 +12,7 @@ module Ibex
         ].freeze #: Array[String]
         ROOT_OPTIONAL = %w[user_code_chunks expect_rr].freeze #: Array[String]
         V2_ROOT_REQUIRED = %w[source_provenance migration].freeze #: Array[String]
-        V2_ROOT_OPTIONAL = %w[params printers tests recovery mode starts].freeze #: Array[String]
+        V2_ROOT_OPTIONAL = %w[params printers tests recovery lexer mode starts].freeze #: Array[String]
         SYMBOL_REQUIRED = %w[id name kind reserved prec loc].freeze #: Array[String]
         SYMBOL_OPTIONAL = %w[display_name semantic_type].freeze #: Array[String]
         V2_SYMBOL_REQUIRED = %w[doc].freeze #: Array[String]
@@ -60,6 +60,7 @@ module Ibex
           validate_grammar_tests if @data.key?("tests")
           validate_reserved_symbols
           validate_start
+          validate_lexer if @data.key?("lexer")
           validate_recovery if @data.key?("recovery")
           validate_productions
           validate_string_map(@data["user_code"], "#{@path}.user_code")
@@ -396,6 +397,20 @@ module Ibex
         def validate_warning_production(warning, field_name, path)
           id = nonnegative_integer(warning[field_name], "#{path}.#{field_name}")
           invalid("#{path}.#{field_name}", "references missing production id #{id}") unless @productions_by_id.key?(id)
+        end
+
+        # @rbs () -> void
+        def validate_lexer
+          value = @data.fetch("lexer")
+          LexerDocument.new(value, path: "#{@path}.lexer").validate
+          value.fetch("rules").each_with_index do |rule, index|
+            next unless rule["kind"] == "token"
+
+            name = rule["token"]
+            symbol = @symbols_by_name[name]
+            invalid("#{@path}.lexer.rules[#{index}].token", "references missing terminal #{name.inspect}") unless
+              symbol&.fetch("kind") == "terminal"
+          end
         end
 
         # @rbs () -> void

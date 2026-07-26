@@ -5,6 +5,7 @@ require "json"
 module Ibex
   module IR
     # Stable JSON serialization for versioned pipeline IR.
+    # rubocop:disable Metrics/ModuleLength -- explicit versioned fields keep serialization changes auditable.
     module Serialize
       # @rbs!
       #   private def validate_version: (untyped data) -> untyped
@@ -13,6 +14,8 @@ module Ibex
       #   private def self.load_grammar: (untyped data) -> untyped
       #   private def load_automaton: (untyped data) -> untyped
       #   private def self.load_automaton: (untyped data) -> untyped
+      #   private def load_lexer: (untyped data) -> untyped
+      #   private def self.load_lexer: (untyped data) -> untyped
       #   private def load_state: (untyped state, untyped grammar) -> untyped
       #   private def self.load_state: (untyped state, untyped grammar) -> untyped
       #   private def symbol_keyed: (untyped values, untyped grammar, ?actions: untyped) -> untyped
@@ -32,16 +35,18 @@ module Ibex
       #   private def symbolize: (untyped value) -> untyped
       #   private def self.symbolize: (untyped value) -> untyped
 
-      # @rbs (Grammar | Automaton value) -> String
+      # @rbs (Grammar | Automaton | Lexer value) -> String
       def dump(value)
         "#{JSON.pretty_generate(value.to_h)}\n"
       end
       module_function :dump
 
-      # @rbs (String source) -> (Grammar | Automaton)
+      # @rbs (String source) -> (Grammar | Automaton | Lexer)
       def load(source)
         data = JSON.parse(source)
         type = data.fetch("ibex_ir") { raise Ibex::Error, "(ir):1:1: missing ibex_ir discriminator" }
+        return load_lexer(data) if type == "lexer"
+
         validate_version(data)
         return load_grammar(data) if type == "grammar"
         return load_automaton(data) if type == "automaton"
@@ -89,6 +94,7 @@ module Ibex
                     parser_parameters: symbolize(data.fetch("params", empty_parameters)),
                     value_printers: symbolize(data.fetch("printers", empty_printers)),
                     grammar_tests: load_grammar_tests(data.fetch("tests", empty_tests)),
+                    lexer: data["lexer"] && load_lexer(data.fetch("lexer")),
                     recovery: symbolize(data.fetch("recovery", empty_recovery)),
                     productions: productions, user_code: data.fetch("user_code"),
                     conversions: data.fetch("conversions"), warnings: symbolize(data.fetch("warnings")),
@@ -104,6 +110,27 @@ module Ibex
         Automaton.new(grammar: grammar, states: states, conflict_summary: symbolize(data.fetch("conflict_summary")),
                       algorithm: data.fetch("algorithm"), grammar_digest: data.fetch("grammar_digest"),
                       schema_version: data.fetch("schema_version"), entry_states: data["entry_states"])
+      end
+
+      # @rbs skip
+      def load_lexer(data)
+        version = data.fetch("schema_version")
+        unless SUPPORTED_LEXER_SCHEMA_VERSIONS.include?(version)
+          expected = SUPPORTED_LEXER_SCHEMA_VERSIONS.join(", ")
+          raise Ibex::Error,
+                "(ir):1:1: unsupported lexer schema_version #{version.inspect}; expected one of #{expected}"
+        end
+        rules = data.fetch("rules").map do |rule|
+          LexerRule.new(
+            id: rule.fetch("id"), state: rule.fetch("state"), kind: rule.fetch("kind").to_sym,
+            token: rule["token"], pattern: rule.fetch("pattern"), pattern_kind: rule.fetch("pattern_kind").to_sym,
+            options: rule.fetch("options"), action: rule["action"], location: symbolize(rule.fetch("loc"))
+          )
+        end
+        Lexer.new(
+          states: data.fetch("states"), rules: rules, warnings: symbolize(data.fetch("warnings")),
+          schema_version: version, source_provenance: symbolize(data["source_provenance"])
+        )
       end
 
       # @rbs skip
@@ -202,15 +229,16 @@ module Ibex
         else value
         end
       end
-      module_function :validate_version, :load_grammar, :load_automaton, :load_state, :symbol_keyed,
+      module_function :validate_version, :load_grammar, :load_automaton, :load_lexer, :load_state, :symbol_keyed,
                       :normalize_action, :load_production, :load_user_code_chunks, :load_symbol_metadata,
                       :symbol_source_position, :load_grammar_tests, :symbolize
 
       class << self
-        private :validate_version, :load_grammar, :load_automaton, :load_state, :symbol_keyed,
+        private :validate_version, :load_grammar, :load_automaton, :load_lexer, :load_state, :symbol_keyed,
                 :normalize_action, :load_production, :load_user_code_chunks, :load_symbol_metadata,
                 :symbol_source_position, :load_grammar_tests, :symbolize
       end
     end
+    # rubocop:enable Metrics/ModuleLength
   end
 end

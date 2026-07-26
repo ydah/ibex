@@ -124,6 +124,8 @@ module Ibex
 
       attr_reader grammar_tests: Array[grammar_test]
 
+      attr_reader lexer: Lexer?
+
       attr_reader recovery: recovery_policy
 
       attr_reader options: grammar_options
@@ -153,11 +155,11 @@ module Ibex
       #   ?schema_version: Integer, ?source_provenance: source_provenance?,
       #   ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter],
       #   ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test],
-      #   ?recovery: recovery_policy?,
+      #   ?recovery: recovery_policy?, ?lexer: Lexer?,
       #   ?mode: grammar_mode, ?starts: Array[String]?) -> void
       # rubocop:disable Metrics/AbcSize, Metrics/ParameterLists
       # Immutable versioned IR is constructed from explicit public fields.
-      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?expect_rr: Integer?, ?user_code_chunks: user_code_chunks?, ?schema_version: Integer, ?source_provenance: source_provenance?, ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter], ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test], ?recovery: recovery_policy?, ?mode: grammar_mode, ?starts: Array[String]?) -> void
+      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?expect_rr: Integer?, ?user_code_chunks: user_code_chunks?, ?schema_version: Integer, ?source_provenance: source_provenance?, ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter], ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test], ?recovery: recovery_policy?, ?lexer: Lexer?, ?mode: grammar_mode, ?starts: Array[String]?) -> void
 
       # @rbs (String name) -> GrammarSymbol?
       def symbol: (String name) -> GrammarSymbol?
