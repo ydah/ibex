@@ -110,6 +110,8 @@ module Ibex
 
       attr_reader start: String
 
+      attr_reader mode: grammar_mode
+
       attr_reader expect: Integer
 
       attr_reader expect_rr: Integer?
@@ -144,9 +146,9 @@ module Ibex
       #   conversions: Hash[String, String], warnings: Array[grammar_warning], ?user_code_chunks: user_code_chunks?,
       #   ?schema_version: Integer, ?source_provenance: source_provenance?,
       #   ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter],
-      #   ?value_printers: Array[value_printer]) -> void
+      #   ?value_printers: Array[value_printer], ?mode: grammar_mode) -> void
       # rubocop:disable Metrics/ParameterLists -- immutable versioned IR is constructed from explicit public fields.
-      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?expect_rr: Integer?, ?user_code_chunks: user_code_chunks?, ?schema_version: Integer, ?source_provenance: source_provenance?, ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter], ?value_printers: Array[value_printer]) -> void
+      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?expect_rr: Integer?, ?user_code_chunks: user_code_chunks?, ?schema_version: Integer, ?source_provenance: source_provenance?, ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter], ?value_printers: Array[value_printer], ?mode: grammar_mode) -> void
 
       # @rbs (String name) -> GrammarSymbol?
       def symbol: (String name) -> GrammarSymbol?
@@ -164,6 +166,9 @@ module Ibex
       def to_h: () -> Hash[Symbol, untyped]
 
       private
+
+      # @rbs (Hash[Symbol, untyped] value) -> void
+      def append_optional_metadata: (Hash[Symbol, untyped] value) -> void
 
       # @rbs () -> void
       def validate_user_code_chunks: () -> void

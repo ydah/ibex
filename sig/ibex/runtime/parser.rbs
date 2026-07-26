@@ -237,6 +237,11 @@ module Ibex
       # @rbs () -> Array[String]
       def expected_tokens: () -> Array[String]
 
+      # Return token names that survive all required default reductions.
+      # Semantic actions are not evaluated during this lookahead correction.
+      # @rbs () -> Array[String]
+      def expected_tokens_exact: () -> Array[String]
+
       # Return the location of a one-based RHS position or named reference
       # while a semantic action is running.
       # @rbs (Integer | Symbol | String reference) -> untyped
@@ -247,6 +252,15 @@ module Ibex
       def result_loc: () -> untyped
 
       private
+
+      # @rbs (Integer token_id) -> bool
+      def exact_lookahead_accepted?: (Integer token_id) -> bool
+
+      # @rbs (Integer stack_depth) -> Integer
+      def exact_lookahead_step_budget: (Integer stack_depth) -> Integer
+
+      # @rbs (Array[Integer] stack, Integer production_id) -> bool
+      def exact_reduction_applied?: (Array[Integer] stack, Integer production_id) -> bool
 
       # @rbs (^() -> untyped source) -> untyped
       def drive_parser: (^() -> untyped source) -> untyped

@@ -100,6 +100,21 @@ class IRJSONSchemaTest < Minitest::Test
     assert_empty JSONSchemer.schema(grammar, ref_resolver: resolver).validate(document).to_a
   end
 
+  def test_v2_grammar_schema_accepts_known_grammar_modes
+    grammar = schema("grammar-ir-v2.schema.json")
+    resolver = ->(uri) { grammar_schema if uri.to_s == grammar_schema.fetch("$id") }
+    schemer = JSONSchemer.schema(grammar, ref_resolver: resolver)
+    document = fixture("grammar-v2.json")
+
+    %w[racc extended].each do |mode|
+      document["mode"] = mode
+      assert_empty schemer.validate(document).to_a
+    end
+
+    document["mode"] = "future"
+    refute_empty schemer.validate(document).to_a
+  end
+
   def test_v2_grammar_schema_accepts_value_printers
     grammar = schema("grammar-ir-v2.schema.json")
     resolver = ->(uri) { grammar_schema if uri.to_s == grammar_schema.fetch("$id") }

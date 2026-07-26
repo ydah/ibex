@@ -40,7 +40,7 @@ module Ibex
     # @rbs @ast: Frontend::AST::Root
     # @rbs @resolution: Frontend::Resolution?
     # @rbs @current_include_chain: Array[IR::source_provenance]
-    # @rbs @mode: Symbol
+    # @rbs @mode: IR::grammar_mode
     # @rbs @symbols: Array[IR::GrammarSymbol]
     # @rbs @symbols_by_name: Hash[String, IR::GrammarSymbol]
     # @rbs @productions: Array[IR::Production]
@@ -83,15 +83,18 @@ module Ibex
                    max_inline_expansions: DEFAULT_MAX_INLINE_EXPANSIONS)
       validate_positive_limit!(:max_parameter_specializations, max_parameter_specializations)
       validate_positive_limit!(:max_inline_expansions, max_inline_expansions)
+      normalized_mode = mode.to_sym
+      raise ArgumentError, "mode must be :racc or :extended" unless %i[racc extended].include?(normalized_mode)
 
       @resolution = input if input.is_a?(Frontend::Resolution)
       ast = input.is_a?(Frontend::Resolution) ? input.root : input
+      normalized_mode = :extended if ast.is_a?(Frontend::AST::Root) && ast.extended
       fail_at(ast.loc, "fragments must be resolved before normalization") if ast.is_a?(Frontend::AST::Fragment)
       unresolved = ast.declarations.find { |declaration| declaration.is_a?(Frontend::AST::Include) }
       fail_at(unresolved.loc, "includes must be resolved before normalization") if unresolved
 
       @ast = ast
-      @mode = mode
+      @mode = normalized_mode #: IR::grammar_mode
       @symbols = [] #: Array[IR::GrammarSymbol]
       @symbols_by_name = {} #: Hash[String, IR::GrammarSymbol]
       @productions = [] #: Array[IR::Production]
@@ -122,6 +125,7 @@ module Ibex
       validate_grammar
       IR::Grammar.new(class_name: @ast.class_name, superclass: @ast.superclass, start: @start_name,
                       expect: @expected_conflicts, options: @options, symbols: @symbols,
+                      mode: @mode,
                       expect_rr: @expected_rr_conflicts,
                       parser_parameters: @parser_parameters,
                       value_printers: @value_printers.values,

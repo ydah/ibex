@@ -236,7 +236,9 @@ six-argument composed actions. Inconsistent v3 composition markers fail before i
 [ADR 0018](decisions/0018-parser-table-format-version.md). Plain tables are arrays of Hash rows. Compact tables use row
 displacement with offsets, values, and row-ownership checks; both expose equivalent lookups. Default reductions are restricted
 to known token ids, and explicit error masks preserve the pre-optimization result of every declared terminal cell, including
-the synthetic `error` terminal. The deterministic size policy is fixed by
+the synthetic `error` terminal. Extended parser tables opt `expected_tokens` into lookahead correction: the runtime copies only
+the state stack and simulates reductions and gotos for each declared terminal, without evaluating semantic actions. The explicit
+`expected_tokens_exact` API exposes the same result for compatible tables. The deterministic size policy is fixed by
 [ADR 0014](decisions/0014-compatibility-safe-default-reductions.md).
 
 The runtime maintains state and value stacks, pulls a lookahead only when required, and applies tagged `shift`, `reduce`,
