@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/error-ux-v1.schema.json",
+  "title": "Ibex error UX evidence version 1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "ibex_grammar",
+    "racc_grammar",
+    "racc_version",
+    "sp4",
+    "cases"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "ibex_grammar": {
+      "type": "string",
+      "minLength": 1
+    },
+    "racc_grammar": {
+      "type": "string",
+      "minLength": 1
+    },
+    "racc_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sp4": {
+      "type": "object",
+      "required": [
+        "useful_repairs",
+        "total_cases",
+        "decision"
+      ],
+      "properties": {
+        "useful_repairs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total_cases": {
+          "const": 10
+        },
+        "decision": {
+          "enum": [
+            "go",
+            "no-go"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "$ref": "#/$defs/case"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "case": {
+      "type": "object",
+      "required": [
+        "id",
+        "input",
+        "ibex",
+        "racc",
+        "repair"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^EUX-[0-9]{2}$"
+        },
+        "input": {
+          "type": "string"
+        },
+        "ibex": {
+          "$ref": "#/$defs/ibex_diagnostic"
+        },
+        "racc": {
+          "$ref": "#/$defs/racc_diagnostic"
+        },
+        "repair": {
+          "$ref": "#/$defs/repair"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ibex_diagnostic": {
+      "type": "object",
+      "required": [
+        "status",
+        "message",
+        "token",
+        "expected",
+        "state",
+        "line",
+        "column",
+        "suggestions"
+      ],
+      "properties": {
+        "status": {
+          "const": "rejected"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "token": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expected": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "state": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "column": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "suggestions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "racc_diagnostic": {
+      "type": "object",
+      "required": [
+        "status",
+        "token",
+        "value",
+        "message"
+      ],
+      "properties": {
+        "status": {
+          "const": "rejected"
+        },
+        "token": {
+          "type": "integer"
+        },
+        "value": {},
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "repair": {
+      "type": "object",
+      "required": [
+        "status",
+        "plan",
+        "useful",
+        "assessment"
+      ],
+      "properties": {
+        "status": {
+          "const": "repaired"
+        },
+        "plan": {
+          "$ref": "#/$defs/repair_plan"
+        },
+        "useful": {
+          "type": "boolean"
+        },
+        "assessment": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "repair_plan": {
+      "type": "object",
+      "required": [
+        "cost",
+        "configurations",
+        "edits"
+      ],
+      "properties": {
+        "cost": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "configurations": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "edits": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/repair_edit"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "repair_edit": {
+      "type": "object",
+      "required": [
+        "kind",
+        "position",
+        "token_id",
+        "token_name",
+        "cost"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "insert",
+            "delete",
+            "replace"
+          ]
+        },
+        "position": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "token_id": {
+          "type": "integer"
+        },
+        "token_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cost": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

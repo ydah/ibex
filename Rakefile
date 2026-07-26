@@ -41,6 +41,11 @@ namespace :quality do
       "bundle", "exec", "mutant", "run"
     )
   end
+
+  desc "Verify the JSON error UX and repair evidence"
+  task :error_ux do
+    sh "bundle", "exec", "ruby", "tool/error_ux_snapshot.rb"
+  end
 end
 
 namespace :grammar do

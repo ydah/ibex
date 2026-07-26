@@ -1,0 +1,471 @@
+{
+  "schema_version": 1,
+  "ibex_grammar": "examples/json.y",
+  "racc_grammar": "test/fixtures/error_ux/json_racc.y",
+  "racc_version": "racc version 1.8.1",
+  "sp4": {
+    "useful_repairs": 8,
+    "total_cases": 10,
+    "decision": "go"
+  },
+  "cases": [
+    {
+      "id": "EUX-01",
+      "input": "{\"a\":,}",
+      "ibex": {
+        "status": "rejected",
+        "message": "(json):1:6: unexpected ','; expected STRING, NUMBER, TRUE, FALSE, NULL, '{', '[' (nil)\n{\"a\":,}\n     ^",
+        "token": "','",
+        "expected": [
+          "STRING",
+          "NUMBER",
+          "TRUE",
+          "FALSE",
+          "NULL",
+          "'{'",
+          "'['"
+        ],
+        "state": 19,
+        "line": 1,
+        "column": 6,
+        "suggestions": []
+      },
+      "racc": {
+        "status": "rejected",
+        "token": 9,
+        "value": null,
+        "message": "unexpected 9 (nil)"
+      },
+      "repair": {
+        "status": "repaired",
+        "plan": {
+          "cost": 2,
+          "configurations": 549,
+          "edits": [
+            {
+              "kind": "delete",
+              "position": 0,
+              "token_id": 16,
+              "token_name": "','",
+              "cost": 1
+            },
+            {
+              "kind": "insert",
+              "position": 1,
+              "token_id": 2,
+              "token_name": "STRING",
+              "cost": 1
+            }
+          ]
+        },
+        "useful": true,
+        "assessment": "supplies one missing value after the member colon"
+      }
+    },
+    {
+      "id": "EUX-02",
+      "input": "{\"a\" 1}",
+      "ibex": {
+        "status": "rejected",
+        "message": "(json):1:6: unexpected NUMBER; expected ':' (1)\n{\"a\" 1}\n     ^",
+        "token": "NUMBER",
+        "expected": [
+          "':'"
+        ],
+        "state": 12,
+        "line": 1,
+        "column": 6,
+        "suggestions": []
+      },
+      "racc": {
+        "status": "rejected",
+        "token": 3,
+        "value": "1",
+        "message": "unexpected 3 (\"1\")"
+      },
+      "repair": {
+        "status": "repaired",
+        "plan": {
+          "cost": 1,
+          "configurations": 95,
+          "edits": [
+            {
+              "kind": "insert",
+              "position": 0,
+              "token_id": 17,
+              "token_name": "':'",
+              "cost": 1
+            }
+          ]
+        },
+        "useful": true,
+        "assessment": "inserts the missing member colon"
+      }
+    },
+    {
+      "id": "EUX-03",
+      "input": "{\"a\":1,}",
+      "ibex": {
+        "status": "rejected",
+        "message": "(json):1:8: unexpected '}'; expected STRING (nil)\n{\"a\":1,}\n       ^",
+        "token": "'}'",
+        "expected": [
+          "STRING"
+        ],
+        "state": 21,
+        "line": 1,
+        "column": 8,
+        "suggestions": []
+      },
+      "racc": {
+        "status": "rejected",
+        "token": 8,
+        "value": null,
+        "message": "unexpected 8 (nil)"
+      },
+      "repair": {
+        "status": "repaired",
+        "plan": {
+          "cost": 3,
+          "configurations": 123,
+          "edits": [
+            {
+              "kind": "insert",
+              "position": 0,
+              "token_id": 2,
+              "token_name": "STRING",
+              "cost": 1
+            },
+            {
+              "kind": "insert",
+              "position": 0,
+              "token_id": 17,
+              "token_name": "':'",
+              "cost": 1
+            },
+            {
+              "kind": "insert",
+              "position": 0,
+              "token_id": 2,
+              "token_name": "STRING",
+              "cost": 1
+            }
+          ]
+        },
+        "useful": false,
+        "assessment": "invents another member instead of removing the trailing comma"
+      }
+    },
+    {
+      "id": "EUX-04",
+      "input": "[1,]",
+      "ibex": {
+        "status": "rejected",
+        "message": "(json):1:4: unexpected ']'; expected STRING, NUMBER, TRUE, FALSE, NULL, '{', '[' (nil)\n[1,]\n   ^",
+        "token": "']'",
+        "expected": [
+          "STRING",
+          "NUMBER",
+          "TRUE",
+          "FALSE",
+          "NULL",
+          "'{'",
+          "'['"
+        ],
+        "state": 22,
+        "line": 1,
+        "column": 4,
+        "suggestions": []
+      },
+      "racc": {
+        "status": "rejected",
+        "token": 12,
+        "value": null,
+        "message": "unexpected 12 (nil)"
+      },
+      "repair": {
+        "status": "repaired",
+        "plan": {
+          "cost": 1,
+          "configurations": 150,
+          "edits": [
+            {
+              "kind": "insert",
+              "position": 0,
+              "token_id": 2,
+              "token_name": "STRING",
+              "cost": 1
+            }
+          ]
+        },
+        "useful": false,
+        "assessment": "invents another element instead of removing the trailing comma"
+      }
+    },
+    {
+      "id": "EUX-05",
+      "input": "[1 2]",
+      "ibex": {
+        "status": "rejected",
+        "message": "(json):1:4: unexpected NUMBER; expected ',', ']' (2)\n[1 2]\n   ^",
+        "token": "NUMBER",
+        "expected": [
+          "','",
+          "']'"
+        ],
+        "state": 2,
+        "line": 1,
+        "column": 4,
+        "suggestions": []
+      },
+      "racc": {
+        "status": "rejected",
+        "token": 3,
+        "value": "2",
+        "message": "unexpected 3 (\"2\")"
+      },
+      "repair": {
+        "status": "repaired",
+        "plan": {
+          "cost": 1,
+          "configurations": 100,
+          "edits": [
+            {
+              "kind": "insert",
+              "position": 0,
+              "token_id": 16,
+              "token_name": "','",
+              "cost": 1
+            }
+          ]
+        },
+        "useful": true,
+        "assessment": "inserts the missing element comma"
+      }
+    },
+    {
+      "id": "EUX-06",
+      "input": "{\"a\":[true false]}",
+      "ibex": {
+        "status": "rejected",
+        "message": "(json):1:12: unexpected FALSE; expected ',', ']' (false)\n{\"a\":[true false]}\n           ^",
+        "token": "FALSE",
+        "expected": [
+          "','",
+          "']'"
+        ],
+        "state": 3,
+        "line": 1,
+        "column": 12,
+        "suggestions": []
+      },
+      "racc": {
+        "status": "rejected",
+        "token": 5,
+        "value": false,
+        "message": "unexpected 5 (false)"
+      },
+      "repair": {
+        "status": "repaired",
+        "plan": {
+          "cost": 1,
+          "configurations": 101,
+          "edits": [
+            {
+              "kind": "insert",
+              "position": 0,
+              "token_id": 16,
+              "token_name": "','",
+              "cost": 1
+            }
+          ]
+        },
+        "useful": true,
+        "assessment": "inserts the missing element comma"
+      }
+    },
+    {
+      "id": "EUX-07",
+      "input": "{\"a\":null \"b\":2}",
+      "ibex": {
+        "status": "rejected",
+        "message": "(json):1:11: unexpected STRING; expected '}', ',' (\"b\")\n{\"a\":null \"b\":2}\n          ^",
+        "token": "STRING",
+        "expected": [
+          "'}'",
+          "','"
+        ],
+        "state": 5,
+        "line": 1,
+        "column": 11,
+        "suggestions": []
+      },
+      "racc": {
+        "status": "rejected",
+        "token": 2,
+        "value": "\"b\"",
+        "message": "unexpected 2 (\"\\\"b\\\"\")"
+      },
+      "repair": {
+        "status": "repaired",
+        "plan": {
+          "cost": 1,
+          "configurations": 125,
+          "edits": [
+            {
+              "kind": "insert",
+              "position": 0,
+              "token_id": 16,
+              "token_name": "','",
+              "cost": 1
+            }
+          ]
+        },
+        "useful": true,
+        "assessment": "inserts the missing member comma"
+      }
+    },
+    {
+      "id": "EUX-08",
+      "input": "{]",
+      "ibex": {
+        "status": "rejected",
+        "message": "(json):1:2: unexpected ']'; expected STRING, '}' (nil)\n{]\n ^",
+        "token": "']'",
+        "expected": [
+          "STRING",
+          "'}'"
+        ],
+        "state": 10,
+        "line": 1,
+        "column": 2,
+        "suggestions": []
+      },
+      "racc": {
+        "status": "rejected",
+        "token": 12,
+        "value": null,
+        "message": "unexpected 12 (nil)"
+      },
+      "repair": {
+        "status": "repaired",
+        "plan": {
+          "cost": 2,
+          "configurations": 105,
+          "edits": [
+            {
+              "kind": "delete",
+              "position": 0,
+              "token_id": 19,
+              "token_name": "']'",
+              "cost": 1
+            },
+            {
+              "kind": "insert",
+              "position": 1,
+              "token_id": 15,
+              "token_name": "'}'",
+              "cost": 1
+            }
+          ]
+        },
+        "useful": true,
+        "assessment": "replaces the mismatched closing bracket with a brace"
+      }
+    },
+    {
+      "id": "EUX-09",
+      "input": "[}",
+      "ibex": {
+        "status": "rejected",
+        "message": "(json):1:2: unexpected '}'; expected STRING, NUMBER, TRUE, FALSE, NULL, '{', '[', ']' (nil)\n[}\n ^",
+        "token": "'}'",
+        "expected": [
+          "STRING",
+          "NUMBER",
+          "TRUE",
+          "FALSE",
+          "NULL",
+          "'{'",
+          "'['",
+          "']'"
+        ],
+        "state": 11,
+        "line": 1,
+        "column": 2,
+        "suggestions": []
+      },
+      "racc": {
+        "status": "rejected",
+        "token": 8,
+        "value": null,
+        "message": "unexpected 8 (nil)"
+      },
+      "repair": {
+        "status": "repaired",
+        "plan": {
+          "cost": 2,
+          "configurations": 353,
+          "edits": [
+            {
+              "kind": "delete",
+              "position": 0,
+              "token_id": 15,
+              "token_name": "'}'",
+              "cost": 1
+            },
+            {
+              "kind": "insert",
+              "position": 1,
+              "token_id": 19,
+              "token_name": "']'",
+              "cost": 1
+            }
+          ]
+        },
+        "useful": true,
+        "assessment": "replaces the mismatched closing brace with a bracket"
+      }
+    },
+    {
+      "id": "EUX-10",
+      "input": "true false",
+      "ibex": {
+        "status": "rejected",
+        "message": "(json):1:6: unexpected FALSE; expected $eof (false)\ntrue false\n     ^",
+        "token": "FALSE",
+        "expected": [
+          "$eof"
+        ],
+        "state": 3,
+        "line": 1,
+        "column": 6,
+        "suggestions": []
+      },
+      "racc": {
+        "status": "rejected",
+        "token": 5,
+        "value": false,
+        "message": "unexpected 5 (false)"
+      },
+      "repair": {
+        "status": "repaired",
+        "plan": {
+          "cost": 1,
+          "configurations": 35,
+          "edits": [
+            {
+              "kind": "delete",
+              "position": 0,
+              "token_id": 5,
+              "token_name": "FALSE",
+              "cost": 1
+            }
+          ]
+        },
+        "useful": true,
+        "assessment": "removes the extra top-level value"
+      }
+    }
+  ]
+}

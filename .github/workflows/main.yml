@@ -90,6 +90,8 @@ jobs:
           bundler-cache: true
       - name: Run grammar-declared tests
         run: bundle exec rake grammar:test
+      - name: Verify error UX evidence
+        run: bundle exec rake quality:error_ux
 
   rbs:
     runs-on: ubuntu-latest

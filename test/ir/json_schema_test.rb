@@ -18,6 +18,7 @@ class IRJSONSchemaTest < Minitest::Test
       benchmark-v1.schema.json
       benchmark-v2.schema.json
       generation-manifest-v1.schema.json
+      error-ux-v1.schema.json
       runtime-event-v1.schema.json
       runtime-coverage-v1.schema.json
       table-simulation-v1.schema.json
@@ -175,6 +176,13 @@ class IRJSONSchemaTest < Minitest::Test
     ]
 
     assert_empty JSONSchemer.schema(grammar, ref_resolver: resolver).validate(document).to_a
+  end
+
+  def test_error_ux_snapshot_matches_its_public_schema
+    contract = schema("error-ux-v1.schema.json")
+    document = load_json(File.join(FIXTURE_ROOT, "../error_ux/json-errors-v1.json"))
+
+    assert_empty JSONSchemer.schema(contract).validate(document).to_a
   end
 
   private
