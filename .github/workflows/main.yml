@@ -126,6 +126,34 @@ jobs:
       - name: Mutate compact table construction
         run: bundle exec rake quality:mutation
 
+  site:
+    runs-on: ubuntu-latest
+    name: Browser site
+    env:
+      BUNDLE_GEMFILE: gemfiles/docs.Gemfile
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@a30dfa457ad68707b8b910ac3a244714b61c0626 # v1.320.0
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install browser dependencies
+        run: npm ci
+      - name: Build and test the project site
+        run: npm run test:site
+      - name: Build API documentation
+        run: |
+          bundle exec yard doc
+          test -s tmp/site/api/index.html
+
   benchmark:
     runs-on: ubuntu-latest
     name: Benchmark artifact

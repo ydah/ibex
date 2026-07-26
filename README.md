@@ -6,6 +6,10 @@ Ibex is a Pure Ruby LR parser generator. It accepts racc-compatible grammar file
 `do_parse` / `yyparse` API, and requires no C or Java extension. Its staged Grammar IR and Automaton IR can also drive extended
 EBNF syntax, diagnostics, visualizations, and alternate LR construction algorithms.
 
+Try a grammar in the [browser playground](https://ydah.github.io/ibex/playground/) or browse the
+[API reference](https://ydah.github.io/ibex/api/). The playground runs locally in a Web Worker: grammar source is not uploaded,
+and semantic action bodies are not executed.
+
 ## Requirements and installation
 
 Ibex supports Ruby 3.0 or later and has no runtime gem dependencies. From a source checkout:
