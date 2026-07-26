@@ -16,6 +16,7 @@ class IRJSONSchemaTest < Minitest::Test
       automaton-ir-v2.schema.json
       explain-v1.schema.json
       benchmark-v1.schema.json
+      benchmark-v2.schema.json
       generation-manifest-v1.schema.json
       runtime-event-v1.schema.json
       runtime-coverage-v1.schema.json

@@ -47,6 +47,9 @@ against the current canonical-and-merge builder:
 4. fallback or rejection behavior for unsupported relation cases; and
 5. updated algorithm documentation without exposing relation internals in Automaton IR.
 
+[ADR 0054](0054-direct-lalr-lookahead-propagation.md) satisfies these conditions with direct LR(0)-item lookahead propagation,
+an explicit canonical-merge reference path, byte-equivalence fixtures, and benchmark schema v2 construction metrics.
+
 The same artifact is the required baseline for chain-rule elimination and generated `case` dispatch experiments, but does not
 authorize either as a default. A candidate must be measured in at least five isolated runs on one named environment and reproduced
 on a second supported MRI version. It qualifies only with either a median runtime improvement of at least 5% or a generated/table

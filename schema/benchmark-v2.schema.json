@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/benchmark-v2.schema.json",
+  "title": "Ibex benchmark artifact v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "artifact",
+    "schema_version",
+    "recorded_at",
+    "environment",
+    "configuration",
+    "measurements",
+    "structure",
+    "digests"
+  ],
+  "properties": {
+    "artifact": { "const": "ibex_benchmark" },
+    "schema_version": { "const": 2 },
+    "recorded_at": { "type": "string", "format": "date-time" },
+    "environment": { "$ref": "benchmark-v1.schema.json#/$defs/environment" },
+    "configuration": { "$ref": "benchmark-v1.schema.json#/$defs/configuration" },
+    "measurements": { "$ref": "benchmark-v1.schema.json#/$defs/measurements" },
+    "structure": { "$ref": "#/$defs/structure" },
+    "digests": { "$ref": "benchmark-v1.schema.json#/$defs/digests" }
+  },
+  "$defs": {
+    "structure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "productions",
+        "construction_strategy",
+        "construction_intermediate_states",
+        "final_states",
+        "tables",
+        "generated_output_bytes"
+      ],
+      "properties": {
+        "productions": { "$ref": "benchmark-v1.schema.json#/$defs/nonNegativeInteger" },
+        "construction_strategy": {
+          "enum": ["direct_lalr", "canonical_merge", "canonical_lr1"]
+        },
+        "construction_intermediate_states": {
+          "$ref": "benchmark-v1.schema.json#/$defs/nonNegativeInteger"
+        },
+        "final_states": { "$ref": "benchmark-v1.schema.json#/$defs/nonNegativeInteger" },
+        "tables": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["plain", "compact"],
+          "properties": {
+            "plain": { "$ref": "benchmark-v1.schema.json#/$defs/table" },
+            "compact": { "$ref": "benchmark-v1.schema.json#/$defs/table" }
+          }
+        },
+        "generated_output_bytes": { "$ref": "benchmark-v1.schema.json#/$defs/variantSizes" }
+      }
+    }
+  }
+}

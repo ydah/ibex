@@ -5,12 +5,16 @@ module Ibex
     # Immutable structural measurements from one automaton build. These counts
     # are intended for diagnostics and benchmarks, not parser behavior.
     class BuildMetrics
-      attr_reader canonical_states: Integer
+      attr_reader construction_states: Integer
+
+      attr_reader canonical_states: Integer?
 
       attr_reader final_states: Integer
 
-      # @rbs (canonical_states: Integer, final_states: Integer) -> void
-      def initialize: (canonical_states: Integer, final_states: Integer) -> void
+      attr_reader strategy: Symbol
+
+      # @rbs (construction_states: Integer, canonical_states: Integer?, final_states: Integer, strategy: Symbol) -> void
+      def initialize: (construction_states: Integer, canonical_states: Integer?, final_states: Integer, strategy: Symbol) -> void
     end
   end
 end

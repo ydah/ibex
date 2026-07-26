@@ -2,11 +2,14 @@
 
 module Ibex
   module LALR
-    # Builds canonical LR(1) states and merges states with equal LR(0) cores.
+    # Builds deterministic SLR, direct LALR(1), or canonical LR(1) automata.
+    # rubocop:disable Metrics/ClassLength -- collection strategies share one action/conflict construction path.
     class Builder
       AUGMENTED_PRODUCTION: Integer
 
       ALGORITHMS: Array[Symbol]
+
+      LALR_STRATEGIES: Array[Symbol]
 
       @metrics: BuildMetrics?
 
@@ -16,19 +19,24 @@ module Ibex
 
       @sets: Analysis::Sets
 
+      @lalr_strategy: Symbol
+
       @algorithm: Symbol
 
       @grammar: IR::Grammar
 
       attr_reader metrics: BuildMetrics?
 
-      # @rbs (IR::Grammar grammar, ?algorithm: Symbol | String) -> void
-      def initialize: (IR::Grammar grammar, ?algorithm: Symbol | String) -> void
+      # @rbs (IR::Grammar grammar, ?algorithm: Symbol | String, ?lalr_strategy: Symbol | String) -> void
+      def initialize: (IR::Grammar grammar, ?algorithm: Symbol | String, ?lalr_strategy: Symbol | String) -> void
 
       # @rbs () -> IR::Automaton
       def build: () -> IR::Automaton
 
       private
+
+      # @rbs () -> [Array[packed_items], transitions, Integer, Integer?, Symbol]
+      def automaton_collection: () -> [ Array[packed_items], transitions, Integer, Integer?, Symbol ]
 
       # @rbs () -> [Array[item_set], transitions]
       def canonical_collection: () -> [ Array[item_set], transitions ]
@@ -50,9 +58,6 @@ module Ibex
 
       # @rbs (Array[item_set] states, transitions transitions) -> [Array[packed_items], transitions]
       def merge_lalr: (Array[item_set] states, transitions transitions) -> [ Array[packed_items], transitions ]
-
-      # @rbs (Array[item_set] canonical_states, transitions canonical_transitions) -> [Array[packed_items], transitions]
-      def automaton_items: (Array[item_set] canonical_states, transitions canonical_transitions) -> [ Array[packed_items], transitions ]
 
       # @rbs (Array[item_set] states) -> Array[packed_items]
       def pack_canonical_items: (Array[item_set] states) -> Array[packed_items]

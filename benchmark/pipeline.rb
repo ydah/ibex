@@ -21,7 +21,8 @@ module PipelineBenchmark
     runtime_iterations: 100,
     seed: 12_345,
     json: false,
-    output: nil
+    output: nil,
+    schema_version: 2
   }.freeze
 
   module_function
@@ -49,7 +50,7 @@ module PipelineBenchmark
         options[:runtime_iterations] = value
       end
       parser.on("--seed N", Integer, "fixed workload seed") { |value| options[:seed] = value }
-      parser.on("--json", "emit an ibex_benchmark v1 JSON document") { options[:json] = true }
+      parser.on("--json", "emit the current ibex_benchmark JSON document") { options[:json] = true }
       parser.on("--output PATH", "write the JSON artifact to PATH") { |value| options[:output] = value }
     end.parse!(argv)
     raise OptionParser::InvalidArgument, "iterations must be positive" unless options.fetch(:iterations).positive?
@@ -77,7 +78,8 @@ module PipelineBenchmark
     lines = [
       "Ibex representative benchmark (schema v#{report.fetch(:schema_version)})",
       "productions: #{structure.fetch(:productions)}",
-      "canonical states: #{structure.fetch(:canonical_intermediate_states)}",
+      "construction: #{structure.fetch(:construction_strategy)}",
+      "construction states: #{structure.fetch(:construction_intermediate_states)}",
       "final states: #{structure.fetch(:final_states)}",
       "generation: #{format('%.3f', measurements.fetch(:generation_ms))} ms",
       "runtime parse (plain): #{format('%.3f', runtime.fetch(:plain))} ms",

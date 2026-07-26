@@ -4,14 +4,17 @@ require "set"
 
 module Ibex
   module LALR
-    # Builds canonical LR(1) states and merges states with equal LR(0) cores.
+    # Builds deterministic SLR, direct LALR(1), or canonical LR(1) automata.
+    # rubocop:disable Metrics/ClassLength -- collection strategies share one action/conflict construction path.
     class Builder
       AUGMENTED_PRODUCTION = -1 #: Integer
 
       ALGORITHMS = %i[slr lalr lr1].freeze #: Array[Symbol]
+      LALR_STRATEGIES = %i[direct canonical_merge].freeze #: Array[Symbol]
 
       # @rbs @grammar: IR::Grammar
       # @rbs @algorithm: Symbol
+      # @rbs @lalr_strategy: Symbol
       # @rbs @sets: Analysis::Sets
       # @rbs @productions_by_lhs: Hash[Integer, Array[IR::Production]]
       # @rbs @resolver: ConflictResolver
@@ -19,14 +22,18 @@ module Ibex
 
       attr_reader :metrics #: BuildMetrics?
 
-      # @rbs (IR::Grammar grammar, ?algorithm: Symbol | String) -> void
-      def initialize(grammar, algorithm: :lalr)
+      # @rbs (IR::Grammar grammar, ?algorithm: Symbol | String, ?lalr_strategy: Symbol | String) -> void
+      def initialize(grammar, algorithm: :lalr, lalr_strategy: :direct)
         unless ALGORITHMS.include?(algorithm.to_sym)
           raise ArgumentError, "unknown parser algorithm #{algorithm.inspect}"
+        end
+        unless LALR_STRATEGIES.include?(lalr_strategy.to_sym)
+          raise ArgumentError, "unknown LALR construction strategy #{lalr_strategy.inspect}"
         end
 
         @grammar = grammar
         @algorithm = algorithm.to_sym
+        @lalr_strategy = lalr_strategy.to_sym
         @sets = Analysis::Sets.new(grammar)
         @productions_by_lhs = grammar.productions.group_by(&:lhs)
         @resolver = ConflictResolver.new(grammar)
@@ -35,8 +42,7 @@ module Ibex
 
       # @rbs () -> IR::Automaton
       def build
-        canonical_states, canonical_transitions = canonical_collection
-        merged_items, merged_transitions = automaton_items(canonical_states, canonical_transitions)
+        merged_items, merged_transitions, construction_states, canonical_states, strategy = automaton_collection
         states = build_states(merged_items, merged_transitions)
         states = DefaultReductions.apply(states, terminal_ids: @grammar.terminals.map(&:id))
         conflicts = states.flat_map(&:conflicts)
@@ -47,12 +53,36 @@ module Ibex
                     rr: conflicts.count { |item| item[:type] == :reduce_reduce },
                     expected_sr: @grammar.expect,
                     expectation_met: counted_shift_reduce == @grammar.expect } #: IR::conflict_summary
-        @metrics = BuildMetrics.new(canonical_states: canonical_states.length, final_states: states.length)
+        @metrics = BuildMetrics.new(
+          construction_states: construction_states,
+          canonical_states: canonical_states,
+          final_states: states.length,
+          strategy: strategy
+        )
         IR::Automaton.new(grammar: @grammar, states: states, conflict_summary: summary,
                           algorithm: @algorithm == :lalr ? "lalr1" : @algorithm.to_s)
       end
 
       private
+
+      # @rbs () -> [Array[packed_items], transitions, Integer, Integer?, Symbol]
+      def automaton_collection
+        if @algorithm == :lr1
+          states, transitions = canonical_collection
+          return [pack_canonical_items(states), transitions, states.length, states.length, :canonical_lr1]
+        end
+
+        if @lalr_strategy == :canonical_merge
+          states, transitions = canonical_collection
+          items, merged_transitions = merge_lalr(states, transitions)
+          apply_slr_lookaheads(items) if @algorithm == :slr
+          return [items, merged_transitions, states.length, states.length, :canonical_merge]
+        end
+
+        items, transitions = DirectLookaheads.new(@grammar, @sets).build
+        apply_slr_lookaheads(items) if @algorithm == :slr
+        [items, transitions, items.length, nil, :direct_lalr]
+      end
 
       # @rbs () -> [Array[item_set], transitions]
       def canonical_collection
@@ -145,15 +175,6 @@ module Ibex
           edges.each { |symbol, target| merged_transitions[state_groups[state_id]][symbol] = state_groups[target] }
         end
         [merged, merged_transitions]
-      end
-
-      # @rbs (Array[item_set] canonical_states, transitions canonical_transitions) -> [Array[packed_items], transitions]
-      def automaton_items(canonical_states, canonical_transitions)
-        return [pack_canonical_items(canonical_states), canonical_transitions] if @algorithm == :lr1
-
-        items, transitions = merge_lalr(canonical_states, canonical_transitions)
-        apply_slr_lookaheads(items) if @algorithm == :slr
-        [items, transitions]
       end
 
       # @rbs (Array[item_set] states) -> Array[packed_items]
@@ -268,5 +289,6 @@ module Ibex
         items.to_a.sort
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end

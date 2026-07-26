@@ -195,11 +195,13 @@ views over Automaton IR.
 
 ## Construction algorithms and counterexamples
 
-The builder uses canonical LR(1) item sets as its common starting point. The `lr1` strategy retains those states, `lalr` merges
-states with equal LR(0) cores, and `slr` applies FOLLOW sets to completed items in LR(0) states. All strategies use the same
-conflict resolver and produce the same Automaton IR shape. After a build, the builder exposes a frozen diagnostic `metrics`
-value containing only canonical-intermediate and final state counts. It is deliberately outside Automaton IR because it describes
-the chosen construction strategy rather than the resulting parser.
+The `lalr` and `slr` strategies construct LR(0) states directly. LALR lookaheads are the least fixed point of deterministic
+shift, spontaneous-FIRST, and nullable-suffix propagation edges over item occurrences; SLR replaces completed lookaheads with
+FOLLOW sets. Canonical `lr1` retains the canonical collection. An explicit canonical-and-merge LALR reference strategy proves
+byte equivalence without changing the Automaton IR algorithm label. All strategies use the same conflict resolver and default
+reduction pass. After a build, frozen diagnostic `metrics` record the strategy and construction/final state counts, plus a
+canonical count only when one was actually built. See
+[ADR 0054](decisions/0054-direct-lalr-lookahead-propagation.md).
 
 `Ibex::LALR::Counterexample` consumes only Automaton IR. For each conflict it explores parser-stack configurations, forces the
 competing actions, and searches for a common accepting suffix. A successful result contains both complete derivation trees and is
@@ -212,7 +214,7 @@ shortest reachability witness instead of claiming ambiguity.
 shape. `Counterexample#all` retains its original all-conflict behavior. The view performs no additional parser analysis and does
 not extend Grammar or Automaton IR.
 
-The repository's self-authored representative grammar feeds the versioned `ibex_benchmark` v1 document. Its JSON Schema is
+The repository's self-authored representative grammar feeds the current versioned `ibex_benchmark` v2 document. Its JSON Schema is
 shipped beside the IR schemas, while committed environment-specific observations live under `benchmark/results/v1`. Timing and
 peak RSS remain non-gating; CI reproduces only deterministic structure and digests. See
 [ADR 0038](decisions/0038-versioned-benchmark-evidence.md).
