@@ -3,6 +3,7 @@
 /.vscode/
 /.yardoc
 /.mutant/
+node_modules/
 /_yardoc/
 /coverage/
 /pkg/

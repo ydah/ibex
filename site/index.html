@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'"
+    >
+    <title>Ibex — Pure Ruby LR parser generator</title>
+    <meta
+      name="description"
+      content="A Pure Ruby LR parser generator with diagnostics, versioned IR, typed output, and multiple construction algorithms."
+    >
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="Ibex home">IBEX<span aria-hidden="true">_</span></a>
+      <nav aria-label="Primary">
+        <a href="./playground/">Playground</a>
+        <a href="./api/">API</a>
+        <a href="https://github.com/ydah/ibex">GitHub</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <p class="eyebrow">PURE RUBY · LR TOOLCHAIN</p>
+        <h1 id="hero-title">Build parsers.<br><span>See the machine.</span></h1>
+        <p class="lede">
+          Ibex turns racc-compatible and extended EBNF grammars into deterministic Ruby parsers,
+          inspectable automata, structured diagnostics, and typed interfaces.
+        </p>
+        <div class="actions">
+          <a class="button button-primary" href="./playground/">Open the playground</a>
+          <a class="button button-secondary" href="./api/">Read the API reference</a>
+        </div>
+      </section>
+
+      <section class="feature-grid" aria-label="Highlights">
+        <article>
+          <p class="feature-number">01</p>
+          <h2>Four LR strategies</h2>
+          <p>Compare direct LALR(1), IELR(1), canonical LR(1), and SLR from one grammar.</p>
+        </article>
+        <article>
+          <p class="feature-number">02</p>
+          <h2>Explain conflicts</h2>
+          <p>Trace conflicts back to states, tokens, resolutions, and bounded counterexamples.</p>
+        </article>
+        <article>
+          <p class="feature-number">03</p>
+          <h2>Stable IR</h2>
+          <p>Validate, compare, migrate, visualize, and reuse versioned grammar and automaton data.</p>
+        </article>
+      </section>
+
+      <section class="manifesto">
+        <div>
+          <p class="eyebrow">NO SERVER ROUND-TRIP</p>
+          <h2>Your grammar stays in your browser.</h2>
+        </div>
+        <p>
+          The playground runs Ibex under ruby.wasm in a dedicated worker. It parses action bodies as
+          source data and never executes them.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <p>Released under the MIT License.</p>
+      <a href="https://github.com/ydah/ibex">Source and issue tracker</a>
+    </footer>
+  </body>
+</html>
