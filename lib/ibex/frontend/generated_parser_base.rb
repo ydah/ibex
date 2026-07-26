@@ -213,6 +213,26 @@ module Ibex
         fail_at(source.location, "invalid %test source: #{e.message}")
       end
 
+      # @rbs (Token keyword, Array[AST::lexer_entry] entries) -> AST::Lexer
+      def build_lexer(keyword, entries)
+        extended_only!(keyword.location, "lexer declarations")
+        AST::Lexer.new(definitions: entries, loc: keyword.location)
+      end
+
+      # @rbs (Symbol kind, Token? name, Token pattern, Token? action, Token marker) -> AST::LexerRule
+      def build_lexer_rule(kind, name, pattern, action, marker)
+        fail_at(marker.location, "on lexer rules require an action") if kind == :on && !action
+        AST::LexerRule.new(
+          kind: kind, token: name && token_string(name), pattern: token_string(pattern),
+          pattern_kind: pattern.type, action: action && token_string(action), loc: marker.location
+        )
+      end
+
+      # @rbs (Token marker, Token name, Array[AST::lexer_entry] entries) -> AST::LexerState
+      def build_lexer_state(marker, name, entries)
+        AST::LexerState.new(name: token_string(name), definitions: entries, loc: marker.location)
+      end
+
       # @rbs (Token keyword, Array[AST::Conversion] pairs) -> AST::Convert
       def build_convert(keyword, pairs)
         AST::Convert.new(pairs: pairs, loc: keyword.location)

@@ -51,6 +51,7 @@ module Ibex
         return "%recover" if declaration.is_a?(AST::Recovery)
         return "%on_error_reduce" if declaration.is_a?(AST::OnErrorReduce)
         return "%test" if declaration.is_a?(AST::GrammarTest)
+        return "lexer" if declaration.is_a?(AST::Lexer)
 
         nil
       end

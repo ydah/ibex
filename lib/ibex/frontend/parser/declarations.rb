@@ -8,7 +8,7 @@ module Ibex
     module BootstrapParserDeclarations
       DECLARATIONS = %w[
         token prechigh preclow options expect expect_rr start recover on_error_reduce
-        test convert display type param printer pragma rule
+        test lexer convert display type param printer pragma rule
       ].freeze #: Array[String]
       ASSOCIATIVITIES = %w[left right nonassoc precedence].freeze #: Array[String]
 
@@ -53,6 +53,7 @@ module Ibex
         when "recover" then parse_recovery
         when "on_error_reduce" then parse_on_error_reduce
         when "test" then parse_grammar_test
+        when "lexer" then parse_lexer
         when "convert" then parse_convert
         when "display" then parse_symbol_metadata(AST::DisplayName, "display")
         when "type" then parse_symbol_metadata(AST::SemanticType, "type")
@@ -211,6 +212,68 @@ module Ibex
         AST::GrammarTest.new(expectation: expectation.to_sym, source: decoded, loc: keyword.location)
       end
 
+      # @rbs () -> AST::Lexer
+      def parse_lexer
+        # @type self: BootstrapParser
+        keyword = advance
+        extended_only!(keyword.location, "lexer declarations")
+        entries = parse_lexer_entries
+        expect_keyword("end")
+        AST::Lexer.new(definitions: entries, loc: keyword.location)
+      end
+
+      # @rbs () -> Array[AST::lexer_entry]
+      def parse_lexer_entries
+        # @type self: BootstrapParser
+        entries = [] #: Array[AST::lexer_entry]
+        entries << parse_lexer_entry until keyword?("end") || current.type == :eof
+        entries
+      end
+
+      # @rbs () -> AST::lexer_entry
+      def parse_lexer_entry
+        # @type self: BootstrapParser
+        return parse_lexer_state if keyword?("state")
+
+        marker = expect(:identifier)
+        kind = case token_string(marker)
+               when "skip" then :skip
+               when "on" then :on
+               else :token
+               end
+        pattern = expect_lexer_pattern
+        action = current.type == :action ? advance : nil
+        fail_at(marker.location, "on lexer rules require an action") if kind == :on && !action
+        build_bootstrap_lexer_rule(kind, marker, pattern, action)
+      end
+
+      # @rbs () -> AST::LexerState
+      def parse_lexer_state
+        # @type self: BootstrapParser
+        marker = advance
+        name = expect(:identifier)
+        expect_keyword("do")
+        entries = parse_lexer_entries
+        expect_keyword("end")
+        AST::LexerState.new(name: token_string(name), definitions: entries, loc: marker.location)
+      end
+
+      # @rbs () -> Token
+      def expect_lexer_pattern
+        # @type self: BootstrapParser
+        return advance if %i[regexp literal].include?(current.type)
+
+        fail_expected("a regular expression or quoted literal")
+      end
+
+      # @rbs (Symbol kind, Token marker, Token pattern, Token? action) -> AST::LexerRule
+      def build_bootstrap_lexer_rule(kind, marker, pattern, action)
+        # @type self: BootstrapParser
+        token = kind == :token ? token_string(marker) : nil
+        AST::LexerRule.new(kind: kind, token: token, pattern: token_string(pattern),
+                           pattern_kind: pattern.type, action: action && token_string(action), loc: marker.location)
+      end
+
       # @rbs () -> AST::Convert
       def parse_convert
         # @type self: BootstrapParser
@@ -302,7 +365,7 @@ module Ibex
         # @type self: BootstrapParser
         return true if current.type == :eof
         return false unless current.type == :identifier && DECLARATIONS.include?(current.value)
-        return false if %w[display type param printer].include?(current.value) && @mode != :extended
+        return false if %w[display type param printer lexer].include?(current.value) && @mode != :extended
 
         true
       end

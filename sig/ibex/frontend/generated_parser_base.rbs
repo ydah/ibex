@@ -92,6 +92,15 @@ module Ibex
       # @rbs (Token keyword, Token expectation, Token source) -> AST::GrammarTest
       def build_grammar_test: (Token keyword, Token expectation, Token source) -> AST::GrammarTest
 
+      # @rbs (Token keyword, Array[AST::lexer_entry] entries) -> AST::Lexer
+      def build_lexer: (Token keyword, Array[AST::lexer_entry] entries) -> AST::Lexer
+
+      # @rbs (Symbol kind, Token? name, Token pattern, Token? action, Token marker) -> AST::LexerRule
+      def build_lexer_rule: (Symbol kind, Token? name, Token pattern, Token? action, Token marker) -> AST::LexerRule
+
+      # @rbs (Token marker, Token name, Array[AST::lexer_entry] entries) -> AST::LexerState
+      def build_lexer_state: (Token marker, Token name, Array[AST::lexer_entry] entries) -> AST::LexerState
+
       # @rbs (Token keyword, Array[AST::Conversion] pairs) -> AST::Convert
       def build_convert: (Token keyword, Array[AST::Conversion] pairs) -> AST::Convert
 

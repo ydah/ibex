@@ -3,6 +3,7 @@
 module Ibex
   module Frontend
     # Tokenizes a racc-compatible grammar while preserving source locations.
+    # rubocop:disable Metrics/ClassLength -- token scanners stay together to preserve cursor invariants.
     class Lexer
       PUNCTUATION = %w[: | ; = < > ? * + , ( )].to_h do |character|
         [character, character.to_sym]
@@ -87,6 +88,7 @@ module Ibex
         return scan_identifier if character.match?(/[A-Za-z_]/)
         return scan_integer if character.match?(/\d/)
         return scan_literal if ["'", '"'].include?(character)
+        return scan_regexp if character == "/"
         return scan_punctuation if PUNCTUATION.key?(character)
 
         raise Ibex::Error, "#{@cursor.location}: unexpected character #{character.inspect}"
@@ -226,6 +228,37 @@ module Ibex
       end
 
       # @rbs () -> Token
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      def scan_regexp
+        location = @cursor.location
+        start = @cursor.index
+        @cursor.advance
+        in_class = false
+        until @cursor.eof?
+          character = @cursor.peek
+          if character == "\\"
+            @cursor.advance(2)
+          elsif character == "["
+            in_class = true
+            @cursor.advance
+          elsif character == "]" && in_class
+            in_class = false
+            @cursor.advance
+          elsif character == "/" && !in_class
+            @cursor.advance
+            @cursor.advance while @cursor.peek&.match?(/[imx]/)
+            return token(:regexp, @cursor.source[start...@cursor.index] || "", location)
+          elsif newline?
+            raise Ibex::Error, "#{location}: unterminated regular expression"
+          else
+            @cursor.advance
+          end
+        end
+        raise Ibex::Error, "#{location}: unterminated regular expression"
+      end
+      # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+
+      # @rbs () -> Token
       def scan_punctuation
         location = @cursor.location
         character = @cursor.peek
@@ -270,5 +303,6 @@ module Ibex
                                  token_type: token_type, token_index: token_index)
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end
