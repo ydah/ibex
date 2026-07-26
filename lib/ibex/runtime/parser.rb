@@ -137,11 +137,16 @@ module Ibex
       GENERATED_ACTION_NAME = /\A_ibex_action_\d+\z/ #: Regexp
       NO_LOOKAHEAD = Object.new.freeze #: Object
       RECOVERY_SHIFTS = 3 #: Integer
+      ERROR_ACTION = [:error].freeze #: [:error]
+      SYNC_RECOVER_ACTION = [:sync_recover].freeze #: [:sync_recover]
+      CONTINUE_OUTCOME = [:continue].freeze #: [:continue]
+      REPAIR_PENDING_OUTCOME = [:repair_pending].freeze #: [:repair_pending]
       empty_row = {} # @type var empty_row: Hash[Integer, untyped]
       empty_location_names = {} # @type var empty_location_names: Hash[Symbol, Integer]
 
       EMPTY_ROW = empty_row.freeze #: Hash[Integer, untyped]
       EMPTY_LOCATION_NAMES = empty_location_names.freeze #: Hash[Symbol, Integer]
+      private_constant :ERROR_ACTION, :SYNC_RECOVER_ACTION, :CONTINUE_OUTCOME, :REPAIR_PENDING_OUTCOME
 
       # @rbs @yydebug: bool
       # @rbs @yydebug_output: IO
@@ -456,7 +461,7 @@ module Ibex
 
         state = @state_stack.last
         parser_tables.fetch(:token_names).keys.filter_map do |token_id|
-          action = table_lookup(parser_tables.fetch(:actions), state, token_id) || default_action(state) || [:error]
+          action = table_lookup(parser_tables.fetch(:actions), state, token_id) || default_action(state) || ERROR_ACTION
           token_to_str(token_id) unless error_action?(action) || token_id == ERROR_TOKEN
         end
       end
@@ -590,7 +595,7 @@ module Ibex
           remaining -= 1
           seen[stack.dup.freeze] = true
           state = stack.last
-          action = table_lookup(parser_tables.fetch(:actions), state, token_id) || default_action(state) || [:error]
+          action = table_lookup(parser_tables.fetch(:actions), state, token_id) || default_action(state) || ERROR_ACTION
           case action.first
           when :shift, :accept then return true
           when :error then return false
@@ -655,7 +660,9 @@ module Ibex
           loop do
             action = action_for_current_state
             outcome = perform(action)
-            return outcome[1] if %i[accepted done].include?(outcome[0])
+            case outcome[0]
+            when :accepted, :done then return outcome[1]
+            end
           end
         ensure
           @source = nil
@@ -680,10 +687,12 @@ module Ibex
           outcome = perform(action_for_current_state)
           return :need_more if outcome.first == :repair_pending
 
-          if %i[accepted done].include?(outcome.first)
+          case outcome.first
+          when :accepted
             finish_push_session
-            return [:accepted, outcome.fetch(1)] if outcome.first == :accepted
-
+            return [:accepted, outcome.fetch(1)]
+          when :done
+            finish_push_session
             return [:rejected, outcome.fetch(1)]
           end
           next unless @lookahead.equal?(NO_LOOKAHEAD)
@@ -833,15 +842,15 @@ module Ibex
           return eager if eager
         end
         read_lookahead if @lookahead.equal?(NO_LOOKAHEAD)
-        return [:sync_recover] if sync_recovery_active?
+        return SYNC_RECOVER_ACTION if sync_recovery_active?
 
         state = @state_stack.last
-        return [:error] unless parser_tables.fetch(:token_names).key?(@lookahead)
+        return ERROR_ACTION unless parser_tables.fetch(:token_names).key?(@lookahead)
 
         explicit = table_lookup(parser_tables.fetch(:actions), state, @lookahead)
         return explicit if explicit
 
-        default_action(state) || [:error]
+        default_action(state) || ERROR_ACTION
       end
 
       # @rbs (untyped action) -> untyped
@@ -887,7 +896,7 @@ module Ibex
         on_shift(token_id, value, next_state)
         on_shift_location(token_id, value, next_state, location)
         emit_runtime_event(:shift, event_data, observers: event_observers) if event_data
-        [:continue]
+        CONTINUE_OUTCOME
       end
 
       # @rbs (Integer production_id) -> untyped
@@ -919,7 +928,7 @@ module Ibex
         return accept_reduction(result) if @accept_requested
         return recover(report: false) if @semantic_error
 
-        [:continue]
+        CONTINUE_OUTCOME
       end
 
       # @rbs (Integer next_state, untyped result, untyped location) -> void
@@ -1157,7 +1166,7 @@ module Ibex
         @lookahead_location = nil
         @runtime_lookahead_token_display = nil
         emit_runtime_event(:discard, event_data, observers: event_observers) if event_data
-        [:continue]
+        CONTINUE_OUTCOME
       end
 
       # @rbs () -> [:done, CST::Node?]
@@ -1185,7 +1194,7 @@ module Ibex
       def begin_recovery(report)
         consume_recovery_attempt!
         repair = report ? selected_repair : nil
-        return [:repair_pending] if repair.equal?(RepairSearch::NEED_INPUT)
+        return REPAIR_PENDING_OUTCOME if repair.equal?(RepairSearch::NEED_INPUT)
 
         context = recovery_context(report)
         capture_cst_error(context[:token_id], context[:value], context[:location], context[:reason].to_sym)
@@ -1237,7 +1246,7 @@ module Ibex
       def commit_repair(repair)
         on_repair(repair)
         apply_repair(repair)
-        [:continue]
+        CONTINUE_OUTCOME
       end
 
       # @rbs (Hash[Symbol, untyped] context, Hash[String, untyped]? token_data,
@@ -1320,7 +1329,7 @@ module Ibex
             observers: observers
           )
         end
-        [:continue]
+        CONTINUE_OUTCOME
       end
 
       # @rbs (token_id: untyped, token_display: untyped, value: untyped,

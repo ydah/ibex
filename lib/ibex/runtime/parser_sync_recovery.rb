@@ -5,6 +5,10 @@ module Ibex
     # Panic-mode synchronization used only when yacc's explicit `error` token
     # cannot be shifted. Included by Parser to share its table and event paths.
     module ParserSyncRecovery
+      ERROR_ACTION = [:error].freeze #: [:error]
+
+      private_constant :ERROR_ACTION
+
       # @rbs!
       #   private def parser_tables: () -> Hash[Symbol, untyped]
       #   private def table_lookup: (untyped, Integer, Integer) -> untyped
@@ -68,9 +72,9 @@ module Ibex
 
       # @rbs (Integer state, Integer token_id) -> untyped
       def sync_action(state, token_id)
-        return [:error] unless parser_tables.fetch(:token_names).key?(token_id)
+        return ERROR_ACTION unless parser_tables.fetch(:token_names).key?(token_id)
 
-        table_lookup(parser_tables.fetch(:actions), state, token_id) || default_action(state) || [:error]
+        table_lookup(parser_tables.fetch(:actions), state, token_id) || default_action(state) || ERROR_ACTION
       end
 
       # @rbs () -> [:continue]

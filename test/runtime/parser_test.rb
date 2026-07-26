@@ -231,6 +231,17 @@ class RuntimeParserTest < Minitest::Test
     assert_same Ibex::Runtime::ParseError, Ibex::Runtime::Parser::ParseError
   end
 
+  def test_internal_non_payload_control_values_are_immutable
+    names = %i[ERROR_ACTION SYNC_RECOVER_ACTION CONTINUE_OUTCOME REPAIR_PENDING_OUTCOME]
+
+    names.each do |name|
+      value = Ibex::Runtime::Parser.const_get(name, false)
+
+      assert_predicate value, :frozen?
+      assert_equal 1, value.length
+    end
+  end
+
   def test_application_initializer_without_super_gets_runtime_defaults_lazily
     parser = LegacyInitializerCalculator.new([[:INT, 7], nil])
     events = []
@@ -285,6 +296,19 @@ class RuntimeParserTest < Minitest::Test
     parser = RecoveringStatements.new([[:INT, 1], [:BAD, nil], [";", nil], [:INT, 2], [";", nil]])
     assert_equal [:error, 2], parser.do_parse
     assert_equal [":BAD"], parser.errors
+  end
+
+  def test_recovered_pull_results_do_not_alias_internal_control_values
+    first = RecoveringStatements.new([[:BAD, nil], [";", nil]]).do_parse
+    second = RecoveringStatements.new([[:BAD, nil], [";", nil]]).do_parse
+
+    assert_equal [:error], first
+    assert_equal [:error], second
+    refute_same first, second
+    refute_predicate first, :frozen?
+
+    first << :mutated
+    assert_equal [:error], second
   end
 
   def test_undeclared_unknown_token_is_reported_before_recovery

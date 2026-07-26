@@ -42,6 +42,27 @@ class RuntimePushParserTest < Minitest::Test
     assert_equal [:rejected, nil], parser.push("+", nil)
   end
 
+  def test_push_completion_arrays_remain_caller_owned
+    accepted = 2.times.map do
+      parser = RuntimeParserTest::AcceptingCalculator.new([])
+      parser.push(:INT, 7)
+      parser.push("+", nil)
+    end
+    rejected = 2.times.map do
+      parser = RuntimeParserTest::Calculator.new([])
+      parser.define_singleton_method(:on_error) { |_token_id, _value, _stack| nil }
+      parser.push("+", nil)
+    end
+
+    [accepted, rejected].each do |outcomes|
+      refute_same outcomes.fetch(0), outcomes.fetch(1)
+      refute_predicate outcomes.fetch(0), :frozen?
+      original = outcomes.fetch(1).dup
+      outcomes.fetch(0) << :caller_mutation
+      assert_equal original, outcomes.fetch(1)
+    end
+  end
+
   def test_parser_drivers_reject_reentrant_push_without_corrupting_state
     pull = RuntimeParserTest::Calculator.new([[:INT, 1]])
     pull.define_singleton_method(:on_shift) { |*| push(:INT, 2) }

@@ -88,6 +88,14 @@ module Ibex
 
       RECOVERY_SHIFTS: Integer
 
+      ERROR_ACTION: [ :error ]
+
+      SYNC_RECOVER_ACTION: [ :sync_recover ]
+
+      CONTINUE_OUTCOME: [ :continue ]
+
+      REPAIR_PENDING_OUTCOME: [ :repair_pending ]
+
       EMPTY_ROW: Hash[Integer, untyped]
 
       EMPTY_LOCATION_NAMES: Hash[Symbol, Integer]
