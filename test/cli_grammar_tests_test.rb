@@ -60,6 +60,40 @@ class CLIGrammarTestsTest < Minitest::Test
     assert_includes output.string, "Usage: ibex test"
   end
 
+  def test_checks_declared_tests_for_complete_production_coverage
+    with_grammar(<<~GRAMMAR) do |path|
+      class CLICoverageTestParser
+      pragma extended
+      %test accept "a"
+      rule
+      start: 'a' | 'b'
+      end
+      ---- inner
+      def parse(source)
+        @tokens = source.each_char.map { |character| [character, nil] }
+        do_parse
+      end
+      def next_token = @tokens.shift || false
+    GRAMMAR
+      output = StringIO.new
+
+      assert_equal 1, Ibex::CLI.start(
+        ["test", "--coverage=100", path], stdout: output, stderr: StringIO.new
+      )
+      assert_includes output.string, "production coverage: 1/2 (50.0%), required 100%"
+      assert_includes output.string, "missing production ids: 1"
+    end
+  end
+
+  def test_rejects_invalid_production_coverage_threshold
+    error = StringIO.new
+
+    assert_equal 1, Ibex::CLI.start(
+      %w[test --coverage=0 missing.y], stdout: StringIO.new, stderr: error
+    )
+    assert_includes error.string, "coverage must be between 1 and 100"
+  end
+
   private
 
   def with_grammar(source)

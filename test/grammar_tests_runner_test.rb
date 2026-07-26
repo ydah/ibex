@@ -31,6 +31,25 @@ class GrammarTestsRunnerTest < Minitest::Test
     refute results.fetch(2).passed?
     assert_equal "ArgumentError", results.fetch(2).error_class
     assert_equal "lexical failure", results.fetch(2).error_message
+    assert_equal [0], results.fetch(0).production_ids
+    assert_empty results.fetch(2).production_ids
+
+    coverage = Ibex::GrammarTests::Runner.new(automaton(GRAMMAR)).production_coverage(results)
+    assert coverage.complete?
+    assert coverage.meets?(100)
+    assert_in_delta 100.0, coverage.percentage
+  end
+
+  def test_reports_missing_productions
+    source = GRAMMAR.sub("start: 'a' 'b'", "start: 'a' 'b' | 'c'")
+    runner = Ibex::GrammarTests::Runner.new(automaton(source))
+
+    coverage = runner.production_coverage(runner.run)
+
+    refute coverage.complete?
+    refute coverage.meets?(100)
+    assert_equal [1], coverage.missing_ids
+    assert_in_delta 50.0, coverage.percentage
   end
 
   def test_rejects_empty_suites_and_required_constructor_parameters

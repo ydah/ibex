@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'"
+    >
+    <title>Grammar gallery — Ibex</title>
+    <meta name="description" content="Maintained Ibex grammar examples with declared tests and complete production coverage.">
+    <link rel="stylesheet" href="../styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="../" aria-label="Ibex home">IBEX<span aria-hidden="true">_</span></a>
+      <nav aria-label="Primary">
+        <a href="../compatibility/">Docs</a>
+        <a aria-current="page" href="./">Gallery</a>
+        <a href="../playground/">Playground</a>
+        <a href="../api/">API</a>
+      </nav>
+    </header>
+
+    <main class="docs-main">
+      <header class="docs-heading">
+        <span class="coverage-proof">100% production coverage in CI</span>
+        <p class="eyebrow">EXECUTABLE GRAMMAR GALLERY</p>
+        <h1>Examples that prove every rule.</h1>
+        <p>
+          Every maintained grammar keeps accept and reject cases in its source with
+          <code>%test</code>. CI runs those cases in isolated processes and requires every
+          production to reduce at least once.
+        </p>
+      </header>
+
+      <div class="gallery-grid">
+        <article class="doc-card">
+          <h2>Calculator</h2>
+          <p>Integer arithmetic, precedence by grammar structure, parentheses, and a handwritten lexer.</p>
+          <a href="https://github.com/ydah/ibex/blob/main/examples/calculator.y">Open calculator.y →</a>
+        </article>
+        <article class="doc-card">
+          <h2>JSON</h2>
+          <p>Generated lexer rules, conversion actions, recursive objects and arrays, and every JSON value.</p>
+          <a href="https://github.com/ydah/ibex/blob/main/examples/json.y">Open json.y →</a>
+        </article>
+        <article class="doc-card">
+          <h2>CSV</h2>
+          <p>Quoted fields, escaped quotes, row recursion, and generated newline-aware tokenization.</p>
+          <a href="https://github.com/ydah/ibex/blob/main/examples/csv.y">Open csv.y →</a>
+        </article>
+        <article class="doc-card">
+          <h2>INI</h2>
+          <p>Line-oriented scanning, sections, entries, blank lines, and a nested Ruby Hash result.</p>
+          <a href="https://github.com/ydah/ibex/blob/main/examples/ini.y">Open ini.y →</a>
+        </article>
+        <article class="doc-card">
+          <h2>Tiny language</h2>
+          <p>A Lox-scale starting point with variables, assignment, print statements, expressions, and AST execution.</p>
+          <a href="https://github.com/ydah/ibex/blob/main/examples/tiny_language.y">Open tiny_language.y →</a>
+        </article>
+        <article class="doc-card">
+          <h2>Use the same gate</h2>
+          <p>
+            Add source examples to a grammar and run
+            <code>ibex test --mode=extended --coverage=100 grammar.y</code>.
+          </p>
+          <a href="https://github.com/ydah/ibex/blob/main/examples/README.md">Gallery instructions →</a>
+        </article>
+      </div>
+    </main>
+
+    <footer>
+      <p>Examples are executable specifications, not static snippets.</p>
+      <a href="../playground/">Open the browser playground</a>
+    </footer>
+  </body>
+</html>

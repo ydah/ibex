@@ -3,7 +3,7 @@
 module Ibex
   # `%test` command parsing and human-readable result reporting.
   module CLIGrammarTests
-    type grammar_test_settings = { mode: Symbol, algorithm: Symbol, entry_isolation: bool, timeout: Integer, ?help: bool }
+    type grammar_test_settings = { mode: Symbol, algorithm: Symbol, entry_isolation: bool, timeout: Integer, coverage: Integer?, ?help: bool }
 
     private def print_help: (OptionParser) -> Integer
 
@@ -26,6 +26,9 @@ module Ibex
 
     # @rbs (Array[GrammarTests::Result] results) -> Integer
     def render_grammar_test_results: (Array[GrammarTests::Result] results) -> Integer
+
+    # @rbs (GrammarTests::ProductionCoverage coverage, Integer minimum, Integer failures) -> Integer
+    def render_grammar_test_coverage: (GrammarTests::ProductionCoverage coverage, Integer minimum, Integer failures) -> Integer
 
     # @rbs (GrammarTests::Result result) -> String
     def grammar_test_failure: (GrammarTests::Result result) -> String

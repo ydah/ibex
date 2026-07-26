@@ -2,6 +2,9 @@ class Examples::CalculatorParser
 pragma extended
 token NUMBER
 %test accept "1+2*3"
+%test accept "8-3"
+%test accept "8/2"
+%test accept "(1)"
 %test reject "1+"
 rule
   expression : expression '+' term { result = val[0] + val[2] }

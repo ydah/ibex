@@ -18,12 +18,37 @@ module Ibex
       :error_class, #: String?
       :error_message, #: String?
       :location, #: IR::location
+      :production_ids, #: Array[Integer]
       keyword_init: true
     )
 
     class Result
       # @rbs () -> bool
       def passed? = expectation == actual
+    end
+
+    ProductionCoverage = Struct.new(
+      :covered_ids, #: Array[Integer]
+      :missing_ids, #: Array[Integer]
+      :production_count, #: Integer
+      keyword_init: true
+    )
+
+    class ProductionCoverage
+      # @rbs () -> Float
+      def percentage
+        return 100.0 if production_count.zero?
+
+        covered_ids.length.fdiv(production_count) * 100
+      end
+
+      # @rbs (Integer minimum) -> bool
+      def meets?(minimum)
+        covered_ids.length * 100 >= production_count * minimum
+      end
+
+      # @rbs () -> bool
+      def complete? = missing_ids.empty?
     end
 
     # Runs all examples in one isolated process while creating a fresh parser
@@ -38,17 +63,22 @@ module Ibex
         end
         tests = JSON.parse(ARGV.fetch(2))
         results = tests.map do |test|
+          production_ids = []
           begin
             parser = parser_class.new
             raise NoMethodError, "#{parser_class} must define parse(source)" unless parser.respond_to?(:parse)
 
+            parser.observe do |event|
+              production_ids << event.data.fetch("production_id") if event.type == :reduce
+            end
             parser.parse(test.fetch("source"))
-            { "actual" => "accept", "error_class" => nil, "error_message" => nil }
+            result = { "actual" => "accept", "error_class" => nil, "error_message" => nil }
           rescue Ibex::Runtime::ParseError => error
-            { "actual" => "reject", "error_class" => error.class.name, "error_message" => error.message }
+            result = { "actual" => "reject", "error_class" => error.class.name, "error_message" => error.message }
           rescue SystemExit, SignalException, StandardError => error
-            { "actual" => "error", "error_class" => error.class.name, "error_message" => error.message }
+            result = { "actual" => "error", "error_class" => error.class.name, "error_message" => error.message }
           end
+          result.merge("production_ids" => production_ids)
         end
         puts "IBEX_GRAMMAR_TEST_RESULT=#{JSON.generate(results)}"
       RUBY
@@ -79,6 +109,16 @@ module Ibex
           File.binwrite(runner_path, CHILD_RUNNER)
           execute_child(parser_path, runner_path)
         end
+      end
+
+      # @rbs (Array[Result] results) -> ProductionCoverage
+      def production_coverage(results)
+        production_count = @automaton.grammar.productions.length
+        covered_ids = results.flat_map(&:production_ids).uniq.sort.freeze
+        missing_ids = ((0...production_count).to_a - covered_ids).freeze
+        ProductionCoverage.new(
+          covered_ids: covered_ids, missing_ids: missing_ids, production_count: production_count
+        ).freeze
       end
 
       private
@@ -148,10 +188,17 @@ module Ibex
           raise Ibex::Error, "(test):1:1: grammar test process returned an invalid case result"
         end
 
+        production_ids = document["production_ids"]
+        production_count = @automaton.grammar.productions.length
+        unless production_ids.is_a?(Array) &&
+               production_ids.all? { |id| id.is_a?(Integer) && id.between?(0, production_count - 1) }
+          raise Ibex::Error, "(test):1:1: grammar test process returned invalid production coverage"
+        end
+
         Result.new(
           expectation: test[:expectation], actual: document.fetch("actual").to_sym,
           error_class: document["error_class"], error_message: document["error_message"],
-          location: test[:loc]
+          location: test[:loc], production_ids: production_ids.freeze
         ).freeze
       end
     end

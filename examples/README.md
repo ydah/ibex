@@ -13,7 +13,8 @@ The generated `.rb` file is disposable. The `.y` file is the maintained
 source.
 
 Each grammar also keeps accept/reject source examples beside its rules. Run all
-of them without generating repository files:
+of them without generating repository files. The task also requires 100%
+production coverage from the declared cases:
 
 ```sh
 bundle exec rake grammar:test
@@ -22,6 +23,7 @@ bundle exec rake grammar:test
 ## Included grammars
 
 - `calculator.y` evaluates integer arithmetic with parentheses.
+- `csv.y` parses rows and quoted fields with a generated lexer.
 - `json.y` parses JSON values into Ruby Hashes, Arrays, Strings, numbers,
   booleans, and `nil`. It demonstrates the generated lexer, including conversion
   actions and punctuation emission.
