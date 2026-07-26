@@ -3,6 +3,8 @@
 
 require_relative "location_span" unless defined?(Ibex::Runtime::LocationSpan)
 require_relative "observation" unless defined?(Ibex::Runtime::Observation)
+require_relative "repair" unless defined?(Ibex::Runtime::RepairPolicy)
+require_relative "repair_search" unless defined?(Ibex::Runtime::RepairSearch)
 
 module Ibex
   module Runtime
@@ -125,9 +127,13 @@ module Ibex
       # @rbs @runtime_event_sequence: Integer
       # @rbs @runtime_lookahead_token_display: untyped
       # @rbs @runtime_observation_mutex: Mutex
+      # @rbs @repair_policy: RepairPolicy?
+      # @rbs @repair_input_buffer: Array[RepairInput]?
+      # @rbs @repair_selected: bool
 
       attr_accessor :yydebug #: bool
       attr_writer :yydebug_output #: IO
+      attr_reader :repair_policy #: RepairPolicy?
 
       # @rbs () -> void
       def initialize
@@ -151,6 +157,27 @@ module Ibex
         @runtime_event_sequence = 0
         @runtime_lookahead_token_display = nil
         @runtime_observation_mutex = Mutex.new
+        @repair_policy = nil
+        @repair_input_buffer = nil
+        @repair_selected = false
+      end
+
+      # Enable bounded automatic repair for the next parser session.
+      # Assign nil to restore the compatible yacc-only behavior.
+      # @rbs (RepairPolicy? policy) -> RepairPolicy?
+      def repair_policy=(policy)
+        unless policy.nil? || policy.is_a?(RepairPolicy)
+          raise ArgumentError, "repair_policy must be an Ibex::Runtime::RepairPolicy or nil"
+        end
+
+        @runtime_observation_mutex.synchronize do
+          ensure_driver_available_without_lock!
+          if @push_status == :active
+            raise ParseError, "(repair):1:1: repair_policy cannot change during an active push session"
+          end
+
+          @repair_policy = policy
+        end
       end
 
       # Pull tokens from `next_token` and parse them.
@@ -179,12 +206,16 @@ module Ibex
 
         run_push_driver do
           start_push_session
-          @lookahead = internal_token_id(token)
-          @lookahead_value = value
-          @lookahead_location = location
-          token_display = token_to_str(@lookahead)
-          @runtime_lookahead_token_display = token_display
-          trace("read #{token_display}")
+          if @repair_policy
+            enqueue_or_assign_repair_input(repair_input(token, value, location))
+          else
+            @lookahead = internal_token_id(token)
+            @lookahead_value = value
+            @lookahead_location = location
+            token_display = token_to_str(@lookahead)
+            @runtime_lookahead_token_display = token_display
+            trace("read #{token_display}")
+          end
           run_push_lookahead
         end
       end
@@ -194,12 +225,18 @@ module Ibex
       def finish(location: nil)
         run_push_driver do
           start_push_session
-          @lookahead = EOF_TOKEN
-          @lookahead_value = nil
-          @lookahead_location = location
-          token_display = token_to_str(@lookahead)
-          @runtime_lookahead_token_display = token_display
-          trace("read #{token_display}")
+          if @repair_policy
+            enqueue_or_assign_repair_input(
+              RepairInput.new(token_id: EOF_TOKEN, token_name: token_to_str(EOF_TOKEN), value: nil, location: location)
+            )
+          else
+            @lookahead = EOF_TOKEN
+            @lookahead_value = nil
+            @lookahead_location = location
+            token_display = token_to_str(@lookahead)
+            @runtime_lookahead_token_display = token_display
+            trace("read #{token_display}")
+          end
           outcome = run_push_lookahead
           return outcome.fetch(1) if outcome.is_a?(Array)
 
@@ -221,6 +258,8 @@ module Ibex
           @lookahead_value = nil
           @lookahead_location = nil
           @runtime_lookahead_token_display = nil
+          @repair_input_buffer = nil
+          @repair_selected = false
         end
         nil
       end
@@ -232,9 +271,12 @@ module Ibex
         raise NotImplementedError, "(input):1:1: next_token must be implemented"
       end
 
-      # Override to recover from syntax errors. The default always raises.
+      # Override to recover from syntax errors. The default raises unless a
+      # bounded automatic repair has already been selected.
       # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> untyped
       def on_error(token_id, value, _value_stack)
+        return if @repair_selected
+
         expected = expected_tokens
         token_name = token_to_str(token_id)
         state = @state_stack.last
@@ -264,6 +306,11 @@ module Ibex
       # The payload describes the original error before recovery popped stacks.
       # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> void
       def on_error_recover(_token_id, _value, _value_stack); end
+
+      # Called once after a repair is selected and before its edited token
+      # prefix is replayed through normal parser actions.
+      # @rbs (RepairPlan plan) -> void
+      def on_repair(_plan); end
 
       # Return a human-readable name for an internal token id.
       # @rbs (Integer token_id) -> String
@@ -348,13 +395,20 @@ module Ibex
       def run_push_lookahead
         loop do
           outcome = perform(action_for_current_state)
+          return :need_more if outcome.first == :repair_pending
+
           if %i[accepted done].include?(outcome.first)
             finish_push_session
             return [:accepted, outcome.fetch(1)] if outcome.first == :accepted
 
             return [:rejected, outcome.fetch(1)]
           end
-          return :need_more if @lookahead.equal?(NO_LOOKAHEAD)
+          next unless @lookahead.equal?(NO_LOOKAHEAD)
+
+          repair_buffer = @repair_input_buffer
+          next if repair_buffer && !repair_buffer.empty?
+
+          return :need_more
         end
       end
 
@@ -396,6 +450,8 @@ module Ibex
         @source = nil
         @lookahead = NO_LOOKAHEAD
         @lookahead_location = nil
+        @repair_input_buffer = nil
+        @repair_selected = false
       end
 
       # @rbs (^() -> untyped source) -> void
@@ -413,6 +469,8 @@ module Ibex
         @semantic_error = false
         @accept_requested = false
         @unknown_token_id = nil
+        @repair_input_buffer = @repair_policy ? [] : nil
+        @repair_selected = false
         trace("start state 0")
         @runtime_event_sequence = 0
         return unless @runtime_observers
@@ -654,34 +712,75 @@ module Ibex
 
       # @rbs (bool report) -> untyped
       def begin_recovery(report)
-        token_id = @lookahead
-        value = @lookahead_value
-        token_display = @runtime_lookahead_token_display
-        error_location = @lookahead_location
-        value_stack = @value_stack.dup
-        original_state = @state_stack.last
-        reason = report ? "syntax" : "semantic"
+        repair = report ? selected_repair : nil
+        return [:repair_pending] if repair.equal?(RepairSearch::NEED_INPUT)
+
+        context = recovery_context(report)
+        token_data, recovery_observers = publish_error_context(context)
+        notify_error_handler(context, repair) if report
+        return commit_repair(repair) if repair.is_a?(RepairPlan)
+
+        fallback_recovery(context, token_data, recovery_observers)
+      end
+
+      # @rbs (bool report) -> Hash[Symbol, untyped]
+      def recovery_context(report)
+        {
+          token_id: @lookahead,
+          value: @lookahead_value,
+          token_display: @runtime_lookahead_token_display,
+          location: @lookahead_location,
+          value_stack: @value_stack.dup,
+          state: @state_stack.last,
+          reason: report ? "syntax" : "semantic"
+        }
+      end
+
+      # @rbs (Hash[Symbol, untyped] context) -> [Hash[String, untyped]?, Array[Proc]?]
+      def publish_error_context(context)
         error_observers = runtime_observer_snapshot if @runtime_observers
         if error_observers
           token_data = runtime_original_token_data(
-            token_id, token_display, value, error_location, original_state
+            context[:token_id], context[:token_display], context[:value], context[:location], context[:state]
           )
           emit_runtime_event(
-            :error, token_data.merge("reason" => reason), observers: error_observers
+            :error, token_data.merge("reason" => context[:reason]), observers: error_observers
           )
         end
-        recovery_observers = runtime_observer_snapshot if @runtime_observers
-        on_error(token_id, value, value_stack.dup) if report
+        [token_data, (runtime_observer_snapshot if @runtime_observers)]
+      end
+
+      # @rbs (Hash[Symbol, untyped] context, untyped repair) -> void
+      def notify_error_handler(context, repair)
+        @repair_selected = repair.is_a?(RepairPlan)
+        begin
+          on_error(context[:token_id], context[:value], context.fetch(:value_stack).dup)
+        ensure
+          @repair_selected = false
+        end
+      end
+
+      # @rbs (RepairPlan repair) -> [:continue]
+      def commit_repair(repair)
+        on_repair(repair)
+        apply_repair(repair)
+        [:continue]
+      end
+
+      # @rbs (Hash[Symbol, untyped] context, Hash[String, untyped]? token_data,
+      #   Array[Proc]? recovery_observers) -> untyped
+      def fallback_recovery(context, token_data, recovery_observers)
         unless shift_error_token
           return reject_without_recovery(
-            token_id, token_display, value, error_location, original_state, token_data, recovery_observers
+            context[:token_id], context[:token_display], context[:value], context[:location], context[:state],
+            token_data, recovery_observers
           )
         end
 
         @recovery_shifts = RECOVERY_SHIFTS
         finish_recovery(
-          token_id, token_display, value, error_location, original_state, value_stack, token_data, reason,
-          recovery_observers
+          context[:token_id], context[:token_display], context[:value], context[:location], context[:state],
+          context[:value_stack], token_data, context[:reason], recovery_observers
         )
       end
 
@@ -809,8 +908,116 @@ module Ibex
         end
       end
 
+      # @rbs () -> (RepairPlan | Object | nil)
+      def selected_repair
+        policy = @repair_policy
+        return unless policy
+
+        tokens, complete = repair_search_tokens(policy)
+        RepairSearch.new(parser_tables, policy, tokens, complete: complete).search(@state_stack)
+      end
+
+      # @rbs (RepairPolicy policy) -> [Array[RepairInput], bool]
+      def repair_search_tokens(policy)
+        current = RepairInput.new(
+          token_id: @lookahead,
+          token_name: @runtime_lookahead_token_display || token_to_str(@lookahead),
+          value: @lookahead_value,
+          location: @lookahead_location
+        )
+        buffer = @repair_input_buffer || raise(ParseError, "(repair):1:1: repair input buffer is unavailable")
+        while @driver_status == :pull && buffer.length + 1 < policy.max_lookahead &&
+              !buffer.last&.eof?
+          buffer << repair_input_from_external(read_external_token)
+        end
+        tokens = ([current] + buffer).take(policy.max_lookahead)
+        complete = tokens.any?(&:eof?) || tokens.length >= policy.max_lookahead
+        [tokens.freeze, complete]
+      end
+
+      # @rbs (RepairPlan plan) -> void
+      def apply_repair(plan)
+        source = [current_repair_input] + (@repair_input_buffer || [])
+        @repair_input_buffer = replay_repair_edits(source, plan.edits)
+        clear_repair_lookahead
+        @recovery_shifts = 0
+        trace("repair cost #{plan.cost}: #{repair_trace(plan)}")
+      end
+
+      # @rbs () -> RepairInput
+      def current_repair_input
+        RepairInput.new(
+          token_id: @lookahead,
+          token_name: @runtime_lookahead_token_display || token_to_str(@lookahead),
+          value: @lookahead_value,
+          location: @lookahead_location
+        )
+      end
+
+      # @rbs (Array[RepairInput] source, Array[RepairEdit] edits) -> Array[RepairInput]
+      def replay_repair_edits(source, edits)
+        by_position = edits.group_by(&:position)
+        repaired = [] #: Array[RepairInput]
+        source.each_with_index do |input, position|
+          consumed = append_repair_edits(repaired, input, by_position.fetch(position, []))
+          repaired << input unless consumed
+        end
+        by_position.fetch(source.length, []).each do |edit|
+          repaired << synthetic_repair_input(edit, value: nil, location: @lookahead_location)
+        end
+        repaired
+      end
+
+      # @rbs (Array[RepairInput] output, RepairInput input, Array[RepairEdit] edits) -> bool
+      def append_repair_edits(output, input, edits)
+        edits.each do |edit|
+          if edit.kind == :insert
+            output << synthetic_repair_input(edit, value: nil, location: input.location)
+          elsif edit.kind == :replace
+            output << synthetic_repair_input(edit, value: input.value, location: input.location)
+          end
+        end
+        edits.any? { |edit| %i[delete replace].include?(edit.kind) }
+      end
+
+      # @rbs () -> void
+      def clear_repair_lookahead
+        @lookahead = NO_LOOKAHEAD
+        @lookahead_value = nil
+        @lookahead_location = nil
+        @runtime_lookahead_token_display = nil
+      end
+
+      # @rbs (RepairEdit edit, value: untyped, location: untyped) -> RepairInput
+      def synthetic_repair_input(edit, value:, location:)
+        RepairInput.new(token_id: edit.token_id, token_name: edit.token_name, value: value, location: location)
+      end
+
+      # @rbs (RepairPlan plan) -> String
+      def repair_trace(plan)
+        plan.edits.map { |edit| "#{edit.kind}(#{edit.token_name}@#{edit.position})" }.join(", ")
+      end
+
       # @rbs () -> void
       def read_lookahead
+        return read_repair_lookahead if @repair_policy
+
+        read_compatible_lookahead
+      end
+
+      # @rbs () -> void
+      def read_repair_lookahead
+        buffer = @repair_input_buffer
+        input = if buffer&.any?
+                  buffer.shift
+                else
+                  repair_input_from_external(read_external_token)
+                end
+        assign_repair_input(input)
+      end
+
+      # @rbs () -> void
+      def read_compatible_lookahead
         token = read_external_token
         if token.nil? || token == false
           @lookahead = EOF_TOKEN
@@ -827,6 +1034,64 @@ module Ibex
         token_display = token_to_str(@lookahead)
         @runtime_lookahead_token_display = token_display
         trace("read #{token_display}")
+      end
+
+      # @rbs (untyped external_token, untyped value, untyped location) -> RepairInput
+      def repair_input(external_token, value, location)
+        token_id = parser_tables.fetch(:tokens)[external_token]
+        if token_id
+          return RepairInput.new(
+            token_id: token_id, token_name: token_to_str(token_id), value: value, location: location
+          )
+        end
+
+        RepairInput.new(
+          token_id: -external_token.object_id.abs,
+          token_name: external_token.inspect,
+          value: value,
+          location: location
+        )
+      end
+
+      # @rbs (untyped token) -> RepairInput
+      def repair_input_from_external(token)
+        if token.nil? || token == false
+          return RepairInput.new(token_id: EOF_TOKEN, token_name: token_to_str(EOF_TOKEN), value: nil, location: nil)
+        end
+
+        external_token, value, location = token
+        if external_token.nil? || external_token == false
+          return RepairInput.new(
+            token_id: EOF_TOKEN,
+            token_name: token_to_str(EOF_TOKEN),
+            value: nil,
+            location: location
+          )
+        end
+        repair_input(external_token, value, location)
+      end
+
+      # @rbs (RepairInput input) -> void
+      def enqueue_or_assign_repair_input(input)
+        buffer = @repair_input_buffer || raise(ParseError, "(repair):1:1: repair input buffer is unavailable")
+        if @lookahead.equal?(NO_LOOKAHEAD) && buffer.empty?
+          assign_repair_input(input)
+        else
+          buffer << input
+        end
+      end
+
+      # @rbs (RepairInput input) -> void
+      def assign_repair_input(input)
+        @lookahead = input.token_id
+        @lookahead_value = input.value
+        @lookahead_location = input.location
+        @runtime_lookahead_token_display = input.token_name
+        if input.token_id.negative?
+          @unknown_token_id = input.token_id
+          @unknown_token_name = input.token_name
+        end
+        trace("read #{input.token_name}")
       end
 
       # @rbs () -> untyped

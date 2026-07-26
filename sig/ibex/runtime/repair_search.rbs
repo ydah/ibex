@@ -1,0 +1,114 @@
+# Generated from lib/ibex/runtime/repair_search.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    # Bounded Dijkstra search over LR state stacks. Semantic actions never run.
+    # rubocop:disable Metrics/ClassLength -- queue policy and LR transitions form one bounded search invariant.
+    class RepairSearch
+      NEED_INPUT: Object
+
+      LIMIT: Object
+
+      class Configuration < Struct[untyped]
+        attr_accessor stack(): untyped
+
+        attr_accessor input_index(): untyped
+
+        attr_accessor shifts(): untyped
+
+        attr_accessor cost(): untyped
+
+        attr_accessor edits(): untyped
+
+        attr_accessor goal(): untyped
+
+        def self.new: (?stack: untyped, ?input_index: untyped, ?shifts: untyped, ?cost: untyped, ?edits: untyped, ?goal: untyped) -> instance
+                    | ({ ?stack: untyped, ?input_index: untyped, ?shifts: untyped, ?cost: untyped, ?edits: untyped, ?goal: untyped }) -> instance
+      end
+
+      @candidate_ids: Array[Integer]
+
+      @best: Hash[Array[untyped], Array[untyped]]
+
+      @heap: RepairPriorityQueue
+
+      @configurations: Integer
+
+      @complete: bool
+
+      @tokens: Array[RepairInput]
+
+      @policy: RepairPolicy
+
+      @tables: Hash[Symbol, untyped]
+
+      # @rbs (Hash[Symbol, untyped] tables, RepairPolicy policy, Array[RepairInput] tokens,
+      #   complete: bool) -> void
+      def initialize: (Hash[Symbol, untyped] tables, RepairPolicy policy, Array[RepairInput] tokens, complete: bool) -> void
+
+      # @rbs (Array[Integer] state_stack) -> (RepairPlan | Object | nil)
+      def search: (Array[Integer] state_stack) -> (RepairPlan | Object | nil)
+
+      private
+
+      # @rbs (Configuration configuration) -> (RepairPlan | Object | nil)
+      def visit: (Configuration configuration) -> (RepairPlan | Object | nil)
+
+      # @rbs (Configuration configuration) -> (RepairPlan | Object | nil)
+      def expand: (Configuration configuration) -> (RepairPlan | Object | nil)
+
+      # @rbs (Configuration configuration, RepairInput current) -> (RepairPlan | Object | nil)
+      def expand_edits: (Configuration configuration, RepairInput current) -> (RepairPlan | Object | nil)
+
+      # @rbs (Configuration configuration, :insert | :replace kind)
+      #   -> (RepairPlan | Object | nil)
+      def expand_candidates: (Configuration configuration, :insert | :replace kind) -> (RepairPlan | Object | nil)
+
+      # @rbs (Configuration configuration, :insert | :replace kind, Integer token_id, Integer cost) -> Object?
+      def expand_candidate: (Configuration configuration, :insert | :replace kind, Integer token_id, Integer cost) -> Object?
+
+      # @rbs (Configuration configuration, Symbol kind, Integer token_id, Integer cost) -> Array[RepairEdit]
+      def candidate_edits: (Configuration configuration, Symbol kind, Integer token_id, Integer cost) -> Array[RepairEdit]
+
+      # @rbs (Configuration configuration, RepairInput current) -> void
+      def push_delete: (Configuration configuration, RepairInput current) -> void
+
+      # @rbs (Array[Integer] stack, Integer token_id) -> (RepairAdvance | Object | nil)
+      def advance: (Array[Integer] stack, Integer token_id) -> (RepairAdvance | Object | nil)
+
+      # @rbs (Array[Integer] states, Integer production_id) -> Array[Integer]?
+      def apply_reduction: (Array[Integer] states, Integer production_id) -> Array[Integer]?
+
+      # @rbs (Integer state, Integer token_id) -> untyped
+      def action_for: (Integer state, Integer token_id) -> untyped
+
+      # @rbs (untyped table, Integer row, Integer column) -> untyped
+      def table_lookup: (untyped table, Integer row, Integer column) -> untyped
+
+      # @rbs (Configuration source, ?stack: Array[Integer], ?input_index: Integer, ?shifts: Integer,
+      #   ?cost: Integer, ?edits: Array[RepairEdit], ?goal: bool) -> Configuration
+      def configuration_with: (Configuration source, ?stack: Array[Integer], ?input_index: Integer, ?shifts: Integer, ?cost: Integer, ?edits: Array[RepairEdit], ?goal: bool) -> Configuration
+
+      # @rbs (Array[RepairEdit] edits) -> RepairPlan
+      def plan: (Array[RepairEdit] edits) -> RepairPlan
+
+      # @rbs (Integer token_id) -> String
+      def token_name: (Integer token_id) -> String
+
+      # @rbs (Configuration configuration) -> void
+      def push: (Configuration configuration) -> void
+
+      # @rbs () -> (Configuration | Object)
+      def pop: () -> (Configuration | Object)
+
+      # @rbs (Configuration configuration) -> Array[untyped]
+      def priority_for: (Configuration configuration) -> Array[untyped]
+
+      # Prefer punctuation edits when equal-cost repairs are otherwise
+      # ambiguous; inventing or discarding a word-like token is more likely to
+      # fabricate or lose an application semantic value.
+      # @rbs (RepairEdit edit) -> Integer
+      def semantic_value_risk: (RepairEdit edit) -> Integer
+    end
+  end
+end

@@ -1,0 +1,60 @@
+# frozen_string_literal: true
+# rbs_inline: enabled
+
+module Ibex
+  module Runtime
+    # Minimal binary heap ordered by an immutable Array priority.
+    class RepairPriorityQueue
+      # @rbs @entries: Array[[Array[untyped], untyped]]
+
+      # @rbs () -> void
+      def initialize
+        @entries = []
+      end
+
+      # @rbs () -> bool
+      def empty? = @entries.empty?
+
+      # @rbs (Array[untyped] priority, untyped value) -> void
+      def push(priority, value)
+        entry = [priority, value] #: [Array[untyped], untyped]
+        @entries << entry
+        index = @entries.length - 1
+        while index.positive?
+          parent = (index - 1) / 2
+          break if compare(@entries[parent], entry) <= 0
+
+          @entries[index] = @entries[parent]
+          index = parent
+        end
+        @entries[index] = entry
+      end
+
+      # @rbs () -> [Array[untyped], untyped]?
+      def pop
+        first = @entries.first
+        tail = @entries.pop
+        return first if @entries.empty? || !first || !tail
+
+        index = 0
+        while (child = (index * 2) + 1) < @entries.length
+          right = child + 1
+          child = right if right < @entries.length && compare(@entries[right], @entries[child]).negative?
+          break if compare(tail, @entries[child]) <= 0
+
+          @entries[index] = @entries[child]
+          index = child
+        end
+        @entries[index] = tail
+        first
+      end
+
+      private
+
+      # @rbs ([Array[untyped], untyped] left, [Array[untyped], untyped] right) -> Integer
+      def compare(left, right)
+        (left.fetch(0) <=> right.fetch(0)) || 0
+      end
+    end
+  end
+end

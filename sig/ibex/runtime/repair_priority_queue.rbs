@@ -1,0 +1,27 @@
+# Generated from lib/ibex/runtime/repair_priority_queue.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    # Minimal binary heap ordered by an immutable Array priority.
+    class RepairPriorityQueue
+      @entries: Array[[ Array[untyped], untyped ]]
+
+      # @rbs () -> void
+      def initialize: () -> void
+
+      # @rbs () -> bool
+      def empty?: () -> bool
+
+      # @rbs (Array[untyped] priority, untyped value) -> void
+      def push: (Array[untyped] priority, untyped value) -> void
+
+      # @rbs () -> [Array[untyped], untyped]?
+      def pop: () -> [ Array[untyped], untyped ]?
+
+      private
+
+      # @rbs ([Array[untyped], untyped] left, [Array[untyped], untyped] right) -> Integer
+      def compare: ([ Array[untyped], untyped ] left, [ Array[untyped], untyped ] right) -> Integer
+    end
+  end
+end
