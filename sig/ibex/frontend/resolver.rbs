@@ -12,6 +12,8 @@ module Ibex
 
       WINDOWS_ABSOLUTE: Regexp
 
+      @attempted_paths: Array[String]
+
       @include_chains: Hash[AST::Rule, Array[IR::source_provenance]]
 
       @loaded: Hash[String, bool]
@@ -30,6 +32,8 @@ module Ibex
 
       @input_path: String
 
+      attr_reader attempted_paths: Array[String]
+
       # @rbs (String path, ?mode: Symbol, ?loader: SourceLoader) -> void
       def initialize: (String path, ?mode: Symbol, ?loader: SourceLoader) -> void
 
@@ -38,6 +42,10 @@ module Ibex
 
       # @rbs () -> Array[String]
       def dependencies: () -> Array[String]
+
+      # Source bytes actually consumed by the parser, in resolution order.
+      # @rbs () -> Array[GenerationInput]
+      def source_records: () -> Array[GenerationInput]
 
       private
 

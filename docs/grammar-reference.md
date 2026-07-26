@@ -268,6 +268,25 @@ derive any terminal sentence. They remain silent by default for compatibility. `
 An unexpected LALR conflict also gets an advisory `--algorithm=lr1` note when canonical LR(1) removes at least one unresolved
 conflict; this note does not change generation or exit status.
 
+## Transactional generation and watch mode
+
+Ruby generation renders all requested files before replacing any target. Existing targets keep their modes, `--executable`
+selects an executable parser mode, and generated paths that alias an input, have multiple hard links, or collide by portable
+case/Unicode spelling are rejected. Companion outputs publish before the parser.
+
+`--manifest[=FILE]` opts into a version-1 JSON manifest; without `=FILE`, `parser.rb` uses `parser.ibex.json`. The manifest is
+published last and records the exact canonical root, fragments, IR input, and message bytes consumed, relevant generation
+options, and every other artifact's path, size, and SHA-256 digest. `--check --manifest` compares all requested output bytes and
+the manifest without rewriting them. `Ibex::GenerationManifest.validate_file(path)` validates the document and its current
+artifact bytes. For coherent concurrent reads, read the manifest, verify every entry, and retry from a newly read manifest if
+anything is missing or mismatched.
+
+`--watch` repeatedly applies the same transaction to Ruby file generation. It observes the root, the latest successful include
+closure, unresolved include attempts, an optional messages file, and repairable output paths. Failed candidates leave the last
+successful generation intact; an unchanged failure is reported once. Source changes during render or publication retry after
+debouncing. Watch mode requires a grammar file and cannot be combined with stdin, `--from`, `--check`, or `--check-only`.
+`SIGINT` and `SIGTERM` exit with status 130 and 143. Rake tasks are timestamp-based and reject `--watch`.
+
 ## State-specific error messages
 
 `ibex errors --update grammar.y` writes `grammar.messages`; use `--update=FILE`, `--algorithm=NAME`, or an IR `--from` option to

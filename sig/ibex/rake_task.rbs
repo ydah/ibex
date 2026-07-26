@@ -19,6 +19,9 @@ module Ibex
     # @rbs () -> void
     def define: () -> void
 
+    # @rbs () -> void
+    def reject_watch_option!: () -> void
+
     # @rbs (String target) -> String?
     def configured_action_source: (String target) -> String?
 

@@ -39,7 +39,8 @@ The following work requires a separately reviewed phase and ADR:
   source-region recovery; CPCT+-class runtime repair remains deferred.
 - [ADR 0047](0047-semantics-preserving-grammar-formatting.md) and [ADR
   0048](0048-overlay-workspaces-and-lsp.md) complete `fmt` and the stdio LSP over the lossless source contract from ADR 0040.
-  Watch mode still restarts with a portable event/polling policy and atomic regeneration contract.
+  [ADR 0049](0049-transactional-generation-and-watch-mode.md) satisfies and supersedes the watch-mode boundary with portable
+  polling, stable source-closure snapshots, rollback-capable publication, and a manifest-last reader contract.
 - Production/state coverage and an interactive debugger restart with a stable event schema that extends, rather than exposes,
   private parser stacks. The push API and JSON Lines tracer are their current foundation. [ADR
   0037](0037-versioned-conflict-explanations.md) supersedes the boundary against a separate `explain` command with a thin,

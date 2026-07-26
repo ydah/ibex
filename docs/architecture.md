@@ -50,6 +50,16 @@ over frontend byte/scalar spans. `SymbolIndex` derives navigation and guarded re
 never from opaque Ruby or textual scanning. Content-Length transport, lifecycle handling, and request handlers remain separate
 from workspace semantics; see [ADR 0048](decisions/0048-overlay-workspaces-and-lsp.md).
 
+CLI file generation renders every requested output into an immutable `ArtifactSet` before entering `GenerationTransaction`.
+The transaction records the exact root, fragment, IR, and message bytes read through `GenerationInput`, rejects portable target
+collisions and input aliases, takes stable sidecar locks, stages and synchronizes every file, and can restore hard-link backups
+in reverse publication order. Ordinary companions publish first, the parser second, and an opt-in generation manifest last.
+That manifest is the coherence marker: readers verify its listed paths, sizes, and SHA-256 digests and retry from a newly read
+manifest on a mismatch. It is not a claim that several filesystem renames occur atomically. `--watch` feeds the same transaction
+only candidates whose complete canonical source closure and failed include attempts remain unchanged across rendering and
+publication. Portable polling, bounded debounce, failure deduplication, and cancellable nonblocking locks keep the last successful
+generation usable while a source is invalid; see [ADR 0049](decisions/0049-transactional-generation-and-watch-mode.md).
+
 Extended grammar paths cross an explicit `Frontend::Resolver` boundary. Roots retain class, start, options, and user code;
 fragments contain composable declarations and rules. Canonical realpaths define DFS order, diamond deduplication, cycle identity,
 and the Rake dependency closure. Canonical dirname ancestry keeps every resolved target below the root grammar directory after

@@ -3,6 +3,9 @@
 module Ibex
   # Files, warnings, and progress emitted by CLI pipeline stages.
   module CLIOutputs
+    # @rbs!
+    #   private def register_artifact: (Symbol, String, String, ?mode: Integer?, ?status: bool) -> Artifact
+
     WARNING_MESSAGES = {
       undeclared_terminal: ->(warning) { "undeclared terminal #{warning[:symbol]}" },
       unused_terminal: ->(warning) { "unused terminal #{warning[:symbol]}" },
@@ -97,8 +100,7 @@ module Ibex
         max_tokens: @options[:counterexample_max_tokens],
         max_configurations: @options[:counterexample_max_configurations]
       )
-      File.write(path, report)
-      report_status("wrote #{path}")
+      register_artifact(:report, path, report, status: true)
     end
 
     # @rbs (String input_path, String extension) -> String

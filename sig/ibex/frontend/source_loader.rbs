@@ -4,12 +4,25 @@ module Ibex
   module Frontend
     # Resolves canonical grammar paths and reads either open-buffer overlays or disk.
     class SourceLoader
-      @overlays: Hash[String, String]
+      @access_paths: Hash[String, Array[String]]
+
+      @record_reads: bool
+
+      @read_records: Hash[String, GenerationInput]
 
       @aliases: Hash[String, String]
 
-      # @rbs (?overlays: Hash[String, String]) -> void
-      def initialize: (?overlays: Hash[String, String]) -> void
+      @overlays: Hash[String, String]
+
+      # @rbs () -> Array[GenerationInput]
+      def read_records: () -> Array[GenerationInput]
+
+      # Associate the lexical path used by a resolver with its canonical source.
+      # @rbs (String canonical, String access_path) -> void
+      def record_access: (String canonical, String access_path) -> void
+
+      # @rbs (?overlays: Hash[String, String], ?record_reads: bool) -> void
+      def initialize: (?overlays: Hash[String, String], ?record_reads: bool) -> void
 
       # Canonicalize an existing file, or a missing path explicitly allowed by an open overlay.
       # @rbs (String path, ?base: String, ?allow_missing: bool) -> String

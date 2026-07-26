@@ -1,16 +1,38 @@
 # frozen_string_literal: true
 
+require_relative "../generation_input"
+
 module Ibex
   module Frontend
     # Resolves canonical grammar paths and reads either open-buffer overlays or disk.
     class SourceLoader
       # @rbs @overlays: Hash[String, String]
       # @rbs @aliases: Hash[String, String]
+      # @rbs @read_records: Hash[String, GenerationInput]
+      # @rbs @record_reads: bool
+      # @rbs @access_paths: Hash[String, Array[String]]
 
-      # @rbs (?overlays: Hash[String, String]) -> void
-      def initialize(overlays: {})
+      # @rbs () -> Array[GenerationInput]
+      def read_records
+        @read_records.values
+      end
+
+      # Associate the lexical path used by a resolver with its canonical source.
+      # @rbs (String canonical, String access_path) -> void
+      def record_access(canonical, access_path)
+        paths = (@access_paths[canonical] ||= [])
+        expanded = File.expand_path(access_path)
+        paths << expanded unless paths.include?(expanded)
+        @read_records[canonical]&.add_access_path(expanded)
+      end
+
+      # @rbs (?overlays: Hash[String, String], ?record_reads: bool) -> void
+      def initialize(overlays: {}, record_reads: false)
         @overlays = {} #: Hash[String, String]
         @aliases = {} #: Hash[String, String]
+        @read_records = {} #: Hash[String, GenerationInput]
+        @record_reads = record_reads
+        @access_paths = {} #: Hash[String, Array[String]]
         overlays.each { |path, source| set_overlay(path, source) }
       end
 
@@ -35,9 +57,14 @@ module Ibex
       def read(path)
         canonical = canonical_path(path, allow_missing: true)
         overlay = @overlays[canonical]
-        return overlay if overlay
+        source = overlay || File.binread(canonical)
+        if @record_reads
+          record = GenerationInput.new(canonical, source)
+          (@access_paths[canonical] || []).each { |access| record.add_access_path(access) }
+          @read_records[canonical] = record
+        end
 
-        File.binread(canonical)
+        source
       end
 
       # @rbs (String path) -> bool

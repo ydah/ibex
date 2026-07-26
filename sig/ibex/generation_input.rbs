@@ -1,0 +1,37 @@
+# Generated from lib/ibex/generation_input.rb with RBS::Inline
+
+module Ibex
+  # Digest and identity of source bytes actually consumed by one generation.
+  class GenerationInput
+    attr_reader path: String
+
+    attr_reader sha256: String
+
+    attr_reader bytesize: Integer
+
+    attr_reader dev: Integer
+
+    attr_reader ino: Integer
+
+    attr_reader access_paths: Array[String]
+
+    # @rbs (String path, String source, ?access_path: String) -> void
+    def initialize: (String path, String source, ?access_path: String) -> void
+
+    # Record another lexical path that supplied these canonical bytes.
+    # @rbs (String path) -> void
+    def add_access_path: (String path) -> void
+
+    # @rbs () -> Hash[String, untyped]
+    def to_h: () -> Hash[String, untyped]
+
+    # Detect content changes even when size and timestamps are preserved.
+    # @rbs () -> bool
+    def current?: () -> bool
+
+    private
+
+    # @rbs () -> bool
+    def lexical_paths_current?: () -> bool
+  end
+end

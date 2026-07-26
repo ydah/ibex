@@ -16,6 +16,7 @@ class IRJSONSchemaTest < Minitest::Test
       automaton-ir-v2.schema.json
       explain-v1.schema.json
       benchmark-v1.schema.json
+      generation-manifest-v1.schema.json
     ].each do |name|
       schema = load_json(File.join(SCHEMA_ROOT, name))
 

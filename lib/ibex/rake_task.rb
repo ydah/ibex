@@ -46,6 +46,7 @@ module Ibex
     # @rbs () -> void
     def define
       source = @grammar || raise(ArgumentError, "grammar is required")
+      reject_watch_option!
       target = @output || source.sub(/\.[^.]+\z/, ".rb")
       target = "#{source}.rb" if target == source
       prerequisites = grammar_prerequisites(source)
@@ -65,6 +66,13 @@ module Ibex
       end
 
       Rake::Task.define_task(@name => target) unless @name.to_s == target
+    end
+
+    # @rbs () -> void
+    def reject_watch_option!
+      return unless @options.any? { |option| option == "--watch" || option.start_with?("--watch=") }
+
+      raise ArgumentError, "RakeTask options must not include --watch"
     end
 
     # @rbs (String target) -> String?

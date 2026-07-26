@@ -1,0 +1,65 @@
+# Generated from lib/ibex/generation_transaction_validation.rb with RBS::Inline
+
+module Ibex
+  # Canonical target, source, symlink, and lock identity checks for generation.
+  module GenerationTransactionValidation
+    private def lock_path: (String) -> String
+
+    private
+
+    # Follow a final symlink while preserving the symlink path itself during publication.
+    # @rbs (String path, ?Hash[String, bool] seen, ?validate_links: bool) -> String
+    def resolved_target: (String path, ?Hash[String, bool] seen, ?validate_links: bool) -> String
+
+    # @rbs (String expanded, bool validate_links) -> String
+    def existing_target: (String expanded, bool validate_links) -> String
+
+    # @rbs (String target) -> void
+    def validate_existing_target!: (String target) -> void
+
+    # @rbs () -> void
+    def validate_source_boundaries!: () -> void
+
+    # @rbs (Array[String] lock_paths) -> void
+    def validate_lock_boundaries!: (Array[String] lock_paths) -> void
+
+    # @rbs (String path, File lock) -> void
+    def validate_lock_identity!: (String path, File lock) -> void
+
+    # @rbs () -> Array[String]
+    def protected_generation_paths: () -> Array[String]
+
+    # @rbs () -> Array[File::Stat]
+    def protected_generation_stats: () -> Array[File::Stat]
+
+    # @rbs (File::Stat path_stat, File::Stat lock_stat) -> bool
+    def stable_lock_identity?: (File::Stat path_stat, File::Stat lock_stat) -> bool
+
+    # @rbs (File::Stat left, File::Stat right) -> bool
+    def same_inode?: (File::Stat left, File::Stat right) -> bool
+
+    # @rbs (String left, String right) -> bool
+    def paths_alias?: (String left, String right) -> bool
+
+    # Reject target names that collide on common case-insensitive or
+    # normalization-insensitive filesystems, even when the current filesystem
+    # would permit both names.
+    # @rbs (String path) -> [String, String]
+    def portable_target_key: (String path) -> [ String, String ]
+
+    # @rbs (String phase) -> void
+    def ensure_sources_stable!: (String phase) -> void
+
+    # @rbs (String phase) -> void
+    def validate_active_locks!: (String phase) -> void
+
+    # @rbs (String phase) -> void
+    def validate_current_targets!: (String phase) -> void
+
+    # @rbs (Hash[Symbol, untyped] record, Array[String] sources, String phase) -> void
+    def validate_current_target!: (Hash[Symbol, untyped] record, Array[String] sources, String phase) -> void
+
+    # @rbs () -> void
+    def validate_locked_targets!: () -> void
+  end
+end

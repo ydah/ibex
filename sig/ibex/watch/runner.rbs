@@ -1,0 +1,48 @@
+# Generated from lib/ibex/watch/runner.rb with RBS::Inline
+
+module Ibex
+  module Watch
+    # Polls source fingerprints, debounces changes, and publishes stable builds.
+    class Runner
+      DEFAULT_INTERVAL: Float
+
+      DEFAULT_DEBOUNCE: Float
+
+      # rubocop:disable Layout/LineLength
+      # @rbs (paths: Array[String], build: ^() -> untyped, publish: ^(untyped, SourceSnapshot, ^() -> bool) -> void, failure_paths: ^() -> Array[String], stderr: untyped, clock: ^() -> Float, sleeper: ^(Float) -> void, iteration_hook: ^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil), ?interval: Float, ?debounce: Float) -> void
+      def initialize: (paths: Array[String], build: ^() -> untyped, publish: ^(untyped, SourceSnapshot, ^() -> bool) -> void, failure_paths: ^() -> Array[String], stderr: untyped, clock: ^() -> Float, sleeper: ^(Float) -> void, iteration_hook: ^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil), ?interval: Float, ?debounce: Float) -> void
+
+      # @rbs () -> Integer
+      def run: () -> Integer
+
+      private
+
+      # @rbs (SourceSnapshot before) -> [SourceSnapshot, bool]
+      def build_once: (SourceSnapshot before) -> [ SourceSnapshot, bool ]
+
+      # @rbs (SourceSnapshot snapshot) -> SourceSnapshot
+      def wait_for_change: (SourceSnapshot snapshot) -> SourceSnapshot
+
+      # @rbs (SourceSnapshot changed) -> SourceSnapshot
+      def debounce: (SourceSnapshot changed) -> SourceSnapshot
+
+      # @rbs (Exception error) -> void
+      def report_failure: (Exception error) -> void
+
+      # @rbs (SourceSnapshot before, Exception error) -> [SourceSnapshot, bool]
+      def failed_build: (SourceSnapshot before, Exception error) -> [ SourceSnapshot, bool ]
+
+      # @rbs (Exception error, SourceSnapshot snapshot) -> void
+      def report_failure_once: (Exception error, SourceSnapshot snapshot) -> void
+
+      # @rbs (Symbol event) -> Integer?
+      def stop_status: (Symbol event) -> Integer?
+
+      # @rbs (Array[String] paths) -> Array[String]
+      def normalize_paths: (Array[String] paths) -> Array[String]
+
+      # @rbs () { () -> Integer } -> Integer
+      def with_signal_handlers: () { () -> Integer } -> Integer
+    end
+  end
+end

@@ -1,0 +1,67 @@
+# Generated from lib/ibex/generation_manifest.rb with RBS::Inline
+
+module Ibex
+  # Deterministic description of one published parser generation.
+  module GenerationManifest
+    SCHEMA_VERSION: Integer
+
+    IDENTIFIER: String
+
+    ROOT_KEYS: Array[String]
+
+    INPUT_KEYS: Array[String]
+
+    FILE_KEYS: Array[String]
+
+    ARTIFACT_KEYS: Array[String]
+
+    # @rbs (ArtifactSet artifacts, source_records: Array[GenerationInput], options: Hash[String, untyped]) -> String
+    def self?.render: (ArtifactSet artifacts, source_records: Array[GenerationInput], options: Hash[String, untyped]) -> String
+
+    # Validate the manifest shape and, by default, every published artifact digest.
+    # @rbs (String source, ?verify_artifacts: bool) -> Hash[String, untyped]
+    def self?.validate: (String source, ?verify_artifacts: bool) -> Hash[String, untyped]
+
+    # @rbs (String path, ?verify_artifacts: bool) -> Hash[String, untyped]
+    def self?.validate_file: (String path, ?verify_artifacts: bool) -> Hash[String, untyped]
+
+    # @rbs (Artifact artifact) -> Hash[String, untyped]
+    def self?.artifact_entry: (Artifact artifact) -> Hash[String, untyped]
+
+    # @rbs (Array[Hash[String, untyped]] files) -> String
+    def self?.input_digest: (Array[Hash[String, untyped]] files) -> String
+
+    # @rbs (Hash[String, untyped] value) -> Hash[String, untyped]
+    def self?.sorted_hash: (Hash[String, untyped] value) -> Hash[String, untyped]
+
+    # @rbs (untyped document) -> void
+    def self?.validate_document: (untyped document) -> void
+
+    # @rbs (Hash[untyped, untyped] document) -> void
+    def self?.validate_identity: (Hash[untyped, untyped] document) -> void
+
+    # @rbs (untyped input) -> void
+    def self?.validate_input: (untyped input) -> void
+
+    # @rbs (Array[untyped] entries, String label, ?require_kind: bool) -> void
+    def self?.validate_entries: (Array[untyped] entries, String label, ?require_kind: bool) -> void
+
+    # @rbs (untyped entry, String label, bool require_kind) -> void
+    def self?.validate_entry: (untyped entry, String label, bool require_kind) -> void
+
+    # @rbs (untyped path, String label) -> void
+    def self?.validate_path: (untyped path, String label) -> void
+
+    # @rbs (untyped kind, String label) -> void
+    def self?.validate_kind: (untyped kind, String label) -> void
+
+    # @rbs (untyped digest, String label) -> void
+    def self?.validate_digest: (untyped digest, String label) -> void
+
+    # @rbs (Hash[untyped, untyped] value, Array[String] expected, String label) -> void
+    def self?.exact_keys!: (Hash[untyped, untyped] value, Array[String] expected, String label) -> void
+
+    # @rbs (Array[untyped] entries) -> void
+    def self?.verify_entries: (Array[untyped] entries) -> void
+  end
+end
