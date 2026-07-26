@@ -74,6 +74,54 @@ class SemanticLocationsCodegenTest < Minitest::Test
     end
   end
 
+  def test_public_location_helpers_support_positions_names_and_result_span
+    source = <<~GRAMMAR
+      class PublicLocationParser
+      pragma extended
+      rule
+      start: A:left B {
+        result = [loc(1), loc(:left), loc("left"), loc(2), result_loc]
+      }
+      end
+      ---- inner
+      attr_writer :tokens
+      def next_token = @tokens.shift
+    GRAMMAR
+    parser_class = evaluate(generate(source), "PublicLocationParser")
+    assert_equal true, parser_class::PARSER_TABLES.fetch(:uses_locations)
+
+    first = Ibex::Location.new(file: "input.txt", line: 1, column: 2, end_column: 3)
+    second = Ibex::Location.new(file: "input.txt", line: 1, column: 5, end_column: 6)
+    parser = parser_class.new
+    parser.tokens = [[:A, :a, first], [:B, :b, second]]
+    by_position, by_symbol, by_string, last, span = parser.do_parse
+
+    assert_same first, by_position
+    assert_same first, by_symbol
+    assert_same first, by_string
+    assert_same second, last
+    assert_span(span, first, second)
+  end
+
+  def test_location_stack_stays_unallocated_for_ordinary_two_element_tokens
+    source = <<~GRAMMAR
+      class UnlocatedParser
+      rule
+      start: TOKEN { result = val[0] }
+      end
+      ---- inner
+      attr_writer :tokens
+      def next_token = @tokens.shift
+    GRAMMAR
+    parser_class = evaluate(generate(source), "UnlocatedParser")
+    refute parser_class::PARSER_TABLES.fetch(:uses_locations)
+
+    parser = parser_class.new
+    parser.tokens = [%i[TOKEN value]]
+    assert_equal :value, parser.do_parse
+    assert_nil parser.instance_variable_get(:@location_stack)
+  end
+
   private
 
   def build_parser(line_convert:)
@@ -147,6 +195,11 @@ class SemanticLocationsCodegenTest < Minitest::Test
     refute span.empty?
     assert_same first, span.start
     assert_same last, span.finish
-    assert_equal last.fetch(:end_column, last[:column]), span.end_column
+    expected_end_column = if last.respond_to?(:end_column)
+                            last.end_column
+                          else
+                            last.fetch(:end_column, last[:column])
+                          end
+    assert_equal expected_end_column, span.end_column
   end
 end

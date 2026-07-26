@@ -80,9 +80,14 @@ explicit error cells, including recovery and undeclared-token behavior. `--table
 Ibex does not generate a lexer. A pull parser implements `next_token` and returns `[token, value]` or
 `[token, value, location]`; `false` or `nil` marks EOF.
 
+`Ibex::Location.new(line:, column:, ...)` is the immutable built-in range type; applications may continue to pass hashes or
+their own location objects. `location.join(other)` and `Ibex::Location.join(locations)` compute covering ranges when every
+location belongs to the same file.
+
 Generated actions can read the location parallel to `val[0]`, `val[1]`, and so on as `@1`, `@2`, and so on; `@$` is the
 immutable span of the current reduction. Empty and middle actions use a zero-width span at the current lookahead. Location-less
-tokens remain supported and produce `nil` entries.
+tokens remain supported and produce `nil` entries. The equivalent public helpers are `loc(1)`, `loc(:name)`, and `result_loc`;
+they are available only while an action is running.
 
 Bare grammar tokens normally use Ruby symbols (`:NUM`), and quoted grammar tokens use strings (`'+'`). A yielding source can call
 `yyparse(receiver, method_name)` where the receiver method yields the same two- or three-element token arrays, including the
@@ -94,7 +99,11 @@ Semantic actions can call `yyerror`, `yyerrok`, or `yyaccept`, and `expected_tok
 expected-token, state, location, and spelling-suggestion attributes and renders source lines with a caret when available.
 Parser subclasses can also override `on_shift(token_id, value, state)`,
 `on_reduce(production_id, values, result)`, and `on_error_recover(token_id, value, value_stack)` as no-op-by-default observers.
-Ordinary shifts and the synthetic recovery-token shift use separate hooks; observer return values never replace semantic values.
+Location-aware companions add the relevant token/reduction locations without changing those signatures, and
+`on_discard(token_id, value, location, reason)` observes application tokens removed by yacc recovery. Ordinary shifts and the
+synthetic recovery-token shift use separate hooks; observer return values never replace semantic values. Assign
+`trace_value_printer` to a callable to append deliberately formatted semantic values to `yydebug`; values remain hidden by
+default.
 
 Tooling can register an ordered runtime observer with `parser.observe { |event| ... }` and remove it with
 `parser.unobserve(subscription)`. The versioned immutable events cover parser start, committed shifts and reductions, syntax and
@@ -486,8 +495,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 13,150 typed calls and 1,791 untyped calls out of 14,941 (88.0% typed).
-The generated signature tree contains 1,833 explicit `untyped` occurrences across 75 files.
+The current whole-library `steep stats` result is 13,542 typed calls and 1,851 untyped calls out of 15,393 (88.0% typed).
+The generated signature tree contains 1,938 explicit `untyped` occurrences across 77 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

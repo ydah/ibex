@@ -64,9 +64,11 @@ module Ibex
     #   type runtime_action = [:shift, Integer] | [:reduce, Integer] | [:accept] | [:error]
     #   type conflict_resolution = { by: Symbol, chose: Symbol | Integer, ?associativity: Symbol }
     #   type shift_reduce_conflict =
-    #     { type: :shift_reduce, symbol: String, shift_to: Integer, reduce: Integer, resolution: conflict_resolution }
+    #     { type: :shift_reduce, symbol: String, shift_to: Integer, reduce: Integer,
+    #       resolution: conflict_resolution, ?midrule_origins: Array[location] }
     #   type reduce_reduce_conflict =
-    #     { type: :reduce_reduce, symbol: String, reductions: Array[Integer], resolution: conflict_resolution }
+    #     { type: :reduce_reduce, symbol: String, reductions: Array[Integer],
+    #       resolution: conflict_resolution, ?midrule_origins: Array[location] }
     #   type conflict = shift_reduce_conflict | reduce_reduce_conflict
     #   type conflict_summary = {
     #     sr: Integer,

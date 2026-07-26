@@ -165,6 +165,12 @@ follows that empty-production rule, while its numbered locations address the vis
 references outside the action's value range are generation errors. Location expressions in strings, regular expressions,
 symbols, comments, and heredoc bodies remain literal text, and ordinary Ruby instance variables are unchanged.
 
+`Ibex::Location` is an immutable one-based source range with optional half-open byte offsets. Instance `join` and class
+`Ibex::Location.join` return a covering range and reject mixed files. Lexer-owned hashes and objects remain valid. Inside an
+action, `loc(1)` and `loc(:name)` are callable equivalents of numbered and named RHS locations, while `result_loc` returns the
+current synthesized span. Calls outside an action, unknown names, and out-of-range positions fail explicitly. Parsers that use
+only two-element tokens and no location-sensitive action or observer do not allocate a parallel location stack.
+
 Action and `inner` backtraces use the original grammar filename and line by default. `--line-convert-all` applies the same mapping
 to `header` and `footer`; `-l` keeps all backtraces on generated-file lines.
 
@@ -241,10 +247,13 @@ The default `on_error(token_id, value, value_stack)` raises `Ibex::ParseError`. 
 production to recover. Unknown external token objects receive a temporary negative internal id, remain printable through
 `token_to_str`, and always invoke `on_error` before recovery is attempted.
 
-Three optional observer methods default to no-ops. `on_shift(token_id, value, state)` follows each ordinary input-token shift;
+Optional observer methods default to no-ops. `on_shift(token_id, value, state)` follows each ordinary input-token shift;
 `on_reduce(production_id, values, result)` follows a completed semantic action and goto; and
 `on_error_recover(token_id, value, value_stack)` follows a successful synthetic `error` shift while retaining the original
-unexpected-token context. Hook return values are ignored and exceptions propagate. See
+unexpected-token context. Their `on_shift_location`, `on_reduce_location`, and `on_error_recover_location` companions add
+locations while preserving the original hook signatures. `on_discard(token_id, value, location, reason)` reports an
+application token removed by yacc recovery. Hook return values are ignored and exceptions propagate. `trace_value_printer=`
+opts a parser into value rendering in `yydebug`; without it, traces never expose semantic values. See
 [ADR 0013](decisions/0013-runtime-observation-hooks.md) for exact ordering and snapshot semantics.
 
 For external tooling, `observe { |event| ... }` registers an ordered observer and returns an opaque subscription accepted by
@@ -301,6 +310,10 @@ derive any terminal sentence. They remain silent by default for compatibility. `
 `--warnings=all,error` or `--warnings=error` promotes them to command failures, and `--warnings=none` explicitly suppresses them.
 An unexpected LALR conflict also gets an advisory `--algorithm=ielr` note when IELR removes at least one unresolved
 conflict; this note does not change generation or exit status.
+
+When an empty helper created for a middle action participates in a conflict, Automaton IR, text reports, HTML, and
+`ibex explain` retain the action's source location as `midrule_origins`. This makes the otherwise synthetic reduction traceable
+to the grammar expression that introduced it.
 
 ## Transactional generation and watch mode
 

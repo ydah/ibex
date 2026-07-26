@@ -103,15 +103,17 @@ module Ibex
       NO_LOOKAHEAD = Object.new.freeze #: Object
       RECOVERY_SHIFTS = 3 #: Integer
       empty_row = {} # @type var empty_row: Hash[Integer, untyped]
+      empty_location_names = {} # @type var empty_location_names: Hash[Symbol, Integer]
 
       EMPTY_ROW = empty_row.freeze #: Hash[Integer, untyped]
+      EMPTY_LOCATION_NAMES = empty_location_names.freeze #: Hash[Symbol, Integer]
 
       # @rbs @yydebug: bool
       # @rbs @yydebug_output: IO
       # @rbs @source: (^() -> untyped)?
       # @rbs @state_stack: Array[Integer]
       # @rbs @value_stack: Array[untyped]
-      # @rbs @location_stack: Array[untyped]
+      # @rbs @location_stack: Array[untyped]?
       # @rbs @lookahead: untyped
       # @rbs @lookahead_value: untyped
       # @rbs @lookahead_location: untyped
@@ -130,6 +132,10 @@ module Ibex
       # @rbs @repair_policy: RepairPolicy?
       # @rbs @repair_input_buffer: Array[RepairInput]?
       # @rbs @repair_selected: bool
+      # @rbs @semantic_locations: Array[untyped]?
+      # @rbs @semantic_location_names: Hash[Symbol, Integer]?
+      # @rbs @semantic_result_location: untyped
+      # @rbs @trace_value_printer: (^(untyped) -> untyped)?
 
       attr_accessor :yydebug #: bool
       attr_writer :yydebug_output #: IO
@@ -142,7 +148,7 @@ module Ibex
         @source = nil
         @state_stack = []
         @value_stack = []
-        @location_stack = []
+        @location_stack = nil
         @lookahead = NO_LOOKAHEAD
         @lookahead_value = nil
         @lookahead_location = nil
@@ -160,6 +166,10 @@ module Ibex
         @repair_policy = nil
         @repair_input_buffer = nil
         @repair_selected = false
+        @semantic_locations = nil
+        @semantic_location_names = nil
+        @semantic_result_location = nil
+        @trace_value_printer = nil
       end
 
       # Enable bounded automatic repair for the next parser session.
@@ -253,7 +263,7 @@ module Ibex
           @source = nil
           @state_stack = []
           @value_stack = []
-          @location_stack = []
+          @location_stack = nil
           @lookahead = NO_LOOKAHEAD
           @lookahead_value = nil
           @lookahead_location = nil
@@ -297,15 +307,44 @@ module Ibex
       # @rbs (Integer token_id, untyped value, Integer state) -> void
       def on_shift(_token_id, _value, _state); end
 
+      # Location-aware shift observer. The compatible hook above retains its
+      # original signature and runs first.
+      # @rbs (Integer token_id, untyped value, Integer state, untyped location) -> void
+      def on_shift_location(_token_id, _value, _state, _location); end
+
       # Called after a production's semantic action and goto are committed.
       # Override to observe its id, RHS values, and semantic result.
       # @rbs (Integer production_id, Array[untyped] values, untyped result) -> void
       def on_reduce(_production_id, _values, _result); end
 
+      # Location-aware reduction observer.
+      # @rbs (Integer production_id, Array[untyped] values, untyped result,
+      #   Array[untyped] locations, untyped result_location) -> void
+      def on_reduce_location(_production_id, _values, _result, _locations, _result_location); end
+
       # Called after the synthetic error token enters a recovery state.
       # The payload describes the original error before recovery popped stacks.
       # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> void
       def on_error_recover(_token_id, _value, _value_stack); end
+
+      # Location-aware recovery observer.
+      # @rbs (Integer token_id, untyped value, Array[untyped] value_stack,
+      #   untyped location, Integer state) -> void
+      def on_error_recover_location(_token_id, _value, _value_stack, _location, _state); end
+
+      # Called when yacc recovery discards an application token.
+      # @rbs (Integer token_id, untyped value, untyped location, Symbol reason) -> void
+      def on_discard(_token_id, _value, _location, _reason); end
+
+      # Install an opt-in value formatter for human-readable yydebug traces.
+      # @rbs ((^(untyped) -> untyped)? printer) -> (^(untyped) -> untyped)?
+      def trace_value_printer=(printer)
+        unless printer.nil? || printer.respond_to?(:call)
+          raise ArgumentError, "trace value printer must respond to call or be nil"
+        end
+
+        @trace_value_printer = printer
+      end
 
       # Called once after a repair is selected and before its edited token
       # prefix is replayed through normal parser actions.
@@ -351,6 +390,36 @@ module Ibex
           action = table_lookup(parser_tables.fetch(:actions), state, token_id) || default_action(state) || [:error]
           token_to_str(token_id) unless error_action?(action) || token_id == ERROR_TOKEN
         end
+      end
+
+      # Return the location of a one-based RHS position or named reference
+      # while a semantic action is running.
+      # @rbs (Integer | Symbol | String reference) -> untyped
+      def loc(reference)
+        locations = @semantic_locations
+        raise ParseError, "(runtime):1:1: loc is only available inside a semantic action" unless locations
+
+        index = if reference.is_a?(Integer)
+                  raise ArgumentError, "location index must be positive" unless reference.positive?
+
+                  reference - 1
+                else
+                  names = @semantic_location_names || EMPTY_LOCATION_NAMES
+                  names.fetch(reference.to_sym) do
+                    raise ArgumentError, "unknown named location #{reference.inspect}"
+                  end
+                end
+        locations.fetch(index) { raise ArgumentError, "location index #{reference.inspect} is outside the RHS" }
+      end
+
+      # Return the synthesized span of the reduction being evaluated.
+      # @rbs () -> untyped
+      def result_loc
+        unless @semantic_locations
+          raise ParseError, "(runtime):1:1: result_loc is only available inside a semantic action"
+        end
+
+        @semantic_result_location
       end
 
       private
@@ -460,7 +529,7 @@ module Ibex
         @source = source
         @state_stack = [0]
         @value_stack = []
-        @location_stack = []
+        @location_stack = track_locations?(tables) ? [] : nil
         @lookahead = NO_LOOKAHEAD
         @lookahead_value = nil
         @lookahead_location = nil
@@ -553,7 +622,7 @@ module Ibex
         value = @lookahead_value
         location = @lookahead_location
         token_display = token_to_str(token_id)
-        trace("shift #{token_display} -> state #{next_state}")
+        trace("shift #{token_display}#{trace_value_suffix(value)} -> state #{next_state}")
         event_observers = runtime_observer_snapshot if @runtime_observers
         event_data = if event_observers
                        runtime_token_data(
@@ -565,13 +634,14 @@ module Ibex
                        ).merge("from_state" => @state_stack.last).freeze
                      end
         @state_stack << next_state
+        push_location(location)
         @value_stack << value
-        @location_stack << location
         @lookahead = NO_LOOKAHEAD
         @lookahead_location = nil
         @runtime_lookahead_token_display = nil
         @recovery_shifts -= 1 if @recovery_shifts.positive?
         on_shift(token_id, value, next_state)
+        on_shift_location(token_id, value, next_state, location)
         emit_runtime_event(:shift, event_data, observers: event_observers) if event_data
         [:continue]
       end
@@ -583,11 +653,10 @@ module Ibex
         event_observers = runtime_observer_snapshot if @runtime_observers
         pre_state = @state_stack.last if event_observers
         values = @value_stack.last(length)
-        locations = @location_stack.last(length)
+        locations = pop_reduction_locations(length)
         hook_values = values.dup
         @state_stack.pop(length)
         @value_stack.pop(length)
-        @location_stack.pop(length)
         post_state = @state_stack.last if event_observers
         location = LocationSpan.for_reduction(locations, lookahead: @lookahead_location)
         result = reduction_value(production, values, locations, location)
@@ -595,8 +664,8 @@ module Ibex
         raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
 
         @state_stack << next_state
+        push_location(location)
         @value_stack << result
-        @location_stack << location
         trace("reduce #{production_id} (#{length}) -> state #{next_state}")
         if event_observers
           event_data = runtime_reduce_data(
@@ -604,6 +673,7 @@ module Ibex
           )
         end
         on_reduce(production_id, hook_values, result)
+        on_reduce_location(production_id, hook_values, result, locations.dup, location)
         emit_runtime_event(:reduce, event_data, observers: event_observers) if event_data
         return accept_reduction(result) if @accept_requested
         return recover(report: false) if @semantic_error
@@ -636,15 +706,29 @@ module Ibex
       # @rbs (Hash[Symbol, untyped] production, Array[untyped] values,
       #   Array[untyped] locations, LocationSpan? location) -> untyped
       def reduction_value(production, values, locations, location)
+        previous_locations = @semantic_locations
+        previous_names = @semantic_location_names
+        previous_result_location = @semantic_result_location
         action = production[:action]
         return values.first unless action
 
-        arguments = [values, @value_stack.dup, locations, @location_stack.dup, location]
+        context_length = production.fetch(:location_context_length, 0)
+        action_locations = if context_length.positive?
+                             (@location_stack || []).last(context_length)
+                           else
+                             locations
+                           end
+        @semantic_locations = action_locations
+        @semantic_location_names = production.fetch(:location_names, EMPTY_LOCATION_NAMES)
+        @semantic_result_location = location
+        arguments = [values, @value_stack.dup, locations, (@location_stack || []).dup, location]
         arguments = arguments.take(2) unless generated_location_action?(production, action)
         arguments << @lookahead_location if generated_composition_action?(production, action)
-        return instance_exec(*arguments, &action) if action.respond_to?(:call)
-
-        __send__(action, *arguments)
+        action.respond_to?(:call) ? instance_exec(*arguments, &action) : __send__(action, *arguments)
+      ensure
+        @semantic_locations = previous_locations
+        @semantic_location_names = previous_names
+        @semantic_result_location = previous_result_location
       end
 
       # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
@@ -682,6 +766,7 @@ module Ibex
         event_observers = runtime_observer_snapshot if @runtime_observers
         event_data = runtime_discard_data(token_display) if event_observers
         trace("discard #{token_display} during recovery")
+        on_discard(@lookahead, @lookahead_value, @lookahead_location, :recovery)
         @lookahead = NO_LOOKAHEAD
         @lookahead_location = nil
         @runtime_lookahead_token_display = nil
@@ -824,6 +909,7 @@ module Ibex
                          )
                        end
         on_error_recover(token_id, value, value_stack)
+        on_error_recover_location(token_id, value, value_stack, location, @state_stack.last)
         if recover_data
           emit_runtime_event(
             :recover,
@@ -895,8 +981,8 @@ module Ibex
           if action&.first == :shift
             trace("recover: shift error -> state #{action.fetch(1)}")
             @state_stack << action.fetch(1)
+            push_location(@lookahead_location)
             @value_stack << nil
-            @location_stack << @lookahead_location
             return true
           end
           return false if @state_stack.length == 1
@@ -904,7 +990,7 @@ module Ibex
           trace("recover: pop state #{@state_stack.last}")
           @state_stack.pop
           @value_stack.pop
-          @location_stack.pop
+          @location_stack&.pop
         end
       end
 
@@ -1165,6 +1251,36 @@ module Ibex
         parser_tables.fetch(:default_actions, EMPTY_ROW)[state]
       end
 
+      # @rbs (Hash[Symbol, untyped] tables) -> bool
+      def track_locations?(tables)
+        tables.fetch(:uses_locations, false) || !@runtime_observers.nil?
+      end
+
+      # Keep allocation out of the ordinary two-element lexer path. If a
+      # location first appears after values have already shifted, backfill the
+      # parallel prefix with nil exactly once.
+      # @rbs (untyped location) -> void
+      def push_location(location)
+        stack = @location_stack
+        if stack
+          stack << location
+        elsif location
+          new_stack = Array.new(@value_stack.length)
+          new_stack << location
+          @location_stack = new_stack
+        end
+      end
+
+      # @rbs (Integer length) -> Array[untyped]
+      def pop_reduction_locations(length)
+        stack = @location_stack
+        return Array.new(length) unless stack
+
+        locations = stack.last(length)
+        stack.pop(length)
+        locations
+      end
+
       # @rbs (untyped table, Integer row, Integer column) -> untyped
       def table_lookup(table, row, column)
         return table.lookup(row, column) if table.respond_to?(:lookup)
@@ -1175,6 +1291,16 @@ module Ibex
       # @rbs (String message) -> void
       def trace(message)
         @yydebug_output.puts("ibex: #{message}") if @yydebug
+      end
+
+      # @rbs (untyped value) -> String
+      def trace_value_suffix(value)
+        printer = @trace_value_printer
+        return "" unless printer
+
+        " value=#{printer.call(value)}"
+      rescue StandardError => e
+        " value=<printer error: #{e.class}>"
       end
     end
     # rubocop:enable Metrics/ClassLength

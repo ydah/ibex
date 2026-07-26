@@ -22,6 +22,7 @@ class GeneratedParser < Ibex::Frontend::GeneratedParserBase
   PARSER_TABLES = { format_version: PARSER_TABLE_FORMAT_VERSION,
                     grammar_digest: GRAMMAR_DIGEST,
                     state_count: STATE_COUNT, production_count: PRODUCTION_COUNT,
+                    uses_locations: false,
                     tokens: TOKEN_IDS, token_names: TOKEN_NAMES, actions: ACTIONS,
                     gotos: GOTOS, default_actions: DEFAULT_ACTIONS,
                     productions: PRODUCTIONS, error_messages: ERROR_MESSAGES }.freeze

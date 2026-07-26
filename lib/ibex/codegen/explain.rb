@@ -140,7 +140,7 @@ module Ibex
         state = entry.fetch(:state)
         conflict = entry.fetch(:conflict)
         example = entry.fetch(:example)
-        {
+        document = {
           state: state.id,
           type: conflict.fetch(:type).to_s,
           token: symbol_reference(conflict.fetch(:symbol)),
@@ -153,7 +153,9 @@ module Ibex
             symbol_path: example.fetch(:symbol_path).map { |name| symbol_reference(name) },
             interpretations: example.fetch(:interpretations).map { |item| interpretation_document(item) }
           }
-        }
+        } #: Hash[Symbol, untyped]
+        document[:midrule_origins] = conflict[:midrule_origins] if conflict[:midrule_origins]
+        document
       end
 
       # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
@@ -221,12 +223,23 @@ module Ibex
         token_text = token ? token_label(token) : conflict.fetch(:symbol)
         type = conflict.fetch(:type).to_s.tr("_", "/")
         lines << "Conflict #{number}: state #{state.id}, #{type}, token #{token_text}"
+        append_midrule_origins(lines, conflict)
         append_witness_steps(lines, state, conflict, example)
         append_interpretations(lines, example)
         unless example.fetch(:unifying)
           lines << "  The search found no shared sentence within the configured budget; this witness is deterministic."
         end
         lines << ""
+      end
+
+      # @rbs (Array[String] lines, IR::conflict conflict) -> void
+      def append_midrule_origins(lines, conflict)
+        origins = conflict[:midrule_origins]
+        return unless origins
+
+        origins.each do |origin|
+          lines << "  Midrule action origin: #{origin.fetch(:file)}:#{origin.fetch(:line)}:#{origin.fetch(:column)}"
+        end
       end
 
       # @rbs (Array[String] lines, IR::AutomatonState state, IR::conflict conflict,

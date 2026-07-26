@@ -77,6 +77,12 @@ module Ibex
       # @rbs (Integer state_id, Array[IR::AutomatonItem] items, Hash[Integer, Integer] transitions) -> IR::AutomatonState
       def build_state: (Integer state_id, Array[IR::AutomatonItem] items, Hash[Integer, Integer] transitions) -> IR::AutomatonState
 
+      # Conflict hashes are produced locally immediately before this boundary.
+      # Keeping the parameter untyped avoids duplicating both discriminated
+      # hash variants solely to add their common optional provenance field.
+      # @rbs (untyped conflict) -> IR::conflict
+      def attribute_midrule_conflict: (untyped conflict) -> IR::conflict
+
       # @rbs (Array[IR::AutomatonItem] items, Hash[Integer, Array[IR::parser_action]] candidates) -> void
       def add_completed_actions: (Array[IR::AutomatonItem] items, Hash[Integer, Array[IR::parser_action]] candidates) -> void
 

@@ -243,6 +243,28 @@
       },
       "additionalProperties": false
     },
+    "location": {
+      "type": "object",
+      "required": [
+        "file",
+        "line",
+        "column"
+      ],
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "column": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
     "tree": {
       "oneOf": [
         {
@@ -393,6 +415,13 @@
         },
         "resolution": {
           "$ref": "#/$defs/resolution"
+        },
+        "midrule_origins": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/location"
+          }
         },
         "witness": {
           "$ref": "#/$defs/witness"

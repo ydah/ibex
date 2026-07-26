@@ -1,0 +1,67 @@
+# Generated from lib/ibex/location.rb with RBS::Inline
+
+module Ibex
+  # Immutable source range suitable for lexer tokens and parser diagnostics.
+  #
+  # Coordinates are one-based. Byte offsets are optional, zero-based, and
+  # half-open. Keeping both forms lets Unicode-aware lexers report human
+  # columns without losing an exact source slice.
+  class Location
+    attr_reader file: String?
+
+    attr_reader line: Integer
+
+    attr_reader column: Integer
+
+    attr_reader end_line: Integer
+
+    attr_reader end_column: Integer
+
+    attr_reader start_byte: Integer?
+
+    attr_reader end_byte: Integer?
+
+    attr_reader source_line: String?
+
+    # @rbs (?file: String?, line: Integer, column: Integer, ?end_line: Integer?,
+    #   ?end_column: Integer?, ?start_byte: Integer?, ?end_byte: Integer?, ?source_line: String?) -> void
+    def initialize: (line: Integer, column: Integer, ?file: String?, ?end_line: Integer?, ?end_column: Integer?, ?start_byte: Integer?, ?end_byte: Integer?, ?source_line: String?) -> void
+
+    # Return the smallest range covering both locations.
+    # @rbs (Location other) -> Location
+    def join: (Location other) -> Location
+
+    # Fold a nonempty collection into one covering range.
+    # @rbs (Enumerable[Location] locations) -> Location
+    def self.join: (Enumerable[Location] locations) -> Location
+
+    # @rbs () -> bool
+    def empty?: () -> bool
+
+    # @rbs () -> Hash[Symbol, untyped]
+    def to_h: () -> Hash[Symbol, untyped]
+
+    private
+
+    # @rbs (Symbol name, untyped value) -> Integer
+    def positive_coordinate: (Symbol name, untyped value) -> Integer
+
+    # @rbs (Symbol name, untyped value) -> Integer?
+    def optional_offset: (Symbol name, untyped value) -> Integer?
+
+    # @rbs () -> void
+    def validate_order!: () -> void
+
+    # @rbs (Location left, Location right) -> bool
+    def before_or_equal?: (Location left, Location right) -> bool
+
+    # @rbs (Location left, Location right) -> bool
+    def before_or_equal_end?: (Location left, Location right) -> bool
+
+    # @rbs (Location other) -> Integer?
+    def joined_start_byte: (Location other) -> Integer?
+
+    # @rbs (Location other) -> Integer?
+    def joined_end_byte: (Location other) -> Integer?
+  end
+end

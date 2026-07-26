@@ -3,6 +3,7 @@
 require_relative "../test_helper"
 require "stringio"
 
+# rubocop:disable Metrics/ClassLength -- cases cover one stateful runtime contract.
 class RuntimeParserTest < Minitest::Test
   class Calculator < Ibex::Runtime::Parser
     TABLES = {
@@ -283,6 +284,23 @@ class RuntimeParserTest < Minitest::Test
     assert_equal [[token_id, value, value_stack, [";"]]], recoveries
   end
 
+  def test_location_recovery_and_discard_hooks_preserve_the_original_token
+    bad_location = Ibex::Location.new(file: "recover.txt", line: 2, column: 4)
+    semicolon_location = Ibex::Location.new(file: "recover.txt", line: 2, column: 8)
+    parser = RecoveringStatements.new([[:BAD, "payload", bad_location], [";", nil, semicolon_location]])
+    recoveries = []
+    discards = []
+    parser.define_singleton_method(:on_error_recover_location) do |*payload|
+      recoveries << payload
+    end
+    parser.define_singleton_method(:on_discard) { |*payload| discards << payload }
+
+    assert_equal [:error], parser.do_parse
+    token_id = parser.error_observations.fetch(0).fetch(0)
+    assert_equal [[token_id, "payload", [], bad_location, 4]], recoveries
+    assert_equal [[token_id, "payload", bad_location, :recovery]], discards
+  end
+
   def test_recovery_hook_runs_for_yyerror_without_calling_on_error
     parser = RecoveringStatements.new([[:INT, 1], [";", nil]])
     recoveries = []
@@ -378,5 +396,19 @@ class RuntimeParserTest < Minitest::Test
     assert_includes output.string, "read INT"
     assert_includes output.string, "shift INT"
     assert_includes output.string, "reduce"
+    refute_includes output.string, "value="
+  end
+
+  def test_debug_trace_value_printer_is_opt_in_and_contains_formatter_failures
+    output = StringIO.new
+    parser = Calculator.new([[:INT, 1], ["+", :plus], [:INT, 2]])
+    parser.yydebug = true
+    parser.yydebug_output = output
+    parser.trace_value_printer = ->(value) { value == :plus ? raise("hidden") : "<#{value}>" }
+
+    assert_equal 3, parser.do_parse
+    assert_includes output.string, "shift INT value=<1>"
+    assert_includes output.string, "shift + value=<printer error: RuntimeError>"
   end
 end
+# rubocop:enable Metrics/ClassLength
