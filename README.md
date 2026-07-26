@@ -100,6 +100,22 @@ and output errors propagate so incomplete traces are visible. The older `Runtime
 failure-contained byte contract. See [ADR 0050](docs/decisions/0050-stable-immutable-runtime-events.md) and
 [`schema/runtime-event-v1.schema.json`](schema/runtime-event-v1.schema.json).
 
+Automatic insertion, deletion, and replacement repair is explicit and bounded:
+
+```ruby
+parser.repair_policy = Ibex::Runtime::RepairPolicy.new(
+  max_cost: 3,
+  max_configurations: 5_000,
+  max_lookahead: 8
+)
+```
+
+Search interprets tables without executing semantic actions, then replays the selected edit through normal parser actions.
+`on_error` and `on_repair` run once for a selected incident; exhaustion falls through to existing yacc recovery without a second
+error callback. Push parsing can return `:need_more` while it buffers enough evidence. No policy preserves the original read,
+allocation, exception, and recovery path. See [ADR
+0053](docs/decisions/0053-bounded-minimum-cost-runtime-repair.md).
+
 Collect deterministic state and production coverage from one or more complete event streams without loading generated parsers:
 
 ```sh
@@ -441,8 +457,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 12,290 typed calls and 1,718 untyped calls out of 14,008 (87.7% typed).
-The generated signature tree contains 1,736 explicit `untyped` occurrences across 70 files.
+The current whole-library `steep stats` result is 12,729 typed calls and 1,778 untyped calls out of 14,507 (87.7% typed).
+The generated signature tree contains 1,824 explicit `untyped` occurrences across 73 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

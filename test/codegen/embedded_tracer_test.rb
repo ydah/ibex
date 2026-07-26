@@ -67,6 +67,33 @@ class EmbeddedTracerCodegenTest < Minitest::Test
     end
   end
 
+  def test_embedded_parser_includes_bounded_repair
+    source = <<~GRAMMAR
+      class EmbeddedRepairParser
+      token INT '+'
+      rule
+      expression: expression '+' INT { result = val[0] + val[2] }
+                | INT { result = val[0] }
+      end
+      ---- inner
+      def next_token = (@tokens ||= [[:INT, 1], [:INT, 2]]).shift
+      def on_repair(plan) = puts("repair=\#{plan.edits.first.kind}:\#{plan.edits.first.token_name}")
+      ---- footer
+      parser = EmbeddedRepairParser.new
+      parser.repair_policy = Ibex::Runtime::RepairPolicy.new
+      puts parser.do_parse
+    GRAMMAR
+    generated = generate(source)
+
+    Tempfile.create(["embedded-repair", ".rb"]) do |file|
+      file.write(generated)
+      file.flush
+      output, errors, status = Open3.capture3(RbConfig.ruby, "--disable-gems", file.path)
+      assert status.success?, errors
+      assert_equal "repair=insert:'+'\n3\n", output
+    end
+  end
+
   private
 
   def generate(source)

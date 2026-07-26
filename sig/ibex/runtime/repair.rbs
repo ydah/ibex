@@ -1,0 +1,92 @@
+# Generated from lib/ibex/runtime/repair.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    # Explicit bounded cost and search policy for automatic token repair.
+    class RepairPolicy
+      attr_reader insert_cost: Integer
+
+      attr_reader delete_cost: Integer
+
+      attr_reader replace_cost: Integer
+
+      attr_reader max_cost: Integer
+
+      attr_reader max_configurations: Integer
+
+      attr_reader max_lookahead: Integer
+
+      attr_reader success_shifts: Integer
+
+      attr_reader max_stack: Integer
+
+      # @rbs (?insert_cost: Integer, ?delete_cost: Integer, ?replace_cost: Integer, ?max_cost: Integer,
+      #   ?max_configurations: Integer, ?max_lookahead: Integer, ?success_shifts: Integer,
+      #   ?max_stack: Integer) -> void
+      def initialize: (?insert_cost: Integer, ?delete_cost: Integer, ?replace_cost: Integer, ?max_cost: Integer, ?max_configurations: Integer, ?max_lookahead: Integer, ?success_shifts: Integer, ?max_stack: Integer) -> void
+    end
+
+    # One immutable insertion, deletion, or replacement.
+    class RepairEdit
+      KINDS: Array[Symbol]
+
+      attr_reader kind: Symbol
+
+      attr_reader position: Integer
+
+      attr_reader token_id: Integer
+
+      attr_reader token_name: String
+
+      attr_reader cost: Integer
+
+      # @rbs (kind: Symbol, position: Integer, token_id: Integer, token_name: String, cost: Integer) -> void
+      def initialize: (kind: Symbol, position: Integer, token_id: Integer, token_name: String, cost: Integer) -> void
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
+    end
+
+    # Deterministically selected repair.
+    class RepairPlan
+      attr_reader edits: Array[RepairEdit]
+
+      attr_reader cost: Integer
+
+      attr_reader configurations: Integer
+
+      # @rbs (edits: Array[RepairEdit], configurations: Integer) -> void
+      def initialize: (edits: Array[RepairEdit], configurations: Integer) -> void
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
+    end
+
+    # Internal normalized input record retained while repair looks ahead.
+    class RepairInput
+      attr_reader token_id: Integer
+
+      attr_reader token_name: String
+
+      attr_reader value: untyped
+
+      attr_reader location: untyped
+
+      # @rbs (token_id: Integer, token_name: String, value: untyped, location: untyped) -> void
+      def initialize: (token_id: Integer, token_name: String, value: untyped, location: untyped) -> void
+
+      # @rbs () -> bool
+      def eof?: () -> bool
+    end
+
+    # Internal result of simulating reductions followed by one table action.
+    class RepairAdvance
+      attr_reader status: :shift | :accept
+
+      attr_reader stack: Array[Integer]
+
+      # @rbs (status: :shift | :accept, stack: Array[Integer]) -> void
+      def initialize: (status: :shift | :accept, stack: Array[Integer]) -> void
+    end
+  end
+end

@@ -68,6 +68,8 @@ module Ibex
 
       EMPTY_ROW: Hash[Integer, untyped]
 
+      @accept_requested: bool
+
       @semantic_error: bool
 
       @recovery_shifts: Integer
@@ -90,8 +92,6 @@ module Ibex
 
       @yydebug: bool
 
-      @accept_requested: bool
-
       @unknown_token_id: Integer?
 
       @unknown_token_name: String?
@@ -110,12 +110,25 @@ module Ibex
 
       @runtime_observation_mutex: Mutex
 
+      @repair_policy: RepairPolicy?
+
+      @repair_input_buffer: Array[RepairInput]?
+
+      @repair_selected: bool
+
       attr_accessor yydebug: bool
 
       attr_writer yydebug_output: IO
 
+      attr_reader repair_policy: RepairPolicy?
+
       # @rbs () -> void
       def initialize: () -> void
+
+      # Enable bounded automatic repair for the next parser session.
+      # Assign nil to restore the compatible yacc-only behavior.
+      # @rbs (RepairPolicy? policy) -> RepairPolicy?
+      def repair_policy=: (RepairPolicy? policy) -> RepairPolicy?
 
       # Pull tokens from `next_token` and parse them.
       # @rbs () -> untyped
@@ -146,7 +159,8 @@ module Ibex
       # @rbs () -> ([untyped, untyped] | [untyped, untyped, untyped] | false | nil)
       def next_token: () -> ([ untyped, untyped ] | [ untyped, untyped, untyped ] | false | nil)
 
-      # Override to recover from syntax errors. The default always raises.
+      # Override to recover from syntax errors. The default raises unless a
+      # bounded automatic repair has already been selected.
       # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> untyped
       def on_error: (Integer token_id, untyped value, Array[untyped] value_stack) -> untyped
 
@@ -164,6 +178,11 @@ module Ibex
       # The payload describes the original error before recovery popped stacks.
       # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> void
       def on_error_recover: (Integer token_id, untyped value, Array[untyped] value_stack) -> void
+
+      # Called once after a repair is selected and before its edited token
+      # prefix is replayed through normal parser actions.
+      # @rbs (RepairPlan plan) -> void
+      def on_repair: (RepairPlan plan) -> void
 
       # Return a human-readable name for an internal token id.
       # @rbs (Integer token_id) -> String
@@ -265,6 +284,22 @@ module Ibex
       # @rbs (bool report) -> untyped
       def begin_recovery: (bool report) -> untyped
 
+      # @rbs (bool report) -> Hash[Symbol, untyped]
+      def recovery_context: (bool report) -> Hash[Symbol, untyped]
+
+      # @rbs (Hash[Symbol, untyped] context) -> [Hash[String, untyped]?, Array[Proc]?]
+      def publish_error_context: (Hash[Symbol, untyped] context) -> [ Hash[String, untyped]?, Array[Proc]? ]
+
+      # @rbs (Hash[Symbol, untyped] context, untyped repair) -> void
+      def notify_error_handler: (Hash[Symbol, untyped] context, untyped repair) -> void
+
+      # @rbs (RepairPlan repair) -> [:continue]
+      def commit_repair: (RepairPlan repair) -> [ :continue ]
+
+      # @rbs (Hash[Symbol, untyped] context, Hash[String, untyped]? token_data,
+      #   Array[Proc]? recovery_observers) -> untyped
+      def fallback_recovery: (Hash[Symbol, untyped] context, Hash[String, untyped]? token_data, Array[Proc]? recovery_observers) -> untyped
+
       # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,
       #   Integer state) -> Hash[String, untyped]
       def runtime_original_token_data: (untyped token_id, untyped token_display, untyped value, untyped location, Integer state) -> Hash[String, untyped]
@@ -294,8 +329,53 @@ module Ibex
       # @rbs () -> bool
       def shift_error_token: () -> bool
 
+      # @rbs () -> (RepairPlan | Object | nil)
+      def selected_repair: () -> (RepairPlan | Object | nil)
+
+      # @rbs (RepairPolicy policy) -> [Array[RepairInput], bool]
+      def repair_search_tokens: (RepairPolicy policy) -> [ Array[RepairInput], bool ]
+
+      # @rbs (RepairPlan plan) -> void
+      def apply_repair: (RepairPlan plan) -> void
+
+      # @rbs () -> RepairInput
+      def current_repair_input: () -> RepairInput
+
+      # @rbs (Array[RepairInput] source, Array[RepairEdit] edits) -> Array[RepairInput]
+      def replay_repair_edits: (Array[RepairInput] source, Array[RepairEdit] edits) -> Array[RepairInput]
+
+      # @rbs (Array[RepairInput] output, RepairInput input, Array[RepairEdit] edits) -> bool
+      def append_repair_edits: (Array[RepairInput] output, RepairInput input, Array[RepairEdit] edits) -> bool
+
+      # @rbs () -> void
+      def clear_repair_lookahead: () -> void
+
+      # @rbs (RepairEdit edit, value: untyped, location: untyped) -> RepairInput
+      def synthetic_repair_input: (RepairEdit edit, value: untyped, location: untyped) -> RepairInput
+
+      # @rbs (RepairPlan plan) -> String
+      def repair_trace: (RepairPlan plan) -> String
+
       # @rbs () -> void
       def read_lookahead: () -> void
+
+      # @rbs () -> void
+      def read_repair_lookahead: () -> void
+
+      # @rbs () -> void
+      def read_compatible_lookahead: () -> void
+
+      # @rbs (untyped external_token, untyped value, untyped location) -> RepairInput
+      def repair_input: (untyped external_token, untyped value, untyped location) -> RepairInput
+
+      # @rbs (untyped token) -> RepairInput
+      def repair_input_from_external: (untyped token) -> RepairInput
+
+      # @rbs (RepairInput input) -> void
+      def enqueue_or_assign_repair_input: (RepairInput input) -> void
+
+      # @rbs (RepairInput input) -> void
+      def assign_repair_input: (RepairInput input) -> void
 
       # @rbs () -> untyped
       def read_external_token: () -> untyped

@@ -36,7 +36,9 @@ The following work requires a separately reviewed phase and ADR:
 - CPCT+-class repair and batch frontend diagnostics restart with a repair-cost policy, ambiguity/deduplication rules, bounded
   search budgets, and fixtures proving recovery continues at useful synchronization points. [ADR
   0041](0041-bounded-frontend-diagnostics.md) satisfies and supersedes the batch frontend diagnostic boundary with conservative
-  source-region recovery; CPCT+-class runtime repair remains deferred.
+  source-region recovery. [ADR 0053](0053-bounded-minimum-cost-runtime-repair.md) satisfies the runtime phase with explicit
+  positive costs, bounded deterministic Dijkstra search, push buffering, committed-path action replay, and compatible yacc
+  fallback. It intentionally selects one minimum-cost plan rather than enumerating a CPCT+ repair set.
 - [ADR 0047](0047-semantics-preserving-grammar-formatting.md) and [ADR
   0048](0048-overlay-workspaces-and-lsp.md) complete `fmt` and the stdio LSP over the lossless source contract from ADR 0040.
   [ADR 0049](0049-transactional-generation-and-watch-mode.md) satisfies and supersedes the watch-mode boundary with portable

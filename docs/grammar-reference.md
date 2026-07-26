@@ -246,6 +246,14 @@ For external tooling, `observe { |event| ... }` registers an ordered observer an
 `schema/runtime-event-v1.schema.json`; write and serialization failures propagate. This API is separate from the legacy
 hook-shaped `Runtime::JSONLTracer`. See [ADR 0050](decisions/0050-stable-immutable-runtime-events.md).
 
+Assign an immutable `Ibex::Runtime::RepairPolicy` before parsing to opt into bounded insertion, deletion, and replacement search.
+The default costs are 1/1/2 with maximum cost 3, 5,000 configurations/table actions, eight lookahead records, three successful
+shifts, and a 256-state simulated stack. `on_repair(plan)` observes the selected immutable edits after the one `on_error` call and
+before normal action replay. Insertions carry nil values, replacements retain the original value/location, and search failure
+continues into yacc recovery without reporting the incident twice. Push parsing may return `:need_more` while retaining the
+unexpected token. Semantic `yyerror` is not automatically repaired. See [ADR
+0053](decisions/0053-bounded-minimum-cost-runtime-repair.md).
+
 The versioned stream can be converted to grammar-test coverage with `ibex coverage collect EVENTS.jsonl`, combined across
 processes with `coverage merge`, and gated with `coverage check --min-states=PERCENT --min-productions=PERCENT`. State coverage
 counts the initial state plus committed shift, reduce-goto, and recovery destinations; production coverage counts committed

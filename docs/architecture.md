@@ -244,6 +244,12 @@ exposes the versioned stream; the original hook-based `Runtime::JSONLTracer` rem
 exception/threading behavior are fixed by
 [ADR 0050](decisions/0050-stable-immutable-runtime-events.md).
 
+Optional `Runtime::RepairPolicy` drives a bounded Dijkstra search over copied state stacks and buffered token identities. Search
+uses explicit/default ACTION, GOTO, and production shape only; it never executes semantic code. A selected immutable edit plan is
+reported once, then replayed through the ordinary runtime so actions and hooks remain committed-path effects. Pull lookahead,
+push buffering, deterministic tie-breaking, fallback to yacc recovery, and no-policy compatibility are fixed by
+[ADR 0053](decisions/0053-bounded-minimum-cost-runtime-repair.md).
+
 `Coverage::Collector` accepts only contiguous, complete runtime-event sessions with generated parser metadata. It counts entries
 to the initial, shift, reduce-goto, and recovery states and counts committed reductions by production id. `Coverage::Report`
 publishes ascending sparse hit arrays under the versioned runtime-coverage schema. Merge requires identical full grammar digest,
