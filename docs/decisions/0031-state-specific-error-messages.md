@@ -1,6 +1,6 @@
 # ADR 0031: State-specific syntax error messages
 
-- Status: Accepted
+- Status: Superseded by ADR 0067
 - Date: 2026-07-23
 
 ## Context

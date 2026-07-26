@@ -24,10 +24,12 @@ module Ibex
 
       attr_reader suggestions: Array[String]
 
+      attr_reader error_id: String?
+
       # rubocop:disable Layout/LineLength
-      # @rbs (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: untyped, ?expected_tokens: Array[String], ?location: untyped, ?state: Integer?, ?suggestions: Array[String], ?detail: String?) -> void
+      # @rbs (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: untyped, ?expected_tokens: Array[String], ?location: untyped, ?state: Integer?, ?suggestions: Array[String], ?error_id: String?, ?detail: String?) -> void
       # rubocop:enable Layout/LineLength
-      def initialize: (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: untyped, ?expected_tokens: Array[String], ?location: untyped, ?state: Integer?, ?suggestions: Array[String], ?detail: String?) -> void
+      def initialize: (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: untyped, ?expected_tokens: Array[String], ?location: untyped, ?state: Integer?, ?suggestions: Array[String], ?error_id: String?, ?detail: String?) -> void
 
       # @rbs () -> String
       def location_label: () -> String
@@ -458,6 +460,9 @@ module Ibex
 
       # @rbs (untyped action) -> bool
       def error_action?: (untyped action) -> bool
+
+      # @rbs (untyped configured) -> [String?, String?]
+      def configured_error_message: (untyped configured) -> [ String?, String? ]
 
       # @rbs (String actual, Array[String] expected) -> Array[String]
       def token_suggestions: (String actual, Array[String] expected) -> Array[String]

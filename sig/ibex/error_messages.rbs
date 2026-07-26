@@ -1,31 +1,56 @@
 # Generated from lib/ibex/error_messages.rb with RBS::Inline
 
 module Ibex
-  # Parses, validates, and deterministically updates state-specific syntax
+  # Parses, validates, and deterministically updates example-keyed syntax
   # error messages.
   module ErrorMessages
+    HEADER_V1: ::String
+
     HEADER: ::String
 
-    # One active or archived state entry with its source line.
+    # One active or archived error-sentence entry with its source line.
     class Entry
-      attr_reader state: Integer
+      attr_reader state: Integer?
 
-      attr_reader status: :active | :removed
+      attr_reader status: :active | :unreachable | :removed
 
       attr_reader message: String?
 
       attr_reader line: Integer
 
-      # @rbs (state: Integer, status: :active | :removed, message: String?, line: Integer) -> void
-      def initialize: (state: Integer, status: :active | :removed, message: String?, line: Integer) -> void
+      attr_reader sentence: Array[String]?
+
+      attr_reader error_id: String?
+
+      attr_reader entry: String?
+
+      # @rbs (state: Integer?, status: :active | :unreachable | :removed, message: String?, line: Integer,
+      #   ?sentence: Array[String]?, ?error_id: String?, ?entry: String?) -> void
+      def initialize: (state: Integer?, status: :active | :unreachable | :removed, message: String?, line: Integer, ?sentence: Array[String]?, ?error_id: String?, ?entry: String?) -> void
     end
 
     # Immutable parsed messages document.
     class Document
+      attr_reader version: Integer
+
       attr_reader entries: Array[Entry]
 
-      # @rbs (entries: Array[Entry]) -> void
-      def initialize: (entries: Array[Entry]) -> void
+      # @rbs (entries: Array[Entry], ?version: Integer) -> void
+      def initialize: (entries: Array[Entry], ?version: Integer) -> void
+    end
+
+    # Deterministic update output and review classifications.
+    class Update
+      attr_reader source: String
+
+      attr_reader uncovered: Array[String]
+
+      attr_reader unreachable: Array[String]
+
+      attr_reader moved: Array[String]
+
+      # @rbs (source: String, uncovered: Array[String], unreachable: Array[String], moved: Array[String]) -> void
+      def initialize: (source: String, uncovered: Array[String], unreachable: Array[String], moved: Array[String]) -> void
     end
 
     # @rbs (String source, file: String) -> Document
@@ -37,21 +62,16 @@ module Ibex
     # @rbs (IR::Automaton automaton) -> Array[IR::AutomatonState]
     def self?.error_states: (IR::Automaton automaton) -> Array[IR::AutomatonState]
 
-    # @rbs (IR::Automaton automaton, ?existing: Document?) -> String
-    def self?.render: (IR::Automaton automaton, ?existing: Document?) -> String
-
     # @rbs (Document document, IR::Automaton automaton, file: String) -> Hash[Integer, String]
     def self?.messages_for: (Document document, IR::Automaton automaton, file: String) -> Hash[Integer, String]
 
-    # @rbs (Array[String] lines, :active | :removed status, Integer state, String? message,
-    #   ?expected: Array[String]?) -> void
-    def self?.append_entry: (Array[String] lines, :active | :removed status, Integer state, String? message, ?expected: Array[String]?) -> void
+    # @rbs (Document document, IR::Automaton automaton, file: String) ->
+    #   Hash[Integer, { id: String, message: String }]
+    def self?.records_for: (Document document, IR::Automaton automaton, file: String) -> Hash[Integer, { id: String, message: String }]
 
-    # @rbs (String line) -> String
-    def encode_line: (String line) -> String
-
-    # @rbs (IR::Automaton automaton, IR::AutomatonState state) -> Array[String]
-    def expected_tokens: (IR::Automaton automaton, IR::AutomatonState state) -> Array[String]
+    # @rbs (Document document, IR::Automaton automaton, file: String) ->
+    #   Hash[Integer, { id: String, message: String }]
+    def self?.legacy_records_for: (Document document, IR::Automaton automaton, file: String) -> Hash[Integer, { id: String, message: String }]
 
     # @rbs (IR::Automaton automaton) -> Array[IR::GrammarSymbol]
     def ordinary_terminals: (IR::Automaton automaton) -> Array[IR::GrammarSymbol]

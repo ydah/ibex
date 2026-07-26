@@ -1,0 +1,80 @@
+# Generated from lib/ibex/error_messages/sentence_search.rb with RBS::Inline
+
+module Ibex
+  module ErrorMessages
+    # Finds deterministic shortest token sentences that reach each syntax
+    # error state without running semantic actions.
+    class SentenceSearch
+      DEFAULT_MAX_TOKENS: Integer
+
+      DEFAULT_MAX_CONFIGURATIONS: Integer
+
+      class Witness < Struct[String | Array[String] | Integer]
+        attr_accessor entry(): String
+
+        attr_accessor tokens(): Array[String]
+
+        attr_accessor state(): Integer
+
+        def self.new: (?entry: String, ?tokens: Array[String], ?state: Integer) -> instance
+                    | ({ ?entry: String, ?tokens: Array[String], ?state: Integer }) -> instance
+      end
+
+      @explored: Integer
+
+      @input_candidates: Array[IR::GrammarSymbol]
+
+      @candidates: Array[IR::GrammarSymbol]
+
+      @max_configurations: Integer
+
+      @max_tokens: Integer
+
+      @grammar: IR::Grammar
+
+      @automaton: IR::Automaton
+
+      # @rbs (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> void
+      def initialize: (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> void
+
+      # @rbs () -> Hash[Integer, Witness]
+      def all: () -> Hash[Integer, Witness]
+
+      # @rbs (Array[String] tokens, ?entry: String?) -> Integer?
+      def state_for: (Array[String] tokens, ?entry: String?) -> Integer?
+
+      private
+
+      # @rbs (Array[Integer] states, String name, bool final) ->
+      #   [Symbol, Array[Integer] | Integer | nil]
+      def consume_sentence_token: (Array[Integer] states, String name, bool final) -> [ Symbol, Array[Integer] | Integer | nil ]
+
+      # @rbs (String name, bool final) -> IR::GrammarSymbol?
+      def sentence_symbol: (String name, bool final) -> IR::GrammarSymbol?
+
+      # @rbs () -> Array[IR::GrammarSymbol]
+      def grammar_terminals: () -> Array[IR::GrammarSymbol]
+
+      # @rbs (String entry, Integer initial_state, Hash[Integer, bool] targets,
+      #   Hash[Integer, Witness] witnesses) -> void
+      def search_entry: (String entry, Integer initial_state, Hash[Integer, bool] targets, Hash[Integer, Witness] witnesses) -> void
+
+      # @rbs (String entry, Array[Integer] states, Array[String] prefix, Hash[Integer, bool] targets,
+      #   Hash[Integer, Witness] witnesses) -> void
+      def collect_errors: (String entry, Array[Integer] states, Array[String] prefix, Hash[Integer, bool] targets, Hash[Integer, Witness] witnesses) -> void
+
+      # @rbs (Array[[Array[Integer], Array[String]]] queue, Hash[Array[Integer], bool] visited,
+      #   Array[Integer] states, Array[String] prefix) -> void
+      def enqueue_shifts: (Array[[ Array[Integer], Array[String] ]] queue, Hash[Array[Integer], bool] visited, Array[Integer] states, Array[String] prefix) -> void
+
+      # @rbs (Array[Integer] initial, Integer token_id) -> [Symbol, Array[Integer] | Integer | nil]
+      def advance: (Array[Integer] initial, Integer token_id) -> [ Symbol, Array[Integer] | Integer | nil ]
+
+      # @rbs (Array[Integer] states, Integer production_id) -> Array[Integer]?
+      def reduce_stack: (Array[Integer] states, Integer production_id) -> Array[Integer]?
+
+      # @rbs () -> void
+      def count_configuration!: () -> void
+    end
+  end
+end

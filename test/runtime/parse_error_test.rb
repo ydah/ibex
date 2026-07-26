@@ -97,4 +97,14 @@ class RuntimeParseErrorTest < Minitest::Test
     assert_predicate error.expected_tokens, :frozen?
     assert_predicate error.suggestions, :frozen?
   end
+
+  def test_stable_error_id_is_immutable_and_rendered
+    identifier = +"E0042"
+    error = Ibex::ParseError.new(error_id: identifier, detail: "Expected an expression.")
+    identifier.replace("changed")
+
+    assert_equal "E0042", error.error_id
+    assert_match(/\[E0042\] Expected an expression\./, error.message)
+    assert_predicate error.error_id, :frozen?
+  end
 end

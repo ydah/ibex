@@ -2,6 +2,7 @@
 
 require_relative "../runtime/parser"
 require_relative "ruby_actions"
+require_relative "ruby_error_messages"
 require_relative "ruby_table_metadata"
 require_relative "ruby_value_printers"
 
@@ -10,6 +11,7 @@ module Ibex
     # Generates a standalone Ruby parser class from Automaton IR.
     class Ruby
       include RubyActions
+      include RubyErrorMessages
       include RubyTableMetadata
       include RubyValuePrinters
 
@@ -23,11 +25,12 @@ module Ibex
       # @rbs @omit_action_call: bool
       # @rbs @superclass: String
       # @rbs @executable: String?
-      # @rbs @error_messages: Hash[Integer, String]
+      # @rbs @error_messages: Hash[Integer, String | { id: String, message: String }]
 
       # @rbs (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool,
       #   ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?,
-      #   ?executable: String?, ?error_messages: Hash[Integer, String]) -> void
+      #   ?executable: String?,
+      #   ?error_messages: Hash[Integer, String | { id: String, message: String }]) -> void
       def initialize(automaton, table: :compact, embedded: false, line_convert: true, debug: false,
                      line_convert_all: false, omit_action_call: nil, superclass: nil, executable: nil,
                      error_messages: {})
@@ -107,8 +110,10 @@ module Ibex
         lines << "#{indent}DEFAULT_ACTIONS = #{table_set.default_actions.inspect}.freeze"
         lines << "#{indent}PRODUCTIONS = #{productions_literal}.freeze"
         append_value_printer_table(lines, indent)
-        lines << "#{indent}error_messages = #{error_messages_literal} # @type var error_messages: Hash[Integer, String]"
-        lines << "#{indent}ERROR_MESSAGES = error_messages.freeze #: Hash[Integer, String]"
+        declaration = "#{indent}error_messages = #{error_messages_literal}"
+        type = "Hash[Integer, String | { id: String, message: String }]"
+        lines << "#{declaration} # @type var error_messages: #{type}"
+        lines << "#{indent}ERROR_MESSAGES = error_messages.freeze #: #{type}"
         append_parser_tables(lines, indent)
         lines << "#{indent}def self.parser_tables = PARSER_TABLES"
         lines << "#{indent}DEBUG_ENABLED = #{@debug}"
@@ -227,14 +232,6 @@ module Ibex
             action.code.match?(/@(?:\$|\d+)|\bresult_loc\b|\bloc\s*\(/)
           )
         end
-      end
-
-      # @rbs () -> String
-      def error_messages_literal
-        return "{}" if @error_messages.empty?
-
-        entries = @error_messages.map { |state, message| "#{state} => #{message.inspect}" }
-        "{ #{entries.join(', ')} }"
       end
 
       # @rbs (Array[String] lines, String name, ?indent: Integer) -> void

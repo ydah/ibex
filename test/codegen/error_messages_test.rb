@@ -30,6 +30,21 @@ class ErrorMessagesCodegenTest < Minitest::Test
     end
   end
 
+  def test_sentence_message_records_expose_stable_error_ids
+    automaton = build_automaton
+    state = Ibex::ErrorMessages::SentenceSearch.new(automaton).all.keys.first
+    records = { state => { id: "E0042", message: "Expected an integer." } }
+    parser_class = evaluate(automaton, records, table: :compact, embedded: false)
+
+    error = assert_raises(StandardError) do
+      parser_class.new.parse_tokens([[:BAD, "payload", LOCATION]])
+    end
+
+    assert_equal "E0042", error.error_id
+    assert_includes error.message, "[E0042] Expected an integer."
+    assert_predicate parser_class::ERROR_MESSAGES.fetch(state), :frozen?
+  end
+
   private
 
   def build_automaton

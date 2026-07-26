@@ -1,7 +1,7 @@
 # Generated from lib/ibex/cli/error_messages.rb with RBS::Inline
 
 module Ibex
-  # CLI subcommand and generation-file handling for state-specific errors.
+  # CLI subcommand and generation-file handling for example-keyed errors.
   module CLIErrorMessages
     private def print_help: (OptionParser) -> Integer
 
@@ -45,11 +45,20 @@ module Ibex
     # @rbs (IR::Automaton automaton, String input_path) -> void
     def write_error_messages: (IR::Automaton automaton, String input_path) -> void
 
+    # @rbs () -> { max_tokens: Integer, max_configurations: Integer }
+    def error_message_search_limits: () -> { max_tokens: Integer, max_configurations: Integer }
+
+    # @rbs (Integer value, String option) -> Integer
+    def positive_messages_limit: (Integer value, String option) -> Integer
+
+    # @rbs (ErrorMessages::Update update) -> void
+    def write_error_message_update_report: (ErrorMessages::Update update) -> void
+
     # @rbs (String path) -> Integer
     def messages_file_mode: (String path) -> Integer
 
-    # @rbs (IR::Automaton automaton) -> Hash[Integer, String]
-    def configured_error_messages: (IR::Automaton automaton) -> Hash[Integer, String]
+    # @rbs (IR::Automaton automaton) -> Hash[Integer, untyped]
+    def configured_error_messages: (IR::Automaton automaton) -> Hash[Integer, untyped]
 
     # @rbs () -> void
     def validate_messages_options: () -> void

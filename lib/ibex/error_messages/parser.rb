@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require_relative "parser_v2"
+
 module Ibex
   module ErrorMessages
-    # Strict line-oriented parser for the ibex-messages v1 format.
+    # Strict line-oriented parser for the ibex-messages v1 and v2 formats.
     class Parser
+      include ParserV2
+
       ESCAPES = { "\\" => "\\", "n" => "\n", "t" => "\t", "r" => "\r" }.freeze
 
       # @rbs @file: String
@@ -20,7 +24,16 @@ module Ibex
 
       # @rbs () -> Document
       def parse
-        validate_header
+        version = validate_header
+        return parse_v2 if version == 2
+
+        parse_v1
+      end
+
+      private
+
+      # @rbs () -> Document
+      def parse_v1
         entries = [] #: Array[Entry]
         declarations = {} #: Hash[Integer, Integer]
         index = 1
@@ -40,15 +53,16 @@ module Ibex
           entry, index = parse_entry(index, state, match[1] == "state" ? :active : :removed)
           entries << entry
         end
-        Document.new(entries: entries)
+        Document.new(version: 1, entries: entries)
       end
 
-      private
-
-      # @rbs () -> void
+      # @rbs () -> Integer
       def validate_header
         header = @lines.first&.delete_prefix("\uFEFF")
-        fail_at(1, 1, "expected #{HEADER.inspect}") unless header == HEADER
+        return 1 if header == HEADER_V1
+        return 2 if header == HEADER
+
+        fail_at(1, 1, "expected #{HEADER.inspect} or #{HEADER_V1.inspect}")
       end
 
       # @rbs (Hash[Integer, Integer] declarations, Integer state, Integer index, String line) -> void

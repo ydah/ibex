@@ -1,0 +1,67 @@
+# Generated from lib/ibex/error_messages/parser_v2.rb with RBS::Inline
+
+module Ibex
+  module ErrorMessages
+    # Sentence-keyed ibex-messages v2 parsing, mixed into Parser so both
+    # versions share UTF-8, escape, and positioned-diagnostic helpers.
+    module ParserV2
+      private def ignorable?: (String) -> bool
+
+      private def column: (String) -> Integer
+
+      private def fail_at: (Integer, Integer, String) -> bot
+
+      private def decode_line: (String, Integer, Integer) -> String
+
+      private
+
+      # @rbs () -> Document
+      def parse_v2: () -> Document
+
+      # @rbs (Entry entry, Array[Entry] entries, Hash[String, Integer] identifiers,
+      #   Hash[String, Integer] keys) -> void
+      def record_v2_entry: (Entry entry, Array[Entry] entries, Hash[String, Integer] identifiers, Hash[String, Integer] keys) -> void
+
+      # @rbs (Integer opening_index) -> [Entry, Integer]
+      def parse_v2_entry: (Integer opening_index) -> [ Entry, Integer ]
+
+      # @rbs (Integer opening_index) ->
+      #   [:active | :unreachable | :removed, Array[String]?, Integer?]
+      def parse_v2_opening: (Integer opening_index) -> [ :active | :unreachable | :removed, Array[String]?, Integer? ]
+
+      # @rbs (Integer opening_index, :active | :unreachable | :removed status, Array[String]? sentence,
+      #   Integer? state) -> [Entry, Integer]
+      def read_v2_entry_body: (Integer opening_index, :active | :unreachable | :removed status, Array[String]? sentence, Integer? state) -> [ Entry, Integer ]
+
+      # @rbs (Integer opening_index, Integer index, :active | :unreachable | :removed status,
+      #   Array[String]? sentence, Integer? state, String? error_id, String? entry_name,
+      #   Array[String] message_lines) -> [Entry, Integer]
+      def close_v2_entry: (Integer opening_index, Integer index, :active | :unreachable | :removed status, Array[String]? sentence, Integer? state, String? error_id, String? entry_name, Array[String] message_lines) -> [ Entry, Integer ]
+
+      # @rbs (String line, Integer index, String? error_id, Integer? state, String? entry_name,
+      #   Array[String] message_lines) -> [String?, Integer?, String?]
+      def read_v2_metadata: (String line, Integer index, String? error_id, Integer? state, String? entry_name, Array[String] message_lines) -> [ String?, Integer?, String? ]
+
+      # @rbs (Array[String] message_lines, String line, Integer index) -> void
+      def append_v2_message_line: (Array[String] message_lines, String line, Integer index) -> void
+
+      # @rbs (String source, Integer line) -> Array[String]
+      def parse_sentence: (String source, Integer line) -> Array[String]
+
+      # @rbs (String source, Integer index) -> Integer
+      def skip_sentence_space: (String source, Integer index) -> Integer
+
+      # @rbs (String source, Integer index, Integer line) -> [String, Integer]
+      def read_sentence_token: (String source, Integer index, Integer line) -> [ String, Integer ]
+
+      # @rbs (String source, Integer index, String quote, Integer line) -> Integer
+      def quoted_token_end: (String source, Integer index, String quote, Integer line) -> Integer
+
+      # @rbs (String source, Integer index, String quote, Integer line) -> Integer
+      def scan_quoted_token: (String source, Integer index, String quote, Integer line) -> Integer
+
+      # @rbs (Hash[String, Integer] declarations, String key, Integer line, String label) -> void
+      def reject_v2_duplicate: (Hash[String, Integer] declarations, String key, Integer line, String label) -> void
+    end
+  end
+end

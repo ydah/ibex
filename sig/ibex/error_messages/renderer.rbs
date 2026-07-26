@@ -1,0 +1,23 @@
+# Generated from lib/ibex/error_messages/renderer.rb with RBS::Inline
+
+module Ibex
+  module ErrorMessages
+    # @rbs (IR::Automaton automaton, Array[Entry] entries) -> String
+    def self?.render_entries: (IR::Automaton automaton, Array[Entry] entries) -> String
+
+    # @rbs (Array[String] lines, IR::Automaton automaton, Entry entry) -> void
+    def append_entry: (Array[String] lines, IR::Automaton automaton, Entry entry) -> void
+
+    # @rbs (Entry entry) -> String
+    def entry_heading: (Entry entry) -> String
+
+    # @rbs (Array[String] lines, IR::Automaton automaton, Entry entry) -> void
+    def append_expected_tokens: (Array[String] lines, IR::Automaton automaton, Entry entry) -> void
+
+    # @rbs (String line) -> String
+    def encode_line: (String line) -> String
+
+    # @rbs (IR::Automaton automaton, IR::AutomatonState state) -> Array[String]
+    def expected_tokens: (IR::Automaton automaton, IR::AutomatonState state) -> Array[String]
+  end
+end

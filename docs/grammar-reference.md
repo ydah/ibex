@@ -359,28 +359,36 @@ successful generation intact; an unchanged failure is reported once. Source chan
 debouncing. Watch mode requires a grammar file and cannot be combined with stdin, `--from`, `--check`, or `--check-only`.
 `SIGINT` and `SIGTERM` exit with status 130 and 143. Rake tasks are timestamp-based and reject `--watch`.
 
-## State-specific error messages
+## Example-keyed error messages
 
-`ibex errors --update grammar.y` writes `grammar.messages`; use `--update=FILE`, `--algorithm=NAME`, or an IR `--from` option to
-select another destination or automaton. The UTF-8 line-oriented format keeps message text separate from generated Ruby:
+`ibex errors --list grammar.y` prints a deterministic `ibex-messages v2` template without writing a file. Each entry is keyed by
+a shortest token sentence that reaches a syntax error, rather than by an unstable automaton state number:
 
 ```text
-# ibex-messages v1
-state 4
-# expected: "(", INT
-| An expression must start here.
-| Use an integer or an opening parenthesis.
+# ibex-messages v2
+sentence: NUM '+' ')'
+## E0042
+# entry: expression
+# state: 7
+# expected: '(', NUM
+| An operand or opening parenthesis is required before ')'.
 end
 ```
 
-Blank lines and comments are ignored. Message lines start with `|`; multiple lines are joined with newlines, and `\\`, `\n`,
-`\t`, and `\r` are the supported escapes. Re-running `errors --update` retains message bodies for matching state numbers and
-moves disappeared states to `removed N` entries for review. State numbers belong to one generated automaton and may change after
-grammar, algorithm, option, or generator changes, so always review retained and removed entries after updating.
+The `# state:` and `# expected:` lines are review hints; the sentence and error ID are the durable keys. Message lines start with
+`|`; multiple lines are joined with newlines, and `\\`, `\n`, `\t`, and `\r` are the supported escapes. Blank lines and comments
+are ignored.
 
-Pass the reviewed file to Ruby generation with `--messages=grammar.messages`. An active state absent from the current automaton is
-an error with an instruction to update; removed entries are ignored. A matching message replaces only the generic syntax-error
-sentence, while structured token, location, expected-token, suggestion, source-line, and caret data remain available.
+`ibex errors --update grammar.y` atomically writes `grammar.messages`; use `--update=FILE`, `--algorithm=NAME`, or an IR `--from`
+option to select another destination or automaton. It keeps IDs and message bodies, and reports three review classes on stdout:
+`unreachable` when a saved sentence is no longer an error, `uncovered` for a new error state, and `moved` when a sentence now
+reaches a different state. An existing v1 numeric-state file is accepted and migrated on update. Use `--max-tokens=N` and
+`--max-configurations=N` to bound the shortest-sentence search; both default to the counterexample search limits.
+
+Pass the reviewed file to Ruby generation with `--messages=grammar.messages`. Each matching message replaces only the generic
+syntax-error sentence. `ParseError#error_id` exposes its stable `E00xx` identifier, and structured token, location,
+expected-token, suggestion, source-line, and caret data remain available. A saved active sentence that no longer reaches an
+error is rejected with an instruction to run the updater.
 
 ## Analysis and visualizations
 

@@ -379,6 +379,7 @@ ibex --rbs --action-source -o parser.rb grammar.y
 ibex --manifest -o parser.rb grammar.y
 ibex --watch --manifest -o parser.rb grammar.y
 ibex --warnings=all,error -C grammar.y
+ibex errors --list grammar.y
 ibex errors --update grammar.y
 ibex --messages=grammar.messages grammar.y
 ibex --check --rbs grammar.y
@@ -513,8 +514,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 14,308 typed calls and 1,926 untyped calls out of 16,234 (88.1% typed).
-The generated signature tree contains 1,994 explicit `untyped` occurrences across 77 files.
+The current whole-library `steep stats` result is 14,781 typed calls and 1,957 untyped calls out of 16,738 (88.3% typed).
+The generated signature tree contains 1,998 explicit `untyped` occurrences across 78 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime
