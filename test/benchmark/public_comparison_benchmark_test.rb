@@ -28,6 +28,72 @@ class PublicComparisonRootIdentityTest < Minitest::Test
   end
 end
 
+class PublicComparisonDependencyDefinitionTest < Minitest::Test
+  def test_ignored_lockfile_cannot_replace_a_tracked_dependency_definition
+    Dir.mktmpdir("public-dependency-definition-test-") do |directory|
+      checkout = File.join(directory, "checkout")
+      prepare_checkout(checkout)
+      revision = git(checkout, "rev-parse", "HEAD")
+      manifest_path = File.join(directory, "manifest.json")
+
+      write_manifest(manifest_path, revision, "Gemfile.lock")
+      manifest = BenchmarkSupport::PublicWorkloadManifest.new(manifest_path)
+      error = assert_raises(RuntimeError) do
+        manifest.verify_checkout("fixture", checkout, allow_dirty: false)
+      end
+      assert_includes error.message, "must be tracked at HEAD"
+
+      write_manifest(manifest_path, revision, "Gemfile")
+      manifest = BenchmarkSupport::PublicWorkloadManifest.new(manifest_path)
+      metadata = manifest.verify_checkout("fixture", checkout, allow_dirty: false)
+      assert_equal Digest::SHA256.file(File.join(checkout, "Gemfile")).hexdigest,
+                   metadata.fetch(:dependency_definition_sha256)
+      refute metadata.fetch(:dirty)
+    end
+  end
+
+  private
+
+  def prepare_checkout(checkout)
+    FileUtils.mkdir_p(File.join(checkout, "lib"))
+    git(checkout, "init", "--quiet")
+    git(checkout, "config", "user.email", "benchmark@example.com")
+    git(checkout, "config", "user.name", "Benchmark Fixture")
+    File.write(File.join(checkout, ".gitignore"), "Gemfile.lock\n")
+    File.write(File.join(checkout, "Gemfile"), "source \"https://rubygems.org\"\n")
+    File.write(File.join(checkout, "Gemfile.lock"), "ignored local lock\n")
+    File.write(File.join(checkout, "lib/parser.y"), "class FixtureParser\nrule\nend\n")
+    git(checkout, "add", ".")
+    git(checkout, "commit", "--quiet", "-m", "Add fixture")
+    git(checkout, "remote", "add", "origin", "https://example.com/project.git")
+  end
+
+  def write_manifest(path, revision, dependency_definition_path)
+    document = {
+      schema_version: 1,
+      workloads: [{
+        id: "fixture",
+        repository_url: "https://example.com/project.git",
+        revision: revision,
+        grammar_path: "lib/parser.y",
+        dependency_definition_path: dependency_definition_path,
+        driver: "namae",
+        workload_id: "fixture-v1",
+        inputs: ["Ada Lovelace"]
+      }]
+    }
+    File.write(path, JSON.generate(document))
+  end
+
+  def git(directory, *arguments)
+    FileUtils.mkdir_p(directory)
+    stdout, stderr, status = Open3.capture3("git", *arguments, chdir: directory)
+    raise "fixture git command failed: #{stderr}#{stdout}" unless status.success?
+
+    stdout.strip
+  end
+end
+
 class PublicComparisonBenchmarkTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   SCHEMA = File.join(ROOT, "schema/public-performance-comparison-v1.schema.json")
@@ -43,6 +109,7 @@ class PublicComparisonBenchmarkTest < Minitest::Test
     manifest.ids.each do |identifier|
       workload = manifest.fetch(identifier)
       assert_match(/\A[0-9a-f]{40}\z/, workload.fetch("revision"))
+      assert_equal "Gemfile", workload.fetch("dependency_definition_path")
       assert_operator workload.fetch("inputs").length, :>=, 5
     end
   end
@@ -160,6 +227,7 @@ class PublicComparisonBenchmarkTest < Minitest::Test
     source = File.read(File.join(ROOT, "benchmark/support/public_workload_manifest.rb"))
 
     assert_includes source, '"HEAD:lib"'
+    assert_includes source, '"ls-tree"'
     refute_includes source, "File.binread"
     refute_includes source, "tracked_library_sha256"
   end
@@ -213,7 +281,7 @@ class PublicComparisonBenchmarkTest < Minitest::Test
       untracked_dirty: false,
       status_sha256: "a" * 64,
       grammar_sha256: "b" * 64,
-      lockfile_sha256: "c" * 64,
+      dependency_definition_sha256: "c" * 64,
       library_tree_oid: "d" * 40
     }
   end

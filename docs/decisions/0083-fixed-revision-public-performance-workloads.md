@@ -22,14 +22,23 @@ black-box loading, and observable results are permitted.
 ## Decision
 
 `benchmark/public_workloads.json` fixes the repository URL, full revision,
-grammar and lockfile paths, workload identity, driver, and input sequence for
-all three release-gate projects. `benchmark/public_comparison.rb` requires an
-explicit checkout mapping for every selected project. Before execution it
-verifies the full revision and normalized origin and records the grammar,
-lockfile, status, workload, and manifest SHA-256 digests plus the committed
-`lib/` Git tree object ID. Using the tree identity avoids opening tracked
-generated parser outputs. Formal evidence rejects any tracked or untracked
-dirtiness in both the Ibex root and every public checkout.
+grammar and tracked dependency-definition paths, workload identity, driver,
+and input sequence for all three release-gate projects.
+`benchmark/public_comparison.rb` requires an explicit checkout mapping for
+every selected project. Before execution it verifies the full revision and
+normalized origin, proves the dependency definition is tracked at `HEAD`, and
+records grammar, dependency-definition, status, workload, and manifest
+SHA-256 digests plus the committed `lib/` Git tree object ID. Using the tree
+identity avoids opening tracked generated parser outputs. Formal evidence
+rejects any tracked or untracked dirtiness in both the Ibex root and every
+public checkout.
+
+None of the fixed revisions tracks `Gemfile.lock`. Lockfiles present during
+the initial diagnostic were ignored local files and cannot identify a fresh
+clone. Each manifest entry therefore names the tracked `Gemfile`. The harness
+does not install or activate project bundles; it runs both implementations
+under the root Ruby and Racc environment whose versions and option identity
+are recorded in the artifact.
 
 The executable prints a third-party-code warning before it starts workers.
 Operators must obtain and review the named revisions themselves; the harness
@@ -58,9 +67,10 @@ comparison can only be a diagnostic smoke. Timing and allocation targets are
 evidence fields, not noisy CI thresholds.
 
 Immediately after observation collection, the orchestrator repeats revision,
-origin, status, grammar digest, lockfile digest, and library-tree verification.
-Any difference from the pre-run metadata aborts report emission. Formal runs
-therefore begin and end with the exact clean checkout identity.
+origin, status, grammar digest, dependency-definition digest, tracking proof,
+and library-tree verification. Any difference from the pre-run metadata
+aborts report emission. Formal runs therefore begin and end with the exact
+clean checkout identity.
 
 The orchestrator also captures the Ibex root environment before workers start
 and again after they finish. Its Git revision and aggregate, tracked, and

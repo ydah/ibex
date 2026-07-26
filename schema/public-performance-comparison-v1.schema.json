@@ -248,13 +248,13 @@
         "revision",
         "expected_revision",
         "grammar_path",
-        "lockfile_path",
+        "dependency_definition_path",
         "dirty",
         "tracked_dirty",
         "untracked_dirty",
         "status_sha256",
         "grammar_sha256",
-        "lockfile_sha256",
+        "dependency_definition_sha256",
         "library_tree_oid"
       ],
       "properties": {
@@ -263,13 +263,13 @@
         "revision": { "$ref": "#/$defs/sha1" },
         "expected_revision": { "$ref": "#/$defs/sha1" },
         "grammar_path": { "type": "string", "minLength": 1 },
-        "lockfile_path": { "type": "string", "minLength": 1 },
+        "dependency_definition_path": { "type": "string", "minLength": 1 },
         "dirty": { "type": "boolean" },
         "tracked_dirty": { "type": "boolean" },
         "untracked_dirty": { "type": "boolean" },
         "status_sha256": { "$ref": "#/$defs/sha256" },
         "grammar_sha256": { "$ref": "#/$defs/sha256" },
-        "lockfile_sha256": { "$ref": "#/$defs/sha256" },
+        "dependency_definition_sha256": { "$ref": "#/$defs/sha256" },
         "library_tree_oid": {
           "type": "string",
           "pattern": "^[0-9a-f]{40,64}$"

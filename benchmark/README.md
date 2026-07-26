@@ -189,6 +189,13 @@ Review those revisions before continuing. The benchmark loads generated
 parsers and selected application support files, so running it executes
 third-party code from every supplied checkout.
 
+None of these three revisions tracks `Gemfile.lock`; lockfiles found in older
+diagnostic directories were ignored local files and are not reproducible
+inputs. The manifest therefore identifies each tracked `Gemfile` as the
+dependency definition. The harness does not install or activate each
+project's bundle: both implementations run under the root Ruby and Racc
+environment recorded in the artifact.
+
 Run a formal YJIT-off comparison with:
 
 ```sh
@@ -206,11 +213,12 @@ bundle exec ruby benchmark/public_comparison.rb \
 ```
 
 The command verifies each full revision and origin, rejects a dirty Ibex root
-or dirty public checkout, and records grammar and lockfile digests plus the
-committed `lib/` Git tree object ID, status, workload, and manifest digests. It
-repeats the complete checkout verification after collecting observations and
-rejects any metadata change before emitting a report. The Git tree identity
-avoids opening external generated parser outputs.
+or dirty public checkout, requires the dependency definition to be tracked at
+`HEAD`, and records grammar and dependency-definition digests plus the
+committed `lib/` Git tree object ID, status, workload, and manifest digests.
+It repeats the complete checkout verification after collecting observations
+and rejects any metadata change before emitting a report. The Git tree
+identity avoids opening external generated parser outputs.
 
 The Ibex root receives the same before/after boundary: its revision plus
 aggregate, tracked, and untracked dirty state must remain identical, and both

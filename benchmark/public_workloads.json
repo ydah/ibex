@@ -6,7 +6,7 @@
       "repository_url": "https://github.com/berkmancenter/namae.git",
       "revision": "d33875aaf1fc420a8dfe946a3b29cc3e19710061",
       "grammar_path": "lib/namae/parser.y",
-      "lockfile_path": "Gemfile.lock",
+      "dependency_definition_path": "Gemfile",
       "driver": "namae",
       "workload_id": "representative-public-names-v1",
       "inputs": [
@@ -22,7 +22,7 @@
       "repository_url": "https://github.com/bcdice/BCDice.git",
       "revision": "21b4a03789bf2080ad41aaf31299b609ee7bda86",
       "grammar_path": "lib/bcdice/command/parser.y",
-      "lockfile_path": "Gemfile.lock",
+      "dependency_definition_path": "Gemfile",
       "driver": "bcdice_command",
       "workload_id": "command-parser-options-v1",
       "inputs": [
@@ -38,7 +38,7 @@
       "repository_url": "https://github.com/sparklemotion/nokogiri.git",
       "revision": "04a4c29c6a605ad40a78f4ce343ced0832a1805c",
       "grammar_path": "lib/nokogiri/css/parser.y",
-      "lockfile_path": "Gemfile.lock",
+      "dependency_definition_path": "Gemfile",
       "driver": "nokogiri_css",
       "workload_id": "css-selector-ast-v1",
       "inputs": [

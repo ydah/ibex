@@ -202,7 +202,7 @@ module BenchmarkSupport
         url: workload.fetch("repository_url"),
         expected_revision: workload.fetch("revision"),
         grammar_path: workload.fetch("grammar_path"),
-        lockfile_path: workload.fetch("lockfile_path")
+        dependency_definition_path: workload.fetch("dependency_definition_path")
       )
     end
 

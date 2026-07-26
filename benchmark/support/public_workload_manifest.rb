@@ -9,7 +9,7 @@ module BenchmarkSupport
   # Loads fixed public workloads and verifies supplied checkouts before execution.
   class PublicWorkloadManifest
     REQUIRED_KEYS = %w[
-      id repository_url revision grammar_path lockfile_path driver workload_id inputs
+      id repository_url revision grammar_path dependency_definition_path driver workload_id inputs
     ].freeze
 
     attr_reader :path
@@ -77,7 +77,7 @@ module BenchmarkSupport
       raise "public workload keys changed" unless workload.keys.sort == REQUIRED_KEYS.sort
       raise "public workload revision must be full SHA-1" unless workload.fetch("revision").match?(/\A[0-9a-f]{40}\z/)
 
-      %w[grammar_path lockfile_path].each { |key| validate_relative_path!(workload.fetch(key)) }
+      %w[grammar_path dependency_definition_path].each { |key| validate_relative_path!(workload.fetch(key)) }
       inputs = workload.fetch("inputs")
       valid_inputs = inputs.is_a?(Array) && inputs.all? { |input| input.is_a?(String) && !input.empty? }
       raise "public workload inputs must be non-empty strings" unless valid_inputs
@@ -91,7 +91,9 @@ module BenchmarkSupport
 
     def checkout_metadata(workload, checkout, origin, status)
       grammar = File.join(checkout, workload.fetch("grammar_path"))
-      lockfile = File.join(checkout, workload.fetch("lockfile_path"))
+      dependency_definition_path = workload.fetch("dependency_definition_path")
+      ensure_tracked_at_head!(checkout, dependency_definition_path)
+      dependency_definition = File.join(checkout, dependency_definition_path)
       {
         root: checkout,
         origin: origin,
@@ -101,9 +103,18 @@ module BenchmarkSupport
         untracked_dirty: status.any? { |line| line.start_with?("??") },
         status_sha256: Digest::SHA256.hexdigest(status.join("\n")),
         grammar_sha256: Digest::SHA256.file(grammar).hexdigest,
-        lockfile_sha256: Digest::SHA256.file(lockfile).hexdigest,
+        dependency_definition_sha256: Digest::SHA256.file(dependency_definition).hexdigest,
         library_tree_oid: capture!(checkout, "git", "rev-parse", "HEAD:lib")
       }
+    end
+
+    def ensure_tracked_at_head!(checkout, relative)
+      tracked = capture!(
+        checkout, "git", "ls-tree", "--full-tree", "--name-only", "HEAD", "--", relative
+      ).lines(chomp: true)
+      return if tracked == [relative]
+
+      raise "dependency definition #{relative.inspect} must be tracked at HEAD"
     end
 
     def normalize_repository(value)
