@@ -151,6 +151,7 @@ module Ibex
       attr_reader :class_name #: String
       attr_reader :superclass #: String?
       attr_reader :start #: String
+      attr_reader :starts #: Array[String]
       attr_reader :mode #: grammar_mode
       attr_reader :expect #: Integer
       attr_reader :expect_rr #: Integer?
@@ -173,17 +174,19 @@ module Ibex
       #   conversions: Hash[String, String], warnings: Array[grammar_warning], ?user_code_chunks: user_code_chunks?,
       #   ?schema_version: Integer, ?source_provenance: source_provenance?,
       #   ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter],
-      #   ?value_printers: Array[value_printer], ?mode: grammar_mode) -> void
+      #   ?value_printers: Array[value_printer], ?mode: grammar_mode, ?starts: Array[String]?) -> void
       # rubocop:disable Metrics/ParameterLists -- immutable versioned IR is constructed from explicit public fields.
       def initialize(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
                      conversions:, warnings:, user_code_chunks: nil, schema_version: SCHEMA_VERSION,
                      source_provenance: nil, migration: nil, expect_rr: nil, parser_parameters: [], value_printers: [],
-                     mode: :racc)
-        raise ArgumentError, "mode must be :racc or :extended" unless %i[racc extended].include?(mode)
+                     mode: :racc, starts: nil)
+        validate_mode(mode)
+        normalized_starts = validate_starts(start, starts, mode)
 
         @class_name = class_name.freeze
         @superclass = superclass&.freeze
         @start = start.freeze
+        @starts = normalized_starts.map(&:freeze).freeze
         @mode = mode
         @expect = expect
         @expect_rr = expect_rr
@@ -229,10 +232,27 @@ module Ibex
 
       private
 
+      # @rbs (grammar_mode mode) -> void
+      def validate_mode(mode)
+        raise ArgumentError, "mode must be :racc or :extended" unless %i[racc extended].include?(mode)
+      end
+
+      # @rbs (String start, Array[String]? starts, grammar_mode mode) -> Array[String]
+      def validate_starts(start, starts, mode)
+        values = starts || [start]
+        raise ArgumentError, "starts must contain the primary start symbol" if values.empty?
+        raise ArgumentError, "start must be the first entry in starts" unless values.first == start
+        raise ArgumentError, "starts must be unique" unless values.uniq.length == values.length
+        raise ArgumentError, "multiple start symbols require extended mode" if values.length > 1 && mode != :extended
+
+        values
+      end
+
       # @rbs (Hash[Symbol, untyped] value) -> void
       def append_optional_metadata(value)
         value[:expect_rr] = @expect_rr unless @expect_rr.nil?
         value[:mode] = @mode if @mode == :extended
+        value[:starts] = @starts if @starts.length > 1
         value[:params] = @parser_parameters unless @parser_parameters.empty?
         value[:printers] = @value_printers unless @value_printers.empty?
         value[:user_code_chunks] = @user_code_chunks.transform_values { |chunks| chunks.map(&:to_h) } \

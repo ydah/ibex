@@ -35,8 +35,8 @@ module Ibex
         # @rbs (Integer conflicts) -> void
         def expect: (Integer conflicts) -> void
 
-        # @rbs (Object name) -> void
-        def start: (Object name) -> void
+        # @rbs (*Object names) -> void
+        def start: (*Object names) -> void
 
         # @rbs (Object name, Object expression) -> void
         def convert: (Object name, Object expression) -> void

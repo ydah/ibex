@@ -59,7 +59,8 @@ module Ibex
     # @rbs @conversions: Hash[String, String]
     # @rbs @parser_parameters: Array[IR::parser_parameter]
     # @rbs @value_printers: Hash[String, IR::value_printer]
-    # @rbs @explicit_start: String?
+    # @rbs @explicit_starts: Array[String]?
+    # @rbs @start_names: Array[String]
     # @rbs @start_name: String
     # @rbs @start_location: Frontend::Location?
     # @rbs @parameter_templates: Hash[String, Array[Frontend::AST::Rule]]
@@ -125,7 +126,7 @@ module Ibex
       validate_grammar
       IR::Grammar.new(class_name: @ast.class_name, superclass: @ast.superclass, start: @start_name,
                       expect: @expected_conflicts, options: @options, symbols: @symbols,
-                      mode: @mode,
+                      mode: @mode, starts: @start_names,
                       expect_rr: @expected_rr_conflicts,
                       parser_parameters: @parser_parameters,
                       value_printers: @value_printers.values,
@@ -162,16 +163,23 @@ module Ibex
       @ast.rules.reject { |rule| parameterized_rule?(rule) }.each do |rule|
         intern_user_nonterminal(rule)
       end
-      @start_name = normalized_start_name
-      fail_at(@ast.loc, "grammar has no start rule") unless @start_name
-      return if symbol(@start_name)&.nonterminal?
+      @start_names = normalized_start_names
+      fail_at(@ast.loc, "grammar has no start rule") if @start_names.empty?
+      @start_name = @start_names.fetch(0)
+      @start_names.each do |name|
+        next if symbol(name)&.nonterminal?
 
-      fail_at(@start_location || @ast.loc, "undefined start symbol #{@start_name}")
+        fail_at(@start_location || @ast.loc, "undefined start symbol #{name}")
+      end
     end
 
-    # @rbs () -> String?
-    def normalized_start_name
-      @explicit_start || @ast.rules.find { |rule| start_rule_candidate?(rule) }&.lhs
+    # @rbs () -> Array[String]
+    def normalized_start_names
+      explicit = @explicit_starts
+      return explicit if explicit
+
+      candidate = @ast.rules.find { |rule| start_rule_candidate?(rule) }&.lhs
+      candidate ? [candidate] : []
     end
 
     # @rbs (Frontend::AST::Rule rule) -> bool

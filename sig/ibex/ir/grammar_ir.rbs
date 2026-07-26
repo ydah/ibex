@@ -110,6 +110,8 @@ module Ibex
 
       attr_reader start: String
 
+      attr_reader starts: Array[String]
+
       attr_reader mode: grammar_mode
 
       attr_reader expect: Integer
@@ -146,9 +148,9 @@ module Ibex
       #   conversions: Hash[String, String], warnings: Array[grammar_warning], ?user_code_chunks: user_code_chunks?,
       #   ?schema_version: Integer, ?source_provenance: source_provenance?,
       #   ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter],
-      #   ?value_printers: Array[value_printer], ?mode: grammar_mode) -> void
+      #   ?value_printers: Array[value_printer], ?mode: grammar_mode, ?starts: Array[String]?) -> void
       # rubocop:disable Metrics/ParameterLists -- immutable versioned IR is constructed from explicit public fields.
-      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?expect_rr: Integer?, ?user_code_chunks: user_code_chunks?, ?schema_version: Integer, ?source_provenance: source_provenance?, ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter], ?value_printers: Array[value_printer], ?mode: grammar_mode) -> void
+      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?expect_rr: Integer?, ?user_code_chunks: user_code_chunks?, ?schema_version: Integer, ?source_provenance: source_provenance?, ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter], ?value_printers: Array[value_printer], ?mode: grammar_mode, ?starts: Array[String]?) -> void
 
       # @rbs (String name) -> GrammarSymbol?
       def symbol: (String name) -> GrammarSymbol?
@@ -166,6 +168,12 @@ module Ibex
       def to_h: () -> Hash[Symbol, untyped]
 
       private
+
+      # @rbs (grammar_mode mode) -> void
+      def validate_mode: (grammar_mode mode) -> void
+
+      # @rbs (String start, Array[String]? starts, grammar_mode mode) -> Array[String]
+      def validate_starts: (String start, Array[String]? starts, grammar_mode mode) -> Array[String]
 
       # @rbs (Hash[Symbol, untyped] value) -> void
       def append_optional_metadata: (Hash[Symbol, untyped] value) -> void

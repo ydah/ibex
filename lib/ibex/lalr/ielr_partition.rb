@@ -124,7 +124,7 @@ module Ibex
         @states.fetch(state_id).each do |production_id, dot, lookahead|
           next unless dot == rhs_for(production_id).length
 
-          action = production_id == AUGMENTED_PRODUCTION ? [:accept] : [:reduce, production_id]
+          action = production_id.negative? ? [:accept] : [:reduce, production_id]
           actions[lookahead] << action
         end
         actions
@@ -132,8 +132,9 @@ module Ibex
 
       # @rbs (Integer production_id) -> Array[Integer]
       def rhs_for(production_id)
-        if production_id == AUGMENTED_PRODUCTION
-          start = @grammar.symbol(@grammar.start) || raise(Ibex::Error, "missing start symbol")
+        if production_id.negative?
+          name = @grammar.starts.fetch(-production_id - 1)
+          start = @grammar.symbol(name) || raise(Ibex::Error, "missing start symbol #{name}")
           return [start.id]
         end
 

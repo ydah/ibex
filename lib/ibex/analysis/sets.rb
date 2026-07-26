@@ -104,11 +104,12 @@ module Ibex
 
       # @rbs () -> void
       def compute_follow
-        start_definition = @grammar.symbol(@grammar.start)
-        raise Ibex::Error, "(analysis):1:1: unknown start symbol #{@grammar.start}" unless start_definition
+        @grammar.starts.each do |name|
+          start_definition = @grammar.symbol(name)
+          raise Ibex::Error, "(analysis):1:1: unknown start symbol #{name}" unless start_definition
 
-        start_id = start_definition.id
-        @follow_bits[start_id] |= bit(0)
+          @follow_bits[start_definition.id] |= bit(0)
+        end
         dependencies = Array.new(@grammar.symbols.length) { [] }
         @grammar.productions.each { |production| initialize_follow(production, dependencies) }
         seeds = @grammar.nonterminals.filter_map { |symbol| symbol.id unless @follow_bits[symbol.id].zero? }

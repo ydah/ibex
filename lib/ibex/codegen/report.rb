@@ -48,7 +48,10 @@ module Ibex
                  max_configurations: LALR::Counterexample::DEFAULT_MAX_CONFIGURATIONS)
         grammar = automaton.grammar
         labels = SymbolLabels.build(grammar)
-        lines = ["Algorithm: #{automaton.algorithm}", "States: #{automaton.states.length}", ""]
+        entries = automaton.entry_states.map { |name, state| "#{name}=#{state}" }.join(", ")
+        lines = ["Algorithm: #{automaton.algorithm}", "States: #{automaton.states.length}"]
+        lines << "Entries: #{entries}" if automaton.entry_states.length > 1
+        lines << ""
         examples = LALR::Counterexample.new(
           automaton, max_tokens: max_tokens, max_configurations: max_configurations
         ).all.group_by { |example| example[:state] }
@@ -114,9 +117,7 @@ module Ibex
       def format_item(item, grammar, labels)
         if item.production == LALR::Builder::AUGMENTED_PRODUCTION
           start = grammar.symbol(grammar.start)
-          raise Ibex::Error, "missing start symbol #{grammar.start}" unless start
-
-          rhs = [symbol_name(labels, start.id)]
+          rhs = [grammar.starts.one? && start ? symbol_name(labels, start.id) : "<entry>"]
           lhs = "$accept"
         else
           production = grammar.productions.fetch(item.production)

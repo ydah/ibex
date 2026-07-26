@@ -48,9 +48,9 @@ module Ibex
           @declarations << AST::Expect.new(conflicts: conflicts, loc: next_location)
         end
 
-        # @rbs (Object name) -> void
-        def start(name)
-          @declarations << AST::Start.new(name: name.to_s, loc: next_location)
+        # @rbs (*Object names) -> void
+        def start(*names)
+          @declarations << AST::Start.new(names: names.map(&:to_s), loc: next_location)
         end
 
         # @rbs (Object name, Object expression) -> void

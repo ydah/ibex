@@ -259,11 +259,14 @@ module Ibex
       # @rbs (Integer stack_depth) -> Integer
       def exact_lookahead_step_budget: (Integer stack_depth) -> Integer
 
+      # @rbs (Hash[Symbol, untyped] tables) -> Integer
+      def parser_state_count: (Hash[Symbol, untyped] tables) -> Integer
+
       # @rbs (Array[Integer] stack, Integer production_id) -> bool
       def exact_reduction_applied?: (Array[Integer] stack, Integer production_id) -> bool
 
-      # @rbs (^() -> untyped source) -> untyped
-      def drive_parser: (^() -> untyped source) -> untyped
+      # @rbs (^() -> untyped source, ?initial_state: Integer?) -> untyped
+      def drive_parser: (^() -> untyped source, ?initial_state: Integer?) -> untyped
 
       # @rbs () -> void
       def start_push_session: () -> void
@@ -283,8 +286,11 @@ module Ibex
       # @rbs () -> void
       def finish_push_session: () -> void
 
-      # @rbs (^() -> untyped source) -> void
-      def prepare_parse: (^() -> untyped source) -> void
+      # @rbs (^() -> untyped source, ?initial_state: Integer?) -> void
+      def prepare_parse: (^() -> untyped source, ?initial_state: Integer?) -> void
+
+      # @rbs (Hash[Symbol, untyped] tables, Integer? requested) -> Integer
+      def resolve_initial_state: (Hash[Symbol, untyped] tables, Integer? requested) -> Integer
 
       # @rbs () -> Hash[Symbol, untyped]
       def validate_parser_table_format!: () -> Hash[Symbol, untyped]

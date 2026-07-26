@@ -119,7 +119,7 @@ module Ibex
         keyword_init: true
       ) { include Node }
       Start = Struct.new(
-        :name, #: String
+        :names, #: Array[String]
         :loc, #: Location
         keyword_init: true
       ) { include Node }

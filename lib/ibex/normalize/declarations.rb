@@ -33,14 +33,28 @@ module Ibex
       when Frontend::AST::Options then read_options(declaration)
       when Frontend::AST::Expect then @expected_conflicts = declaration.conflicts
       when Frontend::AST::ExpectRR then @expected_rr_conflicts = declaration.conflicts
-      when Frontend::AST::Start
-        @explicit_start = declaration.name
-        @start_location = declaration.loc
+      when Frontend::AST::Start then read_start_declaration(declaration)
       when Frontend::AST::Convert then read_conversions(declaration)
       when Frontend::AST::DisplayName, Frontend::AST::SemanticType, Frontend::AST::Parameter, Frontend::AST::Printer
         read_extended_declaration(declaration)
       when Frontend::AST::Include then fail_at(declaration.loc, "includes must be resolved before normalization")
       end
+    end
+
+    # @rbs (Frontend::AST::Start declaration) -> void
+    def read_start_declaration(declaration)
+      # @type self: Normalizer
+      fail_at(declaration.loc, "duplicate start declaration") if @explicit_starts
+      if declaration.names.length > 1 && @mode != :extended
+        fail_at(declaration.loc, "multiple start symbols require extended mode")
+      end
+      fail_at(declaration.loc, "start declaration requires at least one symbol") if declaration.names.empty?
+      unless declaration.names.uniq.length == declaration.names.length
+        fail_at(declaration.loc, "start symbols must be unique")
+      end
+
+      @explicit_starts = declaration.names
+      @start_location = declaration.loc
     end
 
     # @rbs (Frontend::AST::symbol_metadata | Frontend::AST::Parameter | Frontend::AST::Printer declaration) -> void

@@ -158,7 +158,10 @@ module Ibex
       def parse_start
         # @type self: BootstrapParser
         location = advance.location
-        AST::Start.new(name: parse_symbol_name, loc: location)
+        names = [parse_symbol_name]
+        names << parse_symbol_name until declaration_start?
+        extended_only!(location, "multiple start symbols") if names.length > 1
+        AST::Start.new(names: names, loc: location)
       end
 
       # @rbs () -> AST::Convert

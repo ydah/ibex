@@ -38,6 +38,7 @@ module Ibex
   #     counterexample_max_configurations: Integer,
   #     ?from: String,
   #     ?algorithm: Symbol,
+  #     ?entry_isolation: bool,
   #     ?warnings: Array[Symbol],
   #     ?output: String,
   #     ?embedded: bool,
@@ -211,6 +212,9 @@ module Ibex
       options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
         @options[:algorithm] = value.to_sym
       end
+      options.on("--entry-isolation", "build independent state sets for each start symbol") do
+        @options[:entry_isolation] = true
+      end
       options.on("--warnings=CATEGORIES", "all, error, all,error, or none") do |value|
         @options[:warnings] = warning_categories(value)
       end
@@ -301,6 +305,10 @@ module Ibex
 
     # @rbs () -> void
     def validate_generation_options
+      if @options[:entry_isolation] && @options[:from] == "automaton-ir"
+        raise Ibex::Error, "(cli):1:1: --entry-isolation cannot be combined with --from=automaton-ir"
+      end
+
       validate_watch_generation_options if @options[:watch]
       validate_manifest_generation_options
       validate_action_source_generation_options
@@ -664,7 +672,9 @@ module Ibex
     def build_automaton(grammar, input_path)
       algorithm = @options[:algorithm] || :lalr
       report_status("building #{algorithm} automaton")
-      automaton = LALR::Builder.new(grammar, algorithm: algorithm).build
+      automaton = LALR::Builder.new(
+        grammar, algorithm: algorithm, entry_isolation: @options[:entry_isolation] == true
+      ).build
       report_conflicts(automaton, input_path)
       suggest_ielr(automaton, input_path)
       write_report(automaton, input_path) if @options[:verbose] && !@options[:verify_output]

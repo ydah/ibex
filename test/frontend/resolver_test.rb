@@ -36,6 +36,16 @@ class FrontendResolverTest < Minitest::Test
     end
   end
 
+  def test_resolution_preserves_root_extended_pragma
+    in_directory do |directory|
+      root = write(directory, "root.y", "class P\npragma extended\nrule\nstart: TOKEN\nend\n")
+      resolution = Ibex::Frontend::Resolver.new(root).resolve
+
+      assert_equal true, resolution.root.extended
+      assert_equal :extended, Ibex::Normalizer.new(resolution).normalize.mode
+    end
+  end
+
   def test_fragments_reject_root_only_declarations_user_code_and_root_documents
     root_only = {
       "options no_result_var" => "options",

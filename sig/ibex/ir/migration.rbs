@@ -15,6 +15,15 @@ module Ibex
       # @rbs (Grammar grammar) -> Grammar
       def self?.migrate_grammar: (Grammar grammar) -> Grammar
 
+      # @rbs (Grammar grammar) -> Array[GrammarSymbol]
+      def self?.migrate_symbols: (Grammar grammar) -> Array[GrammarSymbol]
+
+      # @rbs (Grammar grammar) -> Array[Production]
+      def self?.migrate_productions: (Grammar grammar) -> Array[Production]
+
+      # @rbs (Grammar grammar, Array[GrammarSymbol] symbols, Array[Production] productions) -> Grammar
+      def self?.build_migrated_grammar: (Grammar grammar, Array[GrammarSymbol] symbols, Array[Production] productions) -> Grammar
+
       # @rbs (Action? action) -> Action?
       def self?.migrate_action: (Action? action) -> Action?
 

@@ -19,7 +19,9 @@ module Ibex
 
       path = input_path(remaining)
       grammar = normalize_grammar_path(path)
-      automaton = LALR::Builder.new(grammar, algorithm: @options[:algorithm] || :lalr).build
+      automaton = LALR::Builder.new(
+        grammar, algorithm: @options[:algorithm] || :lalr, entry_isolation: @options[:entry_isolation] == true
+      ).build
       explanation = Codegen::Explain.new(
         automaton, state: @options[:explain_state], token: @options[:explain_token],
                    max_tokens: @options.fetch(:counterexample_max_tokens),
@@ -43,6 +45,9 @@ module Ibex
         end
         options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
           @options[:algorithm] = value.to_sym
+        end
+        options.on("--entry-isolation", "build independent state sets for each start symbol") do
+          @options[:entry_isolation] = true
         end
         options.on("--mode=MODE", %w[racc extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
         add_explain_search_options(options)

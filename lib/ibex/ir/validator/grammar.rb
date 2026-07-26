@@ -12,7 +12,7 @@ module Ibex
         ].freeze #: Array[String]
         ROOT_OPTIONAL = %w[user_code_chunks expect_rr].freeze #: Array[String]
         V2_ROOT_REQUIRED = %w[source_provenance migration].freeze #: Array[String]
-        V2_ROOT_OPTIONAL = %w[params printers mode].freeze #: Array[String]
+        V2_ROOT_OPTIONAL = %w[params printers mode starts].freeze #: Array[String]
         SYMBOL_REQUIRED = %w[id name kind reserved prec loc].freeze #: Array[String]
         SYMBOL_OPTIONAL = %w[display_name semantic_type].freeze #: Array[String]
         V2_SYMBOL_REQUIRED = %w[doc].freeze #: Array[String]
@@ -182,6 +182,27 @@ module Ibex
           symbol = @symbols_by_name[start]
           invalid("#{@path}.start", "references missing symbol #{start.inspect}") unless symbol
           invalid("#{@path}.start", "must reference a nonterminal") unless symbol["kind"] == "nonterminal"
+          return unless @data.key?("starts")
+
+          validate_multiple_starts(start)
+        end
+
+        # @rbs (String start) -> void
+        def validate_multiple_starts(start)
+          starts = array(@data["starts"], "#{@path}.starts")
+          invalid("#{@path}.starts", "must not be empty") if starts.empty?
+          invalid("#{@path}.starts[0]", "must equal start #{start.inspect}") unless starts.first == start
+          invalid("#{@path}.mode", "must be extended for multiple start symbols") unless @data["mode"] == "extended"
+          seen = {} #: Hash[String, bool]
+          starts.each_with_index do |name, index|
+            name = nonempty_string(name, "#{@path}.starts[#{index}]")
+            invalid("#{@path}.starts[#{index}]", "duplicates start symbol #{name.inspect}") if seen[name]
+            seen[name] = true
+            definition = @symbols_by_name[name]
+            invalid("#{@path}.starts[#{index}]", "references missing symbol #{name.inspect}") unless definition
+            invalid("#{@path}.starts[#{index}]", "must reference a nonterminal") unless
+              definition["kind"] == "nonterminal"
+          end
         end
 
         # @rbs () -> void

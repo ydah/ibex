@@ -123,7 +123,7 @@ Top-level fields:
 |---|---|
 | `ibex_ir`, `schema_version` | `"grammar"`, `1` |
 | `class_name`, `superclass` | Generated Ruby class contract |
-| `start`, `expect`, `options` | Start name, unresolved S/R expectation, result/action flags |
+| `start`, optional `starts`, `expect`, `options` | Primary/ordered start names, unresolved S/R expectation, result/action flags |
 | optional `params`, `printers` | Generated-constructor keywords and symbol-specific debug value formatters |
 | `symbols` | Interned terminals and nonterminals; `$eof` id 0 and `error` id 1 |
 | `productions` | Numeric LHS/RHS ids, action, precedence override, source origin |
@@ -174,8 +174,9 @@ atomic file without generating or executing application parser code.
 
 ## Automaton IR versions 1 and 2
 
-Top-level fields are `ibex_ir: "automaton"`, `schema_version`, `algorithm`, `grammar_digest`, embedded `grammar`, `states`, and
-`conflict_summary`. Embedding Grammar IR makes automaton JSON sufficient for code generation after `--from=automaton-ir`.
+Top-level fields are `ibex_ir: "automaton"`, `schema_version`, `algorithm`, `grammar_digest`, embedded `grammar`, `states`,
+optional `entry_states`, and `conflict_summary`. Embedding Grammar IR makes automaton JSON sufficient for code generation after
+`--from=automaton-ir`. A multi-entry automaton maps every ordered grammar start name to its initial state.
 
 Each state contains:
 
@@ -184,7 +185,8 @@ Each state contains:
 - resolved terminal `actions` and nonterminal `gotos`;
 - an optional reduce `default_action`, selected only when explicit error masks preserve every terminal lookup and reduce the
   total encoded ACTION entries;
-- every conflict, including precedence-resolved conflicts and the resolution reason.
+- every conflict, including precedence-resolved conflicts and the resolution reason; multi-entry conflicts also carry their
+  reachable `entries` and optional `composite` marker.
 
 `conflict_summary.sr` counts unresolved default-shift conflicts for `expect`; `resolved_sr` counts retained precedence or
 associativity decisions; `rr` counts reduce/reduce cells.
@@ -199,15 +201,19 @@ views over Automaton IR.
 
 ## Construction algorithms and counterexamples
 
-The `lalr` and `slr` strategies construct LR(0) states directly. LALR lookaheads are the least fixed point of deterministic
+The `lalr` and `slr` strategies construct LR(0) states directly for a single entry. LALR lookaheads are the least fixed point of deterministic
 shift, spontaneous-FIRST, and nullable-suffix propagation edges over item occurrences; SLR replaces completed lookaheads with
-FOLLOW sets. Canonical `lr1` retains the canonical collection. An explicit canonical-and-merge LALR reference strategy proves
-byte equivalence without changing the Automaton IR algorithm label. `ielr` conservatively merges action-compatible canonical
+FOLLOW sets. Multiple entries seed distinct augmented canonical items and use canonical core merging because the direct
+lookahead graph has a single-root contract. Canonical `lr1` retains the canonical collection. An explicit canonical-and-merge
+LALR reference strategy proves byte equivalence without changing the Automaton IR algorithm label. `ielr` conservatively merges action-compatible canonical
 states and refines partitions until outgoing transitions are congruent, avoiding LALR inadequacies without promising a minimum
-state count. All strategies use the same conflict resolver and default reduction pass. After a build, frozen diagnostic
+state count. `--entry-isolation` instead constructs each start independently and concatenates the resulting state sets with
+deterministic offsets. Shared builds attribute reachable entries to conflicts and compare isolated conflict fingerprints to
+identify merge-created composite conflicts. All strategies use the same conflict resolver and default reduction pass. After a build, frozen diagnostic
 `metrics` record the strategy and construction/final state counts, plus a canonical count only when one was actually built. See
 [ADR 0054](decisions/0054-direct-lalr-lookahead-propagation.md) and
-[ADR 0055](decisions/0055-ielr-inadequacy-elimination.md).
+[ADR 0055](decisions/0055-ielr-inadequacy-elimination.md), and
+[ADR 0065](decisions/0065-multiple-parser-entry-points.md).
 
 `Ibex::LALR::Counterexample` consumes only Automaton IR. For each conflict it explores parser-stack configurations, forces the
 competing actions, and searches for a common accepting suffix. A successful result contains both complete derivation trees and is

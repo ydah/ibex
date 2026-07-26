@@ -80,6 +80,7 @@ module Ibex
         Grammar.new(class_name: data.fetch("class_name"), superclass: data["superclass"], start: data.fetch("start"),
                     expect: data.fetch("expect"), options: symbolize(data.fetch("options")), symbols: symbols,
                     mode: (data["mode"] || "racc").to_sym,
+                    starts: data["starts"],
                     expect_rr: data["expect_rr"],
                     parser_parameters: symbolize(data.fetch("params", empty_parameters)),
                     value_printers: symbolize(data.fetch("printers", empty_printers)),
@@ -96,7 +97,7 @@ module Ibex
         states = data.fetch("states").map { |state| load_state(state, grammar) }
         Automaton.new(grammar: grammar, states: states, conflict_summary: symbolize(data.fetch("conflict_summary")),
                       algorithm: data.fetch("algorithm"), grammar_digest: data.fetch("grammar_digest"),
-                      schema_version: data.fetch("schema_version"))
+                      schema_version: data.fetch("schema_version"), entry_states: data["entry_states"])
       end
 
       # @rbs skip

@@ -20,6 +20,8 @@ module Ibex
                     | ({ ?states: Array[Integer], ?nodes: Array[derivation_node] }) -> instance
       end
 
+      @initial_state: Integer
+
       @input_tokens: Array[Integer]
 
       @explored: Integer

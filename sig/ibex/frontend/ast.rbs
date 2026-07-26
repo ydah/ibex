@@ -139,13 +139,13 @@ module Ibex
                     | ({ ?conflicts: Integer, ?loc: Location }) -> instance
       end
 
-      class Start < Struct[String | Location]
-        attr_accessor name(): String
+      class Start < Struct[Array[String] | Location]
+        attr_accessor names(): Array[String]
 
         attr_accessor loc(): Location
 
-        def self.new: (?name: String, ?loc: Location) -> instance
-                    | ({ ?name: String, ?loc: Location }) -> instance
+        def self.new: (?names: Array[String], ?loc: Location) -> instance
+                    | ({ ?names: Array[String], ?loc: Location }) -> instance
       end
 
       class Convert < Struct[Array[Conversion] | Location]

@@ -57,18 +57,24 @@ module Ibex
 
       attr_reader states: Array[AutomatonState]
 
+      attr_reader entry_states: Hash[String, Integer]
+
       attr_reader conflict_summary: conflict_summary
 
       attr_reader schema_version: Integer
 
       # @rbs (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary,
-      #   ?algorithm: String, ?grammar_digest: String?, ?schema_version: Integer) -> void
-      def initialize: (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary, ?algorithm: String, ?grammar_digest: String?, ?schema_version: Integer) -> void
+      #   ?algorithm: String, ?grammar_digest: String?, ?schema_version: Integer,
+      #   ?entry_states: Hash[String, Integer]?) -> void
+      def initialize: (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary, ?algorithm: String, ?grammar_digest: String?, ?schema_version: Integer, ?entry_states: Hash[String, Integer]?) -> void
 
       # @rbs () -> Hash[Symbol, untyped]
       def to_h: () -> Hash[Symbol, untyped]
 
       private
+
+      # @rbs () -> void
+      def validate_entry_states: () -> void
 
       # @rbs (Grammar grammar) -> String
       def digest_for: (Grammar grammar) -> String

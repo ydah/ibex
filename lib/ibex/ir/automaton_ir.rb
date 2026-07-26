@@ -74,13 +74,15 @@ module Ibex
       attr_reader :grammar_digest #: String
       attr_reader :grammar #: Grammar
       attr_reader :states #: Array[AutomatonState]
+      attr_reader :entry_states #: Hash[String, Integer]
       attr_reader :conflict_summary #: conflict_summary
       attr_reader :schema_version #: Integer
 
       # @rbs (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary,
-      #   ?algorithm: String, ?grammar_digest: String?, ?schema_version: Integer) -> void
+      #   ?algorithm: String, ?grammar_digest: String?, ?schema_version: Integer,
+      #   ?entry_states: Hash[String, Integer]?) -> void
       def initialize(grammar:, states:, conflict_summary:, algorithm: "lalr1", grammar_digest: nil,
-                     schema_version: SCHEMA_VERSION)
+                     schema_version: SCHEMA_VERSION, entry_states: nil)
         unless SUPPORTED_SCHEMA_VERSIONS.include?(schema_version)
           raise Ibex::Error, "unsupported automaton schema_version #{schema_version.inspect}"
         end
@@ -97,6 +99,8 @@ module Ibex
         @grammar = grammar
         @grammar_digest = (grammar_digest || digest_for(grammar)).freeze
         @states = states.freeze
+        @entry_states = IR.deep_freeze(entry_states || { grammar.start => 0 })
+        validate_entry_states
         @conflict_summary = IR.deep_freeze(conflict_summary)
         @schema_version = schema_version
         freeze
@@ -104,12 +108,29 @@ module Ibex
 
       # @rbs () -> Hash[Symbol, untyped]
       def to_h
-        { ibex_ir: "automaton", schema_version: @schema_version, algorithm: @algorithm,
-          grammar_digest: @grammar_digest, grammar: @grammar.to_h,
-          states: @states.map { |state| state.to_h(@grammar) }, conflict_summary: @conflict_summary }
+        value = { ibex_ir: "automaton", schema_version: @schema_version, algorithm: @algorithm,
+                  grammar_digest: @grammar_digest, grammar: @grammar.to_h,
+                  states: @states.map { |state| state.to_h(@grammar) },
+                  conflict_summary: @conflict_summary } #: Hash[Symbol, untyped]
+        value[:entry_states] = @entry_states unless @entry_states == { @grammar.start => 0 }
+        value
       end
 
       private
+
+      # @rbs () -> void
+      def validate_entry_states
+        ordered = @grammar.starts.select { |name| @entry_states.key?(name) }
+        unless @entry_states.any? && @entry_states.keys == ordered
+          raise Ibex::Error, "(ir):1:1: automaton entry states must be an ordered subset of grammar starts"
+        end
+
+        @entry_states.each do |name, state|
+          next if state.between?(0, @states.length - 1)
+
+          raise Ibex::Error, "(ir):1:1: entry #{name} references missing state #{state}"
+        end
+      end
 
       # @rbs (Grammar grammar) -> String
       def digest_for(grammar)

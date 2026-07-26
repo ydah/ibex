@@ -115,6 +115,24 @@ class IRJSONSchemaTest < Minitest::Test
     refute_empty schemer.validate(document).to_a
   end
 
+  def test_v2_schemas_accept_multiple_starts_and_entry_states
+    grammar = schema("grammar-ir-v2.schema.json")
+    automaton = schema("automaton-ir-v2.schema.json")
+    resolver = lambda do |uri|
+      {
+        grammar_schema.fetch("$id") => grammar_schema,
+        automaton_schema.fetch("$id") => automaton_schema,
+        grammar.fetch("$id") => grammar
+      }[uri.to_s]
+    end
+    document = fixture("automaton-v2.json")
+    document.fetch("grammar")["mode"] = "extended"
+    document.fetch("grammar")["starts"] = %w[start expression]
+    document["entry_states"] = { "start" => 0, "expression" => 1 }
+
+    assert_empty JSONSchemer.schema(automaton, ref_resolver: resolver).validate(document).to_a
+  end
+
   def test_v2_grammar_schema_accepts_value_printers
     grammar = schema("grammar-ir-v2.schema.json")
     resolver = ->(uri) { grammar_schema if uri.to_s == grammar_schema.fetch("$id") }

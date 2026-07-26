@@ -74,7 +74,9 @@
     },
     {
       "node": "Start",
-      "name": "program",
+      "names": [
+        "program"
+      ],
       "loc": {
         "file": "comprehensive.y",
         "line": 9,

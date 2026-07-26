@@ -28,8 +28,8 @@ module Ibex
       # @rbs (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample
       def reachability_example: (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample
 
-      # @rbs (Integer target) -> Array[Integer]
-      def shortest_state_path: (Integer target) -> Array[Integer]
+      # @rbs (Integer target, IR::conflict conflict) -> Array[Integer]
+      def shortest_state_path: (Integer target, IR::conflict conflict) -> Array[Integer]
 
       # @rbs () -> Hash[Integer, Array[Integer]]
       def compute_shortest_yields: () -> Hash[Integer, Array[Integer]]

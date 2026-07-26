@@ -177,9 +177,11 @@ module Ibex
         AST::Printer.new(name: token_string(symbol), code: token_string(action), loc: keyword.location)
       end
 
-      # @rbs (Token keyword, String name) -> AST::Start
-      def build_start(keyword, name)
-        AST::Start.new(name: name, loc: keyword.location)
+      # @rbs (Token keyword, Array[String] names) -> AST::Start
+      def build_start(keyword, names)
+        fail_at(keyword.location, "start declaration requires at least one symbol") if names.empty?
+        extended_only!(keyword.location, "multiple start symbols") if names.length > 1
+        AST::Start.new(names: names, loc: keyword.location)
       end
 
       # @rbs (Token keyword, Array[AST::Conversion] pairs) -> AST::Convert

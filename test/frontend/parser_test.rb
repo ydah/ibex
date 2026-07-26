@@ -140,11 +140,32 @@ class FrontendParserTest < Minitest::Test
     assert_instance_of Ibex::Frontend::AST::Printer, token_printer
   end
 
+  def test_parses_multiple_start_symbols_in_extended_mode
+    source = <<~GRAMMAR
+      class P
+      pragma extended
+      start program expression
+      rule
+      program: PROGRAM
+      expression: EXPRESSION
+      end
+    GRAMMAR
+    declaration = parse(source).declarations.fetch(0)
+
+    assert_instance_of Ibex::Frontend::AST::Start, declaration
+    assert_equal %w[program expression], declaration.names
+    assert_equal(
+      { node: "Start", names: %w[program expression], loc: declaration.loc.to_h },
+      declaration.to_h
+    )
+  end
+
   def test_rejects_new_declarations_without_extended_mode
     {
       "%expect-rr 0" => "expect-rr declarations require extended mode",
       "%param context" => "%param require extended mode",
       "%printer PLUS { value }" => "%printer require extended mode",
+      "start program expression" => "multiple start symbols require extended mode",
       "prechigh\n%precedence PLUS\npreclow" => "%precedence require extended mode"
     }.each do |declaration, message|
       error = assert_raises(Ibex::Error) do

@@ -8,6 +8,8 @@ module Ibex
       class AutomatonDocument < Base
         ROOT_REQUIRED: Array[String]
 
+        V2_ROOT_OPTIONAL: Array[String]
+
         STATE_REQUIRED: Array[String]
 
         ACTION_TYPES: Array[String]
@@ -29,6 +31,9 @@ module Ibex
         def validate: () -> self
 
         private
+
+        # @rbs () -> void
+        def validate_entry_states: () -> void
 
         # @rbs () -> void
         def validate_digest: () -> void
@@ -77,6 +82,9 @@ module Ibex
 
         # @rbs (Hash[String, untyped] conflict, String path) -> void
         def validate_reduce_reduce: (Hash[String, untyped] conflict, String path) -> void
+
+        # @rbs (Hash[String, untyped] conflict, String path) -> void
+        def validate_conflict_entries: (Hash[String, untyped] conflict, String path) -> void
 
         # @rbs (untyped value, String path) -> void
         def validate_midrule_origins: (untyped value, String path) -> void
