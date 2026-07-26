@@ -46,6 +46,28 @@ class RBSCodegenTest < Minitest::Test
                     "Array[untyped], Ibex::Runtime::LocationSpan?) -> String"
   end
 
+  def test_generates_typed_constructor_parameter_contract
+    source = <<~GRAMMAR
+      class ParameterizedParser
+      pragma extended
+      %param context "Hash[Symbol, Integer]"
+      %param lexer
+      rule
+      start: TOKEN { result = context.fetch(:offset) + lexer.fetch(:factor) }
+      end
+    GRAMMAR
+    ast = Ibex::Frontend::Parser.new(source, file: "params.y").parse
+    grammar = Ibex::Normalizer.new(ast).normalize
+    automaton = Ibex::LALR::Builder.new(grammar).build
+    signature = Ibex::Codegen::RBS.new(automaton).generate
+
+    assert_includes signature, "@context: Hash[Symbol, Integer]"
+    assert_includes signature, "@lexer: untyped"
+    assert_includes signature,
+                    "def initialize: (context: Hash[Symbol, Integer], lexer: untyped, **untyped) -> void"
+    assert_rbs_valid(signature)
+  end
+
   def test_generates_contracts_for_requested_implicit_action_methods
     source = "class TypedParser\nrule\nstart: TOKEN\nend\n"
     ast = Ibex::Frontend::Parser.new(source, file: "typed.y").parse

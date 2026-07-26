@@ -13,7 +13,7 @@ module Ibex
     module AST
       type symbol_metadata = DisplayName | SemanticType
 
-      type declaration = Include | Tokens | Precedence | Options | Expect | ExpectRR | Start | Convert | symbol_metadata
+      type declaration = Include | Tokens | Precedence | Options | Expect | ExpectRR | Start | Convert | Parameter | symbol_metadata
 
       type item = SymbolReference | ParameterizedReference | InlineAction | Optional | Star | Plus | Group | SeparatedList | Empty
 
@@ -188,6 +188,17 @@ module Ibex
 
         def self.new: (?name: String, ?value: String, ?loc: Location) -> instance
                     | ({ ?name: String, ?value: String, ?loc: Location }) -> instance
+      end
+
+      class Parameter < Struct[String | String? | Location]
+        attr_accessor name(): String
+
+        attr_accessor semantic_type(): String?
+
+        attr_accessor loc(): Location
+
+        def self.new: (?name: String, ?semantic_type: String?, ?loc: Location) -> instance
+                    | ({ ?name: String, ?semantic_type: String?, ?loc: Location }) -> instance
       end
 
       class Alternative < Struct[Array[item] | InlineAction? | String? | Location]

@@ -51,6 +51,7 @@ module Ibex
         modules.each { |name| lines << "module #{name}" }
         lines << "class #{class_name} < #{@superclass}"
         append_tables(lines)
+        append_parameter_initializer(lines)
         append_actions(lines)
         append_user_code(lines, "inner", indent: 2)
         lines << "end"
@@ -123,6 +124,23 @@ module Ibex
         lines << "#{indent}GRAMMAR_DIGEST = #{@automaton.grammar_digest.inspect}.freeze"
         lines << "#{indent}STATE_COUNT = #{@automaton.states.length}"
         lines << "#{indent}PRODUCTION_COUNT = #{@grammar.productions.length}"
+      end
+
+      # @rbs (Array[String] lines) -> void
+      def append_parameter_initializer(lines)
+        parameters = @grammar.parser_parameters
+        return if parameters.empty?
+
+        keywords = parameters.map { |parameter| "#{parameter[:name]}:" }.join(", ")
+        lines << "  IBEX_PARAMETER_INITIALIZER = Module.new do"
+        lines << "    def initialize(#{keywords}, **_ibex_super_arguments)"
+        parameters.each { |parameter| lines << "      @#{parameter[:name]} = #{parameter[:name]}" }
+        lines << "      super(**_ibex_super_arguments)"
+        lines << "    end"
+        lines << "  end"
+        lines << "  prepend IBEX_PARAMETER_INITIALIZER"
+        lines << "  private_constant :IBEX_PARAMETER_INITIALIZER"
+        lines << ""
       end
 
       # Custom conversion expressions can return caller-owned mutable or

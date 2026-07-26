@@ -174,6 +174,21 @@ only two-element tokens and no location-sensitive action or observer do not allo
 Action and `inner` backtraces use the original grammar filename and line by default. `--line-convert-all` applies the same mapping
 to `header` and `footer`; `-l` keeps all backtraces on generated-file lines.
 
+### Constructor parameters (extended mode)
+
+`%param name` adds a required keyword argument to the generated parser constructor. A quoted RBS type is optional:
+
+```text
+%param context "ParserContext"
+%param lexer
+```
+
+`Parser.new(context: ..., lexer: ...)` stores the objects as `@context` and `@lexer`. Semantic actions receive locals with the
+same names, so the context is available without global state; lexer methods in the `inner` section use the instance variables.
+The generated RBS declares typed instance variables and constructor keywords, using `untyped` when no type is supplied.
+Parameters are root-only, unique Ruby local identifiers, and cannot be Ruby keywords. The generated initializer is prepended,
+so a custom superclass initializer may receive any remaining keyword arguments.
+
 ### Parameterized rules (extended mode)
 
 A parameterized rule is a structural template:

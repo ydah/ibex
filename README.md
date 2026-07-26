@@ -188,10 +188,14 @@ display NUM "number"
 type NUM "Integer"
 type expr "AST::Expression"
 %expect-rr 0
+%param context "ParserContext"
+%param lexer
 ```
 
 Precedence blocks also accept `%precedence TOKEN` for precedence without associativity, and productions may use `%empty` as
-their sole RHS item. `--warnings=error` promotes mismatched `expect` and `%expect-rr` declarations to generation errors.
+their sole RHS item. `%param` adds a required keyword to the generated constructor, stores it in the matching instance variable,
+and exposes it as a local in semantic actions; an optional quoted RBS type is reflected in `--rbs` and action-shadow checking.
+`--warnings=error` promotes mismatched `expect` and `%expect-rr` declarations to generation errors.
 
 The value conventions are `nil` or a value for `?`, and arrays for `*`, `+`, `separated_list`, and
 `separated_nonempty_list`. Parenthesized sequences and alternatives can be nested; multi-item groups produce an Array value.
@@ -495,8 +499,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 13,542 typed calls and 1,851 untyped calls out of 15,393 (88.0% typed).
-The generated signature tree contains 1,938 explicit `untyped` occurrences across 77 files.
+The current whole-library `steep stats` result is 13,711 typed calls and 1,865 untyped calls out of 15,576 (88.0% typed).
+The generated signature tree contains 1,962 explicit `untyped` occurrences across 77 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

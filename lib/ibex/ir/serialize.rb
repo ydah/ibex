@@ -65,6 +65,7 @@ module Ibex
       # @rbs skip
       def load_grammar(data) # rubocop:disable Metrics/AbcSize -- explicit fields preserve the public IR contract.
         empty_chunks = {} #: Hash[String, untyped]
+        empty_parameters = [] #: Array[untyped]
         schema_version = data.fetch("schema_version")
         symbols = data.fetch("symbols").map do |symbol|
           GrammarSymbol.new(id: symbol.fetch("id"), name: symbol.fetch("name"), kind: symbol.fetch("kind"),
@@ -78,6 +79,7 @@ module Ibex
         Grammar.new(class_name: data.fetch("class_name"), superclass: data["superclass"], start: data.fetch("start"),
                     expect: data.fetch("expect"), options: symbolize(data.fetch("options")), symbols: symbols,
                     expect_rr: data["expect_rr"],
+                    parser_parameters: symbolize(data.fetch("params", empty_parameters)),
                     productions: productions, user_code: data.fetch("user_code"),
                     conversions: data.fetch("conversions"), warnings: symbolize(data.fetch("warnings")),
                     user_code_chunks: load_user_code_chunks(data.fetch("user_code_chunks", empty_chunks)),

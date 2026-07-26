@@ -74,6 +74,9 @@ module Ibex
       # @rbs (Token keyword, Token integer) -> AST::ExpectRR
       def build_expect_rr: (Token keyword, Token integer) -> AST::ExpectRR
 
+      # @rbs (Token keyword, Token name, Token? type) -> AST::Parameter
+      def build_parameter: (Token keyword, Token name, Token? type) -> AST::Parameter
+
       # @rbs (Token keyword, String name) -> AST::Start
       def build_start: (Token keyword, String name) -> AST::Start
 

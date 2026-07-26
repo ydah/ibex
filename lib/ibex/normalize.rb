@@ -30,6 +30,10 @@ module Ibex
     include NormalizeDiagnostics
 
     RESERVED_NAMES = %w[result val _values].freeze #: Array[String]
+    RUBY_KEYWORDS = %w[
+      __ENCODING__ __FILE__ __LINE__ alias and begin break case class def defined do else elsif end ensure false for if
+      in module next nil not or redo rescue retry return self super then true undef unless until when while yield
+    ].freeze #: Array[String]
     DEFAULT_MAX_PARAMETER_SPECIALIZATIONS = 1_000
     DEFAULT_MAX_INLINE_EXPANSIONS = 10_000
 
@@ -53,6 +57,7 @@ module Ibex
     # @rbs @expected_conflicts: Integer
     # @rbs @expected_rr_conflicts: Integer?
     # @rbs @conversions: Hash[String, String]
+    # @rbs @parser_parameters: Array[IR::parser_parameter]
     # @rbs @explicit_start: String?
     # @rbs @start_name: String
     # @rbs @start_location: Frontend::Location?
@@ -116,6 +121,7 @@ module Ibex
       IR::Grammar.new(class_name: @ast.class_name, superclass: @ast.superclass, start: @start_name,
                       expect: @expected_conflicts, options: @options, symbols: @symbols,
                       expect_rr: @expected_rr_conflicts,
+                      parser_parameters: @parser_parameters,
                       productions: @productions, user_code: normalized_user_code,
                       conversions: @conversions, warnings: @warnings, user_code_chunks: normalized_user_code_chunks,
                       source_provenance: {

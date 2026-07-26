@@ -124,6 +124,7 @@ Top-level fields:
 | `ibex_ir`, `schema_version` | `"grammar"`, `1` |
 | `class_name`, `superclass` | Generated Ruby class contract |
 | `start`, `expect`, `options` | Start name, unresolved S/R expectation, result/action flags |
+| optional `params` | Generated-constructor keywords and nullable semantic types |
 | `symbols` | Interned terminals and nonterminals; `$eof` id 0 and `error` id 1 |
 | `productions` | Numeric LHS/RHS ids, action, precedence override, source origin |
 | `user_code`, `conversions`, `warnings` | Concatenated code, external token expressions, structured diagnostics |

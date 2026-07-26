@@ -34,17 +34,22 @@ module Ibex
       # @rbs (Array[AST::declaration] declarations) -> void
       def reject_fragment_root_declarations(declarations)
         # @type self: GeneratedParserBase
-        root_only = declarations.find do |declaration|
-          declaration.is_a?(AST::Options) || declaration.is_a?(AST::Expect) || declaration.is_a?(AST::Start)
-        end
+        root_only = declarations.find { |declaration| fragment_root_declaration_name(declaration) }
         return unless root_only
 
-        name = case root_only
-               when AST::Options then "options"
-               when AST::Expect then "expect"
-               else "start"
-               end
+        name = fragment_root_declaration_name(root_only)
         fail_at(root_only.loc, "#{name} declarations are not allowed in fragments")
+      end
+
+      # @rbs (AST::declaration declaration) -> String?
+      def fragment_root_declaration_name(declaration)
+        return "options" if declaration.is_a?(AST::Options)
+        return "expect" if declaration.is_a?(AST::Expect)
+        return "%expect-rr" if declaration.is_a?(AST::ExpectRR)
+        return "%param" if declaration.is_a?(AST::Parameter)
+        return "start" if declaration.is_a?(AST::Start)
+
+        nil
       end
     end
   end

@@ -26,6 +26,12 @@ module Ibex
 
       private
 
+      # @rbs (String source) -> void
+      def append_parameter_values: (String source) -> void
+
+      # @rbs (Array[String] lines) -> void
+      def append_direct_parameter_values: (Array[String] lines) -> void
+
       # @rbs (Hash[Symbol, untyped] step) -> String
       def composed_semantic_code: (Hash[Symbol, untyped] step) -> String
 

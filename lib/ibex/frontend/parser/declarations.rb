@@ -7,7 +7,7 @@ module Ibex
     # Bootstrap declarations intentionally mirror the generated frontend's complete declaration vocabulary.
     module BootstrapParserDeclarations
       DECLARATIONS = %w[
-        token prechigh preclow options expect expect_rr start convert display type pragma rule
+        token prechigh preclow options expect expect_rr start convert display type param pragma rule
       ].freeze #: Array[String]
       ASSOCIATIVITIES = %w[left right nonassoc precedence].freeze #: Array[String]
 
@@ -52,6 +52,7 @@ module Ibex
         when "convert" then parse_convert
         when "display" then parse_symbol_metadata(AST::DisplayName, "display")
         when "type" then parse_symbol_metadata(AST::SemanticType, "type")
+        when "param" then parse_parameter
         when "pragma" then fail_at(current.location, "expected rule, got pragma")
         else fail_expected("a declaration or rule")
         end
@@ -125,6 +126,21 @@ module Ibex
         location = advance.location
         extended_only!(location, "expect-rr declarations")
         AST::ExpectRR.new(conflicts: token_integer(expect(:integer)), loc: location)
+      end
+
+      # @rbs () -> AST::Parameter
+      def parse_parameter
+        # @type self: BootstrapParser
+        keyword = advance
+        extended_only!(keyword.location, "%param")
+        name = expect(:identifier)
+        type = current.type == :literal ? advance : nil
+        if type && (keyword.location.line != name.location.line || name.location.line != type.location.line)
+          fail_at(keyword.location, "%param declaration must be written on one line")
+        end
+
+        semantic_type = type && decode_quoted_literal(type, "%param")
+        AST::Parameter.new(name: token_string(name), semantic_type: semantic_type, loc: keyword.location)
       end
 
       # @rbs () -> AST::Start
@@ -225,7 +241,7 @@ module Ibex
         # @type self: BootstrapParser
         return true if current.type == :eof
         return false unless current.type == :identifier && DECLARATIONS.include?(current.value)
-        return false if %w[display type].include?(current.value) && @mode != :extended
+        return false if %w[display type param].include?(current.value) && @mode != :extended
 
         true
       end

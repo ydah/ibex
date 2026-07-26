@@ -40,6 +40,8 @@ class FrontendResolverTest < Minitest::Test
     root_only = {
       "options no_result_var" => "options",
       "expect 1" => "expect",
+      "%expect-rr 1" => "%expect-rr",
+      "%param context" => "%param",
       "start helper" => "start"
     }
     root_only.each do |declaration, label|

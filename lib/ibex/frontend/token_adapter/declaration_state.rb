@@ -16,6 +16,7 @@ module Ibex
           "expect_rr" => %i[EXPECT_RR expect_rr_integer],
           "convert" => %i[CONVERT convert_name], "pragma" => %i[PRAGMA pragma_value],
           "display" => %i[DISPLAY display_symbol], "type" => %i[TYPE type_symbol],
+          "param" => %i[PARAM param_name],
           "rule" => %i[RULE rules]
         }.freeze #: Hash[String, [external_token, Symbol]]
         ASSOCIATIONS = {
@@ -29,7 +30,8 @@ module Ibex
           expect_integer: "integer", expect_rr_integer: "integer", start_symbol: "a grammar symbol",
           include_path: "a double-quoted relative path",
           display_symbol: "a grammar symbol", type_symbol: "a grammar symbol",
-          display_value: "a quoted string", type_value: "a quoted string"
+          display_value: "a quoted string", type_value: "a quoted string",
+          param_name: "an identifier", param_type: "a quoted type or declaration"
         }.freeze #: Hash[Symbol, String]
 
         attr_reader :conversion_name #: Token?
@@ -87,7 +89,7 @@ module Ibex
           case @state
           when :class_keyword then class_keyword(token)
           when :class_name, :superclass_name then constant_name(remaining)
-          when :declaration then begin_declaration(token)
+          when :declaration, :param_type then begin_declaration(token)
           when :token_symbols
             @token_alias_candidate = token
             declaration_symbol(token)
@@ -95,6 +97,7 @@ module Ibex
           when :precedence_association, :precedence_symbols then precedence_identifier(token)
           when :start_symbol then finish_single_symbol(:IDENTIFIER)
           when :display_symbol, :type_symbol then begin_metadata_value(:IDENTIFIER)
+          when :param_name then begin_param_type
           when :pragma_value then finish_pragma(token)
           when :convert_name then begin_conversion(token, :IDENTIFIER, remaining)
           else :IDENTIFIER
@@ -164,7 +167,7 @@ module Ibex
 
         # @rbs (String value) -> bool
         def declaration_boundary?(value)
-          return false if %w[display type].include?(value) && !(@extended_mode || extended_pragma?)
+          return false if %w[display type param].include?(value) && !(@extended_mode || extended_pragma?)
 
           DECLARATIONS.key?(value) || %w[prechigh preclow].include?(value)
         end
@@ -233,6 +236,7 @@ module Ibex
         def classify_metadata(type)
           return unless type == :LITERAL
           return begin_metadata_value(type) if %i[display_symbol type_symbol].include?(@state)
+          return finish_param_type(type) if @state == :param_type
 
           finish_metadata_value(type) if %i[display_value type_value].include?(@state)
         end
@@ -255,6 +259,19 @@ module Ibex
         # @rbs (external_token type) -> external_token
         def begin_metadata_value(type)
           @state = @state == :display_symbol ? :display_value : :type_value
+          type
+        end
+
+        # @rbs () -> external_token
+        def begin_param_type
+          @state = :param_type
+          :IDENTIFIER
+        end
+
+        # @rbs (external_token type) -> external_token
+        def finish_param_type(type)
+          @state = :declaration
+          @declaration = nil
           type
         end
 

@@ -1,5 +1,5 @@
 class Ibex::Frontend::GeneratedParser < Ibex::Frontend::GeneratedParserBase
-token CLASS FRAGMENT INCLUDE TOKEN PRECHIGH PRECLOW OPTIONS EXPECT EXPECT_RR START CONVERT DISPLAY TYPE PRAGMA RULE END
+token CLASS FRAGMENT INCLUDE TOKEN PRECHIGH PRECLOW OPTIONS EXPECT EXPECT_RR START CONVERT DISPLAY TYPE PARAM PRAGMA RULE END
 token LEFT RIGHT NONASSOC PRECEDENCE IDENTIFIER LITERAL INTEGER ACTION USER_CODE INLINE EMPTY LHS
 token PARAMETERIZED_REFERENCE TOKEN_ALIAS
 token SEPARATED_LIST SEPARATED_NONEMPTY_LIST
@@ -47,6 +47,7 @@ rule
     | convert_declaration                { result = val[0] }
     | display_declaration                { result = val[0] }
     | type_declaration                   { result = val[0] }
+    | param_declaration                  { result = val[0] }
 
   include_declaration
     : INCLUDE LITERAL                    { result = build_include(val[0], val[1]) }
@@ -106,6 +107,13 @@ rule
 
   type_declaration
     : TYPE grammar_symbol LITERAL          { result = build_semantic_type(val[0], val[1], val[2]) }
+
+  param_declaration
+    : PARAM IDENTIFIER param_type           { result = build_parameter(val[0], val[1], val[2]) }
+
+  param_type
+    :                                       { result = nil }
+    | LITERAL                               { result = val[0] }
 
   identifiers
     :                                    { result = Array.new(0) }

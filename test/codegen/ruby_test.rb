@@ -99,6 +99,40 @@ class RubyCodegenTest < Minitest::Test
     assert_operator generated.index("FOOTER_MARK"), :>, generated.index("class UserCodeParser")
   end
 
+  def test_constructor_parameters_are_available_to_actions_and_lexer_state
+    source = <<~GRAMMAR
+      class ParameterizedParser
+      pragma extended
+      %param context "Hash[Symbol, Integer]"
+      %param lexer
+      rule
+      start: TOKEN { result = context.fetch(:offset) + lexer.fetch(:factor) * val[0] }
+      end
+      ---- inner
+      attr_reader :label
+      def initialize(label:)
+        @label = label
+        super()
+      end
+      def next_token
+        return if @read
+
+        @read = true
+        [:TOKEN, @lexer.fetch(:value)]
+      end
+    GRAMMAR
+    parser_class = evaluate(generate(source), "ParameterizedParser")
+    parser = parser_class.new(
+      context: { offset: 2 },
+      lexer: { factor: 4, value: 3 },
+      label: :configured
+    )
+
+    assert_equal 14, parser.do_parse
+    assert_equal :configured, parser.label
+    assert_raises(ArgumentError) { parser_class.new(context: {}) }
+  end
+
   def test_generated_action_methods_are_private_without_changing_user_methods
     generated = generate(calculator_source)
     parser_class = evaluate(generated, "GeneratedCalc")
