@@ -6,6 +6,7 @@ require "open3"
 require "rbconfig"
 require "rubygems"
 require "tmpdir"
+require_relative "rubyopt_metadata"
 
 module BenchmarkSupport
   # Runs one implementation/scenario observation without inspecting generated source.
@@ -14,6 +15,7 @@ module BenchmarkSupport
     GRAMMAR = File.join(ROOT, "benchmark/grammars/representative.y")
     INPUT = File.join(ROOT, "benchmark/grammars/representative.input")
     CLASS_NAME = :BenchmarkRepresentativeParser
+    MAX_BEHAVIOR_PROBE_ITERATIONS = 100
     IMPLEMENTATIONS = %w[ibex racc].freeze
     TOKEN_DRIVER_METHODS = <<~RUBY
       def tokenize(source)
@@ -42,12 +44,20 @@ module BenchmarkSupport
       "warm_runtime_tokens_new_instance" => %i[tokens new_instance]
     }.freeze
 
-    def initialize(implementation:, scenario:, warmup:, runtime_iterations:, workload_seed:)
+    def initialize(
+      implementation:,
+      scenario:,
+      warmup:,
+      runtime_iterations:,
+      workload_seed:,
+      behavior_probe_iterations:
+    )
       @implementation = implementation
       @scenario = scenario
       @warmup = warmup
       @runtime_iterations = runtime_iterations
       @workload_seed = workload_seed
+      @behavior_probe_iterations = behavior_probe_iterations
       validate!
     end
 
@@ -56,7 +66,7 @@ module BenchmarkSupport
         output = File.join(directory, "generated_parser.rb")
         grammar = File.join(directory, "representative.y")
         File.write(grammar, self.class.comparison_grammar_source)
-        generation = generate(output, grammar)
+        generation = generate(output, grammar).merge(execution_metadata)
         return generation if @scenario == "cold_generation"
 
         runtime(output).merge(generation.except("elapsed_ms"))
@@ -102,7 +112,10 @@ module BenchmarkSupport
     end
 
     def self.ruby_prefix
-      [RbConfig.ruby, *("--yjit" if yjit_enabled?)]
+      prefix = [RbConfig.ruby]
+      return prefix unless defined?(RubyVM::YJIT)
+
+      prefix << (yjit_enabled? ? "--yjit" : "--disable-yjit")
     end
 
     def self.yjit_enabled?
@@ -111,11 +124,25 @@ module BenchmarkSupport
       RubyVM::YJIT.enabled?
     end
 
+    def self.rubyopt_metadata(raw = ENV.fetch("RUBYOPT", nil))
+      RubyoptMetadata.build(raw)
+    end
+
+    def self.result_sequence_digest(results)
+      Digest::SHA256.hexdigest(JSON.generate(results))
+    end
+
     private
 
     def validate!
       unless IMPLEMENTATIONS.include?(@implementation)
         raise ArgumentError, "unknown implementation #{@implementation.inspect}"
+      end
+      raise ArgumentError, "warmup must not be negative" if @warmup.negative?
+      raise ArgumentError, "runtime iterations must be positive" unless @runtime_iterations.positive?
+      raise ArgumentError, "workload seed must not be negative" if @workload_seed.negative?
+      unless (1..MAX_BEHAVIOR_PROBE_ITERATIONS).cover?(@behavior_probe_iterations)
+        raise ArgumentError, "behavior probe iterations must be between 1 and #{MAX_BEHAVIOR_PROBE_ITERATIONS}"
       end
       return if @scenario == "cold_generation" || RUNTIME_SCENARIOS.key?(@scenario)
 
@@ -139,6 +166,16 @@ module BenchmarkSupport
     end
 
     def runtime(output)
+      parser_class, parser, driver, payload = runtime_context(output)
+      @warmup.times { invoke(parser_class, parser, driver, payload) }
+      measurement = measure_runtime(parser_class, parser, driver, payload)
+      result_sequence = Array.new(@behavior_probe_iterations) do
+        invoke(parser_class, parser, driver, payload)
+      end
+      runtime_report(measurement, result_sequence)
+    end
+
+    def runtime_context(output)
       $LOAD_PATH.unshift(File.join(ROOT, "lib")) unless $LOAD_PATH.include?(File.join(ROOT, "lib"))
       load output
       parser_class = Object.const_get(CLASS_NAME, false)
@@ -146,7 +183,10 @@ module BenchmarkSupport
       driver, lifecycle = RUNTIME_SCENARIOS.fetch(@scenario)
       payload = driver == :tokens ? parser_class.new.tokenize(input) : input
       parser = parser_class.new if lifecycle == :reuse
-      @warmup.times { invoke(parser_class, parser, driver, payload) }
+      [parser_class, parser, driver, payload]
+    end
+
+    def measure_runtime(parser_class, parser, driver, payload)
       GC.start
       before_allocations = GC.stat(:total_allocated_objects)
       started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -154,11 +194,18 @@ module BenchmarkSupport
       @runtime_iterations.times { result = invoke(parser_class, parser, driver, payload) }
       elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started
       allocations = GC.stat(:total_allocated_objects) - before_allocations
+      { result: result, elapsed: elapsed, allocations: allocations }
+    end
+
+    def runtime_report(measurement, result_sequence)
+      result = measurement.fetch(:result)
       {
-        "elapsed_ms_per_parse" => milliseconds(elapsed / @runtime_iterations),
-        "allocated_objects_per_parse" => (allocations.to_f / @runtime_iterations).round(3),
+        "elapsed_ms_per_parse" => milliseconds(measurement.fetch(:elapsed) / @runtime_iterations),
+        "allocated_objects_per_parse" => (measurement.fetch(:allocations).to_f / @runtime_iterations).round(3),
         "result_sha256" => Digest::SHA256.hexdigest(JSON.generate(result)),
         "behavior_sha256" => behavior_digest(result),
+        "result_sequence_sha256" => self.class.result_sequence_digest(result_sequence),
+        "result_sequence_length" => result_sequence.length,
         "runtime_backend" => runtime_backend
       }
     end
@@ -170,6 +217,14 @@ module BenchmarkSupport
 
     def behavior_digest(result)
       Digest::SHA256.hexdigest(JSON.generate(status: "returned", result_class: result.class.name, result: result))
+    end
+
+    def execution_metadata
+      rubyopt = self.class.rubyopt_metadata
+      {
+        "yjit_enabled" => self.class.yjit_enabled?,
+        "rubyopt_sha256" => rubyopt.fetch(:sha256)
+      }
     end
 
     def runtime_backend

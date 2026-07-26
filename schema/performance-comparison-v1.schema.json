@@ -143,6 +143,8 @@
         "generated",
         "result_sha256",
         "behavior_sha256",
+        "result_sequence_sha256",
+        "result_sequence_length",
         "runtime_backend"
       ],
       "properties": {
@@ -167,6 +169,8 @@
         "generated": { "$ref": "#/$defs/generated" },
         "result_sha256": { "$ref": "#/$defs/sha256" },
         "behavior_sha256": { "$ref": "#/$defs/sha256" },
+        "result_sequence_sha256": { "$ref": "#/$defs/sha256" },
+        "result_sequence_length": { "type": "integer", "minimum": 1, "maximum": 100 },
         "runtime_backend": { "enum": ["native", "ruby"] }
       }
     },
@@ -217,14 +221,16 @@
             "allocated_objects_per_parse",
             "generated_bytes",
             "result_equivalent",
-            "behavior_equivalent"
+            "behavior_equivalent",
+            "result_sequence_equivalent"
           ],
           "properties": {
             "elapsed_ms_per_parse": { "$ref": "#/$defs/metricComparison" },
             "allocated_objects_per_parse": { "$ref": "#/$defs/metricComparison" },
             "generated_bytes": { "$ref": "#/$defs/sizeComparison" },
             "result_equivalent": { "const": true },
-            "behavior_equivalent": { "const": true }
+            "behavior_equivalent": { "const": true },
+            "result_sequence_equivalent": { "const": true }
           }
         }
       }
@@ -235,6 +241,8 @@
       "required": [
         "git_revision",
         "git_dirty",
+        "git_tracked_dirty",
+        "git_untracked_dirty",
         "ruby_engine",
         "ruby_version",
         "ruby_platform",
@@ -242,16 +250,21 @@
         "ruby_executable",
         "host_os",
         "host_cpu",
+        "kernel_release",
+        "cpu_model",
         "processors",
         "yjit_available",
         "yjit_enabled",
         "ibex_version",
         "racc_version",
-        "racc_executable"
+        "racc_executable",
+        "rubyopt"
       ],
       "properties": {
         "git_revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
         "git_dirty": { "type": "boolean" },
+        "git_tracked_dirty": { "type": "boolean" },
+        "git_untracked_dirty": { "type": "boolean" },
         "ruby_engine": { "type": "string", "minLength": 1 },
         "ruby_version": { "type": "string", "minLength": 1 },
         "ruby_platform": { "type": "string", "minLength": 1 },
@@ -259,12 +272,38 @@
         "ruby_executable": { "type": "string", "minLength": 1 },
         "host_os": { "type": "string", "minLength": 1 },
         "host_cpu": { "type": "string", "minLength": 1 },
+        "kernel_release": { "type": "string", "minLength": 1 },
+        "cpu_model": {
+          "anyOf": [
+            { "type": "string", "minLength": 1 },
+            { "type": "null" }
+          ]
+        },
         "processors": { "type": "integer", "minimum": 1 },
         "yjit_available": { "type": "boolean" },
         "yjit_enabled": { "type": "boolean" },
         "ibex_version": { "type": "string", "minLength": 1 },
         "racc_version": { "type": "string", "minLength": 1 },
-        "racc_executable": { "type": "string", "minLength": 1 }
+        "racc_executable": { "type": "string", "minLength": 1 },
+        "rubyopt": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["present", "bytes", "sha256", "sanitized"],
+          "properties": {
+            "present": { "type": "boolean" },
+            "bytes": { "type": "integer", "minimum": 0 },
+            "sha256": {
+              "anyOf": [
+                { "$ref": "#/$defs/sha256" },
+                { "type": "null" }
+              ]
+            },
+            "sanitized": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
       }
     },
     "configuration": {
@@ -275,7 +314,9 @@
         "warmup",
         "runtime_iterations",
         "workload_seed",
+        "behavior_probe_iterations",
         "bootstrap_samples",
+        "expected_racc_backend",
         "confidence_level",
         "process_order"
       ],
@@ -283,8 +324,10 @@
         "runs": { "type": "integer", "minimum": 10 },
         "warmup": { "type": "integer", "minimum": 0 },
         "runtime_iterations": { "type": "integer", "minimum": 1 },
-        "workload_seed": { "type": "integer" },
+        "workload_seed": { "type": "integer", "minimum": 0 },
+        "behavior_probe_iterations": { "type": "integer", "minimum": 1, "maximum": 100 },
         "bootstrap_samples": { "type": "integer", "minimum": 1000 },
+        "expected_racc_backend": { "enum": ["native", "ruby"] },
         "confidence_level": { "const": 0.95 },
         "process_order": { "const": "alternating_per_run" }
       }
