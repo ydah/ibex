@@ -1,5 +1,19 @@
 # Whole-builder benchmark
 
+Run the deterministic 501-production scale construction benchmark with:
+
+```sh
+benchmark/scale.rb --rules 500 --iterations 3
+benchmark/scale.rb --rules 500 --iterations 3 --json
+```
+
+The source is generated in memory as one start production followed by 500
+recursive productions, matching the large compatibility probe. The report
+publishes the direct-LALR construction and final state counts, complete-build
+time range, compact generated size, conflicts, environment, and reproducibility
+digests. It is a deliberately synthetic breadth/depth stress case; the
+representative benchmark below remains the realistic control-flow workload.
+
 Run the reproducible parse-to-codegen and runtime benchmark from the repository root:
 
 ```sh
