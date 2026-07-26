@@ -1,0 +1,36 @@
+# Generated from lib/ibex/racc_migration/checker.rb with RBS::Inline
+
+module Ibex
+  module RaccMigration
+    # Checks syntax, normalization, superclass, and runtime-coupling hazards.
+    # Semantic action code is treated as opaque data and never executed.
+    class Checker
+      RACC_REQUIRE: Regexp
+
+      RACC_CONSTANT: Regexp
+
+      # @rbs (String source, file: String) -> Report
+      def check: (String source, file: String) -> Report
+
+      private
+
+      # @rbs (Frontend::Diagnostic diagnostic) -> Finding
+      def syntax_finding: (Frontend::Diagnostic diagnostic) -> Finding
+
+      # @rbs (Frontend::AST::Root ast) -> Array[Finding]
+      def superclass_findings: (Frontend::AST::Root ast) -> Array[Finding]
+
+      # @rbs (Frontend::AST::Root ast) -> Array[Finding]
+      def user_code_findings: (Frontend::AST::Root ast) -> Array[Finding]
+
+      # @rbs (Frontend::AST::Root ast) -> Array[Finding]
+      def normalization_findings: (Frontend::AST::Root ast) -> Array[Finding]
+
+      # @rbs (String message, Frontend::Location fallback) -> [Frontend::Location, String]
+      def error_location: (String message, Frontend::Location fallback) -> [ Frontend::Location, String ]
+
+      # @rbs (Array[Finding] findings) -> Array[Finding]
+      def sort_findings: (Array[Finding] findings) -> Array[Finding]
+    end
+  end
+end

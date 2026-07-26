@@ -1,0 +1,8 @@
+# Generated from lib/ibex/racc_migration.rb with RBS::Inline
+
+module Ibex
+  # Static checks and explicitly generated differential tooling for migration
+  # from racc grammar files.
+  module RaccMigration
+  end
+end

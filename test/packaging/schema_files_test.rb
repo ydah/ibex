@@ -6,22 +6,26 @@ class SchemaFilesPackagingTest < Minitest::Test
   def test_ir_schemas_are_packaged_in_the_gem
     specification = Gem::Specification.load(File.expand_path("../../ibex.gemspec", __dir__))
 
-    assert_includes specification.files, "schema/grammar-ir-v1.schema.json"
-    assert_includes specification.files, "schema/automaton-ir-v1.schema.json"
-    assert_includes specification.files, "schema/grammar-ir-v2.schema.json"
-    assert_includes specification.files, "schema/automaton-ir-v2.schema.json"
-    assert_includes specification.files, "schema/explain-v1.schema.json"
-    assert_includes specification.files, "schema/benchmark-v1.schema.json"
-    assert_includes specification.files, "schema/benchmark-v2.schema.json"
-    assert_includes specification.files, "schema/generation-manifest-v1.schema.json"
-    assert_includes specification.files, "lib/ibex/codegen/action_method_source.rb"
-    assert_includes specification.files, "lib/ibex/codegen/action_source.rb"
-    assert_includes specification.files, "lib/ibex/cli/formatting.rb"
-    assert_includes specification.files, "lib/ibex/frontend/formatter.rb"
-    assert_includes specification.files, "sig/ibex/codegen/action_method_source.rbs"
-    assert_includes specification.files, "sig/ibex/codegen/action_source.rbs"
-    assert_includes specification.files, "sig/ibex/cli/formatting.rbs"
-    assert_includes specification.files, "sig/ibex/frontend/formatter.rbs"
+    expected = %w[
+      schema/grammar-ir-v1.schema.json
+      schema/automaton-ir-v1.schema.json
+      schema/grammar-ir-v2.schema.json
+      schema/automaton-ir-v2.schema.json
+      schema/explain-v1.schema.json
+      schema/benchmark-v1.schema.json
+      schema/benchmark-v2.schema.json
+      schema/migration-check-v1.schema.json
+      schema/generation-manifest-v1.schema.json
+      lib/ibex/codegen/action_method_source.rb
+      lib/ibex/codegen/action_source.rb
+      lib/ibex/cli/formatting.rb
+      lib/ibex/frontend/formatter.rb
+      sig/ibex/codegen/action_method_source.rbs
+      sig/ibex/codegen/action_source.rbs
+      sig/ibex/cli/formatting.rbs
+      sig/ibex/frontend/formatter.rbs
+    ]
+    expected.each { |path| assert_includes specification.files, path }
   end
 
   def test_lsp_sources_and_signatures_are_packaged_in_the_gem

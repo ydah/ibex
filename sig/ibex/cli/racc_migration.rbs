@@ -1,0 +1,30 @@
+# Generated from lib/ibex/cli/racc_migration.rb with RBS::Inline
+
+module Ibex
+  # Static racc migration checks and differential harness generation.
+  module CLIRaccMigration
+    type migration_check_settings = { format: String, ?help: bool }
+
+    type migration_harness_settings = { ?output: String, ?help: bool }
+
+    private def input_path: (Array[String]) -> String
+
+    private def atomic_write_ir: (String path, String source) -> void
+
+    private def same_file_target?: (String left, String right) -> bool
+
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_migrate_check_command: (Array[String] arguments) -> Integer
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_migrate_harness_command: (Array[String] arguments) -> Integer
+
+    # @rbs (migration_check_settings settings) -> OptionParser
+    def migrate_check_options: (migration_check_settings settings) -> OptionParser
+
+    # @rbs (migration_harness_settings settings) -> OptionParser
+    def migrate_harness_options: (migration_harness_settings settings) -> OptionParser
+  end
+end

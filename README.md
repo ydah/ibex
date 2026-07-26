@@ -348,6 +348,8 @@ ibex --check --rbs grammar.y
 ibex samples --count=10 --seed=42 grammar.y
 ibex validate-ir grammar.json
 ibex compare before.json after.json
+ibex migrate-check --format=json grammar.y
+ibex migrate-harness -o migration_harness.rb grammar.y
 ```
 
 Supported construction algorithms are `slr`, `lalr` (default), `ielr`, and canonical `lr1`. LALR and SLR use direct lookahead
@@ -398,6 +400,9 @@ hooks. `require "ibex/rake_task"` provides timestamp-aware parser generation for
 `task.action_source = true` for the default shadow path or assign an explicit String path; the shadow becomes a timestamp-aware
 file prerequisite of the parser target. Versioned JSON Schemas are shipped in
 `schema/`, and `examples/` contains calculator, JSON, INI, and tiny-language parsers backed only by the standard library.
+The static `migrate-check` reports racc-mode syntax, normalization, superclass, and runtime-coupling hazards without executing
+grammar code. `migrate-harness` emits a reviewable, empty-by-default child-process differential harness; running it is an
+explicit application-code execution boundary.
 New pipeline output is Grammar/Automaton IR version 2; version-1 documents remain valid and byte-stable. Upgrade either document
 kind with `ibex migrate-ir INPUT --to=2` or write atomically with `-o FILE`. The version-2 contract reserves nullable source,
 documentation, expansion, and composed-action metadata; see [ADR 0039](docs/decisions/0039-versioned-ir-v2-migration.md).
@@ -461,8 +466,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 12,983 typed calls and 1,781 untyped calls out of 14,764 (87.9% typed).
-The generated signature tree contains 1,827 explicit `untyped` occurrences across 74 files.
+The current whole-library `steep stats` result is 13,147 typed calls and 1,791 untyped calls out of 14,938 (88.0% typed).
+The generated signature tree contains 1,833 explicit `untyped` occurrences across 75 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

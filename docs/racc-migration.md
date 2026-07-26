@@ -5,11 +5,14 @@ copy racc's internal table arrays, internal method names, native runtime, or gen
 
 ## Typical migration
 
-1. Run `ibex -o parser.rb grammar.y` in place of `racc -o parser.rb grammar.y`.
-2. Change the generated-file runtime dependency from deployment packaging only; application calls to `do_parse`, `yyparse`,
+1. Run `ibex migrate-check grammar.y` and resolve any errors. Use `--format=json` for CI.
+2. Generate a reviewable parity harness with `ibex migrate-harness -o migration_harness.rb grammar.y`, add explicit token
+   cases, and run it inside an isolation boundary appropriate for the grammar code.
+3. Run `ibex -o parser.rb grammar.y` in place of `racc -o parser.rb grammar.y`.
+4. Change the generated-file runtime dependency from deployment packaging only; application calls to `do_parse`, `yyparse`,
    `next_token`, `on_error`, `token_to_str`, `yyerror`, `yyerrok`, and `yyaccept` remain the same.
-3. Use `-E` if the generated parser must be a single file with no installed Ibex gem.
-4. Keep the default `--mode=racc` until intentionally adopting EBNF or names. Extended grammars can make that choice locally by
+5. Use `-E` if the generated parser must be a single file with no installed Ibex gem.
+6. Keep the default `--mode=racc` until intentionally adopting EBNF or names. Extended grammars can make that choice locally by
    placing `pragma extended` immediately after their class header instead of requiring `--mode=extended` at each invocation.
 
 ## CLI mapping
@@ -38,6 +41,11 @@ lines. `--line-convert-all` maps every user-code section; `-l` maps none. The ma
 For static action checking, combine `--rbs --action-source`; configure the generated `.rbs` and `.actions.rb` in the
 application's Steep target, and run Steep separately. The shadow is check-only input and must not replace or be required by the
 runtime parser.
+
+`migrate-check` never executes semantic actions or `header`/`inner`/`footer` code. `migrate-harness` also only writes source. The
+generated harness is the explicit execution step: after reviewed cases are added, it invokes both generators and executes both
+generated parsers in bounded child processes. This is not a sandbox; use a container or VM for untrusted grammar code. See
+[ADR 0056](decisions/0056-static-racc-migration-and-generated-harness.md).
 
 ## Compatibility baseline
 

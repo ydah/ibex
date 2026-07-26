@@ -14,6 +14,7 @@ require_relative "cli/generation_artifacts"
 require_relative "cli/ir_tools"
 require_relative "cli/lsp"
 require_relative "cli/outputs"
+require_relative "cli/racc_migration"
 require_relative "cli/samples"
 require_relative "cli/watch"
 
@@ -89,6 +90,8 @@ module Ibex
       "explain" => :run_explain_command,
       "fmt" => :run_format_command,
       "lsp" => :run_lsp_command,
+      "migrate-check" => :run_migrate_check_command,
+      "migrate-harness" => :run_migrate_harness_command,
       "samples" => :run_samples_command,
       "validate-ir" => :run_validate_ir_command,
       "compare" => :run_compare_command,
@@ -107,6 +110,7 @@ module Ibex
     include CLIIRTools
     include CLILSP
     include CLIOutputs
+    include CLIRaccMigration
     include CLISamples
     include CLIWatch
 
@@ -185,6 +189,8 @@ module Ibex
         options.separator("    explain                   explain selected parser conflicts")
         options.separator("    fmt                       format grammar source")
         options.separator("    lsp                       run the language server over stdio")
+        options.separator("    migrate-check             statically check a racc grammar migration")
+        options.separator("    migrate-harness           generate a differential subprocess harness")
         options.separator("    samples                   generate bounded terminal sentences")
         options.separator("    validate-ir FILE          validate a versioned IR document")
         options.separator("    compare BEFORE AFTER      compare two versioned IR documents")

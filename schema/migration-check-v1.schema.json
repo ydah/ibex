@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/migration-check-v1.schema.json",
+  "title": "Ibex racc migration check version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ibex_migration_check",
+    "schema_version",
+    "compatible",
+    "file",
+    "class_name",
+    "findings"
+  ],
+  "properties": {
+    "ibex_migration_check": { "const": "racc" },
+    "schema_version": { "const": 1 },
+    "compatible": { "type": "boolean" },
+    "file": { "type": "string", "minLength": 1 },
+    "class_name": {
+      "oneOf": [
+        { "type": "string", "pattern": "^[A-Z][A-Za-z0-9_]*(?:::[A-Z][A-Za-z0-9_]*)*$" },
+        { "type": "null" }
+      ]
+    },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    }
+  },
+  "$defs": {
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "line", "column"],
+      "properties": {
+        "file": { "type": "string" },
+        "line": { "type": "integer", "minimum": 1 },
+        "column": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "severity", "message", "location", "suggestion"],
+      "properties": {
+        "code": { "type": "string", "pattern": "^racc\\.[a-z_]+$" },
+        "severity": { "enum": ["error", "warning", "info"] },
+        "message": { "type": "string", "minLength": 1 },
+        "location": {
+          "oneOf": [
+            { "$ref": "#/$defs/location" },
+            { "type": "null" }
+          ]
+        },
+        "suggestion": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

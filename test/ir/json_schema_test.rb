@@ -21,6 +21,7 @@ class IRJSONSchemaTest < Minitest::Test
       runtime-event-v1.schema.json
       runtime-coverage-v1.schema.json
       table-simulation-v1.schema.json
+      migration-check-v1.schema.json
     ].each do |name|
       schema = load_json(File.join(SCHEMA_ROOT, name))
 
