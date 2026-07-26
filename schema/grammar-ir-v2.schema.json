@@ -65,7 +65,7 @@
       "minimum": 0
     },
     "options": {
-      "$ref": "grammar-ir-v1.schema.json#/$defs/options"
+      "$ref": "#/$defs/options"
     },
     "params": {
       "type": "array",
@@ -134,6 +134,25 @@
   },
   "additionalProperties": false,
   "$defs": {
+    "options": {
+      "type": "object",
+      "required": [
+        "result_var",
+        "omit_action_call"
+      ],
+      "properties": {
+        "result_var": {
+          "type": "boolean"
+        },
+        "omit_action_call": {
+          "type": "boolean"
+        },
+        "cst": {
+          "const": true
+        }
+      },
+      "additionalProperties": false
+    },
     "grammar_test": {
       "type": "object",
       "required": [

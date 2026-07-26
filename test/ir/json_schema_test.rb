@@ -117,6 +117,20 @@ class IRJSONSchemaTest < Minitest::Test
     refute_empty schemer.validate(document).to_a
   end
 
+  def test_cst_option_is_additive_only_in_the_v2_schema
+    grammar = schema("grammar-ir-v2.schema.json")
+    resolver = ->(uri) { grammar_schema if uri.to_s == grammar_schema.fetch("$id") }
+    document = fixture("grammar-v2.json")
+    document["mode"] = "extended"
+    document.fetch("options")["cst"] = true
+
+    assert_empty JSONSchemer.schema(grammar, ref_resolver: resolver).validate(document).to_a
+
+    legacy = fixture("grammar-v1.json")
+    legacy.fetch("options")["cst"] = true
+    refute_empty JSONSchemer.schema(grammar_schema).validate(legacy).to_a
+  end
+
   def test_v2_schemas_accept_multiple_starts_and_entry_states
     grammar = schema("grammar-ir-v2.schema.json")
     automaton = schema("automaton-ir-v2.schema.json")

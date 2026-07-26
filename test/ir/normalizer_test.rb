@@ -41,6 +41,18 @@ class NormalizerTest < Minitest::Test
     assert_equal :extended, grammar.mode
   end
 
+  def test_cst_pragma_round_trips_as_optional_v2_metadata
+    grammar = normalize("class P\npragma cst\nrule\nstart: TOKEN\nend\n")
+    dumped = Ibex::IR::Serialize.dump(grammar)
+    loaded = Ibex::IR::Validator.validate(dumped)
+
+    assert_equal :extended, grammar.mode
+    assert_equal true, grammar.options.fetch(:cst)
+    assert_equal true, loaded.options.fetch(:cst)
+    assert_includes dumped, '"cst": true'
+    refute_includes Ibex::IR::Serialize.dump(normalize("class P\nrule\nstart: TOKEN\nend\n")), '"cst"'
+  end
+
   def test_multiple_start_symbols_round_trip_as_optional_v2_metadata
     grammar = normalize(<<~GRAMMAR, mode: :extended)
       class P

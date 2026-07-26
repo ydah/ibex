@@ -57,8 +57,10 @@ module Ibex
 
         attr_accessor extended(): bool?
 
-        def self.new: (?class_name: String, ?superclass: String?, ?declarations: Array[declaration], ?rules: Array[Rule], ?user_code: user_code, ?loc: Location, ?extended: bool?) -> instance
-                    | ({ ?class_name: String, ?superclass: String?, ?declarations: Array[declaration], ?rules: Array[Rule], ?user_code: user_code, ?loc: Location, ?extended: bool? }) -> instance
+        attr_accessor cst(): bool?
+
+        def self.new: (?class_name: String, ?superclass: String?, ?declarations: Array[declaration], ?rules: Array[Rule], ?user_code: user_code, ?loc: Location, ?extended: bool?, ?cst: bool?) -> instance
+                    | ({ ?class_name: String, ?superclass: String?, ?declarations: Array[declaration], ?rules: Array[Rule], ?user_code: user_code, ?loc: Location, ?extended: bool?, ?cst: bool? }) -> instance
       end
 
       class Fragment < Struct[Array[declaration] | Array[Rule] | Location]

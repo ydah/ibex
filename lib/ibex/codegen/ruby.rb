@@ -28,15 +28,16 @@ module Ibex
       # @rbs @omit_action_call: bool
       # @rbs @superclass: String
       # @rbs @executable: String?
+      # @rbs @cst_trivia: Symbol
       # @rbs @error_messages: Hash[Integer, String | { id: String, message: String }]
 
       # @rbs (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool,
       #   ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?,
-      #   ?executable: String?,
+      #   ?executable: String?, ?cst_trivia: Symbol | String,
       #   ?error_messages: Hash[Integer, String | { id: String, message: String }]) -> void
       def initialize(automaton, table: :compact, embedded: false, line_convert: true, debug: false,
                      line_convert_all: false, omit_action_call: nil, superclass: nil, executable: nil,
-                     error_messages: {})
+                     cst_trivia: :attach, error_messages: {})
         @automaton = automaton
         @grammar = automaton.grammar
         @table_format = table.to_sym
@@ -47,6 +48,9 @@ module Ibex
         @omit_action_call = omit_action_call.nil? ? @grammar.options[:omit_action_call] : omit_action_call
         @superclass = superclass || @grammar.superclass || "Ibex::Runtime::Parser"
         @executable = executable
+        @cst_trivia = cst_trivia.to_sym
+        raise ArgumentError, "cst_trivia must be :attach or :drop" unless %i[attach drop].include?(@cst_trivia)
+
         @error_messages = error_messages.sort.to_h.freeze
       end
 
@@ -79,6 +83,7 @@ module Ibex
       def append_runtime(lines)
         if @embedded
           lines << embedded_source("../runtime/location_span.rb")
+          lines << embedded_source("../runtime/cst.rb")
           lines << embedded_source("../runtime/event_sanitizer.rb")
           lines << embedded_source("../runtime/event.rb")
           lines << embedded_source("../runtime/observation.rb")
@@ -112,6 +117,7 @@ module Ibex
         append_table_metadata(lines, indent)
         lines << "#{indent}TOKEN_IDS = #{token_ids_literal}.freeze"
         lines << "#{indent}TOKEN_NAMES = #{token_names_literal}.freeze"
+        lines << "#{indent}SYMBOL_NAMES = #{symbol_names_literal}.freeze" if cst?
         lines << "#{indent}ACTIONS = #{table_literal(table_set.actions)}"
         lines << "#{indent}GOTOS = #{table_literal(table_set.gotos)}"
         lines << "#{indent}DEFAULT_ACTIONS = #{table_set.default_actions.inspect}.freeze"
@@ -136,6 +142,10 @@ module Ibex
         lines << "#{indent}                  grammar_digest: GRAMMAR_DIGEST,"
         lines << "#{indent}                  state_count: STATE_COUNT, production_count: PRODUCTION_COUNT,"
         lines << "#{indent}                  uses_locations: #{uses_locations?},"
+        if cst?
+          lines << "#{indent}                  cst: true, cst_trivia: #{@cst_trivia.inspect}, " \
+                   "cst_start: #{@grammar.start.inspect}, symbol_names: SYMBOL_NAMES,"
+        end
         lines << "#{indent}                  exact_expected_tokens: true," if @grammar.mode == :extended
         lines << "#{indent}                  tokens: TOKEN_IDS, token_names: TOKEN_NAMES, actions: ACTIONS,"
         lines << "#{indent}                  gotos: GOTOS, default_actions: DEFAULT_ACTIONS,"
@@ -211,15 +221,22 @@ module Ibex
       end
 
       # @rbs () -> String
+      def symbol_names_literal
+        entries = @grammar.symbols.map { |symbol| "#{symbol.id} => #{symbol.name.inspect}" }
+        "{ #{entries.join(', ')} }"
+      end
+
+      # @rbs () -> String
       def productions_literal
         entries = @grammar.productions.map do |production|
           generated_action = action_method?(production)
           action = generated_action ? ":_ibex_action_#{production.id}" : "nil"
           location_action = generated_action ? ", location_action: true" : ""
           composition_action = composed_action?(production) ? ", composition_action: true" : ""
+          cst_rhs = cst? ? ", rhs: #{production.rhs.inspect}.freeze" : ""
           location_context, named_locations = production_location_metadata(production.action)
           "{ lhs: #{production.lhs}, length: #{production.rhs.length}, action: #{action}" \
-            "#{location_action}#{composition_action}#{location_context}#{named_locations} }"
+            "#{location_action}#{composition_action}#{cst_rhs}#{location_context}#{named_locations} }"
         end
         "[#{entries.join(', ')}]"
       end
@@ -265,13 +282,18 @@ module Ibex
 
       # @rbs () -> bool
       def uses_locations?
-        @grammar.productions.any? do |production|
+        cst? || @grammar.productions.any? do |production|
           action = production.action
           action && (
             !action.composition.nil? ||
             action.code.match?(/@(?:\$|\d+)|\bresult_loc\b|\bloc\s*\(/)
           )
         end
+      end
+
+      # @rbs () -> bool
+      def cst?
+        @grammar.options[:cst] == true
       end
 
       # @rbs (Array[String] lines, String name, ?indent: Integer) -> void

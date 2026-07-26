@@ -40,6 +40,9 @@ module Ibex
       # @rbs () -> bool
       def extended_pragma?: () -> bool
 
+      # @rbs () -> bool
+      def cst_pragma?: () -> bool
+
       # @rbs () -> parser_section
       def section: () -> parser_section
 

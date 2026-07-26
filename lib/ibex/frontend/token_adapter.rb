@@ -60,6 +60,11 @@ module Ibex
         @declarations.extended_pragma?
       end
 
+      # @rbs () -> bool
+      def cst_pragma?
+        @declarations.cst_pragma?
+      end
+
       # @rbs () -> parser_section
       def section
         rules = @rules

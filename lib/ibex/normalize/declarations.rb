@@ -16,6 +16,7 @@ module Ibex
       @semantic_types = {} #: Hash[String, String]
       @semantic_type_locations = {} #: Hash[String, IR::location]
       @options = { result_var: true, omit_action_call: true }
+      @options[:cst] = true if @ast.cst
       @expected_conflicts = 0
       @expected_rr_conflicts = nil
       @conversions = {} #: Hash[String, String]

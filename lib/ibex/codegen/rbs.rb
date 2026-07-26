@@ -45,6 +45,7 @@ module Ibex
                    "  ERROR_MESSAGES: Hash[Integer, String | { id: String, message: String }]",
                    "  PARSER_TABLES: Hash[Symbol, untyped]", "  DEBUG_ENABLED: bool", "",
                    "  def self.parser_tables: () -> Hash[Symbol, untyped]")
+        lines << "  SYMBOL_NAMES: Hash[Integer, String]" if @grammar.options[:cst] == true
         append_entry_contract(lines)
         append_parameter_contract(lines)
       end

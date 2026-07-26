@@ -7,6 +7,7 @@ module Ibex
   module Runtime
     # Runtime contract mixed into parser classes that declare a lexer.
     # rubocop:disable Metrics/ModuleLength -- matching, actions, state, and positions share one session invariant.
+    # @rbs module-self Parser
     module GeneratedLexer
       NO_EMISSION = Object.new.freeze #: Object
 
@@ -20,6 +21,7 @@ module Ibex
       # @rbs @lexer_lexeme: String?
       # @rbs @lexer_emission: Object | Array[untyped]
       # @rbs @lexer_skip_requested: bool
+      # @rbs @lexer_pending_trivia: Array[CST::Trivia]
 
       # Reset the generated lexer to the beginning of an input.
       # @rbs (String | IO | Fiber source, ?file: String) -> self
@@ -34,6 +36,7 @@ module Ibex
         @lexer_lexeme = nil
         @lexer_emission = NO_EMISSION
         @lexer_skip_requested = false
+        @lexer_pending_trivia = []
         self
       end
 
@@ -43,6 +46,11 @@ module Ibex
         lex(source, file: file)
         parser = self #: Parser
         parser.do_parse
+      rescue ParseError => e
+        raise unless parser_tables[:cst] == true
+
+        parser = self #: Parser
+        parser.__send__(:cst_lexical_failure, e)
       end
 
       # Return the current named lexer state.
@@ -152,9 +160,13 @@ module Ibex
         action = rule[:action]
         value = action ? __send__(action, lexeme) : lexeme
         emission = @lexer_emission
-        return [emission.fetch(0), emission.fetch(1), location] if emission.is_a?(Array)
-        return nil if @lexer_skip_requested
-        return [rule.fetch(:token), value, location] if rule.fetch(:kind) == :token
+        return [emission.fetch(0), emission.fetch(1), attach_cst_trivia(location)] if emission.is_a?(Array)
+
+        if @lexer_skip_requested
+          retain_cst_trivia(lexeme, location)
+          return nil
+        end
+        return [rule.fetch(:token), value, attach_cst_trivia(location)] if rule.fetch(:kind) == :token
 
         raise ParseError, "#{location.fetch(:file)}:#{location.fetch(:line)}:" \
                           "#{location.fetch(:column)}: on lexer rule did not emit or skip"
@@ -181,6 +193,40 @@ module Ibex
       # @rbs () -> String?
       def lexeme
         @lexer_lexeme
+      end
+
+      # @rbs (String text, Hash[Symbol, untyped] location) -> void
+      def retain_cst_trivia(text, location)
+        return unless cst_trivia_policy == :attach
+
+        @lexer_pending_trivia << CST::Trivia.new(text: text, location: location)
+      end
+
+      # @rbs (Hash[Symbol, untyped] location) -> Hash[Symbol, untyped]
+      def attach_cst_trivia(location)
+        trivia = @lexer_pending_trivia
+        return location if trivia.empty? || cst_trivia_policy == :drop
+
+        attached = location.merge(leading_trivia: trivia.dup.freeze).freeze
+        trivia.clear
+        attached
+      end
+
+      # @rbs () -> Array[CST::Trivia]
+      def take_cst_trailing_trivia
+        trivia = @lexer_pending_trivia
+        result = if cst_trivia_policy == :attach
+                   trivia.dup.freeze
+                 else
+                   Array.new(0).freeze
+                 end #: Array[CST::Trivia]
+        trivia.clear
+        result
+      end
+
+      # @rbs () -> Symbol
+      def cst_trivia_policy
+        parser_tables.fetch(:cst_trivia, :drop)
       end
 
       # Push a named lexer state.

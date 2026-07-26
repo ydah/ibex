@@ -27,6 +27,10 @@ module Ibex
 
         attr_reader state: Symbol
 
+        @pragma_location: Location?
+
+        @pragmas: Hash[String, bool]
+
         @fragment: bool?
 
         @extended_mode: bool
@@ -42,6 +46,9 @@ module Ibex
 
         # @rbs () -> bool
         def extended_pragma?: () -> bool
+
+        # @rbs () -> bool
+        def cst_pragma?: () -> bool
 
         # @rbs (Token? token) -> String?
         def expectation: (Token? token) -> String?
@@ -68,6 +75,9 @@ module Ibex
 
         # @rbs (String value) -> bool
         def declaration_boundary?: (String value) -> bool
+
+        # @rbs () -> bool
+        def extended_features?: () -> bool
 
         # @rbs (Token token) -> external_token
         def precedence_identifier: (Token token) -> external_token
