@@ -53,10 +53,9 @@ The following work requires a separately reviewed phase and ADR:
   against a separate `explain` command with a thin, versioned view over existing Automaton IR and counterexamples.
 - [ADR 0056](0056-static-racc-migration-and-generated-harness.md) completes automated `migrate-check` and differential-harness
   generation by keeping checks static and making generated-harness execution an explicit bounded child-process boundary.
-- Chain-rule elimination and generated `case` dispatch restart only after the real-grammar benchmark demonstrates a repeatable
-  runtime or size win and an ADR specifies source-map, table-version, and debugging consequences. [ADR
-  0038](0038-versioned-benchmark-evidence.md) supplies the shared baseline and defines the candidate evidence gate; neither
-  optimization becomes the default without its own qualifying comparison.
+- [ADR 0058](0058-reject-chain-elimination-and-case-dispatch.md) closes chain-rule elimination and generated `case` dispatch.
+  The compatible case candidate improves runtime but increases generated source by 198%, while chain elimination cannot preserve
+  production-id hooks, tracing, coverage, debugging, and source maps without replaying the removed reductions.
 
 [ADR 0054](0054-direct-lalr-lookahead-propagation.md) completes Direct LALR with byte-equivalence coverage and a canonical
 reference strategy. [ADR 0055](0055-ielr-inadequacy-elimination.md) completes the IELR backend with a conservative

@@ -57,6 +57,11 @@ size reduction of at least 10%, without a regression of 5% or more in the other 
 runtime-result and parser-behavior digests equal. A follow-up ADR must define source-map behavior, debugger/tracer identity,
 table-format compatibility, and rollback before adoption.
 
+[ADR 0058](0058-reject-chain-elimination-and-case-dispatch.md) applies this gate. Five-process measurements on MRI 3.4.9 and
+4.0.0 show a 15.494% and 16.489% runtime improvement for compatible per-state case lookup, but a 198.170% generated-size
+regression, so the candidate is rejected. Chain elimination is also rejected because production identities are observable across
+hooks, tracing, coverage, debugging, and source maps.
+
 This decision also satisfies the representative benchmark and committed-history prerequisite in ADR 0024. Pages/YARD repository
 permissions and publication ownership remain separate.
 

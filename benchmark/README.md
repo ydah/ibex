@@ -94,3 +94,8 @@ benchmark/optimization_candidates.rb --runs 5 --warmup 100 --iterations 1000 --o
 
 Run the same command on at least two supported MRI versions before changing the optimization decision. The report also records
 the representative grammar's unit-production surface; it does not rewrite production identities.
+
+The reviewed MRI 3.4.9 and 4.0.0 reports for revision `05dc61bdb5d0` are committed under
+`benchmark/results/optimization/`. Both reject the case candidate: its runtime median improves by more than 15%, but retaining
+the authoritative tables makes generated source 198% larger. [ADR 0058](../docs/decisions/0058-reject-chain-elimination-and-case-dispatch.md)
+records the decision and the production-identity reason for rejecting chain elimination.
