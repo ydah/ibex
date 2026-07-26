@@ -118,7 +118,7 @@ module Ibex
     def generation_manifest_options
       keys = %i[
         action_source algorithm counterexample_max_configurations counterexample_max_tokens debug
-        embedded emit executable frozen line_convert line_convert_all messages mode omit_actions rbs
+        embedded emit entry_isolation executable frozen line_convert line_convert_all messages mode omit_actions rbs
         superclass table
       ]
       options = {} #: Hash[String, untyped]

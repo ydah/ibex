@@ -61,6 +61,17 @@ class FrontendDSLTest < Minitest::Test
     )
   end
 
+  def test_dsl_supports_multiple_start_symbols
+    ast = Ibex::Frontend::DSL.grammar(class_name: "Entries") do |grammar|
+      grammar.start(:program, :expression)
+      grammar.rule(:program) { |rule| rule.alt(:PROGRAM) }
+      grammar.rule(:expression) { |rule| rule.alt(:EXPRESSION) }
+    end
+
+    ir = Ibex::Normalizer.new(ast, mode: :extended).normalize
+    assert_equal %w[program expression], ir.starts
+  end
+
   def test_dsl_supports_value_printers
     ast = Ibex::Frontend::DSL.grammar(class_name: "Printed") do |grammar|
       grammar.printer(:TOKEN, "\"token=\#{value}\"")

@@ -463,19 +463,24 @@ module Ibex
       # @rbs (Integer stack_depth) -> Integer
       def exact_lookahead_step_budget(stack_depth)
         tables = parser_tables
-        actions = tables.fetch(:actions)
-        state_count = tables[:state_count]
-        unless state_count.is_a?(Integer)
-          state_count = actions.respond_to?(:row_count) ? actions.row_count : actions.length
-        end
-        raise ParseError, "(tables):1:1: parser table state count must be an Integer" unless state_count.is_a?(Integer)
-
         production_count = tables.fetch(:productions).length
         unless production_count.is_a?(Integer)
           raise ParseError, "(tables):1:1: parser table production count must be an Integer"
         end
 
-        (stack_depth + state_count + 1) * (production_count + 1)
+        (stack_depth + parser_state_count(tables) + 1) * (production_count + 1)
+      end
+
+      # @rbs (Hash[Symbol, untyped] tables) -> Integer
+      def parser_state_count(tables)
+        state_count = tables[:state_count]
+        return state_count if state_count.is_a?(Integer)
+
+        actions = tables.fetch(:actions)
+        state_count = actions.respond_to?(:row_count) ? actions.row_count : actions.length
+        return state_count if state_count.is_a?(Integer)
+
+        raise ParseError, "(tables):1:1: parser table state count must be an Integer"
       end
 
       # @rbs (Array[Integer] stack, Integer production_id) -> bool
@@ -492,8 +497,8 @@ module Ibex
         true
       end
 
-      # @rbs (^() -> untyped source) -> untyped
-      def drive_parser(source)
+      # @rbs (^() -> untyped source, ?initial_state: Integer?) -> untyped
+      def drive_parser(source, initial_state: nil)
         @runtime_observation_mutex.synchronize do
           ensure_driver_available_without_lock!
           if @push_status == :active
@@ -505,7 +510,7 @@ module Ibex
         end
 
         begin
-          prepare_parse(source)
+          prepare_parse(source, initial_state: initial_state)
           loop do
             action = action_for_current_state
             outcome = perform(action)
@@ -591,11 +596,13 @@ module Ibex
         @repair_selected = false
       end
 
-      # @rbs (^() -> untyped source) -> void
-      def prepare_parse(source)
+      # @rbs (^() -> untyped source, ?initial_state: Integer?) -> void
+      def prepare_parse(source, initial_state: nil)
         tables = validate_parser_table_format!
+        initial_state = resolve_initial_state(tables, initial_state)
+
         @source = source
-        @state_stack = [0]
+        @state_stack = [initial_state]
         @value_stack = []
         @location_stack = track_locations?(tables) ? [] : nil
         @lookahead = NO_LOOKAHEAD
@@ -608,7 +615,7 @@ module Ibex
         @unknown_token_id = nil
         @repair_input_buffer = @repair_policy ? [] : nil
         @repair_selected = false
-        trace("start state 0")
+        trace("start state #{initial_state}")
         @runtime_event_sequence = 0
         return unless @runtime_observers
 
@@ -616,13 +623,22 @@ module Ibex
           :start,
           {
             "driver" => @driver_status.to_s,
-            "initial_state" => 0,
+            "initial_state" => initial_state,
             "table_format_version" => tables.fetch(:format_version),
             "grammar_digest" => tables[:grammar_digest],
             "state_count" => tables[:state_count],
             "production_count" => tables[:production_count]
           }
         )
+      end
+
+      # @rbs (Hash[Symbol, untyped] tables, Integer? requested) -> Integer
+      def resolve_initial_state(tables, requested)
+        initial_state = requested || tables[:initial_state] || 0
+        return initial_state if initial_state.is_a?(Integer) &&
+                                initial_state.between?(0, parser_state_count(tables) - 1)
+
+        raise ParseError, "(tables):1:1: parser initial state #{initial_state.inspect} is invalid"
       end
 
       # @rbs () -> Hash[Symbol, untyped]

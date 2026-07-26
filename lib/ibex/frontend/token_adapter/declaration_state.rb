@@ -12,7 +12,7 @@ module Ibex
         DECLARATIONS = {
           "include" => %i[INCLUDE include_path],
           "token" => %i[TOKEN token_symbols], "options" => %i[OPTIONS options_identifiers],
-          "expect" => %i[EXPECT expect_integer], "start" => %i[START start_symbol],
+          "expect" => %i[EXPECT expect_integer], "start" => %i[START start_first_symbol],
           "expect_rr" => %i[EXPECT_RR expect_rr_integer],
           "convert" => %i[CONVERT convert_name], "pragma" => %i[PRAGMA pragma_value],
           "display" => %i[DISPLAY display_symbol], "type" => %i[TYPE type_symbol],
@@ -28,7 +28,8 @@ module Ibex
         }.freeze #: Hash[Symbol, external_token]
         EXPECTATIONS = {
           class_keyword: "class", class_name: "identifier", superclass_name: "identifier",
-          expect_integer: "integer", expect_rr_integer: "integer", start_symbol: "a grammar symbol",
+          expect_integer: "integer", expect_rr_integer: "integer",
+          start_first_symbol: "a grammar symbol", start_symbols: "a grammar symbol",
           include_path: "a double-quoted relative path",
           display_symbol: "a grammar symbol", type_symbol: "a grammar symbol",
           display_value: "a quoted string", type_value: "a quoted string",
@@ -95,9 +96,9 @@ module Ibex
           when :token_symbols
             @token_alias_candidate = token
             declaration_symbol(token)
-          when :options_identifiers then declaration_symbol(token)
+          when :options_identifiers, :start_symbols then declaration_symbol(token)
           when :precedence_association, :precedence_symbols then precedence_identifier(token)
-          when :start_symbol then finish_single_symbol(:IDENTIFIER)
+          when :start_first_symbol then continue_start_symbols(:IDENTIFIER)
           when :display_symbol, :type_symbol then begin_metadata_value(:IDENTIFIER)
           when :param_name then begin_param_type
           when :printer_symbol then begin_printer_action(:IDENTIFIER)
@@ -221,7 +222,9 @@ module Ibex
         def classify_single_symbol(type)
           return finish_single_symbol(type) if %i[expect_integer expect_rr_integer].include?(@state) && type == :INTEGER
 
-          finish_single_symbol(type) if @state == :start_symbol && type == :LITERAL
+          return continue_start_symbols(type) if @state == :start_first_symbol && type == :LITERAL
+
+          type if @state == :start_symbols && type == :LITERAL
         end
 
         # @rbs (Token token, external_token type) -> external_token?
@@ -266,6 +269,12 @@ module Ibex
         def finish_single_symbol(type)
           @state = :declaration
           @declaration = nil
+          type
+        end
+
+        # @rbs (external_token type) -> external_token
+        def continue_start_symbols(type)
+          @state = :start_symbols
           type
         end
 

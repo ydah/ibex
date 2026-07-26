@@ -58,7 +58,7 @@ module Ibex
 
       # @rbs (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample
       def reachability_example(state, conflict)
-        path = shortest_state_path(state.id)
+        path = shortest_state_path(state.id, conflict)
         lookahead = @grammar.symbol(conflict[:symbol])
         terminal_ids = path.flat_map { |symbol_id| @shortest_yields[symbol_id] || [] }
         terminal_ids << lookahead.id if lookahead
@@ -66,10 +66,12 @@ module Ibex
           lookahead_index: terminal_ids.length - 1, unifying: false, interpretations: interpretations(conflict) }
       end
 
-      # @rbs (Integer target) -> Array[Integer]
-      def shortest_state_path(target)
-        queue = [[0, Array.new(0)]] #: Array[[Integer, Array[Integer]]]
-        visited = { 0 => true }
+      # @rbs (Integer target, IR::conflict conflict) -> Array[Integer]
+      def shortest_state_path(target, conflict)
+        entry = conflict[:entries]&.first || @grammar.start
+        initial = @automaton.entry_states.fetch(entry)
+        queue = [[initial, Array.new(0)]] #: Array[[Integer, Array[Integer]]]
+        visited = { initial => true }
         until queue.empty?
           state_id, path = queue.shift
           return path if state_id == target

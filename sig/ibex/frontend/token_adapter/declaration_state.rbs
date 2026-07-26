@@ -98,6 +98,9 @@ module Ibex
         def finish_single_symbol: (external_token type) -> external_token
 
         # @rbs (external_token type) -> external_token
+        def continue_start_symbols: (external_token type) -> external_token
+
+        # @rbs (external_token type) -> external_token
         def begin_metadata_value: (external_token type) -> external_token
 
         # @rbs () -> external_token

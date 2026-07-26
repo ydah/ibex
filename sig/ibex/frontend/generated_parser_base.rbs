@@ -80,8 +80,8 @@ module Ibex
       # @rbs (Token keyword, Token symbol, Token action) -> AST::Printer
       def build_printer: (Token keyword, Token symbol, Token action) -> AST::Printer
 
-      # @rbs (Token keyword, String name) -> AST::Start
-      def build_start: (Token keyword, String name) -> AST::Start
+      # @rbs (Token keyword, Array[String] names) -> AST::Start
+      def build_start: (Token keyword, Array[String] names) -> AST::Start
 
       # @rbs (Token keyword, Array[AST::Conversion] pairs) -> AST::Convert
       def build_convert: (Token keyword, Array[AST::Conversion] pairs) -> AST::Convert

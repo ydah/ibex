@@ -37,9 +37,10 @@ module Ibex
     # @rbs () -> void
     def validate_inline_start
       # @type self: Normalizer
-      return unless @explicit_start && @inline_rule_names.include?(@explicit_start)
+      inline_start = @explicit_starts&.find { |name| @inline_rule_names.include?(name) }
+      return unless inline_start
 
-      fail_at(@start_location || @ast.loc, "inline rule #{@explicit_start} cannot be the start symbol")
+      fail_at(@start_location || @ast.loc, "inline rule #{inline_start} cannot be the start symbol")
     end
 
     # @rbs () -> void

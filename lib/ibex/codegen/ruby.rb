@@ -56,6 +56,7 @@ module Ibex
         lines << "class #{class_name} < #{@superclass}"
         append_tables(lines)
         append_parameter_initializer(lines)
+        append_entry_methods(lines)
         append_value_printers(lines)
         append_actions(lines)
         append_user_code(lines, "inner", indent: 2)
@@ -123,8 +124,9 @@ module Ibex
         lines << "#{indent}                  exact_expected_tokens: true," if @grammar.mode == :extended
         lines << "#{indent}                  tokens: TOKEN_IDS, token_names: TOKEN_NAMES, actions: ACTIONS,"
         lines << "#{indent}                  gotos: GOTOS, default_actions: DEFAULT_ACTIONS,"
+        entries = entry_table_fields
         value_printers = @grammar.value_printers.empty? ? "" : " value_printers: VALUE_PRINTERS,"
-        lines << "#{indent}                  productions: PRODUCTIONS,#{value_printers} " \
+        lines << "#{indent}                  productions: PRODUCTIONS,#{entries}#{value_printers} " \
                  "error_messages: ERROR_MESSAGES }.freeze"
         return unless shareable_parser_tables?
 

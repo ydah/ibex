@@ -11,6 +11,12 @@ module Ibex
 
       LALR_STRATEGIES: Array[Symbol]
 
+      @attribute_entries: bool
+
+      @entry_isolation: bool
+
+      @start_names: Array[String]
+
       @metrics: BuildMetrics?
 
       @resolver: ConflictResolver
@@ -27,13 +33,17 @@ module Ibex
 
       attr_reader metrics: BuildMetrics?
 
-      # @rbs (IR::Grammar grammar, ?algorithm: Symbol | String, ?lalr_strategy: Symbol | String) -> void
-      def initialize: (IR::Grammar grammar, ?algorithm: Symbol | String, ?lalr_strategy: Symbol | String) -> void
+      # @rbs (IR::Grammar grammar, ?algorithm: Symbol | String, ?lalr_strategy: Symbol | String,
+      #   ?entry_isolation: bool, ?starts: Array[String]?, ?attribute_entries: bool) -> void
+      def initialize: (IR::Grammar grammar, ?algorithm: Symbol | String, ?lalr_strategy: Symbol | String, ?entry_isolation: bool, ?starts: Array[String]?, ?attribute_entries: bool) -> void
 
       # @rbs () -> IR::Automaton
       def build: () -> IR::Automaton
 
       private
+
+      # @rbs (Array[IR::AutomatonState] states) -> IR::conflict_summary
+      def conflict_summary: (Array[IR::AutomatonState] states) -> IR::conflict_summary
 
       # @rbs () -> [Array[packed_items], transitions, Integer, Integer?, Symbol]
       def automaton_collection: () -> [ Array[packed_items], transitions, Integer, Integer?, Symbol ]
@@ -98,6 +108,46 @@ module Ibex
 
       # @rbs (item_set items) -> Array[lr_item]
       def item_key: (item_set items) -> Array[lr_item]
+
+      # @rbs (String name) -> Integer
+      def augmented_production: (String name) -> Integer
+
+      # @rbs (Integer production_id) -> String
+      def start_name_for_augmented: (Integer production_id) -> String
+
+      # @rbs (Array[packed_items] items) -> Hash[String, Integer]
+      def entry_states_for: (Array[packed_items] items) -> Hash[String, Integer]
+
+      # @rbs () -> IR::Automaton
+      def build_isolated_automaton: () -> IR::Automaton
+
+      # @rbs (String name) -> [String, IR::Automaton, BuildMetrics]
+      def isolated_entry: (String name) -> [ String, IR::Automaton, BuildMetrics ]
+
+      # @rbs (IR::AutomatonState state, Integer offset, String entry) -> IR::AutomatonState
+      def offset_state: (IR::AutomatonState state, Integer offset, String entry) -> IR::AutomatonState
+
+      # @rbs (IR::parser_action action, Integer offset) -> IR::parser_action
+      def offset_action: (IR::parser_action action, Integer offset) -> IR::parser_action
+
+      # @rbs (IR::parser_action? action, Integer offset) -> IR::parser_action?
+      def offset_default_action: (IR::parser_action? action, Integer offset) -> IR::parser_action?
+
+      # @rbs (IR::conflict conflict, Integer offset, String entry) -> IR::conflict
+      def offset_conflict: (IR::conflict conflict, Integer offset, String entry) -> IR::conflict
+
+      # @rbs (Array[IR::AutomatonState] states, Hash[String, Integer] entry_states) ->
+      #   Array[IR::AutomatonState]
+      def attribute_entry_conflicts: (Array[IR::AutomatonState] states, Hash[String, Integer] entry_states) -> Array[IR::AutomatonState]
+
+      # @rbs (Array[IR::AutomatonState] states, Hash[String, Integer] entry_states) -> Array[Array[String]]
+      def entry_reachability: (Array[IR::AutomatonState] states, Hash[String, Integer] entry_states) -> Array[Array[String]]
+
+      # @rbs () -> Set[Array[untyped]]
+      def isolated_conflict_fingerprints: () -> Set[Array[untyped]]
+
+      # @rbs (IR::conflict conflict) -> Array[untyped]
+      def conflict_fingerprint: (IR::conflict conflict) -> Array[untyped]
     end
   end
 end

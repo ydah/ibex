@@ -83,6 +83,9 @@ module Ibex
         # @rbs () -> void
         def validate_start: () -> void
 
+        # @rbs (String start) -> void
+        def validate_multiple_starts: (String start) -> void
+
         # @rbs () -> void
         def validate_productions: () -> void
 

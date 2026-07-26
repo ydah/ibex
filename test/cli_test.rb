@@ -53,6 +53,32 @@ class CLITest < Minitest::Test
     end
   end
 
+  def test_entry_isolation_emits_independent_entry_state_sets
+    Tempfile.create(["multiple-start", ".y"]) do |file|
+      file.write(<<~GRAMMAR)
+        class P
+        pragma extended
+        start program expression
+        rule
+        program: A B
+        expression: A
+        end
+      GRAMMAR
+      file.flush
+      output = StringIO.new
+      status = Ibex::CLI.start(
+        ["--entry-isolation", "--emit=automaton-ir", file.path],
+        stdout: output,
+        stderr: StringIO.new
+      )
+      document = JSON.parse(output.string)
+
+      assert_equal 0, status
+      assert_operator document.fetch("entry_states").fetch("expression"), :>,
+                      document.fetch("entry_states").fetch("program")
+    end
+  end
+
   def test_generates_ruby_file
     Tempfile.create(["grammar", ".y"]) do |grammar|
       Tempfile.create(["parser", ".rb"]) do |output|
@@ -182,7 +208,10 @@ class CLITest < Minitest::Test
   def test_help_lists_compatible_options
     output = StringIO.new
     assert_equal 0, Ibex::CLI.start(["--help"], stdout: output, stderr: StringIO.new)
-    compatible = %w[--output-file --debug --verbose --embedded --rbs --action-source --check --check-only --superclass]
+    compatible = %w[
+      --output-file --debug --verbose --embedded --rbs --action-source --entry-isolation
+      --check --check-only --superclass
+    ]
     compatible.each do |option|
       assert_includes output.string, option
     end

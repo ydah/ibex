@@ -109,6 +109,23 @@ class IRValidatorTest < Minitest::Test
     assert_equal "(ir):1:1: $.mode must be one of racc, extended", error.message
   end
 
+  def test_validates_v2_multiple_starts_and_automaton_entry_states
+    document = parsed_fixture("automaton-v2.json")
+    document.fetch("grammar")["mode"] = "extended"
+    document.fetch("grammar")["starts"] = %w[start expression]
+    document["entry_states"] = { "start" => 0, "expression" => 1 }
+    grammar = Ibex::IR::Serialize.load(JSON.generate(document.fetch("grammar")))
+    document["grammar_digest"] = "sha256:#{Digest::SHA256.hexdigest(Ibex::IR::Serialize.dump(grammar))}"
+
+    automaton = Ibex::IR::Validator.validate(JSON.generate(document))
+    assert_equal %w[start expression], automaton.grammar.starts
+    assert_equal({ "start" => 0, "expression" => 1 }, automaton.entry_states)
+
+    document["entry_states"].delete("expression")
+    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
+    assert_equal "(ir):1:1: $.entry_states keys must equal grammar starts in order", error.message
+  end
+
   def test_validates_optional_v2_value_printers
     document = parsed_fixture("grammar-v2.json")
     document["printers"] = [

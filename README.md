@@ -196,6 +196,16 @@ type expr "AST::Expression"
 %printer NUM { "number=#{value}" }
 ```
 
+An extended grammar may expose several parser entry points:
+
+```text
+start program expression
+```
+
+The generated parser provides `parse_program` and `parse_expression`; `do_parse` keeps using the first declaration for
+compatibility. By default the entries share an automaton and conflict reports identify the entries that can reach each conflict.
+`--entry-isolation` builds independent state sets when avoiding cross-entry LALR merges is more important than table size.
+
 Precedence blocks also accept `%precedence TOKEN` for precedence without associativity, and productions may use `%empty` as
 their sole RHS item. `%param` adds a required keyword to the generated constructor, stores it in the matching instance variable,
 and exposes it as a local in semantic actions; an optional quoted RBS type is reflected in `--rbs` and action-shadow checking.
@@ -503,8 +513,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 13,929 typed calls and 1,904 untyped calls out of 15,833 (88.0% typed).
-The generated signature tree contains 1,984 explicit `untyped` occurrences across 77 files.
+The current whole-library `steep stats` result is 14,296 typed calls and 1,926 untyped calls out of 16,222 (88.1% typed).
+The generated signature tree contains 1,994 explicit `untyped` occurrences across 77 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

@@ -41,6 +41,25 @@ class NormalizerTest < Minitest::Test
     assert_equal :extended, grammar.mode
   end
 
+  def test_multiple_start_symbols_round_trip_as_optional_v2_metadata
+    grammar = normalize(<<~GRAMMAR, mode: :extended)
+      class P
+      pragma extended
+      start program expression
+      rule
+      program: PROGRAM
+      expression: EXPRESSION
+      end
+    GRAMMAR
+    dumped = Ibex::IR::Serialize.dump(grammar)
+
+    assert_equal "program", grammar.start
+    assert_equal %w[program expression], grammar.starts
+    assert_equal grammar.starts, Ibex::IR::Serialize.load(dumped).starts
+    assert_includes dumped, '"starts"'
+    refute(grammar.warnings.any? { |warning| warning[:type] == :unreachable_nonterminal })
+  end
+
   def test_desugars_inline_actions_with_stack_context
     grammar = normalize(<<~GRAMMAR)
       class P

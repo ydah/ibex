@@ -25,6 +25,7 @@ module Ibex
       # @rbs @max_configurations: Integer
       # @rbs @explored: Integer
       # @rbs @input_tokens: Array[Integer]
+      # @rbs @initial_state: Integer
 
       # @rbs (IR::Automaton automaton, IR::AutomatonState state, IR::conflict conflict,
       #   ?max_tokens: Integer, ?max_configurations: Integer) -> void
@@ -40,14 +41,17 @@ module Ibex
         @max_configurations = max_configurations
         @explored = 0
         @input_tokens = @grammar.terminals.reject(&:reserved).sort_by(&:name).map(&:id)
+        entry = conflict[:entries]&.first || @grammar.start
+        @initial_state = automaton.entry_states.fetch(entry)
       end
 
       # @rbs () -> search_result?
       def call
         return unless @lookahead
 
-        queue = [[configuration([0], Array.new(0)), Array.new(0)]] #: Array[[Configuration, Array[Integer]]]
-        visited = { [0] => true }
+        initial = configuration([@initial_state], Array.new(0))
+        queue = [[initial, Array.new(0)]] #: Array[[Configuration, Array[Integer]]]
+        visited = { [@initial_state] => true }
         until queue.empty? || exhausted?
           current, prefix = queue.shift
           conflict_configurations(current).each do |candidate|

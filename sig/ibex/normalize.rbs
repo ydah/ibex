@@ -33,7 +33,9 @@ module Ibex
 
     DEFAULT_MAX_INLINE_EXPANSIONS: ::Integer
 
-    @explicit_start: String?
+    @start_names: Array[String]
+
+    @explicit_starts: Array[String]?
 
     @value_printers: Hash[String, IR::value_printer]
 
@@ -62,8 +64,6 @@ module Ibex
     @declared_tokens: Hash[String, IR::location]
 
     @helper_sequence: Integer
-
-    @warnings: Array[IR::grammar_warning]
 
     @start_name: String
 
@@ -94,6 +94,8 @@ module Ibex
     @max_inline_expansions: Integer
 
     @inline_expansion_count: Integer
+
+    @warnings: Array[IR::grammar_warning]
 
     @productions: Array[IR::Production]
 
@@ -131,8 +133,8 @@ module Ibex
     # @rbs () -> void
     def intern_user_nonterminals: () -> void
 
-    # @rbs () -> String?
-    def normalized_start_name: () -> String?
+    # @rbs () -> Array[String]
+    def normalized_start_names: () -> Array[String]
 
     # @rbs (Frontend::AST::Rule rule) -> bool
     def start_rule_candidate?: (Frontend::AST::Rule rule) -> bool

@@ -59,8 +59,8 @@ module Ibex
     # @rbs () -> Set[Integer]
     def reachable_symbol_ids
       # @type self: Normalizer
-      start = required_symbol(@start_name).id
-      reachable = Set[start]
+      starts = @start_names.map { |name| required_symbol(name).id }
+      reachable = Set.new(starts)
       loop do
         before = reachable.length
         @productions.select { |production| reachable.include?(production.lhs) }.each do |production|
@@ -121,10 +121,12 @@ module Ibex
         end
         break if productive.length == before
       end
-      return if productive.include?(required_symbol(@start_name).id)
+      @start_names.each do |name|
+        next if productive.include?(required_symbol(name).id)
 
-      start_symbol = required_symbol(@start_name)
-      @warnings << { type: :empty_language, symbol: @start_name, loc: start_symbol.location }
+        start_symbol = required_symbol(name)
+        @warnings << { type: :empty_language, symbol: name, loc: start_symbol.location }
+      end
     end
 
     # @rbs () -> Set[Integer]

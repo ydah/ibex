@@ -43,7 +43,8 @@ module Ibex
         declarations, rules = expand_node(parsed_root, [])
         root = AST::Root.new(
           class_name: parsed_root.class_name, superclass: parsed_root.superclass,
-          declarations: declarations, rules: rules, user_code: parsed_root.user_code, loc: parsed_root.loc
+          declarations: declarations, rules: rules, user_code: parsed_root.user_code, loc: parsed_root.loc,
+          extended: parsed_root.extended
         )
         @loaded[@root_path] = true
         @visiting.pop

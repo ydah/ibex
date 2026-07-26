@@ -108,7 +108,8 @@ filesystem read failures remain CLI invocation errors on stderr and do not produ
 
 - `pragma extended` enables extended syntax for this grammar even when the CLI uses its default or explicit `--mode=racc`.
   It must immediately follow the class header, before every ordinary declaration. Unknown, duplicate, and misplaced pragmas
-  are positioned errors. The pragma is consumed by the frontend and is not stored in AST or Grammar IR output.
+  are positioned errors. The frontend records the effective mode on the root AST, and Grammar IR v2 records extended mode
+  additively so downstream generators preserve its runtime behavior.
 - `include "relative/path.y"` inserts one explicit fragment through the canonical resolver. It is available only in extended
   mode and is intentionally not followed by the source-only `Parser` API.
 - `## text` is a lossless line comment rather than a parser declaration. A consecutive block immediately above a rule supplies
@@ -125,7 +126,11 @@ filesystem read failures remain CLI invocation errors on stderr and do not produ
   retained in Automaton IR but are not counted.
 - Extended `%expect-rr N` records the expected reduce/reduce count. Under `--warnings=error`, generation succeeds only when
   both declared counts match.
-- `start name` overrides the first rule as the start symbol.
+- `start name` overrides the first rule as the start symbol. Extended mode accepts an ordered list such as
+  `start program expression`. The first name remains the primary entry for `do_parse`; generated parsers also expose
+  `parse_program` and `parse_expression`. Shared construction attributes each conflict to its reachable entries and marks a
+  conflict as composite when it exists only after their LALR states are merged. `--entry-isolation` builds disjoint state sets
+  for every entry and can remove such composite conflicts at the cost of a larger table.
 - `Parser#expected_tokens_exact` simulates reductions and gotos on a private stack to report only viable lookaheads. Extended
   grammars use this LAC result for `expected_tokens`; compatible grammars keep the historical current-state result.
 - `convert ... end` changes external token objects. The second column is a quoted string containing Ruby source, not the value

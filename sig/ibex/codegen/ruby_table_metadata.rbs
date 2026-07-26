@@ -12,6 +12,12 @@ module Ibex
 
       # @rbs (Array[String] lines, String indent) -> void
       def append_table_metadata: (Array[String] lines, String indent) -> void
+
+      # @rbs (Array[String] lines) -> void
+      def append_entry_methods: (Array[String] lines) -> void
+
+      # @rbs () -> String
+      def entry_table_fields: () -> String
     end
   end
 end

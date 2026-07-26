@@ -37,7 +37,9 @@ module Ibex
       # @rbs (Frontend::AST::declaration declaration) -> Array[String]
       def declaration_reference_names(declaration)
         case declaration
-        when Frontend::AST::Start, Frontend::AST::DisplayName, Frontend::AST::SemanticType
+        when Frontend::AST::Start
+          declaration.names
+        when Frontend::AST::DisplayName, Frontend::AST::SemanticType
           [declaration.name]
         when Frontend::AST::Convert
           declaration.pairs.map(&:name)

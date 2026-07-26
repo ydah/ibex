@@ -93,7 +93,9 @@ module Ibex
       summary = automaton.conflict_summary
       return if summary[:expectation_met] && summary.fetch(:rr_expectation_met, summary[:rr].zero?)
 
-      ielr = LALR::Builder.new(automaton.grammar, algorithm: :ielr).build
+      ielr = LALR::Builder.new(
+        automaton.grammar, algorithm: :ielr, entry_isolation: @options[:entry_isolation] == true
+      ).build
       removed_sr = [summary[:sr] - ielr.conflict_summary[:sr], 0].max
       removed_rr = [summary[:rr] - ielr.conflict_summary[:rr], 0].max
       avoided = [] #: Array[String]

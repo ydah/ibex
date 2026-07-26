@@ -38,23 +38,41 @@ module Ibex
 
       # @rbs (Grammar grammar) -> Grammar
       def migrate_grammar(grammar)
-        symbols = grammar.symbols.map do |symbol|
+        symbols = migrate_symbols(grammar)
+        productions = migrate_productions(grammar)
+        build_migrated_grammar(grammar, symbols, productions)
+      end
+      module_function :migrate_grammar
+
+      # @rbs (Grammar grammar) -> Array[GrammarSymbol]
+      def migrate_symbols(grammar)
+        grammar.symbols.map do |symbol|
           GrammarSymbol.new(
             id: symbol.id, name: symbol.name, kind: symbol.kind, reserved: symbol.reserved,
             precedence: symbol.precedence, location: symbol.location, display_name: symbol.display_name,
             semantic_type: symbol.semantic_type
           )
         end
-        productions = grammar.productions.map do |production|
+      end
+      module_function :migrate_symbols
+
+      # @rbs (Grammar grammar) -> Array[Production]
+      def migrate_productions(grammar)
+        grammar.productions.map do |production|
           Production.new(
             id: production.id, lhs: production.lhs, rhs: production.rhs,
             action: migrate_action(production.action), precedence_override: production.precedence_override,
             origin: production.origin
           )
         end
+      end
+      module_function :migrate_productions
+
+      # @rbs (Grammar grammar, Array[GrammarSymbol] symbols, Array[Production] productions) -> Grammar
+      def build_migrated_grammar(grammar, symbols, productions)
         Grammar.new(
           class_name: grammar.class_name, superclass: grammar.superclass, start: grammar.start,
-          mode: grammar.mode,
+          mode: grammar.mode, starts: grammar.starts,
           expect: grammar.expect, expect_rr: grammar.expect_rr, options: grammar.options,
           parser_parameters: grammar.parser_parameters,
           value_printers: grammar.value_printers,
@@ -64,7 +82,7 @@ module Ibex
           migration: { from_schema_version: 1, unavailable: UNAVAILABLE_V1_METADATA }
         )
       end
-      module_function :migrate_grammar
+      module_function :build_migrated_grammar
 
       # @rbs (Action? action) -> Action?
       def migrate_action(action)
@@ -81,13 +99,15 @@ module Ibex
       def migrate_automaton(automaton)
         Automaton.new(
           grammar: migrate_grammar(automaton.grammar), states: automaton.states,
-          conflict_summary: automaton.conflict_summary, algorithm: automaton.algorithm, schema_version: 2
+          conflict_summary: automaton.conflict_summary, algorithm: automaton.algorithm, schema_version: 2,
+          entry_states: automaton.entry_states
         )
       end
       module_function :migrate_automaton
 
       class << self
-        private :migrate_grammar, :migrate_action, :migrate_automaton
+        private :migrate_grammar, :migrate_symbols, :migrate_productions, :build_migrated_grammar,
+                :migrate_action, :migrate_automaton
       end
     end
   end

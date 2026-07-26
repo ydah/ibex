@@ -42,7 +42,16 @@ module Ibex
                    "  PRODUCTIONS: Array[Hash[Symbol, untyped]]", "  ERROR_MESSAGES: Hash[Integer, String]",
                    "  PARSER_TABLES: Hash[Symbol, untyped]", "  DEBUG_ENABLED: bool", "",
                    "  def self.parser_tables: () -> Hash[Symbol, untyped]")
+        append_entry_contract(lines)
         append_parameter_contract(lines)
+      end
+
+      # @rbs (Array[String] lines) -> void
+      def append_entry_contract(lines)
+        return unless @grammar.starts.length > 1
+
+        lines << "  ENTRY_STATES: Hash[Symbol, Integer]"
+        @grammar.starts.each { |name| lines << "  def parse_#{name}: () -> untyped" }
       end
 
       # @rbs (Array[String] lines) -> void

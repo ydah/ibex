@@ -91,7 +91,7 @@ rule
     : EXPECT_RR INTEGER                  { result = build_expect_rr(val[0], val[1]) }
 
   start_declaration
-    : START grammar_symbol               { result = build_start(val[0], val[1].value) }
+    : START grammar_symbol symbols       { result = build_start(val[0], [val[1].value] + val[2]) }
 
   convert_declaration
     : CONVERT conversions END            { result = build_convert(val[0], val[1]) }

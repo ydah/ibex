@@ -9,6 +9,7 @@ module Ibex
         ROOT_REQUIRED = %w[
           ibex_ir schema_version algorithm grammar_digest grammar states conflict_summary
         ].freeze #: Array[String]
+        V2_ROOT_OPTIONAL = %w[entry_states].freeze #: Array[String]
         STATE_REQUIRED = %w[id items transitions actions gotos default_action conflicts].freeze #: Array[String]
         ACTION_TYPES = %w[shift reduce accept error].freeze #: Array[String]
         RESOLUTION_KINDS = %w[definition_order default_shift precedence associativity].freeze #: Array[String]
@@ -28,7 +29,7 @@ module Ibex
 
         # @rbs () -> self
         def validate
-          record(@data, "$", ROOT_REQUIRED)
+          record(@data, "$", ROOT_REQUIRED, @version >= 2 ? V2_ROOT_OPTIONAL : [])
           literal(@data["ibex_ir"], "$.ibex_ir", "automaton")
           literal(@data["schema_version"], "$.schema_version", @version)
           enum(@data["algorithm"], "$.algorithm", %w[slr lalr1 ielr1 lr1])
@@ -37,12 +38,30 @@ module Ibex
           literal(grammar["schema_version"], "$.grammar.schema_version", @version)
           @grammar = GrammarDocument.new(grammar, path: "$.grammar", version: @version).validate
           validate_state_records
+          validate_entry_states
           validate_state_contents
           validate_conflict_summary
           self
         end
 
         private
+
+        # @rbs () -> void
+        def validate_entry_states
+          value = @data["entry_states"]
+          if value.nil?
+            invalid("$.entry_states", "is required for multiple start symbols") if @data.dig("grammar", "starts")
+            return
+          end
+
+          entries = object(value, "$.entry_states")
+          expected = @data.dig("grammar", "starts") || [@data.dig("grammar", "start")]
+          invalid("$.entry_states", "keys must equal grammar starts in order") unless entries.keys == expected
+          entries.each do |name, state|
+            nonnegative_integer(state, "$.entry_states.#{name}")
+            invalid("$.entry_states.#{name}", "references missing state #{state}") unless @states_by_id[state]
+          end
+        end
 
         # @rbs () -> void
         def validate_digest
@@ -186,18 +205,19 @@ module Ibex
 
         # @rbs (Hash[String, untyped] conflict, String path) -> void
         def validate_shift_reduce(conflict, path)
-          record(conflict, path, %w[type symbol shift_to reduce resolution], %w[midrule_origins])
+          record(conflict, path, %w[type symbol shift_to reduce resolution], %w[midrule_origins entries composite])
           validate_conflict_symbol(conflict["symbol"], "#{path}.symbol")
           validate_state_reference(conflict["shift_to"], "#{path}.shift_to")
           validate_production_reference(conflict["reduce"], "#{path}.reduce")
           validate_resolution(conflict["resolution"], "#{path}.resolution")
           validate_midrule_origins(conflict["midrule_origins"], "#{path}.midrule_origins") if
             conflict.key?("midrule_origins")
+          validate_conflict_entries(conflict, path)
         end
 
         # @rbs (Hash[String, untyped] conflict, String path) -> void
         def validate_reduce_reduce(conflict, path)
-          record(conflict, path, %w[type symbol reductions resolution], %w[midrule_origins])
+          record(conflict, path, %w[type symbol reductions resolution], %w[midrule_origins entries composite])
           validate_conflict_symbol(conflict["symbol"], "#{path}.symbol")
           reductions = array(conflict["reductions"], "#{path}.reductions")
           invalid("#{path}.reductions", "must contain at least two productions") if reductions.length < 2
@@ -210,6 +230,22 @@ module Ibex
           validate_resolution(conflict["resolution"], "#{path}.resolution", reductions: reductions)
           validate_midrule_origins(conflict["midrule_origins"], "#{path}.midrule_origins") if
             conflict.key?("midrule_origins")
+          validate_conflict_entries(conflict, path)
+        end
+
+        # @rbs (Hash[String, untyped] conflict, String path) -> void
+        def validate_conflict_entries(conflict, path)
+          if conflict.key?("entries")
+            starts = @data.dig("grammar", "starts") || [@data.dig("grammar", "start")]
+            entries = array(conflict["entries"], "#{path}.entries")
+            invalid("#{path}.entries", "must not be empty") if entries.empty?
+            entries.each_with_index do |name, index|
+              name = nonempty_string(name, "#{path}.entries[#{index}]")
+              invalid("#{path}.entries[#{index}]", "is not a grammar start symbol") unless starts.include?(name)
+            end
+            invalid("#{path}.entries", "must be unique") unless entries.uniq.length == entries.length
+          end
+          boolean(conflict["composite"], "#{path}.composite") if conflict.key?("composite")
         end
 
         # @rbs (untyped value, String path) -> void
