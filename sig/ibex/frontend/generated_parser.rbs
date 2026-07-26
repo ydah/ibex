@@ -5,6 +5,12 @@ module Ibex
     class GeneratedParser < Ibex::Frontend::GeneratedParserBase
       PARSER_TABLE_FORMAT_VERSION: ::Integer
 
+      GRAMMAR_DIGEST: untyped
+
+      STATE_COUNT: ::Integer
+
+      PRODUCTION_COUNT: ::Integer
+
       TOKEN_IDS: untyped
 
       TOKEN_NAMES: untyped

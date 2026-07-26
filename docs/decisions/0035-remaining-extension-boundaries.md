@@ -42,9 +42,10 @@ The following work requires a separately reviewed phase and ADR:
   [ADR 0049](0049-transactional-generation-and-watch-mode.md) satisfies and supersedes the watch-mode boundary with portable
   polling, stable source-closure snapshots, rollback-capable publication, and a manifest-last reader contract.
 - Production/state coverage and an interactive debugger restart with a stable event schema that extends, rather than exposes,
-  private parser stacks. The push API and JSON Lines tracer are their current foundation. [ADR
+  private parser stacks. [ADR 0050](0050-stable-immutable-runtime-events.md) satisfies the runtime-event prerequisite with
+  bounded immutable observations and a versioned JSON Lines adapter; coverage and debugger policy remain separate phases. [ADR
   0037](0037-versioned-conflict-explanations.md) supersedes the boundary against a separate `explain` command with a thin,
-  versioned view over existing Automaton IR and counterexamples; it does not supersede the runtime-event prerequisite.
+  versioned view over existing Automaton IR and counterexamples.
 - Automated `migrate-check` and racc differential-harness generation restart with an explicit application-code execution
   boundary and sandbox story.
 - Chain-rule elimination and generated `case` dispatch restart only after the real-grammar benchmark demonstrates a repeatable

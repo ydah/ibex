@@ -1,0 +1,26 @@
+# Generated from lib/ibex/runtime/event.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    # One immutable versioned parser observation.
+    class Event
+      SCHEMA_VERSION: Integer
+
+      IDENTIFIER: String
+
+      TYPES: Array[Symbol]
+
+      attr_reader type: Symbol
+
+      attr_reader sequence: Integer
+
+      attr_reader data: Hash[String, untyped]
+
+      # @rbs (type: Symbol, sequence: Integer, data: Hash[untyped, untyped]) -> void
+      def initialize: (type: Symbol, sequence: Integer, data: Hash[untyped, untyped]) -> void
+
+      # @rbs () -> Hash[String, untyped]
+      def to_h: () -> Hash[String, untyped]
+    end
+  end
+end

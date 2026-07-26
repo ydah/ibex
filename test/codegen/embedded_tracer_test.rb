@@ -34,6 +34,39 @@ class EmbeddedTracerCodegenTest < Minitest::Test
     end
   end
 
+  def test_embedded_parser_includes_versioned_runtime_event_tracer_and_metadata
+    source = <<~GRAMMAR
+      class EmbeddedEventTraceParser
+      token ITEM
+      rule
+      start: ITEM
+      end
+      ---- inner
+      def next_token = (@tokens ||= [[:ITEM, 9]]).shift
+      ---- footer
+      parser = EmbeddedEventTraceParser.new
+      tracer = Ibex::Runtime::EventJSONLTracer.attach(parser, io: $stdout)
+      puts parser.do_parse
+      puts tracer.detach
+    GRAMMAR
+    generated = generate(source)
+
+    Tempfile.create(["embedded-event-trace", ".rb"]) do |file|
+      file.write(generated)
+      file.flush
+      output, errors, status = Open3.capture3(RbConfig.ruby, "--disable-gems", file.path)
+      assert status.success?, errors
+      events = output.lines[0...-2].map { |line| JSON.parse(line) }
+      start = events.first
+      assert_equal "start", start.fetch("event")
+      assert_equal 3, start.dig("data", "table_format_version")
+      assert_match(/\Asha256:[0-9a-f]{64}\z/, start.dig("data", "grammar_digest"))
+      assert_operator start.dig("data", "state_count"), :>, 0
+      assert_equal 1, start.dig("data", "production_count")
+      assert_equal %W[9\n true\n], output.lines.last(2)
+    end
+  end
+
   private
 
   def generate(source)

@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
     schema/explain-v1.schema.json
     schema/benchmark-v1.schema.json
     schema/generation-manifest-v1.schema.json
+    schema/runtime-event-v1.schema.json
   ]
   spec.files = (tracked_files + schema_files).uniq.sort
   spec.bindir = "exe"

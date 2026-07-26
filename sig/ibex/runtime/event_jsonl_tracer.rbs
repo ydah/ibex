@@ -1,0 +1,25 @@
+# Generated from lib/ibex/runtime/event_jsonl_tracer.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    # Emits schema-v1 immutable runtime events as JSON Lines.
+    class EventJSONLTracer
+      interface _EventTraceOutput
+        def puts: (String) -> untyped
+      end
+
+      attr_reader parser: Parser
+
+      attr_reader subscription: Observation::Subscription
+
+      # @rbs (Parser parser, _EventTraceOutput output) -> void
+      def initialize: (Parser parser, _EventTraceOutput output) -> void
+
+      # @rbs () -> bool
+      def detach: () -> bool
+
+      # @rbs [P < Parser] (P parser, io: _EventTraceOutput) -> EventJSONLTracer
+      def self.attach: [P < Parser] (P parser, io: _EventTraceOutput) -> EventJSONLTracer
+    end
+  end
+end

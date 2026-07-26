@@ -54,6 +54,8 @@ module Ibex
     # retain the historical two-argument contract. Markers are honored only for
     # the generated `_ibex_action_N` Symbol shape, never for callables.
     class Parser
+      include Observation
+
       EOF_TOKEN: Integer
 
       ERROR_TOKEN: Integer
@@ -66,27 +68,27 @@ module Ibex
 
       EMPTY_ROW: Hash[Integer, untyped]
 
-      @yydebug: bool
-
-      @yydebug_output: IO
-
-      @source: (^() -> untyped)?
-
-      @state_stack: Array[Integer]
-
-      @value_stack: Array[untyped]
-
-      @location_stack: Array[untyped]
-
-      @lookahead: untyped
-
-      @lookahead_value: untyped
-
-      @lookahead_location: untyped
+      @semantic_error: bool
 
       @recovery_shifts: Integer
 
-      @semantic_error: bool
+      @lookahead_location: untyped
+
+      @lookahead_value: untyped
+
+      @lookahead: untyped
+
+      @location_stack: Array[untyped]
+
+      @value_stack: Array[untyped]
+
+      @state_stack: Array[Integer]
+
+      @source: (^() -> untyped)?
+
+      @yydebug_output: IO
+
+      @yydebug: bool
 
       @accept_requested: bool
 
@@ -97,6 +99,16 @@ module Ibex
       @push_status: :idle | :active | :finished
 
       @driver_status: :idle | :pull | :push
+
+      @runtime_driver_thread: Thread?
+
+      @runtime_observers: Hash[Observation::Subscription, Proc]?
+
+      @runtime_event_sequence: Integer
+
+      @runtime_lookahead_token_display: untyped
+
+      @runtime_observation_mutex: Mutex
 
       attr_accessor yydebug: bool
 
@@ -188,7 +200,10 @@ module Ibex
       def run_push_driver: () { () -> untyped } -> untyped
 
       # @rbs () -> void
-      def ensure_driver_available!: () -> void
+      def ensure_driver_available_without_lock!: () -> void
+
+      # @rbs () -> void
+      def release_driver: () -> void
 
       # @rbs () -> void
       def finish_push_session: () -> void
@@ -196,8 +211,8 @@ module Ibex
       # @rbs (^() -> untyped source) -> void
       def prepare_parse: (^() -> untyped source) -> void
 
-      # @rbs () -> void
-      def validate_parser_table_format!: () -> void
+      # @rbs () -> Hash[Symbol, untyped]
+      def validate_parser_table_format!: () -> Hash[Symbol, untyped]
 
       # @rbs (Hash[Symbol, untyped] tables) -> void
       def validate_composition_action_contract!: (Hash[Symbol, untyped] tables) -> void
@@ -214,6 +229,14 @@ module Ibex
       # @rbs (Integer production_id) -> untyped
       def reduce: (Integer production_id) -> untyped
 
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length,
+      #   Integer? pre_state, Integer? post_state, Integer next_state, untyped result,
+      #   LocationSpan? location) -> Hash[String, untyped]
+      def runtime_reduce_data: (Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer? pre_state, Integer? post_state, Integer next_state, untyped result, LocationSpan? location) -> Hash[String, untyped]
+
+      # @rbs (untyped result) -> [:accepted, untyped]
+      def accept_reduction: (untyped result) -> [ :accepted, untyped ]
+
       # @rbs (Hash[Symbol, untyped] production, Array[untyped] values,
       #   Array[untyped] locations, LocationSpan? location) -> untyped
       def reduction_value: (Hash[Symbol, untyped] production, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> untyped
@@ -229,6 +252,44 @@ module Ibex
 
       # @rbs (?report: bool) -> untyped
       def recover: (?report: bool) -> untyped
+
+      # @rbs () -> untyped
+      def continue_recovery: () -> untyped
+
+      # @rbs () -> [:done, nil]
+      def reject_recovery_eof: () -> [ :done, nil ]
+
+      # @rbs (String token_display) -> Hash[String, untyped]
+      def runtime_discard_data: (String token_display) -> Hash[String, untyped]
+
+      # @rbs (bool report) -> untyped
+      def begin_recovery: (bool report) -> untyped
+
+      # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,
+      #   Integer state) -> Hash[String, untyped]
+      def runtime_original_token_data: (untyped token_id, untyped token_display, untyped value, untyped location, Integer state) -> Hash[String, untyped]
+
+      # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,
+      #   Integer original_state, Hash[String, untyped]? token_data, Array[Proc]? observers) -> [:done, nil]
+      def reject_without_recovery: (untyped token_id, untyped token_display, untyped value, untyped location, Integer original_state, Hash[String, untyped]? token_data, Array[Proc]? observers) -> [ :done, nil ]
+
+      # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,
+      #   Integer original_state, Array[untyped] value_stack, Hash[String, untyped]? token_data,
+      #   String reason, Array[Proc]? observers) -> [:continue]
+      def finish_recovery: (untyped token_id, untyped token_display, untyped value, untyped location, Integer original_state, Array[untyped] value_stack, Hash[String, untyped]? token_data, String reason, Array[Proc]? observers) -> [ :continue ]
+
+      # @rbs (token_id: untyped, token_display: untyped, value: untyped,
+      #   location: untyped, state: Integer) -> Hash[String, untyped]
+      def runtime_token_data: (token_id: untyped, token_display: untyped, value: untyped, location: untyped, state: Integer) -> Hash[String, untyped]
+
+      # @rbs () -> Hash[String, untyped]
+      def runtime_current_token_data: () -> Hash[String, untyped]
+
+      # @rbs (untyped result_summary, String reason) -> void
+      def emit_accept_event: (untyped result_summary, String reason) -> void
+
+      # @rbs (String reason, Hash[String, untyped] token_data, ?observers: Array[Proc]?) -> void
+      def emit_reject_event: (String reason, Hash[String, untyped] token_data, ?observers: Array[Proc]?) -> void
 
       # @rbs () -> bool
       def shift_error_token: () -> bool

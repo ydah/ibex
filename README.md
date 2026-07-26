@@ -92,6 +92,14 @@ Parser subclasses can also override `on_shift(token_id, value, state)`,
 `on_reduce(production_id, values, result)`, and `on_error_recover(token_id, value, value_stack)` as no-op-by-default observers.
 Ordinary shifts and the synthetic recovery-token shift use separate hooks; observer return values never replace semantic values.
 
+Tooling can register an ordered runtime observer with `parser.observe { |event| ... }` and remove it with
+`parser.unobserve(subscription)`. The versioned immutable events cover parser start, committed shifts and reductions, syntax and
+semantic errors, recovery/discard, acceptance, and rejection without exposing parser stacks or application object identities.
+`Ibex::Runtime::EventJSONLTracer.attach(parser, io:)` writes this schema-v1 stream and returns a detachable handle; serialization
+and output errors propagate so incomplete traces are visible. The older `Runtime::JSONLTracer` retains its original hook-shaped,
+failure-contained byte contract. See [ADR 0050](docs/decisions/0050-stable-immutable-runtime-events.md) and
+[`schema/runtime-event-v1.schema.json`](schema/runtime-event-v1.schema.json).
+
 ## Extended mode
 
 `--mode=extended` enables optional, repeated, and separated values, named references, parameterized rule templates, and inline
@@ -406,8 +414,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 11,256 typed calls and 1,588 untyped calls out of 12,844 (87.6% typed).
-The generated signature tree contains 1,472 explicit `untyped` occurrences across 60 files.
+The current whole-library `steep stats` result is 11,548 typed calls and 1,616 untyped calls out of 13,164 (87.7% typed).
+The generated signature tree contains 1,636 explicit `untyped` occurrences across 64 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

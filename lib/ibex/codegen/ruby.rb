@@ -65,8 +65,12 @@ module Ibex
       def append_runtime(lines)
         if @embedded
           lines << embedded_source("../runtime/location_span.rb")
+          lines << embedded_source("../runtime/event_sanitizer.rb")
+          lines << embedded_source("../runtime/event.rb")
+          lines << embedded_source("../runtime/observation.rb")
           lines << embedded_source("../runtime/parser.rb")
           lines << embedded_source("../runtime/jsonl_tracer.rb")
+          lines << embedded_source("../runtime/event_jsonl_tracer.rb")
           lines << embedded_source("../../ibex/tables.rb")
         else
           lines << 'require "ibex/runtime"'
@@ -85,7 +89,7 @@ module Ibex
       def append_tables(lines)
         table_set = Tables.build(@automaton, format: @table_format)
         indent = "  "
-        lines << "#{indent}PARSER_TABLE_FORMAT_VERSION = #{Runtime::PARSER_TABLE_FORMAT_VERSION}"
+        append_table_metadata(lines, indent)
         lines << "#{indent}TOKEN_IDS = #{token_ids_literal}.freeze"
         lines << "#{indent}TOKEN_NAMES = #{token_names_literal}.freeze"
         lines << "#{indent}ACTIONS = #{table_literal(table_set.actions)}"
@@ -95,6 +99,8 @@ module Ibex
         lines << "#{indent}error_messages = #{error_messages_literal} # @type var error_messages: Hash[Integer, String]"
         lines << "#{indent}ERROR_MESSAGES = error_messages.freeze #: Hash[Integer, String]"
         lines << "#{indent}PARSER_TABLES = { format_version: PARSER_TABLE_FORMAT_VERSION,"
+        lines << "#{indent}                  grammar_digest: GRAMMAR_DIGEST,"
+        lines << "#{indent}                  state_count: STATE_COUNT, production_count: PRODUCTION_COUNT,"
         lines << "#{indent}                  tokens: TOKEN_IDS, token_names: TOKEN_NAMES, actions: ACTIONS,"
         lines << "#{indent}                  gotos: GOTOS, default_actions: DEFAULT_ACTIONS,"
         lines << "#{indent}                  productions: PRODUCTIONS, error_messages: ERROR_MESSAGES }.freeze"
@@ -105,6 +111,14 @@ module Ibex
         lines << "#{indent}def self.parser_tables = PARSER_TABLES"
         lines << "#{indent}DEBUG_ENABLED = #{@debug}"
         lines << ""
+      end
+
+      # @rbs (Array[String] lines, String indent) -> void
+      def append_table_metadata(lines, indent)
+        lines << "#{indent}PARSER_TABLE_FORMAT_VERSION = #{Runtime::PARSER_TABLE_FORMAT_VERSION}"
+        lines << "#{indent}GRAMMAR_DIGEST = #{@automaton.grammar_digest.inspect}.freeze"
+        lines << "#{indent}STATE_COUNT = #{@automaton.states.length}"
+        lines << "#{indent}PRODUCTION_COUNT = #{@grammar.productions.length}"
       end
 
       # Custom conversion expressions can return caller-owned mutable or
