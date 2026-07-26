@@ -38,13 +38,13 @@ unchanged; every new entry follows the reviewed naming contract below.
 Validate a baseline and rebuild its deterministic projection with:
 
 ```sh
-bundle exec ruby benchmark/verify.rb benchmark/results/v1/2026-07-25-706e9e3cd90f-ruby-4.0.0-arm64-darwin24.json
+bundle exec ruby benchmark/verify.rb benchmark/results/v2/2026-07-25-07e46b082245-ruby-4.0.0-arm64-darwin24.json
 ```
 
-The current dated observation follows the table ABI v3 change. Relative to
-`2026-07-25-c55ff20e58e6-ruby-4.0.0-arm64-darwin24.json`, grammar structure, Grammar/Automaton IR, tables, and the runtime result
-are unchanged; only the plain and compact generated-output digests (and their aggregate artifact digest) changed. The earlier
-observations remain unchanged under the append-only history contract.
+The current v2 observation records direct LALR construction: 250 intermediate construction states and 250 final states. The
+canonical-merge v1 baseline retained 1,294 intermediate states. Grammar/Automaton IR, tables, generated outputs, and runtime
+result remain byte-identical to the current reference strategy. Earlier observations remain unchanged under the append-only
+history contract.
 
 CI performs this schema and structure check on every change. The scheduled and manually dispatched workflow additionally runs
 three complete builds and 1,000 parses per format. It writes
