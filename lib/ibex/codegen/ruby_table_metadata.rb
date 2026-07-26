@@ -40,6 +40,18 @@ module Ibex
 
         " initial_state: ENTRY_STATES.fetch(:#{@grammar.start}), entry_states: ENTRY_STATES,"
       end
+
+      # @rbs () -> String
+      def recovery_table_fields
+        names = @grammar.recovery[:sync_tokens]
+        return "" if names.empty?
+
+        ids = names.map do |name|
+          symbol = @grammar.symbol(name) || raise(Ibex::Error, "missing recovery sync token #{name}")
+          symbol.id
+        end
+        " recovery_sync_tokens: #{ids.inspect}.freeze,"
+      end
     end
   end
 end

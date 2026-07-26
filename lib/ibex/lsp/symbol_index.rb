@@ -7,7 +7,8 @@ module Ibex
       IDENTIFIER = /\A[A-Za-z_][A-Za-z0-9_]*\z/ #: Regexp
       RESERVED = %w[
         class fragment include token prechigh preclow left right nonassoc options expect start
-        convert display type pragma extended rule end separated_list separated_nonempty_list
+        recover sync on_error_reduce convert display type pragma extended rule end
+        separated_list separated_nonempty_list
       ].freeze #: Array[String]
 
       # @rbs (DocumentStore store, String path) -> void

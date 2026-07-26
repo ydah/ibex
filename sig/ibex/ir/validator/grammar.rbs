@@ -87,6 +87,15 @@ module Ibex
         def validate_multiple_starts: (String start) -> void
 
         # @rbs () -> void
+        def validate_recovery: () -> void
+
+        # @rbs (untyped values, String path, kind: String) -> void
+        def validate_recovery_symbols: (untyped values, String path, kind: String) -> void
+
+        # @rbs (untyped value, String path, kind: String, seen: Hash[String, bool]) -> void
+        def validate_recovery_symbol: (untyped value, String path, kind: String, seen: Hash[String, bool]) -> void
+
+        # @rbs () -> void
         def validate_productions: () -> void
 
         # @rbs (untyped value, Integer index) -> void

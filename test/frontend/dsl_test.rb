@@ -72,6 +72,23 @@ class FrontendDSLTest < Minitest::Test
     assert_equal %w[program expression], ir.starts
   end
 
+  def test_dsl_supports_recovery_policies
+    ast = Ibex::Frontend::DSL.grammar(class_name: "Recovering") do |grammar|
+      grammar.token("';'", "'}'")
+      grammar.recover_sync("';'", "'}'")
+      grammar.on_error_reduce(:expression, :statement)
+      grammar.rule(:statement) { |rule| rule.alt(:expression, "';'") }
+      grammar.rule(:expression) { |rule| rule.alt(:TOKEN) }
+    end
+
+    ir = Ibex::Normalizer.new(ast, mode: :extended).normalize
+
+    assert_equal(
+      { sync_tokens: ["';'", "'}'"], on_error_reduce: [%w[expression statement]] },
+      ir.recovery
+    )
+  end
+
   def test_dsl_supports_value_printers
     ast = Ibex::Frontend::DSL.grammar(class_name: "Printed") do |grammar|
       grammar.printer(:TOKEN, "\"token=\#{value}\"")

@@ -67,6 +67,7 @@ module Ibex
         empty_chunks = {} #: Hash[String, untyped]
         empty_parameters = [] #: Array[untyped]
         empty_printers = [] #: Array[untyped]
+        empty_recovery = { "sync_tokens" => [], "on_error_reduce" => [] } #: Hash[String, untyped]
         schema_version = data.fetch("schema_version")
         symbols = data.fetch("symbols").map do |symbol|
           GrammarSymbol.new(id: symbol.fetch("id"), name: symbol.fetch("name"), kind: symbol.fetch("kind"),
@@ -84,6 +85,7 @@ module Ibex
                     expect_rr: data["expect_rr"],
                     parser_parameters: symbolize(data.fetch("params", empty_parameters)),
                     value_printers: symbolize(data.fetch("printers", empty_printers)),
+                    recovery: symbolize(data.fetch("recovery", empty_recovery)),
                     productions: productions, user_code: data.fetch("user_code"),
                     conversions: data.fetch("conversions"), warnings: symbolize(data.fetch("warnings")),
                     user_code_chunks: load_user_code_chunks(data.fetch("user_code_chunks", empty_chunks)),

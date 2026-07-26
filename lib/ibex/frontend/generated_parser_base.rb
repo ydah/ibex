@@ -184,6 +184,21 @@ module Ibex
         AST::Start.new(names: names, loc: keyword.location)
       end
 
+      # @rbs (Token keyword, Token kind, Array[String] sync_tokens) -> AST::Recovery
+      def build_recovery(keyword, kind, sync_tokens)
+        extended_only!(keyword.location, "%recover")
+        fail_at(kind.location, "expected sync, got #{kind.value}") unless token_string(kind) == "sync"
+        fail_at(keyword.location, "%recover sync requires at least one token") if sync_tokens.empty?
+        AST::Recovery.new(sync_tokens: sync_tokens, loc: keyword.location)
+      end
+
+      # @rbs (Token keyword, Array[String] names) -> AST::OnErrorReduce
+      def build_on_error_reduce(keyword, names)
+        extended_only!(keyword.location, "%on_error_reduce")
+        fail_at(keyword.location, "%on_error_reduce requires at least one nonterminal") if names.empty?
+        AST::OnErrorReduce.new(names: names, loc: keyword.location)
+      end
+
       # @rbs (Token keyword, Array[AST::Conversion] pairs) -> AST::Convert
       def build_convert(keyword, pairs)
         AST::Convert.new(pairs: pairs, loc: keyword.location)

@@ -81,6 +81,7 @@ module Ibex
           lines << embedded_source("../runtime/repair.rb")
           lines << embedded_source("../runtime/repair_priority_queue.rb")
           lines << embedded_source("../runtime/repair_search.rb")
+          lines << embedded_source("../runtime/parser_sync_recovery.rb")
           lines << embedded_source("../runtime/parser.rb")
           lines << embedded_source("../runtime/jsonl_tracer.rb")
           lines << embedded_source("../runtime/event_jsonl_tracer.rb")
@@ -130,9 +131,10 @@ module Ibex
         lines << "#{indent}                  tokens: TOKEN_IDS, token_names: TOKEN_NAMES, actions: ACTIONS,"
         lines << "#{indent}                  gotos: GOTOS, default_actions: DEFAULT_ACTIONS,"
         entries = entry_table_fields
+        recovery = recovery_table_fields
         value_printers = @grammar.value_printers.empty? ? "" : " value_printers: VALUE_PRINTERS,"
         lines << "#{indent}                  productions: PRODUCTIONS,#{entries}#{value_printers} " \
-                 "error_messages: ERROR_MESSAGES }.freeze"
+                 "#{recovery} error_messages: ERROR_MESSAGES }.freeze"
         return unless shareable_parser_tables?
 
         lines << "#{indent}Ractor.make_shareable(PARSER_TABLES) " \

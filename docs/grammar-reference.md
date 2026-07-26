@@ -141,6 +141,12 @@ filesystem read failures remain CLI invocation errors on stderr and do not produ
   must be non-empty quoted values on the declaration line. Type spellings are copied as opaque RBS and should be checked with
   normal RBS validation. A type declared for an eliminated `%inline` rule is retained on its composition-plan result; a display
   label for an eliminated inline rule is rejected because no runtime or diagnostic symbol remains to consume it.
+- Extended roots accept one `%recover sync: TOKEN ...` declaration. Every name must be a unique declared terminal other than
+  `error`. When explicit yacc recovery cannot shift `error`, the runtime discards through the first listed synchronization
+  token it encounters, pops to a state that accepts it, and then processes that retained token normally.
+- Extended roots accept repeated `%on_error_reduce NAME ...` declarations for nonterminals. Names on one line share a priority;
+  each later declaration has higher priority. A uniquely highest-priority completed production fills only table cells that
+  would otherwise be errors, so explicit shifts, reductions, accepts, and conflict decisions remain authoritative.
 
 ## Productions and actions
 
@@ -268,6 +274,12 @@ multiple openers on one line are consumed in source order.
 The default `on_error(token_id, value, value_stack)` raises `Ibex::ParseError`. Override it and return to allow an `error`
 production to recover. Unknown external token objects receive a temporary negative internal id, remain printable through
 `token_to_str`, and always invoke `on_error` before recovery is attempted.
+
+With `%recover sync:`, a returned `on_error` first permits ordinary yacc `error`-token recovery. Only when no stack state can
+shift `error` does panic-mode synchronization begin. Discarded application tokens call `on_discard` with reason `recovery`;
+the selected synchronization token is not discarded. `on_error_recover` and the `recover` event fire once after a stack state
+that accepts the synchronization token is found. EOF before a usable synchronization point rejects the parse. See
+[ADR 0068](decisions/0068-declarative-error-recovery.md).
 
 Optional observer methods default to no-ops. `on_shift(token_id, value, state)` follows each ordinary input-token shift;
 `on_reduce(production_id, values, result)` follows a completed semantic action and goto; and

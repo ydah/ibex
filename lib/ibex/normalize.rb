@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "normalize/declarations"
+require_relative "normalize/recovery_declarations"
 require_relative "normalize/expression"
 require_relative "normalize/parameter_validation"
 require_relative "normalize/inline_validation"
@@ -18,6 +19,7 @@ module Ibex
   # Converts a frontend AST into immutable Grammar IR.
   class Normalizer
     include NormalizeDeclarations
+    include NormalizeRecoveryDeclarations
     include NormalizeParameterValidation
     include NormalizeInlineValidation
     include NormalizeParameterSubstitution
@@ -59,6 +61,8 @@ module Ibex
     # @rbs @conversions: Hash[String, String]
     # @rbs @parser_parameters: Array[IR::parser_parameter]
     # @rbs @value_printers: Hash[String, IR::value_printer]
+    # @rbs @recovery_sync_tokens: Array[String]
+    # @rbs @on_error_reduce_groups: Array[Array[String]]
     # @rbs @explicit_starts: Array[String]?
     # @rbs @start_names: Array[String]
     # @rbs @start_name: String
@@ -123,6 +127,7 @@ module Ibex
       normalize_user_productions
       expand_inline_rules
       validate_value_printers
+      validate_recovery_declarations
       validate_grammar
       IR::Grammar.new(class_name: @ast.class_name, superclass: @ast.superclass, start: @start_name,
                       expect: @expected_conflicts, options: @options, symbols: @symbols,
@@ -130,6 +135,10 @@ module Ibex
                       expect_rr: @expected_rr_conflicts,
                       parser_parameters: @parser_parameters,
                       value_printers: @value_printers.values,
+                      recovery: {
+                        sync_tokens: @recovery_sync_tokens,
+                        on_error_reduce: @on_error_reduce_groups
+                      },
                       productions: @productions, user_code: normalized_user_code,
                       conversions: @conversions, warnings: @warnings, user_code_chunks: normalized_user_code_chunks,
                       source_provenance: {

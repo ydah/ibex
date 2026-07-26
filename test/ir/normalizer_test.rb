@@ -189,6 +189,74 @@ class NormalizerTest < Minitest::Test
     refute_includes Ibex::IR::Serialize.dump(plain), '"printers"'
   end
 
+  def test_recovery_policy_round_trips_as_optional_v2_metadata
+    grammar = normalize(<<~GRAMMAR, mode: :extended)
+      class P
+      pragma extended
+      %recover sync: ';' NUM
+      %on_error_reduce expression
+      %on_error_reduce statement
+      rule
+      statement: expression ';'
+      expression: NUM
+      end
+    GRAMMAR
+    expected = {
+      sync_tokens: ["';'", "NUM"],
+      on_error_reduce: [%w[expression], %w[statement]]
+    }
+
+    assert_equal expected, grammar.recovery
+    dumped = Ibex::IR::Serialize.dump(grammar)
+    assert_equal expected, Ibex::IR::Serialize.load(dumped).recovery
+    assert_includes dumped, '"recovery"'
+
+    plain = normalize("class P\nrule\nstart: TOKEN\nend\n")
+    assert_equal({ sync_tokens: [], on_error_reduce: [] }, plain.recovery)
+    refute_includes Ibex::IR::Serialize.dump(plain), '"recovery"'
+  end
+
+  def test_rejects_missing_sync_tokens
+    missing = <<~GRAMMAR
+      class P
+      pragma extended
+      %recover sync: MISSING
+      rule
+      start: TOKEN
+      end
+    GRAMMAR
+    error = assert_raises(Ibex::Error) { normalize(missing) }
+    assert_includes error.message, "%recover sync references nonterminal or missing token MISSING"
+  end
+
+  def test_rejects_terminal_on_error_reduction_symbols
+    terminal = <<~GRAMMAR
+      class P
+      pragma extended
+      %on_error_reduce TOKEN
+      rule
+      start: TOKEN
+      end
+    GRAMMAR
+    error = assert_raises(Ibex::Error) { normalize(terminal) }
+    assert_includes error.message, "%on_error_reduce references terminal or missing nonterminal TOKEN"
+  end
+
+  def test_rejects_duplicate_on_error_reduction_symbols
+    duplicate = <<~GRAMMAR
+      class P
+      pragma extended
+      %on_error_reduce expression
+      %on_error_reduce expression
+      rule
+      start: expression
+      expression: TOKEN
+      end
+    GRAMMAR
+    error = assert_raises(Ibex::Error) { normalize(duplicate) }
+    assert_includes error.message, "duplicate %on_error_reduce symbol expression"
+  end
+
   def test_rejects_duplicate_or_missing_value_printer_symbols
     duplicate = <<~GRAMMAR
       class P

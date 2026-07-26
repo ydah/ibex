@@ -1,0 +1,22 @@
+# Generated from lib/ibex/lalr/on_error_reductions.rb with RBS::Inline
+
+module Ibex
+  module LALR
+    # Delays syntax-error detection by filling only otherwise erroneous table
+    # cells with one uniquely highest-priority declared reduction.
+    module OnErrorReductions
+      # @rbs (IR::Grammar grammar, Array[IR::AutomatonState] states) -> Array[IR::AutomatonState]
+      def self?.apply: (IR::Grammar grammar, Array[IR::AutomatonState] states) -> Array[IR::AutomatonState]
+
+      # @rbs (IR::Grammar grammar) -> Hash[Integer, Integer]
+      def self?.reduction_priorities: (IR::Grammar grammar) -> Hash[Integer, Integer]
+
+      # @rbs (IR::Grammar grammar, IR::AutomatonState state, Hash[Integer, Integer] priorities,
+      #   Array[Integer] terminal_ids) -> IR::AutomatonState
+      def apply_state: (IR::Grammar grammar, IR::AutomatonState state, Hash[Integer, Integer] priorities, Array[Integer] terminal_ids) -> IR::AutomatonState
+
+      # @rbs (IR::Grammar grammar, IR::AutomatonState state, Hash[Integer, Integer] priorities) -> Integer?
+      def selected_production: (IR::Grammar grammar, IR::AutomatonState state, Hash[Integer, Integer] priorities) -> Integer?
+    end
+  end
+end

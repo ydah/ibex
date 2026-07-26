@@ -18,6 +18,9 @@ module Ibex
 
       # @rbs () -> String
       def entry_table_fields: () -> String
+
+      # @rbs () -> String
+      def recovery_table_fields: () -> String
     end
   end
 end

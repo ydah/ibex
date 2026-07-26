@@ -12,7 +12,7 @@ module Ibex
         ].freeze #: Array[String]
         ROOT_OPTIONAL = %w[user_code_chunks expect_rr].freeze #: Array[String]
         V2_ROOT_REQUIRED = %w[source_provenance migration].freeze #: Array[String]
-        V2_ROOT_OPTIONAL = %w[params printers mode starts].freeze #: Array[String]
+        V2_ROOT_OPTIONAL = %w[params printers recovery mode starts].freeze #: Array[String]
         SYMBOL_REQUIRED = %w[id name kind reserved prec loc].freeze #: Array[String]
         SYMBOL_OPTIONAL = %w[display_name semantic_type].freeze #: Array[String]
         V2_SYMBOL_REQUIRED = %w[doc].freeze #: Array[String]
@@ -59,6 +59,7 @@ module Ibex
           validate_value_printers if @data.key?("printers")
           validate_reserved_symbols
           validate_start
+          validate_recovery if @data.key?("recovery")
           validate_productions
           validate_string_map(@data["user_code"], "#{@path}.user_code")
           validate_string_map(@data["conversions"], "#{@path}.conversions")
@@ -203,6 +204,48 @@ module Ibex
             invalid("#{@path}.starts[#{index}]", "must reference a nonterminal") unless
               definition["kind"] == "nonterminal"
           end
+        end
+
+        # @rbs () -> void
+        def validate_recovery
+          path = "#{@path}.recovery"
+          recovery = record(@data["recovery"], path, %w[sync_tokens on_error_reduce])
+          invalid("#{@path}.mode", "must be extended for recovery declarations") unless @data["mode"] == "extended"
+          validate_recovery_symbols(recovery["sync_tokens"], "#{path}.sync_tokens", kind: "terminal")
+          groups = array(recovery["on_error_reduce"], "#{path}.on_error_reduce")
+          seen = {} #: Hash[String, bool]
+          groups.each_with_index do |group, index|
+            group_path = "#{path}.on_error_reduce[#{index}]"
+            names = array(group, group_path)
+            invalid(group_path, "must not be empty") if names.empty?
+            names.each_with_index do |name, name_index|
+              validate_recovery_symbol(
+                name, "#{group_path}[#{name_index}]", kind: "nonterminal", seen: seen
+              )
+            end
+          end
+          return unless array(recovery["sync_tokens"], "#{path}.sync_tokens").empty? && groups.empty?
+
+          invalid(path, "must declare at least one recovery policy")
+        end
+
+        # @rbs (untyped values, String path, kind: String) -> void
+        def validate_recovery_symbols(values, path, kind:)
+          seen = {} #: Hash[String, bool]
+          array(values, path).each_with_index do |name, index|
+            validate_recovery_symbol(name, "#{path}[#{index}]", kind: kind, seen: seen)
+          end
+        end
+
+        # @rbs (untyped value, String path, kind: String, seen: Hash[String, bool]) -> void
+        def validate_recovery_symbol(value, path, kind:, seen:)
+          name = nonempty_string(value, path)
+          invalid(path, "duplicates symbol #{name.inspect}") if seen[name]
+          seen[name] = true
+          symbol = @symbols_by_name[name]
+          invalid(path, "references missing symbol #{name.inspect}") unless symbol
+          invalid(path, "must reference a #{kind}") unless symbol["kind"] == kind
+          invalid(path, "must not reference the synthetic error token") if name == "error"
         end
 
         # @rbs () -> void

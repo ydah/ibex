@@ -58,6 +58,7 @@ module Ibex
 
         merged_items, merged_transitions, construction_states, canonical_states, strategy = automaton_collection
         states = build_states(merged_items, merged_transitions)
+        states = OnErrorReductions.apply(@grammar, states)
         states = DefaultReductions.apply(states, terminal_ids: @grammar.terminals.map(&:id))
         entry_states = entry_states_for(merged_items)
         states = attribute_entry_conflicts(states, entry_states) if @attribute_entries && @start_names.length > 1

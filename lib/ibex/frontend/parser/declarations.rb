@@ -7,7 +7,8 @@ module Ibex
     # Bootstrap declarations intentionally mirror the generated frontend's complete declaration vocabulary.
     module BootstrapParserDeclarations
       DECLARATIONS = %w[
-        token prechigh preclow options expect expect_rr start convert display type param printer pragma rule
+        token prechigh preclow options expect expect_rr start recover on_error_reduce
+        convert display type param printer pragma rule
       ].freeze #: Array[String]
       ASSOCIATIVITIES = %w[left right nonassoc precedence].freeze #: Array[String]
 
@@ -49,6 +50,8 @@ module Ibex
         when "expect" then parse_expect
         when "expect_rr" then parse_expect_rr
         when "start" then parse_start
+        when "recover" then parse_recovery
+        when "on_error_reduce" then parse_on_error_reduce
         when "convert" then parse_convert
         when "display" then parse_symbol_metadata(AST::DisplayName, "display")
         when "type" then parse_symbol_metadata(AST::SemanticType, "type")
@@ -162,6 +165,29 @@ module Ibex
         names << parse_symbol_name until declaration_start?
         extended_only!(location, "multiple start symbols") if names.length > 1
         AST::Start.new(names: names, loc: location)
+      end
+
+      # @rbs () -> AST::Recovery
+      def parse_recovery
+        # @type self: BootstrapParser
+        keyword = advance
+        extended_only!(keyword.location, "%recover")
+        kind = expect(:identifier)
+        fail_at(kind.location, "expected sync, got #{kind.value}") unless token_string(kind) == "sync"
+        expect(:":")
+        tokens = [parse_symbol_name]
+        tokens << parse_symbol_name until declaration_start?
+        AST::Recovery.new(sync_tokens: tokens, loc: keyword.location)
+      end
+
+      # @rbs () -> AST::OnErrorReduce
+      def parse_on_error_reduce
+        # @type self: BootstrapParser
+        keyword = advance
+        extended_only!(keyword.location, "%on_error_reduce")
+        names = [parse_symbol_name]
+        names << parse_symbol_name until declaration_start?
+        AST::OnErrorReduce.new(names: names, loc: keyword.location)
       end
 
       # @rbs () -> AST::Convert

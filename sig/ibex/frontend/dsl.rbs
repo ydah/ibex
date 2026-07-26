@@ -38,6 +38,12 @@ module Ibex
         # @rbs (*Object names) -> void
         def start: (*Object names) -> void
 
+        # @rbs (*Object names) -> void
+        def recover_sync: (*Object names) -> void
+
+        # @rbs (*Object names) -> void
+        def on_error_reduce: (*Object names) -> void
+
         # @rbs (Object name, Object expression) -> void
         def convert: (Object name, Object expression) -> void
 

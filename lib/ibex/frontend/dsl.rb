@@ -53,6 +53,16 @@ module Ibex
           @declarations << AST::Start.new(names: names.map(&:to_s), loc: next_location)
         end
 
+        # @rbs (*Object names) -> void
+        def recover_sync(*names)
+          @declarations << AST::Recovery.new(sync_tokens: names.map(&:to_s), loc: next_location)
+        end
+
+        # @rbs (*Object names) -> void
+        def on_error_reduce(*names)
+          @declarations << AST::OnErrorReduce.new(names: names.map(&:to_s), loc: next_location)
+        end
+
         # @rbs (Object name, Object expression) -> void
         def convert(name, expression)
           location = next_location

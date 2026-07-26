@@ -47,7 +47,8 @@ module Ibex
     #
     # Subclasses provide `.parser_tables`, returning `:tokens`, `:token_names`,
     # `:actions`, `:gotos`, and `:productions`, with optional
-    # `:default_actions` and `:error_messages`. Actions are represented by
+    # `:default_actions`, `:error_messages`, and `:recovery_sync_tokens`.
+    # Actions are represented by
     # `[:shift, state]`, `[:reduce, production]`, `[:accept]`, or `[:error]`.
     # Format-v2 and v3 generated production entries mark their five-argument
     # semantic methods with `location_action: true`. Format-v3 composed actions
@@ -57,6 +58,8 @@ module Ibex
     # the generated `_ibex_action_N` Symbol shape, never for callables.
     class Parser
       include Observation
+
+      include ParserSyncRecovery
 
       EOF_TOKEN: Integer
 
@@ -71,6 +74,10 @@ module Ibex
       EMPTY_ROW: Hash[Integer, untyped]
 
       EMPTY_LOCATION_NAMES: Hash[Symbol, Integer]
+
+      @driver_status: :idle | :pull | :push
+
+      @push_status: :idle | :active | :finished
 
       @unknown_token_name: String?
 
@@ -100,10 +107,6 @@ module Ibex
 
       @yydebug: bool
 
-      @push_status: :idle | :active | :finished
-
-      @driver_status: :idle | :pull | :push
-
       @runtime_driver_thread: Thread?
 
       @runtime_observers: Hash[Observation::Subscription, Proc]?
@@ -127,6 +130,12 @@ module Ibex
       @semantic_result_location: untyped
 
       @trace_value_printer: (^(untyped) -> untyped)?
+
+      @sync_recovery_context: Hash[Symbol, untyped]?
+
+      @sync_recovery_token_data: Hash[String, untyped]?
+
+      @sync_recovery_observers: Array[Proc]?
 
       attr_accessor yydebug: bool
 
@@ -290,6 +299,9 @@ module Ibex
 
       # @rbs (^() -> untyped source, ?initial_state: Integer?) -> void
       def prepare_parse: (^() -> untyped source, ?initial_state: Integer?) -> void
+
+      # @rbs () -> void
+      def reset_parse_recovery_state: () -> void
 
       # @rbs (Hash[Symbol, untyped] tables, Integer? requested) -> Integer
       def resolve_initial_state: (Hash[Symbol, untyped] tables, Integer? requested) -> Integer

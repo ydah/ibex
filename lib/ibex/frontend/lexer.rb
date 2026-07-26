@@ -11,8 +11,8 @@ module Ibex
       PERCENT_DIRECTIVES = {
         "%expect-rr" => [:identifier, "expect_rr"],
         "%precedence" => [:identifier, "precedence"],
-        "%param" => [:identifier, "param"],
-        "%printer" => [:identifier, "printer"],
+        "%param" => [:identifier, "param"], "%printer" => [:identifier, "printer"],
+        "%recover" => [:identifier, "recover"], "%on_error_reduce" => [:identifier, "on_error_reduce"],
         "%inline" => [:inline, "%inline"],
         "%empty" => [:empty, "%empty"]
       }.freeze #: Hash[String, [Symbol, String]]
