@@ -59,7 +59,7 @@ module Ibex
           return true unless action.nil? || action.first == :error
           return false if @state_stack.length == 1
 
-          trace("recover: pop state #{@state_stack.last} for sync token")
+          trace("recover: pop state #{@state_stack.last} for sync token") if @yydebug
           @state_stack.pop
           @value_stack.pop
           @location_stack&.pop
@@ -80,7 +80,7 @@ module Ibex
         observers = @sync_recovery_observers
         clear_sync_recovery
         @recovery_shifts = Parser::RECOVERY_SHIFTS
-        trace("recover: synchronized before #{token_to_str(@lookahead)} in state #{@state_stack.last}")
+        trace("recover: synchronized before #{token_to_str(@lookahead)} in state #{@state_stack.last}") if @yydebug
         finish_recovery(
           context[:token_id], context[:token_display], context[:value], context[:location], context[:state],
           context.fetch(:value_stack), token_data, context.fetch(:reason), observers

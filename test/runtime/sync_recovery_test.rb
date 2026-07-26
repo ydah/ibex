@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../test_helper"
+require "stringio"
 
 class RuntimeSyncRecoveryTest < Minitest::Test
   SYNC_GRAMMAR = <<~GRAMMAR
@@ -99,6 +100,44 @@ class RuntimeSyncRecoveryTest < Minitest::Test
     assert_equal 1, parser.errors
     assert_equal 1, parser.recoveries
     assert_equal :item, parser.finish
+  end
+
+  def test_pull_sync_recovery_does_not_dispatch_dormant_trace_payloads
+    parser = generate(SYNC_GRAMMAR).new
+    trace_calls = 0
+    parser.define_singleton_method(:trace) { |_message| trace_calls += 1 }
+
+    result = parser.parse_tokens(
+      [%i[ITEM first], %i[BAD bad1], %i[BAD bad2], [";", nil], %i[ITEM second], [";", nil]]
+    )
+
+    assert_equal :first, result
+    assert_equal 0, trace_calls
+    assert_equal [["BAD", :bad1]], parser.recoveries
+  end
+
+  def test_push_sync_recovery_does_not_dispatch_dormant_trace_payloads
+    parser = generate(PUSH_GRAMMAR).new
+    trace_calls = 0
+    parser.define_singleton_method(:trace) { |_message| trace_calls += 1 }
+
+    assert_equal :need_more, parser.push(:ITEM, :item)
+    assert_equal :need_more, parser.push(:BAD, :bad)
+    assert_equal :need_more, parser.push(";", nil)
+    assert_equal :item, parser.finish
+    assert_equal 0, trace_calls
+  end
+
+  def test_sync_recovery_debug_message_bytes_are_stable
+    parser = generate(SYNC_GRAMMAR).new
+    output = StringIO.new
+    parser.yydebug = true
+    parser.yydebug_output = output
+
+    parser.parse_tokens([%i[ITEM first], %i[BAD bad], [";", nil]])
+
+    assert_equal ["ibex: recover: synchronized before ';' in state 1\n"],
+                 output.string.lines.grep(/synchronized/)
   end
 
   def test_on_error_reduce_commits_the_declared_semantic_reduction_before_reporting
