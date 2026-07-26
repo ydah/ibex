@@ -5,15 +5,18 @@ require_relative "ruby_actions"
 require_relative "ruby_error_messages"
 require_relative "ruby_table_metadata"
 require_relative "ruby_value_printers"
+require_relative "ruby_lexer"
 
 module Ibex
   module Codegen
     # Generates a standalone Ruby parser class from Automaton IR.
+    # rubocop:disable Metrics/ClassLength -- generation stages are split into focused mixins.
     class Ruby
       include RubyActions
       include RubyErrorMessages
       include RubyTableMetadata
       include RubyValuePrinters
+      include RubyLexer
 
       # @rbs @automaton: IR::Automaton
       # @rbs @grammar: IR::Grammar
@@ -60,6 +63,7 @@ module Ibex
         append_tables(lines)
         append_parameter_initializer(lines)
         append_entry_methods(lines)
+        append_lexer(lines)
         append_value_printers(lines)
         append_actions(lines)
         append_user_code(lines, "inner", indent: 2)
@@ -83,6 +87,8 @@ module Ibex
           lines << embedded_source("../runtime/repair_search.rb")
           lines << embedded_source("../runtime/parser_sync_recovery.rb")
           lines << embedded_source("../runtime/parser.rb")
+          lines << embedded_source("../runtime/lexer_input.rb")
+          lines << embedded_source("../runtime/generated_lexer.rb")
           lines << embedded_source("../runtime/jsonl_tracer.rb")
           lines << embedded_source("../runtime/event_jsonl_tracer.rb")
           lines << embedded_source("../../ibex/tables.rb")
@@ -109,6 +115,9 @@ module Ibex
         lines << "#{indent}ACTIONS = #{table_literal(table_set.actions)}"
         lines << "#{indent}GOTOS = #{table_literal(table_set.gotos)}"
         lines << "#{indent}DEFAULT_ACTIONS = #{table_set.default_actions.inspect}.freeze"
+        eager_type = "Hash[Integer, [:reduce, Integer]]"
+        lines << "#{indent}eager_reductions = #{eager_reductions_literal} # @type var eager_reductions: #{eager_type}"
+        lines << "#{indent}EAGER_REDUCTIONS = eager_reductions.freeze #: #{eager_type}"
         lines << "#{indent}PRODUCTIONS = #{productions_literal}.freeze"
         append_value_printer_table(lines, indent)
         declaration = "#{indent}error_messages = #{error_messages_literal}"
@@ -134,7 +143,7 @@ module Ibex
         recovery = recovery_table_fields
         value_printers = @grammar.value_printers.empty? ? "" : " value_printers: VALUE_PRINTERS,"
         lines << "#{indent}                  productions: PRODUCTIONS,#{entries}#{value_printers} " \
-                 "#{recovery} error_messages: ERROR_MESSAGES }.freeze"
+                 "#{recovery} eager_reductions: EAGER_REDUCTIONS, error_messages: ERROR_MESSAGES }.freeze"
         return unless shareable_parser_tables?
 
         lines << "#{indent}Ractor.make_shareable(PARSER_TABLES) " \
@@ -215,6 +224,35 @@ module Ibex
         "[#{entries.join(', ')}]"
       end
 
+      # Reductions that are the sole non-error behavior of a state may run
+      # before requesting another lexer token. This enables parser actions to
+      # select lexer_state without speculative lookahead.
+      # @rbs () -> String
+      def eager_reductions_literal
+        return "{}" unless @grammar.lexer
+
+        entries = @automaton.states.filter_map do |state|
+          action = eager_lexer_feedback_reduction(state)
+          next unless action
+
+          "#{state.id} => [:reduce, #{action.fetch(:production)}].freeze"
+        end
+        "{ #{entries.join(', ')} }"
+      end
+
+      # @rbs (IR::AutomatonState state) -> IR::reduce_action?
+      def eager_lexer_feedback_reduction(state)
+        candidates = state.actions.values
+        candidates += [state.default_action] if state.default_action
+        actions = candidates.reject { |action| action[:type] == :error }.uniq
+        return unless actions.one?
+        return unless actions.first[:type] == :reduce
+
+        reduction = actions.first #: IR::reduce_action
+        production = @grammar.productions.fetch(reduction.fetch(:production))
+        reduction if production.action&.code&.match?(/\blexer_state\s*=/)
+      end
+
       # @rbs (IR::Action? action) -> [String, String]
       def production_location_metadata(action)
         return ["", ""] unless action
@@ -272,5 +310,6 @@ module Ibex
         @automaton.grammar_digest.delete_prefix("sha256:").chars.first(12).join
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end

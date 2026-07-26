@@ -24,6 +24,7 @@ module Ibex
         modules.each { |name| lines << "module #{name}" }
         lines << "class #{class_name} < #{@superclass}"
         append_contract(lines)
+        append_lexer_contract(lines)
         append_value_printer_signatures(lines)
         append_actions(lines)
         lines << "end"
@@ -39,6 +40,7 @@ module Ibex
                    "  GRAMMAR_DIGEST: String", "  STATE_COUNT: Integer", "  PRODUCTION_COUNT: Integer",
                    "  TOKEN_IDS: Hash[untyped, Integer]", "  TOKEN_NAMES: Hash[Integer, String]",
                    "  ACTIONS: untyped", "  GOTOS: untyped", "  DEFAULT_ACTIONS: Array[untyped]",
+                   "  EAGER_REDUCTIONS: Hash[Integer, [:reduce, Integer]]",
                    "  PRODUCTIONS: Array[Hash[Symbol, untyped]]",
                    "  ERROR_MESSAGES: Hash[Integer, String | { id: String, message: String }]",
                    "  PARSER_TABLES: Hash[Symbol, untyped]", "  DEBUG_ENABLED: bool", "",
@@ -68,6 +70,26 @@ module Ibex
         end
         lines << ""
         lines << "  def initialize: (#{keywords.join(', ')}, **untyped) -> void"
+      end
+
+      # @rbs (Array[String] lines) -> void
+      def append_lexer_contract(lines)
+        lexer = @grammar.lexer
+        return unless lexer
+
+        lines.push(
+          "  LEXER_STATES: Array[String]",
+          "  LEXER_RULES_BY_STATE: Hash[Symbol, Array[Hash[Symbol, untyped]]]",
+          "",
+          "  def lex: (String | IO | Fiber source, ?file: String) -> self",
+          "  def parse: (String | IO | Fiber source, ?file: String) -> untyped",
+          "  def lexer_state: () -> Symbol",
+          "  def lexer_state=: (Symbol | String state) -> Symbol",
+          "  def next_token: () -> [untyped, untyped, Hash[Symbol, untyped]]"
+        )
+        lexer.rules.each do |rule|
+          lines << "  private def _ibex_lexer_action_#{rule.id}: (String lexeme) -> untyped" if rule.action
+        end
       end
 
       # @rbs (Array[String] lines) -> void

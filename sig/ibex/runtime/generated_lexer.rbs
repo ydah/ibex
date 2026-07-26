@@ -1,0 +1,105 @@
+# Generated from lib/ibex/runtime/generated_lexer.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    # Runtime contract mixed into parser classes that declare a lexer.
+    # rubocop:disable Metrics/ModuleLength -- matching, actions, state, and positions share one session invariant.
+    module GeneratedLexer
+      NO_EMISSION: Object
+
+      @lexer_skip_requested: bool
+
+      @lexer_emission: Object | Array[untyped]
+
+      @lexer_lexeme: String?
+
+      @lexer_byte_offset: Integer
+
+      @lexer_byte_column: Integer
+
+      @lexer_column: Integer
+
+      @lexer_line: Integer
+
+      @lexer_states: Array[String]
+
+      @lexer_file: String
+
+      @lexer_input: LexerInput?
+
+      # Reset the generated lexer to the beginning of an input.
+      # @rbs (String | IO | Fiber source, ?file: String) -> self
+      def lex: (String | IO | Fiber source, ?file: String) -> self
+
+      # Lex and parse one String, IO, or Fiber source.
+      # @rbs (String | IO | Fiber source, ?file: String) -> untyped
+      def parse: (String | IO | Fiber source, ?file: String) -> untyped
+
+      # Return the current named lexer state.
+      # @rbs () -> Symbol
+      def lexer_state: () -> Symbol
+
+      # Replace the current named lexer state.
+      # @rbs (Symbol | String state) -> Symbol
+      def lexer_state=: (Symbol | String state) -> Symbol
+
+      # Pull one token using longest match and declaration-order tie breaking.
+      # @rbs () -> [untyped, untyped, Hash[Symbol, untyped]]
+      def next_token: () -> [ untyped, untyped, Hash[Symbol, untyped] ]
+
+      private
+
+      # @rbs (LexerInput input) -> bool
+      def ensure_lexer_data?: (LexerInput input) -> bool
+
+      # @rbs (LexerInput input) -> [Hash[Symbol, untyped]?, String?]
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      def select_lexer_match: (LexerInput input) -> [ Hash[Symbol, untyped]?, String? ]
+
+      # @rbs () -> Array[Hash[Symbol, untyped]]
+      def lexer_rules: () -> Array[Hash[Symbol, untyped]]
+
+      # @rbs (LexerInput input) -> bot
+      def raise_lexer_no_match: (LexerInput input) -> bot
+
+      # @rbs (LexerInput input, String lexeme) -> Hash[Symbol, untyped]
+      def consume_lexer_match: (LexerInput input, String lexeme) -> Hash[Symbol, untyped]
+
+      # @rbs (Hash[Symbol, untyped] rule, String lexeme, Hash[Symbol, untyped] location) ->
+      #   [untyped, untyped, Hash[Symbol, untyped]]?
+      def apply_lexer_rule: (Hash[Symbol, untyped] rule, String lexeme, Hash[Symbol, untyped] location) -> [ untyped, untyped, Hash[Symbol, untyped] ]?
+
+      # Emit a token from a lexer action.
+      # @rbs (untyped token, ?untyped value) -> untyped
+      def emit: (untyped token, ?untyped value) -> untyped
+
+      # Suppress the current match from a lexer action.
+      # @rbs () -> nil
+      def skip: () -> nil
+
+      # Return the text consumed by the active lexer action.
+      # @rbs () -> String?
+      def lexeme: () -> String?
+
+      # Push a named lexer state.
+      # @rbs (Symbol | String state) -> Symbol
+      def push_state: (Symbol | String state) -> Symbol
+
+      # Pop the current named lexer state.
+      # @rbs () -> Symbol
+      def pop_state: () -> Symbol
+
+      # @rbs (Symbol | String state) -> String
+      def validate_lexer_state: (Symbol | String state) -> String
+
+      # @rbs () -> Hash[Symbol, Integer]
+      def lexer_position: () -> Hash[Symbol, Integer]
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def lexer_zero_width_location: () -> Hash[Symbol, untyped]
+
+      # @rbs (String lexeme) -> void
+      def advance_lexer_position: (String lexeme) -> void
+    end
+  end
+end

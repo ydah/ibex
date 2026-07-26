@@ -47,6 +47,7 @@ module Ibex
     def normalize_lexer_rule(definition, state, id, warnings)
       # @type self: Normalizer
       validate_lexer_token(definition)
+      validate_lexer_action(definition)
       source, options = normalize_lexer_pattern(definition)
       validate_lexer_regexp(definition, source, options)
       if risky_lexer_pattern?(source)
@@ -69,6 +70,19 @@ module Ibex
       return if definition.token && @declared_tokens.key?(definition.token)
 
       fail_at(definition.loc, "lexer rule references undeclared terminal #{definition.token}")
+    end
+
+    # @rbs (Frontend::AST::LexerRule definition) -> void
+    def validate_lexer_action(definition)
+      # @type self: Normalizer
+      action = definition.action
+      return unless action&.lstrip&.start_with?("|")
+
+      match = action.match(/\A\s*\|([a-z_][a-zA-Z0-9_]*)\|/m)
+      fail_at(definition.loc, "lexer action accepts exactly one local identifier") unless match
+      name = match[1]
+      fail_at(definition.loc, "lexer action parameter #{name.inspect} is a Ruby keyword") if
+        Normalizer::RUBY_KEYWORDS.include?(name)
     end
 
     # @rbs (Frontend::AST::LexerRule definition) -> [String, String]

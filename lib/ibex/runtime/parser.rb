@@ -699,6 +699,11 @@ module Ibex
 
       # @rbs () -> untyped
       def action_for_current_state
+        if @lookahead.equal?(NO_LOOKAHEAD)
+          state = @state_stack.last
+          eager = parser_tables.fetch(:eager_reductions, EMPTY_ROW)[state]
+          return eager if eager
+        end
         read_lookahead if @lookahead.equal?(NO_LOOKAHEAD)
         return [:sync_recover] if sync_recovery_active?
 

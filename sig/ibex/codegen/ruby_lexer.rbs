@@ -1,0 +1,25 @@
+# Generated from lib/ibex/codegen/ruby_lexer.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Generated lexer tables and action methods.
+    module RubyLexer
+      private
+
+      # @rbs (Array[String] lines) -> void
+      def append_lexer: (Array[String] lines) -> void
+
+      # @rbs (Array[String] lines, IR::Lexer lexer) -> void
+      def append_lexer_rules: (Array[String] lines, IR::Lexer lexer) -> void
+
+      # @rbs (IR::LexerRule rule) -> String
+      def lexer_rule_literal: (IR::LexerRule rule) -> String
+
+      # @rbs (Array[String] lines, IR::Lexer lexer) -> void
+      def append_lexer_actions: (Array[String] lines, IR::Lexer lexer) -> void
+
+      # @rbs (IR::LexerRule rule) -> String
+      def lexer_action_source: (IR::LexerRule rule) -> String
+    end
+  end
+end

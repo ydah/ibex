@@ -1,0 +1,40 @@
+# Generated from lib/ibex/runtime/lexer_input.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    # Incremental String, IO, or Fiber input used by generated lexers.
+    class LexerInput
+      DEFAULT_CHUNK_SIZE: Integer
+
+      attr_reader buffer: String
+
+      # @rbs (String | IO | Fiber source, ?chunk_size: Integer) -> void
+      def initialize: (String | IO | Fiber source, ?chunk_size: Integer) -> void
+
+      # @rbs () -> bool
+      def eof?: () -> bool
+
+      # Read until at least one byte is added or EOF is observed.
+      # @rbs () -> bool
+      def read_more?: () -> bool
+
+      # @rbs (String prefix) -> void
+      def consume: (String prefix) -> void
+
+      # Return one source line, reading ahead only to its line boundary.
+      # @rbs (Integer line) -> String
+      def source_line: (Integer line) -> String
+
+      private
+
+      # @rbs () -> void
+      def read_chunk: () -> void
+
+      # @rbs (Fiber source) -> untyped
+      def resume_fiber: (Fiber source) -> untyped
+
+      # @rbs (String chunk) -> void
+      def append: (String chunk) -> void
+    end
+  end
+end

@@ -81,8 +81,26 @@ explicit error cells, including recovery and undeclared-token behavior. `--table
 
 ## Lexer contract
 
-Ibex does not generate a lexer. A pull parser implements `next_token` and returns `[token, value]` or
-`[token, value, location]`; `false` or `nil` marks EOF.
+Extended grammars can generate a lexer beside the parser:
+
+```text
+pragma extended
+token NUMBER WORD
+lexer
+  skip /\s+/
+  NUMBER /\d+/ { |text| Integer(text, 10) }
+  WORD /\p{L}+/
+end
+```
+
+Rules use longest match, with declaration order breaking equal-length ties. Patterns are anchored to the current position by
+the generator. Generated parsers accept String, IO, or Fiber input through `parse`; IO/Fiber chunks may split tokens.
+`state NAME do ... end`, `push_state`, `pop_state`, and the public `lexer_state` reader/writer provide explicit lexical states.
+Locations contain one-based grapheme and byte columns plus half-open byte offsets.
+
+A handwritten pull lexer remains fully supported: implement `next_token` and return `[token, value]` or
+`[token, value, location]`; `false` or `nil` marks EOF. See the
+[lexer migration guide](docs/lexer-migration.md) for the one-to-one mapping.
 
 `Ibex::Location.new(line:, column:, ...)` is the immutable built-in range type; applications may continue to pass hashes or
 their own location objects. `location.join(other)` and `Ibex::Location.join(locations)` compute covering ranges when every

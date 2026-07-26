@@ -3,6 +3,7 @@
 module Ibex
   module Codegen
     # Generates a standalone Ruby parser class from Automaton IR.
+    # rubocop:disable Metrics/ClassLength -- generation stages are split into focused mixins.
     class Ruby
       include RubyActions
 
@@ -11,6 +12,8 @@ module Ibex
       include RubyTableMetadata
 
       include RubyValuePrinters
+
+      include RubyLexer
 
       @error_messages: Hash[Integer, String | { id: String, message: String }]
 
@@ -80,6 +83,15 @@ module Ibex
 
       # @rbs () -> String
       def productions_literal: () -> String
+
+      # Reductions that are the sole non-error behavior of a state may run
+      # before requesting another lexer token. This enables parser actions to
+      # select lexer_state without speculative lookahead.
+      # @rbs () -> String
+      def eager_reductions_literal: () -> String
+
+      # @rbs (IR::AutomatonState state) -> IR::reduce_action?
+      def eager_lexer_feedback_reduction: (IR::AutomatonState state) -> IR::reduce_action?
 
       # @rbs (IR::Action? action) -> [String, String]
       def production_location_metadata: (IR::Action? action) -> [ String, String ]

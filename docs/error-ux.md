@@ -14,8 +14,9 @@ equality.
 
 ## Comparison method
 
-Ibex uses [`examples/json.y`](../examples/json.y), including its handwritten
-lexer locations. The comparison uses the self-authored compatible grammar
+Ibex uses [`examples/json.y`](../examples/json.y), including its generated
+lexer locations. The migration from its previous handwritten lexer is guarded
+by exact location and error-snapshot tests. The comparison uses the self-authored compatible grammar
 [`json_racc.y`](../test/fixtures/error_ux/json_racc.y), racc 1.8.1, and only the
 public `racc` executable and `on_error(token, value, value_stack)` callback.
 Neither racc implementation files nor generated source are inspected. Both

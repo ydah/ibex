@@ -19,6 +19,9 @@ module Ibex
     # @rbs (Frontend::AST::LexerRule definition) -> void
     def validate_lexer_token: (Frontend::AST::LexerRule definition) -> void
 
+    # @rbs (Frontend::AST::LexerRule definition) -> void
+    def validate_lexer_action: (Frontend::AST::LexerRule definition) -> void
+
     # @rbs (Frontend::AST::LexerRule definition) -> [String, String]
     def normalize_lexer_pattern: (Frontend::AST::LexerRule definition) -> [ String, String ]
 
