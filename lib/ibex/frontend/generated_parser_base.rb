@@ -160,6 +160,17 @@ module Ibex
         AST::ExpectRR.new(conflicts: token_integer(integer), loc: keyword.location)
       end
 
+      # @rbs (Token keyword, Token name, Token? type) -> AST::Parameter
+      def build_parameter(keyword, name, type)
+        extended_only!(keyword.location, "%param")
+        if type && (keyword.location.line != name.location.line || name.location.line != type.location.line)
+          fail_at(keyword.location, "%param declaration must be written on one line")
+        end
+
+        semantic_type = type && decode_metadata_value(type, "%param")
+        AST::Parameter.new(name: token_string(name), semantic_type: semantic_type, loc: keyword.location)
+      end
+
       # @rbs (Token keyword, String name) -> AST::Start
       def build_start(keyword, name)
         AST::Start.new(name: name, loc: keyword.location)

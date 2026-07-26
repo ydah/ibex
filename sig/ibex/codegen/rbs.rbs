@@ -24,6 +24,9 @@ module Ibex
       def append_contract: (Array[String] lines) -> void
 
       # @rbs (Array[String] lines) -> void
+      def append_parameter_contract: (Array[String] lines) -> void
+
+      # @rbs (Array[String] lines) -> void
       def append_actions: (Array[String] lines) -> void
 
       # @rbs (Array[String] lines, IR::Production production) -> void

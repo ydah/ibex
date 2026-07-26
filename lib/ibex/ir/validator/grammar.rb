@@ -12,6 +12,7 @@ module Ibex
         ].freeze #: Array[String]
         ROOT_OPTIONAL = %w[user_code_chunks expect_rr].freeze #: Array[String]
         V2_ROOT_REQUIRED = %w[source_provenance migration].freeze #: Array[String]
+        V2_ROOT_OPTIONAL = %w[params].freeze #: Array[String]
         SYMBOL_REQUIRED = %w[id name kind reserved prec loc].freeze #: Array[String]
         SYMBOL_OPTIONAL = %w[display_name semantic_type].freeze #: Array[String]
         V2_SYMBOL_REQUIRED = %w[doc].freeze #: Array[String]
@@ -20,6 +21,10 @@ module Ibex
         V2_ACTION_REQUIRED = %w[composition].freeze #: Array[String]
         ORIGIN_KINDS = %w[
           optional_expansion star_expansion plus_expansion separated_list_expansion group_expansion
+        ].freeze #: Array[String]
+        RUBY_KEYWORDS = %w[
+          __ENCODING__ __FILE__ __LINE__ alias and begin break case class def defined do else elsif end ensure false for
+          if in module next nil not or redo rescue retry return self super then true undef unless until when while yield
         ].freeze #: Array[String]
 
         attr_reader :symbols_by_id #: Hash[Integer, Hash[String, untyped]]
@@ -44,10 +49,12 @@ module Ibex
         # @rbs () -> self
         def validate
           required = ROOT_REQUIRED + (@version >= 2 ? V2_ROOT_REQUIRED : [])
-          record(@data, @path, required, ROOT_OPTIONAL)
+          optional = ROOT_OPTIONAL + (@version >= 2 ? V2_ROOT_OPTIONAL : [])
+          record(@data, @path, required, optional)
           validate_envelope
           validate_header
           validate_options
+          validate_parser_parameters if @data.key?("params")
           validate_symbols
           validate_reserved_symbols
           validate_start
@@ -86,6 +93,21 @@ module Ibex
           options = record(@data["options"], path, %w[result_var omit_action_call])
           boolean(options["result_var"], "#{path}.result_var")
           boolean(options["omit_action_call"], "#{path}.omit_action_call")
+        end
+
+        # @rbs () -> void
+        def validate_parser_parameters
+          names = {} #: Hash[String, bool]
+          array(@data["params"], "#{@path}.params").each_with_index do |value, index|
+            path = "#{@path}.params[#{index}]"
+            parameter = record(value, path, %w[name semantic_type])
+            name = nonempty_string(parameter["name"], "#{path}.name")
+            invalid("#{path}.name", "must be a Ruby local identifier") unless name.match?(/\A[a-z_][a-zA-Z0-9_]*\z/)
+            invalid("#{path}.name", "must not be a Ruby keyword") if RUBY_KEYWORDS.include?(name)
+            invalid("#{path}.name", "duplicates parameter #{name.inspect}") if names.key?(name)
+            names[name] = true
+            metadata(parameter["semantic_type"], "#{path}.semantic_type")
+          end
         end
 
         # @rbs () -> void

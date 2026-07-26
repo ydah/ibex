@@ -19,6 +19,7 @@ module Ibex
       def composed_fragment_method_source(production, step, index)
         source = "private def #{composed_fragment_name(production, index)}" \
                  "(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location); "
+        append_parameter_values(source)
         context_length = step.fetch(:context_length)
         if context_length.positive?
           source << "val = _values.last(#{context_length}); "
@@ -43,6 +44,7 @@ module Ibex
         action = production.action
         source = "private def _ibex_action_#{production.id}" \
                  "(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location); "
+        append_parameter_values(source)
         return "#{source}val[0]\nend" unless action
 
         if action.context_length.positive?
@@ -62,6 +64,7 @@ module Ibex
           "private def _ibex_action_#{production.id}" \
           "(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)"
         ]
+        append_direct_parameter_values(lines)
         if action&.context_length&.positive?
           lines << "  val = _values.last(#{action.context_length})"
           lines << "  _ibex_locations = _ibex_location_stack.last(#{action.context_length})"
@@ -84,6 +87,20 @@ module Ibex
       end
 
       private
+
+      # @rbs (String source) -> void
+      def append_parameter_values(source)
+        @grammar.parser_parameters.each do |parameter|
+          source << "#{parameter[:name]} = @#{parameter[:name]}; "
+        end
+      end
+
+      # @rbs (Array[String] lines) -> void
+      def append_direct_parameter_values(lines)
+        @grammar.parser_parameters.each do |parameter|
+          lines << "  #{parameter[:name]} = @#{parameter[:name]}"
+        end
+      end
 
       # @rbs (Hash[Symbol, untyped] step) -> String
       def composed_semantic_code(step)

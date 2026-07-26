@@ -50,6 +50,9 @@ module Ibex
       # @rbs (Array[String] lines, String indent) -> void
       def append_table_metadata: (Array[String] lines, String indent) -> void
 
+      # @rbs (Array[String] lines) -> void
+      def append_parameter_initializer: (Array[String] lines) -> void
+
       # Custom conversion expressions can return caller-owned mutable or
       # inherently unshareable objects, so only standard token mappings are
       # safe to freeze transitively.

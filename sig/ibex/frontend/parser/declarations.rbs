@@ -39,6 +39,9 @@ module Ibex
       # @rbs () -> AST::ExpectRR
       def parse_expect_rr: () -> AST::ExpectRR
 
+      # @rbs () -> AST::Parameter
+      def parse_parameter: () -> AST::Parameter
+
       # @rbs () -> AST::Start
       def parse_start: () -> AST::Start
 

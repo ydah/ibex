@@ -47,6 +47,9 @@ module Ibex
         # @rbs (Object name, Object value) -> void
         def type: (Object name, Object value) -> void
 
+        # @rbs (Object name, ?Object? semantic_type) -> void
+        def param: (Object name, ?Object? semantic_type) -> void
+
         # @rbs (?direction: Symbol) { (PrecedenceBuilder) -> void } -> void
         def precedence: (?direction: Symbol) { (PrecedenceBuilder) -> void } -> void
 

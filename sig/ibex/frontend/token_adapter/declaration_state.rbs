@@ -97,6 +97,12 @@ module Ibex
         # @rbs (external_token type) -> external_token
         def begin_metadata_value: (external_token type) -> external_token
 
+        # @rbs () -> external_token
+        def begin_param_type: () -> external_token
+
+        # @rbs (external_token type) -> external_token
+        def finish_param_type: (external_token type) -> external_token
+
         # @rbs (external_token type) -> external_token
         def finish_metadata_value: (external_token type) -> external_token
 

@@ -41,6 +41,22 @@ module Ibex
                    "  PRODUCTIONS: Array[Hash[Symbol, untyped]]", "  ERROR_MESSAGES: Hash[Integer, String]",
                    "  PARSER_TABLES: Hash[Symbol, untyped]", "  DEBUG_ENABLED: bool", "",
                    "  def self.parser_tables: () -> Hash[Symbol, untyped]")
+        append_parameter_contract(lines)
+      end
+
+      # @rbs (Array[String] lines) -> void
+      def append_parameter_contract(lines)
+        parameters = @grammar.parser_parameters
+        return if parameters.empty?
+
+        parameters.each do |parameter|
+          lines << "  @#{parameter[:name]}: #{parameter[:semantic_type] || 'untyped'}"
+        end
+        keywords = parameters.map do |parameter|
+          "#{parameter[:name]}: #{parameter[:semantic_type] || 'untyped'}"
+        end
+        lines << ""
+        lines << "  def initialize: (#{keywords.join(', ')}, **untyped) -> void"
       end
 
       # @rbs (Array[String] lines) -> void

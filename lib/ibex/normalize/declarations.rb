@@ -19,6 +19,7 @@ module Ibex
       @expected_conflicts = 0
       @expected_rr_conflicts = nil
       @conversions = {} #: Hash[String, String]
+      @parser_parameters = [] #: Array[IR::parser_parameter]
       @ast.declarations.each { |declaration| read_declaration(declaration) }
     end
 
@@ -35,9 +36,35 @@ module Ibex
         @explicit_start = declaration.name
         @start_location = declaration.loc
       when Frontend::AST::Convert then read_conversions(declaration)
-      when Frontend::AST::DisplayName, Frontend::AST::SemanticType then read_symbol_metadata_declaration(declaration)
+      when Frontend::AST::DisplayName, Frontend::AST::SemanticType, Frontend::AST::Parameter
+        read_extended_declaration(declaration)
       when Frontend::AST::Include then fail_at(declaration.loc, "includes must be resolved before normalization")
       end
+    end
+
+    # @rbs (Frontend::AST::symbol_metadata | Frontend::AST::Parameter declaration) -> void
+    def read_extended_declaration(declaration)
+      if declaration.is_a?(Frontend::AST::Parameter)
+        read_parser_parameter(declaration)
+      else
+        read_symbol_metadata_declaration(declaration)
+      end
+    end
+
+    # @rbs (Frontend::AST::Parameter declaration) -> void
+    def read_parser_parameter(declaration)
+      # @type self: Normalizer
+      if @parser_parameters.any? { |parameter| parameter[:name] == declaration.name }
+        fail_at(declaration.loc, "duplicate %param declaration for #{declaration.name}")
+      end
+      unless declaration.name.match?(/\A[a-z_][a-zA-Z0-9_]*\z/)
+        fail_at(declaration.loc, "%param name #{declaration.name.inspect} must be a Ruby local identifier")
+      end
+      if Normalizer::RUBY_KEYWORDS.include?(declaration.name)
+        fail_at(declaration.loc, "%param name #{declaration.name.inspect} is a Ruby keyword")
+      end
+
+      @parser_parameters << { name: declaration.name, semantic_type: declaration.semantic_type }
     end
 
     # @rbs (Frontend::AST::Tokens declaration) -> void

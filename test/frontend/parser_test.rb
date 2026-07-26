@@ -105,9 +105,28 @@ class FrontendParserTest < Minitest::Test
     assert_instance_of Ibex::Frontend::AST::Empty, ast.rules.first.alternatives.first.items.first
   end
 
+  def test_parses_typed_and_untyped_constructor_parameters
+    source = <<~GRAMMAR
+      class P
+      pragma extended
+      %param context "Hash[Symbol, Integer]"
+      %param lexer
+      rule
+      start: TOKEN
+      end
+    GRAMMAR
+    context, lexer = parse(source).declarations
+
+    assert_equal ["context", "Hash[Symbol, Integer]"], [context.name, context.semantic_type]
+    assert_nil lexer.semantic_type
+    assert_instance_of Ibex::Frontend::AST::Parameter, context
+    assert_instance_of Ibex::Frontend::AST::Parameter, lexer
+  end
+
   def test_rejects_new_declarations_without_extended_mode
     {
       "%expect-rr 0" => "expect-rr declarations require extended mode",
+      "%param context" => "%param require extended mode",
       "prechigh\n%precedence PLUS\npreclow" => "%precedence require extended mode"
     }.each do |declaration, message|
       error = assert_raises(Ibex::Error) do

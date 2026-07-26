@@ -72,6 +72,12 @@ module Ibex
                                                  loc: next_location)
         end
 
+        # @rbs (Object name, ?Object? semantic_type) -> void
+        def param(name, semantic_type = nil)
+          type = semantic_type && metadata_value(semantic_type, "%param")
+          @declarations << AST::Parameter.new(name: name.to_s, semantic_type: type, loc: next_location)
+        end
+
         # @rbs (?direction: Symbol) { (PrecedenceBuilder) -> void } -> void
         def precedence(direction: :low_to_high)
           location = next_location

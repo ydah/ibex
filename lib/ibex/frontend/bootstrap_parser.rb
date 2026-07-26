@@ -42,6 +42,7 @@ module Ibex
         location = expect_keyword("fragment").location
         extended_only!(location, "fragments")
         declarations = parse_declarations
+        reject_fragment_root_declarations(declarations)
         expect_keyword("rule")
         rules = keyword?("end") ? Array.new(0) : parse_rules #: Array[AST::Rule]
         expect_keyword("end")
@@ -52,6 +53,26 @@ module Ibex
       end
 
       private
+
+      # @rbs (Array[AST::declaration] declarations) -> void
+      def reject_fragment_root_declarations(declarations)
+        root_only = declarations.find { |declaration| fragment_root_declaration_name(declaration) }
+        return unless root_only
+
+        name = fragment_root_declaration_name(root_only)
+        fail_at(root_only.loc, "#{name} declarations are not allowed in fragments")
+      end
+
+      # @rbs (AST::declaration declaration) -> String?
+      def fragment_root_declaration_name(declaration)
+        return "options" if declaration.is_a?(AST::Options)
+        return "expect" if declaration.is_a?(AST::Expect)
+        return "%expect-rr" if declaration.is_a?(AST::ExpectRR)
+        return "%param" if declaration.is_a?(AST::Parameter)
+        return "start" if declaration.is_a?(AST::Start)
+
+        nil
+      end
 
       # @rbs () -> String
       def parse_constant_path

@@ -27,11 +27,15 @@ module Ibex
 
     RESERVED_NAMES: Array[String]
 
+    RUBY_KEYWORDS: Array[String]
+
     DEFAULT_MAX_PARAMETER_SPECIALIZATIONS: ::Integer
 
     DEFAULT_MAX_INLINE_EXPANSIONS: ::Integer
 
     @explicit_start: String?
+
+    @parser_parameters: Array[IR::parser_parameter]
 
     @conversions: Hash[String, String]
 
@@ -58,8 +62,6 @@ module Ibex
     @helper_sequence: Integer
 
     @warnings: Array[IR::grammar_warning]
-
-    @productions: Array[IR::Production]
 
     @start_name: String
 
@@ -90,6 +92,8 @@ module Ibex
     @max_inline_expansions: Integer
 
     @inline_expansion_count: Integer
+
+    @productions: Array[IR::Production]
 
     @symbols_by_name: Hash[String, IR::GrammarSymbol]
 

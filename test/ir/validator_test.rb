@@ -2,6 +2,7 @@
 
 require_relative "../test_helper"
 
+# rubocop:disable Metrics/ClassLength -- cases cover one versioned validation boundary.
 class IRValidatorTest < Minitest::Test
   FIXTURE_ROOT = File.expand_path("../fixtures/ir", __dir__)
 
@@ -76,6 +77,24 @@ class IRValidatorTest < Minitest::Test
     assert_equal "number", value.symbol("NUMBER").display_name
     assert_equal "Integer", value.symbol("NUMBER").semantic_type
     assert_nil value.symbol("PLUS").display_name
+  end
+
+  def test_validates_optional_v2_constructor_parameters
+    document = parsed_fixture("grammar-v2.json")
+    document["params"] = [
+      { "name" => "context", "semantic_type" => "Hash[Symbol, Integer]" },
+      { "name" => "lexer", "semantic_type" => nil }
+    ]
+
+    grammar = Ibex::IR::Validator.validate(JSON.generate(document))
+    assert_equal(
+      [{ name: "context", semantic_type: "Hash[Symbol, Integer]" }, { name: "lexer", semantic_type: nil }],
+      grammar.parser_parameters
+    )
+
+    document["params"] << { "name" => "class", "semantic_type" => nil }
+    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
+    assert_equal "(ir):1:1: $.params[2].name must not be a Ruby keyword", error.message
   end
 
   def test_rejects_invalid_json_with_a_position
@@ -247,3 +266,4 @@ class IRValidatorTest < Minitest::Test
     document
   end
 end
+# rubocop:enable Metrics/ClassLength

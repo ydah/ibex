@@ -27,6 +27,12 @@ module Ibex
 
       private
 
+      # @rbs (Array[AST::declaration] declarations) -> void
+      def reject_fragment_root_declarations: (Array[AST::declaration] declarations) -> void
+
+      # @rbs (AST::declaration declaration) -> String?
+      def fragment_root_declaration_name: (AST::declaration declaration) -> String?
+
       # @rbs () -> String
       def parse_constant_path: () -> String
 

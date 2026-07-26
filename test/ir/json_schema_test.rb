@@ -86,10 +86,18 @@ class IRJSONSchemaTest < Minitest::Test
     grammar_schemer = JSONSchemer.schema(grammar, ref_resolver: resolver)
     assert_empty grammar_schemer.validate(fixture("grammar-v2.json")).to_a
     assert_empty grammar_schemer.validate(fixture("grammar-v1-migrated-v2.json")).to_a
-
     automaton_schemer = JSONSchemer.schema(automaton, ref_resolver: resolver)
     assert_empty automaton_schemer.validate(fixture("automaton-v2.json")).to_a
     assert_empty automaton_schemer.validate(fixture("automaton-v1-migrated-v2.json")).to_a
+  end
+
+  def test_v2_grammar_schema_accepts_constructor_parameters
+    grammar = schema("grammar-ir-v2.schema.json")
+    resolver = ->(uri) { grammar_schema if uri.to_s == grammar_schema.fetch("$id") }
+    document = fixture("grammar-v2.json")
+    document["params"] = [{ "name" => "context", "semantic_type" => "Object" }]
+
+    assert_empty JSONSchemer.schema(grammar, ref_resolver: resolver).validate(document).to_a
   end
 
   private

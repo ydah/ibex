@@ -2,6 +2,7 @@
 
 require_relative "../test_helper"
 
+# rubocop:disable Metrics/ClassLength -- cases cover one normalization boundary.
 class NormalizerTest < Minitest::Test
   def normalize(source, mode: :racc)
     ast = Ibex::Frontend::Parser.new(source, file: "normalize.y", mode: mode).parse
@@ -103,6 +104,52 @@ class NormalizerTest < Minitest::Test
     assert_equal "HEADER\nMORE\n", grammar.user_code["header"]
   end
 
+  def test_constructor_parameters_round_trip_as_optional_v2_metadata
+    grammar = normalize(<<~GRAMMAR, mode: :extended)
+      class P
+      pragma extended
+      %param context "Hash[Symbol, Integer]"
+      %param lexer
+      rule
+      start: TOKEN
+      end
+    GRAMMAR
+
+    expected = [
+      { name: "context", semantic_type: "Hash[Symbol, Integer]" },
+      { name: "lexer", semantic_type: nil }
+    ]
+    assert_equal expected, grammar.parser_parameters
+    dumped = Ibex::IR::Serialize.dump(grammar)
+    assert_equal expected, Ibex::IR::Serialize.load(dumped).parser_parameters
+    assert_includes dumped, '"params"'
+
+    plain = normalize("class P\nrule\nstart: TOKEN\nend\n")
+    refute_includes Ibex::IR::Serialize.dump(plain), '"params"'
+  end
+
+  def test_rejects_duplicate_or_keyword_constructor_parameters
+    duplicate = <<~GRAMMAR
+      class P
+      pragma extended
+      %param context
+      %param context
+      rule
+      start: TOKEN
+      end
+    GRAMMAR
+    error = assert_raises(Ibex::Error) { normalize(duplicate) }
+    assert_includes error.message, "duplicate %param declaration for context"
+
+    keyword = "class P\npragma extended\n%param class\nrule\nstart: TOKEN\nend\n"
+    error = assert_raises(Ibex::Error) { normalize(keyword) }
+    assert_includes error.message, '%param name "class" is a Ruby keyword'
+
+    constant = "class P\npragma extended\n%param Context\nrule\nstart: TOKEN\nend\n"
+    error = assert_raises(Ibex::Error) { normalize(constant) }
+    assert_includes error.message, '%param name "Context" must be a Ruby local identifier'
+  end
+
   def test_preserves_each_user_code_chunk_location_through_ir
     grammar = normalize(<<~GRAMMAR)
       class P
@@ -194,3 +241,4 @@ class NormalizerTest < Minitest::Test
     assert_equal "(ir):1:1: unsupported schema_version 99; expected one of 1, 2", error.message
   end
 end
+# rubocop:enable Metrics/ClassLength

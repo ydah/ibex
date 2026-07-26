@@ -12,6 +12,8 @@ module Ibex
 
         V2_ROOT_REQUIRED: Array[String]
 
+        V2_ROOT_OPTIONAL: Array[String]
+
         SYMBOL_REQUIRED: Array[String]
 
         SYMBOL_OPTIONAL: Array[String]
@@ -25,6 +27,8 @@ module Ibex
         V2_ACTION_REQUIRED: Array[String]
 
         ORIGIN_KINDS: Array[String]
+
+        RUBY_KEYWORDS: Array[String]
 
         attr_reader symbols_by_id: Hash[Integer, Hash[String, untyped]]
 
@@ -54,6 +58,9 @@ module Ibex
 
         # @rbs () -> void
         def validate_options: () -> void
+
+        # @rbs () -> void
+        def validate_parser_parameters: () -> void
 
         # @rbs () -> void
         def validate_symbols: () -> void

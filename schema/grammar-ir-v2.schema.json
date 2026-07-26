@@ -52,6 +52,12 @@
     "options": {
       "$ref": "grammar-ir-v1.schema.json#/$defs/options"
     },
+    "params": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/parser_parameter"
+      }
+    },
     "symbols": {
       "type": "array",
       "minItems": 2,
@@ -95,6 +101,27 @@
   },
   "additionalProperties": false,
   "$defs": {
+    "parser_parameter": {
+      "type": "object",
+      "required": [
+        "name",
+        "semantic_type"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-zA-Z0-9_]*$"
+        },
+        "semantic_type": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
     "nullable_documentation": {
       "type": [
         "string",

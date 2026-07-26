@@ -47,6 +47,20 @@ class FrontendDSLTest < Minitest::Test
     assert(grammar.productions.any? { |production| production.origin[:kind] == :star_expansion })
   end
 
+  def test_dsl_supports_constructor_parameters
+    ast = Ibex::Frontend::DSL.grammar(class_name: "Configured") do |grammar|
+      grammar.param(:context, "Hash[Symbol, Integer]")
+      grammar.param(:lexer)
+      grammar.rule(:start) { |rule| rule.alt(:TOKEN) }
+    end
+
+    ir = Ibex::Normalizer.new(ast, mode: :extended).normalize
+    assert_equal(
+      [{ name: "context", semantic_type: "Hash[Symbol, Integer]" }, { name: "lexer", semantic_type: nil }],
+      ir.parser_parameters
+    )
+  end
+
   def test_dsl_supports_nested_groups
     ast = Ibex::Frontend::DSL.grammar(class_name: "DSLGroup") do |grammar|
       grammar.rule(:start) do |rule|
