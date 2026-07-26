@@ -2,7 +2,6 @@
 
 require "bundler/gem_tasks"
 require "rake/testtask"
-require "rubocop/rake_task"
 
 Rake::TestTask.new(:test) do |task|
   task.libs << "test"
@@ -10,7 +9,10 @@ Rake::TestTask.new(:test) do |task|
   task.warning = true
 end
 
-RuboCop::RakeTask.new(:lint)
+desc "Run RuboCop"
+task :lint do
+  sh "bundle", "exec", "rubocop"
+end
 
 namespace :frontend do
   desc "Regenerate the self-hosted grammar parser"

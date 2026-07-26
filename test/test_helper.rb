@@ -15,6 +15,9 @@ require "ibex/cli"
 require "uri"
 
 module TestURI
-  PARSER_NAME = URI.const_defined?(:RFC2396_PARSER, false) ? :RFC2396_PARSER : :DEFAULT_PARSER
-  PARSER = URI.const_get(PARSER_NAME, false)
+  PARSER = begin
+    URI::RFC2396_PARSER
+  rescue NameError
+    URI::DEFAULT_PARSER
+  end
 end
