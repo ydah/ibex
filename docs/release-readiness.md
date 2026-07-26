@@ -23,7 +23,7 @@ being promoted.
 | Three public-gem migrations | Pass with documented adapters | Namae, BCDice, and Nokogiri behavior suites below |
 | Hundreds-of-productions scale | Pass | 501 productions, 503 states, 125.008 ms average complete build |
 | Ten-case error UX comparison | Partial | 10/10 snapshots and 8/10 useful repairs are public; independent review is missing |
-| Generator and parser performance at least racc | Fail | Every measured external generator and parser loop is slower |
+| Generator and parser performance at least racc | Fail | Every measured external generator and parser loop is slower; the current internal artifact also regresses |
 | Semantic-value RBS and typed ratchet | Pass | Generated reduction signatures include declared RHS/LHS types; whole-library Steep is 88.2% typed |
 | Compatibility suite unbeaten | Pass at the measured revision | Current black-box, self-host, IR, property, and runtime suites are green |
 
@@ -73,11 +73,13 @@ portable scores.
 | BCDice | 0.23 s | 0.42 s | 1.83x slower | 0.175542 s | 1.477350 s | 8.42x slower |
 | Nokogiri CSS | 0.22 s | 0.63 s | 2.86x slower | 0.423988 s | 2.004314 s | 4.73x slower |
 
-The realistic in-repository benchmark remains the regression baseline: 139
-productions, 250 direct-LALR construction/final states, 57.605 ms generation,
-and 1.670/1.870 ms plain/compact parser observations in the committed Ruby
-4.0 artifact. It has no known deterministic or self-benchmark regression, but
-that does not satisfy the external racc comparison.
+The current realistic in-repository artifact has 139 productions, 250
+direct-LALR construction/final states, 60.328 ms generation, and 2.028/2.251
+ms plain/compact parser observations. Against the preceding artifact on the
+same Ruby/OS/CPU series, generation is 4.7% slower and runtime is 21.4%/20.4%
+slower. Deterministic Grammar IR, Automaton IR, tables, runtime result, and
+their digests are unchanged; generated output digests and sizes changed. This
+is an internal performance regression as well as an external KPI failure.
 
 ## Scale evidence
 
@@ -121,4 +123,3 @@ table cells, and opaque application Ruby boundaries.
    judgments; revise the versioned assessment if the review disagrees.
 3. Re-run every compatibility, IR, type, benchmark, and site gate on the exact
    release revision.
-
