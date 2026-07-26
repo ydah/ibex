@@ -1,0 +1,352 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/performance-comparison-v1.schema.json",
+  "title": "Ibex and Racc performance comparison v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "artifact",
+    "schema_version",
+    "recorded_at",
+    "environment",
+    "configuration",
+    "workload",
+    "commands",
+    "scenarios"
+  ],
+  "properties": {
+    "artifact": { "const": "ibex_racc_performance_comparison" },
+    "schema_version": { "const": 1 },
+    "recorded_at": { "type": "string", "format": "date-time" },
+    "environment": { "$ref": "#/$defs/environment" },
+    "configuration": { "$ref": "#/$defs/configuration" },
+    "workload": { "$ref": "#/$defs/workload" },
+    "commands": { "$ref": "#/$defs/commands" },
+    "scenarios": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cold_generation",
+        "warm_runtime_end_to_end_reuse",
+        "warm_runtime_end_to_end_new_instance",
+        "warm_runtime_tokens_reuse",
+        "warm_runtime_tokens_new_instance"
+      ],
+      "properties": {
+        "cold_generation": { "$ref": "#/$defs/generationScenario" },
+        "warm_runtime_end_to_end_reuse": { "$ref": "#/$defs/runtimeScenario" },
+        "warm_runtime_end_to_end_new_instance": { "$ref": "#/$defs/runtimeScenario" },
+        "warm_runtime_tokens_reuse": { "$ref": "#/$defs/runtimeScenario" },
+        "warm_runtime_tokens_new_instance": { "$ref": "#/$defs/runtimeScenario" }
+      }
+    }
+  },
+  "$defs": {
+    "nonNegativeNumber": { "type": "number", "minimum": 0 },
+    "positiveNumber": { "type": "number", "exclusiveMinimum": 0 },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "stringArray": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "positiveSamples": {
+      "type": "array",
+      "minItems": 10,
+      "items": { "$ref": "#/$defs/positiveNumber" }
+    },
+    "nonNegativeSamples": {
+      "type": "array",
+      "minItems": 10,
+      "items": { "$ref": "#/$defs/nonNegativeNumber" }
+    },
+    "description": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["median", "mad", "minimum", "maximum"],
+      "properties": {
+        "median": { "$ref": "#/$defs/nonNegativeNumber" },
+        "mad": { "$ref": "#/$defs/nonNegativeNumber" },
+        "minimum": { "$ref": "#/$defs/nonNegativeNumber" },
+        "maximum": { "$ref": "#/$defs/nonNegativeNumber" }
+      }
+    },
+    "metricComparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ibex", "racc", "ibex_to_racc_ratio", "bootstrap_95_percent", "target_met"],
+      "properties": {
+        "ibex": { "$ref": "#/$defs/description" },
+        "racc": { "$ref": "#/$defs/description" },
+        "ibex_to_racc_ratio": { "$ref": "#/$defs/nonNegativeNumber" },
+        "bootstrap_95_percent": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["lower", "upper", "samples", "seed"],
+          "properties": {
+            "lower": { "$ref": "#/$defs/nonNegativeNumber" },
+            "upper": { "$ref": "#/$defs/nonNegativeNumber" },
+            "samples": { "type": "integer", "minimum": 1000 },
+            "seed": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "target_met": { "type": "boolean" }
+      }
+    },
+    "generated": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bytes"],
+      "properties": {
+        "bytes": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "sizeComparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ibex_bytes", "racc_bytes", "ibex_to_racc_ratio"],
+      "properties": {
+        "ibex_bytes": { "type": "integer", "minimum": 1 },
+        "racc_bytes": { "type": "integer", "minimum": 1 },
+        "ibex_to_racc_ratio": { "$ref": "#/$defs/nonNegativeNumber" }
+      }
+    },
+    "generationImplementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observations", "statistics", "generated"],
+      "properties": {
+        "observations": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["elapsed_ms"],
+          "properties": {
+            "elapsed_ms": { "$ref": "#/$defs/positiveSamples" }
+          }
+        },
+        "statistics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["elapsed_ms"],
+          "properties": {
+            "elapsed_ms": { "$ref": "#/$defs/description" }
+          }
+        },
+        "generated": { "$ref": "#/$defs/generated" }
+      }
+    },
+    "runtimeImplementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observations",
+        "statistics",
+        "generated",
+        "result_sha256",
+        "behavior_sha256",
+        "runtime_backend"
+      ],
+      "properties": {
+        "observations": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["elapsed_ms_per_parse", "allocated_objects_per_parse"],
+          "properties": {
+            "elapsed_ms_per_parse": { "$ref": "#/$defs/positiveSamples" },
+            "allocated_objects_per_parse": { "$ref": "#/$defs/nonNegativeSamples" }
+          }
+        },
+        "statistics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["elapsed_ms_per_parse", "allocated_objects_per_parse"],
+          "properties": {
+            "elapsed_ms_per_parse": { "$ref": "#/$defs/description" },
+            "allocated_objects_per_parse": { "$ref": "#/$defs/description" }
+          }
+        },
+        "generated": { "$ref": "#/$defs/generated" },
+        "result_sha256": { "$ref": "#/$defs/sha256" },
+        "behavior_sha256": { "$ref": "#/$defs/sha256" },
+        "runtime_backend": { "enum": ["native", "ruby"] }
+      }
+    },
+    "generationScenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["implementations", "comparison"],
+      "properties": {
+        "implementations": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ibex", "racc"],
+          "properties": {
+            "ibex": { "$ref": "#/$defs/generationImplementation" },
+            "racc": { "$ref": "#/$defs/generationImplementation" }
+          }
+        },
+        "comparison": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["elapsed_ms", "generated_bytes"],
+          "properties": {
+            "elapsed_ms": { "$ref": "#/$defs/metricComparison" },
+            "generated_bytes": { "$ref": "#/$defs/sizeComparison" }
+          }
+        }
+      }
+    },
+    "runtimeScenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["implementations", "comparison"],
+      "properties": {
+        "implementations": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ibex", "racc"],
+          "properties": {
+            "ibex": { "$ref": "#/$defs/runtimeImplementation" },
+            "racc": { "$ref": "#/$defs/runtimeImplementation" }
+          }
+        },
+        "comparison": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "elapsed_ms_per_parse",
+            "allocated_objects_per_parse",
+            "generated_bytes",
+            "result_equivalent",
+            "behavior_equivalent"
+          ],
+          "properties": {
+            "elapsed_ms_per_parse": { "$ref": "#/$defs/metricComparison" },
+            "allocated_objects_per_parse": { "$ref": "#/$defs/metricComparison" },
+            "generated_bytes": { "$ref": "#/$defs/sizeComparison" },
+            "result_equivalent": { "const": true },
+            "behavior_equivalent": { "const": true }
+          }
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "git_revision",
+        "git_dirty",
+        "ruby_engine",
+        "ruby_version",
+        "ruby_platform",
+        "ruby_description",
+        "ruby_executable",
+        "host_os",
+        "host_cpu",
+        "processors",
+        "yjit_available",
+        "yjit_enabled",
+        "ibex_version",
+        "racc_version",
+        "racc_executable"
+      ],
+      "properties": {
+        "git_revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "git_dirty": { "type": "boolean" },
+        "ruby_engine": { "type": "string", "minLength": 1 },
+        "ruby_version": { "type": "string", "minLength": 1 },
+        "ruby_platform": { "type": "string", "minLength": 1 },
+        "ruby_description": { "type": "string", "minLength": 1 },
+        "ruby_executable": { "type": "string", "minLength": 1 },
+        "host_os": { "type": "string", "minLength": 1 },
+        "host_cpu": { "type": "string", "minLength": 1 },
+        "processors": { "type": "integer", "minimum": 1 },
+        "yjit_available": { "type": "boolean" },
+        "yjit_enabled": { "type": "boolean" },
+        "ibex_version": { "type": "string", "minLength": 1 },
+        "racc_version": { "type": "string", "minLength": 1 },
+        "racc_executable": { "type": "string", "minLength": 1 }
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runs",
+        "warmup",
+        "runtime_iterations",
+        "workload_seed",
+        "bootstrap_samples",
+        "confidence_level",
+        "process_order"
+      ],
+      "properties": {
+        "runs": { "type": "integer", "minimum": 10 },
+        "warmup": { "type": "integer", "minimum": 0 },
+        "runtime_iterations": { "type": "integer", "minimum": 1 },
+        "workload_seed": { "type": "integer" },
+        "bootstrap_samples": { "type": "integer", "minimum": 1000 },
+        "confidence_level": { "const": 0.95 },
+        "process_order": { "const": "alternating_per_run" }
+      }
+    },
+    "workload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "grammar",
+        "input",
+        "source_grammar_sha256",
+        "comparison_grammar_sha256",
+        "grammar_adaptation",
+        "input_sha256",
+        "effective_input_sha256",
+        "parser_class",
+        "runtime_dimensions",
+        "parser_lifecycles"
+      ],
+      "properties": {
+        "grammar": { "const": "benchmark/grammars/representative.y" },
+        "input": { "const": "benchmark/grammars/representative.input" },
+        "source_grammar_sha256": { "$ref": "#/$defs/sha256" },
+        "comparison_grammar_sha256": { "$ref": "#/$defs/sha256" },
+        "grammar_adaptation": { "const": "normalize_eof_and_add_pretokenized_driver" },
+        "input_sha256": { "$ref": "#/$defs/sha256" },
+        "effective_input_sha256": { "$ref": "#/$defs/sha256" },
+        "parser_class": { "const": "BenchmarkRepresentativeParser" },
+        "runtime_dimensions": {
+          "type": "array",
+          "prefixItems": [
+            { "const": "lexer_inclusive" },
+            { "const": "pretokenized" }
+          ],
+          "items": false
+        },
+        "parser_lifecycles": {
+          "type": "array",
+          "prefixItems": [
+            { "const": "reuse" },
+            { "const": "new_instance" }
+          ],
+          "items": false
+        }
+      }
+    },
+    "commands": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["worker", "generation"],
+      "properties": {
+        "worker": { "$ref": "#/$defs/stringArray" },
+        "generation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ibex", "racc"],
+          "properties": {
+            "ibex": { "$ref": "#/$defs/stringArray" },
+            "racc": { "$ref": "#/$defs/stringArray" }
+          }
+        }
+      }
+    }
+  }
+}
