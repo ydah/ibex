@@ -6,11 +6,22 @@ module Ibex
     module Regenerator
       GRAMMAR_PATH: String
 
+      SHADOW_GRAMMAR_PATH: String
+
       # @rbs () -> String
       def self?.generate: () -> String
 
+      # Build the non-published parameterized/inline grammar used to verify
+      # that preview composition features can describe the production
+      # frontend without changing its observable AST.
+      # @rbs () -> String
+      def self?.generate_shadow: () -> String
+
       # @rbs () -> String
       def self?.relative_grammar_path: () -> String
+
+      # @rbs () -> String
+      def self?.relative_shadow_grammar_path: () -> String
     end
   end
 end
