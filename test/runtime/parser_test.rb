@@ -47,6 +47,25 @@ class RuntimeParserTest < Minitest::Test
     def parenthesized(values, _stack) = values[1]
   end
 
+  class LegacyInitializerCalculator < Calculator
+    attr_reader :application_state, :compatible_value_stacks
+
+    # rubocop:disable Lint/MissingSuper -- this is the legacy Racc application pattern under test.
+    def initialize(tokens)
+      @tokens = tokens
+      @application_state = :preserved
+      @compatible_value_stacks = []
+      @yydebug = true
+      @yydebug_output = StringIO.new
+    end
+    # rubocop:enable Lint/MissingSuper
+
+    def next_token
+      @compatible_value_stacks << [@vstack.dup, @racc_vstack.dup, @vstack.equal?(@racc_vstack)]
+      super
+    end
+  end
+
   class RecoveringStatements < Ibex::Runtime::Parser
     TABLES = {
       format_version: Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION,
@@ -206,6 +225,20 @@ class RuntimeParserTest < Minitest::Test
 
   def test_nil_is_eof
     assert_equal 7, Calculator.new([[:INT, 7], nil]).do_parse
+  end
+
+  def test_application_initializer_without_super_gets_runtime_defaults_lazily
+    parser = LegacyInitializerCalculator.new([[:INT, 7], nil])
+    events = []
+    subscription = parser.observe { |event| events << event.type }
+
+    assert_instance_of Ibex::Runtime::ResourceLimits, parser.resource_limits
+    assert parser.yydebug
+    assert_equal 7, parser.do_parse
+    assert_equal :preserved, parser.application_state
+    assert parser.unobserve(subscription)
+    assert_includes events, :accept
+    assert_includes parser.compatible_value_stacks, [[7], [7], true]
   end
 
   def test_yyparse_uses_yielded_tokens

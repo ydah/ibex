@@ -28,6 +28,7 @@ module Ibex
 
       # @rbs () { (Event) -> void } -> Subscription
       def observe(&observer)
+        __send__(:ensure_runtime_initialized!)
         raise ArgumentError, "observe requires a block" unless observer
 
         @runtime_observation_mutex.synchronize do
@@ -41,6 +42,7 @@ module Ibex
 
       # @rbs (Subscription subscription) -> bool
       def unobserve(subscription)
+        __send__(:ensure_runtime_initialized!)
         @runtime_observation_mutex.synchronize do
           ensure_observation_thread!
           observers = @runtime_observers

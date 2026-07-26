@@ -57,6 +57,11 @@ dangling-else `expect`, error recovery, source-line conversion, and a generated 
 Precedence-resolved conflicts remain visible in Automaton IR but are excluded from the CLI conflict count and `expect`. Error
 recovery probes compare result values and the public `on_error` arguments. These tests skip when the `racc` executable is absent.
 
+Application-defined parser initializers do not have to call `super`; the runtime completes its isolated session state on first
+use while retaining application-owned instance variables. During parsing, the historical `@vstack` and `@racc_vstack` names
+both refer to the live semantic-value stack for read compatibility. They are internal aliases: applications may inspect them
+while tokenizing but must not mutate, replace, or retain them across parser sessions.
+
 ## Known differences
 
 - Generated source and internal table representations are intentionally different.
