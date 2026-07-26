@@ -100,6 +100,8 @@ module Ibex
 
       EMPTY_LOCATION_NAMES: Hash[Symbol, Integer]
 
+      @runtime_parser_tables: Hash[Symbol, untyped]?
+
       @driver_status: :idle | :pull | :push
 
       @push_status: :idle | :active | :finished
@@ -581,6 +583,9 @@ module Ibex
 
       # @rbs () -> Hash[Symbol, untyped]
       def parser_tables: () -> Hash[Symbol, untyped]
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def load_parser_tables: () -> Hash[Symbol, untyped]
 
       # @rbs (untyped action) -> bool
       def error_action?: (untyped action) -> bool

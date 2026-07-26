@@ -184,6 +184,7 @@ module Ibex
       # @rbs @cst_errors: Array[CST::Error]
       # @rbs @resource_limits: ResourceLimits
       # @rbs @recovery_attempts: Integer
+      # @rbs @runtime_parser_tables: Hash[Symbol, untyped]?
 
       # @rbs (?resource_limits: ResourceLimits) -> void
       def initialize(resource_limits: ResourceLimits.new)
@@ -337,6 +338,7 @@ module Ibex
           @runtime_lookahead_token_display = nil
           @repair_input_buffer = nil
           @repair_selected = false
+          @runtime_parser_tables = nil
         end
         nil
       end
@@ -564,6 +566,7 @@ module Ibex
         @sync_recovery_observers = nil unless preserve_existing && defined?(@sync_recovery_observers)
         @cst_errors = [] unless preserve_existing && defined?(@cst_errors)
         @recovery_attempts = 0 unless preserve_existing && defined?(@recovery_attempts)
+        @runtime_parser_tables = nil unless preserve_existing && defined?(@runtime_parser_tables)
       end
       # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
@@ -666,6 +669,7 @@ module Ibex
           end
         ensure
           @source = nil
+          @runtime_parser_tables = nil
           release_driver
         end
       end
@@ -745,11 +749,13 @@ module Ibex
         @lookahead_location = nil
         @repair_input_buffer = nil
         @repair_selected = false
+        @runtime_parser_tables = nil
         clear_sync_recovery
       end
 
       # @rbs (^() -> untyped source, ?initial_state: Integer?) -> void
       def prepare_parse(source, initial_state: nil)
+        @runtime_parser_tables = load_parser_tables
         tables = validate_parser_table_format!
         initial_state = resolve_initial_state(tables, initial_state)
 
@@ -1650,6 +1656,14 @@ module Ibex
 
       # @rbs () -> Hash[Symbol, untyped]
       def parser_tables
+        tables = @runtime_parser_tables
+        return tables if tables
+
+        load_parser_tables
+      end
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def load_parser_tables
         self.class.__send__(:parser_tables)
       rescue NoMethodError
         raise ParseError, "(tables):1:1: #{self.class} must define .parser_tables"
