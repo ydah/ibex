@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'"
+    >
+    <title>Playground — Ibex</title>
+    <meta
+      name="description"
+      content="Analyze LR grammars entirely in your browser with Ibex and ruby.wasm."
+    >
+    <link rel="stylesheet" href="../styles.css">
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="../" aria-label="Ibex home">IBEX<span aria-hidden="true">_</span></a>
+      <nav aria-label="Primary">
+        <a aria-current="page" href="./">Playground</a>
+        <a href="../api/">API</a>
+        <a href="https://github.com/ydah/ibex">GitHub</a>
+      </nav>
+    </header>
+
+    <main class="playground-main">
+      <div class="playground-heading">
+        <p class="eyebrow">BROWSER LAB</p>
+        <h1>Inspect an LR grammar.</h1>
+        <p>
+          Parse extended EBNF, compare construction algorithms, inspect conflicts and download the
+          versioned automaton IR. Press <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd> to analyze.
+        </p>
+      </div>
+
+      <form id="playground-form" class="workspace">
+        <section class="editor-panel" aria-labelledby="editor-title">
+          <div class="panel-header">
+            <h2 id="editor-title">grammar.y</h2>
+            <span class="field-label" id="source-size">0 / 100,000 bytes</span>
+          </div>
+          <label class="field-label hidden" for="grammar-source">Grammar source</label>
+          <textarea id="grammar-source" name="grammar" spellcheck="false" maxlength="100000"></textarea>
+          <div class="editor-controls">
+            <label class="field-label" for="algorithm">
+              Construction
+              <select id="algorithm" name="algorithm">
+                <option value="lalr">LALR(1) · direct</option>
+                <option value="ielr">IELR(1)</option>
+                <option value="lr1">Canonical LR(1)</option>
+                <option value="slr">SLR</option>
+              </select>
+            </label>
+            <div class="toolbar">
+              <button id="reset-button" type="button">Reset sample</button>
+              <button id="analyze-button" type="submit">Analyze grammar</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="results-panel" aria-labelledby="results-title">
+          <div class="panel-header">
+            <h2 id="results-title">Analysis</h2>
+            <span class="field-label">ruby.wasm worker</span>
+          </div>
+          <p id="status" class="status" role="status" aria-live="polite">Loading the analyzer…</p>
+
+          <dl id="summary" class="summary-grid hidden"></dl>
+
+          <section class="result-section" aria-labelledby="diagnostics-title">
+            <h3 id="diagnostics-title">Diagnostics</h3>
+            <ol id="diagnostics">
+              <li class="empty">No analysis yet.</li>
+            </ol>
+          </section>
+
+          <section class="result-section" aria-labelledby="conflicts-title">
+            <h3 id="conflicts-title">Conflicts &amp; counterexamples</h3>
+            <ol id="conflicts">
+              <li class="empty">No analysis yet.</li>
+            </ol>
+          </section>
+
+          <div id="result-actions" class="result-actions hidden">
+            <button id="download-button" type="button">Download Automaton IR</button>
+            <button id="copy-button" type="button">Copy summary</button>
+          </div>
+        </section>
+      </form>
+
+      <p class="privacy-note">
+        Analysis runs locally in a dedicated worker. Grammar actions are parsed as text and are not
+        executed. The worker is stopped if analysis exceeds 15 seconds.
+      </p>
+    </main>
+
+    <footer>
+      <p>Released under the MIT License.</p>
+      <a href="https://github.com/ydah/ibex">Source and issue tracker</a>
+    </footer>
+  </body>
+</html>

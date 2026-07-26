@@ -1,0 +1,15 @@
+{
+  "name": "ibex-project-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:site": "ruby tool/build_site.rb && esbuild site/playground/app.js site/playground/worker.js --bundle --format=esm --outdir=tmp/site/playground --loader:.wasm=file --asset-names=assets/[name]-[hash]",
+    "test:site": "npm run build:site && node --test test/site/*.test.js"
+  },
+  "dependencies": {
+    "@ruby/4.0-wasm-wasi": "2.9.3-2.9.4"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.1"
+  }
+}
