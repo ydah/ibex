@@ -11,8 +11,8 @@ class GenerationTransactionLockTest < Minitest::Test
       artifacts.add(kind: :parser, path: parser, content: "generated")
       original_new = File.method(:new)
       sleeps = 0
-      factory = lambda do |*arguments|
-        lock = original_new.call(*arguments)
+      factory = lambda do |*arguments, **keywords|
+        lock = original_new.call(*arguments, **keywords)
         original_flock = File.instance_method(:flock).bind(lock)
         lock.define_singleton_method(:flock) do |operation|
           operation.anybits?(File::LOCK_NB) ? false : original_flock.call(operation)

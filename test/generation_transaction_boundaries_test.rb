@@ -64,12 +64,12 @@ class GenerationTransactionBoundariesTest < Minitest::Test
       input = Ibex::GenerationInput.new(source, "grammar")
       original_new = File.method(:new)
       linked = false
-      factory = lambda do |*arguments|
+      factory = lambda do |*arguments, **keywords|
         unless linked
           File.symlink(source, parser)
           linked = true
         end
-        original_new.call(*arguments)
+        original_new.call(*arguments, **keywords)
       end
 
       error = File.stub(:new, factory) do
@@ -137,8 +137,8 @@ class GenerationTransactionBoundariesTest < Minitest::Test
       original_new = File.method(:new)
       attempts = 0
       sleeps = 0
-      factory = lambda do |*arguments|
-        lock = original_new.call(*arguments)
+      factory = lambda do |*arguments, **keywords|
+        lock = original_new.call(*arguments, **keywords)
         original_flock = File.instance_method(:flock).bind(lock)
         lock.define_singleton_method(:flock) do |operation|
           if operation.anybits?(File::LOCK_NB) && attempts.zero?
