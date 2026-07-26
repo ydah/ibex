@@ -1,0 +1,28 @@
+# Generated from lib/ibex/cli/debug.rb with RBS::Inline
+
+module Ibex
+  # Safe parser-table simulation subcommand.
+  module CLIDebug
+    type debug_options = { paths: Array[String], format: String, max_steps: Integer, max_stack: Integer }
+
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_debug_command: (Array[String] arguments) -> Integer
+
+    # @rbs (Array[String] arguments) -> debug_options
+    def debug_options: (Array[String] arguments) -> debug_options
+
+    # @rbs (Integer value, String name) -> Integer
+    def positive_debug_budget: (Integer value, String name) -> Integer
+
+    # @rbs (TableSimulation::Simulator simulator, String format) -> TableSimulation::Result
+    def simulate_debug_input: (TableSimulation::Simulator simulator, String format) -> TableSimulation::Result
+
+    # @rbs (TableSimulation::Result result, String format, steps_written: bool) -> void
+    def write_debug_result: (TableSimulation::Result result, String format, steps_written: bool) -> void
+
+    # @rbs (Array[TableSimulation::Step] steps) -> void
+    def write_debug_steps: (Array[TableSimulation::Step] steps) -> void
+  end
+end

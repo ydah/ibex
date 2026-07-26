@@ -1,0 +1,14 @@
+# Generated from lib/ibex/table_simulation/text.rb with RBS::Inline
+
+module Ibex
+  module TableSimulation
+    # Stable one-line renderer for simulation steps.
+    module Text
+      # @rbs (Step step) -> String
+      def self.render_step: (Step step) -> String
+
+      # @rbs (Result result) -> String
+      def self.render: (Result result) -> String
+    end
+  end
+end

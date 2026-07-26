@@ -252,6 +252,11 @@ counts the initial state plus committed shift, reduce-goto, and recovery destina
 reductions. Complete sessions and generated-parser metadata are required. Reports follow
 `schema/runtime-coverage-v1.schema.json`; see [ADR 0051](decisions/0051-deterministic-runtime-coverage.md).
 
+`ibex debug AUTOMATON.json [TOKEN...]` simulates shifts, reductions, gotos, accept, and error directly from validated Automaton
+IR. It never executes actions. When tokens are omitted, supply one terminal name or unique display name per stdin line; a blank
+line or EOF finishes the input. Use `--format=json` for `schema/table-simulation-v1.schema.json`, and bound pathological tables
+with positive `--max-steps` and `--max-stack`. See [ADR 0052](decisions/0052-safe-automaton-table-simulation.md).
+
 ## Extended EBNF and names
 
 Extended mode supports:

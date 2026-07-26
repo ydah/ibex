@@ -4,6 +4,7 @@ require "optparse"
 require_relative "../ibex"
 require_relative "cli/counterexample_options"
 require_relative "cli/coverage"
+require_relative "cli/debug"
 require_relative "cli/diagnostics"
 require_relative "cli/documentation"
 require_relative "cli/error_messages"
@@ -24,6 +25,7 @@ module Ibex
   #   end
   #   interface _CLIInput
   #     def read: () -> String
+  #     def gets: () -> String?
   #   end
   #   type cli_options = {
   #     emit: String,
@@ -81,6 +83,7 @@ module Ibex
     SUBCOMMAND_HANDLERS = {
       "diagnose" => :run_diagnose_command,
       "coverage" => :run_coverage_command,
+      "debug" => :run_debug_command,
       "doc" => :run_documentation_command,
       "errors" => :run_error_messages_command,
       "explain" => :run_explain_command,
@@ -94,6 +97,7 @@ module Ibex
 
     include CLICounterexampleOptions
     include CLICoverage
+    include CLIDebug
     include CLIDiagnostics
     include CLIDocumentation
     include CLIErrorMessages
@@ -174,6 +178,7 @@ module Ibex
         options.separator("")
         options.separator("Subcommands:")
         options.separator("    coverage                  collect, merge, or check runtime coverage")
+        options.separator("    debug AUTOMATON [TOKEN]  simulate validated Automaton IR tables")
         options.separator("    diagnose                  collect frontend diagnostics")
         options.separator("    doc                       render grammar documentation")
         options.separator("    errors --update[=FILE]  update state-specific syntax error messages")

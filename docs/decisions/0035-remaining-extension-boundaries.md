@@ -45,9 +45,10 @@ The following work requires a separately reviewed phase and ADR:
   private parser stacks. [ADR 0050](0050-stable-immutable-runtime-events.md) satisfies the runtime-event prerequisite with
   bounded immutable observations and a versioned JSON Lines adapter. [ADR
   0051](0051-deterministic-runtime-coverage.md) satisfies the coverage phase with complete-session validation, deterministic
-  mergeable reports, and independent state/production thresholds; debugger policy remains a separate phase. [ADR
-  0037](0037-versioned-conflict-explanations.md) supersedes the boundary against a separate `explain` command with a thin,
-  versioned view over existing Automaton IR and counterexamples.
+  mergeable reports, and independent state/production thresholds. [ADR
+  0052](0052-safe-automaton-table-simulation.md) satisfies the debugger phase with a bounded, semantic-action-free Automaton IR
+  table interpreter and token-at-a-time sessions. [ADR 0037](0037-versioned-conflict-explanations.md) supersedes the boundary
+  against a separate `explain` command with a thin, versioned view over existing Automaton IR and counterexamples.
 - Automated `migrate-check` and racc differential-harness generation restart with an explicit application-code execution
   boundary and sandbox story.
 - Chain-rule elimination and generated `case` dispatch restart only after the real-grammar benchmark demonstrates a repeatable

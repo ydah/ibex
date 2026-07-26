@@ -113,6 +113,20 @@ table formats, and state/production totals. Thresholds use distinct visited IDs;
 See [ADR 0051](docs/decisions/0051-deterministic-runtime-coverage.md) and
 [`schema/runtime-coverage-v1.schema.json`](schema/runtime-coverage-v1.schema.json).
 
+Inspect parser-table behavior without loading generated Ruby or executing semantic actions:
+
+```sh
+ibex --emit=automaton-ir grammar.y > automaton.json
+ibex debug automaton.json NUMBER PLUS NUMBER
+ibex debug automaton.json --format=json --max-steps=100000
+```
+
+With no token arguments, `debug` reads one terminal spelling per stdin line and finishes on a blank line or EOF. Every step shows
+the state, lookahead, explicit/default/implicit action source, reduction and goto details, and stack-depth transition. Explicit
+error masks take precedence over default reductions. See [ADR
+0052](docs/decisions/0052-safe-automaton-table-simulation.md) and
+[`schema/table-simulation-v1.schema.json`](schema/table-simulation-v1.schema.json).
+
 ## Extended mode
 
 `--mode=extended` enables optional, repeated, and separated values, named references, parameterized rule templates, and inline
@@ -427,8 +441,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 12,050 typed calls and 1,663 untyped calls out of 13,713 (87.9% typed).
-The generated signature tree contains 1,730 explicit `untyped` occurrences across 68 files.
+The current whole-library `steep stats` result is 12,290 typed calls and 1,718 untyped calls out of 14,008 (87.7% typed).
+The generated signature tree contains 1,736 explicit `untyped` occurrences across 70 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

@@ -1,0 +1,7 @@
+# Generated from lib/ibex/table_simulation.rb with RBS::Inline
+
+module Ibex
+  # Safe LR table simulation over validated Automaton IR.
+  module TableSimulation
+  end
+end
