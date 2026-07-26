@@ -21,6 +21,9 @@ The text frontend's canonical syntax is `lib/ibex/frontend/grammar.y`. Ibex gene
 the semantic values passed through `TokenAdapter`, preserving their `Location` in AST nodes and diagnostics. The explicitly named
 handwritten `BootstrapParser` is excluded from normal loading and exists only to break the regeneration cycle. See
 [ADR 0015](decisions/0015-self-hosted-grammar-frontend.md) for the update procedure and boundary.
+`lib/ibex/frontend/shadow_grammar.y` describes the same frontend with parameterized list rules and an inline terminal wrapper.
+It is generated only in tests and must match the production parser's AST across the canonical grammar and extended fixtures;
+see [ADR 0066](decisions/0066-composition-shadow-grammar.md).
 
 The lexer also retains an immutable lexical CST without changing the semantic token stream. `Frontend::Parser#parse_document`
 returns a `SourceDocument` whose source, token-indexed segments, and AST come from that single lexer/parser pass.
