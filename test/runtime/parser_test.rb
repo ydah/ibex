@@ -503,6 +503,46 @@ class RuntimeParserTest < Minitest::Test
     refute_includes output.string, "value="
   end
 
+  def test_dormant_debug_does_not_dispatch_trace_payloads
+    parsers = [
+      Calculator.new([[:INT, 1], ["+", nil], [:INT, 2]]),
+      RecoveringStatements.new([[:BAD, nil], [";", nil]])
+    ]
+
+    parsers.each do |parser|
+      trace_calls = 0
+      parser.define_singleton_method(:trace) { |_message| trace_calls += 1 }
+      parser.trace_value_printer = ->(_value) { flunk "dormant debug rendered a value" }
+
+      parser.do_parse
+      assert_equal 0, trace_calls
+    end
+  end
+
+  def test_debug_trace_bytes_and_printer_failure_containment_are_stable
+    output = StringIO.new
+    parser = Calculator.new([[:INT, 1], ["+", :plus], [:INT, 2]])
+    parser.yydebug = true
+    parser.yydebug_output = output
+    parser.trace_value_printer = ->(value) { value == :plus ? raise("hidden") : "<#{value}>" }
+
+    assert_equal 3, parser.do_parse
+    assert_equal <<~TRACE, output.string
+      ibex: start state 0
+      ibex: read INT
+      ibex: shift INT value=<1> -> state 3
+      ibex: read +
+      ibex: reduce 2 (1) value=<1> -> state 2
+      ibex: reduce 1 (1) value=<1> -> state 1
+      ibex: shift + value=<printer error: RuntimeError> -> state 5
+      ibex: read INT
+      ibex: shift INT value=<2> -> state 3
+      ibex: read $eof
+      ibex: reduce 2 (1) value=<2> -> state 7
+      ibex: reduce 0 (3) value=<3> -> state 1
+    TRACE
+  end
+
   def test_debug_trace_value_printer_is_opt_in_and_contains_formatter_failures
     output = StringIO.new
     parser = Calculator.new([[:INT, 1], ["+", :plus], [:INT, 2]])

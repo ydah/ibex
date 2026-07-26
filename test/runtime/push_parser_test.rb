@@ -73,6 +73,16 @@ class RuntimePushParserTest < Minitest::Test
     assert_equal 1, parser.finish
   end
 
+  def test_dormant_push_debug_does_not_dispatch_trace_payloads
+    parser = RuntimeParserTest::Calculator.new([])
+    trace_calls = 0
+    parser.define_singleton_method(:trace) { |_message| trace_calls += 1 }
+
+    parser.push(:INT, 1)
+    assert_equal 1, parser.finish
+    assert_equal 0, trace_calls
+  end
+
   def test_push_lifecycle_errors_are_positioned
     parser = RuntimeParserTest::Calculator.new([])
     parser.push(:INT, 1)

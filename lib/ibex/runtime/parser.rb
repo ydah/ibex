@@ -285,7 +285,7 @@ module Ibex
             @lookahead_location = location
             token_display = token_to_str(@lookahead)
             @runtime_lookahead_token_display = token_display
-            trace("read #{token_display}")
+            trace("read #{token_display}") if @yydebug
           end
           run_push_lookahead
         end
@@ -306,7 +306,7 @@ module Ibex
             @lookahead_location = location
             token_display = token_to_str(@lookahead)
             @runtime_lookahead_token_display = token_display
-            trace("read #{token_display}")
+            trace("read #{token_display}") if @yydebug
           end
           outcome = run_push_lookahead
           return outcome.fetch(1) if outcome.is_a?(Array)
@@ -757,7 +757,7 @@ module Ibex
         @unknown_token_id = nil
         @cst_errors = []
         @recovery_attempts = 0
-        trace("start state #{initial_state}")
+        trace("start state #{initial_state}") if @yydebug
         @runtime_event_sequence = 0
         return unless @runtime_observers
 
@@ -865,7 +865,7 @@ module Ibex
         value = @lookahead_value
         location = @lookahead_location
         token_display = token_to_str(token_id)
-        trace("shift #{token_display}#{trace_value_suffix(value, token_id)} -> state #{next_state}")
+        trace("shift #{token_display}#{trace_value_suffix(value, token_id)} -> state #{next_state}") if @yydebug
         event_observers = runtime_observer_snapshot if @runtime_observers
         event_data = if event_observers
                        runtime_token_data(
@@ -931,6 +931,8 @@ module Ibex
 
       # @rbs (Integer production_id, Integer length, Integer lhs, untyped result, Integer next_state) -> void
       def trace_reduction(production_id, length, lhs, result, next_state)
+        return unless @yydebug
+
         trace("reduce #{production_id} (#{length})#{trace_value_suffix(result, lhs)} -> state #{next_state}")
       end
 
@@ -1149,7 +1151,7 @@ module Ibex
         token_display = token_to_str(@lookahead)
         event_observers = runtime_observer_snapshot if @runtime_observers
         event_data = runtime_discard_data(token_display) if event_observers
-        trace("discard #{token_display} during recovery")
+        trace("discard #{token_display} during recovery") if @yydebug
         on_discard(@lookahead, @lookahead_value, @lookahead_location, :recovery)
         @lookahead = NO_LOOKAHEAD
         @lookahead_location = nil
@@ -1376,7 +1378,7 @@ module Ibex
         loop do
           action = table_lookup(parser_tables.fetch(:actions), @state_stack.last, ERROR_TOKEN)
           if action&.first == :shift
-            trace("recover: shift error -> state #{action.fetch(1)}")
+            trace("recover: shift error -> state #{action.fetch(1)}") if @yydebug
             ensure_stack_capacity!
             @state_stack << action.fetch(1)
             push_location(@lookahead_location)
@@ -1385,7 +1387,7 @@ module Ibex
           end
           return false if @state_stack.length == 1
 
-          trace("recover: pop state #{@state_stack.last}")
+          trace("recover: pop state #{@state_stack.last}") if @yydebug
           @state_stack.pop
           @value_stack.pop
           @location_stack&.pop
@@ -1449,7 +1451,7 @@ module Ibex
         @repair_input_buffer = replay_repair_edits(source, plan.edits)
         clear_repair_lookahead
         @recovery_shifts = 0
-        trace("repair cost #{plan.cost}: #{repair_trace(plan)}")
+        trace("repair cost #{plan.cost}: #{repair_trace(plan)}") if @yydebug
       end
 
       # @rbs () -> RepairInput
@@ -1557,7 +1559,7 @@ module Ibex
         end
         token_display = token_to_str(@lookahead)
         @runtime_lookahead_token_display = token_display
-        trace("read #{token_display}")
+        trace("read #{token_display}") if @yydebug
       end
 
       # @rbs (untyped external_token, untyped value, untyped location) -> RepairInput
@@ -1615,7 +1617,7 @@ module Ibex
           @unknown_token_id = input.token_id
           @unknown_token_name = input.token_name
         end
-        trace("read #{input.token_name}")
+        trace("read #{input.token_name}") if @yydebug
       end
 
       # @rbs () -> untyped

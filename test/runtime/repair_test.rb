@@ -52,6 +52,16 @@ class RuntimeRepairTest < Minitest::Test
     assert_includes shifts, [3, nil, 5]
   end
 
+  def test_dormant_repair_debug_does_not_construct_or_dispatch_trace_payloads
+    parser = RuntimeParserTest::Calculator.new([[:INT, 1], [:INT, 2]])
+    parser.repair_policy = Ibex::Runtime::RepairPolicy.new
+    trace_calls = 0
+    parser.define_singleton_method(:trace) { |_message| trace_calls += 1 }
+
+    assert_equal 3, parser.do_parse
+    assert_equal 0, trace_calls
+  end
+
   def test_equal_cost_prefers_deleting_an_extra_token_over_inventing_a_value
     parser = RuntimeParserTest::Calculator.new([[:INT, 1], ["+", nil], ["+", nil], [:INT, 2]])
     parser.repair_policy = Ibex::Runtime::RepairPolicy.new
