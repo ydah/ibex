@@ -17,6 +17,9 @@ module Ibex
       # @rbs (Token lhs) -> AST::Alternative
       def parse_alternative: (Token lhs) -> AST::Alternative
 
+      # @rbs () -> AST::NodeAnnotation?
+      def parse_node_annotation: () -> AST::NodeAnnotation?
+
       # @rbs () -> AST::item
       def parse_item: () -> AST::item
 

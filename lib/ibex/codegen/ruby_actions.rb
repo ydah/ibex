@@ -2,12 +2,15 @@
 # rbs_inline: enabled
 
 require_relative "action_method_source"
+require_relative "ruby_ast"
 
 module Ibex
   module Codegen
     # Semantic-action method generation shared by direct and source-mapped
     # Ruby output.
     module RubyActions
+      include RubyAST
+
       # @rbs @grammar: IR::Grammar
       # @rbs @line_convert: bool
       # @rbs @omit_action_call: bool
@@ -20,7 +23,11 @@ module Ibex
         @grammar.productions.each do |production|
           next unless action_method?(production)
 
-          if composed_action?(production)
+          if production.node
+            source = ast_node_action_source(production)
+            source.lines.each { |line| lines << "  #{line.rstrip}" }
+            lines << ""
+          elsif composed_action?(production)
             append_composed_action_method(lines, production)
           elsif production.action && @line_convert
             append_compiled_action_method(lines, production)
@@ -117,7 +124,7 @@ module Ibex
 
       # @rbs (IR::Production production) -> bool
       def action_method?(production)
-        !!(production.action || !@omit_action_call)
+        !!(production.node || production.action || !@omit_action_call)
       end
 
       # @rbs (IR::Production production) -> bool

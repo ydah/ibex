@@ -1,0 +1,14 @@
+# Generated from lib/ibex/normalize/nodes.rb with RBS::Inline
+
+module Ibex
+  # Validation and normalization for generated AST node declarations.
+  module NormalizeNodes
+    private
+
+    # @rbs (Frontend::AST::Alternative alternative, Array[String] rhs) -> IR::node_annotation?
+    def normalize_node_annotation: (Frontend::AST::Alternative alternative, Array[String] rhs) -> IR::node_annotation?
+
+    # @rbs (Frontend::AST::NodeAnnotation annotation, Array[String] rhs) -> void
+    def validate_node_fields: (Frontend::AST::NodeAnnotation annotation, Array[String] rhs) -> void
+  end
+end

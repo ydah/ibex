@@ -215,6 +215,35 @@ with reason `:lexical`. Application hooks that intentionally raise remain
 application-owned. See
 [ADR 0072](decisions/0072-error-tolerant-concrete-trees.md).
 
+## Generated AST nodes and traversal
+
+An extended, action-free alternative may end with an explicit node shape:
+
+```text
+rule
+  expression: expression PLUS expression @node Addition(left, operator, right)
+            | NUMBER                     @node Number(value)
+end
+```
+
+Fields map positionally to normalized RHS values. Their count must match, each
+must be a unique non-keyword Ruby local identifier, and a node name must be a
+Ruby constant identifier. Reusing a node name is allowed only with the same
+ordered fields. `@node` cannot be combined with a trailing or middle semantic
+action; write the explicit action instead when construction is not positional.
+
+The generated parser defines the classes under its `AST` module. Ruby 3.2 and
+later use `Data`; Ruby 3.0 and 3.1 use an immutable keyword-Struct compatibility
+implementation with the same readers, `deconstruct`, and `deconstruct_keys`.
+Generated RBS types each field from its grammar symbol and infers a fully
+annotated nonterminal as the union of its node classes.
+
+`AST::Visitor#visit` dispatches to `visit_<node>` and recursively visits fields
+by default. `AST::Listener#walk` calls `enter_<node>`, walks fields, and calls
+`exit_<node>`. The generated RBS enumerates every hook, so a consumer can
+subclass either base under Steep without maintaining a parallel node list. See
+[ADR 0073](decisions/0073-generated-data-ast.md).
+
 ## Productions and actions
 
 ```text

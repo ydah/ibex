@@ -283,7 +283,8 @@ module Ibex
         def validate_production(value, index)
           path = "#{@path}.productions[#{index}]"
           required = PRODUCTION_REQUIRED + (@version >= 2 ? V2_PRODUCTION_REQUIRED : [])
-          production = record(value, path, required)
+          optional = @version >= 2 ? %w[node] : Array.new(0) #: Array[String]
+          production = record(value, path, required, optional)
           id = nonnegative_integer(production["id"], "#{path}.id")
           invalid("#{path}.id", "must equal its array index #{index}") unless id == index
           @productions_by_id[id] = production
@@ -296,6 +297,27 @@ module Ibex
 
           nullable_string(production["doc"], "#{path}.doc")
           validate_expansion(production["expansion"], "#{path}.expansion")
+          validate_node_annotation(production["node"], "#{path}.node", rhs_length: production["rhs"].length)
+        end
+
+        # @rbs (untyped value, String path, rhs_length: Integer) -> void
+        def validate_node_annotation(value, path, rhs_length:)
+          return if value.nil?
+
+          node = record(value, path, %w[name fields loc])
+          name = nonempty_string(node["name"], "#{path}.name")
+          invalid("#{path}.name", "must be a Ruby constant identifier") unless name.match?(/\A[A-Z][A-Za-z0-9_]*\z/)
+          fields = array(node["fields"], "#{path}.fields")
+          invalid("#{path}.fields", "must contain #{rhs_length} entries") unless fields.length == rhs_length
+          seen = {} #: Hash[String, bool]
+          fields.each_with_index do |value, index|
+            field = nonempty_string(value, "#{path}.fields[#{index}]")
+            invalid("#{path}.fields[#{index}]", "must be a Ruby local identifier") unless
+              field.match?(/\A[a-z_][a-zA-Z0-9_]*\z/) && !RUBY_KEYWORDS.include?(field)
+            invalid("#{path}.fields[#{index}]", "duplicates field #{field.inspect}") if seen[field]
+            seen[field] = true
+          end
+          location(node["loc"], "#{path}.loc", nullable: false)
         end
 
         # @rbs (untyped value, String path) -> void

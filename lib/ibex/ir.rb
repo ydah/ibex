@@ -23,6 +23,7 @@ module Ibex
     #     on_error_reduce: Array[Array[String]]
     #   }
     #   type grammar_test = { expectation: :accept | :reject, source: String, loc: location }
+    #   type node_annotation = { name: String, fields: Array[String], loc: location }
     #   type lexer_warning = { type: :redos, rule: Integer, loc: location }
     #   type parameter_expansion = { rule: String, arguments: Array[String] }
     #   type inline_expansion = { rule: String }

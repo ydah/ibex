@@ -2,11 +2,14 @@
 # rbs_inline: enabled
 
 require_relative "action_method_source"
+require_relative "ruby_ast"
 
 module Ibex
   module Codegen
     # Generates static-check-only Ruby containing semantic action methods.
     class ActionSource
+      include RubyAST
+
       # @rbs @automaton: IR::Automaton
       # @rbs @grammar: IR::Grammar
       # @rbs @omit_action_call: bool
@@ -32,6 +35,7 @@ module Ibex
         modules, class_name = class_parts
         modules.each { |name| lines << "module #{name}" }
         lines << "class #{class_name}"
+        append_ast(lines)
         append_value_printers(lines)
         append_actions(lines)
         lines << "end"
@@ -52,7 +56,9 @@ module Ibex
       # @rbs (Array[String] lines) -> void
       def append_actions(lines)
         @grammar.productions.each do |production|
-          if composed_action?(production)
+          if production.node
+            append_method(lines, production.node.fetch(:loc), ast_node_action_source(production))
+          elsif composed_action?(production)
             append_composed_actions(lines, production)
           elsif production.action || !@omit_action_call
             append_action(lines, production)

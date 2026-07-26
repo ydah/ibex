@@ -6,6 +6,7 @@ require_relative "ruby_error_messages"
 require_relative "ruby_table_metadata"
 require_relative "ruby_value_printers"
 require_relative "ruby_lexer"
+require_relative "ruby_ast"
 
 module Ibex
   module Codegen
@@ -17,6 +18,7 @@ module Ibex
       include RubyTableMetadata
       include RubyValuePrinters
       include RubyLexer
+      include RubyAST
 
       # @rbs @automaton: IR::Automaton
       # @rbs @grammar: IR::Grammar
@@ -64,6 +66,7 @@ module Ibex
         modules, class_name = class_parts
         modules.each { |name| lines << "module #{name}" }
         lines << "class #{class_name} < #{@superclass}"
+        append_ast(lines)
         append_tables(lines)
         append_parameter_initializer(lines)
         append_entry_methods(lines)
@@ -84,6 +87,7 @@ module Ibex
         if @embedded
           lines << embedded_source("../runtime/location_span.rb")
           lines << embedded_source("../runtime/cst.rb")
+          lines << embedded_source("../runtime/ast_data.rb")
           lines << embedded_source("../runtime/event_sanitizer.rb")
           lines << embedded_source("../runtime/event.rb")
           lines << embedded_source("../runtime/observation.rb")

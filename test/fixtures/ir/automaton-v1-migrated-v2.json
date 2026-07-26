@@ -2,7 +2,7 @@
   "ibex_ir": "automaton",
   "schema_version": 2,
   "algorithm": "lalr1",
-  "grammar_digest": "sha256:c06878f2214fd599c559ec77542509e3dc24902dd26eec7b7aacf0ab5867eaa8",
+  "grammar_digest": "sha256:d3bda57988c473e14a6a1590cb6309ad41b73387bde1b88b89627d4e139bb6ba",
   "grammar": {
     "ibex_ir": "grammar",
     "schema_version": 2,
@@ -191,7 +191,9 @@
         "production_expansion",
         "action_composition",
         "grammar_tests",
-        "lexer"
+        "lexer",
+        "cst",
+        "ast_nodes"
       ]
     }
   },

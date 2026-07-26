@@ -282,17 +282,30 @@ module Ibex
                     | ({ ?name: String, ?code: String, ?loc: Location }) -> instance
       end
 
-      class Alternative < Struct[Array[item] | InlineAction? | String? | Location]
+      class Alternative < Struct[Array[item] | InlineAction? | String? | NodeAnnotation? | Location]
         attr_accessor items(): Array[item]
 
         attr_accessor action(): InlineAction?
 
         attr_accessor precedence(): String?
 
+        attr_accessor node_annotation(): NodeAnnotation?
+
         attr_accessor loc(): Location
 
-        def self.new: (?items: Array[item], ?action: InlineAction?, ?precedence: String?, ?loc: Location) -> instance
-                    | ({ ?items: Array[item], ?action: InlineAction?, ?precedence: String?, ?loc: Location }) -> instance
+        def self.new: (?items: Array[item], ?action: InlineAction?, ?precedence: String?, ?node_annotation: NodeAnnotation?, ?loc: Location) -> instance
+                    | ({ ?items: Array[item], ?action: InlineAction?, ?precedence: String?, ?node_annotation: NodeAnnotation?, ?loc: Location }) -> instance
+      end
+
+      class NodeAnnotation < Struct[String | Array[String] | Location]
+        attr_accessor name(): String
+
+        attr_accessor fields(): Array[String]
+
+        attr_accessor loc(): Location
+
+        def self.new: (?name: String, ?fields: Array[String], ?loc: Location) -> instance
+                    | ({ ?name: String, ?fields: Array[String], ?loc: Location }) -> instance
       end
 
       class SymbolReference < Struct[String | String? | Location]

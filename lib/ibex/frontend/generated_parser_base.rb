@@ -256,8 +256,8 @@ module Ibex
         fail_at(name_token.location, "invalid conversion expression: #{e.message}")
       end
 
-      # @rbs (Array[AST::item] items, Token? precedence) -> AST::Alternative
-      def build_alternative(items, precedence)
+      # @rbs (Array[AST::item] items, Token? precedence, AST::NodeAnnotation? node_annotation) -> AST::Alternative
+      def build_alternative(items, precedence, node_annotation)
         last_token = @adapter.last_token
         location = item_start_location(items.first) || precedence&.location || last_token&.location
         raise Ibex::Error, "missing alternative location" unless location
@@ -268,8 +268,18 @@ module Ibex
           items.pop
           action = last_item
         end
-        AST::Alternative.new(items: items, action: action,
-                             precedence: precedence && token_string(precedence), loc: location)
+        AST::Alternative.new(
+          items: items, action: action, precedence: precedence && token_string(precedence),
+          node_annotation: node_annotation, loc: location
+        )
+      end
+
+      # @rbs (Token marker, Token name, Array[Token] fields) -> AST::NodeAnnotation
+      def build_node_annotation(marker, name, fields)
+        extended_only!(marker.location, "@node")
+        AST::NodeAnnotation.new(
+          name: token_string(name), fields: fields.map { |field| token_string(field) }, loc: marker.location
+        )
       end
 
       # @rbs (Token token) -> AST::Empty

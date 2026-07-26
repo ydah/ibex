@@ -4,6 +4,8 @@ module Ibex
   module Codegen
     # Generates static-check-only Ruby containing semantic action methods.
     class ActionSource
+      include RubyAST
+
       @automaton: IR::Automaton
 
       @grammar: IR::Grammar

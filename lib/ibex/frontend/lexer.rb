@@ -9,6 +9,7 @@ module Ibex
         [character, character.to_sym]
       end.freeze #: Hash[String, Symbol]
       USER_CODE = /\A----[ \t]+(header|inner|footer)[ \t]*(?:\r?\n|\z)/ #: Regexp
+      NODE_DIRECTIVE = /\A@node(?=\s|\z)/ #: Regexp
       PERCENT_DIRECTIVES = {
         "%expect-rr" => [:identifier, "expect_rr"],
         "%precedence" => [:identifier, "precedence"],
@@ -79,6 +80,7 @@ module Ibex
         return ActionScanner.new(@cursor).scan if character == "{"
         return scan_scope if @cursor.rest.start_with?("::")
         return scan_percent_directive if @cursor.peek == "%"
+        return scan_node_directive if @cursor.rest.match?(NODE_DIRECTIVE)
 
         scan_regular_token(character)
       end
@@ -195,6 +197,13 @@ module Ibex
         type, value = PERCENT_DIRECTIVES.fetch(directive)
         @cursor.advance(directive.length)
         token(type, value, location)
+      end
+
+      # @rbs () -> Token
+      def scan_node_directive
+        location = @cursor.location
+        @cursor.advance("@node".length)
+        token(:node, "@node", location)
       end
 
       # @rbs () -> Token

@@ -115,6 +115,16 @@ final trivia on the root. Pass `--cst-trivia=drop` to discard it, or
 `--cst-trivia=attach` to state the default explicitly. Parsers without
 `pragma cst` keep the compatible semantic-value behavior and table shape.
 
+For a typed application AST, annotate an action-free alternative:
+
+```text
+expression: expression PLUS expression @node Addition(left, operator, right)
+```
+
+The generated parser defines immutable `AST::Addition` Data values, builds
+them on reduction, and publishes typed fields plus exhaustive `AST::Visitor`
+and `AST::Listener` hooks in generated RBS.
+
 `Ibex::Location.new(line:, column:, ...)` is the immutable built-in range type; applications may continue to pass hashes or
 their own location objects. `location.join(other)` and `Ibex::Location.join(locations)` compute covering ranges when every
 location belongs to the same file.
@@ -566,8 +576,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 15,328 typed calls and 2,046 untyped calls out of 17,374 (88.2% typed).
-The generated signature tree contains 2,074 explicit `untyped` occurrences across 80 files.
+The current whole-library `steep stats` result is 16,594 typed calls and 2,225 untyped calls out of 18,819 (88.2% typed).
+The generated signature tree contains 2,310 explicit `untyped` occurrences across 86 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

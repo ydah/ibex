@@ -1,0 +1,12 @@
+# Generated from lib/ibex/runtime/ast_data.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    # Builds Data classes on Ruby 3.2+ and an immutable Struct-compatible
+    # fallback on older supported Rubies.
+    module ASTData
+      # @rbs (*Symbol members) -> singleton(Object)
+      def self?.define: (*Symbol members) -> singleton(Object)
+    end
+  end
+end

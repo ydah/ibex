@@ -186,7 +186,9 @@
       "production_expansion",
       "action_composition",
       "grammar_tests",
-      "lexer"
+      "lexer",
+      "cst",
+      "ast_nodes"
     ]
   }
 }

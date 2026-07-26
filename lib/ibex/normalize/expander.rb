@@ -32,8 +32,9 @@ module Ibex
         add_named_reference(item, named_refs, rhs.length - 1)
       end
       action = normalize_action(alternative.action, named_refs)
+      node = normalize_node_annotation(alternative, rhs)
       add_production(rule.lhs, rhs, action, alternative.precedence,
-                     { kind: :user, loc: alternative.loc.to_h }, rule.documentation)
+                     { kind: :user, loc: alternative.loc.to_h }, rule.documentation, node)
     end
 
     # @rbs (Frontend::AST::Alternative alternative) -> Array[Frontend::AST::item]
@@ -206,8 +207,8 @@ module Ibex
     end
 
     # @rbs (String lhs_name, Array[String] rhs_names, IR::Action? action, String? precedence_name,
-    #   Hash[Symbol, untyped] origin, ?String? documentation) -> void
-    def add_production(lhs_name, rhs_names, action, precedence_name, origin, documentation = nil)
+    #   Hash[Symbol, untyped] origin, ?String? documentation, ?IR::node_annotation? node) -> void
+    def add_production(lhs_name, rhs_names, action, precedence_name, origin, documentation = nil, node = nil)
       # @type self: Normalizer
       lhs = symbol(lhs_name) || intern(lhs_name, :nonterminal, location: origin[:loc])
       rhs = rhs_names.map { |name| symbol(name)&.id || fail_hash(origin[:loc], "undefined symbol #{name}") }
@@ -215,7 +216,7 @@ module Ibex
       fail_hash(origin[:loc], "undefined precedence symbol #{precedence_name}") if precedence_name && !precedence
       @productions << IR::Production.new(id: @productions.length, lhs: lhs.id, rhs: rhs, action: action,
                                          precedence_override: precedence&.id, origin: origin,
-                                         documentation: documentation, expansion: resolved_expansion)
+                                         documentation: documentation, expansion: resolved_expansion, node: node)
     end
   end
 end

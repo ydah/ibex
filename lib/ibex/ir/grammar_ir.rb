@@ -101,10 +101,13 @@ module Ibex
       attr_reader :origin #: Hash[Symbol, untyped]
       attr_reader :documentation #: String?
       attr_reader :expansion #: production_expansion?
+      attr_reader :node #: node_annotation?
 
       # @rbs (id: Integer, lhs: Integer, rhs: Array[Integer], action: Action?, precedence_override: Integer?,
-      #   origin: Hash[Symbol, untyped], ?documentation: String?, ?expansion: production_expansion?) -> void
-      def initialize(id:, lhs:, rhs:, action:, precedence_override:, origin:, documentation: nil, expansion: nil)
+      #   origin: Hash[Symbol, untyped], ?documentation: String?, ?expansion: production_expansion?,
+      #   ?node: node_annotation?) -> void
+      def initialize(id:, lhs:, rhs:, action:, precedence_override:, origin:, documentation: nil, expansion: nil,
+                     node: nil)
         @id = id
         @lhs = lhs
         @rhs = rhs.freeze
@@ -113,6 +116,7 @@ module Ibex
         @origin = IR.deep_freeze(origin)
         @documentation = documentation&.freeze
         @expansion = IR.deep_freeze(expansion)
+        @node = IR.deep_freeze(node)
         freeze
       end
 
@@ -123,6 +127,7 @@ module Ibex
         if schema_version >= 2
           value[:doc] = @documentation
           value[:expansion] = @expansion
+          value[:node] = @node if @node
         end
         value
       end

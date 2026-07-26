@@ -21,6 +21,27 @@ module Ibex
       private
 
       # @rbs (Array[String] lines) -> void
+      def append_ast_contract: (Array[String] lines) -> void
+
+      # @rbs () -> Hash[String, IR::node_annotation]
+      def ast_node_definitions: () -> Hash[String, IR::node_annotation]
+
+      # @rbs (Array[String] lines, IR::node_annotation node) -> void
+      def append_ast_node_contract: (Array[String] lines, IR::node_annotation node) -> void
+
+      # @rbs (String name, Integer length) -> Array[String]
+      def ast_node_field_types: (String name, Integer length) -> Array[String]
+
+      # @rbs (Array[String] lines, Hash[String, IR::node_annotation] definitions) -> void
+      def append_visitor_contract: (Array[String] lines, Hash[String, IR::node_annotation] definitions) -> void
+
+      # @rbs (Array[String] lines, Hash[String, IR::node_annotation] definitions) -> void
+      def append_listener_contract: (Array[String] lines, Hash[String, IR::node_annotation] definitions) -> void
+
+      # @rbs (String name) -> String
+      def ast_method_name: (String name) -> String
+
+      # @rbs (Array[String] lines) -> void
       def append_contract: (Array[String] lines) -> void
 
       # @rbs (Array[String] lines) -> void
@@ -55,6 +76,9 @@ module Ibex
 
       # @rbs (Integer symbol_id) -> String
       def semantic_type: (Integer symbol_id) -> String
+
+      # @rbs (Integer symbol_id) -> String?
+      def inferred_ast_type: (Integer symbol_id) -> String?
 
       # @rbs () -> [Array[String], String]
       def class_parts: () -> [ Array[String], String ]

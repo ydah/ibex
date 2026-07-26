@@ -175,7 +175,8 @@ module Ibex
         Production.new(id: production.fetch("id"), lhs: production.fetch("lhs"), rhs: production.fetch("rhs"),
                        action: action, precedence_override: production["prec_override"],
                        origin: symbolize(production.fetch("origin")), documentation: production["doc"],
-                       expansion: schema_version >= 2 ? symbolize(production["expansion"]) : nil)
+                       expansion: schema_version >= 2 ? symbolize(production["expansion"]) : nil,
+                       node: schema_version >= 2 ? symbolize(production["node"]) : nil)
       end
 
       # @rbs skip

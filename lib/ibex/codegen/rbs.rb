@@ -23,6 +23,7 @@ module Ibex
         modules, class_name = class_parts
         modules.each { |name| lines << "module #{name}" }
         lines << "class #{class_name} < #{@superclass}"
+        append_ast_contract(lines)
         append_contract(lines)
         append_lexer_contract(lines)
         append_value_printer_signatures(lines)
@@ -33,6 +34,75 @@ module Ibex
       end
 
       private
+
+      # @rbs (Array[String] lines) -> void
+      def append_ast_contract(lines)
+        definitions = ast_node_definitions
+        return if definitions.empty?
+
+        lines << "  module AST"
+        definitions.each_value { |node| append_ast_node_contract(lines, node) }
+        append_visitor_contract(lines, definitions)
+        append_listener_contract(lines, definitions)
+        lines.push("  end", "")
+      end
+
+      # @rbs () -> Hash[String, IR::node_annotation]
+      def ast_node_definitions
+        @grammar.productions.filter_map(&:node).to_h { |node| [node.fetch(:name), node] }
+      end
+
+      # @rbs (Array[String] lines, IR::node_annotation node) -> void
+      def append_ast_node_contract(lines, node)
+        name = node.fetch(:name)
+        fields = node.fetch(:fields)
+        types = ast_node_field_types(name, fields.length)
+        lines << "    class #{name} < Data"
+        fields.each_with_index { |field, index| lines << "      attr_reader #{field}: #{types.fetch(index)}" }
+        keywords = fields.each_with_index.map { |field, index| "#{field}: #{types.fetch(index)}" }
+        lines << "      def self.new: (#{keywords.join(', ')}) -> instance"
+        lines << "      def initialize: (#{keywords.join(', ')}) -> void"
+        lines << "    end"
+      end
+
+      # @rbs (String name, Integer length) -> Array[String]
+      def ast_node_field_types(name, length)
+        productions = @grammar.productions.select { |production| production.node&.fetch(:name) == name }
+        Array.new(length) do |index|
+          types = productions.map { |production| semantic_type(production.rhs.fetch(index)) }.uniq
+          types.length == 1 ? types.fetch(0) : "(#{types.join(' | ')})"
+        end
+      end
+
+      # @rbs (Array[String] lines, Hash[String, IR::node_annotation] definitions) -> void
+      def append_visitor_contract(lines, definitions)
+        lines.push("    class Visitor", "      def visit: (untyped node) -> untyped")
+        definitions.each_value do |node|
+          name = node.fetch(:name)
+          lines << "      def visit_#{ast_method_name(name)}: (#{name} node) -> untyped"
+        end
+        lines.push("      def visit_children: (untyped node) -> untyped", "    end")
+      end
+
+      # @rbs (Array[String] lines, Hash[String, IR::node_annotation] definitions) -> void
+      def append_listener_contract(lines, definitions)
+        lines.push("    class Listener", "      def walk: (untyped node) -> untyped",
+                   "      def enter: (untyped node) -> void", "      def exit: (untyped node) -> void")
+        definitions.each_value do |node|
+          name = node.fetch(:name)
+          method = ast_method_name(name)
+          lines << "      def enter_#{method}: (#{name} node) -> void"
+          lines << "      def exit_#{method}: (#{name} node) -> void"
+        end
+        lines.push("      def listener_children: (untyped node) -> Array[untyped]", "    end")
+      end
+
+      # @rbs (String name) -> String
+      def ast_method_name(name)
+        name.gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
+            .gsub(/([a-z\d])([A-Z])/, '\1_\2')
+            .downcase
+      end
 
       # @rbs (Array[String] lines) -> void
       def append_contract(lines)
@@ -119,7 +189,7 @@ module Ibex
       def append_action_signature(lines, production)
         parameters = production.rhs.map { |symbol_id| semantic_type(symbol_id) }.join(", ")
         locations = Array.new(production.rhs.length, "untyped").join(", ")
-        result = semantic_type(production.lhs)
+        result = production.node ? "AST::#{production.node.fetch(:name)}" : semantic_type(production.lhs)
         lookahead = composed_action?(production) ? ", untyped" : ""
         lines << "  private def _ibex_action_#{production.id}: " \
                  "([#{parameters}], Array[untyped], [#{locations}], Array[untyped], " \
@@ -158,7 +228,7 @@ module Ibex
 
       # @rbs (IR::Production production) -> bool
       def action_method?(production)
-        !!(production.action || !@omit_action_call)
+        !!(production.node || production.action || !@omit_action_call)
       end
 
       # @rbs (IR::Production production) -> bool
@@ -169,7 +239,19 @@ module Ibex
       # @rbs (Integer symbol_id) -> String
       def semantic_type(symbol_id)
         symbol = @grammar.symbol_by_id(symbol_id) || raise(Ibex::Error, "missing grammar symbol id #{symbol_id}")
-        symbol.semantic_type || "untyped"
+        symbol.semantic_type || inferred_ast_type(symbol_id) || "untyped"
+      end
+
+      # @rbs (Integer symbol_id) -> String?
+      def inferred_ast_type(symbol_id)
+        productions = @grammar.productions.select { |production| production.lhs == symbol_id }
+        return if productions.empty? || productions.any? { |production| production.node.nil? }
+
+        names = productions.map { |production| production.node&.fetch(:name) }.compact.uniq
+        return if names.empty?
+
+        types = names.map { |name| "AST::#{name}" }
+        types.length == 1 ? types.fetch(0) : "(#{types.join(' | ')})"
       end
 
       # @rbs () -> [Array[String], String]

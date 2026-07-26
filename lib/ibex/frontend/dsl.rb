@@ -238,13 +238,14 @@ module Ibex
           @alternatives = [] #: Array[AST::Alternative]
         end
 
-        # @rbs (*Object items, ?action: Object?, ?precedence: Object?) -> void
-        def alt(*items, action: nil, precedence: nil)
+        # @rbs (*Object items, ?action: Object?, ?precedence: Object?, ?node: AST::NodeAnnotation?) -> void
+        def alt(*items, action: nil, precedence: nil, node: nil)
           location = @grammar.next_location || @default_location
           normalized = items.map { |item| @grammar.normalize_item(item) }
           action_node = action && AST::InlineAction.new(code: action.to_s, loc: location)
           alternative = AST::Alternative.new(
-            items: normalized, action: action_node, precedence: precedence&.to_s, loc: location
+            items: normalized, action: action_node, precedence: precedence&.to_s,
+            node_annotation: node, loc: location
           )
           @alternatives << alternative
         end

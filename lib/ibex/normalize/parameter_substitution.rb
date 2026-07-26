@@ -12,7 +12,7 @@ module Ibex
       Frontend::AST::Alternative.new(
         items: alternative.items.map { |item| substitute_parameter_item(item, bindings) },
         action: alternative.action, precedence: substitute_parameter_precedence(alternative, bindings),
-        loc: alternative.loc
+        node_annotation: alternative.node_annotation, loc: alternative.loc
       )
     end
 

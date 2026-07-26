@@ -28,6 +28,7 @@ module Ibex
       @on_error_reduce_locations = {} #: Hash[String, Frontend::Location]
       @grammar_tests = [] #: Array[IR::grammar_test]
       @lexer_declaration = nil #: Frontend::AST::Lexer?
+      @node_shapes = {} #: Hash[String, Array[String]]
       @ast.declarations.each { |declaration| read_declaration(declaration) }
     end
 

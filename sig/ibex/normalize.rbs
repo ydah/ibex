@@ -23,6 +23,8 @@ module Ibex
 
     include NormalizeNamedReferences
 
+    include NormalizeNodes
+
     include NormalizeExpander
 
     include NormalizeInlineExpansion
@@ -37,7 +39,7 @@ module Ibex
 
     DEFAULT_MAX_INLINE_EXPANSIONS: ::Integer
 
-    @inline_expansion_count: Integer
+    @explicit_starts: Array[String]?
 
     @lexer_declaration: Frontend::AST::Lexer?
 
@@ -71,6 +73,10 @@ module Ibex
 
     @precedence: Hash[String, IR::precedence]
 
+    @node_shapes: Hash[String, Array[String]]
+
+    @inline_expansion_count: Integer
+
     @max_inline_expansions: Integer
 
     @inline_rule_by_symbol: Hash[Integer, String]
@@ -100,8 +106,6 @@ module Ibex
     @start_name: String
 
     @start_names: Array[String]
-
-    @explicit_starts: Array[String]?
 
     @declared_tokens: Hash[String, IR::location]
 
