@@ -2,6 +2,7 @@
 
 require_relative "../test_helper"
 require "stringio"
+require "timeout"
 
 # rubocop:disable Metrics/ClassLength -- cases cover one stateful runtime contract.
 class RuntimeParserTest < Minitest::Test
@@ -218,6 +219,24 @@ class RuntimeParserTest < Minitest::Test
     def self.parser_tables = TABLES
   end
 
+  class NegativeReductionLengthParser < Ibex::Runtime::Parser
+    TABLES = {
+      productions: [{ lhs: 2, length: -1 }],
+      gotos: [{}]
+    }.freeze
+
+    def self.parser_tables = TABLES
+  end
+
+  class OversizedReductionLengthParser < Ibex::Runtime::Parser
+    TABLES = {
+      productions: [{ lhs: 2, length: 1_000_000_000 }],
+      gotos: [{}, {}]
+    }.freeze
+
+    def self.parser_tables = TABLES
+  end
+
   def test_do_parse_handles_symbol_string_and_false_eof
     parser = Calculator.new([[:INT, 1], ["+", "+"], ["(", "("], [:INT, 2], ["+", "+"], [:INT, 3], [")", ")"], false])
     assert_equal 6, parser.do_parse
@@ -290,6 +309,47 @@ class RuntimeParserTest < Minitest::Test
 
     assert_empty error.expected_tokens
     assert_empty parser.exact_at_error
+  end
+
+  def test_exact_reduction_preserves_the_native_negative_length_error
+    stack = [0]
+
+    error = assert_raises(ArgumentError) do
+      NegativeReductionLengthParser.new.send(:exact_reduction_applied?, stack, 0)
+    end
+
+    assert_match(/negative array size/, error.message)
+    assert_equal [0], stack
+  end
+
+  def test_exact_reduction_rejects_an_oversized_length_without_changing_the_stack
+    stack = [0]
+
+    result = Timeout.timeout(1) do
+      OversizedReductionLengthParser.new.send(:exact_reduction_applied?, stack, 0)
+    end
+
+    refute result
+    assert_equal [0], stack
+  end
+
+  def test_oversized_reduction_fails_promptly_and_keeps_stacks_aligned
+    parser = OversizedReductionLengthParser.new
+    states = [0, 1]
+    values = [:value]
+    locations = [nil]
+    parser.instance_variable_set(:@state_stack, states)
+    parser.send(:install_value_stack, values)
+    parser.instance_variable_set(:@location_stack, locations)
+
+    assert_raises(TypeError) do
+      Timeout.timeout(1) { parser.send(:reduce, 0) }
+    end
+    assert_empty states
+    assert_empty values
+    assert_empty locations
+    assert_same values, parser.instance_variable_get(:@vstack)
+    assert_same values, parser.instance_variable_get(:@racc_vstack)
   end
 
   def test_recovery_discards_bad_input_and_continues

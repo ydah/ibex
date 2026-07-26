@@ -637,6 +637,11 @@ module Ibex
         length = production.fetch(:length)
         return false if length >= stack.length
 
+        if length.negative?
+          stack.pop(length)
+          return false
+        end
+
         remaining = length
         while remaining.positive?
           stack.pop
@@ -910,7 +915,7 @@ module Ibex
       end
 
       # @rbs (Integer production_id) -> untyped
-      def reduce(production_id) # rubocop:disable Metrics/AbcSize -- allocation-free hot-path stack truncation.
+      def reduce(production_id) # rubocop:disable Metrics -- allocation-free hot path.
         production = parser_tables.fetch(:productions).fetch(production_id)
         length = production.fetch(:length)
         event_observers = runtime_observer_snapshot if @runtime_observers
@@ -918,11 +923,17 @@ module Ibex
         values = @value_stack.last(length)
         locations = pop_reduction_locations(length)
         hook_values = values.dup
-        remaining = length
-        while remaining.positive?
-          @state_stack.pop
-          @value_stack.pop
-          remaining -= 1
+        # Array#last above preserves the native negative-length exception before either stack mutates.
+        if length <= @value_stack.length && length < @state_stack.length
+          remaining = length
+          while remaining.positive?
+            @state_stack.pop
+            @value_stack.pop
+            remaining -= 1
+          end
+        else
+          @state_stack.pop(length)
+          @value_stack.pop(length)
         end
         post_state = @state_stack.last if event_observers
         location = LocationSpan.for_reduction(locations, lookahead: @lookahead_location)
