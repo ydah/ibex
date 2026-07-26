@@ -83,3 +83,14 @@ bundle exec ruby benchmark/runtime_events.rb
 
 Its `without_observer` counts must remain zero; `with_observer` reports event, semantic-summary, and location-summary
 construction so reviews can detect accidental work on the dormant path.
+
+The compatibility-preserving generated `case` candidate has a separate ADR 0038 experiment. It retains the parser tables for
+debugging, repair, and public table inspection, injects only the runtime lookup override, verifies result/Automaton digests, and
+runs every observation in a fresh process:
+
+```sh
+benchmark/optimization_candidates.rb --runs 5 --warmup 100 --iterations 1000 --output tmp/optimization.json
+```
+
+Run the same command on at least two supported MRI versions before changing the optimization decision. The report also records
+the representative grammar's unit-production surface; it does not rewrite production identities.
