@@ -62,6 +62,9 @@ use while retaining application-owned instance variables. During parsing, the hi
 both refer to the live semantic-value stack for read compatibility. They are internal aliases: applications may inspect them
 while tokenizing but must not mutate, replace, or retain them across parser sessions.
 
+An unqualified `ParseError` in a parser method or semantic action resolves through `Runtime::Parser`, so application actions can
+keep their existing explicit rejection path. Structured failures remain available as `Ibex::Runtime::ParseError`.
+
 ## Known differences
 
 - Generated source and internal table representations are intentionally different.

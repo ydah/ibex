@@ -76,6 +76,8 @@ module Ibex
 
       include ParserSyncRecovery
 
+      ParseError: singleton(Ibex::Runtime::ParseError)
+
       EOF_TOKEN: Integer
 
       ERROR_TOKEN: Integer
@@ -90,23 +92,23 @@ module Ibex
 
       EMPTY_LOCATION_NAMES: Hash[Symbol, Integer]
 
-      @lookahead_value: untyped
-
-      @lookahead_location: untyped
-
-      @recovery_shifts: Integer
-
-      @semantic_error: bool
-
-      @accept_requested: bool
-
-      @unknown_token_id: Integer?
-
-      @unknown_token_name: String?
+      @driver_status: :idle | :pull | :push
 
       @push_status: :idle | :active | :finished
 
-      @driver_status: :idle | :pull | :push
+      @unknown_token_name: String?
+
+      @unknown_token_id: Integer?
+
+      @accept_requested: bool
+
+      @semantic_error: bool
+
+      @recovery_shifts: Integer
+
+      @lookahead_location: untyped
+
+      @lookahead_value: untyped
 
       @lookahead: untyped
 
