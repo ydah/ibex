@@ -73,6 +73,14 @@ class FrontendFormatterTest < Minitest::Test
     assert_equal formatted, format(formatted)
   end
 
+  def test_preserves_a_user_code_section_that_terminates_rules
+    source = "class P\nrule\nstart:TOKEN\n---- inner\ndef helper = true\n"
+    formatted = format(source)
+
+    assert_equal "class P\nrule\n  start : TOKEN\n---- inner\ndef helper = true\n", formatted
+    assert_equal formatted, format(formatted)
+  end
+
   def test_treats_every_supported_heredoc_delimiter_as_opaque
     source = <<~'GRAMMAR'
       class P

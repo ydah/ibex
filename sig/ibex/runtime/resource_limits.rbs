@@ -20,11 +20,11 @@ module Ibex
 
       private
 
-      # @rbs (untyped value, Symbol name) -> void
-      def validate_positive_integer: (untyped value, Symbol name) -> void
+      # @rbs (Integer value, Symbol name) -> void
+      def validate_positive_integer: (Integer value, Symbol name) -> void
 
-      # @rbs (untyped value, Symbol name) -> void
-      def validate_nonnegative_integer: (untyped value, Symbol name) -> void
+      # @rbs (Integer value, Symbol name) -> void
+      def validate_nonnegative_integer: (Integer value, Symbol name) -> void
     end
   end
 end

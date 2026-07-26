@@ -140,6 +140,9 @@ module Ibex
       # @rbs (AST::user_code blocks, Token token) -> AST::user_code
       def append_user_code: (AST::user_code blocks, Token token) -> AST::user_code
 
+      # @rbs (Token token, AST::user_code blocks) -> AST::user_code
+      def prepend_user_code: (Token token, AST::user_code blocks) -> AST::user_code
+
       # @rbs () -> AST::user_code
       def empty_user_code: () -> AST::user_code
 
