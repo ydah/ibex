@@ -199,6 +199,14 @@ For compatibility with version-2 documents produced before ADR 0046, the input s
 shape. `IR::Migration.to_version` upgrades version 1 to 2 and is idempotent at version 2. The CLI exposes this as
 `ibex migrate-ir INPUT --to=2 [-o FILE]`; file output uses an atomic same-directory rename and refuses to alias the input.
 
+The v1 stabilization freeze covers required core fields, meanings, ordering,
+identity, and validation behavior. The future `x-` experimental namespace is
+outside that freeze, but current schemas remain closed and reject unknown
+fields. Experimental data must therefore begin in a new additive schema
+version rather than weakening an existing document. See
+[stability and deprecation](stability.md) and
+[ADR 0081](decisions/0081-v1-stability-and-research-boundaries.md).
+
 `Codegen::Documentation` renders normalized user rules and alternatives as escaped Markdown, self-contained accessible HTML, or
 railroad SVG. The railroad renderer includes visible wrapped rule descriptions in its section-height calculation and exposes the
 full escaped text through SVG descriptions. `ibex doc` resolves the same canonical include graph and writes to stdout or an
