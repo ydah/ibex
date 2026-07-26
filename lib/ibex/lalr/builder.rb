@@ -9,7 +9,7 @@ module Ibex
     class Builder
       AUGMENTED_PRODUCTION = -1 #: Integer
 
-      ALGORITHMS = %i[slr lalr lr1].freeze #: Array[Symbol]
+      ALGORITHMS = %i[slr lalr ielr lr1].freeze #: Array[Symbol]
       LALR_STRATEGIES = %i[direct canonical_merge].freeze #: Array[Symbol]
 
       # @rbs @grammar: IR::Grammar
@@ -60,13 +60,19 @@ module Ibex
           strategy: strategy
         )
         IR::Automaton.new(grammar: @grammar, states: states, conflict_summary: summary,
-                          algorithm: @algorithm == :lalr ? "lalr1" : @algorithm.to_s)
+                          algorithm: algorithm_name)
       end
 
       private
 
       # @rbs () -> [Array[packed_items], transitions, Integer, Integer?, Symbol]
       def automaton_collection
+        if @algorithm == :ielr
+          states, transitions = canonical_collection
+          items, merged_transitions = IELRPartition.new(@grammar, states, transitions).build
+          return [items, merged_transitions, states.length, states.length, :ielr_partition]
+        end
+
         if @algorithm == :lr1
           states, transitions = canonical_collection
           return [pack_canonical_items(states), transitions, states.length, states.length, :canonical_lr1]
@@ -82,6 +88,11 @@ module Ibex
         items, transitions = DirectLookaheads.new(@grammar, @sets).build
         apply_slr_lookaheads(items) if @algorithm == :slr
         [items, transitions, items.length, nil, :direct_lalr]
+      end
+
+      # @rbs () -> String
+      def algorithm_name
+        { lalr: "lalr1", ielr: "ielr1" }.fetch(@algorithm, @algorithm.to_s)
       end
 
       # @rbs () -> [Array[item_set], transitions]

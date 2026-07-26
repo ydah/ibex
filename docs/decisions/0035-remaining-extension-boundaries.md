@@ -59,7 +59,8 @@ The following work requires a separately reviewed phase and ADR:
   optimization becomes the default without its own qualifying comparison.
 
 [ADR 0054](0054-direct-lalr-lookahead-propagation.md) completes Direct LALR with byte-equivalence coverage and a canonical
-reference strategy. IELR, ruby.wasm, mutation testing, and Pages/YARD publication retain the remaining entry criteria in ADR
+reference strategy. [ADR 0055](0055-ielr-inadequacy-elimination.md) completes the IELR backend with a conservative
+LR(1)-equivalent partition. ruby.wasm, mutation testing, and Pages/YARD publication retain the remaining entry criteria in ADR
 0024. GLR, PEG, incremental parsing, and an integrated lexer remain outside the focused deterministic-LR product scope.
 
 ## Consequences

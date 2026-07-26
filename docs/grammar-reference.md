@@ -291,7 +291,7 @@ Grammar IR retains structured diagnostics for undeclared or unused terminals, un
 unused precedence declarations, explicitly declared terminals used only by unreachable rules, and a start symbol that cannot
 derive any terminal sentence. They remain silent by default for compatibility. `--warnings=all` prints them,
 `--warnings=all,error` or `--warnings=error` promotes them to command failures, and `--warnings=none` explicitly suppresses them.
-An unexpected LALR conflict also gets an advisory `--algorithm=lr1` note when canonical LR(1) removes at least one unresolved
+An unexpected LALR conflict also gets an advisory `--algorithm=ielr` note when IELR removes at least one unresolved
 conflict; this note does not change generation or exit status.
 
 ## Transactional generation and watch mode
@@ -346,7 +346,7 @@ Grammar IR, so it is also available before automaton construction and when resum
 
 `ibex explain grammar.y` is the focused conflict view. `--state=N` and `--token=NAME` select their intersection;
 `--format=text|json` chooses step-by-step text or the version-1 document described by `schema/explain-v1.schema.json`.
-`--algorithm=slr|lalr|lr1` selects construction, `--mode=racc|extended` applies the same frontend mode as generation, and both
+`--algorithm=slr|lalr|ielr|lr1` selects construction, `--mode=racc|extended` applies the same frontend mode as generation, and both
 counterexample budget options bound its witness search. Search runs only after state and token selection and only for matching
 conflicts. Token selectors prefer a canonical grammar name, then an exact unique display name. Unknown or ambiguous selectors
 are errors; valid selectors with no matching conflict succeed with an empty result.

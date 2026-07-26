@@ -41,7 +41,8 @@ met:
   a deterministic LR(0)-item propagation graph and a retained reference strategy.
 - **IELR:** direct LALR is stable, a published algorithm is selected, and the
   phase has fixtures proving LALR inadequacy, LR(1) correctness, and the
-  intended state-count bound.
+  intended state-count bound. [ADR 0055](0055-ielr-inadequacy-elimination.md) completes this phase with conservative action
+  compatibility, transition-partition refinement, exhaustive fixture equivalence, and an `ielr1` IR identity.
 - **Caller-driven push API:** a lifecycle ADR specifies start, push, finish,
   acceptance, repeated-use, and error-recovery results without redefining the
   existing compatible `yyparse(receiver, method)` API. This entry criterion has

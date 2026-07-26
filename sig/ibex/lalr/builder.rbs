@@ -38,6 +38,9 @@ module Ibex
       # @rbs () -> [Array[packed_items], transitions, Integer, Integer?, Symbol]
       def automaton_collection: () -> [ Array[packed_items], transitions, Integer, Integer?, Symbol ]
 
+      # @rbs () -> String
+      def algorithm_name: () -> String
+
       # @rbs () -> [Array[item_set], transitions]
       def canonical_collection: () -> [ Array[item_set], transitions ]
 

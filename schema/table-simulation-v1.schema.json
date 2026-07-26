@@ -19,7 +19,7 @@
       "type": "string",
       "pattern": "^sha256:[0-9a-f]{64}$"
     },
-    "algorithm": { "enum": ["slr", "lalr1", "lr1"] },
+    "algorithm": { "enum": ["slr", "lalr1", "ielr1", "lr1"] },
     "tokens": {
       "type": "array",
       "items": { "type": "string" },

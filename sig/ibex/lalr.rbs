@@ -16,6 +16,8 @@ module Ibex
 
     type lookahead_node = [ Integer, Integer, Integer ]
 
+    type state_partition = Array[Integer]
+
     type derivation_node = Hash[Symbol, untyped]
 
     type search_status = :conflict | :shifted | :accepted

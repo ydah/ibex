@@ -68,23 +68,23 @@ module Ibex
     end
 
     # @rbs (IR::Automaton automaton, String input_path) -> void
-    def suggest_lr1(automaton, input_path)
+    def suggest_ielr(automaton, input_path)
       return unless automaton.algorithm == "lalr1"
       return unless [nil, :lalr].include?(@options[:algorithm])
 
       summary = automaton.conflict_summary
       return if summary[:expectation_met] && summary[:rr].zero?
 
-      lr1 = LALR::Builder.new(automaton.grammar, algorithm: :lr1).build
-      removed_sr = [summary[:sr] - lr1.conflict_summary[:sr], 0].max
-      removed_rr = [summary[:rr] - lr1.conflict_summary[:rr], 0].max
+      ielr = LALR::Builder.new(automaton.grammar, algorithm: :ielr).build
+      removed_sr = [summary[:sr] - ielr.conflict_summary[:sr], 0].max
+      removed_rr = [summary[:rr] - ielr.conflict_summary[:rr], 0].max
       avoided = [] #: Array[String]
       avoided << conflict_count(removed_sr, "shift/reduce") if removed_sr.positive?
       avoided << conflict_count(removed_rr, "reduce/reduce") if removed_rr.positive?
       return if avoided.empty?
 
-      @stderr.puts("#{input_path}:1:1: note: --algorithm=lr1 avoids #{avoided.join(' and ')}; " \
-                   "consider --algorithm=lr1")
+      @stderr.puts("#{input_path}:1:1: note: --algorithm=ielr avoids #{avoided.join(' and ')}; " \
+                   "consider --algorithm=ielr")
     end
 
     # @rbs (Integer count, String kind) -> String

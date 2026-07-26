@@ -24,6 +24,7 @@
       "enum": [
         "slr",
         "lalr1",
+        "ielr1",
         "lr1"
       ]
     },

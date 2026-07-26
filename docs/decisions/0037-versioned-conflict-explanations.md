@@ -15,7 +15,7 @@ selection, machine-readable output, and a focused step-by-step view now justifie
 ## Decision
 
 Add `ibex explain` as a read-only view over a freshly built Automaton IR and
-`Ibex::LALR::Counterexample`. It supports the three existing construction algorithms, racc and extended frontend modes, optional
+`Ibex::LALR::Counterexample`. It supports all deterministic construction algorithms, racc and extended frontend modes, optional
 state and token selectors, text or JSON output, and the existing positive counterexample search budgets. State and token
 selectors may be combined and select their intersection. The view filters conflicts before calling the selected-conflict
 counterexample API, so excluded conflicts consume no search budget; the existing all-conflict API remains compatible.

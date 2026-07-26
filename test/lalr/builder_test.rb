@@ -206,11 +206,57 @@ class LALRBuilderTest < Minitest::Test
       end
     GRAMMAR
     lalr = build(source, algorithm: :lalr)
+    ielr = build(source, algorithm: :ielr)
     lr1 = build(source, algorithm: :lr1)
-    assert_operator lalr.conflict_summary[:rr], :>, 0
-    assert_equal 0, lr1.conflict_summary[:rr]
-    assert_operator lr1.states.length, :>, lalr.states.length
+    assert_ielr_conflict_behavior(lalr, ielr, lr1)
+    validated = Ibex::IR::Validator.validate(Ibex::IR::Serialize.dump(ielr))
+    assert_equal Ibex::IR::Serialize.dump(ielr), Ibex::IR::Serialize.dump(validated)
     assert_equal "lr1", lr1.algorithm
+  end
+
+  def test_ielr_merges_compatible_states_while_splitting_an_inadequate_core
+    source = <<~GRAMMAR
+      class P
+      rule
+      start: problem | 'x' pair pair
+      problem: 'a' first 'd'
+             | 'b' first 'e'
+             | 'a' second 'e'
+             | 'b' second 'd'
+      first: 'c'
+      second: 'c'
+      pair: 'm' pair | 'n'
+      end
+    GRAMMAR
+
+    lalr = build(source, algorithm: :lalr)
+    ielr = build(source, algorithm: :ielr)
+    lr1 = build(source, algorithm: :lr1)
+
+    assert_ielr_conflict_behavior(lalr, ielr, lr1)
+    assert_operator ielr.states.length, :>, lalr.states.length
+    assert_operator ielr.states.length, :<, lr1.states.length
+    assert_simulation_equivalence(ielr, lr1)
+  end
+
+  def assert_simulation_equivalence(ielr, lr1)
+    terminals = ["'a'", "'b'", "'c'", "'d'", "'e'"]
+    sentences = (0..4).flat_map { |length| terminals.repeated_permutation(length).to_a }
+    ielr_simulator = Ibex::TableSimulation::Simulator.new(ielr)
+    lr1_simulator = Ibex::TableSimulation::Simulator.new(lr1)
+    sentences.each do |sentence|
+      assert_equal lr1_simulator.simulate(sentence).status, ielr_simulator.simulate(sentence).status, sentence.inspect
+    end
+  end
+
+  def assert_ielr_conflict_behavior(lalr, ielr, lr1)
+    assert_operator lalr.conflict_summary[:rr], :>, 0
+    assert_equal 0, ielr.conflict_summary[:rr]
+    assert_equal 0, lr1.conflict_summary[:rr]
+    assert_equal lr1.conflict_summary, ielr.conflict_summary
+    assert_operator ielr.states.length, :>=, lalr.states.length
+    assert_operator ielr.states.length, :<=, lr1.states.length
+    assert_equal "ielr1", ielr.algorithm
   end
 
   def test_lalr_avoids_slr_follow_set_conflict
