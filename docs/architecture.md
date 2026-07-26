@@ -288,6 +288,12 @@ extended additively by [ADR 0061](decisions/0061-lazy-semantic-locations-and-run
 symbol printers are optional IR v2 metadata compiled into private methods and an id-indexed table; see
 [ADR 0063](decisions/0063-declarative-debug-value-printers.md).
 
+Ordinary generated tables are recursively frozen and made Ractor-shareable. Threads and Ractors share those tables but parse
+through distinct instances; stacks, lookahead, lexer state, callbacks, observers, and semantic values are session-owned. A
+single instance rejects overlapping drivers. Immutable `Runtime::ResourceLimits` values bound every stack push and recovery
+entry with finite defaults. Exhaustion raises the structured `ResourceLimitError`; see
+[ADR 0075](decisions/0075-isolated-runtime-sessions-and-budgets.md).
+
 Extended Grammar IR v2 may additionally carry synchronization terminals and ordered `%on_error_reduce` groups. Table
 construction fills only otherwise erroneous ACTION cells with a unique highest-priority completed declared production. At
 runtime, an explicit shift of the synthetic `error` token always wins; only when it is unavailable does panic recovery discard

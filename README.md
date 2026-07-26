@@ -177,6 +177,20 @@ error callback. Push parsing can return `:need_more` while it buffers enough evi
 allocation, exception, and recovery path. See [ADR
 0053](docs/decisions/0053-bounded-minimum-cost-runtime-repair.md).
 
+Parser sessions also have independent hard resource budgets:
+
+```ruby
+limits = Ibex::Runtime::ResourceLimits.new(
+  max_stack_depth: 2_000,
+  max_recovery_attempts: 20
+)
+parser = GeneratedParser.new(resource_limits: limits)
+```
+
+Generated table constants are immutable and shareable across threads and Ractors, but each concurrent parse must use its own
+parser instance. Exceeding either budget raises `Ibex::ResourceLimitError` with structured `resource`, `limit`, `observed`,
+`state`, and `location` data. A limit may be replaced on an idle instance without regenerating the parser.
+
 Collect deterministic state and production coverage from one or more complete event streams without loading generated parsers:
 
 ```sh
@@ -576,8 +590,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 16,594 typed calls and 2,225 untyped calls out of 18,819 (88.2% typed).
-The generated signature tree contains 2,310 explicit `untyped` occurrences across 86 files.
+The current whole-library `steep stats` result is 16,639 typed calls and 2,230 untyped calls out of 18,869 (88.2% typed).
+The generated signature tree contains 2,328 explicit `untyped` occurrences across 87 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

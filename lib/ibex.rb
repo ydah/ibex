@@ -40,4 +40,5 @@ require_relative "ibex/codegen/documentation"
 # Ibex generates and runs Pure Ruby LR parsers.
 module Ibex
   ParseError = Runtime::ParseError #: singleton(Runtime::ParseError)
+  ResourceLimitError = Runtime::ResourceLimitError #: singleton(Runtime::ResourceLimitError)
 end
