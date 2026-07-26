@@ -383,12 +383,26 @@ module Ibex
       # Return token names accepted in the current parser state.
       # @rbs () -> Array[String]
       def expected_tokens
+        return expected_tokens_exact if parser_tables[:exact_expected_tokens]
         return [] if @state_stack.empty?
 
         state = @state_stack.last
         parser_tables.fetch(:token_names).keys.filter_map do |token_id|
           action = table_lookup(parser_tables.fetch(:actions), state, token_id) || default_action(state) || [:error]
           token_to_str(token_id) unless error_action?(action) || token_id == ERROR_TOKEN
+        end
+      end
+
+      # Return token names that survive all required default reductions.
+      # Semantic actions are not evaluated during this lookahead correction.
+      # @rbs () -> Array[String]
+      def expected_tokens_exact
+        return [] if @state_stack.empty?
+
+        parser_tables.fetch(:token_names).keys.filter_map do |token_id|
+          next if token_id == ERROR_TOKEN
+
+          token_to_str(token_id) if exact_lookahead_accepted?(token_id)
         end
       end
 
@@ -423,6 +437,60 @@ module Ibex
       end
 
       private
+
+      # @rbs (Integer token_id) -> bool
+      def exact_lookahead_accepted?(token_id)
+        stack = @state_stack.dup
+        seen = {} #: Hash[Array[Integer], bool]
+        remaining = exact_lookahead_step_budget(stack.length)
+        loop do
+          return false unless remaining.positive?
+          return false if seen.key?(stack)
+
+          remaining -= 1
+          seen[stack.dup.freeze] = true
+          state = stack.last
+          action = table_lookup(parser_tables.fetch(:actions), state, token_id) || default_action(state) || [:error]
+          case action.first
+          when :shift, :accept then return true
+          when :error then return false
+          end
+          return false unless action.first == :reduce
+          return false unless exact_reduction_applied?(stack, action.fetch(1))
+        end
+      end
+
+      # @rbs (Integer stack_depth) -> Integer
+      def exact_lookahead_step_budget(stack_depth)
+        tables = parser_tables
+        actions = tables.fetch(:actions)
+        state_count = tables[:state_count]
+        unless state_count.is_a?(Integer)
+          state_count = actions.respond_to?(:row_count) ? actions.row_count : actions.length
+        end
+        raise ParseError, "(tables):1:1: parser table state count must be an Integer" unless state_count.is_a?(Integer)
+
+        production_count = tables.fetch(:productions).length
+        unless production_count.is_a?(Integer)
+          raise ParseError, "(tables):1:1: parser table production count must be an Integer"
+        end
+
+        (stack_depth + state_count + 1) * (production_count + 1)
+      end
+
+      # @rbs (Array[Integer] stack, Integer production_id) -> bool
+      def exact_reduction_applied?(stack, production_id)
+        production = parser_tables.fetch(:productions).fetch(production_id)
+        length = production.fetch(:length)
+        return false if length >= stack.length
+
+        stack.pop(length)
+        target = table_lookup(parser_tables.fetch(:gotos), stack.last, production.fetch(:lhs))
+        return false unless target
+
+        stack << target
+        true
+      end
 
       # @rbs (^() -> untyped source) -> untyped
       def drive_parser(source)

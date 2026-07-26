@@ -12,6 +12,7 @@ class NormalizerTest < Minitest::Test
   def test_reserves_symbols_and_round_trips_stably
     grammar = normalize("class P\ntoken INT\nrule\nstart: INT\nend\n")
     assert_equal 2, grammar.schema_version
+    assert_equal :racc, grammar.mode
     assert_equal({ file: "normalize.y", root: nil, byte_span: nil }, grammar.source_provenance)
     assert_equal ["$eof", "error"], grammar.symbols.first(2).map(&:name)
     assert_equal [0, 1], grammar.symbols.first(2).map(&:id)
@@ -20,6 +21,24 @@ class NormalizerTest < Minitest::Test
     assert_equal dumped, Ibex::IR::Serialize.dump(Ibex::IR::Serialize.load(dumped))
     assert_raises(FrozenError) { grammar.options[:result_var] = false }
     assert_nil grammar.symbol_by_id(10_000)
+  end
+
+  def test_extended_mode_round_trips_as_optional_v2_metadata
+    grammar = normalize("class P\nrule\nstart: TOKEN\nend\n", mode: :extended)
+    dumped = Ibex::IR::Serialize.dump(grammar)
+
+    assert_equal :extended, grammar.mode
+    assert_includes dumped, '"mode": "extended"'
+    assert_equal :extended, Ibex::IR::Serialize.load(dumped).mode
+
+    compatible = Ibex::IR::Serialize.dump(normalize("class P\nrule\nstart: TOKEN\nend\n"))
+    refute_includes compatible, '"mode"'
+  end
+
+  def test_extended_pragma_sets_the_normalized_mode
+    grammar = normalize("class P\npragma extended\nrule\nstart: TOKEN\nend\n")
+
+    assert_equal :extended, grammar.mode
   end
 
   def test_desugars_inline_actions_with_stack_context

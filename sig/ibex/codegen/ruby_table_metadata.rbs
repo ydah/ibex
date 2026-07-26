@@ -1,0 +1,17 @@
+# Generated from lib/ibex/codegen/ruby_table_metadata.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Emits immutable identity and size metadata for generated parser tables.
+    module RubyTableMetadata
+      @automaton: IR::Automaton
+
+      @grammar: IR::Grammar
+
+      private
+
+      # @rbs (Array[String] lines, String indent) -> void
+      def append_table_metadata: (Array[String] lines, String indent) -> void
+    end
+  end
+end

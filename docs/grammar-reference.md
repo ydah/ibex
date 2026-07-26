@@ -126,6 +126,8 @@ filesystem read failures remain CLI invocation errors on stderr and do not produ
 - Extended `%expect-rr N` records the expected reduce/reduce count. Under `--warnings=error`, generation succeeds only when
   both declared counts match.
 - `start name` overrides the first rule as the start symbol.
+- `Parser#expected_tokens_exact` simulates reductions and gotos on a private stack to report only viable lookaheads. Extended
+  grammars use this LAC result for `expected_tokens`; compatible grammars keep the historical current-state result.
 - `convert ... end` changes external token objects. The second column is a quoted string containing Ruby source, not the value
   itself: `NUM ':number'` uses `:number`, while `NUM '"number"'` uses the String `"number"`.
 - Extended mode accepts `display SYMBOL "human name"` to give a terminal or nonterminal a human-facing label without changing

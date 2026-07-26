@@ -6,6 +6,8 @@ module Ibex
     class Ruby
       include RubyActions
 
+      include RubyTableMetadata
+
       include RubyValuePrinters
 
       @error_messages: Hash[Integer, String]
@@ -51,9 +53,6 @@ module Ibex
 
       # @rbs (Array[String] lines, String indent) -> void
       def append_parser_tables: (Array[String] lines, String indent) -> void
-
-      # @rbs (Array[String] lines, String indent) -> void
-      def append_table_metadata: (Array[String] lines, String indent) -> void
 
       # @rbs (Array[String] lines) -> void
       def append_parameter_initializer: (Array[String] lines) -> void

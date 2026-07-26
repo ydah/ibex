@@ -2,6 +2,7 @@
 
 require_relative "../runtime/parser"
 require_relative "ruby_actions"
+require_relative "ruby_table_metadata"
 require_relative "ruby_value_printers"
 
 module Ibex
@@ -9,6 +10,7 @@ module Ibex
     # Generates a standalone Ruby parser class from Automaton IR.
     class Ruby
       include RubyActions
+      include RubyTableMetadata
       include RubyValuePrinters
 
       # @rbs @automaton: IR::Automaton
@@ -118,6 +120,7 @@ module Ibex
         lines << "#{indent}                  grammar_digest: GRAMMAR_DIGEST,"
         lines << "#{indent}                  state_count: STATE_COUNT, production_count: PRODUCTION_COUNT,"
         lines << "#{indent}                  uses_locations: #{uses_locations?},"
+        lines << "#{indent}                  exact_expected_tokens: true," if @grammar.mode == :extended
         lines << "#{indent}                  tokens: TOKEN_IDS, token_names: TOKEN_NAMES, actions: ACTIONS,"
         lines << "#{indent}                  gotos: GOTOS, default_actions: DEFAULT_ACTIONS,"
         value_printers = @grammar.value_printers.empty? ? "" : " value_printers: VALUE_PRINTERS,"
@@ -127,14 +130,6 @@ module Ibex
 
         lines << "#{indent}Ractor.make_shareable(PARSER_TABLES) " \
                  "if defined?(Ractor) && Ractor.respond_to?(:make_shareable)"
-      end
-
-      # @rbs (Array[String] lines, String indent) -> void
-      def append_table_metadata(lines, indent)
-        lines << "#{indent}PARSER_TABLE_FORMAT_VERSION = #{Runtime::PARSER_TABLE_FORMAT_VERSION}"
-        lines << "#{indent}GRAMMAR_DIGEST = #{@automaton.grammar_digest.inspect}.freeze"
-        lines << "#{indent}STATE_COUNT = #{@automaton.states.length}"
-        lines << "#{indent}PRODUCTION_COUNT = #{@grammar.productions.length}"
       end
 
       # @rbs (Array[String] lines) -> void

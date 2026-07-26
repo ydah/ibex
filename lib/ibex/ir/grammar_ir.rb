@@ -151,6 +151,7 @@ module Ibex
       attr_reader :class_name #: String
       attr_reader :superclass #: String?
       attr_reader :start #: String
+      attr_reader :mode #: grammar_mode
       attr_reader :expect #: Integer
       attr_reader :expect_rr #: Integer?
       attr_reader :parser_parameters #: Array[parser_parameter]
@@ -172,14 +173,18 @@ module Ibex
       #   conversions: Hash[String, String], warnings: Array[grammar_warning], ?user_code_chunks: user_code_chunks?,
       #   ?schema_version: Integer, ?source_provenance: source_provenance?,
       #   ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter],
-      #   ?value_printers: Array[value_printer]) -> void
+      #   ?value_printers: Array[value_printer], ?mode: grammar_mode) -> void
       # rubocop:disable Metrics/ParameterLists -- immutable versioned IR is constructed from explicit public fields.
       def initialize(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
                      conversions:, warnings:, user_code_chunks: nil, schema_version: SCHEMA_VERSION,
-                     source_provenance: nil, migration: nil, expect_rr: nil, parser_parameters: [], value_printers: [])
+                     source_provenance: nil, migration: nil, expect_rr: nil, parser_parameters: [], value_printers: [],
+                     mode: :racc)
+        raise ArgumentError, "mode must be :racc or :extended" unless %i[racc extended].include?(mode)
+
         @class_name = class_name.freeze
         @superclass = superclass&.freeze
         @start = start.freeze
+        @mode = mode
         @expect = expect
         @expect_rr = expect_rr
         @parser_parameters = IR.deep_freeze(parser_parameters)
@@ -218,19 +223,25 @@ module Ibex
                   productions: @productions.map { |production| production.to_h(schema_version: @schema_version) },
                   user_code: @user_code, conversions: @conversions,
                   warnings: @warnings } #: Hash[Symbol, untyped]
-        value[:expect_rr] = @expect_rr unless @expect_rr.nil?
-        value[:params] = @parser_parameters unless @parser_parameters.empty?
-        value[:printers] = @value_printers unless @value_printers.empty?
-        value[:user_code_chunks] = @user_code_chunks.transform_values { |chunks| chunks.map(&:to_h) } \
-          unless @user_code_chunks.empty?
-        if @schema_version >= 2
-          value[:source_provenance] = @source_provenance
-          value[:migration] = @migration
-        end
+        append_optional_metadata(value)
         value
       end
 
       private
+
+      # @rbs (Hash[Symbol, untyped] value) -> void
+      def append_optional_metadata(value)
+        value[:expect_rr] = @expect_rr unless @expect_rr.nil?
+        value[:mode] = @mode if @mode == :extended
+        value[:params] = @parser_parameters unless @parser_parameters.empty?
+        value[:printers] = @value_printers unless @value_printers.empty?
+        value[:user_code_chunks] = @user_code_chunks.transform_values { |chunks| chunks.map(&:to_h) } \
+          unless @user_code_chunks.empty?
+        return unless @schema_version >= 2
+
+        value[:source_provenance] = @source_provenance
+        value[:migration] = @migration
+      end
 
       # @rbs () -> void
       def validate_user_code_chunks

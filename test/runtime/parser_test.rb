@@ -156,6 +156,49 @@ class RuntimeParserTest < Minitest::Test
     end
   end
 
+  class LookaheadCorrectionParser < Ibex::Runtime::Parser
+    TABLES = {
+      format_version: Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION,
+      tokens: { A: 2, B: 3 },
+      token_names: { 0 => "$eof", 1 => "error", 2 => "A", 3 => "B" },
+      actions: [{ 3 => [:error] }, { 2 => [:shift, 2] }, { 0 => [:accept] }],
+      gotos: [{ 4 => 1 }, {}, {}],
+      default_actions: [[:reduce, 0], nil, nil],
+      productions: [{ lhs: 4, length: 0 }]
+    }.freeze
+
+    attr_reader :exact_at_error
+
+    def self.parser_tables = TABLES
+
+    def initialize(tokens)
+      super()
+      @tokens = tokens
+    end
+
+    def next_token = @tokens.shift
+
+    def on_error(token_id, value, stack)
+      @exact_at_error = expected_tokens_exact
+      super
+    end
+  end
+
+  class ExtendedLookaheadCorrectionParser < LookaheadCorrectionParser
+    TABLES = LookaheadCorrectionParser::TABLES.merge(exact_expected_tokens: true).freeze
+
+    def self.parser_tables = TABLES
+  end
+
+  class CyclicLookaheadCorrectionParser < LookaheadCorrectionParser
+    TABLES = LookaheadCorrectionParser::TABLES.merge(
+      exact_expected_tokens: true,
+      gotos: [{ 4 => 0 }, {}, {}]
+    ).freeze
+
+    def self.parser_tables = TABLES
+  end
+
   def test_do_parse_handles_symbol_string_and_false_eof
     parser = Calculator.new([[:INT, 1], ["+", "+"], ["(", "("], [:INT, 2], ["+", "+"], [:INT, 3], [")", ")"], false])
     assert_equal 6, parser.do_parse
@@ -175,6 +218,30 @@ class RuntimeParserTest < Minitest::Test
     error = assert_raises(Ibex::ParseError) { Calculator.new([["+", nil]]).do_parse }
     assert_match(/\(input\):1:1: unexpected \+/, error.message)
     assert_match(/expected INT, \(/, error.message)
+  end
+
+  def test_explicit_exact_expected_tokens_simulates_default_reductions
+    parser = LookaheadCorrectionParser.new([[:B, nil]])
+    error = assert_raises(Ibex::ParseError) { parser.do_parse }
+
+    assert_equal %w[$eof A], error.expected_tokens
+    assert_equal ["A"], parser.exact_at_error
+  end
+
+  def test_extended_expected_tokens_uses_lookahead_correction
+    parser = ExtendedLookaheadCorrectionParser.new([[:B, nil]])
+    error = assert_raises(Ibex::ParseError) { parser.do_parse }
+
+    assert_equal ["A"], error.expected_tokens
+    assert_equal ["A"], parser.exact_at_error
+  end
+
+  def test_exact_expected_tokens_fail_closed_on_a_reduction_cycle
+    parser = CyclicLookaheadCorrectionParser.new([[:B, nil]])
+    error = assert_raises(Ibex::ParseError) { parser.do_parse }
+
+    assert_empty error.expected_tokens
+    assert_empty parser.exact_at_error
   end
 
   def test_recovery_discards_bad_input_and_continues

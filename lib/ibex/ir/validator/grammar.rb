@@ -12,7 +12,7 @@ module Ibex
         ].freeze #: Array[String]
         ROOT_OPTIONAL = %w[user_code_chunks expect_rr].freeze #: Array[String]
         V2_ROOT_REQUIRED = %w[source_provenance migration].freeze #: Array[String]
-        V2_ROOT_OPTIONAL = %w[params printers].freeze #: Array[String]
+        V2_ROOT_OPTIONAL = %w[params printers mode].freeze #: Array[String]
         SYMBOL_REQUIRED = %w[id name kind reserved prec loc].freeze #: Array[String]
         SYMBOL_OPTIONAL = %w[display_name semantic_type].freeze #: Array[String]
         V2_SYMBOL_REQUIRED = %w[doc].freeze #: Array[String]
@@ -84,6 +84,7 @@ module Ibex
           nonempty_string(@data["class_name"], "#{@path}.class_name")
           nullable_string(@data["superclass"], "#{@path}.superclass")
           nonempty_string(@data["start"], "#{@path}.start")
+          enum(@data["mode"], "#{@path}.mode", %w[racc extended]) if @data.key?("mode")
           nonnegative_integer(@data["expect"], "#{@path}.expect")
           nonnegative_integer(@data["expect_rr"], "#{@path}.expect_rr") if @data.key?("expect_rr")
         end

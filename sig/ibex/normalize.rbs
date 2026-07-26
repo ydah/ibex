@@ -101,7 +101,7 @@ module Ibex
 
     @symbols: Array[IR::GrammarSymbol]
 
-    @mode: Symbol
+    @mode: IR::grammar_mode
 
     @current_include_chain: Array[IR::source_provenance]
 

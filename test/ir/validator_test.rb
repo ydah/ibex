@@ -97,6 +97,18 @@ class IRValidatorTest < Minitest::Test
     assert_equal "(ir):1:1: $.params[2].name must not be a Ruby keyword", error.message
   end
 
+  def test_validates_optional_v2_grammar_mode
+    document = parsed_fixture("grammar-v2.json")
+    document["mode"] = "extended"
+
+    grammar = Ibex::IR::Validator.validate(JSON.generate(document))
+    assert_equal :extended, grammar.mode
+
+    document["mode"] = "future"
+    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
+    assert_equal "(ir):1:1: $.mode must be one of racc, extended", error.message
+  end
+
   def test_validates_optional_v2_value_printers
     document = parsed_fixture("grammar-v2.json")
     document["printers"] = [

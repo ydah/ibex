@@ -94,7 +94,9 @@ Bare grammar tokens normally use Ruby symbols (`:NUM`), and quoted grammar token
 optional location.
 
 The default `on_error(token_id, value, value_stack)` raises `Ibex::ParseError`. Override it to use yacc-style `error` recovery.
-Semantic actions can call `yyerror`, `yyerrok`, or `yyaccept`, and `expected_tokens` reports valid lookaheads in the current state.
+Semantic actions can call `yyerror`, `yyerrok`, or `yyaccept`. `expected_tokens_exact` reports lookaheads that remain valid after
+simulating required reductions without running semantic actions. In extended mode `expected_tokens` uses that exact LAC result;
+racc-compatible mode retains its historical current-state behavior.
 `push(token, value, location)` / `finish(location:)` provide caller-driven streaming. The default `ParseError` exposes token,
 expected-token, state, location, and spelling-suggestion attributes and renders source lines with a caret when available.
 Parser subclasses can also override `on_shift(token_id, value, state)`,
@@ -501,8 +503,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 13,862 typed calls and 1,884 untyped calls out of 15,746 (88.0% typed).
-The generated signature tree contains 1,982 explicit `untyped` occurrences across 77 files.
+The current whole-library `steep stats` result is 13,929 typed calls and 1,904 untyped calls out of 15,833 (88.0% typed).
+The generated signature tree contains 1,984 explicit `untyped` occurrences across 77 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

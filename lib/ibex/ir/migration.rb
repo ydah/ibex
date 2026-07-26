@@ -54,6 +54,7 @@ module Ibex
         end
         Grammar.new(
           class_name: grammar.class_name, superclass: grammar.superclass, start: grammar.start,
+          mode: grammar.mode,
           expect: grammar.expect, expect_rr: grammar.expect_rr, options: grammar.options,
           parser_parameters: grammar.parser_parameters,
           value_printers: grammar.value_printers,
