@@ -54,6 +54,7 @@ Gem::Specification.new do |spec|
     schema/benchmark-v1.schema.json
     schema/benchmark-v2.schema.json
     schema/performance-comparison-v1.schema.json
+    schema/public-performance-comparison-v1.schema.json
     schema/error-ux-v1.schema.json
     schema/generation-manifest-v1.schema.json
     schema/runtime-event-v1.schema.json

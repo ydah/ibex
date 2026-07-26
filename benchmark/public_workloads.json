@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "workloads": [
+    {
+      "id": "namae",
+      "repository_url": "https://github.com/berkmancenter/namae.git",
+      "revision": "d33875aaf1fc420a8dfe946a3b29cc3e19710061",
+      "grammar_path": "lib/namae/parser.y",
+      "lockfile_path": "Gemfile.lock",
+      "driver": "namae",
+      "workload_id": "representative-public-names-v1",
+      "inputs": [
+        "Yukihiro \"Matz\" Matsumoto",
+        "Ludwig van Beethoven",
+        "Dr. Martin Luther King Jr.",
+        "Marie Curie and Pierre Curie",
+        "Doe, John P., Jr."
+      ]
+    },
+    {
+      "id": "bcdice_command",
+      "repository_url": "https://github.com/bcdice/BCDice.git",
+      "revision": "21b4a03789bf2080ad41aaf31299b609ee7bda86",
+      "grammar_path": "lib/bcdice/command/parser.y",
+      "lockfile_path": "Gemfile.lock",
+      "driver": "bcdice_command",
+      "workload_id": "command-parser-options-v1",
+      "inputs": [
+        "LL@1#2$9+4<=5",
+        "3LL10@9#2$1-4*3+6/2<=-10/5+2*6",
+        "LL>=?",
+        "LL+10>30",
+        "2LL"
+      ]
+    },
+    {
+      "id": "nokogiri_css",
+      "repository_url": "https://github.com/sparklemotion/nokogiri.git",
+      "revision": "04a4c29c6a605ad40a78f4ce343ced0832a1805c",
+      "grammar_path": "lib/nokogiri/css/parser.y",
+      "lockfile_path": "Gemfile.lock",
+      "driver": "nokogiri_css",
+      "workload_id": "css-selector-ast-v1",
+      "inputs": [
+        "a:nth-child(2)",
+        "div.content > ul#items li.active",
+        "a[@class~=bar]",
+        "section:has(h2) > p.note",
+        "h1, h2.title, article > p:first-child"
+      ]
+    }
+  ]
+}

@@ -169,3 +169,55 @@ agree across both implementations and all four runtime scenarios. The report
 follows `schema/performance-comparison-v1.schema.json`; see
 [ADR 0082](../docs/decisions/0082-reproducible-racc-performance-comparison.md)
 for the complete contract and its public-workload limitation.
+
+## Fixed-revision public grammar comparison
+
+The release-gate workloads for Namae, BCDice's command parser, and Nokogiri CSS
+have an executable manifest in `benchmark/public_workloads.json`. Prepare
+separate, clean checkouts without running code from them:
+
+```sh
+git clone https://github.com/berkmancenter/namae.git /path/to/namae
+git -C /path/to/namae checkout --detach d33875aaf1fc420a8dfe946a3b29cc3e19710061
+git clone https://github.com/bcdice/BCDice.git /path/to/bcdice
+git -C /path/to/bcdice checkout --detach 21b4a03789bf2080ad41aaf31299b609ee7bda86
+git clone https://github.com/sparklemotion/nokogiri.git /path/to/nokogiri
+git -C /path/to/nokogiri checkout --detach 04a4c29c6a605ad40a78f4ce343ced0832a1805c
+```
+
+Review those revisions before continuing. The benchmark loads generated
+parsers and selected application support files, so running it executes
+third-party code from every supplied checkout.
+
+Run a formal YJIT-off comparison with:
+
+```sh
+bundle exec ruby benchmark/public_comparison.rb \
+  --checkout namae=/path/to/namae \
+  --checkout bcdice_command=/path/to/bcdice \
+  --checkout nokogiri_css=/path/to/nokogiri \
+  --runs 10 \
+  --warmup 50 \
+  --runtime-iterations 250 \
+  --behavior-probe-iterations 5 \
+  --bootstrap-samples 10000 \
+  --expected-racc-backend native \
+  --output tmp/public-performance-comparison.json
+```
+
+The command verifies each full revision and origin, rejects dirty checkouts,
+and records grammar, lockfile, tracked-library, status, workload, and manifest
+digests. Workers alternate implementation order and reject effective YJIT,
+`RUBYOPT`, backend, result, or repeated-result-sequence mismatches. Formal
+reports always contain at least ten isolated processes per implementation and
+scenario. `--smoke --allow-dirty-checkouts` exists only to diagnose local
+checkouts; its artifact is labelled `diagnostic_smoke` and is not release
+evidence.
+
+Public runtime scenarios are lexer-inclusive and cover parser reuse and a new
+parser for every parse. Pretokenized/core timing remains in the repository-owned
+control above: injecting token drivers into third-party grammars would change
+the public code being measured. Timing is review evidence and is not an
+ordinary CI pass/fail threshold. Public reports follow
+`schema/public-performance-comparison-v1.schema.json`; see
+[ADR 0083](../docs/decisions/0083-fixed-revision-public-performance-workloads.md).
