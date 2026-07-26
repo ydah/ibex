@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/runtime-coverage-v1.schema.json",
+  "title": "Ibex runtime coverage v1",
+  "type": "object",
+  "required": [
+    "ibex_coverage",
+    "schema_version",
+    "grammar_digest",
+    "table_format_version",
+    "totals",
+    "sessions",
+    "events",
+    "state_hits",
+    "production_hits"
+  ],
+  "properties": {
+    "ibex_coverage": { "const": "runtime-coverage" },
+    "schema_version": { "const": 1 },
+    "grammar_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "table_format_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "totals": {
+      "type": "object",
+      "required": ["states", "productions"],
+      "properties": {
+        "states": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "productions": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        }
+      },
+      "additionalProperties": false
+    },
+    "sessions": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9223372036854775807
+    },
+    "events": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9223372036854775807
+    },
+    "state_hits": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/hit" },
+      "maxItems": 1000000
+    },
+    "production_hits": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/hit" },
+      "maxItems": 1000000
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "hit": {
+      "type": "object",
+      "required": ["id", "count"],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 999999
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

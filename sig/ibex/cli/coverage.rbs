@@ -1,0 +1,53 @@
+# Generated from lib/ibex/cli/coverage.rb with RBS::Inline
+
+module Ibex
+  # CLI collection, merge, and threshold checks for runtime coverage.
+  module CLICoverage
+    private def same_file_target?: (String left, String right) -> bool
+
+    type coverage_output_options = { paths: Array[String], ?output: String }
+
+    type coverage_check_options = { paths: Array[String], min_states: Float, min_productions: Float }
+
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_coverage_command: (Array[String] arguments) -> Integer
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_coverage_collect: (Array[String] arguments) -> Integer
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_coverage_merge: (Array[String] arguments) -> Integer
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_coverage_check: (Array[String] arguments) -> Integer
+
+    # @rbs (Array[String] arguments, String command, String operands) -> coverage_output_options
+    def coverage_output_options: (Array[String] arguments, String command, String operands) -> coverage_output_options
+
+    # @rbs (Array[String] arguments) -> coverage_check_options
+    def coverage_check_options: (Array[String] arguments) -> coverage_check_options
+
+    # @rbs (Float value, String name) -> Float
+    def coverage_threshold: (Float value, String name) -> Float
+
+    # @rbs (Integer covered, Integer total) -> Float
+    def coverage_percentage: (Integer covered, Integer total) -> Float
+
+    # @rbs (Array[String] arguments, String command) -> String
+    def single_coverage_path: (Array[String] arguments, String command) -> String
+
+    # @rbs (Array[String] inputs, String? output) -> void
+    def reject_coverage_output_collision: (Array[String] inputs, String? output) -> void
+
+    # @rbs (Coverage::Report report, String? output) -> void
+    def write_coverage_report: (Coverage::Report report, String? output) -> void
+
+    # @rbs (String path, String source) -> void
+    def atomic_write_coverage: (String path, String source) -> void
+
+    # @rbs (String path) -> Integer
+    def coverage_file_mode: (String path) -> Integer
+  end
+end

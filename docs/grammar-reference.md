@@ -246,6 +246,12 @@ For external tooling, `observe { |event| ... }` registers an ordered observer an
 `schema/runtime-event-v1.schema.json`; write and serialization failures propagate. This API is separate from the legacy
 hook-shaped `Runtime::JSONLTracer`. See [ADR 0050](decisions/0050-stable-immutable-runtime-events.md).
 
+The versioned stream can be converted to grammar-test coverage with `ibex coverage collect EVENTS.jsonl`, combined across
+processes with `coverage merge`, and gated with `coverage check --min-states=PERCENT --min-productions=PERCENT`. State coverage
+counts the initial state plus committed shift, reduce-goto, and recovery destinations; production coverage counts committed
+reductions. Complete sessions and generated-parser metadata are required. Reports follow
+`schema/runtime-coverage-v1.schema.json`; see [ADR 0051](decisions/0051-deterministic-runtime-coverage.md).
+
 ## Extended EBNF and names
 
 Extended mode supports:

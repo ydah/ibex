@@ -20,6 +20,8 @@ module Ibex
 
     include CLICounterexampleOptions
 
+    include CLICoverage
+
     include CLIDiagnostics
 
     include CLIDocumentation

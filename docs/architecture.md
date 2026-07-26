@@ -244,6 +244,13 @@ exposes the versioned stream; the original hook-based `Runtime::JSONLTracer` rem
 exception/threading behavior are fixed by
 [ADR 0050](decisions/0050-stable-immutable-runtime-events.md).
 
+`Coverage::Collector` accepts only contiguous, complete runtime-event sessions with generated parser metadata. It counts entries
+to the initial, shift, reduce-goto, and recovery states and counts committed reductions by production id. `Coverage::Report`
+publishes ascending sparse hit arrays under the versioned runtime-coverage schema. Merge requires identical full grammar digest,
+table format, and totals and uses checked addition. The coverage CLI only reads bounded JSON/JSON Lines and never loads generated
+Ruby or executes semantic actions; collection, merge, threshold, and atomic-output policy are fixed by
+[ADR 0051](decisions/0051-deterministic-runtime-coverage.md).
+
 ## Clean-room boundary
 
 Implementation work uses public racc documentation, CLI black-box behavior, and published LR algorithms only. racc implementation

@@ -1,0 +1,68 @@
+# Generated from lib/ibex/coverage/runtime_event_validator.rb with RBS::Inline
+
+module Ibex
+  module Coverage
+    # Dependency-free structural validation for runtime-event schema version 1.
+    module RuntimeEventValidator
+      TOKEN_KEYS: Array[String]
+
+      LOCATION_KEYS: Array[String]
+
+      VALIDATORS: Hash[String, Symbol]
+
+      # @rbs (Hash[String, untyped] document) -> bool
+      def self.valid?: (Hash[String, untyped] document) -> bool
+
+      # @rbs (Hash[String, untyped] data) -> bool
+      private def self.valid_start?: (Hash[String, untyped] data) -> bool
+
+      # @rbs (Hash[String, untyped] data) -> bool
+      private def self.valid_shift?: (Hash[String, untyped] data) -> bool
+
+      # @rbs (Hash[String, untyped] data) -> bool
+      private def self.valid_reduce?: (Hash[String, untyped] data) -> bool
+
+      # @rbs (Hash[String, untyped] data, reasons: Array[String]) -> bool
+      private def self.valid_token_event?: (Hash[String, untyped] data, reasons: Array[String]) -> bool
+
+      # @rbs (Hash[String, untyped] data) -> bool
+      private def self.valid_error?: (Hash[String, untyped] data) -> bool
+
+      # @rbs (Hash[String, untyped] data) -> bool
+      private def self.valid_discard?: (Hash[String, untyped] data) -> bool
+
+      # @rbs (Hash[String, untyped] data) -> bool
+      private def self.valid_reject?: (Hash[String, untyped] data) -> bool
+
+      # @rbs (Hash[String, untyped] data) -> bool
+      private def self.valid_recover?: (Hash[String, untyped] data) -> bool
+
+      # @rbs (Hash[String, untyped] data) -> bool
+      private def self.valid_accept?: (Hash[String, untyped] data) -> bool
+
+      # @rbs (Hash[String, untyped] data) -> bool
+      private def self.valid_token_fields?: (Hash[String, untyped] data) -> bool
+
+      # @rbs (untyped value) -> bool
+      private def self.summary?: (untyped value) -> bool
+
+      # @rbs (untyped value) -> bool
+      private def self.composite_summary?: (untyped value) -> bool
+
+      # @rbs (untyped value) -> bool
+      private def self.location?: (untyped value) -> bool
+
+      # @rbs (Hash[String, untyped] data, Array[String] keys) -> bool
+      private def self.exact_keys?: (Hash[String, untyped] data, Array[String] keys) -> bool
+
+      # @rbs (untyped value) -> bool
+      private def self.integer?: (untyped value) -> bool
+
+      # @rbs (untyped value) -> bool
+      private def self.optional_integer?: (untyped value) -> bool
+
+      # @rbs (untyped value) -> bool
+      private def self.optional_string?: (untyped value) -> bool
+    end
+  end
+end

@@ -1,0 +1,7 @@
+# Generated from lib/ibex/coverage.rb with RBS::Inline
+
+module Ibex
+  # Deterministic state and production coverage derived from runtime event streams.
+  module Coverage
+  end
+end

@@ -43,7 +43,9 @@ The following work requires a separately reviewed phase and ADR:
   polling, stable source-closure snapshots, rollback-capable publication, and a manifest-last reader contract.
 - Production/state coverage and an interactive debugger restart with a stable event schema that extends, rather than exposes,
   private parser stacks. [ADR 0050](0050-stable-immutable-runtime-events.md) satisfies the runtime-event prerequisite with
-  bounded immutable observations and a versioned JSON Lines adapter; coverage and debugger policy remain separate phases. [ADR
+  bounded immutable observations and a versioned JSON Lines adapter. [ADR
+  0051](0051-deterministic-runtime-coverage.md) satisfies the coverage phase with complete-session validation, deterministic
+  mergeable reports, and independent state/production thresholds; debugger policy remains a separate phase. [ADR
   0037](0037-versioned-conflict-explanations.md) supersedes the boundary against a separate `explain` command with a thin,
   versioned view over existing Automaton IR and counterexamples.
 - Automated `migrate-check` and racc differential-harness generation restart with an explicit application-code execution
