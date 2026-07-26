@@ -11,6 +11,9 @@ module Ibex
     # @rbs (Frontend::AST::Rule rule, Frontend::AST::Alternative alternative) -> void
     def normalize_alternative: (Frontend::AST::Rule rule, Frontend::AST::Alternative alternative) -> void
 
+    # @rbs (Frontend::AST::Alternative alternative) -> Array[Frontend::AST::item]
+    def normalized_alternative_items: (Frontend::AST::Alternative alternative) -> Array[Frontend::AST::item]
+
     # @rbs (Frontend::AST::item item) -> String
     def normalize_item: (Frontend::AST::item item) -> String
 

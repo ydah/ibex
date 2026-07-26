@@ -30,6 +30,8 @@ module Ibex
                        classify_identifier(token, remaining, last_external, previous_external)
                      elsif token.type == :inline
                        classify_inline
+                     elsif token.type == :empty
+                       :EMPTY
                      elsif SCALAR_TYPES.key?(token.type)
                        SCALAR_TYPES.fetch(token.type)
                      else

@@ -161,6 +161,25 @@ class LALRBuilderTest < Minitest::Test
     assert_equal 1, automaton.conflict_summary[:rr]
   end
 
+  def test_expect_rr_matches_reduce_reduce_conflicts
+    source = <<~GRAMMAR
+      class P
+      pragma extended
+      %expect-rr 1
+      rule
+      start: first | second
+      first: TOKEN
+      second: TOKEN
+      end
+    GRAMMAR
+    ast = Ibex::Frontend::Parser.new(source, file: "builder.y").parse
+    grammar = Ibex::Normalizer.new(ast, mode: :extended).normalize
+    summary = Ibex::LALR::Builder.new(grammar).build.conflict_summary
+
+    assert_equal 1, summary[:expected_rr]
+    assert summary[:rr_expectation_met]
+  end
+
   def test_automaton_round_trip_and_report
     automaton = build(<<~GRAMMAR)
       class P

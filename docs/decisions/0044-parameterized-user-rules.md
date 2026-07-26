@@ -53,14 +53,15 @@ through groups, suffixes, separated lists, and nested calls. All other names rem
 capture source-level identifiers.
 
 New specializations are expanded by an explicit depth-first worklist. A pending frame retains its template, alternative, item,
-and nested EBNF continuation together with definition include chain, expansion metadata, and active depth while a child
+and nested EBNF continuation together with definition include chain and expansion metadata while a child
 specialization completes. Each source item is lowered before an unrelated later call is scheduled, preserving the helper and
 production order of ordinary recursive lowering without tying a configured limit to the Ruby call stack.
 
-The public normalizer defaults to at most 1,000 distinct parameter specializations and 16 actively expanding parameter calls.
-Both positive-Integer limits are configurable through `max_parameter_specializations:` and `max_parameter_depth:`. Exceeding either
-limit raises a deterministic error at the call that would cross it. This bounds argument-growing recursion without relying on a
-Ruby `SystemStackError`.
+The public normalizer defaults to at most 1,000 distinct parameter specializations, configurable through
+`max_parameter_specializations:`. A new specialization that recursively re-enters an active template with arguments that
+structurally enclose the active arguments is rejected as a constructor-growing cycle. Shrinking calls remain valid, and same-key
+recursion still reuses its installed memo entry. This makes termination
+structural instead of depending on an arbitrary depth boundary, while the total-instance limit remains defense in depth.
 
 Specialized symbols inherit the template's semantic type, display name, and first consistent documentation. Specialized
 productions retain the template alternative's action, precedence, location, documentation, and definition include chain. Every
@@ -74,8 +75,8 @@ expansion metadata.
 - Existing whitespace-separated symbol/group grammars keep their meaning.
 - Templates compose with nested EBNF, includes, documentation, actions, precedence, named references, and semantic types while
   retaining source provenance.
-- Same-argument direct and mutual recursion are finite and deterministic; argument-growing recursion fails within explicit,
-  configurable work bounds.
+- Same-argument direct and mutual recursion are finite and deterministic; argument-growing recursion fails at the structural
+  cycle.
 - Internal `$parameter_N` symbols are visible in normalized IR like other EBNF helpers, but cannot collide with grammar source
   identifiers.
 - Template definitions do not add unused standalone productions, so automata contain only invoked specializations.

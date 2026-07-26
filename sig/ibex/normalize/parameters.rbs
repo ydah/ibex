@@ -8,19 +8,28 @@ module Ibex
     # @rbs (Frontend::AST::ParameterizedReference reference) -> String
     def specialize_parameterized_reference: (Frontend::AST::ParameterizedReference reference) -> String
 
-    # @rbs (Frontend::AST::ParameterizedReference reference, Integer depth) -> [String, bool]
-    def schedule_parameter_specialization: (Frontend::AST::ParameterizedReference reference, Integer depth) -> [ String, bool ]
+    # @rbs (Frontend::AST::ParameterizedReference reference) -> [String, bool]
+    def schedule_parameter_specialization: (Frontend::AST::ParameterizedReference reference) -> [ String, bool ]
 
-    # @rbs (Frontend::AST::ParameterizedReference reference, Integer depth) -> void
-    def enforce_parameter_limits!: (Frontend::AST::ParameterizedReference reference, Integer depth) -> void
+    # @rbs (Frontend::AST::ParameterizedReference reference) -> void
+    def enforce_parameter_limits!: (Frontend::AST::ParameterizedReference reference) -> void
+
+    # A constructor-growing recursive call can create infinitely many distinct
+    # specializations. Calls whose arguments shrink or merely change are
+    # allowed; they may reach a memoized fixed point after finite expansion.
+    # @rbs (Array[Frontend::AST::item] candidates, Array[Frontend::AST::item] ancestors) -> bool
+    def growing_parameter_arguments?: (Array[Frontend::AST::item] candidates, Array[Frontend::AST::item] ancestors) -> bool
+
+    # @rbs (Frontend::AST::item candidate, String target) -> bool
+    def parameter_argument_contains?: (Frontend::AST::item candidate, String target) -> bool
 
     # @rbs (Frontend::AST::ParameterizedReference reference) -> String
     def new_parameter_helper: (Frontend::AST::ParameterizedReference reference) -> String
 
     # @rbs (Frontend::AST::ParameterizedReference reference, String helper,
-    #   Array[Frontend::AST::item] arguments, Array[String] rendered_arguments, Integer depth) ->
+    #   Array[Frontend::AST::item] arguments, Array[String] rendered_arguments) ->
     #   Hash[Symbol, untyped]
-    def parameter_frame: (Frontend::AST::ParameterizedReference reference, String helper, Array[Frontend::AST::item] arguments, Array[String] rendered_arguments, Integer depth) -> Hash[Symbol, untyped]
+    def parameter_frame: (Frontend::AST::ParameterizedReference reference, String helper, Array[Frontend::AST::item] arguments, Array[String] rendered_arguments) -> Hash[Symbol, untyped]
 
     # @rbs () -> void
     def drain_parameter_worklist: () -> void

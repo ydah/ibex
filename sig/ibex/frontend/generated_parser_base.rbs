@@ -3,6 +3,7 @@
 module Ibex
   module Frontend
     # Semantic support and token delivery for the generated grammar parser.
+    # rubocop:disable Metrics/ClassLength -- generated grammar semantics share one parser support surface.
     class GeneratedParserBase < Runtime::Parser
       include GeneratedParserMetadata
 
@@ -49,8 +50,14 @@ module Ibex
       #   Array[AST::declaration] declarations, Array[AST::Rule] rules, AST::user_code user_code) -> AST::Root
       def build_root: (Token class_token, Array[String] class_parts, Array[String]? superclass, Array[AST::declaration] declarations, Array[AST::Rule] rules, AST::user_code user_code) -> AST::Root
 
-      # @rbs (Token keyword, Array[String] names) -> AST::Tokens
-      def build_tokens: (Token keyword, Array[String] names) -> AST::Tokens
+      # @rbs (Token keyword, Array[[String, String?]] entries) -> AST::Tokens
+      def build_tokens: (Token keyword, Array[[ String, String? ]] entries) -> AST::Tokens
+
+      # @rbs (Token token) -> [String, nil]
+      def build_token_entry: (Token token) -> [ String, nil ]
+
+      # @rbs (Token name, Token value) -> [String, String]
+      def build_token_alias: (Token name, Token value) -> [ String, String ]
 
       # @rbs (Token keyword, Symbol direction, Array[AST::PrecedenceLevel] levels) -> AST::Precedence
       def build_precedence: (Token keyword, Symbol direction, Array[AST::PrecedenceLevel] levels) -> AST::Precedence
@@ -64,6 +71,9 @@ module Ibex
       # @rbs (Token keyword, Token integer) -> AST::Expect
       def build_expect: (Token keyword, Token integer) -> AST::Expect
 
+      # @rbs (Token keyword, Token integer) -> AST::ExpectRR
+      def build_expect_rr: (Token keyword, Token integer) -> AST::ExpectRR
+
       # @rbs (Token keyword, String name) -> AST::Start
       def build_start: (Token keyword, String name) -> AST::Start
 
@@ -75,6 +85,9 @@ module Ibex
 
       # @rbs (Array[AST::item] items, Token? precedence) -> AST::Alternative
       def build_alternative: (Array[AST::item] items, Token? precedence) -> AST::Alternative
+
+      # @rbs (Token token) -> AST::Empty
+      def build_empty: (Token token) -> AST::Empty
 
       # @rbs (AST::item? item) -> Location?
       def item_start_location: (AST::item? item) -> Location?

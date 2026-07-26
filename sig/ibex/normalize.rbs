@@ -29,17 +29,13 @@ module Ibex
 
     DEFAULT_MAX_PARAMETER_SPECIALIZATIONS: ::Integer
 
-    DEFAULT_MAX_PARAMETER_DEPTH: ::Integer
-
     DEFAULT_MAX_INLINE_EXPANSIONS: ::Integer
-
-    @start_location: Frontend::Location?
-
-    @start_name: String
 
     @explicit_start: String?
 
     @conversions: Hash[String, String]
+
+    @expected_rr_conflicts: Integer?
 
     @expected_conflicts: Integer
 
@@ -63,6 +59,12 @@ module Ibex
 
     @warnings: Array[IR::grammar_warning]
 
+    @productions: Array[IR::Production]
+
+    @start_name: String
+
+    @start_location: Frontend::Location?
+
     @parameter_templates: Hash[String, Array[Frontend::AST::Rule]]
 
     @parameter_formals: Hash[String, Array[String]]
@@ -73,11 +75,7 @@ module Ibex
 
     @parameter_worklist_active: bool
 
-    @parameter_current_depth: Integer?
-
     @max_parameter_specializations: Integer
-
-    @max_parameter_depth: Integer
 
     @current_parameter_expansion: IR::parameter_expansion?
 
@@ -93,8 +91,6 @@ module Ibex
 
     @inline_expansion_count: Integer
 
-    @productions: Array[IR::Production]
-
     @symbols_by_name: Hash[String, IR::GrammarSymbol]
 
     @symbols: Array[IR::GrammarSymbol]
@@ -108,9 +104,9 @@ module Ibex
     @ast: Frontend::AST::Root
 
     # @rbs (Frontend::AST::Root | Frontend::AST::Fragment | Frontend::Resolution input,
-    #   ?mode: Symbol | String, ?max_parameter_specializations: Integer, ?max_parameter_depth: Integer,
+    #   ?mode: Symbol | String, ?max_parameter_specializations: Integer,
     #   ?max_inline_expansions: Integer) -> void
-    def initialize: (Frontend::AST::Root | Frontend::AST::Fragment | Frontend::Resolution input, ?mode: Symbol | String, ?max_parameter_specializations: Integer, ?max_parameter_depth: Integer, ?max_inline_expansions: Integer) -> void
+    def initialize: (Frontend::AST::Root | Frontend::AST::Fragment | Frontend::Resolution input, ?mode: Symbol | String, ?max_parameter_specializations: Integer, ?max_inline_expansions: Integer) -> void
 
     # @rbs () -> IR::Grammar
     def normalize: () -> IR::Grammar

@@ -34,7 +34,7 @@ module Ibex
         user_code = parse_user_code
         expect(:eof)
         AST::Root.new(class_name: class_name, superclass: superclass, declarations: declarations,
-                      rules: rules, user_code: user_code, loc: location)
+                      rules: rules, user_code: user_code, loc: location, extended: @mode == :extended)
       end
 
       # @rbs () -> AST::Fragment

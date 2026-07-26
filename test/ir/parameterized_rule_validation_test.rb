@@ -69,23 +69,22 @@ class IRParameterizedRuleValidationTest < Minitest::Test
 
   def test_budget_options_require_positive_integers
     ast = parse("start: NUM")
-    options = %i[max_parameter_specializations max_parameter_depth max_inline_expansions]
+    options = %i[max_parameter_specializations max_inline_expansions]
     options.product([0, -1, 1.0, "1", nil]).each do |name, value|
       error = assert_raises(ArgumentError) { Ibex::Normalizer.new(ast, **{ name => value }) }
       assert_equal "#{name} must be a positive Integer", error.message
     end
   end
 
-  def test_argument_growing_recursion_reaches_a_high_configured_limit_without_using_the_ruby_stack
+  def test_argument_growing_recursion_is_rejected_structurally
     error = assert_raises(Ibex::Error) do
       normalize(
         "grow(X): grow((X))\nstart: grow(NUM)",
         declarations: "token NUM\n",
-        max_parameter_specializations: 2_500,
-        max_parameter_depth: 2_000
+        max_parameter_specializations: 2_500
       )
     end
-    assert_equal "parameter.y:5:10: parameter expansion depth limit of 2000 exceeded", error.message
+    assert_equal "parameter.y:5:10: cyclic parameter specialization grow -> grow", error.message
   end
 
   private

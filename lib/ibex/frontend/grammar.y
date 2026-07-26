@@ -1,6 +1,7 @@
 class Ibex::Frontend::GeneratedParser < Ibex::Frontend::GeneratedParserBase
-token CLASS FRAGMENT INCLUDE TOKEN PRECHIGH PRECLOW OPTIONS EXPECT START CONVERT DISPLAY TYPE PRAGMA RULE END
-token LEFT RIGHT NONASSOC IDENTIFIER LITERAL INTEGER ACTION USER_CODE INLINE LHS PARAMETERIZED_REFERENCE
+token CLASS FRAGMENT INCLUDE TOKEN PRECHIGH PRECLOW OPTIONS EXPECT EXPECT_RR START CONVERT DISPLAY TYPE PRAGMA RULE END
+token LEFT RIGHT NONASSOC PRECEDENCE IDENTIFIER LITERAL INTEGER ACTION USER_CODE INLINE EMPTY LHS
+token PARAMETERIZED_REFERENCE TOKEN_ALIAS
 token SEPARATED_LIST SEPARATED_NONEMPTY_LIST
 rule
   document
@@ -41,6 +42,7 @@ rule
     | precedence_declaration             { result = val[0] }
     | options_declaration                { result = val[0] }
     | expect_declaration                 { result = val[0] }
+    | expect_rr_declaration              { result = val[0] }
     | start_declaration                  { result = val[0] }
     | convert_declaration                { result = val[0] }
     | display_declaration                { result = val[0] }
@@ -50,7 +52,15 @@ rule
     : INCLUDE LITERAL                    { result = build_include(val[0], val[1]) }
 
   token_declaration
-    : TOKEN symbols                      { result = build_tokens(val[0], val[1]) }
+    : TOKEN token_entries                { result = build_tokens(val[0], val[1]) }
+
+  token_entries
+    :                                    { result = Array.new(0) }
+    | token_entries token_entry          { result = val[0] + [val[1]] }
+
+  token_entry
+    : grammar_symbol                     { result = build_token_entry(val[0]) }
+    | IDENTIFIER TOKEN_ALIAS             { result = build_token_alias(val[0], val[1]) }
 
   precedence_declaration
     : PRECHIGH precedence_levels PRECLOW { result = build_precedence(val[0], :high_to_low, val[1]) }
@@ -67,12 +77,16 @@ rule
     : LEFT                               { result = val[0] }
     | RIGHT                              { result = val[0] }
     | NONASSOC                           { result = val[0] }
+    | PRECEDENCE                         { result = val[0] }
 
   options_declaration
     : OPTIONS identifiers                { result = build_options(val[0], val[1]) }
 
   expect_declaration
     : EXPECT INTEGER                     { result = build_expect(val[0], val[1]) }
+
+  expect_rr_declaration
+    : EXPECT_RR INTEGER                  { result = build_expect_rr(val[0], val[1]) }
 
   start_declaration
     : START grammar_symbol               { result = build_start(val[0], val[1].value) }
@@ -148,6 +162,7 @@ rule
     : symbol_item                        { result = val[0] }
     | parameterized_item                 { result = val[0] }
     | ACTION                             { result = build_action(val[0]) }
+    | EMPTY                              { result = build_empty(val[0]) }
     | group_item                         { result = val[0] }
     | separated_item                     { result = val[0] }
 

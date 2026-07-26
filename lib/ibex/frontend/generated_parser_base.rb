@@ -7,6 +7,7 @@ require_relative "generated_parser_parameters"
 module Ibex
   module Frontend
     # Semantic support and token delivery for the generated grammar parser.
+    # rubocop:disable Metrics/ClassLength -- generated grammar semantics share one parser support surface.
     class GeneratedParserBase < Runtime::Parser
       include GeneratedParserMetadata
       include GeneratedParserIncludes
@@ -104,12 +105,29 @@ module Ibex
       #   Array[AST::declaration] declarations, Array[AST::Rule] rules, AST::user_code user_code) -> AST::Root
       def build_root(class_token, class_parts, superclass, declarations, rules, user_code)
         AST::Root.new(class_name: class_parts.join("::"), superclass: superclass&.join("::"),
-                      declarations: declarations, rules: rules, user_code: user_code, loc: class_token.location)
+                      declarations: declarations, rules: rules, user_code: user_code, loc: class_token.location,
+                      extended: @mode == :extended || @adapter.extended_pragma?)
       end
 
-      # @rbs (Token keyword, Array[String] names) -> AST::Tokens
-      def build_tokens(keyword, names)
-        AST::Tokens.new(names: names, loc: keyword.location)
+      # @rbs (Token keyword, Array[[String, String?]] entries) -> AST::Tokens
+      def build_tokens(keyword, entries)
+        aliases = entries.filter_map { |name, value| [name, value] if value }.to_h
+        AST::Tokens.new(names: entries.map(&:first), aliases: aliases.empty? ? nil : aliases, loc: keyword.location)
+      end
+
+      # @rbs (Token token) -> [String, nil]
+      def build_token_entry(token)
+        [token_string(token), nil]
+      end
+
+      # @rbs (Token name, Token value) -> [String, String]
+      def build_token_alias(name, value)
+        extended_only!(name.location, "token aliases")
+        unless name.location.line == value.location.line
+          fail_at(name.location, "token alias must be written on one line")
+        end
+
+        [token_string(name), decode_metadata_value(value, "token alias")]
       end
 
       # @rbs (Token keyword, Symbol direction, Array[AST::PrecedenceLevel] levels) -> AST::Precedence
@@ -120,6 +138,7 @@ module Ibex
       # @rbs (Token association, Array[String] symbols) -> AST::PrecedenceLevel
       def build_precedence_level(association, symbols)
         fail_at(association.location, "expected at least one precedence symbol") if symbols.empty?
+        extended_only!(association.location, "%precedence") if token_string(association) == "precedence"
 
         AST::PrecedenceLevel.new(associativity: token_string(association).to_sym, symbols: symbols,
                                  loc: association.location)
@@ -133,6 +152,12 @@ module Ibex
       # @rbs (Token keyword, Token integer) -> AST::Expect
       def build_expect(keyword, integer)
         AST::Expect.new(conflicts: token_integer(integer), loc: keyword.location)
+      end
+
+      # @rbs (Token keyword, Token integer) -> AST::ExpectRR
+      def build_expect_rr(keyword, integer)
+        extended_only!(keyword.location, "expect-rr declarations")
+        AST::ExpectRR.new(conflicts: token_integer(integer), loc: keyword.location)
       end
 
       # @rbs (Token keyword, String name) -> AST::Start
@@ -176,6 +201,12 @@ module Ibex
         end
         AST::Alternative.new(items: items, action: action,
                              precedence: precedence && token_string(precedence), loc: location)
+      end
+
+      # @rbs (Token token) -> AST::Empty
+      def build_empty(token)
+        extended_only!(token.location, "%empty")
+        AST::Empty.new(loc: token.location)
       end
 
       # @rbs (AST::item? item) -> Location?
@@ -285,5 +316,6 @@ module Ibex
         fail_at(token.location, "expected user-code token")
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end

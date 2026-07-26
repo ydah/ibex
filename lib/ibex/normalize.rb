@@ -31,7 +31,6 @@ module Ibex
 
     RESERVED_NAMES = %w[result val _values].freeze #: Array[String]
     DEFAULT_MAX_PARAMETER_SPECIALIZATIONS = 1_000
-    DEFAULT_MAX_PARAMETER_DEPTH = 16
     DEFAULT_MAX_INLINE_EXPANSIONS = 10_000
 
     # @rbs @ast: Frontend::AST::Root
@@ -52,6 +51,7 @@ module Ibex
     # @rbs @semantic_type_locations: Hash[String, IR::location]
     # @rbs @options: IR::grammar_options
     # @rbs @expected_conflicts: Integer
+    # @rbs @expected_rr_conflicts: Integer?
     # @rbs @conversions: Hash[String, String]
     # @rbs @explicit_start: String?
     # @rbs @start_name: String
@@ -61,9 +61,7 @@ module Ibex
     # @rbs @parameter_specializations: Hash[[String, Array[String]], String]
     # @rbs @parameter_worklist: Array[Hash[Symbol, untyped]]
     # @rbs @parameter_worklist_active: bool
-    # @rbs @parameter_current_depth: Integer?
     # @rbs @max_parameter_specializations: Integer
-    # @rbs @max_parameter_depth: Integer
     # @rbs @current_parameter_expansion: IR::parameter_expansion?
     # @rbs @rule_documentation: Hash[String, String]
     # @rbs @inline_rule_names: Set[String]
@@ -73,13 +71,11 @@ module Ibex
     # @rbs @inline_expansion_count: Integer
 
     # @rbs (Frontend::AST::Root | Frontend::AST::Fragment | Frontend::Resolution input,
-    #   ?mode: Symbol | String, ?max_parameter_specializations: Integer, ?max_parameter_depth: Integer,
+    #   ?mode: Symbol | String, ?max_parameter_specializations: Integer,
     #   ?max_inline_expansions: Integer) -> void
     def initialize(input, mode: :racc, max_parameter_specializations: DEFAULT_MAX_PARAMETER_SPECIALIZATIONS,
-                   max_parameter_depth: DEFAULT_MAX_PARAMETER_DEPTH,
                    max_inline_expansions: DEFAULT_MAX_INLINE_EXPANSIONS)
       validate_positive_limit!(:max_parameter_specializations, max_parameter_specializations)
-      validate_positive_limit!(:max_parameter_depth, max_parameter_depth)
       validate_positive_limit!(:max_inline_expansions, max_inline_expansions)
 
       @resolution = input if input.is_a?(Frontend::Resolution)
@@ -100,7 +96,6 @@ module Ibex
       @parameter_worklist = [] #: Array[Hash[Symbol, untyped]]
       @parameter_worklist_active = false
       @max_parameter_specializations = max_parameter_specializations
-      @max_parameter_depth = max_parameter_depth
       @max_inline_expansions = max_inline_expansions
       @inline_expansion_count = 0
       @inline_symbol_ids = Set.new #: Set[Integer]
@@ -120,6 +115,7 @@ module Ibex
       validate_grammar
       IR::Grammar.new(class_name: @ast.class_name, superclass: @ast.superclass, start: @start_name,
                       expect: @expected_conflicts, options: @options, symbols: @symbols,
+                      expect_rr: @expected_rr_conflicts,
                       productions: @productions, user_code: normalized_user_code,
                       conversions: @conversions, warnings: @warnings, user_code_chunks: normalized_user_code_chunks,
                       source_provenance: {

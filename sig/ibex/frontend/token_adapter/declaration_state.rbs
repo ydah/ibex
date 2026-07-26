@@ -4,6 +4,8 @@ module Ibex
   module Frontend
     class TokenAdapter
       # Classifies tokens through the class header and declaration section.
+      # rubocop:disable Metrics/ClassLength, Metrics/CyclomaticComplexity
+      # One state machine owns declaration-boundary classification.
       class DeclarationState
         include DeclarationDocumentState
 
@@ -79,6 +81,9 @@ module Ibex
 
         # @rbs (external_token type) -> external_token?
         def classify_single_symbol: (external_token type) -> external_token?
+
+        # @rbs (Token token, external_token type) -> external_token?
+        def classify_token_alias: (Token token, external_token type) -> external_token?
 
         # @rbs (external_token type) -> external_token?
         def classify_metadata: (external_token type) -> external_token?

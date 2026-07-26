@@ -235,11 +235,18 @@ module Ibex
         # @rbs () -> void
         def validate_conflict_summary
           path = "$.conflict_summary"
-          summary = record(@data["conflict_summary"], path, %w[sr resolved_sr rr expected_sr expectation_met])
+          summary = record(
+            @data["conflict_summary"], path, %w[sr resolved_sr rr expected_sr expectation_met],
+            %w[expected_rr rr_expectation_met]
+          )
           %w[sr resolved_sr rr expected_sr].each do |key|
             nonnegative_integer(summary[key], "#{path}.#{key}")
           end
           boolean(summary["expectation_met"], "#{path}.expectation_met")
+          if summary.key?("expected_rr") || summary.key?("rr_expectation_met")
+            nonnegative_integer(summary["expected_rr"], "#{path}.expected_rr")
+            boolean(summary["rr_expectation_met"], "#{path}.rr_expectation_met")
+          end
           validate_conflict_counts(summary, path)
           validate_expectation(summary, path)
         end
@@ -268,9 +275,21 @@ module Ibex
             invalid("#{path}.expected_sr", "must equal embedded grammar expect #{grammar_expect}")
           end
           expected_met = summary["sr"] == summary["expected_sr"]
-          return if summary["expectation_met"] == expected_met
+          unless summary["expectation_met"] == expected_met
+            invalid("#{path}.expectation_met", "must be #{expected_met} for the recorded shift/reduce count")
+          end
 
-          invalid("#{path}.expectation_met", "must be #{expected_met} for the recorded shift/reduce count")
+          grammar_expect_rr = @data.fetch("grammar")["expect_rr"]
+          return if grammar_expect_rr.nil?
+
+          unless summary["expected_rr"] == grammar_expect_rr
+            invalid("#{path}.expected_rr", "must equal embedded grammar expect_rr #{grammar_expect_rr}")
+          end
+          rr_expected_met = summary["rr"] == summary["expected_rr"]
+          return if summary["rr_expectation_met"] == rr_expected_met
+
+          invalid("#{path}.rr_expectation_met",
+                  "must be #{rr_expected_met} for the recorded reduce/reduce count")
         end
       end
       # rubocop:enable Metrics/ClassLength

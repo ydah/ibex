@@ -7,6 +7,7 @@ require "rbconfig"
 require "tempfile"
 require "tmpdir"
 
+# rubocop:disable Metrics/ClassLength -- CLI integration cases share the same process-level harness.
 class CLITest < Minitest::Test
   def test_version
     output = StringIO.new
@@ -115,6 +116,37 @@ class CLITest < Minitest::Test
       status = Ibex::CLI.start(["-C", "--warnings=error", grammar.path], stdout: StringIO.new, stderr: errors)
       assert_equal 1, status
       assert_includes errors.string, "start symbol start derives no terminal sentence"
+    end
+  end
+
+  def test_strict_warnings_honor_shift_reduce_and_reduce_reduce_expectations
+    Tempfile.create(["expected-conflicts", ".y"]) do |grammar|
+      source = <<~GRAMMAR
+        class P
+        pragma extended
+        expect 0
+        %expect-rr 1
+        rule
+        start: first | second
+        first: TOKEN
+        second: TOKEN
+        end
+      GRAMMAR
+      grammar.write(source)
+      grammar.flush
+      assert_equal 0, Ibex::CLI.start(
+        ["-C", "--warnings=error", grammar.path], stdout: StringIO.new, stderr: StringIO.new
+      )
+
+      grammar.rewind
+      grammar.truncate(0)
+      grammar.write(source.sub("%expect-rr 1", "%expect-rr 0"))
+      grammar.flush
+      errors = StringIO.new
+      assert_equal 1, Ibex::CLI.start(
+        ["-C", "--warnings=error", grammar.path], stdout: StringIO.new, stderr: errors
+      )
+      assert_includes errors.string, "reduce/reduce conflicts; expected 0; conflict treated as error"
     end
   end
 
@@ -235,3 +267,4 @@ class CLITest < Minitest::Test
     output.string
   end
 end
+# rubocop:enable Metrics/ClassLength

@@ -53,6 +53,11 @@ module Ibex
                     rr: conflicts.count { |item| item[:type] == :reduce_reduce },
                     expected_sr: @grammar.expect,
                     expectation_met: counted_shift_reduce == @grammar.expect } #: IR::conflict_summary
+        expected_rr = @grammar.expect_rr
+        if expected_rr
+          summary[:expected_rr] = expected_rr
+          summary[:rr_expectation_met] = summary[:rr] == expected_rr
+        end
         @metrics = BuildMetrics.new(
           construction_states: construction_states,
           canonical_states: canonical_states,

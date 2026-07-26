@@ -114,13 +114,17 @@ filesystem read failures remain CLI invocation errors on stderr and do not produ
 - `## text` is a lossless line comment rather than a parser declaration. A consecutive block immediately above a rule supplies
   its documentation as described above.
 - `token NAME ...` declares terminals for typo diagnostics. It is optional. Uppercase names and quoted strings are terminals;
-  lowercase names are nonterminals unless they are `error`.
+  lowercase names are nonterminals unless they are `error`. In extended mode, `token PLUS "+"` declares `PLUS` and assigns
+  `"+"` as its display name; the dedicated `display` declaration remains available.
 - A `prechigh ... preclow` block lists precedence from high to low; `preclow ... prechigh` lists it from low to high. Each level
-  begins with `left`, `right`, or `nonassoc` followed by one or more terminals.
+  begins with `left`, `right`, or `nonassoc` followed by one or more terminals. Extended `%precedence` assigns a level without
+  associativity; an equal-level shift/reduce choice therefore remains an unresolved, counted default shift.
 - `options no_result_var` makes an action's final expression its value. `omit_action_call` is enabled by default;
   `no_omit_action_call` disables it.
 - `expect N` suppresses the warning when exactly N unresolved shift/reduce conflicts remain. Conflicts resolved by precedence are
   retained in Automaton IR but are not counted.
+- Extended `%expect-rr N` records the expected reduce/reduce count. Under `--warnings=error`, generation succeeds only when
+  both declared counts match.
 - `start name` overrides the first rule as the start symbol.
 - `convert ... end` changes external token objects. The second column is a quoted string containing Ruby source, not the value
   itself: `NUM ':number'` uses `:number`, while `NUM '"number"'` uses the String `"number"`.
@@ -145,6 +149,9 @@ end
 
 Alternatives use `|`; a trailing semicolon is optional. `= TOKEN` overrides a production's precedence. The `error` terminal
 enables yacc-style recovery.
+
+Extended grammars can write `%empty` as the sole RHS item to document an empty alternative. An implicit empty alternative stays
+compatible but produces `implicit_empty` under extended warning analysis.
 
 Actions are opaque Ruby between balanced braces. `val` contains RHS values, `result` begins as `val[0]`, and `_values` is a copy
 of the surrounding value stack. With `no_result_var`, the action's evaluated value is used directly. A middle action becomes an
@@ -185,9 +192,10 @@ using a formal as a callee are rejected to avoid ambiguous capture.
 
 The Normalizer memoizes a specialization before expanding its body, so direct and mutual same-argument recursion reuse one
 internal `$parameter_N` nonterminal. Resumable item and EBNF continuations on an explicit depth-first worklist preserve ordinary
-helper and production order while bounding argument-growing recursion without relying on the Ruby stack. The defaults are
-1,000 distinct specializations and 16 active expansions; programmatic callers can configure positive-Integer
-`max_parameter_specializations:` and `max_parameter_depth:` values. Specialized productions retain template actions,
+helper and production order while avoiding dependence on the Ruby stack. The default is
+1,000 distinct specializations; programmatic callers can configure the positive-Integer
+`max_parameter_specializations:`. Argument-changing recursive instantiation is rejected by structural cycle detection rather
+than an arbitrary depth boundary. Specialized productions retain template actions,
 precedence, types, documentation, locations, and include chains. Grammar IR v2 records
 `expansion.parameter {rule, arguments}`; v1 output omits the expansion record.
 

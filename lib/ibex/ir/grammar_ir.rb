@@ -152,6 +152,7 @@ module Ibex
       attr_reader :superclass #: String?
       attr_reader :start #: String
       attr_reader :expect #: Integer
+      attr_reader :expect_rr #: Integer?
       attr_reader :options #: grammar_options
       attr_reader :symbols #: Array[GrammarSymbol]
       attr_reader :productions #: Array[Production]
@@ -163,7 +164,8 @@ module Ibex
       attr_reader :source_provenance #: source_provenance?
       attr_reader :migration #: migration_metadata?
 
-      # @rbs (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options,
+      # @rbs (class_name: String, superclass: String?, start: String, expect: Integer, ?expect_rr: Integer?,
+      #   options: grammar_options,
       #   symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String],
       #   conversions: Hash[String, String], warnings: Array[grammar_warning], ?user_code_chunks: user_code_chunks?,
       #   ?schema_version: Integer, ?source_provenance: source_provenance?,
@@ -171,11 +173,12 @@ module Ibex
       # rubocop:disable Metrics/ParameterLists -- immutable versioned IR is constructed from explicit public fields.
       def initialize(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
                      conversions:, warnings:, user_code_chunks: nil, schema_version: SCHEMA_VERSION,
-                     source_provenance: nil, migration: nil)
+                     source_provenance: nil, migration: nil, expect_rr: nil)
         @class_name = class_name.freeze
         @superclass = superclass&.freeze
         @start = start.freeze
         @expect = expect
+        @expect_rr = expect_rr
         @options = IR.deep_freeze(options)
         @symbols = symbols.freeze
         @productions = productions.freeze
@@ -210,6 +213,7 @@ module Ibex
                   productions: @productions.map { |production| production.to_h(schema_version: @schema_version) },
                   user_code: @user_code, conversions: @conversions,
                   warnings: @warnings } #: Hash[Symbol, untyped]
+        value[:expect_rr] = @expect_rr unless @expect_rr.nil?
         value[:user_code_chunks] = @user_code_chunks.transform_values { |chunks| chunks.map(&:to_h) } \
           unless @user_code_chunks.empty?
         if @schema_version >= 2

@@ -15,6 +15,7 @@ module Ibex
       duplicate_production: lambda do |warning|
         "duplicate production #{warning[:production]} (first defined as #{warning[:original]})"
       end,
+      implicit_empty: ->(_warning) { "implicit empty alternative; write %empty to document intent" },
       empty_language: ->(warning) { "start symbol #{warning[:symbol]} derives no terminal sentence" }
     }.freeze #: Hash[Symbol, ^(IR::grammar_warning) -> String]
 
@@ -60,11 +61,28 @@ module Ibex
 
     # @rbs (IR::Automaton automaton, String input_path) -> void
     def report_conflicts(automaton, input_path)
-      summary = automaton.conflict_summary
-      unless summary[:expectation_met]
-        @stderr.puts("#{input_path}:1:1: #{summary[:sr]} shift/reduce conflicts; expected #{summary[:expected_sr]}")
+      messages = conflict_messages(automaton.conflict_summary, input_path)
+      if @options[:warnings]&.include?(:error) && messages.any?
+        raise Ibex::Error, messages.map { |message| "#{message}; conflict treated as error" }.join("\n")
       end
-      @stderr.puts("#{input_path}:1:1: #{summary[:rr]} reduce/reduce conflicts") if summary[:rr].positive?
+
+      messages.each { |message| @stderr.puts(message) }
+    end
+
+    # @rbs (IR::conflict_summary summary, String input_path) -> Array[String]
+    def conflict_messages(summary, input_path)
+      messages = [] #: Array[String]
+      unless summary[:expectation_met]
+        messages << "#{input_path}:1:1: #{summary[:sr]} shift/reduce conflicts; expected #{summary[:expected_sr]}"
+      end
+      if summary.key?(:rr_expectation_met)
+        unless summary[:rr_expectation_met]
+          messages << "#{input_path}:1:1: #{summary[:rr]} reduce/reduce conflicts; expected #{summary[:expected_rr]}"
+        end
+      elsif summary[:rr].positive?
+        messages << "#{input_path}:1:1: #{summary[:rr]} reduce/reduce conflicts"
+      end
+      messages
     end
 
     # @rbs (IR::Automaton automaton, String input_path) -> void
@@ -73,7 +91,7 @@ module Ibex
       return unless [nil, :lalr].include?(@options[:algorithm])
 
       summary = automaton.conflict_summary
-      return if summary[:expectation_met] && summary[:rr].zero?
+      return if summary[:expectation_met] && summary.fetch(:rr_expectation_met, summary[:rr].zero?)
 
       ielr = LALR::Builder.new(automaton.grammar, algorithm: :ielr).build
       removed_sr = [summary[:sr] - ielr.conflict_summary[:sr], 0].max

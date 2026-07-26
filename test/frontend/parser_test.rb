@@ -81,6 +81,45 @@ class FrontendParserTest < Minitest::Test
     assert_equal ["expression", "AST::Expression"], [expression_type.name, expression_type.value]
   end
 
+  def test_parses_compact_declarations_and_explicit_empty_in_extended_mode
+    source = <<~GRAMMAR
+      class P
+      pragma extended
+      token PLUS "+"
+      %expect-rr 1
+      preclow
+      %precedence PLUS
+      prechigh
+      rule
+      start: %empty
+      end
+    GRAMMAR
+    ast = parse(source)
+    tokens, expectation, precedence = ast.declarations
+
+    assert_equal ["PLUS"], tokens.names
+    assert_equal({ "PLUS" => "+" }, tokens.aliases)
+    assert_equal 1, expectation.conflicts
+    assert_instance_of Ibex::Frontend::AST::ExpectRR, expectation
+    assert_equal :precedence, precedence.levels.first.associativity
+    assert_instance_of Ibex::Frontend::AST::Empty, ast.rules.first.alternatives.first.items.first
+  end
+
+  def test_rejects_new_declarations_without_extended_mode
+    {
+      "%expect-rr 0" => "expect-rr declarations require extended mode",
+      "prechigh\n%precedence PLUS\npreclow" => "%precedence require extended mode"
+    }.each do |declaration, message|
+      error = assert_raises(Ibex::Error) do
+        parse("class P\n#{declaration}\nrule\nstart: PLUS\nend\n")
+      end
+      assert_includes error.message, message
+    end
+
+    error = assert_raises(Ibex::Error) { parse("class P\nrule\nstart: %empty\nend\n") }
+    assert_includes error.message, "%empty require extended mode"
+  end
+
   def test_rejects_symbol_metadata_in_racc_mode_and_empty_values
     error = assert_raises(Ibex::Error) do
       parse("class P\ndisplay NUM \"number\"\nrule\ns: NUM\nend\n")

@@ -21,7 +21,8 @@ module Ibex
       # @type self: Normalizer
       rhs = [] #: Array[String]
       named_refs = [] #: Array[IR::named_ref]
-      alternative.items.each do |item|
+      items = normalized_alternative_items(alternative)
+      items.each do |item|
         if item.is_a?(Frontend::AST::InlineAction)
           rhs << expand_inline_action(item, rhs.length, named_refs)
           next
@@ -33,6 +34,21 @@ module Ibex
       action = normalize_action(alternative.action, named_refs)
       add_production(rule.lhs, rhs, action, alternative.precedence,
                      { kind: :user, loc: alternative.loc.to_h }, rule.documentation)
+    end
+
+    # @rbs (Frontend::AST::Alternative alternative) -> Array[Frontend::AST::item]
+    def normalized_alternative_items(alternative)
+      # @type self: Normalizer
+      explicit = alternative.items.grep(Frontend::AST::Empty)
+      if explicit.any?
+        fail_at(explicit.first.loc, "%empty must be the only item in an alternative") unless alternative.items.one?
+        return []
+      end
+
+      if alternative.items.empty? && (@mode.to_sym == :extended || @ast.extended)
+        @warnings << { type: :implicit_empty, loc: alternative.loc.to_h }
+      end
+      alternative.items
     end
 
     # @rbs (Frontend::AST::item item) -> String
