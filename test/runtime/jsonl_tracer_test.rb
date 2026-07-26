@@ -5,6 +5,25 @@ require "json"
 require "stringio"
 
 class RuntimeJSONLTracerTest < Minitest::Test
+  LEGACY_GOLDEN = <<~JSONL
+    {"event":"shift","token_id":2,"token":"INT","value":"1","state":3}
+    {"event":"reduce","production_id":2,"values":["1"],"result":"1"}
+    {"event":"reduce","production_id":1,"values":["1"],"result":"1"}
+    {"event":"shift","token_id":3,"token":"+","value":"nil","state":5}
+    {"event":"shift","token_id":2,"token":"INT","value":"2","state":3}
+    {"event":"reduce","production_id":2,"values":["2"],"result":"2"}
+    {"event":"reduce","production_id":0,"values":["1","nil","2"],"result":"3"}
+  JSONL
+
+  def test_legacy_jsonl_bytes_are_stable
+    output = StringIO.new
+    parser = RuntimeParserTest::Calculator.new([[:INT, 1], ["+", nil], [:INT, 2]])
+    Ibex::Runtime::JSONLTracer.attach(parser, io: output)
+
+    assert_equal 3, parser.do_parse
+    assert_equal LEGACY_GOLDEN, output.string
+  end
+
   def test_records_shift_and_reduce_events_as_json_lines
     output = StringIO.new
     parser = RuntimeParserTest::Calculator.new([[:INT, 1], ["+", nil], [:INT, 2]])

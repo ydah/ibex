@@ -5,6 +5,7 @@ require "open3"
 require "rbconfig"
 require "tempfile"
 
+# rubocop:disable Metrics/ClassLength -- generated source and runtime behavior share one fixture.
 class RubyCodegenTest < Minitest::Test
   def generate(source, file: "generated_source.y", **options)
     mode = options.delete(:mode) || :racc
@@ -48,6 +49,12 @@ class RubyCodegenTest < Minitest::Test
     assert_equal Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION, parser_class::PARSER_TABLE_FORMAT_VERSION
     assert_equal parser_class::PARSER_TABLE_FORMAT_VERSION,
                  parser_class::PARSER_TABLES.fetch(:format_version)
+    assert_match(/\Asha256:[0-9a-f]{64}\z/, parser_class::GRAMMAR_DIGEST)
+    assert_equal parser_class::GRAMMAR_DIGEST, parser_class::PARSER_TABLES.fetch(:grammar_digest)
+    assert_equal parser_class::STATE_COUNT, parser_class::PARSER_TABLES.fetch(:state_count)
+    assert_equal parser_class::PRODUCTION_COUNT, parser_class::PARSER_TABLES.fetch(:production_count)
+    assert_operator parser_class::STATE_COUNT, :>, 0
+    assert_equal 3, parser_class::PRODUCTION_COUNT
     assert_equal 14, parser_class.new.parse(tokens)
   end
 
@@ -223,3 +230,4 @@ class RubyCodegenTest < Minitest::Test
     GRAMMAR
   end
 end
+# rubocop:enable Metrics/ClassLength

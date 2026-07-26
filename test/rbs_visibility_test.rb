@@ -4,6 +4,11 @@ require_relative "test_helper"
 
 class RBSVisibilityTest < Minitest::Test
   SIGNATURE_ROOT = File.expand_path("../sig/ibex", __dir__)
+  EVENT_SANITIZER_PUBLIC = %i[data value location string class_name].freeze
+  EVENT_SANITIZER_PRIVATE = %i[
+    summarize json_data summarize_array summarize_hash json_array json_hash copy_array primitive? bounded_integer
+    finite_float core_type? data_key truncate_utf8 object_identity location_field unavailable core_call
+  ].freeze
   MODULE_FUNCTION_TARGETS = [
     [Ibex::Codegen::Dot, "codegen/dot.rbs", %i[render], %i[escape symbol_name]],
     [Ibex::Codegen::HTML, "codegen/html.rbs", %i[render],
@@ -85,6 +90,35 @@ class RBSVisibilityTest < Minitest::Test
       signature = File.read(File.join(SIGNATURE_ROOT, signature_path))
       public_methods.each { |method_name| assert_match(/^\s+def self\.#{method_name}:/, signature) }
       private_methods.each { |method_name| assert_match(/^\s+private def self\.#{method_name}:/, signature) }
+    end
+  end
+
+  def test_runtime_event_internal_visibility_matches_the_typed_api
+    sanitizer = Ibex::Runtime::EventSanitizer
+    EVENT_SANITIZER_PUBLIC.each { |method_name| assert_respond_to sanitizer, method_name }
+    EVENT_SANITIZER_PRIVATE.each do |method_name|
+      assert sanitizer.singleton_class.private_method_defined?(method_name)
+      refute_respond_to sanitizer, method_name
+    end
+
+    subscription_class = Ibex::Runtime::Observation::Subscription
+    refute_respond_to subscription_class, :new
+    refute_respond_to subscription_class, :allocate
+    subscription = Ibex::Runtime::Parser.new.observe { |_event| nil }
+    assert_predicate subscription, :frozen?
+  end
+
+  def test_generated_rbs_keeps_event_construction_and_sanitizer_helpers_private
+    observation = File.read(File.join(SIGNATURE_ROOT, "runtime/observation.rbs"))
+    assert_match(/^\s+private def self\.new:/, observation)
+    assert_match(/^\s+private def self\.allocate:/, observation)
+
+    sanitizer = File.read(File.join(SIGNATURE_ROOT, "runtime/event_sanitizer.rbs"))
+    EVENT_SANITIZER_PUBLIC.each do |method_name|
+      assert_match(/^\s+def self\.#{Regexp.escape(method_name.to_s)}:/, sanitizer)
+    end
+    EVENT_SANITIZER_PRIVATE.each do |method_name|
+      assert_match(/^\s+private def self\.#{Regexp.escape(method_name.to_s)}:/, sanitizer)
     end
   end
 

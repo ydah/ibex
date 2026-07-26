@@ -72,3 +72,12 @@ benchmark/examples.rb --generation-iterations 3 --runtime-iterations 100
 
 This second benchmark measures a complete grammar-to-Ruby build and repeated parses for every smaller example variant. `--json`
 emits results suitable for local comparison.
+
+The runtime-event instrumentation boundary has a separate construction-count probe with no timing threshold:
+
+```sh
+bundle exec ruby benchmark/runtime_events.rb
+```
+
+Its `without_observer` counts must remain zero; `with_observer` reports event, semantic-summary, and location-summary
+construction so reviews can detect accidental work on the dormant path.

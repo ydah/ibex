@@ -236,6 +236,14 @@ shifts, and honors `yyerrok`. No-op `on_shift`, `on_reduce`, and `on_error_recov
 committed events without changing parser results; the recovery hook retains the pre-pop error context and is distinct from an
 ordinary token shift. Their ordering and payload contract is fixed by [ADR 0013](decisions/0013-runtime-observation-hooks.md).
 
+The separate `Runtime::Parser#observe` API publishes ordered, immutable schema-v1 events for tooling. Its bounded sanitizer
+copies only JSON data and never retains application identities or private stacks. With no observer, parse transitions construct
+no Event, payload summary, or dispatch snapshot; parser initialization still creates its ownership mutex. Generated tables
+contribute grammar digest, table format, state count, and production count to the `start` event. `Runtime::EventJSONLTracer`
+exposes the versioned stream; the original hook-based `Runtime::JSONLTracer` remains byte-compatible. The protocol and
+exception/threading behavior are fixed by
+[ADR 0050](decisions/0050-stable-immutable-runtime-events.md).
+
 ## Clean-room boundary
 
 Implementation work uses public racc documentation, CLI black-box behavior, and published LR algorithms only. racc implementation

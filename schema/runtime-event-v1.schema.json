@@ -1,0 +1,254 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/runtime-event-v1.schema.json",
+  "title": "Ibex runtime event v1",
+  "type": "object",
+  "required": [
+    "ibex_runtime_event",
+    "schema_version",
+    "sequence",
+    "event",
+    "data"
+  ],
+  "properties": {
+    "ibex_runtime_event": { "const": "runtime-event" },
+    "schema_version": { "const": 1 },
+    "sequence": { "type": "integer", "minimum": 1 },
+    "event": {
+      "enum": [
+        "start",
+        "shift",
+        "reduce",
+        "error",
+        "recover",
+        "discard",
+        "accept",
+        "reject"
+      ]
+    },
+    "data": { "type": "object", "maxProperties": 16 }
+  },
+  "additionalProperties": false,
+  "oneOf": [
+    {
+      "properties": {
+        "event": { "const": "start" },
+        "data": { "$ref": "#/$defs/start" }
+      }
+    },
+    {
+      "properties": {
+        "event": { "const": "shift" },
+        "data": { "$ref": "#/$defs/shift" }
+      }
+    },
+    {
+      "properties": {
+        "event": { "const": "reduce" },
+        "data": { "$ref": "#/$defs/reduce" }
+      }
+    },
+    {
+      "properties": {
+        "event": { "const": "error" },
+        "data": { "$ref": "#/$defs/error" }
+      }
+    },
+    {
+      "properties": {
+        "event": { "const": "recover" },
+        "data": { "$ref": "#/$defs/recover" }
+      }
+    },
+    {
+      "properties": {
+        "event": { "const": "discard" },
+        "data": { "$ref": "#/$defs/discard" }
+      }
+    },
+    {
+      "properties": {
+        "event": { "const": "accept" },
+        "data": { "$ref": "#/$defs/accept" }
+      }
+    },
+    {
+      "properties": {
+        "event": { "const": "reject" },
+        "data": { "$ref": "#/$defs/reject" }
+      }
+    }
+  ],
+  "$defs": {
+    "summary": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "boolean" },
+        { "type": "number" },
+        { "type": "string", "maxLength": 256 },
+        {
+          "type": "array",
+          "maxItems": 17,
+          "items": { "$ref": "#/$defs/summary" }
+        },
+        {
+          "type": "object",
+          "maxProperties": 17,
+          "additionalProperties": { "$ref": "#/$defs/summary" }
+        }
+      ]
+    },
+    "location": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "properties": {
+            "file": { "$ref": "#/$defs/summary" },
+            "line": { "$ref": "#/$defs/summary" },
+            "column": { "$ref": "#/$defs/summary" },
+            "end_line": { "$ref": "#/$defs/summary" },
+            "end_column": { "$ref": "#/$defs/summary" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["unavailable"],
+          "properties": {
+            "unavailable": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "token_fields": {
+      "type": "object",
+      "required": ["state", "token_id", "token", "value", "location"],
+      "properties": {
+        "state": { "type": "integer" },
+        "token_id": { "type": ["integer", "null"] },
+        "token": { "$ref": "#/$defs/summary" },
+        "value": { "$ref": "#/$defs/summary" },
+        "location": { "$ref": "#/$defs/location" }
+      }
+    },
+    "start": {
+      "type": "object",
+      "required": [
+        "driver",
+        "initial_state",
+        "table_format_version",
+        "grammar_digest",
+        "state_count",
+        "production_count"
+      ],
+      "properties": {
+        "driver": { "enum": ["pull", "push"] },
+        "initial_state": { "type": "integer" },
+        "table_format_version": { "type": "integer" },
+        "grammar_digest": { "type": ["string", "null"] },
+        "state_count": { "type": ["integer", "null"] },
+        "production_count": { "type": ["integer", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "shift": {
+      "allOf": [
+        { "$ref": "#/$defs/token_fields" },
+        {
+          "required": ["from_state"],
+          "properties": {
+            "from_state": { "type": "integer" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "reduce": {
+      "type": "object",
+      "required": [
+        "production_id",
+        "lhs",
+        "rhs_length",
+        "pre_state",
+        "post_state",
+        "goto_state",
+        "result",
+        "location"
+      ],
+      "properties": {
+        "production_id": { "type": "integer" },
+        "lhs": { "type": "integer" },
+        "rhs_length": { "type": "integer", "minimum": 0 },
+        "pre_state": { "type": "integer" },
+        "post_state": { "type": "integer" },
+        "goto_state": { "type": "integer" },
+        "result": { "$ref": "#/$defs/summary" },
+        "location": { "$ref": "#/$defs/location" }
+      },
+      "additionalProperties": false
+    },
+    "error": {
+      "allOf": [
+        { "$ref": "#/$defs/token_fields" },
+        {
+          "required": ["reason"],
+          "properties": {
+            "reason": { "enum": ["syntax", "semantic"] }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "recover": {
+      "allOf": [
+        { "$ref": "#/$defs/token_fields" },
+        {
+          "required": ["from_state", "reason"],
+          "properties": {
+            "from_state": { "type": "integer" },
+            "reason": { "enum": ["syntax", "semantic"] }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "discard": {
+      "allOf": [
+        { "$ref": "#/$defs/token_fields" },
+        {
+          "required": ["reason"],
+          "properties": {
+            "reason": { "const": "recovery" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "accept": {
+      "type": "object",
+      "required": ["state", "result", "reason"],
+      "properties": {
+        "state": { "type": "integer" },
+        "result": { "$ref": "#/$defs/summary" },
+        "reason": { "enum": ["table", "semantic"] }
+      },
+      "additionalProperties": false
+    },
+    "reject": {
+      "allOf": [
+        { "$ref": "#/$defs/token_fields" },
+        {
+          "required": ["reason"],
+          "properties": {
+            "reason": {
+              "enum": ["eof_during_recovery", "no_recovery_state"]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  }
+}

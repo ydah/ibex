@@ -28,7 +28,7 @@ class PipelineBenchmarkTest < Minitest::Test
       assert_equal 1, result.fetch("schema_version")
       assert_equal expected_structure, result.fetch("structure")
       assert_equal(
-        "02756a174a46a456e2cd1d23478dd7cf6cabce8b90da41e893ea4a9bd67782d2",
+        "718c424f5999eea6d61af23572c9112709589da28a1566b8543ac54bad7512a3",
         result.dig("digests", "artifact_sha256")
       )
       assert_equal(
@@ -77,7 +77,7 @@ class PipelineBenchmarkTest < Minitest::Test
           "total_cells" => 7620, "bytes" => 51_999
         }
       },
-      "generated_output_bytes" => { "plain" => 63_324, "compact" => 68_180 }
+      "generated_output_bytes" => { "plain" => 63_603, "compact" => 68_459 }
     }
   end
 end

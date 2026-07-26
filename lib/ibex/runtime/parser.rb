@@ -2,6 +2,7 @@
 # rbs_inline: enabled
 
 require_relative "location_span" unless defined?(Ibex::Runtime::LocationSpan)
+require_relative "observation" unless defined?(Ibex::Runtime::Observation)
 
 module Ibex
   module Runtime
@@ -92,6 +93,8 @@ module Ibex
     # retain the historical two-argument contract. Markers are honored only for
     # the generated `_ibex_action_N` Symbol shape, never for callables.
     class Parser
+      include Observation
+
       EOF_TOKEN = 0 #: Integer
       ERROR_TOKEN = 1 #: Integer
       GENERATED_ACTION_NAME = /\A_ibex_action_\d+\z/ #: Regexp
@@ -117,6 +120,11 @@ module Ibex
       # @rbs @unknown_token_name: String?
       # @rbs @push_status: :idle | :active | :finished
       # @rbs @driver_status: :idle | :pull | :push
+      # @rbs @runtime_driver_thread: Thread?
+      # @rbs @runtime_observers: Hash[Observation::Subscription, Proc]?
+      # @rbs @runtime_event_sequence: Integer
+      # @rbs @runtime_lookahead_token_display: untyped
+      # @rbs @runtime_observation_mutex: Mutex
 
       attr_accessor :yydebug #: bool
       attr_writer :yydebug_output #: IO
@@ -138,6 +146,11 @@ module Ibex
         @unknown_token_id = nil
         @push_status = :idle
         @driver_status = :idle
+        @runtime_driver_thread = nil
+        @runtime_observers = nil
+        @runtime_event_sequence = 0
+        @runtime_lookahead_token_display = nil
+        @runtime_observation_mutex = Mutex.new
       end
 
       # Pull tokens from `next_token` and parse them.
@@ -164,13 +177,14 @@ module Ibex
       def push(token, value = nil, location = nil)
         raise ParseError, "(input):1:1: push requires a token; call finish for EOF" if token.nil? || token == false
 
-        ensure_driver_available!
         run_push_driver do
           start_push_session
           @lookahead = internal_token_id(token)
           @lookahead_value = value
           @lookahead_location = location
-          trace("read #{token_to_str(@lookahead)}")
+          token_display = token_to_str(@lookahead)
+          @runtime_lookahead_token_display = token_display
+          trace("read #{token_display}")
           run_push_lookahead
         end
       end
@@ -178,13 +192,14 @@ module Ibex
       # Supply EOF to a caller-driven parser session and return its result.
       # @rbs (?location: untyped) -> untyped
       def finish(location: nil)
-        ensure_driver_available!
         run_push_driver do
           start_push_session
           @lookahead = EOF_TOKEN
           @lookahead_value = nil
           @lookahead_location = location
-          trace("read #{token_to_str(@lookahead)}")
+          token_display = token_to_str(@lookahead)
+          @runtime_lookahead_token_display = token_display
+          trace("read #{token_display}")
           outcome = run_push_lookahead
           return outcome.fetch(1) if outcome.is_a?(Array)
 
@@ -195,15 +210,18 @@ module Ibex
       # Discard a caller-driven session so this parser can accept a new one.
       # @rbs () -> nil
       def reset_push
-        ensure_driver_available!
-        @push_status = :idle
-        @source = nil
-        @state_stack = []
-        @value_stack = []
-        @location_stack = []
-        @lookahead = NO_LOOKAHEAD
-        @lookahead_value = nil
-        @lookahead_location = nil
+        @runtime_observation_mutex.synchronize do
+          ensure_driver_available_without_lock!
+          @push_status = :idle
+          @source = nil
+          @state_stack = []
+          @value_stack = []
+          @location_stack = []
+          @lookahead = NO_LOOKAHEAD
+          @lookahead_value = nil
+          @lookahead_location = nil
+          @runtime_lookahead_token_display = nil
+        end
         nil
       end
 
@@ -292,12 +310,16 @@ module Ibex
 
       # @rbs (^() -> untyped source) -> untyped
       def drive_parser(source)
-        ensure_driver_available!
-        if @push_status == :active
-          raise ParseError, "(input):1:1: cannot start another parser driver during an active push session"
+        @runtime_observation_mutex.synchronize do
+          ensure_driver_available_without_lock!
+          if @push_status == :active
+            raise ParseError, "(input):1:1: cannot start another parser driver during an active push session"
+          end
+
+          @driver_status = :pull
+          @runtime_driver_thread = Thread.current
         end
 
-        @driver_status = :pull
         begin
           prepare_parse(source)
           loop do
@@ -307,7 +329,7 @@ module Ibex
           end
         ensure
           @source = nil
-          @driver_status = :idle
+          release_driver
         end
       end
 
@@ -338,20 +360,34 @@ module Ibex
 
       # @rbs () { () -> untyped } -> untyped
       def run_push_driver
-        @driver_status = :push
-        yield
-      rescue StandardError
-        finish_push_session
-        raise
-      ensure
-        @driver_status = :idle
+        @runtime_observation_mutex.synchronize do
+          ensure_driver_available_without_lock!
+          @driver_status = :push
+          @runtime_driver_thread = Thread.current
+        end
+        begin
+          yield
+        rescue StandardError
+          finish_push_session
+          raise
+        ensure
+          release_driver
+        end
       end
 
       # @rbs () -> void
-      def ensure_driver_available!
+      def ensure_driver_available_without_lock!
         return if @driver_status == :idle
 
         raise ParseError, "(input):1:1: parser driver is already running"
+      end
+
+      # @rbs () -> void
+      def release_driver
+        @runtime_observation_mutex.synchronize do
+          @driver_status = :idle
+          @runtime_driver_thread = nil
+        end
       end
 
       # @rbs () -> void
@@ -364,7 +400,7 @@ module Ibex
 
       # @rbs (^() -> untyped source) -> void
       def prepare_parse(source)
-        validate_parser_table_format!
+        tables = validate_parser_table_format!
         @source = source
         @state_stack = [0]
         @value_stack = []
@@ -372,14 +408,29 @@ module Ibex
         @lookahead = NO_LOOKAHEAD
         @lookahead_value = nil
         @lookahead_location = nil
+        @runtime_lookahead_token_display = nil
         @recovery_shifts = 0
         @semantic_error = false
         @accept_requested = false
         @unknown_token_id = nil
         trace("start state 0")
+        @runtime_event_sequence = 0
+        return unless @runtime_observers
+
+        emit_runtime_event(
+          :start,
+          {
+            "driver" => @driver_status.to_s,
+            "initial_state" => 0,
+            "table_format_version" => tables.fetch(:format_version),
+            "grammar_digest" => tables[:grammar_digest],
+            "state_count" => tables[:state_count],
+            "production_count" => tables[:production_count]
+          }
+        )
       end
 
-      # @rbs () -> void
+      # @rbs () -> Hash[Symbol, untyped]
       def validate_parser_table_format!
         tables = parser_tables
         unless tables.key?(:format_version)
@@ -397,6 +448,7 @@ module Ibex
         end
 
         validate_composition_action_contract!(tables) if actual == PARSER_TABLE_FORMAT_VERSION
+        tables
       end
 
       # @rbs (Hash[Symbol, untyped] tables) -> void
@@ -428,7 +480,10 @@ module Ibex
         case action.first
         when :shift then shift(action.fetch(1))
         when :reduce then reduce(action.fetch(1))
-        when :accept then [:accepted, @value_stack.last]
+        when :accept
+          result = @value_stack.last
+          emit_accept_event(EventSanitizer.value(result), "table") if @runtime_observers
+          [:accepted, result]
         when :error then recover
         else raise ParseError, "(tables):1:1: unknown parser action #{action.inspect}"
         end
@@ -439,14 +494,27 @@ module Ibex
         token_id = @lookahead
         value = @lookahead_value
         location = @lookahead_location
-        trace("shift #{token_to_str(token_id)} -> state #{next_state}")
+        token_display = token_to_str(token_id)
+        trace("shift #{token_display} -> state #{next_state}")
+        event_observers = runtime_observer_snapshot if @runtime_observers
+        event_data = if event_observers
+                       runtime_token_data(
+                         token_id: token_id,
+                         token_display: token_display,
+                         value: value,
+                         location: location,
+                         state: next_state
+                       ).merge("from_state" => @state_stack.last).freeze
+                     end
         @state_stack << next_state
         @value_stack << value
         @location_stack << location
         @lookahead = NO_LOOKAHEAD
         @lookahead_location = nil
+        @runtime_lookahead_token_display = nil
         @recovery_shifts -= 1 if @recovery_shifts.positive?
         on_shift(token_id, value, next_state)
+        emit_runtime_event(:shift, event_data, observers: event_observers) if event_data
         [:continue]
       end
 
@@ -454,12 +522,15 @@ module Ibex
       def reduce(production_id)
         production = parser_tables.fetch(:productions).fetch(production_id)
         length = production.fetch(:length)
+        event_observers = runtime_observer_snapshot if @runtime_observers
+        pre_state = @state_stack.last if event_observers
         values = @value_stack.last(length)
         locations = @location_stack.last(length)
         hook_values = values.dup
         @state_stack.pop(length)
         @value_stack.pop(length)
         @location_stack.pop(length)
+        post_state = @state_stack.last if event_observers
         location = LocationSpan.for_reduction(locations, lookahead: @lookahead_location)
         result = reduction_value(production, values, locations, location)
         next_state = table_lookup(parser_tables.fetch(:gotos), @state_stack.last, production.fetch(:lhs))
@@ -469,11 +540,39 @@ module Ibex
         @value_stack << result
         @location_stack << location
         trace("reduce #{production_id} (#{length}) -> state #{next_state}")
+        if event_observers
+          event_data = runtime_reduce_data(
+            production_id, production, length, pre_state, post_state, next_state, result, location
+          )
+        end
         on_reduce(production_id, hook_values, result)
-        return [:accepted, result] if @accept_requested
+        emit_runtime_event(:reduce, event_data, observers: event_observers) if event_data
+        return accept_reduction(result) if @accept_requested
         return recover(report: false) if @semantic_error
 
         [:continue]
+      end
+
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length,
+      #   Integer? pre_state, Integer? post_state, Integer next_state, untyped result,
+      #   LocationSpan? location) -> Hash[String, untyped]
+      def runtime_reduce_data(production_id, production, length, pre_state, post_state, next_state, result, location)
+        {
+          "production_id" => production_id,
+          "lhs" => production.fetch(:lhs),
+          "rhs_length" => length,
+          "pre_state" => pre_state,
+          "post_state" => post_state,
+          "goto_state" => next_state,
+          "result" => EventSanitizer.value(result),
+          "location" => EventSanitizer.location(location)
+        }.freeze
+      end
+
+      # @rbs (untyped result) -> [:accepted, untyped]
+      def accept_reduction(result)
+        emit_accept_event(EventSanitizer.value(result), "semantic") if @runtime_observers
+        [:accepted, result]
       end
 
       # @rbs (Hash[Symbol, untyped] production, Array[untyped] values,
@@ -512,24 +611,182 @@ module Ibex
       # @rbs (?report: bool) -> untyped
       def recover(report: true)
         @semantic_error = false
-        if @recovery_shifts.positive?
-          return [:done, nil] if @lookahead == EOF_TOKEN
+        return continue_recovery if @recovery_shifts.positive?
 
-          trace("discard #{token_to_str(@lookahead)} during recovery")
-          @lookahead = NO_LOOKAHEAD
-          @lookahead_location = nil
-          return [:continue]
+        begin_recovery(report)
+      end
+
+      # @rbs () -> untyped
+      def continue_recovery
+        return reject_recovery_eof if @lookahead == EOF_TOKEN
+
+        token_display = token_to_str(@lookahead)
+        event_observers = runtime_observer_snapshot if @runtime_observers
+        event_data = runtime_discard_data(token_display) if event_observers
+        trace("discard #{token_display} during recovery")
+        @lookahead = NO_LOOKAHEAD
+        @lookahead_location = nil
+        @runtime_lookahead_token_display = nil
+        emit_runtime_event(:discard, event_data, observers: event_observers) if event_data
+        [:continue]
+      end
+
+      # @rbs () -> [:done, nil]
+      def reject_recovery_eof
+        if @runtime_observers
+          observers = runtime_observer_snapshot
+          data = runtime_current_token_data
+          emit_reject_event("eof_during_recovery", data, observers: observers)
         end
+        [:done, nil]
+      end
 
+      # @rbs (String token_display) -> Hash[String, untyped]
+      def runtime_discard_data(token_display)
+        runtime_token_data(
+          token_id: @lookahead,
+          token_display: token_display,
+          value: @lookahead_value,
+          location: @lookahead_location,
+          state: @state_stack.last
+        ).merge("reason" => "recovery").freeze
+      end
+
+      # @rbs (bool report) -> untyped
+      def begin_recovery(report)
         token_id = @lookahead
         value = @lookahead_value
+        token_display = @runtime_lookahead_token_display
+        error_location = @lookahead_location
         value_stack = @value_stack.dup
+        original_state = @state_stack.last
+        reason = report ? "syntax" : "semantic"
+        error_observers = runtime_observer_snapshot if @runtime_observers
+        if error_observers
+          token_data = runtime_original_token_data(
+            token_id, token_display, value, error_location, original_state
+          )
+          emit_runtime_event(
+            :error, token_data.merge("reason" => reason), observers: error_observers
+          )
+        end
+        recovery_observers = runtime_observer_snapshot if @runtime_observers
         on_error(token_id, value, value_stack.dup) if report
-        return [:done, nil] unless shift_error_token
+        unless shift_error_token
+          return reject_without_recovery(
+            token_id, token_display, value, error_location, original_state, token_data, recovery_observers
+          )
+        end
 
         @recovery_shifts = RECOVERY_SHIFTS
+        finish_recovery(
+          token_id, token_display, value, error_location, original_state, value_stack, token_data, reason,
+          recovery_observers
+        )
+      end
+
+      # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,
+      #   Integer state) -> Hash[String, untyped]
+      def runtime_original_token_data(token_id, token_display, value, location, state)
+        runtime_token_data(
+          token_id: token_id,
+          token_display: token_display,
+          value: value,
+          location: location,
+          state: state
+        )
+      end
+
+      # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,
+      #   Integer original_state, Hash[String, untyped]? token_data, Array[Proc]? observers) -> [:done, nil]
+      def reject_without_recovery(token_id, token_display, value, location, original_state, token_data, observers)
+        if observers
+          reject_data = token_data || runtime_original_token_data(
+            token_id, token_display, value, location, original_state
+          )
+          emit_reject_event(
+            "no_recovery_state",
+            reject_data.merge("state" => @state_stack.last),
+            observers: observers
+          )
+        end
+        [:done, nil]
+      end
+
+      # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,
+      #   Integer original_state, Array[untyped] value_stack, Hash[String, untyped]? token_data,
+      #   String reason, Array[Proc]? observers) -> [:continue]
+      def finish_recovery(
+        token_id, token_display, value, location, original_state, value_stack, token_data, reason, observers
+      )
+        recover_data = if observers
+                         token_data || runtime_original_token_data(
+                           token_id, token_display, value, location, original_state
+                         )
+                       end
         on_error_recover(token_id, value, value_stack)
+        if recover_data
+          emit_runtime_event(
+            :recover,
+            recover_data.merge(
+              "from_state" => original_state,
+              "state" => @state_stack.last,
+              "reason" => reason
+            ),
+            observers: observers
+          )
+        end
         [:continue]
+      end
+
+      # @rbs (token_id: untyped, token_display: untyped, value: untyped,
+      #   location: untyped, state: Integer) -> Hash[String, untyped]
+      def runtime_token_data(token_id:, token_display:, value:, location:, state:)
+        if token_id.equal?(NO_LOOKAHEAD)
+          return {
+            "state" => state,
+            "token_id" => nil,
+            "token" => nil,
+            "value" => nil,
+            "location" => nil
+          }.freeze
+        end
+
+        {
+          "state" => state,
+          "token_id" => token_id,
+          "token" => EventSanitizer.value(token_display),
+          "value" => EventSanitizer.value(value),
+          "location" => EventSanitizer.location(location)
+        }.freeze
+      end
+
+      # @rbs () -> Hash[String, untyped]
+      def runtime_current_token_data
+        runtime_token_data(
+          token_id: @lookahead,
+          token_display: @runtime_lookahead_token_display,
+          value: @lookahead_value,
+          location: @lookahead_location,
+          state: @state_stack.last
+        )
+      end
+
+      # @rbs (untyped result_summary, String reason) -> void
+      def emit_accept_event(result_summary, reason)
+        emit_runtime_event(
+          :accept,
+          { "state" => @state_stack.last, "result" => result_summary, "reason" => reason }
+        )
+      end
+
+      # @rbs (String reason, Hash[String, untyped] token_data, ?observers: Array[Proc]?) -> void
+      def emit_reject_event(reason, token_data, observers: runtime_observer_snapshot)
+        emit_runtime_event(
+          :reject,
+          token_data.merge("reason" => reason),
+          observers: observers
+        )
       end
 
       # @rbs () -> bool
@@ -567,7 +824,9 @@ module Ibex
                          internal_token_id(external_token)
                        end
         end
-        trace("read #{token_to_str(@lookahead)}")
+        token_display = token_to_str(@lookahead)
+        @runtime_lookahead_token_display = token_display
+        trace("read #{token_display}")
       end
 
       # @rbs () -> untyped

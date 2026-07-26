@@ -239,6 +239,13 @@ Three optional observer methods default to no-ops. `on_shift(token_id, value, st
 unexpected-token context. Hook return values are ignored and exceptions propagate. See
 [ADR 0013](decisions/0013-runtime-observation-hooks.md) for exact ordering and snapshot semantics.
 
+For external tooling, `observe { |event| ... }` registers an ordered observer and returns an opaque subscription accepted by
+`unobserve`. Events are immutable, sequence-numbered per parse session, and cover `start`, `shift`, `reduce`, `error`, `recover`,
+`discard`, `accept`, and `reject`. Semantic values and locations are bounded JSON summaries rather than live objects.
+`Ibex::Runtime::EventJSONLTracer.attach(parser, io:)` writes the versioned schema at
+`schema/runtime-event-v1.schema.json`; write and serialization failures propagate. This API is separate from the legacy
+hook-shaped `Runtime::JSONLTracer`. See [ADR 0050](decisions/0050-stable-immutable-runtime-events.md).
+
 ## Extended EBNF and names
 
 Extended mode supports:
