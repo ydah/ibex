@@ -59,4 +59,18 @@ class ActionLocationsCodegenTest < Minitest::Test
     assert_equal Encoding::UTF_8, rewritten.encoding
     assert_predicate rewritten, :valid_encoding?
   end
+
+  def test_accepts_ripper_implementations_that_return_complete_semantic_tokens
+    source = "result = [@1, @$]"
+    tokens = [
+      [[1, 10], :on_ivar, "@1", nil],
+      [[1, 14], :on_ivar, "@$", nil]
+    ]
+
+    rewritten = Ripper.stub(:lex, tokens) do
+      Ibex::Codegen::ActionLocations.new(source, maximum: 1, location: LOCATION).rewrite
+    end
+
+    assert_equal "result = [_ibex_locations[0], _ibex_location]", rewritten
+  end
 end

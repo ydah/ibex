@@ -37,13 +37,21 @@ module Ibex
         tokens = Object.const_get(:Ripper).__send__(:lex, @source)
         # @type var tokens: Array[[[Integer, Integer], Symbol, String, untyped]]
         tokens.filter_map do |position, type, token, _state|
-          next unless type == :on_ivar && token == "@"
+          next unless semantic_token?(type, token)
 
           line, column = position
           offset = offsets.fetch(line - 1) + column
           spelling = @source.b.byteslice(offset..)&.match(/\A@(?:\$|\d+)/)&.[](0)
           [offset, spelling] if spelling
         end
+      end
+
+      # CRuby tokenizes an invalid semantic reference as an "@" ivar token
+      # followed by its suffix. Other Ripper implementations can return the
+      # complete spelling as the ivar token.
+      # @rbs (Symbol type, String token) -> bool
+      def semantic_token?(type, token)
+        type == :on_ivar && (token == "@" || token.match?(/\A@(?:\$|\d+)\z/))
       end
 
       # @rbs () -> Array[Integer]
