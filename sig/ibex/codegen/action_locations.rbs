@@ -22,11 +22,10 @@ module Ibex
       # @rbs () -> Array[[Integer, String]]
       def semantic_references: () -> Array[[ Integer, String ]]
 
-      # CRuby tokenizes an invalid semantic reference as an "@" ivar token
-      # followed by its suffix. Other Ripper implementations can return the
-      # complete spelling as the ivar token.
-      # @rbs (Symbol type, String token) -> bool
-      def semantic_token?: (Symbol type, String token) -> bool
+      # Give every Ripper implementation syntactically valid input while
+      # preserving byte offsets and lexical string/comment boundaries.
+      # @rbs () -> String
+      def lexable_source: () -> String
 
       # @rbs () -> Array[Integer]
       def line_offsets: () -> Array[Integer]
