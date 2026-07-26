@@ -60,17 +60,23 @@ class ActionLocationsCodegenTest < Minitest::Test
     assert_predicate rewritten, :valid_encoding?
   end
 
-  def test_accepts_ripper_implementations_that_return_complete_semantic_tokens
+  def test_masks_semantic_references_before_lexing
     source = "result = [@1, @$]"
+    lexed_source = nil
     tokens = [
-      [[1, 10], :on_ivar, "@1", nil],
-      [[1, 14], :on_ivar, "@$", nil]
+      [[1, 10], :on_ident, "__", nil],
+      [[1, 14], :on_ident, "__", nil]
     ]
+    lexer = lambda do |input|
+      lexed_source = input
+      tokens
+    end
 
-    rewritten = Ripper.stub(:lex, tokens) do
+    rewritten = Ripper.stub(:lex, lexer) do
       Ibex::Codegen::ActionLocations.new(source, maximum: 1, location: LOCATION).rewrite
     end
 
+    assert_equal "result = [__, __]", lexed_source
     assert_equal "result = [_ibex_locations[0], _ibex_location]", rewritten
   end
 end

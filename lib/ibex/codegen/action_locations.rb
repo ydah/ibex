@@ -34,10 +34,10 @@ module Ibex
       # @rbs () -> Array[[Integer, String]]
       def semantic_references
         offsets = line_offsets
-        tokens = Object.const_get(:Ripper).__send__(:lex, @source)
+        tokens = Object.const_get(:Ripper).__send__(:lex, lexable_source)
         # @type var tokens: Array[[[Integer, Integer], Symbol, String, untyped]]
-        tokens.filter_map do |position, type, token, _state|
-          next unless semantic_token?(type, token)
+        tokens.filter_map do |position, type, _token, _state|
+          next unless type == :on_ident
 
           line, column = position
           offset = offsets.fetch(line - 1) + column
@@ -46,12 +46,11 @@ module Ibex
         end
       end
 
-      # CRuby tokenizes an invalid semantic reference as an "@" ivar token
-      # followed by its suffix. Other Ripper implementations can return the
-      # complete spelling as the ivar token.
-      # @rbs (Symbol type, String token) -> bool
-      def semantic_token?(type, token)
-        type == :on_ivar && (token == "@" || token.match?(/\A@(?:\$|\d+)\z/))
+      # Give every Ripper implementation syntactically valid input while
+      # preserving byte offsets and lexical string/comment boundaries.
+      # @rbs () -> String
+      def lexable_source
+        @source.gsub(/@(?:\$|\d+)/) { |spelling| "_" * spelling.bytesize }
       end
 
       # @rbs () -> Array[Integer]
