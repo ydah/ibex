@@ -72,6 +72,20 @@ class LexerTest < Minitest::Test
                   { name: "header", code: "C\n" }], blocks
   end
 
+  def test_tokenizes_lexer_regular_expressions_with_escapes_classes_and_options
+    tokens = tokenize("lexer\nWORD /a\\/b[\\/]c/im\nend\n")
+    regexp = tokens.find { |token| token.type == :regexp }
+
+    assert_equal "/a\\/b[\\/]c/im", regexp.value
+    assert_equal({ file: "fixture.y", line: 2, column: 6 }, regexp.location.to_h)
+  end
+
+  def test_reports_unterminated_lexer_regular_expression
+    error = assert_raises(Ibex::Error) { tokenize("lexer\nWORD /[abc/\n") }
+
+    assert_equal "fixture.y:2:6: unterminated regular expression", error.message
+  end
+
   def test_reports_unterminated_constructs_with_location
     error = assert_raises(Ibex::Error) { tokenize("class P\nrule\nx: X { 'oops }\n") }
     assert_match(/fixture\.y:3:8: unterminated ' string/, error.message)

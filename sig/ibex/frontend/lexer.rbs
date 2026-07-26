@@ -3,6 +3,7 @@
 module Ibex
   module Frontend
     # Tokenizes a racc-compatible grammar while preserving source locations.
+    # rubocop:disable Metrics/ClassLength -- token scanners stay together to preserve cursor invariants.
     class Lexer
       PUNCTUATION: Hash[String, Symbol]
 
@@ -78,6 +79,10 @@ module Ibex
 
       # @rbs () -> Token
       def scan_literal: () -> Token
+
+      # @rbs () -> Token
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      def scan_regexp: () -> Token
 
       # @rbs () -> Token
       def scan_punctuation: () -> Token

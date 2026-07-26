@@ -57,6 +57,24 @@ module Ibex
       # @rbs () -> AST::GrammarTest
       def parse_grammar_test: () -> AST::GrammarTest
 
+      # @rbs () -> AST::Lexer
+      def parse_lexer: () -> AST::Lexer
+
+      # @rbs () -> Array[AST::lexer_entry]
+      def parse_lexer_entries: () -> Array[AST::lexer_entry]
+
+      # @rbs () -> AST::lexer_entry
+      def parse_lexer_entry: () -> AST::lexer_entry
+
+      # @rbs () -> AST::LexerState
+      def parse_lexer_state: () -> AST::LexerState
+
+      # @rbs () -> Token
+      def expect_lexer_pattern: () -> Token
+
+      # @rbs (Symbol kind, Token marker, Token pattern, Token? action) -> AST::LexerRule
+      def build_bootstrap_lexer_rule: (Symbol kind, Token marker, Token pattern, Token? action) -> AST::LexerRule
+
       # @rbs () -> AST::Convert
       def parse_convert: () -> AST::Convert
 

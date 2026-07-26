@@ -13,7 +13,9 @@ module Ibex
     module AST
       type symbol_metadata = DisplayName | SemanticType
 
-      type declaration = Include | Tokens | Precedence | Options | Expect | ExpectRR | Start | Recovery | OnErrorReduce | GrammarTest | Convert | Parameter | Printer | symbol_metadata
+      type declaration = Include | Tokens | Precedence | Options | Expect | ExpectRR | Start | Recovery | OnErrorReduce | GrammarTest | Lexer | Convert | Parameter | Printer | symbol_metadata
+
+      type lexer_entry = LexerRule | LexerState
 
       type item = SymbolReference | ParameterizedReference | InlineAction | Optional | Star | Plus | Group | SeparatedList | Empty
 
@@ -175,6 +177,43 @@ module Ibex
 
         def self.new: (?expectation: Symbol, ?source: String, ?loc: Location) -> instance
                     | ({ ?expectation: Symbol, ?source: String, ?loc: Location }) -> instance
+      end
+
+      class Lexer < Struct[Array[lexer_entry] | Location]
+        attr_accessor definitions(): Array[lexer_entry]
+
+        attr_accessor loc(): Location
+
+        def self.new: (?definitions: Array[lexer_entry], ?loc: Location) -> instance
+                    | ({ ?definitions: Array[lexer_entry], ?loc: Location }) -> instance
+      end
+
+      class LexerRule < Struct[Symbol | String? | String | Location]
+        attr_accessor kind(): Symbol
+
+        attr_accessor token(): String?
+
+        attr_accessor pattern(): String
+
+        attr_accessor pattern_kind(): Symbol
+
+        attr_accessor action(): String?
+
+        attr_accessor loc(): Location
+
+        def self.new: (?kind: Symbol, ?token: String?, ?pattern: String, ?pattern_kind: Symbol, ?action: String?, ?loc: Location) -> instance
+                    | ({ ?kind: Symbol, ?token: String?, ?pattern: String, ?pattern_kind: Symbol, ?action: String?, ?loc: Location }) -> instance
+      end
+
+      class LexerState < Struct[String | Array[lexer_entry] | Location]
+        attr_accessor name(): String
+
+        attr_accessor definitions(): Array[lexer_entry]
+
+        attr_accessor loc(): Location
+
+        def self.new: (?name: String, ?definitions: Array[lexer_entry], ?loc: Location) -> instance
+                    | ({ ?name: String, ?definitions: Array[lexer_entry], ?loc: Location }) -> instance
       end
 
       class Convert < Struct[Array[Conversion] | Location]

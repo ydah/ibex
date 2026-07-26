@@ -1,9 +1,9 @@
 class Ibex::Frontend::GeneratedParser < Ibex::Frontend::GeneratedParserBase
-token CLASS FRAGMENT INCLUDE TOKEN PRECHIGH PRECLOW OPTIONS EXPECT EXPECT_RR START RECOVER ON_ERROR_REDUCE TEST
+token CLASS FRAGMENT INCLUDE TOKEN PRECHIGH PRECLOW OPTIONS EXPECT EXPECT_RR START RECOVER ON_ERROR_REDUCE TEST LEXER
 token CONVERT DISPLAY TYPE PARAM PRINTER PRAGMA RULE END
 token LEFT RIGHT NONASSOC PRECEDENCE IDENTIFIER LITERAL INTEGER ACTION USER_CODE INLINE EMPTY LHS
 token PARAMETERIZED_REFERENCE TOKEN_ALIAS
-token SEPARATED_LIST SEPARATED_NONEMPTY_LIST
+token SEPARATED_LIST SEPARATED_NONEMPTY_LIST STATE DO SKIP ON REGEXP
 rule
   document
     : grammar                            { result = val[0] }
@@ -48,6 +48,7 @@ rule
     | recovery_declaration               { result = val[0] }
     | on_error_reduce_declaration        { result = val[0] }
     | test_declaration                   { result = val[0] }
+    | lexer_declaration                  { result = val[0] }
     | convert_declaration                { result = val[0] }
     | display_declaration                { result = val[0] }
     | type_declaration                   { result = val[0] }
@@ -107,6 +108,35 @@ rule
 
   test_declaration
     : TEST IDENTIFIER LITERAL            { result = build_grammar_test(val[0], val[1], val[2]) }
+
+  lexer_declaration
+    : LEXER lexer_entries END            { result = build_lexer(val[0], val[1]) }
+
+  lexer_entries
+    :                                    { result = Array.new(0) }
+    | lexer_entries lexer_entry          { result = val[0] + [val[1]] }
+
+  lexer_entry
+    : lexer_rule                         { result = val[0] }
+    | lexer_state                        { result = val[0] }
+
+  lexer_rule
+    : SKIP lexer_pattern lexer_action    { result = build_lexer_rule(:skip, nil, val[1], val[2], val[0]) }
+    | IDENTIFIER lexer_pattern lexer_action
+                                         { result = build_lexer_rule(:token, val[0], val[1], val[2], val[0]) }
+    | ON lexer_pattern ACTION            { result = build_lexer_rule(:on, nil, val[1], val[2], val[0]) }
+
+  lexer_pattern
+    : REGEXP                             { result = val[0] }
+    | LITERAL                            { result = val[0] }
+
+  lexer_action
+    :                                    { result = nil }
+    | ACTION                             { result = val[0] }
+
+  lexer_state
+    : STATE IDENTIFIER DO lexer_entries END
+      { result = build_lexer_state(val[0], val[1], val[3]) }
 
   convert_declaration
     : CONVERT conversions END            { result = build_convert(val[0], val[1]) }

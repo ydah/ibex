@@ -5,7 +5,7 @@ module Ibex
     # Re-runs the generated parser after suppressing only conservative source regions.
     class DiagnosticRecovery
       DECLARATION_STARTS = %w[
-        pragma token prechigh preclow options expect expect_rr start recover on_error_reduce test
+        pragma token prechigh preclow options expect expect_rr start recover on_error_reduce test lexer
         convert display type param printer
       ].freeze #: Array[String]
 
@@ -135,7 +135,7 @@ module Ibex
         value = @tokens.fetch(start).value
         return matching_declaration_end(start, rule_marker, value == "prechigh" ? "preclow" : "prechigh") if
           %w[prechigh preclow].include?(value)
-        return matching_declaration_end(start, rule_marker, "end") if value == "convert"
+        return matching_declaration_end(start, rule_marker, "end") if %w[convert lexer].include?(value)
 
         starts.find { |index| index > start } || rule_marker
       end

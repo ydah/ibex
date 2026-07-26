@@ -1,0 +1,27 @@
+# Generated from lib/ibex/frontend/token_adapter/declaration_lexer_state.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    class TokenAdapter
+      # Context transitions for the extended root-only lexer declaration.
+      module DeclarationLexerState
+        private
+
+        # @rbs () -> bool
+        def lexer_declaration_state?: () -> bool
+
+        # @rbs (Token token) -> external_token
+        def classify_lexer_identifier: (Token token) -> external_token
+
+        # @rbs (Token token) -> external_token
+        def begin_lexer_entry: (Token token) -> external_token
+
+        # @rbs () -> external_token
+        def finish_lexer_scope: () -> external_token
+
+        # @rbs (external_token type) -> external_token?
+        def classify_lexer_scalar: (external_token type) -> external_token?
+      end
+    end
+  end
+end

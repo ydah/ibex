@@ -9,6 +9,8 @@ module Ibex
       class DeclarationState
         include DeclarationDocumentState
 
+        include DeclarationLexerState
+
         DECLARATIONS: Hash[String, [ external_token, Symbol ]]
 
         ASSOCIATIONS: Hash[String, external_token]

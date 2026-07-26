@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "declaration_lexer_state"
+
 module Ibex
   module Frontend
     class TokenAdapter
@@ -8,6 +10,7 @@ module Ibex
       # One state machine owns declaration-boundary classification.
       class DeclarationState
         include DeclarationDocumentState
+        include DeclarationLexerState
 
         DECLARATIONS = {
           "include" => %i[INCLUDE include_path],
@@ -17,6 +20,7 @@ module Ibex
           "recover" => %i[RECOVER recover_kind],
           "on_error_reduce" => %i[ON_ERROR_REDUCE on_error_reduce_first_symbol],
           "test" => %i[TEST test_expectation],
+          "lexer" => %i[LEXER lexer_entries],
           "convert" => %i[CONVERT convert_name], "pragma" => %i[PRAGMA pragma_value],
           "display" => %i[DISPLAY display_symbol], "type" => %i[TYPE type_symbol],
           "param" => %i[PARAM param_name],
@@ -27,7 +31,7 @@ module Ibex
           "left" => :LEFT, "right" => :RIGHT, "nonassoc" => :NONASSOC, "precedence" => :PRECEDENCE
         }.freeze #: Hash[String, external_token]
         SCALAR_TYPES = {
-          literal: :LITERAL, integer: :INTEGER, action: :ACTION, user_code: :USER_CODE
+          literal: :LITERAL, regexp: :REGEXP, integer: :INTEGER, action: :ACTION, user_code: :USER_CODE
         }.freeze #: Hash[Symbol, external_token]
         EXPECTATIONS = {
           class_keyword: "class", class_name: "identifier", superclass_name: "identifier",
@@ -41,7 +45,10 @@ module Ibex
           recover_kind: "sync", recovery_colon: ":", recovery_first_symbol: "a grammar symbol",
           recovery_symbols: "a grammar symbol", on_error_reduce_first_symbol: "a grammar symbol",
           on_error_reduce_symbols: "a grammar symbol", test_expectation: "accept or reject",
-          test_source: "a double-quoted string"
+          test_source: "a double-quoted string",
+          lexer_entries: "a lexer rule, state, or end", lexer_state_name: "a state name",
+          lexer_state_do: "do", lexer_pattern: "a regular expression or quoted literal",
+          lexer_action_or_entry: "an action, lexer rule, state, or end"
         }.freeze #: Hash[Symbol, String]
 
         attr_reader :conversion_name #: Token?
@@ -96,6 +103,8 @@ module Ibex
 
         # @rbs (Token token, Array[Token] remaining) -> external_token
         def classify_identifier(token, remaining)
+          return classify_lexer_identifier(token) if lexer_declaration_state?
+
           case @state
           when :class_keyword then class_keyword(token)
           when :class_name, :superclass_name then constant_name(remaining)
@@ -223,7 +232,8 @@ module Ibex
         # @rbs (Token token, Array[Token] remaining) -> external_token
         def classify_scalar(token, remaining)
           type = SCALAR_TYPES.fetch(token.type)
-          classified = classify_token_alias(token, type) || classify_include(type) || classify_single_symbol(type) ||
+          classified = classify_lexer_scalar(type) ||
+                       classify_token_alias(token, type) || classify_include(type) || classify_single_symbol(type) ||
                        classify_metadata(type) || classify_printer(type) || classify_grammar_test(type) ||
                        classify_conversion(token, type, remaining)
 
