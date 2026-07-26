@@ -15,6 +15,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -117,7 +121,7 @@ jobs:
           ruby-version: '3.4'
           bundler-cache: true
       - name: Validate schema and reproduce deterministic structure
-        run: bundle exec ruby benchmark/verify.rb benchmark/results/v1/2026-07-25-706e9e3cd90f-ruby-4.0.0-arm64-darwin24.json
+        run: bundle exec ruby benchmark/verify.rb benchmark/results/v2/2026-07-25-07e46b082245-ruby-4.0.0-arm64-darwin24.json
       - name: Record full observational benchmark
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         env:
@@ -140,7 +144,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Check GitHub Actions workflows
-        uses: docker://rhysd/actionlint:1.7.12
+        uses: docker://rhysd/actionlint@sha256:9d36088643581e728c969f35141f88139fec77280b2be23c1f66f8e40e1025e7
         with:
           args: -color
 

@@ -214,9 +214,10 @@ shortest reachability witness instead of claiming ambiguity.
 shape. `Counterexample#all` retains its original all-conflict behavior. The view performs no additional parser analysis and does
 not extend Grammar or Automaton IR.
 
-The repository's self-authored representative grammar feeds the current versioned `ibex_benchmark` v2 document. Its JSON Schema is
-shipped beside the IR schemas, while committed environment-specific observations live under `benchmark/results/v1`. Timing and
-peak RSS remain non-gating; CI reproduces only deterministic structure and digests. See
+The repository's self-authored representative grammar feeds the current versioned `ibex_benchmark` v2 document. Its JSON Schema
+is shipped beside the IR schemas, while committed environment-specific observations live under the matching
+`benchmark/results/vN` directory. Timing and peak RSS remain non-gating; CI reproduces only deterministic structure and digests.
+See
 [ADR 0038](decisions/0038-versioned-benchmark-evidence.md).
 
 ## Runtime table contract
