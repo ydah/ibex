@@ -18,10 +18,27 @@ Gem::Specification.new do |spec|
   spec.metadata["rubygems_mfa_required"] = "true"
 
   gemspec = File.basename(__FILE__)
+  development_files = %w[
+    .gitignore
+    .yardopts
+    Gemfile
+    Gemfile.lock
+    package.json
+    package-lock.json
+  ]
+  development_directories = %w[
+    .github/
+    .idea/
+    benchmark/
+    docs/decisions/
+    gemfiles/
+    site/
+    test/
+    tool/
+  ]
   tracked_files = IO.popen(%w[git ls-files -z], chdir: __dir__, err: IO::NULL) do |ls|
     ls.readlines("\x0", chomp: true).reject do |f|
-      (f == gemspec) ||
-        f.start_with?(*%w[Gemfile .gitignore test/ benchmark/ tool/ .github/ .idea/ docs/decisions/])
+      f == gemspec || development_files.include?(f) || f.start_with?(*development_directories)
     end
   end
   schema_files = %w[

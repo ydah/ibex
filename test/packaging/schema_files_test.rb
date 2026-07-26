@@ -66,4 +66,18 @@ class SchemaFilesPackagingTest < Minitest::Test
       assert_includes specification.files, "sig/#{path}.rbs"
     end
   end
+
+  def test_development_and_project_site_files_are_not_packaged
+    specification = Gem::Specification.load(File.expand_path("../../ibex.gemspec", __dir__))
+    excluded = %w[
+      .yardopts
+      gemfiles/docs.Gemfile
+      package-lock.json
+      package.json
+      site/index.html
+      tool/build_site.rb
+    ]
+
+    excluded.each { |path| refute_includes specification.files, path }
+  end
 end
