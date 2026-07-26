@@ -2,7 +2,8 @@
 
 source "https://rubygems.org"
 
-gemspec
+gemspec name: "ibex"
+gemspec name: "ibex-runtime"
 
 gem "json_schemer", "~> 2.5", require: false
 gem "minitest", "~> 5.0"

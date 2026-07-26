@@ -279,6 +279,11 @@ the state stack and simulates reductions and gotos for each declared terminal, w
 `expected_tokens_exact` API exposes the same result for compatible tables. The deterministic size policy is fixed by
 [ADR 0014](decisions/0014-compatibility-safe-default-reductions.md).
 
+Runtime execution is packaged independently as `ibex-runtime`, with its own version and RBS tree. The generator package depends
+on a compatible runtime series but does not duplicate runtime-owned files. Compact lookup values live in a runtime-safe leaf
+file, while table construction remains generator-only. Normal output requires only `ibex/runtime`; `-E` embeds the same sources.
+See [ADR 0076](decisions/0076-separate-runtime-package.md).
+
 The runtime maintains state and value stacks, pulls a lookahead only when required, and applies tagged `shift`, `reduce`,
 `accept`, and `error` actions. Recovery pops to a state that shifts token id 1, suppresses repeated reports for three successful
 shifts, and honors `yyerrok`. No-op shift, reduce, recovery, location-aware, and discard extension points observe successfully

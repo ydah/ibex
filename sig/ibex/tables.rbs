@@ -18,32 +18,6 @@ module Ibex
                   | ({ ?actions: untyped, ?gotos: untyped, ?default_actions: untyped }) -> instance
     end
 
-    # Sparse table represented by per-row offsets and ownership checks.
-    class Compact
-      attr_reader offsets: Array[Integer]
-
-      attr_reader values: Array[untyped]
-
-      attr_reader checks: Array[Integer?]
-
-      attr_reader row_count: Integer
-
-      # @rbs (Array[Hash[Integer, untyped]] rows) -> Compact
-      def self.build: (Array[Hash[Integer, untyped]] rows) -> Compact
-
-      # @rbs (Array[Integer] columns, Array[Integer?] checks, Hash[Array[Integer], Integer] next_offsets) -> Integer
-      private def self.find_offset: (Array[Integer] columns, Array[Integer?] checks, Hash[Array[Integer], Integer] next_offsets) -> Integer
-
-      # @rbs (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer) -> void
-      def initialize: (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer) -> void
-
-      # @rbs (Integer row, Integer column) -> untyped
-      def lookup: (Integer row, Integer column) -> untyped
-
-      # @rbs (Integer row) -> Hash[Integer, untyped]
-      def row: (Integer row) -> Hash[Integer, untyped]
-    end
-
     # @rbs (IR::Automaton automaton, ?format: Symbol | String) -> TableSet
     def self?.build: (IR::Automaton automaton, ?format: Symbol | String) -> TableSet
   end

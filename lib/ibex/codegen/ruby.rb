@@ -37,7 +37,7 @@ module Ibex
         ../runtime/generated_lexer.rb
         ../runtime/jsonl_tracer.rb
         ../runtime/event_jsonl_tracer.rb
-        ../../ibex/tables.rb
+        ../tables/compact.rb
       ].freeze #: Array[String]
       private_constant :EMBEDDED_RUNTIME_SOURCES
 
@@ -109,7 +109,6 @@ module Ibex
           EMBEDDED_RUNTIME_SOURCES.each { |path| lines << embedded_source(path) }
         else
           lines << 'require "ibex/runtime"'
-          lines << 'require "ibex/tables"' if @table_format == :compact
         end
         lines << ""
       end

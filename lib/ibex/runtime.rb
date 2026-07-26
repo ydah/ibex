@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "runtime/version"
+require_relative "tables/compact"
 require_relative "runtime/event_sanitizer"
 require_relative "runtime/event"
 require_relative "runtime/observation"
