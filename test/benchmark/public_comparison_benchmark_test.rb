@@ -37,6 +37,32 @@ class PublicComparisonBenchmarkTest < Minitest::Test
     assert_equal 1_000, options.fetch(:bootstrap_samples)
   end
 
+  def test_formal_reports_require_native_racc
+    error = assert_raises(OptionParser::InvalidArgument) do
+      PublicPerformanceComparison.parse_options(["--expected-racc-backend", "ruby"])
+    end
+    options, = PublicPerformanceComparison.parse_options(
+      ["--smoke", "--expected-racc-backend", "ruby"]
+    )
+
+    assert_includes error.message, "formal reports require Racc's native backend"
+    assert_equal "ruby", options.fetch(:expected_racc_backend)
+  end
+
+  def test_formal_reports_reject_a_dirty_repository_root
+    options, = PublicPerformanceComparison.parse_options([])
+    environment = {
+      git_dirty: true,
+      git_tracked_dirty: false,
+      git_untracked_dirty: true
+    }
+
+    error = assert_raises(RuntimeError) do
+      PublicPerformanceComparison.verify_root!(options, environment)
+    end
+    assert_includes error.message, "clean Ibex repository root"
+  end
+
   def test_manifest_rejects_parent_traversal
     Dir.mktmpdir("public-workload-manifest-test-") do |directory|
       path = File.join(directory, "manifest.json")
@@ -50,11 +76,7 @@ class PublicComparisonBenchmarkTest < Minitest::Test
   end
 
   def test_report_validates_against_its_separate_schema
-    options, manifest = PublicPerformanceComparison.parse_options(["--smoke", "--project", "namae"])
-    options[:allow_dirty] = true
-    checkouts = { "namae" => fake_checkout }
-    observations = { "namae" => fake_observations }
-    report = BenchmarkSupport::PublicComparisonReport.build(options, manifest, checkouts, observations)
+    report = build_smoke_report
     errors = JSONSchemer.schema(JSON.parse(File.read(SCHEMA))).validate(JSON.parse(JSON.generate(report))).to_a
 
     assert_empty errors
@@ -62,6 +84,56 @@ class PublicComparisonBenchmarkTest < Minitest::Test
     assert_equal "diagnostic_smoke", report.fetch(:evidence_kind)
     assert_equal "end_to_end_lexer_inclusive", report.dig(:configuration, :runtime_scope)
     assert report.dig(:projects, 0, :scenarios, :warm_runtime_reuse, :comparison, :result_equivalent)
+  end
+
+  def test_schema_rejects_a_smoke_artifact_relabelled_as_formal
+    report = build_smoke_report
+    report[:evidence_kind] = "formal"
+
+    error = assert_raises(RuntimeError) { PublicPerformanceComparison.validate_report!(report) }
+    assert_includes error.message, "violates its schema"
+  end
+
+  def test_schema_accepts_only_complete_clean_native_formal_evidence
+    report = build_smoke_report
+    formalize!(report)
+
+    assert_same report, PublicPerformanceComparison.validate_report!(report)
+
+    report.dig(:projects, 0, :scenarios, :warm_runtime_reuse, :implementations, :racc)[:runtime_backend] = "ruby"
+    assert_raises(RuntimeError) { PublicPerformanceComparison.validate_report!(report) }
+  end
+
+  def test_report_builder_requires_the_configured_observation_count
+    options, manifest = PublicPerformanceComparison.parse_options(["--smoke", "--project", "namae"])
+    options[:runs] = 2
+
+    error = assert_raises(RuntimeError) do
+      BenchmarkSupport::PublicComparisonReport.build(
+        options, manifest, { "namae" => fake_checkout }, { "namae" => fake_observations }
+      )
+    end
+    assert_includes error.message, "has 1 observations; expected 2"
+  end
+
+  def test_checkout_metadata_must_not_change_during_collection
+    before = { "namae" => fake_checkout }
+    assert_same before, PublicPerformanceComparison.assert_checkouts_unchanged!(before, before)
+
+    after = Marshal.load(Marshal.dump(before))
+    after.fetch("namae")[:grammar_sha256] = "9" * 64
+    error = assert_raises(RuntimeError) do
+      PublicPerformanceComparison.assert_checkouts_unchanged!(before, after)
+    end
+    assert_includes error.message, "namae"
+  end
+
+  def test_checkout_identity_uses_the_git_tree_without_reading_tracked_files
+    source = File.read(File.join(ROOT, "benchmark/support/public_workload_manifest.rb"))
+
+    assert_includes source, '"HEAD:lib"'
+    refute_includes source, "File.binread"
+    refute_includes source, "tracked_library_sha256"
   end
 
   def test_worker_command_preserves_yjit_mode_and_checkout_as_one_argument
@@ -77,6 +149,28 @@ class PublicComparisonBenchmarkTest < Minitest::Test
 
   private
 
+  def build_smoke_report
+    options, manifest = PublicPerformanceComparison.parse_options(["--smoke", "--project", "namae"])
+    options[:allow_dirty] = true
+    BenchmarkSupport::PublicComparisonReport.build(
+      options, manifest, { "namae" => fake_checkout }, { "namae" => fake_observations }
+    )
+  end
+
+  def formalize!(report)
+    report[:evidence_kind] = "formal"
+    report[:configuration][:runs] = 10
+    report[:configuration][:allow_dirty_checkouts] = false
+    %i[git_dirty git_tracked_dirty git_untracked_dirty].each { |key| report[:environment][key] = false }
+    repository = report.dig(:projects, 0, :repository)
+    %i[dirty tracked_dirty untracked_dirty].each { |key| repository[key] = false }
+    report.dig(:projects, 0, :scenarios).each_value do |scenario|
+      scenario.fetch(:implementations).each_value do |implementation|
+        implementation.fetch(:observations).transform_values! { |values| Array.new(10, values.first) }
+      end
+    end
+  end
+
   def fake_checkout
     {
       root: "/tmp/not-recorded",
@@ -88,7 +182,7 @@ class PublicComparisonBenchmarkTest < Minitest::Test
       status_sha256: "a" * 64,
       grammar_sha256: "b" * 64,
       lockfile_sha256: "c" * 64,
-      tracked_library_sha256: "d" * 64
+      library_tree_oid: "d" * 40
     }
   end
 

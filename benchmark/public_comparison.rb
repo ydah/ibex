@@ -39,8 +39,11 @@ module PublicPerformanceComparison
 
     options, manifest = parse_options(arguments)
     warn "WARNING: #{THIRD_PARTY_WARNING}"
+    verify_root!(options)
     checkouts = verify_checkouts(options, manifest)
     observations = collect_observations(options, manifest, checkouts)
+    verified_checkouts = verify_checkouts(options, manifest)
+    assert_checkouts_unchanged!(checkouts, verified_checkouts)
     require_relative "support/public_comparison_report"
     report = BenchmarkSupport::PublicComparisonReport.build(options, manifest, checkouts, observations)
     validate_report!(report)
@@ -62,6 +65,22 @@ module PublicPerformanceComparison
 
       [identifier, manifest.verify_checkout(identifier, root, allow_dirty: options.fetch(:allow_dirty))]
     end
+  end
+
+  def verify_root!(options, environment = PerformanceComparison.environment)
+    return environment if options.fetch(:smoke)
+
+    dirty = %i[git_dirty git_tracked_dirty git_untracked_dirty].any? { |key| environment.fetch(key) }
+    raise "formal reports require a clean Ibex repository root" if dirty
+
+    environment
+  end
+
+  def assert_checkouts_unchanged!(before, after)
+    return after if before == after
+
+    changed = (before.keys | after.keys).reject { |identifier| before[identifier] == after[identifier] }
+    raise "public checkouts changed during observation collection: #{changed.join(', ')}"
   end
 
   def collect_observations(options, manifest, checkouts)

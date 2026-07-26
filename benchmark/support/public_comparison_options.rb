@@ -88,9 +88,15 @@ module BenchmarkSupport
       if options.fetch(:allow_dirty) && !options.fetch(:smoke)
         raise OptionParser::InvalidArgument, "dirty checkouts are allowed only with --smoke"
       end
-      return if %w[native ruby].include?(options.fetch(:expected_racc_backend))
 
-      raise OptionParser::InvalidArgument, "expected Racc backend must be native or ruby"
+      backend = options.fetch(:expected_racc_backend)
+      unless %w[native ruby].include?(backend)
+        raise OptionParser::InvalidArgument, "expected Racc backend must be native or ruby"
+      end
+
+      return if options.fetch(:smoke) || backend == "native"
+
+      raise OptionParser::InvalidArgument, "formal reports require Racc's native backend"
     end
   end
 end

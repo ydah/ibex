@@ -12,6 +12,7 @@ module BenchmarkSupport
 
     def build(options, manifest, checkouts, observations)
       environment = PerformanceComparison.environment
+      assert_formal_eligibility!(options, checkouts, environment)
       projects = options.fetch(:projects).map do |identifier|
         project_report(
           identifier, options, manifest, checkouts.fetch(identifier), observations.fetch(identifier), environment
@@ -34,6 +35,7 @@ module BenchmarkSupport
     end
 
     def project_report(identifier, options, manifest, checkout, observations, environment)
+      assert_observation_counts!(observations, options.fetch(:runs))
       PerformanceComparison.assert_worker_environment!(observations, environment)
       PerformanceComparison.assert_racc_backend!(observations, options.fetch(:expected_racc_backend))
       assert_equivalent!(observations)
@@ -47,6 +49,41 @@ module BenchmarkSupport
           [scenario.to_sym, summarize_scenario(scenario, implementations, options, identifier)]
         end
       }
+    end
+
+    def assert_formal_eligibility!(options, checkouts, environment)
+      return if options.fetch(:smoke)
+
+      raise "formal reports require Racc's native backend" unless options.fetch(:expected_racc_backend) == "native"
+      raise "formal reports require at least ten isolated runs" if options.fetch(:runs) < 10
+      raise "formal reports cannot allow dirty checkouts" if options.fetch(:allow_dirty)
+
+      root_dirty = %i[git_dirty git_tracked_dirty git_untracked_dirty].any? { |key| environment.fetch(key) }
+      raise "formal reports require a clean Ibex repository root" if root_dirty
+
+      dirty_checkouts = checkouts.select do |_identifier, checkout|
+        %i[dirty tracked_dirty untracked_dirty].any? { |key| checkout.fetch(key) }
+      end
+      return if dirty_checkouts.empty?
+
+      raise "formal reports require clean public checkouts: #{dirty_checkouts.keys.join(', ')}"
+    end
+
+    def assert_observation_counts!(observations, expected)
+      scenarios = PublicComparisonWorker::SCENARIOS
+      raise "public comparison scenarios do not match the protocol" unless observations.keys.sort == scenarios.sort
+
+      observations.each do |scenario, implementations|
+        unless implementations.keys.sort == PublicComparisonWorker::IMPLEMENTATIONS.sort
+          raise "#{scenario} implementations do not match the protocol"
+        end
+
+        implementations.each do |implementation, entries|
+          next if entries.length == expected
+
+          raise "#{scenario}/#{implementation} has #{entries.length} observations; expected #{expected}"
+        end
+      end
     end
 
     def summarize_scenario(scenario, observations, options, identifier)

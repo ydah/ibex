@@ -205,14 +205,19 @@ bundle exec ruby benchmark/public_comparison.rb \
   --output tmp/public-performance-comparison.json
 ```
 
-The command verifies each full revision and origin, rejects dirty checkouts,
-and records grammar, lockfile, tracked-library, status, workload, and manifest
-digests. Workers alternate implementation order and reject effective YJIT,
-`RUBYOPT`, backend, result, or repeated-result-sequence mismatches. Formal
-reports always contain at least ten isolated processes per implementation and
-scenario. `--smoke --allow-dirty-checkouts` exists only to diagnose local
-checkouts; its artifact is labelled `diagnostic_smoke` and is not release
-evidence.
+The command verifies each full revision and origin, rejects a dirty Ibex root
+or dirty public checkout, and records grammar and lockfile digests plus the
+committed `lib/` Git tree object ID, status, workload, and manifest digests. It
+repeats the complete checkout verification after collecting observations and
+rejects any metadata change before emitting a report. The Git tree identity
+avoids opening external generated parser outputs.
+
+Workers alternate implementation order and reject effective YJIT, `RUBYOPT`,
+backend, result, repeated-result-sequence, or observation-count mismatches.
+Formal reports are native-Racc-only and always contain exactly the configured
+count of at least ten isolated processes per implementation and scenario.
+`--smoke --allow-dirty-checkouts` exists only to diagnose local checkouts; its
+artifact is labelled `diagnostic_smoke` and is not release evidence.
 
 Public runtime scenarios are lexer-inclusive and cover parser reuse and a new
 parser for every parse. Pretokenized/core timing remains in the repository-owned

@@ -26,8 +26,10 @@ grammar and lockfile paths, workload identity, driver, and input sequence for
 all three release-gate projects. `benchmark/public_comparison.rb` requires an
 explicit checkout mapping for every selected project. Before execution it
 verifies the full revision and normalized origin and records the grammar,
-lockfile, tracked `lib/` tree, status, workload, and manifest SHA-256 digests.
-Formal evidence rejects any tracked or untracked checkout dirtiness.
+lockfile, status, workload, and manifest SHA-256 digests plus the committed
+`lib/` Git tree object ID. Using the tree identity avoids opening tracked
+generated parser outputs. Formal evidence rejects any tracked or untracked
+dirtiness in both the Ibex root and every public checkout.
 
 The executable prints a third-party-code warning before it starts workers.
 Operators must obtain and review the named revisions themselves; the harness
@@ -38,20 +40,27 @@ generated source, and loads the output as a black box. The two grammars whose
 public headers explicitly inherit from `Racc::Parser` use the migration
 adapter already recorded in the readiness report.
 
-Each formal scenario runs in at least ten isolated worker processes. First
-position alternates between implementations. Cold generation measures the CLI
-subprocess. Warm runtime measures the complete public lexer and parser over a
-fixed five-input corpus, separately for one reused parser and a new parser per
-input. Warmup, measured workloads, and untimed behavior probes are explicit.
-Elapsed time and total allocated objects are normalized per parse. Result and
-repeated-result-sequence digests must agree across implementations and
-lifecycles before a report is emitted.
+Each formal scenario runs in exactly the configured count of at least ten
+isolated worker processes per implementation. Report assembly rejects missing
+or excess observations. First position alternates between implementations.
+Cold generation measures the CLI subprocess. Warm runtime measures the
+complete public lexer and parser over a fixed five-input corpus, separately
+for one reused parser and a new parser per input. Warmup, measured workloads,
+and untimed behavior probes are explicit. Elapsed time and total allocated
+objects are normalized per parse. Result and repeated-result-sequence digests
+must agree across implementations and lifecycles before a report is emitted.
 
 The worker contract reuses ADR 0082's effective YJIT and redacted `RUBYOPT`
 identity checks, observable native-Racc backend classification, alternating
 order, median and median absolute deviation, and deterministic bootstrap 95%
-ratio interval. Native Racc remains the formal default. Timing and allocation
-targets are evidence fields, not noisy CI thresholds.
+ratio interval. Formal public evidence requires native Racc; a Ruby-backend
+comparison can only be a diagnostic smoke. Timing and allocation targets are
+evidence fields, not noisy CI thresholds.
+
+Immediately after observation collection, the orchestrator repeats revision,
+origin, status, grammar digest, lockfile digest, and library-tree verification.
+Any difference from the pre-run metadata aborts report emission. Formal runs
+therefore begin and end with the exact clean checkout identity.
 
 Public workloads intentionally omit a pretokenized/core scenario. Adding a
 token driver would rewrite third-party grammar behavior and measure an

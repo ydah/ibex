@@ -53,6 +53,38 @@
       "items": { "$ref": "#/$defs/project" }
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "evidence_kind": { "const": "formal" }
+        },
+        "required": ["evidence_kind"]
+      },
+      "then": {
+        "properties": {
+          "environment": {
+            "properties": {
+              "git_dirty": { "const": false },
+              "git_tracked_dirty": { "const": false },
+              "git_untracked_dirty": { "const": false }
+            },
+            "required": ["git_dirty", "git_tracked_dirty", "git_untracked_dirty"]
+          },
+          "configuration": {
+            "properties": {
+              "runs": { "minimum": 10 },
+              "expected_racc_backend": { "const": "native" },
+              "allow_dirty_checkouts": { "const": false }
+            }
+          },
+          "projects": {
+            "items": { "$ref": "#/$defs/formalProject" }
+          }
+        }
+      }
+    }
+  ],
   "$defs": {
     "sha256": {
       "type": "string",
@@ -109,6 +141,104 @@
         "allow_dirty_checkouts": { "type": "boolean" }
       }
     },
+    "formalProject": {
+      "type": "object",
+      "required": ["repository", "scenarios"],
+      "properties": {
+        "repository": {
+          "type": "object",
+          "required": ["dirty", "tracked_dirty", "untracked_dirty"],
+          "properties": {
+            "dirty": { "const": false },
+            "tracked_dirty": { "const": false },
+            "untracked_dirty": { "const": false }
+          }
+        },
+        "scenarios": {
+          "type": "object",
+          "required": ["cold_generation", "warm_runtime_reuse", "warm_runtime_new_instance"],
+          "properties": {
+            "cold_generation": { "$ref": "#/$defs/formalGenerationScenario" },
+            "warm_runtime_reuse": { "$ref": "#/$defs/formalRuntimeScenario" },
+            "warm_runtime_new_instance": { "$ref": "#/$defs/formalRuntimeScenario" }
+          }
+        }
+      }
+    },
+    "formalGenerationScenario": {
+      "type": "object",
+      "required": ["implementations"],
+      "properties": {
+        "implementations": {
+          "type": "object",
+          "required": ["ibex", "racc"],
+          "properties": {
+            "ibex": { "$ref": "#/$defs/formalGenerationImplementation" },
+            "racc": { "$ref": "#/$defs/formalGenerationImplementation" }
+          }
+        }
+      }
+    },
+    "formalGenerationImplementation": {
+      "type": "object",
+      "required": ["observations"],
+      "properties": {
+        "observations": {
+          "type": "object",
+          "required": ["elapsed_ms"],
+          "properties": {
+            "elapsed_ms": {
+              "type": "array",
+              "minItems": 10
+            }
+          }
+        }
+      }
+    },
+    "formalRuntimeScenario": {
+      "type": "object",
+      "required": ["implementations"],
+      "properties": {
+        "implementations": {
+          "type": "object",
+          "required": ["ibex", "racc"],
+          "properties": {
+            "ibex": { "$ref": "#/$defs/formalRuntimeImplementation" },
+            "racc": {
+              "allOf": [
+                { "$ref": "#/$defs/formalRuntimeImplementation" },
+                {
+                  "properties": {
+                    "runtime_backend": { "const": "native" }
+                  },
+                  "required": ["runtime_backend"]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "formalRuntimeImplementation": {
+      "type": "object",
+      "required": ["observations"],
+      "properties": {
+        "observations": {
+          "type": "object",
+          "required": ["elapsed_ms_per_parse", "allocated_objects_per_parse"],
+          "properties": {
+            "elapsed_ms_per_parse": {
+              "type": "array",
+              "minItems": 10
+            },
+            "allocated_objects_per_parse": {
+              "type": "array",
+              "minItems": 10
+            }
+          }
+        }
+      }
+    },
     "repository": {
       "type": "object",
       "additionalProperties": false,
@@ -125,7 +255,7 @@
         "status_sha256",
         "grammar_sha256",
         "lockfile_sha256",
-        "tracked_library_sha256"
+        "library_tree_oid"
       ],
       "properties": {
         "url": { "type": "string", "minLength": 1 },
@@ -140,7 +270,10 @@
         "status_sha256": { "$ref": "#/$defs/sha256" },
         "grammar_sha256": { "$ref": "#/$defs/sha256" },
         "lockfile_sha256": { "$ref": "#/$defs/sha256" },
-        "tracked_library_sha256": { "$ref": "#/$defs/sha256" }
+        "library_tree_oid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40,64}$"
+        }
       }
     },
     "workload": {

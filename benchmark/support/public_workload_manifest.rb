@@ -102,17 +102,8 @@ module BenchmarkSupport
         status_sha256: Digest::SHA256.hexdigest(status.join("\n")),
         grammar_sha256: Digest::SHA256.file(grammar).hexdigest,
         lockfile_sha256: Digest::SHA256.file(lockfile).hexdigest,
-        tracked_library_sha256: tracked_library_digest(checkout)
+        library_tree_oid: capture!(checkout, "git", "rev-parse", "HEAD:lib")
       }
-    end
-
-    def tracked_library_digest(checkout)
-      paths = capture!(checkout, "git", "ls-files", "-z", "--", "lib").split("\0").reject(&:empty?)
-      digest = Digest::SHA256.new
-      paths.sort.each do |relative|
-        digest << relative << "\0" << File.binread(File.join(checkout, relative)) << "\0"
-      end
-      digest.hexdigest
     end
 
     def normalize_repository(value)
