@@ -32,7 +32,8 @@ module Ibex
       # @rbs (String path) -> String
       def uri(path)
         canonical = @loader.canonical_path(path, allow_missing: true)
-        "file://#{URI::RFC2396_PARSER.escape(canonical)}"
+        parser_name = URI.const_defined?(:RFC2396_PARSER, false) ? :RFC2396_PARSER : :DEFAULT_PARSER
+        "file://#{URI.const_get(parser_name, false).escape(canonical)}"
       end
 
       # @rbs (String path) -> String?
@@ -91,7 +92,8 @@ module Ibex
           raise ArgumentError, "file URI must not percent-encode a path separator or NUL"
         end
 
-        decoded = URI::RFC2396_PARSER.unescape(encoded)
+        parser_name = URI.const_defined?(:RFC2396_PARSER, false) ? :RFC2396_PARSER : :DEFAULT_PARSER
+        decoded = URI.const_get(parser_name, false).unescape(encoded)
         raise ArgumentError, "file URI path must be valid UTF-8" unless decoded.valid_encoding?
         raise ArgumentError, "file URI path must not contain NUL" if decoded.include?("\0")
         raise ArgumentError, "file URI path must not contain parent traversal" if
