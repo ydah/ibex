@@ -21,6 +21,9 @@ module Ibex
 
       DEFAULT_ACTIONS: untyped
 
+      # @type var eager_reductions: Hash[Integer, [:reduce, Integer]]
+      EAGER_REDUCTIONS: Hash[Integer, [ :reduce, Integer ]]
+
       PRODUCTIONS: untyped
 
       # @type var error_messages: Hash[Integer, String | { id: String, message: String }]

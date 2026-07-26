@@ -158,6 +158,31 @@ class CLITest < Minitest::Test
     end
   end
 
+  def test_strict_warnings_promote_risky_lexer_patterns
+    Tempfile.create(["lexer-warning", ".y"]) do |grammar|
+      grammar.write(<<~GRAMMAR)
+        class P
+        pragma extended
+        token WORD
+        lexer
+          WORD /(a+)+/
+        end
+        rule
+        start: WORD
+        end
+      GRAMMAR
+      grammar.flush
+      errors = StringIO.new
+      status = Ibex::CLI.start(
+        ["-C", "--warnings=all,error", grammar.path], stdout: StringIO.new, stderr: errors
+      )
+
+      assert_equal 1, status
+      message = "warning treated as error: lexer pattern for WORD may exhibit excessive backtracking"
+      assert_includes errors.string, message
+    end
+  end
+
   def test_strict_warnings_detect_an_empty_language
     Tempfile.create(["empty-language", ".y"]) do |grammar|
       grammar.write("class P\nrule\nstart: loop\nloop: start\nend\n")

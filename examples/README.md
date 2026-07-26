@@ -1,7 +1,7 @@
 # Ibex examples
 
-These examples pair an Ibex grammar with a small lexer built from Ruby's
-standard-library `StringScanner`. Generate any example from the repository
+These examples pair an Ibex grammar with either the declarative lexer DSL or a
+small handwritten lexer. Generate any example from the repository
 root, then run the generated file:
 
 ```sh
@@ -23,9 +23,8 @@ bundle exec rake grammar:test
 
 - `calculator.y` evaluates integer arithmetic with parentheses.
 - `json.y` parses JSON values into Ruby Hashes, Arrays, Strings, numbers,
-  booleans, and `nil`. Its lexer delegates JSON string-unescaping to Ruby's
-  standard-library JSON implementation while the Ibex grammar builds every
-  JSON value and container.
+  booleans, and `nil`. It demonstrates the generated lexer, including conversion
+  actions and punctuation emission.
 - `ini.y` parses sections and key/value entries into a nested Hash.
 - `tiny_language.y` parses assignments, arithmetic, and `print` statements,
   then executes the resulting small AST.
@@ -37,13 +36,18 @@ printf '%s\n' '{"name":"Ibex","values":[1,true,null]}' |
   bundle exec ruby -Ilib examples/json.rb
 ```
 
-## Lexer integration pattern
+## Lexer integration patterns
 
-Ibex deliberately does not generate a lexer. Each parser implements
-`next_token`, returning `[token, semantic_value]`; `false` or `nil` marks EOF.
-The examples demonstrate two useful `StringScanner` patterns:
+The JSON example declares `lexer ... end`; generated `parse` accepts String,
+IO, and Fiber input. Rules are anchored, choose the longest match, and use
+declaration order for ties.
 
-1. calculator, JSON, and tiny language scan the source incrementally and
+Handwritten lexers remain useful when an application already owns tokenization.
+They implement `next_token`, returning `[token, semantic_value]`; `false` or
+`nil` marks EOF. The remaining examples demonstrate two `StringScanner`
+patterns:
+
+1. calculator and tiny language scan the source incrementally and
    return one token per `next_token` call;
 2. INI tokenizes line-oriented records into a small queue before parsing.
 

@@ -151,6 +151,44 @@ filesystem read failures remain CLI invocation errors on stderr and do not produ
   double-quoted Ruby literals and exact duplicate expectation/source pairs are rejected. Grammar IR v2 retains their decoded
   source and location; ordinary generated parser tables do not.
 
+## Generated lexer (extended mode)
+
+```text
+lexer
+  skip /\s+/
+  NUMBER /\d+/ { |text| Integer(text, 10) }
+  state STRING do
+    on '"' { pop_state; emit :STRING_END }
+    CHUNK /[^"\\]+/
+  end
+  on '"' { push_state :STRING; emit :STRING_BEGIN }
+end
+```
+
+Each state tries its rules at the current position with an internal `\A` anchor.
+The longest lexeme wins; declaration order breaks equal-length ties. A named
+rule emits its declared terminal and uses the lexeme as its value. Its optional
+action may return a converted value or call `emit TOKEN, value`. `skip` consumes
+without emitting; `on` must call `emit` or `skip`.
+
+`state NAME do ... end` creates an exclusive state. Lexer actions call
+`push_state` and `pop_state`; parser actions use the public `lexer_state`
+reader/writer when grammar context changes tokenization. `INITIAL` is reserved,
+states are flat and unique, named rules must reference declared terminals, and
+patterns that match the empty string are rejected.
+
+Generated `parse(source, file: "(input)")` accepts String, IO, or Fiber input.
+IO/Fiber chunks can end inside tokens. Locations use one-based grapheme
+`column`/`grapheme_column`, explicit byte columns, and half-open
+`start_byte`/`end_byte` offsets. Unicode property escapes use Ruby Regexp
+semantics.
+
+Regex execution remains subject to Ruby Regexp complexity. The static lint
+flags common nested-quantifier shapes as `lexer_redos`; `--warnings=all,error`
+promotes the warning to an error. This heuristic is not a proof of safety.
+Applications must still bound untrusted input and review patterns. See the
+[lexer migration guide](lexer-migration.md) and [ADR 0071](decisions/0071-versioned-generated-lexer.md).
+
 ## Productions and actions
 
 ```text

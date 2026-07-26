@@ -3,8 +3,10 @@
 Ibex keeps syntax, grammar meaning, automaton construction, and output concerns behind two versioned immutable contracts.
 
 ```text
-.y root/fragments -> Lexer/CST -> self-hosted LR Parser -> canonical Resolver ─┐
+.y root/fragments -> Frontend Lexer/CST -> self-hosted LR Parser -> canonical Resolver ─┐
 Ruby DSL ───────────────────────────────────────────────────────┴─> Grammar AST -> Normalizer -> Grammar IR
+                                                                               |              |
+                                                                               |          Lexer IR v1
                                                     |
                                                set analysis
                                                     |
@@ -15,6 +17,15 @@ Ruby DSL ───────────────────────�
 
 Frontend changes stop at the Normalizer. Algorithm strategies consume Grammar IR and produce identical Automaton IR shapes.
 Outputs consume Automaton IR and never call builder internals. The CLI only connects stages and supports JSON resumption.
+
+An optional root-only `lexer` declaration normalizes to independently versioned
+Lexer IR v1 and is embedded unchanged in Grammar IR v2. Its flat rule list
+records state, declaration id, pattern source/options, action, and provenance;
+`--emit=lexer-ir` exposes the same document. Code generation compiles every
+pattern with an internal current-position anchor and emits immutable,
+state-indexed rules. Per-parser mutable input, position, emission, and state
+stacks live in `Runtime::GeneratedLexer`, never in the tables. See
+[ADR 0071](decisions/0071-versioned-generated-lexer.md).
 
 The text frontend's canonical syntax is `lib/ibex/frontend/grammar.y`. Ibex generates and commits
 `lib/ibex/frontend/generated_parser.rb`; the public `Frontend::Parser` always delegates to that class. Lexer `Token` objects remain
@@ -128,6 +139,7 @@ Top-level fields:
 | `class_name`, `superclass` | Generated Ruby class contract |
 | `start`, optional `starts`, `expect`, `options` | Primary/ordered start names, unresolved S/R expectation, result/action flags |
 | optional `params`, `printers` | Generated-constructor keywords and symbol-specific debug value formatters |
+| optional `lexer` | Embedded independently versioned Lexer IR v1 |
 | `symbols` | Interned terminals and nonterminals; `$eof` id 0 and `error` id 1 |
 | `productions` | Numeric LHS/RHS ids, action, precedence override, source origin |
 | `user_code`, `conversions`, `warnings` | Concatenated code, external token expressions, structured diagnostics |

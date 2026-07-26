@@ -35,9 +35,13 @@ class LexerIRTest < Minitest::Test
     sources = [
       lexer_source("MISSING /x/"),
       lexer_source("NUM //"),
-      lexer_source("state A do\nstate B do\nNUM /x/\nend\nend")
+      lexer_source("state A do\nstate B do\nNUM /x/\nend\nend"),
+      lexer_source("NUM /x/ { |left, right| left }")
     ]
-    messages = ["undeclared terminal MISSING", "must not match an empty string", "nested lexer states"]
+    messages = [
+      "undeclared terminal MISSING", "must not match an empty string", "nested lexer states",
+      "lexer action accepts exactly one local identifier"
+    ]
 
     sources.zip(messages).each do |source, message|
       error = assert_raises(Ibex::Error) { normalize(source) }
