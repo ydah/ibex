@@ -4,7 +4,7 @@ require_relative "../test_helper"
 
 class PipelineInvariantsTest < Minitest::Test
   PROPERTY_SEEDS = [1009, 2027, 4093, 8191, 16_381].freeze
-  ALGORITHMS = %i[slr lalr lr1].freeze
+  ALGORITHMS = %i[slr lalr ielr lr1].freeze
 
   def test_seeded_grammars_preserve_pipeline_invariants
     PROPERTY_SEEDS.each do |seed|

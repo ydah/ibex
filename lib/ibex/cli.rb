@@ -202,7 +202,7 @@ module Ibex
       options.on("--table=FORMAT", %w[plain compact], "parser table format") do |value|
         @options[:table] = value.to_sym
       end
-      options.on("--algorithm=NAME", %w[slr lalr lr1], "parser construction algorithm") do |value|
+      options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
         @options[:algorithm] = value.to_sym
       end
       options.on("--warnings=CATEGORIES", "all, error, all,error, or none") do |value|
@@ -653,10 +653,11 @@ module Ibex
 
     # @rbs (IR::Grammar grammar, String input_path) -> IR::Automaton
     def build_automaton(grammar, input_path)
-      report_status("building LALR automaton")
-      automaton = LALR::Builder.new(grammar, algorithm: @options[:algorithm] || :lalr).build
+      algorithm = @options[:algorithm] || :lalr
+      report_status("building #{algorithm} automaton")
+      automaton = LALR::Builder.new(grammar, algorithm: algorithm).build
       report_conflicts(automaton, input_path)
-      suggest_lr1(automaton, input_path)
+      suggest_ielr(automaton, input_path)
       write_report(automaton, input_path) if @options[:verbose] && !@options[:verify_output]
       write_visualizations(automaton) unless @options[:verify_output]
       automaton
@@ -665,7 +666,7 @@ module Ibex
     # @rbs (IR::Automaton automaton, String input_path) -> void
     def prepare_loaded_automaton(automaton, input_path)
       report_conflicts(automaton, input_path)
-      suggest_lr1(automaton, input_path)
+      suggest_ielr(automaton, input_path)
       write_report(automaton, input_path) if @options[:verbose] && !@options[:verify_output]
       write_visualizations(automaton) unless @options[:verify_output]
     end

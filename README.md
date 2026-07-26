@@ -350,14 +350,15 @@ ibex validate-ir grammar.json
 ibex compare before.json after.json
 ```
 
-Supported construction algorithms are `slr`, `lalr` (default), and canonical `lr1`. LALR and SLR use direct lookahead
+Supported construction algorithms are `slr`, `lalr` (default), `ielr`, and canonical `lr1`. LALR and SLR use direct lookahead
 propagation over LR(0) states; the representative grammar retains 250 construction states instead of 1,294 canonical states
-while producing byte-identical Automaton IR. Reports retain precedence-resolved
-conflicts and distinguish unifying counterexamples from nonunifying reachability witnesses. Counterexample searches default to
+while producing byte-identical Automaton IR. IELR splits inadequate LALR merges while conservatively retaining compatible ones.
+Reports retain precedence-resolved conflicts and distinguish unifying counterexamples from nonunifying reachability witnesses.
+Counterexample searches default to
 32 tokens and 50,000 explored configurations; `--counterexample-max-tokens=N` and
 `--counterexample-max-configurations=N` set positive per-run budgets and request a report.
 
-`ibex explain [--state=N] [--token=NAME] [--format=text|json] [--algorithm=slr|lalr|lr1]
+`ibex explain [--state=N] [--token=NAME] [--format=text|json] [--algorithm=slr|lalr|ielr|lr1]
 [--mode=racc|extended] grammar.y` presents only the selected conflicts and their competing derivations. State and token
 selectors can be combined, and witness search runs only for matching conflicts. A token canonical grammar name takes priority;
 otherwise an exact, unambiguous `display` name is accepted. Valid selectors with no matching conflict produce a successful empty
@@ -425,7 +426,7 @@ Normal library and CLI execution use the generated parser. The handwritten `Boot
 workflow, whose direct dependency graph also works when the generated file is absent. Byte-comparison and AST/error parity tests
 prevent generated-source drift.
 
-Fixed-seed property tests exercise SLR, LALR, and LR(1) pipeline invariants, while versioned Grammar and Automaton IR fixtures
+Fixed-seed property tests exercise SLR, LALR, IELR, and LR(1) pipeline invariants, while versioned Grammar and Automaton IR fixtures
 guard byte-stable version-1 reads, version-2 output, and deterministic migration. Intentional fixture updates are documented in
 `test/fixtures/ir/README.md`. The
 self-authored representative grammar records versioned `ibex_benchmark` artifacts without a timing or memory pass/fail threshold:
@@ -460,8 +461,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 12,879 typed calls and 1,781 untyped calls out of 14,660 (87.9% typed).
-The generated signature tree contains 1,824 explicit `untyped` occurrences across 73 files.
+The current whole-library `steep stats` result is 12,983 typed calls and 1,781 untyped calls out of 14,764 (87.9% typed).
+The generated signature tree contains 1,827 explicit `untyped` occurrences across 74 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

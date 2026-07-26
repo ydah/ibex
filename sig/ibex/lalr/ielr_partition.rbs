@@ -1,0 +1,59 @@
+# Generated from lib/ibex/lalr/ielr_partition.rb with RBS::Inline
+
+module Ibex
+  module LALR
+    # Deterministically merges compatible canonical LR(1) states and splits
+    # partitions until their outgoing transitions are congruent.
+    class IELRPartition
+      AUGMENTED_PRODUCTION: Integer
+
+      @contributions: Array[Hash[Integer, Set[Array[untyped]]]]
+
+      @transitions: transitions
+
+      @states: Array[item_set]
+
+      @grammar: IR::Grammar
+
+      # @rbs (IR::Grammar grammar, Array[item_set] states, transitions transitions) -> void
+      def initialize: (IR::Grammar grammar, Array[item_set] states, transitions transitions) -> void
+
+      # @rbs () -> [Array[packed_items], transitions]
+      def build: () -> [ Array[packed_items], transitions ]
+
+      private
+
+      # @rbs () -> Array[state_partition]
+      def initial_partitions: () -> Array[state_partition]
+
+      # @rbs (Array[Integer] members) -> Array[state_partition]
+      def compatible_partitions: (Array[Integer] members) -> Array[state_partition]
+
+      # A canonical member may gain an action only where it previously had no
+      # action. Every nonempty member cell must equal the merged cell.
+      # @rbs (state_partition members) -> bool
+      def compatible?: (state_partition members) -> bool
+
+      # @rbs (Array[state_partition] partitions) -> Array[state_partition]
+      def refine_transitions: (Array[state_partition] partitions) -> Array[state_partition]
+
+      # @rbs (Integer state_id, Hash[Integer, Integer] indexes) -> Array[[Integer, Integer]]
+      def transition_signature: (Integer state_id, Hash[Integer, Integer] indexes) -> Array[[ Integer, Integer ]]
+
+      # @rbs (Array[state_partition] partitions) -> Hash[Integer, Integer]
+      def partition_indexes: (Array[state_partition] partitions) -> Hash[Integer, Integer]
+
+      # @rbs (state_partition members) -> packed_items
+      def merge_items: (state_partition members) -> packed_items
+
+      # @rbs (Integer state_id) -> Hash[Integer, Set[Array[untyped]]]
+      def action_contributions: (Integer state_id) -> Hash[Integer, Set[Array[untyped]]]
+
+      # @rbs (Integer production_id) -> Array[Integer]
+      def rhs_for: (Integer production_id) -> Array[Integer]
+
+      # @rbs (item_set items) -> Array[item_core]
+      def core_key: (item_set items) -> Array[item_core]
+    end
+  end
+end

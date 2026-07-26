@@ -32,9 +32,9 @@ Both records retain the declaration location and the existing `{type, symbol, lo
 warning type names as an extensible vocabulary. No field shape changes, so `schema_version` remains 1 and old v1 documents load
 unchanged.
 
-After building with the default or explicit LALR algorithm, the CLI may build canonical LR(1) only when the LALR result has an
+After building with the default or explicit LALR algorithm, the CLI may build IELR only when the LALR result has an
 unexpected unresolved shift/reduce count or any reduce/reduce conflict. If LR(1) lowers either unresolved count, stderr receives
-one positioned note giving the avoided counts and suggesting `--algorithm=lr1`. Expected shift/reduce conflicts alone do not
+one positioned note giving the avoided counts and suggesting `--algorithm=ielr`. Expected shift/reduce conflicts alone do not
 trigger the extra build. The note never changes the command result.
 
 Mermaid and HTML remain presentation views over Automaton IR. Mermaid state and edge order follows Automaton IR order. The

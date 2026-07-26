@@ -44,7 +44,7 @@ module Ibex
           @options[:from] = value
         end
         options.on("--mode=MODE", %w[racc extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
-        options.on("--algorithm=NAME", %w[slr lalr lr1], "parser construction algorithm") do |value|
+        options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
           @options[:algorithm] = value.to_sym
           @options[:messages_algorithm_explicit] = true
         end

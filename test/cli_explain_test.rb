@@ -27,14 +27,14 @@ class CLIExplainTest < Minitest::Test
 
   def test_json_has_a_versioned_schema_and_uses_stdout_only
     with_grammar(expression_grammar) do |path|
-      result = invoke(["explain", "--format=json", "--algorithm=lr1", path])
+      result = invoke(["explain", "--format=json", "--algorithm=ielr", path])
       document = JSON.parse(result.fetch(:stdout))
 
       assert_equal 0, result.fetch(:status)
       assert_empty result.fetch(:stderr)
       assert_equal "conflicts", document.fetch("ibex_explain")
       assert_equal 1, document.fetch("schema_version")
-      assert_equal "lr1", document.fetch("algorithm")
+      assert_equal "ielr1", document.fetch("algorithm")
       schema = JSON.parse(File.read(SCHEMA))
       assert_empty JSONSchemer.schema(schema).validate(document).to_a
     end

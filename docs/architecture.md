@@ -8,7 +8,7 @@ Ruby DSL ───────────────────────�
                                                     |
                                                set analysis
                                                     |
-                                      SLR/LALR/LR1 Builder -> Automaton IR
+                                      SLR/LALR/IELR/LR1 Builder -> Automaton IR
                                                                     |
                        Ruby/RBS/action-shadow generators / report / DOT / Mermaid / HTML / counterexamples
 ```
@@ -198,10 +198,12 @@ views over Automaton IR.
 The `lalr` and `slr` strategies construct LR(0) states directly. LALR lookaheads are the least fixed point of deterministic
 shift, spontaneous-FIRST, and nullable-suffix propagation edges over item occurrences; SLR replaces completed lookaheads with
 FOLLOW sets. Canonical `lr1` retains the canonical collection. An explicit canonical-and-merge LALR reference strategy proves
-byte equivalence without changing the Automaton IR algorithm label. All strategies use the same conflict resolver and default
-reduction pass. After a build, frozen diagnostic `metrics` record the strategy and construction/final state counts, plus a
-canonical count only when one was actually built. See
-[ADR 0054](decisions/0054-direct-lalr-lookahead-propagation.md).
+byte equivalence without changing the Automaton IR algorithm label. `ielr` conservatively merges action-compatible canonical
+states and refines partitions until outgoing transitions are congruent, avoiding LALR inadequacies without promising a minimum
+state count. All strategies use the same conflict resolver and default reduction pass. After a build, frozen diagnostic
+`metrics` record the strategy and construction/final state counts, plus a canonical count only when one was actually built. See
+[ADR 0054](decisions/0054-direct-lalr-lookahead-propagation.md) and
+[ADR 0055](decisions/0055-ielr-inadequacy-elimination.md).
 
 `Ibex::LALR::Counterexample` consumes only Automaton IR. For each conflict it explores parser-stack configurations, forces the
 competing actions, and searches for a common accepting suffix. A successful result contains both complete derivation trees and is

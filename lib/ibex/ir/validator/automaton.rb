@@ -31,7 +31,7 @@ module Ibex
           record(@data, "$", ROOT_REQUIRED)
           literal(@data["ibex_ir"], "$.ibex_ir", "automaton")
           literal(@data["schema_version"], "$.schema_version", @version)
-          enum(@data["algorithm"], "$.algorithm", %w[slr lalr1 lr1])
+          enum(@data["algorithm"], "$.algorithm", %w[slr lalr1 ielr1 lr1])
           validate_digest
           grammar = object(@data["grammar"], "$.grammar")
           literal(grammar["schema_version"], "$.grammar.schema_version", @version)

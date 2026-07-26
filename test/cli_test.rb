@@ -36,6 +36,22 @@ class CLITest < Minitest::Test
     end
   end
 
+  def test_emits_ielr_automaton_ir
+    Tempfile.create(["grammar", ".y"]) do |file|
+      file.write("class P\nrule\nstart: TOKEN\nend\n")
+      file.flush
+      output = StringIO.new
+      status = Ibex::CLI.start(
+        ["--algorithm=ielr", "--emit=automaton-ir", file.path],
+        stdout: output,
+        stderr: StringIO.new
+      )
+
+      assert_equal 0, status
+      assert_equal "ielr1", JSON.parse(output.string).fetch("algorithm")
+    end
+  end
+
   def test_generates_ruby_file
     Tempfile.create(["grammar", ".y"]) do |grammar|
       Tempfile.create(["parser", ".rb"]) do |output|
