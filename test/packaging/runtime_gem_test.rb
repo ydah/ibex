@@ -10,6 +10,7 @@ class RuntimeGemPackagingTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   RUNTIME_GEMSPEC = File.join(ROOT, "ibex-runtime.gemspec")
   GENERATOR_GEMSPEC = File.join(ROOT, "ibex.gemspec")
+  ISOLATED_ENV = { "BUNDLE_GEMFILE" => nil, "RUBYLIB" => nil, "RUBYOPT" => nil }.freeze
   SOURCE = <<~GRAMMAR
     class RuntimeOnlyParser
     token VALUE
@@ -59,6 +60,7 @@ class RuntimeGemPackagingTest < Minitest::Test
       File.binwrite(File.join(directory, "parser.rb"), source)
       script = runtime_script
       _stdout, stderr, status = Open3.capture3(
+        ISOLATED_ENV,
         RbConfig.ruby, "--disable-gems", "-I", File.join(directory, "lib"), "-e", script, chdir: directory
       )
 
@@ -70,7 +72,7 @@ class RuntimeGemPackagingTest < Minitest::Test
     Dir.mktmpdir("ibex-embedded-package") do |directory|
       File.binwrite(File.join(directory, "parser.rb"), generated_parser(embedded: true))
       _stdout, stderr, status = Open3.capture3(
-        RbConfig.ruby, "--disable-gems", "-e", runtime_script, chdir: directory
+        ISOLATED_ENV, RbConfig.ruby, "--disable-gems", "-e", runtime_script, chdir: directory
       )
 
       assert status.success?, stderr
@@ -100,7 +102,7 @@ class RuntimeGemPackagingTest < Minitest::Test
 
   def runtime_script
     <<~RUBY
-      require_relative "parser"
+      load File.expand_path("parser.rb", Dir.pwd)
       abort "frontend leaked" if defined?(Ibex::Frontend)
       parser = RuntimeOnlyParser.new
       abort "push failed" unless parser.push(:VALUE, 42) == :need_more

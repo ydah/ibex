@@ -74,7 +74,10 @@ class MultipleStartCodegenTest < Minitest::Test
     assert_equal 0, isolated.conflict_summary[:rr]
     assert(conflicts.all? { |conflict| conflict[:entries] == %w[first second] })
     assert(conflicts.all? { |conflict| conflict[:composite] == true })
-    assert_includes Ibex::Codegen::Report.render(shared), "composite: true"
+    report = Ibex::Codegen::Report.render(shared)
+    assert_includes report, "resolution: {by: :definition_order, chose: 4}"
+    assert_includes report, "composite: true"
+    refute_includes report, ":composite=>true"
   end
 
   private

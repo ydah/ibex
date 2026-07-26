@@ -21,6 +21,7 @@ module Ibex
       include RubyAST
 
       EMBEDDED_RUNTIME_SOURCES = %w[
+        ../runtime/version.rb
         ../runtime/location_span.rb
         ../runtime/cst.rb
         ../runtime/ast_data.rb
