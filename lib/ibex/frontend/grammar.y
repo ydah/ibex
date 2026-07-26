@@ -1,5 +1,5 @@
 class Ibex::Frontend::GeneratedParser < Ibex::Frontend::GeneratedParserBase
-token CLASS FRAGMENT INCLUDE TOKEN PRECHIGH PRECLOW OPTIONS EXPECT EXPECT_RR START RECOVER ON_ERROR_REDUCE
+token CLASS FRAGMENT INCLUDE TOKEN PRECHIGH PRECLOW OPTIONS EXPECT EXPECT_RR START RECOVER ON_ERROR_REDUCE TEST
 token CONVERT DISPLAY TYPE PARAM PRINTER PRAGMA RULE END
 token LEFT RIGHT NONASSOC PRECEDENCE IDENTIFIER LITERAL INTEGER ACTION USER_CODE INLINE EMPTY LHS
 token PARAMETERIZED_REFERENCE TOKEN_ALIAS
@@ -47,6 +47,7 @@ rule
     | start_declaration                  { result = val[0] }
     | recovery_declaration               { result = val[0] }
     | on_error_reduce_declaration        { result = val[0] }
+    | test_declaration                   { result = val[0] }
     | convert_declaration                { result = val[0] }
     | display_declaration                { result = val[0] }
     | type_declaration                   { result = val[0] }
@@ -103,6 +104,9 @@ rule
   on_error_reduce_declaration
     : ON_ERROR_REDUCE grammar_symbol symbols
       { result = build_on_error_reduce(val[0], [val[1].value] + val[2]) }
+
+  test_declaration
+    : TEST IDENTIFIER LITERAL            { result = build_grammar_test(val[0], val[1], val[2]) }
 
   convert_declaration
     : CONVERT conversions END            { result = build_convert(val[0], val[1]) }

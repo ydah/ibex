@@ -5,14 +5,36 @@ module Ibex
   module NormalizeRecoveryDeclarations
     private
 
-    # @rbs (Frontend::AST::Start | Frontend::AST::Recovery | Frontend::AST::OnErrorReduce declaration) -> void
+    # @rbs (Frontend::AST::Start | Frontend::AST::Recovery | Frontend::AST::OnErrorReduce |
+    #   Frontend::AST::GrammarTest declaration) -> void
     def read_parser_control_declaration(declaration)
       # @type self: Normalizer
       case declaration
       when Frontend::AST::Start then read_start_declaration(declaration)
       when Frontend::AST::Recovery then read_recovery_declaration(declaration)
       when Frontend::AST::OnErrorReduce then read_on_error_reduce_declaration(declaration)
+      when Frontend::AST::GrammarTest then read_grammar_test(declaration)
       end
+    end
+
+    # @rbs (Frontend::AST::GrammarTest declaration) -> void
+    def read_grammar_test(declaration)
+      # @type self: Normalizer
+      fail_at(declaration.loc, "%test requires extended mode") unless @mode == :extended
+      unless %i[accept reject].include?(declaration.expectation)
+        fail_at(declaration.loc, "unknown %test expectation #{declaration.expectation.inspect}")
+      end
+      if @grammar_tests.any? do |test|
+           test[:expectation] == declaration.expectation && test[:source] == declaration.source
+         end
+        fail_at(declaration.loc, "duplicate %test #{declaration.expectation} source")
+      end
+
+      @grammar_tests << {
+        expectation: declaration.expectation,
+        source: declaration.source,
+        loc: declaration.loc.to_h
+      }
     end
 
     # @rbs (Frontend::AST::Recovery declaration) -> void

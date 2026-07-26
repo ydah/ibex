@@ -216,6 +216,46 @@ class NormalizerTest < Minitest::Test
     refute_includes Ibex::IR::Serialize.dump(plain), '"recovery"'
   end
 
+  def test_grammar_tests_round_trip_as_optional_v2_metadata
+    grammar = normalize(<<~GRAMMAR)
+      class P
+      pragma extended
+      %test accept "ok"
+      %test reject "bad"
+      rule
+      start: TOKEN
+      end
+    GRAMMAR
+
+    assert_equal(
+      [[:accept, "ok"], [:reject, "bad"]],
+      grammar.grammar_tests.map { |test| [test[:expectation], test[:source]] }
+    )
+    dumped = Ibex::IR::Serialize.dump(grammar)
+    assert_equal grammar.grammar_tests, Ibex::IR::Serialize.load(dumped).grammar_tests
+    assert_includes dumped, '"tests"'
+
+    plain = normalize("class P\nrule\nstart: TOKEN\nend\n")
+    assert_empty plain.grammar_tests
+    refute_includes Ibex::IR::Serialize.dump(plain), '"tests"'
+  end
+
+  def test_rejects_duplicate_grammar_tests
+    error = assert_raises(Ibex::Error) do
+      normalize(<<~GRAMMAR)
+        class P
+        pragma extended
+        %test accept "same"
+        %test accept "same"
+        rule
+        start: TOKEN
+        end
+      GRAMMAR
+    end
+
+    assert_includes error.message, "duplicate %test accept source"
+  end
+
   def test_rejects_missing_sync_tokens
     missing = <<~GRAMMAR
       class P

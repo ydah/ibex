@@ -1,5 +1,8 @@
 class Examples::CalculatorParser
+pragma extended
 token NUMBER
+%test accept "1+2*3"
+%test reject "1+"
 rule
   expression : expression '+' term { result = val[0] + val[2] }
              | expression '-' term { result = val[0] - val[2] }

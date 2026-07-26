@@ -54,7 +54,8 @@ class FrontendResolverTest < Minitest::Test
       "%param context" => "%param",
       "start helper" => "start",
       "%recover sync: TOKEN" => "%recover",
-      "%on_error_reduce helper" => "%on_error_reduce"
+      "%on_error_reduce helper" => "%on_error_reduce",
+      "%test accept \"TOKEN\"" => "%test"
     }
     root_only.each do |declaration, label|
       source = "fragment\n#{declaration}\nrule\nhelper: TOKEN\nend\n"

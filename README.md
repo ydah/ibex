@@ -196,6 +196,22 @@ type expr "AST::Expression"
 %printer NUM { "number=#{value}" }
 ```
 
+Keep executable source examples beside the grammar and run them in an isolated
+child process:
+
+```text
+%test accept "1+2*3"
+%test reject "1+"
+```
+
+```sh
+ibex test grammar.y
+```
+
+The parser class must provide `parse(source)` and be constructible without
+required `%param` values. Normal returns are acceptance, `Ibex::ParseError` is
+rejection, and other exceptions fail the case.
+
 An extended grammar may expose several parser entry points:
 
 ```text
@@ -505,7 +521,7 @@ BUNDLE_GEMFILE=gemfiles/Gemfile ruby -e '
   sources = Dir.glob("lib/**/*.rb").sort
   exec("bundle", "exec", "rbs-inline", "--opt-out", "--base=lib", "--output=sig", *sources)
 '
-BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec rbs -r digest -r json -r optparse -r tempfile -I sig validate
+BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec rbs -r digest -r json -r optparse -r tempfile -r timeout -r tmpdir -r uri -I sig validate
 BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec steep check
 BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec steep stats
 BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
@@ -514,8 +530,8 @@ BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
 CI performs generation in a clean temporary directory and compares the complete trees, so missing source signatures and stale
 signature files both fail the build.
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 15,073 typed calls and 2,013 untyped calls out of 17,086 (88.2% typed).
-The generated signature tree contains 2,054 explicit `untyped` occurrences across 79 files.
+The current whole-library `steep stats` result is 15,328 typed calls and 2,046 untyped calls out of 17,374 (88.2% typed).
+The generated signature tree contains 2,074 explicit `untyped` occurrences across 80 files.
 <!-- type-stats:end -->
 
 Those boundaries are concentrated in generated-parser reduction values, heterogeneous JSON decoding/serialization, runtime

@@ -6,7 +6,7 @@ module Ibex
     # rubocop:disable Metrics/ClassLength -- token layout policy stays together so adjacency rules remain auditable.
     class Formatter
       DECLARATION_STARTS = %i[
-        PRAGMA INCLUDE TOKEN PRECHIGH PRECLOW OPTIONS EXPECT EXPECT_RR START RECOVER ON_ERROR_REDUCE
+        PRAGMA INCLUDE TOKEN PRECHIGH PRECLOW OPTIONS EXPECT EXPECT_RR START RECOVER ON_ERROR_REDUCE TEST
         CONVERT DISPLAY TYPE PARAM PRINTER RULE
       ].freeze #: Array[Symbol]
       ASSOCIATIONS = %i[LEFT RIGHT NONASSOC].freeze #: Array[Symbol]

@@ -184,7 +184,8 @@
       "symbol_docs",
       "production_docs",
       "production_expansion",
-      "action_composition"
+      "action_composition",
+      "grammar_tests"
     ]
   }
 }

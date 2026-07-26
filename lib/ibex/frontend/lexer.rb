@@ -13,7 +13,7 @@ module Ibex
         "%precedence" => [:identifier, "precedence"],
         "%param" => [:identifier, "param"], "%printer" => [:identifier, "printer"],
         "%recover" => [:identifier, "recover"], "%on_error_reduce" => [:identifier, "on_error_reduce"],
-        "%inline" => [:inline, "%inline"],
+        "%test" => [:identifier, "test"], "%inline" => [:inline, "%inline"],
         "%empty" => [:empty, "%empty"]
       }.freeze #: Hash[String, [Symbol, String]]
 

@@ -147,6 +147,9 @@ filesystem read failures remain CLI invocation errors on stderr and do not produ
 - Extended roots accept repeated `%on_error_reduce NAME ...` declarations for nonterminals. Names on one line share a priority;
   each later declaration has higher priority. A uniquely highest-priority completed production fills only table cells that
   would otherwise be errors, so explicit shifts, reductions, accepts, and conflict decisions remain authoritative.
+- Extended roots accept ordered `%test accept "source"` and `%test reject "source"` declarations. Sources must use
+  double-quoted Ruby literals and exact duplicate expectation/source pairs are rejected. Grammar IR v2 retains their decoded
+  source and location; ordinary generated parser tables do not.
 
 ## Productions and actions
 
@@ -318,6 +321,19 @@ reductions. Complete sessions and generated-parser metadata are required. Report
 IR. It never executes actions. When tokens are omitted, supply one terminal name or unique display name per stdin line; a blank
 line or EOF finishes the input. Use `--format=json` for `schema/table-simulation-v1.schema.json`, and bound pathological tables
 with positive `--max-steps` and `--max-stack`. See [ADR 0052](decisions/0052-safe-automaton-table-simulation.md).
+
+## Grammar-declared tests
+
+`ibex test [--mode=MODE] [--algorithm=NAME] [--entry-isolation] [--timeout=SECONDS] grammar.y` executes every `%test` in source
+order. The generated parser class must be constructible without arguments and define `parse(source)`. Each case uses a fresh
+instance. A normal return counts as acceptance, `Ibex::Runtime::ParseError` counts as rejection, and lexer/application
+exceptions are test errors rather than syntax rejections. Empty suites and grammars with required `%param` declarations fail
+explicitly.
+
+The complete suite runs in an isolated Ruby child process with a ten-second default timeout. Generated footer guards remain
+false because a separate runner loads the parser file. Output is TAP-like and the command exits nonzero on any mismatch,
+exception, timeout, or invalid child result. This is process isolation for reliable tooling, not a sandbox for untrusted code.
+See [ADR 0069](decisions/0069-grammar-declared-source-tests.md).
 
 ## Extended EBNF and names
 

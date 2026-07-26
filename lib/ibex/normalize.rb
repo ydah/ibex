@@ -63,6 +63,7 @@ module Ibex
     # @rbs @value_printers: Hash[String, IR::value_printer]
     # @rbs @recovery_sync_tokens: Array[String]
     # @rbs @on_error_reduce_groups: Array[Array[String]]
+    # @rbs @grammar_tests: Array[IR::grammar_test]
     # @rbs @explicit_starts: Array[String]?
     # @rbs @start_names: Array[String]
     # @rbs @start_name: String
@@ -135,6 +136,7 @@ module Ibex
                       expect_rr: @expected_rr_conflicts,
                       parser_parameters: @parser_parameters,
                       value_printers: @value_printers.values,
+                      grammar_tests: @grammar_tests,
                       recovery: {
                         sync_tokens: @recovery_sync_tokens,
                         on_error_reduce: @on_error_reduce_groups

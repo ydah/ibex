@@ -25,6 +25,8 @@ module Ibex
       #   private def self.load_user_code_chunks: (untyped chunks) -> untyped
       #   private def load_symbol_metadata: (untyped symbol, String field) -> String?
       #   private def self.load_symbol_metadata: (untyped symbol, String field) -> String?
+      #   private def load_grammar_tests: (untyped tests) -> untyped
+      #   private def self.load_grammar_tests: (untyped tests) -> untyped
       #   private def symbol_source_position: (untyped symbol) -> String
       #   private def self.symbol_source_position: (untyped symbol) -> String
       #   private def symbolize: (untyped value) -> untyped
@@ -67,6 +69,7 @@ module Ibex
         empty_chunks = {} #: Hash[String, untyped]
         empty_parameters = [] #: Array[untyped]
         empty_printers = [] #: Array[untyped]
+        empty_tests = [] #: Array[untyped]
         empty_recovery = { "sync_tokens" => [], "on_error_reduce" => [] } #: Hash[String, untyped]
         schema_version = data.fetch("schema_version")
         symbols = data.fetch("symbols").map do |symbol|
@@ -85,6 +88,7 @@ module Ibex
                     expect_rr: data["expect_rr"],
                     parser_parameters: symbolize(data.fetch("params", empty_parameters)),
                     value_printers: symbolize(data.fetch("printers", empty_printers)),
+                    grammar_tests: load_grammar_tests(data.fetch("tests", empty_tests)),
                     recovery: symbolize(data.fetch("recovery", empty_recovery)),
                     productions: productions, user_code: data.fetch("user_code"),
                     conversions: data.fetch("conversions"), warnings: symbolize(data.fetch("warnings")),
@@ -186,6 +190,11 @@ module Ibex
       end
 
       # @rbs skip
+      def load_grammar_tests(tests)
+        symbolize(tests).map { |test| test.merge(expectation: test.fetch(:expectation).to_sym) }
+      end
+
+      # @rbs skip
       def symbolize(value)
         case value
         when Array then value.map { |item| symbolize(item) }
@@ -195,12 +204,12 @@ module Ibex
       end
       module_function :validate_version, :load_grammar, :load_automaton, :load_state, :symbol_keyed,
                       :normalize_action, :load_production, :load_user_code_chunks, :load_symbol_metadata,
-                      :symbol_source_position, :symbolize
+                      :symbol_source_position, :load_grammar_tests, :symbolize
 
       class << self
         private :validate_version, :load_grammar, :load_automaton, :load_state, :symbol_keyed,
                 :normalize_action, :load_production, :load_user_code_chunks, :load_symbol_metadata,
-                :symbol_source_position, :symbolize
+                :symbol_source_position, :load_grammar_tests, :symbolize
       end
     end
   end

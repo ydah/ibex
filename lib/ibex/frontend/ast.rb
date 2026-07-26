@@ -24,7 +24,7 @@ module Ibex
       # @rbs!
       #   type symbol_metadata = DisplayName | SemanticType
       #   type declaration = Include | Tokens | Precedence | Options | Expect | ExpectRR | Start | Recovery |
-      #     OnErrorReduce | Convert | Parameter | Printer | symbol_metadata
+      #     OnErrorReduce | GrammarTest | Convert | Parameter | Printer | symbol_metadata
       #   type item = SymbolReference | ParameterizedReference | InlineAction | Optional | Star | Plus | Group |
       #     SeparatedList | Empty
       #   type user_code = Hash[String, Array[UserCode]]
@@ -130,6 +130,12 @@ module Ibex
       ) { include Node }
       OnErrorReduce = Struct.new(
         :names, #: Array[String]
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      GrammarTest = Struct.new(
+        :expectation, #: Symbol
+        :source, #: String
         :loc, #: Location
         keyword_init: true
       ) { include Node }

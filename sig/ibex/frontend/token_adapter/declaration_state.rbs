@@ -94,6 +94,9 @@ module Ibex
         # @rbs (external_token type) -> external_token?
         def classify_printer: (external_token type) -> external_token?
 
+        # @rbs (external_token type) -> external_token?
+        def classify_grammar_test: (external_token type) -> external_token?
+
         # @rbs (Token token, external_token type, Array[Token] remaining) -> external_token?
         def classify_conversion: (Token token, external_token type, Array[Token] remaining) -> external_token?
 
@@ -120,6 +123,9 @@ module Ibex
 
         # @rbs (Token token) -> external_token
         def begin_recovery_colon: (Token token) -> external_token
+
+        # @rbs (Token token) -> external_token
+        def begin_test_source: (Token token) -> external_token
 
         # @rbs (external_token type) -> external_token
         def finish_param_type: (external_token type) -> external_token

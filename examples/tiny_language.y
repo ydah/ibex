@@ -1,5 +1,8 @@
 class Examples::TinyLanguageParser
+pragma extended
 token IDENTIFIER NUMBER PRINT
+%test accept "value=1+2*3; print value;"
+%test reject "print ;"
 rule
   program    : statements { result = val[0] }
   statements : statements statement { result = val[0] + [val[1]] }

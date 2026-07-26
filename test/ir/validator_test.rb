@@ -163,6 +163,25 @@ class IRValidatorTest < Minitest::Test
     assert_equal "(ir):1:1: $.recovery.sync_tokens[0] must reference a terminal", error.message
   end
 
+  def test_validates_optional_v2_grammar_tests
+    document = parsed_fixture("grammar-v2.json")
+    document["mode"] = "extended"
+    document["tests"] = [
+      {
+        "expectation" => "accept",
+        "source" => "ok",
+        "loc" => { "file" => "grammar.y", "line" => 3, "column" => 1 }
+      }
+    ]
+
+    grammar = Ibex::IR::Validator.validate(JSON.generate(document))
+    assert_equal :accept, grammar.grammar_tests.fetch(0).fetch(:expectation)
+
+    document["tests"] << document["tests"].first
+    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
+    assert_equal "(ir):1:1: $.tests[1] duplicates grammar test", error.message
+  end
+
   def test_rejects_invalid_json_with_a_position
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate("{") }
 

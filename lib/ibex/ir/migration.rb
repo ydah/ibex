@@ -10,6 +10,7 @@ module Ibex
         production_docs
         production_expansion
         action_composition
+        grammar_tests
       ].freeze #: Array[String]
 
       # @rbs (Grammar | Automaton value, ?to: Integer) -> (Grammar | Automaton)
@@ -76,6 +77,7 @@ module Ibex
           expect: grammar.expect, expect_rr: grammar.expect_rr, options: grammar.options,
           parser_parameters: grammar.parser_parameters,
           value_printers: grammar.value_printers,
+          grammar_tests: grammar.grammar_tests,
           recovery: grammar.recovery,
           symbols: symbols, productions: productions,
           user_code: grammar.user_code, user_code_chunks: grammar.user_code_chunks,

@@ -12,6 +12,13 @@ bundle exec ruby -Ilib examples/calculator.rb "2 + 3 * (4 - 1)"
 The generated `.rb` file is disposable. The `.y` file is the maintained
 source.
 
+Each grammar also keeps accept/reject source examples beside its rules. Run all
+of them without generating repository files:
+
+```sh
+bundle exec rake grammar:test
+```
+
 ## Included grammars
 
 - `calculator.y` evaluates integer arithmetic with parentheses.

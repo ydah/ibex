@@ -43,4 +43,13 @@ namespace :quality do
   end
 end
 
+namespace :grammar do
+  desc "Run source examples declared in gallery grammars"
+  task :test do
+    Dir.glob("examples/*.y").each do |path|
+      sh "bundle", "exec", "ruby", "-Ilib", "exe/ibex", "test", path
+    end
+  end
+end
+
 task default: %i[test lint]

@@ -199,6 +199,20 @@ module Ibex
         AST::OnErrorReduce.new(names: names, loc: keyword.location)
       end
 
+      # @rbs (Token keyword, Token expectation, Token source) -> AST::GrammarTest
+      def build_grammar_test(keyword, expectation, source)
+        extended_only!(keyword.location, "%test")
+        expected = token_string(expectation)
+        fail_at(expectation.location, "expected accept or reject, got #{expected}") unless
+          %w[accept reject].include?(expected)
+        literal = token_string(source)
+        fail_at(source.location, "%test source must use a double-quoted string") unless literal.start_with?('"')
+
+        AST::GrammarTest.new(expectation: expected.to_sym, source: literal.undump, loc: keyword.location)
+      rescue RuntimeError => e
+        fail_at(source.location, "invalid %test source: #{e.message}")
+      end
+
       # @rbs (Token keyword, Array[AST::Conversion] pairs) -> AST::Convert
       def build_convert(keyword, pairs)
         AST::Convert.new(pairs: pairs, loc: keyword.location)
