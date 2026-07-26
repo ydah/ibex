@@ -5,6 +5,8 @@ module Ibex
   class Normalizer
     include NormalizeDeclarations
 
+    include NormalizeLexer
+
     include NormalizeRecoveryDeclarations
 
     include NormalizeParameterValidation
@@ -37,6 +39,8 @@ module Ibex
 
     @inline_expansion_count: Integer
 
+    @lexer_declaration: Frontend::AST::Lexer?
+
     @grammar_tests: Array[IR::grammar_test]
 
     @on_error_reduce_groups: Array[Array[String]]
@@ -66,8 +70,6 @@ module Ibex
     @precedence_locations: Hash[String, IR::location]
 
     @precedence: Hash[String, IR::precedence]
-
-    @declared_tokens: Hash[String, IR::location]
 
     @max_inline_expansions: Integer
 
@@ -100,6 +102,8 @@ module Ibex
     @start_names: Array[String]
 
     @explicit_starts: Array[String]?
+
+    @declared_tokens: Hash[String, IR::location]
 
     @helper_sequence: Integer
 

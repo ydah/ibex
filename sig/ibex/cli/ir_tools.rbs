@@ -30,8 +30,12 @@ module Ibex
     # @rbs (Array[String] arguments, String command) -> String
     def single_ir_path: (Array[String] arguments, String command) -> String
 
-    # @rbs (IR::Grammar | IR::Automaton before, IR::Grammar | IR::Automaton after) -> Hash[Symbol, untyped]
-    def compare_ir: (IR::Grammar | IR::Automaton before, IR::Grammar | IR::Automaton after) -> Hash[Symbol, untyped]
+    # @rbs (IR::Grammar | IR::Automaton | IR::Lexer before,
+    #   IR::Grammar | IR::Automaton | IR::Lexer after) -> Hash[Symbol, untyped]
+    def compare_ir: (IR::Grammar | IR::Automaton | IR::Lexer before, IR::Grammar | IR::Automaton | IR::Lexer after) -> Hash[Symbol, untyped]
+
+    # @rbs (IR::Lexer before, IR::Lexer after) -> Hash[Symbol, untyped]
+    def compare_lexers: (IR::Lexer before, IR::Lexer after) -> Hash[Symbol, untyped]
 
     # @rbs (IR::Grammar before, IR::Grammar after) -> Hash[Symbol, untyped]
     def compare_grammars: (IR::Grammar before, IR::Grammar after) -> Hash[Symbol, untyped]

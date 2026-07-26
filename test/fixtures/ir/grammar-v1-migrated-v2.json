@@ -185,7 +185,8 @@
       "production_docs",
       "production_expansion",
       "action_composition",
-      "grammar_tests"
+      "grammar_tests",
+      "lexer"
     ]
   }
 }

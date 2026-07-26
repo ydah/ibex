@@ -16,7 +16,11 @@ module Ibex
         "duplicate production #{warning[:production]} (first defined as #{warning[:original]})"
       end,
       implicit_empty: ->(_warning) { "implicit empty alternative; write %empty to document intent" },
-      empty_language: ->(warning) { "start symbol #{warning[:symbol]} derives no terminal sentence" }
+      empty_language: ->(warning) { "start symbol #{warning[:symbol]} derives no terminal sentence" },
+      lexer_redos: lambda do |warning|
+        subject = warning[:symbol] ? " for #{warning[:symbol]}" : ""
+        "lexer pattern#{subject} may exhibit excessive backtracking"
+      end
     }.freeze #: Hash[Symbol, ^(IR::grammar_warning) -> String]
 
     private

@@ -1,0 +1,57 @@
+# Generated from lib/ibex/ir/lexer_ir.rb with RBS::Inline
+
+module Ibex
+  module IR
+    LEXER_SCHEMA_VERSION: ::Integer
+
+    SUPPORTED_LEXER_SCHEMA_VERSIONS: Array[Integer]
+
+    # One normalized, state-scoped lexer rule.
+    class LexerRule
+      attr_reader id: Integer
+
+      attr_reader state: String
+
+      attr_reader kind: Symbol
+
+      attr_reader token: String?
+
+      attr_reader pattern: String
+
+      attr_reader pattern_kind: Symbol
+
+      attr_reader options: String
+
+      attr_reader action: String?
+
+      attr_reader location: location
+
+      # @rbs (id: Integer, state: String, kind: Symbol, token: String?, pattern: String, pattern_kind: Symbol,
+      #   options: String, action: String?, location: location) -> void
+      def initialize: (id: Integer, state: String, kind: Symbol, token: String?, pattern: String, pattern_kind: Symbol, options: String, action: String?, location: location) -> void
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
+    end
+
+    # Independently versioned lexer contract embedded by Grammar IR v2.
+    class Lexer
+      attr_reader states: Array[String]
+
+      attr_reader rules: Array[LexerRule]
+
+      attr_reader warnings: Array[Hash[Symbol, untyped]]
+
+      attr_reader schema_version: Integer
+
+      attr_reader source_provenance: source_provenance?
+
+      # @rbs (states: Array[String], rules: Array[LexerRule], warnings: Array[Hash[Symbol, untyped]],
+      #   ?schema_version: Integer, ?source_provenance: source_provenance?) -> void
+      def initialize: (states: Array[String], rules: Array[LexerRule], warnings: Array[Hash[Symbol, untyped]], ?schema_version: Integer, ?source_provenance: source_provenance?) -> void
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
+    end
+  end
+end

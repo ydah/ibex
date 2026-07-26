@@ -205,7 +205,9 @@ module Ibex
 
     # @rbs (OptionParser options) -> void
     def add_pipeline_options(options)
-      options.on("--emit=FORMAT", "ast, sets, grammar-ir, automaton-ir, or ruby") { |value| @options[:emit] = value }
+      options.on("--emit=FORMAT", "ast, sets, lexer-ir, grammar-ir, automaton-ir, or ruby") do |value|
+        @options[:emit] = value
+      end
       options.on("--from=FORMAT", %w[grammar-ir automaton-ir], "resume from IR JSON") do |value|
         @options[:from] = value
       end
@@ -489,8 +491,9 @@ module Ibex
       raise Ibex::Error, "#{path}:1:1: expected #{@options[:from]} input" unless value.is_a?(expected)
 
       return dispatch_grammar(value, path) if value.is_a?(IR::Grammar)
+      return dispatch_automaton(value, path) if value.is_a?(IR::Automaton)
 
-      dispatch_automaton(value, path)
+      raise Ibex::Error, "#{path}:1:1: expected #{@options[:from]} input"
     end
 
     # @rbs (IR::Grammar grammar, String path) -> Integer
@@ -503,6 +506,7 @@ module Ibex
 
       write_railroad(grammar) unless @options[:verify_output]
       return emit_sets(grammar) if @options[:emit] == "sets"
+      return emit_lexer(grammar) if @options[:emit] == "lexer-ir"
       return emit_grammar(grammar) if @options[:emit] == "grammar-ir"
       return emit_automaton(grammar, path) if @options[:emit] == "automaton-ir"
       return emit_ruby(grammar, path) if @options[:emit] == "ruby"
@@ -517,6 +521,7 @@ module Ibex
 
       write_railroad(automaton.grammar) unless @options[:verify_output]
       return emit_sets(automaton.grammar) if @options[:emit] == "sets"
+      return emit_lexer(automaton.grammar) if @options[:emit] == "lexer-ir"
       return emit_grammar(automaton.grammar) if @options[:emit] == "grammar-ir"
       return emit_loaded_automaton(automaton, path) if @options[:emit] == "automaton-ir"
 
@@ -556,6 +561,16 @@ module Ibex
     def emit_grammar(grammar)
       finish_artifact_generation(@generation_sources)
       @stdout.write(IR::Serialize.dump(grammar))
+      0
+    end
+
+    # @rbs (IR::Grammar grammar) -> Integer
+    def emit_lexer(grammar)
+      lexer = grammar.lexer
+      raise Ibex::Error, "(cli):1:1: grammar does not declare a lexer" unless lexer
+
+      finish_artifact_generation(@generation_sources)
+      @stdout.write(IR::Serialize.dump(lexer))
       0
     end
 

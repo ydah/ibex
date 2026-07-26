@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/lexer-ir-v1.schema.json",
+  "title": "Ibex Lexer IR version 1",
+  "description": "A deterministic stateful lexer using longest-match and declaration-order priority.",
+  "type": "object",
+  "required": [
+    "ibex_ir",
+    "schema_version",
+    "initial_state",
+    "states",
+    "rules",
+    "warnings",
+    "source_provenance"
+  ],
+  "properties": {
+    "ibex_ir": {
+      "const": "lexer"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "initial_state": {
+      "const": "INITIAL"
+    },
+    "states": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "prefixItems": [
+        {
+          "const": "INITIAL"
+        }
+      ],
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/rule"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/warning"
+      }
+    },
+    "source_provenance": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/source_provenance"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "location": {
+      "type": "object",
+      "required": [
+        "file",
+        "line",
+        "column"
+      ],
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "column": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "rule": {
+      "type": "object",
+      "required": [
+        "id",
+        "state",
+        "kind",
+        "token",
+        "pattern",
+        "pattern_kind",
+        "options",
+        "action",
+        "loc"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "state": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "token",
+            "skip",
+            "on"
+          ]
+        },
+        "token": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pattern": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pattern_kind": {
+          "enum": [
+            "regexp",
+            "literal"
+          ]
+        },
+        "options": {
+          "type": "string",
+          "pattern": "^[imx]*$"
+        },
+        "action": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "loc": {
+          "$ref": "#/$defs/location"
+        }
+      },
+      "additionalProperties": false
+    },
+    "warning": {
+      "type": "object",
+      "required": [
+        "type",
+        "rule",
+        "loc"
+      ],
+      "properties": {
+        "type": {
+          "const": "redos"
+        },
+        "rule": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "loc": {
+          "$ref": "#/$defs/location"
+        }
+      },
+      "additionalProperties": false
+    },
+    "source_provenance": {
+      "type": "object",
+      "required": [
+        "file",
+        "root",
+        "byte_span"
+      ],
+      "properties": {
+        "file": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "root": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "byte_span": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "required": [
+            "start",
+            "end"
+          ],
+          "properties": {
+            "start": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "end": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

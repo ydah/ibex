@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "normalize/declarations"
+require_relative "normalize/lexer"
 require_relative "normalize/recovery_declarations"
 require_relative "normalize/expression"
 require_relative "normalize/parameter_validation"
@@ -19,6 +20,7 @@ module Ibex
   # Converts a frontend AST into immutable Grammar IR.
   class Normalizer
     include NormalizeDeclarations
+    include NormalizeLexer
     include NormalizeRecoveryDeclarations
     include NormalizeParameterValidation
     include NormalizeInlineValidation
@@ -64,6 +66,7 @@ module Ibex
     # @rbs @recovery_sync_tokens: Array[String]
     # @rbs @on_error_reduce_groups: Array[Array[String]]
     # @rbs @grammar_tests: Array[IR::grammar_test]
+    # @rbs @lexer_declaration: Frontend::AST::Lexer?
     # @rbs @explicit_starts: Array[String]?
     # @rbs @start_names: Array[String]
     # @rbs @start_name: String
@@ -137,6 +140,7 @@ module Ibex
                       parser_parameters: @parser_parameters,
                       value_printers: @value_printers.values,
                       grammar_tests: @grammar_tests,
+                      lexer: normalize_lexer,
                       recovery: {
                         sync_tokens: @recovery_sync_tokens,
                         on_error_reduce: @on_error_reduce_groups

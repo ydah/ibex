@@ -14,6 +14,7 @@ class IRJSONSchemaTest < Minitest::Test
       automaton-ir-v1.schema.json
       grammar-ir-v2.schema.json
       automaton-ir-v2.schema.json
+      lexer-ir-v1.schema.json
       explain-v1.schema.json
       benchmark-v1.schema.json
       benchmark-v2.schema.json

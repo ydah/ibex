@@ -138,6 +138,9 @@ module Ibex
         def validate_warning_production: (Hash[String, untyped] warning, String field_name, String path) -> void
 
         # @rbs () -> void
+        def validate_lexer: () -> void
+
+        # @rbs () -> void
         def validate_user_code_chunks: () -> void
 
         # @rbs (untyped value, String path, ?nullable: bool) -> void

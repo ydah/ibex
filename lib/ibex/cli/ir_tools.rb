@@ -21,7 +21,13 @@ module Ibex
     def run_validate_ir_command(arguments)
       path = single_ir_path(arguments, "validate-ir")
       value = IR::Validator.validate(File.read(path))
-      kind = value.is_a?(IR::Grammar) ? "grammar" : "automaton"
+      kind = if value.is_a?(IR::Grammar)
+               "grammar"
+             elsif value.is_a?(IR::Lexer)
+               "lexer"
+             else
+               "automaton"
+             end
       @stdout.puts("valid #{kind} IR v#{value.schema_version}")
       0
     end
@@ -33,8 +39,9 @@ module Ibex
       before = IR::Validator.validate(File.read(arguments.fetch(0)))
       after = IR::Validator.validate(File.read(arguments.fetch(1)))
       compatible = (before.is_a?(IR::Grammar) && after.is_a?(IR::Grammar)) ||
-                   (before.is_a?(IR::Automaton) && after.is_a?(IR::Automaton))
-      raise Ibex::Error, "(cli):1:1: cannot compare grammar IR with automaton IR" unless compatible
+                   (before.is_a?(IR::Automaton) && after.is_a?(IR::Automaton)) ||
+                   (before.is_a?(IR::Lexer) && after.is_a?(IR::Lexer))
+      raise Ibex::Error, "(cli):1:1: cannot compare different IR kinds" unless compatible
 
       @stdout.puts(JSON.pretty_generate(compare_ir(before, after)))
       0
@@ -51,6 +58,14 @@ module Ibex
 
       value = IR::Validator.validate(File.read(input))
       target = settings[:to] || raise(Ibex::Error, "(cli):1:1: migrate-ir requires --to=VERSION")
+      if value.is_a?(IR::Lexer)
+        raise Ibex::Error, "(cli):1:1: lexer IR is already at its only supported schema version" unless
+          target == value.schema_version
+
+        source = IR::Serialize.dump(value)
+        output ? atomic_write_ir(output, source) : @stdout.write(source)
+        return 0
+      end
       unless IR::SUPPORTED_SCHEMA_VERSIONS.include?(target)
         raise Ibex::Error, "(cli):1:1: unsupported migration target schema_version #{target}"
       end
@@ -106,7 +121,8 @@ module Ibex
       raise Ibex::Error, "(cli):1:1: #{command} requires exactly one IR file"
     end
 
-    # @rbs (IR::Grammar | IR::Automaton before, IR::Grammar | IR::Automaton after) -> Hash[Symbol, untyped]
+    # @rbs (IR::Grammar | IR::Automaton | IR::Lexer before,
+    #   IR::Grammar | IR::Automaton | IR::Lexer after) -> Hash[Symbol, untyped]
     def compare_ir(before, after)
       return compare_grammars(before, after) if before.is_a?(IR::Grammar) && after.is_a?(IR::Grammar)
       if before.is_a?(IR::Automaton) && after.is_a?(IR::Automaton)
@@ -121,8 +137,24 @@ module Ibex
           grammar: compare_grammars(before.grammar, after.grammar)
         }
       end
+      return compare_lexers(before, after) if before.is_a?(IR::Lexer) && after.is_a?(IR::Lexer)
 
       raise Ibex::Error, "(cli):1:1: unsupported IR comparison"
+    end
+
+    # @rbs (IR::Lexer before, IR::Lexer after) -> Hash[Symbol, untyped]
+    def compare_lexers(before, after)
+      before_rules = before.rules.map { |rule| [rule.state, rule.kind, rule.token, rule.pattern, rule.options] }
+      after_rules = after.rules.map { |rule| [rule.state, rule.kind, rule.token, rule.pattern, rule.options] }
+      {
+        kind: "lexer",
+        states: { added: after.states - before.states, removed: before.states - after.states },
+        rules: {
+          added: after_rules - before_rules, removed: before_rules - after_rules,
+          count: numeric_change(before.rules.length, after.rules.length)
+        },
+        warnings: numeric_change(before.warnings.length, after.warnings.length)
+      }
     end
 
     # @rbs (IR::Grammar before, IR::Grammar after) -> Hash[Symbol, untyped]

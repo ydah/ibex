@@ -5,6 +5,7 @@ require "digest"
 require_relative "validator/base"
 require_relative "validator/grammar"
 require_relative "validator/automaton"
+require_relative "validator/lexer"
 
 module Ibex
   module IR
@@ -12,21 +13,23 @@ module Ibex
     module Validator
       POSITION = "(ir):1:1"
 
-      # @rbs (String source) -> (Grammar | Automaton)
+      # @rbs (String source) -> (Grammar | Automaton | Lexer)
       def validate(source)
         data = JSON.parse(source)
         raise Ibex::Error, "#{POSITION}: $ must be an object" unless data.is_a?(Hash)
 
         type = data.fetch("ibex_ir") { raise Ibex::Error, "#{POSITION}: missing ibex_ir discriminator" }
         version = data["schema_version"]
-        unless SUPPORTED_SCHEMA_VERSIONS.include?(version)
-          expected = SUPPORTED_SCHEMA_VERSIONS.join(", ")
+        supported = type == "lexer" ? SUPPORTED_LEXER_SCHEMA_VERSIONS : SUPPORTED_SCHEMA_VERSIONS
+        unless supported.include?(version)
+          expected = supported.join(", ")
           raise Ibex::Error, "#{POSITION}: unsupported schema_version #{version.inspect}; expected one of #{expected}"
         end
 
         case type
         when "grammar" then GrammarDocument.new(data, version: version).validate
         when "automaton" then AutomatonDocument.new(data, version: version).validate
+        when "lexer" then LexerDocument.new(data).validate
         else raise Ibex::Error, "#{POSITION}: unsupported IR type #{type.inspect}"
         end
         value = Serialize.load(source)

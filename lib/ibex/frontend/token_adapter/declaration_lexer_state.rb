@@ -14,6 +14,7 @@ module Ibex
 
         # @rbs (Token token) -> external_token
         def classify_lexer_identifier(token)
+          # @type self: DeclarationState
           case @state
           when :lexer_entries, :lexer_action_or_entry then begin_lexer_entry(token)
           when :lexer_state_name
@@ -33,6 +34,7 @@ module Ibex
 
         # @rbs (Token token) -> external_token
         def begin_lexer_entry(token)
+          # @type self: DeclarationState
           value = string_value(token)
           case value
           when "end" then finish_lexer_scope

@@ -164,6 +164,9 @@ module Ibex
     def emit_grammar: (IR::Grammar grammar) -> Integer
 
     # @rbs (IR::Grammar grammar) -> Integer
+    def emit_lexer: (IR::Grammar grammar) -> Integer
+
+    # @rbs (IR::Grammar grammar) -> Integer
     def emit_sets: (IR::Grammar grammar) -> Integer
 
     # @rbs (IR::Grammar grammar, String input_path) -> Integer
