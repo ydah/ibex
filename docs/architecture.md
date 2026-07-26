@@ -259,6 +259,13 @@ extended additively by [ADR 0061](decisions/0061-lazy-semantic-locations-and-run
 symbol printers are optional IR v2 metadata compiled into private methods and an id-indexed table; see
 [ADR 0063](decisions/0063-declarative-debug-value-printers.md).
 
+Extended Grammar IR v2 may additionally carry synchronization terminals and ordered `%on_error_reduce` groups. Table
+construction fills only otherwise erroneous ACTION cells with a unique highest-priority completed declared production. At
+runtime, an explicit shift of the synthetic `error` token always wins; only when it is unavailable does panic recovery discard
+through a configured synchronization token and pop to a state that accepts that retained lookahead. Generated parsers without
+sync declarations omit the optional table field. The pull/push ordering and observer contract are fixed by
+[ADR 0068](decisions/0068-declarative-error-recovery.md).
+
 The separate `Runtime::Parser#observe` API publishes ordered, immutable schema-v1 events for tooling. Its bounded sanitizer
 copies only JSON data and never retains application identities or private stacks. With no observer, parse transitions construct
 no Event, payload summary, or dispatch snapshot; parser initialization still creates its ownership mutex. Generated tables

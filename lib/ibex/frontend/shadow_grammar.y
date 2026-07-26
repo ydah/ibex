@@ -1,6 +1,7 @@
 class Ibex::Frontend::ShadowGeneratedParser < Ibex::Frontend::GeneratedParserBase
 pragma extended
-token CLASS FRAGMENT INCLUDE TOKEN PRECHIGH PRECLOW OPTIONS EXPECT EXPECT_RR START CONVERT DISPLAY TYPE PARAM PRINTER PRAGMA RULE END
+token CLASS FRAGMENT INCLUDE TOKEN PRECHIGH PRECLOW OPTIONS EXPECT EXPECT_RR START RECOVER ON_ERROR_REDUCE
+token CONVERT DISPLAY TYPE PARAM PRINTER PRAGMA RULE END
 token LEFT RIGHT NONASSOC PRECEDENCE IDENTIFIER LITERAL INTEGER ACTION USER_CODE INLINE EMPTY LHS
 token PARAMETERIZED_REFERENCE TOKEN_ALIAS
 token SEPARATED_LIST SEPARATED_NONEMPTY_LIST
@@ -48,6 +49,8 @@ rule
     | expect_declaration                 { result = val[0] }
     | expect_rr_declaration              { result = val[0] }
     | start_declaration                  { result = val[0] }
+    | recovery_declaration               { result = val[0] }
+    | on_error_reduce_declaration        { result = val[0] }
     | convert_declaration                { result = val[0] }
     | display_declaration                { result = val[0] }
     | type_declaration                   { result = val[0] }
@@ -97,6 +100,14 @@ rule
 
   start_declaration
     : START grammar_symbol symbols       { result = build_start(val[0], [val[1].value] + val[2]) }
+
+  recovery_declaration
+    : RECOVER IDENTIFIER ':' grammar_symbol symbols
+      { result = build_recovery(val[0], val[1], [val[3].value] + val[4]) }
+
+  on_error_reduce_declaration
+    : ON_ERROR_REDUCE grammar_symbol symbols
+      { result = build_on_error_reduce(val[0], [val[1].value] + val[2]) }
 
   convert_declaration
     : CONVERT conversions END            { result = build_convert(val[0], val[1]) }

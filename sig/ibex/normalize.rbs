@@ -5,6 +5,8 @@ module Ibex
   class Normalizer
     include NormalizeDeclarations
 
+    include NormalizeRecoveryDeclarations
+
     include NormalizeParameterValidation
 
     include NormalizeInlineValidation
@@ -33,9 +35,11 @@ module Ibex
 
     DEFAULT_MAX_INLINE_EXPANSIONS: ::Integer
 
-    @start_names: Array[String]
-
     @explicit_starts: Array[String]?
+
+    @on_error_reduce_groups: Array[Array[String]]
+
+    @recovery_sync_tokens: Array[String]
 
     @value_printers: Hash[String, IR::value_printer]
 
@@ -63,7 +67,7 @@ module Ibex
 
     @declared_tokens: Hash[String, IR::location]
 
-    @helper_sequence: Integer
+    @start_names: Array[String]
 
     @start_name: String
 
@@ -94,6 +98,8 @@ module Ibex
     @max_inline_expansions: Integer
 
     @inline_expansion_count: Integer
+
+    @helper_sequence: Integer
 
     @warnings: Array[IR::grammar_warning]
 

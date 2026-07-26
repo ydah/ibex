@@ -48,6 +48,12 @@ module Ibex
       # @rbs () -> AST::Start
       def parse_start: () -> AST::Start
 
+      # @rbs () -> AST::Recovery
+      def parse_recovery: () -> AST::Recovery
+
+      # @rbs () -> AST::OnErrorReduce
+      def parse_on_error_reduce: () -> AST::OnErrorReduce
+
       # @rbs () -> AST::Convert
       def parse_convert: () -> AST::Convert
 

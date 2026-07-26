@@ -1,0 +1,20 @@
+# Generated from lib/ibex/normalize/recovery_declarations.rb with RBS::Inline
+
+module Ibex
+  # Recovery declaration extraction and post-interning symbol validation.
+  module NormalizeRecoveryDeclarations
+    private
+
+    # @rbs (Frontend::AST::Start | Frontend::AST::Recovery | Frontend::AST::OnErrorReduce declaration) -> void
+    def read_parser_control_declaration: (Frontend::AST::Start | Frontend::AST::Recovery | Frontend::AST::OnErrorReduce declaration) -> void
+
+    # @rbs (Frontend::AST::Recovery declaration) -> void
+    def read_recovery_declaration: (Frontend::AST::Recovery declaration) -> void
+
+    # @rbs (Frontend::AST::OnErrorReduce declaration) -> void
+    def read_on_error_reduce_declaration: (Frontend::AST::OnErrorReduce declaration) -> void
+
+    # @rbs () -> void
+    def validate_recovery_declarations: () -> void
+  end
+end

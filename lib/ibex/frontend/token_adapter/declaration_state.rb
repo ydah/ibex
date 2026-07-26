@@ -14,6 +14,8 @@ module Ibex
           "token" => %i[TOKEN token_symbols], "options" => %i[OPTIONS options_identifiers],
           "expect" => %i[EXPECT expect_integer], "start" => %i[START start_first_symbol],
           "expect_rr" => %i[EXPECT_RR expect_rr_integer],
+          "recover" => %i[RECOVER recover_kind],
+          "on_error_reduce" => %i[ON_ERROR_REDUCE on_error_reduce_first_symbol],
           "convert" => %i[CONVERT convert_name], "pragma" => %i[PRAGMA pragma_value],
           "display" => %i[DISPLAY display_symbol], "type" => %i[TYPE type_symbol],
           "param" => %i[PARAM param_name],
@@ -34,7 +36,10 @@ module Ibex
           display_symbol: "a grammar symbol", type_symbol: "a grammar symbol",
           display_value: "a quoted string", type_value: "a quoted string",
           param_name: "an identifier", param_type: "a quoted type or declaration",
-          printer_symbol: "a grammar symbol", printer_action: "an action"
+          printer_symbol: "a grammar symbol", printer_action: "an action",
+          recover_kind: "sync", recovery_colon: ":", recovery_first_symbol: "a grammar symbol",
+          recovery_symbols: "a grammar symbol", on_error_reduce_first_symbol: "a grammar symbol",
+          on_error_reduce_symbols: "a grammar symbol"
         }.freeze #: Hash[Symbol, String]
 
         attr_reader :conversion_name #: Token?
@@ -96,12 +101,16 @@ module Ibex
           when :token_symbols
             @token_alias_candidate = token
             declaration_symbol(token)
-          when :options_identifiers, :start_symbols then declaration_symbol(token)
+          when :options_identifiers, :start_symbols, :recovery_symbols, :on_error_reduce_symbols
+            declaration_symbol(token)
           when :precedence_association, :precedence_symbols then precedence_identifier(token)
           when :start_first_symbol then continue_start_symbols(:IDENTIFIER)
           when :display_symbol, :type_symbol then begin_metadata_value(:IDENTIFIER)
           when :param_name then begin_param_type
           when :printer_symbol then begin_printer_action(:IDENTIFIER)
+          when :recover_kind then begin_recovery_colon(token)
+          when :recovery_first_symbol then continue_recovery_symbols(:IDENTIFIER)
+          when :on_error_reduce_first_symbol then continue_on_error_reduce_symbols(:IDENTIFIER)
           when :pragma_value then finish_pragma(token)
           when :convert_name then begin_conversion(token, :IDENTIFIER, remaining)
           else :IDENTIFIER
@@ -222,9 +231,19 @@ module Ibex
         def classify_single_symbol(type)
           return finish_single_symbol(type) if %i[expect_integer expect_rr_integer].include?(@state) && type == :INTEGER
 
-          return continue_start_symbols(type) if @state == :start_first_symbol && type == :LITERAL
+          first = continue_first_symbol(type)
+          return first if first
 
           type if @state == :start_symbols && type == :LITERAL
+        end
+
+        # @rbs (external_token type) -> external_token?
+        def continue_first_symbol(type)
+          return unless type == :LITERAL
+          return continue_start_symbols(type) if @state == :start_first_symbol
+          return continue_recovery_symbols(type) if @state == :recovery_first_symbol
+
+          continue_on_error_reduce_symbols(type) if @state == :on_error_reduce_first_symbol
         end
 
         # @rbs (Token token, external_token type) -> external_token?
@@ -279,6 +298,18 @@ module Ibex
         end
 
         # @rbs (external_token type) -> external_token
+        def continue_recovery_symbols(type)
+          @state = :recovery_symbols
+          type
+        end
+
+        # @rbs (external_token type) -> external_token
+        def continue_on_error_reduce_symbols(type)
+          @state = :on_error_reduce_symbols
+          type
+        end
+
+        # @rbs (external_token type) -> external_token
         def begin_metadata_value(type)
           @state = @state == :display_symbol ? :display_value : :type_value
           type
@@ -294,6 +325,12 @@ module Ibex
         def begin_printer_action(type)
           @state = :printer_action
           type
+        end
+
+        # @rbs (Token token) -> external_token
+        def begin_recovery_colon(_token)
+          @state = :recovery_colon
+          :IDENTIFIER
         end
 
         # @rbs (external_token type) -> external_token
@@ -320,6 +357,7 @@ module Ibex
         # @rbs (Token token) -> external_token
         def classify_punctuation(token)
           @state = :superclass_name if @state == :superclass_marker && token.type == :<
+          @state = :recovery_first_symbol if @state == :recovery_colon && token.type == :":"
           string_value(token)
         end
 

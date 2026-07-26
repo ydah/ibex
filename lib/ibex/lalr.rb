@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "lalr/conflict"
+require_relative "lalr/on_error_reductions"
 require_relative "lalr/default_reductions"
 require_relative "lalr/build_metrics"
 require_relative "lalr/direct_lookaheads"

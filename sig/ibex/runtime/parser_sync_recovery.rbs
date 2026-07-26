@@ -1,0 +1,58 @@
+# Generated from lib/ibex/runtime/parser_sync_recovery.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    # Panic-mode synchronization used only when yacc's explicit `error` token
+    # cannot be shifted. Included by Parser to share its table and event paths.
+    module ParserSyncRecovery
+      private def parser_tables: () -> Hash[Symbol, untyped]
+
+      private def table_lookup: (untyped, Integer, Integer) -> untyped
+
+      private def default_action: (Integer) -> untyped
+
+      private def token_to_str: (untyped) -> String
+
+      private def trace: (String) -> void
+
+      private def continue_recovery: () -> untyped
+
+      private def reject_recovery_eof: () -> [ :done, nil ]
+
+      private def finish_recovery: (untyped, untyped, untyped, untyped, Integer, Array[untyped], Hash[String, untyped]?, String, Array[Proc]?) -> [ :continue ]
+
+      private
+
+      # @rbs () -> bool
+      def sync_recovery_configured?: () -> bool
+
+      # @rbs () -> bool
+      def sync_recovery_active?: () -> bool
+
+      # @rbs (Hash[Symbol, untyped] context, Hash[String, untyped]? token_data,
+      #   Array[Proc]? observers) -> untyped
+      def begin_sync_recovery: (Hash[Symbol, untyped] context, Hash[String, untyped]? token_data, Array[Proc]? observers) -> untyped
+
+      # @rbs () -> untyped
+      def continue_sync_recovery: () -> untyped
+
+      # @rbs (untyped token_id) -> bool
+      def sync_token?: (untyped token_id) -> bool
+
+      # @rbs () -> bool
+      def synchronize_for_current_token: () -> bool
+
+      # @rbs (Integer state, Integer token_id) -> untyped
+      def sync_action: (Integer state, Integer token_id) -> untyped
+
+      # @rbs () -> [:continue]
+      def finish_sync_recovery: () -> [ :continue ]
+
+      # @rbs () -> [:done, nil]
+      def reject_sync_recovery_eof: () -> [ :done, nil ]
+
+      # @rbs () -> void
+      def clear_sync_recovery: () -> void
+    end
+  end
+end

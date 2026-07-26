@@ -76,6 +76,7 @@ module Ibex
           expect: grammar.expect, expect_rr: grammar.expect_rr, options: grammar.options,
           parser_parameters: grammar.parser_parameters,
           value_printers: grammar.value_printers,
+          recovery: grammar.recovery,
           symbols: symbols, productions: productions,
           user_code: grammar.user_code, user_code_chunks: grammar.user_code_chunks,
           conversions: grammar.conversions, warnings: grammar.warnings, schema_version: 2,

@@ -5,6 +5,7 @@ require_relative "location_span" unless defined?(Ibex::Runtime::LocationSpan)
 require_relative "observation" unless defined?(Ibex::Runtime::Observation)
 require_relative "repair" unless defined?(Ibex::Runtime::RepairPolicy)
 require_relative "repair_search" unless defined?(Ibex::Runtime::RepairSearch)
+require_relative "parser_sync_recovery" unless defined?(Ibex::Runtime::ParserSyncRecovery)
 
 module Ibex
   module Runtime
@@ -90,7 +91,8 @@ module Ibex
     #
     # Subclasses provide `.parser_tables`, returning `:tokens`, `:token_names`,
     # `:actions`, `:gotos`, and `:productions`, with optional
-    # `:default_actions` and `:error_messages`. Actions are represented by
+    # `:default_actions`, `:error_messages`, and `:recovery_sync_tokens`.
+    # Actions are represented by
     # `[:shift, state]`, `[:reduce, production]`, `[:accept]`, or `[:error]`.
     # Format-v2 and v3 generated production entries mark their five-argument
     # semantic methods with `location_action: true`. Format-v3 composed actions
@@ -100,6 +102,7 @@ module Ibex
     # the generated `_ibex_action_N` Symbol shape, never for callables.
     class Parser
       include Observation
+      include ParserSyncRecovery
 
       EOF_TOKEN = 0 #: Integer
       ERROR_TOKEN = 1 #: Integer
@@ -140,6 +143,9 @@ module Ibex
       # @rbs @semantic_location_names: Hash[Symbol, Integer]?
       # @rbs @semantic_result_location: untyped
       # @rbs @trace_value_printer: (^(untyped) -> untyped)?
+      # @rbs @sync_recovery_context: Hash[Symbol, untyped]?
+      # @rbs @sync_recovery_token_data: Hash[String, untyped]?
+      # @rbs @sync_recovery_observers: Array[Proc]?
 
       attr_accessor :yydebug #: bool
       attr_writer :yydebug_output #: IO
@@ -174,6 +180,9 @@ module Ibex
         @semantic_location_names = nil
         @semantic_result_location = nil
         @trace_value_printer = nil
+        @sync_recovery_context = nil
+        @sync_recovery_token_data = nil
+        @sync_recovery_observers = nil
       end
 
       # Enable bounded automatic repair for the next parser session.
@@ -601,6 +610,7 @@ module Ibex
         @lookahead_location = nil
         @repair_input_buffer = nil
         @repair_selected = false
+        clear_sync_recovery
       end
 
       # @rbs (^() -> untyped source, ?initial_state: Integer?) -> void
@@ -616,12 +626,9 @@ module Ibex
         @lookahead_value = nil
         @lookahead_location = nil
         @runtime_lookahead_token_display = nil
-        @recovery_shifts = 0
-        @semantic_error = false
+        reset_parse_recovery_state
         @accept_requested = false
         @unknown_token_id = nil
-        @repair_input_buffer = @repair_policy ? [] : nil
-        @repair_selected = false
         trace("start state #{initial_state}")
         @runtime_event_sequence = 0
         return unless @runtime_observers
@@ -637,6 +644,15 @@ module Ibex
             "production_count" => tables[:production_count]
           }
         )
+      end
+
+      # @rbs () -> void
+      def reset_parse_recovery_state
+        @recovery_shifts = 0
+        @semantic_error = false
+        @repair_input_buffer = @repair_policy ? [] : nil
+        @repair_selected = false
+        clear_sync_recovery
       end
 
       # @rbs (Hash[Symbol, untyped] tables, Integer? requested) -> Integer
@@ -684,6 +700,8 @@ module Ibex
       # @rbs () -> untyped
       def action_for_current_state
         read_lookahead if @lookahead.equal?(NO_LOOKAHEAD)
+        return [:sync_recover] if sync_recovery_active?
+
         state = @state_stack.last
         return [:error] unless parser_tables.fetch(:token_names).key?(@lookahead)
 
@@ -703,6 +721,7 @@ module Ibex
           emit_accept_event(EventSanitizer.value(result), "table") if @runtime_observers
           [:accepted, result]
         when :error then recover
+        when :sync_recover then continue_sync_recovery
         else raise ParseError, "(tables):1:1: unknown parser action #{action.inspect}"
         end
       end
@@ -962,7 +981,17 @@ module Ibex
       # @rbs (Hash[Symbol, untyped] context, Hash[String, untyped]? token_data,
       #   Array[Proc]? recovery_observers) -> untyped
       def fallback_recovery(context, token_data, recovery_observers)
+        state_stack = @state_stack.dup if sync_recovery_configured?
+        value_stack = @value_stack.dup if state_stack
+        location_stack = @location_stack&.dup if state_stack
         unless shift_error_token
+          if state_stack
+            @state_stack = state_stack
+            @value_stack = value_stack || []
+            @location_stack = location_stack
+            return begin_sync_recovery(context, token_data, recovery_observers)
+          end
+
           return reject_without_recovery(
             context[:token_id], context[:token_display], context[:value], context[:location], context[:state],
             token_data, recovery_observers

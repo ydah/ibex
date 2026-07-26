@@ -83,6 +83,12 @@ module Ibex
       # @rbs (Token keyword, Array[String] names) -> AST::Start
       def build_start: (Token keyword, Array[String] names) -> AST::Start
 
+      # @rbs (Token keyword, Token kind, Array[String] sync_tokens) -> AST::Recovery
+      def build_recovery: (Token keyword, Token kind, Array[String] sync_tokens) -> AST::Recovery
+
+      # @rbs (Token keyword, Array[String] names) -> AST::OnErrorReduce
+      def build_on_error_reduce: (Token keyword, Array[String] names) -> AST::OnErrorReduce
+
       # @rbs (Token keyword, Array[AST::Conversion] pairs) -> AST::Convert
       def build_convert: (Token keyword, Array[AST::Conversion] pairs) -> AST::Convert
 

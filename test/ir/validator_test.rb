@@ -144,6 +144,25 @@ class IRValidatorTest < Minitest::Test
     assert_equal '(ir):1:1: $.printers[0].symbol references missing symbol "MISSING"', error.message
   end
 
+  def test_validates_optional_v2_recovery_policy
+    document = parsed_fixture("grammar-v2.json")
+    document["mode"] = "extended"
+    document["recovery"] = {
+      "sync_tokens" => ["PLUS"],
+      "on_error_reduce" => [["expression"]]
+    }
+
+    grammar = Ibex::IR::Validator.validate(JSON.generate(document))
+    assert_equal(
+      { sync_tokens: ["PLUS"], on_error_reduce: [["expression"]] },
+      grammar.recovery
+    )
+
+    document["recovery"]["sync_tokens"] = ["expression"]
+    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
+    assert_equal "(ir):1:1: $.recovery.sync_tokens[0] must reference a terminal", error.message
+  end
+
   def test_rejects_invalid_json_with_a_position
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate("{") }
 

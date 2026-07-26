@@ -79,6 +79,9 @@
         "$ref": "#/$defs/value_printer"
       }
     },
+    "recovery": {
+      "$ref": "#/$defs/recovery_policy"
+    },
     "symbols": {
       "type": "array",
       "minItems": 2,
@@ -122,6 +125,36 @@
   },
   "additionalProperties": false,
   "$defs": {
+    "recovery_policy": {
+      "type": "object",
+      "required": [
+        "sync_tokens",
+        "on_error_reduce"
+      ],
+      "properties": {
+        "sync_tokens": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "on_error_reduce": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
     "parser_parameter": {
       "type": "object",
       "required": [

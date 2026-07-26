@@ -88,16 +88,16 @@ class LSPSymbolIndexTest < Minitest::Test
       token_references = index.references(
         root, position(store, root, "token TOKEN", offset: 7), include_declaration: true
       )
-      assert_equal 7, token_references.length
+      assert_equal 8, token_references.length
 
       start_references = index.references(
         root, position(store, root, "start start", offset: 6), include_declaration: true
       )
-      assert_equal 2, start_references.length
+      assert_equal 3, start_references.length
 
       edit = index.rename(root, position(store, root, "token TOKEN", offset: 7), "LEXEME")
       edit_count = edit.fetch("documentChanges").sum { |change| change.fetch("edits").length }
-      assert_equal 7, edit_count
+      assert_equal 8, edit_count
     end
   end
 
@@ -193,6 +193,8 @@ class LSPSymbolIndexTest < Minitest::Test
       include "part.y"
       token TOKEN
       start start
+      %recover sync: TOKEN
+      %on_error_reduce start
       convert
       TOKEN 'Integer(_1)'
       end
