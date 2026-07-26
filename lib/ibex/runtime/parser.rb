@@ -22,9 +22,10 @@ module Ibex
       attr_reader :location #: untyped
       attr_reader :state #: Integer?
       attr_reader :suggestions #: Array[String]
+      attr_reader :error_id #: String?
 
       # rubocop:disable Layout/LineLength
-      # @rbs (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: untyped, ?expected_tokens: Array[String], ?location: untyped, ?state: Integer?, ?suggestions: Array[String], ?detail: String?) -> void
+      # @rbs (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: untyped, ?expected_tokens: Array[String], ?location: untyped, ?state: Integer?, ?suggestions: Array[String], ?error_id: String?, ?detail: String?) -> void
       # rubocop:enable Layout/LineLength
       def initialize(
         message = nil,
@@ -35,6 +36,7 @@ module Ibex
         location: nil,
         state: nil,
         suggestions: [],
+        error_id: nil,
         detail: nil
       )
         @token_id = token_id
@@ -44,6 +46,7 @@ module Ibex
         @location = location
         @state = state
         @suggestions = suggestions.dup.freeze
+        @error_id = error_id&.dup&.freeze
         @detail = detail
         super(message || diagnostic_message)
       end
@@ -62,7 +65,8 @@ module Ibex
       def diagnostic_message
         expected = @expected_tokens.empty? ? "" : "; expected #{@expected_tokens.join(', ')}"
         default = "unexpected #{@token_name || @token_id}#{expected} (#{@token_value.inspect})"
-        message = "#{location_label}: #{@detail || default}"
+        identifier = @error_id ? "[#{@error_id}] " : ""
+        message = "#{location_label}: #{identifier}#{@detail || default}"
         source_line = location_value(:source_line)
         column = location_value(:column)
         message += "\n#{source_line}\n#{' ' * [column.to_i - 1, 0].max}^" if source_line
@@ -290,6 +294,8 @@ module Ibex
         expected = expected_tokens
         token_name = token_to_str(token_id)
         state = @state_stack.last
+        configured = parser_tables.fetch(:error_messages, EMPTY_ROW)[state]
+        error_id, detail = configured_error_message(configured)
         raise ParseError.new(
           token_id: token_id,
           token_name: token_name,
@@ -298,7 +304,8 @@ module Ibex
           location: @lookahead_location,
           state: state,
           suggestions: token_suggestions(token_name, expected),
-          detail: parser_tables.fetch(:error_messages, EMPTY_ROW)[state]
+          error_id: error_id,
+          detail: detail
         )
       end
 
@@ -1309,6 +1316,15 @@ module Ibex
       # @rbs (untyped action) -> bool
       def error_action?(action)
         action.nil? || action.first == :error
+      end
+
+      # @rbs (untyped configured) -> [String?, String?]
+      def configured_error_message(configured)
+        return [nil, configured] unless configured.is_a?(Hash)
+
+        error_id = configured[:id] || configured["id"]
+        message = configured[:message] || configured["message"]
+        [error_id, message]
       end
 
       # @rbs (String actual, Array[String] expected) -> Array[String]

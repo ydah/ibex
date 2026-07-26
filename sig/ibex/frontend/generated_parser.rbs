@@ -23,8 +23,8 @@ module Ibex
 
       PRODUCTIONS: untyped
 
-      # @type var error_messages: Hash[Integer, String]
-      ERROR_MESSAGES: Hash[Integer, String]
+      # @type var error_messages: Hash[Integer, String | { id: String, message: String }]
+      ERROR_MESSAGES: Hash[Integer, String | { id: String, message: String }]
 
       PARSER_TABLES: untyped
 

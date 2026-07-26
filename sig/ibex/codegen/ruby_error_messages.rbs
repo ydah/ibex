@@ -1,0 +1,16 @@
+# Generated from lib/ibex/codegen/ruby_error_messages.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Serializes immutable example-keyed error records into generated Ruby.
+    module RubyErrorMessages
+      private
+
+      # @rbs () -> String
+      def error_messages_literal: () -> String
+
+      # @rbs (String | { id: String, message: String } message) -> String
+      def error_message_literal: (String | { id: String, message: String } message) -> String
+    end
+  end
+end

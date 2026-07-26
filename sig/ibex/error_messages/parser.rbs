@@ -2,13 +2,15 @@
 
 module Ibex
   module ErrorMessages
-    # Strict line-oriented parser for the ibex-messages v1 format.
+    # Strict line-oriented parser for the ibex-messages v1 and v2 formats.
     class Parser
+      include ParserV2
+
       ESCAPES: untyped
 
-      @file: String
-
       @lines: Array[String]
+
+      @file: String
 
       # @rbs (String source, file: String) -> void
       def initialize: (String source, file: String) -> void
@@ -18,8 +20,11 @@ module Ibex
 
       private
 
-      # @rbs () -> void
-      def validate_header: () -> void
+      # @rbs () -> Document
+      def parse_v1: () -> Document
+
+      # @rbs () -> Integer
+      def validate_header: () -> Integer
 
       # @rbs (Hash[Integer, Integer] declarations, Integer state, Integer index, String line) -> void
       def reject_duplicate: (Hash[Integer, Integer] declarations, Integer state, Integer index, String line) -> void

@@ -23,9 +23,10 @@ class CLIMessagesTest < Minitest::Test
       run_cli(["errors", "--update", grammar])
 
       rendered = File.read(messages)
-      assert_includes rendered, "state 0"
+      assert_includes rendered, "# ibex-messages v2"
+      assert_includes rendered, "# state: 0"
       assert_includes rendered, "| Keep this custom message."
-      assert_includes rendered, "removed 999"
+      assert_includes rendered, "legacy-state: 999"
       assert_includes rendered, "| Preserve this removed message."
 
       run_cli(["errors", "--update", grammar])
@@ -101,7 +102,7 @@ class CLIMessagesTest < Minitest::Test
     errors = StringIO.new
     status = Ibex::CLI.start(["errors", "grammar.y"], stdout: StringIO.new, stderr: errors)
     assert_equal 1, status
-    assert_equal "(cli):1:1: errors command requires --update[=FILE]\n", errors.string
+    assert_equal "(cli):1:1: errors command requires --list or --update[=FILE]\n", errors.string
 
     Dir.mktmpdir("ibex-normal-cli") do |directory|
       grammar = File.join(directory, "grammar.y")
@@ -139,7 +140,7 @@ class CLIMessagesTest < Minitest::Test
 
     assert_equal 0, status
     assert_empty errors.string
-    assert_includes output.string, "Usage: ibex errors --update[=FILE]"
+    assert_includes output.string, "Usage: ibex errors (--list | --update[=FILE])"
   end
 
   def test_generation_rejects_paths_that_would_overwrite_messages

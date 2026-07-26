@@ -6,11 +6,13 @@ module Ibex
     class Ruby
       include RubyActions
 
+      include RubyErrorMessages
+
       include RubyTableMetadata
 
       include RubyValuePrinters
 
-      @error_messages: Hash[Integer, String]
+      @error_messages: Hash[Integer, String | { id: String, message: String }]
 
       @executable: String?
 
@@ -34,8 +36,9 @@ module Ibex
 
       # @rbs (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool,
       #   ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?,
-      #   ?executable: String?, ?error_messages: Hash[Integer, String]) -> void
-      def initialize: (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool, ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?, ?executable: String?, ?error_messages: Hash[Integer, String]) -> void
+      #   ?executable: String?,
+      #   ?error_messages: Hash[Integer, String | { id: String, message: String }]) -> void
+      def initialize: (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool, ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?, ?executable: String?, ?error_messages: Hash[Integer, String | { id: String, message: String }]) -> void
 
       # @rbs () -> String
       def generate: () -> String
@@ -83,9 +86,6 @@ module Ibex
 
       # @rbs () -> bool
       def uses_locations?: () -> bool
-
-      # @rbs () -> String
-      def error_messages_literal: () -> String
 
       # @rbs (Array[String] lines, String name, ?indent: Integer) -> void
       def append_user_code: (Array[String] lines, String name, ?indent: Integer) -> void

@@ -186,7 +186,7 @@ module Ibex
         options.separator("    debug AUTOMATON [TOKEN]  simulate validated Automaton IR tables")
         options.separator("    diagnose                  collect frontend diagnostics")
         options.separator("    doc                       render grammar documentation")
-        options.separator("    errors --update[=FILE]  update state-specific syntax error messages")
+        options.separator("    errors --list|--update  list or update example-keyed syntax error messages")
         options.separator("    explain                   explain selected parser conflicts")
         options.separator("    fmt                       format grammar source")
         options.separator("    lsp                       run the language server over stdio")

@@ -106,6 +106,73 @@ class ErrorMessagesTest < Minitest::Test
     )
   end
 
+  def test_v2_sentence_keys_preserve_ids_and_classify_updates
+    automaton = build_automaton
+    existing = Ibex::ErrorMessages.parse(<<~MESSAGES, file: "grammar.messages")
+      # ibex-messages v2
+      sentence: $eof
+      ## E0041
+      # entry: start
+      # state: 999
+      | Empty input is not accepted.
+      end
+
+      sentence: OLD
+      ## E0042
+      # state: 8
+      | This sentence disappeared.
+      end
+    MESSAGES
+
+    update = Ibex::ErrorMessages.update(automaton, existing: existing)
+    assert_equal ["E0041: state 999 -> 0"], update.moved
+    assert_equal ["E0042: OLD"], update.unreachable
+    assert_equal ["E0043 state 2: TOKEN TOKEN"], update.uncovered
+
+    document = Ibex::ErrorMessages.parse(update.source, file: "grammar.messages")
+    assert_equal 2, document.version
+    assert_equal %w[E0041 E0043 E0042], document.entries.map(&:error_id)
+    assert_equal(
+      { 0 => { id: "E0041", message: "Empty input is not accepted." } },
+      Ibex::ErrorMessages.records_for(document, automaton, file: "grammar.messages")
+    )
+  end
+
+  def test_v2_parser_preserves_quoted_sentence_tokens_and_metadata
+    document = Ibex::ErrorMessages.parse(<<~MESSAGES, file: "grammar.messages")
+      # ibex-messages v2
+      sentence: NUM '+' ")"
+      ## E0123
+      # entry: expression
+      # state: 7
+      | Expected an operand.
+      end
+    MESSAGES
+
+    entry = document.entries.fetch(0)
+    assert_equal ["NUM", "'+'", '")"'], entry.sentence
+    assert_equal ["E0123", "expression", 7, :active, "Expected an operand."],
+                 [entry.error_id, entry.entry, entry.state, entry.status, entry.message]
+  end
+
+  def test_v2_parser_rejects_duplicate_ids_and_malformed_quoted_tokens
+    duplicate = <<~MESSAGES
+      # ibex-messages v2
+      sentence: TOKEN
+      ## E0001
+      end
+      sentence: OTHER
+      ## E0001
+      end
+    MESSAGES
+    error = assert_raises(Ibex::Error) { Ibex::ErrorMessages.parse(duplicate, file: "duplicate.messages") }
+    assert_equal "duplicate.messages:5:1: duplicate error id; first declared at line 2", error.message
+
+    malformed = "# ibex-messages v2\nsentence: '+'junk\n## E0001\nend\n"
+    error = assert_raises(Ibex::Error) { Ibex::ErrorMessages.parse(malformed, file: "malformed.messages") }
+    assert_equal "malformed.messages:2:4: quoted token must be followed by whitespace", error.message
+  end
+
   private
 
   def build_automaton

@@ -1,0 +1,43 @@
+# Generated from lib/ibex/error_messages/update.rb with RBS::Inline
+
+module Ibex
+  module ErrorMessages
+    # @rbs (IR::Automaton automaton, ?existing: Document?, ?max_tokens: Integer,
+    #   ?max_configurations: Integer) -> String
+    def self?.render: (IR::Automaton automaton, ?existing: Document?, ?max_tokens: Integer, ?max_configurations: Integer) -> String
+
+    # @rbs (IR::Automaton automaton, ?existing: Document?, ?max_tokens: Integer,
+    #   ?max_configurations: Integer) -> Update
+    def self?.update: (IR::Automaton automaton, ?existing: Document?, ?max_tokens: Integer, ?max_configurations: Integer) -> Update
+
+    # @rbs (Array[Entry] entries, Hash[Integer, bool] covered,
+    #   Hash[Integer, SentenceSearch::Witness] witnesses, Array[String] uncovered, Integer next_id) -> void
+    def self?.add_uncovered_entries: (Array[Entry] entries, Hash[Integer, bool] covered, Hash[Integer, SentenceSearch::Witness] witnesses, Array[String] uncovered, Integer next_id) -> void
+
+    # @rbs (Document document, SentenceSearch search, Hash[Integer, SentenceSearch::Witness] witnesses,
+    #   Hash[Symbol, Array[String]] classifications, Integer next_id) ->
+    #   [Array[Entry], Hash[Integer, bool], Integer]
+    def update_existing_entries: (Document document, SentenceSearch search, Hash[Integer, SentenceSearch::Witness] witnesses, Hash[Symbol, Array[String]] classifications, Integer next_id) -> [ Array[Entry], Hash[Integer, bool], Integer ]
+
+    # @rbs (Entry entry, SentenceSearch search, Array[Entry] entries, Hash[Integer, bool] covered,
+    #   Hash[Symbol, Array[String]] classifications, Integer next_id) -> Integer
+    def update_sentence_entry: (Entry entry, SentenceSearch search, Array[Entry] entries, Hash[Integer, bool] covered, Hash[Symbol, Array[String]] classifications, Integer next_id) -> Integer
+
+    # @rbs (Document document, Hash[Integer, SentenceSearch::Witness] witnesses,
+    #   Hash[Symbol, Array[String]] classifications, Integer next_id) ->
+    #   [Array[Entry], Hash[Integer, bool], Integer]
+    def migrate_legacy_entries: (Document document, Hash[Integer, SentenceSearch::Witness] witnesses, Hash[Symbol, Array[String]] classifications, Integer next_id) -> [ Array[Entry], Hash[Integer, bool], Integer ]
+
+    # @rbs (Entry entry, Integer next_id) -> Entry
+    def with_error_id: (Entry entry, Integer next_id) -> Entry
+
+    # @rbs (Document document) -> Integer
+    def next_error_id: (Document document) -> Integer
+
+    # @rbs (Integer number) -> String
+    def format_error_id: (Integer number) -> String
+
+    # @rbs (Entry entry) -> [Integer, Integer, String]
+    def entry_sort_key: (Entry entry) -> [ Integer, Integer, String ]
+  end
+end

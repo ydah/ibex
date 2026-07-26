@@ -39,7 +39,8 @@ module Ibex
                    "  GRAMMAR_DIGEST: String", "  STATE_COUNT: Integer", "  PRODUCTION_COUNT: Integer",
                    "  TOKEN_IDS: Hash[untyped, Integer]", "  TOKEN_NAMES: Hash[Integer, String]",
                    "  ACTIONS: untyped", "  GOTOS: untyped", "  DEFAULT_ACTIONS: Array[untyped]",
-                   "  PRODUCTIONS: Array[Hash[Symbol, untyped]]", "  ERROR_MESSAGES: Hash[Integer, String]",
+                   "  PRODUCTIONS: Array[Hash[Symbol, untyped]]",
+                   "  ERROR_MESSAGES: Hash[Integer, String | { id: String, message: String }]",
                    "  PARSER_TABLES: Hash[Symbol, untyped]", "  DEBUG_ENABLED: bool", "",
                    "  def self.parser_tables: () -> Hash[Symbol, untyped]")
         append_entry_contract(lines)

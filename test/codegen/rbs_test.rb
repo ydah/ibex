@@ -22,7 +22,7 @@ class RBSCodegenTest < Minitest::Test
     assert_includes signature, "PRODUCTION_COUNT: Integer"
     assert_includes signature, "TOKEN_IDS: Hash[untyped, Integer]"
     assert_includes signature, "DEFAULT_ACTIONS: Array[untyped]"
-    assert_includes signature, "ERROR_MESSAGES: Hash[Integer, String]"
+    assert_includes signature, "ERROR_MESSAGES: Hash[Integer, String | { id: String, message: String }]"
     assert_includes signature, "def self.parser_tables: () -> Hash[Symbol, untyped]"
   end
 

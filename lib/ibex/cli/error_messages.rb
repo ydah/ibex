@@ -3,7 +3,7 @@
 require "tempfile"
 
 module Ibex
-  # CLI subcommand and generation-file handling for state-specific errors.
+  # CLI subcommand and generation-file handling for example-keyed errors.
   module CLIErrorMessages
     # @rbs!
     #   private def print_help: (OptionParser) -> Integer
@@ -25,20 +25,36 @@ module Ibex
       parser = error_messages_option_parser
       remaining = parser.parse(arguments)
       return print_help(parser) if @options[:help]
-      raise Ibex::Error, "(cli):1:1: errors command requires --update[=FILE]" unless @options[:messages_update]
+      if @options[:messages_list] && @options[:messages_update]
+        raise Ibex::Error, "(cli):1:1: errors command accepts only one of --list or --update"
+      end
+      unless @options[:messages_list] || @options[:messages_update]
+        raise Ibex::Error, "(cli):1:1: errors command requires --list or --update[=FILE]"
+      end
 
       input = input_path(remaining)
       automaton = automaton_for_error_messages(input)
-      write_error_messages(automaton, input)
+      if @options[:messages_list]
+        @stdout.write(ErrorMessages.render(automaton, **error_message_search_limits))
+      else
+        write_error_messages(automaton, input)
+      end
       0
     end
 
     # @rbs () -> OptionParser
     def error_messages_option_parser
       OptionParser.new do |options|
-        options.banner = "Usage: ibex errors --update[=FILE] [options] grammarfile"
+        options.banner = "Usage: ibex errors (--list | --update[=FILE]) [options] grammarfile"
+        options.on("--list", "list shortest error sentences on stdout") { @options[:messages_list] = true }
         options.on("--update[=FILE]", "update messages (defaults to grammar.messages)") do |value|
           @options[:messages_update] = value || true
+        end
+        options.on("--max-tokens=N", Integer, "maximum error-sentence token budget") do |value|
+          @options[:messages_max_tokens] = positive_messages_limit(value, "--max-tokens")
+        end
+        options.on("--max-configurations=N", Integer, "maximum error-sentence configuration budget") do |value|
+          @options[:messages_max_configurations] = positive_messages_limit(value, "--max-configurations")
         end
         options.on("--from=FORMAT", %w[grammar-ir automaton-ir], "resume from IR JSON") do |value|
           @options[:from] = value
@@ -58,7 +74,7 @@ module Ibex
 
     # @rbs (OptionParser options) -> void
     def add_error_messages_generation_option(options)
-      options.on("--messages=FILE", "embed state-specific syntax error messages") do |value|
+      options.on("--messages=FILE", "embed example-keyed syntax error messages") do |value|
         @options[:messages] = value
       end
     end
@@ -105,17 +121,45 @@ module Ibex
                  else
                    ErrorMessages::Document.new(entries: [])
                  end
-      rendered = ErrorMessages.render(automaton, existing: existing)
+      update = ErrorMessages.update(automaton, existing: existing, **error_message_search_limits)
       target_path = File.symlink?(path) ? File.realpath(path) : path
       directory = File.dirname(File.expand_path(target_path))
       Tempfile.create([".ibex-messages-", ".tmp"], directory, encoding: "UTF-8") do |file|
-        file.write(rendered)
+        file.write(update.source)
         File.chmod(messages_file_mode(target_path), file.path)
         file.flush
         file.fsync
         File.rename(file.path, target_path)
       end
+      write_error_message_update_report(update)
       report_status("wrote #{path}")
+    end
+
+    # @rbs () -> { max_tokens: Integer, max_configurations: Integer }
+    def error_message_search_limits
+      {
+        max_tokens: @options.fetch(:messages_max_tokens, ErrorMessages::SentenceSearch::DEFAULT_MAX_TOKENS),
+        max_configurations: @options.fetch(
+          :messages_max_configurations, ErrorMessages::SentenceSearch::DEFAULT_MAX_CONFIGURATIONS
+        )
+      }
+    end
+
+    # @rbs (Integer value, String option) -> Integer
+    def positive_messages_limit(value, option)
+      return value if value.positive?
+
+      raise Ibex::Error, "(cli):1:1: #{option} must be positive"
+    end
+
+    # @rbs (ErrorMessages::Update update) -> void
+    def write_error_message_update_report(update)
+      classifications = {
+        "uncovered" => update.uncovered, "unreachable" => update.unreachable, "moved" => update.moved
+      }
+      classifications.each do |label, items|
+        items.each { |item| @stdout.puts("#{label}: #{item}") }
+      end
     end
 
     # @rbs (String path) -> Integer
@@ -125,7 +169,7 @@ module Ibex
       0o666 & ~File.umask
     end
 
-    # @rbs (IR::Automaton automaton) -> Hash[Integer, String]
+    # @rbs (IR::Automaton automaton) -> Hash[Integer, untyped]
     def configured_error_messages(automaton)
       path = @options[:messages]
       return {} unless path
@@ -133,7 +177,7 @@ module Ibex
       source = File.binread(path)
       record_generation_input(path, source)
       document = ErrorMessages.parse(source, file: path)
-      ErrorMessages.messages_for(document, automaton, file: path)
+      ErrorMessages.records_for(document, automaton, file: path)
     end
 
     # @rbs () -> void
