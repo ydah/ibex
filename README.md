@@ -1,52 +1,65 @@
 # Ibex
 
-[![Gem Version](https://badge.fury.io/rb/ibex.svg)](https://badge.fury.io/rb/ibex)
 [![CI](https://github.com/ydah/ibex/actions/workflows/main.yml/badge.svg)](https://github.com/ydah/ibex/actions/workflows/main.yml)
 
-Ibex is a Pure Ruby LR parser generator. It accepts racc-compatible grammar
+Ibex is a Pure Ruby LR parser generator. It reads racc-compatible grammar
 files, generates parsers with the familiar `do_parse` / `yyparse` API, and
 requires no C or Java extension.
 
-Beyond compatibility mode, Ibex provides opt-in EBNF syntax, generated lexers,
-CST and typed AST generation, structured diagnostics, conflict analysis,
-versioned Grammar/Automaton IR, and SLR, LALR, IELR, and canonical LR(1)
-construction.
+> [!IMPORTANT]
+> Ibex is pre-1.0. The current v1.0 decision is
+> [**HOLD**](docs/release-readiness.md): compatibility and scale evidence pass,
+> but representative generator/runtime performance is still behind racc and
+> the error UX evidence still needs independent review. Compatible mode is the
+> stable baseline; opt-in features have the maturity levels documented in the
+> [stability policy](docs/stability.md).
 
-- Try it in the [browser playground](https://ydah.github.io/ibex/playground/).
+- Try grammar analysis in the
+  [browser playground](https://ydah.github.io/ibex/playground/).
+- Start with the [grammar reference](docs/grammar-reference.md).
+- Migrate an existing parser with the
+  [racc migration guide](docs/racc-migration.md).
 - Browse the [API reference](https://ydah.github.io/ibex/api/).
-- Read the [grammar reference](docs/grammar-reference.md).
-- Migrate an existing parser with the [racc migration guide](docs/racc-migration.md).
 
-The playground runs locally in a Web Worker. Grammar source is not uploaded,
-and semantic action bodies are not executed.
+The playground runs in a local Web Worker. It does not upload grammar source
+or execute semantic action bodies.
 
-## Requirements and installation
+## At a glance
 
-Ibex supports Ruby 3.0 or later. Generated parsers normally depend on the
-separately versioned `ibex-runtime` package, whose runtime has no third-party
-gem dependencies.
+| Concern | Ibex default |
+| --- | --- |
+| Grammar input | racc-compatible `.y` source |
+| Construction | Direct LALR(1) |
+| Generated tables | Compact, immutable Ruby data |
+| Parser API | Pull parsing with `do_parse` / `yyparse` |
+| Generated dependency | The separately versioned `ibex-runtime` gem |
+| Ruby support | Ruby 3.0 or later |
+| Extensions | Disabled unless `pragma extended` or `--mode=extended` is used |
+| Semantic actions | Opaque during generation and analysis; executed only by a running parser |
 
-From a source checkout:
+The generator and runtime are deliberately separate:
+
+```text
+grammar.y + lexer contract
+          |
+          v
+        ibex  -----> parser.rb --------> ibex-runtime
+          |
+          +--------> optional RBS, IR, reports, diagrams, and docs
+```
+
+Use `-E` when a generated parser must embed the runtime instead of depending
+on `ibex-runtime`.
+
+## Quick start from a checkout
+
+Clone the repository and install its locked development dependencies:
 
 ```sh
+git clone https://github.com/ydah/ibex.git
+cd ibex
 bundle install
-bundle exec rake
 ```
-
-Build and install the local gems to put `ibex` on your `PATH`:
-
-```sh
-gem build ibex.gemspec
-gem build ibex-runtime.gemspec
-gem install ./ibex-runtime-0.1.0.gem
-gem install ./ibex-0.1.0.gem
-```
-
-Applications that only execute generated parsers may install `ibex-runtime`
-without the generator. Pass `-E` when generating a dependency-free parser with
-the runtime embedded.
-
-## Quick start
 
 Save this grammar as `calculator.y`:
 
@@ -80,55 +93,78 @@ end
 ```
 <!-- calculator-grammar:end -->
 
-Generate and run the parser:
-
-```sh
-ibex calculator.y
-ruby calculator.rb
-# 14
-```
-
-From a checkout without installing the gems:
+Generate and run the parser without installing local gems:
 
 ```sh
 bundle exec ruby -Ilib exe/ibex calculator.y
 bundle exec ruby -Ilib calculator.rb
+# 14
 ```
 
-Ibex generates compact parser tables by default. Use `--table=plain` for
-inspectable Hash rows, `--check` to compare generated output without rewriting
-it, and `-E` to embed the runtime.
+With the local gems installed, the equivalent commands are:
 
-## Grammar and runtime basics
+```sh
+ibex calculator.y
+ruby calculator.rb
+```
 
-A handwritten pull lexer implements `next_token` and returns `[token, value]`
-or `[token, value, location]`; `false` or `nil` marks EOF. Bare grammar tokens
-use Ruby symbols such as `:NUM`, while quoted terminals use strings such as
-`'+'`.
+Ibex writes `calculator.rb`, uses compact tables, and generates a parser that
+requires `ibex-runtime`. Use `-o PATH` to choose the output, `--table=plain`
+for inspectable Hash rows, `--check` to compare without rewriting, or `-E` to
+embed the runtime.
+
+## Generated parser contract
+
+### Tokens and lexers
+
+A handwritten pull lexer implements `next_token` and returns:
+
+```ruby
+[token, value]
+[token, value, location]
+```
+
+`false` or `nil` marks EOF. Bare grammar tokens use Ruby symbols such as
+`:NUM`; quoted terminals use strings such as `'+'`. Locations are
+application-owned objects and remain optional.
+
+Existing lexers can use the [lexer migration guide](docs/lexer-migration.md).
+Extended grammars may instead generate a streaming lexer from declarative
+regular-expression rules.
+
+### Semantic actions and locations
+
+Actions read RHS values through `val`. `@1`, `@2`, and so on address parallel
+semantic locations, while `@$` is the span of the current reduction. Action
+source remains opaque Ruby: Ibex preserves its source mapping but does not
+parse, type-check, or sandbox it.
+
+### Parse lifecycles and errors
 
 Generated parsers support:
 
 - `do_parse` and yielding `yyparse` for racc-compatible pull parsing;
 - `push(token, value, location)` and `finish(location:)` for caller-driven
   streaming;
-- structured `Ibex::ParseError` values with token, expected-token, state,
-  location, and spelling-suggestion data;
-- yacc-style `error` recovery through `on_error`, `yyerror`, `yyerrok`, and
+- structured `Ibex::ParseError` values containing the token, expected tokens,
+  state, location, and spelling suggestions;
+- yacc-style recovery through `on_error`, `yyerror`, `yyerrok`, and
   `yyaccept`; and
-- immutable, shareable generated tables. Use a separate parser instance for
-  each concurrent parse.
+- immutable, shareable generated tables.
 
-Semantic actions read RHS values through `val` and may read parallel locations
-as `@1`, `@2`, and so on. `@$` is the span of the current reduction.
+Use one parser instance per concurrent parse. Isolated runtime sessions and
+resource budgets are opt-in when application code needs explicit execution
+boundaries.
 
-See the [grammar reference](docs/grammar-reference.md) for the complete lexer,
-semantic action, location, recovery, hook, tracing, repair, and resource-limit
-contracts. Existing handwritten lexers can follow the
-[lexer migration guide](docs/lexer-migration.md).
+## Choose a grammar mode
 
-## Extended grammars
+| Mode | Use it for | Contract |
+| --- | --- | --- |
+| `racc` (default) | Existing racc grammars and conservative migrations | Compatible syntax and runtime behavior |
+| `extended` | New grammars that need composition or generated tooling | Preview, explicitly enabled |
 
-Enable extended syntax with `--mode=extended` or `pragma extended`:
+Enable extended syntax with `pragma extended` in the grammar or
+`--mode=extended` on the command line:
 
 ```text
 class ExtendedParser
@@ -146,142 +182,147 @@ rule
 end
 ```
 
-Extended mode includes nested EBNF groups, named references, parameterized
-rules, inline rules, multiple entry points, strict warnings, grammar fragments,
-declarative error recovery, generated action types, and grammar-declared
-tests.
+Extended mode includes nested EBNF groups, named references, parameterized and
+inline rules, multiple entry points, canonical fragment imports, generated
+lexers, CST or typed `Data` AST generation, declarative recovery, semantic
+types, and grammar-declared tests. These features do not silently change the
+default compatible frontend.
 
-It can also generate a lexer beside the parser:
+## Choose a construction algorithm
 
-```text
-pragma extended
-token NUMBER WORD
-lexer
-  skip /\s+/
-  NUMBER /\d+/ { |text| Integer(text, 10) }
-  WORD /\p{L}+/
+| Option | When to use it |
+| --- | --- |
+| `--algorithm=lalr` | Default direct LALR(1) construction |
+| `--algorithm=slr` | Grammars whose FOLLOW-set reductions are sufficient |
+| `--algorithm=ielr` | Preview backend for conflicts introduced by LALR state merging |
+| `--algorithm=lr1` | Canonical LR(1) analysis when the larger automaton is acceptable |
+
+An unexpected LALR conflict may include an advisory note when IELR removes it.
+That note does not change the selected algorithm or exit status.
+
+Conflict freedom is not the same as a proof of unambiguity. `ibex check
+--ambiguity` searches for a concrete sentence with two interpretations, but
+the token and configuration budgets make every result explicitly bounded.
+
+## Integrate generation into a build
+
+Treat grammar source as the input and generated Ruby as a reproducible build
+artifact:
+
+```sh
+ibex --warnings=error -o lib/calculator.rb grammar/calculator.y
+ibex --warnings=error --check -o lib/calculator.rb grammar/calculator.y
+```
+
+The first command writes the parser. The second is suitable for CI and fails
+when the committed output is stale without modifying it.
+
+Rake projects can declare the dependency directly:
+
+```ruby
+require "ibex/rake_task"
+
+Ibex::RakeTask.new("lib/calculator.rb") do |task|
+  task.grammar = "grammar/calculator.y"
+  task.options = ["--warnings=error"]
 end
 ```
 
-Generated lexers use longest match and declaration order for ties. Their
-`parse` method accepts String, IO, or Fiber input, including chunks that split
-tokens. Lexical states are explicit and generated locations include grapheme,
-byte-column, and byte-offset data.
+The task follows the grammar's fragment dependency closure. Multi-output
+generation can additionally publish a manifest containing input identities,
+output paths, sizes, and SHA-256 digests. Generation renders all requested
+outputs before publishing them; `--watch` retains the last successful output
+when a later edit is invalid.
 
-Action-free grammars may opt into immutable concrete syntax trees with
-`pragma cst`. Alternatives annotated with `@node` instead generate typed
-`Data` AST nodes plus exhaustive visitor and listener APIs. These features and
-their generated RBS contracts are documented in the
-[grammar reference](docs/grammar-reference.md).
+Applications that only execute generated parsers need `ibex-runtime`, not the
+generator. To build and install both current local gems:
 
-## Command overview
+```sh
+gem build ibex-runtime.gemspec
+gem build ibex.gemspec
+gem install ./ibex-runtime-0.1.0.gem
+gem install ./ibex-0.1.0.gem
+```
+
+## Diagnose, verify, and inspect
 
 | Goal | Command |
 | --- | --- |
-| Generate a parser | `ibex -o parser.rb grammar.y` |
-| Check generated files | `ibex --check -o parser.rb grammar.y` |
-| Promote warnings to errors | `ibex --warnings=error -C grammar.y` |
-| Diagnose grammar errors | `ibex diagnose --format=json grammar.y` |
-| Format without changing semantics | `ibex fmt --check grammar.y` |
+| Promote grammar warnings to errors | `ibex --warnings=error -C grammar.y` |
+| Collect structured frontend diagnostics | `ibex diagnose --format=json grammar.y` |
+| Explain one conflict | `ibex explain --state=7 --token=ELSE grammar.y` |
+| Search for a concrete ambiguity | `ibex check --ambiguity --algorithm=lr1 grammar.y` |
 | Run grammar-declared tests | `ibex test --coverage=100 grammar.y` |
+| Check canonical formatting | `ibex fmt --check grammar.y` |
 | Render grammar documentation | `ibex doc --format=html -o grammar.html grammar.y` |
-| Search for concrete ambiguity | `ibex check --ambiguity --algorithm=lr1 grammar.y` |
-| Explain a selected conflict | `ibex explain --state=7 --token=ELSE grammar.y` |
-| Emit Grammar IR | `ibex --emit=grammar-ir grammar.y > grammar.json` |
 | Emit Automaton IR | `ibex --emit=automaton-ir grammar.y > automaton.json` |
-| Inspect table behavior safely | `ibex debug automaton.json NUMBER PLUS NUMBER` |
-| Start the language server | `ibex lsp --stdio` |
+| Simulate table behavior without actions | `ibex debug automaton.json NUMBER PLUS NUMBER` |
 | Check a racc migration | `ibex migrate-check grammar.y` |
+| Start the language server | `ibex lsp --stdio` |
 
-Ambiguity and counterexample searches are explicitly bounded. Exhausting a
-search budget is reported separately from finding a witness or finding none
-within the configured bounds.
+Grammar IR, Automaton IR, generated table formats, diagnostic JSON, runtime
+events, coverage, and manifests are versioned contracts. Reports can also be
+rendered as text, DOT, Mermaid, HTML, railroad SVG, samples, or conflict
+counterexamples.
 
-Generation can additionally emit RBS, a static-check-only semantic-action
-shadow, a transactional output manifest, DOT/Mermaid/HTML automata, railroad
-diagrams, samples, and conflict counterexamples. `--watch` regenerates from
-the root grammar and its fragment dependency closure while retaining the last
-successful output after an error.
+## Safety boundaries and non-goals
 
-The full option and output contracts live in the
-[grammar reference](docs/grammar-reference.md). The
-[architecture guide](docs/architecture.md) documents the staged IR pipeline,
-construction algorithms, clean-room boundary, and runtime table contract.
+- Frontend parsing, diagnosis, formatting, documentation, LSP, static
+  migration checks, IR validation, and table simulation do not execute
+  semantic actions or user-code sections.
+- Generated parsers, grammar-declared tests, and explicit migration harnesses
+  do execute application Ruby. They are not sandboxes.
+- Fragment imports are confined to the declared source root and reject
+  traversal, cycles, and symlink escapes.
+- Counterexample, ambiguity, sample, repair, and runtime-budget searches are
+  bounded. Exhausting a budget is distinct from finding no witness within it.
+- Ibex generates deterministic LR parsers. It does not provide GLR,
+  generalized ambiguity handling, or incremental parsing.
+- racc compatibility is a migration surface, not a claim that every generated
+  parser is a byte-for-byte or adapter-free replacement.
+- Preview and experimental features may have weaker compatibility guarantees
+  than the default mode.
 
-## Tooling and observability
+## Documentation by task
 
-Ibex tooling analyzes grammar text and versioned IR without executing semantic
-actions or user-code sections:
-
-- the lossless frontend retains comments, whitespace, heredocs, and opaque
-  Ruby while rendering the original source byte-for-byte;
-- `diagnose`, `fmt`, documentation, LSP, migration checks, and table simulation
-  operate across the same parser and resolver boundaries;
-- grammar fragments resolve within the root directory with cycle, traversal,
-  and symlink-escape protection; and
-- transactional generation renders every requested output before publishing
-  the parser and optional manifest.
-
-Runtime observers expose immutable parser events without exposing parser
-stacks or application object identities. JSONL tracing and deterministic
-coverage commands support complete event streams, and optional bounded repair
-and resource limits remain disabled unless explicitly configured.
-
-## Documentation
-
-| Topic | Document |
+| When you need to... | Start here |
 | --- | --- |
-| Grammar syntax, CLI, and runtime contracts | [Grammar reference](docs/grammar-reference.md) |
-| Migration from racc | [racc migration guide](docs/racc-migration.md) |
-| Handwritten lexer migration | [Lexer migration guide](docs/lexer-migration.md) |
-| Editor and LSP setup | [Editor setup](docs/editor-setup.md) |
-| Pipeline, IR, algorithms, and tables | [Architecture](docs/architecture.md) |
-| Stability and deprecation | [Stability policy](docs/stability.md) |
-| Current v1.0 decision and evidence | [Release readiness](docs/release-readiness.md) |
-| Reproducible error UX evidence | [Error UX](docs/error-ux.md) |
-| Executable example grammars | [Examples](examples/README.md) |
-| Reproducible performance evidence | [Benchmark guide](benchmark/README.md) |
-| Contributor workflow and quality gates | [Development guide](docs/development.md) |
-| Implementation design history | [Architecture decision records](docs/decisions/README.md) |
+| Write a grammar or use the runtime | [Grammar reference](docs/grammar-reference.md) |
+| Learn from executable grammars | [Examples](examples/README.md) |
+| Migrate from racc | [racc migration guide](docs/racc-migration.md) |
+| Adapt a handwritten lexer | [Lexer migration guide](docs/lexer-migration.md) |
+| Configure an editor or LSP client | [Editor setup](docs/editor-setup.md) |
+| Understand the pipeline, IR, algorithms, or tables | [Architecture](docs/architecture.md) |
+| Check API maturity and deprecation rules | [Stability policy](docs/stability.md) |
+| Evaluate readiness, performance, or error UX | [Release readiness](docs/release-readiness.md), [benchmarks](benchmark/README.md), and [error UX](docs/error-ux.md) |
+| Contribute or run every quality gate | [Development guide](docs/development.md) |
+| Review implementation decisions | [Architecture decision records](docs/decisions/README.md) |
 
 The published documentation separates the
 [compatibility contract](https://ydah.github.io/ibex/compatibility/),
 [opt-in extensions](https://ydah.github.io/ibex/extensions/), and
 [experimental surfaces](https://ydah.github.io/ibex/experimental/). The
 [grammar gallery](https://ydah.github.io/ibex/gallery/) contains executable
-examples whose declared tests reach 100% production coverage in CI.
-
-## Project status
-
-The current v1.0 readiness decision is **HOLD**. The
-[release-readiness report](docs/release-readiness.md) records public-gem
-migration evidence, reproducible performance comparisons, scale evidence,
-error UX results, and remaining blockers. The
-[stability policy](docs/stability.md) identifies stable, preview, and
-experimental surfaces independently of that release decision.
+examples whose declared tests reach complete production coverage.
 
 ## Development
 
-See the [development guide](docs/development.md) for the complete contributor
-workflow and quality-gate boundaries.
-
-Run the default test and style suite:
+The [development guide](docs/development.md) contains frontend regeneration,
+RBS/Steep validation, grammar coverage, browser checks, mutation analysis, and
+workflow lint commands. The default local gate is:
 
 ```sh
 bundle install
 bundle exec rake
 ```
 
-Frontend regeneration, RBS/Steep validation, grammar coverage, site checks,
-mutation analysis, and workflow lint commands live in the development guide.
-
 <!-- type-stats:start -->
 The current whole-library `steep stats` result is 17,219 typed calls and 2,266 untyped calls out of 19,485 (88.4% typed).
 The generated signature tree contains 2,357 explicit `untyped` occurrences across 87 files.
 <!-- type-stats:end -->
 
-Performance measurements are observations rather than CI timing thresholds.
-Use the [benchmark guide](benchmark/README.md) to reproduce, validate, and
-compare artifacts under the same environment and configuration.
+Performance measurements are evidence, not portable scores or CI timing
+thresholds. Follow the [benchmark guide](benchmark/README.md) to reproduce and
+compare results under the same environment and configuration.
 
 Ibex is available under the [MIT License](LICENSE.txt).
