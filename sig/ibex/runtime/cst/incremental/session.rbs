@@ -15,10 +15,24 @@ module Ibex
 
         attr_reader token_memo: TokenMemo
 
+        attr_reader parse_memo: ParseMemo
+
         attr_reader last_relex_result: RelexResult?
 
-        # @rbs (Class parser_class, SourceText source_text, ?resource_limits: ResourceLimits?) -> void
-        def initialize: (Class parser_class, SourceText source_text, ?resource_limits: ResourceLimits?) -> void
+        attr_reader last_blender: Blender?
+
+        @mutex: Mutex
+
+        @blender_enabled: bool
+
+        @cache: NodeCache
+
+        @parser: Parser
+
+        @resource_limits: ResourceLimits
+
+        # @rbs (Class parser_class, SourceText source_text, ?resource_limits: ResourceLimits?, ?blender: bool) -> void
+        def initialize: (Class parser_class, SourceText source_text, ?resource_limits: ResourceLimits?, ?blender: bool) -> void
 
         # Apply edits expressed against the current source and return syntax only.
         # @rbs (Array[TextEdit] edits) -> SyntaxResult
@@ -33,11 +47,39 @@ module Ibex
 
         private
 
+        # @rbs (Array[TextEdit] edits) -> SyntaxResult
+        def edit_locked: (Array[TextEdit] edits) -> SyntaxResult
+
+        # @rbs () -> LexedSyntax?
+        def scan_current: () -> LexedSyntax?
+
+        # @rbs (SyntaxNode old_root, ParseMemo old_memo, LexedSyntax lexed, Array[TextEdit] edits) -> Blender
+        def build_blender: (SyntaxNode old_root, ParseMemo old_memo, LexedSyntax lexed, Array[TextEdit] edits) -> Blender
+
+        # @rbs (RelexResult relexed, Blender blender) -> SyntaxResult
+        def finish_blended_edit: (RelexResult relexed, Blender blender) -> SyntaxResult
+
+        # @rbs (Blender blender, GreenNode root, RelexResult relexed) -> Float
+        def blender_reused_ratio: (Blender blender, GreenNode root, RelexResult relexed) -> Float
+
+        # @rbs (Blender blender, RelexResult relexed, Float reused_ratio) -> void
+        def emit_reuse_event: (Blender blender, RelexResult relexed, Float reused_ratio) -> void
+
         # @rbs () -> void
         def validate_parser!: () -> void
 
-        # @rbs (Float reused_ratio) -> [SyntaxResult, TokenMemo]
-        def parse_current: (Float reused_ratio) -> [ SyntaxResult, TokenMemo ]
+        # @rbs (Float reused_ratio) -> [SyntaxResult, TokenMemo, ParseMemo]
+        def parse_current: (Float reused_ratio) -> [ SyntaxResult, TokenMemo, ParseMemo ]
+
+        # Error trees cannot be reused, but retain position-aligned disposable memo storage.
+        # @rbs (GreenNode root) -> ParseMemo
+        def empty_parse_memo: (GreenNode root) -> ParseMemo
+
+        # @rbs (Blender blender) -> void
+        def report_blender_fallback: (Blender blender) -> void
+
+        # @rbs (TokenMemo previous_memo, Array[TextEdit] edits, Symbol reason) -> SyntaxResult
+        def finish_full_fallback: (TokenMemo previous_memo, Array[TextEdit] edits, Symbol reason) -> SyntaxResult
 
         # @rbs () -> void
         def enforce_memo_budget!: () -> void

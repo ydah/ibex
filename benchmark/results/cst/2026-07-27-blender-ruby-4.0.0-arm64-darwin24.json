@@ -1,0 +1,80 @@
+{
+  "benchmark": "ibex_cst_incremental",
+  "version": 2,
+  "ruby_version": "4.0.0",
+  "ruby_platform": "arm64-darwin24",
+  "seed": 20260727,
+  "terms": 100,
+  "iterations": 100,
+  "measurements": {
+    "beginning": {
+      "byte_offset": 0,
+      "stage_b": {
+        "elapsed_ms": 1073.5279999998966,
+        "allocated_objects": 2639345,
+        "relexer_scanned_tokens": 1,
+        "reused_ratio": 0.4925373134328358,
+        "reused_descendants": 198
+      },
+      "stage_a": {
+        "elapsed_ms": 1113.1530000002385,
+        "allocated_objects": 2866497,
+        "relexer_scanned_tokens": 1,
+        "reused_ratio": 0.995,
+        "reused_descendants": 0
+      },
+      "batch": {
+        "elapsed_ms": 1778.7450000000717,
+        "allocated_objects": 2541408
+      },
+      "stage_b_vs_stage_a_speedup": 1.0369110074449346,
+      "stage_b_vs_batch_speedup": 1.6569153296423038
+    },
+    "middle": {
+      "byte_offset": 200,
+      "stage_b": {
+        "elapsed_ms": 864.0369999998256,
+        "allocated_objects": 2472499,
+        "relexer_scanned_tokens": 101,
+        "reused_ratio": 0.7388059701492538,
+        "reused_descendants": 297
+      },
+      "stage_a": {
+        "elapsed_ms": 1119.9259999998503,
+        "allocated_objects": 2886696,
+        "relexer_scanned_tokens": 101,
+        "reused_ratio": 0.995,
+        "reused_descendants": 0
+      },
+      "batch": {
+        "elapsed_ms": 1756.9859999998698,
+        "allocated_objects": 2541301
+      },
+      "stage_b_vs_stage_a_speedup": 1.2961551415044452,
+      "stage_b_vs_batch_speedup": 2.033461530004183
+    },
+    "end": {
+      "byte_offset": 396,
+      "stage_b": {
+        "elapsed_ms": 391.8069999999716,
+        "allocated_objects": 2306096,
+        "relexer_scanned_tokens": 199,
+        "reused_ratio": 0.9825870646766169,
+        "reused_descendants": 395
+      },
+      "stage_a": {
+        "elapsed_ms": 1109.328000000005,
+        "allocated_objects": 2906296,
+        "relexer_scanned_tokens": 199,
+        "reused_ratio": 0.995,
+        "reused_descendants": 0
+      },
+      "batch": {
+        "elapsed_ms": 1756.1450000002878,
+        "allocated_objects": 2541301
+      },
+      "stage_b_vs_stage_a_speedup": 2.8313123553180146,
+      "stage_b_vs_batch_speedup": 4.482168516643182
+    }
+  }
+}

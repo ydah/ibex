@@ -153,10 +153,6 @@ module Ibex
 
       EMPTY_LOCATIONS: Array[untyped]
 
-      @semantic_error: bool
-
-      @accept_requested: bool
-
       @unknown_token_id: Integer?
 
       @unknown_token_name: String?
@@ -179,6 +175,16 @@ module Ibex
 
       @repair_input_buffer: Array[RepairInput]?
 
+      @repair_selected: bool
+
+      @semantic_locations: Array[untyped]?
+
+      @semantic_location_names: Hash[Symbol, Integer]?
+
+      @accept_requested: bool
+
+      @semantic_error: bool
+
       @recovery_shifts: Integer
 
       @lookahead_location: untyped
@@ -197,11 +203,23 @@ module Ibex
 
       @state_stack: Array[Integer]
 
-      @source: (^() -> untyped)?
+      @source: untyped
 
       @yydebug_output: IO
 
       @yydebug: bool
+
+      @incremental_reused_descendants: Integer
+
+      @green_reused_right_edge: bool
+
+      @syntax_parse_memo: CST::ParseMemo?
+
+      @green_initial_state: Integer
+
+      @green_parse_memo_valid: bool
+
+      @green_memo_stack: Array[CST::ParseMemo::Entry]
 
       @green_token_states: Array[Symbol]
 
@@ -247,15 +265,14 @@ module Ibex
 
       @semantic_result_location: untyped
 
-      @semantic_location_names: Hash[Symbol, Integer]?
+      attr_reader syntax_parse_memo: CST::ParseMemo?
 
-      @semantic_locations: Array[untyped]?
-
-      @repair_selected: bool
+      attr_reader incremental_reused_descendants: Integer
 
       # Start a syntax-only incremental session backed by a generated lexer.
-      # @rbs (CST::SourceText source_text, ?resource_limits: ResourceLimits?) -> CST::IncrementalParseSession
-      def self.incremental_session: (CST::SourceText source_text, ?resource_limits: ResourceLimits?) -> CST::IncrementalParseSession
+      # @rbs (CST::SourceText source_text, ?resource_limits: ResourceLimits?, ?blender: bool) ->
+      #   CST::IncrementalParseSession
+      def self.incremental_session: (CST::SourceText source_text, ?resource_limits: ResourceLimits?, ?blender: bool) -> CST::IncrementalParseSession
 
       # @rbs (?resource_limits: ResourceLimits) -> void
       def initialize: (?resource_limits: ResourceLimits) -> void
@@ -446,8 +463,8 @@ module Ibex
       # @rbs (Array[Integer] stack, Integer production_id) -> bool
       def exact_reduction_applied?: (Array[Integer] stack, Integer production_id) -> bool
 
-      # @rbs ((^() -> untyped)? source, ?initial_state: Integer?) -> untyped
-      def drive_parser: ((^() -> untyped)? source, ?initial_state: Integer?) -> untyped
+      # @rbs (untyped source, ?initial_state: Integer?) -> untyped
+      def drive_parser: (untyped source, ?initial_state: Integer?) -> untyped
 
       # Generated compact tables can keep the unobserved, location-free pull
       # loop on their frozen displacement arrays. Any extension boundary or
@@ -631,11 +648,11 @@ module Ibex
       # @rbs (Hash[Symbol, untyped] tables) -> void
       def reset_cst_results: (Hash[Symbol, untyped] tables) -> void
 
-      # @rbs (Integer token_id, untyped value, untyped location) -> void
-      def shift_green_token: (Integer token_id, untyped value, untyped location) -> void
+      # @rbs (Integer token_id, untyped value, untyped location, Integer from_state) -> void
+      def shift_green_token: (Integer token_id, untyped value, untyped location, Integer from_state) -> void
 
-      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> void
-      def reduce_green: (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> void
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer left_state) -> void
+      def reduce_green: (Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer left_state) -> void
 
       # @rbs (untyped value, untyped location) -> String
       def green_token_text: (untyped value, untyped location) -> String
@@ -664,11 +681,20 @@ module Ibex
       # @rbs () -> Array[Symbol]
       def syntax_token_states: () -> Array[Symbol]
 
+      # @rbs (CST::GreenNode green) -> void
+      def install_parse_memo: (CST::GreenNode green) -> void
+
       # @rbs (untyped location) -> Symbol
       def green_lexer_state: (untyped location) -> Symbol
 
       # @rbs (CST::NodeCache cache) { () -> untyped } -> untyped
       def with_syntax_only: (CST::NodeCache cache) { () -> untyped } -> untyped
+
+      # @rbs (untyped source, CST::NodeCache cache) -> CST::SyntaxResult
+      def parse_syntax_token_source: (untyped source, CST::NodeCache cache) -> CST::SyntaxResult
+
+      # @rbs (CST::ReusableSubtree subtree) -> void
+      def push_reusable_green_subtree: (CST::ReusableSubtree subtree) -> void
 
       # @rbs (Symbol type, Hash[untyped, untyped] data) -> void
       def emit_incremental_event: (Symbol type, Hash[untyped, untyped] data) -> void

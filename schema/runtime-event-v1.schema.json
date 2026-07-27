@@ -285,7 +285,9 @@
       "type": "object",
       "required": ["reason", "limit", "observed"],
       "properties": {
-        "reason": { "enum": ["memo_budget", "decomposition_budget", "memo_mismatch"] },
+        "reason": {
+          "enum": ["memo_budget", "decomposition_budget", "memo_mismatch", "lexical_error"]
+        },
         "limit": { "type": "integer", "minimum": 0 },
         "observed": { "type": "integer", "minimum": 0 }
       },

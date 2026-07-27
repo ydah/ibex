@@ -263,7 +263,7 @@ module Ibex
 
       # @rbs @yydebug: bool
       # @rbs @yydebug_output: IO
-      # @rbs @source: (^() -> untyped)?
+      # @rbs @source: untyped
       # @rbs @state_stack: Array[Integer]
       # @rbs @value_stack: Array[untyped]
       # @rbs @vstack: Array[untyped]
@@ -311,11 +311,23 @@ module Ibex
       # @rbs @syntax_only: bool
       # @rbs @green_cache_override: CST::NodeCache?
       # @rbs @green_token_states: Array[Symbol]
+      # @rbs @green_memo_stack: Array[CST::ParseMemo::Entry]
+      # @rbs @green_parse_memo_valid: bool
+      # @rbs @green_initial_state: Integer
+      # @rbs @syntax_parse_memo: CST::ParseMemo?
+      # @rbs @green_reused_right_edge: bool
+      # @rbs @incremental_reused_descendants: Integer
+
+      attr_reader :syntax_parse_memo #: CST::ParseMemo?
+      attr_reader :incremental_reused_descendants #: Integer
 
       # Start a syntax-only incremental session backed by a generated lexer.
-      # @rbs (CST::SourceText source_text, ?resource_limits: ResourceLimits?) -> CST::IncrementalParseSession
-      def self.incremental_session(source_text, resource_limits: nil)
-        CST::IncrementalParseSession.new(self, source_text, resource_limits: resource_limits)
+      # @rbs (CST::SourceText source_text, ?resource_limits: ResourceLimits?, ?blender: bool) ->
+      #   CST::IncrementalParseSession
+      def self.incremental_session(source_text, resource_limits: nil, blender: true)
+        CST::IncrementalParseSession.new(
+          self, source_text, resource_limits: resource_limits, blender: blender
+        )
       end
 
       # @rbs (?resource_limits: ResourceLimits) -> void
@@ -738,6 +750,13 @@ module Ibex
         @syntax_only = false unless preserve_existing && defined?(@syntax_only)
         @green_cache_override = nil unless preserve_existing && defined?(@green_cache_override)
         @green_token_states = [] unless preserve_existing && defined?(@green_token_states)
+        @green_memo_stack = [] unless preserve_existing && defined?(@green_memo_stack)
+        @green_parse_memo_valid = false unless preserve_existing && defined?(@green_parse_memo_valid)
+        @green_initial_state = 0 unless preserve_existing && defined?(@green_initial_state)
+        @syntax_parse_memo = nil unless preserve_existing && defined?(@syntax_parse_memo)
+        @green_reused_right_edge = false unless preserve_existing && defined?(@green_reused_right_edge)
+        @incremental_reused_descendants = 0 unless
+          preserve_existing && defined?(@incremental_reused_descendants)
       end
       # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
@@ -829,7 +848,7 @@ module Ibex
         true
       end
 
-      # @rbs ((^() -> untyped)? source, ?initial_state: Integer?) -> untyped
+      # @rbs (untyped source, ?initial_state: Integer?) -> untyped
       def drive_parser(source, initial_state: nil)
         ensure_runtime_initialized!
         @runtime_observation_mutex.synchronize do
@@ -1387,21 +1406,25 @@ module Ibex
 
       # @rbs () -> untyped
       def action_for_current_state
-        if @lookahead.equal?(NO_LOOKAHEAD)
+        loop do
+          if @lookahead.equal?(NO_LOOKAHEAD)
+            state = @state_stack.last
+            eager = parser_tables.fetch(:eager_reductions, EMPTY_ROW)[state]
+            return eager if eager
+
+            read_lookahead
+            next if @lookahead.equal?(NO_LOOKAHEAD)
+          end
+          return SYNC_RECOVER_ACTION if sync_recovery_active?
+
           state = @state_stack.last
-          eager = parser_tables.fetch(:eager_reductions, EMPTY_ROW)[state]
-          return eager if eager
+          return ERROR_ACTION unless parser_tables.fetch(:token_names).key?(@lookahead)
+
+          explicit = table_lookup(parser_tables.fetch(:actions), state, @lookahead)
+          return explicit if explicit
+
+          return default_action(state) || ERROR_ACTION
         end
-        read_lookahead if @lookahead.equal?(NO_LOOKAHEAD)
-        return SYNC_RECOVER_ACTION if sync_recovery_active?
-
-        state = @state_stack.last
-        return ERROR_ACTION unless parser_tables.fetch(:token_names).key?(@lookahead)
-
-        explicit = table_lookup(parser_tables.fetch(:actions), state, @lookahead)
-        return explicit if explicit
-
-        default_action(state) || ERROR_ACTION
       end
 
       # @rbs (untyped action) -> untyped
@@ -1514,6 +1537,7 @@ module Ibex
         token_id = @lookahead
         value = @lookahead_value
         location = @lookahead_location
+        from_state = @state_stack.last
         token_display = token_to_str(token_id)
         trace("shift #{token_display}#{trace_value_suffix(value, token_id)} -> state #{next_state}") if @yydebug
         event_observers = runtime_observer_snapshot if @runtime_observers
@@ -1530,7 +1554,7 @@ module Ibex
         @state_stack << next_state
         push_location(location)
         @value_stack << value
-        shift_green_token(token_id, value, location)
+        shift_green_token(token_id, value, location, from_state)
         @lookahead = NO_LOOKAHEAD
         @lookahead_location = nil
         @runtime_lookahead_token_display = nil
@@ -1567,7 +1591,7 @@ module Ibex
         location = LocationSpan.for_reduction(locations, lookahead: @lookahead_location)
         result = reduction_value(production_id, production, values, locations, location)
         refresh_runtime_fast_path_after_user_code!
-        reduce_green(production_id, production, length)
+        reduce_green(production_id, production, length, @state_stack.last)
         next_state = table_lookup(parser_tables.fetch(:gotos), @state_stack.last, production.fetch(:lhs))
         raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
 
@@ -1878,6 +1902,7 @@ module Ibex
       # @rbs (Hash[Symbol, untyped] tables) -> void
       def prepare_green_cst(tables)
         @syntax_root = nil
+        @syntax_parse_memo = nil
         @syntax_diagnostics.clear
         @green_pending_skipped.clear
         config = tables[:cst]
@@ -1893,6 +1918,11 @@ module Ibex
         @green_kinds = kinds
         @green_cache = cache
         @green_token_states.clear
+        @green_memo_stack.clear
+        @green_parse_memo_valid = true
+        @green_initial_state = @state_stack.first || 0
+        @green_reused_right_edge = false
+        @incremental_reused_descendants = 0
         @green_builder = CST::GreenBuilder.new(kinds: kinds, cache: cache)
       end
 
@@ -1902,18 +1932,19 @@ module Ibex
         prepare_green_cst(tables)
       end
 
-      # @rbs (Integer token_id, untyped value, untyped location) -> void
-      def shift_green_token(token_id, value, location)
+      # @rbs (Integer token_id, untyped value, untyped location, Integer from_state) -> void
+      def shift_green_token(token_id, value, location, from_state)
         builder = @green_builder
         kinds = @green_kinds
         return unless builder && kinds
 
         trailing = green_location_trivia(location, :cst_previous_trailing)
-        builder.append_trailing_to_last_token(trailing)
+        builder.append_trailing_to_last_token(trailing) unless @green_reused_right_edge
         repair = cst_location_value(location, :ibex_repair)
         if repair == :insert
           builder.missing(token_id)
           @green_token_states << green_lexer_state(location)
+          @green_memo_stack << CST::ParseMemo::Entry.new(from_state)
           return
         end
 
@@ -1924,10 +1955,12 @@ module Ibex
         kind = token_id.negative? ? kinds.fetch(:lexical_error_token) : token_id
         builder.token(kind, green_token_text(value, location), leading: leading, flags: flags)
         @green_token_states << green_lexer_state(location)
+        @green_memo_stack << CST::ParseMemo::Entry.new(from_state)
+        @green_reused_right_edge = false
       end
 
-      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> void
-      def reduce_green(production_id, production, length)
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer left_state) -> void
+      def reduce_green(production_id, production, length, left_state)
         builder = @green_builder
         return unless builder
 
@@ -1936,6 +1969,9 @@ module Ibex
         kind = slot ? slot.fetch(:node_kind) : production.fetch(:lhs)
         flags = length.zero? ? CST::Flags::SYNTHETIC : 0
         builder.node(kind, length, flags: flags)
+        empty = [] #: Array[CST::ParseMemo::Entry]
+        children = length.zero? ? empty : @green_memo_stack.pop(length)
+        @green_memo_stack << CST::ParseMemo::Entry.new(left_state, children: children)
       end
 
       # @rbs (untyped value, untyped location) -> String
@@ -1958,7 +1994,7 @@ module Ibex
         builder = @green_builder || raise(ParseError, "(cst):1:1: Green builder is unavailable")
         kinds = @green_kinds || raise(ParseError, "(cst):1:1: kind metadata is unavailable")
         incomplete = @lookahead != EOF_TOKEN
-        unless incomplete
+        unless incomplete || @green_reused_right_edge
           builder.append_trailing_to_last_token(green_location_trivia(@lookahead_location, :cst_previous_trailing))
         end
         empty_trivia = [] #: Array[CST::GreenTrivia]
@@ -1973,6 +2009,7 @@ module Ibex
                   builder.finish_synthetic_root([eof], incomplete: incomplete)
                 end
         install_syntax_root(green, kinds)
+        install_parse_memo(green)
         value
       end
 
@@ -2056,6 +2093,23 @@ module Ibex
         @green_token_states.dup.freeze
       end
 
+      # @rbs (CST::GreenNode green) -> void
+      def install_parse_memo(green)
+        return unless @green_parse_memo_valid && @green_memo_stack.one?
+
+        states = [@green_initial_state] #: Array[Integer?]
+        @green_memo_stack.fetch(0).append_to(states)
+        states << @state_stack.last
+        return unless states.length == green.descendant_count
+
+        @syntax_parse_memo = CST::ParseMemo.new(
+          left_states: states,
+          grammar_digest: parser_tables.fetch(:grammar_digest),
+          state_count: parser_tables.fetch(:state_count),
+          production_count: parser_tables.fetch(:production_count)
+        )
+      end
+
       # @rbs (untyped location) -> Symbol
       def green_lexer_state(location)
         state = cst_location_value(location, :ibex_lexer_start_state)
@@ -2075,6 +2129,40 @@ module Ibex
         @green_cache_override = previous_cache
       end
 
+      # @rbs (untyped source, CST::NodeCache cache) -> CST::SyntaxResult
+      def parse_syntax_token_source(source, cache)
+        with_syntax_only(cache) do
+          value = drive_parser(source)
+          parsed = syntax_parse_result(value)
+          CST::SyntaxResult.new(
+            syntax_root: parsed.syntax_root,
+            diagnostics: parsed.diagnostics,
+            reused_ratio: 0.0
+          )
+        end
+      end
+
+      # @rbs (CST::ReusableSubtree subtree) -> void
+      def push_reusable_green_subtree(subtree)
+        unless @syntax_only && @state_stack.last == subtree.left_state
+          raise ParseError, "(incremental):1:1: reusable subtree state mismatch"
+        end
+
+        builder = @green_builder || raise(ParseError, "(incremental):1:1: Green builder is unavailable")
+        builder.append_trailing_to_last_token(subtree.previous_trailing) unless @green_reused_right_edge
+        next_state = table_lookup(parser_tables.fetch(:gotos), @state_stack.last, subtree.lhs)
+        raise ParseError, "(incremental):1:1: reusable subtree has no goto" unless next_state
+
+        ensure_stack_capacity!
+        @state_stack << next_state
+        push_location(nil)
+        @value_stack << nil
+        builder.subtree(subtree.green)
+        @green_memo_stack << CST::ParseMemo::Entry.new(nil, segment: subtree.left_states)
+        @green_reused_right_edge = true
+        @incremental_reused_descendants += subtree.green.descendant_count
+      end
+
       # @rbs (Symbol type, Hash[untyped, untyped] data) -> void
       def emit_incremental_event(type, data)
         emit_runtime_event(type, data) if @runtime_observers
@@ -2082,6 +2170,7 @@ module Ibex
 
       # @rbs () -> void
       def discard_green_lookahead
+        @green_parse_memo_valid = false
         builder = @green_builder
         kinds = @green_kinds
         return unless builder && kinds
@@ -2347,6 +2436,7 @@ module Ibex
       # @rbs () -> bool
       def shift_error_token
         popped = 0
+        @green_parse_memo_valid = false
         loop do
           action = table_lookup(parser_tables.fetch(:actions), @state_stack.last, ERROR_TOKEN)
           if action&.first == :shift
@@ -2356,6 +2446,9 @@ module Ibex
             push_location(@lookahead_location)
             @value_stack << nil
             @green_builder&.absorb_into_error(popped)
+            empty = [] #: Array[CST::ParseMemo::Entry]
+            children = popped.zero? ? empty : @green_memo_stack.pop(popped)
+            @green_memo_stack << CST::ParseMemo::Entry.new(@state_stack.last, children: children)
             return true
           end
           return false if @state_stack.length == 1
@@ -2520,6 +2613,11 @@ module Ibex
       def read_compatible_lookahead
         token = read_external_token
         refresh_runtime_fast_path_after_user_code!
+        if token.is_a?(CST::ReusableSubtree)
+          push_reusable_green_subtree(token)
+          return
+        end
+
         if token.nil? || token == false
           @lookahead = EOF_TOKEN
           @lookahead_value = nil
@@ -2615,7 +2713,10 @@ module Ibex
       # @rbs () -> untyped
       def read_external_token
         source = @source
-        source ? source.call : next_token
+        return next_token unless source
+        return source.next_for_state(@state_stack.last) if source.respond_to?(:next_for_state)
+
+        source.call
       rescue StopIteration
         false
       end

@@ -2,7 +2,7 @@
 
 require_relative "../test_helper"
 
-class CSTIncrementalTest < Minitest::Test
+class CSTIncrementalTest < Minitest::Test # rubocop:disable Metrics/ClassLength
   SOURCE = <<~GRAMMAR
     class IncrementalCSTParser
     pragma cst
@@ -14,7 +14,8 @@ class CSTIncrementalTest < Minitest::Test
     end
     rule
     start: expression { raise "semantic action executed" }
-    expression: NUM PLUS NUM { raise "semantic action executed" }
+    expression: term PLUS term { raise "semantic action executed" }
+    term: NUM { raise "semantic action executed" }
     end
   GRAMMAR
 
@@ -37,6 +38,23 @@ class CSTIncrementalTest < Minitest::Test
     end
   GRAMMAR
 
+  LIST_SOURCE = <<~GRAMMAR
+    class ListIncrementalCSTParser
+    pragma cst
+    token NUM PLUS
+    lexer
+      skip /[[:space:]]+/
+      NUM /[0-9]+/
+      PLUS '+'
+    end
+    rule
+    start: terms { raise "semantic action executed" }
+    terms: terms PLUS term { raise "semantic action executed" }
+         | term { raise "semantic action executed" }
+    term: NUM { raise "semantic action executed" }
+    end
+  GRAMMAR
+
   def test_session_is_syntax_only_from_the_initial_parse
     source = Ibex::Runtime::CST::SourceText.new("1 + 2", file: "input.txt")
 
@@ -46,12 +64,15 @@ class CSTIncrementalTest < Minitest::Test
     assert_empty session.result.diagnostics
     assert_equal 0.0, session.result.reused_ratio
     assert_same source, session.source_text
+    assert_equal session.result.syntax_root.green.descendant_count, session.parse_memo.left_states.length
+    assert session.parse_memo.compatible?(generate.parser_tables)
   end
 
   def test_edits_match_a_fresh_syntax_only_parse_and_reuse_green_tokens # rubocop:disable Metrics/AbcSize
     parser_class = generate
     session = parser_class.incremental_session(Ibex::Runtime::CST::SourceText.new("1 + 2"))
     old_tokens = session.result.syntax_root.tokens
+    old_left_term = session.result.syntax_root.children.fetch(0).children.fetch(0).child_nodes.fetch(0)
 
     result = session.edit(
       [Ibex::Runtime::CST::TextEdit.new(start: 4, delete_length: 1, insert_text: "3")]
@@ -63,6 +84,9 @@ class CSTIncrementalTest < Minitest::Test
     assert_equal batch.diagnostics, result.diagnostics
     assert_same old_tokens.fetch(0).green, result.syntax_root.tokens.fetch(0).green
     assert_same old_tokens.fetch(1).green, result.syntax_root.tokens.fetch(1).green
+    new_left_term = result.syntax_root.children.fetch(0).children.fetch(0).child_nodes.fetch(0)
+    assert_same old_left_term.green, new_left_term.green
+    assert_operator session.last_blender.reused_descendants, :>, 0
     assert_operator result.reused_ratio, :>, 0.0
   end
 
@@ -103,6 +127,16 @@ class CSTIncrementalTest < Minitest::Test
     assert_equal %i[INITIAL STRING STRING INITIAL], session.token_memo.states
   end
 
+  def test_parse_memo_slices_by_preorder_occurrence
+    session = generate.incremental_session(Ibex::Runtime::CST::SourceText.new("1 + 2"))
+    root = session.result.syntax_root
+    start = root.children.fetch(0)
+
+    assert_equal root.green.descendant_count, session.parse_memo.slice(0, root.green).length
+    assert_equal start.green.descendant_count, session.parse_memo.slice(1, start.green).length
+    assert_instance_of Integer, session.parse_memo.left_state(0)
+  end
+
   def test_repeated_stage_a_edits_equal_fresh_batch_parses # rubocop:disable Metrics/AbcSize
     parser_class = generate
     session = parser_class.incremental_session(Ibex::Runtime::CST::SourceText.new("1 + 2"))
@@ -129,6 +163,26 @@ class CSTIncrementalTest < Minitest::Test
     end
   end
 
+  def test_stage_b_random_structural_edits_equal_fresh_batch_parses # rubocop:disable Metrics/AbcSize
+    parser_class = generate(LIST_SOURCE)
+    session = parser_class.incremental_session(Ibex::Runtime::CST::SourceText.new("1+2+3"))
+    random = Random.new(80_082)
+
+    500.times do
+      source = session.source_text.text
+      numbers = source.enum_for(:scan, /[0-9]/).map { Regexp.last_match.begin(0) }
+      edit = structural_edit(source, numbers, random)
+      incremental = session.edit([edit])
+      batch = parser_class.incremental_session(session.source_text).result
+
+      assert_equal session.source_text.text, incremental.syntax_root.to_source
+      assert_equal batch.syntax_root.green, incremental.syntax_root.green
+      assert_equal batch.diagnostics.length, incremental.diagnostics.length
+      assert_equal batch.syntax_root.green.flags, incremental.syntax_root.green.flags
+      assert_equal batch.syntax_root.green.descendant_count, session.parse_memo.left_states.length
+    end
+  end
+
   def test_memo_budget_falls_back_deterministically_and_emits_an_event
     limits = Ibex::Runtime::ResourceLimits.new(max_session_memo_bytes: 32)
     session = generate.incremental_session(
@@ -149,6 +203,51 @@ class CSTIncrementalTest < Minitest::Test
     assert_operator fallback.data.fetch("observed"), :>, fallback.data.fetch("limit")
   end
 
+  def test_blender_can_be_disabled_without_changing_the_tree
+    source = Ibex::Runtime::CST::SourceText.new("1 + 2")
+    session = generate.incremental_session(source, blender: false)
+    result = session.edit(
+      [Ibex::Runtime::CST::TextEdit.new(start: 4, delete_length: 1, insert_text: "4")]
+    )
+    batch = generate.incremental_session(session.source_text, blender: false).result
+
+    assert_equal batch.syntax_root.green, result.syntax_root.green
+    assert_equal 0, session.last_blender.reused_descendants
+    assert_operator result.reused_ratio, :>, 0.0
+  end
+
+  def test_decomposition_budget_falls_back_to_the_fresh_token_stream
+    limits = Ibex::Runtime::ResourceLimits.new(max_incremental_decomposed_nodes: 0)
+    session = generate.incremental_session(
+      Ibex::Runtime::CST::SourceText.new("1 + 2"),
+      resource_limits: limits
+    )
+    events = []
+    session.observe { |event| events << event }
+
+    result = session.edit(
+      [Ibex::Runtime::CST::TextEdit.new(start: 4, delete_length: 1, insert_text: "5")]
+    )
+    fallback = events.find { |event| event.type == :cst_fallback }
+
+    assert_equal "1 + 5", result.syntax_root.to_source
+    assert_equal :decomposition_budget, session.last_blender.fallback_reason
+    assert_equal "decomposition_budget", fallback.data.fetch("reason")
+    assert_equal 0, session.last_blender.reused_descendants
+  end
+
+  def test_lexical_failure_falls_back_and_still_matches_batch_syntax
+    session = generate.incremental_session(Ibex::Runtime::CST::SourceText.new("1 + 2"))
+    result = session.edit(
+      [Ibex::Runtime::CST::TextEdit.new(start: 2, delete_length: 1, insert_text: "?")]
+    )
+    batch = generate.incremental_session(session.source_text).result
+
+    assert_equal batch.syntax_root.green, result.syntax_root.green
+    assert_predicate result.syntax_root, :contains_error?
+    assert_nil session.last_blender
+  end
+
   def test_incremental_session_rejects_unsupported_sources
     source = Ibex::Runtime::CST::SourceText.new("1+2")
 
@@ -164,6 +263,26 @@ class CSTIncrementalTest < Minitest::Test
   end
 
   private
+
+  def structural_edit(source, numbers, random)
+    edit_class = Ibex::Runtime::CST::TextEdit
+    case random.rand(5)
+    when 0
+      edit_class.new(start: numbers.sample(random: random), delete_length: 1, insert_text: random.rand(10).to_s)
+    when 1
+      edit_class.new(start: source.bytesize, delete_length: 0, insert_text: "+#{random.rand(10)}")
+    when 2
+      return edit_class.new(start: source.bytesize, delete_length: 0, insert_text: "+1") if numbers.one?
+
+      edit_class.new(start: numbers.last - 1, delete_length: 2, insert_text: "")
+    when 3
+      edit_class.new(start: 0, delete_length: 0, insert_text: "#{random.rand(10)}+")
+    else
+      return edit_class.new(start: 0, delete_length: 0, insert_text: "1+") if numbers.one?
+
+      edit_class.new(start: 0, delete_length: 2, insert_text: "")
+    end
+  end
 
   def generate(source = SOURCE, cst_trivia: :leading)
     ast = Ibex::Frontend::Parser.new(source, file: "incremental.y").parse

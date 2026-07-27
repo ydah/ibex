@@ -1,0 +1,56 @@
+# Generated from lib/ibex/runtime/cst/incremental/parse_memo.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Parser-state metadata parallel to Green preorder occurrences.
+      class ParseMemo
+        VERSION: Integer
+
+        ENTRY_BYTES: Integer
+
+        attr_reader left_states: Array[Integer?]
+
+        attr_reader grammar_digest: String
+
+        attr_reader state_count: Integer
+
+        attr_reader production_count: Integer
+
+        # @rbs (left_states: Array[Integer?], grammar_digest: String, state_count: Integer,
+        #   production_count: Integer) -> void
+        def initialize: (left_states: Array[Integer?], grammar_digest: String, state_count: Integer, production_count: Integer) -> void
+
+        # @rbs (Integer preorder_index) -> Integer?
+        def left_state: (Integer preorder_index) -> Integer?
+
+        # @rbs (Integer preorder_index, GreenNode | GreenToken element) -> Array[Integer?]
+        def slice: (Integer preorder_index, GreenNode | GreenToken element) -> Array[Integer?]
+
+        # @rbs (Hash[Symbol, untyped] tables) -> bool
+        def compatible?: (Hash[Symbol, untyped] tables) -> bool
+
+        # @rbs () -> Integer
+        def estimated_bytes: () -> Integer
+
+        # @rbs () -> Hash[String, untyped]
+        def to_h: () -> Hash[String, untyped]
+
+        # Lightweight construction tree flattened once when a parse completes.
+        class Entry
+          @state: Integer?
+
+          @children: Array[Entry]
+
+          @segment: Array[Integer?]?
+
+          # @rbs (Integer? state, ?children: Array[Entry], ?segment: Array[Integer?]?) -> void
+          def initialize: (Integer? state, ?children: Array[Entry], ?segment: Array[Integer?]?) -> void
+
+          # @rbs (Array[Integer?] output) -> void
+          def append_to: (Array[Integer?] output) -> void
+        end
+      end
+    end
+  end
+end

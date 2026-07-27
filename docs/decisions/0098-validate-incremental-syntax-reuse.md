@@ -37,9 +37,34 @@ and reports `cst_fallback`. `cst_built`, `cst_fallback`, and `cst_reuse` are
 additive runtime-event v1 variants. Incremental session objects, Red wrappers,
 memo arrays, and caches remain single-owner mutable state.
 
-Stage B may add parser-state memo and conservative subtree reuse only when the
-five safety conditions in the CST design are mechanically enforced and the
-incremental-versus-batch property suite remains authoritative.
+Stage B records one `left_state` per Green occurrence in a preorder-parallel
+`ParseMemo`. The key is position, not Green identity. A reused memo segment is
+copied by `descendant_count`, and serialized memo is accepted only when grammar
+digest, state count, and production count remain compatible.
+
+`Blender` may feed a Green nonterminal directly to the LR driver only when:
+
+1. its token range is outside every damage range and has lexically
+   resynchronized;
+2. its recorded `left_state` equals the current LR state;
+3. its following Green token is identical in the old and new token streams;
+4. it has none of `CONTAINS_ERROR`, `CONTAINS_MISSING`, or
+   `CONTAINS_SKIPPED`;
+5. its `full_width` is positive.
+
+When these conditions hold, old and new drives start in the same state and
+consume the same subtree tokens followed by the same lookahead. A complete
+nonterminal cannot reduce across its own left boundary. Error and recovery
+paths that could violate that property are excluded by condition 4. Therefore
+pushing the old Green node and applying `goto(state, lhs)` reaches the same LR
+configuration as replaying its internal shifts and reductions. If a candidate
+does not match the live state, the source offers a smaller candidate or the
+fresh token instead.
+
+Candidate decomposition is bounded. Exhaustion clears all candidates and uses
+the already scanned fresh token stream, reporting `cst_fallback`. `blender:
+false` selects the same Stage-A stream explicitly. The incremental-versus-batch
+property suite remains authoritative.
 
 ## Gate 2 evidence
 
@@ -55,6 +80,14 @@ tokens alone do not offset a complete LR drive. Gate 2 therefore approves
 continuing to conservative Stage B. The optional declared lookahead bound is
 not pulled forward: parser/tree construction, rather than the initial scan,
 is the larger remaining cost in this measurement.
+
+The subsequent version-2 benchmark uses a 100-term recursive grammar and 100
+one-byte edits at each position. Stage B is 1.04–2.83x faster than Stage A and
+1.66–4.48x faster than a fresh syntax session. Direct subtree reuse ranges
+from 49.3% at the beginning to 98.3% at the end. A fixed-seed structural-edit
+suite additionally performs 500 insertions, deletions, and replacements while
+comparing Green structure, source, flags, diagnostics, and memo cardinality
+against fresh syntax sessions.
 
 ## Consequences
 

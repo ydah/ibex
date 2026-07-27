@@ -24,6 +24,9 @@ require_relative "cst/validator" unless defined?(Ibex::Runtime::CST::Validator)
 require_relative "cst/serialize" unless defined?(Ibex::Runtime::CST::Serialize)
 require_relative "cst/incremental/token_memo" unless defined?(Ibex::Runtime::CST::TokenMemo)
 require_relative "cst/incremental/relexer" unless defined?(Ibex::Runtime::CST::Relexer)
+require_relative "cst/incremental/parse_memo" unless defined?(Ibex::Runtime::CST::ParseMemo)
+require_relative "cst/incremental/lexed_syntax" unless defined?(Ibex::Runtime::CST::LexedSyntax)
+require_relative "cst/incremental/blender" unless defined?(Ibex::Runtime::CST::Blender)
 require_relative "cst/incremental/session" unless defined?(Ibex::Runtime::CST::IncrementalParseSession)
 
 module Ibex

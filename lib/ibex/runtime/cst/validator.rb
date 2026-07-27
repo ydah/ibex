@@ -36,8 +36,9 @@ module Ibex
           Flags::HAS_ANNOTATION | Flags::SYNTHETIC | Flags::INCOMPLETE_INPUT
         ) #: Integer
 
-        # @rbs (String source, ?grammar_digest: String?) -> SerializedTree
-        def validate(source, grammar_digest: nil) # rubocop:disable Metrics/MethodLength
+        # @rbs (String source, ?grammar_digest: String?, ?state_count: Integer?,
+        #   ?production_count: Integer?) -> SerializedTree
+        def validate(source, grammar_digest: nil, state_count: nil, production_count: nil) # rubocop:disable Metrics/MethodLength
           document = JSON.parse(source)
           object!(document, "$")
           exact_keys!(document, TOP_KEYS, "$")
@@ -58,16 +59,27 @@ module Ibex
           root = load_element(document.fetch("root"), kinds, "$.root")
           fail_validation(:invalid_root, "$.root", "root must be a node") unless root.is_a?(GreenNode)
           validate_derived!(root, "$.root")
-          memo = document.fetch("memo")
-          fail_validation(:unsupported_memo, "$.memo", "memo must be null in schema v1") unless memo.nil?
+          document_state_count = nonnegative_integer!(document.fetch("state_count"), "$.state_count")
+          document_production_count = nonnegative_integer!(
+            document.fetch("production_count"), "$.production_count"
+          )
+          memo = load_memo(
+            document.fetch("memo"),
+            root,
+            digest,
+            document_state_count,
+            document_production_count,
+            expected_state_count: state_count,
+            expected_production_count: production_count
+          )
 
           SerializedTree.new(
             grammar_digest: digest,
             table_format: positive_integer!(document.fetch("table_format"), "$.table_format"),
-            state_count: nonnegative_integer!(document.fetch("state_count"), "$.state_count"),
-            production_count: nonnegative_integer!(document.fetch("production_count"), "$.production_count"),
+            state_count: document_state_count,
+            production_count: document_production_count,
             trivia_policy: trivia_policy!(document.fetch("trivia_policy"), "$.trivia_policy"),
-            kinds: kinds, green_root: root
+            kinds: kinds, green_root: root, memo: memo
           )
         rescue JSON::ParserError => e
           fail_validation(:invalid_json, "$", e.message)
@@ -99,6 +111,65 @@ module Ibex
         end
         module_function :load_kinds
         private_class_method :load_kinds
+
+        # @rbs (untyped value, GreenNode root, String digest, Integer state_count, Integer production_count,
+        #   expected_state_count: Integer?, expected_production_count: Integer?) -> ParseMemo?
+        def load_memo(value, root, digest, state_count, production_count,
+                      expected_state_count:, expected_production_count:)
+          return if value.nil?
+
+          object!(value, "$.memo")
+          exact_keys!(value, %w[version left_states], "$.memo")
+          value!(value, "version", ParseMemo::VERSION, "$.memo.version")
+          states = load_memo_states(value.fetch("left_states"), state_count)
+          validate_memo_length!(states, root)
+          return if expected_state_count && expected_state_count != state_count
+          return if expected_production_count && expected_production_count != production_count
+
+          ParseMemo.new(
+            left_states: states,
+            grammar_digest: digest,
+            state_count: state_count,
+            production_count: production_count
+          )
+        end
+        module_function :load_memo
+        private_class_method :load_memo
+
+        # @rbs (untyped value, Integer state_count) -> Array[Integer?]
+        def load_memo_states(value, state_count)
+          array!(value, "$.memo.left_states").map.with_index do |state, index|
+            next if state.nil?
+
+            actual = nonnegative_integer!(state, "$.memo.left_states[#{index}]")
+            if actual >= state_count
+              fail_validation(
+                :invalid_memo_state,
+                "$.memo.left_states[#{index}]",
+                "memo state exceeds parser state count",
+                actual: actual
+              )
+            end
+            actual
+          end
+        end
+        module_function :load_memo_states
+        private_class_method :load_memo_states
+
+        # @rbs (Array[Integer?] states, GreenNode root) -> void
+        def validate_memo_length!(states, root)
+          return if states.length == root.descendant_count
+
+          fail_validation(
+            :invalid_memo_length,
+            "$.memo.left_states",
+            "memo length must equal root descendant count",
+            expected: root.descendant_count,
+            actual: states.length
+          )
+        end
+        module_function :validate_memo_length!
+        private_class_method :validate_memo_length!
 
         # @rbs (untyped value, Kind kinds, String path) -> (GreenNode | GreenToken)
         def load_element(value, kinds, path)

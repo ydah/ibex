@@ -39,14 +39,17 @@ compatibility metadata, kinds, canonical Base64, and flag bits. Green
 constructors recompute widths, trim widths, aggregate flags, and descendant
 counts. A grammar digest mismatch raises a structured `ValidationError`.
 
-The memo field is reserved as `null` or a schema-v1 memo object. It is emitted
-as `null` until incremental Stage B supplies validated memo data.
+The memo field is `null` or a schema-v1 preorder `left_states` object.
+Incremental Stage B emits it when supplied to `Serialize.dump`. Loading
+validates its cardinality and state bounds. Expected state-count or
+production-count mismatches silently discard the memo while retaining the
+validated tree; a grammar-digest mismatch remains a structured compatibility
+error for the tree itself.
 
 ## Consequences
 
 - Dump/load/dump is byte-stable, including for invalid UTF-8 source bytes.
 - CST serialization can evolve without changing Grammar or Automaton IR.
-- State-count and production-count guards are available before parser memo
-  reuse is enabled.
+- State-count and production-count guards prevent stale parser memo reuse.
 - Serialized trees intentionally do not preserve Red parents, offsets, files,
   memoized Red children, or syntax annotations.

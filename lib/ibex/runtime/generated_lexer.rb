@@ -138,6 +138,74 @@ module Ibex
         end
       end
 
+      # Run the generated lexer once and materialize its exact Green token stream.
+      # @rbs (CST::SourceText source_text, CST::NodeCache cache) -> CST::LexedSyntax
+      def scan_syntax_with_cache(source_text, cache)
+        lex(source_text.text, file: source_text.file || "(input)")
+        raw_tokens = [] #: Array[Array[untyped]]
+        green_tokens = [] #: Array[CST::GreenToken]
+        states = [] #: Array[Symbol]
+        loop do
+          external, value, location = next_token
+          replace_previous_scanned_trailing(green_tokens, location, cache)
+          token_id = external.nil? || external == false ? Parser::EOF_TOKEN : __send__(:internal_token_id, external)
+          green = scanned_green_token(token_id, value, location, cache)
+          raw_tokens << [external, value, location]
+          green_tokens << green
+          state = location[:ibex_lexer_start_state] if location.is_a?(Hash)
+          states << (state ? state.to_sym : :INITIAL)
+          break if token_id == Parser::EOF_TOKEN
+        end
+        offsets = [] #: Array[Integer]
+        offset = 0
+        green_tokens.each do |token|
+          offsets << offset
+          offset += token.full_width
+        end
+        memo = CST::TokenMemo.new(tokens: green_tokens, offsets: offsets, states: states)
+        CST::LexedSyntax.new(raw_tokens: raw_tokens, memo: memo)
+      end
+
+      # @rbs (Integer token_id, untyped value, untyped location, CST::NodeCache cache) -> CST::GreenToken
+      def scanned_green_token(token_id, value, location, cache)
+        leading = scanned_green_trivia(location, :leading_trivia)
+        text = if location.is_a?(Hash) && location[:ibex_cst_text].is_a?(String)
+                 location.fetch(:ibex_cst_text)
+               elsif value.is_a?(String)
+                 value
+               else
+                 ""
+               end
+        text = "" if token_id == Parser::EOF_TOKEN
+        cache.intern_token(CST::GreenToken.new(kind: token_id, text: text, leading: leading))
+      end
+
+      # @rbs (Array[CST::GreenToken] tokens, untyped location, CST::NodeCache cache) -> void
+      def replace_previous_scanned_trailing(tokens, location, cache)
+        trailing = scanned_green_trivia(location, :cst_previous_trailing)
+        previous = tokens.last
+        return if trailing.empty? || !previous
+
+        tokens[-1] = cache.intern_token(
+          CST::GreenToken.new(
+            kind: previous.kind,
+            text: previous.text,
+            leading: previous.leading,
+            trailing: previous.trailing + trailing,
+            flags: previous.flags,
+            expected_kind: previous.expected_kind
+          )
+        )
+      end
+
+      # @rbs (untyped location, Symbol key) -> Array[CST::GreenTrivia]
+      def scanned_green_trivia(location, key)
+        return [] unless location.is_a?(Hash)
+
+        value = location[key]
+        value.is_a?(Array) ? value.grep(CST::GreenTrivia) : []
+      end
+
       # @rbs (LexerInput input) -> bool
       def ensure_lexer_data?(input)
         input.read_more? while input.buffer.empty? && !input.eof?

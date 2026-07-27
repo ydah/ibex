@@ -13,11 +13,11 @@ module Ibex
         attr_reader :trivia_policy #: Symbol
         attr_reader :kinds #: Kind
         attr_reader :green_root #: GreenNode
-        attr_reader :memo #: Hash[String, untyped]?
+        attr_reader :memo #: ParseMemo?
 
         # @rbs (grammar_digest: String, table_format: Integer, state_count: Integer,
         #   production_count: Integer, trivia_policy: Symbol, kinds: Kind, green_root: GreenNode,
-        #   ?memo: Hash[String, untyped]?) -> void
+        #   ?memo: ParseMemo?) -> void
         def initialize(grammar_digest:, table_format:, state_count:, production_count:, trivia_policy:, kinds:,
                        green_root:, memo: nil)
           @grammar_digest = grammar_digest.dup.freeze
@@ -27,7 +27,7 @@ module Ibex
           @trivia_policy = trivia_policy
           @kinds = kinds
           @green_root = green_root
-          @memo = memo&.dup&.freeze
+          @memo = memo
           freeze
         end
 

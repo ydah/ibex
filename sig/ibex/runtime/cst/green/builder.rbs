@@ -29,6 +29,10 @@ module Ibex
         # @rbs (Integer kind, Integer arity, ?flags: Integer) -> GreenNode
         def node: (Integer kind, Integer arity, ?flags: Integer) -> GreenNode
 
+        # Push one already validated nonterminal without rebuilding its descendants.
+        # @rbs (GreenNode value) -> GreenNode
+        def subtree: (GreenNode value) -> GreenNode
+
         # @rbs (Integer expected_kind) -> GreenToken
         def missing: (Integer expected_kind) -> GreenToken
 

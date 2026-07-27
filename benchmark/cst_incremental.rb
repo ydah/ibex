@@ -23,7 +23,7 @@ module CSTIncrementalBenchmark
     end
     report = {
       benchmark: "ibex_cst_incremental",
-      version: 1,
+      version: 2,
       ruby_version: RUBY_VERSION,
       ruby_platform: RUBY_PLATFORM,
       seed: options.fetch(:seed),
@@ -51,7 +51,6 @@ module CSTIncrementalBenchmark
   end
 
   def build_parser(terms)
-    rhs = Array.new(terms, "NUM").join(" PLUS ")
     input = Array.new(terms, "1").join(" + ")
     source = <<~GRAMMAR
       class CSTIncrementalBenchmarkParser
@@ -64,7 +63,10 @@ module CSTIncrementalBenchmark
         PLUS '+'
       end
       rule
-      start: #{rhs}
+      start: terms
+      terms: terms PLUS term
+           | term
+      term: NUM
       end
     GRAMMAR
     ast = Ibex::Frontend::Parser.new(source, file: "benchmark-cst-incremental.y").parse
@@ -82,7 +84,24 @@ module CSTIncrementalBenchmark
   end
 
   def measure_position(parser_class, original, position, iterations)
-    session = parser_class.incremental_session(Ibex::Runtime::CST::SourceText.new(original))
+    stage_b = measure_incremental(parser_class, original, position, iterations, blender: true)
+    stage_a = measure_incremental(parser_class, original, position, iterations, blender: false)
+    batch = measure_batch(parser_class, original, position, iterations)
+    {
+      byte_offset: position,
+      stage_b: stage_b,
+      stage_a: stage_a,
+      batch: batch,
+      stage_b_vs_stage_a_speedup: stage_a.fetch(:elapsed_ms) / stage_b.fetch(:elapsed_ms),
+      stage_b_vs_batch_speedup: batch.fetch(:elapsed_ms) / stage_b.fetch(:elapsed_ms)
+    }
+  end
+
+  def measure_incremental(parser_class, original, position, iterations, blender:)
+    session = parser_class.incremental_session(
+      Ibex::Runtime::CST::SourceText.new(original),
+      blender: blender
+    )
     current = original.dup
     before_allocations = GC.stat.fetch(:total_allocated_objects)
     started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -94,18 +113,28 @@ module CSTIncrementalBenchmark
     elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started
     allocations = GC.stat.fetch(:total_allocated_objects) - before_allocations
     relexed = session.last_relex_result
-
-    batch_started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-    iterations.times { parser_class.incremental_session(Ibex::Runtime::CST::SourceText.new(current)) }
-    batch_elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - batch_started
     {
-      byte_offset: position,
-      stage_a_elapsed_ms: elapsed * 1000.0,
-      batch_elapsed_ms: batch_elapsed * 1000.0,
-      speedup: batch_elapsed / elapsed,
+      elapsed_ms: elapsed * 1000.0,
       allocated_objects: allocations,
       relexer_scanned_tokens: relexed&.scanned_count,
-      reused_ratio: session.result.reused_ratio
+      reused_ratio: session.result.reused_ratio,
+      reused_descendants: session.last_blender&.reused_descendants
+    }
+  end
+
+  def measure_batch(parser_class, original, position, iterations)
+    current = original.dup
+    before_allocations = GC.stat.fetch(:total_allocated_objects)
+    started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    iterations.times do |index|
+      replacement = index.even? ? "2" : "1"
+      current.setbyte(position, replacement.getbyte(0))
+      parser_class.incremental_session(Ibex::Runtime::CST::SourceText.new(current))
+    end
+    elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started
+    {
+      elapsed_ms: elapsed * 1000.0,
+      allocated_objects: GC.stat.fetch(:total_allocated_objects) - before_allocations
     }
   end
 end

@@ -1,0 +1,114 @@
+# Generated from lib/ibex/runtime/cst/incremental/blender.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # A Green nonterminal that can replace its old LR shift/reduce sequence.
+      class ReusableSubtree
+        attr_reader green: GreenNode
+
+        attr_reader lhs: Integer
+
+        attr_reader left_state: Integer
+
+        attr_reader left_states: Array[Integer?]
+
+        attr_reader previous_trailing: Array[GreenTrivia]
+
+        # @rbs (green: GreenNode, lhs: Integer, left_state: Integer, left_states: Array[Integer?],
+        #   previous_trailing: Array[GreenTrivia]) -> void
+        def initialize: (green: GreenNode, lhs: Integer, left_state: Integer, left_states: Array[Integer?], previous_trailing: Array[GreenTrivia]) -> void
+      end
+
+      # A state-aware token source that substitutes validated old subtrees.
+      class Blender
+        class Candidate
+          attr_reader entry: ReusableSubtree
+
+          attr_reader token_count: Integer
+
+          # @rbs (entry: ReusableSubtree, token_count: Integer) -> void
+          def initialize: (entry: ReusableSubtree, token_count: Integer) -> void
+        end
+
+        UNSAFE_FLAGS: Integer
+
+        attr_reader reused_descendants: Integer
+
+        attr_reader decomposed_nodes: Integer
+
+        attr_reader fallback_reason: Symbol?
+
+        @token_index: Integer
+
+        @old_tokens: Array[GreenToken]
+
+        @new_offsets: Hash[Integer, Integer]
+
+        @candidates: Hash[Integer, Array[Candidate]]
+
+        @enabled: bool
+
+        @max_decomposed_nodes: Integer
+
+        @edits: Array[TextEdit]
+
+        @lexed: LexedSyntax
+
+        @parse_memo: ParseMemo
+
+        @old_root: SyntaxNode
+
+        # @rbs (old_root: SyntaxNode, parse_memo: ParseMemo, lexed: LexedSyntax, edits: Array[TextEdit],
+        #   max_decomposed_nodes: Integer, ?enabled: bool) -> void
+        def initialize: (old_root: SyntaxNode, parse_memo: ParseMemo, lexed: LexedSyntax, edits: Array[TextEdit], max_decomposed_nodes: Integer, ?enabled: bool) -> void
+
+        # Return the next token or a whole nonterminal valid in the current LR state.
+        # @rbs (Integer state) -> (Array[untyped] | ReusableSubtree | false)
+        def next_for_state: (Integer state) -> (Array[untyped] | ReusableSubtree | false)
+
+        # @rbs () -> Integer
+        def token_count: () -> Integer
+
+        private
+
+        # @rbs () -> bool
+        def reusable_root?: () -> bool
+
+        # @rbs () -> void
+        def build_candidates: () -> void
+
+        # @rbs (GreenNode | GreenToken element, offset: Integer, preorder: Integer, token_index: Integer) ->
+        #   [Integer, Integer, Integer]
+        def walk: (GreenNode | GreenToken element, offset: Integer, preorder: Integer, token_index: Integer) -> [ Integer, Integer, Integer ]
+
+        # @rbs (GreenNode node, Integer preorder, Integer old_offset, Integer start_token, Integer end_token) -> void
+        def add_candidate: (GreenNode node, Integer preorder, Integer old_offset, Integer start_token, Integer end_token) -> void
+
+        # @rbs (GreenNode node, Integer old_offset) -> bool
+        def reusable_node?: (GreenNode node, Integer old_offset) -> bool
+
+        # @rbs (Integer start_offset, Integer finish_offset) -> bool
+        def outside_damage?: (Integer start_offset, Integer finish_offset) -> bool
+
+        # @rbs (Integer old_offset) -> Integer
+        def translated_offset: (Integer old_offset) -> Integer
+
+        # @rbs (Integer old_index, Integer new_index, Integer count) -> bool
+        def matching_tokens?: (Integer old_index, Integer new_index, Integer count) -> bool
+
+        # @rbs (Integer old_index, Integer new_index) -> bool
+        def matching_follow_token?: (Integer old_index, Integer new_index) -> bool
+
+        # @rbs (Integer token_index) -> Array[GreenTrivia]
+        def previous_trailing: (Integer token_index) -> Array[GreenTrivia]
+
+        # @rbs (Array[Integer] offsets) -> Hash[Integer, Integer]
+        def offset_index: (Array[Integer] offsets) -> Hash[Integer, Integer]
+
+        # @rbs () -> void
+        def consume_decomposition_budget!: () -> void
+      end
+    end
+  end
+end

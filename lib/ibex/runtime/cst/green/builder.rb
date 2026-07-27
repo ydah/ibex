@@ -51,6 +51,13 @@ module Ibex
           value
         end
 
+        # Push one already validated nonterminal without rebuilding its descendants.
+        # @rbs (GreenNode value) -> GreenNode
+        def subtree(value)
+          @stack << value
+          value
+        end
+
         # @rbs (Integer expected_kind) -> GreenToken
         def missing(expected_kind)
           value = @cache.intern_token(

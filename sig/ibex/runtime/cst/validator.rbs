@@ -26,11 +26,22 @@ module Ibex
 
         KNOWN_FLAGS: Integer
 
-        # @rbs (String source, ?grammar_digest: String?) -> SerializedTree
-        def self?.validate: (String source, ?grammar_digest: String?) -> SerializedTree
+        # @rbs (String source, ?grammar_digest: String?, ?state_count: Integer?,
+        #   ?production_count: Integer?) -> SerializedTree
+        def self?.validate: (String source, ?grammar_digest: String?, ?state_count: Integer?, ?production_count: Integer?) -> SerializedTree
 
         # @rbs (untyped value) -> Kind
         def self?.load_kinds: (untyped value) -> Kind
+
+        # @rbs (untyped value, GreenNode root, String digest, Integer state_count, Integer production_count,
+        #   expected_state_count: Integer?, expected_production_count: Integer?) -> ParseMemo?
+        def self?.load_memo: (untyped value, GreenNode root, String digest, Integer state_count, Integer production_count, expected_state_count: Integer?, expected_production_count: Integer?) -> ParseMemo?
+
+        # @rbs (untyped value, Integer state_count) -> Array[Integer?]
+        def self?.load_memo_states: (untyped value, Integer state_count) -> Array[Integer?]
+
+        # @rbs (Array[Integer?] states, GreenNode root) -> void
+        def self?.validate_memo_length!: (Array[Integer?] states, GreenNode root) -> void
 
         # @rbs (untyped value, Kind kinds, String path) -> (GreenNode | GreenToken)
         def self?.load_element: (untyped value, Kind kinds, String path) -> (GreenNode | GreenToken)

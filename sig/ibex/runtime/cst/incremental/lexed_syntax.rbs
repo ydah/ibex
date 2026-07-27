@@ -1,0 +1,20 @@
+# Generated from lib/ibex/runtime/cst/incremental/lexed_syntax.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # One complete generated-lexer pass, including the explicit EOF token.
+      class LexedSyntax
+        attr_reader raw_tokens: Array[Array[untyped]]
+
+        attr_reader memo: TokenMemo
+
+        # @rbs (raw_tokens: Array[Array[untyped]], memo: TokenMemo) -> void
+        def initialize: (raw_tokens: Array[Array[untyped]], memo: TokenMemo) -> void
+
+        # @rbs (TokenMemo replacement) -> LexedSyntax
+        def with_memo: (TokenMemo replacement) -> LexedSyntax
+      end
+    end
+  end
+end

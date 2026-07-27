@@ -13,11 +13,11 @@ module Ibex
         SCHEMA_VERSION = 1 #: Integer
 
         # @rbs (SyntaxNode | SerializedTree value, ?grammar_digest: String?, ?table_format: Integer?,
-        #   ?state_count: Integer?, ?production_count: Integer?) -> String
-        def dump(value, grammar_digest: nil, table_format: nil, state_count: nil, production_count: nil)
+        #   ?state_count: Integer?, ?production_count: Integer?, ?memo: ParseMemo?) -> String
+        def dump(value, grammar_digest: nil, table_format: nil, state_count: nil, production_count: nil, memo: nil)
           tree = serialization_tree(
             value, grammar_digest: grammar_digest, table_format: table_format,
-                   state_count: state_count, production_count: production_count
+                   state_count: state_count, production_count: production_count, memo: memo
           )
           document = {
             "ibex_ir" => "cst",
@@ -29,21 +29,27 @@ module Ibex
             "trivia_policy" => tree.trivia_policy.to_s,
             "kinds" => kinds_document(tree.kinds),
             "root" => element_document(tree.green_root),
-            "memo" => tree.memo
+            "memo" => tree.memo&.to_h
           }
           "#{JSON.pretty_generate(document)}\n"
         end
         module_function :dump
 
-        # @rbs (String source, ?grammar_digest: String?) -> SerializedTree
-        def load(source, grammar_digest: nil)
-          Validator.validate(source, grammar_digest: grammar_digest)
+        # @rbs (String source, ?grammar_digest: String?, ?state_count: Integer?,
+        #   ?production_count: Integer?) -> SerializedTree
+        def load(source, grammar_digest: nil, state_count: nil, production_count: nil)
+          Validator.validate(
+            source,
+            grammar_digest: grammar_digest,
+            state_count: state_count,
+            production_count: production_count
+          )
         end
         module_function :load
 
         # @rbs (SyntaxNode | SerializedTree value, grammar_digest: String?, table_format: Integer?,
-        #   state_count: Integer?, production_count: Integer?) -> SerializedTree
-        def serialization_tree(value, grammar_digest:, table_format:, state_count:, production_count:)
+        #   state_count: Integer?, production_count: Integer?, memo: ParseMemo?) -> SerializedTree
+        def serialization_tree(value, grammar_digest:, table_format:, state_count:, production_count:, memo:)
           return value if value.is_a?(SerializedTree)
 
           missing = {
@@ -55,7 +61,7 @@ module Ibex
           SerializedTree.new(
             grammar_digest: grammar_digest || "", table_format: table_format || 0,
             state_count: state_count || 0, production_count: production_count || 0,
-            trivia_policy: value.trivia_policy, kinds: value.kinds, green_root: value.green
+            trivia_policy: value.trivia_policy, kinds: value.kinds, green_root: value.green, memo: memo
           )
         end
         module_function :serialization_tree

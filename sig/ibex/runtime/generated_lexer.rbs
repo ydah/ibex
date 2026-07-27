@@ -66,6 +66,19 @@ module Ibex
       # @rbs (CST::SourceText source_text, CST::NodeCache cache) -> CST::SyntaxResult
       def parse_syntax_with_cache: (CST::SourceText source_text, CST::NodeCache cache) -> CST::SyntaxResult
 
+      # Run the generated lexer once and materialize its exact Green token stream.
+      # @rbs (CST::SourceText source_text, CST::NodeCache cache) -> CST::LexedSyntax
+      def scan_syntax_with_cache: (CST::SourceText source_text, CST::NodeCache cache) -> CST::LexedSyntax
+
+      # @rbs (Integer token_id, untyped value, untyped location, CST::NodeCache cache) -> CST::GreenToken
+      def scanned_green_token: (Integer token_id, untyped value, untyped location, CST::NodeCache cache) -> CST::GreenToken
+
+      # @rbs (Array[CST::GreenToken] tokens, untyped location, CST::NodeCache cache) -> void
+      def replace_previous_scanned_trailing: (Array[CST::GreenToken] tokens, untyped location, CST::NodeCache cache) -> void
+
+      # @rbs (untyped location, Symbol key) -> Array[CST::GreenTrivia]
+      def scanned_green_trivia: (untyped location, Symbol key) -> Array[CST::GreenTrivia]
+
       # @rbs (LexerInput input) -> bool
       def ensure_lexer_data?: (LexerInput input) -> bool
 

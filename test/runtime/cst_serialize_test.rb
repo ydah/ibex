@@ -101,6 +101,49 @@ class CSTSerializeTest < Minitest::Test
     assert_raises(Ibex::Runtime::CST::TriviaDroppedError) { loaded.syntax_root.span }
   end
 
+  def test_parse_memo_round_trips_and_metadata_mismatch_discards_it # rubocop:disable Metrics/AbcSize
+    session = parser_class.incremental_session(Ibex::Runtime::CST::SourceText.new("word "))
+    source = Ibex::Runtime::CST::Serialize.dump(
+      session.result.syntax_root,
+      grammar_digest: grammar_digest,
+      table_format: parser_tables.fetch(:format_version),
+      state_count: parser_tables.fetch(:state_count),
+      production_count: parser_tables.fetch(:production_count),
+      memo: session.parse_memo
+    )
+    loaded = Ibex::Runtime::CST::Serialize.load(
+      source,
+      grammar_digest: grammar_digest,
+      state_count: parser_tables.fetch(:state_count),
+      production_count: parser_tables.fetch(:production_count)
+    )
+    schema = JSONSchemer.schema(JSON.parse(File.read(SCHEMA_PATH)))
+    mismatched = Ibex::Runtime::CST::Serialize.load(
+      source,
+      grammar_digest: grammar_digest,
+      state_count: parser_tables.fetch(:state_count) + 1,
+      production_count: parser_tables.fetch(:production_count)
+    )
+
+    assert_equal session.parse_memo.left_states, loaded.memo.left_states
+    assert_empty schema.validate(JSON.parse(source)).to_a
+    assert_equal source, Ibex::Runtime::CST::Serialize.dump(loaded)
+    assert_nil mismatched.memo
+    assert_equal loaded.green_root, mismatched.green_root
+  end
+
+  def test_invalid_parse_memo_length_is_rejected
+    document = JSON.parse(dump(syntax_root))
+    document["memo"] = { "version" => 1, "left_states" => [0] }
+
+    error = assert_raises(Ibex::Runtime::CST::ValidationError) do
+      Ibex::Runtime::CST::Serialize.load(JSON.generate(document))
+    end
+
+    assert_equal :invalid_memo_length, error.code
+    assert_equal "$.memo.left_states", error.path
+  end
+
   private
 
   def documents

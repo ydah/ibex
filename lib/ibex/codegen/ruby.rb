@@ -51,6 +51,9 @@ module Ibex
         ../runtime/cst/serialize.rb
         ../runtime/cst/incremental/token_memo.rb
         ../runtime/cst/incremental/relexer.rb
+        ../runtime/cst/incremental/parse_memo.rb
+        ../runtime/cst/incremental/lexed_syntax.rb
+        ../runtime/cst/incremental/blender.rb
         ../runtime/cst/incremental/session.rb
         ../runtime/cst.rb
         ../runtime/ast_data.rb
