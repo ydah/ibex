@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require "digest"
-require "fileutils"
 require "json"
 require "open3"
 require "tmpdir"
 require_relative "comparison_worker"
 require_relative "public_workload_driver"
+require_relative "public_workload_workspace"
 
 module BenchmarkSupport
   # Executes one isolated public-workload observation without reading generated source.
@@ -28,7 +28,11 @@ module BenchmarkSupport
 
     def run
       Dir.mktmpdir("ibex-public-comparison-") do |directory|
-        grammar, output = prepare_workspace(directory)
+        workspace = PublicWorkloadWorkspace.new(
+          directory: directory, workload: @workload, checkout: @checkout
+        ).prepare
+        grammar = workspace.grammar
+        output = workspace.output
         generation = generate(grammar, output).merge(execution_metadata)
         return generation if @scenario == "cold_generation"
 
@@ -60,23 +64,6 @@ module BenchmarkSupport
       raise ArgumentError, "warmup must not be negative" if @warmup.negative?
       raise ArgumentError, "iterations must be positive" unless @iterations.positive?
       raise ArgumentError, "probe iterations must be positive" unless @probe_iterations.positive?
-    end
-
-    def prepare_workspace(directory)
-      relative = @workload.fetch("grammar_path")
-      grammar = File.join(directory, relative)
-      output = grammar.sub(/\.y\z/, ".rb")
-      FileUtils.mkdir_p(File.dirname(grammar))
-      FileUtils.cp(File.join(@checkout, relative), grammar)
-      copy_runtime_neighbor(directory, relative)
-      [grammar, output]
-    end
-
-    def copy_runtime_neighbor(directory, grammar_path)
-      return unless @workload.fetch("id") == "nokogiri_css"
-
-      relative = File.join(File.dirname(grammar_path), "parser_extras.rb")
-      FileUtils.cp(File.join(@checkout, relative), File.join(directory, relative))
     end
 
     def generate(grammar, output)

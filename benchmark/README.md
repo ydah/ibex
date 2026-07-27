@@ -248,3 +248,53 @@ control above: injecting token drivers into third-party grammars would change
 the public code being measured. Timing is review evidence and is not an
 ordinary CI pass/fail threshold. Public reports follow
 `schema/public-performance-comparison-v1.schema.json`.
+
+### Diagnostic profiles for public grammars
+
+When a formal row is slower than Racc, collect Ibex-only wall-clock profiles
+against the same manifest revisions before changing the implementation. Install
+the isolated, exact-version profiler bundle:
+
+```sh
+BUNDLE_GEMFILE=gemfiles/profile.Gemfile bundle install
+```
+
+Then profile cold generation and both lexer-inclusive runtime lifecycles for
+all three checkouts:
+
+```sh
+BUNDLE_GEMFILE=gemfiles/profile.Gemfile bundle exec ruby benchmark/public_profile.rb \
+  --checkout namae=/path/to/namae \
+  --checkout bcdice_command=/path/to/bcdice \
+  --checkout nokogiri_css=/path/to/nokogiri \
+  --runs 1 \
+  --warmup 50 \
+  --runtime-iterations 10000 \
+  --output tmp/public-performance-profile.json
+```
+
+Each scenario and run starts a fresh child process. Cold generation begins
+sampling before the Ibex CLI is loaded. Runtime setup uses the exact formal
+Ibex generation command, loads the resulting public parser, completes warm-up
+outside the profiler, and samples the same lexer-inclusive workload loop as
+the formal comparison. A short untimed result-sequence probe follows the
+sampled region so lifecycle and run mismatches fail before publication.
+
+The JSON report records the exact formal generation and worker commands
+separately from each instrumented command. It also writes StackProf raw dumps
+to a sibling `.profiles/` directory. Reported frame paths are portable, while
+raw dumps remain machine-local diagnostics.
+
+These profiles include profiler overhead and are never timing evidence. The
+schema fixes `evidence_kind` to `diagnostic_profile`, `formal_evidence` to
+`false`, and `timing_comparable` to `false`; the command also rejects outputs
+under `benchmark/results/`. `--allow-dirty` is available only for local
+diagnosis and is recorded in the report.
+
+Use `--interval-usec` and `--top-frames` to change profile resolution. The
+10,000-workload runtime default is intentionally longer than the formal timing
+default so a 1 ms wall-clock sampler gathers useful stacks. Increase it when a
+profile still contains too few samples. After optimizing a dominant stack,
+rerun the uninstrumented formal public comparison above on the same Ruby,
+YJIT mode, checkouts, and clean revision. Only that repeated formal report can
+show whether every row is now no slower than Racc.

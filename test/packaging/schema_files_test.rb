@@ -17,6 +17,7 @@ class SchemaFilesPackagingTest < Minitest::Test
       schema/benchmark-v2.schema.json
       schema/performance-comparison-v1.schema.json
       schema/public-performance-comparison-v1.schema.json
+      schema/public-performance-profile-v1.schema.json
       schema/error-ux-v1.schema.json
       schema/migration-check-v1.schema.json
       schema/generation-manifest-v1.schema.json

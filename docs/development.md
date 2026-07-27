@@ -114,5 +114,16 @@ Performance observations are not ordinary CI timing thresholds. Follow the
 comparison commands, environment matching, artifact validation, and
 append-only result history.
 
+The external-grammar profiler has its own exact-version tool bundle:
+
+```sh
+BUNDLE_GEMFILE=gemfiles/profile.Gemfile bundle install
+BUNDLE_GEMFILE=gemfiles/profile.Gemfile bundle exec ruby benchmark/public_profile.rb --help
+```
+
+Its output is diagnostic-only and must remain outside `benchmark/results/`.
+Use it to locate costs, then repeat the uninstrumented public comparison to
+produce reviewable performance evidence.
+
 The versioned error-experience snapshot and its review procedure live in
 [`docs/error-ux.md`](error-ux.md).
