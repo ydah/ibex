@@ -52,7 +52,7 @@ unchanged; every new entry follows the reviewed naming contract below.
 Validate a baseline and rebuild its deterministic projection with:
 
 ```sh
-bundle exec ruby benchmark/verify.rb benchmark/results/v2/2026-07-26-78d3abb5a29e-ruby-4.0.0-arm64-darwin24.json
+bundle exec ruby benchmark/verify.rb benchmark/results/v2/2026-07-27-fac0a0f20581-ruby-4.0.0-arm64-darwin24.json
 ```
 
 The current v2 observation records direct LALR construction: 250 intermediate
