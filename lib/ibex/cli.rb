@@ -102,9 +102,6 @@ module Ibex
   # Command-line pipeline coordinator.
   # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.
   class CLI
-    # @rbs!
-    #   private def run_watch: (String) -> Integer
-
     SUBCOMMAND_HANDLERS = {
       "check" => %i[CLIAmbiguity run_check_command],
       "diagnose" => %i[CLIDiagnostics run_diagnose_command],
@@ -172,8 +169,7 @@ module Ibex
       path = input_path(remaining)
       validate_generation_paths!(path)
       if @options[:watch]
-        activate_cli_feature(:CLIWatch)
-        run_watch(path)
+        run_watch_feature(path)
       else
         process_grammar(path)
       end
@@ -198,6 +194,12 @@ module Ibex
     def activate_cli_feature(feature)
       extension = Ibex.const_get(feature)
       extend extension unless singleton_class.ancestors.include?(extension)
+    end
+
+    # @rbs (String path) -> Integer
+    def run_watch_feature(path)
+      activate_cli_feature(:CLIWatch)
+      send(:run_watch, path)
     end
 
     # @rbs () -> OptionParser

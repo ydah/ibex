@@ -20,8 +20,6 @@ module Ibex
   # Command-line pipeline coordinator.
   # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.
   class CLI
-    private def run_watch: (String) -> Integer
-
     SUBCOMMAND_HANDLERS: Hash[String, [ Symbol, Symbol ]]
 
     include CLICounterexampleOptions
@@ -55,6 +53,9 @@ module Ibex
 
     # @rbs (Symbol feature) -> void
     def activate_cli_feature: (Symbol feature) -> void
+
+    # @rbs (String path) -> Integer
+    def run_watch_feature: (String path) -> Integer
 
     # @rbs () -> OptionParser
     def option_parser: () -> OptionParser

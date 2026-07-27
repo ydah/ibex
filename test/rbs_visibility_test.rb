@@ -122,6 +122,15 @@ class RBSVisibilityTest < Minitest::Test
     end
   end
 
+  def test_cli_watch_boundary_exists_in_both_runtime_and_generated_rbs
+    assert Ibex::CLI.private_method_defined?(:run_watch_feature)
+    refute Ibex::CLI.private_method_defined?(:run_watch)
+
+    signature = File.read(File.join(SIGNATURE_ROOT, "cli.rbs"))
+    assert_match(/^\s+def run_watch_feature: \(String path\) -> Integer$/, signature)
+    refute_match(/^\s+private def run_watch: /, signature)
+  end
+
   private
 
   def assert_module_function_entries_are_callable
