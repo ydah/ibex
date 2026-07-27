@@ -257,7 +257,7 @@ module PublicPerformanceProfile
   end
 
   def normalize_profile_path(path, checkout:, workspace:, grammar:, output:)
-    return path unless path
+    return nil if path.nil? || path.empty?
 
     replacements = [
       [output, "<generated-parser>"],

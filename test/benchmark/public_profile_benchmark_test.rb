@@ -108,6 +108,7 @@ class PublicProfileBenchmarkTest < Minitest::Test
         { "file" => output },
         { "file" => grammar },
         { "file" => "<cfunc>" },
+        { "file" => "" },
         { "file" => nil }
       ]
     }
@@ -123,6 +124,7 @@ class PublicProfileBenchmarkTest < Minitest::Test
         "<generated-parser>",
         "<public-grammar>",
         "<cfunc>",
+        nil,
         nil
       ],
       normalized.fetch("top_frames").map { |frame| frame.fetch("file") }
