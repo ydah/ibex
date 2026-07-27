@@ -17,6 +17,9 @@ module Ibex
       # @rbs () -> String
       def rewrite: () -> String
 
+      # @rbs () -> bool
+      def references?: () -> bool
+
       private
 
       # @rbs () -> String

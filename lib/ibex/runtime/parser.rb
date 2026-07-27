@@ -7,14 +7,10 @@ require_relative "resource_limits" unless defined?(Ibex::Runtime::ResourceLimits
 require_relative "repair" unless defined?(Ibex::Runtime::RepairPolicy)
 require_relative "repair_search" unless defined?(Ibex::Runtime::RepairSearch)
 require_relative "parser_sync_recovery" unless defined?(Ibex::Runtime::ParserSyncRecovery)
+require_relative "table_format" unless defined?(Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION)
 
 module Ibex
   module Runtime
-    # Current parser-table shape emitted by the generator.
-    PARSER_TABLE_FORMAT_VERSION = 3 #: Integer
-    # Parser-table shapes this runtime can execute.
-    SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS = [1, 2, PARSER_TABLE_FORMAT_VERSION].freeze #: Array[Integer]
-
     # Raised by the default parser error handler.
     class ParseError < StandardError
       attr_reader :token_id #: Integer?
@@ -121,12 +117,14 @@ module Ibex
     # `:default_actions`, `:error_messages`, and `:recovery_sync_tokens`.
     # Actions are represented by
     # `[:shift, state]`, `[:reduce, production]`, `[:accept]`, or `[:error]`.
-    # Format-v2 and v3 generated production entries mark their five-argument
-    # semantic methods with `location_action: true`. Format-v3 composed actions
-    # additionally use `composition_action: true` for the six-argument contract
-    # carrying the lookahead location. V1 and unmarked application actions
-    # retain the historical two-argument contract. Markers are honored only for
-    # the generated `_ibex_action_N` Symbol shape, never for callables.
+    # Format-v2 and newer generated production entries mark their five-argument
+    # semantic methods with `location_action: true`. Format-v3 and newer
+    # composed actions additionally use `composition_action: true` for the
+    # six-argument contract carrying the lookahead location. Format-v4
+    # location-free generated methods use `values_action: true` for a
+    # one-argument values contract. V1 and unmarked application actions retain
+    # the historical two-argument contract. Markers are honored only for the
+    # generated `_ibex_action_N` Symbol shape, never for callables.
     class Parser
       # Keep direct singleton-hook mutation visible even when an application
       # replaces Ruby's mutation callbacks without calling super.
@@ -186,9 +184,11 @@ module Ibex
       REPAIR_PENDING_OUTCOME = [:repair_pending].freeze #: [:repair_pending]
       empty_row = {} # @type var empty_row: Hash[Integer, untyped]
       empty_location_names = {} # @type var empty_location_names: Hash[Symbol, Integer]
+      empty_locations = [] # @type var empty_locations: Array[untyped]
 
       EMPTY_ROW = empty_row.freeze #: Hash[Integer, untyped]
       EMPTY_LOCATION_NAMES = empty_location_names.freeze #: Hash[Symbol, Integer]
+      EMPTY_LOCATIONS = empty_locations.freeze #: Array[untyped]
       private_constant :ERROR_ACTION, :SYNC_RECOVER_ACTION, :CONTINUE_OUTCOME, :REPAIR_PENDING_OUTCOME,
                        :FastPathMutationTracker
 
@@ -898,19 +898,29 @@ module Ibex
                 "regenerate the parser with the installed Ibex version"
         end
 
-        validate_composition_action_contract!(tables) if actual == PARSER_TABLE_FORMAT_VERSION
+        validate_generated_action_contracts!(tables, actual) if actual >= 3
         tables
       end
 
-      # @rbs (Hash[Symbol, untyped] tables) -> void
-      def validate_composition_action_contract!(tables)
+      # @rbs (Hash[Symbol, untyped] tables, Integer version) -> void
+      def validate_generated_action_contracts!(tables, version)
         tables.fetch(:productions).each_with_index do |production, index|
-          next unless production[:composition_action] == true
-          next if production[:location_action] == true && generated_action_symbol?(production[:action])
+          if production[:composition_action] == true &&
+             !(production[:location_action] == true && generated_action_symbol?(production[:action]))
+            raise ParseError,
+                  "(tables):1:1: parser table format version #{version} production #{index} has an inconsistent " \
+                  ":composition_action marker; a generated action Symbol with :location_action is required"
+          end
+          next if version < 4 || production[:values_action] != true
+          next if generated_action_symbol?(production[:action]) &&
+                  production[:location_action] != true &&
+                  production[:composition_action] != true &&
+                  production.fetch(:location_context_length, 0).zero?
 
           raise ParseError,
-                "(tables):1:1: parser table format version 3 production #{index} has an inconsistent " \
-                ":composition_action marker; a generated action Symbol with :location_action is required"
+                "(tables):1:1: parser table format version #{version} production #{index} has an inconsistent " \
+                ":values_action marker; a generated action Symbol without location, composition, or context " \
+                "markers is required"
         end
       end
 
@@ -977,7 +987,8 @@ module Ibex
 
       # @rbs (Hash[Symbol, untyped] production, untyped length) -> bool
       def fast_reduction_eligible?(production, length)
-        return false if production[:action]
+        action = production[:action]
+        return false if action && !generated_values_action?(production, action)
 
         length.is_a?(Integer) && !length.negative? &&
           length <= @value_stack.length && length < @state_stack.length
@@ -985,6 +996,9 @@ module Ibex
 
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> [:continue]
       def fast_reduce(production_id, production, length)
+        action = production[:action]
+        return fast_values_reduce(production_id, production, length, action) if action
+
         result = length.zero? ? nil : @value_stack.fetch(@value_stack.length - length)
         remaining = length
         while remaining.positive?
@@ -998,6 +1012,39 @@ module Ibex
         ensure_stack_capacity!
         @state_stack << next_state
         @value_stack << result
+        CONTINUE_OUTCOME
+      end
+
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length, Symbol action) -> untyped
+      def fast_values_reduce(production_id, production, length, action)
+        hook_values = @value_stack.last(length)
+        values = hook_values.dup
+        remaining = length
+        while remaining.positive?
+          @state_stack.pop
+          @value_stack.pop
+          remaining -= 1
+        end
+        result = values_reduction_value(production, action, values, EMPTY_LOCATIONS, nil)
+        refresh_runtime_fast_path_after_user_code!
+        next_state = table_lookup(parser_tables.fetch(:gotos), @state_stack.last, production.fetch(:lhs))
+        raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
+
+        ensure_stack_capacity!
+        push_reduction_result(next_state, result, nil)
+        trace_reduction(production_id, length, production.fetch(:lhs), result, next_state)
+        unless @runtime_fast_path
+          lookup = Object.instance_method(:method)
+          unless runtime_method_unchanged?(lookup, :on_reduce, :__ibex_fast_path_on_reduce)
+            on_reduce(production_id, hook_values, result)
+          end
+          unless runtime_method_unchanged?(lookup, :on_reduce_location, :__ibex_fast_path_on_reduce_location)
+            on_reduce_location(production_id, hook_values, result, Array.new(length), nil)
+          end
+        end
+        return accept_reduction(result) if @accept_requested
+        return recover(report: false) if @semantic_error
+
         CONTINUE_OUTCOME
       end
 
@@ -1144,6 +1191,8 @@ module Ibex
         @semantic_locations = action_locations
         @semantic_location_names = production.fetch(:location_names, EMPTY_LOCATION_NAMES)
         @semantic_result_location = location
+        return __send__(action, values) if generated_values_action?(production, action)
+
         value_stack = @value_stack.dup
         callable = action.respond_to?(:call)
         if generated_location_action?(production, action)
@@ -1170,6 +1219,22 @@ module Ibex
         @semantic_result_location = previous_result_location
       end
 
+      # @rbs (Hash[Symbol, untyped] production, Symbol action, Array[untyped] values,
+      #   Array[untyped] locations, LocationSpan? location) -> untyped
+      def values_reduction_value(production, action, values, locations, location)
+        previous_locations = @semantic_locations
+        previous_names = @semantic_location_names
+        previous_result_location = @semantic_result_location
+        @semantic_locations = locations
+        @semantic_location_names = production.fetch(:location_names, EMPTY_LOCATION_NAMES)
+        @semantic_result_location = location
+        __send__(action, values)
+      ensure
+        @semantic_locations = previous_locations
+        @semantic_location_names = previous_names
+        @semantic_result_location = previous_result_location
+      end
+
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
       #   Array[untyped] locations, LocationSpan? location) -> untyped
       def actionless_reduction_value(production_id, production, values, locations, location)
@@ -1186,15 +1251,22 @@ module Ibex
       end
 
       # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
+      def generated_values_action?(production, action)
+        parser_tables.fetch(:format_version) >= 4 &&
+          production[:values_action] == true &&
+          generated_action_symbol?(action)
+      end
+
+      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
       def generated_composition_action?(production, action)
-        parser_tables.fetch(:format_version) == PARSER_TABLE_FORMAT_VERSION &&
+        parser_tables.fetch(:format_version) >= 3 &&
           production[:composition_action] == true &&
           generated_location_action?(production, action)
       end
 
       # @rbs (untyped action) -> bool
       def generated_action_symbol?(action)
-        action.is_a?(Symbol) && action.to_s.match?(GENERATED_ACTION_NAME)
+        action.is_a?(Symbol) && action.name.match?(GENERATED_ACTION_NAME)
       end
 
       # @rbs () -> bool
@@ -1923,7 +1995,7 @@ module Ibex
       # extension can observe a committed shift or reduction.
       # @rbs (Hash[Symbol, untyped] tables) -> bool
       def runtime_fast_path_eligible?(tables)
-        @yydebug == false &&
+        !@yydebug &&
           @runtime_observers.nil? &&
           @repair_policy.nil? &&
           tables[:cst] != true &&
@@ -1970,7 +2042,7 @@ module Ibex
         return unless @runtime_fast_path
 
         @runtime_fast_path = false unless
-          @yydebug == false &&
+          !@yydebug &&
           @runtime_observers.nil? &&
           @repair_policy.nil? &&
           @location_stack.nil? &&

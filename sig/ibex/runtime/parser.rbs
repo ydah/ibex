@@ -2,12 +2,6 @@
 
 module Ibex
   module Runtime
-    # Current parser-table shape emitted by the generator.
-    PARSER_TABLE_FORMAT_VERSION: Integer
-
-    # Parser-table shapes this runtime can execute.
-    SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS: Array[Integer]
-
     # Raised by the default parser error handler.
     class ParseError < StandardError
       attr_reader token_id: Integer?
@@ -65,12 +59,14 @@ module Ibex
     # `:default_actions`, `:error_messages`, and `:recovery_sync_tokens`.
     # Actions are represented by
     # `[:shift, state]`, `[:reduce, production]`, `[:accept]`, or `[:error]`.
-    # Format-v2 and v3 generated production entries mark their five-argument
-    # semantic methods with `location_action: true`. Format-v3 composed actions
-    # additionally use `composition_action: true` for the six-argument contract
-    # carrying the lookahead location. V1 and unmarked application actions
-    # retain the historical two-argument contract. Markers are honored only for
-    # the generated `_ibex_action_N` Symbol shape, never for callables.
+    # Format-v2 and newer generated production entries mark their five-argument
+    # semantic methods with `location_action: true`. Format-v3 and newer
+    # composed actions additionally use `composition_action: true` for the
+    # six-argument contract carrying the lookahead location. Format-v4
+    # location-free generated methods use `values_action: true` for a
+    # one-argument values contract. V1 and unmarked application actions retain
+    # the historical two-argument contract. Markers are honored only for the
+    # generated `_ibex_action_N` Symbol shape, never for callables.
     class Parser
       # Keep direct singleton-hook mutation visible even when an application
       # replaces Ruby's mutation callbacks without calling super.
@@ -117,6 +113,8 @@ module Ibex
       EMPTY_ROW: Hash[Integer, untyped]
 
       EMPTY_LOCATION_NAMES: Hash[Symbol, Integer]
+
+      EMPTY_LOCATIONS: Array[untyped]
 
       @runtime_fast_path_tracker_installed: bool
 
@@ -410,8 +408,8 @@ module Ibex
       # @rbs () -> Hash[Symbol, untyped]
       def validate_parser_table_format!: () -> Hash[Symbol, untyped]
 
-      # @rbs (Hash[Symbol, untyped] tables) -> void
-      def validate_composition_action_contract!: (Hash[Symbol, untyped] tables) -> void
+      # @rbs (Hash[Symbol, untyped] tables, Integer version) -> void
+      def validate_generated_action_contracts!: (Hash[Symbol, untyped] tables, Integer version) -> void
 
       # @rbs () -> untyped
       def action_for_current_state: () -> untyped
@@ -427,6 +425,9 @@ module Ibex
 
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> [:continue]
       def fast_reduce: (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> [ :continue ]
+
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length, Symbol action) -> untyped
+      def fast_values_reduce: (Integer production_id, Hash[Symbol, untyped] production, Integer length, Symbol action) -> untyped
 
       # @rbs (Integer next_state) -> untyped
       def shift: (Integer next_state) -> untyped
@@ -457,12 +458,19 @@ module Ibex
       #   Array[untyped] locations, LocationSpan? location) -> untyped
       def reduction_value: (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> untyped
 
+      # @rbs (Hash[Symbol, untyped] production, Symbol action, Array[untyped] values,
+      #   Array[untyped] locations, LocationSpan? location) -> untyped
+      def values_reduction_value: (Hash[Symbol, untyped] production, Symbol action, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> untyped
+
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
       #   Array[untyped] locations, LocationSpan? location) -> untyped
       def actionless_reduction_value: (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> untyped
 
       # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
       def generated_location_action?: (Hash[Symbol, untyped] production, untyped action) -> bool
+
+      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
+      def generated_values_action?: (Hash[Symbol, untyped] production, untyped action) -> bool
 
       # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
       def generated_composition_action?: (Hash[Symbol, untyped] production, untyped action) -> bool

@@ -120,6 +120,40 @@ class RuntimeFastPathTest < Minitest::Test
     end
   end
 
+  class ValuesActionProbe < ActionlessProbe
+    TABLES = {
+      format_version: Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION,
+      tokens: { ITEM: 2 },
+      token_names: { 0 => "$eof", 1 => "error", 2 => "ITEM" },
+      actions: [
+        { 2 => [:shift, 1] },
+        { 0 => [:reduce, 0] },
+        { 0 => [:accept] }
+      ],
+      gotos: [{ 3 => 2 }, {}, {}],
+      productions: [{ lhs: 3, length: 1, action: :_ibex_action_0, values_action: true }]
+    }.freeze
+
+    attr_reader :action_calls, :action_semantic_locations
+    attr_writer :action_effect
+
+    def self.parser_tables = TABLES
+
+    def initialize(...)
+      super
+      @action_calls = 0
+    end
+
+    private
+
+    def _ibex_action_0(values) # rubocop:disable Naming/VariableNumber
+      @action_calls += 1
+      @action_semantic_locations = instance_variable_get(:@semantic_locations)
+      @action_effect&.call(self, values)
+      values.first
+    end
+  end
+
   class TokenDisplayProbe < ActionInstrumentationProbe
     attr_accessor :display_phase
     attr_writer :display_effect
@@ -241,6 +275,71 @@ class RuntimeFastPathTest < Minitest::Test
     assert_equal "push", push.finish
     assert_equal [0, 0, 0, 0],
                  [push.generic_shifts, push.generic_reductions, push.location_builds, push.token_display_calls]
+  end
+
+  def test_values_only_action_uses_the_fast_reduction_without_per_reduction_locations
+    first = ValuesActionProbe.new([[:ITEM, "first"], false])
+    second = ValuesActionProbe.new([[:ITEM, "second"], false])
+
+    assert_equal "first", first.do_parse
+    assert_equal "second", second.do_parse
+    assert_equal [1, 1], [first.action_calls, second.action_calls]
+    assert_equal [0, 0], [first.generic_reductions, second.generic_reductions]
+    assert_empty first.action_semantic_locations
+    assert first.action_semantic_locations.frozen?
+    assert_same first.action_semantic_locations, second.action_semantic_locations
+  end
+
+  def test_values_only_action_preserves_pre_action_hook_values_and_location_hook_shape
+    parser = ValuesActionProbe.new([[:ITEM, :original], false])
+    value_hooks = []
+    location_hooks = []
+    parser.action_effect = lambda do |active, values|
+      active.define_singleton_method(:on_reduce) { |*payload| value_hooks << payload }
+      active.define_singleton_method(:on_reduce_location) { |*payload| location_hooks << payload }
+      values[0] = :changed
+    end
+
+    assert_equal :changed, parser.do_parse
+    assert_equal [[0, [:original], :changed]], value_hooks
+    assert_equal [[0, [:original], :changed, [nil], nil]], location_hooks
+    assert_equal 0, parser.generic_reductions
+  end
+
+  def test_values_only_action_honors_debug_and_observer_installed_during_the_action
+    parser = ValuesActionProbe.new([[:ITEM, :value], false])
+    events = []
+    output = StringIO.new
+    parser.action_effect = lambda do |active, _values|
+      active.observe { |event| events << event.type }
+      active.yydebug_output = output
+      active.yydebug = true
+    end
+
+    assert_equal :value, parser.do_parse
+    assert_equal [:accept], events
+    assert_includes output.string, "reduce 0"
+    assert_equal 0, parser.generic_reductions
+  end
+
+  def test_values_only_action_honors_semantic_accept_and_error
+    accepted = ValuesActionProbe.new([[:ITEM, :accepted], false])
+    accepted.action_effect = ->(active, _values) { active.yyaccept }
+    assert_equal :accepted, accepted.do_parse
+    assert_equal 0, accepted.generic_reductions
+
+    rejected = ValuesActionProbe.new([[:ITEM, :rejected], false])
+    rejected.action_effect = ->(active, _values) { active.yyerror }
+    assert_nil rejected.do_parse
+    assert_equal 0, rejected.generic_reductions
+  end
+
+  def test_nil_debug_flag_is_eligible_because_debug_checks_use_truthiness
+    parser = ValuesActionProbe.new([[:ITEM, :value], false])
+    parser.yydebug = nil
+
+    assert_equal :value, parser.do_parse
+    assert_equal [0, 0], [parser.generic_shifts, parser.generic_reductions]
   end
 
   def test_application_method_helper_is_not_used_for_eligibility_introspection

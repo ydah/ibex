@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "generated_action_abi"
+
 module Ibex
   module Codegen
     # Generates an RBS declaration for the public surface of a generated parser.
@@ -188,8 +190,13 @@ module Ibex
       # @rbs (Array[String] lines, IR::Production production) -> void
       def append_action_signature(lines, production)
         parameters = production.rhs.map { |symbol_id| semantic_type(symbol_id) }.join(", ")
-        locations = Array.new(production.rhs.length, "untyped").join(", ")
         result = production.node ? "AST::#{production.node.fetch(:name)}" : semantic_type(production.lhs)
+        if GeneratedActionABI.values_only?(production)
+          lines << "  private def _ibex_action_#{production.id}: ([#{parameters}]) -> #{result}"
+          return
+        end
+
+        locations = Array.new(production.rhs.length, "untyped").join(", ")
         lookahead = composed_action?(production) ? ", untyped" : ""
         lines << "  private def _ibex_action_#{production.id}: " \
                  "([#{parameters}], Array[untyped], [#{locations}], Array[untyped], " \

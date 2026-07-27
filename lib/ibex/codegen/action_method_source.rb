@@ -2,6 +2,7 @@
 # rbs_inline: enabled
 
 require_relative "action_locations"
+require_relative "generated_action_abi"
 
 module Ibex
   module Codegen
@@ -41,8 +42,7 @@ module Ibex
       # @rbs (IR::Production production) -> String
       def compiled_action_method_source(production)
         action = production.action
-        source = "private def _ibex_action_#{production.id}" \
-                 "(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location); "
+        source = "private def _ibex_action_#{production.id}#{action_parameters(production)}; "
         append_parameter_values(source)
         return "#{source}val[0]\nend" unless action
 
@@ -60,8 +60,7 @@ module Ibex
       def direct_action_method_source(production)
         action = production.action
         lines = [
-          "private def _ibex_action_#{production.id}" \
-          "(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)"
+          "private def _ibex_action_#{production.id}#{action_parameters(production)}"
         ]
         append_direct_parameter_values(lines)
         if action&.context_length&.positive?
@@ -97,6 +96,13 @@ module Ibex
       end
 
       private
+
+      # @rbs (IR::Production production) -> String
+      def action_parameters(production)
+        return "(val)" if GeneratedActionABI.values_only?(production)
+
+        "(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)"
+      end
 
       # @rbs (String source) -> void
       def append_parameter_values(source)

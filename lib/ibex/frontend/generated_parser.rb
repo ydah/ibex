@@ -6,7 +6,7 @@ require "ibex/runtime"
 module Ibex
 module Frontend
 class GeneratedParser < Ibex::Frontend::GeneratedParserBase
-  PARSER_TABLE_FORMAT_VERSION = 3
+  PARSER_TABLE_FORMAT_VERSION = 4
   GRAMMAR_DIGEST = "sha256:4b30ee8200fd78b1fd4a6438a0405514440a7c028e267a3af3c6e8d9a38c7b39".freeze
   STATE_COUNT = 220
   PRODUCTION_COUNT = 141
@@ -17,7 +17,7 @@ class GeneratedParser < Ibex::Frontend::GeneratedParserBase
   DEFAULT_ACTIONS = [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, [:reduce, 82], [:reduce, 83], nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil].freeze
   eager_reductions = {} # @type var eager_reductions: Hash[Integer, [:reduce, Integer]]
   EAGER_REDUCTIONS = eager_reductions.freeze #: Hash[Integer, [:reduce, Integer]]
-  PRODUCTIONS = [{ lhs: 47, length: 1, action: :_ibex_action_0, location_action: true }, { lhs: 47, length: 1, action: :_ibex_action_1, location_action: true }, { lhs: 48, length: 9, action: :_ibex_action_2, location_action: true }, { lhs: 48, length: 8, action: :_ibex_action_3, location_action: true }, { lhs: 49, length: 2, action: :_ibex_action_4, location_action: true }, { lhs: 50, length: 6, action: :_ibex_action_5, location_action: true }, { lhs: 51, length: 0, action: :_ibex_action_6, location_action: true }, { lhs: 51, length: 1, action: :_ibex_action_7, location_action: true }, { lhs: 52, length: 1, action: :_ibex_action_8, location_action: true }, { lhs: 52, length: 3, action: :_ibex_action_9, location_action: true }, { lhs: 53, length: 0, action: :_ibex_action_10, location_action: true }, { lhs: 53, length: 2, action: :_ibex_action_11, location_action: true }, { lhs: 54, length: 0, action: nil }, { lhs: 54, length: 3, action: nil }, { lhs: 55, length: 0, action: :_ibex_action_14, location_action: true }, { lhs: 55, length: 2, action: :_ibex_action_15, location_action: true }, { lhs: 56, length: 1, action: :_ibex_action_16, location_action: true }, { lhs: 56, length: 1, action: :_ibex_action_17, location_action: true }, { lhs: 56, length: 1, action: :_ibex_action_18, location_action: true }, { lhs: 56, length: 1, action: :_ibex_action_19, location_action: true }, { lhs: 56, length: 1, action: :_ibex_action_20, location_action: true }, { lhs: 56, length: 1, action: :_ibex_action_21, location_action: true }, { lhs: 56, length: 1, action: :_ibex_action_22, location_action: true }, { lhs: 56, length: 1, action: :_ibex_action_23, location_action: true }, { lhs: 56, length: 1, action: :_ibex_action_24, location_action: true }, { lhs: 56, length: 1, action: :_ibex_action_25, location_action: true }, { lhs: 56, length: 1, action: :_ibex_action_26, location_action: true }, { lhs: 56, length: 1, action: :_ibex_action_27, location_action: true }, { lhs: 56, length: 1, action: :_ibex_action_28, location_action: true }, { lhs: 56, length: 1, action: :_ibex_action_29, location_action: true }, { lhs: 56, length: 1, action: :_ibex_action_30, location_action: true }, { lhs: 56, length: 1, action: :_ibex_action_31, location_action: true }, { lhs: 57, length: 2, action: :_ibex_action_32, location_action: true }, { lhs: 57, length: 2, action: :_ibex_action_33, location_action: true }, { lhs: 58, length: 2, action: :_ibex_action_34, location_action: true }, { lhs: 59, length: 0, action: :_ibex_action_35, location_action: true }, { lhs: 59, length: 2, action: :_ibex_action_36, location_action: true }, { lhs: 60, length: 1, action: :_ibex_action_37, location_action: true }, { lhs: 60, length: 2, action: :_ibex_action_38, location_action: true }, { lhs: 61, length: 3, action: :_ibex_action_39, location_action: true }, { lhs: 61, length: 3, action: :_ibex_action_40, location_action: true }, { lhs: 62, length: 0, action: :_ibex_action_41, location_action: true }, { lhs: 62, length: 2, action: :_ibex_action_42, location_action: true }, { lhs: 63, length: 2, action: :_ibex_action_43, location_action: true }, { lhs: 64, length: 1, action: :_ibex_action_44, location_action: true }, { lhs: 64, length: 1, action: :_ibex_action_45, location_action: true }, { lhs: 64, length: 1, action: :_ibex_action_46, location_action: true }, { lhs: 64, length: 1, action: :_ibex_action_47, location_action: true }, { lhs: 65, length: 2, action: :_ibex_action_48, location_action: true }, { lhs: 66, length: 2, action: :_ibex_action_49, location_action: true }, { lhs: 67, length: 2, action: :_ibex_action_50, location_action: true }, { lhs: 68, length: 3, action: :_ibex_action_51, location_action: true }, { lhs: 69, length: 5, action: :_ibex_action_52, location_action: true }, { lhs: 70, length: 3, action: :_ibex_action_53, location_action: true }, { lhs: 71, length: 3, action: :_ibex_action_54, location_action: true }, { lhs: 72, length: 3, action: :_ibex_action_55, location_action: true }, { lhs: 73, length: 0, action: :_ibex_action_56, location_action: true }, { lhs: 73, length: 2, action: :_ibex_action_57, location_action: true }, { lhs: 74, length: 1, action: :_ibex_action_58, location_action: true }, { lhs: 74, length: 1, action: :_ibex_action_59, location_action: true }, { lhs: 75, length: 3, action: :_ibex_action_60, location_action: true }, { lhs: 75, length: 3, action: :_ibex_action_61, location_action: true }, { lhs: 75, length: 3, action: :_ibex_action_62, location_action: true }, { lhs: 76, length: 1, action: :_ibex_action_63, location_action: true }, { lhs: 76, length: 1, action: :_ibex_action_64, location_action: true }, { lhs: 77, length: 0, action: :_ibex_action_65, location_action: true }, { lhs: 77, length: 1, action: :_ibex_action_66, location_action: true }, { lhs: 78, length: 5, action: :_ibex_action_67, location_action: true }, { lhs: 79, length: 3, action: :_ibex_action_68, location_action: true }, { lhs: 80, length: 0, action: :_ibex_action_69, location_action: true }, { lhs: 80, length: 2, action: :_ibex_action_70, location_action: true }, { lhs: 81, length: 2, action: :_ibex_action_71, location_action: true }, { lhs: 82, length: 3, action: :_ibex_action_72, location_action: true }, { lhs: 83, length: 3, action: :_ibex_action_73, location_action: true }, { lhs: 84, length: 3, action: :_ibex_action_74, location_action: true }, { lhs: 85, length: 0, action: :_ibex_action_75, location_action: true }, { lhs: 85, length: 1, action: :_ibex_action_76, location_action: true }, { lhs: 86, length: 3, action: :_ibex_action_77, location_action: true }, { lhs: 87, length: 0, action: :_ibex_action_78, location_action: true }, { lhs: 87, length: 2, action: :_ibex_action_79, location_action: true }, { lhs: 88, length: 0, action: :_ibex_action_80, location_action: true }, { lhs: 88, length: 2, action: :_ibex_action_81, location_action: true }, { lhs: 89, length: 1, action: :_ibex_action_82, location_action: true }, { lhs: 89, length: 1, action: :_ibex_action_83, location_action: true }, { lhs: 90, length: 1, action: :_ibex_action_84, location_action: true }, { lhs: 90, length: 2, action: :_ibex_action_85, location_action: true }, { lhs: 91, length: 6, action: :_ibex_action_86, location_action: true }, { lhs: 92, length: 0, action: :_ibex_action_87, location_action: true }, { lhs: 92, length: 1, action: :_ibex_action_88, location_action: true }, { lhs: 93, length: 0, action: :_ibex_action_89, location_action: true }, { lhs: 93, length: 3, action: :_ibex_action_90, location_action: true }, { lhs: 94, length: 1, action: :_ibex_action_91, location_action: true }, { lhs: 94, length: 3, action: :_ibex_action_92, location_action: true }, { lhs: 95, length: 0, action: nil }, { lhs: 95, length: 1, action: nil }, { lhs: 96, length: 1, action: :_ibex_action_95, location_action: true }, { lhs: 96, length: 3, action: :_ibex_action_96, location_action: true }, { lhs: 97, length: 3, action: :_ibex_action_97, location_action: true }, { lhs: 98, length: 0, action: :_ibex_action_98, location_action: true }, { lhs: 98, length: 5, action: :_ibex_action_99, location_action: true }, { lhs: 99, length: 0, action: :_ibex_action_100, location_action: true }, { lhs: 99, length: 1, action: :_ibex_action_101, location_action: true }, { lhs: 100, length: 0, action: :_ibex_action_102, location_action: true }, { lhs: 100, length: 2, action: :_ibex_action_103, location_action: true }, { lhs: 101, length: 0, action: :_ibex_action_104, location_action: true }, { lhs: 101, length: 2, action: :_ibex_action_105, location_action: true }, { lhs: 102, length: 1, action: :_ibex_action_106, location_action: true }, { lhs: 102, length: 1, action: :_ibex_action_107, location_action: true }, { lhs: 102, length: 1, action: :_ibex_action_108, location_action: true }, { lhs: 102, length: 1, action: :_ibex_action_109, location_action: true }, { lhs: 102, length: 1, action: :_ibex_action_110, location_action: true }, { lhs: 102, length: 1, action: :_ibex_action_111, location_action: true }, { lhs: 103, length: 3, action: :_ibex_action_112, location_action: true }, { lhs: 104, length: 6, action: :_ibex_action_113, location_action: true }, { lhs: 105, length: 0, action: :_ibex_action_114, location_action: true }, { lhs: 105, length: 1, action: :_ibex_action_115, location_action: true }, { lhs: 106, length: 1, action: :_ibex_action_116, location_action: true }, { lhs: 106, length: 3, action: :_ibex_action_117, location_action: true }, { lhs: 107, length: 1, action: :_ibex_action_118, location_action: true }, { lhs: 107, length: 1, action: :_ibex_action_119, location_action: true }, { lhs: 107, length: 1, action: :_ibex_action_120, location_action: true }, { lhs: 107, length: 1, action: :_ibex_action_121, location_action: true }, { lhs: 108, length: 0, action: :_ibex_action_122, location_action: true }, { lhs: 108, length: 2, action: :_ibex_action_123, location_action: true }, { lhs: 109, length: 0, action: :_ibex_action_124, location_action: true }, { lhs: 109, length: 2, action: :_ibex_action_125, location_action: true }, { lhs: 109, length: 2, action: :_ibex_action_126, location_action: true }, { lhs: 109, length: 2, action: :_ibex_action_127, location_action: true }, { lhs: 110, length: 4, action: :_ibex_action_128, location_action: true }, { lhs: 111, length: 1, action: :_ibex_action_129, location_action: true }, { lhs: 111, length: 3, action: :_ibex_action_130, location_action: true }, { lhs: 112, length: 0, action: :_ibex_action_131, location_action: true }, { lhs: 112, length: 2, action: :_ibex_action_132, location_action: true }, { lhs: 113, length: 1, action: :_ibex_action_133, location_action: true }, { lhs: 113, length: 1, action: :_ibex_action_134, location_action: true }, { lhs: 113, length: 1, action: :_ibex_action_135, location_action: true }, { lhs: 113, length: 1, action: :_ibex_action_136, location_action: true }, { lhs: 114, length: 6, action: :_ibex_action_137, location_action: true }, { lhs: 114, length: 6, action: :_ibex_action_138, location_action: true }, { lhs: 115, length: 0, action: :_ibex_action_139, location_action: true }, { lhs: 115, length: 2, action: :_ibex_action_140, location_action: true }].freeze
+  PRODUCTIONS = [{ lhs: 47, length: 1, action: :_ibex_action_0, values_action: true }, { lhs: 47, length: 1, action: :_ibex_action_1, values_action: true }, { lhs: 48, length: 9, action: :_ibex_action_2, values_action: true }, { lhs: 48, length: 8, action: :_ibex_action_3, values_action: true }, { lhs: 49, length: 2, action: :_ibex_action_4, values_action: true }, { lhs: 50, length: 6, action: :_ibex_action_5, values_action: true }, { lhs: 51, length: 0, action: :_ibex_action_6, values_action: true }, { lhs: 51, length: 1, action: :_ibex_action_7, values_action: true }, { lhs: 52, length: 1, action: :_ibex_action_8, values_action: true }, { lhs: 52, length: 3, action: :_ibex_action_9, values_action: true }, { lhs: 53, length: 0, action: :_ibex_action_10, values_action: true }, { lhs: 53, length: 2, action: :_ibex_action_11, values_action: true }, { lhs: 54, length: 0, action: nil }, { lhs: 54, length: 3, action: nil }, { lhs: 55, length: 0, action: :_ibex_action_14, values_action: true }, { lhs: 55, length: 2, action: :_ibex_action_15, values_action: true }, { lhs: 56, length: 1, action: :_ibex_action_16, values_action: true }, { lhs: 56, length: 1, action: :_ibex_action_17, values_action: true }, { lhs: 56, length: 1, action: :_ibex_action_18, values_action: true }, { lhs: 56, length: 1, action: :_ibex_action_19, values_action: true }, { lhs: 56, length: 1, action: :_ibex_action_20, values_action: true }, { lhs: 56, length: 1, action: :_ibex_action_21, values_action: true }, { lhs: 56, length: 1, action: :_ibex_action_22, values_action: true }, { lhs: 56, length: 1, action: :_ibex_action_23, values_action: true }, { lhs: 56, length: 1, action: :_ibex_action_24, values_action: true }, { lhs: 56, length: 1, action: :_ibex_action_25, values_action: true }, { lhs: 56, length: 1, action: :_ibex_action_26, values_action: true }, { lhs: 56, length: 1, action: :_ibex_action_27, values_action: true }, { lhs: 56, length: 1, action: :_ibex_action_28, values_action: true }, { lhs: 56, length: 1, action: :_ibex_action_29, values_action: true }, { lhs: 56, length: 1, action: :_ibex_action_30, values_action: true }, { lhs: 56, length: 1, action: :_ibex_action_31, values_action: true }, { lhs: 57, length: 2, action: :_ibex_action_32, values_action: true }, { lhs: 57, length: 2, action: :_ibex_action_33, values_action: true }, { lhs: 58, length: 2, action: :_ibex_action_34, values_action: true }, { lhs: 59, length: 0, action: :_ibex_action_35, values_action: true }, { lhs: 59, length: 2, action: :_ibex_action_36, values_action: true }, { lhs: 60, length: 1, action: :_ibex_action_37, values_action: true }, { lhs: 60, length: 2, action: :_ibex_action_38, values_action: true }, { lhs: 61, length: 3, action: :_ibex_action_39, values_action: true }, { lhs: 61, length: 3, action: :_ibex_action_40, values_action: true }, { lhs: 62, length: 0, action: :_ibex_action_41, values_action: true }, { lhs: 62, length: 2, action: :_ibex_action_42, values_action: true }, { lhs: 63, length: 2, action: :_ibex_action_43, values_action: true }, { lhs: 64, length: 1, action: :_ibex_action_44, values_action: true }, { lhs: 64, length: 1, action: :_ibex_action_45, values_action: true }, { lhs: 64, length: 1, action: :_ibex_action_46, values_action: true }, { lhs: 64, length: 1, action: :_ibex_action_47, values_action: true }, { lhs: 65, length: 2, action: :_ibex_action_48, values_action: true }, { lhs: 66, length: 2, action: :_ibex_action_49, values_action: true }, { lhs: 67, length: 2, action: :_ibex_action_50, values_action: true }, { lhs: 68, length: 3, action: :_ibex_action_51, values_action: true }, { lhs: 69, length: 5, action: :_ibex_action_52, values_action: true }, { lhs: 70, length: 3, action: :_ibex_action_53, values_action: true }, { lhs: 71, length: 3, action: :_ibex_action_54, values_action: true }, { lhs: 72, length: 3, action: :_ibex_action_55, values_action: true }, { lhs: 73, length: 0, action: :_ibex_action_56, values_action: true }, { lhs: 73, length: 2, action: :_ibex_action_57, values_action: true }, { lhs: 74, length: 1, action: :_ibex_action_58, values_action: true }, { lhs: 74, length: 1, action: :_ibex_action_59, values_action: true }, { lhs: 75, length: 3, action: :_ibex_action_60, values_action: true }, { lhs: 75, length: 3, action: :_ibex_action_61, values_action: true }, { lhs: 75, length: 3, action: :_ibex_action_62, values_action: true }, { lhs: 76, length: 1, action: :_ibex_action_63, values_action: true }, { lhs: 76, length: 1, action: :_ibex_action_64, values_action: true }, { lhs: 77, length: 0, action: :_ibex_action_65, values_action: true }, { lhs: 77, length: 1, action: :_ibex_action_66, values_action: true }, { lhs: 78, length: 5, action: :_ibex_action_67, values_action: true }, { lhs: 79, length: 3, action: :_ibex_action_68, values_action: true }, { lhs: 80, length: 0, action: :_ibex_action_69, values_action: true }, { lhs: 80, length: 2, action: :_ibex_action_70, values_action: true }, { lhs: 81, length: 2, action: :_ibex_action_71, values_action: true }, { lhs: 82, length: 3, action: :_ibex_action_72, values_action: true }, { lhs: 83, length: 3, action: :_ibex_action_73, values_action: true }, { lhs: 84, length: 3, action: :_ibex_action_74, values_action: true }, { lhs: 85, length: 0, action: :_ibex_action_75, values_action: true }, { lhs: 85, length: 1, action: :_ibex_action_76, values_action: true }, { lhs: 86, length: 3, action: :_ibex_action_77, values_action: true }, { lhs: 87, length: 0, action: :_ibex_action_78, values_action: true }, { lhs: 87, length: 2, action: :_ibex_action_79, values_action: true }, { lhs: 88, length: 0, action: :_ibex_action_80, values_action: true }, { lhs: 88, length: 2, action: :_ibex_action_81, values_action: true }, { lhs: 89, length: 1, action: :_ibex_action_82, values_action: true }, { lhs: 89, length: 1, action: :_ibex_action_83, values_action: true }, { lhs: 90, length: 1, action: :_ibex_action_84, values_action: true }, { lhs: 90, length: 2, action: :_ibex_action_85, values_action: true }, { lhs: 91, length: 6, action: :_ibex_action_86, values_action: true }, { lhs: 92, length: 0, action: :_ibex_action_87, values_action: true }, { lhs: 92, length: 1, action: :_ibex_action_88, values_action: true }, { lhs: 93, length: 0, action: :_ibex_action_89, values_action: true }, { lhs: 93, length: 3, action: :_ibex_action_90, values_action: true }, { lhs: 94, length: 1, action: :_ibex_action_91, values_action: true }, { lhs: 94, length: 3, action: :_ibex_action_92, values_action: true }, { lhs: 95, length: 0, action: nil }, { lhs: 95, length: 1, action: nil }, { lhs: 96, length: 1, action: :_ibex_action_95, values_action: true }, { lhs: 96, length: 3, action: :_ibex_action_96, values_action: true }, { lhs: 97, length: 3, action: :_ibex_action_97, values_action: true }, { lhs: 98, length: 0, action: :_ibex_action_98, values_action: true }, { lhs: 98, length: 5, action: :_ibex_action_99, values_action: true }, { lhs: 99, length: 0, action: :_ibex_action_100, values_action: true }, { lhs: 99, length: 1, action: :_ibex_action_101, values_action: true }, { lhs: 100, length: 0, action: :_ibex_action_102, values_action: true }, { lhs: 100, length: 2, action: :_ibex_action_103, values_action: true }, { lhs: 101, length: 0, action: :_ibex_action_104, values_action: true }, { lhs: 101, length: 2, action: :_ibex_action_105, values_action: true }, { lhs: 102, length: 1, action: :_ibex_action_106, values_action: true }, { lhs: 102, length: 1, action: :_ibex_action_107, values_action: true }, { lhs: 102, length: 1, action: :_ibex_action_108, values_action: true }, { lhs: 102, length: 1, action: :_ibex_action_109, values_action: true }, { lhs: 102, length: 1, action: :_ibex_action_110, values_action: true }, { lhs: 102, length: 1, action: :_ibex_action_111, values_action: true }, { lhs: 103, length: 3, action: :_ibex_action_112, values_action: true }, { lhs: 104, length: 6, action: :_ibex_action_113, values_action: true }, { lhs: 105, length: 0, action: :_ibex_action_114, values_action: true }, { lhs: 105, length: 1, action: :_ibex_action_115, values_action: true }, { lhs: 106, length: 1, action: :_ibex_action_116, values_action: true }, { lhs: 106, length: 3, action: :_ibex_action_117, values_action: true }, { lhs: 107, length: 1, action: :_ibex_action_118, values_action: true }, { lhs: 107, length: 1, action: :_ibex_action_119, values_action: true }, { lhs: 107, length: 1, action: :_ibex_action_120, values_action: true }, { lhs: 107, length: 1, action: :_ibex_action_121, values_action: true }, { lhs: 108, length: 0, action: :_ibex_action_122, values_action: true }, { lhs: 108, length: 2, action: :_ibex_action_123, values_action: true }, { lhs: 109, length: 0, action: :_ibex_action_124, values_action: true }, { lhs: 109, length: 2, action: :_ibex_action_125, values_action: true }, { lhs: 109, length: 2, action: :_ibex_action_126, values_action: true }, { lhs: 109, length: 2, action: :_ibex_action_127, values_action: true }, { lhs: 110, length: 4, action: :_ibex_action_128, values_action: true }, { lhs: 111, length: 1, action: :_ibex_action_129, values_action: true }, { lhs: 111, length: 3, action: :_ibex_action_130, values_action: true }, { lhs: 112, length: 0, action: :_ibex_action_131, values_action: true }, { lhs: 112, length: 2, action: :_ibex_action_132, values_action: true }, { lhs: 113, length: 1, action: :_ibex_action_133, values_action: true }, { lhs: 113, length: 1, action: :_ibex_action_134, values_action: true }, { lhs: 113, length: 1, action: :_ibex_action_135, values_action: true }, { lhs: 113, length: 1, action: :_ibex_action_136, values_action: true }, { lhs: 114, length: 6, action: :_ibex_action_137, values_action: true }, { lhs: 114, length: 6, action: :_ibex_action_138, values_action: true }, { lhs: 115, length: 0, action: :_ibex_action_139, values_action: true }, { lhs: 115, length: 2, action: :_ibex_action_140, values_action: true }].freeze
   error_messages = {} # @type var error_messages: Hash[Integer, String | { id: String, message: String }]
   ERROR_MESSAGES = error_messages.freeze #: Hash[Integer, String | { id: String, message: String }]
   PARSER_TABLES = { format_version: PARSER_TABLE_FORMAT_VERSION,
@@ -31,823 +31,823 @@ class GeneratedParser < Ibex::Frontend::GeneratedParserBase
   def self.parser_tables = PARSER_TABLES
   DEBUG_ENABLED = false
 
-  private def _ibex_action_0(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_0(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_1(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_1(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_2(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_2(val)
     result = val[0]
      result = build_root(val[0], val[1], val[2], val[4], val[6], val[8])
     result
   end
 
-  private def _ibex_action_3(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_3(val)
     result = val[0]
      result = build_root(val[0], val[1], val[2], val[4], val[6], val[7])
     result
   end
 
-  private def _ibex_action_4(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_4(val)
     result = val[0]
      result = prepend_user_code(val[0], val[1])
     result
   end
 
-  private def _ibex_action_5(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_5(val)
     result = val[0]
      result = build_fragment(val[0], val[1], val[3], val[5])
     result
   end
 
-  private def _ibex_action_6(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_6(val)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_7(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_7(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_8(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_8(val)
     result = val[0]
      result = [val[0].value]
     result
   end
 
-  private def _ibex_action_9(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_9(val)
     result = val[0]
      result = val[0] + [val[2].value]
     result
   end
 
-  private def _ibex_action_10(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_10(val)
     result = val[0]
      result = nil
     result
   end
 
-  private def _ibex_action_11(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_11(val)
     result = val[0]
      result = val[1]
     result
   end
 
-  private def _ibex_action_14(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_14(val)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_15(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_15(val)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_16(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_16(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_17(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_17(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_18(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_18(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_19(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_19(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_20(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_20(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_21(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_21(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_22(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_22(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_23(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_23(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_24(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_24(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_25(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_25(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_26(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_26(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_27(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_27(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_28(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_28(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_29(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_29(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_30(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_30(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_31(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_31(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_32(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_32(val)
     result = val[0]
      result = build_include(val[0], val[1])
     result
   end
 
-  private def _ibex_action_33(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_33(val)
     result = val[0]
      result = build_include(val[0], val[1])
     result
   end
 
-  private def _ibex_action_34(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_34(val)
     result = val[0]
      result = build_tokens(val[0], val[1])
     result
   end
 
-  private def _ibex_action_35(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_35(val)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_36(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_36(val)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_37(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_37(val)
     result = val[0]
      result = build_token_entry(val[0])
     result
   end
 
-  private def _ibex_action_38(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_38(val)
     result = val[0]
      result = build_token_alias(val[0], val[1])
     result
   end
 
-  private def _ibex_action_39(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_39(val)
     result = val[0]
      result = build_precedence(val[0], :high_to_low, val[1])
     result
   end
 
-  private def _ibex_action_40(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_40(val)
     result = val[0]
      result = build_precedence(val[0], :low_to_high, val[1])
     result
   end
 
-  private def _ibex_action_41(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_41(val)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_42(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_42(val)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_43(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_43(val)
     result = val[0]
      result = build_precedence_level(val[0], val[1])
     result
   end
 
-  private def _ibex_action_44(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_44(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_45(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_45(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_46(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_46(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_47(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_47(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_48(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_48(val)
     result = val[0]
      result = build_options(val[0], val[1])
     result
   end
 
-  private def _ibex_action_49(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_49(val)
     result = val[0]
      result = build_expect(val[0], val[1])
     result
   end
 
-  private def _ibex_action_50(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_50(val)
     result = val[0]
      result = build_expect_rr(val[0], val[1])
     result
   end
 
-  private def _ibex_action_51(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_51(val)
     result = val[0]
      result = build_start(val[0], [val[1].value] + val[2])
     result
   end
 
-  private def _ibex_action_52(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_52(val)
     result = val[0]
      result = build_recovery(val[0], val[1], [val[3].value] + val[4])
     result
   end
 
-  private def _ibex_action_53(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_53(val)
     result = val[0]
      result = build_on_error_reduce(val[0], [val[1].value] + val[2])
     result
   end
 
-  private def _ibex_action_54(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_54(val)
     result = val[0]
      result = build_grammar_test(val[0], val[1], val[2])
     result
   end
 
-  private def _ibex_action_55(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_55(val)
     result = val[0]
      result = build_lexer(val[0], val[1])
     result
   end
 
-  private def _ibex_action_56(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_56(val)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_57(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_57(val)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_58(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_58(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_59(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_59(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_60(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_60(val)
     result = val[0]
      result = build_lexer_rule(:skip, nil, val[1], val[2], val[0])
     result
   end
 
-  private def _ibex_action_61(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_61(val)
     result = val[0]
      result = build_lexer_rule(:token, val[0], val[1], val[2], val[0])
     result
   end
 
-  private def _ibex_action_62(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_62(val)
     result = val[0]
      result = build_lexer_rule(:on, nil, val[1], val[2], val[0])
     result
   end
 
-  private def _ibex_action_63(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_63(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_64(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_64(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_65(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_65(val)
     result = val[0]
      result = nil
     result
   end
 
-  private def _ibex_action_66(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_66(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_67(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_67(val)
     result = val[0]
      result = build_lexer_state(val[0], val[1], val[3])
     result
   end
 
-  private def _ibex_action_68(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_68(val)
     result = val[0]
      result = build_convert(val[0], val[1])
     result
   end
 
-  private def _ibex_action_69(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_69(val)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_70(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_70(val)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_71(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_71(val)
     result = val[0]
      result = build_conversion(val[0], val[1])
     result
   end
 
-  private def _ibex_action_72(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_72(val)
     result = val[0]
      result = build_display_name(val[0], val[1], val[2])
     result
   end
 
-  private def _ibex_action_73(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_73(val)
     result = val[0]
      result = build_semantic_type(val[0], val[1], val[2])
     result
   end
 
-  private def _ibex_action_74(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_74(val)
     result = val[0]
      result = build_parameter(val[0], val[1], val[2])
     result
   end
 
-  private def _ibex_action_75(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_75(val)
     result = val[0]
      result = nil
     result
   end
 
-  private def _ibex_action_76(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_76(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_77(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_77(val)
     result = val[0]
      result = build_printer(val[0], val[1], val[2])
     result
   end
 
-  private def _ibex_action_78(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_78(val)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_79(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_79(val)
     result = val[0]
      result = val[0] + [val[1].value]
     result
   end
 
-  private def _ibex_action_80(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_80(val)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_81(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_81(val)
     result = val[0]
      result = val[0] + [val[1].value]
     result
   end
 
-  private def _ibex_action_82(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_82(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_83(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_83(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_84(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_84(val)
     result = val[0]
      result = [val[0]]
     result
   end
 
-  private def _ibex_action_85(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_85(val)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_86(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_86(val)
     result = val[0]
      result = build_rule(val[0], val[1], val[2], val[4])
     result
   end
 
-  private def _ibex_action_87(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_87(val)
     result = val[0]
      result = nil
     result
   end
 
-  private def _ibex_action_88(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_88(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_89(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_89(val)
     result = val[0]
      result = nil
     result
   end
 
-  private def _ibex_action_90(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_90(val)
     result = val[0]
      result = build_rule_parameters(val[0], val[1])
     result
   end
 
-  private def _ibex_action_91(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_91(val)
     result = val[0]
      result = [val[0]]
     result
   end
 
-  private def _ibex_action_92(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_92(val)
     result = val[0]
      result = val[0] + [val[2]]
     result
   end
 
-  private def _ibex_action_95(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_95(val)
     result = val[0]
      result = [val[0]]
     result
   end
 
-  private def _ibex_action_96(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_96(val)
     result = val[0]
      result = val[0] + [val[2]]
     result
   end
 
-  private def _ibex_action_97(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_97(val)
     result = val[0]
      result = build_alternative(val[0], val[1], val[2])
     result
   end
 
-  private def _ibex_action_98(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_98(val)
     result = val[0]
      result = nil
     result
   end
 
-  private def _ibex_action_99(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_99(val)
     result = val[0]
      result = build_node_annotation(val[0], val[1], val[3])
     result
   end
 
-  private def _ibex_action_100(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_100(val)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_101(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_101(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_102(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_102(val)
     result = val[0]
      result = nil
     result
   end
 
-  private def _ibex_action_103(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_103(val)
     result = val[0]
      result = val[1]
     result
   end
 
-  private def _ibex_action_104(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_104(val)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_105(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_105(val)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_106(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_106(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_107(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_107(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_108(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_108(val)
     result = val[0]
      result = build_action(val[0])
     result
   end
 
-  private def _ibex_action_109(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_109(val)
     result = val[0]
      result = build_empty(val[0])
     result
   end
 
-  private def _ibex_action_110(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_110(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_111(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_111(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_112(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_112(val)
     result = val[0]
      result = build_symbol_reference(val[0], val[1], val[2])
     result
   end
 
-  private def _ibex_action_113(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_113(val)
     result = val[0]
      result = build_parameterized_reference(val[0], val[1], val[2], val[4], val[5])
     result
   end
 
-  private def _ibex_action_114(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_114(val)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_115(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_115(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_116(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_116(val)
     result = val[0]
      result = [val[0]]
     result
   end
 
-  private def _ibex_action_117(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_117(val)
     result = val[0]
      result = val[0] + [val[2]]
     result
   end
 
-  private def _ibex_action_118(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_118(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_119(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_119(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_120(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_120(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_121(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_121(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_122(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_122(val)
     result = val[0]
      result = nil
     result
   end
 
-  private def _ibex_action_123(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_123(val)
     result = val[0]
      result = [val[0], val[1]]
     result
   end
 
-  private def _ibex_action_124(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_124(val)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_125(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_125(val)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_126(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_126(val)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_127(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_127(val)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_128(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_128(val)
     result = val[0]
      result = build_group(val[0], val[1], val[3])
     result
   end
 
-  private def _ibex_action_129(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_129(val)
     result = val[0]
      result = [val[0]]
     result
   end
 
-  private def _ibex_action_130(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_130(val)
     result = val[0]
      result = val[0] + [val[2]]
     result
   end
 
-  private def _ibex_action_131(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_131(val)
     result = val[0]
      result = Array.new(0)
     result
   end
 
-  private def _ibex_action_132(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_132(val)
     result = val[0]
      result = val[0] + [val[1]]
     result
   end
 
-  private def _ibex_action_133(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_133(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_134(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_134(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_135(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_135(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_136(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_136(val)
     result = val[0]
      result = val[0]
     result
   end
 
-  private def _ibex_action_137(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_137(val)
     result = val[0]
      result = build_separated_list(val[0], val[2], val[4])
     result
   end
 
-  private def _ibex_action_138(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_138(val)
     result = val[0]
      result = build_separated_list(val[0], val[2], val[4])
     result
   end
 
-  private def _ibex_action_139(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_139(val)
     result = val[0]
      result = empty_user_code
     result
   end
 
-  private def _ibex_action_140(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)
+  private def _ibex_action_140(val)
     result = val[0]
      result = append_user_code(val[0], val[1])
     result

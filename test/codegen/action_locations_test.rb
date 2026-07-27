@@ -81,6 +81,16 @@ class ActionLocationsCodegenTest < Minitest::Test
     assert_equal "result = [_ibex_locations[0], _ibex_location]", rewritten
   end
 
+  def test_reference_detection_covers_helpers_without_matching_literals
+    assert locations("result = @1").references?
+    assert locations("result = @$").references?
+    assert locations("result = loc(1)").references?
+    assert locations("result = result_loc").references?
+
+    refute locations('result = ["@1", "@$", "loc(1)", "result_loc"]').references?
+    refute locations("# @1 @$ loc(1) result_loc\nresult = val[0]").references?
+  end
+
   def test_without_semantic_reference_returns_an_independent_mutable_plain_string
     source_class = Class.new(String)
     source = source_class.new("literal \xA3").force_encoding(Encoding::ISO_8859_1).freeze
@@ -107,5 +117,11 @@ class ActionLocationsCodegenTest < Minitest::Test
     assert_instance_of String, rewritten
     refute_same source, rewritten
     refute_predicate rewritten, :frozen?
+  end
+
+  private
+
+  def locations(source)
+    Ibex::Codegen::ActionLocations.new(source, maximum: 1, location: LOCATION)
   end
 end

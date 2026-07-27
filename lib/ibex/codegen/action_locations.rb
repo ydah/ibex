@@ -29,6 +29,18 @@ module Ibex
         rewritten.force_encoding(@source.encoding)
       end
 
+      # @rbs () -> bool
+      def references?
+        return true if @source.match?(/@(?:\$|\d+)/) && !semantic_references.empty?
+        return false unless @source.match?(/\b(?:loc|result_loc)\b/)
+
+        require "ripper"
+        tokens = Object.const_get(:Ripper).__send__(:lex, lexable_source)
+        tokens.any? do |_position, type, token, _state|
+          type == :on_ident && (token == "loc" || token == "result_loc")
+        end
+      end
+
       private
 
       # @rbs () -> String

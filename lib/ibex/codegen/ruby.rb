@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "../runtime/parser"
+require_relative "../runtime/table_format"
+require_relative "generated_action_abi"
 require_relative "ruby_actions"
 require_relative "ruby_error_messages"
 require_relative "ruby_table_metadata"
@@ -22,6 +23,7 @@ module Ibex
 
       EMBEDDED_RUNTIME_SOURCES = %w[
         ../runtime/version.rb
+        ../runtime/table_format.rb
         ../runtime/location_span.rb
         ../runtime/cst.rb
         ../runtime/ast_data.rb
@@ -241,12 +243,18 @@ module Ibex
         entries = @grammar.productions.map do |production|
           generated_action = action_method?(production)
           action = generated_action ? ":_ibex_action_#{production.id}" : "nil"
-          location_action = generated_action ? ", location_action: true" : ""
+          action_abi = if generated_action && GeneratedActionABI.values_only?(production)
+                         ", values_action: true"
+                       elsif generated_action
+                         ", location_action: true"
+                       else
+                         ""
+                       end
           composition_action = composed_action?(production) ? ", composition_action: true" : ""
           cst_rhs = cst? ? ", rhs: #{production.rhs.inspect}.freeze" : ""
           location_context, named_locations = production_location_metadata(production.action)
           "{ lhs: #{production.lhs}, length: #{production.rhs.length}, action: #{action}" \
-            "#{location_action}#{composition_action}#{cst_rhs}#{location_context}#{named_locations} }"
+            "#{action_abi}#{composition_action}#{cst_rhs}#{location_context}#{named_locations} }"
         end
         "[#{entries.join(', ')}]"
       end
@@ -294,11 +302,14 @@ module Ibex
       def uses_locations?
         cst? || @grammar.productions.any? do |production|
           action = production.action
-          action && (
-            !action.composition.nil? ||
-            action.code.match?(/@(?:\$|\d+)|\bresult_loc\b|\bloc\s*\(/)
-          )
+          action && (!action.composition.nil? || action_references_locations?(production, action))
         end
+      end
+
+      # @rbs (IR::Production production, IR::Action action) -> bool
+      def action_references_locations?(production, action)
+        maximum = action.context_length.positive? ? action.context_length : production.rhs.length
+        ActionLocations.new(action.code, maximum: maximum, location: action.location).references?
       end
 
       # @rbs () -> bool

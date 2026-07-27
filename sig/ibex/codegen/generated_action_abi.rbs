@@ -1,0 +1,17 @@
+# Generated from lib/ibex/codegen/generated_action_abi.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Selects the smallest generated semantic-action ABI that preserves the
+    # action's declared inputs.
+    module GeneratedActionABI
+      LEGACY_PARAMETERS: Array[String]
+
+      # @rbs (IR::Production production) -> bool
+      def self?.values_only?: (IR::Production production) -> bool
+
+      # @rbs (String source) -> bool
+      def self?.references_legacy_parameter?: (String source) -> bool
+    end
+  end
+end

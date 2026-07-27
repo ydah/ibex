@@ -42,8 +42,7 @@ class RBSCodegenTest < Minitest::Test
     signature = Ibex::Codegen::RBS.new(automaton).generate
 
     assert_includes signature,
-                    "private def _ibex_action_0: ([Integer, untyped], Array[untyped], [untyped, untyped], " \
-                    "Array[untyped], Ibex::Runtime::LocationSpan?) -> String"
+                    "private def _ibex_action_0: ([Integer, untyped]) -> String"
   end
 
   def test_generates_typed_constructor_parameter_contract
@@ -79,8 +78,7 @@ class RBSCodegenTest < Minitest::Test
     signature = Ibex::Codegen::RBS.new(automaton, omit_action_call: false).generate
 
     assert_includes signature,
-                    "private def _ibex_action_0: ([untyped], Array[untyped], [untyped], Array[untyped], " \
-                    "Ibex::Runtime::LocationSpan?) -> untyped"
+                    "private def _ibex_action_0: ([untyped]) -> untyped"
   end
 
   def test_composed_action_contract_uses_flattened_rhs_and_runtime_lookahead
@@ -134,16 +132,12 @@ class RBSCodegenTest < Minitest::Test
     implicit = Ibex::Codegen::RBS.new(automaton, omit_action_call: false).generate
 
     assert_includes explicit,
-                    "private def _ibex_action_0: ([Array[String | nil]], Array[untyped], [untyped], " \
-                    "Array[untyped], Ibex::Runtime::LocationSpan?) -> " \
-                    "([Integer, String] | nil)"
+                    "private def _ibex_action_0: ([Array[String | nil]]) -> ([Integer, String] | nil)"
     assert_includes explicit,
-                    "private def _ibex_action_1: ([], Array[untyped], [], Array[untyped], " \
-                    "Ibex::Runtime::LocationSpan?) -> ([Integer, String] | nil)"
+                    "private def _ibex_action_1: ([]) -> ([Integer, String] | nil)"
     refute_includes explicit, "private def _ibex_action_2:"
     assert_includes implicit,
-                    "private def _ibex_action_2: ([Array[String | nil]], Array[untyped], [untyped], " \
-                    "Array[untyped], Ibex::Runtime::LocationSpan?) -> untyped"
+                    "private def _ibex_action_2: ([Array[String | nil]]) -> untyped"
 
     assert_rbs_valid(explicit)
     assert_rbs_valid(implicit)

@@ -108,6 +108,9 @@ module Ibex
       # @rbs () -> bool
       def uses_locations?: () -> bool
 
+      # @rbs (IR::Production production, IR::Action action) -> bool
+      def action_references_locations?: (IR::Production production, IR::Action action) -> bool
+
       # @rbs () -> bool
       def cst?: () -> bool
 

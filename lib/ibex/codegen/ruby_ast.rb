@@ -103,8 +103,7 @@ module Ibex
           "#{node.fetch(:fields).fetch(index)}: val[#{index}]"
         end
         [
-          "private def _ibex_action_#{production.id}" \
-          "(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)",
+          "private def _ibex_action_#{production.id}(val)",
           "  AST::#{node.fetch(:name)}.new(#{arguments.join(', ')})",
           "end"
         ].join("\n")

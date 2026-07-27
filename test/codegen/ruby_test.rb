@@ -145,6 +145,52 @@ class RubyCodegenTest < Minitest::Test
     assert_equal 5, parser_class.new.parse([[:NUM, 2], ["+", nil], [:NUM, 3]])
   end
 
+  def test_generated_values_only_actions_use_the_v4_marker_and_one_argument
+    generated = generate(calculator_source)
+    parser_class = evaluate(generated, "GeneratedCalc")
+
+    assert parser_class::PRODUCTIONS.all? { |production| production[:values_action] == true }
+    assert parser_class::PRODUCTIONS.none? { |production| production.key?(:location_action) }
+    action = parser_class.instance_method(:_ibex_action_0) # rubocop:disable Naming/VariableNumber
+    assert_equal 1, action.arity
+  end
+
+  def test_legacy_generated_parameters_conservatively_retain_the_five_argument_abi
+    source = <<~GRAMMAR
+      class LegacyParameterParser
+      rule
+      start: TOKEN { result = [_values, _ibex_locations, _ibex_location_stack, _ibex_location, val[0]] }
+      end
+      ---- inner
+      attr_writer :tokens
+      def next_token = @tokens.shift
+    GRAMMAR
+    parser_class = evaluate(generate(source), "LegacyParameterParser")
+    production = parser_class::PRODUCTIONS.fetch(0)
+    parser = parser_class.new
+    parser.tokens = [%i[TOKEN value]]
+
+    assert_equal true, production[:location_action]
+    refute production.key?(:values_action)
+    assert_equal [[], [nil], [], nil, :value], parser.do_parse
+    assert_equal 5, parser_class.instance_method(:_ibex_action_0).arity # rubocop:disable Naming/VariableNumber
+  end
+
+  def test_location_helpers_and_references_retain_the_five_argument_abi
+    source = <<~GRAMMAR
+      class LocationABIParser
+      rule
+      start: TOKEN { result = [@1, @$, loc(1), result_loc] }
+      end
+    GRAMMAR
+    parser_class = evaluate(generate(source), "LocationABIParser")
+    production = parser_class::PRODUCTIONS.fetch(0)
+
+    assert_equal true, production[:location_action]
+    refute production.key?(:values_action)
+    assert_equal 5, parser_class.instance_method(:_ibex_action_0).arity # rubocop:disable Naming/VariableNumber
+  end
+
   def test_default_line_mapping_points_to_grammar
     source = "class FailingParser\nrule\nstart: TOKEN { raise 'boom' }\nend\n"
     parser_class = evaluate(generate(source, file: "failure.y"), "FailingParser")

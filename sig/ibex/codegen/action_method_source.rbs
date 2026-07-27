@@ -29,6 +29,9 @@ module Ibex
 
       private
 
+      # @rbs (IR::Production production) -> String
+      def action_parameters: (IR::Production production) -> String
+
       # @rbs (String source) -> void
       def append_parameter_values: (String source) -> void
 

@@ -1,0 +1,11 @@
+# Generated from lib/ibex/runtime/table_format.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    # Current parser-table shape emitted by the generator.
+    PARSER_TABLE_FORMAT_VERSION: Integer
+
+    # Parser-table shapes this runtime can execute.
+    SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS: Array[Integer]
+  end
+end
