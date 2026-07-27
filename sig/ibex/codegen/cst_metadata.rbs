@@ -1,0 +1,51 @@
+# Generated from lib/ibex/codegen/cst_metadata.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Builds the deterministic kind space embedded in CST-aware parser tables.
+    class CSTMetadata
+      type kind_map = Hash[String, Integer]
+
+      type kinds = { names: Array[String], terminal_range: Array[Integer], nonterminal_range: Array[Integer], named: kind_map, named_nonterminals: Hash[Integer, Integer], trivia: kind_map, synthetic: kind_map }
+
+      type slot = { node_name: String, fields: Hash[String, Integer] }
+
+      type metadata = { version: Integer, trivia_policy: Symbol, kinds: kinds, slots: Hash[Integer, slot] }
+
+      TRIVIA_KINDS: Array[String]
+
+      SYNTHETIC_KINDS: Array[String]
+
+      @grammar: IR::Grammar
+
+      @trivia_policy: Symbol
+
+      # @rbs (IR::Grammar grammar, ?trivia_policy: Symbol | String) -> void
+      def initialize: (IR::Grammar grammar, ?trivia_policy: Symbol | String) -> void
+
+      # Return table-ready CST metadata with stable insertion order.
+      # @rbs () -> metadata
+      def build: () -> metadata
+
+      private
+
+      # @rbs (Symbol | String policy) -> Symbol
+      def normalize_trivia_policy: (Symbol | String policy) -> Symbol
+
+      # @rbs (Array[String] names) -> Hash[String, Integer]
+      def append_named_kinds: (Array[String] names) -> Hash[String, Integer]
+
+      # @rbs (Array[String] names, Array[String] additions) -> Hash[String, Integer]
+      def append_kinds: (Array[String] names, Array[String] additions) -> Hash[String, Integer]
+
+      # @rbs (Array[Integer] ids) -> Array[Integer]
+      def half_open_range: (Array[Integer] ids) -> Array[Integer]
+
+      # @rbs (Hash[String, Integer] named) -> Hash[Integer, Integer]
+      def named_nonterminals: (Hash[String, Integer] named) -> Hash[Integer, Integer]
+
+      # @rbs () -> Hash[Integer, slot]
+      def slot_metadata: () -> Hash[Integer, slot]
+    end
+  end
+end
