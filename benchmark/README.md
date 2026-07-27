@@ -140,6 +140,14 @@ generation from warm generated-parser execution, lexer-inclusive from
 pretokenized input, and parser reuse from new-instance parsing. Implementations
 alternate first position across isolated runs.
 
+Cold generation is an end-to-end default CLI observation. It includes any
+unexpected-conflict analysis and advisory IELR diagnostic triggered under
+[ADR 0021](../docs/decisions/0021-diagnostic-outputs-and-warning-vocabulary.md).
+Generator-core or stage-level profiles may isolate that work for diagnosis,
+but they are not comparable substitutes for the formal cold series and must
+not disable default diagnostics. [ADR 0087](../docs/decisions/0087-preserve-default-cold-generation-diagnostics.md)
+records this measurement boundary.
+
 Formal evidence defaults to Racc's native runtime. The command rejects mixed
 or unexpected backend observations; use
 `--expected-racc-backend ruby` only for a separately labelled diagnostic run.
