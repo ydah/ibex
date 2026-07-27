@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 # rbs_inline: enabled
 
+require_relative "cst/kind" unless defined?(Ibex::Runtime::CST::Kind)
+require_relative "cst/green/trivia" unless defined?(Ibex::Runtime::CST::GreenTrivia)
+require_relative "cst/green/token" unless defined?(Ibex::Runtime::CST::GreenToken)
+require_relative "cst/green/node" unless defined?(Ibex::Runtime::CST::GreenNode)
+require_relative "cst/green/cache" unless defined?(Ibex::Runtime::CST::NodeCache)
+require_relative "cst/green/builder" unless defined?(Ibex::Runtime::CST::GreenBuilder)
+
 module Ibex
   module Runtime
     # Immutable concrete syntax tree values produced by `pragma cst` parsers.

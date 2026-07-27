@@ -1,0 +1,32 @@
+# Generated from lib/ibex/runtime/cst/green/cache.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Session-owned hash-consing cache for immutable Green elements.
+      class NodeCache
+        DEFAULT_NODE_ARITY_LIMIT: Integer
+
+        @enabled: bool
+
+        @node_arity_limit: Integer
+
+        @tokens: Hash[GreenToken, GreenToken]
+
+        @nodes: Hash[GreenNode, GreenNode]
+
+        # @rbs (?enabled: bool, ?node_arity_limit: Integer) -> void
+        def initialize: (?enabled: bool, ?node_arity_limit: Integer) -> void
+
+        # @rbs (GreenToken token) -> GreenToken
+        def intern_token: (GreenToken token) -> GreenToken
+
+        # @rbs (GreenNode node) -> GreenNode
+        def intern_node: (GreenNode node) -> GreenNode
+
+        # @rbs () -> void
+        def clear: () -> void
+      end
+    end
+  end
+end

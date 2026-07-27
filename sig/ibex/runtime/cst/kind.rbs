@@ -1,0 +1,73 @@
+# Generated from lib/ibex/runtime/cst/kind.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Flags cached on Green elements and propagated by Green nodes.
+      module Flags
+        CONTAINS_ERROR: Integer
+
+        CONTAINS_MISSING: Integer
+
+        CONTAINS_SKIPPED: Integer
+
+        HAS_ANNOTATION: Integer
+
+        SYNTHETIC: Integer
+
+        INCOMPLETE_INPUT: Integer
+      end
+
+      # Grammar-specific integer kind names and interval predicates.
+      class Kind
+        type kind_map = Hash[String, Integer]
+
+        type metadata = { names: Array[String], terminal_range: Array[Integer], nonterminal_range: Array[Integer], named: kind_map, named_nonterminals: Hash[Integer, Integer], trivia: kind_map, synthetic: kind_map }
+
+        @synthetic: Hash[String, Integer]
+
+        @trivia: Hash[String, Integer]
+
+        @named_nonterminals: Hash[Integer, Integer]
+
+        @named: Hash[String, Integer]
+
+        @nonterminal_range: Array[Integer]
+
+        @terminal_range: Array[Integer]
+
+        @names: Array[String]
+
+        # @rbs (metadata metadata) -> void
+        def initialize: (metadata metadata) -> void
+
+        # @rbs (Integer kind) -> String
+        def name: (Integer kind) -> String
+
+        # @rbs (String | Symbol name) -> Integer
+        def fetch: (String | Symbol name) -> Integer
+
+        # @rbs (Integer kind) -> bool
+        def terminal?: (Integer kind) -> bool
+
+        # @rbs (Integer kind) -> bool
+        def nonterminal?: (Integer kind) -> bool
+
+        # @rbs (Integer kind) -> bool
+        def trivia?: (Integer kind) -> bool
+
+        # @rbs (Integer kind) -> bool
+        def error?: (Integer kind) -> bool
+
+        # Map a named node kind to its physical nonterminal kind.
+        # @rbs (Integer kind) -> Integer
+        def nonterminal_of: (Integer kind) -> Integer
+
+        private
+
+        # @rbs (Array[Integer] range, Integer kind) -> bool
+        def within?: (Array[Integer] range, Integer kind) -> bool
+      end
+    end
+  end
+end

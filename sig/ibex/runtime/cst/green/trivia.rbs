@@ -1,0 +1,30 @@
+# Generated from lib/ibex/runtime/cst/green/trivia.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Immutable source text ignored by the grammar but owned by a token.
+      class GreenTrivia
+        attr_reader kind: Integer
+
+        attr_reader text: String
+
+        attr_reader full_width: Integer
+
+        # @rbs (kind: Integer, text: String) -> void
+        def initialize: (kind: Integer, text: String) -> void
+
+        # @rbs () -> String
+        def to_source: () -> String
+
+        # @rbs (untyped other) -> bool
+        def ==: (untyped other) -> bool
+
+        alias eql? ==
+
+        # @rbs () -> Integer
+        def hash: () -> Integer
+      end
+    end
+  end
+end

@@ -1,0 +1,45 @@
+# Generated from lib/ibex/runtime/cst/green/node.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Immutable position-independent syntax node.
+      class GreenNode
+        type child = GreenNode | GreenToken
+
+        attr_reader kind: Integer
+
+        attr_reader children: Array[child]
+
+        attr_reader flags: Integer
+
+        attr_reader full_width: Integer
+
+        attr_reader leading_width: Integer
+
+        attr_reader trailing_width: Integer
+
+        attr_reader descendant_count: Integer
+
+        # @rbs (kind: Integer, children: Array[child], ?flags: Integer) -> void
+        def initialize: (kind: Integer, children: Array[child], ?flags: Integer) -> void
+
+        # @rbs () -> String
+        def to_source: () -> String
+
+        # @rbs (untyped other) -> bool
+        def ==: (untyped other) -> bool
+
+        alias eql? ==
+
+        # @rbs () -> Integer
+        def hash: () -> Integer
+
+        private
+
+        # @rbs (Enumerable[child] children, Symbol reader) -> Integer
+        def edge_width: (Enumerable[child] children, Symbol reader) -> Integer
+      end
+    end
+  end
+end

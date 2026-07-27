@@ -1,0 +1,57 @@
+# Generated from lib/ibex/runtime/cst/green/token.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Immutable position-independent terminal occurrence.
+      class GreenToken
+        attr_reader kind: Integer
+
+        attr_reader text: String
+
+        attr_reader leading: Array[GreenTrivia]
+
+        attr_reader trailing: Array[GreenTrivia]
+
+        attr_reader flags: Integer
+
+        attr_reader full_width: Integer
+
+        attr_reader leading_width: Integer
+
+        attr_reader trailing_width: Integer
+
+        attr_reader expected_kind: Integer?
+
+        # @rbs (kind: Integer, text: String, ?leading: Array[GreenTrivia], ?trailing: Array[GreenTrivia],
+        #   ?flags: Integer, ?expected_kind: Integer?) -> void
+        def initialize: (kind: Integer, text: String, ?leading: Array[GreenTrivia], ?trailing: Array[GreenTrivia], ?flags: Integer, ?expected_kind: Integer?) -> void
+
+        # @rbs (kind: Integer, expected_kind: Integer) -> GreenToken
+        def self.missing: (kind: Integer, expected_kind: Integer) -> GreenToken
+
+        # @rbs (kind: Integer, text: String, ?leading: Array[GreenTrivia]) -> GreenToken
+        def self.lexical_error: (kind: Integer, text: String, ?leading: Array[GreenTrivia]) -> GreenToken
+
+        # @rbs () -> Integer
+        def descendant_count: () -> Integer
+
+        # @rbs () -> String
+        def to_source: () -> String
+
+        # @rbs (untyped other) -> bool
+        def ==: (untyped other) -> bool
+
+        alias eql? ==
+
+        # @rbs () -> Integer
+        def hash: () -> Integer
+
+        private
+
+        # @rbs (Array[GreenTrivia] trivia) -> Integer
+        def trivia_width: (Array[GreenTrivia] trivia) -> Integer
+      end
+    end
+  end
+end

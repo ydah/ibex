@@ -25,6 +25,12 @@ module Ibex
         ../runtime/version.rb
         ../runtime/table_format.rb
         ../runtime/location_span.rb
+        ../runtime/cst/kind.rb
+        ../runtime/cst/green/trivia.rb
+        ../runtime/cst/green/token.rb
+        ../runtime/cst/green/node.rb
+        ../runtime/cst/green/cache.rb
+        ../runtime/cst/green/builder.rb
         ../runtime/cst.rb
         ../runtime/ast_data.rb
         ../runtime/resource_limits.rb

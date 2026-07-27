@@ -1,0 +1,48 @@
+# Generated from lib/ibex/runtime/cst/green/builder.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # LR bottom-up builder backed by a Green element stack.
+      class GreenBuilder
+        type child = GreenNode | GreenToken
+
+        @kinds: Kind
+
+        @cache: NodeCache
+
+        @stack: Array[child]
+
+        # @rbs (kinds: Kind, ?cache: NodeCache) -> void
+        def initialize: (kinds: Kind, ?cache: NodeCache) -> void
+
+        # @rbs (Integer kind, String text, ?leading: Array[GreenTrivia], ?trailing: Array[GreenTrivia],
+        #   ?flags: Integer) -> GreenToken
+        def token: (Integer kind, String text, ?leading: Array[GreenTrivia], ?trailing: Array[GreenTrivia], ?flags: Integer) -> GreenToken
+
+        # @rbs (Integer kind, Integer arity, ?flags: Integer) -> GreenNode
+        def node: (Integer kind, Integer arity, ?flags: Integer) -> GreenNode
+
+        # @rbs (Integer expected_kind) -> GreenToken
+        def missing: (Integer expected_kind) -> GreenToken
+
+        # @rbs (String text, ?leading: Array[GreenTrivia]) -> GreenToken
+        def lexical_error: (String text, ?leading: Array[GreenTrivia]) -> GreenToken
+
+        # Preserve popped and discarded Green elements in one error node.
+        # @rbs (Integer pop_count, ?skipped: Array[child]) -> GreenNode
+        def absorb_into_error: (Integer pop_count, ?skipped: Array[child]) -> GreenNode
+
+        # Wrap the completed start node and explicit EOF token.
+        # @rbs (GreenToken eof_token, ?incomplete: bool) -> GreenNode
+        def finish_source_file: (GreenToken eof_token, ?incomplete: bool) -> GreenNode
+
+        # @rbs () -> Integer
+        def size: () -> Integer
+
+        # @rbs () -> Array[child]
+        def elements: () -> Array[child]
+      end
+    end
+  end
+end
