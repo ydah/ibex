@@ -1,6 +1,6 @@
 # ADR 0098: Validate incremental syntax reuse in two stages
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-07-27
 
 ## Context
@@ -88,6 +88,17 @@ from 49.3% at the beginning to 98.3% at the end. A fixed-seed structural-edit
 suite additionally performs 500 insertions, deletions, and replacements while
 comparing Green structure, source, flags, diagnostics, and memo cardinality
 against fresh syntax sessions.
+
+## Acceptance evidence
+
+The syntax-only test places raising bodies in every parser production action
+and covers the initial parse and all edits. Generated lexer state changes still
+tokenize correctly. Fixed-seed tests compare 300 same-shape edits and 500
+structural insertions, deletions, and replacements with fresh syntax sessions.
+They check source, Green equality, flags, diagnostics, physical subtree
+identity, and preorder memo cardinality. Separate cases cover `blender: false`,
+lexical fallback, both resource budgets, unsupported inputs, runtime events,
+and serialized memo mismatch.
 
 ## Consequences
 

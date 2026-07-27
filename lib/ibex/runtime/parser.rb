@@ -317,6 +317,7 @@ module Ibex
       # @rbs @syntax_parse_memo: CST::ParseMemo?
       # @rbs @green_reused_right_edge: bool
       # @rbs @incremental_reused_descendants: Integer
+      # @rbs @legacy_cst_warning_emitted: bool
 
       attr_reader :syntax_parse_memo #: CST::ParseMemo?
       attr_reader :incremental_reused_descendants #: Integer
@@ -757,6 +758,8 @@ module Ibex
         @green_reused_right_edge = false unless preserve_existing && defined?(@green_reused_right_edge)
         @incremental_reused_descendants = 0 unless
           preserve_existing && defined?(@incremental_reused_descendants)
+        @legacy_cst_warning_emitted = false unless
+          preserve_existing && defined?(@legacy_cst_warning_emitted)
       end
       # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
@@ -1835,6 +1838,7 @@ module Ibex
         return value unless cst_enabled?
         return finalize_red_green_cst(value) if red_green_cst?
 
+        warn_legacy_cst!
         node = if value.is_a?(CST::Node)
                  value
                else
@@ -1853,6 +1857,17 @@ module Ibex
 
         trailing = __send__(:take_cst_trailing_trivia)
         trailing.empty? ? node : node.with_trailing_trivia(trailing)
+      end
+
+      # @rbs () -> void
+      def warn_legacy_cst!
+        return if @legacy_cst_warning_emitted
+
+        @legacy_cst_warning_emitted = true
+        warn(
+          "ibex: legacy format-v1-v5 CST values are deprecated; regenerate the parser " \
+          "to use format-v6 Red/Green syntax (earliest removal: 0.4)"
+        )
       end
 
       # @rbs () -> CST::Node?

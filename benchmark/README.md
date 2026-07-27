@@ -11,9 +11,28 @@ bundle exec ruby benchmark/cst.rb \
 ```
 
 The CST probe compares the same generated lexer and grammar with and without
-`pragma cst`. It records elapsed time and allocated objects; both are local
-observations, not CI thresholds. Reviewed observations are append-only under
-`benchmark/results/cst/`.
+`pragma cst`. It records elapsed time, total allocated objects, and the ratio
+between Green occurrences and distinct Green object identities in one result.
+The identity ratio measures interning inside the retained tree; it is not a
+substitute for the process-wide allocation count. Timings and allocations are
+local observations, not CI thresholds. Reviewed observations are append-only
+under `benchmark/results/cst/`.
+
+Compare syntax-only Stage A, Blender Stage B, and fresh syntax sessions with:
+
+```sh
+bundle exec ruby benchmark/cst_incremental.rb \
+  --terms 100 \
+  --iterations 100 \
+  --seed 20260727 \
+  --output benchmark/results/cst/YYYY-MM-DD-blender-ruby-VERSION-PLATFORM.json
+```
+
+The report measures one-byte edits near the beginning, middle, and end. It
+records relexer scan counts, Green token reuse, directly reused descendants,
+allocations, and Stage-B speedups over both controls. Compare wall-clock values
+only within an identical Ruby, platform, workload, and revision; the fixed-seed
+incremental-versus-batch property tests remain the correctness authority.
 
 Run the deterministic 501-production scale construction benchmark with:
 

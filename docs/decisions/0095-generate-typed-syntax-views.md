@@ -1,6 +1,6 @@
 # ADR 0095: Generate typed syntax views from `@node`
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-07-27
 
 ## Context
@@ -37,6 +37,14 @@ ADR 0066 rule: their field names and order must match. Generated RBS unions the
 terminal and nonterminal accessor types across those alternatives. Repetition
 convenience methods are generated only when every alternative agrees on the
 same extraction rule.
+
+## Acceptance evidence
+
+Generation tests compare deterministic Ruby, RBS, kind ids, and physical slot
+metadata. Runtime tests cover casts, ordinary fields, repeated fields,
+separated-list elements and separators, same-name alternative unions, and
+`deconstruct_keys`. Generated typed views retain the exact underlying Red
+occurrence rather than copying syntax.
 
 ## Consequences
 

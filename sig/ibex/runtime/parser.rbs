@@ -181,6 +181,8 @@ module Ibex
 
       @semantic_location_names: Hash[Symbol, Integer]?
 
+      @legacy_cst_warning_emitted: bool
+
       @accept_requested: bool
 
       @semantic_error: bool
@@ -629,6 +631,9 @@ module Ibex
 
       # @rbs (untyped value) -> CST::Node
       def finalize_cst: (untyped value) -> CST::Node
+
+      # @rbs () -> void
+      def warn_legacy_cst!: () -> void
 
       # @rbs () -> CST::Node?
       def failed_cst: () -> CST::Node?

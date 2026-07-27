@@ -1,6 +1,6 @@
 # ADR 0096: Edit syntax by path copying
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-07-27
 
 ## Context
@@ -39,6 +39,14 @@ the edits to the old `SourceText` must reconstruct the new source exactly.
 Green nodes retain intrinsic flags separately from flags propagated from
 children. Path copying uses intrinsic flags so removing an erroneous child
 does not leave stale aggregate flags.
+
+## Acceptance evidence
+
+Editing tests assert that one token replacement preserves untouched Green
+identity and allocates only the occurrence path. Rewriter identity, batched
+editor conflict rules, isolated annotations on shared Green occurrences, flag
+recomputation, and `Diff.text_edits` source reconstruction all pass. Annotated
+values are excluded from the cache and serialization boundary.
 
 ## Consequences
 

@@ -15,7 +15,7 @@ class CSTCharacterizationTest < Minitest::Test
     rule
     start: expression
     expression: term PLUS term
-    term: NUM { result = val[0] * 10 }
+    term: NUM { (@action_trace ||= []) << val[0]; result = val[0] * 10 }
     end
   GRAMMAR
 
@@ -40,10 +40,25 @@ class CSTCharacterizationTest < Minitest::Test
     assert_equal %i[kind symbol production_id children location trailing_trivia], keys.keys
   end
 
+  def test_cst_does_not_change_semantic_results_or_action_order
+    with_cst = generate.new
+    without_cst = generate(SOURCE.sub("pragma cst\n", "pragma extended\n")).new
+
+    syntax_result = with_cst.parse_with_syntax("1 + 2")
+    semantic_result = without_cst.parse("1 + 2")
+
+    assert_equal semantic_result, syntax_result.value
+    assert_equal [1, 2], with_cst.instance_variable_get(:@action_trace)
+    assert_equal(
+      without_cst.instance_variable_get(:@action_trace),
+      with_cst.instance_variable_get(:@action_trace)
+    )
+  end
+
   private
 
-  def generate
-    ast = Ibex::Frontend::Parser.new(SOURCE, file: "characterization.y").parse
+  def generate(source = SOURCE)
+    ast = Ibex::Frontend::Parser.new(source, file: "characterization.y").parse
     grammar = Ibex::Normalizer.new(ast).normalize
     automaton = Ibex::LALR::Builder.new(grammar).build
     source = Ibex::Codegen::Ruby.new(automaton).generate

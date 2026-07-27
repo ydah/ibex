@@ -1,6 +1,6 @@
 # ADR 0093: Own trivia on Green tokens
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-07-27
 
 ## Context
@@ -36,6 +36,14 @@ its trivia from the consumed prefix.
 
 This metadata is emitted in parser-table format v6. Formats v1 through v5 keep
 their previous trivia behavior.
+
+## Acceptance evidence
+
+Generated-lexer integration tests cover `leading`, `balanced`, the `attach`
+alias, final EOF trivia, and early acceptance. Recovery tests retain popped and
+discarded source. `to_source` property cases are byte exact for non-drop trees,
+including invalid UTF-8 serialization fixtures. `drop` deterministically
+raises for coordinates and incremental session creation.
 
 ## Consequences
 

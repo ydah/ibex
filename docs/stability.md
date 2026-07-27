@@ -35,6 +35,8 @@ Preview:
   and inline rules, middle actions, multiple entries, canonical imports,
   generated lexers, semantic locations/types, AST/CST generation, grammar
   tests, and documentation tooling;
+- format-v6 Red/Green CST parsing, typed syntax views, persistent editing, and
+  `ibex_cst` schema v1 serialization;
 - the conservative `--algorithm=ielr` backend;
 - LSP, watch, debug, coverage, browser playground, and static action-shadow
   integration.
@@ -42,7 +44,8 @@ Preview:
 Experimental:
 
 - opt-in bounded insertion/deletion/replacement repair through
-  `Runtime::RepairPolicy`.
+  `Runtime::RepairPolicy`;
+- syntax-only incremental CST sessions and conservative Blender subtree reuse.
 
 No preview feature is promoted in this freeze: all are missing the required
 two-release field period. Repair passed its usefulness spike but remains
@@ -56,8 +59,10 @@ semantic values may be nil.
 - Bounded repair passed SP-4 with 8/10 useful plans and remains experimental.
 - GLR and `%dprec`/`%merge` did not enter the product: no delayed-action spike
   met the ≤5% deterministic-overhead and ambiguity-policy gates.
-- Incremental parsing did not enter the product: no CST edit prototype met the
-  tree-equivalence and measured-latency gates.
+- Syntax-only incremental parsing entered as experimental after fixed-seed
+  structural edits matched fresh Green trees and the representative benchmark
+  measured 1.04–2.83x over Stage A and 1.66–4.48x over fresh syntax sessions.
+  It remains experimental until it completes the two-release field period.
 
 The supported alternatives are canonical LR(1) or IELR for LALR inadequacy,
 bounded ambiguity/counterexample analysis for ambiguous grammars, and
@@ -93,6 +98,12 @@ An undeclared invalid token intentionally calls `on_error` before ordinary yacc
 recovery. This is the documented recommended behavior and is not changed by
 the freeze.
 
+Parser-table formats v1 through v6 remain readable. Format v6 is the current
+writer and adds structured Red/Green CST metadata; it does not change Grammar
+IR v2. The closed `ibex_cst` schema v1 is a versioned interchange contract.
+Additive meaning requires a new schema version; readers do not accept unknown
+fields.
+
 ## Deprecation policy
 
 A removable API or syntax first emits a migration warning for at least two
@@ -104,3 +115,10 @@ The release notes and documentation must name the first warning release,
 replacement, autocorrect command, and earliest removal release. There are no
 stable removals scheduled at this freeze.
 
+Legacy format-v1–v5 `CST::Node`, `CST::Token`, `CST::Missing`, and
+`CST::Error` results begin warning in 0.2. Regenerate the grammar with the
+current `ibex` command to receive format-v6 Red/Green syntax. The old result
+shim remains readable through the 0.3 series and is first eligible for removal
+in 0.4. Removal is not authorized until a released `ibex lint --autocorrect`
+can perform or stage the documented regeneration, so 0.4 is an earliest bound,
+not a guaranteed deletion release.

@@ -121,11 +121,17 @@ class CSTRuntimeIntegrationTest < Minitest::Test
     legacy_class = Class.new(parser_class)
     legacy_class.define_singleton_method(:parser_tables) { legacy }
 
-    tree = legacy_class.new.parse("1 + 2 ")
+    tree = nil
+    _stdout, stderr = capture_io do
+      parser = legacy_class.new
+      tree = parser.parse("1 + 2 ")
+      parser.parse("3 + 4")
+    end
 
     assert_instance_of Ibex::Runtime::CST::Node, tree
     assert_equal "start", tree.symbol
     assert_equal [" "], tree.trailing_trivia.map(&:text)
+    assert_equal 1, stderr.scan("legacy format-v1-v5 CST values are deprecated").length
   end
 
   private

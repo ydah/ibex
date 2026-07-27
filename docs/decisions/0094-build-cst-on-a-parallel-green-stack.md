@@ -1,6 +1,6 @@
 # ADR 0094: Build CSTs on a parallel Green stack
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-07-27
 
 ## Context
@@ -46,6 +46,15 @@ Two observable changes apply only to regenerated CST parsers:
 The semantic value remains `ParseResult#value`. The start node is
 `ParseResult#syntax_root.children[0]`. The complete migration is documented in
 `docs/cst-migration.md`.
+
+## Acceptance evidence
+
+The parallel Green stack is exercised across ordinary shifts/reductions,
+multiple start entries, lexical failure, yacc pop and panic discard, bounded
+repair insertion/replacement, unrecoverable synthetic roots, and early
+acceptance. A format-v5 regression test continues through the legacy path.
+Action-bearing grammar tests confirm semantic values stay on the value stack
+while syntax children remain nodes.
 
 ## Consequences
 

@@ -20,12 +20,15 @@ module CSTBenchmark
     plain = measure(plain_parser, input, options.fetch(:iterations))
     report = {
       benchmark: "ibex_cst_baseline",
-      version: 1,
+      version: 2,
+      ruby_version: RUBY_VERSION,
+      ruby_platform: RUBY_PLATFORM,
       seed: options.fetch(:seed),
       rules: options.fetch(:rules),
       iterations: options.fetch(:iterations),
       measurements: { plain: plain, cst: cst },
-      cst_overhead_ratio: cst.fetch(:elapsed_ms) / plain.fetch(:elapsed_ms)
+      cst_overhead_ratio: cst.fetch(:elapsed_ms) / plain.fetch(:elapsed_ms),
+      green_identity: green_identity(cst_parser, input)
     }
     output = JSON.pretty_generate(report)
     File.write(options.fetch(:output), "#{output}\n") if options[:output]
@@ -85,6 +88,27 @@ module CSTBenchmark
     {
       elapsed_ms: elapsed * 1000.0,
       allocated_objects: after_allocations - before_allocations
+    }
+  end
+
+  def green_identity(parser_class, input)
+    parser = parser_class.new
+    parser.parse(input)
+    root = parser.syntax_root
+    raise "CST benchmark parser did not produce a syntax root" unless root
+
+    occurrences = []
+    stack = [root.green]
+    until stack.empty?
+      green = stack.pop
+      occurrences << green
+      stack.concat(green.children.reverse) if green.is_a?(Ibex::Runtime::CST::GreenNode)
+    end
+    unique_objects = occurrences.map(&:object_id).uniq.length
+    {
+      occurrences: occurrences.length,
+      unique_objects: unique_objects,
+      identity_reuse_ratio: 1.0 - unique_objects.fdiv(occurrences.length)
     }
   end
 end

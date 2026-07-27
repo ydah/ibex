@@ -2,7 +2,18 @@
 
 Regenerating a `pragma cst` parser with parser-table format v6 opts it into the
 Red/Green CST. Existing generated parsers using formats v1 through v5 continue
-to run through the legacy CST implementation.
+to run through the legacy CST implementation and emit one deprecation warning
+per parser instance beginning in 0.2.
+
+Regenerate with the same command used for the grammar, for example:
+
+```sh
+ibex grammar.y -o parser.rb
+```
+
+The legacy result classes remain supported through the 0.3 series and are
+first eligible for removal in 0.4, subject to the autocorrect prerequisite in
+the [stability policy](stability.md).
 
 ## Parsing
 
@@ -62,3 +73,11 @@ Lexical failures, yacc recovery, panic discards, and bounded repair return a
 syntax result rather than changing the semantic action contract. Inspect
 `diagnostics`, `contains_error?`, `each_error`, missing tokens, and Green flags
 for skipped input. Unrecoverable input is retained under `synthetic_root`.
+
+## New capabilities
+
+Format v6 additionally provides typed `Parser::Syntax` views, persistent
+path-copy editing, annotations, structural text diffing, `ibex_cst` v1
+serialization, and syntax-only incremental sessions. These APIs have no
+equivalent on the legacy mixed semantic/syntax tree. See the
+[CST guide](cst.md) for examples and the incremental action contract.

@@ -18,6 +18,8 @@ requires no C or Java extension.
 - Try grammar analysis in the
   [browser playground](https://ydah.github.io/ibex/playground/).
 - Start with the [grammar reference](docs/grammar-reference.md).
+- Build lossless and incremental tooling with the
+  [Red/Green CST guide](docs/cst.md).
 - Migrate an existing parser with the
   [racc migration guide](docs/racc-migration.md).
 - Browse the [API reference](https://ydah.github.io/ibex/api/).
@@ -278,8 +280,9 @@ counterexamples.
   traversal, cycles, and symlink escapes.
 - Counterexample, ambiguity, sample, repair, and runtime-budget searches are
   bounded. Exhausting a budget is distinct from finding no witness within it.
-- Ibex generates deterministic LR parsers. It does not provide GLR,
-  generalized ambiguity handling, or incremental parsing.
+- Ibex generates deterministic LR parsers. It does not provide GLR or
+  generalized ambiguity handling. Incremental CST sessions are syntax-only
+  and experimental.
 - racc compatibility is a migration surface, not a claim that every generated
   parser is a byte-for-byte or adapter-free replacement.
 - Preview and experimental features may have weaker compatibility guarantees
@@ -290,6 +293,7 @@ counterexamples.
 | When you need to... | Start here |
 | --- | --- |
 | Write a grammar or use the runtime | [Grammar reference](docs/grammar-reference.md) |
+| Build, edit, serialize, or incrementally update syntax trees | [Red/Green CST guide](docs/cst.md) and [migration guide](docs/cst-migration.md) |
 | Learn from executable grammars | [Examples](examples/README.md) |
 | Migrate from racc | [racc migration guide](docs/racc-migration.md) |
 | Adapt a handwritten lexer | [Lexer migration guide](docs/lexer-migration.md) |
@@ -319,7 +323,7 @@ bundle exec rake
 ```
 
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 20,526 typed calls and 2,279 untyped calls out of 22,805 (90.0% typed).
+The current whole-library `steep stats` result is 20,528 typed calls and 2,279 untyped calls out of 22,807 (90.0% typed).
 The generated signature tree contains 2,114 explicit `untyped` occurrences across 104 files.
 <!-- type-stats:end -->
 

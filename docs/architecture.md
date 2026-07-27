@@ -27,14 +27,45 @@ state-indexed rules. Per-parser mutable input, position, emission, and state
 stacks live in `Runtime::GeneratedLexer`, never in the tables. See
 [ADR 0064](decisions/0064-versioned-generated-lexer.md).
 
-`pragma cst` adds an optional Grammar IR v2 flag and CST-only RHS/symbol
-metadata to generated tables. `Runtime::Parser` builds immutable concrete
-nodes only for action-free reductions, leaving ordinary parser stacks and
-explicit action contracts unchanged. Generated lexer skips become attached or
-dropped trivia according to the generation policy. Parser failures, repair
-insertions, and lexer failures become explicit `Error`/`Missing` terminals;
-unrecoverable CST sessions still return a synthetic start tree. See
-[ADR 0065](decisions/0065-error-tolerant-concrete-trees.md).
+`pragma cst` remains an optional Grammar IR v2 flag. Regenerated format-v6
+tables add deterministic kind and normalized slot metadata. `Runtime::Parser`
+builds a pure-syntax Green entry for every shift and reduction on a stack
+parallel to the semantic stack, so tree shape no longer depends on semantic
+actions. Generated lexer skips become token-owned trivia. Parser failure,
+repair, and lexer failure remain explicit and lossless. See
+[ADRs 0092–0094](decisions/0092-red-green-concrete-syntax-core.md) and the
+[CST guide](cst.md).
+
+## Red/Green CST v2
+
+Green nodes and tokens contain no parents, source objects, absolute positions,
+semantic values, or parser states. Their integer kinds, binary text, trivia,
+flags, widths, children, and descendant counts are immutable and
+Ractor-shareable. A session-owned `NodeCache` interns unannotated values. Lazy
+Red wrappers add occurrence-specific parent, index, offset, span, location, and
+typed-field navigation. The root is `source_file(start, EOF)`, and
+`to_source` is byte exact for the `leading` and `balanced` trivia policies.
+
+Generated `Parser::Syntax::<Name>` classes are typed views over Red nodes using
+the same normalized `@node` metadata as Data AST generation. Persistent edits
+replace one Green occurrence and copy its ancestor path; rewriters, batched
+editors, annotations, and identity-skipping text diffing share that mechanism.
+See [ADRs 0095–0096](decisions/0095-generate-typed-syntax-views.md).
+
+`ibex_cst` schema v1 serializes the Green root, kind metadata, compatibility
+counts, and optional preorder parser memo independently of Grammar IR.
+Validation reconstructs every derived width, flag, and descendant count.
+Non-UTF-8 bytes use canonical Base64. See
+[ADR 0097](decisions/0097-version-concrete-syntax-serialization.md).
+
+Incremental sessions are syntax-only: parser production actions do not run.
+The generated lexer first validates token/state resynchronization. `Blender`
+then offers either a fresh token or an old Green nonterminal to the LR driver.
+A subtree is pushed directly through `goto` only when damage, recorded
+left-state, follow-token identity, error flags, and positive width satisfy the
+conservative reuse proof. Token and parse memos remain preorder/occurrence
+state owned by one session; resource exhaustion falls back to the fresh token
+stream. See [ADR 0098](decisions/0098-validate-incremental-syntax-reuse.md).
 
 Alternative-level `@node` declarations are preserved as Grammar IR v2
 production metadata. Runtime Ruby, static action-shadow Ruby, and generated

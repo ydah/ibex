@@ -1,0 +1,25 @@
+{
+  "benchmark": "ibex_cst_baseline",
+  "version": 2,
+  "ruby_version": "4.0.0",
+  "ruby_platform": "arm64-darwin24",
+  "seed": 12345,
+  "rules": 25,
+  "iterations": 100,
+  "measurements": {
+    "plain": {
+      "elapsed_ms": 40.29399999990346,
+      "allocated_objects": 327201
+    },
+    "cst": {
+      "elapsed_ms": 74.07899999998335,
+      "allocated_objects": 456607
+    }
+  },
+  "cst_overhead_ratio": 1.8384623020837056,
+  "green_identity": {
+    "occurrences": 52,
+    "unique_objects": 6,
+    "identity_reuse_ratio": 0.8846153846153846
+  }
+}

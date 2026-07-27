@@ -1,6 +1,6 @@
 # ADR 0097: Version concrete syntax serialization independently
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-07-27
 
 ## Context
@@ -45,6 +45,14 @@ validates its cardinality and state bounds. Expected state-count or
 production-count mismatches silently discard the memo while retaining the
 validated tree; a grammar-digest mismatch remains a structured compatibility
 error for the tree itself.
+
+## Acceptance evidence
+
+The closed Draft 2020-12 schema accepts versioned UTF-8 and invalid-byte
+fixtures. Dump/load/dump is byte stable. Validator tests reject incompatible
+digests, invalid kinds, flags, Base64, widths, and memo cardinality while Green
+constructors recompute derived data. Parse memo round-trips when compatible;
+state or production count mismatch discards only the memo.
 
 ## Consequences
 
