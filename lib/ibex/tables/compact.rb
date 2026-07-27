@@ -37,6 +37,27 @@ module Ibex
           value
         end
       end
+
+      # Zigzag-encode signed values after reserving zero for nil.
+      # @rbs (Array[Integer?] values) -> String
+      def encode_signed(values)
+        encode(
+          values.map do |value|
+            next unless value
+
+            value.negative? ? (-value * 2) - 1 : value * 2
+          end
+        )
+      end
+
+      # @rbs (String source) -> Array[Integer?]
+      def decode_signed(source)
+        decode(source).map do |value|
+          next unless value
+
+          value.even? ? value / 2 : -((value + 1) / 2)
+        end
+      end
     end
 
     # Sparse table represented by per-row offsets and ownership checks.

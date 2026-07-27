@@ -159,7 +159,7 @@ module Ibex
         if @table_format == :compact
           default_codes = table_set.default_actions.map { |action| Tables::CompactActions.pack(action) }
           lines << "#{indent}                  compact_fast_driver: true, " \
-                   "compact_default_actions: #{default_codes.inspect}.freeze,"
+                   "compact_action_encoding: :signed, compact_default_actions: #{default_codes.inspect}.freeze,"
         end
         if cst?
           lines << "#{indent}                  cst: true, cst_trivia: #{@cst_trivia.inspect}, " \
@@ -208,8 +208,8 @@ module Ibex
       def table_literal(table)
         if table.is_a?(Tables::CompactActions)
           return "Ibex::Tables::CompactActions.packed(#{packed_integers_literal(table.offsets)}, " \
-                 "#{packed_integers_literal(table.codes)}, #{packed_integers_literal(table.checks)}, " \
-                 "row_count: #{table.row_count})"
+                 "#{packed_signed_integers_literal(table.codes)}, #{packed_integers_literal(table.checks)}, " \
+                 "row_count: #{table.row_count}, encoding: :signed)"
         end
         return "#{table.inspect}.freeze" unless table.is_a?(Tables::Compact)
 
@@ -221,6 +221,11 @@ module Ibex
       # @rbs (Array[Integer?] values) -> String
       def packed_integers_literal(values)
         Tables::PackedIntegers.encode(values).inspect
+      end
+
+      # @rbs (Array[Integer?] values) -> String
+      def packed_signed_integers_literal(values)
+        Tables::PackedIntegers.encode_signed(values).inspect
       end
 
       # @rbs () -> String

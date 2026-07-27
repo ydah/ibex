@@ -81,6 +81,9 @@ module Ibex
       # @rbs (Array[Integer?] values) -> String
       def packed_integers_literal: (Array[Integer?] values) -> String
 
+      # @rbs (Array[Integer?] values) -> String
+      def packed_signed_integers_literal: (Array[Integer?] values) -> String
+
       # @rbs () -> String
       def token_ids_literal: () -> String
 

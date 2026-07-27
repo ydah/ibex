@@ -70,6 +70,18 @@ class TablesTest < Minitest::Test
     end
   end
 
+  def test_legacy_compact_action_codes_are_normalized
+    packed = Ibex::Tables::PackedIntegers
+    compact = Ibex::Tables::CompactActions.packed(
+      packed.encode([0]), packed.encode([0, 1, 4, 7]), packed.encode([0, 0, 0, 0]), row_count: 1
+    )
+
+    assert_equal [:accept], compact.lookup(0, 0)
+    assert_equal [:error], compact.lookup(0, 1)
+    assert_equal [:shift, 1], compact.lookup(0, 2)
+    assert_equal [:reduce, 2], compact.lookup(0, 3)
+  end
+
   def test_packed_integer_literals_round_trip_nil_and_multibyte_values
     values = [nil, 0, 1, 127, 128, 16_384]
     encoded = Ibex::Tables::PackedIntegers.encode(values)
@@ -82,14 +94,23 @@ class TablesTest < Minitest::Test
     assert_raises(ArgumentError) { Ibex::Tables::PackedIntegers.encode([-1]) }
   end
 
+  def test_packed_signed_integer_literals_round_trip
+    values = [nil, 0, -1, 1, -127, 128, -16_384, 16_384]
+
+    assert_equal values, Ibex::Tables::PackedIntegers.decode_signed(
+      Ibex::Tables::PackedIntegers.encode_signed(values)
+    )
+  end
+
   def test_compact_tables_load_packed_integer_layouts
     rows = [{ 0 => [:accept], 2 => [:shift, 3] }, { 0 => [:reduce, 4] }]
     actions = Ibex::Tables::CompactActions.build(rows)
     packed_actions = Ibex::Tables::CompactActions.packed(
       Ibex::Tables::PackedIntegers.encode(actions.offsets),
-      Ibex::Tables::PackedIntegers.encode(actions.codes),
+      Ibex::Tables::PackedIntegers.encode_signed(actions.codes),
       Ibex::Tables::PackedIntegers.encode(actions.checks),
-      row_count: actions.row_count
+      row_count: actions.row_count,
+      encoding: :signed
     )
 
     assert_equal(rows.map.with_index { |_, index| actions.row(index) },

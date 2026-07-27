@@ -838,6 +838,7 @@ module Ibex
         gotos = tables.fetch(:gotos)
         productions = tables.fetch(:productions)
         default_codes = tables.fetch(:compact_default_actions)
+        legacy_default_codes = tables[:compact_action_encoding] != :signed
         token_ids = tables.fetch(:tokens)
         action_offsets = actions.offsets
         action_codes = actions.codes
@@ -894,22 +895,27 @@ module Ibex
 
           state = states.last
           index = action_offsets[state] + @lookahead
-          code = action_checks[index] == state ? action_codes[index] : default_codes[state]
+          if action_checks[index] == state
+            code = action_codes[index]
+          else
+            code = default_codes[state]
+            code = Ibex::Tables::CompactActions.legacy_to_signed(code) if legacy_default_codes
+          end
           return unless code
 
           if code == accept_code
             return COMPACT_ACCEPTED
           elsif code == error_code
             return
-          elsif code.even?
+          elsif code.positive?
             ensure_stack_capacity! if states.length >= stack_limit
-            states << ((code - shift_base) / 2)
+            states << (code - shift_base)
             values << @lookahead_value
             @lookahead = NO_LOOKAHEAD
             @lookahead_location = nil
             @runtime_lookahead_token_display = nil
           else
-            production_id = (code - reduce_base) / 2
+            production_id = reduce_base - code
             production = productions[production_id]
             lhs = production[:lhs]
             length = production[:length]

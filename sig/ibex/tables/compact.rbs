@@ -13,6 +13,13 @@ module Ibex
 
       # @rbs (String source) -> Array[Integer]
       def self?.decode_required: (String source) -> Array[Integer]
+
+      # Zigzag-encode signed values after reserving zero for nil.
+      # @rbs (Array[Integer?] values) -> String
+      def self?.encode_signed: (Array[Integer?] values) -> String
+
+      # @rbs (String source) -> Array[Integer?]
+      def self?.decode_signed: (String source) -> Array[Integer?]
     end
 
     # Sparse table represented by per-row offsets and ownership checks.

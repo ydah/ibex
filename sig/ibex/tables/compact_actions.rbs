@@ -13,13 +13,20 @@ module Ibex
 
       REDUCE_BASE: Integer
 
+      LEGACY_ERROR_CODE: Integer
+
+      LEGACY_SHIFT_BASE: Integer
+
+      LEGACY_REDUCE_BASE: Integer
+
       attr_reader codes: Array[Integer?]
 
       # @rbs (Array[Hash[Integer, untyped]] rows) -> CompactActions
       def self.build: (Array[Hash[Integer, untyped]] rows) -> CompactActions
 
-      # @rbs (String offsets, String codes, String checks, row_count: Integer) -> CompactActions
-      def self.packed: (String offsets, String codes, String checks, row_count: Integer) -> CompactActions
+      # @rbs (String offsets, String codes, String checks, row_count: Integer,
+      #   ?encoding: Symbol) -> CompactActions
+      def self.packed: (String offsets, String codes, String checks, row_count: Integer, ?encoding: Symbol) -> CompactActions
 
       # @rbs (untyped action) -> Integer?
       def self.pack: (untyped action) -> Integer?
@@ -27,9 +34,14 @@ module Ibex
       # @rbs (Integer? code) -> untyped
       def self.unpack: (Integer? code) -> untyped
 
+      # Convert codes emitted before signed compact actions without changing
+      # their generated table literals.
+      # @rbs (Integer? code) -> Integer?
+      def self.legacy_to_signed: (Integer? code) -> Integer?
+
       # @rbs (offsets: Array[Integer], codes: Array[Integer?], checks: Array[Integer?],
-      #   row_count: Integer) -> void
-      def initialize: (offsets: Array[Integer], codes: Array[Integer?], checks: Array[Integer?], row_count: Integer) -> void
+      #   row_count: Integer, ?encoding: Symbol) -> void
+      def initialize: (offsets: Array[Integer], codes: Array[Integer?], checks: Array[Integer?], row_count: Integer, ?encoding: Symbol) -> void
     end
   end
 end
