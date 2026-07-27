@@ -2,6 +2,7 @@
 
 require_relative "../test_helper"
 
+# rubocop:disable Metrics/ClassLength -- direct-construction invariants share private grammar/reference helpers.
 class DirectLookaheadsTest < Minitest::Test
   Terminal = Struct.new(:id, keyword_init: true)
   StartSymbol = Struct.new(:id, keyword_init: true)
@@ -64,6 +65,77 @@ class DirectLookaheadsTest < Minitest::Test
       assert_same first_core, second_core
       assert_predicate first_core, :frozen?
     end
+  end
+
+  def test_grouped_shifted_kernels_match_the_previous_lr0_collection
+    _grammar, lookaheads = expression_lookaheads
+
+    expected_states, expected_transitions = legacy_lr0_collection(lookaheads)
+    states, transitions = lookaheads.send(:lr0_collection)
+    expected_items = expected_states.map { |state| state.to_a.sort }
+    actual_items = states.map { |state| state.to_a.sort }
+
+    assert_equal expected_items, actual_items
+    assert_equal expected_transitions, transitions
+  end
+
+  def test_lr0_transitions_keep_symbol_ids_in_sorted_insertion_order
+    _grammar, lookaheads = expression_lookaheads
+    _states, transitions = lookaheads.send(:lr0_collection)
+
+    transitions.each do |edges|
+      assert_equal edges.keys.sort, edges.keys
+    end
+  end
+
+  def test_shifted_kernels_support_sparse_symbol_ids_and_multiple_items_per_symbol
+    grammar = sparse_symbol_grammar
+    lookaheads = Ibex::LALR::DirectLookaheads.new(grammar, Object.new)
+    items = Set[
+      lookaheads.send(:item_core, -1, 0),
+      lookaheads.send(:item_core, 0, 0),
+      lookaheads.send(:item_core, 1, 0),
+      lookaheads.send(:item_core, 2, 0)
+    ]
+
+    kernels = lookaheads.send(:shifted_kernels, items)
+
+    assert_equal [7, 101, 103], kernels.keys.sort
+    assert_equal Set[
+      lookaheads.send(:item_core, 0, 1),
+      lookaheads.send(:item_core, 1, 1)
+    ], kernels.fetch(101)
+    assert_equal Set[lookaheads.send(:item_core, 2, 1)], kernels.fetch(7)
+    assert_equal Set[lookaheads.send(:item_core, -1, 1)], kernels.fetch(103)
+  end
+
+  def test_multi_entry_grammar_keeps_the_canonical_merge_collection
+    grammar = normalize(<<~GRAMMAR, mode: :extended)
+      class P
+      pragma extended
+      start first second
+      token A B
+      rule
+      first: A
+      second: B
+      end
+    GRAMMAR
+
+    direct_default = Ibex::LALR::Builder.new(grammar).build
+    explicit_reference = Ibex::LALR::Builder.new(grammar, lalr_strategy: :canonical_merge).build
+
+    assert_equal Ibex::IR::Serialize.dump(explicit_reference), Ibex::IR::Serialize.dump(direct_default)
+    assert_equal :canonical_merge_multi_entry, Ibex::LALR::Builder.new(grammar).tap(&:build).metrics.strategy
+  end
+
+  def test_grouped_shifted_kernels_reduce_lr0_collection_allocations
+    _grammar, lookaheads = expression_lookaheads
+    iterations = 30
+
+    grouped_allocations = measure_allocations(iterations) { lookaheads.send(:lr0_collection) }
+    legacy_allocations = measure_allocations(iterations) { legacy_lr0_collection(lookaheads) }
+
+    assert_operator grouped_allocations, :<, legacy_allocations * 0.9
   end
 
   def test_canonical_item_core_lookup_avoids_per_lookup_allocation
@@ -212,8 +284,86 @@ class DirectLookaheadsTest < Minitest::Test
     [grammar, Ibex::LALR::DirectLookaheads.new(grammar, Ibex::Analysis::Sets.new(grammar))]
   end
 
-  def normalize(source)
-    Ibex::Normalizer.new(Ibex::Frontend::Parser.new(source, file: "direct-lookaheads.y").parse).normalize
+  def expression_lookaheads
+    grammar = normalize(<<~GRAMMAR)
+      class P
+      token ITEM PLUS STAR LPAREN RPAREN
+      rule
+      start: expression
+      expression: expression PLUS term | term
+      term: term STAR atom | atom
+      atom: LPAREN expression RPAREN | ITEM
+      end
+    GRAMMAR
+    [grammar, Ibex::LALR::DirectLookaheads.new(grammar, Ibex::Analysis::Sets.new(grammar))]
+  end
+
+  def sparse_symbol_grammar
+    symbols = [
+      Ibex::IR::GrammarSymbol.new(id: 0, name: "$eof", kind: :terminal, reserved: true),
+      Ibex::IR::GrammarSymbol.new(id: 1, name: "error", kind: :terminal, reserved: true),
+      Ibex::IR::GrammarSymbol.new(id: 7, name: "LOW", kind: :terminal),
+      Ibex::IR::GrammarSymbol.new(id: 101, name: "HIGH", kind: :terminal),
+      Ibex::IR::GrammarSymbol.new(id: 103, name: "start", kind: :nonterminal)
+    ]
+    productions = [
+      production(id: 0, lhs: 103, rhs: [101]),
+      production(id: 1, lhs: 103, rhs: [101, 7]),
+      production(id: 2, lhs: 103, rhs: [7])
+    ]
+    Ibex::IR::Grammar.new(
+      class_name: "Sparse", superclass: nil, start: "start", expect: 0, options: {},
+      symbols: symbols, productions: productions, user_code: {}, conversions: {}, warnings: []
+    )
+  end
+
+  def production(id:, lhs:, rhs:)
+    Ibex::IR::Production.new(
+      id: id, lhs: lhs, rhs: rhs, action: nil, precedence_override: nil,
+      origin: { kind: :rule }
+    )
+  end
+
+  def legacy_lr0_collection(lookaheads)
+    seed = Set[lookaheads.send(:item_core, -1, 0)]
+    states = [lookaheads.send(:closure, seed)]
+    transitions = []
+    indexes = { states.first.to_a.sort => 0 }
+    cursor = 0
+    while cursor < states.length
+      transitions[cursor] = {}
+      legacy_next_symbols(lookaheads, states.fetch(cursor)).each do |symbol_id|
+        target = legacy_go_to(lookaheads, states.fetch(cursor), symbol_id)
+        key = target.to_a.sort
+        target_id = indexes[key] ||= begin
+          states << target
+          states.length - 1
+        end
+        transitions.fetch(cursor)[symbol_id] = target_id
+      end
+      cursor += 1
+    end
+    [states, transitions]
+  end
+
+  def legacy_next_symbols(lookaheads, items)
+    items.filter_map do |production_id, dot|
+      lookaheads.send(:rhs_for, production_id)[dot]
+    end.uniq.sort
+  end
+
+  def legacy_go_to(lookaheads, items, symbol_id)
+    moved = items.filter_map do |production_id, dot|
+      next unless lookaheads.send(:rhs_for, production_id)[dot] == symbol_id
+
+      lookaheads.send(:item_core, production_id, dot + 1)
+    end
+    lookaheads.send(:closure, Set.new(moved))
+  end
+
+  def normalize(source, mode: :racc)
+    ast = Ibex::Frontend::Parser.new(source, file: "direct-lookaheads.y", mode: mode).parse
+    Ibex::Normalizer.new(ast, mode: mode).normalize
   end
 
   def measure_allocations(iterations, &operation)
@@ -223,3 +373,4 @@ class DirectLookaheadsTest < Minitest::Test
     GC.stat(:total_allocated_objects) - before
   end
 end
+# rubocop:enable Metrics/ClassLength

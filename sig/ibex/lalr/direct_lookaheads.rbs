@@ -43,11 +43,8 @@ module Ibex
       # @rbs (core_set seed) -> core_set
       def closure: (core_set seed) -> core_set
 
-      # @rbs (core_set items) -> Array[Integer]
-      def next_symbols: (core_set items) -> Array[Integer]
-
-      # @rbs (core_set items, Integer symbol_id) -> core_set
-      def go_to: (core_set items, Integer symbol_id) -> core_set
+      # @rbs (core_set items) -> Hash[Integer, core_set]
+      def shifted_kernels: (core_set items) -> Hash[Integer, core_set]
 
       # @rbs (Array[core_set] states) -> Array[packed_items]
       def empty_lookaheads: (Array[core_set] states) -> Array[packed_items]

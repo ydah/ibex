@@ -60,8 +60,9 @@ module Ibex
         cursor = 0
         while cursor < states.length
           transitions[cursor] = {}
-          next_symbols(states.fetch(cursor)).each do |symbol_id|
-            target = go_to(states.fetch(cursor), symbol_id)
+          kernels = shifted_kernels(states.fetch(cursor))
+          kernels.keys.sort.each do |symbol_id|
+            target = closure(kernels.fetch(symbol_id))
             key = item_key(target)
             target_id = indexes[key] ||= begin
               states << target
@@ -93,19 +94,16 @@ module Ibex
         items
       end
 
-      # @rbs (core_set items) -> Array[Integer]
-      def next_symbols(items)
-        items.filter_map { |production_id, dot| rhs_for(production_id)[dot] }.uniq.sort
-      end
+      # @rbs (core_set items) -> Hash[Integer, core_set]
+      def shifted_kernels(items)
+        kernels = {} #: Hash[Integer, core_set]
+        items.each do |production_id, dot|
+          symbol_id = rhs_for(production_id)[dot]
+          next unless symbol_id
 
-      # @rbs (core_set items, Integer symbol_id) -> core_set
-      def go_to(items, symbol_id)
-        moved = items.filter_map do |production_id, dot|
-          next unless rhs_for(production_id)[dot] == symbol_id
-
-          item_core(production_id, dot + 1)
+          (kernels[symbol_id] ||= Set.new) << item_core(production_id, dot + 1)
         end
-        closure(Set.new(moved))
+        kernels
       end
 
       # @rbs (Array[core_set] states) -> Array[packed_items]
