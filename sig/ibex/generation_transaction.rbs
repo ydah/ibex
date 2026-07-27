@@ -49,8 +49,14 @@ module Ibex
     # @rbs () -> void
     def backup_records: () -> void
 
-    # @rbs (String directory, String suffix) -> String
-    def vacant_temporary_path: (String directory, String suffix) -> String
+    # @rbs (String directory, String suffix) -> File
+    def create_temporary_file: (String directory, String suffix) -> File
+
+    # @rbs (String target, String directory) -> String
+    def create_backup_link: (String target, String directory) -> String
+
+    # @rbs (String directory, String suffix) { (String) -> void } -> void
+    def with_temporary_path: (String directory, String suffix) { (String) -> void } -> void
 
     # @rbs (Symbol group) -> void
     def install_group: (Symbol group) -> void

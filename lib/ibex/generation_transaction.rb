@@ -2,7 +2,6 @@
 # rbs_inline: enabled
 
 require "digest"
-require "tempfile"
 require_relative "error"
 require_relative "generation_transaction_recovery"
 require_relative "generation_transaction_validation"
@@ -40,6 +39,7 @@ module Ibex
       @locked_paths = [] #: Array[String]
       @records = [] #: Array[Hash[Symbol, untyped]]
       @committed = false
+      @temporary_sequence = 0
     end
     # rubocop:enable Layout/LineLength
 
@@ -144,7 +144,7 @@ module Ibex
     # @rbs () -> void
     def stage_records
       @records.each do |record|
-        temporary = Tempfile.create([".ibex-generation-", ".stage"], record.fetch(:directory))
+        temporary = create_temporary_file(record.fetch(:directory), ".stage")
         begin
           record[:stage] = temporary.path.dup
           temporary.binmode
@@ -165,21 +165,40 @@ module Ibex
         next unless File.exist?(target)
 
         validate_existing_target!(target)
-        backup = vacant_temporary_path(record.fetch(:directory), ".backup")
-        File.link(target, backup)
+        backup = create_backup_link(target, record.fetch(:directory))
         record[:backup] = backup
         record[:backed_up] = true
       end
     end
 
-    # @rbs (String directory, String suffix) -> String
-    def vacant_temporary_path(directory, suffix)
-      temporary = Tempfile.new([".ibex-generation-", suffix], directory)
-      path = temporary.path&.dup
-      temporary.close!
-      raise Error, "(generation):1:1: temporary path is unavailable in #{directory}" unless path
+    # @rbs (String directory, String suffix) -> File
+    def create_temporary_file(directory, suffix)
+      with_temporary_path(directory, suffix) do |path|
+        flags = File::WRONLY | File::CREAT | File::EXCL
+        flags |= File.const_get(:NOFOLLOW) if File.const_defined?(:NOFOLLOW)
+        return File.new(path, flags, 0o600)
+      end
+      raise Error, "(generation):1:1: temporary file is unavailable in #{directory}"
+    end
 
-      path
+    # @rbs (String target, String directory) -> String
+    def create_backup_link(target, directory)
+      with_temporary_path(directory, ".backup") do |path|
+        File.link(target, path)
+        return path
+      end
+      raise Error, "(generation):1:1: backup path is unavailable in #{directory}"
+    end
+
+    # @rbs (String directory, String suffix) { (String) -> void } -> void
+    def with_temporary_path(directory, suffix)
+      100.times do
+        @temporary_sequence += 1
+        name = ".ibex-generation-#{Process.pid}-#{object_id.to_s(36)}-#{@temporary_sequence.to_s(36)}#{suffix}"
+        yield File.join(directory, name)
+      rescue Errno::EEXIST
+        next
+      end
     end
 
     # @rbs (Symbol group) -> void

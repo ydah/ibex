@@ -125,7 +125,7 @@ class GenerationTransactionRecoveryTest < Minitest::Test
       unlink = lambda do |path|
         if path.include?(".backup")
           attempts[path] += 1
-          if attempts[path] == 2
+          if attempts[path] == 1
             cleanup_attempts << path
             raise Errno::EACCES, path
           end
@@ -170,7 +170,7 @@ class GenerationTransactionRecoveryTest < Minitest::Test
     backup_unlinks = 0
     lambda do |path|
       backup_unlinks += 1 if path.include?(".backup")
-      raise Errno::EACCES, path if path.include?(".backup") && backup_unlinks == 2
+      raise Errno::EACCES, path if path.include?(".backup") && backup_unlinks == 1
 
       original.call(path)
     end
