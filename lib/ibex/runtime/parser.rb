@@ -1007,7 +1007,7 @@ module Ibex
         post_state = @state_stack.last if event_observers
         location = LocationSpan.for_reduction(locations, lookahead: @lookahead_location)
         result = reduction_value(production_id, production, values, locations, location)
-        refresh_runtime_fast_path_after_user_code! if production[:action]
+        refresh_runtime_fast_path_after_user_code!
         next_state = table_lookup(parser_tables.fetch(:gotos), @state_stack.last, production.fetch(:lhs))
         raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
 
@@ -1259,6 +1259,7 @@ module Ibex
       # @rbs (?report: bool) -> untyped
       def recover(report: true)
         disable_runtime_fast_path!
+        materialize_lookahead_token_display! unless @lookahead.equal?(NO_LOOKAHEAD)
         @semantic_error = false
         return continue_recovery if @recovery_shifts.positive?
 

@@ -305,6 +305,20 @@ class RuntimeFastPathTest < Minitest::Test
     assert_equal %i[reduce accept], events
   end
 
+  def test_observer_installed_by_semantic_error_action_gets_the_exact_lookahead_display
+    parser = ActionInstrumentationProbe.new([[:ITEM, 7], false])
+    events = []
+    parser.instrumentation = lambda do |active|
+      active.observe { |event| events << event }
+      active.yyerror
+    end
+
+    assert_nil parser.do_parse
+    assert_equal %i[error reject], events.map(&:type)
+    assert_equal "$eof", events.first.data.fetch("token")
+    assert_equal "semantic", events.first.data.fetch("reason")
+  end
+
   def test_direct_hook_changes_between_push_calls_are_rechecked
     parser = ActionlessProbe.new
     calls = []
