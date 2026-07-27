@@ -66,6 +66,7 @@ module Ibex
       def self.attach(parser, io:)
         singleton = parser.singleton_class
         singleton.prepend(Hooks) unless singleton.ancestors.include?(Hooks)
+        parser.__send__(:disable_runtime_fast_path!)
         parser.__send__(:ibex_jsonl_trace_output=, io)
         parser
       end

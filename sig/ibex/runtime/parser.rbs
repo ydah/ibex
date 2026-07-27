@@ -100,7 +100,7 @@ module Ibex
 
       EMPTY_LOCATION_NAMES: Hash[Symbol, Integer]
 
-      @runtime_parser_tables: Hash[Symbol, untyped]?
+      @runtime_driver_thread: Thread?
 
       @driver_status: :idle | :pull | :push
 
@@ -138,6 +138,10 @@ module Ibex
 
       @yydebug: bool
 
+      @runtime_fast_path: bool
+
+      @runtime_parser_tables: Hash[Symbol, untyped]?
+
       @recovery_attempts: Integer
 
       @resource_limits: ResourceLimits
@@ -171,8 +175,6 @@ module Ibex
       @runtime_event_sequence: Integer
 
       @runtime_observers: Hash[Observation::Subscription, Proc]?
-
-      @runtime_driver_thread: Thread?
 
       # @rbs (?resource_limits: ResourceLimits) -> void
       def initialize: (?resource_limits: ResourceLimits) -> void
@@ -314,6 +316,14 @@ module Ibex
 
       private
 
+      alias __ibex_fast_path_on_shift on_shift
+
+      alias __ibex_fast_path_on_shift_location on_shift_location
+
+      alias __ibex_fast_path_on_reduce on_reduce
+
+      alias __ibex_fast_path_on_reduce_location on_reduce_location
+
       # Racc-generated parsers commonly define an application initializer
       # without calling super. Complete only missing runtime state so those
       # initializers retain values they deliberately configured.
@@ -387,11 +397,20 @@ module Ibex
       # @rbs (untyped action) -> untyped
       def perform: (untyped action) -> untyped
 
+      # @rbs (Integer next_state) -> [:continue]
+      def fast_shift: (Integer next_state) -> [ :continue ]
+
+      # @rbs (Hash[Symbol, untyped] production, untyped length) -> bool
+      def fast_reduction_eligible?: (Hash[Symbol, untyped] production, untyped length) -> bool
+
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> [:continue]
+      def fast_reduce: (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> [ :continue ]
+
       # @rbs (Integer next_state) -> untyped
       def shift: (Integer next_state) -> untyped
 
-      # @rbs (Integer production_id) -> untyped
-      def reduce: (Integer production_id) -> untyped
+      # @rbs (Integer production_id, ?Hash[Symbol, untyped]? prefetched_production) -> untyped
+      def reduce: (Integer production_id, ?Hash[Symbol, untyped]? prefetched_production) -> untyped
 
       # @rbs (Integer next_state, untyped result, untyped location) -> void
       def push_reduction_result: (Integer next_state, untyped result, untyped location) -> void
@@ -563,6 +582,12 @@ module Ibex
       # @rbs () -> void
       def read_compatible_lookahead: () -> void
 
+      # @rbs () -> void
+      def materialize_compatible_lookahead: () -> void
+
+      # @rbs () -> String
+      def materialize_lookahead_token_display!: () -> String
+
       # @rbs (untyped external_token, untyped value, untyped location) -> RepairInput
       def repair_input: (untyped external_token, untyped value, untyped location) -> RepairInput
 
@@ -607,6 +632,26 @@ module Ibex
 
       # @rbs (Hash[Symbol, untyped] tables) -> bool
       def track_locations?: (Hash[Symbol, untyped] tables) -> bool
+
+      # @rbs (Hash[Symbol, untyped] tables) -> void
+      def initialize_runtime_fast_path: (Hash[Symbol, untyped] tables) -> void
+
+      # The generic driver remains authoritative whenever a public runtime
+      # extension can observe a committed shift or reduction.
+      # @rbs (Hash[Symbol, untyped] tables) -> bool
+      def runtime_fast_path_eligible?: (Hash[Symbol, untyped] tables) -> bool
+
+      # @rbs () -> bool
+      def runtime_fast_path_hooks_eligible?: () -> bool
+
+      # Re-check after lexer and semantic-action callbacks because those are
+      # supported points at which an application can install instrumentation.
+      # A disabled fast path never becomes active again within the session.
+      # @rbs () -> void
+      def refresh_runtime_fast_path_after_user_code!: () -> void
+
+      # @rbs () -> void
+      def disable_runtime_fast_path!: () -> void
 
       # Keep allocation out of the ordinary two-element lexer path. If a
       # location first appears after values have already shifted, backfill the

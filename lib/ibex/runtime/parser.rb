@@ -185,6 +185,7 @@ module Ibex
       # @rbs @resource_limits: ResourceLimits
       # @rbs @recovery_attempts: Integer
       # @rbs @runtime_parser_tables: Hash[Symbol, untyped]?
+      # @rbs @runtime_fast_path: bool
 
       # @rbs (?resource_limits: ResourceLimits) -> void
       def initialize(resource_limits: ResourceLimits.new)
@@ -201,6 +202,7 @@ module Ibex
       # @rbs (bool enabled) -> bool
       def yydebug=(enabled)
         ensure_runtime_initialized!
+        disable_runtime_fast_path!
         @yydebug = enabled
       end
 
@@ -283,15 +285,15 @@ module Ibex
 
         run_push_driver do
           start_push_session
+          refresh_runtime_fast_path_after_user_code!
           if @repair_policy
             enqueue_or_assign_repair_input(repair_input(token, value, location))
           else
             @lookahead = internal_token_id(token)
             @lookahead_value = value
             @lookahead_location = location
-            token_display = token_to_str(@lookahead)
-            @runtime_lookahead_token_display = token_display
-            trace("read #{token_display}") if @yydebug
+            disable_runtime_fast_path! unless location.nil?
+            materialize_compatible_lookahead
           end
           run_push_lookahead
         end
@@ -302,6 +304,7 @@ module Ibex
       def finish(location: nil)
         run_push_driver do
           start_push_session
+          refresh_runtime_fast_path_after_user_code!
           if @repair_policy
             enqueue_or_assign_repair_input(
               RepairInput.new(token_id: EOF_TOKEN, token_name: token_to_str(EOF_TOKEN), value: nil, location: location)
@@ -310,9 +313,8 @@ module Ibex
             @lookahead = EOF_TOKEN
             @lookahead_value = nil
             @lookahead_location = location
-            token_display = token_to_str(@lookahead)
-            @runtime_lookahead_token_display = token_display
-            trace("read #{token_display}") if @yydebug
+            disable_runtime_fast_path! unless location.nil?
+            materialize_compatible_lookahead
           end
           outcome = run_push_lookahead
           return outcome.fetch(1) if outcome.is_a?(Array)
@@ -339,6 +341,7 @@ module Ibex
           @repair_input_buffer = nil
           @repair_selected = false
           @runtime_parser_tables = nil
+          @runtime_fast_path = false
         end
         nil
       end
@@ -514,6 +517,11 @@ module Ibex
 
       private
 
+      alias __ibex_fast_path_on_shift on_shift
+      alias __ibex_fast_path_on_shift_location on_shift_location
+      alias __ibex_fast_path_on_reduce on_reduce
+      alias __ibex_fast_path_on_reduce_location on_reduce_location
+
       # Racc-generated parsers commonly define an application initializer
       # without calling super. Complete only missing runtime state so those
       # initializers retain values they deliberately configured.
@@ -567,6 +575,7 @@ module Ibex
         @cst_errors = [] unless preserve_existing && defined?(@cst_errors)
         @recovery_attempts = 0 unless preserve_existing && defined?(@recovery_attempts)
         @runtime_parser_tables = nil unless preserve_existing && defined?(@runtime_parser_tables)
+        @runtime_fast_path = false unless preserve_existing && defined?(@runtime_fast_path)
       end
       # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
@@ -683,6 +692,7 @@ module Ibex
         ensure
           @source = nil
           @runtime_parser_tables = nil
+          @runtime_fast_path = false
           release_driver
         end
       end
@@ -763,6 +773,7 @@ module Ibex
         @repair_input_buffer = nil
         @repair_selected = false
         @runtime_parser_tables = nil
+        @runtime_fast_path = false
         clear_sync_recovery
       end
 
@@ -775,7 +786,7 @@ module Ibex
         @source = source
         @state_stack = [initial_state]
         install_value_stack([])
-        @location_stack = track_locations?(tables) ? [] : nil
+        initialize_runtime_fast_path(tables)
         @lookahead = NO_LOOKAHEAD
         @lookahead_value = nil
         @lookahead_location = nil
@@ -875,16 +886,69 @@ module Ibex
       # @rbs (untyped action) -> untyped
       def perform(action)
         case action.first
-        when :shift then shift(action.fetch(1))
-        when :reduce then reduce(action.fetch(1))
+        when :shift
+          next_state = action.fetch(1)
+          @runtime_fast_path ? fast_shift(next_state) : shift(next_state)
+        when :reduce
+          production_id = action.fetch(1)
+          if @runtime_fast_path
+            production = parser_tables.fetch(:productions).fetch(production_id)
+            length = production.fetch(:length)
+            return fast_reduce(production_id, production, length) if fast_reduction_eligible?(production, length)
+          end
+
+          reduce(production_id, production)
         when :accept
           result = finalize_cst(@value_stack.last)
           emit_accept_event(EventSanitizer.value(result), "table") if @runtime_observers
           [:accepted, result]
-        when :error then recover
-        when :sync_recover then continue_sync_recovery
+        when :error
+          materialize_lookahead_token_display!
+          recover
+        when :sync_recover
+          materialize_lookahead_token_display!
+          continue_sync_recovery
         else raise ParseError, "(tables):1:1: unknown parser action #{action.inspect}"
         end
+      end
+
+      # @rbs (Integer next_state) -> [:continue]
+      def fast_shift(next_state)
+        value = @lookahead_value
+        ensure_stack_capacity!
+        @state_stack << next_state
+        @value_stack << value
+        @lookahead = NO_LOOKAHEAD
+        @lookahead_location = nil
+        @runtime_lookahead_token_display = nil
+        @recovery_shifts -= 1 if @recovery_shifts.positive?
+        CONTINUE_OUTCOME
+      end
+
+      # @rbs (Hash[Symbol, untyped] production, untyped length) -> bool
+      def fast_reduction_eligible?(production, length)
+        return false if production[:action]
+
+        length.is_a?(Integer) && !length.negative? &&
+          length <= @value_stack.length && length < @state_stack.length
+      end
+
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> [:continue]
+      def fast_reduce(production_id, production, length)
+        result = length.zero? ? nil : @value_stack.fetch(@value_stack.length - length)
+        remaining = length
+        while remaining.positive?
+          @state_stack.pop
+          @value_stack.pop
+          remaining -= 1
+        end
+        next_state = table_lookup(parser_tables.fetch(:gotos), @state_stack.last, production.fetch(:lhs))
+        raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
+
+        ensure_stack_capacity!
+        @state_stack << next_state
+        @value_stack << result
+        CONTINUE_OUTCOME
       end
 
       # @rbs (Integer next_state) -> untyped
@@ -918,9 +982,9 @@ module Ibex
         CONTINUE_OUTCOME
       end
 
-      # @rbs (Integer production_id) -> untyped
-      def reduce(production_id) # rubocop:disable Metrics -- allocation-free hot path.
-        production = parser_tables.fetch(:productions).fetch(production_id)
+      # @rbs (Integer production_id, ?Hash[Symbol, untyped]? prefetched_production) -> untyped
+      def reduce(production_id, prefetched_production = nil) # rubocop:disable Metrics -- allocation-free hot path.
+        production = prefetched_production || parser_tables.fetch(:productions).fetch(production_id)
         length = production.fetch(:length)
         event_observers = runtime_observer_snapshot if @runtime_observers
         pre_state = @state_stack.last if event_observers
@@ -943,6 +1007,7 @@ module Ibex
         post_state = @state_stack.last if event_observers
         location = LocationSpan.for_reduction(locations, lookahead: @lookahead_location)
         result = reduction_value(production_id, production, values, locations, location)
+        refresh_runtime_fast_path_after_user_code! if production[:action]
         next_state = table_lookup(parser_tables.fetch(:gotos), @state_stack.last, production.fetch(:lhs))
         raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
 
@@ -1193,6 +1258,7 @@ module Ibex
 
       # @rbs (?report: bool) -> untyped
       def recover(report: true)
+        disable_runtime_fast_path!
         @semantic_error = false
         return continue_recovery if @recovery_shifts.positive?
 
@@ -1600,6 +1666,7 @@ module Ibex
       # @rbs () -> void
       def read_compatible_lookahead
         token = read_external_token
+        refresh_runtime_fast_path_after_user_code!
         if token.nil? || token == false
           @lookahead = EOF_TOKEN
           @lookahead_value = nil
@@ -1612,9 +1679,26 @@ module Ibex
                          internal_token_id(external_token)
                        end
         end
-        token_display = token_to_str(@lookahead)
-        @runtime_lookahead_token_display = token_display
-        trace("read #{token_display}") if @yydebug
+        disable_runtime_fast_path! unless @lookahead_location.nil?
+        materialize_compatible_lookahead
+      end
+
+      # @rbs () -> void
+      def materialize_compatible_lookahead
+        if @runtime_fast_path
+          @runtime_lookahead_token_display = nil
+        else
+          token_display = materialize_lookahead_token_display!
+          trace("read #{token_display}") if @yydebug
+        end
+      end
+
+      # @rbs () -> String
+      def materialize_lookahead_token_display!
+        token_display = @runtime_lookahead_token_display
+        return token_display if token_display
+
+        @runtime_lookahead_token_display = token_to_str(@lookahead)
       end
 
       # @rbs (untyped external_token, untyped value, untyped location) -> RepairInput
@@ -1766,6 +1850,48 @@ module Ibex
       # @rbs (Hash[Symbol, untyped] tables) -> bool
       def track_locations?(tables)
         tables.fetch(:uses_locations, false) || !@runtime_observers.nil?
+      end
+
+      # @rbs (Hash[Symbol, untyped] tables) -> void
+      def initialize_runtime_fast_path(tables)
+        @location_stack = track_locations?(tables) ? [] : nil
+        @runtime_fast_path = runtime_fast_path_eligible?(tables)
+      end
+
+      # The generic driver remains authoritative whenever a public runtime
+      # extension can observe a committed shift or reduction.
+      # @rbs (Hash[Symbol, untyped] tables) -> bool
+      def runtime_fast_path_eligible?(tables)
+        !@yydebug &&
+          @runtime_observers.nil? &&
+          @repair_policy.nil? &&
+          tables[:cst] != true &&
+          !tables.fetch(:uses_locations, false) &&
+          @location_stack.nil? &&
+          runtime_fast_path_hooks_eligible?
+      end
+
+      # @rbs () -> bool
+      def runtime_fast_path_hooks_eligible?
+        method(:on_shift) == method(:__ibex_fast_path_on_shift) &&
+          method(:on_shift_location) == method(:__ibex_fast_path_on_shift_location) &&
+          method(:on_reduce) == method(:__ibex_fast_path_on_reduce) &&
+          method(:on_reduce_location) == method(:__ibex_fast_path_on_reduce_location)
+      end
+
+      # Re-check after lexer and semantic-action callbacks because those are
+      # supported points at which an application can install instrumentation.
+      # A disabled fast path never becomes active again within the session.
+      # @rbs () -> void
+      def refresh_runtime_fast_path_after_user_code!
+        return unless @runtime_fast_path
+
+        @runtime_fast_path = false unless runtime_fast_path_eligible?(parser_tables)
+      end
+
+      # @rbs () -> void
+      def disable_runtime_fast_path!
+        @runtime_fast_path = false
       end
 
       # Keep allocation out of the ordinary two-element lexer path. If a
