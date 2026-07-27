@@ -131,7 +131,7 @@ bundle exec ruby benchmark/comparison.rb \
   --runtime-iterations 250 \
   --behavior-probe-iterations 5 \
   --bootstrap-samples 10000 \
-  --expected-racc-backend native \
+  --expected-racc-backend ruby \
   --output tmp/performance-comparison.json
 ```
 
@@ -150,9 +150,12 @@ Generator-core or stage-level profiles may isolate that work for diagnosis,
 but they are not comparable substitutes for the formal cold series and must
 not disable the default diagnostic path.
 
-Formal evidence defaults to Racc's native runtime. The command rejects mixed
-or unexpected backend observations; use
-`--expected-racc-backend ruby` only for a separately labelled diagnostic run.
+Formal evidence compares Ibex's Pure Ruby runtime with Racc's Ruby runtime.
+Each isolated Racc worker selects that parsing routine through Racc's
+`Racc_No_Extensions` switch and verifies `racc_runtime_type` before reporting
+the observation. The command rejects mixed or unexpected backend observations;
+use `--expected-racc-backend native` only for a separately labelled diagnostic
+run.
 Every worker must also report the same effective YJIT state and `RUBYOPT`
 identity as the parent. The artifact redacts `RUBYOPT` values and paths while
 retaining presence, byte count, sanitized option names, and a SHA-256 identity.
@@ -218,7 +221,7 @@ bundle exec ruby benchmark/public_comparison.rb \
   --runtime-iterations 250 \
   --behavior-probe-iterations 5 \
   --bootstrap-samples 10000 \
-  --expected-racc-backend native \
+  --expected-racc-backend ruby \
   --output tmp/public-performance-comparison.json
 ```
 
@@ -237,10 +240,12 @@ the one embedded in the report.
 
 Workers alternate implementation order and reject effective YJIT, `RUBYOPT`,
 backend, result, repeated-result-sequence, or observation-count mismatches.
-Formal reports are native-Racc-only and always contain exactly the configured
-count of at least ten isolated processes per implementation and scenario.
-`--smoke --allow-dirty-checkouts` exists only to diagnose local checkouts; its
-artifact is labelled `diagnostic_smoke` and is not release evidence.
+Formal reports require Racc's Ruby backend and always contain exactly the
+configured count of at least ten isolated processes per implementation and
+scenario. `--smoke --allow-dirty-checkouts` exists only to diagnose local
+checkouts; its artifact is labelled `diagnostic_smoke` and is not release
+evidence. Native-Racc measurements additionally require `--smoke` and remain
+diagnostic rather than release evidence.
 
 Public runtime scenarios are lexer-inclusive and cover parser reuse and a new
 parser for every parse. Pretokenized/core timing remains in the repository-owned

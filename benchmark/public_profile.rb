@@ -221,7 +221,8 @@ module PublicPerformanceProfile
         worker_options = {
           warmup: options.fetch(:warmup),
           iterations: options.fetch(:iterations),
-          probe_iterations: 5
+          probe_iterations: 5,
+          expected_racc_backend: "ruby"
         }
         command = PublicPerformanceComparison.worker_command(
           "ibex", scenario, identifier, "<checkout>", worker_options

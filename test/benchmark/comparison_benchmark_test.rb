@@ -29,10 +29,10 @@ class ComparisonBenchmarkTest < Minitest::Test
 
     assert_includes seed_error.message, "workload seed must not be negative"
     assert_includes backend_error.message, "expected Racc backend"
-    assert_equal "native", PerformanceComparison.parse_options([]).fetch(:expected_racc_backend)
+    assert_equal "ruby", PerformanceComparison.parse_options([]).fetch(:expected_racc_backend)
     assert_equal(
-      "ruby",
-      PerformanceComparison.parse_options(["--expected-racc-backend", "ruby"]).fetch(:expected_racc_backend)
+      "native",
+      PerformanceComparison.parse_options(["--expected-racc-backend", "native"]).fetch(:expected_racc_backend)
     )
   end
 
@@ -63,7 +63,8 @@ class ComparisonBenchmarkTest < Minitest::Test
       warmup: 0,
       runtime_iterations: 1,
       workload_seed: 12_345,
-      behavior_probe_iterations: 3
+      behavior_probe_iterations: 3,
+      expected_racc_backend: "ruby"
     }
     generation = %w[ibex racc].map do |implementation|
       PerformanceComparison.worker_observation(implementation, "cold_generation", options)
@@ -79,6 +80,8 @@ class ComparisonBenchmarkTest < Minitest::Test
     assert_generation_observations(generation)
     assert_runtime_observations(runtime)
     assert_runtime_digests(runtime)
+    assert_equal ["ruby"], runtime.select { |entry| entry.fetch("implementation") == "racc" }
+                                  .map { |entry| entry.fetch("runtime_backend") }.uniq
   end
 
   def test_result_sequence_digest_covers_each_probe_parse
@@ -135,7 +138,7 @@ class ComparisonBenchmarkTest < Minitest::Test
       bootstrap_samples: 1_000
     )
     backend_observations = fake_observations
-    backend_observations.fetch("warm_runtime_tokens_reuse").fetch("racc").first["runtime_backend"] = "ruby"
+    backend_observations.fetch("warm_runtime_tokens_reuse").fetch("racc").first["runtime_backend"] = "native"
     yjit_observations = fake_observations
     yjit_observations.fetch("cold_generation").fetch("ibex").first["yjit_enabled"] =
       !BenchmarkSupport::ComparisonWorker.yjit_enabled?
@@ -215,7 +218,7 @@ class ComparisonBenchmarkTest < Minitest::Test
       "behavior_sha256" => "d" * 64,
       "result_sequence_sha256" => "e" * 64,
       "result_sequence_length" => PerformanceComparison::DEFAULTS.fetch(:behavior_probe_iterations),
-      "runtime_backend" => implementation == "ibex" ? "ruby" : "native"
+      "runtime_backend" => "ruby"
     )
   end
 

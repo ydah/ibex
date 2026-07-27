@@ -6,6 +6,7 @@ require "open3"
 require "rbconfig"
 require "rubygems"
 require "tmpdir"
+require_relative "racc_runtime"
 require_relative "rubyopt_metadata"
 
 module BenchmarkSupport
@@ -50,7 +51,8 @@ module BenchmarkSupport
       warmup:,
       runtime_iterations:,
       workload_seed:,
-      behavior_probe_iterations:
+      behavior_probe_iterations:,
+      racc_backend:
     )
       @implementation = implementation
       @scenario = scenario
@@ -58,6 +60,7 @@ module BenchmarkSupport
       @runtime_iterations = runtime_iterations
       @workload_seed = workload_seed
       @behavior_probe_iterations = behavior_probe_iterations
+      @racc_backend = racc_backend
       validate!
     end
 
@@ -138,6 +141,8 @@ module BenchmarkSupport
       unless IMPLEMENTATIONS.include?(@implementation)
         raise ArgumentError, "unknown implementation #{@implementation.inspect}"
       end
+      raise ArgumentError, "unknown Racc backend #{@racc_backend.inspect}" unless
+        RaccRuntime::BACKENDS.include?(@racc_backend)
       raise ArgumentError, "warmup must not be negative" if @warmup.negative?
       raise ArgumentError, "runtime iterations must be positive" unless @runtime_iterations.positive?
       raise ArgumentError, "workload seed must not be negative" if @workload_seed.negative?
@@ -177,6 +182,7 @@ module BenchmarkSupport
 
     def runtime_context(output)
       $LOAD_PATH.unshift(File.join(ROOT, "lib")) unless $LOAD_PATH.include?(File.join(ROOT, "lib"))
+      RaccRuntime.load!(@racc_backend) if @implementation == "racc"
       load output
       parser_class = Object.const_get(CLASS_NAME, false)
       input = "#{File.read(INPUT)}\nlet benchmark_seed: Number = #{@workload_seed};\n"
@@ -230,8 +236,7 @@ module BenchmarkSupport
     def runtime_backend
       return "ruby" if @implementation == "ibex"
 
-      native = $LOADED_FEATURES.any? { |path| File.basename(path).match?(/\Acparse\.(?:bundle|dll|so)\z/) }
-      native ? "native" : "ruby"
+      RaccRuntime.current_backend
     end
 
     def milliseconds(seconds)

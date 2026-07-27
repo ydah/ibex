@@ -126,16 +126,17 @@ class PublicComparisonBenchmarkTest < Minitest::Test
     assert_equal 1_000, options.fetch(:bootstrap_samples)
   end
 
-  def test_formal_reports_require_native_racc
+  def test_formal_reports_require_ruby_racc
     error = assert_raises(OptionParser::InvalidArgument) do
-      PublicPerformanceComparison.parse_options(["--expected-racc-backend", "ruby"])
+      PublicPerformanceComparison.parse_options(["--expected-racc-backend", "native"])
     end
     options, = PublicPerformanceComparison.parse_options(
-      ["--smoke", "--expected-racc-backend", "ruby"]
+      ["--smoke", "--expected-racc-backend", "native"]
     )
 
-    assert_includes error.message, "formal reports require Racc's native backend"
-    assert_equal "ruby", options.fetch(:expected_racc_backend)
+    assert_includes error.message, "formal reports require Racc's Ruby backend"
+    assert_equal "native", options.fetch(:expected_racc_backend)
+    assert_equal "ruby", PublicPerformanceComparison.parse_options([]).first.fetch(:expected_racc_backend)
   end
 
   def test_formal_reports_reject_a_dirty_repository_root
@@ -185,13 +186,13 @@ class PublicComparisonBenchmarkTest < Minitest::Test
     assert_includes error.message, "violates its schema"
   end
 
-  def test_schema_accepts_only_complete_clean_native_formal_evidence
+  def test_schema_accepts_only_complete_clean_ruby_formal_evidence
     report = build_smoke_report
     formalize!(report)
 
     assert_same report, PublicPerformanceComparison.validate_report!(report)
 
-    report.dig(:projects, 0, :scenarios, :warm_runtime_reuse, :implementations, :racc)[:runtime_backend] = "ruby"
+    report.dig(:projects, 0, :scenarios, :warm_runtime_reuse, :implementations, :racc)[:runtime_backend] = "native"
     assert_raises(RuntimeError) { PublicPerformanceComparison.validate_report!(report) }
   end
 
@@ -239,6 +240,7 @@ class PublicComparisonBenchmarkTest < Minitest::Test
     )
 
     assert_includes command, "/tmp/a checkout"
+    assert_equal "ruby", command.last
     assert_includes command, BenchmarkSupport::ComparisonWorker.yjit_enabled? ? "--yjit" : "--disable-yjit" if
       defined?(RubyVM::YJIT)
   end
@@ -311,7 +313,7 @@ class PublicComparisonBenchmarkTest < Minitest::Test
       "result_sha256" => "e" * 64,
       "result_sequence_sha256" => "f" * 64,
       "result_sequence_length" => 2,
-      "runtime_backend" => implementation == "ibex" ? "ruby" : "native"
+      "runtime_backend" => "ruby"
     )
   end
 end

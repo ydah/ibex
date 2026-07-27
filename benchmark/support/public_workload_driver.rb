@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
+require_relative "racc_runtime"
+
 module BenchmarkSupport
   # Loads only the public application dependencies needed by one parser workload.
   class PublicWorkloadDriver
-    def initialize(identifier, checkout, generated_output, implementation)
+    def initialize(identifier, checkout, generated_output, implementation, racc_backend:)
       @identifier = identifier
       @checkout = checkout
       @generated_output = generated_output
       @implementation = implementation
+      @racc_backend = racc_backend
     end
 
     def load!
@@ -32,7 +35,7 @@ module BenchmarkSupport
         require "ibex/runtime"
         install_migration_adapter unless @identifier == "namae"
       else
-        require "racc/parser"
+        RaccRuntime.load!(@racc_backend)
       end
     end
 

@@ -10,10 +10,10 @@ requires no C or Java extension.
 > [!IMPORTANT]
 > Ibex is pre-1.0. The current v1.0 decision is
 > [**HOLD**](docs/release-readiness.md): compatibility and scale evidence pass,
-> but representative generator/runtime performance is still behind racc and
-> the error UX evidence still needs independent review. Compatible mode is the
-> stable baseline; opt-in features have the maturity levels documented in the
-> [stability policy](docs/stability.md).
+> but the official Pure Ruby generator/runtime comparison must be refreshed
+> and the error UX evidence still needs independent review. Compatible mode is
+> the stable baseline; opt-in features have the maturity levels documented in
+> the [stability policy](docs/stability.md).
 
 - Try grammar analysis in the
   [browser playground](https://ydah.github.io/ibex/playground/).

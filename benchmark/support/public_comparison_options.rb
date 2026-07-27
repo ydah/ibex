@@ -94,9 +94,9 @@ module BenchmarkSupport
         raise OptionParser::InvalidArgument, "expected Racc backend must be native or ruby"
       end
 
-      return if options.fetch(:smoke) || backend == "native"
+      return if options.fetch(:smoke) || backend == "ruby"
 
-      raise OptionParser::InvalidArgument, "formal reports require Racc's native backend"
+      raise OptionParser::InvalidArgument, "formal reports require Racc's Ruby backend"
     end
   end
 end

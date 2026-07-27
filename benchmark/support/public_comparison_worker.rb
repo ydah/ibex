@@ -15,7 +15,9 @@ module BenchmarkSupport
     IMPLEMENTATIONS = %w[ibex racc].freeze
     SCENARIOS = %w[cold_generation warm_runtime_reuse warm_runtime_new_instance].freeze
 
-    def initialize(implementation:, scenario:, workload:, checkout:, warmup:, iterations:, probe_iterations:)
+    def initialize(
+      implementation:, scenario:, workload:, checkout:, warmup:, iterations:, probe_iterations:, racc_backend:
+    )
       @implementation = implementation
       @scenario = scenario
       @workload = workload
@@ -23,6 +25,7 @@ module BenchmarkSupport
       @warmup = warmup
       @iterations = iterations
       @probe_iterations = probe_iterations
+      @racc_backend = racc_backend
       validate!
     end
 
@@ -61,6 +64,7 @@ module BenchmarkSupport
     def validate!
       raise ArgumentError, "unknown implementation" unless IMPLEMENTATIONS.include?(@implementation)
       raise ArgumentError, "unknown scenario" unless SCENARIOS.include?(@scenario)
+      raise ArgumentError, "unknown Racc backend" unless RaccRuntime::BACKENDS.include?(@racc_backend)
       raise ArgumentError, "warmup must not be negative" if @warmup.negative?
       raise ArgumentError, "iterations must be positive" unless @iterations.positive?
       raise ArgumentError, "probe iterations must be positive" unless @probe_iterations.positive?
@@ -83,7 +87,9 @@ module BenchmarkSupport
     end
 
     def runtime(output)
-      driver = PublicWorkloadDriver.new(@workload.fetch("driver"), @checkout, output, @implementation).load!
+      driver = PublicWorkloadDriver.new(
+        @workload.fetch("driver"), @checkout, output, @implementation, racc_backend: @racc_backend
+      ).load!
       reusable = driver.parser if @scenario == "warm_runtime_reuse"
       @warmup.times { run_workload(driver, reusable) }
       measurement = measure(driver, reusable)
@@ -127,8 +133,7 @@ module BenchmarkSupport
     def runtime_backend
       return "ruby" if @implementation == "ibex"
 
-      native = $LOADED_FEATURES.any? { |path| File.basename(path).match?(/\Acparse\.(?:bundle|dll|so)\z/) }
-      native ? "native" : "ruby"
+      RaccRuntime.current_backend
     end
 
     def execution_metadata

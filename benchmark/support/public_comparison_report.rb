@@ -53,7 +53,7 @@ module BenchmarkSupport
     def assert_formal_eligibility!(options, checkouts, environment)
       return if options.fetch(:smoke)
 
-      raise "formal reports require Racc's native backend" unless options.fetch(:expected_racc_backend) == "native"
+      raise "formal reports require Racc's Ruby backend" unless options.fetch(:expected_racc_backend) == "ruby"
       raise "formal reports require at least ten isolated runs" if options.fetch(:runs) < 10
       raise "formal reports cannot allow dirty checkouts" if options.fetch(:allow_dirty)
 

@@ -74,7 +74,7 @@
           "configuration": {
             "properties": {
               "runs": { "minimum": 10 },
-              "expected_racc_backend": { "const": "native" },
+              "expected_racc_backend": { "const": "ruby" },
               "allow_dirty_checkouts": { "const": false }
             }
           },
@@ -209,7 +209,7 @@
                 { "$ref": "#/$defs/formalRuntimeImplementation" },
                 {
                   "properties": {
-                    "runtime_backend": { "const": "native" }
+                    "runtime_backend": { "const": "ruby" }
                   },
                   "required": ["runtime_backend"]
                 }

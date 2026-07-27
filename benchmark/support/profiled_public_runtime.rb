@@ -16,7 +16,7 @@ end
 
 workload = BenchmarkSupport::PublicWorkloadManifest.new(manifest_path).fetch(identifier)
 driver = BenchmarkSupport::PublicWorkloadDriver.new(
-  workload.fetch("driver"), checkout, generated_output, "ibex"
+  workload.fetch("driver"), checkout, generated_output, "ibex", racc_backend: "ruby"
 ).load!
 reusable = driver.parser if scenario == "warm_runtime_reuse"
 run_workload = lambda do

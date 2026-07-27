@@ -25,7 +25,7 @@ module PublicPerformanceComparison
     iterations: 250,
     probe_iterations: 5,
     bootstrap_samples: 10_000,
-    expected_racc_backend: "native",
+    expected_racc_backend: "ruby",
     projects: nil,
     checkouts: {},
     allow_dirty: false,
@@ -127,12 +127,13 @@ module PublicPerformanceComparison
   def worker_command(implementation, scenario, identifier, checkout, options)
     BenchmarkSupport::ComparisonWorker.ruby_prefix + [
       SCRIPT, "--worker", implementation, scenario, identifier, checkout,
-      options.fetch(:warmup).to_s, options.fetch(:iterations).to_s, options.fetch(:probe_iterations).to_s
+      options.fetch(:warmup).to_s, options.fetch(:iterations).to_s, options.fetch(:probe_iterations).to_s,
+      options.fetch(:expected_racc_backend)
     ]
   end
 
   def run_worker(arguments)
-    implementation, scenario, identifier, checkout, warmup, iterations, probe_iterations = arguments
+    implementation, scenario, identifier, checkout, warmup, iterations, probe_iterations, racc_backend = arguments
     workload = BenchmarkSupport::PublicWorkloadManifest.new(MANIFEST).fetch(identifier)
     BenchmarkSupport::PublicComparisonWorker.new(
       implementation: implementation,
@@ -141,7 +142,8 @@ module PublicPerformanceComparison
       checkout: checkout,
       warmup: Integer(warmup, 10),
       iterations: Integer(iterations, 10),
-      probe_iterations: Integer(probe_iterations, 10)
+      probe_iterations: Integer(probe_iterations, 10),
+      racc_backend: racc_backend
     ).run
   end
 

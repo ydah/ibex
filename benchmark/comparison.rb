@@ -35,7 +35,7 @@ module PerformanceComparison
     workload_seed: 12_345,
     behavior_probe_iterations: 5,
     bootstrap_samples: 10_000,
-    expected_racc_backend: "native",
+    expected_racc_backend: "ruby",
     output: nil
   }.freeze
 
@@ -72,7 +72,7 @@ module PerformanceComparison
       parser.on("--bootstrap-samples N", Integer, "deterministic bootstrap resamples") do |value|
         options[:bootstrap_samples] = value
       end
-      parser.on("--expected-racc-backend BACKEND", "native or ruby; defaults to native") do |value|
+      parser.on("--expected-racc-backend BACKEND", "ruby or native; defaults to ruby") do |value|
         options[:expected_racc_backend] = value
       end
       parser.on("--output PATH", "write the JSON report") { |value| options[:output] = value }
@@ -133,19 +133,22 @@ module PerformanceComparison
       options.fetch(:warmup).to_s,
       options.fetch(:runtime_iterations).to_s,
       options.fetch(:workload_seed).to_s,
-      options.fetch(:behavior_probe_iterations).to_s
+      options.fetch(:behavior_probe_iterations).to_s,
+      options.fetch(:expected_racc_backend)
     ]
   end
 
   def run_worker(arguments)
-    implementation, scenario, warmup, runtime_iterations, workload_seed, behavior_probe_iterations = arguments
+    implementation, scenario, warmup, runtime_iterations, workload_seed,
+      behavior_probe_iterations, racc_backend = arguments
     BenchmarkSupport::ComparisonWorker.new(
       implementation: implementation,
       scenario: scenario,
       warmup: Integer(warmup, 10),
       runtime_iterations: Integer(runtime_iterations, 10),
       workload_seed: Integer(workload_seed, 10),
-      behavior_probe_iterations: Integer(behavior_probe_iterations, 10)
+      behavior_probe_iterations: Integer(behavior_probe_iterations, 10),
+      racc_backend: racc_backend
     ).run
   end
 
