@@ -182,20 +182,22 @@ tests:
 
 | Invariant | Automated evidence |
 | --- | --- |
-| I1 consumed-input fidelity | `test/codegen/cst_test.rb` covers normal, lexical, syntax, repair, and mutated inputs; `test/codegen/cst_runtime_integration_test.rb` covers early acceptance and panic discard. |
+| I1 consumed-input fidelity | `test/runtime/cst_fidelity_property_test.rb` is PT1 over random grammars and valid, lexical-error, recovery, repair, and early-accept inputs; `test/fixtures/cst/runtime-paths-v1.json` fixes every error/trivia path, including long unmatched remainders and repair deletion. |
 | I2 Green purity | `test/runtime/cst_green_test.rb` checks derived-only immutable state and Ractor shareability; `test/codegen/cst_characterization_test.rb` keeps semantic values outside syntax children. |
 | I3 lazy Red navigation | `test/runtime/cst_red_test.rb` checks occurrence-local memoization, offsets, parents, cursors, and deterministic traversal. |
-| I4 determinism | `test/runtime/cst_serialize_test.rb` checks byte-stable dump/load/dump; `test/codegen/typed_syntax_test.rb` checks byte-stable generated Ruby and RBS; incremental property tests compare fresh Green structure. |
-| I5 unchanged action contract | `test/codegen/cst_characterization_test.rb` compares semantic results and action order with and without `pragma cst`; legacy-table regression remains in `test/codegen/cst_runtime_integration_test.rb`. |
-| I6 sharing boundary | `test/runtime/cst_green_test.rb`, `test/runtime/cst_editing_test.rb`, and `test/codegen/ractor_shareability_test.rb` check shareable Green values and parser tables while Red/session state remains occurrence-owned. |
+| I4 determinism | PT3 in `test/runtime/cst_green_test.rb` compares cache-on/off structure, source, and dump; PT6 in `test/runtime/cst_serialize_test.rb` checks byte-stable dump/load/dump; generated Ruby and RBS have golden tests. |
+| I5 unchanged action contract | `test/codegen/cst_contract_test.rb` compares CST/no-CST `parse`, `do_parse`, `yyparse`, hooks, observer order, and non-CST table shape; the characterization and legacy-table regressions remain active. |
+| I6 sharing boundary | PT5 in `test/runtime/cst_green_test.rb` checks Green shareability and concurrent Ractor reads; editing and parser-table tests keep Red/session state occurrence-owned. |
 | I7 versioned contracts | `test/runtime/cst_serialize_test.rb`, `test/runtime/table_format_test.rb`, and `test/packaging/schema_files_test.rb` cover schema validation, memo compatibility, old table readers, and schema packaging. |
 | I8 type soundness | CI regenerates the `sig/` tree, runs Steep and RBS validation, and rejects a type-statistics regression. |
 
-`test/runtime/cst_incremental_test.rb` is the PT2 authority: fixed-seed Stage A
-and Stage B edits must match fresh syntax sessions in Green structure, source,
-flags, diagnostics, and memo cardinality. It also proves that production
-actions never run, no semantic value is exposed, unsupported configurations
-fail explicitly, and bounded fallback remains equivalent.
+`test/runtime/cst_incremental_property_test.rb` is the large PT2 authority. Its
+fixed seed generates four grammar shapes and executes 20,000 random edits
+through Stage A plus 20,000 through Stage B, comparing fresh syntax sessions in
+Green structure, bytes, flags, diagnostics, and memo cardinality after every
+edit. `test/runtime/cst_incremental_test.rb` adds focused stateful-lexer,
+fallback, sharing, minimal-diff, action-suppression, no-value, and unsupported
+configuration cases.
 
 See [the migration guide](cst-migration.md) for legacy tree-shape changes and
 [the stability policy](stability.md) for support timelines.

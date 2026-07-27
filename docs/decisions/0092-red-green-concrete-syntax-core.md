@@ -64,6 +64,13 @@ than falling by the provisional 30% target. Within the retained Red/Green tree,
 52 Green occurrences use 6 distinct object identities, an 88.5% identity reuse
 ratio.
 
+The version-3 follow-up adds the P0-required recovery path. On the same Ruby
+and platform, 100 recovery parses measure 7.402 ms/49,001 allocations without
+CST, 8.156 ms/45,701 through the legacy CST, and 14.573 ms/64,401 through the
+Red/Green CST. The normal path in that run is 65.324 ms with CST versus
+39.746 ms without CST. This observation is stored as
+`2026-07-28-red-green-recovery-ruby-4.0.0-arm64-darwin24.json`.
+
 The provisional batch goals in design section 17 are therefore not met.
 Identity interning is effective, but the new builder, fidelity metadata, and
 Red/session surfaces outweigh it in the process-wide allocation probe. These
@@ -75,6 +82,21 @@ sessions on the incremental workload. The versioned observations are
 `2026-07-27-red-green-ruby-4.0.0-arm64-darwin24.json`, and
 `2026-07-27-blender-ruby-4.0.0-arm64-darwin24.json` under
 `benchmark/results/cst/`.
+
+## Gate 1 evidence
+
+The legacy characterization suite records the normal root and final trivia,
+terminal lexer values, action-bearing semantic overlay, pattern-matching keys,
+lexical `Error`, repair `Missing`, and recovery `Error` shapes. The complete
+method inventory and current replacements are published in
+`docs/cst-migration.md`.
+
+Only one mixed-production shape was observed: an action-bearing child appeared
+as a semantic token in an otherwise syntactic parent. Gate 1 accepts the
+pure-syntax C1 change and the `source_file` C2 root change, with parser-table
+regeneration as the opt-in boundary. No value-overlay view is brought forward;
+semantic consumers use the ordinary parse result and syntax consumers use the
+Red tree.
 
 ## Consequences
 

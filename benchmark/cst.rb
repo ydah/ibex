@@ -5,12 +5,19 @@ require "optparse"
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "ibex"
+require_relative "support/cst_recovery_benchmark"
 
 module CSTBenchmark
   module_function
 
   def run(argv)
     options = parse_options(argv)
+    output = JSON.pretty_generate(benchmark(options))
+    File.write(options.fetch(:output), "#{output}\n") if options[:output]
+    puts output
+  end
+
+  def benchmark(options)
     source = grammar_source(options.fetch(:rules), cst: true)
     plain_source = grammar_source(options.fetch(:rules), cst: false)
     input = Array.new(options.fetch(:rules), "1").join(" + ")
@@ -18,9 +25,10 @@ module CSTBenchmark
     plain_parser = build_parser(plain_source)
     cst = measure(cst_parser, input, options.fetch(:iterations))
     plain = measure(plain_parser, input, options.fetch(:iterations))
-    report = {
+    recovery = CSTRecoveryBenchmark.measure(options.fetch(:iterations))
+    {
       benchmark: "ibex_cst_baseline",
-      version: 2,
+      version: 3,
       ruby_version: RUBY_VERSION,
       ruby_platform: RUBY_PLATFORM,
       seed: options.fetch(:seed),
@@ -28,11 +36,9 @@ module CSTBenchmark
       iterations: options.fetch(:iterations),
       measurements: { plain: plain, cst: cst },
       cst_overhead_ratio: cst.fetch(:elapsed_ms) / plain.fetch(:elapsed_ms),
-      green_identity: green_identity(cst_parser, input)
+      green_identity: green_identity(cst_parser, input),
+      recovery: recovery
     }
-    output = JSON.pretty_generate(report)
-    File.write(options.fetch(:output), "#{output}\n") if options[:output]
-    puts output
   end
 
   def parse_options(argv)
@@ -75,20 +81,28 @@ module CSTBenchmark
     generated = Ibex::Codegen::Ruby.new(automaton).generate
     namespace = Module.new
     namespace.module_eval(generated, "benchmark-cst.rb")
-    namespace.const_get(:CSTBenchmarkParser)
+    namespace.const_get(grammar.class_name)
   end
 
-  def measure(parser_class, input, iterations)
-    parser_class.new.parse(input)
+  def measure(parser_class, input, iterations, suppress_legacy_warning: false)
+    parse_once(parser_class, input, suppress_legacy_warning: suppress_legacy_warning)
     before_allocations = GC.stat.fetch(:total_allocated_objects)
     started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-    iterations.times { parser_class.new.parse(input) }
+    iterations.times do
+      parse_once(parser_class, input, suppress_legacy_warning: suppress_legacy_warning)
+    end
     elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started
     after_allocations = GC.stat.fetch(:total_allocated_objects)
     {
       elapsed_ms: elapsed * 1000.0,
       allocated_objects: after_allocations - before_allocations
     }
+  end
+
+  def parse_once(parser_class, input, suppress_legacy_warning:)
+    parser = parser_class.new
+    parser.instance_variable_set(:@legacy_cst_warning_emitted, true) if suppress_legacy_warning
+    parser.parse(input)
   end
 
   def green_identity(parser_class, input)

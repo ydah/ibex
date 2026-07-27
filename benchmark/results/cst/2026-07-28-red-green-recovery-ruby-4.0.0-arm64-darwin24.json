@@ -1,0 +1,44 @@
+{
+  "benchmark": "ibex_cst_baseline",
+  "version": 3,
+  "ruby_version": "4.0.0",
+  "ruby_platform": "arm64-darwin24",
+  "seed": 12345,
+  "rules": 25,
+  "iterations": 100,
+  "measurements": {
+    "plain": {
+      "elapsed_ms": 39.746000000377535,
+      "allocated_objects": 327201
+    },
+    "cst": {
+      "elapsed_ms": 65.32400000014604,
+      "allocated_objects": 456607
+    }
+  },
+  "cst_overhead_ratio": 1.6435364564868302,
+  "green_identity": {
+    "occurrences": 52,
+    "unique_objects": 6,
+    "identity_reuse_ratio": 0.8846153846153846
+  },
+  "recovery": {
+    "input_bytes": 9,
+    "measurements": {
+      "plain": {
+        "elapsed_ms": 7.402000000183762,
+        "allocated_objects": 49001
+      },
+      "legacy_cst": {
+        "elapsed_ms": 8.15599999987171,
+        "allocated_objects": 45701
+      },
+      "red_green_cst": {
+        "elapsed_ms": 14.572999999472813,
+        "allocated_objects": 64401
+      }
+    },
+    "legacy_cst_overhead_ratio": 1.1018643609388314,
+    "red_green_cst_overhead_ratio": 1.9687922181992739
+  }
+}
