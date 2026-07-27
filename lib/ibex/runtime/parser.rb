@@ -637,15 +637,19 @@ module Ibex
         length = production.fetch(:length)
         return false if length >= stack.length
 
-        if length.negative?
-          stack.pop(length)
-          return false
-        end
+        if length.is_a?(Integer)
+          if length.negative?
+            stack.pop(length)
+            return false
+          end
 
-        remaining = length
-        while remaining.positive?
-          stack.pop
-          remaining -= 1
+          remaining = length
+          while remaining.positive?
+            stack.pop
+            remaining -= 1
+          end
+        else
+          stack.pop(length)
         end
         target = table_lookup(parser_tables.fetch(:gotos), stack.last, production.fetch(:lhs))
         return false unless target
@@ -924,7 +928,8 @@ module Ibex
         locations = pop_reduction_locations(length)
         hook_values = values.dup
         # Array#last above preserves the native negative-length exception before either stack mutates.
-        if length <= @value_stack.length && length < @state_stack.length
+        if length.is_a?(Integer) && !length.negative? &&
+           length <= @value_stack.length && length < @state_stack.length
           remaining = length
           while remaining.positive?
             @state_stack.pop

@@ -237,6 +237,15 @@ class RuntimeParserTest < Minitest::Test
     def self.parser_tables = TABLES
   end
 
+  class FloatReductionLengthParser < Ibex::Runtime::Parser
+    TABLES = {
+      productions: [{ lhs: 2, length: 1.2 }],
+      gotos: [{ 2 => 2 }, {}, {}]
+    }.freeze
+
+    def self.parser_tables = TABLES
+  end
+
   def test_do_parse_handles_symbol_string_and_false_eof
     parser = Calculator.new([[:INT, 1], ["+", "+"], ["(", "("], [:INT, 2], ["+", "+"], [:INT, 3], [")", ")"], false])
     assert_equal 6, parser.do_parse
@@ -333,6 +342,15 @@ class RuntimeParserTest < Minitest::Test
     assert_equal [0], stack
   end
 
+  def test_exact_reduction_delegates_non_integer_length_coercion_to_array
+    stack = [0, 1]
+
+    result = FloatReductionLengthParser.new.send(:exact_reduction_applied?, stack, 0)
+
+    assert result
+    assert_equal [0, 2], stack
+  end
+
   def test_oversized_reduction_fails_promptly_and_keeps_stacks_aligned
     parser = OversizedReductionLengthParser.new
     states = [0, 1]
@@ -350,6 +368,25 @@ class RuntimeParserTest < Minitest::Test
     assert_empty locations
     assert_same values, parser.instance_variable_get(:@vstack)
     assert_same values, parser.instance_variable_get(:@racc_vstack)
+  end
+
+  def test_reduction_delegates_non_integer_length_coercion_and_keeps_locations_aligned
+    parser = FloatReductionLengthParser.new
+    states = [0, 1]
+    values = [:value]
+    location = { line: 1, column: 2 }
+    locations = [location]
+    parser.instance_variable_set(:@state_stack, states)
+    parser.send(:install_value_stack, values)
+    parser.instance_variable_set(:@location_stack, locations)
+
+    assert_equal [:continue], parser.send(:reduce, 0)
+    assert_equal [0, 2], states
+    assert_equal [:value], values
+    assert_equal 1, locations.length
+    assert_instance_of Ibex::Runtime::LocationSpan, locations.fetch(0)
+    assert_same location, locations.fetch(0).start
+    assert_same location, locations.fetch(0).finish
   end
 
   def test_recovery_discards_bad_input_and_continues
