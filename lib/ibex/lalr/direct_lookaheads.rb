@@ -18,7 +18,8 @@ module Ibex
       # @rbs @productions_by_lhs: Hash[Integer, Array[IR::Production]]
       # @rbs @augmented_rhs: Array[Integer]
       # @rbs @production_rhs: Array[Array[Integer]]
-      # @rbs @initial_item_cores: Array[item_core]
+      # @rbs @augmented_item_cores: Array[item_core]
+      # @rbs @production_item_cores: Array[Array[item_core]]
       # @rbs @terminal_ids: Array[Integer]
       # @rbs @terminal_masks: Array[Integer]
 
@@ -30,7 +31,10 @@ module Ibex
         start = grammar.symbol(grammar.start) || raise(Ibex::Error, "missing start symbol")
         @augmented_rhs = [start.id].freeze
         @production_rhs = grammar.productions.map(&:rhs).freeze
-        @initial_item_cores = grammar.productions.map { |production| [production.id, 0].freeze }.freeze
+        @augmented_item_cores = item_cores_for(AUGMENTED_PRODUCTION, @augmented_rhs.length)
+        @production_item_cores = grammar.productions.map do |production|
+          item_cores_for(production.id, production.rhs.length)
+        end.freeze
         @terminal_ids = grammar.terminals.map(&:id).freeze
         @terminal_masks = @terminal_ids.map { |id| 1 << id }.freeze
       end
@@ -40,7 +44,7 @@ module Ibex
         states, transitions = lr0_collection
         lookaheads = empty_lookaheads(states)
         propagation = propagation_graph(states, transitions, lookaheads)
-        lookaheads.fetch(0).fetch([AUGMENTED_PRODUCTION, 0]) << 0
+        lookaheads.fetch(0).fetch(item_core(AUGMENTED_PRODUCTION, 0)) << 0
         propagate(lookaheads, propagation)
         [lookaheads, transitions]
       end
@@ -49,7 +53,7 @@ module Ibex
 
       # @rbs () -> [Array[core_set], transitions]
       def lr0_collection
-        seed = Set[[AUGMENTED_PRODUCTION, 0]] #: core_set
+        seed = Set[item_core(AUGMENTED_PRODUCTION, 0)] #: core_set
         states = [closure(seed)]
         transitions = [] #: transitions
         indexes = { item_key(states.first) => 0 }
@@ -82,7 +86,7 @@ module Ibex
           next unless symbol&.nonterminal?
 
           @productions_by_lhs.fetch(symbol.id, EMPTY_PRODUCTIONS).each do |production|
-            item = @initial_item_cores.fetch(production.id)
+            item = item_core(production.id, 0)
             queue << item if items.add?(item)
           end
         end
@@ -99,7 +103,7 @@ module Ibex
         moved = items.filter_map do |production_id, dot|
           next unless rhs_for(production_id)[dot] == symbol_id
 
-          [production_id, dot + 1] #: item_core
+          item_core(production_id, dot + 1)
         end
         closure(Set.new(moved))
       end
@@ -148,7 +152,7 @@ module Ibex
         spontaneous = terminal_ids(@sets.first_of_sequence(suffix))
         source = [state_id, production_id, dot] #: lookahead_node
         @productions_by_lhs.fetch(symbol.id, EMPTY_PRODUCTIONS).each do |production|
-          target_item = @initial_item_cores.fetch(production.id)
+          target_item = item_core(production.id, 0)
           lookaheads.fetch(state_id).fetch(target_item).merge(spontaneous)
           if @sets.sequence_nullable?(suffix)
             target = [state_id, production.id, 0] #: lookahead_node
@@ -188,7 +192,7 @@ module Ibex
       # @rbs (Array[packed_items] lookaheads, lookahead_node node) -> Set[Integer]
       def node_set(lookaheads, node)
         state_id, production_id, dot = node
-        lookaheads.fetch(state_id).fetch([production_id, dot])
+        lookaheads.fetch(state_id).fetch(item_core(production_id, dot))
       end
 
       # @rbs (Integer bits) -> Array[Integer]
@@ -207,6 +211,22 @@ module Ibex
         return @augmented_rhs if production_id == AUGMENTED_PRODUCTION
 
         @production_rhs.fetch(production_id)
+      end
+
+      # @rbs (Integer production_id, Integer rhs_length) -> Array[item_core]
+      def item_cores_for(production_id, rhs_length)
+        Array.new(rhs_length + 1) do |dot|
+          [production_id, dot].freeze #: item_core
+        end.freeze
+      end
+
+      # @rbs (Integer production_id, Integer dot) -> item_core
+      def item_core(production_id, dot)
+        raise IndexError, "invalid item dot: #{dot}" if dot.negative?
+        return @augmented_item_cores.fetch(dot) if production_id == AUGMENTED_PRODUCTION
+        raise IndexError, "invalid production id: #{production_id}" if production_id.negative?
+
+        @production_item_cores.fetch(production_id).fetch(dot)
       end
 
       # @rbs (core_set items) -> Array[item_core]

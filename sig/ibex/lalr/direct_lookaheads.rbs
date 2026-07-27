@@ -15,7 +15,9 @@ module Ibex
 
       @terminal_ids: Array[Integer]
 
-      @initial_item_cores: Array[item_core]
+      @production_item_cores: Array[Array[item_core]]
+
+      @augmented_item_cores: Array[item_core]
 
       @production_rhs: Array[Array[Integer]]
 
@@ -73,6 +75,12 @@ module Ibex
 
       # @rbs (Integer production_id) -> Array[Integer]
       def rhs_for: (Integer production_id) -> Array[Integer]
+
+      # @rbs (Integer production_id, Integer rhs_length) -> Array[item_core]
+      def item_cores_for: (Integer production_id, Integer rhs_length) -> Array[item_core]
+
+      # @rbs (Integer production_id, Integer dot) -> item_core
+      def item_core: (Integer production_id, Integer dot) -> item_core
 
       # @rbs (core_set items) -> Array[item_core]
       def item_key: (core_set items) -> Array[item_core]
