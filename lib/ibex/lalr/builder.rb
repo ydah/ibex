@@ -23,6 +23,7 @@ module Ibex
       # @rbs @entry_isolation: bool
       # @rbs @attribute_entries: bool
       # @rbs @canonical_suffix_lookahead_cache: Hash[Integer, Hash[Integer, Hash[Integer, Array[Integer]]]]
+      # @rbs @canonical_key_radices: [Integer, Integer, Integer]?
 
       attr_reader :metrics #: BuildMetrics?
 
@@ -45,6 +46,7 @@ module Ibex
         @resolver = ConflictResolver.new(grammar)
         @metrics = nil
         @canonical_suffix_lookahead_cache = {}
+        @canonical_key_radices = nil
         @start_names = starts || grammar.starts
         if @start_names.empty? || (@start_names - grammar.starts).any?
           raise ArgumentError, "starts must be a nonempty subset of grammar starts"
@@ -139,7 +141,7 @@ module Ibex
           closure(seed)
         end
         transitions = [] #: transitions
-        indexes = {} #: Hash[Array[lr_item], Integer]
+        indexes = {} #: Hash[Array[Integer], Integer]
         states.each_with_index { |items, index| indexes[item_key(items)] = index }
         cursor = 0
         while cursor < states.length
@@ -218,7 +220,7 @@ module Ibex
 
       # @rbs (Array[item_set] states, transitions transitions) -> [Array[packed_items], transitions]
       def merge_lalr(states, transitions)
-        groups = {} #: Hash[Array[item_core], Integer]
+        groups = {} #: Hash[Array[Integer], Integer]
         state_groups = states.map do |items|
           core = core_key(items)
           groups[core] ||= groups.length
@@ -359,16 +361,36 @@ module Ibex
         @grammar.productions.fetch(production_id).rhs
       end
 
-      # @rbs (item_set items) -> Array[item_core]
+      # @rbs () -> [Integer, Integer, Integer]
+      def canonical_key_radices
+        cached = @canonical_key_radices
+        return cached if cached
+
+        longest_rhs = @grammar.productions.map { |production| production.rhs.length }.max || 0
+        highest_terminal_id = @grammar.terminals.map(&:id).max || 0
+        radices = [
+          @grammar.starts.length,
+          [longest_rhs, 1].max + 1,
+          highest_terminal_id + 1
+        ] #: [Integer, Integer, Integer]
+        @canonical_key_radices = radices.freeze
+      end
+
+      # @rbs (item_set items) -> Array[Integer]
       def core_key(items)
+        production_offset, dot_radix, = canonical_key_radices
         items.map do |production, dot, _lookahead|
-          [production, dot] #: item_core
+          ((production + production_offset) * dot_radix) + dot
         end.uniq.sort
       end
 
-      # @rbs (item_set items) -> Array[lr_item]
+      # @rbs (item_set items) -> Array[Integer]
       def item_key(items)
-        items.to_a.sort
+        production_offset, dot_radix, lookahead_radix = canonical_key_radices
+        items.map do |production, dot, lookahead|
+          core = ((production + production_offset) * dot_radix) + dot
+          (core * lookahead_radix) + lookahead
+        end.sort
       end
 
       # @rbs (String name) -> Integer

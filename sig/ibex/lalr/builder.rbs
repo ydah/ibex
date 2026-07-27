@@ -11,6 +11,8 @@ module Ibex
 
       LALR_STRATEGIES: Array[Symbol]
 
+      @canonical_key_radices: [ Integer, Integer, Integer ]?
+
       @canonical_suffix_lookahead_cache: Hash[Integer, Hash[Integer, Hash[Integer, Array[Integer]]]]
 
       @attribute_entries: bool
@@ -108,11 +110,14 @@ module Ibex
       # @rbs (Integer production_id) -> Array[Integer]
       def rhs_for: (Integer production_id) -> Array[Integer]
 
-      # @rbs (item_set items) -> Array[item_core]
-      def core_key: (item_set items) -> Array[item_core]
+      # @rbs () -> [Integer, Integer, Integer]
+      def canonical_key_radices: () -> [ Integer, Integer, Integer ]
 
-      # @rbs (item_set items) -> Array[lr_item]
-      def item_key: (item_set items) -> Array[lr_item]
+      # @rbs (item_set items) -> Array[Integer]
+      def core_key: (item_set items) -> Array[Integer]
+
+      # @rbs (item_set items) -> Array[Integer]
+      def item_key: (item_set items) -> Array[Integer]
 
       # @rbs (String name) -> Integer
       def augmented_production: (String name) -> Integer
