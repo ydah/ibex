@@ -5,7 +5,7 @@
 module Ibex
 module Frontend
 class GeneratedParser < Ibex::Frontend::GeneratedParserBase
-  PARSER_TABLE_FORMAT_VERSION = 5
+  PARSER_TABLE_FORMAT_VERSION = 6
   GRAMMAR_DIGEST = "sha256:4b30ee8200fd78b1fd4a6438a0405514440a7c028e267a3af3c6e8d9a38c7b39".freeze
   STATE_COUNT = 220
   PRODUCTION_COUNT = 141

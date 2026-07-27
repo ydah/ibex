@@ -1,0 +1,35 @@
+# Generated from lib/ibex/runtime/cst/parse_result.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Immutable result returned by syntax-aware parser entry points.
+      class ParseResult
+        attr_reader value: untyped
+
+        attr_reader syntax_root: SyntaxNode
+
+        attr_reader diagnostics: Array[untyped]
+
+        # @rbs (value: untyped, syntax_root: SyntaxNode, diagnostics: Array[untyped]) -> void
+        def initialize: (value: untyped, syntax_root: SyntaxNode, diagnostics: Array[untyped]) -> void
+      end
+
+      # Syntax-only result used by incremental sessions.
+      class SyntaxResult
+        attr_reader syntax_root: SyntaxNode
+
+        attr_reader diagnostics: Array[untyped]
+
+        attr_reader reused_ratio: Float
+
+        # @rbs (syntax_root: SyntaxNode, diagnostics: Array[untyped], reused_ratio: Float) -> void
+        def initialize: (syntax_root: SyntaxNode, diagnostics: Array[untyped], reused_ratio: Float) -> void
+      end
+    end
+
+    ParseResult: untyped
+
+    SyntaxResult: untyped
+  end
+end

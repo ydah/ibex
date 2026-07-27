@@ -30,6 +30,10 @@ module Ibex
       # @rbs () -> bool
       def eof? = @eof
 
+      # Return every source byte read so far, including the unconsumed buffer.
+      # @rbs () -> String
+      def source_bytes = @archive.dup
+
       # Read until at least one byte is added or EOF is observed.
       # @rbs () -> bool
       def read_more?

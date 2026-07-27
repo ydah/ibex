@@ -453,12 +453,12 @@ class RuntimeActionContractTest < Minitest::Test
     assert_match(/inconsistent :borrowed_values_action marker/, error.message)
   end
 
-  def test_version_five_rejects_positional_and_values_markers_before_input
+  def test_current_version_rejects_positional_and_values_markers_before_input
     error = assert_raises(Ibex::Runtime::ParseError) do
       InconsistentPositionalParser.new([%i[TOKEN value]]).do_parse
     end
 
-    assert_match(/version 5 production 0/, error.message)
+    assert_match(/version 6 production 0/, error.message)
     assert_match(/inconsistent :positional_action marker/, error.message)
   end
 

@@ -4,14 +4,15 @@ module Ibex
   module Runtime
     module CST
       # LR bottom-up builder backed by a Green element stack.
+      # rubocop:disable Naming/PredicateMethod -- mutation methods report whether they found a target.
       class GreenBuilder
         type child = GreenNode | GreenToken
 
-        @kinds: Kind
+        @stack: Array[child]
 
         @cache: NodeCache
 
-        @stack: Array[child]
+        @kinds: Kind
 
         # @rbs (kinds: Kind, ?cache: NodeCache) -> void
         def initialize: (kinds: Kind, ?cache: NodeCache) -> void
@@ -19,6 +20,11 @@ module Ibex
         # @rbs (Integer kind, String text, ?leading: Array[GreenTrivia], ?trailing: Array[GreenTrivia],
         #   ?flags: Integer) -> GreenToken
         def token: (Integer kind, String text, ?leading: Array[GreenTrivia], ?trailing: Array[GreenTrivia], ?flags: Integer) -> GreenToken
+
+        # Construct an interned token without changing the builder stack.
+        # @rbs (Integer kind, String text, ?leading: Array[GreenTrivia], ?trailing: Array[GreenTrivia],
+        #   ?flags: Integer) -> GreenToken
+        def make_token: (Integer kind, String text, ?leading: Array[GreenTrivia], ?trailing: Array[GreenTrivia], ?flags: Integer) -> GreenToken
 
         # @rbs (Integer kind, Integer arity, ?flags: Integer) -> GreenNode
         def node: (Integer kind, Integer arity, ?flags: Integer) -> GreenNode
@@ -37,11 +43,34 @@ module Ibex
         # @rbs (GreenToken eof_token, ?incomplete: bool) -> GreenNode
         def finish_source_file: (GreenToken eof_token, ?incomplete: bool) -> GreenNode
 
+        # Preserve every available fragment when parsing terminates without a start node.
+        # @rbs (?Array[child] trailing, ?incomplete: bool) -> GreenNode
+        def finish_synthetic_root: (?Array[child] trailing, ?incomplete: bool) -> GreenNode
+
+        # Append discarded input to the most recent error node on the stack.
+        # @rbs (child skipped) -> bool
+        def append_to_last_error: (child skipped) -> bool
+
+        # Path-copy the right edge to attach balanced trailing trivia.
+        # @rbs (Array[GreenTrivia] trivia) -> bool
+        def append_trailing_to_last_token: (Array[GreenTrivia] trivia) -> bool
+
+        # @rbs () -> Array[child]
+        def snapshot: () -> Array[child]
+
+        # @rbs (Array[child] elements) -> void
+        def restore: (Array[child] elements) -> void
+
         # @rbs () -> Integer
         def size: () -> Integer
 
         # @rbs () -> Array[child]
         def elements: () -> Array[child]
+
+        private
+
+        # @rbs (child element, Array[GreenTrivia] trivia) -> child?
+        def with_rightmost_trailing: (child element, Array[GreenTrivia] trivia) -> child?
       end
     end
   end

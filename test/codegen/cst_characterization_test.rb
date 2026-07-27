@@ -19,19 +19,19 @@ class CSTCharacterizationTest < Minitest::Test
     end
   GRAMMAR
 
-  def test_action_values_are_children_of_actionless_reductions
-    tree = generate.new.parse("1 + 2  ", file: "mixed.txt")
-    expression = tree.children.fetch(0)
+  def test_action_values_are_separate_from_syntax_children
+    result = generate.new.parse_with_syntax("1 + 2  ", file: "mixed.txt")
+    start = result.syntax_root.children.fetch(0)
+    expression = start.children.fetch(0)
 
-    assert(expression.children.all?(Ibex::Runtime::CST::Token))
+    assert_equal 10, result.value
     assert_equal %w[term PLUS term], expression.children.map(&:symbol)
-    assert_equal [10, "+", 20], expression.children.map(&:value)
-    assert_equal "start", tree.symbol
-    assert_equal ["  "], tree.trailing_trivia.map(&:text)
+    assert(expression.children.values_at(0, 2).all?(Ibex::Runtime::CST::SyntaxNode))
+    assert_equal "1 + 2  ", result.syntax_root.to_source
   end
 
   def test_pattern_matching_surface_is_stable
-    tree = generate.new.parse("1 + 2")
+    tree = generate.new.parse_with_syntax("1 + 2").syntax_root.children.fetch(0)
     keys = tree.deconstruct_keys(nil)
 
     assert_equal tree.children, tree.deconstruct

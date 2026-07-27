@@ -79,6 +79,12 @@ module Ibex
       # @rbs () -> bool
       def shareable_parser_tables?: () -> bool
 
+      # @rbs () -> Hash[Symbol, untyped]
+      def cst_metadata: () -> Hash[Symbol, untyped]
+
+      # @rbs (untyped value) -> String
+      def deep_frozen_literal: (untyped value) -> String
+
       # @rbs (untyped table) -> String
       def table_literal: (untyped table) -> String
 

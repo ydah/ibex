@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../runtime/table_format"
+require_relative "cst_metadata"
 require_relative "generated_action_abi"
 require_relative "ruby_actions"
 require_relative "ruby_error_messages"
@@ -35,6 +36,7 @@ module Ibex
         ../runtime/cst/syntax_token.rb
         ../runtime/cst/syntax_node.rb
         ../runtime/cst/cursor.rb
+        ../runtime/cst/parse_result.rb
         ../runtime/cst.rb
         ../runtime/ast_data.rb
         ../runtime/resource_limits.rb
@@ -91,7 +93,10 @@ module Ibex
         @cst_trivia = cst_trivia.to_sym
         @generated_action_abi = GeneratedActionABI::Cache.new
         @runtime_require = runtime_require
-        raise ArgumentError, "cst_trivia must be :attach or :drop" unless %i[attach drop].include?(@cst_trivia)
+        @cst_trivia = :leading if @cst_trivia == :attach
+        unless %i[leading balanced drop].include?(@cst_trivia)
+          raise ArgumentError, "cst_trivia must be :leading, :balanced, or :drop"
+        end
 
         @error_messages = error_messages.sort.to_h.freeze
       end
@@ -146,6 +151,7 @@ module Ibex
         lines << "#{indent}TOKEN_IDS = #{token_ids_literal}.freeze"
         lines << "#{indent}TOKEN_NAMES = #{token_names_literal}.freeze"
         lines << "#{indent}SYMBOL_NAMES = #{symbol_names_literal}.freeze" if cst?
+        lines << "#{indent}CST_METADATA = #{deep_frozen_literal(cst_metadata)}" if cst?
         lines << "#{indent}ACTIONS = #{table_literal(table_set.actions)}"
         lines << "#{indent}GOTOS = #{table_literal(table_set.gotos)}"
         lines << "#{indent}DEFAULT_ACTIONS = #{table_set.default_actions.inspect}.freeze"
@@ -175,10 +181,7 @@ module Ibex
           lines << "#{indent}                  compact_fast_driver: true, " \
                    "compact_action_encoding: :signed, compact_default_actions: #{default_codes.inspect}.freeze,"
         end
-        if cst?
-          lines << "#{indent}                  cst: true, cst_trivia: #{@cst_trivia.inspect}, " \
-                   "cst_start: #{@grammar.start.inspect}, symbol_names: SYMBOL_NAMES,"
-        end
+        lines << "#{indent}                  cst: CST_METADATA," if cst?
         lines << "#{indent}                  exact_expected_tokens: true," if @grammar.mode == :extended
         lines << "#{indent}                  tokens: TOKEN_IDS, token_names: TOKEN_NAMES, actions: ACTIONS,"
         lines << "#{indent}                  gotos: GOTOS, default_actions: DEFAULT_ACTIONS,"
@@ -216,6 +219,28 @@ module Ibex
       # @rbs () -> bool
       def shareable_parser_tables?
         @grammar.conversions.empty?
+      end
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def cst_metadata
+        @cst_metadata ||= CSTMetadata.new(@grammar, trivia_policy: @cst_trivia).build
+      end
+
+      # @rbs (untyped value) -> String
+      def deep_frozen_literal(value)
+        case value
+        when Array
+          "[#{value.map { |item| deep_frozen_literal(item) }.join(', ')}].freeze"
+        when Hash
+          entries = value.map do |key, item|
+            "#{deep_frozen_literal(key)} => #{deep_frozen_literal(item)}"
+          end
+          "{ #{entries.join(', ')} }.freeze"
+        when String
+          "#{value.inspect}.freeze"
+        else
+          value.inspect
+        end
       end
 
       # @rbs (untyped table) -> String

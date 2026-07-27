@@ -8,7 +8,7 @@ module Ibex
 
       type kinds = { names: Array[String], terminal_range: Array[Integer], nonterminal_range: Array[Integer], named: kind_map, named_nonterminals: Hash[Integer, Integer], trivia: kind_map, synthetic: kind_map }
 
-      type slot = { node_name: String, fields: Hash[String, Integer] }
+      type slot = { node_kind: Integer, node_name: String, fields: Hash[String, Integer] }
 
       type metadata = { version: Integer, trivia_policy: Symbol, kinds: kinds, slots: Hash[Integer, slot] }
 
@@ -44,8 +44,8 @@ module Ibex
       # @rbs (Hash[String, Integer] named) -> Hash[Integer, Integer]
       def named_nonterminals: (Hash[String, Integer] named) -> Hash[Integer, Integer]
 
-      # @rbs () -> Hash[Integer, slot]
-      def slot_metadata: () -> Hash[Integer, slot]
+      # @rbs (Hash[String, Integer] named) -> Hash[Integer, slot]
+      def slot_metadata: (Hash[String, Integer] named) -> Hash[Integer, slot]
     end
   end
 end

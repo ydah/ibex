@@ -295,6 +295,12 @@ module Ibex
       # @rbs @sync_recovery_token_data: Hash[String, untyped]?
       # @rbs @sync_recovery_observers: Array[Proc]?
       # @rbs @cst_errors: Array[CST::Error]
+      # @rbs @green_builder: CST::GreenBuilder?
+      # @rbs @green_kinds: CST::Kind?
+      # @rbs @green_cache: CST::NodeCache?
+      # @rbs @syntax_root: CST::SyntaxNode?
+      # @rbs @syntax_diagnostics: Array[untyped]
+      # @rbs @green_pending_skipped: Array[CST::GreenTrivia]
       # @rbs @resource_limits: ResourceLimits
       # @rbs @recovery_attempts: Integer
       # @rbs @runtime_parser_tables: Hash[Symbol, untyped]?
@@ -379,6 +385,19 @@ module Ibex
       # @rbs () -> untyped
       def do_parse
         drive_parser(nil)
+      end
+
+      # Parse through `next_token` and return both the semantic value and Red root.
+      # @rbs () -> CST::ParseResult
+      def parse_with_syntax
+        syntax_parse_result(do_parse)
+      end
+
+      # Return the Red source-file root built by the most recent CST parse.
+      # @rbs () -> CST::SyntaxNode?
+      def syntax_root
+        ensure_runtime_initialized!
+        @syntax_root
       end
 
       # Parse tokens yielded by `receiver.method_id`.
@@ -692,6 +711,12 @@ module Ibex
         @sync_recovery_token_data = nil unless preserve_existing && defined?(@sync_recovery_token_data)
         @sync_recovery_observers = nil unless preserve_existing && defined?(@sync_recovery_observers)
         @cst_errors = [] unless preserve_existing && defined?(@cst_errors)
+        @green_builder = nil unless preserve_existing && defined?(@green_builder)
+        @green_kinds = nil unless preserve_existing && defined?(@green_kinds)
+        @green_cache = nil unless preserve_existing && defined?(@green_cache)
+        @syntax_root = nil unless preserve_existing && defined?(@syntax_root)
+        @syntax_diagnostics = [] unless preserve_existing && defined?(@syntax_diagnostics)
+        @green_pending_skipped = [] unless preserve_existing && defined?(@green_pending_skipped)
         @recovery_attempts = 0 unless preserve_existing && defined?(@recovery_attempts)
         @runtime_parser_tables = nil unless preserve_existing && defined?(@runtime_parser_tables)
         @runtime_fast_path = false unless preserve_existing && defined?(@runtime_fast_path)
@@ -1186,7 +1211,7 @@ module Ibex
         reset_parse_recovery_state
         @accept_requested = false
         @unknown_token_id = nil
-        @cst_errors.clear
+        reset_cst_results(tables)
         @recovery_attempts = 0
         trace("start state #{initial_state}") if @yydebug
         @runtime_event_sequence = 0
@@ -1493,6 +1518,7 @@ module Ibex
         @state_stack << next_state
         push_location(location)
         @value_stack << value
+        shift_green_token(token_id, value, location)
         @lookahead = NO_LOOKAHEAD
         @lookahead_location = nil
         @runtime_lookahead_token_display = nil
@@ -1529,6 +1555,7 @@ module Ibex
         location = LocationSpan.for_reduction(locations, lookahead: @lookahead_location)
         result = reduction_value(production_id, production, values, locations, location)
         refresh_runtime_fast_path_after_user_code!
+        reduce_green(production_id, production, length)
         next_state = table_lookup(parser_tables.fetch(:gotos), @state_stack.last, production.fetch(:lhs))
         raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
 
@@ -1663,7 +1690,7 @@ module Ibex
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
       #   Array[untyped] locations, LocationSpan? location) -> untyped
       def actionless_reduction_value(production_id, production, values, locations, location)
-        return values.first unless cst_enabled?
+        return values.first unless cst_enabled? && !red_green_cst?
 
         cst_reduction_value(production_id, production, values, locations, location)
       end
@@ -1703,7 +1730,12 @@ module Ibex
 
       # @rbs () -> bool
       def cst_enabled?
-        parser_tables[:cst] == true
+        !parser_tables[:cst].nil? && parser_tables[:cst] != false
+      end
+
+      # @rbs () -> bool
+      def red_green_cst?
+        parser_tables.fetch(:format_version) >= 6 && parser_tables[:cst].is_a?(Hash)
       end
 
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
@@ -1748,6 +1780,13 @@ module Ibex
         return unless cst_enabled?
         return if token_id == EOF_TOKEN
 
+        if red_green_cst?
+          @syntax_diagnostics << {
+            token_id: token_id, value: value, location: location, reason: reason
+          }.freeze
+          return
+        end
+
         @cst_errors << CST::Error.new(
           symbol: token_to_str(token_id), value: value, location: location, reason: reason
         )
@@ -1756,6 +1795,7 @@ module Ibex
       # @rbs (untyped value) -> CST::Node
       def finalize_cst(value)
         return value unless cst_enabled?
+        return finalize_red_green_cst(value) if red_green_cst?
 
         node = if value.is_a?(CST::Node)
                  value
@@ -1777,8 +1817,13 @@ module Ibex
         trailing.empty? ? node : node.with_trailing_trivia(trailing)
       end
 
-      # @rbs () -> CST::Node
+      # @rbs () -> CST::Node?
       def failed_cst
+        if red_green_cst?
+          finalize_failed_green_cst
+          return nil
+        end
+
         capture_cst_error(@lookahead, @lookahead_value, @lookahead_location, :syntax) if @cst_errors.empty?
         CST::Node.new(
           symbol: parser_tables.fetch(:cst_start), production_id: -1,
@@ -1786,8 +1831,14 @@ module Ibex
         )
       end
 
-      # @rbs (ParseError error) -> CST::Node
+      # @rbs (ParseError error) -> CST::Node?
       def cst_lexical_failure(error)
+        if red_green_cst?
+          @syntax_diagnostics << error
+          finalize_lexical_green_cst(error)
+          return nil
+        end
+
         error_node = CST::Error.new(
           symbol: "lexer input", value: error.token_value, location: error.location, reason: :lexical
         )
@@ -1810,6 +1861,189 @@ module Ibex
         nil
       end
 
+      # @rbs (Hash[Symbol, untyped] tables) -> void
+      def prepare_green_cst(tables)
+        @syntax_root = nil
+        @syntax_diagnostics.clear
+        @green_pending_skipped.clear
+        config = tables[:cst]
+        unless config.is_a?(Hash)
+          @green_builder = nil
+          @green_kinds = nil
+          @green_cache = nil
+          return
+        end
+
+        kinds = CST::Kind.new(config.fetch(:kinds))
+        cache = CST::NodeCache.new
+        @green_kinds = kinds
+        @green_cache = cache
+        @green_builder = CST::GreenBuilder.new(kinds: kinds, cache: cache)
+      end
+
+      # @rbs (Hash[Symbol, untyped] tables) -> void
+      def reset_cst_results(tables)
+        @cst_errors.clear
+        prepare_green_cst(tables)
+      end
+
+      # @rbs (Integer token_id, untyped value, untyped location) -> void
+      def shift_green_token(token_id, value, location)
+        builder = @green_builder
+        kinds = @green_kinds
+        return unless builder && kinds
+
+        trailing = green_location_trivia(location, :cst_previous_trailing)
+        builder.append_trailing_to_last_token(trailing)
+        repair = cst_location_value(location, :ibex_repair)
+        if repair == :insert
+          builder.missing(token_id)
+          return
+        end
+
+        leading = @green_pending_skipped + green_location_trivia(location, :leading_trivia)
+        flags = @green_pending_skipped.empty? ? 0 : CST::Flags::CONTAINS_SKIPPED
+        @green_pending_skipped.clear
+        flags |= CST::Flags::CONTAINS_ERROR if repair == :replace || token_id == ERROR_TOKEN
+        kind = token_id.negative? ? kinds.fetch(:lexical_error_token) : token_id
+        builder.token(kind, green_token_text(value, location), leading: leading, flags: flags)
+      end
+
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> void
+      def reduce_green(production_id, production, length)
+        builder = @green_builder
+        return unless builder
+
+        config = parser_tables.fetch(:cst)
+        slot = config.fetch(:slots).fetch(production_id, nil)
+        kind = slot ? slot.fetch(:node_kind) : production.fetch(:lhs)
+        flags = length.zero? ? CST::Flags::SYNTHETIC : 0
+        builder.node(kind, length, flags: flags)
+      end
+
+      # @rbs (untyped value, untyped location) -> String
+      def green_token_text(value, location)
+        text = cst_location_value(location, :ibex_cst_text)
+        return text if text.is_a?(String)
+        return value if value.is_a?(String)
+
+        ""
+      end
+
+      # @rbs (untyped location, Symbol key) -> Array[CST::GreenTrivia]
+      def green_location_trivia(location, key)
+        trivia = cst_location_value(location, key)
+        trivia.is_a?(Array) ? trivia.grep(CST::GreenTrivia) : []
+      end
+
+      # @rbs (untyped value) -> untyped
+      def finalize_red_green_cst(value)
+        builder = @green_builder || raise(ParseError, "(cst):1:1: Green builder is unavailable")
+        kinds = @green_kinds || raise(ParseError, "(cst):1:1: kind metadata is unavailable")
+        incomplete = @lookahead != EOF_TOKEN
+        unless incomplete
+          builder.append_trailing_to_last_token(green_location_trivia(@lookahead_location, :cst_previous_trailing))
+        end
+        empty_trivia = [] #: Array[CST::GreenTrivia]
+        eof_leading = incomplete ? empty_trivia : green_location_trivia(@lookahead_location, :leading_trivia)
+        leading = @green_pending_skipped + eof_leading
+        @green_pending_skipped.clear
+        eof = builder.make_token(EOF_TOKEN, "", leading: leading)
+        green = if builder.size == 1
+                  builder.finish_source_file(eof, incomplete: incomplete)
+                else
+                  builder.finish_synthetic_root([eof], incomplete: incomplete)
+                end
+        install_syntax_root(green, kinds)
+        value
+      end
+
+      # @rbs () -> void
+      def finalize_failed_green_cst
+        builder = @green_builder || raise(ParseError, "(cst):1:1: Green builder is unavailable")
+        kinds = @green_kinds || raise(ParseError, "(cst):1:1: kind metadata is unavailable")
+        trailing = [] #: Array[CST::GreenNode | CST::GreenToken]
+        builder.append_trailing_to_last_token(green_location_trivia(@lookahead_location, :cst_previous_trailing))
+        leading = @green_pending_skipped + green_location_trivia(@lookahead_location, :leading_trivia)
+        @green_pending_skipped.clear
+        if @lookahead.equal?(NO_LOOKAHEAD)
+          trailing << builder.make_token(EOF_TOKEN, "", leading: leading) unless leading.empty?
+        elsif @lookahead == EOF_TOKEN
+          trailing << builder.make_token(EOF_TOKEN, "", leading: leading)
+        else
+          kind = @lookahead.is_a?(Integer) && @lookahead >= 0 ? @lookahead : kinds.fetch(:lexical_error_token)
+          trailing << builder.make_token(
+            kind, green_token_text(@lookahead_value, @lookahead_location),
+            leading: leading,
+            flags: CST::Flags::CONTAINS_ERROR
+          )
+        end
+        install_syntax_root(builder.finish_synthetic_root(trailing), kinds)
+      end
+
+      # @rbs (ParseError error) -> void
+      def finalize_lexical_green_cst(error)
+        builder = @green_builder || raise(ParseError, "(cst):1:1: Green builder is unavailable")
+        kinds = @green_kinds || raise(ParseError, "(cst):1:1: kind metadata is unavailable")
+        text = error.token_value.is_a?(String) ? error.token_value : error.token_value.to_s
+        token = builder.make_token(
+          kinds.fetch(:lexical_error_token), text,
+          leading: pending_green_trivia + green_location_trivia(error.location, :leading_trivia),
+          flags: CST::Flags::CONTAINS_ERROR
+        )
+        file = cst_location_value(error.location, :file)
+        install_syntax_root(
+          builder.finish_synthetic_root([token]), kinds,
+          file: file.is_a?(String) ? file : nil
+        )
+      end
+
+      # @rbs () -> Array[CST::GreenTrivia]
+      def pending_green_trivia
+        return [] unless respond_to?(:take_cst_pending_green_trivia, true)
+
+        __send__(:take_cst_pending_green_trivia)
+      end
+
+      # @rbs (CST::GreenNode green, CST::Kind kinds, ?file: String?) -> void
+      def install_syntax_root(green, kinds, file: nil)
+        config = parser_tables.fetch(:cst)
+        policy = config.fetch(:trivia_policy)
+        location_file = cst_location_value(@lookahead_location, :file)
+        source_file = file || (location_file if location_file.is_a?(String))
+        source = CST::SourceText.new(green.to_source, file: source_file)
+        @syntax_root = CST::SyntaxNode.new(
+          green: green, kinds: kinds, trivia_policy: policy, source_text: source
+        )
+      end
+
+      # @rbs (untyped value) -> CST::ParseResult
+      def syntax_parse_result(value)
+        root = @syntax_root
+        raise ParseError, "(cst):1:1: parse_with_syntax requires a format-v6 CST parser" unless root
+
+        CST::ParseResult.new(value: value, syntax_root: root, diagnostics: @syntax_diagnostics)
+      end
+
+      # @rbs () -> void
+      def discard_green_lookahead
+        builder = @green_builder
+        kinds = @green_kinds
+        return unless builder && kinds
+
+        kind = @lookahead.is_a?(Integer) && @lookahead >= 0 ? @lookahead : kinds.fetch(:lexical_error_token)
+        token = builder.make_token(
+          kind, green_token_text(@lookahead_value, @lookahead_location),
+          leading: green_location_trivia(@lookahead_location, :leading_trivia),
+          flags: CST::Flags::CONTAINS_ERROR
+        )
+        return if builder.append_to_last_error(token)
+
+        @green_pending_skipped << CST::GreenTrivia.new(
+          kind: kinds.fetch(:skipped_tokens), text: token.to_source
+        )
+      end
+
       # @rbs (?report: bool) -> untyped
       def recover(report: true)
         @runtime_fast_path = false
@@ -1829,6 +2063,7 @@ module Ibex
         event_data = runtime_discard_data(token_display) if event_observers
         trace("discard #{token_display} during recovery") if @yydebug
         on_discard(@lookahead, @lookahead_value, @lookahead_location, :recovery)
+        discard_green_lookahead
         @lookahead = NO_LOOKAHEAD
         @lookahead_location = nil
         @runtime_lookahead_token_display = nil
@@ -1918,15 +2153,19 @@ module Ibex
 
       # @rbs (Hash[Symbol, untyped] context, Hash[String, untyped]? token_data,
       #   Array[Proc]? recovery_observers) -> untyped
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      # Green restoration mirrors the existing state/value/location transactional fallback.
       def fallback_recovery(context, token_data, recovery_observers)
         state_stack = @state_stack.dup if sync_recovery_configured?
         value_stack = @value_stack.dup if state_stack
         location_stack = @location_stack&.dup if state_stack
+        green_stack = @green_builder&.snapshot if state_stack
         unless shift_error_token
           if state_stack
             @state_stack = state_stack
             install_value_stack(value_stack || [])
             @location_stack = location_stack
+            @green_builder&.restore(green_stack || [])
             return begin_sync_recovery(context, token_data, recovery_observers)
           end
 
@@ -1942,6 +2181,7 @@ module Ibex
           context[:value_stack], token_data, context[:reason], recovery_observers
         )
       end
+      # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
       # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,
       #   Integer state) -> Hash[String, untyped]
@@ -2051,6 +2291,7 @@ module Ibex
 
       # @rbs () -> bool
       def shift_error_token
+        popped = 0
         loop do
           action = table_lookup(parser_tables.fetch(:actions), @state_stack.last, ERROR_TOKEN)
           if action&.first == :shift
@@ -2059,6 +2300,7 @@ module Ibex
             @state_stack << action.fetch(1)
             push_location(@lookahead_location)
             @value_stack << nil
+            @green_builder&.absorb_into_error(popped)
             return true
           end
           return false if @state_stack.length == 1
@@ -2067,6 +2309,7 @@ module Ibex
           @state_stack.pop
           @value_stack.pop
           @location_stack&.pop
+          popped += 1
         end
       end
 

@@ -16,7 +16,7 @@ module Ibex
       #     trivia: kind_map,
       #     synthetic: kind_map
       #   }
-      #   type slot = { node_name: String, fields: Hash[String, Integer] }
+      #   type slot = { node_kind: Integer, node_name: String, fields: Hash[String, Integer] }
       #   type metadata = {
       #     version: Integer,
       #     trivia_policy: Symbol,
@@ -68,9 +68,9 @@ module Ibex
           trivia: trivia.freeze,
           synthetic: synthetic.freeze
         }.freeze #: kinds
-        metadata = {
+        metadata = { # rubocop:disable Style/RedundantAssignment -- preserves the exact record type for Steep.
           version: 1, trivia_policy: @trivia_policy,
-          kinds: kinds, slots: slot_metadata.freeze
+          kinds: kinds, slots: slot_metadata(named).freeze
         }.freeze #: metadata
         metadata
       end
@@ -126,14 +126,21 @@ module Ibex
         result
       end
 
-      # @rbs () -> Hash[Integer, slot]
-      def slot_metadata
+      # @rbs (Hash[String, Integer] named) -> Hash[Integer, slot]
+      def slot_metadata(named)
         @grammar.productions.filter_map do |production|
           node = production.node
           next unless node
 
           fields = node.fetch(:fields).each_with_index.to_h.freeze
-          [production.id, { node_name: node.fetch(:name), fields: fields }.freeze]
+          [
+            production.id,
+            {
+              node_kind: named.fetch(node.fetch(:name)),
+              node_name: node.fetch(:name),
+              fields: fields
+            }.freeze
+          ]
         end.to_h
       end
     end

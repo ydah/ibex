@@ -153,23 +153,29 @@ module Ibex
 
       EMPTY_LOCATIONS: Array[untyped]
 
-      @runtime_fast_path_singleton_ancestors: Array[Module]?
-
-      @runtime_observers: Hash[Observation::Subscription, Proc]?
-
-      @runtime_driver_thread: Thread?
-
-      @driver_status: :idle | :pull | :push
-
-      @push_status: :idle | :active | :finished
-
-      @unknown_token_name: String?
-
-      @unknown_token_id: Integer?
+      @semantic_error: bool
 
       @accept_requested: bool
 
-      @semantic_error: bool
+      @unknown_token_id: Integer?
+
+      @unknown_token_name: String?
+
+      @push_status: :idle | :active | :finished
+
+      @driver_status: :idle | :pull | :push
+
+      @runtime_driver_thread: Thread?
+
+      @runtime_observers: Hash[Observation::Subscription, Proc]?
+
+      @runtime_event_sequence: Integer
+
+      @runtime_lookahead_token_display: untyped
+
+      @runtime_observation_mutex: Mutex
+
+      @runtime_fast_path_singleton_ancestors: Array[Module]?
 
       @recovery_shifts: Integer
 
@@ -207,6 +213,18 @@ module Ibex
 
       @resource_limits: ResourceLimits
 
+      @green_pending_skipped: Array[CST::GreenTrivia]
+
+      @syntax_diagnostics: Array[untyped]
+
+      @syntax_root: CST::SyntaxNode?
+
+      @green_cache: CST::NodeCache?
+
+      @green_kinds: CST::Kind?
+
+      @green_builder: CST::GreenBuilder?
+
       @cst_errors: Array[CST::Error]
 
       @sync_recovery_observers: Array[Proc]?
@@ -228,12 +246,6 @@ module Ibex
       @repair_input_buffer: Array[RepairInput]?
 
       @repair_policy: RepairPolicy?
-
-      @runtime_observation_mutex: Mutex
-
-      @runtime_lookahead_token_display: untyped
-
-      @runtime_event_sequence: Integer
 
       # @rbs (?resource_limits: ResourceLimits) -> void
       def initialize: (?resource_limits: ResourceLimits) -> void
@@ -265,6 +277,14 @@ module Ibex
       # Pull tokens from `next_token` and parse them.
       # @rbs () -> untyped
       def do_parse: () -> untyped
+
+      # Parse through `next_token` and return both the semantic value and Red root.
+      # @rbs () -> CST::ParseResult
+      def parse_with_syntax: () -> CST::ParseResult
+
+      # Return the Red source-file root built by the most recent CST parse.
+      # @rbs () -> CST::SyntaxNode?
+      def syntax_root: () -> CST::SyntaxNode?
 
       # Parse tokens yielded by `receiver.method_id`.
       # @rbs (untyped receiver, Symbol method_id) -> untyped
@@ -567,6 +587,9 @@ module Ibex
       # @rbs () -> bool
       def cst_enabled?: () -> bool
 
+      # @rbs () -> bool
+      def red_green_cst?: () -> bool
+
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
       #   Array[untyped] locations, LocationSpan? location) -> CST::Node
       def cst_reduction_value: (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> CST::Node
@@ -580,17 +603,56 @@ module Ibex
       # @rbs (untyped value) -> CST::Node
       def finalize_cst: (untyped value) -> CST::Node
 
-      # @rbs () -> CST::Node
-      def failed_cst: () -> CST::Node
+      # @rbs () -> CST::Node?
+      def failed_cst: () -> CST::Node?
 
-      # @rbs (ParseError error) -> CST::Node
-      def cst_lexical_failure: (ParseError error) -> CST::Node
+      # @rbs (ParseError error) -> CST::Node?
+      def cst_lexical_failure: (ParseError error) -> CST::Node?
 
       # @rbs (Integer symbol_id) -> String
       def cst_symbol_name: (Integer symbol_id) -> String
 
       # @rbs (untyped location, Symbol key) -> untyped
       def cst_location_value: (untyped location, Symbol key) -> untyped
+
+      # @rbs (Hash[Symbol, untyped] tables) -> void
+      def prepare_green_cst: (Hash[Symbol, untyped] tables) -> void
+
+      # @rbs (Hash[Symbol, untyped] tables) -> void
+      def reset_cst_results: (Hash[Symbol, untyped] tables) -> void
+
+      # @rbs (Integer token_id, untyped value, untyped location) -> void
+      def shift_green_token: (Integer token_id, untyped value, untyped location) -> void
+
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> void
+      def reduce_green: (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> void
+
+      # @rbs (untyped value, untyped location) -> String
+      def green_token_text: (untyped value, untyped location) -> String
+
+      # @rbs (untyped location, Symbol key) -> Array[CST::GreenTrivia]
+      def green_location_trivia: (untyped location, Symbol key) -> Array[CST::GreenTrivia]
+
+      # @rbs (untyped value) -> untyped
+      def finalize_red_green_cst: (untyped value) -> untyped
+
+      # @rbs () -> void
+      def finalize_failed_green_cst: () -> void
+
+      # @rbs (ParseError error) -> void
+      def finalize_lexical_green_cst: (ParseError error) -> void
+
+      # @rbs () -> Array[CST::GreenTrivia]
+      def pending_green_trivia: () -> Array[CST::GreenTrivia]
+
+      # @rbs (CST::GreenNode green, CST::Kind kinds, ?file: String?) -> void
+      def install_syntax_root: (CST::GreenNode green, CST::Kind kinds, ?file: String?) -> void
+
+      # @rbs (untyped value) -> CST::ParseResult
+      def syntax_parse_result: (untyped value) -> CST::ParseResult
+
+      # @rbs () -> void
+      def discard_green_lookahead: () -> void
 
       # @rbs (?report: bool) -> untyped
       def recover: (?report: bool) -> untyped
@@ -621,6 +683,8 @@ module Ibex
 
       # @rbs (Hash[Symbol, untyped] context, Hash[String, untyped]? token_data,
       #   Array[Proc]? recovery_observers) -> untyped
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      # Green restoration mirrors the existing state/value/location transactional fallback.
       def fallback_recovery: (Hash[Symbol, untyped] context, Hash[String, untyped]? token_data, Array[Proc]? recovery_observers) -> untyped
 
       # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,

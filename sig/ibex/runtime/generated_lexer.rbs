@@ -8,7 +8,9 @@ module Ibex
     module GeneratedLexer : Parser
       NO_EMISSION: Object
 
-      @lexer_pending_trivia: Array[CST::Trivia]
+      @lexer_has_token: bool
+
+      @lexer_pending_trivia: Array[CST::Trivia | CST::GreenTrivia]
 
       @lexer_skip_requested: bool
 
@@ -37,6 +39,10 @@ module Ibex
       # Lex and parse one String, IO, or Fiber source.
       # @rbs (String | IO | Fiber source, ?file: String) -> untyped
       def parse: (String | IO | Fiber source, ?file: String) -> untyped
+
+      # Parse one generated-lexer source and return its semantic and syntax results.
+      # @rbs (String | IO | Fiber source, ?file: String) -> CST::ParseResult
+      def parse_with_syntax: (String | IO | Fiber source, ?file: String) -> CST::ParseResult
 
       # Return the current named lexer state.
       # @rbs () -> Symbol
@@ -95,6 +101,24 @@ module Ibex
 
       # @rbs () -> Symbol
       def cst_trivia_policy: () -> Symbol
+
+      # @rbs () -> bool
+      def red_green_cst?: () -> bool
+
+      # @rbs (String text) -> Integer
+      def cst_trivia_kind: (String text) -> Integer
+
+      # @rbs (Array[CST::GreenTrivia] trivia) -> [Array[CST::GreenTrivia], Array[CST::GreenTrivia]]
+      def split_balanced_trivia: (Array[CST::GreenTrivia] trivia) -> [ Array[CST::GreenTrivia], Array[CST::GreenTrivia] ]
+
+      # @rbs () -> CST::SourceText
+      def cst_source_text: () -> CST::SourceText
+
+      # @rbs () -> Array[CST::GreenTrivia]
+      def take_cst_pending_green_trivia: () -> Array[CST::GreenTrivia]
+
+      # @rbs (Array[CST::Trivia | CST::GreenTrivia] values) -> Array[CST::GreenTrivia]
+      def green_trivia_values: (Array[CST::Trivia | CST::GreenTrivia] values) -> Array[CST::GreenTrivia]
 
       # Push a named lexer state.
       # @rbs (Symbol | String state) -> Symbol
