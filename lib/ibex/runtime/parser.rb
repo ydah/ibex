@@ -128,6 +128,49 @@ module Ibex
     # retain the historical two-argument contract. Markers are honored only for
     # the generated `_ibex_action_N` Symbol shape, never for callables.
     class Parser
+      # Keep direct singleton-hook mutation visible even when an application
+      # replaces Ruby's mutation callbacks without calling super.
+      module FastPathMutationTracker
+        # @rbs (Ibex::Runtime::Parser parser, UnboundMethod lookup) -> bool
+        def self.effective_for?(parser, lookup)
+          added = lookup.bind_call(parser, :singleton_method_added) # @type var added: Method
+          removed = lookup.bind_call(parser, :singleton_method_removed) # @type var removed: Method
+          undefined = lookup.bind_call(parser, :singleton_method_undefined) # @type var undefined: Method
+          added.owner.equal?(self) && removed.owner.equal?(self) && undefined.owner.equal?(self)
+        rescue NameError
+          false
+        end
+
+        private
+
+        # @rbs (Symbol name) -> void
+        def singleton_method_added(name)
+          case name
+          when :on_shift, :on_shift_location, :on_reduce, :on_reduce_location, :token_to_str
+            @runtime_fast_path = false
+          end
+          super
+        end
+
+        # @rbs (Symbol name) -> void
+        def singleton_method_removed(name)
+          case name
+          when :on_shift, :on_shift_location, :on_reduce, :on_reduce_location, :token_to_str
+            @runtime_fast_path = false
+          end
+          super
+        end
+
+        # @rbs (Symbol name) -> void
+        def singleton_method_undefined(name)
+          case name
+          when :on_shift, :on_shift_location, :on_reduce, :on_reduce_location, :token_to_str
+            @runtime_fast_path = false
+          end
+          super
+        end
+      end
+
       include Observation
       include ParserSyncRecovery
 
@@ -146,7 +189,8 @@ module Ibex
 
       EMPTY_ROW = empty_row.freeze #: Hash[Integer, untyped]
       EMPTY_LOCATION_NAMES = empty_location_names.freeze #: Hash[Symbol, Integer]
-      private_constant :ERROR_ACTION, :SYNC_RECOVER_ACTION, :CONTINUE_OUTCOME, :REPAIR_PENDING_OUTCOME
+      private_constant :ERROR_ACTION, :SYNC_RECOVER_ACTION, :CONTINUE_OUTCOME, :REPAIR_PENDING_OUTCOME,
+                       :FastPathMutationTracker
 
       # @rbs @yydebug: bool
       # @rbs @yydebug_output: IO
@@ -186,6 +230,7 @@ module Ibex
       # @rbs @recovery_attempts: Integer
       # @rbs @runtime_parser_tables: Hash[Symbol, untyped]?
       # @rbs @runtime_fast_path: bool
+      # @rbs @runtime_fast_path_tracker_installed: bool
 
       # @rbs (?resource_limits: ResourceLimits) -> void
       def initialize(resource_limits: ResourceLimits.new)
@@ -202,7 +247,7 @@ module Ibex
       # @rbs (bool enabled) -> bool
       def yydebug=(enabled)
         ensure_runtime_initialized!
-        disable_runtime_fast_path!
+        @runtime_fast_path = false
         @yydebug = enabled
       end
 
@@ -292,7 +337,7 @@ module Ibex
             @lookahead = internal_token_id(token)
             @lookahead_value = value
             @lookahead_location = location
-            disable_runtime_fast_path! unless nil.equal?(location)
+            @runtime_fast_path = false unless nil.equal?(location)
             materialize_compatible_lookahead
           end
           run_push_lookahead
@@ -313,7 +358,7 @@ module Ibex
             @lookahead = EOF_TOKEN
             @lookahead_value = nil
             @lookahead_location = location
-            disable_runtime_fast_path! unless nil.equal?(location)
+            @runtime_fast_path = false unless nil.equal?(location)
             materialize_compatible_lookahead
           end
           outcome = run_push_lookahead
@@ -439,7 +484,7 @@ module Ibex
       # Enter error recovery from a semantic action without calling `on_error`.
       # @rbs () -> nil
       def yyerror
-        disable_runtime_fast_path!
+        @runtime_fast_path = false
         @semantic_error = true
         nil
       end
@@ -454,7 +499,7 @@ module Ibex
       # Accept immediately after the current semantic action completes.
       # @rbs () -> nil
       def yyaccept
-        disable_runtime_fast_path!
+        @runtime_fast_path = false
         @accept_requested = true
         nil
       end
@@ -519,43 +564,11 @@ module Ibex
 
       private
 
-      # Ruby invokes these hooks for direct singleton method mutations. Keep
-      # the checks allocation-free because they can run inside lexer callbacks.
-      # @rbs (Symbol name) -> void
-      def singleton_method_added(name)
-        case name
-        when :on_shift, :on_shift_location, :on_reduce, :on_reduce_location, :token_to_str
-          disable_runtime_fast_path!
-        end
-        super
-      end
-
-      # @rbs (Symbol name) -> void
-      def singleton_method_removed(name)
-        case name
-        when :on_shift, :on_shift_location, :on_reduce, :on_reduce_location, :token_to_str
-          disable_runtime_fast_path!
-        end
-        super
-      end
-
-      # @rbs (Symbol name) -> void
-      def singleton_method_undefined(name)
-        case name
-        when :on_shift, :on_shift_location, :on_reduce, :on_reduce_location, :token_to_str
-          disable_runtime_fast_path!
-        end
-        super
-      end
-
       alias __ibex_fast_path_on_shift on_shift
       alias __ibex_fast_path_on_shift_location on_shift_location
       alias __ibex_fast_path_on_reduce on_reduce
       alias __ibex_fast_path_on_reduce_location on_reduce_location
       alias __ibex_fast_path_token_to_str token_to_str
-      alias __ibex_fast_path_singleton_method_added singleton_method_added
-      alias __ibex_fast_path_singleton_method_removed singleton_method_removed
-      alias __ibex_fast_path_singleton_method_undefined singleton_method_undefined
 
       # Racc-generated parsers commonly define an application initializer
       # without calling super. Complete only missing runtime state so those
@@ -611,6 +624,8 @@ module Ibex
         @recovery_attempts = 0 unless preserve_existing && defined?(@recovery_attempts)
         @runtime_parser_tables = nil unless preserve_existing && defined?(@runtime_parser_tables)
         @runtime_fast_path = false unless preserve_existing && defined?(@runtime_fast_path)
+        @runtime_fast_path_tracker_installed = false unless
+          preserve_existing && defined?(@runtime_fast_path_tracker_installed)
       end
       # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
@@ -1293,7 +1308,7 @@ module Ibex
 
       # @rbs (?report: bool) -> untyped
       def recover(report: true)
-        disable_runtime_fast_path!
+        @runtime_fast_path = false
         materialize_lookahead_token_display! unless @lookahead.equal?(NO_LOOKAHEAD)
         @semantic_error = false
         return continue_recovery if @recovery_shifts.positive?
@@ -1715,7 +1730,7 @@ module Ibex
                          internal_token_id(external_token)
                        end
         end
-        disable_runtime_fast_path! unless nil.equal?(@lookahead_location)
+        @runtime_fast_path = false unless nil.equal?(@lookahead_location)
         materialize_compatible_lookahead
       end
 
@@ -1892,13 +1907,23 @@ module Ibex
       def initialize_runtime_fast_path(tables)
         @location_stack = track_locations?(tables) ? [] : nil
         @runtime_fast_path = runtime_fast_path_eligible?(tables)
+        return unless @runtime_fast_path
+        return if @runtime_fast_path_tracker_installed
+
+        begin
+          singleton = Object.instance_method(:singleton_class).bind_call(self)
+          Module.instance_method(:prepend).bind_call(singleton, FastPathMutationTracker)
+          @runtime_fast_path_tracker_installed = true
+        rescue FrozenError, TypeError
+          @runtime_fast_path = false
+        end
       end
 
       # The generic driver remains authoritative whenever a public runtime
       # extension can observe a committed shift or reduction.
       # @rbs (Hash[Symbol, untyped] tables) -> bool
       def runtime_fast_path_eligible?(tables)
-        !@yydebug &&
+        @yydebug == false &&
           @runtime_observers.nil? &&
           @repair_policy.nil? &&
           tables[:cst] != true &&
@@ -1910,20 +1935,16 @@ module Ibex
       # @rbs () -> bool
       def runtime_fast_path_hooks_eligible?
         lookup = Object.instance_method(:method)
-        runtime_method_unchanged?(lookup, :on_shift, :__ibex_fast_path_on_shift) &&
+        hooks_unchanged =
+          runtime_method_unchanged?(lookup, :on_shift, :__ibex_fast_path_on_shift) &&
           runtime_method_unchanged?(lookup, :on_shift_location, :__ibex_fast_path_on_shift_location) &&
           runtime_method_unchanged?(lookup, :on_reduce, :__ibex_fast_path_on_reduce) &&
           runtime_method_unchanged?(lookup, :on_reduce_location, :__ibex_fast_path_on_reduce_location) &&
-          runtime_method_unchanged?(lookup, :token_to_str, :__ibex_fast_path_token_to_str) &&
-          runtime_method_unchanged?(
-            lookup, :singleton_method_added, :__ibex_fast_path_singleton_method_added
-          ) &&
-          runtime_method_unchanged?(
-            lookup, :singleton_method_removed, :__ibex_fast_path_singleton_method_removed
-          ) &&
-          runtime_method_unchanged?(
-            lookup, :singleton_method_undefined, :__ibex_fast_path_singleton_method_undefined
-          )
+          runtime_method_unchanged?(lookup, :token_to_str, :__ibex_fast_path_token_to_str)
+        return false unless hooks_unchanged
+        return true unless @runtime_fast_path_tracker_installed
+
+        FastPathMutationTracker.effective_for?(self, lookup)
       end
 
       # @rbs (UnboundMethod lookup, Symbol name, Symbol reference) -> bool
@@ -1948,12 +1969,13 @@ module Ibex
       def refresh_runtime_fast_path_after_user_code!
         return unless @runtime_fast_path
 
-        disable_runtime_fast_path! if @semantic_error || @accept_requested
-      end
-
-      # @rbs () -> void
-      def disable_runtime_fast_path!
-        @runtime_fast_path = false
+        @runtime_fast_path = false unless
+          @yydebug == false &&
+          @runtime_observers.nil? &&
+          @repair_policy.nil? &&
+          @location_stack.nil? &&
+          @semantic_error == false &&
+          @accept_requested == false
       end
 
       # Keep allocation out of the ordinary two-element lexer path. If a

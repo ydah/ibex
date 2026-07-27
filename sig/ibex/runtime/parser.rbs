@@ -72,6 +72,24 @@ module Ibex
     # retain the historical two-argument contract. Markers are honored only for
     # the generated `_ibex_action_N` Symbol shape, never for callables.
     class Parser
+      # Keep direct singleton-hook mutation visible even when an application
+      # replaces Ruby's mutation callbacks without calling super.
+      module FastPathMutationTracker
+        # @rbs (Ibex::Runtime::Parser parser, UnboundMethod lookup) -> bool
+        def self.effective_for?: (Ibex::Runtime::Parser parser, UnboundMethod lookup) -> bool
+
+        private
+
+        # @rbs (Symbol name) -> void
+        def singleton_method_added: (Symbol name) -> void
+
+        # @rbs (Symbol name) -> void
+        def singleton_method_removed: (Symbol name) -> void
+
+        # @rbs (Symbol name) -> void
+        def singleton_method_undefined: (Symbol name) -> void
+      end
+
       include Observation
 
       include ParserSyncRecovery
@@ -99,6 +117,8 @@ module Ibex
       EMPTY_ROW: Hash[Integer, untyped]
 
       EMPTY_LOCATION_NAMES: Hash[Symbol, Integer]
+
+      @runtime_fast_path_tracker_installed: bool
 
       @runtime_driver_thread: Thread?
 
@@ -316,17 +336,6 @@ module Ibex
 
       private
 
-      # Ruby invokes these hooks for direct singleton method mutations. Keep
-      # the checks allocation-free because they can run inside lexer callbacks.
-      # @rbs (Symbol name) -> void
-      def singleton_method_added: (Symbol name) -> void
-
-      # @rbs (Symbol name) -> void
-      def singleton_method_removed: (Symbol name) -> void
-
-      # @rbs (Symbol name) -> void
-      def singleton_method_undefined: (Symbol name) -> void
-
       alias __ibex_fast_path_on_shift on_shift
 
       alias __ibex_fast_path_on_shift_location on_shift_location
@@ -336,12 +345,6 @@ module Ibex
       alias __ibex_fast_path_on_reduce_location on_reduce_location
 
       alias __ibex_fast_path_token_to_str token_to_str
-
-      alias __ibex_fast_path_singleton_method_added singleton_method_added
-
-      alias __ibex_fast_path_singleton_method_removed singleton_method_removed
-
-      alias __ibex_fast_path_singleton_method_undefined singleton_method_undefined
 
       # Racc-generated parsers commonly define an application initializer
       # without calling super. Complete only missing runtime state so those
@@ -676,9 +679,6 @@ module Ibex
       # A disabled fast path never becomes active again within the session.
       # @rbs () -> void
       def refresh_runtime_fast_path_after_user_code!: () -> void
-
-      # @rbs () -> void
-      def disable_runtime_fast_path!: () -> void
 
       # Keep allocation out of the ordinary two-element lexer path. If a
       # location first appears after values have already shifted, backfill the

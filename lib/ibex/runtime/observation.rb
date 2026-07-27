@@ -33,7 +33,7 @@ module Ibex
 
         @runtime_observation_mutex.synchronize do
           ensure_observation_thread!
-          __send__(:disable_runtime_fast_path!)
+          @runtime_fast_path = false
           subscription = Subscription.__send__(:new)
           @runtime_observers ||= {} #: Hash[Subscription, Proc]
           @runtime_observers[subscription] = observer

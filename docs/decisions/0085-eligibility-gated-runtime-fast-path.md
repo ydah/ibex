@@ -48,21 +48,32 @@ assignment through `yydebug=`, legacy JSON-lines tracer attachment, or the
 first non-nil input location disables the fast path immediately. Explicit
 `yyerror` and `yyaccept` requests also disable it so the generic reduction tail
 commits their control flow. Pull lexers and semantic actions are followed by
-an allocation-free control-flag check. Direct addition, removal, or undefinition
-of a relevant singleton hook is detected by Ruby's singleton-method callbacks.
-Push calls perform the same checks at each driver boundary. Errors, recovery,
-and synthetic error-token shifts always use the generic path; token display is
-materialized lazily before an error or synchronization transaction.
+an allocation-free check of the canonical debug, observer, repair, location,
+semantic-error, and accept-request state. This catches application overrides
+that assign those internal states without delegating to the runtime setters.
+Direct addition, removal, or undefinition of a relevant singleton hook is
+detected by a private mutation tracker prepended once to each eligible parser's
+singleton class. Ordinary replacement of Ruby's three singleton-method
+callbacks therefore cannot bypass invalidation. Push calls perform the same
+checks at each driver boundary. Errors, recovery, and synthetic error-token
+shifts always use the generic path; token display is materialized lazily before
+an error or synchronization transaction.
 
 Changing parser methods concurrently from another thread remains outside the
 parser instance's supported threading contract. Effective hooks are compared
 once at session start, and relevant direct singleton method mutations made by
 a lexer, semantic action, or between push calls are detected. Changing a class
-or ancestor module, extending the parser instance, or prepending its singleton
-class during an active session is unsupported; configure those method layers
-before the session so the initial comparison can select the generic path. This
-optimization changes neither the parser-table ABI nor non-embedded parser and
-table emission.
+or ancestor module, extending the parser instance, or prepending another layer
+above the mutation tracker during an active session is unsupported; configure
+those method layers before the session so the initial comparison can select the
+generic path. Once installed, the tracker must remain the effective owner of
+all three mutation callbacks at every later session boundary; an idle-time
+prepend above it therefore selects the generic driver for the next session. A
+frozen singleton class cannot accept the tracker and conservatively uses the
+generic driver. Runtime-owned invalidation writes the state directly, so an
+application method with a formerly internal helper name cannot suppress
+observers or tracing. This optimization changes neither the parser-table ABI
+nor non-embedded parser and table emission.
 `-E` deliberately embeds the runtime source, so embedded output bytes track
 the selected runtime version and change with this implementation.
 

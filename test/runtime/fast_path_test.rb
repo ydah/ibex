@@ -350,19 +350,86 @@ class RuntimeFastPathTest < Minitest::Test
     end
   end
 
-  def test_singleton_mutation_callback_overrides_disqualify_the_session
-    %i[singleton_method_added singleton_method_removed singleton_method_undefined].each do |callback|
-      callback_class = Class.new(ActionlessProbe) do
-        private
+  def test_replacing_all_singleton_mutation_callbacks_cannot_hide_a_hook
+    parser = ActionlessProbe.new
+    assert_equal :need_more, parser.push(:ITEM, 12)
+    assert parser.fast_path_active?
 
+    %i[singleton_method_added singleton_method_removed singleton_method_undefined].each do |callback|
+      parser.define_singleton_method(callback) { |_name| nil }
+    end
+    assert parser.fast_path_active?
+
+    hook_calls = []
+    parser.define_singleton_method(:on_reduce) { |*payload| hook_calls << payload }
+
+    refute parser.fast_path_active?
+    assert_equal 12, parser.finish
+    refute_empty hook_calls
+    assert_operator parser.generic_reductions, :>, 0
+  end
+
+  def test_preexisting_singleton_mutation_callbacks_are_guarded_by_the_tracker
+    callback_class = Class.new(ActionlessProbe) do
+      private
+
+      %i[singleton_method_added singleton_method_removed singleton_method_undefined].each do |callback|
         define_method(callback) { |_name| nil }
       end
-      parser = callback_class.new([[:ITEM, callback], false])
-
-      assert_equal callback, parser.do_parse
-      assert_operator parser.generic_shifts, :>, 0
-      assert_operator parser.generic_reductions, :>, 0
     end
+    parser = callback_class.new
+    assert_equal :need_more, parser.push(:ITEM, 18)
+    assert parser.fast_path_active?
+
+    parser.define_singleton_method(:on_reduce) { |*| nil }
+
+    refute parser.fast_path_active?
+    assert_equal 18, parser.finish
+    assert_operator parser.generic_reductions, :>, 0
+  end
+
+  def test_tracker_remains_installed_across_push_sessions
+    parser = ActionlessProbe.new
+    assert_equal :need_more, parser.push(:ITEM, 13)
+    assert_equal 13, parser.finish
+    parser.reset_push
+
+    assert_equal :need_more, parser.push(:ITEM, 14)
+    assert parser.fast_path_active?
+    assert_equal 14, parser.finish
+    assert_equal [0, 0], [parser.generic_shifts, parser.generic_reductions]
+  end
+
+  def test_idle_prepend_above_the_tracker_disqualifies_the_next_session
+    parser = ActionlessProbe.new
+    assert_equal :need_more, parser.push(:ITEM, 16)
+    assert_equal 16, parser.finish
+    parser.reset_push
+
+    callback_layer = Module.new do
+      private
+
+      define_method(:singleton_method_added) { |_name| nil }
+    end
+    parser.singleton_class.prepend(callback_layer)
+
+    assert_equal :need_more, parser.push(:ITEM, 17)
+    refute parser.fast_path_active?
+    hook_calls = []
+    parser.define_singleton_method(:on_reduce) { |*payload| hook_calls << payload }
+    assert_equal 17, parser.finish
+    refute_empty hook_calls
+    assert_operator parser.generic_shifts, :>, 0
+    assert_operator parser.generic_reductions, :>, 0
+  end
+
+  def test_frozen_singleton_class_falls_back_to_the_generic_driver
+    parser = ActionlessProbe.new([[:ITEM, 15], false])
+    parser.singleton_class.freeze
+
+    assert_equal 15, parser.do_parse
+    assert_operator parser.generic_shifts, :>, 0
+    assert_operator parser.generic_reductions, :>, 0
   end
 
   def test_singleton_and_prepended_hooks_disqualify_the_session
@@ -518,6 +585,29 @@ class RuntimeFastPathTest < Minitest::Test
     assert_operator removed.generic_reductions, :>, 0
   end
 
+  def test_observation_invalidation_bypasses_application_disable_helpers
+    subclass = Class.new(ActionlessProbe) do
+      private
+
+      def disable_runtime_fast_path! = raise("application helper must not run")
+    end
+
+    [subclass.new, ActionlessProbe.new].each_with_index do |parser, index|
+      assert_equal :need_more, parser.push(:ITEM, index)
+      if index == 1
+        parser.define_singleton_method(:disable_runtime_fast_path!) do
+          raise "application singleton helper must not run"
+        end
+      end
+
+      events = []
+      parser.observe { |event| events << event.type }
+      assert_equal index, parser.finish
+      assert_operator parser.generic_reductions, :>, 0
+      assert_equal %i[reduce accept], events
+    end
+  end
+
   def test_push_debug_disables_the_active_session
     debug = ActionlessProbe.new
     assert_equal :need_more, debug.push(:ITEM, "debug")
@@ -538,6 +628,9 @@ class RuntimeFastPathTest < Minitest::Test
   def test_push_jsonl_attachment_disables_the_active_session
     traced = ActionlessProbe.new
     assert_equal :need_more, traced.push(:ITEM, "traced")
+    traced.define_singleton_method(:disable_runtime_fast_path!) do
+      raise "application singleton helper must not run"
+    end
     output = StringIO.new
     Ibex::Runtime::JSONLTracer.attach(traced, io: output)
     assert_equal "traced", traced.finish
@@ -562,6 +655,7 @@ class RuntimeFastPathTest < Minitest::Test
     debug = ActionlessProbe.new([[:ITEM, "debug"], false])
     debug_output = StringIO.new
     original_debug_lexer = debug.method(:next_token)
+    debug.define_singleton_method(:yydebug=) { |enabled| @yydebug = enabled }
     debug.define_singleton_method(:next_token) do
       self.yydebug_output = debug_output
       self.yydebug = true
@@ -570,6 +664,21 @@ class RuntimeFastPathTest < Minitest::Test
     assert_equal "debug", debug.do_parse
     assert_operator debug.generic_shifts, :>, 0
     assert_includes debug_output.string, "shift"
+  end
+
+  def test_direct_scalar_changes_from_user_code_disable_later_fast_reductions
+    {
+      runtime_observers: {},
+      repair_policy: Object.new,
+      location_stack: []
+    }.each do |name, value|
+      parser = ActionInstrumentationProbe.new([[:ITEM, name], false])
+      parser.instrumentation = ->(active) { active.instance_variable_set(:"@#{name}", value) }
+
+      assert_equal name, parser.do_parse
+      assert_equal 2, parser.generic_reductions
+      refute parser.fast_path_active?
+    end
   end
 
   def test_jsonl_tracer_installed_by_next_token_is_honored_before_shift
