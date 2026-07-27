@@ -247,6 +247,7 @@ module Ibex
       CONTINUE_OUTCOME = [:continue].freeze #: [:continue]
       REPAIR_PENDING_OUTCOME = [:repair_pending].freeze #: [:repair_pending]
       TERMINAL_OUTCOMES = %i[accepted done].freeze #: Array[Symbol]
+      COMPACT_ACCEPTED = Object.new.freeze #: Object
       empty_row = {} # @type var empty_row: Hash[Integer, untyped]
       empty_location_names = {} # @type var empty_location_names: Hash[Symbol, Integer]
       empty_locations = [] # @type var empty_locations: Array[untyped]
@@ -255,7 +256,7 @@ module Ibex
       EMPTY_LOCATION_NAMES = empty_location_names.freeze #: Hash[Symbol, Integer]
       EMPTY_LOCATIONS = empty_locations.freeze #: Array[untyped]
       private_constant :ERROR_ACTION, :SYNC_RECOVER_ACTION, :CONTINUE_OUTCOME, :REPAIR_PENDING_OUTCOME,
-                       :TERMINAL_OUTCOMES, :FAST_PATH_HOOK_NAMES, :FAST_PATH_HOOK_REFERENCES,
+                       :TERMINAL_OUTCOMES, :COMPACT_ACCEPTED, :FAST_PATH_HOOK_NAMES, :FAST_PATH_HOOK_REFERENCES,
                        :FastPathMutationTracker, :FastPathClassMutationTracker
 
       # @rbs @yydebug: bool
@@ -375,7 +376,7 @@ module Ibex
       # Pull tokens from `next_token` and parse them.
       # @rbs () -> untyped
       def do_parse
-        drive_parser(-> { next_token })
+        drive_parser(nil)
       end
 
       # Parse tokens yielded by `receiver.method_id`.
@@ -789,7 +790,7 @@ module Ibex
         true
       end
 
-      # @rbs (^() -> untyped source, ?initial_state: Integer?) -> untyped
+      # @rbs ((^() -> untyped)? source, ?initial_state: Integer?) -> untyped
       def drive_parser(source, initial_state: nil)
         ensure_runtime_initialized!
         @runtime_observation_mutex.synchronize do
@@ -807,12 +808,12 @@ module Ibex
           tables = @runtime_parser_tables
           if tables && compact_fast_driver_eligible?(tables)
             fast_outcome = drive_compact_fast_parser(tables)
-            return fast_outcome.fetch(1) if
-              fast_outcome && TERMINAL_OUTCOMES.include?(fast_outcome[0])
+            return @value_stack.last if fast_outcome.equal?(COMPACT_ACCEPTED)
+            return fast_outcome.fetch(1) if fast_outcome.is_a?(Array) &&
+                                            TERMINAL_OUTCOMES.include?(fast_outcome[0])
           end
           loop do
-            action = action_for_current_state
-            outcome = perform(action)
+            outcome = perform(action_for_current_state)
             case outcome[0]
             when :accepted, :done then return outcome[1]
             end
@@ -831,7 +832,7 @@ module Ibex
       # replaying a committed action.
       # rubocop:disable Metrics/AbcSize, Metrics/BlockNesting, Metrics/CyclomaticComplexity
       # rubocop:disable Metrics/MethodLength, Metrics/PerceivedComplexity
-      # @rbs (Hash[Symbol, untyped] tables) -> ([:accepted, untyped] | [:done, untyped])?
+      # @rbs (Hash[Symbol, untyped] tables) -> (Object | [:accepted, untyped] | [:done, untyped])?
       def drive_compact_fast_parser(tables)
         actions = tables.fetch(:actions)
         gotos = tables.fetch(:gotos)
@@ -855,14 +856,15 @@ module Ibex
         while @runtime_fast_path
           if @lookahead.equal?(NO_LOOKAHEAD)
             source = @source
-            raise ParseError, "(input):1:1: token source is not available" unless source
 
             token = begin
-              source.call
+              source ? source.call : next_token
             rescue StopIteration
               false
             end
-            refresh_runtime_fast_path_after_user_code!
+            @runtime_fast_path = false if
+              @yydebug || @runtime_observers || @repair_policy || @location_stack ||
+              @semantic_error || @accept_requested
             if token.nil? || token == false
               @lookahead = EOF_TOKEN
               @lookahead_value = nil
@@ -896,7 +898,7 @@ module Ibex
           return unless code
 
           if code == accept_code
-            return [:accepted, values.last]
+            return COMPACT_ACCEPTED
           elsif code == error_code
             return
           elsif code.even?
@@ -940,7 +942,9 @@ module Ibex
                 @semantic_location_names = previous_names
                 @semantic_result_location = previous_result_location
               end
-              refresh_runtime_fast_path_after_user_code!
+              @runtime_fast_path = false if
+                @yydebug || @runtime_observers || @repair_policy || @location_stack ||
+                @semantic_error || @accept_requested
               goto_row = states.last
               goto_index = goto_offsets[goto_row] + lhs
               next_state = goto_values[goto_index] if goto_checks[goto_index] == goto_row
@@ -1082,7 +1086,7 @@ module Ibex
         clear_sync_recovery
       end
 
-      # @rbs (^() -> untyped source, ?initial_state: Integer?) -> void
+      # @rbs ((^() -> untyped)? source, ?initial_state: Integer?) -> void
       def prepare_parse(source, initial_state: nil)
         @runtime_parser_tables = load_parser_tables
         tables = validate_parser_table_format!
@@ -2182,9 +2186,7 @@ module Ibex
       # @rbs () -> untyped
       def read_external_token
         source = @source
-        raise ParseError, "(input):1:1: token source is not available" unless source
-
-        source.call
+        source ? source.call : next_token
       rescue StopIteration
         false
       end

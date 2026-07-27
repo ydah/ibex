@@ -143,6 +143,8 @@ module Ibex
 
       TERMINAL_OUTCOMES: Array[Symbol]
 
+      COMPACT_ACCEPTED: Object
+
       EMPTY_ROW: Hash[Integer, untyped]
 
       EMPTY_LOCATION_NAMES: Hash[Symbol, Integer]
@@ -412,8 +414,8 @@ module Ibex
       # @rbs (Array[Integer] stack, Integer production_id) -> bool
       def exact_reduction_applied?: (Array[Integer] stack, Integer production_id) -> bool
 
-      # @rbs (^() -> untyped source, ?initial_state: Integer?) -> untyped
-      def drive_parser: (^() -> untyped source, ?initial_state: Integer?) -> untyped
+      # @rbs ((^() -> untyped)? source, ?initial_state: Integer?) -> untyped
+      def drive_parser: ((^() -> untyped)? source, ?initial_state: Integer?) -> untyped
 
       # Generated compact tables can keep the unobserved, location-free pull
       # loop on their frozen displacement arrays. Any extension boundary or
@@ -421,8 +423,8 @@ module Ibex
       # replaying a committed action.
       # rubocop:disable Metrics/AbcSize, Metrics/BlockNesting, Metrics/CyclomaticComplexity
       # rubocop:disable Metrics/MethodLength, Metrics/PerceivedComplexity
-      # @rbs (Hash[Symbol, untyped] tables) -> ([:accepted, untyped] | [:done, untyped])?
-      def drive_compact_fast_parser: (Hash[Symbol, untyped] tables) -> ([ :accepted, untyped ] | [ :done, untyped ])?
+      # @rbs (Hash[Symbol, untyped] tables) -> (Object | [:accepted, untyped] | [:done, untyped])?
+      def drive_compact_fast_parser: (Hash[Symbol, untyped] tables) -> (Object | [ :accepted, untyped ] | [ :done, untyped ])?
 
       # @rbs (Hash[Symbol, untyped]? tables) -> bool
       def compact_fast_driver_eligible?: (Hash[Symbol, untyped]? tables) -> bool
@@ -445,8 +447,8 @@ module Ibex
       # @rbs () -> void
       def finish_push_session: () -> void
 
-      # @rbs (^() -> untyped source, ?initial_state: Integer?) -> void
-      def prepare_parse: (^() -> untyped source, ?initial_state: Integer?) -> void
+      # @rbs ((^() -> untyped)? source, ?initial_state: Integer?) -> void
+      def prepare_parse: ((^() -> untyped)? source, ?initial_state: Integer?) -> void
 
       # @rbs () -> void
       def reset_parse_recovery_state: () -> void
