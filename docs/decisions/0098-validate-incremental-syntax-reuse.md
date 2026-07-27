@@ -93,12 +93,16 @@ against fresh syntax sessions.
 
 The syntax-only test places raising bodies in every parser production action
 and covers the initial parse and all edits. Generated lexer state changes still
-tokenize correctly. Fixed-seed tests compare 300 same-shape edits and 500
-structural insertions, deletions, and replacements with fresh syntax sessions.
-They check source, Green equality, flags, diagnostics, physical subtree
-identity, and preorder memo cardinality. Separate cases cover `blender: false`,
-lexical fallback, both resource budgets, unsupported inputs, runtime events,
-and serialized memo mismatch.
+tokenize correctly. The large fixed-seed property suite generates four grammar
+shapes with varied separator, recursion direction, and wrapper depth. It
+performs 20,000 random Stage-A edits and 20,000 random Stage-B edits, including
+insertion, deletion, replacement, trivia changes, and lexical errors. Every
+edit compares source, Green equality, flags, diagnostics, and preorder memo
+cardinality with a fresh syntax session; Stage B must demonstrate actual reuse.
+Focused cases retain the 300 same-shape and 500 structural-edit probes and
+cover `blender: false`, lexical fallback, both resource budgets, unsupported
+inputs, runtime events, minimal applicable `Diff` output, and serialized memo
+mismatch.
 
 ## Consequences
 

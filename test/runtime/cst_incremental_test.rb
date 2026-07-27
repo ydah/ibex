@@ -63,6 +63,7 @@ class CSTIncrementalTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_equal "1 + 2", session.result.syntax_root.to_source
     assert_empty session.result.diagnostics
     assert_equal 0.0, session.result.reused_ratio
+    refute_respond_to session.result, :value
     assert_same source, session.source_text
     assert_equal session.result.syntax_root.green.descendant_count, session.parse_memo.left_states.length
     assert session.parse_memo.compatible?(generate.parser_tables)
@@ -88,6 +89,22 @@ class CSTIncrementalTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_same old_left_term.green, new_left_term.green
     assert_operator session.last_blender.reused_descendants, :>, 0
     assert_operator result.reused_ratio, :>, 0.0
+  end
+
+  def test_incremental_trees_produce_a_minimal_applicable_text_diff
+    parser_class = generate
+    session = parser_class.incremental_session(Ibex::Runtime::CST::SourceText.new("1 + 2"))
+    old_source = session.source_text
+    old_root = session.result.syntax_root
+    result = session.edit(
+      [Ibex::Runtime::CST::TextEdit.new(start: 4, delete_length: 1, insert_text: "9")]
+    )
+
+    edits = Ibex::Runtime::CST::Diff.text_edits(old_root, result.syntax_root)
+    edit_values = edits.map { |edit| [edit.start, edit.delete_length, edit.insert_text] }
+
+    assert_equal "1 + 9", old_source.apply(edits).text
+    assert_equal [[4, 1, "9"]], edit_values
   end
 
   def test_text_edits_are_sorted_merged_and_reject_overlap
