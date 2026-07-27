@@ -23,6 +23,7 @@ module Ibex
       # @rbs @entry_isolation: bool
       # @rbs @attribute_entries: bool
       # @rbs @canonical_suffix_lookahead_cache: Hash[Integer, Hash[Integer, Hash[Integer, Array[Integer]]]]
+      # @rbs @canonical_item_cache: Hash[Integer, Array[Array[lr_item?]?]]?
       # @rbs @canonical_key_radices: [Integer, Integer, Integer]?
 
       attr_reader :metrics #: BuildMetrics?
@@ -46,6 +47,7 @@ module Ibex
         @resolver = ConflictResolver.new(grammar)
         @metrics = nil
         @canonical_suffix_lookahead_cache = {}
+        @canonical_item_cache = nil
         @canonical_key_radices = nil
         @start_names = starts || grammar.starts
         if @start_names.empty? || (@start_names - grammar.starts).any?
@@ -126,7 +128,10 @@ module Ibex
 
         items, transitions = DirectLookaheads.new(@grammar, @sets).build
         apply_slr_lookaheads(items) if @algorithm == :slr
-        [items, transitions, items.length, nil, :direct_lalr]
+        collection = [items, transitions, items.length, nil, :direct_lalr]
+        collection #: [Array[packed_items], transitions, Integer, Integer?, Symbol]
+      ensure
+        @canonical_item_cache = nil
       end
 
       # @rbs () -> String
@@ -137,7 +142,7 @@ module Ibex
       # @rbs () -> [Array[item_set], transitions]
       def canonical_collection
         states = @start_names.map do |name|
-          seed = Set[[augmented_production(name), 0, 0]] #: item_set
+          seed = Set[canonical_item(augmented_production(name), 0, 0)] #: item_set
           closure(seed)
         end
         transitions = [] #: transitions
@@ -162,6 +167,7 @@ module Ibex
 
       # @rbs (item_set seed) -> item_set
       def closure(seed)
+        cache = (@canonical_item_cache ||= {}) #: Hash[Integer, Array[Array[lr_item?]?]]
         items = seed.dup
         queue = seed.to_a
         until queue.empty?
@@ -172,8 +178,14 @@ module Ibex
 
           lookaheads = canonical_suffix_lookaheads(production_id, dot, lookahead)
           @productions_by_lhs.fetch(grammar_symbol.id, Array.new(0)).each do |production|
+            production_cache = (cache[production.id] ||= []) #: Array[Array[lr_item?]?]
+            item_cache = (production_cache[0] ||= []) #: Array[lr_item?]
             lookaheads.each do |token_id|
-              item = [production.id, 0, token_id] #: lr_item
+              item = item_cache[token_id]
+              unless item
+                item = [production.id, 0, token_id].freeze #: lr_item
+                item_cache[token_id] = item
+              end
               enqueue_item(items, queue, item)
             end
           end
@@ -198,6 +210,18 @@ module Ibex
         inherited_cache[inherited] = suffix_lookaheads(suffix, inherited).freeze
       end
 
+      # @rbs (Integer production_id, Integer dot, Integer lookahead) -> lr_item
+      def canonical_item(production_id, dot, lookahead)
+        cache = (@canonical_item_cache ||= {}) #: Hash[Integer, Array[Array[lr_item?]?]]
+        production_cache = (cache[production_id] ||= []) #: Array[Array[lr_item?]?]
+        dot_cache = (production_cache[dot] ||= []) #: Array[lr_item?]
+        cached = dot_cache[lookahead]
+        return cached if cached
+
+        item = [production_id, dot, lookahead].freeze #: lr_item
+        dot_cache[lookahead] = item
+      end
+
       # @rbs (item_set items, Array[lr_item] queue, lr_item item) -> void
       def enqueue_item(items, queue, item)
         queue << item if items.add?(item)
@@ -210,10 +234,19 @@ module Ibex
 
       # @rbs (item_set items, Integer symbol_id) -> item_set
       def go_to(items, symbol_id)
+        cache = (@canonical_item_cache ||= {}) #: Hash[Integer, Array[Array[lr_item?]?]]
         moved = items.filter_map do |production_id, dot, lookahead|
           next unless rhs_for(production_id)[dot] == symbol_id
 
-          [production_id, dot + 1, lookahead] #: lr_item
+          production_cache = (cache[production_id] ||= []) #: Array[Array[lr_item?]?]
+          shifted_dot = dot + 1
+          item_cache = (production_cache[shifted_dot] ||= []) #: Array[lr_item?]
+          item = item_cache[lookahead]
+          unless item
+            item = [production_id, shifted_dot, lookahead].freeze #: lr_item
+            item_cache[lookahead] = item
+          end
+          item
         end
         closure(Set.new(moved))
       end
