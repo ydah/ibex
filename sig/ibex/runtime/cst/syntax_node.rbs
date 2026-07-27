@@ -5,6 +5,8 @@ module Ibex
     module CST
       # Lazy Red navigation facade for one Green node occurrence.
       class SyntaxNode
+        include Enumerable[element]
+
         type element = SyntaxNode | SyntaxToken
 
         attr_reader green: GreenNode
@@ -35,8 +37,16 @@ module Ibex
         # @rbs () -> String
         def symbol: () -> String
 
+        # Green kinds replace occurrence-local production ids. Keep the legacy
+        # key and reader with the historical synthetic sentinel.
+        # @rbs () -> Integer
+        def production_id: () -> Integer
+
         # @rbs () -> Array[element]
         def children: () -> Array[element]
+
+        def each: () -> Enumerator[element, self]
+                | () { (element) -> void } -> self
 
         # @rbs (Integer child_index) -> element
         def child_at: (Integer child_index) -> element
@@ -84,6 +94,11 @@ module Ibex
 
         # @rbs () -> String
         def text: () -> String
+
+        # Compatibility view of file-tail trivia. The Red/Green layout owns it
+        # on EOF rather than on the start node.
+        # @rbs () -> Array[GreenTrivia]
+        def trailing_trivia: () -> Array[GreenTrivia]
 
         # @rbs () -> bool
         def error?: () -> bool
@@ -149,10 +164,16 @@ module Ibex
         # @rbs (Array[Symbol]?) -> Hash[Symbol, untyped]
         def deconstruct_keys: (Array[Symbol]?) -> Hash[Symbol, untyped]
 
+        # @rbs () -> Hash[Symbol, untyped]
+        def to_h: () -> Hash[Symbol, untyped]
+
         # @rbs (Integer source_offset) -> element?
         def child_covering_offset: (Integer source_offset) -> element?
 
         private
+
+        # @rbs () -> SyntaxToken?
+        def compatibility_eof: () -> SyntaxToken?
 
         # @rbs () -> String
         def root_source: () -> String

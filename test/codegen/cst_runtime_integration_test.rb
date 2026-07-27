@@ -3,7 +3,7 @@
 require_relative "../test_helper"
 require "json"
 
-class CSTRuntimeIntegrationTest < Minitest::Test
+class CSTRuntimeIntegrationTest < Minitest::Test # rubocop:disable Metrics/ClassLength -- one golden spans all paths.
   GOLDEN_PATH = File.expand_path("../fixtures/cst/runtime-paths-v1.json", __dir__)
 
   BALANCED_SOURCE = <<~GRAMMAR
@@ -67,6 +67,23 @@ class CSTRuntimeIntegrationTest < Minitest::Test
     program: statements
     statements: statements statement | statement
     statement: ITEM SEMI
+    end
+  GRAMMAR
+
+  YACC_RECOVERY_SOURCE = <<~GRAMMAR
+    class YaccRecoveringCSTParser
+    pragma cst
+    token ITEM BAD SEMI
+    lexer
+      skip /[[:space:]]+/
+      ITEM 'i'
+      BAD 'x'
+      SEMI ';'
+    end
+    rule
+    program: statements
+    statements: statements statement | statement
+    statement: ITEM SEMI | error SEMI
     end
   GRAMMAR
 
@@ -160,13 +177,24 @@ class CSTRuntimeIntegrationTest < Minitest::Test
   end
 
   def runtime_path_snapshot # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-    repair_parser = generate(BALANCED_SOURCE).new
-    repair_parser.repair_policy = Ibex::Runtime::RepairPolicy.new(success_shifts: 1)
+    insertion_parser = generate(BALANCED_SOURCE).new
+    insertion_parser.repair_policy = Ibex::Runtime::RepairPolicy.new(success_shifts: 1)
+    deletion_parser = generate(BALANCED_SOURCE).new
+    deletion_parser.repair_policy = Ibex::Runtime::RepairPolicy.new(success_shifts: 1)
+    replacement_parser = generate(BALANCED_SOURCE).new
+    replacement_parser.repair_policy = Ibex::Runtime::RepairPolicy.new(
+      insert_cost: 5, delete_cost: 5, replace_cost: 1, max_cost: 1, success_shifts: 1
+    )
     recovery_parser = generate(RECOVERY_SOURCE, mode: :extended).new
+    yacc_recovery_parser = generate(YACC_RECOVERY_SOURCE).new
+    yacc_recovery_parser.define_singleton_method(:on_error) { |_token_id, _value, _value_stack| nil }
     cases = {
       "lexical_failure" => generate(BALANCED_SOURCE).new.parse_with_syntax("1 ? 2"),
-      "repair_insertion" => repair_parser.parse_with_syntax("1 2"),
-      "recovery_pop_and_discard" => recovery_parser.parse_with_syntax("i x x; i;"),
+      "repair_insertion" => insertion_parser.parse_with_syntax("1 2"),
+      "repair_deletion" => deletion_parser.parse_with_syntax("1 + + 2"),
+      "repair_replacement" => replacement_parser.parse_with_syntax("1 + +"),
+      "yacc_recovery_pop" => yacc_recovery_parser.parse_with_syntax("i x; i;"),
+      "panic_discard" => recovery_parser.parse_with_syntax("i x x; i;"),
       "unrecoverable" => generate(BALANCED_SOURCE).new.parse_with_syntax("1"),
       "early_accept" => generate(EARLY_ACCEPT_SOURCE).new.parse_with_syntax("a b")
     }

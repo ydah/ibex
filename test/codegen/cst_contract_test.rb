@@ -19,6 +19,24 @@ class CSTContractTest < Minitest::Test
     end
   GRAMMAR
 
+  RECOVERY_SOURCE = <<~GRAMMAR
+    class CSTRecoveryContractParser
+    pragma extended
+    %PRAGMA_CST%
+    token ITEM BAD SEMI
+    lexer
+      skip /[[:space:]]+/
+      ITEM 'i'
+      BAD 'x'
+      SEMI ';'
+    end
+    rule
+    program: statements
+    statements: statements statement | statement
+    statement: ITEM SEMI | error SEMI
+    end
+  GRAMMAR
+
   def test_cst_preserves_semantic_results_for_parse_do_parse_and_yyparse
     plain = generate(cst: false)
     syntax = generate(cst: true)
@@ -37,6 +55,13 @@ class CSTContractTest < Minitest::Test
   def test_cst_preserves_hook_and_runtime_observer_order
     plain_timeline = timeline(generate(cst: false).new)
     syntax_timeline = timeline(generate(cst: true).new)
+
+    assert_equal plain_timeline, syntax_timeline
+  end
+
+  def test_cst_preserves_recovery_hook_and_observer_order
+    plain_timeline = recovery_timeline(generate_recovery(cst: false).new)
+    syntax_timeline = recovery_timeline(generate_recovery(cst: true).new)
 
     assert_equal plain_timeline, syntax_timeline
   end
@@ -62,6 +87,17 @@ class CSTContractTest < Minitest::Test
     namespace.const_get(:CSTContractParser)
   end
 
+  def generate_recovery(cst:)
+    pragma = cst ? "pragma cst" : ""
+    source = RECOVERY_SOURCE.sub("%PRAGMA_CST%", pragma)
+    ast = Ibex::Frontend::Parser.new(source, file: "cst-recovery-contract.y", mode: :extended).parse
+    grammar = Ibex::Normalizer.new(ast, mode: :extended).normalize
+    automaton = Ibex::LALR::Builder.new(grammar).build
+    namespace = Module.new
+    namespace.module_eval(Ibex::Codegen::Ruby.new(automaton).generate, "cst_recovery_contract_parser.rb")
+    namespace.const_get(:CSTRecoveryContractParser)
+  end
+
   def yyparse(parser_class, tokens)
     source = Object.new
     source.define_singleton_method(:tokens) { |&block| tokens.each(&block) }
@@ -76,6 +112,24 @@ class CSTContractTest < Minitest::Test
     parser.define_singleton_method(:on_shift) { |token_id, _value, _state| result << [:shift, token_id] }
     parser.define_singleton_method(:on_reduce) { |production_id, _values, _value| result << [:reduce, production_id] }
     parser.parse("1 + 2")
+    result
+  end
+
+  def recovery_timeline(parser)
+    result = []
+    parser.observe do |event|
+      result << [:event, event.type] unless event.type.to_s.start_with?("cst_")
+    end
+    parser.define_singleton_method(:on_error) do |token_id, _value, _stack|
+      result << [:error, token_id]
+    end
+    parser.define_singleton_method(:on_error_recover) do |token_id, _value, _stack|
+      result << [:recover, token_id]
+    end
+    parser.define_singleton_method(:on_discard) do |token_id, _value, _location, _reason|
+      result << [:discard, token_id]
+    end
+    parser.parse("i x; i;")
     result
   end
 end

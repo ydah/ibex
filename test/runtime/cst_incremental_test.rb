@@ -144,6 +144,20 @@ class CSTIncrementalTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_equal %i[INITIAL STRING STRING INITIAL], session.token_memo.states
   end
 
+  def test_relexer_output_matches_a_fresh_stateful_lexical_pass
+    parser_class = generate(STATEFUL_SOURCE)
+    session = parser_class.incremental_session(Ibex::Runtime::CST::SourceText.new('"hello"'))
+    session.edit(
+      [Ibex::Runtime::CST::TextEdit.new(start: 2, delete_length: 1, insert_text: "a")]
+    )
+    batch = parser_class.incremental_session(session.source_text)
+    relexed = session.last_relex_result.memo
+
+    assert_equal batch.token_memo.tokens, relexed.tokens
+    assert_equal batch.token_memo.offsets, relexed.offsets
+    assert_equal batch.token_memo.states, relexed.states
+  end
+
   def test_parse_memo_slices_by_preorder_occurrence
     session = generate.incremental_session(Ibex::Runtime::CST::SourceText.new("1 + 2"))
     root = session.result.syntax_root

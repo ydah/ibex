@@ -10,6 +10,9 @@ module Ibex
       # Lazy Red navigation facade for one Green node occurrence.
       class SyntaxNode # rubocop:disable Metrics/ClassLength -- navigation and compatibility form one facade.
         # @rbs! type element = SyntaxNode | SyntaxToken
+        # @rbs! include Enumerable[element]
+        # @rbs skip
+        include Enumerable
 
         attr_reader :green #: GreenNode
         attr_reader :parent #: SyntaxNode?
@@ -42,9 +45,25 @@ module Ibex
         # @rbs () -> String
         def symbol = @kinds.name(@kinds.nonterminal_of(kind))
 
+        # Green kinds replace occurrence-local production ids. Keep the legacy
+        # key and reader with the historical synthetic sentinel.
+        # @rbs () -> Integer
+        def production_id = -1
+
         # @rbs () -> Array[element]
         def children
           @green.children.each_index.map { |child_index| child_at(child_index) }.freeze
+        end
+
+        # @rbs!
+        #   def each: () -> Enumerator[element, self]
+        #           | () { (element) -> void } -> self
+        # @rbs skip
+        def each(&block)
+          return enum_for(:each) unless block
+
+          children.each(&block)
+          self
         end
 
         # @rbs (Integer child_index) -> element
@@ -156,6 +175,17 @@ module Ibex
           start_offset = @green.leading_width
           width = @green.full_width - @green.leading_width - @green.trailing_width
           full_text.byteslice(start_offset, width) || "".b
+        end
+
+        # Compatibility view of file-tail trivia. The Red/Green layout owns it
+        # on EOF rather than on the start node.
+        # @rbs () -> Array[GreenTrivia]
+        def trailing_trivia
+          eof = compatibility_eof
+          return (eof.green.leading + eof.green.trailing).freeze if eof
+
+          token = last_token
+          token ? token.green.trailing : []
         end
 
         # @rbs () -> bool
@@ -329,8 +359,8 @@ module Ibex
         # @rbs (Array[Symbol]?) -> Hash[Symbol, untyped]
         def deconstruct_keys(_keys)
           values = {
-            kind: :node, symbol: symbol, production_id: -1, children: children,
-            location: location, trailing_trivia: last_token&.green&.trailing || []
+            kind: :node, symbol: symbol, production_id: production_id, children: children,
+            location: location, trailing_trivia: trailing_trivia
           } #: Hash[Symbol, untyped]
           @kinds.fields(kind).each do |name, slot|
             index = slot.is_a?(Hash) ? slot.fetch(:index) : slot
@@ -338,6 +368,9 @@ module Ibex
           end
           values.freeze
         end
+
+        # @rbs () -> Hash[Symbol, untyped]
+        def to_h = deconstruct_keys(nil)
 
         protected
 
@@ -349,6 +382,21 @@ module Ibex
         end
 
         private
+
+        # @rbs () -> SyntaxToken?
+        def compatibility_eof
+          if kind_name == "source_file"
+            token = last_token
+            return token if token&.kind_name == "$eof"
+          end
+          container = @parent
+          return unless container
+          return unless container.kind_name == "source_file"
+          return unless @index.zero?
+
+          token = container.last_token
+          token if token&.kind_name == "$eof"
+        end
 
         # @rbs () -> String
         def root_source

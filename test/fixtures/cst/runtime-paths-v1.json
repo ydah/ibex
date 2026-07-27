@@ -86,7 +86,234 @@
         ]
       }
     },
-    "recovery_pop_and_discard": {
+    "repair_deletion": {
+      "source": "1 + + 2",
+      "reconstructed": "1 + + 2",
+      "diagnostic_count": 1,
+      "tree": {
+        "kind": "source_file",
+        "flags": 20,
+        "children": [
+          {
+            "kind": "start",
+            "flags": 4,
+            "children": [
+              {
+                "kind": "NUM",
+                "flags": 0,
+                "text": "1",
+                "expected_kind": null,
+                "leading": [],
+                "trailing": []
+              },
+              {
+                "kind": "PLUS",
+                "flags": 0,
+                "text": "+",
+                "expected_kind": null,
+                "leading": [
+                  [
+                    5,
+                    " "
+                  ]
+                ],
+                "trailing": []
+              },
+              {
+                "kind": "NUM",
+                "flags": 4,
+                "text": "2",
+                "expected_kind": null,
+                "leading": [
+                  [
+                    10,
+                    " +"
+                  ],
+                  [
+                    5,
+                    " "
+                  ]
+                ],
+                "trailing": []
+              }
+            ]
+          },
+          {
+            "kind": "$eof",
+            "flags": 0,
+            "text": "",
+            "expected_kind": null,
+            "leading": [],
+            "trailing": []
+          }
+        ]
+      }
+    },
+    "repair_replacement": {
+      "source": "1 + +",
+      "reconstructed": "1 + +",
+      "diagnostic_count": 1,
+      "tree": {
+        "kind": "source_file",
+        "flags": 17,
+        "children": [
+          {
+            "kind": "start",
+            "flags": 1,
+            "children": [
+              {
+                "kind": "NUM",
+                "flags": 0,
+                "text": "1",
+                "expected_kind": null,
+                "leading": [],
+                "trailing": []
+              },
+              {
+                "kind": "PLUS",
+                "flags": 0,
+                "text": "+",
+                "expected_kind": null,
+                "leading": [
+                  [
+                    5,
+                    " "
+                  ]
+                ],
+                "trailing": []
+              },
+              {
+                "kind": "NUM",
+                "flags": 1,
+                "text": "+",
+                "expected_kind": null,
+                "leading": [
+                  [
+                    5,
+                    " "
+                  ]
+                ],
+                "trailing": []
+              }
+            ]
+          },
+          {
+            "kind": "$eof",
+            "flags": 0,
+            "text": "",
+            "expected_kind": null,
+            "leading": [],
+            "trailing": []
+          }
+        ]
+      }
+    },
+    "yacc_recovery_pop": {
+      "source": "i x; i;",
+      "reconstructed": "i x; i;",
+      "diagnostic_count": 1,
+      "tree": {
+        "kind": "source_file",
+        "flags": 17,
+        "children": [
+          {
+            "kind": "program",
+            "flags": 1,
+            "children": [
+              {
+                "kind": "statements",
+                "flags": 1,
+                "children": [
+                  {
+                    "kind": "statements",
+                    "flags": 1,
+                    "children": [
+                      {
+                        "kind": "statement",
+                        "flags": 1,
+                        "children": [
+                          {
+                            "kind": "error_node",
+                            "flags": 1,
+                            "children": [
+                              {
+                                "kind": "ITEM",
+                                "flags": 0,
+                                "text": "i",
+                                "expected_kind": null,
+                                "leading": [],
+                                "trailing": []
+                              },
+                              {
+                                "kind": "BAD",
+                                "flags": 1,
+                                "text": "x",
+                                "expected_kind": null,
+                                "leading": [
+                                  [
+                                    8,
+                                    " "
+                                  ]
+                                ],
+                                "trailing": []
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "SEMI",
+                            "flags": 0,
+                            "text": ";",
+                            "expected_kind": null,
+                            "leading": [],
+                            "trailing": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "statement",
+                    "flags": 0,
+                    "children": [
+                      {
+                        "kind": "ITEM",
+                        "flags": 0,
+                        "text": "i",
+                        "expected_kind": null,
+                        "leading": [
+                          [
+                            8,
+                            " "
+                          ]
+                        ],
+                        "trailing": []
+                      },
+                      {
+                        "kind": "SEMI",
+                        "flags": 0,
+                        "text": ";",
+                        "expected_kind": null,
+                        "leading": [],
+                        "trailing": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "$eof",
+            "flags": 0,
+            "text": "",
+            "expected_kind": null,
+            "leading": [],
+            "trailing": []
+          }
+        ]
+      }
+    },
+    "panic_discard": {
       "source": "i x x; i;",
       "reconstructed": "i x x; i;",
       "diagnostic_count": 1,

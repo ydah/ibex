@@ -5,9 +5,9 @@ documents. The second fixture stores invalid UTF-8 source bytes through the
 required `{"b64": ...}` representation.
 
 `runtime-paths-v1.json` fixes the Green shape, flags, source reconstruction,
-and trivia ownership for lexical failure, repair insertion, recovery
-pop/discard, unrecoverable input, early acceptance, and all three trivia
-policies. To inspect a proposed intentional update, run:
+and trivia ownership for lexical failure, repair insertion/deletion/replacement,
+yacc recovery pop, panic discard, unrecoverable input, early acceptance, and
+all three trivia policies. To inspect a proposed intentional update, run:
 
 ```sh
 PRINT_IBEX_CST_RUNTIME_PATHS=1 \

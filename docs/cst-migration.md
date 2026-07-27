@@ -63,12 +63,12 @@ unchanged; the right column is the format-v6 replacement.
 | Legacy value and members | Characterized use | Format-v6 replacement |
 | --- | --- | --- |
 | `CST::Trivia#text`, `#location`, `#to_h` | leading/trailing trivia assertions | `GreenTrivia#text` and `#kind`; obtain absolute location from the owning Red token |
-| `CST::Token#symbol`, `#value`, `#location`, `#leading_trivia` | terminal names, lexer action values, positions, skipped text | `SyntaxToken#kind_name`/`#symbol`, `#text`, `#location`, and `#green.leading`; semantic lexer values stay in the normal action/value path |
-| `CST::Token#kind`, `#children`, `#deconstruct`, `#deconstruct_keys`, `#to_h` | error classification and pattern matching | integer `#kind`, `#error?`/`#missing?`, empty `#deconstruct`, and Red `#deconstruct_keys` |
+| `CST::Token#symbol`, `#value`, `#location`, `#leading_trivia` | terminal names, lexer action values, positions, skipped text | `SyntaxToken#kind_name`/`#symbol`, `#location`, and `#leading_trivia`; compatibility `#value` returns the same source bytes as `#text`, while semantic lexer values stay in the normal action/value path |
+| `CST::Token#kind`, `#children`, `#deconstruct`, `#deconstruct_keys`, `#to_h` | error classification and pattern matching | integer `#kind`, `#error?`/`#missing?`, empty `#children`/`#deconstruct`, and compatibility pattern/hash keys |
 | `CST::Missing` | bounded-repair insertion checks | `SyntaxToken#missing?`, `GreenToken#expected_kind`, and `CONTAINS_MISSING` |
 | `CST::Error#reason` | lexical, syntax, delete, and discard checks | `SyntaxToken#error?`, `SyntaxNode#error?`, diagnostics, and Green error/skipped flags |
-| `CST::Node#symbol`, `#production_id`, `#children`, `#location`, `#trailing_trivia` | root/reduction shape, source position, final trivia | `SyntaxNode#symbol`, syntax kinds/slot metadata, `#children`, `#location`; EOF leading trivia is the canonical file-tail owner |
-| `CST::Node#each`, `#deconstruct`, `#deconstruct_keys`, `#to_h`, `#with_trailing_trivia` | enumeration, pattern matching, final-trivia attachment | Red navigation/pattern matching and persistent `with_leading`/`with_trailing` token edits |
+| `CST::Node#symbol`, `#production_id`, `#children`, `#location`, `#trailing_trivia` | root/reduction shape, source position, final trivia | `SyntaxNode#symbol`, `#children`, `#location`, and compatibility `#trailing_trivia`; `#production_id` is the `-1` sentinel because kinds/slot metadata replace occurrence-local production identity |
+| `CST::Node#each`, `#deconstruct`, `#deconstruct_keys`, `#to_h`, `#with_trailing_trivia` | enumeration, pattern matching, final-trivia attachment | Red `Enumerable`/pattern/hash methods; persistent trivia changes use the owning token's `with_leading`/`with_trailing` |
 
 The inventory is executable in
 `test/codegen/cst_characterization_test.rb`: it fixes the old root, final

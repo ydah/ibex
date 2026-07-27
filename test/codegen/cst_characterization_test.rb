@@ -64,13 +64,29 @@ class CSTCharacterizationTest < Minitest::Test
   end
 
   def test_pattern_matching_surface_is_stable
-    tree = generate.new.parse_with_syntax("1 + 2").syntax_root.children.fetch(0)
+    tree = generate.new.parse_with_syntax("1 + 2  ").syntax_root.children.fetch(0)
     keys = tree.deconstruct_keys(nil)
 
     assert_equal tree.children, tree.deconstruct
+    assert_equal tree.children, tree.to_a
     assert_equal :node, keys.fetch(:kind)
     assert_equal "start", keys.fetch(:symbol)
+    assert_equal(-1, tree.production_id)
+    assert_equal ["  "], tree.trailing_trivia.map(&:text)
+    assert_predicate tree.trailing_trivia, :frozen?
     assert_equal %i[kind symbol production_id children location trailing_trivia], keys.keys
+    assert_equal keys.keys, tree.to_h.keys
+  end
+
+  def test_token_compatibility_projection_preserves_the_pattern_surface
+    token = generate.new.parse_with_syntax("1 + 2").syntax_root.first_token
+    token_keys = token.deconstruct_keys(nil)
+
+    assert_equal "1", token.value
+    assert_equal token.green.leading, token.leading_trivia
+    assert_empty token.children
+    assert_equal %i[kind symbol value location leading_trivia], token_keys.keys
+    assert_equal token_keys.keys, token.to_h.keys
   end
 
   def test_legacy_pattern_matching_surface_is_characterized

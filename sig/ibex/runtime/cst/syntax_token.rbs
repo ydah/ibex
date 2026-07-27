@@ -32,6 +32,17 @@ module Ibex
         # @rbs () -> String
         def text: () -> String
 
+        # Compatibility projection for the legacy token API. Semantic lexer
+        # values remain on the parser value path; syntax exposes source bytes.
+        # @rbs () -> String
+        def value: () -> String
+
+        # @rbs () -> Array[GreenTrivia]
+        def leading_trivia: () -> Array[GreenTrivia]
+
+        # @rbs () -> Array[untyped]
+        def children: () -> Array[untyped]
+
         # @rbs () -> String
         def full_text: () -> String
 
@@ -87,6 +98,9 @@ module Ibex
 
         # @rbs (Array[Symbol]?) -> Hash[Symbol, untyped]
         def deconstruct_keys: (Array[Symbol]?) -> Hash[Symbol, untyped]
+
+        # @rbs () -> Hash[Symbol, untyped]
+        def to_h: () -> Hash[Symbol, untyped]
 
         private
 
