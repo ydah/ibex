@@ -7,6 +7,8 @@ module Ibex
     class DirectLookaheads
       AUGMENTED_PRODUCTION: Integer
 
+      @terminal_masks: Array[Integer]
+
       @terminal_ids: Array[Integer]
 
       @productions_by_lhs: Hash[Integer, Array[IR::Production]]
