@@ -192,6 +192,25 @@ class RuntimeFastPathTest < Minitest::Test
     end
   end
 
+  class OverriddenControlProbe < ControlProbe
+    def yyerror
+      @semantic_error = true
+      nil
+    end
+
+    def yyaccept
+      @accept_requested = true
+      nil
+    end
+  end
+
+  class ForcedGenericOverriddenControlProbe < OverriddenControlProbe
+    def on_shift(...)
+      @forced_generic_shift = true
+      super
+    end
+  end
+
   def test_eligible_pull_and_push_skip_generic_runtime_builders
     pull = ActionlessProbe.new([[:ITEM, "pull"], false])
 
@@ -595,6 +614,26 @@ class RuntimeFastPathTest < Minitest::Test
     assert_equal 0, push.transform_calls
   end
 
+  def test_overridden_yyaccept_matches_forced_generic_at_pull_and_push_boundaries
+    expected_pull = run_pull_control(ForcedGenericOverriddenControlProbe, :yyaccept, "pull")
+    expected_push = run_push_control(ForcedGenericOverriddenControlProbe, :yyaccept, "push")
+
+    assert_equal expected_pull, run_pull_control(OverriddenControlProbe, :yyaccept, "pull")
+    assert_equal expected_push, run_push_control(OverriddenControlProbe, :yyaccept, "push")
+    assert_equal ["pull", 0], expected_pull
+    assert_equal ["push", 0], expected_push
+  end
+
+  def test_overridden_yyerror_matches_forced_generic_at_pull_and_push_boundaries
+    expected_pull = run_pull_control(ForcedGenericOverriddenControlProbe, :yyerror, "pull")
+    expected_push = run_push_control(ForcedGenericOverriddenControlProbe, :yyerror, "push")
+
+    assert_equal expected_pull, run_pull_control(OverriddenControlProbe, :yyerror, "pull")
+    assert_equal expected_push, run_push_control(OverriddenControlProbe, :yyerror, "push")
+    assert_equal [nil, 0], expected_pull
+    assert_equal [nil, 0], expected_push
+  end
+
   def test_direct_hook_changes_between_push_calls_are_rechecked
     parser = ActionlessProbe.new
     calls = []
@@ -633,6 +672,19 @@ class RuntimeFastPathTest < Minitest::Test
   end
 
   private
+
+  def run_pull_control(parser_class, control, value)
+    parser = parser_class.new([[:ITEM, value], false])
+    parser.before_token = control.to_proc
+    [parser.do_parse, parser.transform_calls]
+  end
+
+  def run_push_control(parser_class, control, value)
+    parser = parser_class.new
+    parser.push(:ITEM, value)
+    parser.public_send(control)
+    [parser.finish, parser.transform_calls]
+  end
 
   def deceptive_location(line:)
     DeceptiveLocation.new(

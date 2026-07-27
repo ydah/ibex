@@ -1906,6 +1906,7 @@ module Ibex
       # @rbs () -> void
       def refresh_runtime_fast_path_after_user_code!
         return unless @runtime_fast_path
+        return disable_runtime_fast_path! if @semantic_error || @accept_requested
 
         @runtime_fast_path = false unless runtime_fast_path_eligible?(parser_tables)
       end
