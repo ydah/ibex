@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require "json"
+require "optparse"
+require_relative "../codegen/ambiguity"
+
 module Ibex
   # Bounded grammar ambiguity checking for CI and human inspection.
   module CLIAmbiguity

@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "optparse"
+require_relative "../grammar_tests"
+
 module Ibex
   # `%test` command parsing and human-readable result reporting.
   module CLIGrammarTests

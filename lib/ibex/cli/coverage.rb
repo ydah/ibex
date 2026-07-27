@@ -2,6 +2,7 @@
 # rbs_inline: enabled
 
 require "tempfile"
+require_relative "../coverage"
 
 module Ibex
   # CLI collection, merge, and threshold checks for runtime coverage.

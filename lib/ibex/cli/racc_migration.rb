@@ -3,6 +3,7 @@
 
 require "json"
 require "optparse"
+require_relative "../racc_migration"
 
 module Ibex
   # Static racc migration checks and differential harness generation.

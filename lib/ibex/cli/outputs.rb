@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "tempfile"
+
 module Ibex
   # Files, warnings, and progress emitted by CLI pipeline stages.
   module CLIOutputs
@@ -118,6 +120,7 @@ module Ibex
 
     # @rbs (IR::Automaton automaton, String input_path) -> void
     def write_report(automaton, input_path)
+      require_relative "../codegen/report"
       path = @options[:log_file] || default_output_path(input_path, ".output")
       report = Codegen::Report.render(
         automaton,
@@ -139,6 +142,29 @@ module Ibex
     # @rbs (String message) -> void
     def report_status(message)
       @stderr.puts("ibex: #{message}") if @options[:status]
+    end
+
+    # @rbs (String path, String source) -> void
+    def atomic_write_ir(path, source)
+      target_path = File.symlink?(path) ? File.realpath(path) : path
+      directory = File.dirname(File.expand_path(target_path))
+      basename = File.basename(target_path)
+      Tempfile.create([".#{basename}.", ".tmp"], directory) do |temporary|
+        temporary.binmode
+        temporary.write(source)
+        temporary.flush
+        temporary.fsync
+        temporary.chmod(ir_file_mode(target_path))
+        temporary.close
+        File.rename(temporary.path, target_path)
+      end
+    end
+
+    # @rbs (String path) -> Integer
+    def ir_file_mode(path)
+      return File.stat(path).mode & 0o777 if File.exist?(path)
+
+      0o666 & ~File.umask
     end
   end
 end

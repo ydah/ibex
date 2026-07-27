@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 # rbs_inline: enabled
 
+require "optparse"
+require_relative "../table_simulation"
+
 module Ibex
   # Safe parser-table simulation subcommand.
   module CLIDebug

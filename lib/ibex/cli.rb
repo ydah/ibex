@@ -1,26 +1,41 @@
 # frozen_string_literal: true
 
+require "json"
 require "optparse"
-require_relative "../ibex"
-require_relative "cli/ambiguity"
+require_relative "version"
+require_relative "error"
+require_relative "artifact_set"
+require_relative "generation_input"
+require_relative "generation_manifest"
+require_relative "generation_transaction"
+require_relative "frontend"
+require_relative "ir"
+require_relative "normalize"
+require_relative "analysis"
+require_relative "lalr"
+require_relative "codegen/ruby"
 require_relative "cli/counterexample_options"
-require_relative "cli/coverage"
-require_relative "cli/debug"
-require_relative "cli/diagnostics"
-require_relative "cli/documentation"
-require_relative "cli/error_messages"
-require_relative "cli/explain"
-require_relative "cli/formatting"
-require_relative "cli/grammar_tests"
+require_relative "cli/generation_error_messages"
 require_relative "cli/generation_artifacts"
-require_relative "cli/ir_tools"
-require_relative "cli/lsp"
 require_relative "cli/outputs"
-require_relative "cli/racc_migration"
-require_relative "cli/samples"
-require_relative "cli/watch"
 
 module Ibex
+  CLI_FEATURE_ROOT = File.expand_path("cli", __dir__ || raise("CLI source directory is unavailable")) #: String
+  autoload :CLIAmbiguity, File.join(CLI_FEATURE_ROOT, "ambiguity")
+  autoload :CLICoverage, File.join(CLI_FEATURE_ROOT, "coverage")
+  autoload :CLIDebug, File.join(CLI_FEATURE_ROOT, "debug")
+  autoload :CLIDiagnostics, File.join(CLI_FEATURE_ROOT, "diagnostics")
+  autoload :CLIDocumentation, File.join(CLI_FEATURE_ROOT, "documentation")
+  autoload :CLIErrorMessages, File.join(CLI_FEATURE_ROOT, "error_messages")
+  autoload :CLIExplain, File.join(CLI_FEATURE_ROOT, "explain")
+  autoload :CLIFormatting, File.join(CLI_FEATURE_ROOT, "formatting")
+  autoload :CLIGrammarTests, File.join(CLI_FEATURE_ROOT, "grammar_tests")
+  autoload :CLIIRTools, File.join(CLI_FEATURE_ROOT, "ir_tools")
+  autoload :CLILSP, File.join(CLI_FEATURE_ROOT, "lsp")
+  autoload :CLIRaccMigration, File.join(CLI_FEATURE_ROOT, "racc_migration")
+  autoload :CLISamples, File.join(CLI_FEATURE_ROOT, "samples")
+  autoload :CLIWatch, File.join(CLI_FEATURE_ROOT, "watch")
+
   # @rbs!
   #   interface _CLIOutput
   #     def puts: (*untyped) -> untyped
@@ -87,42 +102,32 @@ module Ibex
   # Command-line pipeline coordinator.
   # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.
   class CLI
+    # @rbs!
+    #   private def run_watch: (String) -> Integer
+
     SUBCOMMAND_HANDLERS = {
-      "check" => :run_check_command,
-      "diagnose" => :run_diagnose_command,
-      "coverage" => :run_coverage_command,
-      "debug" => :run_debug_command,
-      "doc" => :run_documentation_command,
-      "errors" => :run_error_messages_command,
-      "explain" => :run_explain_command,
-      "fmt" => :run_format_command,
-      "test" => :run_grammar_tests_command,
-      "lsp" => :run_lsp_command,
-      "migrate-check" => :run_migrate_check_command,
-      "migrate-harness" => :run_migrate_harness_command,
-      "samples" => :run_samples_command,
-      "validate-ir" => :run_validate_ir_command,
-      "compare" => :run_compare_command,
-      "migrate-ir" => :run_migrate_ir_command
-    }.freeze #: Hash[String, Symbol]
+      "check" => %i[CLIAmbiguity run_check_command],
+      "diagnose" => %i[CLIDiagnostics run_diagnose_command],
+      "coverage" => %i[CLICoverage run_coverage_command],
+      "debug" => %i[CLIDebug run_debug_command],
+      "doc" => %i[CLIDocumentation run_documentation_command],
+      "errors" => %i[CLIErrorMessages run_error_messages_command],
+      "explain" => %i[CLIExplain run_explain_command],
+      "fmt" => %i[CLIFormatting run_format_command],
+      "test" => %i[CLIGrammarTests run_grammar_tests_command],
+      "lsp" => %i[CLILSP run_lsp_command],
+      "migrate-check" => %i[CLIRaccMigration run_migrate_check_command],
+      "migrate-harness" => %i[CLIRaccMigration run_migrate_harness_command],
+      "samples" => %i[CLISamples run_samples_command],
+      "validate-ir" => %i[CLIIRTools run_validate_ir_command],
+      "compare" => %i[CLIIRTools run_compare_command],
+      "migrate-ir" => %i[CLIIRTools run_migrate_ir_command]
+    }.freeze #: Hash[String, [Symbol, Symbol]]
 
     include CLICounterexampleOptions
-    include CLIAmbiguity
-    include CLICoverage
-    include CLIDebug
-    include CLIDiagnostics
-    include CLIDocumentation
-    include CLIErrorMessages
-    include CLIExplain
-    include CLIFormatting
-    include CLIGrammarTests
+    include CLIGenerationErrorMessages
     include CLIGenerationArtifacts
-    include CLIIRTools
-    include CLILSP
     include CLIOutputs
-    include CLIRaccMigration
-    include CLISamples
-    include CLIWatch
 
     # @rbs @stdout: _CLIOutput
     # @rbs @stderr: _CLIOutput
@@ -166,7 +171,12 @@ module Ibex
       validate_generation_options
       path = input_path(remaining)
       validate_generation_paths!(path)
-      @options[:watch] ? run_watch(path) : process_grammar(path)
+      if @options[:watch]
+        activate_cli_feature(:CLIWatch)
+        run_watch(path)
+      else
+        process_grammar(path)
+      end
     rescue OptionParser::ParseError, Ibex::Error, SystemCallError, SystemStackError => e
       @stderr.puts(e.message)
       1
@@ -176,8 +186,18 @@ module Ibex
 
     # @rbs (Array[String] arguments) -> Integer?
     def dispatch_subcommand(arguments)
-      handler = SUBCOMMAND_HANDLERS[arguments.first]
-      handler && send(handler, arguments.drop(1))
+      definition = SUBCOMMAND_HANDLERS[arguments.first]
+      return unless definition
+
+      feature, handler = definition
+      activate_cli_feature(feature)
+      send(handler, arguments.drop(1))
+    end
+
+    # @rbs (Symbol feature) -> void
+    def activate_cli_feature(feature)
+      extension = Ibex.const_get(feature)
+      extend extension unless singleton_class.ancestors.include?(extension)
     end
 
     # @rbs () -> OptionParser
@@ -665,6 +685,7 @@ module Ibex
 
     # @rbs (IR::Automaton automaton) -> String
     def rbs_source(automaton)
+      require_relative "codegen/rbs"
       Codegen::RBS.new(
         automaton, superclass: @options[:superclass], omit_action_call: @options[:omit_actions]
       ).generate
@@ -687,6 +708,7 @@ module Ibex
 
     # @rbs (IR::Automaton automaton) -> String
     def action_source_source(automaton)
+      require_relative "codegen/action_source"
       Codegen::ActionSource.new(automaton, omit_action_call: @options[:omit_actions]).generate
     end
 
@@ -725,15 +747,27 @@ module Ibex
       dot_path = @options[:dot]
       mermaid_path = @options[:mermaid]
       html_path = @options[:html]
-      register_artifact(:dot, dot_path, Codegen::Dot.render(automaton)) if dot_path
-      register_artifact(:mermaid, mermaid_path, Codegen::Mermaid.render(automaton)) if mermaid_path
-      register_artifact(:html, html_path, Codegen::HTML.render(automaton)) if html_path
+      if dot_path
+        require_relative "codegen/dot"
+        register_artifact(:dot, dot_path, Codegen::Dot.render(automaton))
+      end
+      if mermaid_path
+        require_relative "codegen/mermaid"
+        register_artifact(:mermaid, mermaid_path, Codegen::Mermaid.render(automaton))
+      end
+      return unless html_path
+
+      require_relative "codegen/html"
+      register_artifact(:html, html_path, Codegen::HTML.render(automaton))
     end
 
     # @rbs (IR::Grammar grammar) -> void
     def write_railroad(grammar)
       path = @options[:railroad]
-      register_artifact(:railroad, path, Codegen::Railroad.render(grammar)) if path
+      return unless path
+
+      require_relative "codegen/railroad"
+      register_artifact(:railroad, path, Codegen::Railroad.render(grammar))
     end
 
     # @rbs (String output_path) -> String

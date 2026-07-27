@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "../ibex"
 require "json"
 require "uri"
+require_relative "version"
+require_relative "error"
+require_relative "frontend"
 require_relative "lsp/protocol_error"
 require_relative "lsp/transport"
 require_relative "lsp/position_codec"

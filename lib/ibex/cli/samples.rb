@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require "json"
+require "optparse"
+require_relative "../samples"
+
 module Ibex
   # CLI entry point for bounded grammar sentence generation.
   module CLISamples

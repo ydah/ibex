@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "tempfile"
+require "optparse"
+require_relative "../frontend/formatter"
 
 module Ibex
   # CLI coordination for deterministic, semantics-preserving grammar formatting.

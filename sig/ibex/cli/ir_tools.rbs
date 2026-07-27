@@ -7,6 +7,8 @@ module Ibex
   module CLIIRTools
     private def same_file_target?: (String left, String right) -> bool
 
+    private def atomic_write_ir: (String path, String source) -> void
+
     private
 
     # @rbs (Array[String] arguments) -> Integer
@@ -20,12 +22,6 @@ module Ibex
 
     # @rbs (Array[String] arguments) -> migrate_ir_options
     def migrate_ir_options: (Array[String] arguments) -> migrate_ir_options
-
-    # @rbs (String path, String source) -> void
-    def atomic_write_ir: (String path, String source) -> void
-
-    # @rbs (String path) -> Integer
-    def ir_file_mode: (String path) -> Integer
 
     # @rbs (Array[String] arguments, String command) -> String
     def single_ir_path: (Array[String] arguments, String command) -> String

@@ -2,6 +2,7 @@
 
 require "json"
 require "optparse"
+require_relative "../frontend"
 
 module Ibex
   # Batch frontend diagnostics subcommand.

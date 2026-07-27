@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 # rbs_inline: enabled
 
+require_relative "../watch"
+require_relative "../generation_transaction"
+
 module Ibex
   # Long-running CLI generation over stable source snapshots.
   module CLIWatch

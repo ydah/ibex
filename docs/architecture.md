@@ -89,6 +89,9 @@ manifest on a mismatch. It is not a claim that several filesystem renames occur 
 only candidates whose complete canonical source closure and failed include attempts remain unchanged across rendering and
 publication. Portable polling, bounded debounce, failure deduplication, and cancellable nonblocking locks keep the last successful
 generation usable while a source is invalid; see [ADR 0049](decisions/0049-transactional-generation-and-watch-mode.md).
+The executable's ordinary generation path declares this pipeline directly instead of loading the complete library and every
+subcommand. Optional subcommands and generation outputs load at their invocation boundary while their public constants remain
+autoloadable; see [ADR 0084](decisions/0084-demand-loaded-cli-features.md).
 
 Extended grammar paths cross an explicit `Frontend::Resolver` boundary. The canonical `import` declaration and compatible
 `include` spelling share this boundary. Roots retain class, start, options, and user code;

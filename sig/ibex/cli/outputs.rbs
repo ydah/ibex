@@ -38,5 +38,11 @@ module Ibex
 
     # @rbs (String message) -> void
     def report_status: (String message) -> void
+
+    # @rbs (String path, String source) -> void
+    def atomic_write_ir: (String path, String source) -> void
+
+    # @rbs (String path) -> Integer
+    def ir_file_mode: (String path) -> Integer
   end
 end

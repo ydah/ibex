@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "tempfile"
+require_relative "../error_messages"
+require_relative "../ir"
 
 module Ibex
   # CLI subcommand and generation-file handling for example-keyed errors.
@@ -69,13 +71,6 @@ module Ibex
         end
         options.on("-S", "--output-status", "show pipeline status") { @options[:status] = true }
         options.on("--help", "show help") { @options[:help] = true }
-      end
-    end
-
-    # @rbs (OptionParser options) -> void
-    def add_error_messages_generation_option(options)
-      options.on("--messages=FILE", "embed example-keyed syntax error messages") do |value|
-        @options[:messages] = value
       end
     end
 
@@ -177,25 +172,6 @@ module Ibex
       return File.stat(path).mode & 0o777 if File.exist?(path)
 
       0o666 & ~File.umask
-    end
-
-    # @rbs (IR::Automaton automaton) -> Hash[Integer, untyped]
-    def configured_error_messages(automaton)
-      path = @options[:messages]
-      return {} unless path
-
-      source = File.binread(path)
-      record_generation_input(path, source)
-      document = ErrorMessages.parse(source, file: path)
-      ErrorMessages.records_for(document, automaton, file: path)
-    end
-
-    # @rbs () -> void
-    def validate_messages_options
-      return unless @options[:messages]
-      raise Ibex::Error, "(cli):1:1: --messages is available only with --emit=ruby" unless @options[:emit] == "ruby"
-
-      raise Ibex::Error, "(cli):1:1: --messages cannot be combined with --check-only" if @options[:check_only]
     end
   end
 end

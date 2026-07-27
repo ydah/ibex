@@ -1,6 +1,8 @@
 # Generated from lib/ibex/cli.rb with RBS::Inline
 
 module Ibex
+  CLI_FEATURE_ROOT: String
+
   interface _CLIOutput
     def puts: (*untyped) -> untyped
 
@@ -18,41 +20,17 @@ module Ibex
   # Command-line pipeline coordinator.
   # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.
   class CLI
-    SUBCOMMAND_HANDLERS: Hash[String, Symbol]
+    private def run_watch: (String) -> Integer
+
+    SUBCOMMAND_HANDLERS: Hash[String, [ Symbol, Symbol ]]
 
     include CLICounterexampleOptions
 
-    include CLIAmbiguity
-
-    include CLICoverage
-
-    include CLIDebug
-
-    include CLIDiagnostics
-
-    include CLIDocumentation
-
-    include CLIErrorMessages
-
-    include CLIExplain
-
-    include CLIFormatting
-
-    include CLIGrammarTests
+    include CLIGenerationErrorMessages
 
     include CLIGenerationArtifacts
 
-    include CLIIRTools
-
-    include CLILSP
-
     include CLIOutputs
-
-    include CLIRaccMigration
-
-    include CLISamples
-
-    include CLIWatch
 
     @options: cli_options
 
@@ -74,6 +52,9 @@ module Ibex
 
     # @rbs (Array[String] arguments) -> Integer?
     def dispatch_subcommand: (Array[String] arguments) -> Integer?
+
+    # @rbs (Symbol feature) -> void
+    def activate_cli_feature: (Symbol feature) -> void
 
     # @rbs () -> OptionParser
     def option_parser: () -> OptionParser

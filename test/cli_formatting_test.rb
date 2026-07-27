@@ -225,7 +225,7 @@ class CLIFormattingTest < Minitest::Test
       originals = [File.binread(first), File.binread(second)]
       stdout = StringIO.new
       stderr = StringIO.new
-      cli = Ibex::CLI.new(stdin: StringIO.new, stdout: stdout, stderr: stderr)
+      cli = formatting_cli(stdin: StringIO.new, stdout: stdout, stderr: stderr)
       sync_count = 0
       sync = lambda do |_path|
         sync_count += 1
@@ -295,7 +295,7 @@ class CLIFormattingTest < Minitest::Test
       original = File.binread(path)
       stdout = StringIO.new
       stderr = StringIO.new
-      cli = Ibex::CLI.new(stdin: StringIO.new, stdout: stdout, stderr: stderr)
+      cli = formatting_cli(stdin: StringIO.new, stdout: stdout, stderr: stderr)
       cli_sync = ->(_directory) { raise Errno::EIO, directory }
       original_unlink = File.method(:unlink)
       backup_path = nil
@@ -442,7 +442,7 @@ class CLIFormattingTest < Minitest::Test
 
   def invoke_with_failed_rollback(path)
     stderr = StringIO.new
-    cli = Ibex::CLI.new(stdin: StringIO.new, stdout: StringIO.new, stderr: stderr)
+    cli = formatting_cli(stdin: StringIO.new, stdout: StringIO.new, stderr: stderr)
     sync_count = 0
     sync = lambda do |_directory|
       sync_count += 1
@@ -465,7 +465,7 @@ class CLIFormattingTest < Minitest::Test
 
   def invoke_with_repeated_directory_sync_failures(paths, sync_counts)
     stderr = StringIO.new
-    cli = Ibex::CLI.new(stdin: StringIO.new, stdout: StringIO.new, stderr: stderr)
+    cli = formatting_cli(stdin: StringIO.new, stdout: StringIO.new, stderr: stderr)
     sync = lambda do |directory|
       sync_counts[directory] += 1
       raise Errno::EIO, directory if sync_counts.fetch(directory) >= 2
@@ -489,6 +489,12 @@ class CLIFormattingTest < Minitest::Test
       originals = { first => File.binread(first), second_target => File.binread(second_target) }
       yield directory, first, second_target, second_link, originals
     end
+  end
+
+  def formatting_cli(stdin:, stdout:, stderr:)
+    cli = Ibex::CLI.new(stdin: stdin, stdout: stdout, stderr: stderr)
+    cli.send(:activate_cli_feature, :CLIFormatting)
+    cli
   end
 
   def fail_second_stage_rename(&block)

@@ -1,0 +1,19 @@
+# Generated from lib/ibex/cli/generation_error_messages.rb with RBS::Inline
+
+module Ibex
+  # Optional example-keyed error-message support for parser generation.
+  module CLIGenerationErrorMessages
+    private def record_generation_input: (String, String) -> GenerationInput
+
+    private
+
+    # @rbs (OptionParser options) -> void
+    def add_error_messages_generation_option: (OptionParser options) -> void
+
+    # @rbs (IR::Automaton automaton) -> Hash[Integer, untyped]
+    def configured_error_messages: (IR::Automaton automaton) -> Hash[Integer, untyped]
+
+    # @rbs () -> void
+    def validate_messages_options: () -> void
+  end
+end

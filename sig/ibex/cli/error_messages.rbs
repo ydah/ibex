@@ -33,9 +33,6 @@ module Ibex
     # @rbs () -> OptionParser
     def error_messages_option_parser: () -> OptionParser
 
-    # @rbs (OptionParser options) -> void
-    def add_error_messages_generation_option: (OptionParser options) -> void
-
     # @rbs (String input_path) -> IR::Automaton
     def automaton_for_error_messages: (String input_path) -> IR::Automaton
 
@@ -56,11 +53,5 @@ module Ibex
 
     # @rbs (String path) -> Integer
     def messages_file_mode: (String path) -> Integer
-
-    # @rbs (IR::Automaton automaton) -> Hash[Integer, untyped]
-    def configured_error_messages: (IR::Automaton automaton) -> Hash[Integer, untyped]
-
-    # @rbs () -> void
-    def validate_messages_options: () -> void
   end
 end

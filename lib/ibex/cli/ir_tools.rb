@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "tempfile"
+require_relative "../ir"
 
 module Ibex
   # @rbs!
@@ -14,6 +15,7 @@ module Ibex
   module CLIIRTools
     # @rbs!
     #   private def same_file_target?: (String left, String right) -> bool
+    #   private def atomic_write_ir: (String path, String source) -> void
 
     private
 
@@ -89,29 +91,6 @@ module Ibex
       end
       settings[:paths] = parser.parse(arguments)
       settings
-    end
-
-    # @rbs (String path, String source) -> void
-    def atomic_write_ir(path, source)
-      target_path = File.symlink?(path) ? File.realpath(path) : path
-      directory = File.dirname(File.expand_path(target_path))
-      basename = File.basename(target_path)
-      Tempfile.create([".#{basename}.", ".tmp"], directory) do |temporary|
-        temporary.binmode
-        temporary.write(source)
-        temporary.flush
-        temporary.fsync
-        temporary.chmod(ir_file_mode(target_path))
-        temporary.close
-        File.rename(temporary.path, target_path)
-      end
-    end
-
-    # @rbs (String path) -> Integer
-    def ir_file_mode(path)
-      return File.stat(path).mode & 0o777 if File.exist?(path)
-
-      0o666 & ~File.umask
     end
 
     # @rbs (Array[String] arguments, String command) -> String

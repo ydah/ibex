@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require "optparse"
+require_relative "../frontend"
+require_relative "../normalize"
+require_relative "../codegen/documentation"
+
 module Ibex
   # Generates standalone grammar documentation from the canonical include closure.
   module CLIDocumentation

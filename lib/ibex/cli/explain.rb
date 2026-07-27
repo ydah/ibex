@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require "json"
+require "optparse"
+require_relative "../codegen/explain"
+
 module Ibex
   # Dedicated command-line view for selected parser conflicts.
   module CLIExplain

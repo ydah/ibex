@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 # rbs_inline: enabled
 
+require_relative "../artifact_set"
+require_relative "../generation_input"
+require_relative "../generation_manifest"
+require_relative "../generation_transaction"
+
 module Ibex
   # Collects, verifies, and transactionally publishes CLI generation outputs.
   module CLIGenerationArtifacts
