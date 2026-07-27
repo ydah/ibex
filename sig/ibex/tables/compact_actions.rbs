@@ -21,12 +21,16 @@ module Ibex
 
       attr_reader codes: Array[Integer?]
 
+      attr_reader dense_codes: Array[Integer?]?
+
+      attr_reader column_count: Integer?
+
       # @rbs (Array[Hash[Integer, untyped]] rows) -> CompactActions
       def self.build: (Array[Hash[Integer, untyped]] rows) -> CompactActions
 
       # @rbs (String offsets, String codes, String checks, row_count: Integer,
-      #   ?encoding: Symbol) -> CompactActions
-      def self.packed: (String offsets, String codes, String checks, row_count: Integer, ?encoding: Symbol) -> CompactActions
+      #   ?encoding: Symbol, ?column_count: Integer?) -> CompactActions
+      def self.packed: (String offsets, String codes, String checks, row_count: Integer, ?encoding: Symbol, ?column_count: Integer?) -> CompactActions
 
       # @rbs (untyped action) -> Integer?
       def self.pack: (untyped action) -> Integer?
@@ -40,8 +44,14 @@ module Ibex
       def self.legacy_to_signed: (Integer? code) -> Integer?
 
       # @rbs (offsets: Array[Integer], codes: Array[Integer?], checks: Array[Integer?],
-      #   row_count: Integer, ?encoding: Symbol) -> void
-      def initialize: (offsets: Array[Integer], codes: Array[Integer?], checks: Array[Integer?], row_count: Integer, ?encoding: Symbol) -> void
+      #   row_count: Integer, ?encoding: Symbol, ?column_count: Integer?) -> void
+      def initialize: (offsets: Array[Integer], codes: Array[Integer?], checks: Array[Integer?], row_count: Integer, ?encoding: Symbol, ?column_count: Integer?) -> void
+
+      private
+
+      # @rbs (Array[Integer] offsets, Array[Integer?] codes, Array[Integer?] checks,
+      #   Integer row_count, Integer? column_count) -> Array[Integer?]?
+      def dense_action_layout: (Array[Integer] offsets, Array[Integer?] codes, Array[Integer?] checks, Integer row_count, Integer? column_count) -> Array[Integer?]?
     end
   end
 end

@@ -13,6 +13,8 @@ module Ibex
 
       COMPOSITION_ACTION: Integer
 
+      POSITIONAL_ACTION: Integer
+
       VALID_FLAGS: Integer
 
       CORE_FIELDS: Array[Symbol]

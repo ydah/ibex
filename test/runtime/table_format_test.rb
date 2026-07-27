@@ -42,6 +42,12 @@ class RuntimeTableFormatTest < Minitest::Test
     def self.parser_tables = TABLES
   end
 
+  class VersionFourParser < CurrentParser
+    TABLES = CurrentParser::TABLES.merge(format_version: 4).freeze
+
+    def self.parser_tables = TABLES
+  end
+
   class FutureParser < CurrentParser
     TABLES = CurrentParser::TABLES.merge(
       format_version: Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION + 1
@@ -85,8 +91,8 @@ class RuntimeTableFormatTest < Minitest::Test
   end
 
   def test_current_hand_written_table_is_accepted
-    assert_equal 4, Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION
-    assert_equal [1, 2, 3, 4], Ibex::Runtime::SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS
+    assert_equal 5, Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION
+    assert_equal [1, 2, 3, 4, 5], Ibex::Runtime::SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS
     assert_nil CurrentParser.new.do_parse
   end
 
@@ -94,6 +100,7 @@ class RuntimeTableFormatTest < Minitest::Test
     assert_nil VersionOneParser.new.do_parse
     assert_nil VersionTwoParser.new.do_parse
     assert_nil VersionThreeParser.new.do_parse
+    assert_nil VersionFourParser.new.do_parse
   end
 
   def test_missing_parser_table_format_version_fails_before_reading_tokens
@@ -108,8 +115,8 @@ class RuntimeTableFormatTest < Minitest::Test
     error = assert_raises(Ibex::Runtime::ParseError) { FutureParser.new.do_parse }
 
     assert_match(/\(tables\):1:1:/, error.message)
-    assert_match(/unsupported parser table format version 5/, error.message)
-    assert_match(/runtime supports 1, 2, 3, 4/, error.message)
+    assert_match(/unsupported parser table format version 6/, error.message)
+    assert_match(/runtime supports 1, 2, 3, 4, 5/, error.message)
     assert_match(/regenerate/i, error.message)
   end
 

@@ -4,10 +4,12 @@ module Ibex
   module Codegen
     # Builds semantic method source shared by runtime and static shadow output.
     class ActionMethodSource
+      @generated_action_abi: GeneratedActionABI::Cache
+
       @grammar: IR::Grammar
 
-      # @rbs (IR::Grammar grammar) -> void
-      def initialize: (IR::Grammar grammar) -> void
+      # @rbs (IR::Grammar grammar, ?generated_action_abi: GeneratedActionABI::Cache?) -> void
+      def initialize: (IR::Grammar grammar, ?generated_action_abi: GeneratedActionABI::Cache?) -> void
 
       # @rbs (IR::Production production, Hash[Symbol, untyped] step, Integer index) -> String
       def composed_fragment_method_source: (IR::Production production, Hash[Symbol, untyped] step, Integer index) -> String
@@ -32,11 +34,14 @@ module Ibex
       # @rbs (IR::Production production) -> String
       def action_parameters: (IR::Production production) -> String
 
-      # @rbs (String source) -> void
-      def append_parameter_values: (String source) -> void
+      # @rbs (IR::Production production, Integer index) -> String
+      def value_expression: (IR::Production production, Integer index) -> String
 
-      # @rbs (Array[String] lines) -> void
-      def append_direct_parameter_values: (Array[String] lines) -> void
+      # @rbs (String source, ?production: IR::Production?) -> void
+      def append_parameter_values: (String source, ?production: IR::Production?) -> void
+
+      # @rbs (Array[String] lines, production: IR::Production) -> void
+      def append_direct_parameter_values: (Array[String] lines, production: IR::Production) -> void
 
       # @rbs (Hash[Symbol, untyped] step) -> String
       def composed_semantic_code: (Hash[Symbol, untyped] step) -> String
@@ -52,6 +57,9 @@ module Ibex
 
       # @rbs (IR::Production production, IR::Action action) -> String
       def semantic_action_code: (IR::Production production, IR::Action action) -> String
+
+      # @rbs (IR::Production production) -> String
+      def default_value_expression: (IR::Production production) -> String
     end
   end
 end

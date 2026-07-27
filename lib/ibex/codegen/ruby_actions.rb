@@ -134,7 +134,9 @@ module Ibex
 
       # @rbs () -> ActionMethodSource
       def action_method_source
-        @action_method_source ||= ActionMethodSource.new(@grammar)
+        @action_method_source ||= ActionMethodSource.new(
+          @grammar, generated_action_abi: @generated_action_abi
+        )
       end
     end
   end

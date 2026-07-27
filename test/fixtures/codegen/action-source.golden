@@ -7,7 +7,7 @@ module Golden
 class Parser
 
   # Grammar action: "golden-action.y":6:18
-private def _ibex_action_0(val); value = val[0]; _ibex_named_values = [value]; result = val[0]; result = value + 1
+private def _ibex_action_0(v0); value = v0; _ibex_named_values = [value]; result = v0; result = value + 1
 result
 end
 end

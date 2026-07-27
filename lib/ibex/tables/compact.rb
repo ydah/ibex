@@ -62,14 +62,18 @@ module Ibex
 
     # Sparse table represented by per-row offsets and ownership checks.
     class Compact
+      DENSE_CELL_LIMIT = 1_000_000 #: Integer
+
       attr_reader :offsets #: Array[Integer]
       attr_reader :values #: Array[untyped]
       attr_reader :checks #: Array[Integer?]
       attr_reader :row_count #: Integer
+      attr_reader :dense_values #: Array[untyped]?
+      attr_reader :dense_width #: Integer?
 
       class << self
-        # @rbs (Array[Hash[Integer, untyped]] rows) -> Compact
-        def build(rows)
+        # @rbs (Array[Hash[Integer, untyped]] rows, ?dense: bool) -> Compact
+        def build(rows, dense: true)
           offsets = Array.new(rows.length, 0)
           values = [] #: Array[untyped]
           checks = [] #: Array[Integer?]
@@ -83,16 +87,23 @@ module Ibex
               checks[index] = row
             end
           end
-          new(offsets: offsets, values: values, checks: checks, row_count: rows.length)
+          dense_width = rows.flat_map(&:keys).max.to_i + 1 if dense
+          dense_width = nil if dense_width && (rows.length * dense_width) > DENSE_CELL_LIMIT
+          new(
+            offsets: offsets, values: values, checks: checks, row_count: rows.length,
+            dense_width: dense_width
+          )
         end
 
-        # @rbs (String offsets, String values, String checks, row_count: Integer) -> Compact
-        def packed(offsets, values, checks, row_count:)
+        # @rbs (String offsets, String values, String checks, row_count: Integer,
+        #   ?dense_width: Integer?) -> Compact
+        def packed(offsets, values, checks, row_count:, dense_width: nil)
           new(
             offsets: PackedIntegers.decode_required(offsets),
             values: PackedIntegers.decode(values),
             checks: PackedIntegers.decode(checks),
-            row_count: row_count
+            row_count: row_count,
+            dense_width: dense_width
           )
         end
 
@@ -110,12 +121,15 @@ module Ibex
         end
       end
 
-      # @rbs (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer) -> void
-      def initialize(offsets:, values:, checks:, row_count:)
+      # @rbs (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?],
+      #   row_count: Integer, ?dense_width: Integer?) -> void
+      def initialize(offsets:, values:, checks:, row_count:, dense_width: nil)
         @offsets = offsets.freeze
         @values = values.freeze
         @checks = checks.freeze
         @row_count = row_count
+        @dense_width = dense_width
+        @dense_values = dense_layout(dense_width)
         freeze
       end
 
@@ -144,6 +158,28 @@ module Ibex
           result[index - @offsets[row]] = @values[index]
         end
         result
+      end
+
+      private
+
+      # @rbs (Integer? dense_width) -> Array[untyped]?
+      def dense_layout(dense_width)
+        return nil unless dense_width
+        raise ArgumentError, "compact dense width must be positive" unless dense_width.positive?
+        return nil if (@row_count * dense_width) > DENSE_CELL_LIMIT
+
+        dense = Array.new(@row_count * dense_width) #: Array[untyped]
+        @checks.each_index do |index|
+          row = @checks[index]
+          next unless row
+
+          column = index - @offsets.fetch(row)
+          raise ArgumentError, "compact column exceeds the dense row width" unless
+            column.between?(0, dense_width - 1)
+
+          dense[(row * dense_width) + column] = @values[index]
+        end
+        dense.freeze
       end
     end
   end

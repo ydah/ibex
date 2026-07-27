@@ -58,14 +58,16 @@ module Ibex
       # @rbs @executable: String?
       # @rbs @cst_trivia: Symbol
       # @rbs @error_messages: Hash[Integer, String | { id: String, message: String }]
+      # @rbs @generated_action_abi: GeneratedActionABI::Cache
+      # @rbs @runtime_require: String?
 
       # @rbs (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool,
       #   ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?,
-      #   ?executable: String?, ?cst_trivia: Symbol | String,
+      #   ?executable: String?, ?cst_trivia: Symbol | String, ?runtime_require: String?,
       #   ?error_messages: Hash[Integer, String | { id: String, message: String }]) -> void
       def initialize(automaton, table: :compact, embedded: false, line_convert: true, debug: false,
                      line_convert_all: false, omit_action_call: nil, superclass: nil, executable: nil,
-                     cst_trivia: :attach, error_messages: {})
+                     cst_trivia: :attach, runtime_require: "ibex/runtime", error_messages: {})
         @automaton = automaton
         @grammar = automaton.grammar
         @table_format = table.to_sym
@@ -77,6 +79,8 @@ module Ibex
         @superclass = superclass || @grammar.superclass || "Ibex::Runtime::Parser"
         @executable = executable
         @cst_trivia = cst_trivia.to_sym
+        @generated_action_abi = GeneratedActionABI::Cache.new
+        @runtime_require = runtime_require
         raise ArgumentError, "cst_trivia must be :attach or :drop" unless %i[attach drop].include?(@cst_trivia)
 
         @error_messages = error_messages.sort.to_h.freeze
@@ -112,8 +116,8 @@ module Ibex
       def append_runtime(lines)
         if @embedded
           EMBEDDED_RUNTIME_SOURCES.each { |path| lines << embedded_source(path) }
-        else
-          lines << 'require "ibex/runtime"'
+        elsif @runtime_require
+          lines << "require #{@runtime_require.inspect}"
         end
         lines << ""
       end
@@ -209,13 +213,13 @@ module Ibex
         if table.is_a?(Tables::CompactActions)
           return "Ibex::Tables::CompactActions.packed(#{packed_integers_literal(table.offsets)}, " \
                  "#{packed_signed_integers_literal(table.codes)}, #{packed_integers_literal(table.checks)}, " \
-                 "row_count: #{table.row_count}, encoding: :signed)"
+                 "row_count: #{table.row_count}, encoding: :signed, column_count: #{table.column_count})"
         end
         return "#{table.inspect}.freeze" unless table.is_a?(Tables::Compact)
 
         "Ibex::Tables::Compact.packed(#{packed_integers_literal(table.offsets)}, " \
           "#{packed_integers_literal(table.values)}, #{packed_integers_literal(table.checks)}, " \
-          "row_count: #{table.row_count})"
+          "row_count: #{table.row_count}, dense_width: #{table.dense_width})"
       end
 
       # @rbs (Array[Integer?] values) -> String
@@ -286,9 +290,10 @@ module Ibex
       # @rbs (IR::Production production, bool generated_action) -> String
       def production_action_abi_literal(production, generated_action)
         return "" unless generated_action
-        return ", location_action: true" unless GeneratedActionABI.values_only?(production)
+        return ", location_action: true" unless @generated_action_abi.values_only?(production)
+        return ", positional_action: true" if @generated_action_abi.positional_values?(production)
 
-        borrowed = if GeneratedActionABI.borrowed_values?(production)
+        borrowed = if @generated_action_abi.borrowed_values?(production)
                      ", borrowed_values_action: true"
                    else
                      ""
@@ -311,10 +316,12 @@ module Ibex
         return 0 unless action_method?(production)
 
         value = 0
-        if GeneratedActionABI.values_only?(production)
+        if @generated_action_abi.positional_values?(production)
+          value |= Tables::CompactProductions::POSITIONAL_ACTION
+        elsif @generated_action_abi.values_only?(production)
           value |= Tables::CompactProductions::VALUES_ACTION
           value |= Tables::CompactProductions::BORROWED_VALUES_ACTION if
-            GeneratedActionABI.borrowed_values?(production)
+            @generated_action_abi.borrowed_values?(production)
         else
           value |= Tables::CompactProductions::LOCATION_ACTION
         end

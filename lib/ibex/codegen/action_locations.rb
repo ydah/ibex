@@ -6,6 +6,9 @@ module Ibex
     # Rewrites semantic-location expressions without touching Ruby literals,
     # comments, heredoc bodies, or ordinary instance/class variables.
     class ActionLocations
+      SEMANTIC_HELPERS = %w[loc result_loc].freeze #: Array[String]
+      private_constant :SEMANTIC_HELPERS
+
       # @rbs @source: String
       # @rbs @maximum: Integer
       # @rbs @location: IR::location
@@ -37,7 +40,7 @@ module Ibex
         require "ripper"
         tokens = Object.const_get(:Ripper).__send__(:lex, lexable_source)
         tokens.any? do |_position, type, token, _state|
-          type == :on_ident && (token == "loc" || token == "result_loc")
+          type == :on_ident && SEMANTIC_HELPERS.include?(token)
         end
       end
 

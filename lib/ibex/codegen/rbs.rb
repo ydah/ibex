@@ -5,11 +5,13 @@ require_relative "generated_action_abi"
 module Ibex
   module Codegen
     # Generates an RBS declaration for the public surface of a generated parser.
+    # rubocop:disable Metrics/ClassLength -- one generator owns the complete parser signature.
     class RBS
       # @rbs @automaton: IR::Automaton
       # @rbs @grammar: IR::Grammar
       # @rbs @superclass: String
       # @rbs @omit_action_call: bool
+      # @rbs @generated_action_abi: GeneratedActionABI::Cache
 
       # @rbs (IR::Automaton automaton, ?superclass: String?, ?omit_action_call: bool?) -> void
       def initialize(automaton, superclass: nil, omit_action_call: nil)
@@ -17,6 +19,7 @@ module Ibex
         @grammar = automaton.grammar
         @superclass = superclass || @grammar.superclass || "Ibex::Runtime::Parser"
         @omit_action_call = omit_action_call.nil? ? @grammar.options[:omit_action_call] : omit_action_call
+        @generated_action_abi = GeneratedActionABI::Cache.new
       end
 
       # @rbs () -> String
@@ -191,7 +194,11 @@ module Ibex
       def append_action_signature(lines, production)
         parameters = production.rhs.map { |symbol_id| semantic_type(symbol_id) }.join(", ")
         result = production.node ? "AST::#{production.node.fetch(:name)}" : semantic_type(production.lhs)
-        if GeneratedActionABI.values_only?(production)
+        if @generated_action_abi.positional_values?(production)
+          lines << "  private def _ibex_action_#{production.id}: (#{parameters}) -> #{result}"
+          return
+        end
+        if @generated_action_abi.values_only?(production)
           lines << "  private def _ibex_action_#{production.id}: ([#{parameters}]) -> #{result}"
           return
         end
@@ -272,5 +279,6 @@ module Ibex
         @automaton.grammar_digest.delete_prefix("sha256:").chars.first(12).join
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end

@@ -35,279 +35,279 @@ module Ibex
 
       DEBUG_ENABLED: bool
 
-      private def _ibex_action_0: (untyped val) -> untyped
+      private def _ibex_action_0: (untyped v0) -> untyped
 
-      private def _ibex_action_1: (untyped val) -> untyped
+      private def _ibex_action_1: (untyped v0) -> untyped
 
       private def _ibex_action_2: (untyped val) -> untyped
 
       private def _ibex_action_3: (untyped val) -> untyped
 
-      private def _ibex_action_4: (untyped val) -> untyped
+      private def _ibex_action_4: (untyped v0, untyped v1) -> untyped
 
       private def _ibex_action_5: (untyped val) -> untyped
 
-      private def _ibex_action_6: (untyped val) -> untyped
+      private def _ibex_action_6: () -> untyped
 
-      private def _ibex_action_7: (untyped val) -> untyped
+      private def _ibex_action_7: (untyped v0) -> untyped
 
-      private def _ibex_action_8: (untyped val) -> untyped
+      private def _ibex_action_8: (untyped v0) -> untyped
 
-      private def _ibex_action_9: (untyped val) -> untyped
+      private def _ibex_action_9: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_10: (untyped val) -> untyped
+      private def _ibex_action_10: () -> untyped
 
-      private def _ibex_action_11: (untyped val) -> untyped
+      private def _ibex_action_11: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_14: (untyped val) -> untyped
+      private def _ibex_action_14: () -> untyped
 
-      private def _ibex_action_15: (untyped val) -> untyped
+      private def _ibex_action_15: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_16: (untyped val) -> untyped
+      private def _ibex_action_16: (untyped v0) -> untyped
 
-      private def _ibex_action_17: (untyped val) -> untyped
+      private def _ibex_action_17: (untyped v0) -> untyped
 
-      private def _ibex_action_18: (untyped val) -> untyped
+      private def _ibex_action_18: (untyped v0) -> untyped
 
-      private def _ibex_action_19: (untyped val) -> untyped
+      private def _ibex_action_19: (untyped v0) -> untyped
 
-      private def _ibex_action_20: (untyped val) -> untyped
+      private def _ibex_action_20: (untyped v0) -> untyped
 
-      private def _ibex_action_21: (untyped val) -> untyped
+      private def _ibex_action_21: (untyped v0) -> untyped
 
-      private def _ibex_action_22: (untyped val) -> untyped
+      private def _ibex_action_22: (untyped v0) -> untyped
 
-      private def _ibex_action_23: (untyped val) -> untyped
+      private def _ibex_action_23: (untyped v0) -> untyped
 
-      private def _ibex_action_24: (untyped val) -> untyped
+      private def _ibex_action_24: (untyped v0) -> untyped
 
-      private def _ibex_action_25: (untyped val) -> untyped
+      private def _ibex_action_25: (untyped v0) -> untyped
 
-      private def _ibex_action_26: (untyped val) -> untyped
+      private def _ibex_action_26: (untyped v0) -> untyped
 
-      private def _ibex_action_27: (untyped val) -> untyped
+      private def _ibex_action_27: (untyped v0) -> untyped
 
-      private def _ibex_action_28: (untyped val) -> untyped
+      private def _ibex_action_28: (untyped v0) -> untyped
 
-      private def _ibex_action_29: (untyped val) -> untyped
+      private def _ibex_action_29: (untyped v0) -> untyped
 
-      private def _ibex_action_30: (untyped val) -> untyped
+      private def _ibex_action_30: (untyped v0) -> untyped
 
-      private def _ibex_action_31: (untyped val) -> untyped
+      private def _ibex_action_31: (untyped v0) -> untyped
 
-      private def _ibex_action_32: (untyped val) -> untyped
+      private def _ibex_action_32: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_33: (untyped val) -> untyped
+      private def _ibex_action_33: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_34: (untyped val) -> untyped
+      private def _ibex_action_34: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_35: (untyped val) -> untyped
+      private def _ibex_action_35: () -> untyped
 
-      private def _ibex_action_36: (untyped val) -> untyped
+      private def _ibex_action_36: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_37: (untyped val) -> untyped
+      private def _ibex_action_37: (untyped v0) -> untyped
 
-      private def _ibex_action_38: (untyped val) -> untyped
+      private def _ibex_action_38: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_39: (untyped val) -> untyped
+      private def _ibex_action_39: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_40: (untyped val) -> untyped
+      private def _ibex_action_40: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_41: (untyped val) -> untyped
+      private def _ibex_action_41: () -> untyped
 
-      private def _ibex_action_42: (untyped val) -> untyped
+      private def _ibex_action_42: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_43: (untyped val) -> untyped
+      private def _ibex_action_43: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_44: (untyped val) -> untyped
+      private def _ibex_action_44: (untyped v0) -> untyped
 
-      private def _ibex_action_45: (untyped val) -> untyped
+      private def _ibex_action_45: (untyped v0) -> untyped
 
-      private def _ibex_action_46: (untyped val) -> untyped
+      private def _ibex_action_46: (untyped v0) -> untyped
 
-      private def _ibex_action_47: (untyped val) -> untyped
+      private def _ibex_action_47: (untyped v0) -> untyped
 
-      private def _ibex_action_48: (untyped val) -> untyped
+      private def _ibex_action_48: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_49: (untyped val) -> untyped
+      private def _ibex_action_49: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_50: (untyped val) -> untyped
+      private def _ibex_action_50: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_51: (untyped val) -> untyped
+      private def _ibex_action_51: (untyped v0, untyped v1, untyped v2) -> untyped
 
       private def _ibex_action_52: (untyped val) -> untyped
 
-      private def _ibex_action_53: (untyped val) -> untyped
+      private def _ibex_action_53: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_54: (untyped val) -> untyped
+      private def _ibex_action_54: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_55: (untyped val) -> untyped
+      private def _ibex_action_55: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_56: (untyped val) -> untyped
+      private def _ibex_action_56: () -> untyped
 
-      private def _ibex_action_57: (untyped val) -> untyped
+      private def _ibex_action_57: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_58: (untyped val) -> untyped
+      private def _ibex_action_58: (untyped v0) -> untyped
 
-      private def _ibex_action_59: (untyped val) -> untyped
+      private def _ibex_action_59: (untyped v0) -> untyped
 
-      private def _ibex_action_60: (untyped val) -> untyped
+      private def _ibex_action_60: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_61: (untyped val) -> untyped
+      private def _ibex_action_61: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_62: (untyped val) -> untyped
+      private def _ibex_action_62: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_63: (untyped val) -> untyped
+      private def _ibex_action_63: (untyped v0) -> untyped
 
-      private def _ibex_action_64: (untyped val) -> untyped
+      private def _ibex_action_64: (untyped v0) -> untyped
 
-      private def _ibex_action_65: (untyped val) -> untyped
+      private def _ibex_action_65: () -> untyped
 
-      private def _ibex_action_66: (untyped val) -> untyped
+      private def _ibex_action_66: (untyped v0) -> untyped
 
       private def _ibex_action_67: (untyped val) -> untyped
 
-      private def _ibex_action_68: (untyped val) -> untyped
+      private def _ibex_action_68: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_69: (untyped val) -> untyped
+      private def _ibex_action_69: () -> untyped
 
-      private def _ibex_action_70: (untyped val) -> untyped
+      private def _ibex_action_70: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_71: (untyped val) -> untyped
+      private def _ibex_action_71: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_72: (untyped val) -> untyped
+      private def _ibex_action_72: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_73: (untyped val) -> untyped
+      private def _ibex_action_73: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_74: (untyped val) -> untyped
+      private def _ibex_action_74: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_75: (untyped val) -> untyped
+      private def _ibex_action_75: () -> untyped
 
-      private def _ibex_action_76: (untyped val) -> untyped
+      private def _ibex_action_76: (untyped v0) -> untyped
 
-      private def _ibex_action_77: (untyped val) -> untyped
+      private def _ibex_action_77: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_78: (untyped val) -> untyped
+      private def _ibex_action_78: () -> untyped
 
-      private def _ibex_action_79: (untyped val) -> untyped
+      private def _ibex_action_79: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_80: (untyped val) -> untyped
+      private def _ibex_action_80: () -> untyped
 
-      private def _ibex_action_81: (untyped val) -> untyped
+      private def _ibex_action_81: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_82: (untyped val) -> untyped
+      private def _ibex_action_82: (untyped v0) -> untyped
 
-      private def _ibex_action_83: (untyped val) -> untyped
+      private def _ibex_action_83: (untyped v0) -> untyped
 
-      private def _ibex_action_84: (untyped val) -> untyped
+      private def _ibex_action_84: (untyped v0) -> untyped
 
-      private def _ibex_action_85: (untyped val) -> untyped
+      private def _ibex_action_85: (untyped v0, untyped v1) -> untyped
 
       private def _ibex_action_86: (untyped val) -> untyped
 
-      private def _ibex_action_87: (untyped val) -> untyped
+      private def _ibex_action_87: () -> untyped
 
-      private def _ibex_action_88: (untyped val) -> untyped
+      private def _ibex_action_88: (untyped v0) -> untyped
 
-      private def _ibex_action_89: (untyped val) -> untyped
+      private def _ibex_action_89: () -> untyped
 
-      private def _ibex_action_90: (untyped val) -> untyped
+      private def _ibex_action_90: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_91: (untyped val) -> untyped
+      private def _ibex_action_91: (untyped v0) -> untyped
 
-      private def _ibex_action_92: (untyped val) -> untyped
+      private def _ibex_action_92: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_95: (untyped val) -> untyped
+      private def _ibex_action_95: (untyped v0) -> untyped
 
-      private def _ibex_action_96: (untyped val) -> untyped
+      private def _ibex_action_96: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_97: (untyped val) -> untyped
+      private def _ibex_action_97: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_98: (untyped val) -> untyped
+      private def _ibex_action_98: () -> untyped
 
       private def _ibex_action_99: (untyped val) -> untyped
 
-      private def _ibex_action_100: (untyped val) -> untyped
+      private def _ibex_action_100: () -> untyped
 
-      private def _ibex_action_101: (untyped val) -> untyped
+      private def _ibex_action_101: (untyped v0) -> untyped
 
-      private def _ibex_action_102: (untyped val) -> untyped
+      private def _ibex_action_102: () -> untyped
 
-      private def _ibex_action_103: (untyped val) -> untyped
+      private def _ibex_action_103: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_104: (untyped val) -> untyped
+      private def _ibex_action_104: () -> untyped
 
-      private def _ibex_action_105: (untyped val) -> untyped
+      private def _ibex_action_105: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_106: (untyped val) -> untyped
+      private def _ibex_action_106: (untyped v0) -> untyped
 
-      private def _ibex_action_107: (untyped val) -> untyped
+      private def _ibex_action_107: (untyped v0) -> untyped
 
-      private def _ibex_action_108: (untyped val) -> untyped
+      private def _ibex_action_108: (untyped v0) -> untyped
 
-      private def _ibex_action_109: (untyped val) -> untyped
+      private def _ibex_action_109: (untyped v0) -> untyped
 
-      private def _ibex_action_110: (untyped val) -> untyped
+      private def _ibex_action_110: (untyped v0) -> untyped
 
-      private def _ibex_action_111: (untyped val) -> untyped
+      private def _ibex_action_111: (untyped v0) -> untyped
 
-      private def _ibex_action_112: (untyped val) -> untyped
+      private def _ibex_action_112: (untyped v0, untyped v1, untyped v2) -> untyped
 
       private def _ibex_action_113: (untyped val) -> untyped
 
-      private def _ibex_action_114: (untyped val) -> untyped
+      private def _ibex_action_114: () -> untyped
 
-      private def _ibex_action_115: (untyped val) -> untyped
+      private def _ibex_action_115: (untyped v0) -> untyped
 
-      private def _ibex_action_116: (untyped val) -> untyped
+      private def _ibex_action_116: (untyped v0) -> untyped
 
-      private def _ibex_action_117: (untyped val) -> untyped
+      private def _ibex_action_117: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_118: (untyped val) -> untyped
+      private def _ibex_action_118: (untyped v0) -> untyped
 
-      private def _ibex_action_119: (untyped val) -> untyped
+      private def _ibex_action_119: (untyped v0) -> untyped
 
-      private def _ibex_action_120: (untyped val) -> untyped
+      private def _ibex_action_120: (untyped v0) -> untyped
 
-      private def _ibex_action_121: (untyped val) -> untyped
+      private def _ibex_action_121: (untyped v0) -> untyped
 
-      private def _ibex_action_122: (untyped val) -> untyped
+      private def _ibex_action_122: () -> untyped
 
-      private def _ibex_action_123: (untyped val) -> untyped
+      private def _ibex_action_123: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_124: (untyped val) -> untyped
+      private def _ibex_action_124: () -> untyped
 
-      private def _ibex_action_125: (untyped val) -> untyped
+      private def _ibex_action_125: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_126: (untyped val) -> untyped
+      private def _ibex_action_126: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_127: (untyped val) -> untyped
+      private def _ibex_action_127: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_128: (untyped val) -> untyped
+      private def _ibex_action_128: (untyped v0, untyped v1, untyped v2, untyped v3) -> untyped
 
-      private def _ibex_action_129: (untyped val) -> untyped
+      private def _ibex_action_129: (untyped v0) -> untyped
 
-      private def _ibex_action_130: (untyped val) -> untyped
+      private def _ibex_action_130: (untyped v0, untyped v1, untyped v2) -> untyped
 
-      private def _ibex_action_131: (untyped val) -> untyped
+      private def _ibex_action_131: () -> untyped
 
-      private def _ibex_action_132: (untyped val) -> untyped
+      private def _ibex_action_132: (untyped v0, untyped v1) -> untyped
 
-      private def _ibex_action_133: (untyped val) -> untyped
+      private def _ibex_action_133: (untyped v0) -> untyped
 
-      private def _ibex_action_134: (untyped val) -> untyped
+      private def _ibex_action_134: (untyped v0) -> untyped
 
-      private def _ibex_action_135: (untyped val) -> untyped
+      private def _ibex_action_135: (untyped v0) -> untyped
 
-      private def _ibex_action_136: (untyped val) -> untyped
+      private def _ibex_action_136: (untyped v0) -> untyped
 
       private def _ibex_action_137: (untyped val) -> untyped
 
       private def _ibex_action_138: (untyped val) -> untyped
 
-      private def _ibex_action_139: (untyped val) -> untyped
+      private def _ibex_action_139: () -> untyped
 
-      private def _ibex_action_140: (untyped val) -> untyped
+      private def _ibex_action_140: (untyped v0, untyped v1) -> untyped
     end
   end
 end

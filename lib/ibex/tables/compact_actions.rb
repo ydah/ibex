@@ -18,6 +18,8 @@ module Ibex
       private_constant :LEGACY_ERROR_CODE, :LEGACY_SHIFT_BASE, :LEGACY_REDUCE_BASE
 
       attr_reader :codes #: Array[Integer?]
+      attr_reader :dense_codes #: Array[Integer?]?
+      attr_reader :column_count #: Integer?
 
       class << self
         # @rbs (Array[Hash[Integer, untyped]] rows) -> CompactActions
@@ -25,25 +27,29 @@ module Ibex
           packed_rows = rows.map do |row|
             row.transform_values { |action| pack(action) }
           end
-          layout = Compact.build(packed_rows)
+          layout = Compact.build(packed_rows, dense: false)
+          column_count = rows.flat_map(&:keys).max.to_i + 1
+          column_count = nil if (rows.length * column_count) > Compact::DENSE_CELL_LIMIT
           new(
             offsets: layout.offsets,
             codes: layout.values,
             checks: layout.checks,
             row_count: layout.row_count,
-            encoding: :signed
+            encoding: :signed,
+            column_count: column_count
           )
         end
 
         # @rbs (String offsets, String codes, String checks, row_count: Integer,
-        #   ?encoding: Symbol) -> CompactActions
-        def packed(offsets, codes, checks, row_count:, encoding: :legacy)
+        #   ?encoding: Symbol, ?column_count: Integer?) -> CompactActions
+        def packed(offsets, codes, checks, row_count:, encoding: :legacy, column_count: nil)
           new(
             offsets: PackedIntegers.decode_required(offsets),
             codes: encoding == :signed ? PackedIntegers.decode_signed(codes) : PackedIntegers.decode(codes),
             checks: PackedIntegers.decode(checks),
             row_count: row_count,
-            encoding: encoding
+            encoding: encoding,
+            column_count: column_count
           )
         end
 
@@ -84,19 +90,45 @@ module Ibex
       end
 
       # @rbs (offsets: Array[Integer], codes: Array[Integer?], checks: Array[Integer?],
-      #   row_count: Integer, ?encoding: Symbol) -> void
-      def initialize(offsets:, codes:, checks:, row_count:, encoding: :legacy)
+      #   row_count: Integer, ?encoding: Symbol, ?column_count: Integer?) -> void
+      def initialize(offsets:, codes:, checks:, row_count:, encoding: :legacy, column_count: nil)
         codes = codes.map { |code| self.class.legacy_to_signed(code) } if encoding == :legacy
         unless %i[legacy signed].include?(encoding)
           raise ArgumentError, "unknown compact action encoding #{encoding.inspect}"
         end
 
         @codes = codes.freeze
+        @column_count = column_count
+        @dense_codes = dense_action_layout(offsets, codes, checks, row_count, column_count)
         decoded_cache = {} #: Hash[Integer, untyped]
         decoded = codes.map do |code|
           code.nil? ? nil : decoded_cache[code] ||= self.class.unpack(code)
         end
         super(offsets: offsets, values: decoded, checks: checks, row_count: row_count)
+      end
+
+      private
+
+      # @rbs (Array[Integer] offsets, Array[Integer?] codes, Array[Integer?] checks,
+      #   Integer row_count, Integer? column_count) -> Array[Integer?]?
+      def dense_action_layout(offsets, codes, checks, row_count, column_count)
+        return nil unless column_count
+        raise ArgumentError, "compact action column count must be positive" unless column_count.positive?
+
+        return nil if (row_count * column_count) > Compact::DENSE_CELL_LIMIT
+
+        dense = Array.new(row_count * column_count) #: Array[Integer?]
+        checks.each_index do |index|
+          row = checks[index]
+          next unless row
+
+          column = index - offsets.fetch(row)
+          raise ArgumentError, "compact action column exceeds the dense row width" unless
+            column.between?(0, column_count - 1)
+
+          dense[(row * column_count) + column] = codes[index]
+        end
+        dense.freeze
       end
     end
   end

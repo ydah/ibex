@@ -9,10 +9,12 @@ module Ibex
     # Builds semantic method source shared by runtime and static shadow output.
     class ActionMethodSource
       # @rbs @grammar: IR::Grammar
+      # @rbs @generated_action_abi: GeneratedActionABI::Cache
 
-      # @rbs (IR::Grammar grammar) -> void
-      def initialize(grammar)
+      # @rbs (IR::Grammar grammar, ?generated_action_abi: GeneratedActionABI::Cache?) -> void
+      def initialize(grammar, generated_action_abi: nil)
         @grammar = grammar
+        @generated_action_abi = generated_action_abi || GeneratedActionABI::Cache.new
       end
 
       # @rbs (IR::Production production, Hash[Symbol, untyped] step, Integer index) -> String
@@ -43,14 +45,16 @@ module Ibex
       def compiled_action_method_source(production)
         action = production.action
         source = "private def _ibex_action_#{production.id}#{action_parameters(production)}; "
-        append_parameter_values(source)
-        return "#{source}val[0]\nend" unless action
+        append_parameter_values(source, production: production)
+        return "#{source}#{default_value_expression(production)}\nend" unless action
 
         if action.context_length.positive?
           source << "val = _values.last(#{action.context_length}); "
           source << "_ibex_locations = _ibex_location_stack.last(#{action.context_length}); "
         end
-        action.named_refs.each { |reference| source << "#{reference[:name]} = val[#{reference[:index]}]; " }
+        action.named_refs.each do |reference|
+          source << "#{reference[:name]} = #{value_expression(production, reference[:index])}; "
+        end
         append_named_values(source, action.named_refs)
         append_action_body(source, production, action)
         source << "\nend"
@@ -62,13 +66,15 @@ module Ibex
         lines = [
           "private def _ibex_action_#{production.id}#{action_parameters(production)}"
         ]
-        append_direct_parameter_values(lines)
+        append_direct_parameter_values(lines, production: production)
         if action&.context_length&.positive?
           lines << "  val = _values.last(#{action.context_length})"
           lines << "  _ibex_locations = _ibex_location_stack.last(#{action.context_length})"
         end
         if action&.named_refs&.any?
-          action.named_refs.each { |reference| lines << "  #{reference[:name]} = val[#{reference[:index]}]" }
+          action.named_refs.each do |reference|
+            lines << "  #{reference[:name]} = #{value_expression(production, reference[:index])}"
+          end
           names = action.named_refs.map { |reference| reference[:name] }
           lines << "  _ibex_named_values = [#{names.join(', ')}]"
         end
@@ -99,21 +105,46 @@ module Ibex
 
       # @rbs (IR::Production production) -> String
       def action_parameters(production)
-        return "(val)" if GeneratedActionABI.values_only?(production)
+        if @generated_action_abi.positional_values?(production)
+          parameters = Array.new(production.rhs.length) { |index| "v#{index}" }
+          return "(#{parameters.join(', ')})"
+        end
+        return "(val)" if @generated_action_abi.values_only?(production)
 
         "(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location)"
       end
 
-      # @rbs (String source) -> void
-      def append_parameter_values(source)
+      # @rbs (IR::Production production, Integer index) -> String
+      def value_expression(production, index)
+        return "v#{index}" if @generated_action_abi.positional_values?(production)
+
+        "val[#{index}]"
+      end
+
+      # @rbs (String source, ?production: IR::Production?) -> void
+      def append_parameter_values(source, production: nil)
+        excluded = if production && @generated_action_abi.positional_values?(production)
+                     Array.new(production.rhs.length) { |index| "v#{index}" }
+                   else
+                     [] #: Array[String]
+                   end
         @grammar.parser_parameters.each do |parameter|
+          next if excluded.include?(parameter[:name])
+
           source << "#{parameter[:name]} = @#{parameter[:name]}; "
         end
       end
 
-      # @rbs (Array[String] lines) -> void
-      def append_direct_parameter_values(lines)
+      # @rbs (Array[String] lines, production: IR::Production) -> void
+      def append_direct_parameter_values(lines, production:)
+        excluded = if @generated_action_abi.positional_values?(production)
+                     Array.new(production.rhs.length) { |index| "v#{index}" }
+                   else
+                     [] #: Array[String]
+                   end
         @grammar.parser_parameters.each do |parameter|
+          next if excluded.include?(parameter[:name])
+
           lines << "  #{parameter[:name]} = @#{parameter[:name]}"
         end
       end
@@ -136,7 +167,7 @@ module Ibex
 
       # @rbs (String source, IR::Production production, IR::Action action) -> void
       def append_action_body(source, production, action)
-        source << "result = val[0]; " if @grammar.options[:result_var]
+        source << "result = #{default_value_expression(production)}; " if @grammar.options[:result_var]
         source << semantic_action_code(production, action)
         source << "\nresult" if @grammar.options[:result_var]
       end
@@ -144,11 +175,11 @@ module Ibex
       # @rbs (Array[String] lines, IR::Production production, IR::Action? action) -> void
       def append_direct_action_body(lines, production, action)
         unless action
-          lines << "  val[0]"
+          lines << "  #{default_value_expression(production)}"
           return
         end
 
-        lines << "  result = val[0]" if @grammar.options[:result_var]
+        lines << "  result = #{default_value_expression(production)}" if @grammar.options[:result_var]
         semantic_code = semantic_action_code(production, action)
         if column_sensitive?(semantic_code)
           lines << semantic_code
@@ -160,8 +191,19 @@ module Ibex
 
       # @rbs (IR::Production production, IR::Action action) -> String
       def semantic_action_code(production, action)
+        positional = @generated_action_abi.positional_action_source(production)
+        return positional unless positional.nil?
+
         maximum = action.context_length.positive? ? action.context_length : production.rhs.length
         ActionLocations.new(action.code, maximum: maximum, location: action.location).rewrite
+      end
+
+      # @rbs (IR::Production production) -> String
+      def default_value_expression(production)
+        return "nil" if production.rhs.empty?
+        return "v0" if @generated_action_abi.positional_values?(production)
+
+        "val[0]"
       end
     end
   end

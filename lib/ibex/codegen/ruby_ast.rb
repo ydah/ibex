@@ -99,11 +99,12 @@ module Ibex
       # @rbs (IR::Production production) -> String
       def ast_node_action_source(production)
         node = production.node || raise(Ibex::Error, "missing AST node metadata")
+        parameters = node.fetch(:fields).each_index.map { |index| "v#{index}" }
         arguments = node.fetch(:fields).each_index.map do |index|
-          "#{node.fetch(:fields).fetch(index)}: val[#{index}]"
+          "#{node.fetch(:fields).fetch(index)}: v#{index}"
         end
         [
-          "private def _ibex_action_#{production.id}(val)",
+          "private def _ibex_action_#{production.id}(#{parameters.join(', ')})",
           "  AST::#{node.fetch(:name)}.new(#{arguments.join(', ')})",
           "end"
         ].join("\n")

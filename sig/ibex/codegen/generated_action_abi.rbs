@@ -7,6 +7,30 @@ module Ibex
     module GeneratedActionABI
       LEGACY_PARAMETERS: Array[String]
 
+      # Keeps semantic-action analysis local to one code-generation run.
+      class Cache
+        @values_only: Hash[Integer, bool]
+
+        @borrowed_values: Hash[Integer, bool]
+
+        @positional_actions: Hash[Integer, String?]
+
+        # @rbs () -> void
+        def initialize: () -> void
+
+        # @rbs (IR::Production production) -> bool
+        def values_only?: (IR::Production production) -> bool
+
+        # @rbs (IR::Production production) -> bool
+        def borrowed_values?: (IR::Production production) -> bool
+
+        # @rbs (IR::Production production) -> String?
+        def positional_action_source: (IR::Production production) -> String?
+
+        # @rbs (IR::Production production) -> bool
+        def positional_values?: (IR::Production production) -> bool
+      end
+
       # @rbs (IR::Production production) -> bool
       def self?.values_only?: (IR::Production production) -> bool
 
@@ -14,8 +38,16 @@ module Ibex
       # and a hook installed by that action only when the action cannot mutate
       # or retain the array itself. Element reads and parallel assignment copy
       # values out without exposing the container.
+      # @rbs (IR::Production production, ?analysis: singleton(GeneratedActionABI) | Cache) -> bool
+      def self?.borrowed_values?: (IR::Production production, ?analysis: singleton(GeneratedActionABI) | Cache) -> bool
+
+      # Return semantic source rewritten for zero-to-four positional RHS
+      # arguments, or nil when the values container remains observable.
+      # @rbs (IR::Production production, ?analysis: singleton(GeneratedActionABI) | Cache) -> String?
+      def self?.positional_action_source: (IR::Production production, ?analysis: singleton(GeneratedActionABI) | Cache) -> String?
+
       # @rbs (IR::Production production) -> bool
-      def self?.borrowed_values?: (IR::Production production) -> bool
+      def self?.positional_values?: (IR::Production production) -> bool
 
       # Avoid loading a Ruby parser for the overwhelmingly common generated
       # action shape. This accepts only a single result assignment (or a bare
@@ -23,6 +55,18 @@ module Ibex
       # Anything less obvious falls back to Ripper below.
       # @rbs (String source) -> bool
       def self?.simple_indexed_values_action?: (String source) -> bool
+
+      # Keep the most common identity action off the Ripper load path. The
+      # whole-source match excludes strings, comments, receivers, and compound
+      # expressions before replacing the one direct read.
+      # @rbs (String source, Array[String] parameters) -> String?
+      def self?.simple_positional_action_source: (String source, Array[String] parameters) -> String?
+
+      # @rbs (Array[untyped] tokens, Array[String] parameters) -> String?
+      def self?.rewrite_positional_values: (Array[untyped] tokens, Array[String] parameters) -> String?
+
+      # @rbs (Array[untyped] tokens, Integer index, Array[String] parameters) -> [String, Integer]?
+      def self?.positional_value_reference: (Array[untyped] tokens, Integer index, Array[String] parameters) -> [ String, Integer ]?
 
       # @rbs (String source) -> bool
       def self?.references_legacy_parameter?: (String source) -> bool

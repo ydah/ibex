@@ -147,15 +147,18 @@ class RubyCodegenTest < Minitest::Test
     assert_equal 5, parser_class.new.parse([[:NUM, 2], ["+", nil], [:NUM, 3]])
   end
 
-  def test_generated_values_only_actions_use_the_v4_marker_and_one_argument
+  def test_generated_indexed_actions_use_the_v5_positional_marker
     generated = generate(calculator_source)
     parser_class = evaluate(generated, "GeneratedCalc")
 
-    assert(parser_class::PRODUCTIONS.all? { |production| production[:values_action] == true })
-    assert(parser_class::PRODUCTIONS.all? { |production| production[:borrowed_values_action] == true })
+    assert(parser_class::PRODUCTIONS.all? { |production| production[:positional_action] == true })
+    assert(parser_class::PRODUCTIONS.none? { |production| production.key?(:values_action) })
+    assert(parser_class::PRODUCTIONS.none? { |production| production.key?(:borrowed_values_action) })
     assert(parser_class::PRODUCTIONS.none? { |production| production.key?(:location_action) })
-    action = parser_class.instance_method(:_ibex_action_0) # rubocop:disable Naming/VariableNumber
-    assert_equal 1, action.arity
+    arities = 3.times.map do |index|
+      parser_class.instance_method(:"_ibex_action_#{index}").arity
+    end
+    assert_equal [3, 3, 1], arities
   end
 
   def test_mutating_or_escaping_values_do_not_receive_the_borrowed_marker
@@ -171,9 +174,46 @@ class RubyCodegenTest < Minitest::Test
     parser_class = evaluate(generate(source), "BorrowedValuesParser")
     productions = parser_class::PRODUCTIONS
 
-    assert_equal true, productions.fetch(0)[:borrowed_values_action]
+    assert_equal true, productions.fetch(0)[:positional_action]
     refute productions.fetch(1).key?(:borrowed_values_action)
     refute productions.fetch(2).key?(:borrowed_values_action)
+  end
+
+  def test_positional_action_materializes_values_for_a_hook_installed_by_the_action
+    source = <<~GRAMMAR
+      class PositionalHookParser
+      rule
+      start: TOKEN {
+        define_singleton_method(:on_reduce) { |*payload| (@hook_payloads ||= []) << payload }
+        result = val[0]
+      }
+      end
+      ---- inner
+      attr_reader :hook_payloads
+      def parse(tokens) = (@tokens = tokens; do_parse)
+      def next_token = @tokens.shift
+    GRAMMAR
+    parser_class = evaluate(generate(source), "PositionalHookParser")
+    parser = parser_class.new
+
+    assert_equal true, parser_class::PRODUCTIONS.fetch(0)[:positional_action]
+    assert_equal :original, parser.parse([%i[TOKEN original]])
+    assert_equal [[0, [:original], :original]], parser.hook_payloads
+  end
+
+  def test_positional_rewrite_does_not_change_string_contents
+    source = <<~GRAMMAR
+      class PositionalStringParser
+      rule
+      start: TOKEN { result = [val[0], "val[1]"] }
+      end
+      ---- inner
+      def parse(tokens) = (@tokens = tokens; do_parse)
+      def next_token = @tokens.shift
+    GRAMMAR
+    parser_class = evaluate(generate(source), "PositionalStringParser")
+
+    assert_equal [:value, "val[1]"], parser_class.new.parse([%i[TOKEN value]])
   end
 
   def test_legacy_generated_parameters_conservatively_retain_the_five_argument_abi

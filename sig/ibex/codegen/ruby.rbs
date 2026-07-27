@@ -43,11 +43,15 @@ module Ibex
 
       @error_messages: Hash[Integer, String | { id: String, message: String }]
 
+      @generated_action_abi: GeneratedActionABI::Cache
+
+      @runtime_require: String?
+
       # @rbs (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool,
       #   ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?,
-      #   ?executable: String?, ?cst_trivia: Symbol | String,
+      #   ?executable: String?, ?cst_trivia: Symbol | String, ?runtime_require: String?,
       #   ?error_messages: Hash[Integer, String | { id: String, message: String }]) -> void
-      def initialize: (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool, ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?, ?executable: String?, ?cst_trivia: Symbol | String, ?error_messages: Hash[Integer, String | { id: String, message: String }]) -> void
+      def initialize: (IR::Automaton automaton, ?table: Symbol | String, ?embedded: bool, ?line_convert: bool, ?line_convert_all: bool, ?debug: bool, ?omit_action_call: bool?, ?superclass: String?, ?executable: String?, ?cst_trivia: Symbol | String, ?runtime_require: String?, ?error_messages: Hash[Integer, String | { id: String, message: String }]) -> void
 
       # @rbs () -> String
       def generate: () -> String

@@ -33,7 +33,9 @@ module Ibex
         ast = BootstrapParser.new(source, file: relative_grammar_path).parse
         grammar = Normalizer.new(ast).normalize
         automaton = LALR::Builder.new(grammar).build
-        Codegen::Ruby.new(automaton, table: :compact, line_convert: false).generate
+        Codegen::Ruby.new(
+          automaton, table: :compact, line_convert: false, runtime_require: nil
+        ).generate
       end
 
       # Build the non-published parameterized/inline grammar used to verify
@@ -45,7 +47,9 @@ module Ibex
         ast = BootstrapParser.new(source, file: relative_shadow_grammar_path, mode: :extended).parse
         grammar = Normalizer.new(ast, mode: :extended).normalize
         automaton = LALR::Builder.new(grammar).build
-        Codegen::Ruby.new(automaton, table: :compact, line_convert: false).generate
+        Codegen::Ruby.new(
+          automaton, table: :compact, line_convert: false, runtime_require: nil
+        ).generate
       end
 
       # @rbs () -> String

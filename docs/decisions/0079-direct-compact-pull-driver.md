@@ -35,6 +35,9 @@ The driver snapshots the session's frozen action, goto, production, and
 default-action tables, then performs ordinary shifts, actionless reductions,
 values-only generated reductions, and acceptance directly from the compact
 arrays. It keeps stack-limit checks and the versioned values-only action ABI.
+An actionless unit reduction replaces the top state with its goto and leaves
+the unchanged top value in place. Current dense signed tables use a dedicated
+loop without legacy-encoding or sparse-lookup branches.
 
 The generic driver remains authoritative for push parsing, eager reductions,
 unknown tokens, syntax errors, malformed or unsupported production shapes,
@@ -53,5 +56,7 @@ replayed during fallback.
   grammar-sized driver.
 - Existing parser tables and all observable runtime modes keep the generic
   behavior.
+- Older and intentionally sparse compact tables fall back before committing
+  an action; they remain compatible through the generic driver.
 - Eager-reduction grammars can be admitted later only after their pre-lookahead
   feedback boundary has dedicated equivalence coverage.

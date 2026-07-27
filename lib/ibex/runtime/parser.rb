@@ -122,9 +122,11 @@ module Ibex
     # composed actions additionally use `composition_action: true` for the
     # six-argument contract carrying the lookahead location. Format-v4
     # location-free generated methods use `values_action: true` for a
-    # one-argument values contract. V1 and unmarked application actions retain
-    # the historical two-argument contract. Markers are honored only for the
-    # generated `_ibex_action_N` Symbol shape, never for callables.
+    # one-argument values contract. Format-v5 additionally marks proven-safe
+    # zero-to-four-value methods with `positional_action: true`. V1 and
+    # unmarked application actions retain the historical two-argument
+    # contract. Markers are honored only for the generated `_ibex_action_N`
+    # Symbol shape, never for callables.
     class Parser
       # Keep direct singleton-hook mutation visible even when an application
       # replaces Ruby's mutation callbacks without calling super.
@@ -840,19 +842,21 @@ module Ibex
         gotos = tables.fetch(:gotos)
         productions = tables.fetch(:productions)
         default_codes = tables.fetch(:compact_default_actions)
-        legacy_default_codes = tables[:compact_action_encoding] != :signed
         token_ids = tables.fetch(:tokens)
-        action_offsets = actions.offsets
-        action_codes = actions.codes
-        action_checks = actions.checks
-        goto_offsets = gotos.offsets
-        goto_values = gotos.values
-        goto_checks = gotos.checks
+        dense_action_codes = actions.dense_codes
+        action_column_count = actions.column_count
+        dense_goto_values = gotos.dense_values
+        goto_dense_width = gotos.dense_width
+        return unless dense_action_codes && action_column_count &&
+                      dense_goto_values && goto_dense_width &&
+                      (tables[:compact_action_encoding] == :signed || default_codes.empty?)
+
         production_lhs_ids = productions.lhs_ids
         production_lengths = productions.lengths
         production_actions = productions.actions
         production_flags = productions.flags
         borrowed_values_flag = Ibex::Tables::CompactProductions::BORROWED_VALUES_ACTION
+        positional_action_flag = Ibex::Tables::CompactProductions::POSITIONAL_ACTION
         states = @state_stack
         values = @value_stack
         stack_limit = @resource_limits.max_stack_depth
@@ -900,14 +904,9 @@ module Ibex
           end
           return if @unknown_token_id == @lookahead
 
-          state = states.last
-          index = action_offsets[state] + @lookahead
-          if action_checks[index] == state
-            code = action_codes[index]
-          else
-            code = default_codes[state]
-            code = Ibex::Tables::CompactActions.legacy_to_signed(code) if legacy_default_codes
-          end
+          state = states[-1]
+          code = dense_action_codes[(state * action_column_count) + @lookahead] ||
+                 default_codes[state]
           return unless code
 
           if code == accept_code
@@ -928,15 +927,45 @@ module Ibex
             return unless length <= values.length && length < states.length
 
             semantic_action = production_actions[production_id]
+            if !semantic_action && length == 1
+              goto_row = states[-2]
+              next_state = dense_goto_values[(goto_row * goto_dense_width) + lhs]
+              raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
+
+              states[-1] = next_state
+              next
+            end
             hook_values = EMPTY_LOCATIONS
             if semantic_action
-              reduction_values = values.last(length)
-              hook_values = if (production_flags[production_id] & borrowed_values_flag) == 0
-                              reduction_values.dup
-                            else
-                              reduction_values
-                            end
+              flags = production_flags[production_id]
+              positional_action = (flags & positional_action_flag) != 0
+              if positional_action
+                case length
+                when 1
+                  value0 = values[-1]
+                when 2
+                  value0 = values[-2]
+                  value1 = values[-1]
+                when 3
+                  value0 = values[-3]
+                  value1 = values[-2]
+                  value2 = values[-1]
+                when 4
+                  value0 = values[-4]
+                  value1 = values[-3]
+                  value2 = values[-2]
+                  value3 = values[-1]
+                end
+              else
+                reduction_values = values.last(length)
+                hook_values = if (flags & borrowed_values_flag) == 0
+                                reduction_values.dup
+                              else
+                                reduction_values
+                              end
+              end
             else
+              positional_action = false
               result = length.zero? ? nil : values[-length]
             end
 
@@ -984,7 +1013,17 @@ module Ibex
               @semantic_location_names = EMPTY_LOCATION_NAMES
               @semantic_result_location = nil
               begin
-                result = __send__(semantic_action, reduction_values)
+                result = if positional_action
+                           case length
+                           when 0 then __send__(semantic_action)
+                           when 1 then __send__(semantic_action, value0)
+                           when 2 then __send__(semantic_action, value0, value1)
+                           when 3 then __send__(semantic_action, value0, value1, value2)
+                           when 4 then __send__(semantic_action, value0, value1, value2, value3)
+                           end
+                         else
+                           __send__(semantic_action, reduction_values)
+                         end
               ensure
                 @semantic_locations = previous_locations
                 @semantic_location_names = previous_names
@@ -995,9 +1034,8 @@ module Ibex
                 @semantic_error || @accept_requested
             end
 
-            goto_row = states.last
-            goto_index = goto_offsets[goto_row] + lhs
-            next_state = goto_values[goto_index] if goto_checks[goto_index] == goto_row
+            goto_row = states[-1]
+            next_state = dense_goto_values[(goto_row * goto_dense_width) + lhs]
             raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
 
             ensure_stack_capacity! if states.length >= stack_limit
@@ -1008,6 +1046,15 @@ module Ibex
             if semantic_action
               trace_reduction(production_id, length, lhs, result, next_state) if @yydebug
               unless @runtime_fast_path
+                if positional_action
+                  case length
+                  when 0 then hook_values = EMPTY_LOCATIONS
+                  when 1 then hook_values = [value0]
+                  when 2 then hook_values = [value0, value1]
+                  when 3 then hook_values = [value0, value1, value2]
+                  when 4 then hook_values = [value0, value1, value2, value3]
+                  end
+                end
                 lookup = Object.instance_method(:method)
                 unless runtime_method_unchanged?(lookup, :on_reduce, :__ibex_fast_path_on_reduce)
                   on_reduce(production_id, hook_values, result)
@@ -1228,6 +1275,7 @@ module Ibex
         tables.fetch(:productions).each_with_index do |production, index|
           validate_composition_action_contract!(production, index, version)
           validate_values_action_contract!(production, index, version)
+          validate_positional_action_contract!(production, index, version)
         end
       end
 
@@ -1259,6 +1307,30 @@ module Ibex
               "(tables):1:1: parser table format version #{version} production #{index} has an inconsistent " \
               ":values_action marker; a generated action Symbol without location, composition, or context " \
               "markers is required"
+      end
+
+      # @rbs (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
+      def validate_positional_action_contract!(production, index, version)
+        return if version < 5 || production[:positional_action] != true
+
+        return if positional_action_contract?(production)
+
+        raise ParseError,
+              "(tables):1:1: parser table format version #{version} production #{index} has an inconsistent " \
+              ":positional_action marker; a generated action Symbol with zero to four RHS values and no other " \
+              "action ABI markers is required"
+      end
+
+      # @rbs (Hash[Symbol, untyped] production) -> bool
+      def positional_action_contract?(production)
+        production[:length].is_a?(Integer) &&
+          production[:length].between?(0, 4) &&
+          generated_action_symbol?(production[:action]) &&
+          production[:values_action] != true &&
+          production[:borrowed_values_action] != true &&
+          production[:location_action] != true &&
+          production[:composition_action] != true &&
+          production.fetch(:location_context_length, 0).zero?
       end
 
       # @rbs () -> untyped
@@ -1528,6 +1600,7 @@ module Ibex
         @semantic_locations = action_locations
         @semantic_location_names = production.fetch(:location_names, EMPTY_LOCATION_NAMES)
         @semantic_result_location = location
+        return __send__(action, *values) if generated_positional_action?(production, action)
         return __send__(action, values) if generated_values_action?(production, action)
 
         value_stack = @value_stack.dup
@@ -1591,6 +1664,13 @@ module Ibex
       def generated_values_action?(production, action)
         parser_tables.fetch(:format_version) >= 4 &&
           production[:values_action] == true &&
+          generated_action_symbol?(action)
+      end
+
+      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
+      def generated_positional_action?(production, action)
+        parser_tables.fetch(:format_version) >= 5 &&
+          production[:positional_action] == true &&
           generated_action_symbol?(action)
       end
 

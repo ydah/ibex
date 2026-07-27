@@ -213,6 +213,7 @@ class RuntimeActionContractTest < Minitest::Test
   class VersionFourValuesShapeParser < BaseParser
     ACTION_NAME = :_ibex_action_0 # rubocop:disable Naming/VariableNumber
     TABLES = RuntimeActionContractTest::TABLES.merge(
+      format_version: 4,
       productions: [{ lhs: 3, length: 1, action: ACTION_NAME, values_action: true }]
     ).freeze
 
@@ -250,6 +251,7 @@ class RuntimeActionContractTest < Minitest::Test
   class LocatedValuesShapeParser < BaseParser
     ACTION_NAME = :_ibex_action_0 # rubocop:disable Naming/VariableNumber
     TABLES = RuntimeActionContractTest::TABLES.merge(
+      format_version: 4,
       uses_locations: true,
       productions: [
         {
@@ -270,6 +272,7 @@ class RuntimeActionContractTest < Minitest::Test
 
   class InconsistentValuesParser < BaseParser
     TABLES = RuntimeActionContractTest::TABLES.merge(
+      format_version: 4,
       productions: [{ lhs: 3, length: 1, action: :consume, values_action: true }]
     ).freeze
 
@@ -279,8 +282,23 @@ class RuntimeActionContractTest < Minitest::Test
 
   class InconsistentBorrowedValuesParser < BaseParser
     TABLES = RuntimeActionContractTest::TABLES.merge(
+      format_version: 4,
       productions: [
         { lhs: 3, length: 1, action: :_ibex_action_0, borrowed_values_action: true } # rubocop:disable Naming/VariableNumber
+      ]
+    ).freeze
+
+    def self.parser_tables = TABLES
+    def next_token = raise("inconsistent parser read a token")
+  end
+
+  class InconsistentPositionalParser < BaseParser
+    TABLES = RuntimeActionContractTest::TABLES.merge(
+      productions: [
+        {
+          lhs: 3, length: 1, action: :_ibex_action_0, # rubocop:disable Naming/VariableNumber
+          positional_action: true, values_action: true
+        }
       ]
     ).freeze
 
@@ -433,6 +451,15 @@ class RuntimeActionContractTest < Minitest::Test
 
     assert_match(/version 4 production 0/, error.message)
     assert_match(/inconsistent :borrowed_values_action marker/, error.message)
+  end
+
+  def test_version_five_rejects_positional_and_values_markers_before_input
+    error = assert_raises(Ibex::Runtime::ParseError) do
+      InconsistentPositionalParser.new([%i[TOKEN value]]).do_parse
+    end
+
+    assert_match(/version 5 production 0/, error.message)
+    assert_match(/inconsistent :positional_action marker/, error.message)
   end
 
   def test_symbol_action_dispatches_through_method_missing

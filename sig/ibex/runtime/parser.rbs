@@ -64,9 +64,11 @@ module Ibex
     # composed actions additionally use `composition_action: true` for the
     # six-argument contract carrying the lookahead location. Format-v4
     # location-free generated methods use `values_action: true` for a
-    # one-argument values contract. V1 and unmarked application actions retain
-    # the historical two-argument contract. Markers are honored only for the
-    # generated `_ibex_action_N` Symbol shape, never for callables.
+    # one-argument values contract. Format-v5 additionally marks proven-safe
+    # zero-to-four-value methods with `positional_action: true`. V1 and
+    # unmarked application actions retain the historical two-argument
+    # contract. Markers are honored only for the generated `_ibex_action_N`
+    # Symbol shape, never for callables.
     class Parser
       # Keep direct singleton-hook mutation visible even when an application
       # replaces Ruby's mutation callbacks without calling super.
@@ -423,6 +425,8 @@ module Ibex
       # replaying a committed action.
       # rubocop:disable Metrics/AbcSize, Metrics/BlockNesting, Metrics/CyclomaticComplexity
       # rubocop:disable Metrics/MethodLength, Metrics/PerceivedComplexity
+      # Direct comparisons avoid predicate-method dispatch inside the parser loop.
+      # rubocop:disable Style/BitwisePredicate, Style/NumericPredicate
       # @rbs (Hash[Symbol, untyped] tables) -> (Object | [:accepted, untyped] | [:done, untyped])?
       def drive_compact_fast_parser: (Hash[Symbol, untyped] tables) -> (Object | [ :accepted, untyped ] | [ :done, untyped ])?
 
@@ -477,6 +481,12 @@ module Ibex
 
       # @rbs (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
       def validate_values_action_contract!: (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
+
+      # @rbs (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
+      def validate_positional_action_contract!: (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
+
+      # @rbs (Hash[Symbol, untyped] production) -> bool
+      def positional_action_contract?: (Hash[Symbol, untyped] production) -> bool
 
       # @rbs () -> untyped
       def action_for_current_state: () -> untyped
@@ -538,6 +548,9 @@ module Ibex
 
       # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
       def generated_values_action?: (Hash[Symbol, untyped] production, untyped action) -> bool
+
+      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
+      def generated_positional_action?: (Hash[Symbol, untyped] production, untyped action) -> bool
 
       # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
       def generated_composition_action?: (Hash[Symbol, untyped] production, untyped action) -> bool

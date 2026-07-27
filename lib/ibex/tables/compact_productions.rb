@@ -10,7 +10,9 @@ module Ibex
       BORROWED_VALUES_ACTION = 2 #: Integer
       LOCATION_ACTION = 4 #: Integer
       COMPOSITION_ACTION = 8 #: Integer
-      VALID_FLAGS = VALUES_ACTION | BORROWED_VALUES_ACTION | LOCATION_ACTION | COMPOSITION_ACTION #: Integer
+      POSITIONAL_ACTION = 16 #: Integer
+      VALID_FLAGS = VALUES_ACTION | BORROWED_VALUES_ACTION | LOCATION_ACTION |
+                    COMPOSITION_ACTION | POSITIONAL_ACTION #: Integer
       CORE_FIELDS = %i[
         lhs length action values_action borrowed_values_action location_action composition_action
       ].freeze #: Array[Symbol]
@@ -122,10 +124,14 @@ module Ibex
         @flags.each_with_index do |value, index|
           borrowed = value.anybits?(BORROWED_VALUES_ACTION)
           values = value.anybits?(VALUES_ACTION)
+          positional = value.anybits?(POSITIONAL_ACTION)
           raise ArgumentError, "borrowed production #{index} must be a values action" if borrowed && !values
+          if positional && value.anybits?(VALUES_ACTION | LOCATION_ACTION | COMPOSITION_ACTION)
+            raise ArgumentError, "positional production #{index} cannot combine action ABI flags"
+          end
         end
         @direct_values = @actions.each_index.all? do |index|
-          @actions[index].nil? || @flags[index].anybits?(VALUES_ACTION)
+          @actions[index].nil? || @flags[index].anybits?(VALUES_ACTION | POSITIONAL_ACTION)
         end
       end
 
@@ -152,6 +158,7 @@ module Ibex
         entry[:borrowed_values_action] = true if value.anybits?(BORROWED_VALUES_ACTION)
         entry[:location_action] = true if value.anybits?(LOCATION_ACTION)
         entry[:composition_action] = true if value.anybits?(COMPOSITION_ACTION)
+        entry[:positional_action] = true if value.anybits?(POSITIONAL_ACTION)
         entry.merge!(metadata) if metadata
         entry.freeze
       end

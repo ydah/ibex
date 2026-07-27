@@ -24,6 +24,8 @@ module Ibex
 
     # Sparse table represented by per-row offsets and ownership checks.
     class Compact
+      DENSE_CELL_LIMIT: Integer
+
       attr_reader offsets: Array[Integer]
 
       attr_reader values: Array[untyped]
@@ -32,17 +34,23 @@ module Ibex
 
       attr_reader row_count: Integer
 
-      # @rbs (Array[Hash[Integer, untyped]] rows) -> Compact
-      def self.build: (Array[Hash[Integer, untyped]] rows) -> Compact
+      attr_reader dense_values: Array[untyped]?
 
-      # @rbs (String offsets, String values, String checks, row_count: Integer) -> Compact
-      def self.packed: (String offsets, String values, String checks, row_count: Integer) -> Compact
+      attr_reader dense_width: Integer?
+
+      # @rbs (Array[Hash[Integer, untyped]] rows, ?dense: bool) -> Compact
+      def self.build: (Array[Hash[Integer, untyped]] rows, ?dense: bool) -> Compact
+
+      # @rbs (String offsets, String values, String checks, row_count: Integer,
+      #   ?dense_width: Integer?) -> Compact
+      def self.packed: (String offsets, String values, String checks, row_count: Integer, ?dense_width: Integer?) -> Compact
 
       # @rbs (Array[Integer] columns, Array[Integer?] checks, Hash[Array[Integer], Integer] next_offsets) -> Integer
       private def self.find_offset: (Array[Integer] columns, Array[Integer?] checks, Hash[Array[Integer], Integer] next_offsets) -> Integer
 
-      # @rbs (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer) -> void
-      def self?.initialize: (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer) -> void
+      # @rbs (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?],
+      #   row_count: Integer, ?dense_width: Integer?) -> void
+      def self?.initialize: (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer, ?dense_width: Integer?) -> void
 
       # Keep predicate dispatch out of this lookup because every parser action
       # and goto crosses it.
@@ -52,6 +60,11 @@ module Ibex
 
       # @rbs (Integer row) -> Hash[Integer, untyped]
       def self?.row: (Integer row) -> Hash[Integer, untyped]
+
+      private
+
+      # @rbs (Integer? dense_width) -> Array[untyped]?
+      def self?.dense_layout: (Integer? dense_width) -> Array[untyped]?
     end
   end
 end

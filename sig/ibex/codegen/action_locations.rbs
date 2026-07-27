@@ -5,6 +5,8 @@ module Ibex
     # Rewrites semantic-location expressions without touching Ruby literals,
     # comments, heredoc bodies, or ordinary instance/class variables.
     class ActionLocations
+      SEMANTIC_HELPERS: Array[String]
+
       @source: String
 
       @maximum: Integer

@@ -3,7 +3,10 @@
 module Ibex
   module Codegen
     # Generates an RBS declaration for the public surface of a generated parser.
+    # rubocop:disable Metrics/ClassLength -- one generator owns the complete parser signature.
     class RBS
+      @generated_action_abi: GeneratedActionABI::Cache
+
       @omit_action_call: bool
 
       @superclass: String

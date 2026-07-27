@@ -32,6 +32,7 @@ class TablesTest < Minitest::Test
     assert_nil compact.lookup(0, -1)
     assert_nil compact.lookup(0, 100)
     assert_empty compact.row(-1)
+    assert_equal :d, compact.dense_values.fetch((2 * compact.dense_width) + 3)
   end
 
   def test_compact_table_owns_an_immutable_layout
@@ -60,6 +61,8 @@ class TablesTest < Minitest::Test
 
     assert_instance_of Ibex::Tables::CompactActions, compact
     assert compact.codes.compact.all?(Integer)
+    assert_equal Ibex::Tables::CompactActions.pack(compact.lookup(0, 2)),
+                 compact.dense_codes.fetch((0 * compact.column_count) + 2)
     assert_equal rows[0], compact.row(0)
     assert_equal rows[1], compact.row(1)
     rows.each_with_index do |row, state|
@@ -156,6 +159,13 @@ class TablesTest < Minitest::Test
       # rubocop:disable Naming/VariableNumber
       Ibex::Tables::CompactProductions.new(lhs_ids: [1], lengths: [0], actions: [:_ibex_action_0], flags: [2])
       # rubocop:enable Naming/VariableNumber
+    end
+    assert_raises(ArgumentError) do
+      positional_and_values = Ibex::Tables::CompactProductions::POSITIONAL_ACTION |
+                              Ibex::Tables::CompactProductions::VALUES_ACTION
+      Ibex::Tables::CompactProductions.new(
+        lhs_ids: [1], lengths: [1], actions: [:_ibex_action_0], flags: [positional_and_values] # rubocop:disable Naming/VariableNumber
+      )
     end
   end
 

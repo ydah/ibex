@@ -35,6 +35,14 @@ surfaces. Optional CLI features continue to declare their own dependencies.
 Load-graph tests make the deferred boundary observable so a new eager
 dependency cannot silently return to the cold path.
 
+The committed self-hosted frontend parser omits its ordinary
+`require "ibex/runtime"` line because the internal generation surface has
+already loaded the exact table and parser dependencies before loading that
+class. Publicly generated parsers keep the standalone runtime require.
+Semantic-action ABI analysis is cached by production for one Ruby or RBS
+generation run, so table flags, method source, and signatures reuse the same
+conservative Ripper result.
+
 ## Consequences
 
 - Fresh ordinary generation avoids loading unrelated editor, diagnostic,
@@ -42,5 +50,7 @@ dependency cannot silently return to the cold path.
 - Public `require` behavior is unchanged.
 - A file used by the internal generation surface must declare its real
   dependencies instead of relying on a broad aggregator having run first.
+- Internal generated files that omit a standalone dependency must only be
+  loaded through a surface that establishes that dependency explicitly.
 - New default-pipeline features must be added to the narrow surface
   deliberately; optional features remain demand-loaded.
