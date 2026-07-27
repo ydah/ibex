@@ -1093,8 +1093,8 @@ module Ibex
         initial_state = resolve_initial_state(tables, initial_state)
 
         @source = source
-        @state_stack = [initial_state]
-        install_value_stack([])
+        @state_stack.clear << initial_state
+        @value_stack.clear
         initialize_runtime_fast_path(tables)
         @lookahead = NO_LOOKAHEAD
         @lookahead_value = nil
@@ -1103,7 +1103,7 @@ module Ibex
         reset_parse_recovery_state
         @accept_requested = false
         @unknown_token_id = nil
-        @cst_errors = []
+        @cst_errors.clear
         @recovery_attempts = 0
         trace("start state #{initial_state}") if @yydebug
         @runtime_event_sequence = 0

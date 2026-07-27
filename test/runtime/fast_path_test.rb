@@ -359,6 +359,21 @@ class RuntimeFastPathTest < Minitest::Test
     assert_equal 1, values_action.action_calls
   end
 
+  def test_compact_pull_reuses_internal_scratch_stacks_between_sessions
+    parser = CompactActionlessProbe.new([[:ITEM, "first"], false])
+
+    assert_equal "first", parser.do_parse
+    state_stack = parser.instance_variable_get(:@state_stack)
+    value_stack = parser.instance_variable_get(:@value_stack)
+    cst_errors = parser.instance_variable_get(:@cst_errors)
+    parser.instance_variable_get(:@tokens).push([:ITEM, "second"], false)
+
+    assert_equal "second", parser.do_parse
+    assert_same state_stack, parser.instance_variable_get(:@state_stack)
+    assert_same value_stack, parser.instance_variable_get(:@value_stack)
+    assert_same cst_errors, parser.instance_variable_get(:@cst_errors)
+  end
+
   def test_compact_pull_driver_falls_back_before_an_unknown_token
     parser = CompactActionlessProbe.new([[:UNKNOWN, "bad"], false])
 
