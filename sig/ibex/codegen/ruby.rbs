@@ -93,6 +93,21 @@ module Ibex
       # @rbs () -> String
       def productions_literal: () -> String
 
+      # @rbs () -> String
+      def plain_productions_literal: () -> String
+
+      # @rbs (IR::Production production, bool generated_action) -> String
+      def production_action_abi_literal: (IR::Production production, bool generated_action) -> String
+
+      # @rbs () -> String
+      def compact_productions_literal: () -> String
+
+      # @rbs (IR::Production production) -> Integer
+      def compact_production_flags: (IR::Production production) -> Integer
+
+      # @rbs () -> String
+      def compact_production_metadata_literal: () -> String
+
       # Reductions that are the sole non-error behavior of a state may run
       # before requesting another lexer token. This enables parser actions to
       # select lexer_state without speculative lookahead.

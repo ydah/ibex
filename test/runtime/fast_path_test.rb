@@ -162,7 +162,8 @@ class RuntimeFastPathTest < Minitest::Test
         compact_fast_driver: true,
         compact_default_actions: [],
         actions: Ibex::Tables::CompactActions.build(ActionlessProbe::TABLES.fetch(:actions)),
-        gotos: Ibex::Tables::Compact.build(ActionlessProbe::TABLES.fetch(:gotos))
+        gotos: Ibex::Tables::Compact.build(ActionlessProbe::TABLES.fetch(:gotos)),
+        productions: Ibex::Tables::CompactProductions.build(ActionlessProbe::TABLES.fetch(:productions))
       )
     )
 
@@ -189,7 +190,8 @@ class RuntimeFastPathTest < Minitest::Test
         compact_fast_driver: true,
         compact_default_actions: [],
         actions: Ibex::Tables::CompactActions.build(ValuesActionProbe::TABLES.fetch(:actions)),
-        gotos: Ibex::Tables::Compact.build(ValuesActionProbe::TABLES.fetch(:gotos))
+        gotos: Ibex::Tables::Compact.build(ValuesActionProbe::TABLES.fetch(:gotos)),
+        productions: Ibex::Tables::CompactProductions.build(ValuesActionProbe::TABLES.fetch(:productions))
       )
     )
 
@@ -444,13 +446,27 @@ class RuntimeFastPathTest < Minitest::Test
     parser = LookupCountingProbe.new
     assert_equal :need_more, parser.push(:ITEM, 10)
     construction_calls = parser.runtime_core_method_calls
-    assert_operator construction_calls, :>, 0
 
     1_000.times { parser.send(:refresh_runtime_fast_path_after_user_code!) }
 
     assert_equal construction_calls, parser.runtime_core_method_calls
     assert parser.fast_path_active?
     assert_equal 10, parser.finish
+  end
+
+  def test_class_hook_change_invalidates_cached_eligibility
+    parser_class = Class.new(CompactActionlessProbe)
+    first = parser_class.new([[:ITEM, 10], false])
+
+    assert_equal 10, first.do_parse
+    assert first.send(:runtime_fast_path_class_hooks_eligible?)
+
+    parser_class.define_method(:on_reduce) { |*| @class_hook_called = true }
+    second = parser_class.new([[:ITEM, 11], false])
+
+    assert_equal 11, second.do_parse
+    assert second.instance_variable_get(:@class_hook_called)
+    assert_operator second.generic_reductions, :>, 0
   end
 
   def test_undefining_relevant_singleton_hook_disables_active_fast_path

@@ -1,0 +1,62 @@
+# Generated from lib/ibex/tables/compact_productions.rb with RBS::Inline
+
+module Ibex
+  module Tables
+    # Production metadata with parallel primitive arrays for the direct parser
+    # and a compatible Array-of-Hash surface for generic runtime consumers.
+    class CompactProductions < Array[Hash[Symbol, untyped]]
+      VALUES_ACTION: Integer
+
+      BORROWED_VALUES_ACTION: Integer
+
+      LOCATION_ACTION: Integer
+
+      COMPOSITION_ACTION: Integer
+
+      VALID_FLAGS: Integer
+
+      CORE_FIELDS: Array[Symbol]
+
+      attr_reader lhs_ids: Array[Integer]
+
+      attr_reader lengths: Array[Integer]
+
+      attr_reader actions: Array[Symbol?]
+
+      attr_reader flags: Array[Integer]
+
+      # @rbs (Array[Hash[Symbol, untyped]] productions) -> CompactProductions
+      def self.build: (Array[Hash[Symbol, untyped]] productions) -> CompactProductions
+
+      # @rbs (Hash[Symbol, untyped] production) -> Integer
+      private def self.flags_for: (Hash[Symbol, untyped] production) -> Integer
+
+      # @rbs (lhs_ids: Array[Integer], lengths: Array[Integer], actions: Array[Symbol?],
+      #   flags: Array[Integer], ?metadata: Hash[Integer, Hash[Symbol, untyped]]) -> void
+      def initialize: (lhs_ids: Array[Integer], lengths: Array[Integer], actions: Array[Symbol?], flags: Array[Integer], ?metadata: Hash[Integer, Hash[Symbol, untyped]]) -> void
+
+      # @rbs () -> bool
+      def direct_values?: () -> bool
+
+      private
+
+      # @rbs (untyped value, String name) -> Integer
+      def nonnegative_integer!: (untyped value, String name) -> Integer
+
+      # @rbs (untyped value) -> Symbol?
+      def action!: (untyped value) -> Symbol?
+
+      # @rbs (untyped value) -> Integer
+      def flags!: (untyped value) -> Integer
+
+      # @rbs () -> void
+      def validate_markers!: () -> void
+
+      # @rbs (Hash[Integer, Hash[Symbol, untyped]] metadata, Integer size) -> void
+      def validate_metadata!: (Hash[Integer, Hash[Symbol, untyped]] metadata, Integer size) -> void
+
+      # @rbs (Integer index, Hash[Symbol, untyped]? metadata) -> Hash[Symbol, untyped]
+      def decode: (Integer index, Hash[Symbol, untyped]? metadata) -> Hash[Symbol, untyped]
+    end
+  end
+end

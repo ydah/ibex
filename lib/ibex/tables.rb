@@ -2,6 +2,7 @@
 
 require_relative "tables/compact"
 require_relative "tables/compact_actions"
+require_relative "tables/compact_productions"
 
 module Ibex
   # Parser table construction and row-displacement compression.

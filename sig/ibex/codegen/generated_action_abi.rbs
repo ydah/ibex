@@ -10,8 +10,31 @@ module Ibex
       # @rbs (IR::Production production) -> bool
       def self?.values_only?: (IR::Production production) -> bool
 
+      # The direct runtime can share one reduction-values array with an action
+      # and a hook installed by that action only when the action cannot mutate
+      # or retain the array itself. Element reads and parallel assignment copy
+      # values out without exposing the container.
+      # @rbs (IR::Production production) -> bool
+      def self?.borrowed_values?: (IR::Production production) -> bool
+
+      # Avoid loading a Ruby parser for the overwhelmingly common generated
+      # action shape. This accepts only a single result assignment (or a bare
+      # expression), simple numeric val reads, and no further assignment.
+      # Anything less obvious falls back to Ripper below.
+      # @rbs (String source) -> bool
+      def self?.simple_indexed_values_action?: (String source) -> bool
+
       # @rbs (String source) -> bool
       def self?.references_legacy_parameter?: (String source) -> bool
+
+      # @rbs (untyped node, ?untyped parent, ?Integer? child_index) -> bool
+      def self?.read_only_value_references?: (untyped node, ?untyped parent, ?Integer? child_index) -> bool
+
+      # @rbs (untyped node) -> bool
+      def self?.value_reference?: (untyped node) -> bool
+
+      # @rbs (untyped parent, Integer? child_index) -> bool
+      def self?.safe_value_reference?: (untyped parent, Integer? child_index) -> bool
     end
   end
 end

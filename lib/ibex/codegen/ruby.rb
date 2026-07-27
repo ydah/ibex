@@ -42,6 +42,7 @@ module Ibex
         ../runtime/event_jsonl_tracer.rb
         ../tables/compact.rb
         ../tables/compact_actions.rb
+        ../tables/compact_productions.rb
       ].freeze #: Array[String]
       private_constant :EMBEDDED_RUNTIME_SOURCES
 
@@ -250,16 +251,17 @@ module Ibex
 
       # @rbs () -> String
       def productions_literal
+        return compact_productions_literal if @table_format == :compact
+
+        plain_productions_literal
+      end
+
+      # @rbs () -> String
+      def plain_productions_literal
         entries = @grammar.productions.map do |production|
           generated_action = action_method?(production)
           action = generated_action ? ":_ibex_action_#{production.id}" : "nil"
-          action_abi = if generated_action && GeneratedActionABI.values_only?(production)
-                         ", values_action: true"
-                       elsif generated_action
-                         ", location_action: true"
-                       else
-                         ""
-                       end
+          action_abi = production_action_abi_literal(production, generated_action)
           composition_action = composed_action?(production) ? ", composition_action: true" : ""
           cst_rhs = cst? ? ", rhs: #{production.rhs.inspect}.freeze" : ""
           location_context, named_locations = production_location_metadata(production.action)
@@ -267,6 +269,66 @@ module Ibex
             "#{action_abi}#{composition_action}#{cst_rhs}#{location_context}#{named_locations} }"
         end
         "[#{entries.join(', ')}]"
+      end
+
+      # @rbs (IR::Production production, bool generated_action) -> String
+      def production_action_abi_literal(production, generated_action)
+        return "" unless generated_action
+        return ", location_action: true" unless GeneratedActionABI.values_only?(production)
+
+        borrowed = if GeneratedActionABI.borrowed_values?(production)
+                     ", borrowed_values_action: true"
+                   else
+                     ""
+                   end
+        ", values_action: true#{borrowed}"
+      end
+
+      # @rbs () -> String
+      def compact_productions_literal
+        lhs_ids = @grammar.productions.map(&:lhs)
+        lengths = @grammar.productions.map { |production| production.rhs.length }
+        actions = @grammar.productions.map do |production|
+          action_method?(production) ? :"_ibex_action_#{production.id}" : nil
+        end
+        flags = @grammar.productions.map { |production| compact_production_flags(production) }
+        metadata = compact_production_metadata_literal
+        "Ibex::Tables::CompactProductions.new(lhs_ids: #{lhs_ids.inspect}, lengths: #{lengths.inspect}, " \
+          "actions: #{actions.inspect}, flags: #{flags.inspect}, metadata: #{metadata})"
+      end
+
+      # @rbs (IR::Production production) -> Integer
+      def compact_production_flags(production)
+        return 0 unless action_method?(production)
+
+        value = 0
+        if GeneratedActionABI.values_only?(production)
+          value |= Tables::CompactProductions::VALUES_ACTION
+          value |= Tables::CompactProductions::BORROWED_VALUES_ACTION if
+            GeneratedActionABI.borrowed_values?(production)
+        else
+          value |= Tables::CompactProductions::LOCATION_ACTION
+        end
+        value |= Tables::CompactProductions::COMPOSITION_ACTION if composed_action?(production)
+        value
+      end
+
+      # @rbs () -> String
+      def compact_production_metadata_literal
+        entries = @grammar.productions.filter_map do |production|
+          fields = [] #: Array[String]
+          fields << "rhs: #{production.rhs.inspect}.freeze" if cst?
+          action = production.action
+          if action
+            fields << "location_context_length: #{action.context_length}" if action.context_length.positive?
+            names = action.named_refs.to_h { |reference| [reference[:name].to_sym, reference[:index]] }
+            fields << "location_names: #{names.inspect}.freeze" unless names.empty?
+          end
+          next if fields.empty?
+
+          "#{production.id} => { #{fields.join(', ')} }.freeze"
+        end
+        entries.empty? ? "Hash.new.freeze" : "{ #{entries.join(', ')} }.freeze"
       end
 
       # Reductions that are the sole non-error behavior of a state may run

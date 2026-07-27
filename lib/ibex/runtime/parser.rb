@@ -146,6 +146,7 @@ module Ibex
           case name
           when :on_shift, :on_shift_location, :on_reduce, :on_reduce_location, :token_to_str
             @runtime_fast_path = false
+            @runtime_fast_path_hooks_mutated = true
           end
           super
         end
@@ -155,6 +156,7 @@ module Ibex
           case name
           when :on_shift, :on_shift_location, :on_reduce, :on_reduce_location, :token_to_str
             @runtime_fast_path = false
+            @runtime_fast_path_hooks_mutated = true
           end
           super
         end
@@ -164,9 +166,61 @@ module Ibex
           case name
           when :on_shift, :on_shift_location, :on_reduce, :on_reduce_location, :token_to_str
             @runtime_fast_path = false
+            @runtime_fast_path_hooks_mutated = true
           end
           super
         end
+      end
+
+      # Invalidates the generated-class hook cache when the parser class
+      # changes its own effective hook surface.
+      module FastPathClassMutationTracker
+        # @rbs (Symbol name) -> void
+        def method_added(name)
+          __ibex_invalidate_fast_path_hooks(name)
+          super
+        end
+
+        # @rbs (Symbol name) -> void
+        def method_removed(name)
+          __ibex_invalidate_fast_path_hooks(name)
+          super
+        end
+
+        # @rbs (Symbol name) -> void
+        def method_undefined(name)
+          __ibex_invalidate_fast_path_hooks(name)
+          super
+        end
+
+        # @rbs (*Module modules) -> self
+        def include(*modules)
+          __ibex_bump_fast_path_hook_version
+          super
+        end
+
+        # @rbs (*Module modules) -> self
+        def prepend(*modules)
+          __ibex_bump_fast_path_hook_version
+          super
+        end
+
+        private
+
+        # @rbs (Symbol name) -> void
+        def __ibex_invalidate_fast_path_hooks(name)
+          __ibex_bump_fast_path_hook_version if FAST_PATH_HOOK_NAMES.include?(name)
+        end
+
+        # @rbs () -> void
+        def __ibex_bump_fast_path_hook_version
+          current = instance_variable_get(:@__ibex_fast_path_hook_version) || 0
+          instance_variable_set(:@__ibex_fast_path_hook_version, current + 1)
+          remove_instance_variable(:@__ibex_fast_path_hook_cache) if
+            instance_variable_defined?(:@__ibex_fast_path_hook_cache)
+        end
+
+        private :method_added, :method_removed, :method_undefined
       end
 
       include Observation
@@ -178,6 +232,16 @@ module Ibex
       GENERATED_ACTION_NAME = /\A_ibex_action_\d+\z/ #: Regexp
       NO_LOOKAHEAD = Object.new.freeze #: Object
       RECOVERY_SHIFTS = 3 #: Integer
+      FAST_PATH_HOOK_NAMES = %i[
+        on_shift on_shift_location on_reduce on_reduce_location token_to_str
+      ].freeze #: Array[Symbol]
+      FAST_PATH_HOOK_REFERENCES = {
+        on_shift: :__ibex_fast_path_on_shift,
+        on_shift_location: :__ibex_fast_path_on_shift_location,
+        on_reduce: :__ibex_fast_path_on_reduce,
+        on_reduce_location: :__ibex_fast_path_on_reduce_location,
+        token_to_str: :__ibex_fast_path_token_to_str
+      }.freeze #: Hash[Symbol, Symbol]
       ERROR_ACTION = [:error].freeze #: [:error]
       SYNC_RECOVER_ACTION = [:sync_recover].freeze #: [:sync_recover]
       CONTINUE_OUTCOME = [:continue].freeze #: [:continue]
@@ -191,7 +255,8 @@ module Ibex
       EMPTY_LOCATION_NAMES = empty_location_names.freeze #: Hash[Symbol, Integer]
       EMPTY_LOCATIONS = empty_locations.freeze #: Array[untyped]
       private_constant :ERROR_ACTION, :SYNC_RECOVER_ACTION, :CONTINUE_OUTCOME, :REPAIR_PENDING_OUTCOME,
-                       :TERMINAL_OUTCOMES, :FastPathMutationTracker
+                       :TERMINAL_OUTCOMES, :FAST_PATH_HOOK_NAMES, :FAST_PATH_HOOK_REFERENCES,
+                       :FastPathMutationTracker, :FastPathClassMutationTracker
 
       # @rbs @yydebug: bool
       # @rbs @yydebug_output: IO
@@ -232,6 +297,8 @@ module Ibex
       # @rbs @runtime_parser_tables: Hash[Symbol, untyped]?
       # @rbs @runtime_fast_path: bool
       # @rbs @runtime_fast_path_tracker_installed: bool
+      # @rbs @runtime_fast_path_hooks_mutated: bool
+      # @rbs @runtime_fast_path_singleton_ancestors: Array[Module]?
 
       # @rbs (?resource_limits: ResourceLimits) -> void
       def initialize(resource_limits: ResourceLimits.new)
@@ -627,6 +694,10 @@ module Ibex
         @runtime_fast_path = false unless preserve_existing && defined?(@runtime_fast_path)
         @runtime_fast_path_tracker_installed = false unless
           preserve_existing && defined?(@runtime_fast_path_tracker_installed)
+        @runtime_fast_path_hooks_mutated = false unless
+          preserve_existing && defined?(@runtime_fast_path_hooks_mutated)
+        @runtime_fast_path_singleton_ancestors = nil unless
+          preserve_existing && defined?(@runtime_fast_path_singleton_ancestors)
       end
       # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
@@ -838,16 +909,18 @@ module Ibex
           else
             production_id = (code - reduce_base) / 2
             production = productions[production_id]
+            lhs = production[:lhs]
             length = production[:length]
-            return unless length.is_a?(Integer) && !length.negative? &&
-                          length <= values.length && length < states.length
+            return unless length <= values.length && length < states.length
 
             semantic_action = production[:action]
             if semantic_action
-              return unless production[:values_action] == true
-
-              hook_values = values.last(length)
-              reduction_values = hook_values.dup
+              reduction_values = values.last(length)
+              hook_values = if production[:borrowed_values_action] == true
+                              reduction_values
+                            else
+                              reduction_values.dup
+                            end
               remaining = length
               while remaining.positive?
                 states.pop
@@ -869,7 +942,7 @@ module Ibex
               end
               refresh_runtime_fast_path_after_user_code!
               goto_row = states.last
-              goto_index = goto_offsets[goto_row] + production[:lhs]
+              goto_index = goto_offsets[goto_row] + lhs
               next_state = goto_values[goto_index] if goto_checks[goto_index] == goto_row
               raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
 
@@ -878,7 +951,7 @@ module Ibex
               location_stack = @location_stack
               location_stack << nil if location_stack
               values << result
-              trace_reduction(production_id, length, production[:lhs], result, next_state) if @yydebug
+              trace_reduction(production_id, length, lhs, result, next_state) if @yydebug
               unless @runtime_fast_path
                 lookup = Object.instance_method(:method)
                 unless runtime_method_unchanged?(lookup, :on_reduce, :__ibex_fast_path_on_reduce)
@@ -902,7 +975,7 @@ module Ibex
               remaining -= 1
             end
             goto_row = states.last
-            goto_index = goto_offsets[goto_row] + production[:lhs]
+            goto_index = goto_offsets[goto_row] + lhs
             next_state = goto_values[goto_index] if goto_checks[goto_index] == goto_row
             raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
 
@@ -924,7 +997,9 @@ module Ibex
         return false unless defined?(Ibex::Tables::Compact)
 
         tables.fetch(:actions).instance_of?(Ibex::Tables::CompactActions) &&
-          tables.fetch(:gotos).instance_of?(Ibex::Tables::Compact)
+          tables.fetch(:gotos).instance_of?(Ibex::Tables::Compact) &&
+          tables.fetch(:productions).instance_of?(Ibex::Tables::CompactProductions) &&
+          tables.fetch(:productions).direct_values?
       end
 
       # @rbs () -> void
@@ -1100,6 +1175,9 @@ module Ibex
         shareable = defined?(Ractor) && Ractor.respond_to?(:shareable?) && Ractor.shareable?(tables)
         return unless shareable
 
+        ractor = Object.const_get(:Ractor)
+        return if ractor.respond_to?(:main?) && ractor.__send__(:main?) == false
+
         self.class.instance_variable_set(:@__ibex_validated_parser_tables, tables)
       rescue FrozenError
         nil
@@ -1125,6 +1203,12 @@ module Ibex
 
       # @rbs (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
       def validate_values_action_contract!(production, index, version)
+        borrowed = production[:borrowed_values_action] == true
+        if borrowed && production[:values_action] != true
+          raise ParseError,
+                "(tables):1:1: parser table format version #{version} production #{index} has an inconsistent " \
+                ":borrowed_values_action marker; :values_action is required"
+        end
         return if version < 4 || production[:values_action] != true
         return if generated_action_symbol?(production[:action]) &&
                   production[:location_action] != true &&
@@ -2195,13 +2279,31 @@ module Ibex
         return unless @runtime_fast_path
         return if @runtime_fast_path_tracker_installed
 
-        begin
-          singleton = Object.instance_method(:singleton_class).bind_call(self)
-          Module.instance_method(:prepend).bind_call(singleton, FastPathMutationTracker)
-          @runtime_fast_path_tracker_installed = true
-        rescue FrozenError, TypeError
-          @runtime_fast_path = false
-        end
+        install_runtime_fast_path_tracker!
+      end
+
+      # @rbs (?Class? singleton) -> void
+      def install_runtime_fast_path_tracker!(singleton = nil)
+        singleton ||= Object.instance_method(:singleton_class).bind_call(self)
+        Module.instance_method(:prepend).bind_call(singleton, FastPathMutationTracker)
+        @runtime_fast_path_tracker_installed = true
+        @runtime_fast_path_hooks_mutated = false
+        @runtime_fast_path_singleton_ancestors = singleton.ancestors.freeze
+      rescue FrozenError, TypeError
+        @runtime_fast_path = false
+      end
+
+      # @rbs () -> void
+      def install_runtime_fast_path_class_tracker!
+        parser_class = self.class
+        return if parser_class.instance_variable_get(:@__ibex_fast_path_class_tracker_installed) == true
+
+        singleton = parser_class.singleton_class
+        singleton.prepend(FastPathClassMutationTracker)
+        parser_class.instance_variable_set(:@__ibex_fast_path_hook_version, 0)
+        parser_class.instance_variable_set(:@__ibex_fast_path_class_tracker_installed, true)
+      rescue FrozenError, TypeError
+        nil
       end
 
       # The generic driver remains authoritative whenever a public runtime
@@ -2219,6 +2321,9 @@ module Ibex
 
       # @rbs () -> bool
       def runtime_fast_path_hooks_eligible?
+        cached = cached_runtime_fast_path_hooks_eligibility
+        return cached unless cached.nil?
+
         lookup = Object.instance_method(:method)
         hooks_unchanged =
           runtime_method_unchanged?(lookup, :on_shift, :__ibex_fast_path_on_shift) &&
@@ -2229,7 +2334,43 @@ module Ibex
         return false unless hooks_unchanged
         return true unless @runtime_fast_path_tracker_installed
 
-        FastPathMutationTracker.effective_for?(self, lookup)
+        tracker_effective = FastPathMutationTracker.effective_for?(self, lookup)
+        if tracker_effective
+          @runtime_fast_path_hooks_mutated = false
+          singleton = Object.instance_method(:singleton_class).bind_call(self)
+          @runtime_fast_path_singleton_ancestors = singleton.ancestors.freeze
+        end
+        tracker_effective
+      end
+
+      # @rbs () -> bool?
+      def cached_runtime_fast_path_hooks_eligibility
+        return nil unless @runtime_fast_path_tracker_installed && !@runtime_fast_path_hooks_mutated
+
+        singleton = Object.instance_method(:singleton_class).bind_call(self)
+        return false if singleton.frozen?
+        return nil unless @runtime_fast_path_singleton_ancestors == singleton.ancestors
+
+        runtime_fast_path_class_hooks_eligible?
+      end
+
+      # @rbs () -> bool
+      def runtime_fast_path_class_hooks_eligible?
+        install_runtime_fast_path_class_tracker!
+        parser_class = self.class
+        version = parser_class.instance_variable_get(:@__ibex_fast_path_hook_version) || 0
+        cached = parser_class.instance_variable_get(:@__ibex_fast_path_hook_cache)
+        return cached.fetch(1) if cached.is_a?(Array) && cached[0] == version
+
+        eligible = FAST_PATH_HOOK_REFERENCES.all? do |name, reference|
+          parser_class.instance_method(name) == Parser.instance_method(reference)
+        rescue NameError
+          false
+        end
+        parser_class.instance_variable_set(:@__ibex_fast_path_hook_cache, [version, eligible].freeze)
+        eligible
+      rescue FrozenError, TypeError
+        false
       end
 
       # @rbs (UnboundMethod lookup, Symbol name, Symbol reference) -> bool

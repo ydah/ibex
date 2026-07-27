@@ -29,8 +29,8 @@ class RuntimeGemPackagingTest < Minitest::Test
     assert_includes runtime.files, "lib/ibex/runtime/version.rb"
     assert_includes runtime.files, "lib/ibex/tables/compact.rb"
     assert_includes runtime.files, "lib/ibex/tables/compact_actions.rb"
-    assert_includes runtime.files, "sig/ibex/runtime/parser.rbs"
-    assert_includes runtime.files, "sig/ibex/tables/compact_actions.rbs"
+    assert_includes runtime.files, "lib/ibex/tables/compact_productions.rb"
+    assert_runtime_signatures(runtime)
     refute_includes runtime.files, "lib/ibex/frontend.rb"
     refute_includes runtime.files, "exe/ibex"
 
@@ -39,6 +39,12 @@ class RuntimeGemPackagingTest < Minitest::Test
     assert dependency.requirement.satisfied_by?(runtime.version)
     refute_includes generator.files, "lib/ibex/runtime.rb"
     refute_includes generator.files, "lib/ibex/runtime/parser.rb"
+  end
+
+  def assert_runtime_signatures(runtime)
+    assert_includes runtime.files, "sig/ibex/runtime/parser.rbs"
+    assert_includes runtime.files, "sig/ibex/tables/compact_actions.rbs"
+    assert_includes runtime.files, "sig/ibex/tables/compact_productions.rbs"
   end
 
   def test_runtime_gemspec_builds

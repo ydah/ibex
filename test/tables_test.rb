@@ -70,6 +70,37 @@ class TablesTest < Minitest::Test
     end
   end
 
+  def test_compact_productions_keep_parallel_hot_fields_and_compatible_entries
+    productions = [
+      {
+        lhs: 3, length: 1, action: :_ibex_action_0, values_action: true, # rubocop:disable Naming/VariableNumber
+        borrowed_values_action: true, location_names: { item: 0 }.freeze
+      },
+      { lhs: 4, length: 0, action: nil }
+    ]
+
+    compact = Ibex::Tables::CompactProductions.build(productions)
+
+    assert_instance_of Ibex::Tables::CompactProductions, compact
+    assert_equal [3, 4], compact.lhs_ids
+    assert_equal [1, 0], compact.lengths
+    assert_equal [:_ibex_action_0, nil], compact.actions # rubocop:disable Naming/VariableNumber
+    assert_equal productions, compact
+    assert compact.direct_values?
+    assert compact.all?(&:frozen?)
+  end
+
+  def test_compact_productions_reject_inconsistent_parallel_data
+    assert_raises(ArgumentError) do
+      Ibex::Tables::CompactProductions.new(lhs_ids: [1], lengths: [], actions: [], flags: [])
+    end
+    assert_raises(ArgumentError) do
+      # rubocop:disable Naming/VariableNumber
+      Ibex::Tables::CompactProductions.new(lhs_ids: [1], lengths: [0], actions: [:_ibex_action_0], flags: [2])
+      # rubocop:enable Naming/VariableNumber
+    end
+  end
+
   def test_compact_layout_remains_deterministic_when_rows_share_anchor_columns
     rows = [
       { 1 => :a, 5 => :b },

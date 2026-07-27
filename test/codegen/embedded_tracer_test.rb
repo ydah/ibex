@@ -59,7 +59,7 @@ class EmbeddedTracerCodegenTest < Minitest::Test
       events = output.lines[0...-2].map { |line| JSON.parse(line) }
       start = events.first
       assert_equal "start", start.fetch("event")
-      assert_equal 3, start.dig("data", "table_format_version")
+      assert_equal Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION, start.dig("data", "table_format_version")
       assert_match(/\Asha256:[0-9a-f]{64}\z/, start.dig("data", "grammar_digest"))
       assert_operator start.dig("data", "state_count"), :>, 0
       assert_equal 1, start.dig("data", "production_count")

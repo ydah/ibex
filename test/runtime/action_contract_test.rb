@@ -277,6 +277,17 @@ class RuntimeActionContractTest < Minitest::Test
     def next_token = raise("inconsistent parser read a token")
   end
 
+  class InconsistentBorrowedValuesParser < BaseParser
+    TABLES = RuntimeActionContractTest::TABLES.merge(
+      productions: [
+        { lhs: 3, length: 1, action: :_ibex_action_0, borrowed_values_action: true } # rubocop:disable Naming/VariableNumber
+      ]
+    ).freeze
+
+    def self.parser_tables = TABLES
+    def next_token = raise("inconsistent parser read a token")
+  end
+
   class MethodMissingParser < BaseParser
     TABLES = RuntimeActionContractTest::TABLES.merge(
       productions: [{ lhs: 3, length: 1, action: :dynamic_action }]
@@ -413,6 +424,15 @@ class RuntimeActionContractTest < Minitest::Test
 
     assert_match(/version 4 production 0/, error.message)
     assert_match(/inconsistent :values_action marker/, error.message)
+  end
+
+  def test_version_four_rejects_a_borrowed_marker_without_values_marker_before_input
+    error = assert_raises(Ibex::Runtime::ParseError) do
+      InconsistentBorrowedValuesParser.new([%i[TOKEN value]]).do_parse
+    end
+
+    assert_match(/version 4 production 0/, error.message)
+    assert_match(/inconsistent :borrowed_values_action marker/, error.message)
   end
 
   def test_symbol_action_dispatches_through_method_missing

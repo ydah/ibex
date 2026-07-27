@@ -152,9 +152,28 @@ class RubyCodegenTest < Minitest::Test
     parser_class = evaluate(generated, "GeneratedCalc")
 
     assert(parser_class::PRODUCTIONS.all? { |production| production[:values_action] == true })
+    assert(parser_class::PRODUCTIONS.all? { |production| production[:borrowed_values_action] == true })
     assert(parser_class::PRODUCTIONS.none? { |production| production.key?(:location_action) })
     action = parser_class.instance_method(:_ibex_action_0) # rubocop:disable Naming/VariableNumber
     assert_equal 1, action.arity
+  end
+
+  def test_mutating_or_escaping_values_do_not_receive_the_borrowed_marker
+    source = <<~GRAMMAR
+      class BorrowedValuesParser
+      rule
+      start:
+          TOKEN { result = val[0] }
+        | TOKEN TOKEN { val[0] = val[1]; result = val[0] }
+        | TOKEN TOKEN TOKEN { consume(val); result = val[0] }
+      end
+    GRAMMAR
+    parser_class = evaluate(generate(source), "BorrowedValuesParser")
+    productions = parser_class::PRODUCTIONS
+
+    assert_equal true, productions.fetch(0)[:borrowed_values_action]
+    refute productions.fetch(1).key?(:borrowed_values_action)
+    refute productions.fetch(2).key?(:borrowed_values_action)
   end
 
   def test_legacy_generated_parameters_conservatively_retain_the_five_argument_abi

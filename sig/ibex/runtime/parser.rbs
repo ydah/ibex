@@ -86,6 +86,33 @@ module Ibex
         def singleton_method_undefined: (Symbol name) -> void
       end
 
+      # Invalidates the generated-class hook cache when the parser class
+      # changes its own effective hook surface.
+      module FastPathClassMutationTracker
+        # @rbs (Symbol name) -> void
+        def method_added: (Symbol name) -> void
+
+        # @rbs (Symbol name) -> void
+        def method_removed: (Symbol name) -> void
+
+        # @rbs (Symbol name) -> void
+        def method_undefined: (Symbol name) -> void
+
+        # @rbs (*Module modules) -> self
+        def include: (*Module modules) -> self
+
+        # @rbs (*Module modules) -> self
+        def prepend: (*Module modules) -> self
+
+        private
+
+        # @rbs (Symbol name) -> void
+        def __ibex_invalidate_fast_path_hooks: (Symbol name) -> void
+
+        # @rbs () -> void
+        def __ibex_bump_fast_path_hook_version: () -> void
+      end
+
       include Observation
 
       include ParserSyncRecovery
@@ -101,6 +128,10 @@ module Ibex
       NO_LOOKAHEAD: Object
 
       RECOVERY_SHIFTS: Integer
+
+      FAST_PATH_HOOK_NAMES: Array[Symbol]
+
+      FAST_PATH_HOOK_REFERENCES: Hash[Symbol, Symbol]
 
       ERROR_ACTION: [ :error ]
 
@@ -118,7 +149,9 @@ module Ibex
 
       EMPTY_LOCATIONS: Array[untyped]
 
-      @runtime_fast_path_tracker_installed: bool
+      @runtime_fast_path_singleton_ancestors: Array[Module]?
+
+      @runtime_observers: Hash[Observation::Subscription, Proc]?
 
       @runtime_driver_thread: Thread?
 
@@ -158,6 +191,10 @@ module Ibex
 
       @yydebug: bool
 
+      @runtime_fast_path_hooks_mutated: bool
+
+      @runtime_fast_path_tracker_installed: bool
+
       @runtime_fast_path: bool
 
       @runtime_parser_tables: Hash[Symbol, untyped]?
@@ -193,8 +230,6 @@ module Ibex
       @runtime_lookahead_token_display: untyped
 
       @runtime_event_sequence: Integer
-
-      @runtime_observers: Hash[Observation::Subscription, Proc]?
 
       # @rbs (?resource_limits: ResourceLimits) -> void
       def initialize: (?resource_limits: ResourceLimits) -> void
@@ -696,6 +731,12 @@ module Ibex
       # @rbs (Hash[Symbol, untyped] tables) -> void
       def initialize_runtime_fast_path: (Hash[Symbol, untyped] tables) -> void
 
+      # @rbs (?Class? singleton) -> void
+      def install_runtime_fast_path_tracker!: (?Class? singleton) -> void
+
+      # @rbs () -> void
+      def install_runtime_fast_path_class_tracker!: () -> void
+
       # The generic driver remains authoritative whenever a public runtime
       # extension can observe a committed shift or reduction.
       # @rbs (Hash[Symbol, untyped] tables) -> bool
@@ -703,6 +744,12 @@ module Ibex
 
       # @rbs () -> bool
       def runtime_fast_path_hooks_eligible?: () -> bool
+
+      # @rbs () -> bool?
+      def cached_runtime_fast_path_hooks_eligibility: () -> bool?
+
+      # @rbs () -> bool
+      def runtime_fast_path_class_hooks_eligible?: () -> bool
 
       # @rbs (UnboundMethod lookup, Symbol name, Symbol reference) -> bool
       def runtime_method_unchanged?: (UnboundMethod lookup, Symbol name, Symbol reference) -> bool

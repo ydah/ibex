@@ -15,7 +15,7 @@ class RuntimeObservationTest < Minitest::Test
       {
         "driver" => "pull",
         "initial_state" => 0,
-        "table_format_version" => 3,
+        "table_format_version" => Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION,
         "grammar_digest" => nil,
         "state_count" => nil,
         "production_count" => nil
