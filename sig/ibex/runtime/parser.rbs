@@ -794,6 +794,11 @@ module Ibex
       # @rbs (Array[RepairInput] output, RepairInput input, Array[RepairEdit] edits) -> bool
       def append_repair_edits: (Array[RepairInput] output, RepairInput input, Array[RepairEdit] edits) -> bool
 
+      # Retain a repair deletion in the concrete tree even though it is absent
+      # from the repaired token stream.
+      # @rbs (RepairInput input) -> void
+      def preserve_deleted_repair_input: (RepairInput input) -> void
+
       # @rbs () -> void
       def clear_repair_lookahead: () -> void
 

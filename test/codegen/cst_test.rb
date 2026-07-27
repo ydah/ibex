@@ -63,6 +63,15 @@ class CSTCodegenTest < Minitest::Test
     assert_equal 1, syntax.diagnostics.length
   end
 
+  def test_lexical_failure_retains_the_entire_unmatched_remainder
+    source = "? #{'1 + 2 ' * 8}"
+    result = generate.new.parse_with_syntax(source, file: "long-bad.txt")
+
+    assert_equal source, result.syntax_root.to_source
+    assert_predicate result.syntax_root, :contains_error?
+    assert_operator result.diagnostics.fetch(0).token_value.bytesize, :<=, 16
+  end
+
   def test_bounded_repair_is_represented_by_missing_and_error_nodes
     parser = generate.new
     parser.repair_policy = Ibex::Runtime::RepairPolicy.new(success_shifts: 1)

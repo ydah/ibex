@@ -5,13 +5,25 @@ require_relative "../test_helper"
 class CSTRedTest < Minitest::Test
   def test_children_are_lazy_memoized_and_offsets_are_contiguous
     root = syntax_root
+    assert(root.instance_variable_get(:@children).all?(&:nil?))
     expression = root.child_at(0)
 
     assert_same expression, root.child_at(0)
+    assert_equal 1, root.instance_variable_get(:@children).compact.length
     assert_instance_of Ibex::Runtime::CST::SyntaxNode, expression
     assert_equal [0, 2, 3], expression.children.map(&:offset)
     assert_equal [0...2, 2...3, 3...5], expression.children.map(&:full_span)
     assert_equal " 1+ 2\n".b, root.to_source
+  end
+
+  def test_structural_equality_is_distinct_from_occurrence_identity
+    root = repeated_syntax_root
+    first, second = root.child_at(0).children
+
+    assert_same first.green, second.green
+    assert_equal first, second
+    refute first.same_node?(second)
+    assert first.same_node?(root.child_at(0).child_at(0))
   end
 
   def test_spans_locations_and_trivia_ownership_use_byte_offsets
@@ -77,6 +89,17 @@ class CSTRedTest < Minitest::Test
   end
 
   private
+
+  def repeated_syntax_root
+    shared = green_token(2, "1")
+    expression = Ibex::Runtime::CST::GreenNode.new(kind: 4, children: [shared, shared])
+    green = Ibex::Runtime::CST::GreenNode.new(
+      kind: kind(:source_file),
+      children: [expression, green_token(0, "")],
+      flags: Ibex::Runtime::CST::Flags::SYNTHETIC
+    )
+    Ibex::Runtime::CST::SyntaxNode.new(green: green, kinds: kinds)
+  end
 
   def syntax_root(trivia_policy: :leading)
     first = green_token(2, "1", leading: " ")

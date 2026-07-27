@@ -2055,7 +2055,14 @@ module Ibex
       def finalize_lexical_green_cst(error)
         builder = @green_builder || raise(ParseError, "(cst):1:1: Green builder is unavailable")
         kinds = @green_kinds || raise(ParseError, "(cst):1:1: kind metadata is unavailable")
-        text = error.token_value.is_a?(String) ? error.token_value : error.token_value.to_s
+        unmatched_text = cst_location_value(error.location, :ibex_cst_unmatched_text)
+        text = if unmatched_text.is_a?(String)
+                 unmatched_text
+               elsif error.token_value.is_a?(String)
+                 error.token_value
+               else
+                 error.token_value.to_s
+               end
         token = builder.make_token(
           kinds.fetch(:lexical_error_token), text,
           leading: pending_green_trivia + green_location_trivia(error.location, :leading_trivia),
@@ -2562,6 +2569,7 @@ module Ibex
 
       # @rbs (Array[RepairInput] output, RepairInput input, Array[RepairEdit] edits) -> bool
       def append_repair_edits(output, input, edits)
+        preserve_deleted_repair_input(input) if edits.any? { |edit| edit.kind == :delete }
         edits.each do |edit|
           if edit.kind == :insert
             output << synthetic_repair_input(edit, value: nil, location: input.location)
@@ -2570,6 +2578,39 @@ module Ibex
           end
         end
         edits.any? { |edit| %i[delete replace].include?(edit.kind) }
+      end
+
+      # Retain a repair deletion in the concrete tree even though it is absent
+      # from the repaired token stream.
+      # @rbs (RepairInput input) -> void
+      def preserve_deleted_repair_input(input)
+        return unless cst_enabled?
+
+        unless red_green_cst?
+          leading = cst_location_value(input.location, :leading_trivia)
+          trivia = leading.is_a?(Array) ? leading.grep(CST::Trivia) : [] #: Array[CST::Trivia]
+          @cst_errors << CST::Error.new(
+            symbol: input.token_name, value: input.value, location: input.location,
+            reason: :delete, leading_trivia: trivia
+          )
+          return
+        end
+
+        builder = @green_builder
+        kinds = @green_kinds
+        return unless builder && kinds
+
+        previous = green_location_trivia(input.location, :cst_previous_trailing)
+        empty = [] #: Array[CST::GreenTrivia]
+        previous = empty if builder.append_trailing_to_last_token(previous)
+        leading = previous + green_location_trivia(input.location, :leading_trivia)
+        source = leading.each_with_object(String.new(encoding: Encoding::BINARY)) do |trivia, text|
+          text << trivia.text
+        end
+        source << green_token_text(input.value, input.location)
+        @green_pending_skipped << CST::GreenTrivia.new(
+          kind: kinds.fetch(:skipped_tokens), text: source
+        )
       end
 
       # @rbs () -> void

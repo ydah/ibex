@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require_relative "../test_helper"
+require "json"
 
 class CSTRuntimeIntegrationTest < Minitest::Test
+  GOLDEN_PATH = File.expand_path("../fixtures/cst/runtime-paths-v1.json", __dir__)
+
   BALANCED_SOURCE = <<~GRAMMAR
     class BalancedCSTParser
     pragma cst
@@ -134,6 +137,16 @@ class CSTRuntimeIntegrationTest < Minitest::Test
     assert_equal 1, stderr.scan("legacy format-v1-v5 CST values are deprecated").length
   end
 
+  def test_error_and_trivia_paths_match_the_golden_snapshot
+    actual = runtime_path_snapshot
+    if ENV["PRINT_IBEX_CST_RUNTIME_PATHS"] == "1"
+      puts JSON.pretty_generate(actual)
+      skip "printed the candidate runtime-path snapshot"
+    end
+
+    assert_equal JSON.parse(File.binread(GOLDEN_PATH)), actual
+  end
+
   private
 
   def generate(source, cst_trivia: :leading, mode: :default)
@@ -144,5 +157,55 @@ class CSTRuntimeIntegrationTest < Minitest::Test
     namespace = Module.new
     namespace.module_eval(generated, "generated_cst_integration.rb")
     namespace.const_get(grammar.class_name)
+  end
+
+  def runtime_path_snapshot # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    repair_parser = generate(BALANCED_SOURCE).new
+    repair_parser.repair_policy = Ibex::Runtime::RepairPolicy.new(success_shifts: 1)
+    recovery_parser = generate(RECOVERY_SOURCE, mode: :extended).new
+    cases = {
+      "lexical_failure" => generate(BALANCED_SOURCE).new.parse_with_syntax("1 ? 2"),
+      "repair_insertion" => repair_parser.parse_with_syntax("1 2"),
+      "recovery_pop_and_discard" => recovery_parser.parse_with_syntax("i x x; i;"),
+      "unrecoverable" => generate(BALANCED_SOURCE).new.parse_with_syntax("1"),
+      "early_accept" => generate(EARLY_ACCEPT_SOURCE).new.parse_with_syntax("a b")
+    }
+    error_paths = cases.transform_values do |result|
+      {
+        "source" => result.syntax_root.source_text.text,
+        "reconstructed" => result.syntax_root.to_source,
+        "diagnostic_count" => result.diagnostics.length,
+        "tree" => syntax_snapshot(result.syntax_root)
+      }
+    end
+    trivia_source = "1 \n  + 2 "
+    trivia_paths = %i[leading balanced drop].to_h do |policy|
+      tree = generate(BALANCED_SOURCE, cst_trivia: policy).new.parse_with_syntax(trivia_source).syntax_root
+      [
+        policy.to_s,
+        {
+          "source" => trivia_source,
+          "reconstructed" => tree.to_source,
+          "tokens" => tree.tokens.map { |token| syntax_snapshot(token) }
+        }
+      ]
+    end
+    { "error_paths" => error_paths, "trivia_paths" => trivia_paths }
+  end
+
+  def syntax_snapshot(element)
+    snapshot = {
+      "kind" => element.kind_name,
+      "flags" => element.green.flags
+    }
+    if element.is_a?(Ibex::Runtime::CST::SyntaxNode)
+      snapshot["children"] = element.children.map { |child| syntax_snapshot(child) }
+    else
+      snapshot["text"] = element.text
+      snapshot["expected_kind"] = element.green.expected_kind
+      snapshot["leading"] = element.green.leading.map { |trivia| [trivia.kind, trivia.text] }
+      snapshot["trailing"] = element.green.trailing.map { |trivia| [trivia.kind, trivia.text] }
+    end
+    snapshot
   end
 end

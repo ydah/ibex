@@ -55,6 +55,17 @@ class CSTGreenTest < Minitest::Test
     assert_equal large_a.to_source, large_b.to_source
   end
 
+  def test_cache_enabled_and_disabled_trees_have_identical_structure_source_and_dump
+    cached = repeated_root(Ibex::Runtime::CST::NodeCache.new)
+    uncached = repeated_root(Ibex::Runtime::CST::NodeCache.new(enabled: false))
+
+    assert_equal cached.green, uncached.green
+    assert_equal cached.to_source, uncached.to_source
+    assert_equal dump(cached), dump(uncached)
+    assert_same cached.tokens.fetch(0).green, cached.tokens.fetch(1).green
+    refute_same uncached.tokens.fetch(0).green, uncached.tokens.fetch(1).green
+  end
+
   def test_builder_preserves_error_bytes_and_finishes_source_file
     builder = Ibex::Runtime::CST::GreenBuilder.new(kinds: kinds)
     builder.token(2, "a")
@@ -82,7 +93,50 @@ class CSTGreenTest < Minitest::Test
     assert Ractor.shareable?(root)
   end
 
+  def test_green_tree_can_be_read_concurrently_in_ractors
+    skip "Ractor is unavailable" unless defined?(Ractor) && Ractor.respond_to?(:shareable?)
+
+    root = repeated_root(Ibex::Runtime::CST::NodeCache.new).green
+    readers = 2.times.map do
+      Ractor.new(root) { |green| [green.to_source, green.descendant_count] }
+    end
+
+    results = readers.map { |reader| reader.respond_to?(:value) ? reader.value : reader.take }
+    assert_equal [["xx", 5], ["xx", 5]], results
+  end
+
+  def test_green_layer_loads_without_the_parser
+    require "open3"
+    require "rbconfig"
+
+    _output, error, status = Open3.capture3(
+      RbConfig.ruby, "-Ilib", "-e",
+      'require "ibex/runtime/cst/green/builder"; require "ibex/runtime/cst/kind"'
+    )
+
+    assert_predicate status, :success?, error
+  end
+
   private
+
+  def repeated_root(cache)
+    builder = Ibex::Runtime::CST::GreenBuilder.new(kinds: kinds, cache: cache)
+    builder.token(2, "x")
+    builder.token(2, "x")
+    builder.node(3, 2)
+    green = builder.finish_source_file(Ibex::Runtime::CST::GreenToken.new(kind: 0, text: ""))
+    Ibex::Runtime::CST::SyntaxNode.new(green: green, kinds: kinds)
+  end
+
+  def dump(root)
+    Ibex::Runtime::CST::Serialize.dump(
+      root,
+      grammar_digest: "sha256:#{'0' * 64}",
+      table_format: 6,
+      state_count: 1,
+      production_count: 1
+    )
+  end
 
   def kind_metadata
     @kind_metadata ||= begin

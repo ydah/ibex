@@ -245,7 +245,9 @@ module Ibex
 
       # @rbs (LexerInput input) -> bot
       def raise_lexer_no_match(input)
-        location = lexer_zero_width_location
+        location = lexer_zero_width_location.merge(
+          ibex_cst_unmatched_text: input.buffer.dup.freeze
+        ).freeze
         excerpt = input.buffer.slice(0, 16)
         raise ParseError.new(
           token_name: "lexer input", token_value: excerpt, location: location,

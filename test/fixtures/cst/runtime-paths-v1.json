@@ -1,0 +1,395 @@
+{
+  "error_paths": {
+    "lexical_failure": {
+      "source": "1 ? 2",
+      "reconstructed": "1 ? 2",
+      "diagnostic_count": 1,
+      "tree": {
+        "kind": "synthetic_root",
+        "flags": 17,
+        "children": [
+          {
+            "kind": "NUM",
+            "flags": 0,
+            "text": "1",
+            "expected_kind": null,
+            "leading": [],
+            "trailing": []
+          },
+          {
+            "kind": "lexical_error_token",
+            "flags": 1,
+            "text": "? 2",
+            "expected_kind": null,
+            "leading": [
+              [
+                5,
+                " "
+              ]
+            ],
+            "trailing": []
+          }
+        ]
+      }
+    },
+    "repair_insertion": {
+      "source": "1 2",
+      "reconstructed": "1 2",
+      "diagnostic_count": 1,
+      "tree": {
+        "kind": "source_file",
+        "flags": 18,
+        "children": [
+          {
+            "kind": "start",
+            "flags": 18,
+            "children": [
+              {
+                "kind": "NUM",
+                "flags": 0,
+                "text": "1",
+                "expected_kind": null,
+                "leading": [],
+                "trailing": []
+              },
+              {
+                "kind": "missing_token",
+                "flags": 18,
+                "text": "",
+                "expected_kind": 3,
+                "leading": [],
+                "trailing": []
+              },
+              {
+                "kind": "NUM",
+                "flags": 0,
+                "text": "2",
+                "expected_kind": null,
+                "leading": [
+                  [
+                    5,
+                    " "
+                  ]
+                ],
+                "trailing": []
+              }
+            ]
+          },
+          {
+            "kind": "$eof",
+            "flags": 0,
+            "text": "",
+            "expected_kind": null,
+            "leading": [],
+            "trailing": []
+          }
+        ]
+      }
+    },
+    "recovery_pop_and_discard": {
+      "source": "i x x; i;",
+      "reconstructed": "i x x; i;",
+      "diagnostic_count": 1,
+      "tree": {
+        "kind": "source_file",
+        "flags": 20,
+        "children": [
+          {
+            "kind": "program",
+            "flags": 4,
+            "children": [
+              {
+                "kind": "statements",
+                "flags": 4,
+                "children": [
+                  {
+                    "kind": "statements",
+                    "flags": 4,
+                    "children": [
+                      {
+                        "kind": "statement",
+                        "flags": 4,
+                        "children": [
+                          {
+                            "kind": "ITEM",
+                            "flags": 0,
+                            "text": "i",
+                            "expected_kind": null,
+                            "leading": [],
+                            "trailing": []
+                          },
+                          {
+                            "kind": "SEMI",
+                            "flags": 4,
+                            "text": ";",
+                            "expected_kind": null,
+                            "leading": [
+                              [
+                                13,
+                                " x"
+                              ],
+                              [
+                                13,
+                                " x"
+                              ]
+                            ],
+                            "trailing": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "statement",
+                    "flags": 0,
+                    "children": [
+                      {
+                        "kind": "ITEM",
+                        "flags": 0,
+                        "text": "i",
+                        "expected_kind": null,
+                        "leading": [
+                          [
+                            8,
+                            " "
+                          ]
+                        ],
+                        "trailing": []
+                      },
+                      {
+                        "kind": "SEMI",
+                        "flags": 0,
+                        "text": ";",
+                        "expected_kind": null,
+                        "leading": [],
+                        "trailing": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "$eof",
+            "flags": 0,
+            "text": "",
+            "expected_kind": null,
+            "leading": [],
+            "trailing": []
+          }
+        ]
+      }
+    },
+    "unrecoverable": {
+      "source": "1",
+      "reconstructed": "1",
+      "diagnostic_count": 0,
+      "tree": {
+        "kind": "synthetic_root",
+        "flags": 17,
+        "children": [
+          {
+            "kind": "NUM",
+            "flags": 0,
+            "text": "1",
+            "expected_kind": null,
+            "leading": [],
+            "trailing": []
+          },
+          {
+            "kind": "$eof",
+            "flags": 0,
+            "text": "",
+            "expected_kind": null,
+            "leading": [],
+            "trailing": []
+          }
+        ]
+      }
+    },
+    "early_accept": {
+      "source": "a",
+      "reconstructed": "a",
+      "diagnostic_count": 0,
+      "tree": {
+        "kind": "synthetic_root",
+        "flags": 49,
+        "children": [
+          {
+            "kind": "A",
+            "flags": 0,
+            "text": "a",
+            "expected_kind": null,
+            "leading": [],
+            "trailing": []
+          },
+          {
+            "kind": "$inline_1",
+            "flags": 16,
+            "children": []
+          },
+          {
+            "kind": "$eof",
+            "flags": 0,
+            "text": "",
+            "expected_kind": null,
+            "leading": [],
+            "trailing": []
+          }
+        ]
+      }
+    }
+  },
+  "trivia_paths": {
+    "leading": {
+      "source": "1 \n  + 2 ",
+      "reconstructed": "1 \n  + 2 ",
+      "tokens": [
+        {
+          "kind": "NUM",
+          "flags": 0,
+          "text": "1",
+          "expected_kind": null,
+          "leading": [],
+          "trailing": []
+        },
+        {
+          "kind": "PLUS",
+          "flags": 0,
+          "text": "+",
+          "expected_kind": null,
+          "leading": [
+            [
+              6,
+              " \n  "
+            ]
+          ],
+          "trailing": []
+        },
+        {
+          "kind": "NUM",
+          "flags": 0,
+          "text": "2",
+          "expected_kind": null,
+          "leading": [
+            [
+              5,
+              " "
+            ]
+          ],
+          "trailing": []
+        },
+        {
+          "kind": "$eof",
+          "flags": 0,
+          "text": "",
+          "expected_kind": null,
+          "leading": [
+            [
+              5,
+              " "
+            ]
+          ],
+          "trailing": []
+        }
+      ]
+    },
+    "balanced": {
+      "source": "1 \n  + 2 ",
+      "reconstructed": "1 \n  + 2 ",
+      "tokens": [
+        {
+          "kind": "NUM",
+          "flags": 0,
+          "text": "1",
+          "expected_kind": null,
+          "leading": [],
+          "trailing": [
+            [
+              6,
+              " \n"
+            ]
+          ]
+        },
+        {
+          "kind": "PLUS",
+          "flags": 0,
+          "text": "+",
+          "expected_kind": null,
+          "leading": [
+            [
+              5,
+              "  "
+            ]
+          ],
+          "trailing": [
+            [
+              5,
+              " "
+            ]
+          ]
+        },
+        {
+          "kind": "NUM",
+          "flags": 0,
+          "text": "2",
+          "expected_kind": null,
+          "leading": [],
+          "trailing": [
+            [
+              5,
+              " "
+            ]
+          ]
+        },
+        {
+          "kind": "$eof",
+          "flags": 0,
+          "text": "",
+          "expected_kind": null,
+          "leading": [],
+          "trailing": []
+        }
+      ]
+    },
+    "drop": {
+      "source": "1 \n  + 2 ",
+      "reconstructed": "1+2",
+      "tokens": [
+        {
+          "kind": "NUM",
+          "flags": 0,
+          "text": "1",
+          "expected_kind": null,
+          "leading": [],
+          "trailing": []
+        },
+        {
+          "kind": "PLUS",
+          "flags": 0,
+          "text": "+",
+          "expected_kind": null,
+          "leading": [],
+          "trailing": []
+        },
+        {
+          "kind": "NUM",
+          "flags": 0,
+          "text": "2",
+          "expected_kind": null,
+          "leading": [],
+          "trailing": []
+        },
+        {
+          "kind": "$eof",
+          "flags": 0,
+          "text": "",
+          "expected_kind": null,
+          "leading": [],
+          "trailing": []
+        }
+      ]
+    }
+  }
+}
