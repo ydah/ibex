@@ -110,6 +110,8 @@ module Ibex
 
       REPAIR_PENDING_OUTCOME: [ :repair_pending ]
 
+      TERMINAL_OUTCOMES: Array[Symbol]
+
       EMPTY_ROW: Hash[Integer, untyped]
 
       EMPTY_LOCATION_NAMES: Hash[Symbol, Integer]
@@ -377,6 +379,18 @@ module Ibex
 
       # @rbs (^() -> untyped source, ?initial_state: Integer?) -> untyped
       def drive_parser: (^() -> untyped source, ?initial_state: Integer?) -> untyped
+
+      # Generated compact tables can keep the unobserved, location-free pull
+      # loop on their frozen displacement arrays. Any extension boundary or
+      # exceptional table shape returns control to the generic driver without
+      # replaying a committed action.
+      # rubocop:disable Metrics/AbcSize, Metrics/BlockNesting, Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/MethodLength, Metrics/PerceivedComplexity
+      # @rbs (Hash[Symbol, untyped] tables) -> ([:accepted, untyped] | [:done, untyped])?
+      def drive_compact_fast_parser: (Hash[Symbol, untyped] tables) -> ([ :accepted, untyped ] | [ :done, untyped ])?
+
+      # @rbs (Hash[Symbol, untyped]? tables) -> bool
+      def compact_fast_driver_eligible?: (Hash[Symbol, untyped]? tables) -> bool
 
       # @rbs () -> void
       def start_push_session: () -> void

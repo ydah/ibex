@@ -24,6 +24,7 @@ class GeneratedParser < Ibex::Frontend::GeneratedParserBase
                     grammar_digest: GRAMMAR_DIGEST,
                     state_count: STATE_COUNT, production_count: PRODUCTION_COUNT,
                     uses_locations: false,
+                    compact_fast_driver: true,
                     tokens: TOKEN_IDS, token_names: TOKEN_NAMES, actions: ACTIONS,
                     gotos: GOTOS, default_actions: DEFAULT_ACTIONS,
                     productions: PRODUCTIONS,  eager_reductions: EAGER_REDUCTIONS, error_messages: ERROR_MESSAGES }.freeze

@@ -182,6 +182,7 @@ module Ibex
       SYNC_RECOVER_ACTION = [:sync_recover].freeze #: [:sync_recover]
       CONTINUE_OUTCOME = [:continue].freeze #: [:continue]
       REPAIR_PENDING_OUTCOME = [:repair_pending].freeze #: [:repair_pending]
+      TERMINAL_OUTCOMES = %i[accepted done].freeze #: Array[Symbol]
       empty_row = {} # @type var empty_row: Hash[Integer, untyped]
       empty_location_names = {} # @type var empty_location_names: Hash[Symbol, Integer]
       empty_locations = [] # @type var empty_locations: Array[untyped]
@@ -190,7 +191,7 @@ module Ibex
       EMPTY_LOCATION_NAMES = empty_location_names.freeze #: Hash[Symbol, Integer]
       EMPTY_LOCATIONS = empty_locations.freeze #: Array[untyped]
       private_constant :ERROR_ACTION, :SYNC_RECOVER_ACTION, :CONTINUE_OUTCOME, :REPAIR_PENDING_OUTCOME,
-                       :FastPathMutationTracker
+                       :TERMINAL_OUTCOMES, :FastPathMutationTracker
 
       # @rbs @yydebug: bool
       # @rbs @yydebug_output: IO
@@ -732,6 +733,12 @@ module Ibex
 
         begin
           prepare_parse(source, initial_state: initial_state)
+          tables = @runtime_parser_tables
+          if tables && compact_fast_driver_eligible?(tables)
+            fast_outcome = drive_compact_fast_parser(tables)
+            return fast_outcome.fetch(1) if
+              fast_outcome && TERMINAL_OUTCOMES.include?(fast_outcome[0])
+          end
           loop do
             action = action_for_current_state
             outcome = perform(action)
@@ -745,6 +752,176 @@ module Ibex
           @runtime_fast_path = false
           release_driver
         end
+      end
+
+      # Generated compact tables can keep the unobserved, location-free pull
+      # loop on their frozen displacement arrays. Any extension boundary or
+      # exceptional table shape returns control to the generic driver without
+      # replaying a committed action.
+      # rubocop:disable Metrics/AbcSize, Metrics/BlockNesting, Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/MethodLength, Metrics/PerceivedComplexity
+      # @rbs (Hash[Symbol, untyped] tables) -> ([:accepted, untyped] | [:done, untyped])?
+      def drive_compact_fast_parser(tables)
+        actions = tables.fetch(:actions)
+        gotos = tables.fetch(:gotos)
+        productions = tables.fetch(:productions)
+        defaults = tables.fetch(:default_actions, EMPTY_ROW)
+        token_ids = tables.fetch(:tokens)
+        action_offsets = actions.offsets
+        action_entries = actions.values
+        action_checks = actions.checks
+        goto_offsets = gotos.offsets
+        goto_values = gotos.values
+        goto_checks = gotos.checks
+        states = @state_stack
+        values = @value_stack
+        stack_limit = @resource_limits.max_stack_depth
+
+        while @runtime_fast_path
+          if @lookahead.equal?(NO_LOOKAHEAD)
+            source = @source
+            raise ParseError, "(input):1:1: token source is not available" unless source
+
+            token = begin
+              source.call
+            rescue StopIteration
+              false
+            end
+            refresh_runtime_fast_path_after_user_code!
+            if token.nil? || token == false
+              @lookahead = EOF_TOKEN
+              @lookahead_value = nil
+              @lookahead_location = nil
+            else
+              external_token, @lookahead_value, @lookahead_location = token
+              if external_token.nil? || external_token == false
+                @lookahead = EOF_TOKEN
+              else
+                token_id = token_ids[external_token]
+                if token_id
+                  @lookahead = token_id
+                else
+                  @unknown_token_name = external_token.inspect
+                  @unknown_token_id = -external_token.object_id.abs
+                  @lookahead = @unknown_token_id
+                end
+              end
+            end
+            @runtime_fast_path = false unless nil.equal?(@lookahead_location)
+            unless @runtime_fast_path
+              materialize_compatible_lookahead
+              return
+            end
+          end
+          return if @unknown_token_id == @lookahead
+
+          state = states.last
+          index = action_offsets[state] + @lookahead
+          action = action_checks[index] == state ? action_entries[index] : defaults[state]
+          return unless action
+
+          case action[0]
+          when :shift
+            ensure_stack_capacity! if states.length >= stack_limit
+            states << action[1]
+            values << @lookahead_value
+            @lookahead = NO_LOOKAHEAD
+            @lookahead_location = nil
+            @runtime_lookahead_token_display = nil
+          when :reduce
+            production_id = action[1]
+            production = productions[production_id]
+            length = production[:length]
+            return unless length.is_a?(Integer) && !length.negative? &&
+                          length <= values.length && length < states.length
+
+            semantic_action = production[:action]
+            if semantic_action
+              return unless production[:values_action] == true
+
+              hook_values = values.last(length)
+              reduction_values = hook_values.dup
+              remaining = length
+              while remaining.positive?
+                states.pop
+                values.pop
+                remaining -= 1
+              end
+              previous_locations = @semantic_locations
+              previous_names = @semantic_location_names
+              previous_result_location = @semantic_result_location
+              @semantic_locations = EMPTY_LOCATIONS
+              @semantic_location_names = production.fetch(:location_names, EMPTY_LOCATION_NAMES)
+              @semantic_result_location = nil
+              begin
+                result = __send__(semantic_action, reduction_values)
+              ensure
+                @semantic_locations = previous_locations
+                @semantic_location_names = previous_names
+                @semantic_result_location = previous_result_location
+              end
+              refresh_runtime_fast_path_after_user_code!
+              goto_row = states.last
+              goto_index = goto_offsets[goto_row] + production[:lhs]
+              next_state = goto_values[goto_index] if goto_checks[goto_index] == goto_row
+              raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
+
+              ensure_stack_capacity! if states.length >= stack_limit
+              states << next_state
+              location_stack = @location_stack
+              location_stack << nil if location_stack
+              values << result
+              trace_reduction(production_id, length, production[:lhs], result, next_state) if @yydebug
+              unless @runtime_fast_path
+                lookup = Object.instance_method(:method)
+                unless runtime_method_unchanged?(lookup, :on_reduce, :__ibex_fast_path_on_reduce)
+                  on_reduce(production_id, hook_values, result)
+                end
+                unless runtime_method_unchanged?(lookup, :on_reduce_location, :__ibex_fast_path_on_reduce_location)
+                  on_reduce_location(production_id, hook_values, result, Array.new(length), nil)
+                end
+              end
+              return accept_reduction(result) if @accept_requested
+              return recover(report: false) if @semantic_error
+
+              next
+            end
+
+            result = length.zero? ? nil : values.fetch(values.length - length)
+            remaining = length
+            while remaining.positive?
+              states.pop
+              values.pop
+              remaining -= 1
+            end
+            goto_row = states.last
+            goto_index = goto_offsets[goto_row] + production[:lhs]
+            next_state = goto_values[goto_index] if goto_checks[goto_index] == goto_row
+            raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
+
+            ensure_stack_capacity! if states.length >= stack_limit
+            states << next_state
+            values << result
+          when :accept
+            return [:accepted, values.last]
+          else
+            return
+          end
+        end
+        nil
+      end
+      # rubocop:enable Metrics/AbcSize, Metrics/BlockNesting, Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/MethodLength, Metrics/PerceivedComplexity
+
+      # @rbs (Hash[Symbol, untyped]? tables) -> bool
+      def compact_fast_driver_eligible?(tables)
+        return false unless @runtime_fast_path && tables
+        return false unless tables[:compact_fast_driver] == true
+        return false unless tables.fetch(:eager_reductions, EMPTY_ROW).empty?
+        return false unless defined?(Ibex::Tables::Compact)
+
+        tables.fetch(:actions).instance_of?(Ibex::Tables::Compact) &&
+          tables.fetch(:gotos).instance_of?(Ibex::Tables::Compact)
       end
 
       # @rbs () -> void

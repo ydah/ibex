@@ -131,7 +131,9 @@ class RuntimeFastPathTest < Minitest::Test
         { 0 => [:accept] }
       ],
       gotos: [{ 3 => 2 }, {}, {}],
-      productions: [{ lhs: 3, length: 1, action: :_ibex_action_0, values_action: true }]
+      productions: [
+        { lhs: 3, length: 1, action: :_ibex_action_0, values_action: true } # rubocop:disable Naming/VariableNumber
+      ]
     }.freeze
 
     attr_reader :action_calls, :action_semantic_locations
@@ -151,6 +153,58 @@ class RuntimeFastPathTest < Minitest::Test
       @action_semantic_locations = instance_variable_get(:@semantic_locations)
       @action_effect&.call(self, values)
       values.first
+    end
+  end
+
+  class CompactActionlessProbe < ActionlessProbe
+    TABLES = Ractor.make_shareable(
+      ActionlessProbe::TABLES.merge(
+        compact_fast_driver: true,
+        actions: Ibex::Tables::Compact.build(ActionlessProbe::TABLES.fetch(:actions)),
+        gotos: Ibex::Tables::Compact.build(ActionlessProbe::TABLES.fetch(:gotos))
+      )
+    )
+
+    attr_reader :generic_actions
+
+    def self.parser_tables = TABLES
+
+    def initialize(...)
+      super
+      @generic_actions = 0
+    end
+
+    private
+
+    def action_for_current_state
+      @generic_actions += 1
+      super
+    end
+  end
+
+  class CompactValuesActionProbe < ValuesActionProbe
+    TABLES = Ractor.make_shareable(
+      ValuesActionProbe::TABLES.merge(
+        compact_fast_driver: true,
+        actions: Ibex::Tables::Compact.build(ValuesActionProbe::TABLES.fetch(:actions)),
+        gotos: Ibex::Tables::Compact.build(ValuesActionProbe::TABLES.fetch(:gotos))
+      )
+    )
+
+    attr_reader :generic_actions
+
+    def self.parser_tables = TABLES
+
+    def initialize(...)
+      super
+      @generic_actions = 0
+    end
+
+    private
+
+    def action_for_current_state
+      @generic_actions += 1
+      super
     end
   end
 
@@ -290,8 +344,42 @@ class RuntimeFastPathTest < Minitest::Test
     assert_same first.action_semantic_locations, second.action_semantic_locations
   end
 
+  def test_compact_pull_driver_commits_shift_reduce_and_accept_without_generic_dispatch
+    actionless = CompactActionlessProbe.new([[:ITEM, "compact"], false])
+    values_action = CompactValuesActionProbe.new([[:ITEM, "semantic"], false])
+
+    assert_equal "compact", actionless.do_parse
+    assert_equal "semantic", values_action.do_parse
+    assert_equal 0, actionless.generic_actions
+    assert_equal 0, values_action.generic_actions
+    assert_equal 1, values_action.action_calls
+  end
+
+  def test_compact_pull_driver_falls_back_before_an_unknown_token
+    parser = CompactActionlessProbe.new([[:UNKNOWN, "bad"], false])
+
+    error = assert_raises(Ibex::ParseError) { parser.do_parse }
+
+    assert_equal "bad", error.token_value
+    assert_operator parser.generic_actions, :>, 0
+    assert_equal [0, 0], [parser.generic_shifts, parser.generic_reductions]
+  end
+
+  def test_compact_values_action_preserves_dynamic_hook_boundary
+    parser = CompactValuesActionProbe.new([%i[ITEM original], false])
+    hooks = []
+    parser.action_effect = lambda do |active, values|
+      active.define_singleton_method(:on_reduce) { |*payload| hooks << payload }
+      values[0] = :changed
+    end
+
+    assert_equal :changed, parser.do_parse
+    assert_equal [[0, [:original], :changed]], hooks
+    assert_equal 1, parser.generic_actions
+  end
+
   def test_values_only_action_preserves_pre_action_hook_values_and_location_hook_shape
-    parser = ValuesActionProbe.new([[:ITEM, :original], false])
+    parser = ValuesActionProbe.new([%i[ITEM original], false])
     value_hooks = []
     location_hooks = []
     parser.action_effect = lambda do |active, values|
@@ -307,7 +395,7 @@ class RuntimeFastPathTest < Minitest::Test
   end
 
   def test_values_only_action_honors_debug_and_observer_installed_during_the_action
-    parser = ValuesActionProbe.new([[:ITEM, :value], false])
+    parser = ValuesActionProbe.new([%i[ITEM value], false])
     events = []
     output = StringIO.new
     parser.action_effect = lambda do |active, _values|
@@ -323,19 +411,19 @@ class RuntimeFastPathTest < Minitest::Test
   end
 
   def test_values_only_action_honors_semantic_accept_and_error
-    accepted = ValuesActionProbe.new([[:ITEM, :accepted], false])
+    accepted = ValuesActionProbe.new([%i[ITEM accepted], false])
     accepted.action_effect = ->(active, _values) { active.yyaccept }
     assert_equal :accepted, accepted.do_parse
     assert_equal 0, accepted.generic_reductions
 
-    rejected = ValuesActionProbe.new([[:ITEM, :rejected], false])
+    rejected = ValuesActionProbe.new([%i[ITEM rejected], false])
     rejected.action_effect = ->(active, _values) { active.yyerror }
     assert_nil rejected.do_parse
     assert_equal 0, rejected.generic_reductions
   end
 
   def test_nil_debug_flag_is_eligible_because_debug_checks_use_truthiness
-    parser = ValuesActionProbe.new([[:ITEM, :value], false])
+    parser = ValuesActionProbe.new([%i[ITEM value], false])
     parser.yydebug = nil
 
     assert_equal :value, parser.do_parse
@@ -585,7 +673,7 @@ class RuntimeFastPathTest < Minitest::Test
 
   def test_pull_and_push_locations_disable_before_the_affected_operation
     location = { file: "input.txt", line: 1, column: 1 }
-    pull = ActionlessProbe.new([[:ITEM, "pull", location], false])
+    pull = CompactActionlessProbe.new([[:ITEM, "pull", location], false])
     assert_equal "pull", pull.do_parse
     assert_operator pull.generic_shifts, :>, 0
     assert_operator pull.generic_reductions, :>, 0
@@ -609,7 +697,7 @@ class RuntimeFastPathTest < Minitest::Test
 
   def test_deceptive_pull_location_cannot_hide_from_the_fast_path_gate
     location = deceptive_location(line: 2)
-    parser = ActionlessProbe.new([[:ITEM, "pull", location], false])
+    parser = CompactActionlessProbe.new([[:ITEM, "pull", location], false])
 
     assert location.nil?
     refute nil.equal?(location)
@@ -738,7 +826,7 @@ class RuntimeFastPathTest < Minitest::Test
   end
 
   def test_observer_installed_by_next_token_is_honored_before_shift
-    observer = ActionlessProbe.new([[:ITEM, "observer"], false])
+    observer = CompactActionlessProbe.new([[:ITEM, "observer"], false])
     observer_events = []
     original_observer_lexer = observer.method(:next_token)
     observer.define_singleton_method(:next_token) do
@@ -751,7 +839,7 @@ class RuntimeFastPathTest < Minitest::Test
   end
 
   def test_debug_installed_by_next_token_is_honored_before_shift
-    debug = ActionlessProbe.new([[:ITEM, "debug"], false])
+    debug = CompactActionlessProbe.new([[:ITEM, "debug"], false])
     debug_output = StringIO.new
     original_debug_lexer = debug.method(:next_token)
     debug.define_singleton_method(:yydebug=) { |enabled| @yydebug = enabled }
@@ -781,7 +869,7 @@ class RuntimeFastPathTest < Minitest::Test
   end
 
   def test_jsonl_tracer_installed_by_next_token_is_honored_before_shift
-    traced = ActionlessProbe.new([[:ITEM, "trace"], false])
+    traced = CompactActionlessProbe.new([[:ITEM, "trace"], false])
     trace_output = StringIO.new
     original_trace_lexer = traced.method(:next_token)
     traced.define_singleton_method(:next_token) do

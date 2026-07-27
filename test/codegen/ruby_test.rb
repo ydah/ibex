@@ -53,6 +53,7 @@ class RubyCodegenTest < Minitest::Test
     assert_equal parser_class::GRAMMAR_DIGEST, parser_class::PARSER_TABLES.fetch(:grammar_digest)
     assert_equal parser_class::STATE_COUNT, parser_class::PARSER_TABLES.fetch(:state_count)
     assert_equal parser_class::PRODUCTION_COUNT, parser_class::PARSER_TABLES.fetch(:production_count)
+    assert_equal true, parser_class::PARSER_TABLES.fetch(:compact_fast_driver)
     assert_operator parser_class::STATE_COUNT, :>, 0
     assert_equal 3, parser_class::PRODUCTION_COUNT
     assert_equal 14, parser_class.new.parse(tokens)
@@ -74,6 +75,7 @@ class RubyCodegenTest < Minitest::Test
       def next_token = @tokens.shift
     GRAMMAR
     parser_class = evaluate(generate(source, table: :plain), "ConvertedParser")
+    refute parser_class::PARSER_TABLES.key?(:compact_fast_driver)
     assert_equal 42, parser_class.new.parse([[:number, "42"]])
   end
 
@@ -149,8 +151,8 @@ class RubyCodegenTest < Minitest::Test
     generated = generate(calculator_source)
     parser_class = evaluate(generated, "GeneratedCalc")
 
-    assert parser_class::PRODUCTIONS.all? { |production| production[:values_action] == true }
-    assert parser_class::PRODUCTIONS.none? { |production| production.key?(:location_action) }
+    assert(parser_class::PRODUCTIONS.all? { |production| production[:values_action] == true })
+    assert(parser_class::PRODUCTIONS.none? { |production| production.key?(:location_action) })
     action = parser_class.instance_method(:_ibex_action_0) # rubocop:disable Naming/VariableNumber
     assert_equal 1, action.arity
   end

@@ -154,6 +154,7 @@ module Ibex
         lines << "#{indent}                  grammar_digest: GRAMMAR_DIGEST,"
         lines << "#{indent}                  state_count: STATE_COUNT, production_count: PRODUCTION_COUNT,"
         lines << "#{indent}                  uses_locations: #{uses_locations?},"
+        lines << "#{indent}                  compact_fast_driver: true," if @table_format == :compact
         if cst?
           lines << "#{indent}                  cst: true, cst_trivia: #{@cst_trivia.inspect}, " \
                    "cst_start: #{@grammar.start.inspect}, symbol_names: SYMBOL_NAMES,"
