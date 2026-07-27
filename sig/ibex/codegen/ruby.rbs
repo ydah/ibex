@@ -78,6 +78,9 @@ module Ibex
       # @rbs (untyped table) -> String
       def table_literal: (untyped table) -> String
 
+      # @rbs (Array[Integer?] values) -> String
+      def packed_integers_literal: (Array[Integer?] values) -> String
+
       # @rbs () -> String
       def token_ids_literal: () -> String
 

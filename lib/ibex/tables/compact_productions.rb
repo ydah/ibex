@@ -42,6 +42,22 @@ module Ibex
           new(lhs_ids: lhs_ids, lengths: lengths, actions: actions, flags: flags, metadata: metadata)
         end
 
+        # @rbs (String lhs_ids, String lengths, String flags,
+        #   ?metadata: Hash[Integer, Hash[Symbol, untyped]]) -> CompactProductions
+        def packed(lhs_ids, lengths, flags, metadata: {})
+          decoded_flags = PackedIntegers.decode_required(flags)
+          actions = decoded_flags.each_index.map do |index|
+            :"_ibex_action_#{index}" unless decoded_flags[index].zero?
+          end
+          new(
+            lhs_ids: PackedIntegers.decode_required(lhs_ids),
+            lengths: PackedIntegers.decode_required(lengths),
+            actions: actions,
+            flags: decoded_flags,
+            metadata: metadata
+          )
+        end
+
         private
 
         # @rbs (Hash[Symbol, untyped] production) -> Integer

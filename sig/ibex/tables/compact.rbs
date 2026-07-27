@@ -2,6 +2,19 @@
 
 module Ibex
   module Tables
+    # Encodes nonnegative integer arrays into compact generated-source
+    # literals. Zero represents nil; positive values are offset by one.
+    module PackedIntegers
+      # @rbs (Array[Integer?] values) -> String
+      def self?.encode: (Array[Integer?] values) -> String
+
+      # @rbs (String source) -> Array[Integer?]
+      def self?.decode: (String source) -> Array[Integer?]
+
+      # @rbs (String source) -> Array[Integer]
+      def self?.decode_required: (String source) -> Array[Integer]
+    end
+
     # Sparse table represented by per-row offsets and ownership checks.
     class Compact
       attr_reader offsets: Array[Integer]
@@ -15,20 +28,23 @@ module Ibex
       # @rbs (Array[Hash[Integer, untyped]] rows) -> Compact
       def self.build: (Array[Hash[Integer, untyped]] rows) -> Compact
 
+      # @rbs (String offsets, String values, String checks, row_count: Integer) -> Compact
+      def self.packed: (String offsets, String values, String checks, row_count: Integer) -> Compact
+
       # @rbs (Array[Integer] columns, Array[Integer?] checks, Hash[Array[Integer], Integer] next_offsets) -> Integer
       private def self.find_offset: (Array[Integer] columns, Array[Integer?] checks, Hash[Array[Integer], Integer] next_offsets) -> Integer
 
       # @rbs (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer) -> void
-      def initialize: (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer) -> void
+      def self?.initialize: (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer) -> void
 
       # Keep predicate dispatch out of this lookup because every parser action
       # and goto crosses it.
       # rubocop:disable Style/NumericPredicate
       # @rbs (Integer row, Integer column) -> untyped
-      def lookup: (Integer row, Integer column) -> untyped
+      def self?.lookup: (Integer row, Integer column) -> untyped
 
       # @rbs (Integer row) -> Hash[Integer, untyped]
-      def row: (Integer row) -> Hash[Integer, untyped]
+      def self?.row: (Integer row) -> Hash[Integer, untyped]
     end
   end
 end

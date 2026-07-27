@@ -30,6 +30,16 @@ module Ibex
           )
         end
 
+        # @rbs (String offsets, String codes, String checks, row_count: Integer) -> CompactActions
+        def packed(offsets, codes, checks, row_count:)
+          new(
+            offsets: PackedIntegers.decode_required(offsets),
+            codes: PackedIntegers.decode(codes),
+            checks: PackedIntegers.decode(checks),
+            row_count: row_count
+          )
+        end
+
         # @rbs (untyped action) -> Integer?
         def pack(action)
           return unless action

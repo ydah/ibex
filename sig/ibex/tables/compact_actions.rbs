@@ -18,6 +18,9 @@ module Ibex
       # @rbs (Array[Hash[Integer, untyped]] rows) -> CompactActions
       def self.build: (Array[Hash[Integer, untyped]] rows) -> CompactActions
 
+      # @rbs (String offsets, String codes, String checks, row_count: Integer) -> CompactActions
+      def self.packed: (String offsets, String codes, String checks, row_count: Integer) -> CompactActions
+
       # @rbs (untyped action) -> Integer?
       def self.pack: (untyped action) -> Integer?
 

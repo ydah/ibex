@@ -70,6 +70,32 @@ class TablesTest < Minitest::Test
     end
   end
 
+  def test_packed_integer_literals_round_trip_nil_and_multibyte_values
+    values = [nil, 0, 1, 127, 128, 16_384]
+    encoded = Ibex::Tables::PackedIntegers.encode(values)
+
+    assert_equal values, Ibex::Tables::PackedIntegers.decode(encoded)
+    assert_equal values.drop(1), Ibex::Tables::PackedIntegers.decode_required(
+      Ibex::Tables::PackedIntegers.encode(values.drop(1))
+    )
+    assert_raises(ArgumentError) { Ibex::Tables::PackedIntegers.decode_required(encoded) }
+    assert_raises(ArgumentError) { Ibex::Tables::PackedIntegers.encode([-1]) }
+  end
+
+  def test_compact_tables_load_packed_integer_layouts
+    rows = [{ 0 => [:accept], 2 => [:shift, 3] }, { 0 => [:reduce, 4] }]
+    actions = Ibex::Tables::CompactActions.build(rows)
+    packed_actions = Ibex::Tables::CompactActions.packed(
+      Ibex::Tables::PackedIntegers.encode(actions.offsets),
+      Ibex::Tables::PackedIntegers.encode(actions.codes),
+      Ibex::Tables::PackedIntegers.encode(actions.checks),
+      row_count: actions.row_count
+    )
+
+    assert_equal(rows.map.with_index { |_, index| actions.row(index) },
+                 rows.map.with_index { |_, index| packed_actions.row(index) })
+  end
+
   def test_compact_productions_keep_parallel_hot_fields_and_compatible_entries
     productions = [
       {
@@ -88,6 +114,17 @@ class TablesTest < Minitest::Test
     assert_equal productions, compact
     assert compact.direct_values?
     assert compact.all?(&:frozen?)
+  end
+
+  def test_compact_productions_derive_generated_action_symbols_from_packed_flags
+    source = Ibex::Tables::PackedIntegers
+    compact = Ibex::Tables::CompactProductions.packed(
+      source.encode([3, 4]), source.encode([1, 0]), source.encode([3, 0])
+    )
+
+    assert_equal [:_ibex_action_0, nil], compact.actions # rubocop:disable Naming/VariableNumber
+    assert_equal true, compact.fetch(0)[:borrowed_values_action]
+    assert_nil compact.fetch(1)[:action]
   end
 
   def test_compact_productions_reject_inconsistent_parallel_data

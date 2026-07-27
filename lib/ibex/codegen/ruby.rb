@@ -207,13 +207,20 @@ module Ibex
       # @rbs (untyped table) -> String
       def table_literal(table)
         if table.is_a?(Tables::CompactActions)
-          return "Ibex::Tables::CompactActions.new(offsets: #{table.offsets.inspect}, " \
-                 "codes: #{table.codes.inspect}, checks: #{table.checks.inspect}, row_count: #{table.row_count})"
+          return "Ibex::Tables::CompactActions.packed(#{packed_integers_literal(table.offsets)}, " \
+                 "#{packed_integers_literal(table.codes)}, #{packed_integers_literal(table.checks)}, " \
+                 "row_count: #{table.row_count})"
         end
         return "#{table.inspect}.freeze" unless table.is_a?(Tables::Compact)
 
-        "Ibex::Tables::Compact.new(offsets: #{table.offsets.inspect}, values: #{table.values.inspect}, " \
-          "checks: #{table.checks.inspect}, row_count: #{table.row_count})"
+        "Ibex::Tables::Compact.packed(#{packed_integers_literal(table.offsets)}, " \
+          "#{packed_integers_literal(table.values)}, #{packed_integers_literal(table.checks)}, " \
+          "row_count: #{table.row_count})"
+      end
+
+      # @rbs (Array[Integer?] values) -> String
+      def packed_integers_literal(values)
+        Tables::PackedIntegers.encode(values).inspect
       end
 
       # @rbs () -> String
@@ -288,13 +295,10 @@ module Ibex
       def compact_productions_literal
         lhs_ids = @grammar.productions.map(&:lhs)
         lengths = @grammar.productions.map { |production| production.rhs.length }
-        actions = @grammar.productions.map do |production|
-          action_method?(production) ? :"_ibex_action_#{production.id}" : nil
-        end
         flags = @grammar.productions.map { |production| compact_production_flags(production) }
         metadata = compact_production_metadata_literal
-        "Ibex::Tables::CompactProductions.new(lhs_ids: #{lhs_ids.inspect}, lengths: #{lengths.inspect}, " \
-          "actions: #{actions.inspect}, flags: #{flags.inspect}, metadata: #{metadata})"
+        "Ibex::Tables::CompactProductions.packed(#{packed_integers_literal(lhs_ids)}, " \
+          "#{packed_integers_literal(lengths)}, #{packed_integers_literal(flags)}, metadata: #{metadata})"
       end
 
       # @rbs (IR::Production production) -> Integer

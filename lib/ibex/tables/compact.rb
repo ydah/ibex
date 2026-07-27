@@ -3,6 +3,42 @@
 
 module Ibex
   module Tables
+    # Encodes nonnegative integer arrays into compact generated-source
+    # literals. Zero represents nil; positive values are offset by one.
+    module PackedIntegers
+      module_function
+
+      # @rbs (Array[Integer?] values) -> String
+      def encode(values)
+        encoded = values.map do |value|
+          raise ArgumentError, "packed integer must be nonnegative or nil" if value&.negative?
+
+          value ? value + 1 : 0
+        end.pack("w*")
+        [encoded].pack("m0")
+      end
+
+      # @rbs (String source) -> Array[Integer?]
+      def decode(source)
+        binary = source.unpack1("m0")
+        raise ArgumentError, "packed integer source is invalid" unless binary.is_a?(String)
+
+        values = binary.unpack("w*") #: Array[Integer]
+        values.map { |value| value.zero? ? nil : value - 1 }
+      rescue ArgumentError
+        raise ArgumentError, "packed integer source is invalid"
+      end
+
+      # @rbs (String source) -> Array[Integer]
+      def decode_required(source)
+        decode(source).map do |value|
+          raise ArgumentError, "packed integer source contains nil" unless value
+
+          value
+        end
+      end
+    end
+
     # Sparse table represented by per-row offsets and ownership checks.
     class Compact
       attr_reader :offsets #: Array[Integer]
@@ -27,6 +63,16 @@ module Ibex
             end
           end
           new(offsets: offsets, values: values, checks: checks, row_count: rows.length)
+        end
+
+        # @rbs (String offsets, String values, String checks, row_count: Integer) -> Compact
+        def packed(offsets, values, checks, row_count:)
+          new(
+            offsets: PackedIntegers.decode_required(offsets),
+            values: PackedIntegers.decode(values),
+            checks: PackedIntegers.decode(checks),
+            row_count: row_count
+          )
         end
 
         private
