@@ -324,6 +324,8 @@ module Ibex
 
       alias __ibex_fast_path_on_reduce_location on_reduce_location
 
+      alias __ibex_fast_path_token_to_str token_to_str
+
       # Racc-generated parsers commonly define an application initializer
       # without calling super. Complete only missing runtime state so those
       # initializers retain values they deliberately configured.
@@ -643,6 +645,14 @@ module Ibex
 
       # @rbs () -> bool
       def runtime_fast_path_hooks_eligible?: () -> bool
+
+      # @rbs (UnboundMethod lookup, Symbol name, Symbol reference) -> bool
+      def runtime_method_unchanged?: (UnboundMethod lookup, Symbol name, Symbol reference) -> bool
+
+      # Bypass an application-defined `method` helper while retaining Ruby's
+      # complete singleton/prepend/subclass lookup semantics.
+      # @rbs (UnboundMethod lookup, Symbol name) -> Method?
+      def runtime_core_method: (UnboundMethod lookup, Symbol name) -> Method?
 
       # Re-check after lexer and semantic-action callbacks because those are
       # supported points at which an application can install instrumentation.

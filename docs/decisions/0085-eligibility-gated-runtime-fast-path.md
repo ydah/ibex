@@ -27,11 +27,12 @@ the parser enables a private fast path only when all of these conditions hold:
 - debug output, runtime observers, repair, and concrete syntax trees are off;
 - the parser tables do not declare location use and no location stack exists;
 - the effective `on_shift`, `on_shift_location`, `on_reduce`, and
-  `on_reduce_location` methods are the original `Parser` no-ops.
+  `on_reduce_location` methods are the original `Parser` no-ops;
+- the effective `token_to_str` method is the original `Parser` implementation.
 
 Comparing the complete bound method implementation, rather than only its
 owner, rejects singleton methods, subclass overrides, prepended modules, and
-replacement of a base hook before the session.
+replacement of a base hook or token display method before the session.
 
 An eligible shift commits only the state and semantic-value stacks, resource
 limit, recovery-shift count, lookahead clearing, and compatible stack aliases.
@@ -44,18 +45,21 @@ the generic reduction and retain every action ABI.
 
 Eligibility is one-way within a session. Public observer registration,
 assignment through `yydebug=`, legacy JSON-lines tracer attachment, or the
-first non-nil input location disables the fast path immediately. Pull lexers
-and semantic actions are followed by another eligibility check so
-instrumentation installed by application callbacks applies before the next
-optimizable operation. Push calls perform the same check at each driver
-boundary. Errors, recovery, and synthetic error-token shifts always use the
-generic path; token display is materialized lazily before an error or
-synchronization transaction.
+first non-nil input location disables the fast path immediately. Explicit
+`yyerror` and `yyaccept` requests also disable it so the generic reduction tail
+commits their control flow. Pull lexers and semantic actions are followed by
+another eligibility check so instrumentation installed by application
+callbacks applies before the next optimizable operation. Push calls perform
+the same check at each driver boundary. Errors, recovery, and synthetic
+error-token shifts always use the generic path; token display is materialized
+lazily before an error or synchronization transaction.
 
 Changing parser methods concurrently from another thread remains outside the
 parser instance's supported threading contract. Hook changes made by a lexer,
 semantic action, or between push calls are detected. This optimization changes
-neither generated Ruby bytes nor the parser-table ABI.
+neither the parser-table ABI nor non-embedded parser and table emission.
+`-E` deliberately embeds the runtime source, so embedded output bytes track
+the selected runtime version and change with this implementation.
 
 ## Consequences
 

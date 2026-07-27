@@ -5,6 +5,20 @@ require "stringio"
 
 # rubocop:disable Metrics/ClassLength -- all gates exercise one session-eligibility contract.
 class RuntimeFastPathTest < Minitest::Test
+  class DeceptiveLocation
+    attr_reader :file, :line, :column, :end_line, :end_column
+
+    def initialize(file:, line:, column:, end_line:, end_column:)
+      @file = file
+      @line = line
+      @column = column
+      @end_line = end_line
+      @end_column = end_column
+    end
+
+    def nil? = true
+  end
+
   class ActionlessProbe < Ibex::Runtime::Parser
     TABLES = {
       format_version: Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION,
@@ -34,14 +48,15 @@ class RuntimeFastPathTest < Minitest::Test
 
     def next_token = @tokens.shift
 
-    def token_to_str(token_id)
+    def fast_path_active? = instance_variable_get(:@runtime_fast_path)
+    def result_location = instance_variable_get(:@location_stack)&.last
+
+    private
+
+    def materialize_lookahead_token_display!
       @token_display_calls += 1
       super
     end
-
-    def fast_path_active? = instance_variable_get(:@runtime_fast_path)
-
-    private
 
     def shift(next_state)
       @generic_shifts += 1
@@ -57,6 +72,22 @@ class RuntimeFastPathTest < Minitest::Test
       @location_builds += 1
       super
     end
+  end
+
+  class EmptyProbe < ActionlessProbe
+    TABLES = {
+      format_version: Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION,
+      tokens: {},
+      token_names: { 0 => "$eof", 1 => "error" },
+      actions: [
+        { 0 => [:reduce, 0] },
+        { 0 => [:accept] }
+      ],
+      gotos: [{ 2 => 1 }, {}],
+      productions: [{ lhs: 2, length: 0, rhs: [] }]
+    }.freeze
+
+    def self.parser_tables = TABLES
   end
 
   class ActionInstrumentationProbe < ActionlessProbe
@@ -89,6 +120,78 @@ class RuntimeFastPathTest < Minitest::Test
     end
   end
 
+  class TokenDisplayProbe < ActionInstrumentationProbe
+    attr_accessor :display_phase
+    attr_writer :display_effect
+
+    def initialize(...)
+      super
+      @display_phase = :read
+    end
+
+    def token_to_str(token_id)
+      @display_effect&.call(self, token_id)
+      "#{@display_phase}:#{super}"
+    end
+  end
+
+  class MethodOverrideProbe < ActionlessProbe
+    attr_reader :method_helper_calls
+
+    def initialize(...)
+      super
+      @method_helper_calls = []
+    end
+
+    def method(name)
+      @method_helper_calls << name
+      raise "application method helper must remain dormant"
+    end
+  end
+
+  class ControlProbe < ActionlessProbe
+    TABLES = {
+      format_version: Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION,
+      tokens: { ITEM: 2 },
+      token_names: { 0 => "$eof", 1 => "error", 2 => "ITEM" },
+      actions: [
+        { 2 => [:shift, 1] },
+        { 0 => [:reduce, 0] },
+        { 0 => [:reduce, 1] },
+        { 0 => [:accept] }
+      ],
+      gotos: [{ 3 => 3, 4 => 2 }, {}, {}, {}],
+      productions: [
+        { lhs: 4, length: 1, rhs: [2] },
+        { lhs: 3, length: 1, rhs: [4], action: :transform }
+      ]
+    }.freeze
+
+    attr_reader :transform_calls
+    attr_writer :before_token
+
+    def self.parser_tables = TABLES
+
+    def initialize(...)
+      super
+      @transform_calls = 0
+    end
+
+    def next_token
+      before_token = @before_token
+      @before_token = nil
+      before_token&.call(self)
+      super
+    end
+
+    private
+
+    def transform(values, _stack)
+      @transform_calls += 1
+      [values.first, :transformed]
+    end
+  end
+
   def test_eligible_pull_and_push_skip_generic_runtime_builders
     pull = ActionlessProbe.new([[:ITEM, "pull"], false])
 
@@ -103,6 +206,32 @@ class RuntimeFastPathTest < Minitest::Test
     assert_equal "push", push.finish
     assert_equal [0, 0, 0, 0],
                  [push.generic_shifts, push.generic_reductions, push.location_builds, push.token_display_calls]
+  end
+
+  def test_application_method_helper_is_not_used_for_eligibility_introspection
+    parser = MethodOverrideProbe.new([[:ITEM, 9], false])
+
+    assert_equal 9, parser.do_parse
+    assert_empty parser.method_helper_calls
+    assert_equal [0, 0], [parser.generic_shifts, parser.generic_reductions]
+  end
+
+  def test_undefined_hook_falls_back_without_raising_before_generic_dispatch
+    undefined_hook_class = Class.new(ActionlessProbe) do
+      attr_reader :lexer_calls
+
+      undef_method :on_shift
+
+      def next_token
+        @lexer_calls = (@lexer_calls || 0) + 1
+        super
+      end
+    end
+    parser = undefined_hook_class.new([[:ITEM, 1], false])
+
+    assert_raises(NoMethodError) { parser.do_parse }
+    assert_equal 1, parser.lexer_calls
+    assert_equal 1, parser.generic_shifts
   end
 
   def test_debug_and_observation_disqualify_the_session
@@ -186,6 +315,34 @@ class RuntimeFastPathTest < Minitest::Test
     assert_operator prepended.generic_shifts, :>, 0
   end
 
+  def test_subclass_singleton_and_prepended_token_display_overrides_disqualify_the_session
+    subclass = TokenDisplayProbe.new([[:ITEM, 1], false])
+    assert_equal 1, subclass.do_parse
+    assert_operator subclass.generic_shifts, :>, 0
+
+    singleton = ActionlessProbe.new([[:ITEM, 2], false])
+    singleton.define_singleton_method(:token_to_str) do |token_id|
+      Ibex::Runtime::Parser.instance_method(:token_to_str).bind_call(self, token_id)
+    end
+    assert_equal 2, singleton.do_parse
+    assert_operator singleton.generic_shifts, :>, 0
+
+    layer = Module.new do
+      attr_reader :layer_token_display_calls
+
+      def token_to_str(token_id)
+        @layer_token_display_calls = (@layer_token_display_calls || 0) + 1
+        super
+      end
+    end
+    prepended_class = Class.new(ActionlessProbe)
+    prepended_class.prepend(layer)
+    prepended = prepended_class.new([[:ITEM, 3], false])
+    assert_equal 3, prepended.do_parse
+    assert_operator prepended.generic_shifts, :>, 0
+    assert_operator prepended.layer_token_display_calls, :>, 0
+  end
+
   def test_pull_and_push_locations_disable_before_the_affected_operation
     location = { file: "input.txt", line: 1, column: 1 }
     pull = ActionlessProbe.new([[:ITEM, "pull", location], false])
@@ -208,6 +365,66 @@ class RuntimeFastPathTest < Minitest::Test
     false_location = ActionlessProbe.new
     assert_equal :need_more, false_location.push(:ITEM, "false", false)
     assert_operator false_location.generic_shifts, :>, 0
+  end
+
+  def test_deceptive_pull_location_cannot_hide_from_the_fast_path_gate
+    location = deceptive_location(line: 2)
+    parser = ActionlessProbe.new([[:ITEM, "pull", location], false])
+
+    assert location.nil?
+    refute nil.equal?(location)
+    assert_equal "pull", parser.do_parse
+    assert_operator parser.generic_shifts, :>, 0
+    assert_operator parser.generic_reductions, :>, 0
+    assert_result_span(parser, location)
+  end
+
+  def test_deceptive_push_location_cannot_hide_from_the_fast_path_gate
+    location = deceptive_location(line: 3)
+    parser = ActionlessProbe.new
+
+    assert_equal :need_more, parser.push(:ITEM, "push", location)
+    assert_operator parser.generic_shifts, :>, 0
+    assert_equal "push", parser.finish
+    assert_operator parser.generic_reductions, :>, 0
+    assert_result_span(parser, location)
+  end
+
+  def test_deceptive_finish_location_builds_the_generic_empty_reduction_span
+    location = deceptive_location(line: 4)
+    push = EmptyProbe.new
+
+    assert_nil push.finish(location: location)
+    assert_operator push.generic_reductions, :>, 0
+    assert_result_span(push, location, empty: true)
+
+    pull = EmptyProbe.new([[false, nil, location]])
+    assert_nil pull.do_parse
+    assert_operator pull.generic_reductions, :>, 0
+    assert_result_span(pull, location, empty: true)
+  end
+
+  def test_observer_after_deceptive_location_shift_receives_the_reduction_span
+    location = deceptive_location(line: 5)
+    parser = ActionlessProbe.new
+    events = []
+
+    assert_equal :need_more, parser.push(:ITEM, "observed", location)
+    parser.observe { |event| events << event }
+    assert_equal "observed", parser.finish
+
+    assert_equal %i[reduce accept], events.map(&:type)
+    assert_equal(
+      {
+        "file" => "deceptive.txt",
+        "line" => 5,
+        "column" => 2,
+        "end_line" => 5,
+        "end_column" => 7
+      },
+      events.first.data.fetch("location")
+    )
+    assert_result_span(parser, location)
   end
 
   def test_push_observer_disables_the_active_session
@@ -294,6 +511,23 @@ class RuntimeFastPathTest < Minitest::Test
     assert_equal %w[shift reduce], trace_event_names(trace_output)
   end
 
+  def test_token_display_side_effect_runs_before_pull_and_push_shifts
+    pull = TokenDisplayProbe.new([[:ITEM, "pull"], false])
+    pull_events = install_observer_from_item_display(pull)
+
+    assert_equal "pull", pull.do_parse
+    assert_equal :shift, pull_events.first.type
+    assert_equal "read:ITEM", pull_events.first.data.fetch("token")
+
+    push = TokenDisplayProbe.new
+    push_events = install_observer_from_item_display(push)
+
+    assert_equal :need_more, push.push(:ITEM, "push")
+    assert_equal :shift, push_events.first.type
+    assert_equal "read:ITEM", push_events.first.data.fetch("token")
+    assert_equal "push", push.finish
+  end
+
   def test_instrumentation_installed_by_an_action_disables_later_actionless_reductions
     parser = ActionInstrumentationProbe.new([[:ITEM, 7], false])
     events = []
@@ -317,6 +551,48 @@ class RuntimeFastPathTest < Minitest::Test
     assert_equal %i[error reject], events.map(&:type)
     assert_equal "$eof", events.first.data.fetch("token")
     assert_equal "semantic", events.first.data.fetch("reason")
+  end
+
+  def test_overridden_token_display_is_cached_before_action_phase_changes
+    parser = TokenDisplayProbe.new([[:ITEM, 7], false])
+    events = []
+    parser.instrumentation = lambda do |active|
+      active.display_phase = :error
+      active.observe { |event| events << event }
+      active.yyerror
+    end
+
+    assert_nil parser.do_parse
+    assert_equal %i[error reject], events.map(&:type)
+    assert_equal "read:$eof", events.first.data.fetch("token")
+  end
+
+  def test_yyaccept_from_pull_lexer_and_between_push_calls_uses_generic_early_accept
+    pull = ControlProbe.new([[:ITEM, "pull"], false])
+    pull.before_token = :yyaccept.to_proc
+
+    assert_equal "pull", pull.do_parse
+    assert_equal 0, pull.transform_calls
+
+    push = ControlProbe.new
+    assert_equal :need_more, push.push(:ITEM, "push")
+    push.yyaccept
+    assert_equal "push", push.finish
+    assert_equal 0, push.transform_calls
+  end
+
+  def test_yyerror_from_pull_lexer_and_between_push_calls_precedes_later_actions
+    pull = ControlProbe.new([[:ITEM, "pull"], false])
+    pull.before_token = :yyerror.to_proc
+
+    assert_nil pull.do_parse
+    assert_equal 0, pull.transform_calls
+
+    push = ControlProbe.new
+    assert_equal :need_more, push.push(:ITEM, "push")
+    push.yyerror
+    assert_nil push.finish
+    assert_equal 0, push.transform_calls
   end
 
   def test_direct_hook_changes_between_push_calls_are_rechecked
@@ -357,6 +633,33 @@ class RuntimeFastPathTest < Minitest::Test
   end
 
   private
+
+  def deceptive_location(line:)
+    DeceptiveLocation.new(
+      file: "deceptive.txt", line: line, column: 2,
+      end_line: line, end_column: 7
+    )
+  end
+
+  def assert_result_span(parser, location, empty: false)
+    span = parser.result_location
+    assert_instance_of Ibex::Runtime::LocationSpan, span
+    assert_same location, span.start
+    assert_same location, span.finish
+    assert_equal empty, span.empty?
+  end
+
+  def install_observer_from_item_display(parser)
+    events = []
+    attached = false
+    parser.display_effect = lambda do |active, token_id|
+      next unless token_id == 2 && !attached
+
+      attached = true
+      active.observe { |event| events << event }
+    end
+    events
+  end
 
   def trace_event_names(output)
     output.string.lines.map { |line| JSON.parse(line).fetch("event") }

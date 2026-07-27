@@ -292,7 +292,7 @@ module Ibex
             @lookahead = internal_token_id(token)
             @lookahead_value = value
             @lookahead_location = location
-            disable_runtime_fast_path! unless location.nil?
+            disable_runtime_fast_path! unless nil.equal?(location)
             materialize_compatible_lookahead
           end
           run_push_lookahead
@@ -313,7 +313,7 @@ module Ibex
             @lookahead = EOF_TOKEN
             @lookahead_value = nil
             @lookahead_location = location
-            disable_runtime_fast_path! unless location.nil?
+            disable_runtime_fast_path! unless nil.equal?(location)
             materialize_compatible_lookahead
           end
           outcome = run_push_lookahead
@@ -439,6 +439,7 @@ module Ibex
       # Enter error recovery from a semantic action without calling `on_error`.
       # @rbs () -> nil
       def yyerror
+        disable_runtime_fast_path!
         @semantic_error = true
         nil
       end
@@ -453,6 +454,7 @@ module Ibex
       # Accept immediately after the current semantic action completes.
       # @rbs () -> nil
       def yyaccept
+        disable_runtime_fast_path!
         @accept_requested = true
         nil
       end
@@ -521,6 +523,7 @@ module Ibex
       alias __ibex_fast_path_on_shift_location on_shift_location
       alias __ibex_fast_path_on_reduce on_reduce
       alias __ibex_fast_path_on_reduce_location on_reduce_location
+      alias __ibex_fast_path_token_to_str token_to_str
 
       # Racc-generated parsers commonly define an application initializer
       # without calling super. Complete only missing runtime state so those
@@ -1680,7 +1683,7 @@ module Ibex
                          internal_token_id(external_token)
                        end
         end
-        disable_runtime_fast_path! unless @lookahead_location.nil?
+        disable_runtime_fast_path! unless nil.equal?(@lookahead_location)
         materialize_compatible_lookahead
       end
 
@@ -1874,10 +1877,27 @@ module Ibex
 
       # @rbs () -> bool
       def runtime_fast_path_hooks_eligible?
-        method(:on_shift) == method(:__ibex_fast_path_on_shift) &&
-          method(:on_shift_location) == method(:__ibex_fast_path_on_shift_location) &&
-          method(:on_reduce) == method(:__ibex_fast_path_on_reduce) &&
-          method(:on_reduce_location) == method(:__ibex_fast_path_on_reduce_location)
+        lookup = Object.instance_method(:method)
+        runtime_method_unchanged?(lookup, :on_shift, :__ibex_fast_path_on_shift) &&
+          runtime_method_unchanged?(lookup, :on_shift_location, :__ibex_fast_path_on_shift_location) &&
+          runtime_method_unchanged?(lookup, :on_reduce, :__ibex_fast_path_on_reduce) &&
+          runtime_method_unchanged?(lookup, :on_reduce_location, :__ibex_fast_path_on_reduce_location) &&
+          runtime_method_unchanged?(lookup, :token_to_str, :__ibex_fast_path_token_to_str)
+      end
+
+      # @rbs (UnboundMethod lookup, Symbol name, Symbol reference) -> bool
+      def runtime_method_unchanged?(lookup, name, reference)
+        implementation = runtime_core_method(lookup, name)
+        !implementation.nil? && implementation == runtime_core_method(lookup, reference)
+      end
+
+      # Bypass an application-defined `method` helper while retaining Ruby's
+      # complete singleton/prepend/subclass lookup semantics.
+      # @rbs (UnboundMethod lookup, Symbol name) -> Method?
+      def runtime_core_method(lookup, name)
+        lookup.bind_call(self, name)
+      rescue NameError
+        nil
       end
 
       # Re-check after lexer and semantic-action callbacks because those are
