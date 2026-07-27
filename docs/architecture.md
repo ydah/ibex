@@ -50,7 +50,7 @@ handwritten `BootstrapParser` is excluded from normal loading and exists only to
 [ADR 0015](decisions/0015-self-hosted-grammar-frontend.md) for the update procedure and boundary.
 `lib/ibex/frontend/shadow_grammar.y` describes the same frontend with parameterized list rules and an inline terminal wrapper.
 It is generated only in tests and must match the production parser's AST across the canonical grammar and extended fixtures;
-see [ADR 0066](decisions/0066-composition-shadow-grammar.md).
+see the [development guide](development.md).
 
 The lexer also retains an immutable lexical CST without changing the semantic token stream. `Frontend::Parser#parse_document`
 returns a `SourceDocument` whose source, token-indexed segments, and AST come from that single lexer/parser pass.
@@ -207,8 +207,7 @@ identity, and validation behavior. The future `x-` experimental namespace is
 outside that freeze, but current schemas remain closed and reject unknown
 fields. Experimental data must therefore begin in a new additive schema
 version rather than weakening an existing document. See
-[stability and deprecation](stability.md) and
-[ADR 0081](decisions/0081-v1-stability-and-research-boundaries.md).
+[stability and deprecation](stability.md).
 
 `Codegen::Documentation` renders normalized user rules and alternatives as escaped Markdown, self-contained accessible HTML, or
 railroad SVG. The railroad renderer includes visible wrapped rule descriptions in its section-height calculation and exposes the
@@ -272,8 +271,7 @@ not extend Grammar or Automaton IR.
 The repository's self-authored representative grammar feeds the current versioned `ibex_benchmark` v2 document. Its JSON Schema
 is shipped beside the IR schemas, while committed environment-specific observations live under the matching
 `benchmark/results/vN` directory. Timing and peak RSS remain non-gating; CI reproduces only deterministic structure and digests.
-See
-[ADR 0038](decisions/0038-versioned-benchmark-evidence.md).
+See the [benchmark guide](../benchmark/README.md).
 
 ## Runtime table contract
 

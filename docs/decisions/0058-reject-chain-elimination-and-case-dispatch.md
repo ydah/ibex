@@ -2,14 +2,16 @@
 
 - Status: Accepted
 - Date: 2026-07-26
-- Supersedes: the chain-rule elimination and generated-case entry boundary in ADR 0035
 
 ## Context
 
-ADR 0038 requires five isolated runs on one named environment, reproduction on a second supported MRI, equal parser behavior
-digests, and either a five-percent runtime improvement or ten-percent size reduction without a five-percent regression in the
-other dimension. The current generator already compiles semantic actions as methods, and the runtime dispatches shift, reduce,
-accept, and error through one `case`. The remaining generated-case candidate is therefore per-state parser-table lookup, not
+The optimization experiment uses five isolated runs on one named environment,
+reproduction on a second supported MRI, equal parser behavior digests, and
+requires either a five-percent runtime improvement or ten-percent size
+reduction without a five-percent regression in the other dimension. The
+current generator already compiles semantic actions as methods, and the runtime
+dispatches shift, reduce, accept, and error through one `case`. The remaining
+generated-case candidate is therefore per-state parser-table lookup, not
 replacement of Proc-based semantic actions.
 
 Unit-production elimination has a different constraint. A reduction's production id is observable through `on_reduce`, JSON

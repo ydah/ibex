@@ -42,7 +42,9 @@ module OptimizationCandidates
     %i[runs warmup iterations].each do |key|
       raise OptionParser::InvalidArgument, "#{key} must be positive" unless options.fetch(key).positive?
     end
-    raise OptionParser::InvalidArgument, "ADR 0038 requires at least five isolated runs" if options.fetch(:runs) < 5
+    if options.fetch(:runs) < 5
+      raise OptionParser::InvalidArgument, "the comparison requires at least five isolated runs"
+    end
 
     options
   end

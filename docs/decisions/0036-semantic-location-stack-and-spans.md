@@ -10,8 +10,9 @@ actions. Supporting `@1`, `@2`, and `@$` requires more than textual substitution
 push paths must agree on location lifetime; empty and middle actions need deterministic spans; and Ruby instance variables,
 strings, comments, regular expressions, and heredocs must remain untouched.
 
-ADR 0035 therefore required a separate phase with a parallel location stack, reduction-span rules, generated-action syntax, and
-typed action contracts before full semantic locations could ship.
+The feature therefore needs a parallel location stack, reduction-span rules,
+generated-action syntax, and typed action contracts rather than a textual
+generator-only change.
 
 ## Decision
 
@@ -47,8 +48,7 @@ by a stray marker. V3 composed actions may separately opt into their six-argumen
 ADR 0018. Every other application method or callable continues to receive exactly two arguments, regardless of optional or rest
 parameters, preserving hand-written tables and v1 generated action methods.
 
-This decision supersedes the semantic-location deferral in ADR 0035 and completes the phase deferred by ADR 0026. Other deferred
-extensions in ADR 0035 are unchanged.
+This decision completes the semantic-location phase deferred by ADR 0026.
 
 ## Consequences
 

@@ -10,7 +10,7 @@ umbrella `ibex` library and every subcommand mixin before parsing its
 arguments. A normal parser generation consequently loaded coverage,
 table-simulation, migration, grammar-test, sample, documentation, and language
 server implementations that could not affect its output. This work inflated
-the cold-generator measurements defined by ADR 0082 and made CLI source files
+the process-isolated cold-generator measurements and made CLI source files
 depend on the incidental ordering of the umbrella require list.
 
 The public `require "ibex"` entry point remains the complete library surface.

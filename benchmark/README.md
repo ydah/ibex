@@ -102,9 +102,10 @@ bundle exec ruby benchmark/runtime_events.rb
 Its `without_observer` counts must remain zero; `with_observer` reports event, semantic-summary, and location-summary
 construction so reviews can detect accidental work on the dormant path.
 
-The compatibility-preserving generated `case` candidate has a separate ADR 0038 experiment. It retains the parser tables for
-debugging, repair, and public table inspection, injects only the runtime lookup override, verifies result/Automaton digests, and
-runs every observation in a fresh process:
+The compatibility-preserving generated `case` candidate has a separate
+optimization experiment. It retains the parser tables for debugging, repair,
+and public table inspection, injects only the runtime lookup override, verifies
+result/Automaton digests, and runs every observation in a fresh process:
 
 ```sh
 benchmark/optimization_candidates.rb --runs 5 --warmup 100 --iterations 1000 --output tmp/optimization.json
@@ -148,8 +149,6 @@ analysis and advisory IELR diagnostic triggered under
 Generator-core or stage-level profiles may isolate that work for diagnosis,
 but they are not comparable substitutes for the formal cold series and must
 not disable the default diagnostic path.
-[ADR 0087](../docs/decisions/0087-preserve-default-cold-generation-diagnostics.md)
-records this measurement boundary.
 
 Formal evidence defaults to Racc's native runtime. The command rejects mixed
 or unexpected backend observations; use
@@ -177,9 +176,9 @@ for both runtimes and a pretokenized driver. The artifact records both grammar
 digests and the adaptation name, while the existing representative benchmark
 and append-only history remain unchanged. Result and behavior digests must
 agree across both implementations and all four runtime scenarios. The report
-follows `schema/performance-comparison-v1.schema.json`; see
-[ADR 0082](../docs/decisions/0082-reproducible-racc-performance-comparison.md)
-for the complete contract and its public-workload limitation.
+follows `schema/performance-comparison-v1.schema.json`. This owned workload is
+the control experiment; it does not replace the fixed-revision public
+workloads below.
 
 ## Fixed-revision public grammar comparison
 
@@ -248,5 +247,4 @@ parser for every parse. Pretokenized/core timing remains in the repository-owned
 control above: injecting token drivers into third-party grammars would change
 the public code being measured. Timing is review evidence and is not an
 ordinary CI pass/fail threshold. Public reports follow
-`schema/public-performance-comparison-v1.schema.json`; see
-[ADR 0083](../docs/decisions/0083-fixed-revision-public-performance-workloads.md).
+`schema/public-performance-comparison-v1.schema.json`.

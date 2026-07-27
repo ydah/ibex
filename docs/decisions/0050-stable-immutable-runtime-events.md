@@ -2,7 +2,6 @@
 
 - Status: Accepted
 - Date: 2026-07-25
-- Supersedes: the runtime-event prerequisite in ADR 0035
 
 ## Context
 

@@ -2,7 +2,6 @@
 
 - Status: Accepted
 - Date: 2026-07-25
-- Supersedes: the batch-frontend-diagnostic boundary in ADR 0035
 
 ## Context
 
@@ -71,4 +70,4 @@ no JSON envelope. The command exits zero only for a complete error-free parse. J
 - Batch results are deterministic, globally source-ordered, bounded per phase, and useful after more than one broken region.
 - Later valid constructs can survive in an explicitly partial AST without being attached to the original source document.
 - Recovery reparses from the beginning and is intentionally more expensive than strict parsing.
-- This decision completes only ADR 0035's batch frontend diagnostic prerequisite. Minimum-cost runtime repair remains deferred.
+- Minimum-cost runtime repair remains a separate runtime decision.

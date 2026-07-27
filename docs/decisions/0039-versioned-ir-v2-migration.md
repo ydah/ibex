@@ -10,7 +10,7 @@ metadata that Grammar IR version 1 cannot represent. Adding those records to ver
 contract ambiguous. Automaton IR embeds Grammar IR and hashes its canonical serialization, so the two document kinds must move
 together. Existing checked-in artifacts and external consumers still need deterministic version-1 reads.
 
-ADR 0035 therefore required an explicit schema-version plan before those frontend extensions could begin.
+Those frontend extensions therefore require an explicit schema-version plan.
 
 ## Decision
 

@@ -241,7 +241,8 @@ and resource limits remain disabled unless explicitly configured.
 | Reproducible error UX evidence | [Error UX](docs/error-ux.md) |
 | Executable example grammars | [Examples](examples/README.md) |
 | Reproducible performance evidence | [Benchmark guide](benchmark/README.md) |
-| Design history | [Architecture decision records](docs/decisions/) |
+| Contributor workflow and quality gates | [Development guide](docs/development.md) |
+| Implementation design history | [Architecture decision records](docs/decisions/README.md) |
 
 The published documentation separates the
 [compatibility contract](https://ydah.github.io/ibex/compatibility/),
@@ -261,6 +262,9 @@ experimental surfaces independently of that release decision.
 
 ## Development
 
+See the [development guide](docs/development.md) for the complete contributor
+workflow and quality-gate boundaries.
+
 Run the default test and style suite:
 
 ```sh
@@ -268,40 +272,8 @@ bundle install
 bundle exec rake
 ```
 
-Additional repository gates:
-
-```sh
-bundle exec rake frontend:check
-bundle exec rake grammar:test
-bundle exec rake quality:error_ux
-npm ci
-npm run test:site
-actionlint
-zizmor .
-```
-
-The grammar frontend is self-hosted. After changing
-`lib/ibex/frontend/grammar.y`, regenerate and verify it:
-
-```sh
-bundle exec rake frontend:generate
-bundle exec rake frontend:check
-bundle exec ruby -Itest test/frontend/self_host_test.rb
-```
-
-Whole-library signatures are generated from rbs-inline annotations and checked
-with RBS and Steep. Regenerate the committed tree before validating it:
-
-```sh
-BUNDLE_GEMFILE=gemfiles/Gemfile bundle install
-BUNDLE_GEMFILE=gemfiles/Gemfile ruby -e '
-  sources = Dir.glob("lib/**/*.rb").sort
-  exec("bundle", "exec", "rbs-inline", "--opt-out", "--base=lib", "--output=sig", *sources)
-'
-BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec rbs -r digest -r json -r optparse -r tempfile -r timeout -r tmpdir -r uri -I sig validate
-BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec steep check
-BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
-```
+Frontend regeneration, RBS/Steep validation, grammar coverage, site checks,
+mutation analysis, and workflow lint commands live in the development guide.
 
 <!-- type-stats:start -->
 The current whole-library `steep stats` result is 17,219 typed calls and 2,266 untyped calls out of 19,485 (88.4% typed).
