@@ -140,12 +140,15 @@ generation from warm generated-parser execution, lexer-inclusive from
 pretokenized input, and parser reuse from new-instance parsing. Implementations
 alternate first position across isolated runs.
 
-Cold generation is an end-to-end default CLI observation. It includes any
-unexpected-conflict analysis and advisory IELR diagnostic triggered under
+Cold generation is an end-to-end CLI observation under the formal command
+template. The template's explicit generation options leave the default
+algorithm and diagnostic path intact, including any unexpected-conflict
+analysis and advisory IELR diagnostic triggered under
 [ADR 0021](../docs/decisions/0021-diagnostic-outputs-and-warning-vocabulary.md).
 Generator-core or stage-level profiles may isolate that work for diagnosis,
 but they are not comparable substitutes for the formal cold series and must
-not disable default diagnostics. [ADR 0087](../docs/decisions/0087-preserve-default-cold-generation-diagnostics.md)
+not disable the default diagnostic path.
+[ADR 0087](../docs/decisions/0087-preserve-default-cold-generation-diagnostics.md)
 records this measurement boundary.
 
 Formal evidence defaults to Racc's native runtime. The command rejects mixed

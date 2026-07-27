@@ -17,10 +17,11 @@ workload showed that this canonical/IELR analysis accounts for a large part of
 its cold generation time.
 
 Skipping the advisory analysis makes that workload substantially faster, but
-it also removes accepted default CLI behavior. It would make a nominally
-end-to-end comparison measure a private benchmark path instead of the command
-users run. A generator-core profile can isolate construction stages, but it
-does not include the same work as cold CLI generation.
+it also removes accepted default algorithm and diagnostic behavior. It would
+make a nominally end-to-end comparison measure a private benchmark path
+instead of the formal command template. A generator-core profile can isolate
+construction stages, but it does not include the same work as cold CLI
+generation.
 
 The formal comparison also fixes Racc's native runtime as the reference
 environment. Reclassifying a Ruby-backend or core-only diagnostic as a formal
@@ -28,10 +29,11 @@ result would conceal rather than close a remaining implementation boundary.
 
 ## Decision
 
-Formal cold generation continues to execute the default CLI behavior,
-including ADR 0021's unexpected-conflict analysis and advisory IELR
-diagnostic. The comparison harness will not disable, stub, or bypass that work
-and will not expose a benchmark-only switch for doing so.
+Formal cold generation continues to execute the explicit command template
+defined by ADRs 0082 and 0083 while retaining its default algorithm and
+diagnostic behavior, including ADR 0021's unexpected-conflict analysis and
+advisory IELR diagnostic. The comparison harness will not disable, stub, or
+bypass that work and will not expose a benchmark-only switch for doing so.
 
 Performance work may optimize canonical LR and IELR internals only when
 generated tables, conflicts, diagnostics, output, and failure behavior remain
@@ -45,7 +47,8 @@ converted into a passing result by narrowing the measured boundary.
 
 ## Consequences
 
-- Cold generation measures the command and diagnostics users actually receive.
+- Cold generation measures the formal command template with its normal
+  algorithm and diagnostic behavior intact.
 - Conflict-heavy grammars can remain slower than a core-only construction
   profile even after canonical and IELR internals improve.
 - Profiling data remains useful for optimization without being mistaken for
