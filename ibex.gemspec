@@ -40,7 +40,7 @@ Gem::Specification.new do |spec|
   tracked_files = IO.popen(%w[git ls-files -z], chdir: __dir__, err: IO::NULL) do |ls|
     ls.readlines("\x0", chomp: true).reject do |f|
       runtime_file = f == "lib/ibex/runtime.rb" || f.start_with?("lib/ibex/runtime/", "sig/ibex/runtime") ||
-                     f == "lib/ibex/tables/compact.rb" || f == "sig/ibex/tables/compact.rbs"
+                     f.start_with?("lib/ibex/tables/compact", "sig/ibex/tables/compact")
       gemspecs.include?(f) || runtime_file || development_files.include?(f) ||
         f.start_with?(*development_directories)
     end

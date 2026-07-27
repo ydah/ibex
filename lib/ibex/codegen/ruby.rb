@@ -41,6 +41,7 @@ module Ibex
         ../runtime/jsonl_tracer.rb
         ../runtime/event_jsonl_tracer.rb
         ../tables/compact.rb
+        ../tables/compact_actions.rb
       ].freeze #: Array[String]
       private_constant :EMBEDDED_RUNTIME_SOURCES
 
@@ -142,19 +143,23 @@ module Ibex
         type = "Hash[Integer, String | { id: String, message: String }]"
         lines << "#{declaration} # @type var error_messages: #{type}"
         lines << "#{indent}ERROR_MESSAGES = error_messages.freeze #: #{type}"
-        append_parser_tables(lines, indent)
+        append_parser_tables(lines, indent, table_set)
         lines << "#{indent}def self.parser_tables = PARSER_TABLES"
         lines << "#{indent}DEBUG_ENABLED = #{@debug}"
         lines << ""
       end
 
-      # @rbs (Array[String] lines, String indent) -> void
-      def append_parser_tables(lines, indent)
+      # @rbs (Array[String] lines, String indent, Tables::TableSet table_set) -> void
+      def append_parser_tables(lines, indent, table_set)
         lines << "#{indent}PARSER_TABLES = { format_version: PARSER_TABLE_FORMAT_VERSION,"
         lines << "#{indent}                  grammar_digest: GRAMMAR_DIGEST,"
         lines << "#{indent}                  state_count: STATE_COUNT, production_count: PRODUCTION_COUNT,"
         lines << "#{indent}                  uses_locations: #{uses_locations?},"
-        lines << "#{indent}                  compact_fast_driver: true," if @table_format == :compact
+        if @table_format == :compact
+          default_codes = table_set.default_actions.map { |action| Tables::CompactActions.pack(action) }
+          lines << "#{indent}                  compact_fast_driver: true, " \
+                   "compact_default_actions: #{default_codes.inspect}.freeze,"
+        end
         if cst?
           lines << "#{indent}                  cst: true, cst_trivia: #{@cst_trivia.inspect}, " \
                    "cst_start: #{@grammar.start.inspect}, symbol_names: SYMBOL_NAMES,"
@@ -200,6 +205,10 @@ module Ibex
 
       # @rbs (untyped table) -> String
       def table_literal(table)
+        if table.is_a?(Tables::CompactActions)
+          return "Ibex::Tables::CompactActions.new(offsets: #{table.offsets.inspect}, " \
+                 "codes: #{table.codes.inspect}, checks: #{table.checks.inspect}, row_count: #{table.row_count})"
+        end
         return "#{table.inspect}.freeze" unless table.is_a?(Tables::Compact)
 
         "Ibex::Tables::Compact.new(offsets: #{table.offsets.inspect}, values: #{table.values.inspect}, " \

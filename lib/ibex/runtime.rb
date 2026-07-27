@@ -3,6 +3,7 @@
 require_relative "runtime/version"
 require_relative "runtime/table_format"
 require_relative "tables/compact"
+require_relative "tables/compact_actions"
 require_relative "runtime/event_sanitizer"
 require_relative "runtime/event"
 require_relative "runtime/observation"

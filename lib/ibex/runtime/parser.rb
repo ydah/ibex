@@ -765,10 +765,10 @@ module Ibex
         actions = tables.fetch(:actions)
         gotos = tables.fetch(:gotos)
         productions = tables.fetch(:productions)
-        defaults = tables.fetch(:default_actions, EMPTY_ROW)
+        default_codes = tables.fetch(:compact_default_actions)
         token_ids = tables.fetch(:tokens)
         action_offsets = actions.offsets
-        action_entries = actions.values
+        action_codes = actions.codes
         action_checks = actions.checks
         goto_offsets = gotos.offsets
         goto_values = gotos.values
@@ -776,6 +776,10 @@ module Ibex
         states = @state_stack
         values = @value_stack
         stack_limit = @resource_limits.max_stack_depth
+        accept_code = Ibex::Tables::CompactActions::ACCEPT_CODE
+        error_code = Ibex::Tables::CompactActions::ERROR_CODE
+        shift_base = Ibex::Tables::CompactActions::SHIFT_BASE
+        reduce_base = Ibex::Tables::CompactActions::REDUCE_BASE
 
         while @runtime_fast_path
           if @lookahead.equal?(NO_LOOKAHEAD)
@@ -817,19 +821,22 @@ module Ibex
 
           state = states.last
           index = action_offsets[state] + @lookahead
-          action = action_checks[index] == state ? action_entries[index] : defaults[state]
-          return unless action
+          code = action_checks[index] == state ? action_codes[index] : default_codes[state]
+          return unless code
 
-          case action[0]
-          when :shift
+          if code == accept_code
+            return [:accepted, values.last]
+          elsif code == error_code
+            return
+          elsif code.even?
             ensure_stack_capacity! if states.length >= stack_limit
-            states << action[1]
+            states << ((code - shift_base) / 2)
             values << @lookahead_value
             @lookahead = NO_LOOKAHEAD
             @lookahead_location = nil
             @runtime_lookahead_token_display = nil
-          when :reduce
-            production_id = action[1]
+          else
+            production_id = (code - reduce_base) / 2
             production = productions[production_id]
             length = production[:length]
             return unless length.is_a?(Integer) && !length.negative? &&
@@ -902,10 +909,6 @@ module Ibex
             ensure_stack_capacity! if states.length >= stack_limit
             states << next_state
             values << result
-          when :accept
-            return [:accepted, values.last]
-          else
-            return
           end
         end
         nil
@@ -920,7 +923,7 @@ module Ibex
         return false unless tables.fetch(:eager_reductions, EMPTY_ROW).empty?
         return false unless defined?(Ibex::Tables::Compact)
 
-        tables.fetch(:actions).instance_of?(Ibex::Tables::Compact) &&
+        tables.fetch(:actions).instance_of?(Ibex::Tables::CompactActions) &&
           tables.fetch(:gotos).instance_of?(Ibex::Tables::Compact)
       end
 

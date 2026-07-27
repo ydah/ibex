@@ -1,0 +1,32 @@
+# Generated from lib/ibex/tables/compact_actions.rb with RBS::Inline
+
+module Ibex
+  module Tables
+    # Compact action table with an integer-coded hot representation and a
+    # compatible decoded lookup surface for the generic runtime.
+    class CompactActions < Compact
+      ACCEPT_CODE: Integer
+
+      ERROR_CODE: Integer
+
+      SHIFT_BASE: Integer
+
+      REDUCE_BASE: Integer
+
+      attr_reader codes: Array[Integer?]
+
+      # @rbs (Array[Hash[Integer, untyped]] rows) -> CompactActions
+      def self.build: (Array[Hash[Integer, untyped]] rows) -> CompactActions
+
+      # @rbs (untyped action) -> Integer?
+      def self.pack: (untyped action) -> Integer?
+
+      # @rbs (Integer? code) -> untyped
+      def self.unpack: (Integer? code) -> untyped
+
+      # @rbs (offsets: Array[Integer], codes: Array[Integer?], checks: Array[Integer?],
+      #   row_count: Integer) -> void
+      def initialize: (offsets: Array[Integer], codes: Array[Integer?], checks: Array[Integer?], row_count: Integer) -> void
+    end
+  end
+end

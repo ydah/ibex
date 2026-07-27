@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "tables/compact"
+require_relative "tables/compact_actions"
 
 module Ibex
   # Parser table construction and row-displacement compression.
@@ -28,7 +29,11 @@ module Ibex
       end
       raise ArgumentError, "unknown table format #{format.inspect}" unless format.to_sym == :compact
 
-      TableSet.new(actions: Compact.build(action_rows), gotos: Compact.build(goto_rows), default_actions: defaults)
+      TableSet.new(
+        actions: CompactActions.build(action_rows),
+        gotos: Compact.build(goto_rows),
+        default_actions: defaults
+      )
     end
     module_function :build
 

@@ -28,7 +28,9 @@ class RuntimeGemPackagingTest < Minitest::Test
     assert_includes runtime.files, "lib/ibex/runtime.rb"
     assert_includes runtime.files, "lib/ibex/runtime/version.rb"
     assert_includes runtime.files, "lib/ibex/tables/compact.rb"
+    assert_includes runtime.files, "lib/ibex/tables/compact_actions.rb"
     assert_includes runtime.files, "sig/ibex/runtime/parser.rbs"
+    assert_includes runtime.files, "sig/ibex/tables/compact_actions.rbs"
     refute_includes runtime.files, "lib/ibex/frontend.rb"
     refute_includes runtime.files, "exe/ibex"
 

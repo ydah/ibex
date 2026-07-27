@@ -20,11 +20,13 @@ Gem::Specification.new do |spec|
   source_files = [
     "lib/ibex/runtime.rb",
     "lib/ibex/tables/compact.rb",
+    "lib/ibex/tables/compact_actions.rb",
     *Dir.glob("lib/ibex/runtime/**/*.rb")
   ]
   signature_files = [
     "sig/ibex/runtime.rbs",
     "sig/ibex/tables/compact.rbs",
+    "sig/ibex/tables/compact_actions.rbs",
     *Dir.glob("sig/ibex/runtime/**/*.rbs")
   ]
   spec.files = (%w[LICENSE.txt README.md] + source_files + signature_files).uniq.sort

@@ -160,7 +160,8 @@ class RuntimeFastPathTest < Minitest::Test
     TABLES = Ractor.make_shareable(
       ActionlessProbe::TABLES.merge(
         compact_fast_driver: true,
-        actions: Ibex::Tables::Compact.build(ActionlessProbe::TABLES.fetch(:actions)),
+        compact_default_actions: [],
+        actions: Ibex::Tables::CompactActions.build(ActionlessProbe::TABLES.fetch(:actions)),
         gotos: Ibex::Tables::Compact.build(ActionlessProbe::TABLES.fetch(:gotos))
       )
     )
@@ -186,7 +187,8 @@ class RuntimeFastPathTest < Minitest::Test
     TABLES = Ractor.make_shareable(
       ValuesActionProbe::TABLES.merge(
         compact_fast_driver: true,
-        actions: Ibex::Tables::Compact.build(ValuesActionProbe::TABLES.fetch(:actions)),
+        compact_default_actions: [],
+        actions: Ibex::Tables::CompactActions.build(ValuesActionProbe::TABLES.fetch(:actions)),
         gotos: Ibex::Tables::Compact.build(ValuesActionProbe::TABLES.fetch(:gotos))
       )
     )

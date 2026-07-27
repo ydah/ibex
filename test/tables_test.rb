@@ -50,6 +50,26 @@ class TablesTest < Minitest::Test
     assert_equal 1, compact.row_count
   end
 
+  def test_compact_actions_round_trip_integer_codes_through_compatible_lookup
+    rows = [
+      { 0 => [:accept], 2 => [:shift, 3] },
+      { 0 => [:reduce, 4], 1 => [:error] }
+    ]
+
+    compact = Ibex::Tables::CompactActions.build(rows)
+
+    assert_instance_of Ibex::Tables::CompactActions, compact
+    assert compact.codes.compact.all?(Integer)
+    assert_equal rows[0], compact.row(0)
+    assert_equal rows[1], compact.row(1)
+    rows.each_with_index do |row, state|
+      row.each { |token, action| assert_equal action, compact.lookup(state, token) }
+    end
+    rows.flat_map(&:values).each do |action|
+      assert_equal action, Ibex::Tables::CompactActions.unpack(Ibex::Tables::CompactActions.pack(action))
+    end
+  end
+
   def test_compact_layout_remains_deterministic_when_rows_share_anchor_columns
     rows = [
       { 1 => :a, 5 => :b },
