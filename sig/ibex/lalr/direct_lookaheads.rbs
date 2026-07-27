@@ -7,9 +7,19 @@ module Ibex
     class DirectLookaheads
       AUGMENTED_PRODUCTION: Integer
 
+      EMPTY_PRODUCTIONS: Array[IR::Production]
+
+      EMPTY_NODES: Array[lookahead_node]
+
       @terminal_masks: Array[Integer]
 
       @terminal_ids: Array[Integer]
+
+      @initial_item_cores: Array[item_core]
+
+      @production_rhs: Array[Array[Integer]]
+
+      @augmented_rhs: Array[Integer]
 
       @productions_by_lhs: Hash[Integer, Array[IR::Production]]
 

@@ -9,10 +9,16 @@ module Ibex
     # over item occurrences. Canonical LR(1) states are never materialized.
     class DirectLookaheads
       AUGMENTED_PRODUCTION = -1 #: Integer
+      EMPTY_PRODUCTIONS = Array.new(0).freeze #: Array[IR::Production]
+      EMPTY_NODES = Array.new(0).freeze #: Array[lookahead_node]
+      private_constant :EMPTY_PRODUCTIONS, :EMPTY_NODES
 
       # @rbs @grammar: IR::Grammar
       # @rbs @sets: Analysis::Sets
       # @rbs @productions_by_lhs: Hash[Integer, Array[IR::Production]]
+      # @rbs @augmented_rhs: Array[Integer]
+      # @rbs @production_rhs: Array[Array[Integer]]
+      # @rbs @initial_item_cores: Array[item_core]
       # @rbs @terminal_ids: Array[Integer]
       # @rbs @terminal_masks: Array[Integer]
 
@@ -21,6 +27,10 @@ module Ibex
         @grammar = grammar
         @sets = sets
         @productions_by_lhs = grammar.productions.group_by(&:lhs)
+        start = grammar.symbol(grammar.start) || raise(Ibex::Error, "missing start symbol")
+        @augmented_rhs = [start.id].freeze
+        @production_rhs = grammar.productions.map(&:rhs).freeze
+        @initial_item_cores = grammar.productions.map { |production| [production.id, 0].freeze }.freeze
         @terminal_ids = grammar.terminals.map(&:id).freeze
         @terminal_masks = @terminal_ids.map { |id| 1 << id }.freeze
       end
@@ -64,13 +74,15 @@ module Ibex
       def closure(seed)
         items = seed.dup
         queue = seed.to_a
-        until queue.empty?
-          production_id, dot = queue.shift
+        cursor = 0
+        while cursor < queue.length
+          production_id, dot = queue.fetch(cursor)
+          cursor += 1
           symbol = @grammar.symbol_by_id(rhs_for(production_id)[dot])
           next unless symbol&.nonterminal?
 
-          @productions_by_lhs.fetch(symbol.id, Array.new(0)).each do |production|
-            item = [production.id, 0] #: item_core
+          @productions_by_lhs.fetch(symbol.id, EMPTY_PRODUCTIONS).each do |production|
+            item = @initial_item_cores.fetch(production.id)
             queue << item if items.add?(item)
           end
         end
@@ -135,8 +147,8 @@ module Ibex
         suffix = rhs.drop(dot + 1)
         spontaneous = terminal_ids(@sets.first_of_sequence(suffix))
         source = [state_id, production_id, dot] #: lookahead_node
-        @productions_by_lhs.fetch(symbol.id, Array.new(0)).each do |production|
-          target_item = [production.id, 0] #: item_core
+        @productions_by_lhs.fetch(symbol.id, EMPTY_PRODUCTIONS).each do |production|
+          target_item = @initial_item_cores.fetch(production.id)
           lookaheads.fetch(state_id).fetch(target_item).merge(spontaneous)
           if @sets.sequence_nullable?(suffix)
             target = [state_id, production.id, 0] #: lookahead_node
@@ -155,11 +167,13 @@ module Ibex
           end
         end #: Array[lookahead_node]
         queued = queue.to_h { |node| [node, true] } #: Hash[lookahead_node, bool]
-        until queue.empty?
-          source = queue.shift
+        cursor = 0
+        while cursor < queue.length
+          source = queue.fetch(cursor)
+          cursor += 1
           queued.delete(source)
           source_set = node_set(lookaheads, source)
-          edges.fetch(source, Array.new(0)).each do |target|
+          edges.fetch(source, EMPTY_NODES).each do |target|
             target_set = node_set(lookaheads, target)
             previous_size = target_set.size
             target_set.merge(source_set)
@@ -190,12 +204,9 @@ module Ibex
 
       # @rbs (Integer production_id) -> Array[Integer]
       def rhs_for(production_id)
-        if production_id == AUGMENTED_PRODUCTION
-          start = @grammar.symbol(@grammar.start) || raise(Ibex::Error, "missing start symbol")
-          return [start.id]
-        end
+        return @augmented_rhs if production_id == AUGMENTED_PRODUCTION
 
-        @grammar.productions.fetch(production_id).rhs
+        @production_rhs.fetch(production_id)
       end
 
       # @rbs (core_set items) -> Array[item_core]
