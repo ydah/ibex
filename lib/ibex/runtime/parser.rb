@@ -832,6 +832,8 @@ module Ibex
       # replaying a committed action.
       # rubocop:disable Metrics/AbcSize, Metrics/BlockNesting, Metrics/CyclomaticComplexity
       # rubocop:disable Metrics/MethodLength, Metrics/PerceivedComplexity
+      # Direct comparisons avoid predicate-method dispatch inside the parser loop.
+      # rubocop:disable Style/BitwisePredicate, Style/NumericPredicate
       # @rbs (Hash[Symbol, untyped] tables) -> (Object | [:accepted, untyped] | [:done, untyped])?
       def drive_compact_fast_parser(tables)
         actions = tables.fetch(:actions)
@@ -846,6 +848,11 @@ module Ibex
         goto_offsets = gotos.offsets
         goto_values = gotos.values
         goto_checks = gotos.checks
+        production_lhs_ids = productions.lhs_ids
+        production_lengths = productions.lengths
+        production_actions = productions.actions
+        production_flags = productions.flags
+        borrowed_values_flag = Ibex::Tables::CompactProductions::BORROWED_VALUES_ACTION
         states = @state_stack
         values = @value_stack
         stack_limit = @resource_limits.max_stack_depth
@@ -907,7 +914,7 @@ module Ibex
             return COMPACT_ACCEPTED
           elsif code == error_code
             return
-          elsif code.positive?
+          elsif code > 0
             ensure_stack_capacity! if states.length >= stack_limit
             states << (code - shift_base)
             values << @lookahead_value
@@ -916,30 +923,65 @@ module Ibex
             @runtime_lookahead_token_display = nil
           else
             production_id = reduce_base - code
-            production = productions[production_id]
-            lhs = production[:lhs]
-            length = production[:length]
+            lhs = production_lhs_ids[production_id]
+            length = production_lengths[production_id]
             return unless length <= values.length && length < states.length
 
-            semantic_action = production[:action]
+            semantic_action = production_actions[production_id]
+            hook_values = EMPTY_LOCATIONS
             if semantic_action
               reduction_values = values.last(length)
-              hook_values = if production[:borrowed_values_action] == true
-                              reduction_values
-                            else
+              hook_values = if (production_flags[production_id] & borrowed_values_flag) == 0
                               reduction_values.dup
+                            else
+                              reduction_values
                             end
+            else
+              result = length.zero? ? nil : values[-length]
+            end
+
+            case length
+            when 0
+              nil
+            when 1
+              states.pop
+              values.pop
+            when 2
+              states.pop
+              states.pop
+              values.pop
+              values.pop
+            when 3
+              states.pop
+              states.pop
+              states.pop
+              values.pop
+              values.pop
+              values.pop
+            when 4
+              states.pop
+              states.pop
+              states.pop
+              states.pop
+              values.pop
+              values.pop
+              values.pop
+              values.pop
+            else
               remaining = length
-              while remaining.positive?
+              while remaining > 0
                 states.pop
                 values.pop
                 remaining -= 1
               end
+            end
+
+            if semantic_action
               previous_locations = @semantic_locations
               previous_names = @semantic_location_names
               previous_result_location = @semantic_result_location
               @semantic_locations = EMPTY_LOCATIONS
-              @semantic_location_names = production.fetch(:location_names, EMPTY_LOCATION_NAMES)
+              @semantic_location_names = EMPTY_LOCATION_NAMES
               @semantic_result_location = nil
               begin
                 result = __send__(semantic_action, reduction_values)
@@ -951,16 +993,19 @@ module Ibex
               @runtime_fast_path = false if
                 @yydebug || @runtime_observers || @repair_policy || @location_stack ||
                 @semantic_error || @accept_requested
-              goto_row = states.last
-              goto_index = goto_offsets[goto_row] + lhs
-              next_state = goto_values[goto_index] if goto_checks[goto_index] == goto_row
-              raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
+            end
 
-              ensure_stack_capacity! if states.length >= stack_limit
-              states << next_state
-              location_stack = @location_stack
-              location_stack << nil if location_stack
-              values << result
+            goto_row = states.last
+            goto_index = goto_offsets[goto_row] + lhs
+            next_state = goto_values[goto_index] if goto_checks[goto_index] == goto_row
+            raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
+
+            ensure_stack_capacity! if states.length >= stack_limit
+            states << next_state
+            location_stack = @location_stack
+            location_stack << nil if location_stack
+            values << result
+            if semantic_action
               trace_reduction(production_id, length, lhs, result, next_state) if @yydebug
               unless @runtime_fast_path
                 lookup = Object.instance_method(:method)
@@ -976,28 +1021,13 @@ module Ibex
 
               next
             end
-
-            result = length.zero? ? nil : values.fetch(values.length - length)
-            remaining = length
-            while remaining.positive?
-              states.pop
-              values.pop
-              remaining -= 1
-            end
-            goto_row = states.last
-            goto_index = goto_offsets[goto_row] + lhs
-            next_state = goto_values[goto_index] if goto_checks[goto_index] == goto_row
-            raise ParseError, "(tables):1:1: missing goto for production #{production_id}" if next_state.nil?
-
-            ensure_stack_capacity! if states.length >= stack_limit
-            states << next_state
-            values << result
           end
         end
         nil
       end
       # rubocop:enable Metrics/AbcSize, Metrics/BlockNesting, Metrics/CyclomaticComplexity
       # rubocop:enable Metrics/MethodLength, Metrics/PerceivedComplexity
+      # rubocop:enable Style/BitwisePredicate, Style/NumericPredicate
 
       # @rbs (Hash[Symbol, untyped]? tables) -> bool
       def compact_fast_driver_eligible?(tables)

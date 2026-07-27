@@ -24,7 +24,10 @@ Compact generation emits `Ibex::Tables::CompactProductions`. It stores `lhs`,
 length, action Symbol, and ABI flags in parallel frozen arrays, then exposes
 frozen decoded Hash entries through its Array-compatible surface. Sparse CST,
 context, and named-location metadata remains attached to the corresponding
-decoded entry. Plain-table generation keeps the existing literals.
+decoded entry. The direct compact driver reads the parallel arrays rather than
+the compatibility Hashes and expands the common zero-to-four-symbol stack
+reductions without a per-symbol loop. Plain-table generation keeps the
+existing literals.
 
 The generated-action ABI scanner first recognizes the common single-result
 form containing only numeric `val[n]` reads without loading a Ruby parser. For
@@ -45,6 +48,9 @@ action retains the independent pre-action hook snapshot.
   19,014 to 17,716 for BCDice, and 31,372 to 28,452 for Nokogiri CSS.
 - Proven-safe public actions avoid one Array allocation per semantic
   reduction; unsafe and dynamically opaque actions retain the prior behavior.
+- Five-worker diagnostics across the three public profiles reduced median
+  reuse time by approximately four to five percent after direct column reads
+  replaced compatibility-Hash reads.
 - Generic runtime modes and table consumers still see the established
   production Hash keys and action markers.
 - The standalone runtime gem and embedded output include the compact
