@@ -7,6 +7,7 @@ module Ibex
   module Codegen
     # Selects the smallest generated semantic-action ABI that preserves the
     # action's declared inputs.
+    # rubocop:disable Metrics/ModuleLength -- ABI proof and source rewriting must evolve together.
     module GeneratedActionABI
       LEGACY_PARAMETERS = %w[
         _values
@@ -15,7 +16,10 @@ module Ibex
         _ibex_location
         _ibex_lookahead_location
       ].freeze #: Array[String]
+      SIMPLE_POSITIONAL_READ = /(?<![.\w@$])val\[\s*(\d+)\s*\]/ #: Regexp
+      SIMPLE_POSITIONAL_UNSAFE = %r{['"`#%/\\]|<<} #: Regexp
       private_constant :LEGACY_PARAMETERS
+      private_constant :SIMPLE_POSITIONAL_READ, :SIMPLE_POSITIONAL_UNSAFE
 
       # Keeps semantic-action analysis local to one code-generation run.
       class Cache
@@ -110,7 +114,7 @@ module Ibex
 
         maximum = production.rhs.length
         source = ActionLocations.new(action.code, maximum: maximum, location: action.location).rewrite
-        simple = simple_positional_action_source(source, parameters)
+        simple = fast_positional_action_source(source, parameters)
         return simple unless simple.nil?
 
         require "ripper"
@@ -119,6 +123,15 @@ module Ibex
 
         rewrite_positional_values(tokens, parameters)
       end
+
+      # @rbs (String source, Array[String] parameters) -> String?
+      def fast_positional_action_source(source, parameters)
+        simple = simple_positional_action_source(source, parameters)
+        return simple unless simple.nil?
+
+        simple_indexed_positional_action_source(source, parameters)
+      end
+      private_class_method :fast_positional_action_source
 
       # @rbs (IR::Production production) -> bool
       def positional_values?(production)
@@ -154,6 +167,27 @@ module Ibex
       end
       private_class_method :simple_positional_action_source
 
+      # Rewrite the common string/comment/regexp-free action shape without
+      # loading Ripper. The borrowed-values proof has already rejected writes
+      # and escaping uses of the values container.
+      # @rbs (String source, Array[String] parameters) -> String?
+      def simple_indexed_positional_action_source(source, parameters)
+        return nil if source.match?(SIMPLE_POSITIONAL_UNSAFE)
+        return nil if parameters.any? { |parameter| source.match?(/\b#{Regexp.escape(parameter)}\b/) }
+
+        valid = true
+        rewritten = source.gsub(SIMPLE_POSITIONAL_READ) do
+          parameter = parameters.fetch(Integer(Regexp.last_match(1) || "", 10), nil)
+          valid = false unless parameter
+          parameter || Regexp.last_match(0)
+        end
+        return nil unless valid
+        return nil if rewritten.match?(/\bval\b/)
+
+        rewritten
+      end
+      private_class_method :simple_indexed_positional_action_source
+
       # @rbs (Array[untyped] tokens, Array[String] parameters) -> String?
       def rewrite_positional_values(tokens, parameters)
         result = [] #: Array[String]
@@ -169,10 +203,17 @@ module Ibex
           end
 
           reference = positional_value_reference(tokens, index, parameters)
-          return nil unless reference
-
-          result << reference.fetch(0)
-          index = reference.fetch(1)
+          if reference
+            result << reference.fetch(0)
+            index = reference.fetch(1)
+          elsif receiver_before_value?(tokens, index) || parameters.empty?
+            return nil
+          else
+            # borrowed_values? has already proven that a bare `val` occurs
+            # only as the right-hand side of parallel assignment.
+            result << parameters.join(", ")
+            index += 1
+          end
         end
         result.join
       end
@@ -180,8 +221,7 @@ module Ibex
 
       # @rbs (Array[untyped] tokens, Integer index, Array[String] parameters) -> [String, Integer]?
       def positional_value_reference(tokens, index, parameters)
-        previous_event = index.zero? ? nil : tokens[index - 1][1]
-        return nil if %i[on_period on_op].include?(previous_event)
+        return nil if receiver_before_value?(tokens, index)
 
         reference = tokens.slice(index + 1, 3)
         return nil unless reference
@@ -193,6 +233,17 @@ module Ibex
         nil
       end
       private_class_method :positional_value_reference
+
+      # @rbs (Array[untyped] tokens, Integer index) -> bool
+      def receiver_before_value?(tokens, index)
+        previous = tokens.first(index).reverse.find do |entry|
+          !%i[on_sp on_nl on_ignored_nl on_comment].include?(entry[1])
+        end
+        return false unless previous
+
+        previous[1] == :on_period || (previous[1] == :on_op && %w[&. ::].include?(previous[2]))
+      end
+      private_class_method :receiver_before_value?
 
       # @rbs (String source) -> bool
       def references_legacy_parameter?(source)
@@ -232,5 +283,6 @@ module Ibex
       end
       private_class_method :safe_value_reference?
     end
+    # rubocop:enable Metrics/ModuleLength
   end
 end

@@ -3,7 +3,6 @@
 
 require_relative "../artifact_set"
 require_relative "../generation_input"
-require_relative "../generation_manifest"
 require_relative "../generation_transaction"
 
 module Ibex
@@ -54,6 +53,8 @@ module Ibex
 
     # @rbs () -> void
     def add_generation_manifest
+      require_relative "../generation_manifest"
+
       path = manifest_output_path
       source = GenerationManifest.render(
         generation_artifacts,

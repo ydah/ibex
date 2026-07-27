@@ -30,6 +30,17 @@ class LazyRipperLoadingTest < Minitest::Test
     assert_equal "0:false\n", generate(source)
   end
 
+  def test_indexed_expression_generation_does_not_load_ripper
+    source = <<~GRAMMAR
+      class IndexedParser
+      rule
+      start: TOKEN { result = val[0].to_s }
+      end
+    GRAMMAR
+
+    assert_equal "0:false\n", generate(source)
+  end
+
   def test_semantic_location_generation_loads_ripper
     source = <<~GRAMMAR
       class LocationParser

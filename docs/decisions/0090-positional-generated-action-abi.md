@@ -24,11 +24,15 @@ cannot carry values, borrowed-values, location, composition, or location
 context markers.
 
 The generator first applies the existing values-only and borrowed-container
-proofs. It then tokenizes the rewritten action with Ripper, preserves the
-complete token stream, rejects collisions with generated parameter names, and
-rewrites only direct, statically in-range `val[integer]` reads. Every
-unsupported or unparsable shape retains the format-v4 Array ABI. Ruby source
-and generated RBS signatures use the same per-generation cached analysis.
+proofs. A deliberately narrow lexical path handles actions without Ruby
+literal, comment, regexp, escape, or heredoc boundaries and rewrites only
+unqualified, statically in-range `val[integer]` reads. Other actions are
+tokenized with Ripper while preserving the complete token stream. That path
+also converts a proven read-only parallel assignment such as
+`left, right = val` to positional values. Both paths reject receivers and
+collisions with generated parameter names. Every unsupported or unparsable
+shape retains the format-v4 Array ABI. Ruby source and generated RBS
+signatures use the same per-generation cached analysis.
 
 The direct compact driver reads up to four RHS values before popping the
 stacks and invokes the positional method without materializing an Array. If

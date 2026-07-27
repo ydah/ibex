@@ -4,8 +4,13 @@ module Ibex
   module Codegen
     # Selects the smallest generated semantic-action ABI that preserves the
     # action's declared inputs.
+    # rubocop:disable Metrics/ModuleLength -- ABI proof and source rewriting must evolve together.
     module GeneratedActionABI
       LEGACY_PARAMETERS: Array[String]
+
+      SIMPLE_POSITIONAL_READ: Regexp
+
+      SIMPLE_POSITIONAL_UNSAFE: Regexp
 
       # Keeps semantic-action analysis local to one code-generation run.
       class Cache
@@ -46,6 +51,9 @@ module Ibex
       # @rbs (IR::Production production, ?analysis: singleton(GeneratedActionABI) | Cache) -> String?
       def self?.positional_action_source: (IR::Production production, ?analysis: singleton(GeneratedActionABI) | Cache) -> String?
 
+      # @rbs (String source, Array[String] parameters) -> String?
+      def self?.fast_positional_action_source: (String source, Array[String] parameters) -> String?
+
       # @rbs (IR::Production production) -> bool
       def self?.positional_values?: (IR::Production production) -> bool
 
@@ -62,11 +70,20 @@ module Ibex
       # @rbs (String source, Array[String] parameters) -> String?
       def self?.simple_positional_action_source: (String source, Array[String] parameters) -> String?
 
+      # Rewrite the common string/comment/regexp-free action shape without
+      # loading Ripper. The borrowed-values proof has already rejected writes
+      # and escaping uses of the values container.
+      # @rbs (String source, Array[String] parameters) -> String?
+      def self?.simple_indexed_positional_action_source: (String source, Array[String] parameters) -> String?
+
       # @rbs (Array[untyped] tokens, Array[String] parameters) -> String?
       def self?.rewrite_positional_values: (Array[untyped] tokens, Array[String] parameters) -> String?
 
       # @rbs (Array[untyped] tokens, Integer index, Array[String] parameters) -> [String, Integer]?
       def self?.positional_value_reference: (Array[untyped] tokens, Integer index, Array[String] parameters) -> [ String, Integer ]?
+
+      # @rbs (Array[untyped] tokens, Integer index) -> bool
+      def self?.receiver_before_value?: (Array[untyped] tokens, Integer index) -> bool
 
       # @rbs (String source) -> bool
       def self?.references_legacy_parameter?: (String source) -> bool

@@ -22,6 +22,7 @@ class CLILoadingTest < Minitest::Test
     ibex/frontend/diagnostic_recovery.rb
     ibex/frontend/dsl.rb
     ibex/frontend/formatter.rb
+    ibex/generation_manifest.rb
     ibex/ir/migration.rb
     ibex/ir/validator.rb
     ibex/lalr/conflict_search.rb

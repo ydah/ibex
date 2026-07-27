@@ -216,6 +216,40 @@ class RubyCodegenTest < Minitest::Test
     assert_equal [:value, "val[1]"], parser_class.new.parse([%i[TOKEN value]])
   end
 
+  def test_positional_rewrite_does_not_change_receiver_calls
+    source = <<~GRAMMAR
+      class PositionalReceiverParser
+      rule
+      start: TOKEN { result = helper.val[0] }
+      end
+      ---- inner
+      def helper = Struct.new(:val).new([:receiver])
+      def parse(tokens) = (@tokens = tokens; do_parse)
+      def next_token = @tokens.shift
+    GRAMMAR
+    parser_class = evaluate(generate(source), "PositionalReceiverParser")
+
+    refute parser_class::PRODUCTIONS.fetch(0).key?(:positional_action)
+    assert_equal :receiver, parser_class.new.parse([%i[TOKEN token]])
+  end
+
+  def test_parallel_value_assignment_uses_positional_arguments
+    source = <<~GRAMMAR
+      class PositionalAssignmentParser
+      rule
+      start: TOKEN TOKEN { left, right = val; result = [left, right] }
+      end
+      ---- inner
+      def parse(tokens) = (@tokens = tokens; do_parse)
+      def next_token = @tokens.shift
+    GRAMMAR
+    parser_class = evaluate(generate(source), "PositionalAssignmentParser")
+
+    assert_equal true, parser_class::PRODUCTIONS.fetch(0)[:positional_action]
+    assert_equal 2, parser_class.instance_method(:_ibex_action_0).arity # rubocop:disable Naming/VariableNumber
+    assert_equal %i[left right], parser_class.new.parse([%i[TOKEN left], %i[TOKEN right]])
+  end
+
   def test_legacy_generated_parameters_conservatively_retain_the_five_argument_abi
     source = <<~GRAMMAR
       class LegacyParameterParser

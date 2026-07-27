@@ -32,6 +32,8 @@ demand-loaded by commands and outputs that use them.
 
 The public frontend, IR, LALR, and runtime entry points retain their complete
 surfaces. Optional CLI features continue to declare their own dependencies.
+Generation-manifest rendering loads its digest and JSON implementation only
+when `--manifest` requests that artifact.
 Load-graph tests make the deferred boundary observable so a new eager
 dependency cannot silently return to the cold path.
 
