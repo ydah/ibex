@@ -473,6 +473,12 @@ module Ibex
       # @rbs (Hash[Symbol, untyped] tables) -> void
       def cache_generated_action_contracts!: (Hash[Symbol, untyped] tables) -> void
 
+      # Ruby 3.0-3.3 expose the main Ractor as an object instead of exposing
+      # Ractor.main?. Class instance variables cannot be read or written from
+      # another Ractor on those versions.
+      # @rbs () -> bool
+      def generated_action_contract_cache_accessible?: () -> bool
+
       # @rbs (Hash[Symbol, untyped] tables, Integer version) -> void
       def validate_generated_action_contracts!: (Hash[Symbol, untyped] tables, Integer version) -> void
 
@@ -768,6 +774,11 @@ module Ibex
 
       # @rbs (UnboundMethod lookup, Symbol name, Symbol reference) -> bool
       def runtime_method_unchanged?: (UnboundMethod lookup, Symbol name, Symbol reference) -> bool
+
+      # Ruby 3.0 and 3.1 do not preserve UnboundMethod#== for an inherited
+      # method and its alias even though both still identify the same body.
+      # @rbs (Method | UnboundMethod implementation, Method | UnboundMethod expected) -> bool
+      def runtime_methods_equivalent?: (Method | UnboundMethod implementation, Method | UnboundMethod expected) -> bool
 
       # Bypass an application-defined `method` helper while retaining Ruby's
       # complete singleton/prepend/subclass lookup semantics.

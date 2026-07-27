@@ -1253,6 +1253,8 @@ module Ibex
       # Mutable application tables remain intentionally uncached.
       # @rbs (Hash[Symbol, untyped] tables) -> bool
       def generated_action_contracts_validated?(tables)
+        return false unless generated_action_contract_cache_accessible?
+
         cached = self.class.instance_variable_get(:@__ibex_validated_parser_tables)
         cached.equal?(tables)
       end
@@ -1261,13 +1263,26 @@ module Ibex
       def cache_generated_action_contracts!(tables)
         shareable = defined?(Ractor) && Ractor.respond_to?(:shareable?) && Ractor.shareable?(tables)
         return unless shareable
-
-        ractor = Object.const_get(:Ractor)
-        return if ractor.respond_to?(:main?) && ractor.__send__(:main?) == false
+        return unless generated_action_contract_cache_accessible?
 
         self.class.instance_variable_set(:@__ibex_validated_parser_tables, tables)
       rescue FrozenError
         nil
+      end
+
+      # Ruby 3.0-3.3 expose the main Ractor as an object instead of exposing
+      # Ractor.main?. Class instance variables cannot be read or written from
+      # another Ractor on those versions.
+      # @rbs () -> bool
+      def generated_action_contract_cache_accessible?
+        return true unless Object.const_defined?(:Ractor, false)
+
+        ractor = Object.const_get(:Ractor)
+        return ractor.__send__(:main?) if ractor.respond_to?(:main?)
+        return ractor.__send__(:current).equal?(ractor.__send__(:main)) if
+          ractor.respond_to?(:current) && ractor.respond_to?(:main)
+
+        true
       end
 
       # @rbs (Hash[Symbol, untyped] tables, Integer version) -> void
@@ -2481,7 +2496,10 @@ module Ibex
         return cached.fetch(1) if cached.is_a?(Array) && cached[0] == version
 
         eligible = FAST_PATH_HOOK_REFERENCES.all? do |name, reference|
-          parser_class.instance_method(name) == Parser.instance_method(reference)
+          runtime_methods_equivalent?(
+            parser_class.instance_method(name),
+            Parser.instance_method(reference)
+          )
         rescue NameError
           false
         end
@@ -2494,7 +2512,21 @@ module Ibex
       # @rbs (UnboundMethod lookup, Symbol name, Symbol reference) -> bool
       def runtime_method_unchanged?(lookup, name, reference)
         implementation = runtime_core_method(lookup, name)
-        !implementation.nil? && implementation == runtime_core_method(lookup, reference)
+        expected = runtime_core_method(lookup, reference)
+        return false if implementation.nil? || expected.nil?
+
+        runtime_methods_equivalent?(implementation, expected)
+      end
+
+      # Ruby 3.0 and 3.1 do not preserve UnboundMethod#== for an inherited
+      # method and its alias even though both still identify the same body.
+      # @rbs (Method | UnboundMethod implementation, Method | UnboundMethod expected) -> bool
+      def runtime_methods_equivalent?(implementation, expected)
+        return true if implementation == expected
+
+        implementation.owner.equal?(expected.owner) &&
+          implementation.original_name == expected.original_name &&
+          implementation.source_location == expected.source_location
       end
 
       # Bypass an application-defined `method` helper while retaining Ruby's
