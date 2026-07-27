@@ -3,6 +3,7 @@
 
 require "digest"
 require "tempfile"
+require_relative "error"
 require_relative "generation_transaction_recovery"
 require_relative "generation_transaction_validation"
 
