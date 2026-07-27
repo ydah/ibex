@@ -1,5 +1,6 @@
 # Ibex
 
+[![Gem Version](https://badge.fury.io/rb/ibex.svg)](https://badge.fury.io/rb/ibex)
 [![CI](https://github.com/ydah/ibex/actions/workflows/main.yml/badge.svg)](https://github.com/ydah/ibex/actions/workflows/main.yml)
 
 Ibex is a Pure Ruby LR parser generator. It reads racc-compatible grammar
