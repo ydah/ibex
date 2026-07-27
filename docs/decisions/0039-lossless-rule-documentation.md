@@ -45,7 +45,7 @@ Railroad sections expose the complete escaped description through `<desc>`, rend
 column count, and include the resulting line count in section and document height. Existing `--railroad` output therefore
 reflects rule documentation without overlapping productions.
 
-`ibex doc [--format=markdown|html|railroad] [-o FILE] [--mode=racc|extended] grammar.y` resolves the canonical include closure
+`ibex doc [--format=markdown|html|railroad] [-o FILE] [--mode=default|extended] grammar.y` resolves the canonical include closure
 and normalizes it without generating or running a parser. Without `-o` it writes to stdout. File output uses the established
 same-directory atomic replacement behavior, preserves output symlinks and modes, refuses to alias the grammar input, and is not
 replaced when parsing or normalization fails.

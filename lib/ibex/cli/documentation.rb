@@ -24,7 +24,7 @@ module Ibex
 
     # @rbs (Array[String] arguments) -> Integer
     def run_documentation_command(arguments)
-      settings = { format: "markdown", mode: :racc } #: documentation_settings
+      settings = { format: "markdown", mode: :default } #: documentation_settings
       parser = documentation_option_parser(settings)
       remaining = parser.parse(arguments)
       if settings[:help]
@@ -59,7 +59,7 @@ module Ibex
           settings[:format] = value
         end
         options.on("-o FILE", "--output=FILE", "write atomically to FILE") { |value| settings[:output] = value }
-        options.on("--mode=MODE", %w[racc extended], "grammar mode") { |value| settings[:mode] = value.to_sym }
+        options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| settings[:mode] = value.to_sym }
         options.on("--help", "show help") { settings[:help] = true }
       end
     end

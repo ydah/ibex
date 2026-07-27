@@ -24,8 +24,8 @@ module Ibex
       attr_reader :attempted_paths #: Array[String]
 
       # @rbs (String path, ?mode: Symbol, ?loader: SourceLoader) -> void
-      def initialize(path, mode: :racc, loader: SourceLoader.new)
-        raise ArgumentError, "mode must be :racc or :extended" unless %i[racc extended].include?(mode)
+      def initialize(path, mode: :default, loader: SourceLoader.new)
+        raise ArgumentError, "mode must be :default or :extended" unless %i[default extended].include?(mode)
 
         @input_path = path
         @mode = mode

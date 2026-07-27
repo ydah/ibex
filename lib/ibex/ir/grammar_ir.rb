@@ -190,7 +190,7 @@ module Ibex
       def initialize(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
                      conversions:, warnings:, user_code_chunks: nil, schema_version: SCHEMA_VERSION,
                      source_provenance: nil, migration: nil, expect_rr: nil, parser_parameters: [], value_printers: [],
-                     grammar_tests: [], recovery: nil, lexer: nil, mode: :racc, starts: nil)
+                     grammar_tests: [], recovery: nil, lexer: nil, mode: :default, starts: nil)
         validate_mode(mode)
         normalized_starts = validate_starts(start, starts, mode)
 
@@ -248,7 +248,7 @@ module Ibex
 
       # @rbs (grammar_mode mode) -> void
       def validate_mode(mode)
-        raise ArgumentError, "mode must be :racc or :extended" unless %i[racc extended].include?(mode)
+        raise ArgumentError, "mode must be :default or :extended" unless %i[default extended].include?(mode)
       end
 
       # @rbs (String start, Array[String]? starts, grammar_mode mode) -> Array[String]

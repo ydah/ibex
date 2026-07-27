@@ -1,6 +1,6 @@
 # Grammar reference
 
-Ibex's default `racc` mode accepts the compatible grammar described here. `--mode=extended` or an explicit grammar-file
+Ibex's `default` mode accepts the compatible grammar described here. `--mode=extended` or an explicit grammar-file
 `pragma extended` adds the marked syntax; extensions are never inferred from a production.
 
 ## File structure
@@ -78,7 +78,7 @@ bytes; spans and `slice` use zero-based half-open byte offsets. Line and column 
 scalar values. Input is interpreted as UTF-8 without transcoding and invalid byte sequences are rejected before lexing.
 `parse_source_document` accepts either a root or, in extended mode, an explicit fragment.
 
-`ibex fmt [--mode=racc|extended] grammar.y` formats to stdout. `fmt --check FILE...` reports all invalid or noncanonical files,
+`ibex fmt [--mode=default|extended] grammar.y` formats to stdout. `fmt --check FILE...` reports all invalid or noncanonical files,
 and `fmt --write FILE...` validates and stages the complete batch before transactionally replacing changed files. Standard input
 is available as `fmt -`; `--stdin-filename=FILE` supplies its control-byte-free diagnostic name. Check and write modes require
 file paths. Formatting changes only whitespace/newline trivia, retains token, comment, action/heredoc, and user-code bytes in
@@ -108,7 +108,7 @@ filesystem read failures remain CLI invocation errors on stderr and do not produ
 
 ## Declarations
 
-- `pragma extended` enables extended syntax for this grammar even when the CLI uses its default or explicit `--mode=racc`.
+- `pragma extended` enables extended syntax for this grammar even when the CLI uses its default or explicit `--mode=default`.
   It must immediately follow the class header, before every ordinary declaration. Unknown, duplicate, and misplaced pragmas
   are positioned errors. The frontend records the effective mode on the root AST, and Grammar IR v2 records extended mode
   additively so downstream generators preserve its runtime behavior.
@@ -538,7 +538,7 @@ Grammar IR, so it is also available before automaton construction and when resum
 
 `ibex explain grammar.y` is the focused conflict view. `--state=N` and `--token=NAME` select their intersection;
 `--format=text|json` chooses step-by-step text or the version-1 document described by `schema/explain-v1.schema.json`.
-`--algorithm=slr|lalr|ielr|lr1` selects construction, `--mode=racc|extended` applies the same frontend mode as generation, and both
+`--algorithm=slr|lalr|ielr|lr1` selects construction, `--mode=default|extended` applies the same frontend mode as generation, and both
 counterexample budget options bound its witness search. Search runs only after state and token selection and only for matching
 conflicts. Token selectors prefer a canonical grammar name, then an exact unique display name. Unknown or ambiguous selectors
 are errors; valid selectors with no matching conflict succeed with an empty result.

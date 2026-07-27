@@ -17,7 +17,7 @@ class LookaheadCorrectionCodegenTest < Minitest::Test
   end
 
   def test_compatible_mode_keeps_the_historical_expected_token_contract
-    parser_class = generate(mode: :racc)
+    parser_class = generate(mode: :default)
 
     refute parser_class.parser_tables.key?(:exact_expected_tokens)
   end

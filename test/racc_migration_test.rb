@@ -36,7 +36,7 @@ class RaccMigrationTest < Minitest::Test
     assert_equal %i[error warning], report.findings.map(&:severity)
   end
 
-  def test_racc_mode_syntax_and_normalization_errors_are_structured
+  def test_default_mode_syntax_and_normalization_errors_are_structured
     syntax = Ibex::RaccMigration::Checker.new.check(
       "class Extended\nrule\nstart: TOKEN?\nend\n",
       file: "extended.y"

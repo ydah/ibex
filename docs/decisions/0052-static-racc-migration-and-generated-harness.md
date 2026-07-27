@@ -12,7 +12,7 @@ visible, keep generation deterministic, and still automate the repetitive two-ge
 
 ## Decision
 
-`ibex migrate-check [--format=text|json] GRAMMAR` is static. It parses and normalizes in racc mode, reports structured syntax and
+`ibex migrate-check [--format=text|json] GRAMMAR` is static. It parses and normalizes in default mode, reports structured syntax and
 normalization failures, detects an explicit `Racc::` superclass, and flags user-code chunks that require the racc runtime or
 reference a `Racc::` constant. Opaque semantic actions and user-code chunks are never evaluated. Errors produce status 1;
 warnings remain compatible and produce status 0. JSON follows `schema/migration-check-v1.schema.json`.

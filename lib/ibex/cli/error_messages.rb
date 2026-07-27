@@ -61,7 +61,7 @@ module Ibex
         options.on("--from=FORMAT", %w[grammar-ir automaton-ir], "resume from IR JSON") do |value|
           @options[:from] = value
         end
-        options.on("--mode=MODE", %w[racc extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
+        options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
         options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
           @options[:algorithm] = value.to_sym
           @options[:messages_algorithm_explicit] = true

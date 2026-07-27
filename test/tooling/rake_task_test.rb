@@ -23,7 +23,7 @@ class RakeTaskTest < Minitest::Test
 
       Ibex::RakeTask.new(output) do |task|
         task.grammar = grammar
-        task.options = ["--mode=racc"]
+        task.options = ["--mode=default"]
       end
 
       task = Rake::Task[output]

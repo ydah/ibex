@@ -25,7 +25,7 @@ module Ibex
     # @rbs (Array[String] arguments) -> Integer
     def run_diagnose_command(arguments)
       settings = {
-        format: "text", max_diagnostics: DEFAULT_MAX_DIAGNOSTICS, mode: :racc
+        format: "text", max_diagnostics: DEFAULT_MAX_DIAGNOSTICS, mode: :default
       } #: diagnostic_settings
       parser = diagnostics_option_parser(settings)
       remaining = parser.parse(arguments)
@@ -78,7 +78,7 @@ module Ibex
         options.on("--max-diagnostics=N", "positive diagnostic limit") do |value|
           settings[:max_diagnostics] = positive_diagnostic_limit(value)
         end
-        options.on("--mode=MODE", %w[racc extended], "grammar mode") { |value| settings[:mode] = value.to_sym }
+        options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| settings[:mode] = value.to_sym }
         options.on("--help", "show help") { settings[:help] = true }
       end
     end

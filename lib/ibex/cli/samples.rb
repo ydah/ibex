@@ -60,7 +60,7 @@ module Ibex
         options.on("--from=FORMAT", %w[grammar-ir automaton-ir], "read versioned IR JSON") do |value|
           @options[:from] = value
         end
-        options.on("--mode=MODE", %w[racc extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
+        options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
         options.on("--warnings=CATEGORIES", "all, error, all,error, or none") do |value|
           @options[:warnings] = warning_categories(value)
         end

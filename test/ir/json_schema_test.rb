@@ -108,7 +108,7 @@ class IRJSONSchemaTest < Minitest::Test
     schemer = JSONSchemer.schema(grammar, ref_resolver: resolver)
     document = fixture("grammar-v2.json")
 
-    %w[racc extended].each do |mode|
+    %w[default extended].each do |mode|
       document["mode"] = mode
       assert_empty schemer.validate(document).to_a
     end

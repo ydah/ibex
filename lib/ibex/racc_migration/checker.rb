@@ -11,7 +11,7 @@ module Ibex
 
       # @rbs (String source, file: String) -> Report
       def check(source, file:)
-        result = Frontend::Parser.new(source, file: file, mode: :racc).parse_with_diagnostics
+        result = Frontend::Parser.new(source, file: file, mode: :default).parse_with_diagnostics
         findings = result.diagnostics.map { |diagnostic| syntax_finding(diagnostic) }
         ast = result.ast
         return Report.new(file: file, class_name: nil, findings: findings) unless ast
@@ -31,7 +31,8 @@ module Ibex
           severity: :error,
           message: diagnostic.message,
           location: diagnostic.location,
-          suggestion: "keep the grammar in racc mode, or adopt the reported extension explicitly with `pragma extended`"
+          suggestion: "keep the grammar in default mode, or adopt the reported extension explicitly " \
+                      "with `pragma extended`"
         )
       end
 
@@ -78,7 +79,7 @@ module Ibex
 
       # @rbs (Frontend::AST::Root ast) -> Array[Finding]
       def normalization_findings(ast)
-        Normalizer.new(ast, mode: :racc).normalize
+        Normalizer.new(ast, mode: :default).normalize
         []
       rescue Ibex::Error => e
         location, message = error_location(e.message, ast.loc)

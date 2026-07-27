@@ -110,7 +110,7 @@ module Ibex
       return explicit.delete_prefix("--mode=").to_sym if explicit
 
       index = @options.index("--mode")
-      index ? @options.fetch(index + 1, "racc").to_sym : :racc
+      index ? @options.fetch(index + 1, "default").to_sym : :default
     end
   end
 end

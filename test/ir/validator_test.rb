@@ -106,7 +106,7 @@ class IRValidatorTest < Minitest::Test
 
     document["mode"] = "future"
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
-    assert_equal "(ir):1:1: $.mode must be one of racc, extended", error.message
+    assert_equal "(ir):1:1: $.mode must be one of default, extended", error.message
   end
 
   def test_validates_v2_multiple_starts_and_automaton_entry_states

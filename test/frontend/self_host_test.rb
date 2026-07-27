@@ -16,31 +16,31 @@ class FrontendSelfHostTest < Minitest::Test
   GENERATED_SIGNATURE = File.expand_path("../../sig/ibex/frontend/generated_parser.rbs", __dir__)
   ROOT = File.expand_path("../..", __dir__)
   MALFORMED_GRAMMARS = [
-    ["class P\ntoken X\n", :racc],
-    ["class P\nrule\ns: X\n", :racc],
-    ["class P\nprechigh\nmiddle X\npreclow\nrule\ns: X\nend\n", :racc],
-    ["class P\nprechigh\nleft X\n", :racc],
-    ["class P\nconvert\nX 'x'\n", :racc],
-    ["class P\nrule\nend\n", :racc],
-    ["class P\nrule\n", :racc],
-    ["class P\nrule\ns: A;\n", :racc],
-    ["token X\n", :racc],
-    ["class P\nexpect nope\nrule\ns: X\nend\n", :racc],
-    ["class P\nstart\n", :racc],
-    ["class P\nstart 1\nrule\ns: X\nend\n", :racc],
-    ["class P\nrule\ns: )\nend\n", :racc],
-    ["class P\nrule\ns: ITEM*\nend\n", :racc],
+    ["class P\ntoken X\n", :default],
+    ["class P\nrule\ns: X\n", :default],
+    ["class P\nprechigh\nmiddle X\npreclow\nrule\ns: X\nend\n", :default],
+    ["class P\nprechigh\nleft X\n", :default],
+    ["class P\nconvert\nX 'x'\n", :default],
+    ["class P\nrule\nend\n", :default],
+    ["class P\nrule\n", :default],
+    ["class P\nrule\ns: A;\n", :default],
+    ["token X\n", :default],
+    ["class P\nexpect nope\nrule\ns: X\nend\n", :default],
+    ["class P\nstart\n", :default],
+    ["class P\nstart 1\nrule\ns: X\nend\n", :default],
+    ["class P\nrule\ns: )\nend\n", :default],
+    ["class P\nrule\ns: ITEM*\nend\n", :default],
     ["class P\nrule\ns: (A { x })\nend\n", :extended],
     ["class P\nrule\ns: (A\nend\n", :extended],
     ["class P\nrule\ns: (separated_list(A, B) { x })\nend\n", :extended],
     ["class P\nrule\ns: (separated_list(A, B\nend\n", :extended],
     ["class P\nrule\ns: (separated_list(A, B)\nend\n", :extended],
-    ["class P\nrule\ns A\nend\n", :racc],
-    ["class P\nrule\ns: ITEM:name\nend\n", :racc],
-    ["class P\nrule\ns: A\nend: B\nend\n", :racc],
-    ["class P\nend\n", :racc],
-    ["class P\nconvert\nX abc\nend\nrule\ns: X\nend\n", :racc],
-    ["class P\nconvert\nX 'one' 'two'\nend\nrule\ns: X\nend\n", :racc]
+    ["class P\nrule\ns A\nend\n", :default],
+    ["class P\nrule\ns: ITEM:name\nend\n", :default],
+    ["class P\nrule\ns: A\nend: B\nend\n", :default],
+    ["class P\nend\n", :default],
+    ["class P\nconvert\nX abc\nend\nrule\ns: X\nend\n", :default],
+    ["class P\nconvert\nX 'one' 'two'\nend\nrule\ns: X\nend\n", :default]
   ].freeze
 
   def test_public_parser_uses_generated_implementation
@@ -230,11 +230,11 @@ class FrontendSelfHostTest < Minitest::Test
 
   private
 
-  def bootstrap(source, file: "grammar.y", mode: :racc)
+  def bootstrap(source, file: "grammar.y", mode: :default)
     Ibex::Frontend::BootstrapParser.new(source, file: file, mode: mode).parse
   end
 
-  def generated(source, file: "grammar.y", mode: :racc)
+  def generated(source, file: "grammar.y", mode: :default)
     Ibex::Frontend::Parser.new(source, file: file, mode: mode).parse
   end
 end

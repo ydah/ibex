@@ -354,7 +354,7 @@ Implementation work uses public racc documentation, CLI black-box behavior, and 
 sources and generated source are not inputs to the design. Self-authored compatibility grammars execute both outputs in separate
 processes and compare observable results.
 
-`RaccMigration::Checker` treats grammar code as opaque while reporting racc-mode parse/normalization errors and known runtime
+`RaccMigration::Checker` treats grammar code as opaque while reporting default-mode parse/normalization errors and known runtime
 coupling. The separate harness generator emits source only; its output refuses an empty corpus and makes bounded child-process
 execution explicit. The boundary is fixed by
 [ADR 0052](decisions/0052-static-racc-migration-and-generated-harness.md).

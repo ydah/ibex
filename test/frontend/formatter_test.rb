@@ -193,7 +193,7 @@ class FrontendFormatterTest < Minitest::Test
 
     paths.each do |path|
       source = File.binread(path)
-      mode = path.include?("/fixtures/grammar/") ? :extended : :racc
+      mode = path.include?("/fixtures/grammar/") ? :extended : :default
       formatted = Ibex::Frontend::Formatter.format(source, file: path, mode: mode)
 
       assert_equal formatted, Ibex::Frontend::Formatter.format(formatted, file: path, mode: mode), path
@@ -202,7 +202,7 @@ class FrontendFormatterTest < Minitest::Test
 
   private
 
-  def format(source, mode: :racc)
+  def format(source, mode: :default)
     Ibex::Frontend::Formatter.format(source, file: "format.y", mode: mode)
   end
 

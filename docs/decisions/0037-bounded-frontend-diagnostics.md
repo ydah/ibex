@@ -56,7 +56,7 @@ only as `ParseResult#ast`, with `partial? == true`. When diagnostics exist, the 
 `document.ast == nil`; callers cannot mistake a repaired projection for the meaning of the unchanged source. Token-array input
 can return a partial AST but has no source document.
 
-`ibex diagnose [--format=text|json] [--max-diagnostics=N] [--mode=racc|extended] grammar.y` is the explicit CLI boundary. It
+`ibex diagnose [--format=text|json] [--max-diagnostics=N] [--mode=default|extended] grammar.y` is the explicit CLI boundary. It
 never generates a parser or executes application code. After an error-free root parse, extended-mode include resolution may
 add the first cross-file security, missing-target, cycle, or fragment-syntax failure as `frontend.resolution_error`; recovery
 across files is deliberately bounded to that single record and exposes no AST. Text and JSON go to stdout. A structured

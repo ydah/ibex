@@ -6,7 +6,7 @@ require "json"
 class FrontendParserTest < Minitest::Test
   FIXTURE = File.expand_path("../fixtures/grammar/comprehensive.y", __dir__)
 
-  def parse(source, mode: :racc)
+  def parse(source, mode: :default)
     Ibex::Frontend::Parser.new(source, file: "grammar.y", mode: mode).parse
   end
 
@@ -50,7 +50,7 @@ class FrontendParserTest < Minitest::Test
     assert_equal %w[B C], names
   end
 
-  def test_pragma_extended_enables_extensions_in_racc_mode_without_entering_the_ast
+  def test_pragma_extended_enables_extensions_in_default_mode_without_entering_the_ast
     source = "class P\npragma extended\nrule\nvalues: ITEM:first ITEM*\nend\n"
     ast = parse(source)
     items = ast.rules.first.alternatives.first.items
@@ -178,7 +178,7 @@ class FrontendParserTest < Minitest::Test
     assert_includes error.message, "%empty require extended mode"
   end
 
-  def test_rejects_symbol_metadata_in_racc_mode_and_empty_values
+  def test_rejects_symbol_metadata_in_default_mode_and_empty_values
     error = assert_raises(Ibex::Error) do
       parse("class P\ndisplay NUM \"number\"\nrule\ns: NUM\nend\n")
     end
@@ -210,7 +210,7 @@ class FrontendParserTest < Minitest::Test
     assert_match(/grammar\.y:3:1:/, error.message)
   end
 
-  def test_rejects_extensions_in_racc_mode
+  def test_rejects_extensions_in_default_mode
     error = assert_raises(Ibex::Error) { parse("class P\nrule\ns: ITEM*\nend\n") }
     assert_equal "grammar.y:3:8: EBNF suffixes require extended mode", error.message
 

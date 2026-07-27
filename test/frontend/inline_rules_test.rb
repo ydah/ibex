@@ -24,11 +24,11 @@ class FrontendInlineRulesTest < Minitest::Test
 
   def test_inline_rules_are_extended_only_but_pragma_enables_them
     source = "class P\nrule\n%inline helper: ITEM\nstart: helper\nend\n"
-    error = assert_raises(Ibex::Error) { parse(source, mode: :racc) }
+    error = assert_raises(Ibex::Error) { parse(source, mode: :default) }
     assert_equal "inline.y:3:1: inline rules require extended mode", error.message
 
     source = "class P\npragma extended\nrule\n%inline helper: ITEM\nstart: helper\nend\n"
-    assert_predicate parse(source, mode: :racc).rules.first, :inline
+    assert_predicate parse(source, mode: :default).rules.first, :inline
   end
 
   def test_bootstrap_and_generated_frontends_agree_for_roots_and_fragments

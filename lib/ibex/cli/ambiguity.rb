@@ -58,7 +58,7 @@ module Ibex
         options.on("--entry-isolation", "build independent state sets for each start symbol") do
           @options[:entry_isolation] = true
         end
-        options.on("--mode=MODE", %w[racc extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
+        options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
         options.on("--help", "show help") { @options[:help] = true }
       end
     end

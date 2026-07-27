@@ -25,7 +25,7 @@ module Ibex
     # @rbs (Array[String] arguments) -> Integer
     def run_grammar_tests_command(arguments)
       settings = {
-        mode: :racc, algorithm: :lalr, entry_isolation: false, timeout: GrammarTests::DEFAULT_TIMEOUT, coverage: nil
+        mode: :default, algorithm: :lalr, entry_isolation: false, timeout: GrammarTests::DEFAULT_TIMEOUT, coverage: nil
       } #: grammar_test_settings
       options = grammar_test_option_parser(settings)
       remaining = options.parse(arguments)
@@ -55,7 +55,7 @@ module Ibex
     def grammar_test_option_parser(settings)
       OptionParser.new do |options|
         options.banner = "Usage: ibex test [options] grammarfile"
-        options.on("--mode=MODE", %w[racc extended], "grammar mode") { |value| settings[:mode] = value.to_sym }
+        options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| settings[:mode] = value.to_sym }
         options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
           settings[:algorithm] = value.to_sym
         end

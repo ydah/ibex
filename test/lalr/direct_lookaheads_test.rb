@@ -369,7 +369,7 @@ class DirectLookaheadsTest < Minitest::Test
     lookaheads.send(:closure, Set.new(moved))
   end
 
-  def normalize(source, mode: :racc)
+  def normalize(source, mode: :default)
     ast = Ibex::Frontend::Parser.new(source, file: "direct-lookaheads.y", mode: mode).parse
     Ibex::Normalizer.new(ast, mode: mode).normalize
   end

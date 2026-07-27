@@ -20,8 +20,8 @@ module Ibex
       # @rbs @lexical_diagnostics: Array[Diagnostic]
 
       # @rbs (String | Array[Token] source, ?file: String, ?mode: Symbol) -> void
-      def initialize(source, file: "(grammar)", mode: :racc)
-        raise ArgumentError, "mode must be :racc or :extended" unless %i[racc extended].include?(mode)
+      def initialize(source, file: "(grammar)", mode: :default)
+        raise ArgumentError, "mode must be :default or :extended" unless %i[default extended].include?(mode)
 
         @mode = mode
         @lexical_diagnostics = [] #: Array[Diagnostic]

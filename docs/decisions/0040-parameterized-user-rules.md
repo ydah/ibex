@@ -28,7 +28,7 @@ numbers: list(NUM)
 The callee and opening parenthesis of a definition or call must be byte-adjacent. In particular, `list(NUM)` is a call while
 `list (NUM)` remains the existing symbol followed by an EBNF group. Arguments are structural extended RHS expressions without
 actions or precedence overrides; calls may be nested. Named references and `?`, `*`, and `+` suffixes after a call apply to the
-specialized nonterminal exactly as they do to a symbol reference. Racc mode rejects the opening parenthesis at its source
+specialized nonterminal exactly as they do to a symbol reference. Default mode rejects the opening parenthesis at its source
 location. Named references inside arguments are rejected; named references on formal occurrences and on the completed call have
 unambiguous scopes.
 

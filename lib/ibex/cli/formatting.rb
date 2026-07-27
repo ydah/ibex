@@ -68,7 +68,7 @@ module Ibex
 
     # @rbs (Array[String] arguments) -> formatting_settings
     def formatting_options(arguments)
-      settings = { paths: [], mode: :racc, check: false, write: false } #: formatting_settings
+      settings = { paths: [], mode: :default, check: false, write: false } #: formatting_settings
       settings[:paths] = formatting_option_parser(settings).parse(arguments)
       settings
     end
@@ -79,7 +79,7 @@ module Ibex
         options.banner = "Usage: ibex fmt [--check | --write] [options] grammar.y [...]"
         options.on("--check", "report files that need formatting") { settings[:check] = true }
         options.on("--write", "atomically format files in place") { settings[:write] = true }
-        options.on("--mode=MODE", %w[racc extended], "grammar mode") { |value| settings[:mode] = value.to_sym }
+        options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| settings[:mode] = value.to_sym }
         options.on("--stdin-filename=FILE", "diagnostic filename for standard input") do |value|
           settings[:stdin_filename] = value
         end

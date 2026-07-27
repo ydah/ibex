@@ -8,7 +8,7 @@ require "tempfile"
 # rubocop:disable Metrics/ClassLength -- generated source and runtime behavior share one fixture.
 class RubyCodegenTest < Minitest::Test
   def generate(source, file: "generated_source.y", **options)
-    mode = options.delete(:mode) || :racc
+    mode = options.delete(:mode) || :default
     ast = Ibex::Frontend::Parser.new(source, file: file, mode: mode).parse
     grammar = Ibex::Normalizer.new(ast, mode: mode).normalize
     automaton = Ibex::LALR::Builder.new(grammar).build

@@ -91,12 +91,12 @@ module Ibex
     # @rbs (Frontend::AST::Root | Frontend::AST::Fragment | Frontend::Resolution input,
     #   ?mode: Symbol | String, ?max_parameter_specializations: Integer,
     #   ?max_inline_expansions: Integer) -> void
-    def initialize(input, mode: :racc, max_parameter_specializations: DEFAULT_MAX_PARAMETER_SPECIALIZATIONS,
+    def initialize(input, mode: :default, max_parameter_specializations: DEFAULT_MAX_PARAMETER_SPECIALIZATIONS,
                    max_inline_expansions: DEFAULT_MAX_INLINE_EXPANSIONS)
       validate_positive_limit!(:max_parameter_specializations, max_parameter_specializations)
       validate_positive_limit!(:max_inline_expansions, max_inline_expansions)
       normalized_mode = mode.to_sym
-      raise ArgumentError, "mode must be :racc or :extended" unless %i[racc extended].include?(normalized_mode)
+      raise ArgumentError, "mode must be :default or :extended" unless %i[default extended].include?(normalized_mode)
 
       @resolution = input if input.is_a?(Frontend::Resolution)
       ast = input.is_a?(Frontend::Resolution) ? input.root : input

@@ -59,7 +59,7 @@ module Ibex
     #   type migration_metadata = { from_schema_version: Integer, unavailable: Array[String] }
     #   type user_code_chunks = Hash[String, Array[UserCodeChunk]]
     #   type grammar_options = { result_var: bool, omit_action_call: bool, ?cst: bool }
-    #   type grammar_mode = :racc | :extended
+    #   type grammar_mode = :default | :extended
     #   type grammar_warning = {
     #     type: Symbol,
     #     ?symbol: String,

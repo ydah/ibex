@@ -34,7 +34,7 @@ and trailing horizontal trivia are canonicalized. A newly required line boundary
 including a newline inside an opaque action or user-code body, or `\n` when the source had none. Consecutive `##` comments stay
 consecutive and immediately above their rule, preserving documentation attachment.
 
-The formatted text is reparsed in the same `racc` or `extended` mode. An explicit work stack compares the two AST projections
+The formatted text is reparsed in the same `default` or `extended` mode. An explicit work stack compares the two AST projections
 without calling recursive `AST#to_h`; Struct members and Hash keys named `loc` or `span` are excluded. This keeps deeply nested,
 otherwise valid EBNF within the parser's existing depth contract. Any parse failure or projection difference rejects the result.
 Formatting is idempotent.
@@ -46,7 +46,7 @@ The CLI exposes:
 - `ibex fmt --check a.y b.y`, which reports every invalid or noncanonical input and exits 1 when any is found; and
 - `ibex fmt --write a.y b.y`, which validates and stages the whole batch before transactionally replacing changed files.
 
-`--mode=racc|extended` selects the frontend mode. The subcommand owns a separate option parser, so parser-generation options are
+`--mode=default|extended` selects the frontend mode. The subcommand owns a separate option parser, so parser-generation options are
 rejected. Check and write modes accept filesystem inputs only. A stdin diagnostic name containing a control byte is rejected;
 control bytes in filesystem paths are escaped in one-line diagnostics.
 
@@ -69,7 +69,7 @@ never staged.
 
 - Formatting shares the exact lexer/parser authority used by generation and cannot observe fake grammar syntax inside Ruby.
 - Comments and opaque application code remain reviewable as authored, while grammar trivia becomes deterministic.
-- Root grammars, explicit fragments, racc syntax, and extended nested EBNF use one formatter and one equivalence check.
+- Root grammars, explicit fragments, default-mode syntax, and extended nested EBNF use one formatter and one equivalence check.
 - `fmt --check` is suitable for CI and reports the complete requested batch instead of stopping at its first problem.
 - In-place updates preserve the existing path contract, full permission mode, and symlink identity, while a batch failure
   restores every target instead of leaving a partial update.

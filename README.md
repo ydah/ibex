@@ -161,7 +161,7 @@ boundaries.
 
 | Mode | Use it for | Contract |
 | --- | --- | --- |
-| `racc` (default) | Existing racc grammars and conservative migrations | Compatible syntax and runtime behavior |
+| `default` | Existing racc grammars and conservative migrations | Compatible syntax and runtime behavior |
 | `extended` | New grammars that need composition or generated tooling | Preview, explicitly enabled |
 
 Enable extended syntax with `pragma extended` in the grammar or

@@ -112,7 +112,7 @@ class ActionSourceCodegenTest < Minitest::Test
 
   private
 
-  def build(source, file:, mode: :racc)
+  def build(source, file:, mode: :default)
     ast = Ibex::Frontend::Parser.new(source, file: file, mode: mode).parse
     grammar = Ibex::Normalizer.new(ast, mode: mode).normalize
     Ibex::LALR::Builder.new(grammar).build

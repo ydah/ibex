@@ -88,7 +88,7 @@ module Ibex
         productions = data.fetch("productions").map { |production| load_production(production, schema_version) }
         Grammar.new(class_name: data.fetch("class_name"), superclass: data["superclass"], start: data.fetch("start"),
                     expect: data.fetch("expect"), options: symbolize(data.fetch("options")), symbols: symbols,
-                    mode: (data["mode"] || "racc").to_sym,
+                    mode: (data["mode"] || "default").to_sym,
                     starts: data["starts"],
                     expect_rr: data["expect_rr"],
                     parser_parameters: symbolize(data.fetch("params", empty_parameters)),

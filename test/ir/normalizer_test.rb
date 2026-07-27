@@ -4,7 +4,7 @@ require_relative "../test_helper"
 
 # rubocop:disable Metrics/ClassLength -- cases cover one normalization boundary.
 class NormalizerTest < Minitest::Test
-  def normalize(source, mode: :racc)
+  def normalize(source, mode: :default)
     ast = Ibex::Frontend::Parser.new(source, file: "normalize.y", mode: mode).parse
     Ibex::Normalizer.new(ast, mode: mode).normalize
   end
@@ -12,7 +12,7 @@ class NormalizerTest < Minitest::Test
   def test_reserves_symbols_and_round_trips_stably
     grammar = normalize("class P\ntoken INT\nrule\nstart: INT\nend\n")
     assert_equal 2, grammar.schema_version
-    assert_equal :racc, grammar.mode
+    assert_equal :default, grammar.mode
     assert_equal({ file: "normalize.y", root: nil, byte_span: nil }, grammar.source_provenance)
     assert_equal ["$eof", "error"], grammar.symbols.first(2).map(&:name)
     assert_equal [0, 1], grammar.symbols.first(2).map(&:id)

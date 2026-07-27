@@ -33,7 +33,7 @@ class FrontendImportTest < Minitest::Test
 
   private
 
-  def parse(source, mode: :racc)
+  def parse(source, mode: :default)
     Ibex::Frontend::Parser.new(source, file: "grammar.y", mode: mode).parse
   end
 

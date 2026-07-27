@@ -19,8 +19,8 @@ module Ibex
       # @rbs @mode: Symbol
 
       # @rbs (Array[Token] tokens, ?mode: Symbol) -> void
-      def initialize(tokens, mode: :racc)
-        raise ArgumentError, "mode must be :racc or :extended" unless %i[racc extended].include?(mode)
+      def initialize(tokens, mode: :default)
+        raise ArgumentError, "mode must be :default or :extended" unless %i[default extended].include?(mode)
 
         super()
         @adapter = TokenAdapter.new(tokens, extended: mode == :extended)

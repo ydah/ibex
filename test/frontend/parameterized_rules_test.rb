@@ -53,11 +53,11 @@ class FrontendParameterizedRulesTest < Minitest::Test
 
   def test_parameterized_rules_are_extended_only_but_pragma_enables_them
     source = "class P\nrule\nlist(X): X\nstart: list(NUM)\nend\n"
-    error = assert_raises(Ibex::Error) { parse(source, mode: :racc) }
+    error = assert_raises(Ibex::Error) { parse(source, mode: :default) }
     assert_equal "parameter.y:3:5: parameterized rules require extended mode", error.message
 
     source = "class P\npragma extended\nrule\nlist(X): X\nstart: list(NUM)\nend\n"
-    assert_equal ["X"], parse(source, mode: :racc).rules.first.parameters
+    assert_equal ["X"], parse(source, mode: :default).rules.first.parameters
   end
 
   def test_bootstrap_and_generated_frontends_agree

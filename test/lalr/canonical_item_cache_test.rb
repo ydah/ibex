@@ -332,7 +332,7 @@ class CanonicalItemCacheTest < Minitest::Test
     [metrics.construction_states, metrics.canonical_states, metrics.final_states, metrics.strategy]
   end
 
-  def normalize(source, mode: :racc)
+  def normalize(source, mode: :default)
     ast = Ibex::Frontend::Parser.new(source, file: "canonical-items.y", mode: mode).parse
     Ibex::Normalizer.new(ast, mode: mode).normalize
   end

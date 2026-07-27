@@ -5,13 +5,13 @@ require "stringio"
 require "tempfile"
 
 class CLIPragmaTest < Minitest::Test
-  def test_grammar_pragma_promotes_explicit_racc_mode_to_extended
+  def test_grammar_pragma_promotes_explicit_default_mode_to_extended
     Tempfile.create(["extended", ".y"]) do |file|
       file.write("class P\npragma extended\nrule\nstart: TOKEN+\nend\n")
       file.flush
       output = StringIO.new
       errors = StringIO.new
-      status = Ibex::CLI.start(["--mode=racc", "--emit=grammar-ir", file.path],
+      status = Ibex::CLI.start(["--mode=default", "--emit=grammar-ir", file.path],
                                stdout: output, stderr: errors)
 
       assert_equal 0, status, errors.string

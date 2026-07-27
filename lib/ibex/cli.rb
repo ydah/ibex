@@ -148,7 +148,7 @@ module Ibex
       @watch_clock = watch_clock || -> { Process.clock_gettime(Process::CLOCK_MONOTONIC) }
       @watch_sleeper = watch_sleeper || ->(seconds) { sleep(seconds) }
       @watch_iteration_hook = watch_iteration_hook || ->(_event, _iteration, _paths) {}
-      @options = { emit: "ruby", mode: :racc, table: :compact, line_convert: true }
+      @options = { emit: "ruby", mode: :default, table: :compact, line_convert: true }
                  .merge(CLICounterexampleOptions::DEFAULTS)
     end
     # rubocop:enable Layout/LineLength
@@ -240,7 +240,7 @@ module Ibex
       options.on("--from=FORMAT", %w[grammar-ir automaton-ir], "resume from IR JSON") do |value|
         @options[:from] = value
       end
-      options.on("--mode=MODE", %w[racc extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
+      options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
       options.on("--table=FORMAT", %w[plain compact], "parser table format") do |value|
         @options[:table] = value.to_sym
       end

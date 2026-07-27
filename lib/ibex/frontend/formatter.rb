@@ -24,13 +24,13 @@ module Ibex
       #   }
 
       # @rbs (String source, ?file: String, ?mode: Symbol) -> String
-      def self.format(source, file: "(grammar)", mode: :racc)
+      def self.format(source, file: "(grammar)", mode: :default)
         new(mode: mode).format(source, file: file)
       end
 
       # @rbs (?mode: Symbol) -> void
-      def initialize(mode: :racc)
-        raise ArgumentError, "mode must be :racc or :extended" unless %i[racc extended].include?(mode)
+      def initialize(mode: :default)
+        raise ArgumentError, "mode must be :default or :extended" unless %i[default extended].include?(mode)
 
         @mode = mode
       end

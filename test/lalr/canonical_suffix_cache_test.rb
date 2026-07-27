@@ -166,7 +166,7 @@ class CanonicalSuffixCacheTest < Minitest::Test
     assert_operator allocations, :<, iterations / 10
   end
 
-  def normalize(source, mode: :racc)
+  def normalize(source, mode: :default)
     ast = Ibex::Frontend::Parser.new(source, file: "canonical-cache.y", mode: mode).parse
     Ibex::Normalizer.new(ast, mode: mode).normalize
   end

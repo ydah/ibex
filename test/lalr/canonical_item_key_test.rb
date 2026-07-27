@@ -156,7 +156,7 @@ class CanonicalItemKeyTest < Minitest::Test
     Ibex::Codegen::Ruby.new(automaton, table: :compact, line_convert: false).generate
   end
 
-  def normalize(source, mode: :racc)
+  def normalize(source, mode: :default)
     ast = Ibex::Frontend::Parser.new(source, file: "canonical-item-key.y", mode: mode).parse
     Ibex::Normalizer.new(ast, mode: mode).normalize
   end

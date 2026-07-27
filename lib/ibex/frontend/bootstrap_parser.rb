@@ -13,8 +13,8 @@ module Ibex
       # @rbs @mode: Symbol
 
       # @rbs (String | Array[Token] source, ?file: String, ?mode: Symbol) -> void
-      def initialize(source, file: "(grammar)", mode: :racc)
-        raise ArgumentError, "mode must be :racc or :extended" unless %i[racc extended].include?(mode)
+      def initialize(source, file: "(grammar)", mode: :default)
+        raise ArgumentError, "mode must be :default or :extended" unless %i[default extended].include?(mode)
 
         @tokens = source.is_a?(Array) ? source : Lexer.new(source, file: file).tokenize
         @index = 0

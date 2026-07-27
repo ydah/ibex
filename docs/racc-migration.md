@@ -12,7 +12,7 @@ copy racc's internal table arrays, internal method names, native runtime, or gen
 4. Change the generated-file runtime dependency from deployment packaging only; application calls to `do_parse`, `yyparse`,
    `next_token`, `on_error`, `token_to_str`, `yyerror`, `yyerrok`, and `yyaccept` remain the same.
 5. Use `-E` if the generated parser must be a single file with no installed Ibex gem.
-6. Keep the default `--mode=racc` until intentionally adopting EBNF or names. Extended grammars can make that choice locally by
+6. Keep the default `--mode=default` until intentionally adopting EBNF or names. Extended grammars can make that choice locally by
    placing `pragma extended` immediately after their class header instead of requiring `--mode=extended` at each invocation.
 
 ## CLI mapping
