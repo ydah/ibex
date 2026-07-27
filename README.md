@@ -10,7 +10,7 @@ requires no C or Java extension.
 > [!IMPORTANT]
 > Ibex is pre-1.0. The current v1.0 decision is
 > [**HOLD**](docs/release-readiness.md): compatibility and scale evidence pass,
-> but the official Pure Ruby generator/runtime comparison must be refreshed
+> but cold generation and new-instance runtime still trail Racc's Ruby backend,
 > and the error UX evidence still needs independent review. Compatible mode is
 > the stable baseline; opt-in features have the maturity levels documented in
 > the [stability policy](docs/stability.md).
