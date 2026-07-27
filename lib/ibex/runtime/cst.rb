@@ -22,6 +22,9 @@ require_relative "cst/diff" unless defined?(Ibex::Runtime::CST::Diff)
 require_relative "cst/serialized_tree" unless defined?(Ibex::Runtime::CST::SerializedTree)
 require_relative "cst/validator" unless defined?(Ibex::Runtime::CST::Validator)
 require_relative "cst/serialize" unless defined?(Ibex::Runtime::CST::Serialize)
+require_relative "cst/incremental/token_memo" unless defined?(Ibex::Runtime::CST::TokenMemo)
+require_relative "cst/incremental/relexer" unless defined?(Ibex::Runtime::CST::Relexer)
+require_relative "cst/incremental/session" unless defined?(Ibex::Runtime::CST::IncrementalParseSession)
 
 module Ibex
   module Runtime

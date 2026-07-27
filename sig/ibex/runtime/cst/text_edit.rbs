@@ -5,6 +5,17 @@ module Ibex
     module CST
       # One byte-oriented source replacement.
       class TextEdit
+        # Sort and merge adjacent edits while rejecting intersecting source ranges.
+        # All edits remain expressed against the unedited source.
+        # @rbs (Array[TextEdit] edits) -> Array[TextEdit]
+        def self.normalize: (Array[TextEdit] edits) -> Array[TextEdit]
+
+        # @rbs (Array[TextEdit] ordered) -> Array[TextEdit]
+        private def self.merge_adjacent: (Array[TextEdit] ordered) -> Array[TextEdit]
+
+        # @rbs (Array[TextEdit] normalized, TextEdit previous, TextEdit edit) -> void
+        private def self.merge_with_previous: (Array[TextEdit] normalized, TextEdit previous, TextEdit edit) -> void
+
         attr_reader start: Integer
 
         attr_reader delete_length: Integer

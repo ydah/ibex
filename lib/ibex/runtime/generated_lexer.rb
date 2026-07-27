@@ -70,6 +70,13 @@ module Ibex
         parser.__send__(:syntax_parse_result, value)
       end
 
+      # Parse without executing parser production actions.
+      # Lexer actions still run because they define tokenization and lexer state.
+      # @rbs (String source, ?file: String) -> CST::SyntaxResult
+      def parse_syntax(source, file: "(input)")
+        parse_syntax_with_cache(CST::SourceText.new(source, file: file), CST::NodeCache.new)
+      end
+
       # Return the current named lexer state.
       # @rbs () -> Symbol
       def lexer_state
@@ -93,7 +100,7 @@ module Ibex
 
         loop do
           unless ensure_lexer_data?(input)
-            location = lexer_zero_width_location
+            location = lexer_zero_width_location.merge(ibex_lexer_start_state: lexer_state).freeze
             location = attach_cst_trivia(location) if red_green_cst?
             return [nil, nil, location]
           end
@@ -102,12 +109,34 @@ module Ibex
           raise_lexer_no_match(input) unless rule && lexeme
 
           location = consume_lexer_match(input, lexeme)
+                     .merge(ibex_lexer_start_state: lexer_state).freeze
           emitted = apply_lexer_rule(rule, lexeme, location)
           return emitted if emitted
         end
       end
 
       private
+
+      # @rbs (CST::SourceText source_text, CST::NodeCache cache) -> CST::SyntaxResult
+      def parse_syntax_with_cache(source_text, cache)
+        parser = self #: Parser
+        parser.__send__(:with_syntax_only, cache) do
+          lex(source_text.text, file: source_text.file || "(input)")
+          value = begin
+            parser.do_parse
+          rescue ParseError => e
+            raise unless parser_tables[:cst]
+
+            parser.__send__(:cst_lexical_failure, e)
+          end
+          parsed = parser.__send__(:syntax_parse_result, value)
+          CST::SyntaxResult.new(
+            syntax_root: parsed.syntax_root,
+            diagnostics: parsed.diagnostics,
+            reused_ratio: 0.0
+          )
+        end
+      end
 
       # @rbs (LexerInput input) -> bool
       def ensure_lexer_data?(input)

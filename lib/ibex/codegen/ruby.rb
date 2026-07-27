@@ -49,6 +49,9 @@ module Ibex
         ../runtime/cst/serialized_tree.rb
         ../runtime/cst/validator.rb
         ../runtime/cst/serialize.rb
+        ../runtime/cst/incremental/token_memo.rb
+        ../runtime/cst/incremental/relexer.rb
+        ../runtime/cst/incremental/session.rb
         ../runtime/cst.rb
         ../runtime/ast_data.rb
         ../runtime/resource_limits.rb

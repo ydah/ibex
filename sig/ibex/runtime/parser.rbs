@@ -175,7 +175,9 @@ module Ibex
 
       @runtime_observation_mutex: Mutex
 
-      @runtime_fast_path_singleton_ancestors: Array[Module]?
+      @repair_policy: RepairPolicy?
+
+      @repair_input_buffer: Array[RepairInput]?
 
       @recovery_shifts: Integer
 
@@ -200,6 +202,14 @@ module Ibex
       @yydebug_output: IO
 
       @yydebug: bool
+
+      @green_token_states: Array[Symbol]
+
+      @green_cache_override: CST::NodeCache?
+
+      @syntax_only: bool
+
+      @runtime_fast_path_singleton_ancestors: Array[Module]?
 
       @runtime_fast_path_hooks_mutated: bool
 
@@ -243,9 +253,9 @@ module Ibex
 
       @repair_selected: bool
 
-      @repair_input_buffer: Array[RepairInput]?
-
-      @repair_policy: RepairPolicy?
+      # Start a syntax-only incremental session backed by a generated lexer.
+      # @rbs (CST::SourceText source_text, ?resource_limits: ResourceLimits?) -> CST::IncrementalParseSession
+      def self.incremental_session: (CST::SourceText source_text, ?resource_limits: ResourceLimits?) -> CST::IncrementalParseSession
 
       # @rbs (?resource_limits: ResourceLimits) -> void
       def initialize: (?resource_limits: ResourceLimits) -> void
@@ -650,6 +660,18 @@ module Ibex
 
       # @rbs (untyped value) -> CST::ParseResult
       def syntax_parse_result: (untyped value) -> CST::ParseResult
+
+      # @rbs () -> Array[Symbol]
+      def syntax_token_states: () -> Array[Symbol]
+
+      # @rbs (untyped location) -> Symbol
+      def green_lexer_state: (untyped location) -> Symbol
+
+      # @rbs (CST::NodeCache cache) { () -> untyped } -> untyped
+      def with_syntax_only: (CST::NodeCache cache) { () -> untyped } -> untyped
+
+      # @rbs (Symbol type, Hash[untyped, untyped] data) -> void
+      def emit_incremental_event: (Symbol type, Hash[untyped, untyped] data) -> void
 
       # @rbs () -> void
       def discard_green_lookahead: () -> void

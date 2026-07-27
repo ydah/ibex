@@ -25,7 +25,7 @@ module Ibex
         # Apply non-overlapping byte edits expressed against this source.
         # @rbs (Array[TextEdit] edits) -> SourceText
         def apply(edits)
-          ordered = edits.sort_by(&:start)
+          ordered = TextEdit.normalize(edits)
           output = String.new(encoding: Encoding::BINARY)
           cursor = 0
           ordered.each do |edit|

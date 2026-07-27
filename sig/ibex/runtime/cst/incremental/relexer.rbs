@@ -1,0 +1,54 @@
+# Generated from lib/ibex/runtime/cst/incremental/relexer.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Result of comparing one fresh lexical pass with the prior token memo.
+      class RelexResult
+        attr_reader memo: TokenMemo
+
+        attr_reader reused_count: Integer
+
+        attr_reader scanned_count: Integer
+
+        attr_reader resynchronized_at: Integer?
+
+        # @rbs (memo: TokenMemo, reused_count: Integer, scanned_count: Integer,
+        #   resynchronized_at: Integer?) -> void
+        def initialize: (memo: TokenMemo, reused_count: Integer, scanned_count: Integer, resynchronized_at: Integer?) -> void
+
+        # @rbs () -> Float
+        def reused_ratio: () -> Float
+      end
+
+      # Sound Stage-A comparison: scan from the beginning and reuse only exact
+      # token/state/boundary matches, then recognize a shifted suffix boundary.
+      class Relexer
+        # @rbs (TokenMemo previous, TokenMemo current, Array[TextEdit] edits) -> RelexResult
+        def self.reconcile: (TokenMemo previous, TokenMemo current, Array[TextEdit] edits) -> RelexResult
+
+        # @rbs (Array[TextEdit] edits) -> [Integer, Integer, Integer]
+        def self.edit_window: (Array[TextEdit] edits) -> [ Integer, Integer, Integer ]
+
+        # @rbs (TokenMemo memo) -> Hash[Integer, Integer]
+        def self.offset_index: (TokenMemo memo) -> Hash[Integer, Integer]
+
+        # @rbs (TokenMemo previous, TokenMemo current, Array[GreenToken] tokens,
+        #   Hash[Integer, Integer] old_by_offset, Integer damage, Integer delta, Integer resync_boundary) ->
+        #   [Integer, Integer, Integer?]
+        def self.reuse_tokens: (TokenMemo previous, TokenMemo current, Array[GreenToken] tokens, Hash[Integer, Integer] old_by_offset, Integer damage, Integer delta, Integer resync_boundary) -> [ Integer, Integer, Integer? ]
+
+        # @rbs (TokenMemo previous, TokenMemo current, Integer index, Integer new_offset, Integer delta,
+        #   Integer boundary, Hash[Integer, Integer] old_by_offset) -> [Integer, Integer]?
+        def self.reusable_suffix: (TokenMemo previous, TokenMemo current, Integer index, Integer new_offset, Integer delta, Integer boundary, Hash[Integer, Integer] old_by_offset) -> [ Integer, Integer ]?
+
+        # @rbs (Array[GreenToken] target, Array[GreenToken] source, Integer target_index,
+        #   Integer source_index, Integer length) -> void
+        def self.copy_suffix: (Array[GreenToken] target, Array[GreenToken] source, Integer target_index, Integer source_index, Integer length) -> void
+
+        # @rbs (TokenMemo previous, Integer old_index, TokenMemo current, Integer new_index) -> bool
+        def self.reusable_token?: (TokenMemo previous, Integer old_index, TokenMemo current, Integer new_index) -> bool
+      end
+    end
+  end
+end

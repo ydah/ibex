@@ -8,12 +8,21 @@ module Ibex
 
       DEFAULT_MAX_RECOVERY_ATTEMPTS: Integer
 
+      DEFAULT_MAX_INCREMENTAL_DECOMPOSED_NODES: Integer
+
+      DEFAULT_MAX_SESSION_MEMO_BYTES: Integer
+
       attr_reader max_stack_depth: Integer
 
       attr_reader max_recovery_attempts: Integer
 
-      # @rbs (?max_stack_depth: Integer, ?max_recovery_attempts: Integer) -> void
-      def initialize: (?max_stack_depth: Integer, ?max_recovery_attempts: Integer) -> void
+      attr_reader max_incremental_decomposed_nodes: Integer
+
+      attr_reader max_session_memo_bytes: Integer
+
+      # @rbs (?max_stack_depth: Integer, ?max_recovery_attempts: Integer,
+      #   ?max_incremental_decomposed_nodes: Integer, ?max_session_memo_bytes: Integer) -> void
+      def initialize: (?max_stack_depth: Integer, ?max_recovery_attempts: Integer, ?max_incremental_decomposed_nodes: Integer, ?max_session_memo_bytes: Integer) -> void
 
       # @rbs () -> Hash[Symbol, Integer]
       def to_h: () -> Hash[Symbol, Integer]

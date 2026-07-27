@@ -9,7 +9,9 @@ module Ibex
     class Event
       SCHEMA_VERSION = 1 #: Integer
       IDENTIFIER = "runtime-event" #: String
-      TYPES = %i[start shift reduce error recover discard accept reject].freeze #: Array[Symbol]
+      TYPES = %i[
+        start shift reduce error recover discard accept reject cst_built cst_fallback cst_reuse
+      ].freeze #: Array[Symbol]
 
       attr_reader :type #: Symbol
       attr_reader :sequence #: Integer

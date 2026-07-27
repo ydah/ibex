@@ -1,0 +1,47 @@
+# Generated from lib/ibex/runtime/cst/incremental/session.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Raised when incremental parsing cannot preserve its syntax-only contract.
+      class IncrementalUnsupportedError < ArgumentError
+      end
+
+      # A mutable, single-owner session around immutable source and syntax results.
+      class IncrementalParseSession
+        attr_reader source_text: SourceText
+
+        attr_reader result: SyntaxResult
+
+        attr_reader token_memo: TokenMemo
+
+        attr_reader last_relex_result: RelexResult?
+
+        # @rbs (Class parser_class, SourceText source_text, ?resource_limits: ResourceLimits?) -> void
+        def initialize: (Class parser_class, SourceText source_text, ?resource_limits: ResourceLimits?) -> void
+
+        # Apply edits expressed against the current source and return syntax only.
+        # @rbs (Array[TextEdit] edits) -> SyntaxResult
+        def edit: (Array[TextEdit] edits) -> SyntaxResult
+
+        # Observe parser and incremental runtime events.
+        # @rbs () { (Event) -> void } -> Observation::Subscription
+        def observe: () { (Event) -> void } -> Observation::Subscription
+
+        # @rbs (Observation::Subscription subscription) -> bool
+        def unobserve: (Observation::Subscription subscription) -> bool
+
+        private
+
+        # @rbs () -> void
+        def validate_parser!: () -> void
+
+        # @rbs (Float reused_ratio) -> [SyntaxResult, TokenMemo]
+        def parse_current: (Float reused_ratio) -> [ SyntaxResult, TokenMemo ]
+
+        # @rbs () -> void
+        def enforce_memo_budget!: () -> void
+      end
+    end
+  end
+end

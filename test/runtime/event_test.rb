@@ -162,6 +162,9 @@ class RuntimeEventTest < Minitest::Test
   end
 
   def test_event_validates_type_and_sequence
+    %i[cst_built cst_fallback cst_reuse].each do |type|
+      assert_equal type, Ibex::Runtime::Event.new(type: type, sequence: 1, data: {}).type
+    end
     assert_raises(ArgumentError) { Ibex::Runtime::Event.new(type: :unknown, sequence: 1, data: {}) }
     assert_raises(ArgumentError) { Ibex::Runtime::Event.new(type: :start, sequence: 0, data: {}) }
   end

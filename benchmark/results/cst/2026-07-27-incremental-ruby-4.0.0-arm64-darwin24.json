@@ -1,0 +1,38 @@
+{
+  "benchmark": "ibex_cst_incremental",
+  "version": 1,
+  "ruby_version": "4.0.0",
+  "ruby_platform": "arm64-darwin24",
+  "seed": 20260727,
+  "terms": 100,
+  "iterations": 100,
+  "measurements": {
+    "beginning": {
+      "byte_offset": 0,
+      "stage_a_elapsed_ms": 295.47699999989163,
+      "batch_elapsed_ms": 284.16599999991377,
+      "speedup": 0.961719524700799,
+      "allocated_objects": 1806153,
+      "relexer_scanned_tokens": 1,
+      "reused_ratio": 0.995
+    },
+    "middle": {
+      "byte_offset": 200,
+      "stage_a_elapsed_ms": 300.82000000015796,
+      "batch_elapsed_ms": 284.61099999981343,
+      "speedup": 0.9461172794350907,
+      "allocated_objects": 1826301,
+      "relexer_scanned_tokens": 101,
+      "reused_ratio": 0.995
+    },
+    "end": {
+      "byte_offset": 396,
+      "stage_a_elapsed_ms": 295.36899999993693,
+      "batch_elapsed_ms": 280.3269999999429,
+      "speedup": 0.9490738703113827,
+      "allocated_objects": 1845899,
+      "relexer_scanned_tokens": 199,
+      "reused_ratio": 0.995
+    }
+  }
+}

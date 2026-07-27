@@ -308,6 +308,15 @@ module Ibex
       # @rbs @runtime_fast_path_tracker_installed: bool
       # @rbs @runtime_fast_path_hooks_mutated: bool
       # @rbs @runtime_fast_path_singleton_ancestors: Array[Module]?
+      # @rbs @syntax_only: bool
+      # @rbs @green_cache_override: CST::NodeCache?
+      # @rbs @green_token_states: Array[Symbol]
+
+      # Start a syntax-only incremental session backed by a generated lexer.
+      # @rbs (CST::SourceText source_text, ?resource_limits: ResourceLimits?) -> CST::IncrementalParseSession
+      def self.incremental_session(source_text, resource_limits: nil)
+        CST::IncrementalParseSession.new(self, source_text, resource_limits: resource_limits)
+      end
 
       # @rbs (?resource_limits: ResourceLimits) -> void
       def initialize(resource_limits: ResourceLimits.new)
@@ -726,6 +735,9 @@ module Ibex
           preserve_existing && defined?(@runtime_fast_path_hooks_mutated)
         @runtime_fast_path_singleton_ancestors = nil unless
           preserve_existing && defined?(@runtime_fast_path_singleton_ancestors)
+        @syntax_only = false unless preserve_existing && defined?(@syntax_only)
+        @green_cache_override = nil unless preserve_existing && defined?(@green_cache_override)
+        @green_token_states = [] unless preserve_existing && defined?(@green_token_states)
       end
       # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
@@ -1630,6 +1642,8 @@ module Ibex
         previous_locations = @semantic_locations
         previous_names = @semantic_location_names
         previous_result_location = @semantic_result_location
+        return values.first if @syntax_only
+
         action = production[:action]
         return actionless_reduction_value(production_id, production, values, locations, location) unless action
 
@@ -1875,9 +1889,10 @@ module Ibex
         end
 
         kinds = CST::Kind.new(config.fetch(:kinds), slots: config.fetch(:slots))
-        cache = CST::NodeCache.new
+        cache = @green_cache_override || CST::NodeCache.new
         @green_kinds = kinds
         @green_cache = cache
+        @green_token_states.clear
         @green_builder = CST::GreenBuilder.new(kinds: kinds, cache: cache)
       end
 
@@ -1898,6 +1913,7 @@ module Ibex
         repair = cst_location_value(location, :ibex_repair)
         if repair == :insert
           builder.missing(token_id)
+          @green_token_states << green_lexer_state(location)
           return
         end
 
@@ -1907,6 +1923,7 @@ module Ibex
         flags |= CST::Flags::CONTAINS_ERROR if repair == :replace || token_id == ERROR_TOKEN
         kind = token_id.negative? ? kinds.fetch(:lexical_error_token) : token_id
         builder.token(kind, green_token_text(value, location), leading: leading, flags: flags)
+        @green_token_states << green_lexer_state(location)
       end
 
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> void
@@ -1949,6 +1966,7 @@ module Ibex
         leading = @green_pending_skipped + eof_leading
         @green_pending_skipped.clear
         eof = builder.make_token(EOF_TOKEN, "", leading: leading)
+        @green_token_states << green_lexer_state(@lookahead_location)
         green = if builder.size == 1
                   builder.finish_source_file(eof, incomplete: incomplete)
                 else
@@ -2015,6 +2033,14 @@ module Ibex
         @syntax_root = CST::SyntaxNode.new(
           green: green, kinds: kinds, trivia_policy: policy, source_text: source
         )
+        emit_incremental_event(
+          :cst_built,
+          {
+            "descendant_count" => green.descendant_count,
+            "full_width" => green.full_width,
+            "contains_error" => green.flags.anybits?(CST::Flags::CONTAINS_ERROR)
+          }
+        )
       end
 
       # @rbs (untyped value) -> CST::ParseResult
@@ -2023,6 +2049,35 @@ module Ibex
         raise ParseError, "(cst):1:1: parse_with_syntax requires a format-v6 CST parser" unless root
 
         CST::ParseResult.new(value: value, syntax_root: root, diagnostics: @syntax_diagnostics)
+      end
+
+      # @rbs () -> Array[Symbol]
+      def syntax_token_states
+        @green_token_states.dup.freeze
+      end
+
+      # @rbs (untyped location) -> Symbol
+      def green_lexer_state(location)
+        state = cst_location_value(location, :ibex_lexer_start_state)
+        state ? state.to_sym : :INITIAL
+      end
+
+      # @rbs (CST::NodeCache cache) { () -> untyped } -> untyped
+      def with_syntax_only(cache)
+        previous_mode = @syntax_only
+        previous_cache = @green_cache_override
+        @syntax_only = true
+        @green_cache_override = cache
+        @runtime_fast_path = false
+        yield
+      ensure
+        @syntax_only = previous_mode
+        @green_cache_override = previous_cache
+      end
+
+      # @rbs (Symbol type, Hash[untyped, untyped] data) -> void
+      def emit_incremental_event(type, data)
+        emit_runtime_event(type, data) if @runtime_observers
       end
 
       # @rbs () -> void
@@ -2686,7 +2741,8 @@ module Ibex
       # extension can observe a committed shift or reduction.
       # @rbs (Hash[Symbol, untyped] tables) -> bool
       def runtime_fast_path_eligible?(tables)
-        !@yydebug &&
+        !@syntax_only &&
+          !@yydebug &&
           @runtime_observers.nil? &&
           @repair_policy.nil? &&
           tables[:cst] != true &&

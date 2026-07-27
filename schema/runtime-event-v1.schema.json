@@ -23,7 +23,10 @@
         "recover",
         "discard",
         "accept",
-        "reject"
+        "reject",
+        "cst_built",
+        "cst_fallback",
+        "cst_reuse"
       ]
     },
     "data": { "type": "object", "maxProperties": 16 }
@@ -76,6 +79,24 @@
       "properties": {
         "event": { "const": "reject" },
         "data": { "$ref": "#/$defs/reject" }
+      }
+    },
+    {
+      "properties": {
+        "event": { "const": "cst_built" },
+        "data": { "$ref": "#/$defs/cst_built" }
+      }
+    },
+    {
+      "properties": {
+        "event": { "const": "cst_fallback" },
+        "data": { "$ref": "#/$defs/cst_fallback" }
+      }
+    },
+    {
+      "properties": {
+        "event": { "const": "cst_reuse" },
+        "data": { "$ref": "#/$defs/cst_reuse" }
       }
     }
   ],
@@ -249,6 +270,37 @@
         }
       ],
       "unevaluatedProperties": false
+    },
+    "cst_built": {
+      "type": "object",
+      "required": ["descendant_count", "full_width", "contains_error"],
+      "properties": {
+        "descendant_count": { "type": "integer", "minimum": 1 },
+        "full_width": { "type": "integer", "minimum": 0 },
+        "contains_error": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "cst_fallback": {
+      "type": "object",
+      "required": ["reason", "limit", "observed"],
+      "properties": {
+        "reason": { "enum": ["memo_budget", "decomposition_budget", "memo_mismatch"] },
+        "limit": { "type": "integer", "minimum": 0 },
+        "observed": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "cst_reuse": {
+      "type": "object",
+      "required": ["stage", "reused_tokens", "token_count", "reused_ratio"],
+      "properties": {
+        "stage": { "enum": ["lexical", "subtree"] },
+        "reused_tokens": { "type": "integer", "minimum": 0 },
+        "token_count": { "type": "integer", "minimum": 0 },
+        "reused_ratio": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
     }
   }
 }

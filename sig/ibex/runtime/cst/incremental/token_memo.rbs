@@ -1,0 +1,31 @@
+# Generated from lib/ibex/runtime/cst/incremental/token_memo.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Session-local token metadata used to validate lexical resynchronization.
+      class TokenMemo
+        ENTRY_BYTES: Integer
+
+        attr_reader tokens: Array[GreenToken]
+
+        attr_reader offsets: Array[Integer]
+
+        attr_reader states: Array[Symbol]
+
+        # @rbs (tokens: Array[GreenToken], offsets: Array[Integer], states: Array[Symbol]) -> void
+        def initialize: (tokens: Array[GreenToken], offsets: Array[Integer], states: Array[Symbol]) -> void
+
+        # @rbs (SyntaxNode root, ?states: Array[Symbol]) -> TokenMemo
+        def self.from_root: (SyntaxNode root, ?states: Array[Symbol]) -> TokenMemo
+
+        # The first token whose owned full span contains or follows an edit.
+        # @rbs (Array[TextEdit] edits) -> Integer?
+        def damage_index: (Array[TextEdit] edits) -> Integer?
+
+        # @rbs () -> Integer
+        def estimated_bytes: () -> Integer
+      end
+    end
+  end
+end

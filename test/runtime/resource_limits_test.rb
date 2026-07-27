@@ -51,13 +51,28 @@ class RuntimeResourceLimitsTest < Minitest::Test
   end
 
   def test_limits_are_validated_immutable_and_exposed
-    limits = Ibex::Runtime::ResourceLimits.new(max_stack_depth: 8, max_recovery_attempts: 2)
+    limits = Ibex::Runtime::ResourceLimits.new(
+      max_stack_depth: 8,
+      max_recovery_attempts: 2,
+      max_incremental_decomposed_nodes: 20,
+      max_session_memo_bytes: 4_096
+    )
 
-    assert_equal({ max_stack_depth: 8, max_recovery_attempts: 2 }, limits.to_h)
+    assert_equal(
+      {
+        max_stack_depth: 8,
+        max_recovery_attempts: 2,
+        max_incremental_decomposed_nodes: 20,
+        max_session_memo_bytes: 4_096
+      },
+      limits.to_h
+    )
     assert_predicate limits, :frozen?
     assert_same Ibex::Runtime::ResourceLimitError, Ibex::ResourceLimitError
     assert_raises(ArgumentError) { Ibex::Runtime::ResourceLimits.new(max_stack_depth: 0) }
     assert_raises(ArgumentError) { Ibex::Runtime::ResourceLimits.new(max_recovery_attempts: -1) }
+    assert_raises(ArgumentError) { Ibex::Runtime::ResourceLimits.new(max_incremental_decomposed_nodes: -1) }
+    assert_raises(ArgumentError) { Ibex::Runtime::ResourceLimits.new(max_session_memo_bytes: 0) }
   end
 
   def test_stack_depth_raises_a_structured_limit_error

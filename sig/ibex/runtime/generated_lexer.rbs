@@ -44,6 +44,11 @@ module Ibex
       # @rbs (String | IO | Fiber source, ?file: String) -> CST::ParseResult
       def parse_with_syntax: (String | IO | Fiber source, ?file: String) -> CST::ParseResult
 
+      # Parse without executing parser production actions.
+      # Lexer actions still run because they define tokenization and lexer state.
+      # @rbs (String source, ?file: String) -> CST::SyntaxResult
+      def parse_syntax: (String source, ?file: String) -> CST::SyntaxResult
+
       # Return the current named lexer state.
       # @rbs () -> Symbol
       def lexer_state: () -> Symbol
@@ -57,6 +62,9 @@ module Ibex
       def next_token: () -> [ untyped, untyped, Hash[Symbol, untyped] ]
 
       private
+
+      # @rbs (CST::SourceText source_text, CST::NodeCache cache) -> CST::SyntaxResult
+      def parse_syntax_with_cache: (CST::SourceText source_text, CST::NodeCache cache) -> CST::SyntaxResult
 
       # @rbs (LexerInput input) -> bool
       def ensure_lexer_data?: (LexerInput input) -> bool
