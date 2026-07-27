@@ -898,30 +898,63 @@ module Ibex
                 "regenerate the parser with the installed Ibex version"
         end
 
-        validate_generated_action_contracts!(tables, actual) if actual >= 3
+        if actual >= 3 && !generated_action_contracts_validated?(tables)
+          validate_generated_action_contracts!(tables, actual)
+          cache_generated_action_contracts!(tables)
+        end
         tables
+      end
+
+      # Generated parser tables are deeply frozen before they can cross a
+      # Ractor boundary. Their action-marker contract only needs one scan per
+      # parser class and exact table object, including across parser instances.
+      # Mutable application tables remain intentionally uncached.
+      # @rbs (Hash[Symbol, untyped] tables) -> bool
+      def generated_action_contracts_validated?(tables)
+        cached = self.class.instance_variable_get(:@__ibex_validated_parser_tables)
+        cached.equal?(tables)
+      end
+
+      # @rbs (Hash[Symbol, untyped] tables) -> void
+      def cache_generated_action_contracts!(tables)
+        shareable = defined?(Ractor) && Ractor.respond_to?(:shareable?) && Ractor.shareable?(tables)
+        return unless shareable
+
+        self.class.instance_variable_set(:@__ibex_validated_parser_tables, tables)
+      rescue FrozenError
+        nil
       end
 
       # @rbs (Hash[Symbol, untyped] tables, Integer version) -> void
       def validate_generated_action_contracts!(tables, version)
         tables.fetch(:productions).each_with_index do |production, index|
-          if production[:composition_action] == true &&
-             !(production[:location_action] == true && generated_action_symbol?(production[:action]))
-            raise ParseError,
-                  "(tables):1:1: parser table format version #{version} production #{index} has an inconsistent " \
-                  ":composition_action marker; a generated action Symbol with :location_action is required"
-          end
-          next if version < 4 || production[:values_action] != true
-          next if generated_action_symbol?(production[:action]) &&
+          validate_composition_action_contract!(production, index, version)
+          validate_values_action_contract!(production, index, version)
+        end
+      end
+
+      # @rbs (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
+      def validate_composition_action_contract!(production, index, version)
+        return unless production[:composition_action] == true
+        return if production[:location_action] == true && generated_action_symbol?(production[:action])
+
+        raise ParseError,
+              "(tables):1:1: parser table format version #{version} production #{index} has an inconsistent " \
+              ":composition_action marker; a generated action Symbol with :location_action is required"
+      end
+
+      # @rbs (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
+      def validate_values_action_contract!(production, index, version)
+        return if version < 4 || production[:values_action] != true
+        return if generated_action_symbol?(production[:action]) &&
                   production[:location_action] != true &&
                   production[:composition_action] != true &&
                   production.fetch(:location_context_length, 0).zero?
 
-          raise ParseError,
-                "(tables):1:1: parser table format version #{version} production #{index} has an inconsistent " \
-                ":values_action marker; a generated action Symbol without location, composition, or context " \
-                "markers is required"
-        end
+        raise ParseError,
+              "(tables):1:1: parser table format version #{version} production #{index} has an inconsistent " \
+              ":values_action marker; a generated action Symbol without location, composition, or context " \
+              "markers is required"
       end
 
       # @rbs () -> untyped

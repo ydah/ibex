@@ -52,16 +52,19 @@ module Ibex
         freeze
       end
 
+      # Keep predicate dispatch out of this lookup because every parser action
+      # and goto crosses it.
+      # rubocop:disable Style/NumericPredicate
       # @rbs (Integer row, Integer column) -> untyped
       def lookup(row, column)
-        return nil unless row.between?(0, @row_count - 1)
-        return nil if column.negative?
+        return nil if row < 0 || row >= @row_count || column < 0
 
-        index = @offsets.fetch(row) + column
-        return nil unless index.between?(0, @checks.length - 1)
+        index = @offsets[row] + column
+        return nil if index < 0 || index >= @checks.length
 
         @checks[index] == row ? @values[index] : nil
       end
+      # rubocop:enable Style/NumericPredicate
 
       # @rbs (Integer row) -> Hash[Integer, untyped]
       def row(row)

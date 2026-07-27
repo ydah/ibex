@@ -21,6 +21,9 @@ module Ibex
       # @rbs (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer) -> void
       def initialize: (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer) -> void
 
+      # Keep predicate dispatch out of this lookup because every parser action
+      # and goto crosses it.
+      # rubocop:disable Style/NumericPredicate
       # @rbs (Integer row, Integer column) -> untyped
       def lookup: (Integer row, Integer column) -> untyped
 

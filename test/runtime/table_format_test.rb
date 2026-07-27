@@ -51,6 +51,39 @@ class RuntimeTableFormatTest < Minitest::Test
     def next_token = raise("future parser read a token")
   end
 
+  class CachedValidationParser < CurrentParser
+    TABLES = Ractor.make_shareable(
+      CurrentParser::TABLES.merge(
+        productions: [
+          { lhs: 2, length: 0, action: :_ibex_action_0, values_action: true } # rubocop:disable Naming/VariableNumber
+        ]
+      )
+    )
+
+    class << self
+      attr_accessor :validation_calls
+
+      def parser_tables = TABLES
+    end
+
+    private
+
+    def validate_generated_action_contracts!(...)
+      self.class.validation_calls = self.class.validation_calls.to_i + 1
+      super
+    end
+  end
+
+  class MutableValidationParser < CachedValidationParser
+    TABLES = CurrentParser::TABLES.merge(
+      productions: [
+        { lhs: 2, length: 0, action: :_ibex_action_0, values_action: true } # rubocop:disable Naming/VariableNumber
+      ]
+    )
+
+    def self.parser_tables = TABLES
+  end
+
   def test_current_hand_written_table_is_accepted
     assert_equal 4, Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION
     assert_equal [1, 2, 3, 4], Ibex::Runtime::SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS
@@ -78,5 +111,27 @@ class RuntimeTableFormatTest < Minitest::Test
     assert_match(/unsupported parser table format version 5/, error.message)
     assert_match(/runtime supports 1, 2, 3, 4/, error.message)
     assert_match(/regenerate/i, error.message)
+  end
+
+  def test_deeply_frozen_generated_action_contracts_are_cached_per_class
+    CachedValidationParser.validation_calls = 0
+    CachedValidationParser.remove_instance_variable(:@__ibex_validated_parser_tables) if
+      CachedValidationParser.instance_variable_defined?(:@__ibex_validated_parser_tables)
+
+    2.times { assert_nil CachedValidationParser.new.do_parse }
+
+    assert_equal 1, CachedValidationParser.validation_calls
+  end
+
+  def test_mutable_action_contracts_are_revalidated
+    MutableValidationParser.validation_calls = 0
+
+    assert_nil MutableValidationParser.new.do_parse
+    MutableValidationParser::TABLES.fetch(:productions).first[:values_action] = false
+    assert_nil MutableValidationParser.new.do_parse
+
+    assert_equal 2, MutableValidationParser.validation_calls
+  ensure
+    MutableValidationParser::TABLES.fetch(:productions).first[:values_action] = true
   end
 end

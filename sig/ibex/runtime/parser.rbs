@@ -408,8 +408,24 @@ module Ibex
       # @rbs () -> Hash[Symbol, untyped]
       def validate_parser_table_format!: () -> Hash[Symbol, untyped]
 
+      # Generated parser tables are deeply frozen before they can cross a
+      # Ractor boundary. Their action-marker contract only needs one scan per
+      # parser class and exact table object, including across parser instances.
+      # Mutable application tables remain intentionally uncached.
+      # @rbs (Hash[Symbol, untyped] tables) -> bool
+      def generated_action_contracts_validated?: (Hash[Symbol, untyped] tables) -> bool
+
+      # @rbs (Hash[Symbol, untyped] tables) -> void
+      def cache_generated_action_contracts!: (Hash[Symbol, untyped] tables) -> void
+
       # @rbs (Hash[Symbol, untyped] tables, Integer version) -> void
       def validate_generated_action_contracts!: (Hash[Symbol, untyped] tables, Integer version) -> void
+
+      # @rbs (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
+      def validate_composition_action_contract!: (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
+
+      # @rbs (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
+      def validate_values_action_contract!: (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
 
       # @rbs () -> untyped
       def action_for_current_state: () -> untyped
