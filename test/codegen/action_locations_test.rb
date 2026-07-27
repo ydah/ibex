@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../test_helper"
+require "ripper"
 
 class ActionLocationsCodegenTest < Minitest::Test
   LOCATION = { file: "action.y", line: 4, column: 10 }.freeze
@@ -78,5 +79,21 @@ class ActionLocationsCodegenTest < Minitest::Test
 
     assert_equal "result = [__, __]", lexed_source
     assert_equal "result = [_ibex_locations[0], _ibex_location]", rewritten
+  end
+
+  def test_without_semantic_reference_returns_an_independent_mutable_plain_string
+    source_class = Class.new(String)
+    source = source_class.new("literal \xA3").force_encoding(Encoding::ISO_8859_1).freeze
+
+    rewritten = Ripper.stub(:lex, ->(*) { flunk "Ripper must not be called" }) do
+      Ibex::Codegen::ActionLocations.new(source, maximum: 0, location: LOCATION).rewrite
+    end
+
+    assert_equal source.b, rewritten.b
+    assert_equal source.encoding, rewritten.encoding
+    assert_instance_of String, rewritten
+    refute_same source, rewritten
+    refute_predicate rewritten, :frozen?
+    rewritten << "!"
   end
 end

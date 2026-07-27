@@ -2,7 +2,6 @@
 # rbs_inline: enabled
 
 require_relative "action_locations"
-require "ripper"
 
 module Ibex
   module Codegen
@@ -89,6 +88,9 @@ module Ibex
 
       # @rbs (String source) -> bool
       def column_sensitive?(source)
+        return false unless source.include?("<<")
+
+        require "ripper"
         tokens = Object.const_get(:Ripper).__send__(:lex, source)
         # @type var tokens: Array[[[Integer, Integer], Symbol, String, untyped]]
         tokens.any? { |_position, event, _token, _state| event == :on_heredoc_beg }

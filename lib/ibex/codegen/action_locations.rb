@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 # rbs_inline: enabled
 
-require "ripper"
-
 module Ibex
   module Codegen
     # Rewrites semantic-location expressions without touching Ruby literals,
@@ -21,6 +19,8 @@ module Ibex
 
       # @rbs () -> String
       def rewrite
+        return @source.b.dup.force_encoding(@source.encoding) unless @source.match?(/@(?:\$|\d+)/)
+
         replacements = semantic_references.map do |offset, spelling|
           [offset, spelling.bytesize, replacement_for(spelling)]
         end #: Array[[Integer, Integer, String]]
@@ -33,6 +33,8 @@ module Ibex
 
       # @rbs () -> Array[[Integer, String]]
       def semantic_references
+        require "ripper"
+
         offsets = line_offsets
         tokens = Object.const_get(:Ripper).__send__(:lex, lexable_source)
         # @type var tokens: Array[[[Integer, Integer], Symbol, String, untyped]]
