@@ -1,5 +1,20 @@
 # Whole-builder benchmark
 
+Capture the pre-Red/Green CST construction baseline with:
+
+```sh
+bundle exec ruby benchmark/cst.rb \
+  --rules 25 \
+  --iterations 100 \
+  --seed 12345 \
+  --output benchmark/results/cst/YYYY-MM-DD-REV-ruby-VERSION-PLATFORM.json
+```
+
+The CST probe compares the same generated lexer and grammar with and without
+`pragma cst`. It records elapsed time and allocated objects; both are local
+observations, not CI thresholds. Reviewed observations are append-only under
+`benchmark/results/cst/`.
+
 Run the deterministic 501-production scale construction benchmark with:
 
 ```sh

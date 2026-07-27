@@ -1,0 +1,18 @@
+{
+  "benchmark": "ibex_cst_baseline",
+  "version": 1,
+  "seed": 12345,
+  "rules": 25,
+  "iterations": 100,
+  "measurements": {
+    "plain": {
+      "elapsed_ms": 35.27900000335649,
+      "allocated_objects": 291801
+    },
+    "cst": {
+      "elapsed_ms": 41.893000015988946,
+      "allocated_objects": 341807
+    }
+  },
+  "cst_overhead_ratio": 1.1874769696420873
+}
