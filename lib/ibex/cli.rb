@@ -8,11 +8,20 @@ require_relative "artifact_set"
 require_relative "generation_input"
 require_relative "generation_manifest"
 require_relative "generation_transaction"
-require_relative "frontend"
-require_relative "ir"
+require_relative "frontend/generation"
+require_relative "ir/grammar_ir"
+require_relative "ir/lexer_ir"
+require_relative "ir/serialize"
+require_relative "ir/automaton_ir"
 require_relative "normalize"
 require_relative "analysis"
-require_relative "lalr"
+require_relative "lalr/conflict"
+require_relative "lalr/on_error_reductions"
+require_relative "lalr/default_reductions"
+require_relative "lalr/build_metrics"
+require_relative "lalr/direct_lookaheads"
+require_relative "lalr/ielr_partition"
+require_relative "lalr/builder"
 require_relative "codegen/ruby"
 require_relative "cli/counterexample_options"
 require_relative "cli/generation_error_messages"
@@ -513,6 +522,8 @@ module Ibex
 
     # @rbs (String path) -> Integer
     def process_ir(path)
+      require_relative "ir/validator"
+
       begin_artifact_generation
       report_status("reading #{path}")
       source = File.binread(path)

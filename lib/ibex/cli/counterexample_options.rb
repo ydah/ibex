@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../lalr"
+require_relative "../lalr/conflict_search_limits"
 
 module Ibex
   # Counterexample report limits and their command-line validation.
@@ -8,8 +8,8 @@ module Ibex
     # @rbs @options: cli_options
 
     DEFAULTS = {
-      counterexample_max_tokens: LALR::Counterexample::DEFAULT_MAX_TOKENS,
-      counterexample_max_configurations: LALR::Counterexample::DEFAULT_MAX_CONFIGURATIONS
+      counterexample_max_tokens: LALR::ConflictSearchLimits::DEFAULT_MAX_TOKENS,
+      counterexample_max_configurations: LALR::ConflictSearchLimits::DEFAULT_MAX_CONFIGURATIONS
     }.freeze #: Hash[Symbol, Integer]
 
     private

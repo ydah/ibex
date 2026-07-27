@@ -18,6 +18,15 @@ class CLILoadingTest < Minitest::Test
     ibex/samples.rb
     ibex/table_simulation.rb
   ].freeze
+  DEFERRED_GENERATION_FEATURES = %w[
+    ibex/frontend/diagnostic_recovery.rb
+    ibex/frontend/dsl.rb
+    ibex/frontend/formatter.rb
+    ibex/ir/migration.rb
+    ibex/ir/validator.rb
+    ibex/lalr/conflict_search.rb
+    ibex/lalr/counterexample.rb
+  ].freeze
   LOADED_FEATURES_SCRIPT = <<~'RUBY'
     require "json"
     require "stringio"
@@ -72,6 +81,7 @@ class CLILoadingTest < Minitest::Test
       assert File.file?(output)
       assert_includes result.fetch("features"), "ibex/codegen/ruby.rb"
       assert_empty result.fetch("features") & UNRELATED_GENERATION_FEATURES
+      assert_empty result.fetch("features") & DEFERRED_GENERATION_FEATURES
     end
   end
 
