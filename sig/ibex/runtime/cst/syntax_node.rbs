@@ -1,0 +1,156 @@
+# Generated from lib/ibex/runtime/cst/syntax_node.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Lazy Red navigation facade for one Green node occurrence.
+      class SyntaxNode
+        type element = SyntaxNode | SyntaxToken
+
+        attr_reader green: GreenNode
+
+        attr_reader parent: SyntaxNode?
+
+        attr_reader index: Integer
+
+        attr_reader offset: Integer
+
+        attr_reader kinds: Kind
+
+        attr_reader trivia_policy: Symbol
+
+        attr_reader source_text: SourceText
+
+        # @rbs (green: GreenNode, kinds: Kind, ?parent: SyntaxNode?, ?index: Integer, ?offset: Integer,
+        #   ?trivia_policy: Symbol, ?source_text: SourceText?) -> void
+        def initialize: (green: GreenNode, kinds: Kind, ?parent: SyntaxNode?, ?index: Integer, ?offset: Integer, ?trivia_policy: Symbol, ?source_text: SourceText?) -> void
+
+        # @rbs () -> Integer
+        def kind: () -> Integer
+
+        # @rbs () -> String
+        def kind_name: () -> String
+
+        # Compatibility name for the physical grammar symbol.
+        # @rbs () -> String
+        def symbol: () -> String
+
+        # @rbs () -> Array[element]
+        def children: () -> Array[element]
+
+        # @rbs (Integer child_index) -> element
+        def child_at: (Integer child_index) -> element
+
+        # @rbs () -> Array[SyntaxNode]
+        def child_nodes: () -> Array[SyntaxNode]
+
+        # @rbs () -> Array[SyntaxToken]
+        def tokens: () -> Array[SyntaxToken]
+
+        # @rbs () -> SyntaxToken?
+        def first_token: () -> SyntaxToken?
+
+        # @rbs () -> SyntaxToken?
+        def last_token: () -> SyntaxToken?
+
+        # @rbs () -> element?
+        def next_sibling: () -> element?
+
+        # @rbs () -> element?
+        def prev_sibling: () -> element?
+
+        # @rbs () -> Enumerator[SyntaxNode, void]
+        def ancestors: () -> Enumerator[SyntaxNode, void]
+
+        # @rbs () -> Enumerator[element, void]
+        def descendants: () -> Enumerator[element, void]
+
+        # @rbs () -> SyntaxNode
+        def root: () -> SyntaxNode
+
+        # @rbs () -> Range[Integer]
+        def full_span: () -> Range[Integer]
+
+        # @rbs () -> Range[Integer]
+        def span: () -> Range[Integer]
+
+        # @rbs () -> Ibex::Location
+        def location: () -> Ibex::Location
+
+        # @rbs () -> String
+        def full_text: () -> String
+
+        alias to_source full_text
+
+        # @rbs () -> String
+        def text: () -> String
+
+        # @rbs () -> bool
+        def error?: () -> bool
+
+        # @rbs () -> bool
+        def missing?: () -> bool
+
+        # @rbs () -> bool
+        def contains_error?: () -> bool
+
+        # @rbs () -> bool
+        def incomplete_input?: () -> bool
+
+        # Find the full-span-owning token for a byte offset.
+        # @rbs (Integer source_offset) -> SyntaxToken?
+        def token_at: (Integer source_offset) -> SyntaxToken?
+
+        # Return the smallest syntax element whose full span covers a range.
+        # @rbs (Range[Integer] range) -> element?
+        def covering: (Range[Integer] range) -> element?
+
+        # @rbs (kind: Integer | String | Symbol) -> Enumerator[element, void]
+        def find: (kind: Integer | String | Symbol) -> Enumerator[element, void]
+
+        # @rbs () -> Enumerator[element, void]
+        # @rbs () { (element) -> void } -> self
+        def each_error: () -> Enumerator[element, void]
+                      | () { (element) -> void } -> self
+
+        # @rbs () { (Symbol, element) -> void } -> self
+        def walk: () { (Symbol, element) -> void } -> self
+
+        # @rbs () -> Cursor
+        def cursor: () -> Cursor
+
+        # @rbs (SyntaxNode other) -> bool
+        def same_node?: (SyntaxNode other) -> bool
+
+        # @rbs (untyped other) -> bool
+        def ==: (untyped other) -> bool
+
+        # @rbs () -> Array[element]
+        def deconstruct: () -> Array[element]
+
+        # @rbs (Array[Symbol]?) -> Hash[Symbol, untyped]
+        def deconstruct_keys: (Array[Symbol]?) -> Hash[Symbol, untyped]
+
+        # @rbs (Integer source_offset) -> element?
+        def child_covering_offset: (Integer source_offset) -> element?
+
+        private
+
+        # @rbs () -> String
+        def root_source: () -> String
+
+        # @rbs (Integer child_index) -> Integer
+        def offset_for: (Integer child_index) -> Integer
+
+        # @rbs () -> void
+        def ensure_coordinates!: () -> void
+
+        # @rbs (Range[Integer] range) -> [Integer, Integer]
+        def normalize_range: (Range[Integer] range) -> [ Integer, Integer ]
+
+        # @rbs (Integer start_offset, Integer end_offset) -> bool
+        def covers_offsets?: (Integer start_offset, Integer end_offset) -> bool
+      end
+    end
+  end
+end

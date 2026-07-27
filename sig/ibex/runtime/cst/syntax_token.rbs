@@ -1,0 +1,86 @@
+# Generated from lib/ibex/runtime/cst/syntax_token.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Raised when source-coordinate APIs are used on a trivia-dropped tree.
+      class TriviaDroppedError < StandardError
+      end
+
+      # Lightweight Red facade for one Green token occurrence.
+      class SyntaxToken
+        attr_reader green: GreenToken
+
+        attr_reader parent: SyntaxNode
+
+        attr_reader index: Integer
+
+        attr_reader offset: Integer
+
+        # @rbs (green: GreenToken, parent: SyntaxNode, index: Integer, offset: Integer) -> void
+        def initialize: (green: GreenToken, parent: SyntaxNode, index: Integer, offset: Integer) -> void
+
+        # @rbs () -> Integer
+        def kind: () -> Integer
+
+        # @rbs () -> String
+        def kind_name: () -> String
+
+        # @rbs () -> String
+        def symbol: () -> String
+
+        # @rbs () -> String
+        def text: () -> String
+
+        # @rbs () -> String
+        def full_text: () -> String
+
+        alias to_source full_text
+
+        # @rbs () -> Range[Integer]
+        def full_span: () -> Range[Integer]
+
+        # @rbs () -> Range[Integer]
+        def span: () -> Range[Integer]
+
+        # @rbs () -> Ibex::Location
+        def location: () -> Ibex::Location
+
+        # @rbs () -> bool
+        def error?: () -> bool
+
+        # @rbs () -> bool
+        def missing?: () -> bool
+
+        # @rbs () -> bool
+        def contains_error?: () -> bool
+
+        # @rbs () -> (SyntaxNode | SyntaxToken)?
+        def next_sibling: () -> (SyntaxNode | SyntaxToken)?
+
+        # @rbs () -> (SyntaxNode | SyntaxToken)?
+        def prev_sibling: () -> (SyntaxNode | SyntaxToken)?
+
+        # @rbs () -> SyntaxNode
+        def root: () -> SyntaxNode
+
+        # @rbs (SyntaxToken other) -> bool
+        def same_node?: (SyntaxToken other) -> bool
+
+        # @rbs (untyped other) -> bool
+        def ==: (untyped other) -> bool
+
+        # @rbs () -> Array[untyped]
+        def deconstruct: () -> Array[untyped]
+
+        # @rbs (Array[Symbol]?) -> Hash[Symbol, untyped]
+        def deconstruct_keys: (Array[Symbol]?) -> Hash[Symbol, untyped]
+
+        private
+
+        # @rbs () -> void
+        def ensure_coordinates!: () -> void
+      end
+    end
+  end
+end

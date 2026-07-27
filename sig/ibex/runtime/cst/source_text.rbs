@@ -1,0 +1,47 @@
+# Generated from lib/ibex/runtime/cst/source_text.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Immutable byte-oriented source with lazy line/column conversion.
+      class SourceText
+        type position = [ Integer, Integer ]
+
+        attr_reader text: String
+
+        attr_reader file: String?
+
+        # @rbs (String text, ?file: String?) -> void
+        def initialize: (String text, ?file: String?) -> void
+
+        # @rbs () -> Integer
+        def bytesize: () -> Integer
+
+        # Return one-based line and Unicode-scalar column for a byte offset.
+        # Invalid UTF-8 bytes count as one replacement scalar each.
+        # @rbs (Integer offset) -> position
+        def position: (Integer offset) -> position
+
+        # @rbs (Range[Integer] range) -> Ibex::Location
+        def location: (Range[Integer] range) -> Ibex::Location
+
+        # @rbs (Integer line) -> String
+        def line_text: (Integer line) -> String
+
+        private
+
+        # @rbs () -> Array[Integer]
+        def build_line_starts: () -> Array[Integer]
+
+        # @rbs (Integer offset) -> void
+        def validate_offset: (Integer offset) -> void
+
+        # @rbs (Range[Integer] range) -> position
+        def normalized_range: (Range[Integer] range) -> position
+
+        # @rbs (String bytes) -> Integer
+        def unicode_scalar_length: (String bytes) -> Integer
+      end
+    end
+  end
+end

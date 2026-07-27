@@ -7,6 +7,10 @@ require_relative "cst/green/token" unless defined?(Ibex::Runtime::CST::GreenToke
 require_relative "cst/green/node" unless defined?(Ibex::Runtime::CST::GreenNode)
 require_relative "cst/green/cache" unless defined?(Ibex::Runtime::CST::NodeCache)
 require_relative "cst/green/builder" unless defined?(Ibex::Runtime::CST::GreenBuilder)
+require_relative "cst/source_text" unless defined?(Ibex::Runtime::CST::SourceText)
+require_relative "cst/syntax_token" unless defined?(Ibex::Runtime::CST::SyntaxToken)
+require_relative "cst/syntax_node" unless defined?(Ibex::Runtime::CST::SyntaxNode)
+require_relative "cst/cursor" unless defined?(Ibex::Runtime::CST::Cursor)
 
 module Ibex
   module Runtime

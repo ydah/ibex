@@ -1,0 +1,34 @@
+# Generated from lib/ibex/runtime/cst/cursor.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Allocation-light cursor over Green elements and absolute offsets.
+      # rubocop:disable Naming/PredicateMethod -- cursor movement names follow the public tree-cursor convention.
+      class Cursor
+        type green = GreenNode | GreenToken
+
+        type frame = [ GreenNode, Integer, Integer ]
+
+        attr_reader green: green
+
+        attr_reader offset: Integer
+
+        # @rbs (SyntaxNode node) -> void
+        def initialize: (SyntaxNode node) -> void
+
+        # @rbs () -> bool
+        def goto_first_child: () -> bool
+
+        # @rbs () -> bool
+        def goto_next_sibling: () -> bool
+
+        # @rbs () -> bool
+        def goto_parent: () -> bool
+
+        # @rbs () -> Integer
+        def kind: () -> Integer
+      end
+    end
+  end
+end

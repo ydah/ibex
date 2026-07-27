@@ -31,6 +31,10 @@ module Ibex
         ../runtime/cst/green/node.rb
         ../runtime/cst/green/cache.rb
         ../runtime/cst/green/builder.rb
+        ../runtime/cst/source_text.rb
+        ../runtime/cst/syntax_token.rb
+        ../runtime/cst/syntax_node.rb
+        ../runtime/cst/cursor.rb
         ../runtime/cst.rb
         ../runtime/ast_data.rb
         ../runtime/resource_limits.rb
