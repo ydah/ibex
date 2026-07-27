@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../lalr/counterexample"
+require_relative "../lalr"
 
 module Ibex
   # Counterexample report limits and their command-line validation.

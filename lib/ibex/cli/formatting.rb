@@ -2,7 +2,7 @@
 
 require "tempfile"
 require "optparse"
-require_relative "../frontend/formatter"
+require_relative "../frontend"
 
 module Ibex
   # CLI coordination for deterministic, semantics-preserving grammar formatting.

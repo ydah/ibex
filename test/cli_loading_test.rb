@@ -29,6 +29,9 @@ class CLILoadingTest < Minitest::Test
         nil
       when "lsp"
         Ibex::CLI.start(%w[lsp --help], stdout: StringIO.new, stderr: StringIO.new)
+      when "explain"
+        Ibex::CLI.start(["explain", "--format=json", ARGV.fetch(1)],
+                        stdout: StringIO.new, stderr: StringIO.new)
       else
         Ibex::CLI.start(["-o", ARGV.fetch(1), ARGV.fetch(0)],
                         stdout: StringIO.new, stderr: StringIO.new)
@@ -80,6 +83,18 @@ class CLILoadingTest < Minitest::Test
     assert_includes result.fetch("features"), "ibex/lsp.rb"
     refute_includes result.fetch("features"), "ibex/coverage.rb"
     refute_includes result.fetch("features"), "ibex/racc_migration.rb"
+  end
+
+  def test_selected_subcommand_declares_its_transitive_dependencies
+    grammar = File.expand_path("../benchmark/grammars/representative.y", __dir__)
+    result = loaded_features_after("explain", grammar)
+
+    assert_equal 0, result.fetch("status")
+    assert_includes result.fetch("features"), "ibex/cli/explain.rb"
+    assert_includes result.fetch("features"), "ibex/codegen/explain.rb"
+    assert_includes result.fetch("features"), "ibex/codegen/symbol_labels.rb"
+    refute_includes result.fetch("features"), "ibex/lsp.rb"
+    refute_includes result.fetch("features"), "ibex/coverage.rb"
   end
 
   private

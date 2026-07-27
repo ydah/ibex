@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 # rbs_inline: enabled
 
+require_relative "../lalr"
+
 module Ibex
   module Codegen
     # @rbs!

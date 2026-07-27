@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative "../lalr"
+require_relative "symbol_labels"
+
 module Ibex
   module Codegen
     # @rbs!
