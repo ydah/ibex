@@ -83,6 +83,39 @@ class SourceDocumentTest < Minitest::Test
     assert_raises(ArgumentError) { document.position_at(emoji_offset + 1) }
   end
 
+  def test_line_starts_match_character_scanning_across_newline_boundaries
+    sources = [
+      "",
+      "class P",
+      "\n",
+      "\n\n",
+      "class P\n\nrule\nvalue: X\nend\n",
+      "class P\r\n\r\nrule\r\nvalue: X\r\nend\r\n",
+      "# 😀 supplementary 𐐷\r\n# 日本語\n\n"
+    ]
+
+    sources.each do |source|
+      document = Ibex::Frontend::Lexer.new(source, file: "line-starts.y").tokenize_document
+      expected_starts = [0]
+      offset = 0
+      source.each_char do |character|
+        offset += character.bytesize
+        expected_starts << offset if character == "\n"
+      end
+
+      assert_equal expected_starts, document.instance_variable_get(:@line_starts), source.inspect
+
+      offset = 0
+      source.each_char do |character|
+        position = document.position_at(offset)
+        assert_equal offset, document.byte_offset_at(position.line, position.column), source.inspect
+        offset += character.bytesize
+      end
+      position = document.position_at(source.bytesize)
+      assert_equal source.bytesize, document.byte_offset_at(position.line, position.column), source.inspect
+    end
+  end
+
   def test_crlf_after_line_comment_is_one_newline_segment
     source = "class P\r\n# 😀 comment\r\nrule\r\nvalue: WORD\r\nend\r\n"
     document = Ibex::Frontend::Parser.new(source, file: "unicode.y").parse_document

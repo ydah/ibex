@@ -175,9 +175,10 @@ module Ibex
       def build_line_starts
         starts = [0]
         offset = 0
-        source.each_char do |character|
-          offset += character.bytesize
-          starts << offset if character == "\n"
+        binary_source = source.b
+        while (newline = binary_source.index("\n", offset))
+          offset = newline + 1
+          starts << offset
         end
         starts
       end
