@@ -78,6 +78,17 @@ module Ibex
 
       # @rbs (?Integer count) -> void
       def advance: (?Integer count) -> void
+
+      private
+
+      # @rbs (Integer count) -> void
+      def advance_ascii: (Integer count) -> void
+
+      # @rbs (Integer count) -> void
+      def advance_with_offsets: (Integer count) -> void
+
+      # @rbs () -> Array[Integer]
+      def build_character_offsets: () -> Array[Integer]
     end
   end
 end
