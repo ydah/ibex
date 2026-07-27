@@ -22,6 +22,7 @@ module Ibex
       # @rbs @start_names: Array[String]
       # @rbs @entry_isolation: bool
       # @rbs @attribute_entries: bool
+      # @rbs @canonical_suffix_lookahead_cache: Hash[Integer, Hash[Integer, Hash[Integer, Array[Integer]]]]
 
       attr_reader :metrics #: BuildMetrics?
 
@@ -43,6 +44,7 @@ module Ibex
         @productions_by_lhs = grammar.productions.group_by(&:lhs)
         @resolver = ConflictResolver.new(grammar)
         @metrics = nil
+        @canonical_suffix_lookahead_cache = {}
         @start_names = starts || grammar.starts
         if @start_names.empty? || (@start_names - grammar.starts).any?
           raise ArgumentError, "starts must be a nonempty subset of grammar starts"
@@ -166,7 +168,7 @@ module Ibex
           grammar_symbol = @grammar.symbol_by_id(rhs[dot])
           next unless grammar_symbol&.nonterminal?
 
-          lookaheads = suffix_lookaheads(rhs.drop(dot + 1), lookahead)
+          lookaheads = canonical_suffix_lookaheads(production_id, dot, lookahead)
           @productions_by_lhs.fetch(grammar_symbol.id, Array.new(0)).each do |production|
             lookaheads.each do |token_id|
               item = [production.id, 0, token_id] #: lr_item
@@ -182,6 +184,16 @@ module Ibex
         bits = @sets.first_of_sequence(suffix)
         bits |= (1 << inherited) if @sets.sequence_nullable?(suffix)
         @grammar.terminals.filter_map { |terminal| terminal.id if bits.anybits?(1 << terminal.id) }
+      end
+
+      # @rbs (Integer production_id, Integer dot, Integer inherited) -> Array[Integer]
+      def canonical_suffix_lookaheads(production_id, dot, inherited)
+        production_cache = (@canonical_suffix_lookahead_cache[production_id] ||= {})
+        inherited_cache = (production_cache[dot] ||= {})
+        return inherited_cache.fetch(inherited) if inherited_cache.key?(inherited)
+
+        suffix = rhs_for(production_id).drop(dot + 1)
+        inherited_cache[inherited] = suffix_lookaheads(suffix, inherited).freeze
       end
 
       # @rbs (item_set items, Array[lr_item] queue, lr_item item) -> void
