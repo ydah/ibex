@@ -8,7 +8,7 @@ module Ibex
   module Runtime
     module CST
       # Lazy Red navigation facade for one Green node occurrence.
-      class SyntaxNode
+      class SyntaxNode # rubocop:disable Metrics/ClassLength -- navigation and compatibility form one facade.
         # @rbs! type element = SyntaxNode | SyntaxToken
 
         attr_reader :green #: GreenNode
@@ -260,10 +260,15 @@ module Ibex
 
         # @rbs (Array[Symbol]?) -> Hash[Symbol, untyped]
         def deconstruct_keys(_keys)
-          {
+          values = {
             kind: :node, symbol: symbol, production_id: -1, children: children,
             location: location, trailing_trivia: last_token&.green&.trailing || []
-          }.freeze
+          } #: Hash[Symbol, untyped]
+          @kinds.fields(kind).each do |name, slot|
+            index = slot.is_a?(Hash) ? slot.fetch(:index) : slot
+            values[name.to_sym] = child_at(index)
+          end
+          values.freeze
         end
 
         protected

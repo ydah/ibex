@@ -1,0 +1,25 @@
+# Generated from lib/ibex/codegen/ruby_syntax.rb with RBS::Inline
+
+module Ibex
+  module Codegen
+    # Generates typed Red syntax views from @node metadata.
+    module RubySyntax
+      private
+
+      # @rbs (Array[String] lines) -> void
+      def append_syntax: (Array[String] lines) -> void
+
+      # @rbs () -> Hash[String, Hash[Symbol, untyped]]
+      def syntax_node_definitions: () -> Hash[String, Hash[Symbol, untyped]]
+
+      # @rbs (Hash[String, untyped] left, Hash[String, untyped] right) -> Hash[String, untyped]
+      def merge_syntax_fields: (Hash[String, untyped] left, Hash[String, untyped] right) -> Hash[String, untyped]
+
+      # @rbs (Array[String] lines, Hash[Symbol, untyped] definition) -> void
+      def append_syntax_node: (Array[String] lines, Hash[Symbol, untyped] definition) -> void
+
+      # @rbs (Array[String] lines, Hash[String, untyped] fields) -> void
+      def append_repetition_accessors: (Array[String] lines, Hash[String, untyped] fields) -> void
+    end
+  end
+end

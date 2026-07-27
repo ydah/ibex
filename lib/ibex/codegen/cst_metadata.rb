@@ -16,7 +16,8 @@ module Ibex
       #     trivia: kind_map,
       #     synthetic: kind_map
       #   }
-      #   type slot = { node_kind: Integer, node_name: String, fields: Hash[String, Integer] }
+      #   type field_slot = Integer | { index: Integer, extraction: Symbol }
+      #   type slot = { node_kind: Integer, node_name: String, fields: Hash[String, field_slot] }
       #   type metadata = {
       #     version: Integer,
       #     trivia_policy: Symbol,
@@ -132,7 +133,9 @@ module Ibex
           node = production.node
           next unless node
 
-          fields = node.fetch(:fields).each_with_index.to_h.freeze
+          fields = node.fetch(:fields).each_with_index.to_h do |name, index|
+            [name, field_slot(index, production.rhs.fetch(index))]
+          end.freeze
           [
             production.id,
             {
@@ -142,6 +145,26 @@ module Ibex
             }.freeze
           ]
         end.to_h
+      end
+
+      # @rbs (Integer index, Integer symbol_id) -> field_slot
+      def field_slot(index, symbol_id)
+        extraction = repetition_extraction(symbol_id)
+        return index unless extraction
+
+        value = { index: index, extraction: extraction } #: field_slot
+        value.freeze
+      end
+
+      # @rbs (Integer symbol_id) -> Symbol?
+      def repetition_extraction(symbol_id)
+        origins = @grammar.productions
+                          .select { |production| production.lhs == symbol_id }
+                          .map { |production| production.origin.fetch(:kind) }.uniq
+        return :separated_list if origins == [:separated_list_expansion]
+        return :repetition if (origins - %i[star_expansion plus_expansion]).empty? && !origins.empty?
+
+        nil
       end
     end
   end

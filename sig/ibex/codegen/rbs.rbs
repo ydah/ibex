@@ -26,6 +26,24 @@ module Ibex
       # @rbs (Array[String] lines) -> void
       def append_ast_contract: (Array[String] lines) -> void
 
+      # @rbs (Array[String] lines) -> void
+      def append_syntax_contract: (Array[String] lines) -> void
+
+      # @rbs () -> Hash[String, Hash[Symbol, untyped]]
+      def syntax_node_definitions: () -> Hash[String, Hash[Symbol, untyped]]
+
+      # @rbs (Hash[String, untyped] left, Hash[String, untyped] right) -> Hash[String, untyped]
+      def merge_syntax_fields: (Hash[String, untyped] left, Hash[String, untyped] right) -> Hash[String, untyped]
+
+      # @rbs (Array[String] lines, Hash[Symbol, untyped] definition) -> void
+      def append_syntax_node_contract: (Array[String] lines, Hash[Symbol, untyped] definition) -> void
+
+      # @rbs (String node_name, Integer index) -> String
+      def syntax_field_type: (String node_name, Integer index) -> String
+
+      # @rbs (Array[String] lines, Hash[String, untyped] fields) -> void
+      def append_repetition_contracts: (Array[String] lines, Hash[String, untyped] fields) -> void
+
       # @rbs () -> Hash[String, IR::node_annotation]
       def ast_node_definitions: () -> Hash[String, IR::node_annotation]
 

@@ -49,6 +49,26 @@ class CSTMetadataTest < Minitest::Test
     assert_match(/cst_trivia/, error.message)
   end
 
+  def test_repetition_slots_record_lowered_extraction_rules
+    source = <<~GRAMMAR
+      class RepetitionMetadataParser
+      pragma extended
+      pragma cst
+      token NUM PLUS
+      rule
+      start: separated_list(expression, PLUS) @node Expressions(values)
+      expression: NUM
+      end
+    GRAMMAR
+    metadata = Ibex::Codegen::CSTMetadata.new(normalize(source)).build
+    slot = metadata.fetch(:slots).values.find { |value| value.fetch(:node_name) == "Expressions" }
+
+    assert_equal(
+      { index: 0, extraction: :separated_list },
+      slot.fetch(:fields).fetch("values")
+    )
+  end
+
   private
 
   def normalize(source)

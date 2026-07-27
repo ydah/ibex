@@ -1,0 +1,50 @@
+# Generated from lib/ibex/runtime/cst/typed_node.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Grammar-generated typed view over one Red syntax node.
+      class TypedNode
+        type element = SyntaxNode | SyntaxToken
+
+        attr_reader node: SyntaxNode
+
+        # @rbs (SyntaxNode node) -> void
+        def initialize: (SyntaxNode node) -> void
+
+        # @rbs () -> Integer
+        def kind: () -> Integer
+
+        # @rbs () -> String
+        def kind_name: () -> String
+
+        # @rbs (Integer index) -> element
+        def child_at_slot: (Integer index) -> element
+
+        # @rbs (Integer index) -> SyntaxNode
+        def node_at_slot: (Integer index) -> SyntaxNode
+
+        # @rbs (Integer index) -> SyntaxToken
+        def token_at_slot: (Integer index) -> SyntaxToken
+
+        # @rbs () -> Array[element]
+        def deconstruct: () -> Array[element]
+
+        # @rbs (Array[Symbol]?) -> Hash[Symbol, untyped]
+        def deconstruct_keys: (Array[Symbol]?) -> Hash[Symbol, untyped]
+
+        # @rbs () -> String
+        def to_source: () -> String
+
+        # Flatten a lowered repetition helper and enumerate elements or separators.
+        # @rbs (Integer index, separated: bool, ?separators: bool) -> Enumerator[element, void]
+        def list_items: (Integer index, separated: bool, ?separators: bool) -> Enumerator[element, void]
+
+        private
+
+        # @rbs (SyntaxNode current, Integer helper_kind, Array[element] result) -> void
+        def flatten_list: (SyntaxNode current, Integer helper_kind, Array[element] result) -> void
+      end
+    end
+  end
+end

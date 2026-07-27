@@ -22,7 +22,13 @@ module Ibex
       class Kind
         type kind_map = Hash[String, Integer]
 
+        type field_slot = Integer | { index: Integer, extraction: Symbol }
+
+        type slot = { node_kind: Integer, node_name: String, fields: Hash[String, field_slot] }
+
         type metadata = { names: Array[String], terminal_range: Array[Integer], nonterminal_range: Array[Integer], named: kind_map, named_nonterminals: Hash[Integer, Integer], trivia: kind_map, synthetic: kind_map }
+
+        @field_slots: Hash[Integer, Hash[String, field_slot]]
 
         @synthetic: Hash[String, Integer]
 
@@ -38,8 +44,8 @@ module Ibex
 
         @names: Array[String]
 
-        # @rbs (metadata metadata) -> void
-        def initialize: (metadata metadata) -> void
+        # @rbs (metadata metadata, ?slots: Hash[Integer, slot]) -> void
+        def initialize: (metadata metadata, ?slots: Hash[Integer, slot]) -> void
 
         # @rbs (Integer kind) -> String
         def name: (Integer kind) -> String
@@ -63,7 +69,16 @@ module Ibex
         # @rbs (Integer kind) -> Integer
         def nonterminal_of: (Integer kind) -> Integer
 
+        # Return the named field-to-physical-slot mapping for a kind.
+        # @rbs (Integer kind) -> Hash[String, field_slot]
+        def fields: (Integer kind) -> Hash[String, field_slot]
+
         private
+
+        EMPTY_FIELDS: Hash[String, field_slot]
+
+        # @rbs (Hash[Integer, slot] slots) -> Hash[Integer, Hash[String, field_slot]]
+        def build_field_slots: (Hash[Integer, slot] slots) -> Hash[Integer, Hash[String, field_slot]]
 
         # @rbs (Array[Integer] range, Integer kind) -> bool
         def within?: (Array[Integer] range, Integer kind) -> bool

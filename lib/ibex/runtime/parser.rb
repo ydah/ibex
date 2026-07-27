@@ -1874,7 +1874,7 @@ module Ibex
           return
         end
 
-        kinds = CST::Kind.new(config.fetch(:kinds))
+        kinds = CST::Kind.new(config.fetch(:kinds), slots: config.fetch(:slots))
         cache = CST::NodeCache.new
         @green_kinds = kinds
         @green_cache = cache

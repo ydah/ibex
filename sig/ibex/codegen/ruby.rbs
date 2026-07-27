@@ -17,6 +17,8 @@ module Ibex
 
       include RubyAST
 
+      include RubySyntax
+
       EMBEDDED_RUNTIME_SOURCES: Array[String]
 
       @automaton: IR::Automaton

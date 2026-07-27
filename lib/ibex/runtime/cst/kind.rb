@@ -18,6 +18,8 @@ module Ibex
       class Kind
         # @rbs!
         #   type kind_map = Hash[String, Integer]
+        #   type field_slot = Integer | { index: Integer, extraction: Symbol }
+        #   type slot = { node_kind: Integer, node_name: String, fields: Hash[String, field_slot] }
         #   type metadata = {
         #     names: Array[String],
         #     terminal_range: Array[Integer],
@@ -35,9 +37,10 @@ module Ibex
         # @rbs @named_nonterminals: Hash[Integer, Integer]
         # @rbs @trivia: Hash[String, Integer]
         # @rbs @synthetic: Hash[String, Integer]
+        # @rbs @field_slots: Hash[Integer, Hash[String, field_slot]]
 
-        # @rbs (metadata metadata) -> void
-        def initialize(metadata)
+        # @rbs (metadata metadata, ?slots: Hash[Integer, slot]) -> void
+        def initialize(metadata, slots: {})
           @names = metadata.fetch(:names).dup.freeze
           @terminal_range = metadata.fetch(:terminal_range).dup.freeze
           @nonterminal_range = metadata.fetch(:nonterminal_range).dup.freeze
@@ -45,6 +48,7 @@ module Ibex
           @named_nonterminals = metadata.fetch(:named_nonterminals).dup.freeze
           @trivia = metadata.fetch(:trivia).dup.freeze
           @synthetic = metadata.fetch(:synthetic).dup.freeze
+          @field_slots = build_field_slots(slots)
           freeze
         end
 
@@ -81,7 +85,32 @@ module Ibex
           @named_nonterminals.fetch(kind, kind)
         end
 
+        # Return the named field-to-physical-slot mapping for a kind.
+        # @rbs (Integer kind) -> Hash[String, field_slot]
+        def fields(kind) = @field_slots.fetch(kind, EMPTY_FIELDS)
+
         private
+
+        empty_fields = {} #: Hash[String, field_slot]
+        EMPTY_FIELDS = empty_fields.freeze
+        private_constant :EMPTY_FIELDS
+
+        # @rbs (Hash[Integer, slot] slots) -> Hash[Integer, Hash[String, field_slot]]
+        def build_field_slots(slots)
+          values = {} #: Hash[Integer, Hash[String, field_slot]]
+          slots.each_value do |slot|
+            kind = slot.fetch(:node_kind)
+            fields = slot.fetch(:fields).to_h do |name, field_slot|
+              index = field_slot.is_a?(Hash) ? field_slot.fetch(:index) : field_slot
+              [name, index]
+            end.freeze
+            previous = values[kind]
+            raise ArgumentError, "conflicting CST fields for kind #{kind}" if previous && previous != fields
+
+            values[kind] = fields
+          end
+          values.freeze
+        end
 
         # @rbs (Array[Integer] range, Integer kind) -> bool
         def within?(range, kind)

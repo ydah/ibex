@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "generated_action_abi"
+require_relative "cst_metadata"
 
 module Ibex
   module Codegen
@@ -29,6 +30,7 @@ module Ibex
         modules.each { |name| lines << "module #{name}" }
         lines << "class #{class_name} < #{@superclass}"
         append_ast_contract(lines)
+        append_syntax_contract(lines)
         append_contract(lines)
         append_lexer_contract(lines)
         append_value_printer_signatures(lines)
@@ -50,6 +52,89 @@ module Ibex
         append_visitor_contract(lines, definitions)
         append_listener_contract(lines, definitions)
         lines.push("  end", "")
+      end
+
+      # @rbs (Array[String] lines) -> void
+      def append_syntax_contract(lines)
+        definitions = syntax_node_definitions
+        return if definitions.empty? || @grammar.options[:cst] != true
+
+        lines << "  module Syntax"
+        definitions.each_value { |definition| append_syntax_node_contract(lines, definition) }
+        lines.push("  end", "")
+      end
+
+      # @rbs () -> Hash[String, Hash[Symbol, untyped]]
+      def syntax_node_definitions
+        metadata = CSTMetadata.new(@grammar).build
+        slots = metadata.fetch(:slots)
+        definitions = {} #: Hash[String, Hash[Symbol, untyped]]
+        @grammar.productions.each do |production|
+          node = production.node
+          next unless node
+
+          slot = slots.fetch(production.id)
+          name = node.fetch(:name)
+          previous = definitions[name]
+          fields = previous ? merge_syntax_fields(previous.fetch(:fields), slot.fetch(:fields)) : slot.fetch(:fields)
+          definitions[name] = { name: name, kind: slot.fetch(:node_kind), fields: fields }.freeze
+        end
+        definitions
+      end
+
+      # @rbs (Hash[String, untyped] left, Hash[String, untyped] right) -> Hash[String, untyped]
+      def merge_syntax_fields(left, right)
+        left.to_h do |name, left_slot|
+          right_slot = right.fetch(name)
+          left_index = left_slot.is_a?(Hash) ? left_slot.fetch(:index) : left_slot
+          right_index = right_slot.is_a?(Hash) ? right_slot.fetch(:index) : right_slot
+          raise Ibex::Error, "inconsistent CST slot for #{name}" unless left_index == right_index
+
+          [name, left_slot == right_slot ? left_slot : left_index]
+        end.freeze
+      end
+
+      # @rbs (Array[String] lines, Hash[Symbol, untyped] definition) -> void
+      def append_syntax_node_contract(lines, definition)
+        name = definition.fetch(:name)
+        fields = definition.fetch(:fields)
+        lines.push(
+          "    class #{name} < Ibex::Runtime::CST::TypedNode",
+          "      KIND: Integer",
+          "      def self.cast: (Ibex::Runtime::CST::SyntaxNode node) -> #{name}?"
+        )
+        fields.each_with_index do |(field, _slot), index|
+          lines << "      def #{field}: () -> #{syntax_field_type(name, index)}"
+        end
+        append_repetition_contracts(lines, fields)
+        lines << "    end"
+      end
+
+      # @rbs (String node_name, Integer index) -> String
+      def syntax_field_type(node_name, index)
+        symbol_ids = @grammar.productions.filter_map do |production|
+          production.rhs.fetch(index) if production.node&.fetch(:name) == node_name
+        end
+        types = symbol_ids.map do |symbol_id|
+          symbol = @grammar.symbols.fetch(symbol_id)
+          symbol.terminal? ? "Ibex::Runtime::CST::SyntaxToken" : "Ibex::Runtime::CST::SyntaxNode"
+        end.uniq
+        types.one? ? types.fetch(0) : "(#{types.join(' | ')})"
+      end
+
+      # @rbs (Array[String] lines, Hash[String, untyped] fields) -> void
+      def append_repetition_contracts(lines, fields)
+        repeated = fields.select { |_field, slot| slot.is_a?(Hash) && slot[:extraction] }
+        element = "Enumerator[Ibex::Runtime::CST::SyntaxNode | Ibex::Runtime::CST::SyntaxToken, void]"
+        repeated.each do |field, slot|
+          lines << "      def each_#{field}_element: () -> #{element}"
+          lines << "      def each_#{field}_separator: () -> #{element}" if slot.fetch(:extraction) == :separated_list
+        end
+        return unless repeated.one?
+
+        _field, slot = repeated.first
+        lines << "      def each_element: () -> #{element}"
+        lines << "      def each_separator: () -> #{element}" if slot.fetch(:extraction) == :separated_list
       end
 
       # @rbs () -> Hash[String, IR::node_annotation]
@@ -121,6 +206,7 @@ module Ibex
                    "  PARSER_TABLES: Hash[Symbol, untyped]", "  DEBUG_ENABLED: bool", "",
                    "  def self.parser_tables: () -> Hash[Symbol, untyped]")
         lines << "  SYMBOL_NAMES: Hash[Integer, String]" if @grammar.options[:cst] == true
+        lines << "  CST_METADATA: Hash[Symbol, untyped]" if @grammar.options[:cst] == true
         append_entry_contract(lines)
         append_parameter_contract(lines)
       end
@@ -163,6 +249,10 @@ module Ibex
           "  def lexer_state=: (Symbol | String state) -> Symbol",
           "  def next_token: () -> [untyped, untyped, Hash[Symbol, untyped]]"
         )
+        if @grammar.options[:cst] == true
+          lines << "  def parse_with_syntax: (String | IO | Fiber source, ?file: String) -> " \
+                   "Ibex::Runtime::CST::ParseResult"
+        end
         lexer.rules.each do |rule|
           lines << "  private def _ibex_lexer_action_#{rule.id}: (String lexeme) -> untyped" if rule.action
         end

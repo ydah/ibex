@@ -9,6 +9,7 @@ require_relative "ruby_table_metadata"
 require_relative "ruby_value_printers"
 require_relative "ruby_lexer"
 require_relative "ruby_ast"
+require_relative "ruby_syntax"
 
 module Ibex
   module Codegen
@@ -21,6 +22,7 @@ module Ibex
       include RubyValuePrinters
       include RubyLexer
       include RubyAST
+      include RubySyntax
 
       EMBEDDED_RUNTIME_SOURCES = %w[
         ../runtime/version.rb
@@ -36,6 +38,7 @@ module Ibex
         ../runtime/cst/syntax_token.rb
         ../runtime/cst/syntax_node.rb
         ../runtime/cst/cursor.rb
+        ../runtime/cst/typed_node.rb
         ../runtime/cst/parse_result.rb
         ../runtime/cst.rb
         ../runtime/ast_data.rb
@@ -112,6 +115,7 @@ module Ibex
         modules.each { |name| lines << "module #{name}" }
         lines << "class #{class_name} < #{@superclass}"
         append_ast(lines)
+        append_syntax(lines)
         append_tables(lines)
         append_parameter_initializer(lines)
         append_entry_methods(lines)

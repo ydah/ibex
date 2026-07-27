@@ -11,6 +11,7 @@ require_relative "cst/source_text" unless defined?(Ibex::Runtime::CST::SourceTex
 require_relative "cst/syntax_token" unless defined?(Ibex::Runtime::CST::SyntaxToken)
 require_relative "cst/syntax_node" unless defined?(Ibex::Runtime::CST::SyntaxNode)
 require_relative "cst/cursor" unless defined?(Ibex::Runtime::CST::Cursor)
+require_relative "cst/typed_node" unless defined?(Ibex::Runtime::CST::TypedNode)
 require_relative "cst/parse_result" unless defined?(Ibex::Runtime::CST::ParseResult)
 
 module Ibex
