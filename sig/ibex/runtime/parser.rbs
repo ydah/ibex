@@ -316,6 +316,17 @@ module Ibex
 
       private
 
+      # Ruby invokes these hooks for direct singleton method mutations. Keep
+      # the checks allocation-free because they can run inside lexer callbacks.
+      # @rbs (Symbol name) -> void
+      def singleton_method_added: (Symbol name) -> void
+
+      # @rbs (Symbol name) -> void
+      def singleton_method_removed: (Symbol name) -> void
+
+      # @rbs (Symbol name) -> void
+      def singleton_method_undefined: (Symbol name) -> void
+
       alias __ibex_fast_path_on_shift on_shift
 
       alias __ibex_fast_path_on_shift_location on_shift_location
@@ -325,6 +336,12 @@ module Ibex
       alias __ibex_fast_path_on_reduce_location on_reduce_location
 
       alias __ibex_fast_path_token_to_str token_to_str
+
+      alias __ibex_fast_path_singleton_method_added singleton_method_added
+
+      alias __ibex_fast_path_singleton_method_removed singleton_method_removed
+
+      alias __ibex_fast_path_singleton_method_undefined singleton_method_undefined
 
       # Racc-generated parsers commonly define an application initializer
       # without calling super. Complete only missing runtime state so those

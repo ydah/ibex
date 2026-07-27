@@ -519,11 +519,43 @@ module Ibex
 
       private
 
+      # Ruby invokes these hooks for direct singleton method mutations. Keep
+      # the checks allocation-free because they can run inside lexer callbacks.
+      # @rbs (Symbol name) -> void
+      def singleton_method_added(name)
+        case name
+        when :on_shift, :on_shift_location, :on_reduce, :on_reduce_location, :token_to_str
+          disable_runtime_fast_path!
+        end
+        super
+      end
+
+      # @rbs (Symbol name) -> void
+      def singleton_method_removed(name)
+        case name
+        when :on_shift, :on_shift_location, :on_reduce, :on_reduce_location, :token_to_str
+          disable_runtime_fast_path!
+        end
+        super
+      end
+
+      # @rbs (Symbol name) -> void
+      def singleton_method_undefined(name)
+        case name
+        when :on_shift, :on_shift_location, :on_reduce, :on_reduce_location, :token_to_str
+          disable_runtime_fast_path!
+        end
+        super
+      end
+
       alias __ibex_fast_path_on_shift on_shift
       alias __ibex_fast_path_on_shift_location on_shift_location
       alias __ibex_fast_path_on_reduce on_reduce
       alias __ibex_fast_path_on_reduce_location on_reduce_location
       alias __ibex_fast_path_token_to_str token_to_str
+      alias __ibex_fast_path_singleton_method_added singleton_method_added
+      alias __ibex_fast_path_singleton_method_removed singleton_method_removed
+      alias __ibex_fast_path_singleton_method_undefined singleton_method_undefined
 
       # Racc-generated parsers commonly define an application initializer
       # without calling super. Complete only missing runtime state so those
@@ -1882,7 +1914,16 @@ module Ibex
           runtime_method_unchanged?(lookup, :on_shift_location, :__ibex_fast_path_on_shift_location) &&
           runtime_method_unchanged?(lookup, :on_reduce, :__ibex_fast_path_on_reduce) &&
           runtime_method_unchanged?(lookup, :on_reduce_location, :__ibex_fast_path_on_reduce_location) &&
-          runtime_method_unchanged?(lookup, :token_to_str, :__ibex_fast_path_token_to_str)
+          runtime_method_unchanged?(lookup, :token_to_str, :__ibex_fast_path_token_to_str) &&
+          runtime_method_unchanged?(
+            lookup, :singleton_method_added, :__ibex_fast_path_singleton_method_added
+          ) &&
+          runtime_method_unchanged?(
+            lookup, :singleton_method_removed, :__ibex_fast_path_singleton_method_removed
+          ) &&
+          runtime_method_unchanged?(
+            lookup, :singleton_method_undefined, :__ibex_fast_path_singleton_method_undefined
+          )
       end
 
       # @rbs (UnboundMethod lookup, Symbol name, Symbol reference) -> bool
@@ -1906,9 +1947,8 @@ module Ibex
       # @rbs () -> void
       def refresh_runtime_fast_path_after_user_code!
         return unless @runtime_fast_path
-        return disable_runtime_fast_path! if @semantic_error || @accept_requested
 
-        @runtime_fast_path = false unless runtime_fast_path_eligible?(parser_tables)
+        disable_runtime_fast_path! if @semantic_error || @accept_requested
       end
 
       # @rbs () -> void

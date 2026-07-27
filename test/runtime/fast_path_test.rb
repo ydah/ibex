@@ -149,6 +149,22 @@ class RuntimeFastPathTest < Minitest::Test
     end
   end
 
+  class LookupCountingProbe < ActionlessProbe
+    attr_reader :runtime_core_method_calls
+
+    def initialize(...)
+      super
+      @runtime_core_method_calls = 0
+    end
+
+    private
+
+    def runtime_core_method(...)
+      @runtime_core_method_calls += 1
+      super
+    end
+  end
+
   class ControlProbe < ActionlessProbe
     TABLES = {
       format_version: Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION,
@@ -235,6 +251,30 @@ class RuntimeFastPathTest < Minitest::Test
     assert_equal [0, 0], [parser.generic_shifts, parser.generic_reductions]
   end
 
+  def test_repeated_callback_refresh_does_not_rebuild_effective_methods
+    parser = LookupCountingProbe.new
+    assert_equal :need_more, parser.push(:ITEM, 10)
+    construction_calls = parser.runtime_core_method_calls
+    assert_operator construction_calls, :>, 0
+
+    1_000.times { parser.send(:refresh_runtime_fast_path_after_user_code!) }
+
+    assert_equal construction_calls, parser.runtime_core_method_calls
+    assert parser.fast_path_active?
+    assert_equal 10, parser.finish
+  end
+
+  def test_undefining_relevant_singleton_hook_disables_active_fast_path
+    parser = ActionlessProbe.new
+    assert_equal :need_more, parser.push(:ITEM, 11)
+    assert parser.fast_path_active?
+
+    parser.singleton_class.send(:undef_method, :on_reduce)
+
+    refute parser.fast_path_active?
+    assert_raises(NoMethodError) { parser.finish }
+  end
+
   def test_undefined_hook_falls_back_without_raising_before_generic_dispatch
     undefined_hook_class = Class.new(ActionlessProbe) do
       attr_reader :lexer_calls
@@ -305,6 +345,21 @@ class RuntimeFastPathTest < Minitest::Test
 
       assert_equal hook, parser.do_parse
       assert_operator parser.hook_calls, :>, 0
+      assert_operator parser.generic_shifts, :>, 0
+      assert_operator parser.generic_reductions, :>, 0
+    end
+  end
+
+  def test_singleton_mutation_callback_overrides_disqualify_the_session
+    %i[singleton_method_added singleton_method_removed singleton_method_undefined].each do |callback|
+      callback_class = Class.new(ActionlessProbe) do
+        private
+
+        define_method(callback) { |_name| nil }
+      end
+      parser = callback_class.new([[:ITEM, callback], false])
+
+      assert_equal callback, parser.do_parse
       assert_operator parser.generic_shifts, :>, 0
       assert_operator parser.generic_reductions, :>, 0
     end
