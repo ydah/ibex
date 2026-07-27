@@ -25,7 +25,7 @@ records state, declaration id, pattern source/options, action, and provenance;
 pattern with an internal current-position anchor and emits immutable,
 state-indexed rules. Per-parser mutable input, position, emission, and state
 stacks live in `Runtime::GeneratedLexer`, never in the tables. See
-[ADR 0071](decisions/0071-versioned-generated-lexer.md).
+[ADR 0064](decisions/0064-versioned-generated-lexer.md).
 
 `pragma cst` adds an optional Grammar IR v2 flag and CST-only RHS/symbol
 metadata to generated tables. `Runtime::Parser` builds immutable concrete
@@ -34,20 +34,20 @@ explicit action contracts unchanged. Generated lexer skips become attached or
 dropped trivia according to the generation policy. Parser failures, repair
 insertions, and lexer failures become explicit `Error`/`Missing` terminals;
 unrecoverable CST sessions still return a synthetic start tree. See
-[ADR 0072](decisions/0072-error-tolerant-concrete-trees.md).
+[ADR 0065](decisions/0065-error-tolerant-concrete-trees.md).
 
 Alternative-level `@node` declarations are preserved as Grammar IR v2
 production metadata. Runtime Ruby, static action-shadow Ruby, and generated
 RBS all derive Data node classes and Visitor/Listener hooks from that same
 metadata; action source is never inspected to infer a shape. Symbol semantic
 types and fully annotated nonterminals supply field types. See
-[ADR 0073](decisions/0073-generated-data-ast.md).
+[ADR 0066](decisions/0066-generated-data-ast.md).
 
 The text frontend's canonical syntax is `lib/ibex/frontend/grammar.y`. Ibex generates and commits
 `lib/ibex/frontend/generated_parser.rb`; the public `Frontend::Parser` always delegates to that class. Lexer `Token` objects remain
 the semantic values passed through `TokenAdapter`, preserving their `Location` in AST nodes and diagnostics. The explicitly named
 handwritten `BootstrapParser` is excluded from normal loading and exists only to break the regeneration cycle. See
-[ADR 0015](decisions/0015-self-hosted-grammar-frontend.md) for the update procedure and boundary.
+[ADR 0014](decisions/0014-self-hosted-grammar-frontend.md) for the update procedure and boundary.
 `lib/ibex/frontend/shadow_grammar.y` describes the same frontend with parameterized list rules and an inline terminal wrapper.
 It is generated only in tests and must match the production parser's AST across the canonical grammar and extended fixtures;
 see the [development guide](development.md).
@@ -59,8 +59,8 @@ bodies remain opaque segments; whitespace, line breaks, both comment forms, user
 `render`, byte slicing, and byte/line/column conversion provide the common source contract for formatter, documentation, include,
 and language-server layers. `RuleDocumentation` correlates immediately preceding `##` comment-only lines with semantic rule
 locations and copy-enriches generated Root/Fragment nodes; occupied opaque-segment lines are never scanned as comments. See
-[ADR 0040](decisions/0040-lossless-frontend-source-document.md) and [ADR
-0043](decisions/0043-lossless-rule-documentation.md).
+[ADR 0036](decisions/0036-lossless-frontend-source-document.md) and [ADR
+0039](decisions/0039-lossless-rule-documentation.md).
 
 `Frontend::Formatter` classifies the document's existing semantic tokens, replaces only whitespace/newline trivia, and protects
 token, comment, action, heredoc, marker, and user-code bytes. It reparses the rendered root or fragment in the same frontend mode
@@ -70,7 +70,7 @@ segment spellings and blank-line counts survive required line boundaries; new bo
 inside opaque text. Batch stages and hard-link backups live beside each resolved target. Alias rejection, reverse rollback, and
 all-directory synchronization preserve full file modes and relative or absolute symlink identities. Backups are synchronized
 before installation; a failed restore preserves its backup, while post-commit cleanup problems are status-0 warnings. See [ADR
-0047](decisions/0047-semantics-preserving-grammar-formatting.md).
+0043](decisions/0043-semantics-preserving-grammar-formatting.md).
 
 `Frontend::SourceLoader` is the shared disk/overlay read boundary. Resolver's default loader retains canonical filesystem
 behavior; LSP injects open buffers, including safe new files, while the resolver continues to enforce realpath containment,
@@ -78,7 +78,7 @@ symlink escape rejection, cycle identity, and diamond deduplication. `LSP::Docum
 root/include closures, reverse dependencies, and disk restoration over that loader. `PositionCodec` is the only UTF-16 adapter
 over frontend byte/scalar spans. `SymbolIndex` derives navigation and guarded rename edits from parsed nodes and lossless tokens,
 never from opaque Ruby or textual scanning. Content-Length transport, lifecycle handling, and request handlers remain separate
-from workspace semantics; see [ADR 0048](decisions/0048-overlay-workspaces-and-lsp.md).
+from workspace semantics; see [ADR 0044](decisions/0044-overlay-workspaces-and-lsp.md).
 
 CLI file generation renders every requested output into an immutable `ArtifactSet` before entering `GenerationTransaction`.
 The transaction records the exact root, fragment, IR, and message bytes read through `GenerationInput`, rejects portable target
@@ -88,10 +88,10 @@ That manifest is the coherence marker: readers verify its listed paths, sizes, a
 manifest on a mismatch. It is not a claim that several filesystem renames occur atomically. `--watch` feeds the same transaction
 only candidates whose complete canonical source closure and failed include attempts remain unchanged across rendering and
 publication. Portable polling, bounded debounce, failure deduplication, and cancellable nonblocking locks keep the last successful
-generation usable while a source is invalid; see [ADR 0049](decisions/0049-transactional-generation-and-watch-mode.md).
+generation usable while a source is invalid; see [ADR 0045](decisions/0045-transactional-generation-and-watch-mode.md).
 The executable's ordinary generation path declares this pipeline directly instead of loading the complete library and every
 subcommand. Optional subcommands and generation outputs load at their invocation boundary while their public constants remain
-autoloadable; see [ADR 0084](decisions/0084-demand-loaded-cli-features.md).
+autoloadable; see [ADR 0074](decisions/0074-demand-loaded-cli-features.md).
 
 Extended grammar paths cross an explicit `Frontend::Resolver` boundary. The canonical `import` declaration and compatible
 `include` spelling share this boundary. Roots retain class, start, options, and user code;
@@ -100,7 +100,7 @@ and the Rake dependency closure. Canonical dirname ancestry keeps every resolved
 symlink resolution, including when that directory is a filesystem or drive root. The source-only Parser never follows an
 include. A `Resolution` recursively freezes its owned AST and defensive provenance copies while retaining rule identity for
 include-chain lookup. Rake resolves this closure at task definition and refuses invalid graphs before timestamp checks can reuse
-a stale output; see [ADR 0042](decisions/0042-canonical-grammar-fragment-includes.md).
+a stale output; see [ADR 0038](decisions/0038-canonical-grammar-fragment-includes.md).
 
 Extended parameterized definitions remain structural AST templates rather than grammar symbols. The Normalizer validates the
 complete template graph, interns an impossible `$parameter_N` helper for each canonical call, records that helper in a memo
@@ -109,7 +109,7 @@ continuations on an explicit depth-first worklist preserve ordinary lowering ord
 the Ruby call stack. Same-argument recursion therefore closes over the memo, while a configurable total-specialization budget
 and structural constructor-growth detection bound argument-growing recursion without an arbitrary depth cutoff. Template actions,
 precedence, metadata, documentation, locations, and definition include chains flow into the specialized productions; see
-[ADR 0044](decisions/0044-parameterized-user-rules.md).
+[ADR 0040](decisions/0040-parameterized-user-rules.md).
 
 Inline definitions are lowered temporarily, then a bounded deterministic post-pass substitutes marked alternatives through
 ordinary, parameterized, and EBNF productions before diagnostics and LR construction. It removes every marked symbol and
@@ -118,7 +118,7 @@ action plan. The plan addresses flattened physical values followed by earlier lo
 `result_type` on every newly emitted step, reconstructs surrounding stack
 prefixes and semantic spans, and remains executable after IR serialization. Cycle validation covers paths through ordinary
 rules and templates; the default 10,000-production cartesian budget is configurable. See
-[ADR 0045](decisions/0045-bounded-inline-rule-expansion.md).
+[ADR 0041](decisions/0041-bounded-inline-rule-expansion.md).
 
 The strict generated frontend remains the grammar authority during batch diagnostics. A diagnostic parse retries it after
 suppressing only a whole declaration, whole rule, or outer alternative at balanced delimiters. Each retry must remove a new
@@ -127,7 +127,7 @@ global source-order limit is applied, so an earlier syntax error cannot be hidde
 diagnostics retain source spans, defensive locations, and stable codes. A repaired AST is marked partial by `ParseResult`, and
 is not attached to the unchanged source document. After a successful root parse, the CLI reports the first resolver grammar
 failure through the same diagnostic schema, while actual resolution I/O failures remain invocation errors. The CLI exposes this
-analysis only through `ibex diagnose`; see [ADR 0041](decisions/0041-bounded-frontend-diagnostics.md).
+analysis only through `ibex diagnose`; see [ADR 0037](decisions/0037-bounded-frontend-diagnostics.md).
 
 The RBS generator emits the generated class namespace, superclass, parser-table constants, `.parser_tables` contract, and
 private reduction and composed-fragment signatures. Declared symbol types refine the RHS tuple and LHS result independently,
@@ -141,7 +141,7 @@ Default source mapping compiles opaque action methods with `class_eval` when the
 generator makes those exact method bodies visible to Steep without runtime loading: runtime and shadow output share one method
 source builder, while the shadow omits parser infrastructure and every user-code section. Ibex only generates this source;
 executing Steep remains an application/CI boundary. See [ADR
-0046](decisions/0046-static-action-shadow-source.md). The
+0042](decisions/0042-static-action-shadow-source.md). The
 gem also ships a one-to-one rbs-inline-generated signature tree under `sig/` for every Ruby source in `lib/`, including the
 self-hosted parser. CI regenerates into an empty temporary directory, compares the complete trees, validates the RBS environment,
 and runs Steep against the entire library. Token/location records, grammar AST nodes, parser classifier and bootstrap state, the
@@ -169,7 +169,7 @@ Warning records use the additive type vocabulary `undeclared_terminal`, `unused_
 `unreachable_terminal`, `unreachable_nonterminal`, `duplicate_production`, and `empty_language`, and retain source locations.
 Schema-v1 readers must ignore warning types they do not recognize. The CLI applies display/error policy at the boundary;
 normalization and IR serialization do not discard diagnostics. See
-[ADR 0021](decisions/0021-diagnostic-outputs-and-warning-vocabulary.md).
+[ADR 0020](decisions/0020-diagnostic-outputs-and-warning-vocabulary.md).
 
 A symbol has `id`, `name`, `kind`, `reserved`, optional `prec {associativity, level}`, `loc`, `display_name`, and
 `semantic_type`. The last two fields are omitted when undeclared, so older schema-v1 documents remain byte-stable and loadable.
@@ -196,7 +196,7 @@ populate symbol and user-production documentation, including through fragment re
 undocumented. Parameterized specializations populate `expansion.parameter` with the template name and canonical structural
 arguments while retaining the definition's include chain. Version-1 upgrades mark every unrecoverable metadata family in
 `migration.unavailable` instead of guessing.
-For compatibility with version-2 documents produced before ADR 0046, the input schema also accepts an absent composition-step
+For compatibility with version-2 documents produced before ADR 0042, the input schema also accepts an absent composition-step
 `result_type`; generators treat it as `untyped`.
 `Serialize.load` and `Validator.validate` accept both versions; a loaded version-1 object dumps with the original version-1
 shape. `IR::Migration.to_version` upgrades version 1 to 2 and is idempotent at version 2. The CLI exposes this as
@@ -235,7 +235,7 @@ associativity decisions; `rr` counts reduce/reduce cells.
 
 New automata use version 2 and always embed Grammar IR version 2. Migration recalculates `grammar_digest` from the upgraded
 canonical grammar. Version-1 automata remain loadable, validatable, and byte-stable. Published Draft 2020-12 contracts for both
-versions live under `schema/`; see [ADR 0039](decisions/0039-versioned-ir-v2-migration.md).
+versions live under `schema/`; see [ADR 0035](decisions/0035-versioned-ir-v2-migration.md).
 
 `--emit=sets` is a deterministic analysis view rather than another IR: it emits lexically sorted nullable nonterminals and
 FIRST/FOLLOW maps for nonterminals. DOT, Mermaid, and the self-contained searchable HTML report are deterministic presentation
@@ -253,9 +253,9 @@ state count. `--entry-isolation` instead constructs each start independently and
 deterministic offsets. Shared builds attribute reachable entries to conflicts and compare isolated conflict fingerprints to
 identify merge-created composite conflicts. All strategies use the same conflict resolver and default reduction pass. After a build, frozen diagnostic
 `metrics` record the strategy and construction/final state counts, plus a canonical count only when one was actually built. See
-[ADR 0054](decisions/0054-direct-lalr-lookahead-propagation.md) and
-[ADR 0055](decisions/0055-ielr-inadequacy-elimination.md), and
-[ADR 0065](decisions/0065-multiple-parser-entry-points.md).
+[ADR 0050](decisions/0050-direct-lalr-lookahead-propagation.md) and
+[ADR 0051](decisions/0051-ielr-inadequacy-elimination.md), and
+[ADR 0060](decisions/0060-multiple-parser-entry-points.md).
 
 `Ibex::LALR::Counterexample` consumes only Automaton IR. For each conflict it explores parser-stack configurations, forces the
 competing actions, and searches for a common accepting suffix. A successful result contains both complete derivation trees and is
@@ -280,40 +280,40 @@ and GOTO tables, per-state default actions, and production `{lhs,length,action}`
 reading input and rejects missing or unsupported formats with a regeneration instruction. The generator emits v3, while the
 runtime accepts v1's two-argument actions, v2/v3 explicitly marked five-argument location actions, and v3 explicitly marked
 six-argument composed actions. Inconsistent v3 composition markers fail before input; see
-[ADR 0018](decisions/0018-parser-table-format-version.md). Plain tables are arrays of Hash rows. Compact tables use row
+[ADR 0017](decisions/0017-parser-table-format-version.md). Plain tables are arrays of Hash rows. Compact tables use row
 displacement with offsets, values, and row-ownership checks; both expose equivalent lookups. Default reductions are restricted
 to known token ids, and explicit error masks preserve the pre-optimization result of every declared terminal cell, including
 the synthetic `error` terminal. Extended parser tables opt `expected_tokens` into lookahead correction: the runtime copies only
 the state stack and simulates reductions and gotos for each declared terminal, without evaluating semantic actions. The explicit
 `expected_tokens_exact` API exposes the same result for compatible tables. The deterministic size policy is fixed by
-[ADR 0014](decisions/0014-compatibility-safe-default-reductions.md).
+[ADR 0013](decisions/0013-compatibility-safe-default-reductions.md).
 
 Runtime execution is packaged independently as `ibex-runtime`, with its own version and RBS tree. The generator package depends
 on a compatible runtime series but does not duplicate runtime-owned files. Compact lookup values live in a runtime-safe leaf
 file, while table construction remains generator-only. Normal output requires only `ibex/runtime`; `-E` embeds the same sources.
-See [ADR 0076](decisions/0076-separate-runtime-package.md).
+See [ADR 0069](decisions/0069-separate-runtime-package.md).
 
 The runtime maintains state and value stacks, pulls a lookahead only when required, and applies tagged `shift`, `reduce`,
 `accept`, and `error` actions. Recovery pops to a state that shifts token id 1, suppresses repeated reports for three successful
 shifts, and honors `yyerrok`. No-op shift, reduce, recovery, location-aware, and discard extension points observe successfully
 committed events without changing parser results; the recovery hook retains the pre-pop error context and is distinct from an
 ordinary token shift. A configured value printer affects only human `yydebug` output. Their ordering and payload contract is
-extended additively by [ADR 0061](decisions/0061-lazy-semantic-locations-and-runtime-observation.md). Grammar-declared
+extended additively by [ADR 0056](decisions/0056-lazy-semantic-locations-and-runtime-observation.md). Grammar-declared
 symbol printers are optional IR v2 metadata compiled into private methods and an id-indexed table; see
-[ADR 0063](decisions/0063-declarative-debug-value-printers.md).
+[ADR 0058](decisions/0058-declarative-debug-value-printers.md).
 
 Ordinary generated tables are recursively frozen and made Ractor-shareable. Threads and Ractors share those tables but parse
 through distinct instances; stacks, lookahead, lexer state, callbacks, observers, and semantic values are session-owned. A
 single instance rejects overlapping drivers. Immutable `Runtime::ResourceLimits` values bound every stack push and recovery
 entry with finite defaults. Exhaustion raises the structured `ResourceLimitError`; see
-[ADR 0075](decisions/0075-isolated-runtime-sessions-and-budgets.md).
+[ADR 0068](decisions/0068-isolated-runtime-sessions-and-budgets.md).
 
 Extended Grammar IR v2 may additionally carry synchronization terminals and ordered `%on_error_reduce` groups. Table
 construction fills only otherwise erroneous ACTION cells with a unique highest-priority completed declared production. At
 runtime, an explicit shift of the synthetic `error` token always wins; only when it is unavailable does panic recovery discard
 through a configured synchronization token and pop to a state that accepts that retained lookahead. Generated parsers without
 sync declarations omit the optional table field. The pull/push ordering and observer contract are fixed by
-[ADR 0068](decisions/0068-declarative-error-recovery.md).
+[ADR 0062](decisions/0062-declarative-error-recovery.md).
 
 The separate `Runtime::Parser#observe` API publishes ordered, immutable schema-v1 events for tooling. Its bounded sanitizer
 copies only JSON data and never retains application identities or private stacks. With no observer, parse transitions construct
@@ -321,32 +321,32 @@ no Event, payload summary, or dispatch snapshot; parser initialization still cre
 contribute grammar digest, table format, state count, and production count to the `start` event. `Runtime::EventJSONLTracer`
 exposes the versioned stream; the original hook-based `Runtime::JSONLTracer` remains byte-compatible. The protocol and
 exception/threading behavior are fixed by
-[ADR 0050](decisions/0050-stable-immutable-runtime-events.md).
+[ADR 0046](decisions/0046-stable-immutable-runtime-events.md).
 
 Optional `Runtime::RepairPolicy` drives a bounded Dijkstra search over copied state stacks and buffered token identities. Search
 uses explicit/default ACTION, GOTO, and production shape only; it never executes semantic code. A selected immutable edit plan is
 reported once, then replayed through the ordinary runtime so actions and hooks remain committed-path effects. Pull lookahead,
 push buffering, deterministic tie-breaking, fallback to yacc recovery, and no-policy compatibility are fixed by
-[ADR 0053](decisions/0053-bounded-minimum-cost-runtime-repair.md).
+[ADR 0049](decisions/0049-bounded-minimum-cost-runtime-repair.md).
 
 `Coverage::Collector` accepts only contiguous, complete runtime-event sessions with generated parser metadata. It counts entries
 to the initial, shift, reduce-goto, and recovery states and counts committed reductions by production id. `Coverage::Report`
 publishes ascending sparse hit arrays under the versioned runtime-coverage schema. Merge requires identical full grammar digest,
 table format, and totals and uses checked addition. The coverage CLI only reads bounded JSON/JSON Lines and never loads generated
 Ruby or executes semantic actions; collection, merge, threshold, and atomic-output policy are fixed by
-[ADR 0051](decisions/0051-deterministic-runtime-coverage.md).
+[ADR 0047](decisions/0047-deterministic-runtime-coverage.md).
 
 `TableSimulation::Simulator` is a separate state-stack interpreter over validated Automaton IR. It resolves an explicit ACTION
 cell before a default action, so explicit error masks remain authoritative, and never evaluates the opaque semantic-action
 source stored in Grammar IR. Immutable steps expose state, lookahead, selected action source, reduction/goto metadata, and stack
 depth. Action and stack budgets bound default/epsilon cycles and growth. The text/JSON CLI and versioned output contract are
-fixed by [ADR 0052](decisions/0052-safe-automaton-table-simulation.md).
+fixed by [ADR 0048](decisions/0048-safe-automaton-table-simulation.md).
 
 Grammar IR v2 may carry ordered accept/reject source tests without adding them to parser tables. `GrammarTests::Runner` generates
 one embedded parser and executes fresh parser instances in a separate Ruby process, distinguishing `ParseError` rejection from
 lexer/application errors and bounding the whole suite by a timeout. The separate runner loads the generated file, so guarded
 footer programs stay inactive. The source contract, isolation boundary, and CI behavior are fixed by
-[ADR 0069](decisions/0069-grammar-declared-source-tests.md).
+[ADR 0063](decisions/0063-grammar-declared-source-tests.md).
 
 ## Clean-room boundary
 
@@ -357,4 +357,4 @@ processes and compare observable results.
 `RaccMigration::Checker` treats grammar code as opaque while reporting racc-mode parse/normalization errors and known runtime
 coupling. The separate harness generator emits source only; its output refuses an empty corpus and makes bounded child-process
 execution explicit. The boundary is fixed by
-[ADR 0056](decisions/0056-static-racc-migration-and-generated-harness.md).
+[ADR 0052](decisions/0052-static-racc-migration-and-generated-harness.md).

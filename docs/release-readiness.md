@@ -56,9 +56,9 @@ execute the racc runtime. The PoCs uncovered and fixed three compatibility
 gaps: an omitted `end` before a user-code section, an application initializer
 that omits `super` plus historical value-stack reads, and an unqualified
 `ParseError`. See ADRs
-[0078](decisions/0078-legacy-user-code-rule-termination.md),
-[0079](decisions/0079-lazy-runtime-session-compatibility.md), and
-[0080](decisions/0080-parser-parse-error-alias.md).
+[0071](decisions/0071-legacy-user-code-rule-termination.md),
+[0072](decisions/0072-lazy-runtime-session-compatibility.md), and
+[0073](decisions/0073-parser-parse-error-alias.md).
 
 ## External performance comparison
 

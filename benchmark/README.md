@@ -116,7 +116,7 @@ the representative grammar's unit-production surface; it does not rewrite produc
 
 The reviewed MRI 3.4.9 and 4.0.0 reports for revision `05dc61bdb5d0` are committed under
 `benchmark/results/optimization/`. Both reject the case candidate: its runtime median improves by more than 15%, but retaining
-the authoritative tables makes generated source 198% larger. [ADR 0058](../docs/decisions/0058-reject-chain-elimination-and-case-dispatch.md)
+the authoritative tables makes generated source 198% larger. [ADR 0053](../docs/decisions/0053-reject-chain-elimination-and-case-dispatch.md)
 records the decision and the production-identity reason for rejecting chain elimination.
 
 ## Racc comparison control
@@ -145,7 +145,7 @@ Cold generation is an end-to-end CLI observation under the formal command
 template. The template's explicit generation options leave the default
 algorithm and diagnostic path intact, including any unexpected-conflict
 analysis and advisory IELR diagnostic triggered under
-[ADR 0021](../docs/decisions/0021-diagnostic-outputs-and-warning-vocabulary.md).
+[ADR 0020](../docs/decisions/0020-diagnostic-outputs-and-warning-vocabulary.md).
 Generator-core or stage-level profiles may isolate that work for diagnosis,
 but they are not comparable substitutes for the formal cold series and must
 not disable the default diagnostic path.

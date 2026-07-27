@@ -192,7 +192,7 @@ Regex execution remains subject to Ruby Regexp complexity. The static lint
 flags common nested-quantifier shapes as `lexer_redos`; `--warnings=all,error`
 promotes the warning to an error. This heuristic is not a proof of safety.
 Applications must still bound untrusted input and review patterns. See the
-[lexer migration guide](lexer-migration.md) and [ADR 0071](decisions/0071-versioned-generated-lexer.md).
+[lexer migration guide](lexer-migration.md) and [ADR 0064](decisions/0064-versioned-generated-lexer.md).
 
 ## Concrete syntax trees
 
@@ -215,7 +215,7 @@ insertion becomes `CST::Missing`, and an unrecoverable parse returns a
 synthetic start node. Generated-lexer no-match errors return the same shape
 with reason `:lexical`. Application hooks that intentionally raise remain
 application-owned. See
-[ADR 0072](decisions/0072-error-tolerant-concrete-trees.md).
+[ADR 0065](decisions/0065-error-tolerant-concrete-trees.md).
 
 ## Generated AST nodes and traversal
 
@@ -244,7 +244,7 @@ annotated nonterminal as the union of its node classes.
 by default. `AST::Listener#walk` calls `enter_<node>`, walks fields, and calls
 `exit_<node>`. The generated RBS enumerates every hook, so a consumer can
 subclass either base under Steep without maintaining a parallel node list. See
-[ADR 0073](decisions/0073-generated-data-ast.md).
+[ADR 0066](decisions/0066-generated-data-ast.md).
 
 ## Productions and actions
 
@@ -377,7 +377,7 @@ With `%recover sync:`, a returned `on_error` first permits ordinary yacc `error`
 shift `error` does panic-mode synchronization begin. Discarded application tokens call `on_discard` with reason `recovery`;
 the selected synchronization token is not discarded. `on_error_recover` and the `recover` event fire once after a stack state
 that accepts the synchronization token is found. EOF before a usable synchronization point rejects the parse. See
-[ADR 0068](decisions/0068-declarative-error-recovery.md).
+[ADR 0062](decisions/0062-declarative-error-recovery.md).
 
 Optional observer methods default to no-ops. `on_shift(token_id, value, state)` follows each ordinary input-token shift;
 `on_reduce(production_id, values, result)` follows a completed semantic action and goto; and
@@ -389,14 +389,14 @@ opts a parser into value rendering in `yydebug`; without it, traces never expose
 symbol-specific `%printer SYMBOL { Ruby expression }` formatters. Their `value` local has the symbol's declared semantic type,
 and declared `%param` locals are also available. A programmatic printer overrides generated symbol formatters. Neither form is
 called unless `yydebug` is true, and formatter failures are rendered by exception class without inspecting the value. See
-[ADR 0013](decisions/0013-runtime-observation-hooks.md) for exact ordering and snapshot semantics.
+[ADR 0012](decisions/0012-runtime-observation-hooks.md) for exact ordering and snapshot semantics.
 
 For external tooling, `observe { |event| ... }` registers an ordered observer and returns an opaque subscription accepted by
 `unobserve`. Events are immutable, sequence-numbered per parse session, and cover `start`, `shift`, `reduce`, `error`, `recover`,
 `discard`, `accept`, and `reject`. Semantic values and locations are bounded JSON summaries rather than live objects.
 `Ibex::Runtime::EventJSONLTracer.attach(parser, io:)` writes the versioned schema at
 `schema/runtime-event-v1.schema.json`; write and serialization failures propagate. This API is separate from the legacy
-hook-shaped `Runtime::JSONLTracer`. See [ADR 0050](decisions/0050-stable-immutable-runtime-events.md).
+hook-shaped `Runtime::JSONLTracer`. See [ADR 0046](decisions/0046-stable-immutable-runtime-events.md).
 
 Every parser instance owns immutable `Runtime::ResourceLimits`. The defaults allow a 10,000-entry LR state stack and 100
 recovery entries per parse. Pass `resource_limits:` to the generated parser constructor or replace it while the instance is
@@ -410,7 +410,7 @@ shifts, and a 256-state simulated stack. `on_repair(plan)` observes the selected
 before normal action replay. Insertions carry nil values, replacements retain the original value/location, and search failure
 continues into yacc recovery without reporting the incident twice. Push parsing may return `:need_more` while retaining the
 unexpected token. Semantic `yyerror` is not automatically repaired. See [ADR
-0053](decisions/0053-bounded-minimum-cost-runtime-repair.md).
+0049](decisions/0049-bounded-minimum-cost-runtime-repair.md).
 The gallery JSON [error UX evidence](error-ux.md) records the SP-4 baseline:
 8 of 10 selected plans were assessed useful, so the bounded single-plan feature
 continues as an explicit experimental option.
@@ -419,12 +419,12 @@ The versioned stream can be converted to grammar-test coverage with `ibex covera
 processes with `coverage merge`, and gated with `coverage check --min-states=PERCENT --min-productions=PERCENT`. State coverage
 counts the initial state plus committed shift, reduce-goto, and recovery destinations; production coverage counts committed
 reductions. Complete sessions and generated-parser metadata are required. Reports follow
-`schema/runtime-coverage-v1.schema.json`; see [ADR 0051](decisions/0051-deterministic-runtime-coverage.md).
+`schema/runtime-coverage-v1.schema.json`; see [ADR 0047](decisions/0047-deterministic-runtime-coverage.md).
 
 `ibex debug AUTOMATON.json [TOKEN...]` simulates shifts, reductions, gotos, accept, and error directly from validated Automaton
 IR. It never executes actions. When tokens are omitted, supply one terminal name or unique display name per stdin line; a blank
 line or EOF finishes the input. Use `--format=json` for `schema/table-simulation-v1.schema.json`, and bound pathological tables
-with positive `--max-steps` and `--max-stack`. See [ADR 0052](decisions/0052-safe-automaton-table-simulation.md).
+with positive `--max-steps` and `--max-stack`. See [ADR 0048](decisions/0048-safe-automaton-table-simulation.md).
 
 ## Grammar-declared tests
 
@@ -437,7 +437,7 @@ explicitly.
 The complete suite runs in an isolated Ruby child process with a ten-second default timeout. Generated footer guards remain
 false because a separate runner loads the parser file. Output is TAP-like and the command exits nonzero on any mismatch,
 exception, timeout, or invalid child result. This is process isolation for reliable tooling, not a sandbox for untrusted code.
-See [ADR 0069](decisions/0069-grammar-declared-source-tests.md).
+See [ADR 0063](decisions/0063-grammar-declared-source-tests.md).
 
 ## Extended EBNF and names
 

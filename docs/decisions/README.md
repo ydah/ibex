@@ -31,6 +31,4 @@ The following subjects belong in their operational documents instead:
 - error-experience evidence and human assessments:
   [`docs/error-ux.md`](../error-ux.md).
 
-ADR numbers are permanent identifiers. Removed or relocated records leave
-intentional gaps; numbers are never renumbered or reused. Use
-[`0000-template.md`](0000-template.md) for a new implementation decision.
+Use [`0000-template.md`](0000-template.md) for a new implementation decision.

@@ -45,7 +45,7 @@ runtime parser.
 `migrate-check` never executes semantic actions or `header`/`inner`/`footer` code. `migrate-harness` also only writes source. The
 generated harness is the explicit execution step: after reviewed cases are added, it invokes both generators and executes both
 generated parsers in bounded child processes. This is not a sandbox; use a container or VM for untrusted grammar code. See
-[ADR 0056](decisions/0056-static-racc-migration-and-generated-harness.md).
+[ADR 0052](decisions/0052-static-racc-migration-and-generated-harness.md).
 
 ## Compatibility baseline
 
