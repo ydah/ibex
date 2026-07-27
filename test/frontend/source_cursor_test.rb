@@ -2,6 +2,7 @@
 
 require_relative "../test_helper"
 
+# rubocop:disable Metrics/ClassLength -- one cursor contract is easier to audit in one place.
 class SourceCursorTest < Minitest::Test
   Cursor = Ibex::Frontend::SourceCursor
   private_constant :Cursor
@@ -147,6 +148,23 @@ class SourceCursorTest < Minitest::Test
     end
   end
 
+  def test_advance_preserves_custom_times_return_and_partial_state
+    count = Object.new
+    def count.times
+      yield
+      yield
+      :completed
+    end
+
+    cursor = Cursor.new("éx", "count.y")
+    assert_equal :completed, cursor.advance(count)
+    assert_equal [2, 3, 1, 3], cursor_state(cursor)
+
+    cursor = Cursor.new("é", "count.y")
+    assert_nil cursor.advance(count)
+    assert_equal [1, 2, 1, 2], cursor_state(cursor)
+  end
+
   def test_source_and_file_are_copied_frozen_and_detached
     string_class = Class.new(String)
     source = string_class.new("é")
@@ -158,6 +176,8 @@ class SourceCursorTest < Minitest::Test
     assert_equal "é", cursor.source
     assert_equal "input.y", cursor.file
     assert_equal [string_class, string_class], [cursor.source.class, cursor.file.class]
+    assert_instance_of String, cursor.peek
+    assert_instance_of String, cursor.rest
     [cursor.source, cursor.file].each { |value| assert_predicate value, :frozen? }
 
     frozen_source = String.new("x").freeze
@@ -166,7 +186,18 @@ class SourceCursorTest < Minitest::Test
     assert_predicate frozen_cursor.source, :frozen?
   end
 
-  def test_invalid_utf8_is_rejected_before_building_offsets
+  def test_non_ascii_cursor_keeps_constant_size_auxiliary_state
+    cursor = Cursor.new("#{'a' * (1024 * 1024)}é", "large.y")
+    retained_collections = cursor.instance_variables.filter_map do |name|
+      value = cursor.instance_variable_get(name)
+      [name, value] if value.is_a?(Array) || value.is_a?(Hash)
+    end
+
+    refute_includes cursor.instance_variables, :@character_offsets
+    assert_empty retained_collections
+  end
+
+  def test_invalid_utf8_is_rejected_before_cursor_initialization
     error = assert_raises(Ibex::Error) { Cursor.new("\xFF".b, "invalid.y") }
 
     assert_equal "invalid.y: input must be valid UTF-8", error.message
@@ -179,6 +210,30 @@ class SourceCursorTest < Minitest::Test
     100.times do
       source = Array.new(random.rand(0..40)) { alphabet.sample(random: random) }.join
       assert_random_sequence(source, random)
+    end
+  end
+
+  def test_random_large_offsets_and_cursor_positions_match_character_indexing
+    random = Random.new(86_087)
+    alphabet = ["a", "b", "\r", "\n", "é", "日", "😀", "\u0301"]
+    source = Array.new(2048) { alphabet.sample(random: random) }.join
+    cursor = Cursor.new(source, "large-random.y")
+    expected = { index: 0, byte_offset: 0, line: 1, column: 1 }
+
+    200.times do
+      assert_random_advance(cursor, source, expected, random, maximum: 40)
+      offsets = [
+        random.rand(-10_000..10_000),
+        -source.length - random.rand(1..10_000),
+        source.length + random.rand(1..10_000),
+        -expected[:index] - random.rand(0..source.length),
+        random.rand(-4..4)
+      ]
+      offsets.each do |offset|
+        message = [expected, offset].inspect
+        assert_cursor_value(source[expected[:index] + offset], cursor.peek(offset), message)
+      end
+      assert_random_position(cursor, source, expected)
     end
   end
 
@@ -205,8 +260,8 @@ class SourceCursorTest < Minitest::Test
     assert_cursor_value(source[expected[:index] + offset], cursor.peek(offset), message)
   end
 
-  def assert_random_advance(cursor, source, expected, random)
-    count = random.rand(-2..6)
+  def assert_random_advance(cursor, source, expected, random, maximum: 6)
+    count = random.rand(-2..maximum)
     expected_return = count.times do
       character = source[expected[:index]]
       break unless character
@@ -243,3 +298,4 @@ class SourceCursorTest < Minitest::Test
     [cursor.index, cursor.byte_offset, cursor.line, cursor.column]
   end
 end
+# rubocop:enable Metrics/ClassLength

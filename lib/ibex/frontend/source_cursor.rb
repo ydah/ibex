@@ -51,8 +51,8 @@ module Ibex
       def initialize(source, file)
         @source = SourceEncoding.validated_utf8(source, file)
         @file = file.dup.freeze
-        @character_offsets = @source.ascii_only? ? nil : build_character_offsets #: Array[Integer]?
-        @character_length = @character_offsets ? @character_offsets.length - 1 : @source.bytesize
+        @ascii_only = @source.ascii_only?
+        @character_length = @ascii_only ? @source.bytesize : @source.length
         @index = 0
         @byte_offset = 0
         @line = 1
@@ -67,8 +67,7 @@ module Ibex
       # @rbs (?Integer offset) -> String?
       def peek(offset = 0)
         character_index = @index + offset
-        offsets = @character_offsets
-        unless offsets
+        if @ascii_only
           return if character_index >= @character_length
 
           return @source.byteslice(character_index, 1)
@@ -77,9 +76,14 @@ module Ibex
         character_index += @character_length if character_index.negative?
         return if character_index.negative? || character_index >= @character_length
 
-        start_byte = offsets.fetch(character_index)
-        end_byte = offsets.fetch(character_index + 1)
-        @source.byteslice(start_byte, end_byte - start_byte)
+        start_byte = if character_index == @index
+                       @byte_offset
+                     elsif character_index == @index + 1
+                       @byte_offset + utf8_character_width(@byte_offset)
+                     else
+                       byte_offset_for_character(character_index)
+                     end
+        @source.byteslice(start_byte, utf8_character_width(start_byte))
       end
 
       # @rbs () -> String
@@ -105,7 +109,7 @@ module Ibex
 
       # @rbs (?Integer count) -> void
       def advance(count = 1)
-        return advance_with_offsets(count) if @character_offsets
+        return advance_utf8(count) unless @ascii_only
 
         advance_ascii(count)
       end
@@ -130,15 +134,24 @@ module Ibex
       end
 
       # @rbs (Integer count) -> void
-      def advance_with_offsets(count)
-        offsets = @character_offsets
+      def advance_utf8(count)
         count.times do
           break if @index >= @character_length
 
-          newline = @source.getbyte(@byte_offset) == 10
+          leading_byte = @source.getbyte(@byte_offset)
+          raise Ibex::Error, "#{@file}: input must be valid UTF-8" unless leading_byte
+
           @index += 1
-          @byte_offset = offsets.fetch(@index)
-          if newline
+          @byte_offset += if leading_byte < 0x80
+                            1
+                          elsif leading_byte < 0xE0
+                            2
+                          elsif leading_byte < 0xF0
+                            3
+                          else
+                            4
+                          end
+          if leading_byte == 10
             @line += 1
             @column = 1
           else
@@ -147,26 +160,58 @@ module Ibex
         end
       end
 
-      # @rbs () -> Array[Integer]
-      def build_character_offsets
-        offsets = [0]
-        byte_offset = 0
-        while byte_offset < @source.bytesize
-          leading_byte = @source.getbyte(byte_offset)
-          raise Ibex::Error, "#{@file}: input must be valid UTF-8" unless leading_byte
+      # @rbs (Integer character_index) -> Integer
+      def byte_offset_for_character(character_index)
+        start_distance = character_index
+        current_distance = (character_index - @index).abs
+        finish_distance = @character_length - character_index
 
-          byte_offset += if leading_byte < 0x80
-                           1
-                         elsif leading_byte < 0xE0
-                           2
-                         elsif leading_byte < 0xF0
-                           3
-                         else
-                           4
-                         end
-          offsets << byte_offset
+        if current_distance <= start_distance && current_distance <= finish_distance
+          walk_to_character(@byte_offset, @index, character_index)
+        elsif start_distance <= finish_distance
+          walk_to_character(0, 0, character_index)
+        else
+          walk_to_character(@source.bytesize, @character_length, character_index)
         end
-        offsets.freeze
+      end
+
+      # @rbs (Integer byte_offset, Integer from_index, Integer to_index) -> Integer
+      def walk_to_character(byte_offset, from_index, to_index)
+        while from_index < to_index
+          byte_offset += utf8_character_width(byte_offset)
+          from_index += 1
+        end
+        while from_index > to_index
+          byte_offset = previous_character_byte_offset(byte_offset)
+          from_index -= 1
+        end
+        byte_offset
+      end
+
+      # @rbs (Integer byte_offset) -> Integer
+      def previous_character_byte_offset(byte_offset)
+        byte_offset -= 1
+        while (byte = @source.getbyte(byte_offset)) && continuation_byte?(byte)
+          byte_offset -= 1
+        end
+        byte_offset
+      end
+
+      # @rbs (Integer byte_offset) -> Integer
+      def utf8_character_width(byte_offset)
+        leading_byte = @source.getbyte(byte_offset)
+        raise Ibex::Error, "#{@file}: input must be valid UTF-8" unless leading_byte
+
+        return 1 if leading_byte < 0x80
+        return 2 if leading_byte < 0xE0
+        return 3 if leading_byte < 0xF0
+
+        4
+      end
+
+      # @rbs (Integer byte) -> bool
+      def continuation_byte?(byte)
+        byte >= 0x80 && byte < 0xC0
       end
     end
   end

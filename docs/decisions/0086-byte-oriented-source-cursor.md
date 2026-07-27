@@ -19,25 +19,33 @@ values are observable through lexer and parser behavior.
 
 Validate and freeze the same UTF-8 source copy as before, then cache its
 character length. Valid ASCII sources use character indices directly as byte
-offsets and allocate no offset table. Non-ASCII sources build one frozen array
-that maps every character boundary, including EOF, to its byte offset.
+offsets. Non-ASCII sources retain no per-character index: `advance` derives the
+next byte offset in constant time from the validated UTF-8 leading byte.
 
 `advance` reads only the current leading byte to recognize LF and moves through
-the cached boundaries without creating one-character strings. Public `index`
-and columns remain character-based; `byte_offset` and spans remain byte-based.
+the source without creating one-character strings. Public `index` and columns
+remain character-based; `byte_offset` and spans remain byte-based.
 
 `peek` retains `String#[]` absolute character-index behavior, including negative
-indices, and slices the corresponding byte range. `peek` and `rest` return a
-fresh, mutable UTF-8 string on every call, including an empty remainder at EOF.
-The established handling and return values for zero, negative, overshooting,
-and unsupported advance counts remain part of the compatibility contract.
+indices. It locates arbitrary character offsets by walking UTF-8 boundaries
+from whichever of the current position, source start, or EOF is closest.
+Backward walks skip UTF-8 continuation bytes. Production lookaheads at offsets
+zero and one remain constant-time; distant relative lookaheads take time
+proportional to the nearest boundary distance.
+
+`peek` and `rest` return a fresh, mutable UTF-8 string on every call, including
+an empty remainder at EOF. The established handling and return values for zero,
+negative, overshooting, and unsupported advance counts remain part of the
+compatibility contract.
 
 ## Consequences
 
-- ASCII grammars avoid both per-character strings and an offset map.
-- Non-ASCII scanning has constant-time character lookup and advance at the cost
-  of one Integer entry per character boundary.
-- The offset map and cached length are private representation details and do
+- ASCII and non-ASCII grammars use O(1) auxiliary cursor memory regardless of
+  source size.
+- Non-ASCII `advance` and the common zero/one lookaheads are constant-time.
+  Arbitrary lookahead deliberately trades bounded relative boundary scanning
+  for eliminating a retained Integer per character boundary.
+- The cached length and encoding flag are private representation details and do
   not alter token, AST, CST, diagnostic, or grammar IR formats.
 - Future cursor changes must preserve both character coordinates and byte span
   boundaries, plus the mutability and encoding of returned source slices.

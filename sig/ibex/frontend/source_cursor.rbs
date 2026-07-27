@@ -85,10 +85,22 @@ module Ibex
       def advance_ascii: (Integer count) -> void
 
       # @rbs (Integer count) -> void
-      def advance_with_offsets: (Integer count) -> void
+      def advance_utf8: (Integer count) -> void
 
-      # @rbs () -> Array[Integer]
-      def build_character_offsets: () -> Array[Integer]
+      # @rbs (Integer character_index) -> Integer
+      def byte_offset_for_character: (Integer character_index) -> Integer
+
+      # @rbs (Integer byte_offset, Integer from_index, Integer to_index) -> Integer
+      def walk_to_character: (Integer byte_offset, Integer from_index, Integer to_index) -> Integer
+
+      # @rbs (Integer byte_offset) -> Integer
+      def previous_character_byte_offset: (Integer byte_offset) -> Integer
+
+      # @rbs (Integer byte_offset) -> Integer
+      def utf8_character_width: (Integer byte_offset) -> Integer
+
+      # @rbs (Integer byte) -> bool
+      def continuation_byte?: (Integer byte) -> bool
     end
   end
 end
