@@ -30,6 +30,15 @@ class CanonicalSuffixCacheTest < Minitest::Test
     assert_predicate result, :frozen?
     assert_raises(FrozenError) { result << grammar.symbol("TOKEN_73").id }
     assert_cache_shape(builder, production.id, inherited)
+  end
+
+  def test_cache_hits_avoid_per_lookup_allocations
+    skip "runtime allocation counter unavailable" unless TestRuntimeCapabilities.allocation_counter?
+
+    grammar, builder, production = sparse_lookahead_subject
+    inherited = grammar.symbol("TOKEN_79").id
+    builder.send(:canonical_suffix_lookaheads, production.id, 0, inherited)
+
     assert_allocation_free_cache_hits(builder, production.id, inherited)
   end
 

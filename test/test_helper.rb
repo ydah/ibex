@@ -21,3 +21,24 @@ module TestURI
     URI::DEFAULT_PARSER
   end
 end
+
+module TestRuntimeCapabilities
+  class << self
+    def allocation_counter?
+      before = total_allocated_objects
+      return false unless before
+
+      sample = Array.new(128) { Object.new }
+      after = total_allocated_objects
+      sample.clear
+      !after.nil? && after > before
+    end
+
+    private
+
+    def total_allocated_objects
+      value = GC.stat[:total_allocated_objects]
+      value if value.is_a?(Integer)
+    end
+  end
+end

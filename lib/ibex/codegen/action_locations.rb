@@ -19,17 +19,22 @@ module Ibex
 
       # @rbs () -> String
       def rewrite
-        return @source.b.dup.force_encoding(@source.encoding) unless @source.match?(/@(?:\$|\d+)/)
+        rewritten = mutable_binary_source_copy
+        return rewritten.force_encoding(@source.encoding) unless @source.match?(/@(?:\$|\d+)/)
 
         replacements = semantic_references.map do |offset, spelling|
           [offset, spelling.bytesize, replacement_for(spelling)]
         end #: Array[[Integer, Integer, String]]
-        rewritten = @source.b.dup
         replacements.reverse_each { |offset, length, replacement| rewritten[offset, length] = replacement }
         rewritten.force_encoding(@source.encoding)
       end
 
       private
+
+      # @rbs () -> String
+      def mutable_binary_source_copy
+        String.new(encoding: Encoding::BINARY).replace(@source.b)
+      end
 
       # @rbs () -> Array[[Integer, String]]
       def semantic_references

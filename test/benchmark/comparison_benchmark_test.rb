@@ -57,6 +57,8 @@ class ComparisonBenchmarkTest < Minitest::Test
   end
 
   def test_black_box_workers_return_equivalent_results
+    skip "runtime allocation counter unavailable" unless TestRuntimeCapabilities.allocation_counter?
+
     options = {
       warmup: 0,
       runtime_iterations: 1,

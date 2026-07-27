@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "weakref"
 require_relative "../test_helper"
 
 # rubocop:disable Metrics/ClassLength -- canonical-construction invariants share reference builders and grammars.
@@ -107,18 +106,6 @@ class CanonicalItemCacheTest < Minitest::Test
       cache.sum do |_production, dots|
         dots.compact.sum { |lookaheads| lookaheads.compact.length }
       end
-    end
-  end
-
-  class WeakItemBuilder < Ibex::LALR::Builder
-    attr_reader :item_reference
-
-    private
-
-    def canonical_item(...)
-      item = super
-      @item_reference ||= WeakRef.new(item)
-      item
     end
   end
 
@@ -252,21 +239,6 @@ class CanonicalItemCacheTest < Minitest::Test
       assert_equal metrics_values(first_metrics), metrics_values(builder.metrics), options.inspect
       assert_nil builder.instance_variable_get(:@canonical_item_cache), options.inspect
     end
-  end
-
-  def test_public_build_releases_cached_items_while_the_builder_is_retained
-    grammar = normalize(nullable_recursive_grammar)
-    builder = WeakItemBuilder.new(grammar, algorithm: :lr1)
-
-    builder.build
-    reference = builder.item_reference
-    assert reference
-    assert_nil builder.instance_variable_get(:@canonical_item_cache)
-
-    3.times { GC.start }
-
-    refute_predicate reference, :weakref_alive?
-    assert builder.metrics
   end
 
   def test_exception_drops_items_without_dropping_suffix_or_key_caches

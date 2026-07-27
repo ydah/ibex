@@ -96,4 +96,16 @@ class ActionLocationsCodegenTest < Minitest::Test
     refute_predicate rewritten, :frozen?
     rewritten << "!"
   end
+
+  def test_with_semantic_reference_returns_an_independent_mutable_plain_string
+    source_class = Class.new(String)
+    source = source_class.new("value = @1").freeze
+
+    rewritten = Ibex::Codegen::ActionLocations.new(source, maximum: 1, location: LOCATION).rewrite
+
+    assert_equal "value = _ibex_locations[0]", rewritten
+    assert_instance_of String, rewritten
+    refute_same source, rewritten
+    refute_predicate rewritten, :frozen?
+  end
 end

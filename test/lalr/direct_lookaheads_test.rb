@@ -13,6 +13,8 @@ class DirectLookaheadsTest < Minitest::Test
   end
 
   def test_terminal_id_lookup_reuses_large_bit_masks
+    skip "runtime allocation counter unavailable" unless TestRuntimeCapabilities.allocation_counter?
+
     iterations = 500
     ids = [100, 101, 102]
     lookaheads = direct_lookaheads(ids)
@@ -129,6 +131,8 @@ class DirectLookaheadsTest < Minitest::Test
   end
 
   def test_grouped_shifted_kernels_reduce_lr0_collection_allocations
+    skip "runtime allocation counter unavailable" unless TestRuntimeCapabilities.allocation_counter?
+
     _grammar, lookaheads = expression_lookaheads
     iterations = 30
 
@@ -139,6 +143,8 @@ class DirectLookaheadsTest < Minitest::Test
   end
 
   def test_canonical_item_core_lookup_avoids_per_lookup_allocation
+    skip "runtime allocation counter unavailable" unless TestRuntimeCapabilities.allocation_counter?
+
     grammar = normalize(<<~GRAMMAR)
       class P
       token ITEM
@@ -244,6 +250,8 @@ class DirectLookaheadsTest < Minitest::Test
   end
 
   def test_cached_augmented_rhs_avoids_per_lookup_allocation
+    skip "runtime allocation counter unavailable" unless TestRuntimeCapabilities.allocation_counter?
+
     grammar = normalize(<<~GRAMMAR)
       class P
       rule

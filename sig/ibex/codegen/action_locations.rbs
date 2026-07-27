@@ -19,6 +19,9 @@ module Ibex
 
       private
 
+      # @rbs () -> String
+      def mutable_binary_source_copy: () -> String
+
       # @rbs () -> Array[[Integer, String]]
       def semantic_references: () -> Array[[ Integer, String ]]
 
