@@ -56,7 +56,8 @@ class CLILoadingTest < Minitest::Test
       constants: {
         CLILSP: Ibex.const_defined?(:CLILSP, false),
         CLICoverage: Ibex.const_defined?(:CLICoverage, false)
-      }
+      },
+      tempfile_loaded: $LOADED_FEATURES.any? { |path| File.basename(path) == "tempfile.rb" }
     )
   RUBY
 
@@ -82,6 +83,7 @@ class CLILoadingTest < Minitest::Test
       assert_includes result.fetch("features"), "ibex/codegen/ruby.rb"
       assert_empty result.fetch("features") & UNRELATED_GENERATION_FEATURES
       assert_empty result.fetch("features") & DEFERRED_GENERATION_FEATURES
+      assert_equal false, result.fetch("tempfile_loaded")
     end
   end
 

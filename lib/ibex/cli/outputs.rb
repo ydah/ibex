@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "tempfile"
-
 module Ibex
   # Files, warnings, and progress emitted by CLI pipeline stages.
   module CLIOutputs
@@ -93,6 +91,7 @@ module Ibex
 
     # @rbs (IR::Automaton automaton, String input_path) -> void
     def suggest_ielr(automaton, input_path)
+      return unless @options[:suggest_ielr]
       return unless automaton.algorithm == "lalr1"
       return unless [nil, :lalr].include?(@options[:algorithm])
 
@@ -146,6 +145,8 @@ module Ibex
 
     # @rbs (String path, String source) -> void
     def atomic_write_ir(path, source)
+      require "tempfile"
+
       target_path = File.symlink?(path) ? File.realpath(path) : path
       directory = File.dirname(File.expand_path(target_path))
       basename = File.basename(target_path)

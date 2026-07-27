@@ -171,8 +171,10 @@ module Ibex
         cache = (@canonical_item_cache ||= {}) #: Hash[Integer, Array[Array[lr_item?]?]]
         items = seed.dup
         queue = seed.to_a
-        until queue.empty?
-          production_id, dot, lookahead = queue.shift
+        cursor = 0
+        while cursor < queue.length
+          production_id, dot, lookahead = queue.fetch(cursor)
+          cursor += 1
           rhs = rhs_for(production_id)
           grammar_symbol = @grammar.symbol_by_id(rhs[dot])
           next unless grammar_symbol&.nonterminal?

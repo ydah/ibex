@@ -198,7 +198,8 @@ default compatible frontend.
 | `--algorithm=ielr` | Preview backend for conflicts introduced by LALR state merging |
 | `--algorithm=lr1` | Canonical LR(1) analysis when the larger automaton is acceptable |
 
-An unexpected LALR conflict may include an advisory note when IELR removes it.
+`--suggest-ielr` checks whether IELR removes an unexpected LALR conflict and
+prints an advisory note when it does.
 That note does not change the selected algorithm or exit status.
 
 Conflict freedom is not the same as a proof of unambiguity. `ibex check
@@ -318,7 +319,7 @@ bundle exec rake
 ```
 
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 17,786 typed calls and 2,379 untyped calls out of 20,165 (88.2% typed).
+The current whole-library `steep stats` result is 17,790 typed calls and 2,380 untyped calls out of 20,170 (88.2% typed).
 The generated signature tree contains 1,877 explicit `untyped` occurrences across 90 files.
 <!-- type-stats:end -->
 

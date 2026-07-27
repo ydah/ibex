@@ -70,7 +70,7 @@ class CLIDiagnosticOutputsTest < Minitest::Test
     end
   end
 
-  def test_suggests_ielr_only_when_it_avoids_unexpected_lalr_conflicts
+  def test_suggests_ielr_on_request_only_when_it_avoids_unexpected_lalr_conflicts
     with_grammar(<<~GRAMMAR) do |grammar|
       class P
       rule
@@ -82,8 +82,14 @@ class CLIDiagnosticOutputsTest < Minitest::Test
       second: 'c'
       end
     GRAMMAR
+      ordinary_errors = StringIO.new
+      ordinary_status = Ibex::CLI.start(["--emit=automaton-ir", grammar.path],
+                                        stdout: StringIO.new, stderr: ordinary_errors)
+      assert_equal 0, ordinary_status
+      refute_match(/note: --algorithm=ielr avoids/, ordinary_errors.string)
+
       default_errors = StringIO.new
-      default_status = Ibex::CLI.start(["--emit=automaton-ir", grammar.path],
+      default_status = Ibex::CLI.start(["--suggest-ielr", "--emit=automaton-ir", grammar.path],
                                        stdout: StringIO.new, stderr: default_errors)
       assert_equal 0, default_status
       assert_match(%r{note: --algorithm=ielr avoids \d+ reduce/reduce conflicts?}, default_errors.string)
@@ -99,7 +105,7 @@ class CLIDiagnosticOutputsTest < Minitest::Test
   def test_does_not_suggest_ielr_for_an_expected_lalr_conflict
     with_grammar("class P\nexpect 1\nrule\nstart: start start | TOKEN\nend\n") do |grammar|
       errors = StringIO.new
-      status = Ibex::CLI.start(["--emit=automaton-ir", grammar.path],
+      status = Ibex::CLI.start(["--suggest-ielr", "--emit=automaton-ir", grammar.path],
                                stdout: StringIO.new, stderr: errors)
 
       assert_equal 0, status

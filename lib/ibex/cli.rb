@@ -65,6 +65,7 @@ module Ibex
   #     counterexample_max_configurations: Integer,
   #     ?from: String,
   #     ?algorithm: Symbol,
+  #     ?suggest_ielr: bool,
   #     ?entry_isolation: bool,
   #     ?warnings: Array[Symbol],
   #     ?output: String,
@@ -258,6 +259,9 @@ module Ibex
       end
       options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
         @options[:algorithm] = value.to_sym
+      end
+      options.on("--suggest-ielr", "check whether IELR removes unexpected LALR conflicts") do
+        @options[:suggest_ielr] = true
       end
       options.on("--entry-isolation", "build independent state sets for each start symbol") do
         @options[:entry_isolation] = true
