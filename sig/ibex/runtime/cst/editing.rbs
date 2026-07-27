@@ -1,0 +1,23 @@
+# Generated from lib/ibex/runtime/cst/editing.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Shared path-copying operations for Red syntax elements.
+      module Editing
+        type element = SyntaxNode | SyntaxToken
+
+        type green = GreenNode | GreenToken
+
+        # @rbs (element target, green | element replacement) -> SyntaxNode
+        def self?.replace: (element target, green | element replacement) -> SyntaxNode
+
+        # @rbs (SyntaxNode previous, GreenNode green) -> SyntaxNode
+        def self?.red_root: (SyntaxNode previous, GreenNode green) -> SyntaxNode
+
+        # @rbs (green | element value) -> green
+        def self?.green_element: (green | element value) -> green
+      end
+    end
+  end
+end

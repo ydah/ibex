@@ -29,6 +29,7 @@ module Ibex
         ../runtime/table_format.rb
         ../runtime/location_span.rb
         ../runtime/cst/kind.rb
+        ../runtime/cst/annotation.rb
         ../runtime/cst/green/trivia.rb
         ../runtime/cst/green/token.rb
         ../runtime/cst/green/node.rb
@@ -40,6 +41,11 @@ module Ibex
         ../runtime/cst/cursor.rb
         ../runtime/cst/typed_node.rb
         ../runtime/cst/parse_result.rb
+        ../runtime/cst/editing.rb
+        ../runtime/cst/text_edit.rb
+        ../runtime/cst/rewriter.rb
+        ../runtime/cst/editor.rb
+        ../runtime/cst/diff.rb
         ../runtime/cst.rb
         ../runtime/ast_data.rb
         ../runtime/resource_limits.rb

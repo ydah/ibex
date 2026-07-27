@@ -97,6 +97,24 @@ module Ibex
         # @rbs () -> bool
         def incomplete_input?: () -> bool
 
+        # @rbs (GreenNode | GreenToken | SyntaxNode | SyntaxToken replacement) -> SyntaxNode
+        def replace_with: (GreenNode | GreenToken | SyntaxNode | SyntaxToken replacement) -> SyntaxNode
+
+        # @rbs (Integer child_index, GreenNode | GreenToken | SyntaxNode | SyntaxToken child) -> SyntaxNode
+        def with_child: (Integer child_index, GreenNode | GreenToken | SyntaxNode | SyntaxToken child) -> SyntaxNode
+
+        # @rbs (Integer child_index, GreenNode | GreenToken | SyntaxNode | SyntaxToken child) -> SyntaxNode
+        def insert_child: (Integer child_index, GreenNode | GreenToken | SyntaxNode | SyntaxToken child) -> SyntaxNode
+
+        # @rbs (Integer child_index) -> SyntaxNode
+        def remove_child: (Integer child_index) -> SyntaxNode
+
+        # @rbs (SyntaxAnnotation annotation) -> SyntaxNode
+        def annotate: (SyntaxAnnotation annotation) -> SyntaxNode
+
+        # @rbs (SyntaxAnnotation annotation) -> Enumerator[SyntaxNode, void]
+        def annotated: (SyntaxAnnotation annotation) -> Enumerator[SyntaxNode, void]
+
         # Find the full-span-owning token for a byte offset.
         # @rbs (Integer source_offset) -> SyntaxToken?
         def token_at: (Integer source_offset) -> SyntaxToken?

@@ -22,6 +22,24 @@ module Ibex
         # @rbs () -> Integer
         def bytesize = @text.bytesize
 
+        # Apply non-overlapping byte edits expressed against this source.
+        # @rbs (Array[TextEdit] edits) -> SourceText
+        def apply(edits)
+          ordered = edits.sort_by(&:start)
+          output = String.new(encoding: Encoding::BINARY)
+          cursor = 0
+          ordered.each do |edit|
+            raise ArgumentError, "text edits overlap" if edit.start < cursor
+            raise RangeError, "text edit exceeds source" if edit.range.end > @text.bytesize
+
+            output << (@text.byteslice(cursor, edit.start - cursor) || "".b)
+            output << edit.insert_text
+            cursor = edit.range.end
+          end
+          output << (@text.byteslice(cursor, @text.bytesize - cursor) || "".b)
+          SourceText.new(output, file: @file)
+        end
+
         # Return one-based line and Unicode-scalar column for a byte offset.
         # Invalid UTF-8 bytes count as one replacement scalar each.
         # @rbs (Integer offset) -> position

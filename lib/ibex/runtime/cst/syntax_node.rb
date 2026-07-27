@@ -170,6 +170,74 @@ module Ibex
         # @rbs () -> bool
         def incomplete_input? = @green.flags.anybits?(Flags::INCOMPLETE_INPUT)
 
+        # @rbs (GreenNode | GreenToken | SyntaxNode | SyntaxToken replacement) -> SyntaxNode
+        def replace_with(replacement) = Editing.replace(self, replacement)
+
+        # @rbs (Integer child_index, GreenNode | GreenToken | SyntaxNode | SyntaxToken child) -> SyntaxNode
+        def with_child(child_index, child)
+          children = @green.children.dup
+          children.fetch(child_index)
+          children[child_index] = Editing.green_element(child)
+          replace_with(
+            GreenNode.new(
+              kind: @green.kind, children: children,
+              flags: @green.intrinsic_flags, annotations: @green.annotations
+            )
+          )
+        end
+
+        # @rbs (Integer child_index, GreenNode | GreenToken | SyntaxNode | SyntaxToken child) -> SyntaxNode
+        def insert_child(child_index, child)
+          raise IndexError, "child index #{child_index} is outside 0..#{@green.children.length}" unless
+            child_index.between?(0, @green.children.length)
+
+          children = @green.children.dup
+          children.insert(child_index, Editing.green_element(child))
+          replace_with(
+            GreenNode.new(
+              kind: @green.kind, children: children,
+              flags: @green.intrinsic_flags, annotations: @green.annotations
+            )
+          )
+        end
+
+        # @rbs (Integer child_index) -> SyntaxNode
+        def remove_child(child_index)
+          children = @green.children.dup
+          children.fetch(child_index)
+          children.delete_at(child_index)
+          replace_with(
+            GreenNode.new(
+              kind: @green.kind, children: children,
+              flags: @green.intrinsic_flags, annotations: @green.annotations
+            )
+          )
+        end
+
+        # @rbs (SyntaxAnnotation annotation) -> SyntaxNode
+        def annotate(annotation)
+          raise TypeError, "annotation must be a SyntaxAnnotation" unless annotation.is_a?(SyntaxAnnotation)
+          return root if @green.annotations.include?(annotation)
+
+          replace_with(
+            GreenNode.new(
+              kind: @green.kind, children: @green.children,
+              flags: @green.intrinsic_flags, annotations: @green.annotations + [annotation]
+            )
+          )
+        end
+
+        # @rbs (SyntaxAnnotation annotation) -> Enumerator[SyntaxNode, void]
+        def annotated(annotation)
+          Enumerator.new do |yielder|
+            visit = lambda do |node|
+              yielder << node if node.green.annotations.include?(annotation)
+              node.child_nodes.each { |child| visit.call(child) }
+            end
+            visit.call(self)
+          end
+        end
+
         # Find the full-span-owning token for a byte offset.
         # @rbs (Integer source_offset) -> SyntaxToken?
         def token_at(source_offset)

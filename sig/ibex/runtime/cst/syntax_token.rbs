@@ -55,6 +55,18 @@ module Ibex
         # @rbs () -> bool
         def contains_error?: () -> bool
 
+        # @rbs (GreenNode | GreenToken | SyntaxNode | SyntaxToken replacement) -> SyntaxNode
+        def replace_with: (GreenNode | GreenToken | SyntaxNode | SyntaxToken replacement) -> SyntaxNode
+
+        # @rbs (String value) -> SyntaxNode
+        def with_text: (String value) -> SyntaxNode
+
+        # @rbs (Array[GreenTrivia] trivia) -> SyntaxNode
+        def with_leading: (Array[GreenTrivia] trivia) -> SyntaxNode
+
+        # @rbs (Array[GreenTrivia] trivia) -> SyntaxNode
+        def with_trailing: (Array[GreenTrivia] trivia) -> SyntaxNode
+
         # @rbs () -> (SyntaxNode | SyntaxToken)?
         def next_sibling: () -> (SyntaxNode | SyntaxToken)?
 

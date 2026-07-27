@@ -13,6 +13,10 @@ module Ibex
 
         attr_reader flags: Integer
 
+        attr_reader intrinsic_flags: Integer
+
+        attr_reader annotations: Array[SyntaxAnnotation]
+
         attr_reader full_width: Integer
 
         attr_reader leading_width: Integer
@@ -21,8 +25,8 @@ module Ibex
 
         attr_reader descendant_count: Integer
 
-        # @rbs (kind: Integer, children: Array[child], ?flags: Integer) -> void
-        def initialize: (kind: Integer, children: Array[child], ?flags: Integer) -> void
+        # @rbs (kind: Integer, children: Array[child], ?flags: Integer, ?annotations: Array[SyntaxAnnotation]) -> void
+        def initialize: (kind: Integer, children: Array[child], ?flags: Integer, ?annotations: Array[SyntaxAnnotation]) -> void
 
         # @rbs () -> String
         def to_source: () -> String

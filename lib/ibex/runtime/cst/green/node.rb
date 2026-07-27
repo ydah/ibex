@@ -13,16 +13,21 @@ module Ibex
         attr_reader :kind #: Integer
         attr_reader :children #: Array[child]
         attr_reader :flags #: Integer
+        attr_reader :intrinsic_flags #: Integer
+        attr_reader :annotations #: Array[SyntaxAnnotation]
         attr_reader :full_width #: Integer
         attr_reader :leading_width #: Integer
         attr_reader :trailing_width #: Integer
         attr_reader :descendant_count #: Integer
 
-        # @rbs (kind: Integer, children: Array[child], ?flags: Integer) -> void
-        def initialize(kind:, children:, flags: 0)
+        # @rbs (kind: Integer, children: Array[child], ?flags: Integer, ?annotations: Array[SyntaxAnnotation]) -> void
+        def initialize(kind:, children:, flags: 0, annotations: [])
           @kind = kind
           @children = children.dup.freeze
-          @flags = @children.reduce(flags) { |value, child| value | child.flags }
+          @annotations = annotations.dup.freeze
+          @intrinsic_flags = flags
+          @intrinsic_flags |= Flags::HAS_ANNOTATION unless @annotations.empty?
+          @flags = @children.reduce(@intrinsic_flags) { |value, child| value | child.flags }
           @full_width = @children.sum(&:full_width)
           @leading_width = edge_width(@children, :leading_width)
           @trailing_width = edge_width(@children.reverse_each, :trailing_width)
@@ -39,12 +44,13 @@ module Ibex
 
         # @rbs (untyped other) -> bool
         def ==(other)
-          other.is_a?(GreenNode) && @kind == other.kind && @flags == other.flags && @children == other.children
+          other.is_a?(GreenNode) && @kind == other.kind && @intrinsic_flags == other.intrinsic_flags &&
+            @annotations == other.annotations && @children == other.children
         end
         alias eql? ==
 
         # @rbs () -> Integer
-        def hash = [@kind, @children, @flags].hash
+        def hash = [@kind, @children, @intrinsic_flags, @annotations].hash
 
         private
 

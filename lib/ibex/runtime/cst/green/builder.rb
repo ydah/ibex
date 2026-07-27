@@ -127,7 +127,7 @@ module Ibex
           @stack[index] = @cache.intern_node(
             GreenNode.new(
               kind: error.kind, children: error.children + [skipped],
-              flags: error.flags | Flags::CONTAINS_ERROR
+              flags: error.intrinsic_flags | Flags::CONTAINS_ERROR, annotations: error.annotations
             )
           )
           true
@@ -187,7 +187,12 @@ module Ibex
 
           children = element.children.dup
           children[-1] = replacement
-          @cache.intern_node(GreenNode.new(kind: element.kind, children: children, flags: element.flags))
+          @cache.intern_node(
+            GreenNode.new(
+              kind: element.kind, children: children, flags: element.intrinsic_flags,
+              annotations: element.annotations
+            )
+          )
         end
       end
       # rubocop:enable Naming/PredicateMethod

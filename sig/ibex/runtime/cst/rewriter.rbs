@@ -1,0 +1,31 @@
+# Generated from lib/ibex/runtime/cst/rewriter.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Bottom-up syntax rewriter with kind-name dispatch.
+      class SyntaxRewriter
+        type element = SyntaxNode | SyntaxToken
+
+        type green = GreenNode | GreenToken
+
+        # @rbs (SyntaxNode root) -> SyntaxNode
+        def rewrite: (SyntaxNode root) -> SyntaxNode
+
+        # @rbs (element element) -> green
+        def visit: (element element) -> green
+
+        private
+
+        # @rbs (SyntaxNode node) -> GreenNode
+        def visit_children: (SyntaxNode node) -> GreenNode
+
+        # @rbs (element original, green rewritten) -> element
+        def rewritten_view: (element original, green rewritten) -> element
+
+        # @rbs (String name) -> String
+        def method_name: (String name) -> String
+      end
+    end
+  end
+end

@@ -17,6 +17,10 @@ module Ibex
         # @rbs () -> Integer
         def bytesize: () -> Integer
 
+        # Apply non-overlapping byte edits expressed against this source.
+        # @rbs (Array[TextEdit] edits) -> SourceText
+        def apply: (Array[TextEdit] edits) -> SourceText
+
         # Return one-based line and Unicode-scalar column for a byte offset.
         # Invalid UTF-8 bytes count as one replacement scalar each.
         # @rbs (Integer offset) -> position

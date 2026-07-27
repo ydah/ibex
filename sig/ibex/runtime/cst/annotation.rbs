@@ -1,0 +1,13 @@
+# Generated from lib/ibex/runtime/cst/annotation.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Opaque identity used to track a syntax occurrence across path-copying edits.
+      class SyntaxAnnotation
+        # @rbs () -> void
+        def initialize: () -> void
+      end
+    end
+  end
+end

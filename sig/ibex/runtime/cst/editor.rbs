@@ -1,0 +1,43 @@
+# Generated from lib/ibex/runtime/cst/editor.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      class EditConflictError < StandardError
+      end
+
+      # Applies multiple occurrence-addressed replacements in one path-copying pass.
+      class SyntaxEditor
+        type element = SyntaxNode | SyntaxToken
+
+        type green = GreenNode | GreenToken
+
+        type edit = [ element, green ]
+
+        @root: SyntaxNode
+
+        @edits: Array[edit]
+
+        # @rbs (SyntaxNode root) -> void
+        def initialize: (SyntaxNode root) -> void
+
+        # @rbs (element target, green | element replacement) -> self
+        def replace: (element target, green | element replacement) -> self
+
+        # @rbs () -> SyntaxNode
+        def apply: () -> SyntaxNode
+
+        private
+
+        # @rbs (element element) -> green
+        def apply_element: (element element) -> green
+
+        # @rbs (element possible_ancestor, element element) -> bool
+        def ancestor?: (element possible_ancestor, element element) -> bool
+
+        # @rbs (element left, element right) -> bool
+        def same_occurrence?: (element left, element right) -> bool
+      end
+    end
+  end
+end

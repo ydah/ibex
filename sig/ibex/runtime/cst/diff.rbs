@@ -1,0 +1,29 @@
+# Generated from lib/ibex/runtime/cst/diff.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Computes byte edits while skipping physically shared Green subtrees.
+      module Diff
+        # @rbs (SyntaxNode old_root, SyntaxNode new_root) -> Array[TextEdit]
+        def self?.text_edits: (SyntaxNode old_root, SyntaxNode new_root) -> Array[TextEdit]
+
+        # @rbs (GreenNode | GreenToken old_green, GreenNode | GreenToken new_green,
+        #   Integer offset, Array[TextEdit] edits) -> void
+        def self?.compare: (GreenNode | GreenToken old_green, GreenNode | GreenToken new_green, Integer offset, Array[TextEdit] edits) -> void
+
+        # @rbs (GreenNode | GreenToken left, GreenNode | GreenToken right) -> bool
+        def self?.compatible_nodes?: (GreenNode | GreenToken left, GreenNode | GreenToken right) -> bool
+
+        # @rbs (String old_text, String new_text, Integer offset, Array[TextEdit] edits) -> void
+        def self?.append_trimmed_edit: (String old_text, String new_text, Integer offset, Array[TextEdit] edits) -> void
+
+        # @rbs (String left, String right) -> Integer
+        def self?.common_prefix: (String left, String right) -> Integer
+
+        # @rbs (String left, String right, Integer prefix) -> Integer
+        def self?.common_suffix: (String left, String right, Integer prefix) -> Integer
+      end
+    end
+  end
+end

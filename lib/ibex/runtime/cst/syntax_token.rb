@@ -65,6 +65,39 @@ module Ibex
         # @rbs () -> bool
         def contains_error? = @green.flags.anybits?(Flags::CONTAINS_ERROR)
 
+        # @rbs (GreenNode | GreenToken | SyntaxNode | SyntaxToken replacement) -> SyntaxNode
+        def replace_with(replacement) = Editing.replace(self, replacement)
+
+        # @rbs (String value) -> SyntaxNode
+        def with_text(value)
+          replace_with(
+            GreenToken.new(
+              kind: @green.kind, text: value, leading: @green.leading, trailing: @green.trailing,
+              flags: @green.flags, expected_kind: @green.expected_kind
+            )
+          )
+        end
+
+        # @rbs (Array[GreenTrivia] trivia) -> SyntaxNode
+        def with_leading(trivia)
+          replace_with(
+            GreenToken.new(
+              kind: @green.kind, text: @green.text, leading: trivia, trailing: @green.trailing,
+              flags: @green.flags, expected_kind: @green.expected_kind
+            )
+          )
+        end
+
+        # @rbs (Array[GreenTrivia] trivia) -> SyntaxNode
+        def with_trailing(trivia)
+          replace_with(
+            GreenToken.new(
+              kind: @green.kind, text: @green.text, leading: @green.leading, trailing: trivia,
+              flags: @green.flags, expected_kind: @green.expected_kind
+            )
+          )
+        end
+
         # @rbs () -> (SyntaxNode | SyntaxToken)?
         def next_sibling = @parent.children[@index + 1]
 
