@@ -46,6 +46,9 @@ module Ibex
         ../runtime/cst/rewriter.rb
         ../runtime/cst/editor.rb
         ../runtime/cst/diff.rb
+        ../runtime/cst/serialized_tree.rb
+        ../runtime/cst/validator.rb
+        ../runtime/cst/serialize.rb
         ../runtime/cst.rb
         ../runtime/ast_data.rb
         ../runtime/resource_limits.rb

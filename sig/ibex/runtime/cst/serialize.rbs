@@ -1,0 +1,38 @@
+# Generated from lib/ibex/runtime/cst/serialize.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      class SerializationError < StandardError
+      end
+
+      # Stable JSON serialization for `ibex_cst` schema version 1.
+      module Serialize
+        SCHEMA_VERSION: Integer
+
+        # @rbs (SyntaxNode | SerializedTree value, ?grammar_digest: String?, ?table_format: Integer?,
+        #   ?state_count: Integer?, ?production_count: Integer?) -> String
+        def self?.dump: (SyntaxNode | SerializedTree value, ?grammar_digest: String?, ?table_format: Integer?, ?state_count: Integer?, ?production_count: Integer?) -> String
+
+        # @rbs (String source, ?grammar_digest: String?) -> SerializedTree
+        def self?.load: (String source, ?grammar_digest: String?) -> SerializedTree
+
+        # @rbs (SyntaxNode | SerializedTree value, grammar_digest: String?, table_format: Integer?,
+        #   state_count: Integer?, production_count: Integer?) -> SerializedTree
+        def self?.serialization_tree: (SyntaxNode | SerializedTree value, grammar_digest: String?, table_format: Integer?, state_count: Integer?, production_count: Integer?) -> SerializedTree
+
+        # @rbs (Kind kinds) -> Hash[String, untyped]
+        def self?.kinds_document: (Kind kinds) -> Hash[String, untyped]
+
+        # @rbs (GreenNode | GreenToken element) -> Hash[String, untyped]
+        def self?.element_document: (GreenNode | GreenToken element) -> Hash[String, untyped]
+
+        # @rbs (GreenTrivia trivia) -> Array[untyped]
+        def self?.trivia_document: (GreenTrivia trivia) -> Array[untyped]
+
+        # @rbs (String text) -> (String | Hash[String, String])
+        def self?.encode_text: (String text) -> (String | Hash[String, String])
+      end
+    end
+  end
+end

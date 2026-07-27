@@ -1,0 +1,89 @@
+{
+  "ibex_ir": "cst",
+  "schema_version": 1,
+  "grammar_digest": "sha256:dbc9a970f57fd57a7bdb045f8d55f7f7220cf98b1da209e89bc8e175b6c81bae",
+  "table_format": 6,
+  "state_count": 3,
+  "production_count": 1,
+  "trivia_policy": "leading",
+  "kinds": {
+    "names": [
+      "$eof",
+      "error",
+      "WORD",
+      "start",
+      "whitespace",
+      "newline",
+      "line_comment",
+      "block_comment",
+      "custom_skip",
+      "skipped_tokens",
+      "lexical_error_token",
+      "missing_token",
+      "error_node",
+      "source_file",
+      "synthetic_root"
+    ],
+    "terminal_range": [
+      0,
+      3
+    ],
+    "nonterminal_range": [
+      3,
+      4
+    ],
+    "named": {},
+    "named_nonterminals": {},
+    "trivia": {
+      "whitespace": 4,
+      "newline": 5,
+      "line_comment": 6,
+      "block_comment": 7,
+      "custom_skip": 8,
+      "skipped_tokens": 9
+    },
+    "synthetic": {
+      "lexical_error_token": 10,
+      "missing_token": 11,
+      "error_node": 12,
+      "source_file": 13,
+      "synthetic_root": 14
+    }
+  },
+  "root": {
+    "k": 13,
+    "f": 16,
+    "c": [
+      {
+        "k": 3,
+        "f": 0,
+        "c": [
+          {
+            "k": 2,
+            "f": 0,
+            "e": null,
+            "t": {
+              "b64": "/w=="
+            },
+            "l": [],
+            "r": []
+          }
+        ]
+      },
+      {
+        "k": 0,
+        "f": 0,
+        "e": null,
+        "t": "",
+        "l": [
+          [
+            4,
+            " "
+          ]
+        ],
+        "r": []
+      }
+    ]
+  },
+  "memo": null
+}

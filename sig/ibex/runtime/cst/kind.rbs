@@ -73,6 +73,10 @@ module Ibex
         # @rbs (Integer kind) -> Hash[String, field_slot]
         def fields: (Integer kind) -> Hash[String, field_slot]
 
+        # Return the serialization-safe kind metadata.
+        # @rbs () -> metadata
+        def to_h: () -> metadata
+
         private
 
         # : Hash[String, field_slot]

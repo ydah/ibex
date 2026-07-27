@@ -1,0 +1,97 @@
+# Generated from lib/ibex/runtime/cst/validator.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    module CST
+      # Structured failure raised for an invalid or incompatible CST document.
+      class ValidationError < StandardError
+        attr_reader code: Symbol
+
+        attr_reader path: String
+
+        attr_reader expected: untyped
+
+        attr_reader actual: untyped
+
+        # @rbs (code: Symbol, path: String, message: String, ?expected: untyped, ?actual: untyped) -> void
+        def initialize: (code: Symbol, path: String, message: String, ?expected: untyped, ?actual: untyped) -> void
+      end
+
+      # Validates schema-v1 CST documents while rebuilding all derived Green data.
+      module Validator
+        # rubocop:disable Metrics/ModuleLength -- closed schema checks remain auditable in one boundary.
+        TOP_KEYS: Array[String]
+
+        KIND_KEYS: Array[String]
+
+        KNOWN_FLAGS: Integer
+
+        # @rbs (String source, ?grammar_digest: String?) -> SerializedTree
+        def self?.validate: (String source, ?grammar_digest: String?) -> SerializedTree
+
+        # @rbs (untyped value) -> Kind
+        def self?.load_kinds: (untyped value) -> Kind
+
+        # @rbs (untyped value, Kind kinds, String path) -> (GreenNode | GreenToken)
+        def self?.load_element: (untyped value, Kind kinds, String path) -> (GreenNode | GreenToken)
+
+        # @rbs (untyped value, Kind kinds, String path) -> Array[GreenTrivia]
+        def self?.load_trivia: (untyped value, Kind kinds, String path) -> Array[GreenTrivia]
+
+        # @rbs (untyped value, String path) -> String
+        def self?.decode_text: (untyped value, String path) -> String
+
+        # @rbs (GreenNode | GreenToken element, String path) -> void
+        def self?.validate_derived!: (GreenNode | GreenToken element, String path) -> void
+
+        # @rbs (Integer kind, Kind kinds, String path) -> void
+        def self?.validate_kind!: (Integer kind, Kind kinds, String path) -> void
+
+        # @rbs (untyped value, String path) -> Hash[String, untyped]
+        def self?.object!: (untyped value, String path) -> Hash[String, untyped]
+
+        # @rbs (untyped value, String path) -> Array[untyped]
+        def self?.array!: (untyped value, String path) -> Array[untyped]
+
+        # @rbs (untyped value, String path) -> String
+        def self?.string!: (untyped value, String path) -> String
+
+        # @rbs (untyped value, String path) -> Integer
+        def self?.nonnegative_integer!: (untyped value, String path) -> Integer
+
+        # @rbs (untyped value, String path) -> Integer
+        def self?.positive_integer!: (untyped value, String path) -> Integer
+
+        # @rbs (untyped value, String path) -> Symbol
+        def self?.trivia_policy!: (untyped value, String path) -> Symbol
+
+        # @rbs (untyped value, String path) -> Integer
+        def self?.flags!: (untyped value, String path) -> Integer
+
+        # @rbs (untyped value, String path) -> Array[Integer]
+        def self?.integer_pair!: (untyped value, String path) -> Array[Integer]
+
+        # @rbs (untyped value, String path) -> Hash[String, Integer]
+        def self?.string_integer_map!: (untyped value, String path) -> Hash[String, Integer]
+
+        # @rbs (untyped value, String path) -> Hash[Integer, Integer]
+        def self?.integer_integer_map!: (untyped value, String path) -> Hash[Integer, Integer]
+
+        # @rbs (Kind::metadata metadata) -> void
+        def self?.validate_kind_metadata!: (Kind::metadata metadata) -> void
+
+        # @rbs (Array[Integer] range, Integer limit, String path) -> void
+        def self?.validate_kind_range!: (Array[Integer] range, Integer limit, String path) -> void
+
+        # @rbs (Hash[String, untyped] value, Array[String] expected, String path) -> void
+        def self?.exact_keys!: (Hash[String, untyped] value, Array[String] expected, String path) -> void
+
+        # @rbs (Hash[String, untyped] value, String key, untyped expected, String path) -> void
+        def self?.value!: (Hash[String, untyped] value, String key, untyped expected, String path) -> void
+
+        # @rbs (Symbol code, String path, String message, ?expected: untyped, ?actual: untyped) -> bot
+        def self?.fail_validation: (Symbol code, String path, String message, ?expected: untyped, ?actual: untyped) -> bot
+      end
+    end
+  end
+end

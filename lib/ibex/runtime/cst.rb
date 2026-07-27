@@ -19,6 +19,9 @@ require_relative "cst/text_edit" unless defined?(Ibex::Runtime::CST::TextEdit)
 require_relative "cst/rewriter" unless defined?(Ibex::Runtime::CST::SyntaxRewriter)
 require_relative "cst/editor" unless defined?(Ibex::Runtime::CST::SyntaxEditor)
 require_relative "cst/diff" unless defined?(Ibex::Runtime::CST::Diff)
+require_relative "cst/serialized_tree" unless defined?(Ibex::Runtime::CST::SerializedTree)
+require_relative "cst/validator" unless defined?(Ibex::Runtime::CST::Validator)
+require_relative "cst/serialize" unless defined?(Ibex::Runtime::CST::Serialize)
 
 module Ibex
   module Runtime

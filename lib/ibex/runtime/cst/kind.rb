@@ -89,6 +89,17 @@ module Ibex
         # @rbs (Integer kind) -> Hash[String, field_slot]
         def fields(kind) = @field_slots.fetch(kind, EMPTY_FIELDS)
 
+        # Return the serialization-safe kind metadata.
+        # @rbs () -> metadata
+        def to_h
+          value = {
+            names: @names, terminal_range: @terminal_range, nonterminal_range: @nonterminal_range,
+            named: @named, named_nonterminals: @named_nonterminals,
+            trivia: @trivia, synthetic: @synthetic
+          } #: metadata
+          value.freeze
+        end
+
         private
 
         empty_fields = {} #: Hash[String, field_slot]
