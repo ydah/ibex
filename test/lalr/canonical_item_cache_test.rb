@@ -3,9 +3,34 @@
 require "weakref"
 require_relative "../test_helper"
 
+# rubocop:disable Metrics/ClassLength -- canonical-construction invariants share reference builders and grammars.
 class CanonicalItemCacheTest < Minitest::Test
   class AllocatingBuilder < Ibex::LALR::Builder
     private
+
+    def canonical_collection
+      states = @start_names.map do |name|
+        closure(Set[canonical_item(augmented_production(name), 0, 0)])
+      end
+      transitions = []
+      indexes = {}
+      states.each_with_index { |items, index| indexes[item_key(items)] = index }
+      cursor = 0
+      while cursor < states.length
+        transitions[cursor] = {}
+        next_symbols(states.fetch(cursor)).each do |symbol_id|
+          target = go_to(states.fetch(cursor), symbol_id)
+          key = item_key(target)
+          target_id = indexes[key] ||= begin
+            states << target
+            states.length - 1
+          end
+          transitions.fetch(cursor)[symbol_id] = target_id
+        end
+        cursor += 1
+      end
+      [states, transitions]
+    end
 
     def canonical_item(production_id, dot, lookahead)
       [production_id, dot, lookahead]
@@ -30,6 +55,10 @@ class CanonicalItemCacheTest < Minitest::Test
       items
     end
 
+    def next_symbols(items)
+      items.filter_map { |production_id, dot, _lookahead| rhs_for(production_id)[dot] }.uniq.sort
+    end
+
     def go_to(items, symbol_id)
       moved = items.filter_map do |production_id, dot, lookahead|
         next unless rhs_for(production_id)[dot] == symbol_id
@@ -41,17 +70,23 @@ class CanonicalItemCacheTest < Minitest::Test
   end
 
   class CountingBuilder < Ibex::LALR::Builder
-    attr_reader :canonical_item_calls
+    attr_reader :canonical_item_calls, :shifted_kernel_calls
 
     def initialize(...)
       super
       @canonical_item_calls = 0
+      @shifted_kernel_calls = 0
     end
 
     private
 
     def canonical_item(...)
       @canonical_item_calls += 1
+      super
+    end
+
+    def shifted_kernels(...)
+      @shifted_kernel_calls += 1
       super
     end
   end
@@ -85,6 +120,32 @@ class CanonicalItemCacheTest < Minitest::Test
       @item_reference ||= WeakRef.new(item)
       item
     end
+  end
+
+  module FailingShiftClosure
+    attr_reader :closure_signatures
+
+    def initialize(...)
+      @closure_signatures = []
+      super
+    end
+
+    private
+
+    def closure(seed)
+      return super unless seed.any? { |_production, dot, _lookahead| dot.positive? }
+
+      @closure_signatures << seed.to_a
+      raise Ibex::Error, "shift closure failed"
+    end
+  end
+
+  class GroupedFailureBuilder < Ibex::LALR::Builder
+    include FailingShiftClosure
+  end
+
+  class AllocatingFailureBuilder < AllocatingBuilder
+    include FailingShiftClosure
   end
 
   CANONICAL_CONFIGURATIONS = [
@@ -132,6 +193,45 @@ class CanonicalItemCacheTest < Minitest::Test
         assert_same cached.send(:canonical_item, *item), item
       end
     end
+  end
+
+  def test_shifted_kernels_preserve_filtered_item_order_and_deduplicate_equivalent_items
+    grammar = sparse_symbol_grammar
+    builder = Ibex::LALR::Builder.allocate
+    builder.instance_variable_set(:@grammar, grammar)
+    builder.instance_variable_set(:@canonical_item_cache, nil)
+    first_high = builder.send(:canonical_item, 0, 0, 0)
+    second_high = builder.send(:canonical_item, 1, 0, 0)
+    completed = builder.send(:canonical_item, 0, 1, 0)
+    items = [
+      builder.send(:canonical_item, -1, 0, 0),
+      first_high,
+      second_high,
+      second_high.dup,
+      builder.send(:canonical_item, 2, 0, 0),
+      completed
+    ]
+
+    kernels = builder.send(:shifted_kernels, items)
+
+    assert_equal [103, 101, 7], kernels.keys
+    assert_equal [[-1, 1, 0]], kernels.fetch(103).to_a
+    assert_equal [[0, 1, 0], [1, 1, 0]], kernels.fetch(101).to_a
+    assert_equal [[2, 1, 0]], kernels.fetch(7).to_a
+    assert_empty builder.send(:shifted_kernels, Set.new)
+    kernels.each_value do |kernel|
+      kernel.each do |item|
+        assert_predicate item, :frozen?
+        assert_same builder.send(:canonical_item, *item), item
+      end
+    end
+  end
+
+  def test_canonical_transition_insertion_order_remains_sorted
+    grammar = normalize(nullable_recursive_grammar)
+    _states, transitions = Ibex::LALR::Builder.new(grammar, algorithm: :lr1).send(:canonical_collection)
+
+    transitions.each { |edges| assert_equal edges.keys.sort, edges.keys }
   end
 
   def test_public_build_drops_items_but_preserves_other_canonical_caches_and_rebuilds_deterministically
@@ -183,6 +283,20 @@ class CanonicalItemCacheTest < Minitest::Test
     assert_nil builder.metrics
   end
 
+  def test_grouped_collection_preserves_sorted_closure_exception_order_and_cache_cleanup
+    grammar = normalize(nullable_recursive_grammar)
+    grouped = GroupedFailureBuilder.new(grammar, algorithm: :lr1)
+    oracle = AllocatingFailureBuilder.new(grammar, algorithm: :lr1)
+
+    grouped_error = assert_raises(Ibex::Error) { grouped.build }
+    oracle_error = assert_raises(Ibex::Error) { oracle.build }
+
+    assert_equal [oracle_error.class, oracle_error.message], [grouped_error.class, grouped_error.message]
+    assert_equal oracle.closure_signatures, grouped.closure_signatures
+    assert_nil grouped.instance_variable_get(:@canonical_item_cache)
+    assert_nil oracle.instance_variable_get(:@canonical_item_cache)
+  end
+
   def test_direct_lalr_never_uses_or_populates_the_item_cache
     grammar = normalize(nullable_recursive_grammar)
     builder = CountingBuilder.new(grammar)
@@ -190,6 +304,7 @@ class CanonicalItemCacheTest < Minitest::Test
     builder.build
 
     assert_equal 0, builder.canonical_item_calls
+    assert_equal 0, builder.shifted_kernel_calls
     assert_nil builder.instance_variable_get(:@canonical_item_cache)
   end
 
@@ -200,6 +315,7 @@ class CanonicalItemCacheTest < Minitest::Test
     ]
 
     grammars.each do |grammar|
+      assert_collection_equivalence(grammar)
       CANONICAL_CONFIGURATIONS.each do |options|
         assert_reference_equivalence(grammar, **options)
         assert_reference_equivalence(grammar, **options, entry_isolation: true) if grammar.starts.length > 1
@@ -210,6 +326,7 @@ class CanonicalItemCacheTest < Minitest::Test
   def test_randomized_automata_and_compact_ruby_match_the_allocating_oracle
     12.times do |seed|
       grammar = normalize(random_grammar(seed))
+      assert_collection_equivalence(grammar)
       CANONICAL_CONFIGURATIONS.each do |options|
         assert_reference_equivalence(grammar, **options)
       end
@@ -217,6 +334,14 @@ class CanonicalItemCacheTest < Minitest::Test
   end
 
   private
+
+  def assert_collection_equivalence(grammar)
+    oracle_states, oracle_transitions = AllocatingBuilder.new(grammar, algorithm: :lr1).send(:canonical_collection)
+    actual_states, actual_transitions = Ibex::LALR::Builder.new(grammar, algorithm: :lr1).send(:canonical_collection)
+
+    assert_equal oracle_states.map(&:to_a), actual_states.map(&:to_a)
+    assert_equal oracle_transitions, actual_transitions
+  end
 
   def assert_reference_equivalence(grammar, **options)
     oracle = AllocatingBuilder.new(grammar, **options).build
@@ -279,6 +404,31 @@ class CanonicalItemCacheTest < Minitest::Test
     GRAMMAR
   end
 
+  def sparse_symbol_grammar
+    symbols = [
+      Ibex::IR::GrammarSymbol.new(id: 0, name: "$eof", kind: :terminal, reserved: true),
+      Ibex::IR::GrammarSymbol.new(id: 1, name: "error", kind: :terminal, reserved: true),
+      Ibex::IR::GrammarSymbol.new(id: 7, name: "LOW", kind: :terminal),
+      Ibex::IR::GrammarSymbol.new(id: 101, name: "HIGH", kind: :terminal),
+      Ibex::IR::GrammarSymbol.new(id: 103, name: "start", kind: :nonterminal)
+    ]
+    productions = [
+      production(id: 0, lhs: 103, rhs: [101]),
+      production(id: 1, lhs: 103, rhs: [101, 7]),
+      production(id: 2, lhs: 103, rhs: [7])
+    ]
+    Ibex::IR::Grammar.new(
+      class_name: "SparseItems", superclass: nil, start: "start", expect: 0, options: {},
+      symbols: symbols, productions: productions, user_code: {}, conversions: {}, warnings: []
+    )
+  end
+
+  def production(id:, lhs:, rhs:)
+    Ibex::IR::Production.new(
+      id: id, lhs: lhs, rhs: rhs, action: nil, precedence_override: nil, origin: { kind: :rule }
+    )
+  end
+
   def random_grammar(seed)
     random = Random.new(seed)
     tokens = Array.new(12) { |index| "TOKEN_#{index}" }
@@ -295,3 +445,4 @@ class CanonicalItemCacheTest < Minitest::Test
     GRAMMAR
   end
 end
+# rubocop:enable Metrics/ClassLength

@@ -151,8 +151,9 @@ module Ibex
         cursor = 0
         while cursor < states.length
           transitions[cursor] = {}
-          next_symbols(states[cursor]).each do |symbol_id|
-            target = go_to(states[cursor], symbol_id)
+          kernels = shifted_kernels(states[cursor])
+          kernels.keys.sort.each do |symbol_id|
+            target = closure(kernels.fetch(symbol_id))
             key = item_key(target)
             target_id = indexes[key] ||= begin
               states << target
@@ -227,16 +228,13 @@ module Ibex
         queue << item if items.add?(item)
       end
 
-      # @rbs (item_set items) -> Array[Integer]
-      def next_symbols(items)
-        items.filter_map { |production_id, dot, _lookahead| rhs_for(production_id)[dot] }.uniq.sort
-      end
-
-      # @rbs (item_set items, Integer symbol_id) -> item_set
-      def go_to(items, symbol_id)
+      # @rbs (item_set items) -> Hash[Integer, item_set]
+      def shifted_kernels(items)
         cache = (@canonical_item_cache ||= {}) #: Hash[Integer, Array[Array[lr_item?]?]]
-        moved = items.filter_map do |production_id, dot, lookahead|
-          next unless rhs_for(production_id)[dot] == symbol_id
+        kernels = {} #: Hash[Integer, item_set]
+        items.each do |production_id, dot, lookahead|
+          symbol_id = rhs_for(production_id)[dot]
+          next unless symbol_id
 
           production_cache = (cache[production_id] ||= []) #: Array[Array[lr_item?]?]
           shifted_dot = dot + 1
@@ -246,9 +244,9 @@ module Ibex
             item = [production_id, shifted_dot, lookahead].freeze #: lr_item
             item_cache[lookahead] = item
           end
-          item
+          (kernels[symbol_id] ||= Set.new) << item
         end
-        closure(Set.new(moved))
+        kernels
       end
 
       # @rbs (Array[item_set] states, transitions transitions) -> [Array[packed_items], transitions]
