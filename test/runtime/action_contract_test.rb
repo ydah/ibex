@@ -21,6 +21,14 @@ class RuntimeActionContractTest < Minitest::Test
   MARKED_REST_PROC = lambda do |values, *rest|
     [values.fetch(0), rest.length]
   end
+  SNAPSHOT_PROC = lambda do |values, stack|
+    @action_values = values
+    @received_stacks ||= []
+    @received_stacks << stack
+    stack.fetch(0).fetch(:nested) << :proc
+    stack << :proc_only
+    values.fetch(0)
+  end
 
   class BaseParser < Ibex::Runtime::Parser
     def initialize(tokens)
@@ -83,17 +91,47 @@ class RuntimeActionContractTest < Minitest::Test
     def self.parser_tables = TABLES
   end
 
+  class SnapshotMethodParser < BaseParser
+    attr_reader :action_values, :received_stacks
+
+    def self.parser_tables = TABLES
+
+    private
+
+    def consume(values, stack)
+      @action_values = values
+      @received_stacks ||= []
+      @received_stacks << stack
+      stack.fetch(0).fetch(:nested) << :method
+      stack << :method_only
+      values.fetch(0)
+    end
+  end
+
+  class SnapshotProcParser < BaseParser
+    TABLES = RuntimeActionContractTest::TABLES.merge(
+      productions: [{ lhs: 3, length: 1, action: RuntimeActionContractTest::SNAPSHOT_PROC }]
+    ).freeze
+
+    attr_reader :action_values, :received_stacks
+
+    def self.parser_tables = TABLES
+  end
+
   class GeneratedMethodParser < BaseParser
     ACTION_NAME = :_ibex_action_0 # rubocop:disable Naming/VariableNumber
     TABLES = RuntimeActionContractTest::TABLES.merge(
       productions: [{ lhs: 3, length: 1, action: ACTION_NAME, location_action: true }]
     ).freeze
 
+    attr_reader :action_arguments
+
     def self.parser_tables = TABLES
 
     private
 
-    define_method(ACTION_NAME) do |_values, _stack, locations, _location_stack, location|
+    define_method(ACTION_NAME) do |values, stack, locations, location_stack, location|
+      @action_arguments = [values, stack, locations, location_stack, location]
       [locations, location]
     end
   end
@@ -148,14 +186,14 @@ class RuntimeActionContractTest < Minitest::Test
       ]
     ).freeze
 
-    attr_reader :action_argument_count
+    attr_reader :action_arguments
 
     def self.parser_tables = TABLES
 
     private
 
-    define_method(ACTION_NAME) do |values, _stack, _locations, _location_stack, _location, _lookahead|
-      @action_argument_count = 6
+    define_method(ACTION_NAME) do |values, stack, locations, location_stack, location, lookahead|
+      @action_arguments = [values, stack, locations, location_stack, location, lookahead]
       values.fetch(0)
     end
   end
@@ -210,13 +248,29 @@ class RuntimeActionContractTest < Minitest::Test
     assert_equal [:value, 1], MarkedProcParser.new([%i[TOKEN value]]).do_parse
   end
 
+  def test_symbol_action_receives_a_fresh_shallow_snapshot_of_the_live_value_stack
+    assert_ordinary_action_snapshot_contract(SnapshotMethodParser, :method)
+  end
+
+  def test_proc_action_receives_a_fresh_shallow_snapshot_of_the_live_value_stack
+    assert_ordinary_action_snapshot_contract(SnapshotProcParser, :proc)
+  end
+
   def test_explicitly_marked_generated_method_receives_the_location_contract
     token_location = { file: "proc.txt", line: 1, column: 2 }
-    locations, span = GeneratedMethodParser.new([[:TOKEN, :value, token_location]]).do_parse
+    parser = GeneratedMethodParser.new([[:TOKEN, :value, token_location]])
+    locations, span = parser.do_parse
 
     assert_equal [token_location], locations
     assert_same token_location, span.start
     assert_same token_location, span.finish
+    values, stack, action_locations, location_stack, action_span = parser.action_arguments
+    assert_equal [:value], values
+    assert_equal [], stack
+    assert_equal [token_location], action_locations
+    assert_equal [], location_stack
+    assert_same token_location, action_span.start
+    assert_same token_location, action_span.finish
   end
 
   def test_version_one_generated_shape_ignores_the_location_marker
@@ -234,10 +288,18 @@ class RuntimeActionContractTest < Minitest::Test
   end
 
   def test_version_three_composition_marker_receives_the_lookahead_location
-    parser = VersionThreeComposedShapeParser.new([%i[TOKEN value]])
+    token_location = { file: "composition.txt", line: 2, column: 3 }
+    parser = VersionThreeComposedShapeParser.new([[:TOKEN, :value, token_location]])
 
     assert_equal :value, parser.do_parse
-    assert_equal 6, parser.action_argument_count
+    values, stack, locations, location_stack, span, lookahead = parser.action_arguments
+    assert_equal [:value], values
+    assert_equal [], stack
+    assert_equal [token_location], locations
+    assert_equal [], location_stack
+    assert_same token_location, span.start
+    assert_same token_location, span.finish
+    assert_nil lookahead
   end
 
   def test_version_three_rejects_an_inconsistent_composition_marker_before_input
@@ -254,5 +316,29 @@ class RuntimeActionContractTest < Minitest::Test
 
     assert_equal :value, parser.do_parse
     assert_equal 2, parser.action_argument_count
+  end
+
+  private
+
+  def assert_ordinary_action_snapshot_contract(parser_class, marker)
+    parser = parser_class.new([])
+    nested = []
+    live_stack = [{ nested: nested }]
+    values = [:result]
+    parser.send(:install_value_stack, live_stack)
+    production = parser_class.parser_tables.fetch(:productions).fetch(0)
+
+    2.times do
+      assert_equal :result, parser.send(:reduction_value, 0, production, values, [], nil)
+    end
+
+    assert_same values, parser.action_values
+    assert_equal [marker, marker], nested
+    assert_equal [{ nested: nested }], live_stack
+    first, second = parser.received_stacks
+    refute_same first, second
+    refute_same live_stack, first
+    assert_equal [{ nested: nested }, :"#{marker}_only"], first
+    assert_equal [{ nested: nested }, :"#{marker}_only"], second
   end
 end

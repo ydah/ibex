@@ -1013,7 +1013,7 @@ module Ibex
 
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
       #   Array[untyped] locations, LocationSpan? location) -> untyped
-      def reduction_value(production_id, production, values, locations, location)
+      def reduction_value(production_id, production, values, locations, location) # rubocop:disable Metrics -- explicit hot path.
         previous_locations = @semantic_locations
         previous_names = @semantic_location_names
         previous_result_location = @semantic_result_location
@@ -1029,10 +1029,26 @@ module Ibex
         @semantic_locations = action_locations
         @semantic_location_names = production.fetch(:location_names, EMPTY_LOCATION_NAMES)
         @semantic_result_location = location
-        arguments = [values, @value_stack.dup, locations, (@location_stack || []).dup, location]
-        arguments = arguments.take(2) unless generated_location_action?(production, action)
-        arguments << @lookahead_location if generated_composition_action?(production, action)
-        action.respond_to?(:call) ? instance_exec(*arguments, &action) : __send__(action, *arguments)
+        value_stack = @value_stack.dup
+        callable = action.respond_to?(:call)
+        if generated_location_action?(production, action)
+          location_stack = (@location_stack || []).dup
+          if generated_composition_action?(production, action)
+            if callable
+              return instance_exec(
+                values, value_stack, locations, location_stack, location, @lookahead_location, &action
+              )
+            end
+
+            return __send__(action, values, value_stack, locations, location_stack, location, @lookahead_location)
+          end
+
+          return instance_exec(values, value_stack, locations, location_stack, location, &action) if callable
+
+          return __send__(action, values, value_stack, locations, location_stack, location)
+        end
+
+        callable ? instance_exec(values, value_stack, &action) : __send__(action, values, value_stack)
       ensure
         @semantic_locations = previous_locations
         @semantic_location_names = previous_names
