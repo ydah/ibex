@@ -112,8 +112,10 @@ filesystem read failures remain CLI invocation errors on stderr and do not produ
   It must immediately follow the class header, before every ordinary declaration. Unknown, duplicate, and misplaced pragmas
   are positioned errors. The frontend records the effective mode on the root AST, and Grammar IR v2 records extended mode
   additively so downstream generators preserve its runtime behavior.
-- `pragma cst` enables extended syntax and automatic concrete-tree construction for action-free productions. Distinct pragmas
-  may be combined in the class header; repeating either one is an error. Grammar IR v2 stores the optional `cst: true` setting.
+- `pragma cst` enables extended syntax and builds a pure-syntax Red/Green tree
+  in parallel with the ordinary semantic value stack. Distinct pragmas may be
+  combined in the class header; repeating either one is an error. Grammar IR
+  v2 stores the optional `cst: true` setting.
 - `import "relative/path.y"` inserts one explicit fragment through the canonical resolver. `include` is an accepted
   compatibility spelling. Imports are available only in extended mode. Parsing source text alone performs no filesystem
   access; path-based callers use `Frontend::Resolver` to resolve the import graph.
@@ -196,26 +198,31 @@ Applications must still bound untrusted input and review patterns. See the
 
 ## Concrete syntax trees
 
-With `pragma cst`, a production without an explicit semantic action reduces to
-`Ibex::Runtime::CST::Node`. It stores the nonterminal name, production id,
-ordered children, and synthesized location. Terminals are `CST::Token` values
-with their grammar symbol, application semantic value, original location, and
-leading trivia. All tree arrays and values are immutable and expose
-`deconstruct`/`deconstruct_keys` for pattern matching.
+With `pragma cst`, every shift and reduction builds immutable pure-syntax
+Green values on a stack parallel to semantic values. Semantic actions execute
+unchanged and never enter syntax children. `parse`, `do_parse`, and `yyparse`
+return the semantic result; generated lexers additionally expose
+`parse_with_syntax(source, file:)`, whose result provides `value`,
+`syntax_root`, and `diagnostics`. The root is always
+`source_file(start-symbol, $eof)`. Lazy `CST::SyntaxNode` and
+`CST::SyntaxToken` wrappers provide parents, offsets, spans, locations,
+pattern matching, and typed `@node` fields.
 
-The generated lexer defaults to `--cst-trivia=attach`: every skipped match is a
-`CST::Trivia` attached to the following token, and skipped text at EOF is
-retained as root trailing trivia. `--cst-trivia=drop` omits both. Handwritten
-lexers retain their existing contract; a location hash may optionally provide
-`leading_trivia`.
+Generated lexers accept `--cst-trivia=leading|balanced|drop`; `attach` is an
+alias for `leading`. Leading ownership places skipped text on the following
+token. Balanced ownership places text through the first newline on the
+preceding token and the remainder on the next token. EOF owns final trivia.
+Drop omits trivia and deliberately disables coordinate and incremental APIs.
 
-Default CST error handling does not raise merely because the input is invalid.
-An unshiftable or discarded input token becomes `CST::Error`, a bounded repair
-insertion becomes `CST::Missing`, and an unrecoverable parse returns a
-synthetic start node. Generated-lexer no-match errors return the same shape
-with reason `:lexical`. Application hooks that intentionally raise remain
-application-owned. See
-[ADR 0065](decisions/0065-error-tolerant-concrete-trees.md).
+Lexical failures, yacc recovery, panic discards, and bounded repair retain
+consumed input in error nodes, skipped trivia, or zero-width missing tokens.
+Inspect `diagnostics`, `contains_error?`, `each_error`, and token
+`missing?`/`error?`; an unrecoverable parse is rooted under
+`synthetic_root`. Application exceptions still propagate. Only current
+format-v6 structured CST tables are executable; older CST tables fail before
+token consumption and must be regenerated. See the
+[CST guide](cst.md), [migration guide](cst-migration.md), and
+[ADR 0099](decisions/0099-stabilize-current-red-green-cst.md).
 
 ## Generated AST nodes and traversal
 

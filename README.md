@@ -38,6 +38,7 @@ or execute semantic action bodies.
 | Generated dependency | The separately versioned `ibex-runtime` gem |
 | Ruby support | Ruby 3.0 or later |
 | Extensions | Disabled unless `pragma extended` or `--mode=extended` is used |
+| Concrete syntax | Stable format-v6 Red/Green CST with `pragma cst` |
 | Semantic actions | Opaque during generation and analysis; executed only by a running parser |
 
 The generator and runtime are deliberately separate:
@@ -189,7 +190,9 @@ Extended mode includes nested EBNF groups, named references, parameterized and
 inline rules, multiple entry points, canonical fragment imports, generated
 lexers, CST or typed `Data` AST generation, declarative recovery, semantic
 types, and grammar-declared tests. These features do not silently change the
-default compatible frontend.
+default compatible frontend. Maturity is assigned per API: format-v6 batch
+Red/Green CST is Stable, while the wider extended grammar surface remains
+Preview and incremental CST sessions remain Experimental.
 
 ## Choose a construction algorithm
 

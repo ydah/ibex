@@ -1,9 +1,10 @@
 # CST Red/Green migration
 
-Regenerating a `pragma cst` parser with parser-table format v6 opts it into the
-Red/Green CST. Existing generated parsers using formats v1 through v5 continue
-to run through the legacy CST implementation and emit one deprecation warning
-per parser instance beginning in 0.2.
+The runtime supports only the current format-v6 Red/Green representation for
+`pragma cst`. CST parser tables from formats v1 through v5, and boolean
+`cst: true` tables without structured metadata, fail before the first token is
+read and instruct the application to regenerate. Older non-CST parser tables
+remain executable.
 
 Regenerate with the same command used for the grammar, for example:
 
@@ -11,9 +12,9 @@ Regenerate with the same command used for the grammar, for example:
 ibex grammar.y -o parser.rb
 ```
 
-The legacy result classes remain supported through the 0.3 series and are
-first eligible for removal in 0.4, subject to the autocorrect prerequisite in
-the [stability policy](stability.md).
+Upgrade the generator and runtime together, regenerate the parser, and update
+consumers to the current APIs below. The removed `CST::Trivia`, `CST::Token`,
+`CST::Missing`, `CST::Error`, and `CST::Node` constants are not defined.
 
 ## Parsing
 
@@ -49,18 +50,17 @@ always exposes the physical `term` syntax node in that position. Read the
 semantic result from `result.value`; syntax children never contain semantic
 values.
 
-These are the only incompatible shapes found by the legacy characterization
-suite. `deconstruct` continues to return syntax children and
+These are the primary incompatible shapes found by the migration
+characterization suite. `deconstruct` continues to return syntax children and
 `deconstruct_keys` retains the compatibility keys. Typed field keys are added
 from `@node` slot metadata.
 
-## Legacy public API inventory
+## Removed public API mapping
 
-The P0 inventory below records every public member of the legacy values and
-where the pre-migration tests used it. Formats v1–v5 retain these classes
-unchanged; the right column is the format-v6 replacement.
+The inventory below records the removed values and their format-v6
+replacements.
 
-| Legacy value and members | Characterized use | Format-v6 replacement |
+| Removed value and members | Previous use | Format-v6 replacement |
 | --- | --- | --- |
 | `CST::Trivia#text`, `#location`, `#to_h` | leading/trailing trivia assertions | `GreenTrivia#text` and `#kind`; obtain absolute location from the owning Red token |
 | `CST::Token#symbol`, `#value`, `#location`, `#leading_trivia` | terminal names, lexer action values, positions, skipped text | `SyntaxToken#kind_name`/`#symbol`, `#location`, and `#leading_trivia`; compatibility `#value` returns the same source bytes as `#text`, while semantic lexer values stay in the normal action/value path |
@@ -70,12 +70,11 @@ unchanged; the right column is the format-v6 replacement.
 | `CST::Node#symbol`, `#production_id`, `#children`, `#location`, `#trailing_trivia` | root/reduction shape, source position, final trivia | `SyntaxNode#symbol`, `#children`, `#location`, and compatibility `#trailing_trivia`; `#production_id` is the `-1` sentinel because kinds/slot metadata replace occurrence-local production identity |
 | `CST::Node#each`, `#deconstruct`, `#deconstruct_keys`, `#to_h`, `#with_trailing_trivia` | enumeration, pattern matching, final-trivia attachment | Red `Enumerable`/pattern/hash methods; persistent trivia changes use the owning token's `with_leading`/`with_trailing` |
 
-The inventory is executable in
-`test/codegen/cst_characterization_test.rb`: it fixes the old root, final
-trivia, semantic token/action overlay, pattern keys, `Error`, `Missing`, and
-recovery shapes. The new pure-syntax behavior is tested alongside it. The
-semantic-value removals in the table are the C1 change; the `source_file` root
-is C2.
+Current pure-syntax shape and compatibility accessors are executable in
+`test/codegen/cst_characterization_test.rb`. Rejection of obsolete CST table
+shapes is covered by `test/runtime/table_format_test.rb` and
+`test/codegen/cst_runtime_integration_test.rb`. The semantic-value removal is
+the C1 change; the `source_file` root is C2.
 
 ## Trivia
 
@@ -99,8 +98,10 @@ for skipped input. Unrecoverable input is retained under `synthetic_root`.
 
 ## New capabilities
 
-Format v6 additionally provides typed `Parser::Syntax` views, persistent
+Format v6 provides typed `Parser::Syntax` views, persistent
 path-copy editing, annotations, structural text diffing, `ibex_cst` v1
 serialization, and syntax-only incremental sessions. These APIs have no
-equivalent on the legacy mixed semantic/syntax tree. See the
-[CST guide](cst.md) for examples and the incremental action contract.
+equivalent on the removed mixed semantic/syntax tree. Batch CST, views,
+editing, and serialization are Stable; incremental sessions remain
+Experimental. See the [CST guide](cst.md) for examples and the incremental
+action contract.

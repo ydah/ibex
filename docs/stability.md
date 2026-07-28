@@ -1,8 +1,7 @@
 # Stability, compatibility, and deprecation
 
-Ibex separates support level from availability. An opt-in feature can be
-complete and well tested without being part of the stable compatibility
-contract.
+Ibex separates support level from activation. Opt-in controls do not determine
+maturity: a documented opt-in API can be Stable, Preview, or Experimental.
 
 ## Maturity ladder
 
@@ -12,11 +11,14 @@ contract.
 | Preview | Explicit pragma, mode, command, or algorithm | Breaking changes require notice one minor release in advance |
 | Experimental | Explicit policy/object or research entry point | May change without notice; budgets and failure modes are part of the experiment |
 
-Promotion requires representative use in a shadow or gallery grammar,
-feature-specific invariant/property tests, two released versions without a
-specification change, dependent-tool support where applicable, and complete
-public documentation. Only stable features may be adopted by the production
-self-hosted grammar.
+After v1.0, promotion requires representative use in a shadow or gallery
+grammar, feature-specific invariant/property tests, two released versions
+without a specification change, dependent-tool support where applicable, and
+complete public documentation. For the initial v1.0 contract, accepted ADRs,
+versioned benchmark evidence, invariant/property coverage, dependent-tool
+support where applicable, and complete public documentation replace the
+impossible two-prior-release requirement. Only Stable features may be adopted
+by the production self-hosted grammar.
 
 ## v1 inventory
 
@@ -27,16 +29,16 @@ Stable:
   observation events, resource limits, migration checks, and bounded
   counterexample/ambiguity analysis;
 - versioned core Grammar IR, Automaton IR, Lexer IR, table formats, report
-  schemas, and their validators.
+  schemas, and their validators;
+- format-v6 Red/Green batch CST parsing, typed syntax views, persistent editing
+  and diffing, and the closed `ibex_cst` schema v1 serialization contract.
 
 Preview:
 
 - `pragma extended` / `--mode=extended`, including EBNF groups, parameterized
   and inline rules, middle actions, multiple entries, canonical imports,
-  generated lexers, semantic locations/types, AST/CST generation, grammar
-  tests, and documentation tooling;
-- format-v6 Red/Green CST parsing, typed syntax views, persistent editing, and
-  `ibex_cst` schema v1 serialization;
+  generated lexers, semantic locations/types, AST generation, grammar tests,
+  and documentation tooling;
 - the conservative `--algorithm=ielr` backend;
 - LSP, watch, debug, coverage, browser playground, and static action-shadow
   integration.
@@ -47,10 +49,11 @@ Experimental:
   `Runtime::RepairPolicy`;
 - syntax-only incremental CST sessions and conservative Blender subtree reuse.
 
-No preview feature is promoted in this freeze: all are missing the required
-two-release field period. Repair passed its usefulness spike but remains
-experimental because two of ten baseline plans were not useful and inserted
-semantic values may be nil.
+The batch CST contract is selected for the initial v1 API under the
+initial-major evidence rule above. The remaining Preview features have not
+completed the normal two-release field period. Repair passed its usefulness
+spike but remains Experimental because two of ten baseline plans were not
+useful and inserted semantic values may be nil.
 
 ## Research decisions
 
@@ -98,27 +101,26 @@ An undeclared invalid token intentionally calls `on_error` before ordinary yacc
 recovery. This is the documented recommended behavior and is not changed by
 the freeze.
 
-Parser-table formats v1 through v6 remain readable. Format v6 is the current
-writer and adds structured Red/Green CST metadata; it does not change Grammar
-IR v2. The closed `ibex_cst` schema v1 is a versioned interchange contract.
-Additive meaning requires a new schema version; readers do not accept unknown
-fields.
+Parser-table formats v1 through v6 remain readable for non-CST parsers. CST
+tables must use the current format v6 structured metadata; older CST tables
+and the boolean `cst: true` shape fail before token consumption with a
+regeneration instruction. Format v6 is the only writer and does not change
+Grammar IR v2. The closed `ibex_cst` schema v1 is a versioned interchange
+contract. Additive meaning requires a new schema version; readers do not
+accept unknown fields.
 
 ## Deprecation policy
 
-A removable API or syntax first emits a migration warning for at least two
-minor releases. Removal is allowed only when `ibex lint --autocorrect` can
-perform the documented migration. Preview features receive at least one minor
-release of notice; experimental features may change without notice.
+After v1.0, a Stable API or syntax first emits a migration warning for at least
+two minor releases. The release notes and documentation must name the first
+warning release, replacement, migration command or procedure, and earliest
+removal release. Automated migration is supplied when practical; policy does
+not promise a command that the product does not provide. Preview features
+receive at least one minor release of notice, and Experimental features may
+change without notice.
 
-The release notes and documentation must name the first warning release,
-replacement, autocorrect command, and earliest removal release. There are no
-stable removals scheduled at this freeze.
-
-Legacy format-v1–v5 `CST::Node`, `CST::Token`, `CST::Missing`, and
-`CST::Error` results begin warning in 0.2. Regenerate the grammar with the
-current `ibex` command to receive format-v6 Red/Green syntax. The old result
-shim remains readable through the 0.3 series and is first eligible for removal
-in 0.4. Removal is not authorized until a released `ibex lint --autocorrect`
-can perform or stage the documented regeneration, so 0.4 is an earliest bound,
-not a guaranteed deletion release.
+The pre-v1 mixed semantic/syntax CST was a Preview contract and is removed
+while selecting the initial stable API. Its parser tables are rejected with a
+regeneration instruction, as recorded by
+[ADR 0099](decisions/0099-stabilize-current-red-green-cst.md). There are no
+Stable removals scheduled.

@@ -13,8 +13,10 @@ generator/runtime performance target is not met, and the published ten-case
 error comparison has not received independent third-party review.
 
 The feature freeze remains in force while those two release gates are open.
-Preview and experimental features may continue to ship in prereleases without
-being promoted.
+The format-v6 batch Red/Green CST has been selected as part of the initial
+Stable v1 API under [ADR 0099](decisions/0099-stabilize-current-red-green-cst.md);
+its syntax-only incremental layer remains Experimental. Other Preview and
+Experimental features may continue to ship in prereleases without promotion.
 
 ## KPI result
 

@@ -34,7 +34,10 @@ parallel to the semantic stack, so tree shape no longer depends on semantic
 actions. Generated lexer skips become token-owned trivia. Parser failure,
 repair, and lexer failure remain explicit and lossless. See
 [ADRs 0092–0094](decisions/0092-red-green-concrete-syntax-core.md) and the
-[CST guide](cst.md).
+[CST guide](cst.md). Batch CST, typed views, editing, and serialization form
+the Stable v1 contract. The runtime accepts structured CST metadata only in
+the current format and rejects older CST tables before reading input; see
+[ADR 0099](decisions/0099-stabilize-current-red-green-cst.md).
 
 ## Red/Green CST v2
 
@@ -308,10 +311,12 @@ See the [benchmark guide](../benchmark/README.md).
 
 Generated subclasses expose `.parser_tables` with a required `format_version`, external `tokens`, display `token_names`, ACTION
 and GOTO tables, per-state default actions, and production `{lhs,length,action}` records. The runtime validates the version before
-reading input and rejects missing or unsupported formats with a regeneration instruction. The generator emits v3, while the
-runtime accepts v1's two-argument actions, v2/v3 explicitly marked five-argument location actions, and v3 explicitly marked
-six-argument composed actions. Inconsistent v3 composition markers fail before input; see
-[ADR 0017](decisions/0017-parser-table-format-version.md). Plain tables are arrays of Hash rows. Compact tables use row
+reading input and rejects missing or unsupported formats with a regeneration instruction. The generator emits v6. For non-CST
+tables, the runtime accepts v1's two-argument actions, v2/v3 explicitly marked five-argument location actions, v3 explicitly
+marked six-argument composed actions, v4 one-Array values actions, and v5/v6 positional actions. Marker contracts are validated
+before input. A CST table is executable only when it uses current format-v6 structured metadata; older or boolean CST shapes
+must be regenerated. See [ADRs 0017](decisions/0017-parser-table-format-version.md) and
+[0099](decisions/0099-stabilize-current-red-green-cst.md). Plain tables are arrays of Hash rows. Compact tables use row
 displacement with offsets, values, and row-ownership checks; both expose equivalent lookups. Default reductions are restricted
 to known token ids, and explicit error masks preserve the pre-optimization result of every declared terminal cell, including
 the synthetic `error` terminal. Extended parser tables opt `expected_tokens` into lookahead correction: the runtime copies only

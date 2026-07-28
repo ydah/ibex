@@ -2,7 +2,9 @@
 
 `pragma cst` generates a lossless, error-tolerant syntax tree alongside the
 ordinary semantic result. Regenerate the parser with the current generator to
-receive parser-table format v6 and this API.
+receive parser-table format v6 and this API. Batch parsing, typed views,
+editing, diffing, and `ibex_cst` serialization are Stable for v1; syntax-only
+incremental sessions are Experimental.
 
 ```text
 class Calculator
@@ -58,9 +60,17 @@ Select trivia ownership while generating:
   the remainder on the following token;
 - `drop` omits trivia.
 
-The historical `attach` spelling is an alias for `leading`. EOF owns final
-leading trivia. `drop` trees deliberately reject span, location, and
-incremental APIs because their offsets cannot describe the original source.
+Pass the policy explicitly when needed:
+
+```sh
+ibex --cst-trivia=leading grammar.y
+ibex --cst-trivia=balanced grammar.y
+ibex --cst-trivia=drop grammar.y
+```
+
+`attach` is accepted as an alias for `leading`. EOF owns final leading trivia.
+`drop` trees deliberately reject span, location, and incremental APIs because
+their offsets cannot describe the original source.
 
 Spans are zero-based, half-open byte ranges. `SourceText#position` and
 `#location` convert them to one-based Unicode-scalar lines and columns while
@@ -114,7 +124,7 @@ from interning.
 
 ## Incremental syntax sessions
 
-Incremental parsing is deliberately syntax-only:
+Incremental parsing is Experimental and deliberately syntax-only:
 
 ```ruby
 source = Ibex::Runtime::CST::SourceText.new("1 + 2", file: "input.txt")
@@ -186,7 +196,7 @@ tests:
 | I2 Green purity | `test/runtime/cst_green_test.rb` checks derived-only immutable state and Ractor shareability; `test/codegen/cst_characterization_test.rb` keeps semantic values outside syntax children. |
 | I3 lazy Red navigation | `test/runtime/cst_red_test.rb` checks occurrence-local memoization, offsets, parents, cursors, and deterministic traversal. |
 | I4 determinism | PT3 in `test/runtime/cst_green_test.rb` compares cache-on/off structure, source, and dump; PT6 in `test/runtime/cst_serialize_test.rb` checks byte-stable dump/load/dump; generated Ruby and RBS have golden tests. |
-| I5 unchanged action contract | `test/codegen/cst_contract_test.rb` compares CST/no-CST `parse`, `do_parse`, `yyparse`, hooks, observer order, and non-CST table shape; the characterization and legacy-table regressions remain active. |
+| I5 unchanged action contract | `test/codegen/cst_contract_test.rb` compares CST/no-CST `parse`, `do_parse`, `yyparse`, hooks, observer order, and non-CST table shape; characterization and obsolete-CST-table rejection regressions remain active. |
 | I6 sharing boundary | PT5 in `test/runtime/cst_green_test.rb` checks Green shareability and concurrent Ractor reads; editing and parser-table tests keep Red/session state occurrence-owned. |
 | I7 versioned contracts | `test/runtime/cst_serialize_test.rb`, `test/runtime/table_format_test.rb`, and `test/packaging/schema_files_test.rb` cover schema validation, memo compatibility, old table readers, and schema packaging. |
 | I8 type soundness | CI regenerates the `sig/` tree, runs Steep and RBS validation, and rejects a type-statistics regression. |
@@ -199,5 +209,5 @@ edit. `test/runtime/cst_incremental_test.rb` adds focused stateful-lexer,
 fallback, sharing, minimal-diff, action-suppression, no-value, and unsupported
 configuration cases.
 
-See [the migration guide](cst-migration.md) for legacy tree-shape changes and
-[the stability policy](stability.md) for support timelines.
+See [the migration guide](cst-migration.md) for removed tree-shape changes and
+[the stability policy](stability.md) for support levels.
