@@ -2,7 +2,7 @@
 
 require_relative "error"
 require_relative "tables"
-require_relative "runtime"
+require "ibex/runtime"
 require_relative "frontend/source_span"
 require_relative "frontend/source_cursor"
 require_relative "frontend/source_document"

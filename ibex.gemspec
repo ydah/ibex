@@ -18,53 +18,23 @@ Gem::Specification.new do |spec|
   spec.metadata["source_code_uri"] = "#{spec.homepage}/tree/main"
   spec.metadata["rubygems_mfa_required"] = "true"
 
-  gemspecs = %w[ibex.gemspec ibex-runtime.gemspec]
-  development_files = %w[
-    .gitignore
-    .yardopts
-    Gemfile
-    Gemfile.lock
-    package.json
-    package-lock.json
-  ]
-  development_directories = %w[
-    .github/
-    .idea/
-    benchmark/
-    docs/decisions/
-    gemfiles/
-    site/
-    test/
-    tool/
-  ]
-  tracked_files = IO.popen(%w[git ls-files -z], chdir: __dir__, err: IO::NULL) do |ls|
-    ls.readlines("\x0", chomp: true).reject do |f|
-      runtime_file = f == "lib/ibex/runtime.rb" || f.start_with?("lib/ibex/runtime/", "sig/ibex/runtime") ||
-                     f.start_with?("lib/ibex/tables/compact", "sig/ibex/tables/compact")
-      gemspecs.include?(f) || runtime_file || development_files.include?(f) ||
-        f.start_with?(*development_directories)
-    end
+  package_files = Dir.chdir(__dir__) do
+    [
+      "LICENSE.txt",
+      "README.md",
+      "exe/ibex",
+      *Dir.glob("lib/**/*.rb"),
+      *Dir.glob("sig/**/*.rbs"),
+      *Dir.glob("schema/*.json"),
+      *Dir.glob("docs/*.md"),
+      *Dir.glob("examples/**/*").select { |path| File.file?(path) }
+    ]
   end
-  schema_files = %w[
-    schema/grammar-ir-v1.schema.json
-    schema/automaton-ir-v1.schema.json
-    schema/grammar-ir-v2.schema.json
-    schema/automaton-ir-v2.schema.json
-    schema/cst-v1.json
-    schema/explain-v1.schema.json
-    schema/benchmark-v1.schema.json
-    schema/benchmark-v2.schema.json
-    schema/performance-comparison-v1.schema.json
-    schema/public-performance-comparison-v1.schema.json
-    schema/public-performance-profile-v1.schema.json
-    schema/error-ux-v1.schema.json
-    schema/generation-manifest-v1.schema.json
-    schema/runtime-event-v1.schema.json
-    schema/runtime-coverage-v1.schema.json
-    schema/table-simulation-v1.schema.json
-    schema/migration-check-v1.schema.json
-  ]
-  spec.files = (tracked_files + schema_files).uniq.sort
+  spec.files = package_files.reject do |path|
+    path == "lib/ibex/runtime.rb" ||
+      path.start_with?("lib/ibex/runtime/", "sig/ibex/runtime") ||
+      path.start_with?("lib/ibex/tables/compact", "sig/ibex/tables/compact")
+  end.uniq.sort
   spec.bindir = "exe"
   spec.executables = ["ibex"]
   spec.require_paths = ["lib"]

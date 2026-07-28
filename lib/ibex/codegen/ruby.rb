@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../runtime/table_format"
+require "ibex/runtime/table_format"
 require_relative "cst_metadata"
 require_relative "generated_action_abi"
 require_relative "ruby_actions"

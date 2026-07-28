@@ -5,7 +5,7 @@
 # the DSL, and every other frontend facility.
 require_relative "../error"
 require_relative "../tables"
-require_relative "../runtime/parser"
+require "ibex/runtime"
 require_relative "source_span"
 require_relative "source_cursor"
 require_relative "source_document"

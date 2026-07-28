@@ -4,6 +4,7 @@ require_relative "../test_helper"
 require "fileutils"
 require "open3"
 require "rbconfig"
+require "rubygems/package"
 require "tmpdir"
 
 class RuntimeGemPackagingTest < Minitest::Test
@@ -50,13 +51,37 @@ class RuntimeGemPackagingTest < Minitest::Test
   def test_runtime_gemspec_builds
     Dir.mktmpdir("ibex-runtime-package") do |directory|
       output = File.join(directory, "ibex-runtime.gem")
-      _stdout, stderr, status = Open3.capture3(
-        RbConfig.ruby, "-S", "gem", "build", RUNTIME_GEMSPEC, "--output", output, chdir: ROOT
-      )
+      build_gem(RUNTIME_GEMSPEC, output)
+    end
+  end
 
-      assert status.success?, stderr
-      assert File.file?(output)
-      assert_operator File.size(output), :>, 0
+  def test_built_generator_runs_with_the_installed_runtime_dependency
+    Dir.mktmpdir("ibex-installed-packages") do |directory|
+      runtime_gem = build_gem(RUNTIME_GEMSPEC, File.join(directory, "ibex-runtime.gem"))
+      generator_gem = build_gem(GENERATOR_GEMSPEC, File.join(directory, "ibex.gem"))
+      gem_home = File.join(directory, "gems")
+      environment = isolated_gem_environment(gem_home)
+
+      install_gem(runtime_gem, gem_home, environment)
+      install_gem(generator_gem, gem_home, environment)
+      assert_installed_generator_works(directory, gem_home, environment)
+    end
+  end
+
+  def test_generator_gem_builds_without_git_metadata
+    Dir.mktmpdir("ibex-source-package") do |directory|
+      source_root = File.join(directory, "source")
+      copy_tracked_source(source_root)
+      output = build_gem(
+        File.join(source_root, "ibex.gemspec"),
+        File.join(directory, "ibex.gem"),
+        chdir: source_root
+      )
+      files = Gem::Package.new(output).spec.files
+
+      %w[exe/ibex lib/ibex.rb lib/ibex/cli.rb schema/lexer-ir-v1.schema.json].each do |path|
+        assert_includes files, path
+      end
     end
   end
 
@@ -88,6 +113,64 @@ class RuntimeGemPackagingTest < Minitest::Test
   end
 
   private
+
+  def build_gem(gemspec, output, chdir: ROOT)
+    _stdout, stderr, status = Open3.capture3(
+      RbConfig.ruby, "-S", "gem", "build", gemspec, "--output", output, chdir: chdir
+    )
+
+    assert status.success?, stderr
+    assert File.file?(output)
+    assert_operator File.size(output), :>, 0
+    output
+  end
+
+  def install_gem(path, gem_home, environment)
+    _stdout, stderr, status = Bundler.with_unbundled_env do
+      Open3.capture3(
+        environment,
+        RbConfig.ruby, "-S", "gem", "install", path,
+        "--local", "--no-document", "--install-dir", gem_home
+      )
+    end
+    assert status.success?, stderr
+  end
+
+  def isolated_gem_environment(gem_home)
+    ISOLATED_ENV.merge("GEM_HOME" => gem_home, "GEM_PATH" => gem_home)
+  end
+
+  def assert_installed_generator_works(directory, gem_home, environment)
+    executable = File.join(gem_home, "bin", "ibex")
+    stdout, stderr, status = Bundler.with_unbundled_env do
+      Open3.capture3(environment, executable, "--version", chdir: directory)
+    end
+    assert status.success?, stderr
+    assert_equal "ibex #{Ibex::VERSION}\n", stdout
+
+    grammar = File.join(directory, "grammar.y")
+    output = File.join(directory, "parser.rb")
+    File.binwrite(grammar, SOURCE)
+    _stdout, stderr, status = Bundler.with_unbundled_env do
+      Open3.capture3(environment, executable, grammar, "--output-file", output, chdir: directory)
+    end
+    assert status.success?, stderr
+    assert File.file?(output)
+  end
+
+  def copy_tracked_source(destination)
+    stdout, stderr, status = Open3.capture3("git", "ls-files", "-z", chdir: ROOT)
+    assert status.success?, stderr
+
+    stdout.split("\0").each do |relative|
+      source = File.join(ROOT, relative)
+      next unless File.file?(source)
+
+      target = File.join(destination, relative)
+      FileUtils.mkdir_p(File.dirname(target))
+      FileUtils.cp(source, target)
+    end
+  end
 
   def generated_parser(embedded:)
     ast = Ibex::Frontend::Parser.new(SOURCE, file: "runtime-only.y").parse

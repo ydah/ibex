@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require_relative "tables/compact"
-require_relative "tables/compact_actions"
-require_relative "tables/compact_productions"
+require "ibex/tables/compact"
+require "ibex/tables/compact_actions"
+require "ibex/tables/compact_productions"
 
 module Ibex
   # Parser table construction and row-displacement compression.
