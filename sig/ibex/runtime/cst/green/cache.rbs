@@ -7,25 +7,53 @@ module Ibex
       class NodeCache
         DEFAULT_NODE_ARITY_LIMIT: Integer
 
-        @enabled: bool
+        DEFAULT_NODE_DESCENDANT_LIMIT: Integer
 
-        @node_arity_limit: Integer
-
-        @tokens: Hash[GreenToken, GreenToken]
+        # @type var empty_trivia: Array[GreenTrivia]
+        EMPTY_TRIVIA: Array[GreenTrivia]
 
         @nodes: Hash[GreenNode, GreenNode]
 
-        # @rbs (?enabled: bool, ?node_arity_limit: Integer) -> void
-        def initialize: (?enabled: bool, ?node_arity_limit: Integer) -> void
+        @tokens: Hash[Integer, Array[GreenToken]]
+
+        @trivia: Hash[Integer, Array[GreenTrivia]]
+
+        @node_descendant_limit: Integer
+
+        @node_arity_limit: Integer
+
+        @enabled: bool
+
+        # @rbs (?enabled: bool, ?node_arity_limit: Integer, ?node_descendant_limit: Integer) -> void
+        def initialize: (?enabled: bool, ?node_arity_limit: Integer, ?node_descendant_limit: Integer) -> void
+
+        # Intern trivia before constructing it, using byte-equivalent text within this session.
+        # @rbs (kind: Integer, text: String) -> GreenTrivia
+        def intern_trivia_fields: (kind: Integer, text: String) -> GreenTrivia
 
         # @rbs (GreenToken token) -> GreenToken
         def intern_token: (GreenToken token) -> GreenToken
+
+        # Intern a token before constructing it, avoiding discarded duplicate immutable values.
+        # @rbs (kind: Integer, text: String, ?leading: Array[GreenTrivia], ?trailing: Array[GreenTrivia],
+        #   ?flags: Integer, ?expected_kind: Integer?) -> GreenToken
+        def intern_token_fields: (kind: Integer, text: String, ?leading: Array[GreenTrivia], ?trailing: Array[GreenTrivia], ?flags: Integer, ?expected_kind: Integer?) -> GreenToken
 
         # @rbs (GreenNode node) -> GreenNode
         def intern_node: (GreenNode node) -> GreenNode
 
         # @rbs () -> void
         def clear: () -> void
+
+        private
+
+        # @rbs (Integer kind, String text, Array[GreenTrivia] leading, Array[GreenTrivia] trailing,
+        #   Integer flags, Integer? expected_kind) -> Integer
+        def token_signature: (Integer kind, String text, Array[GreenTrivia] leading, Array[GreenTrivia] trailing, Integer flags, Integer? expected_kind) -> Integer
+
+        # @rbs (Array[GreenToken]? bucket, Integer kind, String text, Array[GreenTrivia] leading,
+        #   Array[GreenTrivia] trailing, Integer flags, Integer? expected_kind) -> GreenToken?
+        def find_token: (Array[GreenToken]? bucket, Integer kind, String text, Array[GreenTrivia] leading, Array[GreenTrivia] trailing, Integer flags, Integer? expected_kind) -> GreenToken?
       end
     end
   end

@@ -8,29 +8,40 @@ module Ibex
     module GeneratedLexer : Parser
       NO_EMISSION: Object
 
-      @lexer_has_token: bool
+      # @type var empty_green_trivia: Array[CST::GreenTrivia]
+      EMPTY_GREEN_TRIVIA: Array[CST::GreenTrivia]
 
-      @lexer_pending_trivia: Array[CST::Trivia | CST::GreenTrivia]
-
-      @lexer_skip_requested: bool
-
-      @lexer_emission: Object | Array[untyped]
-
-      @lexer_lexeme: String?
-
-      @lexer_byte_offset: Integer
-
-      @lexer_byte_column: Integer
-
-      @lexer_column: Integer
-
-      @lexer_line: Integer
-
-      @lexer_states: Array[String]
+      @lexer_input: LexerInput?
 
       @lexer_file: String
 
-      @lexer_input: LexerInput?
+      @lexer_states: Array[String]
+
+      @lexer_line: Integer
+
+      @lexer_column: Integer
+
+      @lexer_byte_column: Integer
+
+      @lexer_byte_offset: Integer
+
+      @lexer_lexeme: String?
+
+      @lexer_emission: Object | Array[untyped]
+
+      @lexer_skip_requested: bool
+
+      @lexer_pending_trivia: Array[CST::Trivia]
+
+      @lexer_pending_green_trivia: Array[CST::GreenTrivia]
+
+      @lexer_cst_trivia_policy: Symbol
+
+      @lexer_red_green_cst: bool
+
+      @lexer_cst_trivia_kinds: Hash[String, Integer]?
+
+      @lexer_has_token: bool
 
       # Reset the generated lexer to the beginning of an input.
       # @rbs (String | IO | Fiber source, ?file: String) -> self
@@ -128,6 +139,9 @@ module Ibex
 
       # @rbs (String text) -> Integer
       def cst_trivia_kind: (String text) -> Integer
+
+      # @rbs () -> void
+      def configure_lexer_cst: () -> void
 
       # @rbs (Array[CST::GreenTrivia] trivia) -> [Array[CST::GreenTrivia], Array[CST::GreenTrivia]]
       def split_balanced_trivia: (Array[CST::GreenTrivia] trivia) -> [ Array[CST::GreenTrivia], Array[CST::GreenTrivia] ]

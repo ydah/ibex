@@ -253,10 +253,12 @@ module Ibex
       empty_row = {} # @type var empty_row: Hash[Integer, untyped]
       empty_location_names = {} # @type var empty_location_names: Hash[Symbol, Integer]
       empty_locations = [] # @type var empty_locations: Array[untyped]
+      empty_green_trivia = [] # @type var empty_green_trivia: Array[CST::GreenTrivia]
 
       EMPTY_ROW = empty_row.freeze #: Hash[Integer, untyped]
       EMPTY_LOCATION_NAMES = empty_location_names.freeze #: Hash[Symbol, Integer]
       EMPTY_LOCATIONS = empty_locations.freeze #: Array[untyped]
+      EMPTY_GREEN_TRIVIA = empty_green_trivia.freeze #: Array[CST::GreenTrivia]
       private_constant :ERROR_ACTION, :SYNC_RECOVER_ACTION, :CONTINUE_OUTCOME, :REPAIR_PENDING_OUTCOME,
                        :TERMINAL_OUTCOMES, :COMPACT_ACCEPTED, :FAST_PATH_HOOK_NAMES, :FAST_PATH_HOOK_REFERENCES,
                        :FastPathMutationTracker, :FastPathClassMutationTracker
@@ -1908,7 +1910,13 @@ module Ibex
 
       # @rbs (untyped location, Symbol key) -> untyped
       def cst_location_value(location, key)
-        return location[key] || location[key.to_s] if location.is_a?(Hash)
+        if location.is_a?(Hash)
+          value = location[key]
+          return value if value || location.key?(key)
+          return if location.key?(:ibex_lexer_start_state)
+
+          return location[key.name]
+        end
         return location.public_send(key) if location.respond_to?(key)
 
         nil
@@ -1928,7 +1936,8 @@ module Ibex
           return
         end
 
-        kinds = CST::Kind.new(config.fetch(:kinds), slots: config.fetch(:slots))
+        kinds = tables[:cst_kinds]
+        kinds = CST::Kind.new(config.fetch(:kinds), slots: config.fetch(:slots)) unless kinds.is_a?(CST::Kind)
         cache = @green_cache_override || CST::NodeCache.new
         @green_kinds = kinds
         @green_cache = cache
@@ -1947,29 +1956,62 @@ module Ibex
         prepare_green_cst(tables)
       end
 
+      # rubocop:disable Metrics/PerceivedComplexity -- generated locations have a deliberate allocation-free path.
       # @rbs (Integer token_id, untyped value, untyped location, Integer from_state) -> void
       def shift_green_token(token_id, value, location, from_state)
         builder = @green_builder
         kinds = @green_kinds
         return unless builder && kinds
 
-        trailing = green_location_trivia(location, :cst_previous_trailing)
-        builder.append_trailing_to_last_token(trailing) unless @green_reused_right_edge
-        repair = cst_location_value(location, :ibex_repair)
+        if location.is_a?(Hash) && location.key?(:ibex_lexer_start_state)
+          trailing = location[:cst_previous_trailing] || EMPTY_GREEN_TRIVIA
+          location_leading = location[:leading_trivia] || EMPTY_GREEN_TRIVIA
+          repair = location[:ibex_repair]
+          token_text = location[:ibex_cst_text]
+          token_text = value unless token_text.is_a?(String)
+          token_text = "" unless token_text.is_a?(String)
+          lexer_state = location[:ibex_lexer_start_state]
+          lexer_state = lexer_state ? lexer_state.to_sym : :INITIAL
+        else
+          trailing = green_location_trivia(location, :cst_previous_trailing)
+          location_leading = green_location_trivia(location, :leading_trivia)
+          repair = cst_location_value(location, :ibex_repair)
+          token_text = green_token_text(value, location)
+          lexer_state = green_lexer_state(location)
+        end
+
+        commit_green_token_shift(
+          builder, kinds, token_id, from_state, trailing, location_leading, repair, token_text, lexer_state
+        )
+      end
+      # rubocop:enable Metrics/PerceivedComplexity
+
+      # @rbs (CST::GreenBuilder builder, CST::Kind kinds, Integer token_id, Integer from_state,
+      #   Array[CST::GreenTrivia] trailing, Array[CST::GreenTrivia] location_leading, untyped repair,
+      #   String token_text, Symbol lexer_state) -> void
+      def commit_green_token_shift(
+        builder, kinds, token_id, from_state, trailing, location_leading, repair, token_text, lexer_state
+      )
+        builder.append_trailing_to_last_token(trailing) if !@green_reused_right_edge && !trailing.empty?
         if repair == :insert
           builder.missing(token_id)
-          @green_token_states << green_lexer_state(location)
+          @green_token_states << lexer_state
           @green_memo_stack << CST::ParseMemo::Entry.new(from_state)
           return
         end
 
-        leading = @green_pending_skipped + green_location_trivia(location, :leading_trivia)
-        flags = @green_pending_skipped.empty? ? 0 : CST::Flags::CONTAINS_SKIPPED
-        @green_pending_skipped.clear
+        if @green_pending_skipped.empty?
+          leading = location_leading
+          flags = 0
+        else
+          leading = @green_pending_skipped + location_leading
+          @green_pending_skipped.clear
+          flags = CST::Flags::CONTAINS_SKIPPED
+        end
         flags |= CST::Flags::CONTAINS_ERROR if repair == :replace || token_id == ERROR_TOKEN
         kind = token_id.negative? ? kinds.fetch(:lexical_error_token) : token_id
-        builder.token(kind, green_token_text(value, location), leading: leading, flags: flags)
-        @green_token_states << green_lexer_state(location)
+        builder.token(kind, token_text, leading: leading, flags: flags)
+        @green_token_states << lexer_state
         @green_memo_stack << CST::ParseMemo::Entry.new(from_state)
         @green_reused_right_edge = false
       end
@@ -1984,14 +2026,21 @@ module Ibex
         kind = slot ? slot.fetch(:node_kind) : production.fetch(:lhs)
         flags = length.zero? ? CST::Flags::SYNTHETIC : 0
         builder.node(kind, length, flags: flags)
-        empty = [] #: Array[CST::ParseMemo::Entry]
-        children = length.zero? ? empty : @green_memo_stack.pop(length)
-        @green_memo_stack << CST::ParseMemo::Entry.new(left_state, children: children)
+        entry = if length.zero?
+                  CST::ParseMemo::Entry.new(left_state)
+                else
+                  CST::ParseMemo::Entry.new(left_state, children: @green_memo_stack.pop(length).freeze)
+                end
+        @green_memo_stack << entry
       end
 
       # @rbs (untyped value, untyped location) -> String
       def green_token_text(value, location)
-        text = cst_location_value(location, :ibex_cst_text)
+        text = if location.is_a?(Hash) && location.key?(:ibex_lexer_start_state)
+                 location[:ibex_cst_text]
+               else
+                 cst_location_value(location, :ibex_cst_text)
+               end
         return text if text.is_a?(String)
         return value if value.is_a?(String)
 
@@ -2000,8 +2049,16 @@ module Ibex
 
       # @rbs (untyped location, Symbol key) -> Array[CST::GreenTrivia]
       def green_location_trivia(location, key)
-        trivia = cst_location_value(location, key)
-        trivia.is_a?(Array) ? trivia.grep(CST::GreenTrivia) : []
+        trivia = if location.is_a?(Hash) && location.key?(:ibex_lexer_start_state)
+                   location[key]
+                 else
+                   cst_location_value(location, key)
+                 end
+        return EMPTY_GREEN_TRIVIA unless trivia.is_a?(Array)
+        return trivia if trivia.frozen?
+        return trivia if trivia.all?(CST::GreenTrivia)
+
+        trivia.grep(CST::GreenTrivia)
       end
 
       # @rbs (untyped value) -> untyped
@@ -2014,8 +2071,12 @@ module Ibex
         end
         empty_trivia = [] #: Array[CST::GreenTrivia]
         eof_leading = incomplete ? empty_trivia : green_location_trivia(@lookahead_location, :leading_trivia)
-        leading = @green_pending_skipped + eof_leading
-        @green_pending_skipped.clear
+        if @green_pending_skipped.empty?
+          leading = eof_leading
+        else
+          leading = @green_pending_skipped + eof_leading
+          @green_pending_skipped.clear
+        end
         eof = builder.make_token(EOF_TOKEN, "", leading: leading)
         @green_token_states << green_lexer_state(@lookahead_location)
         green = if builder.size == 1
@@ -2088,7 +2149,7 @@ module Ibex
         policy = config.fetch(:trivia_policy)
         location_file = cst_location_value(@lookahead_location, :file)
         source_file = file || (location_file if location_file.is_a?(String))
-        source = CST::SourceText.new(green.to_source, file: source_file)
+        source = CST::SourceText.new(green.to_source.freeze, file: source_file)
         @syntax_root = CST::SyntaxNode.new(
           green: green, kinds: kinds, trivia_policy: policy, source_text: source
         )
@@ -2134,7 +2195,11 @@ module Ibex
 
       # @rbs (untyped location) -> Symbol
       def green_lexer_state(location)
-        state = cst_location_value(location, :ibex_lexer_start_state)
+        state = if location.is_a?(Hash) && location.key?(:ibex_lexer_start_state)
+                  location[:ibex_lexer_start_state]
+                else
+                  cst_location_value(location, :ibex_lexer_start_state)
+                end
         state ? state.to_sym : :INITIAL
       end
 

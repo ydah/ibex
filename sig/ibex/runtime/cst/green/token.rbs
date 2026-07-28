@@ -5,6 +5,9 @@ module Ibex
     module CST
       # Immutable position-independent terminal occurrence.
       class GreenToken
+        # @type var empty_trivia: Array[GreenTrivia]
+        EMPTY_TRIVIA: Array[GreenTrivia]
+
         attr_reader kind: Integer
 
         attr_reader text: String
@@ -22,6 +25,8 @@ module Ibex
         attr_reader trailing_width: Integer
 
         attr_reader expected_kind: Integer?
+
+        attr_reader hash: Integer
 
         # @rbs (kind: Integer, text: String, ?leading: Array[GreenTrivia], ?trailing: Array[GreenTrivia],
         #   ?flags: Integer, ?expected_kind: Integer?) -> void
@@ -43,9 +48,6 @@ module Ibex
         def ==: (untyped other) -> bool
 
         alias eql? ==
-
-        # @rbs () -> Integer
-        def hash: () -> Integer
 
         private
 

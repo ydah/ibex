@@ -10,6 +10,8 @@ module Ibex
       # rubocop:disable Naming/PredicateMethod -- mutation methods report whether they found a target.
       class GreenBuilder
         # @rbs! type child = GreenNode | GreenToken
+        empty_trivia = [] # @type var empty_trivia: Array[GreenTrivia]
+        EMPTY_TRIVIA = empty_trivia.freeze #: Array[GreenTrivia]
 
         # @rbs @kinds: Kind
         # @rbs @cache: NodeCache
@@ -24,7 +26,7 @@ module Ibex
 
         # @rbs (Integer kind, String text, ?leading: Array[GreenTrivia], ?trailing: Array[GreenTrivia],
         #   ?flags: Integer) -> GreenToken
-        def token(kind, text, leading: [], trailing: [], flags: 0)
+        def token(kind, text, leading: EMPTY_TRIVIA, trailing: EMPTY_TRIVIA, flags: 0)
           value = make_token(kind, text, leading: leading, trailing: trailing, flags: flags)
           @stack << value
           value
@@ -33,9 +35,9 @@ module Ibex
         # Construct an interned token without changing the builder stack.
         # @rbs (Integer kind, String text, ?leading: Array[GreenTrivia], ?trailing: Array[GreenTrivia],
         #   ?flags: Integer) -> GreenToken
-        def make_token(kind, text, leading: [], trailing: [], flags: 0)
-          @cache.intern_token(
-            GreenToken.new(kind: kind, text: text, leading: leading, trailing: trailing, flags: flags)
+        def make_token(kind, text, leading: EMPTY_TRIVIA, trailing: EMPTY_TRIVIA, flags: 0)
+          @cache.intern_token_fields(
+            kind: kind, text: text, leading: leading, trailing: trailing, flags: flags
           )
         end
 
@@ -60,17 +62,19 @@ module Ibex
 
         # @rbs (Integer expected_kind) -> GreenToken
         def missing(expected_kind)
-          value = @cache.intern_token(
-            GreenToken.missing(kind: @kinds.fetch(:missing_token), expected_kind: expected_kind)
+          value = @cache.intern_token_fields(
+            kind: @kinds.fetch(:missing_token), text: "", expected_kind: expected_kind,
+            flags: Flags::CONTAINS_MISSING | Flags::SYNTHETIC
           )
           @stack << value
           value
         end
 
         # @rbs (String text, ?leading: Array[GreenTrivia]) -> GreenToken
-        def lexical_error(text, leading: [])
-          value = @cache.intern_token(
-            GreenToken.lexical_error(kind: @kinds.fetch(:lexical_error_token), text: text, leading: leading)
+        def lexical_error(text, leading: EMPTY_TRIVIA)
+          value = @cache.intern_token_fields(
+            kind: @kinds.fetch(:lexical_error_token), text: text, leading: leading,
+            flags: Flags::CONTAINS_ERROR
           )
           @stack << value
           value
@@ -176,12 +180,11 @@ module Ibex
         # @rbs (child element, Array[GreenTrivia] trivia) -> child?
         def with_rightmost_trailing(element, trivia)
           if element.is_a?(GreenToken)
-            return @cache.intern_token(
-              GreenToken.new(
-                kind: element.kind, text: element.text, leading: element.leading,
-                trailing: element.trailing + trivia, flags: element.flags,
-                expected_kind: element.expected_kind
-              )
+            combined_trailing = element.trailing.empty? ? trivia : element.trailing + trivia
+            return @cache.intern_token_fields(
+              kind: element.kind, text: element.text, leading: element.leading,
+              trailing: combined_trailing, flags: element.flags,
+              expected_kind: element.expected_kind
             )
           end
           return if element.children.empty?

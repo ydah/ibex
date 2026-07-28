@@ -8,6 +8,9 @@ module Ibex
       class GreenBuilder
         type child = GreenNode | GreenToken
 
+        # @type var empty_trivia: Array[GreenTrivia]
+        EMPTY_TRIVIA: Array[GreenTrivia]
+
         @stack: Array[child]
 
         @cache: NodeCache

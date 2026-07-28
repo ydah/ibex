@@ -11,6 +11,8 @@ module Ibex
 
         attr_reader full_width: Integer
 
+        attr_reader hash: Integer
+
         # @rbs (kind: Integer, text: String) -> void
         def initialize: (kind: Integer, text: String) -> void
 
@@ -21,9 +23,6 @@ module Ibex
         def ==: (untyped other) -> bool
 
         alias eql? ==
-
-        # @rbs () -> Integer
-        def hash: () -> Integer
       end
     end
   end

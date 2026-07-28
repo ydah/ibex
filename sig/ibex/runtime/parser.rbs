@@ -153,6 +153,8 @@ module Ibex
 
       EMPTY_LOCATIONS: Array[untyped]
 
+      EMPTY_GREEN_TRIVIA: Array[CST::GreenTrivia]
+
       @unknown_token_id: Integer?
 
       @unknown_token_name: String?
@@ -653,8 +655,14 @@ module Ibex
       # @rbs (Hash[Symbol, untyped] tables) -> void
       def reset_cst_results: (Hash[Symbol, untyped] tables) -> void
 
+      # rubocop:disable Metrics/PerceivedComplexity -- generated locations have a deliberate allocation-free path.
       # @rbs (Integer token_id, untyped value, untyped location, Integer from_state) -> void
       def shift_green_token: (Integer token_id, untyped value, untyped location, Integer from_state) -> void
+
+      # @rbs (CST::GreenBuilder builder, CST::Kind kinds, Integer token_id, Integer from_state,
+      #   Array[CST::GreenTrivia] trailing, Array[CST::GreenTrivia] location_leading, untyped repair,
+      #   String token_text, Symbol lexer_state) -> void
+      def commit_green_token_shift: (CST::GreenBuilder builder, CST::Kind kinds, Integer token_id, Integer from_state, Array[CST::GreenTrivia] trailing, Array[CST::GreenTrivia] location_leading, untyped repair, String token_text, Symbol lexer_state) -> void
 
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer left_state) -> void
       def reduce_green: (Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer left_state) -> void

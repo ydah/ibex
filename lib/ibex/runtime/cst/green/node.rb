@@ -37,9 +37,20 @@ module Ibex
 
         # @rbs () -> String
         def to_source
-          @children.each_with_object(String.new(encoding: Encoding::BINARY)) do |child, source|
-            source << child.to_source
+          source = String.new(encoding: Encoding::BINARY)
+          pending = @children.reverse
+          until pending.empty?
+            child = pending.pop || raise("green source traversal underflow")
+            if child.is_a?(GreenNode)
+              child.children.reverse_each { |nested| pending << nested }
+              next
+            end
+
+            child.leading.each { |trivia| source << trivia.text }
+            source << child.text
+            child.trailing.each { |trivia| source << trivia.text }
           end
+          source
         end
 
         # @rbs (untyped other) -> bool

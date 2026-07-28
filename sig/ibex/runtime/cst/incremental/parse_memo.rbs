@@ -38,6 +38,9 @@ module Ibex
 
         # Lightweight construction tree flattened once when a parse completes.
         class Entry
+          # @type var empty_children: Array[Entry]
+          EMPTY_CHILDREN: Array[Entry]
+
           @state: Integer?
 
           @children: Array[Entry]

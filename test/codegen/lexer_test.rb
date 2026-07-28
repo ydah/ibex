@@ -160,6 +160,13 @@ class GeneratedLexerTest < Minitest::Test
     assert_equal handwritten_locations(source), actual
   end
 
+  def test_generated_token_and_eof_locations_are_immutable
+    lexer = build(streaming_source).new.lex("12 word", file: "frozen.txt")
+    locations = 3.times.map { lexer.next_token.fetch(2) }
+
+    locations.each { |location| assert_predicate location, :frozen? }
+  end
+
   def test_generated_rbs_publishes_lexer_contract
     automaton = automaton(streaming_source)
     signature = Ibex::Codegen::RBS.new(automaton).generate

@@ -113,6 +113,32 @@ class CSTRuntimeIntegrationTest < Minitest::Test # rubocop:disable Metrics/Class
     refute_same program.syntax_root.green, expression.syntax_root.green
   end
 
+  def test_green_trivia_extraction_reuses_validated_arrays
+    parser = generate(BALANCED_SOURCE).new
+    trivia = Ibex::Runtime::CST::GreenTrivia.new(
+      kind: parser.__send__(:parser_tables).dig(:cst, :kinds, :trivia, "whitespace"),
+      text: " "
+    )
+    values = [trivia].freeze
+    first_empty = parser.__send__(:green_location_trivia, nil, :leading_trivia)
+    second_empty = parser.__send__(:green_location_trivia, {}, :leading_trivia)
+
+    assert_same values, parser.__send__(:green_location_trivia, { leading_trivia: values }, :leading_trivia)
+    assert_same first_empty, second_empty
+    assert_predicate first_empty, :frozen?
+  end
+
+  def test_generated_parser_reuses_immutable_kind_metadata
+    parser_class = generate(BALANCED_SOURCE)
+    first = parser_class.new
+    second = parser_class.new
+
+    first.parse("1 + 2")
+    second.parse("3 + 4")
+
+    assert_same first.instance_variable_get(:@green_kinds), second.instance_variable_get(:@green_kinds)
+  end
+
   def test_early_accept_marks_the_consumed_prefix_incomplete
     tree = generate(EARLY_ACCEPT_SOURCE).new.parse_with_syntax("a b").syntax_root
 

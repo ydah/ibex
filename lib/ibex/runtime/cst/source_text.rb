@@ -13,8 +13,8 @@ module Ibex
 
         # @rbs (String text, ?file: String?) -> void
         def initialize(text, file: nil)
-          @text = text.b.freeze
-          @file = file&.dup&.freeze
+          @text = text.encoding == Encoding::BINARY && text.frozen? ? text : text.b.freeze
+          @file = file&.then { |value| value.frozen? ? value : value.dup.freeze }
           @line_starts = build_line_starts.freeze #: Array[Integer]
           freeze
         end

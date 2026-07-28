@@ -9,12 +9,14 @@ module Ibex
         attr_reader :kind #: Integer
         attr_reader :text #: String
         attr_reader :full_width #: Integer
+        attr_reader :hash #: Integer
 
         # @rbs (kind: Integer, text: String) -> void
         def initialize(kind:, text:)
           @kind = kind
           @text = text.b.freeze
           @full_width = @text.bytesize
+          @hash = [@kind, @text].hash
           freeze
         end
 
@@ -28,7 +30,6 @@ module Ibex
         alias eql? ==
 
         # @rbs () -> Integer
-        def hash = [@kind, @text].hash
       end
     end
   end

@@ -207,6 +207,7 @@ module Ibex
                    "  def self.parser_tables: () -> Hash[Symbol, untyped]")
         lines << "  SYMBOL_NAMES: Hash[Integer, String]" if @grammar.options[:cst] == true
         lines << "  CST_METADATA: Hash[Symbol, untyped]" if @grammar.options[:cst] == true
+        lines << "  CST_KIND_MODEL: Ibex::Runtime::CST::Kind" if @grammar.options[:cst] == true
         append_entry_contract(lines)
         append_parameter_contract(lines)
       end

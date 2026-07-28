@@ -69,6 +69,16 @@ class CSTIncrementalTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert session.parse_memo.compatible?(generate.parser_tables)
   end
 
+  def test_leaf_parse_memo_entries_share_immutable_empty_children
+    first = Ibex::Runtime::CST::ParseMemo::Entry.new(1)
+    second = Ibex::Runtime::CST::ParseMemo::Entry.new(2)
+    first_children = first.instance_variable_get(:@children)
+    second_children = second.instance_variable_get(:@children)
+
+    assert_same first_children, second_children
+    assert_predicate first_children, :frozen?
+  end
+
   def test_edits_match_a_fresh_syntax_only_parse_and_reuse_green_tokens # rubocop:disable Metrics/AbcSize
     parser_class = generate
     session = parser_class.incremental_session(Ibex::Runtime::CST::SourceText.new("1 + 2"))

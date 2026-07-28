@@ -169,8 +169,7 @@ module Ibex
         append_table_metadata(lines, indent)
         lines << "#{indent}TOKEN_IDS = #{token_ids_literal}.freeze"
         lines << "#{indent}TOKEN_NAMES = #{token_names_literal}.freeze"
-        lines << "#{indent}SYMBOL_NAMES = #{symbol_names_literal}.freeze" if cst?
-        lines << "#{indent}CST_METADATA = #{deep_frozen_literal(cst_metadata)}" if cst?
+        append_cst_metadata(lines, indent)
         lines << "#{indent}ACTIONS = #{table_literal(table_set.actions)}"
         lines << "#{indent}GOTOS = #{table_literal(table_set.gotos)}"
         lines << "#{indent}DEFAULT_ACTIONS = #{table_set.default_actions.inspect}.freeze"
@@ -189,6 +188,17 @@ module Ibex
         lines << ""
       end
 
+      # @rbs (Array[String] lines, String indent) -> void
+      def append_cst_metadata(lines, indent)
+        return unless cst?
+
+        lines << "#{indent}SYMBOL_NAMES = #{symbol_names_literal}.freeze"
+        lines << "#{indent}CST_METADATA = #{deep_frozen_literal(cst_metadata)}"
+        lines << "#{indent}CST_KIND_MODEL = Ibex::Runtime::CST::Kind.new("
+        lines << "#{indent}  CST_METADATA.fetch(:kinds), slots: CST_METADATA.fetch(:slots)"
+        lines << "#{indent})"
+      end
+
       # @rbs (Array[String] lines, String indent, Tables::TableSet table_set) -> void
       def append_parser_tables(lines, indent, table_set)
         lines << "#{indent}PARSER_TABLES = { format_version: PARSER_TABLE_FORMAT_VERSION,"
@@ -200,7 +210,7 @@ module Ibex
           lines << "#{indent}                  compact_fast_driver: true, " \
                    "compact_action_encoding: :signed, compact_default_actions: #{default_codes.inspect}.freeze,"
         end
-        lines << "#{indent}                  cst: CST_METADATA," if cst?
+        lines << "#{indent}                  cst: CST_METADATA, cst_kinds: CST_KIND_MODEL," if cst?
         lines << "#{indent}                  exact_expected_tokens: true," if @grammar.mode == :extended
         lines << "#{indent}                  tokens: TOKEN_IDS, token_names: TOKEN_NAMES, actions: ACTIONS,"
         lines << "#{indent}                  gotos: GOTOS, default_actions: DEFAULT_ACTIONS,"

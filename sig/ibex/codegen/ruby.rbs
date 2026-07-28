@@ -69,6 +69,9 @@ module Ibex
       # @rbs (Array[String] lines) -> void
       def append_tables: (Array[String] lines) -> void
 
+      # @rbs (Array[String] lines, String indent) -> void
+      def append_cst_metadata: (Array[String] lines, String indent) -> void
+
       # @rbs (Array[String] lines, String indent, Tables::TableSet table_set) -> void
       def append_parser_tables: (Array[String] lines, String indent, Tables::TableSet table_set) -> void
 

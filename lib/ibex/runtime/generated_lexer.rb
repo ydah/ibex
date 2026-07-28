@@ -10,6 +10,8 @@ module Ibex
     # @rbs module-self Parser
     module GeneratedLexer
       NO_EMISSION = Object.new.freeze #: Object
+      empty_green_trivia = [] # @type var empty_green_trivia: Array[CST::GreenTrivia]
+      EMPTY_GREEN_TRIVIA = empty_green_trivia.freeze #: Array[CST::GreenTrivia]
 
       # @rbs @lexer_input: LexerInput?
       # @rbs @lexer_file: String
@@ -21,7 +23,11 @@ module Ibex
       # @rbs @lexer_lexeme: String?
       # @rbs @lexer_emission: Object | Array[untyped]
       # @rbs @lexer_skip_requested: bool
-      # @rbs @lexer_pending_trivia: Array[CST::Trivia | CST::GreenTrivia]
+      # @rbs @lexer_pending_trivia: Array[CST::Trivia]
+      # @rbs @lexer_pending_green_trivia: Array[CST::GreenTrivia]
+      # @rbs @lexer_cst_trivia_policy: Symbol
+      # @rbs @lexer_red_green_cst: bool
+      # @rbs @lexer_cst_trivia_kinds: Hash[String, Integer]?
       # @rbs @lexer_has_token: bool
 
       # Reset the generated lexer to the beginning of an input.
@@ -38,6 +44,8 @@ module Ibex
         @lexer_emission = NO_EMISSION
         @lexer_skip_requested = false
         @lexer_pending_trivia = []
+        @lexer_pending_green_trivia = []
+        configure_lexer_cst
         @lexer_has_token = false
         self
       end
@@ -100,16 +108,17 @@ module Ibex
 
         loop do
           unless ensure_lexer_data?(input)
-            location = lexer_zero_width_location.merge(ibex_lexer_start_state: lexer_state).freeze
+            location = lexer_zero_width_location
+            location[:ibex_lexer_start_state] = lexer_state
             location = attach_cst_trivia(location) if red_green_cst?
-            return [nil, nil, location]
+            return [nil, nil, location.freeze]
           end
 
           rule, lexeme = select_lexer_match(input)
           raise_lexer_no_match(input) unless rule && lexeme
 
           location = consume_lexer_match(input, lexeme)
-                     .merge(ibex_lexer_start_state: lexer_state).freeze
+          location[:ibex_lexer_start_state] = lexer_state
           emitted = apply_lexer_rule(rule, lexeme, location)
           return emitted if emitted
         end
@@ -177,7 +186,7 @@ module Ibex
                  ""
                end
         text = "" if token_id == Parser::EOF_TOKEN
-        cache.intern_token(CST::GreenToken.new(kind: token_id, text: text, leading: leading))
+        cache.intern_token_fields(kind: token_id, text: text, leading: leading)
       end
 
       # @rbs (Array[CST::GreenToken] tokens, untyped location, CST::NodeCache cache) -> void
@@ -186,15 +195,13 @@ module Ibex
         previous = tokens.last
         return if trailing.empty? || !previous
 
-        tokens[-1] = cache.intern_token(
-          CST::GreenToken.new(
-            kind: previous.kind,
-            text: previous.text,
-            leading: previous.leading,
-            trailing: previous.trailing + trailing,
-            flags: previous.flags,
-            expected_kind: previous.expected_kind
-          )
+        tokens[-1] = cache.intern_token_fields(
+          kind: previous.kind,
+          text: previous.text,
+          leading: previous.leading,
+          trailing: previous.trailing + trailing,
+          flags: previous.flags,
+          expected_kind: previous.expected_kind
         )
       end
 
@@ -245,9 +252,9 @@ module Ibex
 
       # @rbs (LexerInput input) -> bot
       def raise_lexer_no_match(input)
-        location = lexer_zero_width_location.merge(
-          ibex_cst_unmatched_text: input.buffer.dup.freeze
-        ).freeze
+        location = lexer_zero_width_location
+        location[:ibex_cst_unmatched_text] = input.buffer.dup.freeze
+        location.freeze
         excerpt = input.buffer.slice(0, 16)
         raise ParseError.new(
           token_name: "lexer input", token_value: excerpt, location: location,
@@ -281,21 +288,24 @@ module Ibex
         value = action ? __send__(action, lexeme) : lexeme
         emission = @lexer_emission
         if emission.is_a?(Array)
-          attached = attach_cst_trivia(location.merge(ibex_cst_text: lexeme).freeze)
+          location[:ibex_cst_text] = lexeme
+          attached = attach_cst_trivia(location)
           @lexer_has_token = true
-          return [emission.fetch(0), emission.fetch(1), attached]
+          return [emission.fetch(0), emission.fetch(1), attached.freeze]
         end
 
         if @lexer_skip_requested
-          retain_cst_trivia(lexeme, location)
+          retain_cst_trivia(lexeme, location.freeze)
           return nil
         end
         if rule.fetch(:kind) == :token
-          attached = attach_cst_trivia(location.merge(ibex_cst_text: lexeme).freeze)
+          location[:ibex_cst_text] = lexeme
+          attached = attach_cst_trivia(location)
           @lexer_has_token = true
-          return [rule.fetch(:token), value, attached]
+          return [rule.fetch(:token), value, attached.freeze]
         end
 
+        location.freeze
         raise ParseError, "#{location.fetch(:file)}:#{location.fetch(:line)}:" \
                           "#{location.fetch(:column)}: on lexer rule did not emit or skip"
       ensure
@@ -327,63 +337,74 @@ module Ibex
       def retain_cst_trivia(text, location)
         return if cst_trivia_policy == :drop
 
-        value = if red_green_cst?
-                  CST::GreenTrivia.new(kind: cst_trivia_kind(text), text: text)
-                else
-                  CST::Trivia.new(text: text, location: location)
-                end
-        @lexer_pending_trivia << value
+        if red_green_cst?
+          kind = cst_trivia_kind(text)
+          cache = @green_cache
+          value = if cache
+                    cache.intern_trivia_fields(kind: kind, text: text)
+                  else
+                    CST::GreenTrivia.new(kind: kind, text: text)
+                  end
+          @lexer_pending_green_trivia << value
+        else
+          @lexer_pending_trivia << CST::Trivia.new(text: text, location: location)
+        end
       end
 
       # @rbs (Hash[Symbol, untyped] location) -> Hash[Symbol, untyped]
       def attach_cst_trivia(location)
-        trivia = @lexer_pending_trivia
-        return location if trivia.empty? || cst_trivia_policy == :drop
+        policy = cst_trivia_policy
+        if red_green_cst?
+          trivia = @lexer_pending_green_trivia
+          return location if trivia.empty? || policy == :drop
 
-        leading = trivia.dup
-        trailing = [] #: Array[CST::GreenTrivia]
-        if red_green_cst? && cst_trivia_policy == :balanced && @lexer_has_token
-          green = green_trivia_values(leading)
-          trailing, leading = split_balanced_trivia(green)
+          @lexer_pending_green_trivia = []
+          if policy == :balanced && @lexer_has_token
+            trailing, leading = split_balanced_trivia(trivia)
+          else
+            leading = trivia.freeze
+            trailing = EMPTY_GREEN_TRIVIA
+          end
+        else
+          trivia = @lexer_pending_trivia
+          return location if trivia.empty? || policy == :drop
+
+          @lexer_pending_trivia = []
+          leading = trivia.freeze
+          trailing = EMPTY_GREEN_TRIVIA
         end
-        attached = location.merge(
-          leading_trivia: leading.freeze,
-          cst_previous_trailing: trailing.freeze
-        ).freeze
-        trivia.clear
-        attached
+        location[:leading_trivia] = leading.freeze
+        location[:cst_previous_trailing] = trailing.freeze
+        location
       end
 
       # @rbs () -> Array[CST::Trivia]
       def take_cst_trailing_trivia
         trivia = @lexer_pending_trivia
         result = if cst_trivia_policy == :leading && !red_green_cst?
-                   trivia.grep(CST::Trivia).freeze
+                   trivia.freeze
                  else
-                   Array.new(0).freeze
+                   EMPTY_GREEN_TRIVIA
                  end #: Array[CST::Trivia]
-        trivia.clear
+        @lexer_pending_trivia = []
         result
       end
 
       # @rbs () -> Symbol
       def cst_trivia_policy
-        config = parser_tables[:cst]
-        return config.fetch(:trivia_policy) if config.is_a?(Hash)
-
-        policy = parser_tables.fetch(:cst_trivia, :drop)
-        policy == :attach ? :leading : policy
+        configure_lexer_cst unless defined?(@lexer_cst_trivia_policy)
+        @lexer_cst_trivia_policy
       end
 
       # @rbs () -> bool
       def red_green_cst?
-        parser_tables.fetch(:format_version) >= 6 && parser_tables[:cst].is_a?(Hash)
+        configure_lexer_cst unless defined?(@lexer_red_green_cst)
+        @lexer_red_green_cst
       end
 
       # @rbs (String text) -> Integer
       def cst_trivia_kind(text)
-        config = parser_tables.fetch(:cst)
-        kinds = config.fetch(:kinds).fetch(:trivia)
+        kinds = @lexer_cst_trivia_kinds || raise(ParseError, "(lexer):1:1: CST trivia kinds are unavailable")
         name = if text.include?("\n")
                  "newline"
                elsif text.match?(/\A[[:space:]]+\z/)
@@ -398,8 +419,26 @@ module Ibex
         kinds.fetch(name)
       end
 
+      # @rbs () -> void
+      def configure_lexer_cst
+        tables = parser_tables
+        config = tables[:cst]
+        @lexer_red_green_cst = tables.fetch(:format_version) >= 6 && config.is_a?(Hash)
+        if config.is_a?(Hash)
+          @lexer_cst_trivia_policy = config.fetch(:trivia_policy)
+          @lexer_cst_trivia_kinds = config.fetch(:kinds).fetch(:trivia)
+          return
+        end
+
+        policy = tables.fetch(:cst_trivia, :drop)
+        @lexer_cst_trivia_policy = policy == :attach ? :leading : policy
+        @lexer_cst_trivia_kinds = nil
+      end
+
       # @rbs (Array[CST::GreenTrivia] trivia) -> [Array[CST::GreenTrivia], Array[CST::GreenTrivia]]
       def split_balanced_trivia(trivia)
+        return [trivia.freeze, EMPTY_GREEN_TRIVIA] unless trivia.any? { |item| item.text.include?("\n".b) }
+
         before = [] #: Array[CST::GreenTrivia]
         after = [] #: Array[CST::GreenTrivia]
         found = false
@@ -432,9 +471,9 @@ module Ibex
 
       # @rbs () -> Array[CST::GreenTrivia]
       def take_cst_pending_green_trivia
-        values = green_trivia_values(@lexer_pending_trivia)
-        @lexer_pending_trivia.clear
-        values
+        values = @lexer_pending_green_trivia
+        @lexer_pending_green_trivia = []
+        values.freeze
       end
 
       # @rbs (Array[CST::Trivia | CST::GreenTrivia] values) -> Array[CST::GreenTrivia]

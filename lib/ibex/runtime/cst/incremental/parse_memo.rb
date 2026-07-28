@@ -56,15 +56,24 @@ module Ibex
 
         # Lightweight construction tree flattened once when a parse completes.
         class Entry
+          empty_children = [] # @type var empty_children: Array[Entry]
+          EMPTY_CHILDREN = empty_children.freeze #: Array[Entry]
+
           # @rbs @state: Integer?
           # @rbs @children: Array[Entry]
           # @rbs @segment: Array[Integer?]?
 
           # @rbs (Integer? state, ?children: Array[Entry], ?segment: Array[Integer?]?) -> void
-          def initialize(state, children: [], segment: nil)
+          def initialize(state, children: EMPTY_CHILDREN, segment: nil)
             @state = state
-            @children = children.dup.freeze
-            @segment = segment&.dup&.freeze
+            @children = if children.empty?
+                          EMPTY_CHILDREN
+                        elsif children.frozen?
+                          children
+                        else
+                          children.dup.freeze
+                        end
+            @segment = segment&.then { |values| values.frozen? ? values : values.dup.freeze }
             freeze
           end
 

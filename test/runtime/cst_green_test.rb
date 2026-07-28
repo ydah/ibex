@@ -55,6 +55,23 @@ class CSTGreenTest < Minitest::Test
     assert_equal large_a.to_source, large_b.to_source
   end
 
+  def test_cache_interns_token_fields_before_constructing_a_duplicate
+    cache = Ibex::Runtime::CST::NodeCache.new
+    first = cache.intern_token_fields(kind: 2, text: "x")
+    second = cache.intern_token_fields(kind: 2, text: "x")
+
+    assert_same first, second
+    assert_equal Ibex::Runtime::CST::GreenToken.new(kind: 2, text: "x"), first
+  end
+
+  def test_cache_interns_equivalent_trivia_fields
+    cache = Ibex::Runtime::CST::NodeCache.new
+    first = cache.intern_trivia_fields(kind: kind(:whitespace), text: " ")
+    second = cache.intern_trivia_fields(kind: kind(:whitespace), text: " ")
+
+    assert_same first, second
+  end
+
   def test_cache_enabled_and_disabled_trees_have_identical_structure_source_and_dump
     cached = repeated_root(Ibex::Runtime::CST::NodeCache.new)
     uncached = repeated_root(Ibex::Runtime::CST::NodeCache.new(enabled: false))
