@@ -20,7 +20,7 @@ RUBY_ENTRIES = %w[
   lib/ibex/lalr.rb
 ].freeze
 REQUIRE_RELATIVE = /^\s*require_relative\s+["']([^"']+)["'].*$/
-EMBEDDED_REQUIRE = %r{^\s*require\s+["']ibex/(?:runtime|tables)["'].*$}
+INTERNAL_REQUIRE = %r{^\s*require\s+["'](ibex/[^"']+)["'].*$}
 
 def ruby_dependency_order(entries)
   visited = {}
@@ -38,6 +38,12 @@ def ruby_dependency_order(entries)
 
       visit.call(dependency)
     end
+    source.scan(INTERNAL_REQUIRE).flatten.each do |relative|
+      dependency = ROOT.join("lib", "#{relative}.rb")
+      raise "missing Ruby dependency #{dependency.relative_path_from(ROOT)}" unless dependency.file?
+
+      visit.call(dependency)
+    end
     order << path
   end
   entries.each { |entry| visit.call(ROOT.join(entry)) }
@@ -47,7 +53,7 @@ end
 def bundled_ruby_source
   files = ruby_dependency_order(RUBY_ENTRIES)
   sections = files.map do |path|
-    source = path.read.gsub(REQUIRE_RELATIVE, "").gsub(EMBEDDED_REQUIRE, "")
+    source = path.read.gsub(REQUIRE_RELATIVE, "").gsub(INTERNAL_REQUIRE, "")
     "# source: #{path.relative_path_from(ROOT)}\n#{source}"
   end
   [

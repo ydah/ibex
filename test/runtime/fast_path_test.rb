@@ -5,6 +5,15 @@ require "stringio"
 
 # rubocop:disable Metrics/ClassLength -- all gates exercise one session-eligibility contract.
 class RuntimeFastPathTest < Minitest::Test
+  def self.shareable_tables(tables)
+    return tables unless Object.const_defined?(:Ractor, false)
+
+    ractor = Object.const_get(:Ractor, false)
+    return tables unless ractor.respond_to?(:make_shareable)
+
+    ractor.make_shareable(tables)
+  end
+
   class DeceptiveLocation
     attr_reader :file, :line, :column, :end_line, :end_column
 
@@ -157,20 +166,15 @@ class RuntimeFastPathTest < Minitest::Test
   end
 
   class CompactActionlessProbe < ActionlessProbe
-    TABLES = begin
-      tables = ActionlessProbe::TABLES.merge(
+    TABLES = RuntimeFastPathTest.shareable_tables(
+      ActionlessProbe::TABLES.merge(
         compact_fast_driver: true,
         compact_default_actions: [],
         actions: Ibex::Tables::CompactActions.build(ActionlessProbe::TABLES.fetch(:actions)),
         gotos: Ibex::Tables::Compact.build(ActionlessProbe::TABLES.fetch(:gotos)),
         productions: Ibex::Tables::CompactProductions.build(ActionlessProbe::TABLES.fetch(:productions))
       )
-      if Object.const_defined?(:Ractor, false) && Object.const_get(:Ractor).respond_to?(:make_shareable)
-        Object.const_get(:Ractor).make_shareable(tables)
-      else
-        tables
-      end
-    end
+    )
 
     attr_reader :generic_actions
 
@@ -190,7 +194,7 @@ class RuntimeFastPathTest < Minitest::Test
   end
 
   class CompactValuesActionProbe < ValuesActionProbe
-    TABLES = Ractor.make_shareable(
+    TABLES = RuntimeFastPathTest.shareable_tables(
       ValuesActionProbe::TABLES.merge(
         compact_fast_driver: true,
         compact_default_actions: [],
