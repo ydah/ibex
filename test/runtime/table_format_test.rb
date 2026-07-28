@@ -54,6 +54,13 @@ class RuntimeTableFormatTest < Minitest::Test
     def self.parser_tables = TABLES
   end
 
+  class LegacyCSTParser < CurrentParser
+    TABLES = CurrentParser::TABLES.merge(cst: true).freeze
+
+    def self.parser_tables = TABLES
+    def next_token = raise("legacy CST parser read a token")
+  end
+
   class FutureParser < CurrentParser
     TABLES = CurrentParser::TABLES.merge(
       format_version: Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION + 1
@@ -108,6 +115,14 @@ class RuntimeTableFormatTest < Minitest::Test
     assert_nil VersionThreeParser.new.do_parse
     assert_nil VersionFourParser.new.do_parse
     assert_nil VersionFiveParser.new.do_parse
+  end
+
+  def test_legacy_cst_tables_fail_before_reading_tokens
+    error = assert_raises(Ibex::Runtime::ParseError) { LegacyCSTParser.new.do_parse }
+
+    assert_match(/\(tables\):1:1:/, error.message)
+    assert_match(/legacy CST parser tables are unsupported/, error.message)
+    assert_match(/regenerate/i, error.message)
   end
 
   def test_missing_parser_table_format_version_fails_before_reading_tokens

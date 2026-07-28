@@ -181,9 +181,7 @@ module Ibex
 
       @semantic_locations: Array[untyped]?
 
-      @semantic_location_names: Hash[Symbol, Integer]?
-
-      @legacy_cst_warning_emitted: bool
+      @incremental_reused_descendants: Integer
 
       @accept_requested: bool
 
@@ -212,8 +210,6 @@ module Ibex
       @yydebug_output: IO
 
       @yydebug: bool
-
-      @incremental_reused_descendants: Integer
 
       @green_reused_right_edge: bool
 
@@ -257,8 +253,6 @@ module Ibex
 
       @green_builder: CST::GreenBuilder?
 
-      @cst_errors: Array[CST::Error]
-
       @sync_recovery_observers: Array[Proc]?
 
       @sync_recovery_token_data: Hash[String, untyped]?
@@ -268,6 +262,8 @@ module Ibex
       @trace_value_printer: (^(untyped) -> untyped)?
 
       @semantic_result_location: untyped
+
+      @semantic_location_names: Hash[Symbol, Integer]?
 
       attr_reader syntax_parse_memo: CST::ParseMemo?
 
@@ -514,6 +510,9 @@ module Ibex
       # @rbs () -> Hash[Symbol, untyped]
       def validate_parser_table_format!: () -> Hash[Symbol, untyped]
 
+      # @rbs (Hash[Symbol, untyped] tables, Integer actual) -> void
+      def validate_current_cst_tables!: (Hash[Symbol, untyped] tables, Integer actual) -> void
+
       # Generated parser tables are deeply frozen before they can cross a
       # Ractor boundary. Their action-marker contract only needs one scan per
       # parser class and exact table object, including across parser instances.
@@ -618,33 +617,17 @@ module Ibex
       # @rbs () -> bool
       def cst_enabled?: () -> bool
 
-      # @rbs () -> bool
-      def red_green_cst?: () -> bool
-
-      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
-      #   Array[untyped] locations, LocationSpan? location) -> CST::Node
-      def cst_reduction_value: (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> CST::Node
-
-      # @rbs (Integer symbol_id, untyped value, untyped location) -> CST::Token
-      def cst_token: (Integer symbol_id, untyped value, untyped location) -> CST::Token
-
       # @rbs (Integer token_id, untyped value, untyped location, Symbol reason) -> void
       def capture_cst_error: (Integer token_id, untyped value, untyped location, Symbol reason) -> void
 
-      # @rbs (untyped value) -> CST::Node
-      def finalize_cst: (untyped value) -> CST::Node
+      # @rbs (untyped value) -> untyped
+      def finalize_cst: (untyped value) -> untyped
 
-      # @rbs () -> void
-      def warn_legacy_cst!: () -> void
+      # @rbs () -> nil
+      def failed_cst: () -> nil
 
-      # @rbs () -> CST::Node?
-      def failed_cst: () -> CST::Node?
-
-      # @rbs (ParseError error) -> CST::Node?
-      def cst_lexical_failure: (ParseError error) -> CST::Node?
-
-      # @rbs (Integer symbol_id) -> String
-      def cst_symbol_name: (Integer symbol_id) -> String
+      # @rbs (ParseError error) -> nil
+      def cst_lexical_failure: (ParseError error) -> nil
 
       # @rbs (untyped location, Symbol key) -> untyped
       def cst_location_value: (untyped location, Symbol key) -> untyped
@@ -721,8 +704,8 @@ module Ibex
       # @rbs () -> untyped
       def continue_recovery: () -> untyped
 
-      # @rbs () -> [:done, CST::Node?]
-      def reject_recovery_eof: () -> [ :done, CST::Node? ]
+      # @rbs () -> [:done, nil]
+      def reject_recovery_eof: () -> [ :done, nil ]
 
       # @rbs (String token_display) -> Hash[String, untyped]
       def runtime_discard_data: (String token_display) -> Hash[String, untyped]
@@ -754,8 +737,8 @@ module Ibex
 
       # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,
       #   Integer original_state, Hash[String, untyped]? token_data,
-      #   Array[Proc]? observers) -> [:done, CST::Node?]
-      def reject_without_recovery: (untyped token_id, untyped token_display, untyped value, untyped location, Integer original_state, Hash[String, untyped]? token_data, Array[Proc]? observers) -> [ :done, CST::Node? ]
+      #   Array[Proc]? observers) -> [:done, nil]
+      def reject_without_recovery: (untyped token_id, untyped token_display, untyped value, untyped location, Integer original_state, Hash[String, untyped]? token_data, Array[Proc]? observers) -> [ :done, nil ]
 
       # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,
       #   Integer original_state, Array[untyped] value_stack, Hash[String, untyped]? token_data,

@@ -154,7 +154,7 @@ class CSTRuntimeIntegrationTest < Minitest::Test # rubocop:disable Metrics/Class
     assert_operator result.diagnostics.length, :>=, 1
   end
 
-  def test_format_five_tables_keep_the_legacy_cst_path
+  def test_format_five_cst_tables_require_regeneration
     parser_class = generate(BALANCED_SOURCE)
     current = parser_class.parser_tables
     legacy = current.merge(
@@ -167,17 +167,13 @@ class CSTRuntimeIntegrationTest < Minitest::Test # rubocop:disable Metrics/Class
     legacy_class = Class.new(parser_class)
     legacy_class.define_singleton_method(:parser_tables) { legacy }
 
-    tree = nil
-    _stdout, stderr = capture_io do
-      parser = legacy_class.new
-      tree = parser.parse("1 + 2 ")
-      parser.parse("3 + 4")
-    end
+    error = assert_raises(Ibex::Runtime::ParseError) { legacy_class.new.parse("1 + 2 ") }
 
-    assert_instance_of Ibex::Runtime::CST::Node, tree
-    assert_equal "start", tree.symbol
-    assert_equal [" "], tree.trailing_trivia.map(&:text)
-    assert_equal 1, stderr.scan("legacy format-v1-v5 CST values are deprecated").length
+    assert_match(/legacy CST parser tables are unsupported/, error.message)
+    assert_match(/regenerate/, error.message)
+    %i[Trivia Token Missing Error Node].each do |name|
+      refute Ibex::Runtime::CST.const_defined?(name, false)
+    end
   end
 
   def test_error_and_trivia_paths_match_the_golden_snapshot

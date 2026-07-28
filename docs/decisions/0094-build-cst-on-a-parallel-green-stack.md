@@ -33,8 +33,9 @@ start node and an explicit EOF token. `parse_with_syntax` returns
 and `yyparse` retain their semantic return contracts.
 
 The opt-in boundary is parser-table regeneration. Format v6 embeds structured
-`cst` metadata and selects the Green path. Formats v1 through v5 retain the
-legacy CST implementation for one compatibility series.
+`cst` metadata and selects the Green path. Formats v1 through v5 retain only
+their non-CST action ABI; obsolete CST tables require regeneration under
+ADR 0099.
 
 ## Compatibility
 
@@ -52,9 +53,10 @@ The semantic value remains `ParseResult#value`. The start node is
 The parallel Green stack is exercised across ordinary shifts/reductions,
 multiple start entries, lexical failure, yacc pop and panic discard, bounded
 repair insertion/replacement, unrecoverable synthetic roots, and early
-acceptance. A format-v5 regression test continues through the legacy path.
-Action-bearing grammar tests confirm semantic values stay on the value stack
-while syntax children remain nodes.
+acceptance. Format-v5 regressions verify CST rejection before token
+consumption while non-CST tables remain executable. Action-bearing grammar
+tests confirm semantic values stay on the value stack while syntax children
+remain nodes.
 
 ## Consequences
 

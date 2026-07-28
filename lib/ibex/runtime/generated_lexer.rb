@@ -23,10 +23,8 @@ module Ibex
       # @rbs @lexer_lexeme: String?
       # @rbs @lexer_emission: Object | Array[untyped]
       # @rbs @lexer_skip_requested: bool
-      # @rbs @lexer_pending_trivia: Array[CST::Trivia]
       # @rbs @lexer_pending_green_trivia: Array[CST::GreenTrivia]
       # @rbs @lexer_cst_trivia_policy: Symbol
-      # @rbs @lexer_red_green_cst: bool
       # @rbs @lexer_cst_trivia_kinds: Hash[String, Integer]?
       # @rbs @lexer_has_token: bool
 
@@ -43,7 +41,6 @@ module Ibex
         @lexer_lexeme = nil
         @lexer_emission = NO_EMISSION
         @lexer_skip_requested = false
-        @lexer_pending_trivia = []
         @lexer_pending_green_trivia = []
         configure_lexer_cst
         @lexer_has_token = false
@@ -57,7 +54,7 @@ module Ibex
         parser = self #: Parser
         parser.do_parse
       rescue ParseError => e
-        raise unless parser_tables[:cst]
+        raise unless parser_tables[:cst].is_a?(Hash)
 
         parser = self #: Parser
         parser.__send__(:cst_lexical_failure, e)
@@ -71,7 +68,7 @@ module Ibex
         value = parser.do_parse
         parser.__send__(:syntax_parse_result, value)
       rescue ParseError => e
-        raise unless parser_tables[:cst]
+        raise unless parser_tables[:cst].is_a?(Hash)
 
         parser = self #: Parser
         value = parser.__send__(:cst_lexical_failure, e)
@@ -110,7 +107,7 @@ module Ibex
           unless ensure_lexer_data?(input)
             location = lexer_zero_width_location
             location[:ibex_lexer_start_state] = lexer_state
-            location = attach_cst_trivia(location) if red_green_cst?
+            location = attach_cst_trivia(location) if cst_enabled?
             return [nil, nil, location.freeze]
           end
 
@@ -134,7 +131,7 @@ module Ibex
           value = begin
             parser.do_parse
           rescue ParseError => e
-            raise unless parser_tables[:cst]
+            raise unless parser_tables[:cst].is_a?(Hash)
 
             parser.__send__(:cst_lexical_failure, e)
           end
@@ -334,42 +331,29 @@ module Ibex
       end
 
       # @rbs (String text, Hash[Symbol, untyped] location) -> void
-      def retain_cst_trivia(text, location)
+      def retain_cst_trivia(text, _location)
         return if cst_trivia_policy == :drop
 
-        if red_green_cst?
-          kind = cst_trivia_kind(text)
-          cache = @green_cache
-          value = if cache
-                    cache.intern_trivia_fields(kind: kind, text: text)
-                  else
-                    CST::GreenTrivia.new(kind: kind, text: text)
-                  end
-          @lexer_pending_green_trivia << value
-        else
-          @lexer_pending_trivia << CST::Trivia.new(text: text, location: location)
-        end
+        kind = cst_trivia_kind(text)
+        cache = @green_cache
+        value = if cache
+                  cache.intern_trivia_fields(kind: kind, text: text)
+                else
+                  CST::GreenTrivia.new(kind: kind, text: text)
+                end
+        @lexer_pending_green_trivia << value
       end
 
       # @rbs (Hash[Symbol, untyped] location) -> Hash[Symbol, untyped]
       def attach_cst_trivia(location)
         policy = cst_trivia_policy
-        if red_green_cst?
-          trivia = @lexer_pending_green_trivia
-          return location if trivia.empty? || policy == :drop
+        trivia = @lexer_pending_green_trivia
+        return location if trivia.empty? || policy == :drop
 
-          @lexer_pending_green_trivia = []
-          if policy == :balanced && @lexer_has_token
-            trailing, leading = split_balanced_trivia(trivia)
-          else
-            leading = trivia.freeze
-            trailing = EMPTY_GREEN_TRIVIA
-          end
+        @lexer_pending_green_trivia = []
+        if policy == :balanced && @lexer_has_token
+          trailing, leading = split_balanced_trivia(trivia)
         else
-          trivia = @lexer_pending_trivia
-          return location if trivia.empty? || policy == :drop
-
-          @lexer_pending_trivia = []
           leading = trivia.freeze
           trailing = EMPTY_GREEN_TRIVIA
         end
@@ -378,28 +362,10 @@ module Ibex
         location
       end
 
-      # @rbs () -> Array[CST::Trivia]
-      def take_cst_trailing_trivia
-        trivia = @lexer_pending_trivia
-        result = if cst_trivia_policy == :leading && !red_green_cst?
-                   trivia.freeze
-                 else
-                   EMPTY_GREEN_TRIVIA
-                 end #: Array[CST::Trivia]
-        @lexer_pending_trivia = []
-        result
-      end
-
       # @rbs () -> Symbol
       def cst_trivia_policy
         configure_lexer_cst unless defined?(@lexer_cst_trivia_policy)
         @lexer_cst_trivia_policy
-      end
-
-      # @rbs () -> bool
-      def red_green_cst?
-        configure_lexer_cst unless defined?(@lexer_red_green_cst)
-        @lexer_red_green_cst
       end
 
       # @rbs (String text) -> Integer
@@ -423,15 +389,13 @@ module Ibex
       def configure_lexer_cst
         tables = parser_tables
         config = tables[:cst]
-        @lexer_red_green_cst = tables.fetch(:format_version) >= 6 && config.is_a?(Hash)
         if config.is_a?(Hash)
           @lexer_cst_trivia_policy = config.fetch(:trivia_policy)
           @lexer_cst_trivia_kinds = config.fetch(:kinds).fetch(:trivia)
           return
         end
 
-        policy = tables.fetch(:cst_trivia, :drop)
-        @lexer_cst_trivia_policy = policy == :attach ? :leading : policy
+        @lexer_cst_trivia_policy = :drop
         @lexer_cst_trivia_kinds = nil
       end
 
@@ -476,7 +440,7 @@ module Ibex
         values.freeze
       end
 
-      # @rbs (Array[CST::Trivia | CST::GreenTrivia] values) -> Array[CST::GreenTrivia]
+      # @rbs (Array[CST::GreenTrivia] values) -> Array[CST::GreenTrivia]
       def green_trivia_values(values)
         result = [] #: Array[CST::GreenTrivia]
         values.each { |item| result << item if item.is_a?(CST::GreenTrivia) }

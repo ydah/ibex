@@ -296,7 +296,6 @@ module Ibex
       # @rbs @sync_recovery_context: Hash[Symbol, untyped]?
       # @rbs @sync_recovery_token_data: Hash[String, untyped]?
       # @rbs @sync_recovery_observers: Array[Proc]?
-      # @rbs @cst_errors: Array[CST::Error]
       # @rbs @green_builder: CST::GreenBuilder?
       # @rbs @green_kinds: CST::Kind?
       # @rbs @green_cache: CST::NodeCache?
@@ -319,7 +318,6 @@ module Ibex
       # @rbs @syntax_parse_memo: CST::ParseMemo?
       # @rbs @green_reused_right_edge: bool
       # @rbs @incremental_reused_descendants: Integer
-      # @rbs @legacy_cst_warning_emitted: bool
 
       attr_reader :syntax_parse_memo #: CST::ParseMemo?
       attr_reader :incremental_reused_descendants #: Integer
@@ -734,7 +732,6 @@ module Ibex
         @sync_recovery_context = nil unless preserve_existing && defined?(@sync_recovery_context)
         @sync_recovery_token_data = nil unless preserve_existing && defined?(@sync_recovery_token_data)
         @sync_recovery_observers = nil unless preserve_existing && defined?(@sync_recovery_observers)
-        @cst_errors = [] unless preserve_existing && defined?(@cst_errors)
         @green_builder = nil unless preserve_existing && defined?(@green_builder)
         @green_kinds = nil unless preserve_existing && defined?(@green_kinds)
         @green_cache = nil unless preserve_existing && defined?(@green_cache)
@@ -760,8 +757,6 @@ module Ibex
         @green_reused_right_edge = false unless preserve_existing && defined?(@green_reused_right_edge)
         @incremental_reused_descendants = 0 unless
           preserve_existing && defined?(@incremental_reused_descendants)
-        @legacy_cst_warning_emitted = false unless
-          preserve_existing && defined?(@legacy_cst_warning_emitted)
       end
       # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
@@ -1301,11 +1296,23 @@ module Ibex
                 "regenerate the parser with the installed Ibex version"
         end
 
+        validate_current_cst_tables!(tables, actual)
         if actual >= 3 && !generated_action_contracts_validated?(tables)
           validate_generated_action_contracts!(tables, actual)
           cache_generated_action_contracts!(tables)
         end
         tables
+      end
+
+      # @rbs (Hash[Symbol, untyped] tables, Integer actual) -> void
+      def validate_current_cst_tables!(tables, actual)
+        cst = tables[:cst]
+        return if cst.nil? || cst == false
+        return if actual == PARSER_TABLE_FORMAT_VERSION && cst.is_a?(Hash)
+
+        raise ParseError,
+              "(tables):1:1: legacy CST parser tables are unsupported; " \
+              "regenerate the parser with the installed Ibex version"
       end
 
       # Generated parser tables are deeply frozen before they can cross a
@@ -1732,10 +1739,8 @@ module Ibex
 
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
       #   Array[untyped] locations, LocationSpan? location) -> untyped
-      def actionless_reduction_value(production_id, production, values, locations, location)
-        return values.first unless cst_enabled? && !red_green_cst?
-
-        cst_reduction_value(production_id, production, values, locations, location)
+      def actionless_reduction_value(_production_id, _production, values, _locations, _location)
+        values.first
       end
 
       # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
@@ -1773,49 +1778,7 @@ module Ibex
 
       # @rbs () -> bool
       def cst_enabled?
-        !parser_tables[:cst].nil? && parser_tables[:cst] != false
-      end
-
-      # @rbs () -> bool
-      def red_green_cst?
-        parser_tables.fetch(:format_version) >= 6 && parser_tables[:cst].is_a?(Hash)
-      end
-
-      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
-      #   Array[untyped] locations, LocationSpan? location) -> CST::Node
-      def cst_reduction_value(production_id, production, values, locations, location)
-        rhs = production.fetch(:rhs)
-        children = @cst_errors.dup #: Array[CST::Token | CST::Node]
-        @cst_errors.clear
-        rhs.each_with_index do |symbol_id, index|
-          value = values[index]
-          child = if value.is_a?(CST::Token) || value.is_a?(CST::Node)
-                    value
-                  else
-                    cst_token(symbol_id, value, locations[index])
-                  end
-          children << child
-        end
-        CST::Node.new(
-          symbol: cst_symbol_name(production.fetch(:lhs)), production_id: production_id,
-          children: children, location: location
-        )
-      end
-
-      # @rbs (Integer symbol_id, untyped value, untyped location) -> CST::Token
-      def cst_token(symbol_id, value, location)
-        symbol = cst_symbol_name(symbol_id)
-        repair = cst_location_value(location, :ibex_repair)
-        trivia = cst_location_value(location, :leading_trivia)
-        leading = trivia.is_a?(Array) ? trivia.grep(CST::Trivia) : [] #: Array[CST::Trivia]
-        if repair == :insert
-          CST::Missing.new(symbol: symbol, value: value, location: location, leading_trivia: leading)
-        elsif repair == :replace || symbol == "error"
-          CST::Error.new(symbol: symbol, value: value, location: location, reason: repair || :syntax,
-                         leading_trivia: leading)
-        else
-          CST::Token.new(symbol: symbol, value: value, location: location, leading_trivia: leading)
-        end
+        parser_tables[:cst].is_a?(Hash)
       end
 
       # @rbs (Integer token_id, untyped value, untyped location, Symbol reason) -> void
@@ -1823,89 +1786,29 @@ module Ibex
         return unless cst_enabled?
         return if token_id == EOF_TOKEN
 
-        if red_green_cst?
-          @syntax_diagnostics << {
-            token_id: token_id, value: value, location: location, reason: reason
-          }.freeze
-          return
-        end
-
-        @cst_errors << CST::Error.new(
-          symbol: token_to_str(token_id), value: value, location: location, reason: reason
-        )
+        @syntax_diagnostics << {
+          token_id: token_id, value: value, location: location, reason: reason
+        }.freeze
       end
 
-      # @rbs (untyped value) -> CST::Node
+      # @rbs (untyped value) -> untyped
       def finalize_cst(value)
         return value unless cst_enabled?
-        return finalize_red_green_cst(value) if red_green_cst?
 
-        warn_legacy_cst!
-        node = if value.is_a?(CST::Node)
-                 value
-               else
-                 child = if value.is_a?(CST::Token)
-                           value
-                         else
-                           CST::Token.new(symbol: parser_tables.fetch(:cst_start), value: value, location: nil)
-                         end
-                 CST::Node.new(
-                   symbol: parser_tables.fetch(:cst_start), production_id: -1,
-                   children: @cst_errors + [child], location: child.location
-                 )
-               end
-        @cst_errors.clear
-        return node unless respond_to?(:take_cst_trailing_trivia, true)
-
-        trailing = __send__(:take_cst_trailing_trivia)
-        trailing.empty? ? node : node.with_trailing_trivia(trailing)
+        finalize_red_green_cst(value)
       end
 
-      # @rbs () -> void
-      def warn_legacy_cst!
-        return if @legacy_cst_warning_emitted
-
-        @legacy_cst_warning_emitted = true
-        warn(
-          "ibex: legacy format-v1-v5 CST values are deprecated; regenerate the parser " \
-          "to use format-v6 Red/Green syntax (earliest removal: 0.4)"
-        )
-      end
-
-      # @rbs () -> CST::Node?
+      # @rbs () -> nil
       def failed_cst
-        if red_green_cst?
-          finalize_failed_green_cst
-          return nil
-        end
-
-        capture_cst_error(@lookahead, @lookahead_value, @lookahead_location, :syntax) if @cst_errors.empty?
-        CST::Node.new(
-          symbol: parser_tables.fetch(:cst_start), production_id: -1,
-          children: @cst_errors.dup, location: @lookahead_location
-        )
+        finalize_failed_green_cst
+        nil
       end
 
-      # @rbs (ParseError error) -> CST::Node?
+      # @rbs (ParseError error) -> nil
       def cst_lexical_failure(error)
-        if red_green_cst?
-          @syntax_diagnostics << error
-          finalize_lexical_green_cst(error)
-          return nil
-        end
-
-        error_node = CST::Error.new(
-          symbol: "lexer input", value: error.token_value, location: error.location, reason: :lexical
-        )
-        CST::Node.new(
-          symbol: parser_tables.fetch(:cst_start), production_id: -1,
-          children: [error_node], location: error.location
-        )
-      end
-
-      # @rbs (Integer symbol_id) -> String
-      def cst_symbol_name(symbol_id)
-        parser_tables.fetch(:symbol_names).fetch(symbol_id)
+        @syntax_diagnostics << error
+        finalize_lexical_green_cst(error)
+        nil
       end
 
       # @rbs (untyped location, Symbol key) -> untyped
@@ -1952,7 +1855,6 @@ module Ibex
 
       # @rbs (Hash[Symbol, untyped] tables) -> void
       def reset_cst_results(tables)
-        @cst_errors.clear
         prepare_green_cst(tables)
       end
 
@@ -2302,7 +2204,7 @@ module Ibex
         CONTINUE_OUTCOME
       end
 
-      # @rbs () -> [:done, CST::Node?]
+      # @rbs () -> [:done, nil]
       def reject_recovery_eof
         if @runtime_observers
           observers = runtime_observer_snapshot
@@ -2428,7 +2330,7 @@ module Ibex
 
       # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,
       #   Integer original_state, Hash[String, untyped]? token_data,
-      #   Array[Proc]? observers) -> [:done, CST::Node?]
+      #   Array[Proc]? observers) -> [:done, nil]
       def reject_without_recovery(token_id, token_display, value, location, original_state, token_data, observers)
         if observers
           reject_data = token_data || runtime_original_token_data(
@@ -2650,16 +2552,6 @@ module Ibex
       # @rbs (RepairInput input) -> void
       def preserve_deleted_repair_input(input)
         return unless cst_enabled?
-
-        unless red_green_cst?
-          leading = cst_location_value(input.location, :leading_trivia)
-          trivia = leading.is_a?(Array) ? leading.grep(CST::Trivia) : [] #: Array[CST::Trivia]
-          @cst_errors << CST::Error.new(
-            symbol: input.token_name, value: input.value, location: input.location,
-            reason: :delete, leading_trivia: trivia
-          )
-          return
-        end
 
         builder = @green_builder
         kinds = @green_kinds
@@ -2967,7 +2859,7 @@ module Ibex
           !@yydebug &&
           @runtime_observers.nil? &&
           @repair_policy.nil? &&
-          tables[:cst] != true &&
+          !tables[:cst] &&
           !tables.fetch(:uses_locations, false) &&
           @location_stack.nil? &&
           runtime_fast_path_hooks_eligible?

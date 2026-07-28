@@ -30,8 +30,9 @@ then deterministic named-node, trivia, and synthetic intervals. The generator
 records the complete mapping and named-kind-to-nonterminal mapping.
 
 The new CST metadata will be introduced in parser-table format v6. Formats v1
-through v5 retain their existing execution and CST behavior. Grammar IR remains
-v2.
+through v5 retain their existing non-CST execution behavior. Their CST shape
+is not part of the selected v1 contract and now requires regeneration under
+ADR 0099. Grammar IR remains v2.
 
 The P0 characterization gate found that action-bearing reductions are exposed
 inside an actionless parent as synthetic `CST::Token` values whose `symbol` is
@@ -47,8 +48,8 @@ stored under `benchmark/results/cst/`.
 
 ## Acceptance evidence
 
-The implementation uses table format v6 while retaining readers for formats
-v1–v5 and Grammar IR v2. Green constructors verify binary source widths,
+The implementation uses table format v6 while retaining non-CST readers for
+formats v1–v5 and Grammar IR v2. Green constructors verify binary source widths,
 aggregate flags, descendant counts, equality, interning, frozen state, and
 Ractor shareability. Red tests cover lazy parent/index/offset navigation and
 multiple occurrences of one interned Green value. The P0 baseline remains
@@ -81,25 +82,35 @@ still has 52 occurrences backed by 6 distinct Green identities (88.5% reuse).
 The recovery observation improves to a 1.545x Red/Green/plain ratio and remains
 recorded as a diagnostic rather than a release threshold.
 
+The version-5 current-only follow-up removes the obsolete CST measurements
+without rewriting history. On the same workload, the Red/Green path measures a
+median 937.871 ms versus 719.998 ms without CST; the median per-run ratio is
+1.302 (+30.2%). Process-wide allocations are 6,088,001 versus 5,952,001
+(+2.28%), and the fixed recovery ratio is 1.587. The six Green constructions
+and 88.5% identity reuse remain unchanged. The artifact is
+`2026-07-28-current-only-ruby-4.0.0-arm64-darwin24.json`.
+
 The design-section-17 provisional batch goals are therefore met. Timings remain
-local evidence rather than CI thresholds, and the CST stays Preview under the
-two-release field-period rule in the stability policy, not because of a known
-performance-gate failure. ADR 0098 separately records that conservative subtree
+local evidence rather than CI thresholds. ADR 0099 selects the batch CST as
+Stable for the initial v1 contract using the initial-major evidence rule; the
+incremental layer remains Experimental. ADR 0098 separately records that conservative subtree
 reuse makes Stage B 1.04–2.83x faster than Stage A and 1.66–4.48x faster than
 fresh syntax sessions on the incremental workload. The versioned observations are
 `2026-07-27-main-ruby-4.0.0-arm64-darwin24.json`,
 `2026-07-27-red-green-ruby-4.0.0-arm64-darwin24.json`, and
 `2026-07-27-blender-ruby-4.0.0-arm64-darwin24.json`, plus the final
-`2026-07-28-red-green-optimized-ruby-4.0.0-arm64-darwin24.json`, under
+`2026-07-28-red-green-optimized-ruby-4.0.0-arm64-darwin24.json` and
+`2026-07-28-current-only-ruby-4.0.0-arm64-darwin24.json`, under
 `benchmark/results/cst/`.
 
 ## Gate 1 evidence
 
-The legacy characterization suite records the normal root and final trivia,
+The pre-migration characterization evidence recorded the normal root and final trivia,
 terminal lexer values, action-bearing semantic overlay, pattern-matching keys,
 lexical `Error`, repair `Missing`, and recovery `Error` shapes. The complete
 method inventory and current replacements are published in
-`docs/cst-migration.md`.
+`docs/cst-migration.md`. Current tests retain the pure-syntax characterization
+and verify that obsolete CST tables are rejected before token consumption.
 
 Only one mixed-production shape was observed: an action-bearing child appeared
 as a semantic token in an otherwise syntactic parent. Gate 1 accepts the
@@ -115,5 +126,6 @@ Red tree.
 - Red objects provide parent and absolute-offset navigation without weakening
   Green shareability.
 - Regenerating a CST parser opts into the new root and pure-syntax child model;
-  compatibility behavior and migration guidance are recorded separately.
+  obsolete CST tables are rejected and migration guidance is recorded
+  separately.
 - Ruby versions without `Data` remain supported by equivalent frozen classes.

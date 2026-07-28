@@ -11,37 +11,33 @@ module Ibex
       # @type var empty_green_trivia: Array[CST::GreenTrivia]
       EMPTY_GREEN_TRIVIA: Array[CST::GreenTrivia]
 
-      @lexer_input: LexerInput?
-
-      @lexer_file: String
-
-      @lexer_states: Array[String]
-
-      @lexer_line: Integer
-
-      @lexer_column: Integer
-
-      @lexer_byte_column: Integer
-
-      @lexer_byte_offset: Integer
-
-      @lexer_lexeme: String?
-
-      @lexer_emission: Object | Array[untyped]
-
-      @lexer_skip_requested: bool
-
-      @lexer_pending_trivia: Array[CST::Trivia]
-
-      @lexer_pending_green_trivia: Array[CST::GreenTrivia]
-
-      @lexer_cst_trivia_policy: Symbol
-
-      @lexer_red_green_cst: bool
+      @lexer_has_token: bool
 
       @lexer_cst_trivia_kinds: Hash[String, Integer]?
 
-      @lexer_has_token: bool
+      @lexer_cst_trivia_policy: Symbol
+
+      @lexer_pending_green_trivia: Array[CST::GreenTrivia]
+
+      @lexer_skip_requested: bool
+
+      @lexer_emission: Object | Array[untyped]
+
+      @lexer_lexeme: String?
+
+      @lexer_byte_offset: Integer
+
+      @lexer_byte_column: Integer
+
+      @lexer_column: Integer
+
+      @lexer_line: Integer
+
+      @lexer_states: Array[String]
+
+      @lexer_file: String
+
+      @lexer_input: LexerInput?
 
       # Reset the generated lexer to the beginning of an input.
       # @rbs (String | IO | Fiber source, ?file: String) -> self
@@ -128,14 +124,8 @@ module Ibex
       # @rbs (Hash[Symbol, untyped] location) -> Hash[Symbol, untyped]
       def attach_cst_trivia: (Hash[Symbol, untyped] location) -> Hash[Symbol, untyped]
 
-      # @rbs () -> Array[CST::Trivia]
-      def take_cst_trailing_trivia: () -> Array[CST::Trivia]
-
       # @rbs () -> Symbol
       def cst_trivia_policy: () -> Symbol
-
-      # @rbs () -> bool
-      def red_green_cst?: () -> bool
 
       # @rbs (String text) -> Integer
       def cst_trivia_kind: (String text) -> Integer
@@ -152,8 +142,8 @@ module Ibex
       # @rbs () -> Array[CST::GreenTrivia]
       def take_cst_pending_green_trivia: () -> Array[CST::GreenTrivia]
 
-      # @rbs (Array[CST::Trivia | CST::GreenTrivia] values) -> Array[CST::GreenTrivia]
-      def green_trivia_values: (Array[CST::Trivia | CST::GreenTrivia] values) -> Array[CST::GreenTrivia]
+      # @rbs (Array[CST::GreenTrivia] values) -> Array[CST::GreenTrivia]
+      def green_trivia_values: (Array[CST::GreenTrivia] values) -> Array[CST::GreenTrivia]
 
       # Push a named lexer state.
       # @rbs (Symbol | String state) -> Symbol

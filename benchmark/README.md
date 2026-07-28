@@ -12,16 +12,22 @@ bundle exec ruby benchmark/cst.rb \
 ```
 
 The CST probe compares the same generated lexer and grammar with and without
-`pragma cst`. Version 4 alternates measurement order and reports the median of
+`pragma cst`. Version 5 alternates measurement order and reports the median of
 `--runs` samples, total allocated objects, and the ratio between Green
 occurrences and distinct Green object identities. A separate TracePoint probe
-counts legacy `Node`/`Token` and Red/Green `GreenNode`/`GreenToken` constructor
-calls, which is the allocation metric used for the interning target. The report
-also measures one fixed recovery workload through plain, legacy-CST, and
-Red/Green-CST paths. The identity and construction probes complement rather
-than replace the process-wide allocation count. Timings and allocations are
-local observations, not CI thresholds. Reviewed observations are append-only
-under `benchmark/results/cst/`.
+counts current `GreenNode`/`GreenToken` constructor calls. The report also
+measures one fixed recovery workload through plain and current Red/Green CST
+paths. Version-4 and earlier artifacts retain their historical legacy-CST
+comparisons, but the executable benchmark no longer constructs the removed
+tree model. Identity and construction probes complement rather than replace
+the process-wide allocation count. Timings and allocations are local
+observations, not CI thresholds. Reviewed observations are append-only under
+`benchmark/results/cst/`.
+
+The current-only version-5 observation is
+`2026-07-28-current-only-ruby-4.0.0-arm64-darwin24.json`. It records the same
+25-terminal, 2,000-parse, five-run workload after removal of the obsolete CST
+path. Historical version-4 artifacts remain unchanged.
 
 Compare syntax-only Stage A, Blender Stage B, and fresh syntax sessions with:
 

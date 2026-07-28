@@ -25,19 +25,22 @@ runtimes safely ignore do not by themselves require an increment. Version 2 adds
 v2 `_ibex_action_N` methods marked with that field receive five location-aware arguments. Version 3 retains that contract and
 adds `composition_action`; a generated Symbol action carrying both markers receives the runtime lookahead location as a sixth
 argument. Version 4 adds the one-argument `values_action` ABI and its optional `borrowed_values_action` proof. Version 5 adds
-zero-to-four-argument `positional_action` methods. Marker combinations are validated before input instead of guessing a call
-shape.
+zero-to-four-argument `positional_action` methods. Version 6 adds structured Red/Green CST metadata. Marker combinations are
+validated before input instead of guessing a call shape.
 
-The current runtime accepts v1 through v5. It invokes every v1 action with the historical two arguments, even if an audited
+The current runtime accepts v1 through v6 for non-CST parsers. It invokes every v1 action with the historical two arguments, even if an audited
 hand-written v1 table happens to contain newer marker names. V2 continues to honor generated location actions with exactly five
 arguments and ignores a stray composition marker. V3 grants the six-argument contract only to generated `_ibex_action_N`
 Symbols carrying both `location_action` and `composition_action`; ordinary v3 generated location actions continue to receive
-five. V4 values actions receive one Array. V5 positional actions receive one argument per RHS value. Application methods and
-callables retain two arguments. Older runtimes reject newer versions before token consumption.
+five. V4 values actions receive one Array. V5 and v6 positional actions receive one argument per RHS value. Application methods
+and callables retain two arguments. CST parsers require v6 structured metadata; the runtime rejects v1-v5 CST tables and the
+boolean `cst: true` shape before token consumption. Older runtimes reject newer versions before token consumption. See
+[ADR 0099](0099-stabilize-current-red-green-cst.md).
 
 ## Consequences
 
 Upgrading the runtime can make hand-written or previously generated unversioned parsers fail immediately; users must add an
 audited supported version or regenerate them. Supported older generated tables remain executable, while unsupported future
-tables fail before token consumption or any semantic action. Current generated parsers and their RBS declarations make the
-contract directly inspectable.
+tables fail before token consumption or any semantic action. Older generated CST tables specifically require regeneration;
+older non-CST tables retain their action ABI. Current generated parsers and their RBS declarations make the contract directly
+inspectable.

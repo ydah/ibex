@@ -30,7 +30,7 @@ module CSTBenchmark
     recovery = CSTRecoveryBenchmark.measure(options.fetch(:iterations))
     {
       benchmark: "ibex_cst_baseline",
-      version: 4,
+      version: 5,
       ruby_version: RUBY_VERSION,
       ruby_platform: RUBY_PLATFORM,
       seed: options.fetch(:seed),
@@ -91,12 +91,12 @@ module CSTBenchmark
     namespace.const_get(grammar.class_name)
   end
 
-  def measure(parser_class, input, iterations, suppress_legacy_warning: false)
-    parse_once(parser_class, input, suppress_legacy_warning: suppress_legacy_warning)
+  def measure(parser_class, input, iterations)
+    parse_once(parser_class, input)
     before_allocations = GC.stat.fetch(:total_allocated_objects)
     started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     iterations.times do
-      parse_once(parser_class, input, suppress_legacy_warning: suppress_legacy_warning)
+      parse_once(parser_class, input)
     end
     elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started
     after_allocations = GC.stat.fetch(:total_allocated_objects)
@@ -131,11 +131,7 @@ module CSTBenchmark
     [measurements, samples]
   end
 
-  def parse_once(parser_class, input, suppress_legacy_warning:)
-    parser = parser_class.new
-    parser.instance_variable_set(:@legacy_cst_warning_emitted, true) if suppress_legacy_warning
-    parser.parse(input)
-  end
+  def parse_once(parser_class, input) = parser_class.new.parse(input)
 
   def green_identity(parser_class, input)
     parser = parser_class.new

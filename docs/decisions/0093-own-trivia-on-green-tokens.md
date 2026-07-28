@@ -34,8 +34,9 @@ The EOF token owns final leading trivia, so every complete tree has one place
 for trailing file text. Early `yyaccept` excludes the unshifted lookahead and
 its trivia from the consumed prefix.
 
-This metadata is emitted in parser-table format v6. Formats v1 through v5 keep
-their previous trivia behavior.
+This metadata is emitted in parser-table format v6. Formats v1 through v5
+retain their non-CST behavior; their obsolete CST trivia representation is
+rejected under ADR 0099.
 
 ## Acceptance evidence
 

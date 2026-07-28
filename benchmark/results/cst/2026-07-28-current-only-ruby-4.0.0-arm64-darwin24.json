@@ -1,0 +1,104 @@
+{
+  "benchmark": "ibex_cst_baseline",
+  "version": 5,
+  "ruby_version": "4.0.0",
+  "ruby_platform": "arm64-darwin24",
+  "seed": 12345,
+  "rules": 25,
+  "iterations": 2000,
+  "runs": 5,
+  "measurements": {
+    "plain": {
+      "elapsed_ms": 719.9980000004871,
+      "allocated_objects": 5952001
+    },
+    "cst": {
+      "elapsed_ms": 937.8710000019055,
+      "allocated_objects": 6088001
+    }
+  },
+  "normal_samples": [
+    {
+      "plain": {
+        "elapsed_ms": 731.0710000019753,
+        "allocated_objects": 5952007
+      },
+      "cst": {
+        "elapsed_ms": 940.9739999973681,
+        "allocated_objects": 6088001
+      },
+      "cst_overhead_ratio": 1.2871171199443359
+    },
+    {
+      "cst": {
+        "elapsed_ms": 930.9979999961797,
+        "allocated_objects": 6088001
+      },
+      "plain": {
+        "elapsed_ms": 714.3670000004931,
+        "allocated_objects": 5952001
+      },
+      "cst_overhead_ratio": 1.3032488902700392
+    },
+    {
+      "plain": {
+        "elapsed_ms": 718.9040000012028,
+        "allocated_objects": 5952001
+      },
+      "cst": {
+        "elapsed_ms": 939.7310000058496,
+        "allocated_objects": 6088001
+      },
+      "cst_overhead_ratio": 1.3071717503370093
+    },
+    {
+      "cst": {
+        "elapsed_ms": 937.8710000019055,
+        "allocated_objects": 6088001
+      },
+      "plain": {
+        "elapsed_ms": 720.4930000007153,
+        "allocated_objects": 5952001
+      },
+      "cst_overhead_ratio": 1.3017073031951378
+    },
+    {
+      "plain": {
+        "elapsed_ms": 719.9980000004871,
+        "allocated_objects": 5952001
+      },
+      "cst": {
+        "elapsed_ms": 933.12600000354,
+        "allocated_objects": 6088001
+      },
+      "cst_overhead_ratio": 1.2960119333705213
+    }
+  ],
+  "cst_overhead_ratio": 1.3017073031951378,
+  "green_identity": {
+    "occurrences": 52,
+    "unique_objects": 6,
+    "identity_reuse_ratio": 0.8846153846153846
+  },
+  "construction_probe": {
+    "red_green_cst": {
+      "nodes": 2,
+      "tokens": 4,
+      "node_and_token_constructions": 6
+    }
+  },
+  "recovery": {
+    "input_bytes": 9,
+    "measurements": {
+      "plain": {
+        "elapsed_ms": 149.2740000030608,
+        "allocated_objects": 912001
+      },
+      "red_green_cst": {
+        "elapsed_ms": 236.85300000215648,
+        "allocated_objects": 964001
+      }
+    },
+    "red_green_cst_overhead_ratio": 1.5866996261726751
+  }
+}

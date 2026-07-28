@@ -370,13 +370,11 @@ class RuntimeFastPathTest < Minitest::Test
     assert_equal "first", parser.do_parse
     state_stack = parser.instance_variable_get(:@state_stack)
     value_stack = parser.instance_variable_get(:@value_stack)
-    cst_errors = parser.instance_variable_get(:@cst_errors)
     parser.instance_variable_get(:@tokens).push([:ITEM, "second"], false)
 
     assert_equal "second", parser.do_parse
     assert_same state_stack, parser.instance_variable_get(:@state_stack)
     assert_same value_stack, parser.instance_variable_get(:@value_stack)
-    assert_same cst_errors, parser.instance_variable_get(:@cst_errors)
   end
 
   def test_compact_pull_driver_falls_back_before_an_unknown_token
@@ -541,7 +539,17 @@ class RuntimeFastPathTest < Minitest::Test
     assert_operator repaired.generic_shifts, :>, 0
 
     cst_class = Class.new(ActionlessProbe) do
-      tables = ActionlessProbe::TABLES.merge(cst: true).freeze
+      kinds = {
+        names: %w[$eof error ITEM start],
+        terminal_range: [0, 3],
+        nonterminal_range: [3, 4],
+        named: {},
+        named_nonterminals: {},
+        trivia: {},
+        synthetic: {}
+      }.freeze
+      cst = { version: 1, trivia_policy: :drop, kinds: kinds, slots: {} }.freeze
+      tables = ActionlessProbe::TABLES.merge(cst: cst).freeze
       define_singleton_method(:parser_tables) { tables }
     end
     cst = cst_class.new
