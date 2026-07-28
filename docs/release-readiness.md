@@ -14,8 +14,7 @@ error comparison has not received independent third-party review.
 
 The feature freeze remains in force while those two release gates are open.
 The format-v6 batch Red/Green CST has been selected as part of the initial
-Stable v1 API under [ADR 0099](decisions/0099-stabilize-current-red-green-cst.md);
-its syntax-only incremental layer remains Experimental. Other Preview and
+Stable v1 API. Its syntax-only incremental layer remains Experimental. Other Preview and
 Experimental features may continue to ship in prereleases without promotion.
 
 ## KPI result
@@ -57,10 +56,7 @@ This is the adapter recommended by `ibex migrate-check`; it does not load or
 execute the racc runtime. The PoCs uncovered and fixed three compatibility
 gaps: an omitted `end` before a user-code section, an application initializer
 that omits `super` plus historical value-stack reads, and an unqualified
-`ParseError`. See ADRs
-[0071](decisions/0071-legacy-user-code-rule-termination.md),
-[0072](decisions/0072-lazy-runtime-session-compatibility.md), and
-[0073](decisions/0073-parser-parse-error-alias.md).
+`ParseError`.
 
 ## Formal Pure Ruby performance comparison
 

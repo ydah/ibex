@@ -54,7 +54,7 @@ deleting the comma would usually be preferable. The measured useful rate is
 therefore **8/10 (80%)**, above the required majority.
 
 SP-4 is **go** for the existing opt-in bounded single-plan repair described by
-[ADR 0049](decisions/0049-bounded-minimum-cost-runtime-repair.md). It remains
+[ADR 0012](decisions/0012-bounded-nonexecuting-analysis.md). It remains
 experimental: a selected edit can require a nil semantic value, and the search
 does not enumerate every equal-cost CPCT+ repair. The stable default answer
 remains exact expected tokens plus explicit yacc/synchronization recovery.

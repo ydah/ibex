@@ -121,6 +121,4 @@ change without notice.
 
 The pre-v1 mixed semantic/syntax CST was a Preview contract and is removed
 while selecting the initial stable API. Its parser tables are rejected with a
-regeneration instruction, as recorded by
-[ADR 0099](decisions/0099-stabilize-current-red-green-cst.md). There are no
-Stable removals scheduled.
+regeneration instruction. There are no Stable removals scheduled.
