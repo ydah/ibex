@@ -93,16 +93,16 @@ module CSTBenchmark
 
   def measure(parser_class, input, iterations)
     parse_once(parser_class, input)
-    before_allocations = GC.stat.fetch(:total_allocated_objects)
+    before_allocations = total_allocated_objects
     started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     iterations.times do
       parse_once(parser_class, input)
     end
     elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started
-    after_allocations = GC.stat.fetch(:total_allocated_objects)
+    after_allocations = total_allocated_objects
     {
       elapsed_ms: elapsed * 1000.0,
-      allocated_objects: after_allocations - before_allocations
+      allocated_objects: allocation_delta(before_allocations, after_allocations)
     }
   end
 
@@ -124,11 +124,27 @@ module CSTBenchmark
         name,
         {
           elapsed_ms: median(values.map { |value| value.fetch(:elapsed_ms) }),
-          allocated_objects: median(values.map { |value| value.fetch(:allocated_objects) }).round
+          allocated_objects: median_allocated_objects(values)
         }
       ]
     end
     [measurements, samples]
+  end
+
+  def total_allocated_objects
+    value = GC.stat[:total_allocated_objects]
+    value if value.is_a?(Integer)
+  end
+
+  def allocation_delta(before_allocations, after_allocations)
+    return unless before_allocations && after_allocations
+
+    after_allocations - before_allocations
+  end
+
+  def median_allocated_objects(values)
+    allocations = values.filter_map { |value| value.fetch(:allocated_objects) }
+    median(allocations).round unless allocations.empty?
   end
 
   def parse_once(parser_class, input) = parser_class.new.parse(input)

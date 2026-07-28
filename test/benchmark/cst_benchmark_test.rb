@@ -24,4 +24,21 @@ class CSTBenchmarkTest < Minitest::Test
     assert_raises(OptionParser::InvalidArgument) { CSTBenchmark.parse_options(["--iterations", "0"]) }
     assert_raises(OptionParser::InvalidArgument) { CSTBenchmark.parse_options(["--runs", "0"]) }
   end
+
+  def test_measurements_tolerate_a_runtime_without_an_allocation_counter
+    parser_class = Class.new do
+      def parse(input) = input
+    end
+
+    GC.stub(:stat, {}) do
+      measurement = CSTBenchmark.measure(parser_class, "input", 1)
+      measurements, samples = CSTBenchmark.measure_normal(parser_class, parser_class, "input", 1, 2)
+
+      assert_nil measurement.fetch(:allocated_objects)
+      assert_nil measurements.dig(:plain, :allocated_objects)
+      assert_nil measurements.dig(:cst, :allocated_objects)
+      assert(samples.all? { |sample| sample.dig(:plain, :allocated_objects).nil? })
+      assert(samples.all? { |sample| sample.dig(:cst, :allocated_objects).nil? })
+    end
+  end
 end
