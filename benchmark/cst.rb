@@ -6,6 +6,7 @@ require "optparse"
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "ibex"
 require_relative "support/cst_recovery_benchmark"
+require_relative "support/cst_construction_probe"
 
 module CSTBenchmark
   module_function
@@ -23,34 +24,40 @@ module CSTBenchmark
     input = Array.new(options.fetch(:rules), "1").join(" + ")
     cst_parser = build_parser(source)
     plain_parser = build_parser(plain_source)
-    cst = measure(cst_parser, input, options.fetch(:iterations))
-    plain = measure(plain_parser, input, options.fetch(:iterations))
+    measurements, normal_samples = measure_normal(
+      cst_parser, plain_parser, input, options.fetch(:iterations), options.fetch(:runs)
+    )
     recovery = CSTRecoveryBenchmark.measure(options.fetch(:iterations))
     {
       benchmark: "ibex_cst_baseline",
-      version: 3,
+      version: 4,
       ruby_version: RUBY_VERSION,
       ruby_platform: RUBY_PLATFORM,
       seed: options.fetch(:seed),
       rules: options.fetch(:rules),
       iterations: options.fetch(:iterations),
-      measurements: { plain: plain, cst: cst },
-      cst_overhead_ratio: cst.fetch(:elapsed_ms) / plain.fetch(:elapsed_ms),
+      runs: options.fetch(:runs),
+      measurements: measurements,
+      normal_samples: normal_samples,
+      cst_overhead_ratio: median(normal_samples.map { |sample| sample.fetch(:cst_overhead_ratio) }),
       green_identity: green_identity(cst_parser, input),
+      construction_probe: CSTConstructionProbe.measure(cst_parser, input),
       recovery: recovery
     }
   end
 
   def parse_options(argv)
-    options = { rules: 25, iterations: 20, seed: 12_345, output: nil }
+    options = { rules: 25, iterations: 20, runs: 5, seed: 12_345, output: nil }
     OptionParser.new do |parser|
       parser.on("--rules N", Integer) { |value| options[:rules] = value }
       parser.on("--iterations N", Integer) { |value| options[:iterations] = value }
+      parser.on("--runs N", Integer) { |value| options[:runs] = value }
       parser.on("--seed N", Integer) { |value| options[:seed] = value }
       parser.on("--output PATH") { |value| options[:output] = value }
     end.parse!(argv)
     raise OptionParser::InvalidArgument, "rules must be positive" unless options.fetch(:rules).positive?
     raise OptionParser::InvalidArgument, "iterations must be positive" unless options.fetch(:iterations).positive?
+    raise OptionParser::InvalidArgument, "runs must be positive" unless options.fetch(:runs).positive?
 
     options
   end
@@ -99,6 +106,31 @@ module CSTBenchmark
     }
   end
 
+  def measure_normal(cst_parser, plain_parser, input, iterations, runs)
+    samples = runs.times.map do |index|
+      parsers = if index.even?
+                  [[:plain, plain_parser], [:cst, cst_parser]]
+                else
+                  [[:cst, cst_parser], [:plain, plain_parser]]
+                end
+      values = parsers.to_h do |name, parser_class|
+        [name, measure(parser_class, input, iterations)]
+      end
+      values.merge(cst_overhead_ratio: values.fetch(:cst).fetch(:elapsed_ms) / values.fetch(:plain).fetch(:elapsed_ms))
+    end
+    measurements = %i[plain cst].to_h do |name|
+      values = samples.map { |sample| sample.fetch(name) }
+      [
+        name,
+        {
+          elapsed_ms: median(values.map { |value| value.fetch(:elapsed_ms) }),
+          allocated_objects: median(values.map { |value| value.fetch(:allocated_objects) }).round
+        }
+      ]
+    end
+    [measurements, samples]
+  end
+
   def parse_once(parser_class, input, suppress_legacy_warning:)
     parser = parser_class.new
     parser.instance_variable_set(:@legacy_cst_warning_emitted, true) if suppress_legacy_warning
@@ -124,6 +156,14 @@ module CSTBenchmark
       unique_objects: unique_objects,
       identity_reuse_ratio: 1.0 - unique_objects.fdiv(occurrences.length)
     }
+  end
+
+  def median(values)
+    ordered = values.sort
+    middle = ordered.length / 2
+    return ordered.fetch(middle) if ordered.length.odd?
+
+    (ordered.fetch(middle - 1) + ordered.fetch(middle)) / 2.0
   end
 end
 

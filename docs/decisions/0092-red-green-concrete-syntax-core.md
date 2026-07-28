@@ -55,14 +55,13 @@ multiple occurrences of one interned Green value. The P0 baseline remains
 versioned under `benchmark/results/cst/`; incremental performance is recorded
 by ADR 0098 rather than changing this core contract.
 
-The final Ruby 4.0.0, arm64-darwin24 observation uses the same 25-terminal,
-100-parse workload as P0. The Red/Green CST path measures 74.079 ms versus
-40.294 ms without CST, a 1.838x ratio (+83.8%). It allocates 456,607 total
-objects versus 327,201 without CST. Compared with the P0 legacy CST
-observation, total allocations rise from 341,807 to 456,607 (+33.6%) rather
-than falling by the provisional 30% target. Within the retained Red/Green tree,
-52 Green occurrences use 6 distinct object identities, an 88.5% identity reuse
-ratio.
+The initial Ruby 4.0.0, arm64-darwin24 observation used the same 25-terminal,
+100-parse workload as P0. Before the construction hot-path follow-up, the
+Red/Green CST path measured 74.079 ms versus 40.294 ms without CST, a 1.838x
+ratio (+83.8%), and allocated 456,607 total objects versus 327,201 without CST.
+This result identified repeated trivia filtering, construct-then-intern token
+allocation, recursive source reconstruction, per-instance kind metadata, and
+unbounded descendant hashing as the dominant avoidable costs.
 
 The version-3 follow-up adds the P0-required recovery path. On the same Ruby
 and platform, 100 recovery parses measure 7.402 ms/49,001 allocations without
@@ -71,16 +70,27 @@ Red/Green CST. The normal path in that run is 65.324 ms with CST versus
 39.746 ms without CST. This observation is stored as
 `2026-07-28-red-green-recovery-ruby-4.0.0-arm64-darwin24.json`.
 
-The provisional batch goals in design section 17 are therefore not met.
-Identity interning is effective, but the new builder, fidelity metadata, and
-Red/session surfaces outweigh it in the process-wide allocation probe. These
-timings are local evidence rather than CI thresholds, and the feature remains
-Preview. ADR 0098 separately records that conservative subtree reuse makes
-Stage B 1.04–2.83x faster than Stage A and 1.66–4.48x faster than fresh syntax
-sessions on the incremental workload. The versioned observations are
+The version-4 follow-up measures five alternating-order runs of 2,000 parses
+each and uses the median per-run ratio. The Red/Green path measures 982.630 ms
+versus 747.147 ms without CST; the median ratio is 1.315 (+31.5%), satisfying
+the provisional +35% batch target. Process-wide allocations are 6,092,001
+versus 5,958,001 (+2.25%). The dedicated construction probe records 50 legacy
+CST node/token constructions and 6 Red/Green constructions for the same tree,
+an 88.0% reduction that exceeds the provisional 30% target. The retained tree
+still has 52 occurrences backed by 6 distinct Green identities (88.5% reuse).
+The recovery observation improves to a 1.545x Red/Green/plain ratio and remains
+recorded as a diagnostic rather than a release threshold.
+
+The design-section-17 provisional batch goals are therefore met. Timings remain
+local evidence rather than CI thresholds, and the CST stays Preview under the
+two-release field-period rule in the stability policy, not because of a known
+performance-gate failure. ADR 0098 separately records that conservative subtree
+reuse makes Stage B 1.04–2.83x faster than Stage A and 1.66–4.48x faster than
+fresh syntax sessions on the incremental workload. The versioned observations are
 `2026-07-27-main-ruby-4.0.0-arm64-darwin24.json`,
 `2026-07-27-red-green-ruby-4.0.0-arm64-darwin24.json`, and
-`2026-07-27-blender-ruby-4.0.0-arm64-darwin24.json` under
+`2026-07-27-blender-ruby-4.0.0-arm64-darwin24.json`, plus the final
+`2026-07-28-red-green-optimized-ruby-4.0.0-arm64-darwin24.json`, under
 `benchmark/results/cst/`.
 
 ## Gate 1 evidence

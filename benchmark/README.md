@@ -5,18 +5,21 @@ Capture the pre-Red/Green CST construction baseline with:
 ```sh
 bundle exec ruby benchmark/cst.rb \
   --rules 25 \
-  --iterations 100 \
+  --iterations 2000 \
+  --runs 5 \
   --seed 12345 \
   --output benchmark/results/cst/YYYY-MM-DD-REV-ruby-VERSION-PLATFORM.json
 ```
 
 The CST probe compares the same generated lexer and grammar with and without
-`pragma cst`. It records elapsed time, total allocated objects, and the ratio
-between Green occurrences and distinct Green object identities in one result.
-The version-3 report also measures one fixed recovery workload through plain,
-legacy-CST, and Red/Green-CST paths, including elapsed time and allocations.
-The identity ratio measures interning inside the retained tree; it is not a
-substitute for the process-wide allocation count. Timings and allocations are
+`pragma cst`. Version 4 alternates measurement order and reports the median of
+`--runs` samples, total allocated objects, and the ratio between Green
+occurrences and distinct Green object identities. A separate TracePoint probe
+counts legacy `Node`/`Token` and Red/Green `GreenNode`/`GreenToken` constructor
+calls, which is the allocation metric used for the interning target. The report
+also measures one fixed recovery workload through plain, legacy-CST, and
+Red/Green-CST paths. The identity and construction probes complement rather
+than replace the process-wide allocation count. Timings and allocations are
 local observations, not CI thresholds. Reviewed observations are append-only
 under `benchmark/results/cst/`.
 
