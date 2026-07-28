@@ -6,6 +6,8 @@
 --output-dir tmp/site/api
 --tag rbs:RBS
 --hide-tag rbs
+--tag type:Type
+--hide-tag type
 --fail-on-warning
 --exclude lib/ibex/frontend/generated_parser.rb
 lib/**/*.rb

@@ -34,7 +34,23 @@ module TestRuntimeCapabilities
       !after.nil? && after > before
     end
 
+    def make_shareable(value)
+      capability = ractor
+      return value unless capability.respond_to?(:make_shareable)
+
+      capability.make_shareable(value)
+    end
+
+    def ractor_shareable?(value)
+      capability = ractor
+      capability.shareable?(value) if capability.respond_to?(:shareable?)
+    end
+
     private
+
+    def ractor
+      Object.const_get(:Ractor, false) if Object.const_defined?(:Ractor, false)
+    end
 
     def total_allocated_objects
       value = GC.stat[:total_allocated_objects]

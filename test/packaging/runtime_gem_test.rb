@@ -62,7 +62,8 @@ class RuntimeGemPackagingTest < Minitest::Test
       gem_home = File.join(directory, "gems")
       environment = isolated_gem_environment(gem_home)
 
-      install_gems([runtime_gem, generator_gem], gem_home, environment)
+      install_gem(runtime_gem, gem_home, environment)
+      install_gem(generator_gem, gem_home, environment)
       assert_installed_generator_works(directory, gem_home, environment)
     end
   end
@@ -124,12 +125,12 @@ class RuntimeGemPackagingTest < Minitest::Test
     output
   end
 
-  def install_gems(paths, gem_home, environment)
+  def install_gem(path, gem_home, environment)
     _stdout, stderr, status = Bundler.with_unbundled_env do
       Open3.capture3(
         environment,
-        RbConfig.ruby, "-S", "gem", "install", *paths,
-        "--local", "--no-document", "--install-dir", gem_home
+        RbConfig.ruby, "-S", "gem", "install", path,
+        "--local", "--ignore-dependencies", "--no-document", "--install-dir", gem_home
       )
     end
     assert status.success?, stderr

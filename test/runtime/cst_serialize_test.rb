@@ -80,7 +80,8 @@ class CSTSerializeTest < Minitest::Test
     assert root.flags.anybits?(Ibex::Runtime::CST::Flags::SYNTHETIC)
     assert_equal root.to_source.bytesize, root.full_width
     assert_equal 1 + root.children.sum(&:descendant_count), root.descendant_count
-    assert Ractor.shareable?(root)
+    shareable = TestRuntimeCapabilities.ractor_shareable?(root)
+    assert shareable unless shareable.nil?
   end
 
   def test_annotated_trees_are_rejected_instead_of_silently_losing_annotations

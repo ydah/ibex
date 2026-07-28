@@ -71,7 +71,7 @@ class RuntimeTableFormatTest < Minitest::Test
   end
 
   class CachedValidationParser < CurrentParser
-    TABLES = Ractor.make_shareable(
+    TABLES = TestRuntimeCapabilities.make_shareable(
       CurrentParser::TABLES.merge(
         productions: [
           { lhs: 2, length: 0, action: :_ibex_action_0, values_action: true } # rubocop:disable Naming/VariableNumber
@@ -143,6 +143,9 @@ class RuntimeTableFormatTest < Minitest::Test
   end
 
   def test_deeply_frozen_generated_action_contracts_are_cached_per_class
+    skip "Ractor shareability is unavailable" if
+      TestRuntimeCapabilities.ractor_shareable?(CachedValidationParser::TABLES).nil?
+
     CachedValidationParser.validation_calls = 0
     CachedValidationParser.remove_instance_variable(:@__ibex_validated_parser_tables) if
       CachedValidationParser.instance_variable_defined?(:@__ibex_validated_parser_tables)

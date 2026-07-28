@@ -119,7 +119,8 @@ class CSTEditingTest < Minitest::Test
     assert_empty edited_terms.fetch(1).green.annotations
     assert_empty root.annotated(annotation).to_a
     assert edited_terms.fetch(0).green.flags.anybits?(Ibex::Runtime::CST::Flags::HAS_ANNOTATION)
-    assert Ractor.shareable?(edited.green)
+    shareable = TestRuntimeCapabilities.ractor_shareable?(edited.green)
+    assert shareable unless shareable.nil?
 
     cache = Ibex::Runtime::CST::NodeCache.new
     duplicate = Ibex::Runtime::CST::GreenNode.new(
