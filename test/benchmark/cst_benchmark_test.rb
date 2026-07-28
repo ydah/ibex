@@ -16,7 +16,8 @@ class CSTBenchmarkTest < Minitest::Test
     assert_operator recovery.fetch(:red_green_cst_overhead_ratio), :>, 0.0
     assert_operator report.dig(:green_identity, :occurrences), :>, 0
     assert_operator report.dig(:green_identity, :identity_reuse_ratio), :>=, 0.0
-    assert_operator report.dig(:construction_probe, :red_green_cst, :node_and_token_constructions), :>, 0
+    constructions = report.dig(:construction_probe, :red_green_cst, :node_and_token_constructions)
+    assert(constructions.nil? || constructions.positive?)
   end
 
   def test_options_reject_non_positive_workloads
@@ -39,6 +40,20 @@ class CSTBenchmarkTest < Minitest::Test
       assert_nil measurements.dig(:cst, :allocated_objects)
       assert(samples.all? { |sample| sample.dig(:plain, :allocated_objects).nil? })
       assert(samples.all? { |sample| sample.dig(:cst, :allocated_objects).nil? })
+    end
+  end
+
+  def test_construction_probe_marks_an_unsupported_tracepoint_as_unavailable
+    unsupported_tracepoint = lambda do |*|
+      raise ArgumentError, "unknown event: call"
+    end
+
+    TracePoint.stub(:new, unsupported_tracepoint) do
+      result = CSTConstructionProbe.construction_counts(Object, "input")
+
+      assert_nil result.fetch(:nodes)
+      assert_nil result.fetch(:tokens)
+      assert_nil result.fetch(:node_and_token_constructions)
     end
   end
 end
