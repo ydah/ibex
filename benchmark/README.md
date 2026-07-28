@@ -97,13 +97,14 @@ unchanged; every new entry follows the reviewed naming contract below.
 Validate a baseline and rebuild its deterministic projection with:
 
 ```sh
-bundle exec ruby benchmark/verify.rb benchmark/results/v2/2026-07-27-fac0a0f20581-ruby-4.0.0-arm64-darwin24.json
+bundle exec ruby benchmark/verify.rb benchmark/results/v2/2026-07-28-4a740768d06b-ruby-4.0.0-arm64-darwin24.json
 ```
 
 The current v2 observation records direct LALR construction: 250 intermediate
 construction states and 250 final states. Its deterministic source, input, IR,
-table, and runtime-result digests match the preceding v2 artifact; generated
-Ruby digests and sizes changed with the reviewed code-generation surface. The
+table, and runtime-result digests, structural counts, and generated sizes match
+the preceding v2 artifact; generated Ruby digests changed with the current-only
+runtime surface. The
 canonical-merge v1 baseline retained 1,294 intermediate states. Grammar/Automaton IR, tables, generated outputs, and runtime
 result remain byte-identical between the direct and retained reference
 strategies within one revision. Earlier observations remain unchanged under the append-only
