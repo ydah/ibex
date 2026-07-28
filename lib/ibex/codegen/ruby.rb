@@ -97,7 +97,7 @@ module Ibex
       #   ?error_messages: Hash[Integer, String | { id: String, message: String }]) -> void
       def initialize(automaton, table: :compact, embedded: false, line_convert: true, debug: false,
                      line_convert_all: false, omit_action_call: nil, superclass: nil, executable: nil,
-                     cst_trivia: :attach, runtime_require: "ibex/runtime", error_messages: {})
+                     cst_trivia: :leading, runtime_require: "ibex/runtime", error_messages: {})
         @automaton = automaton
         @grammar = automaton.grammar
         @table_format = table.to_sym

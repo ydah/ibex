@@ -253,7 +253,11 @@ module Ibex
       options.on("--table=FORMAT", %w[plain compact], "parser table format") do |value|
         @options[:table] = value.to_sym
       end
-      options.on("--cst-trivia=POLICY", %w[attach drop], "retain or discard lexer trivia in CST output") do |value|
+      options.on(
+        "--cst-trivia=POLICY",
+        %w[leading balanced drop attach],
+        "leading, balanced, drop, or attach (alias for leading)"
+      ) do |value|
         @options[:cst_trivia] = value.to_sym
       end
       options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
@@ -655,7 +659,7 @@ module Ibex
                    line_convert: @options.fetch(:line_convert), debug: @options.fetch(:debug, false),
                    line_convert_all: @options.fetch(:line_convert_all, false),
                    omit_action_call: @options[:omit_actions], superclass: @options[:superclass],
-                   executable: @options[:executable], cst_trivia: @options.fetch(:cst_trivia, :attach),
+                   executable: @options[:executable], cst_trivia: @options.fetch(:cst_trivia, :leading),
                    error_messages: configured_error_messages(automaton)
       ).generate
       output_path = @options[:output] || default_output_path(input_path, ".rb")

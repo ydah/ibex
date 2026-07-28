@@ -116,6 +116,30 @@ class CLITest < Minitest::Test
     end
   end
 
+  def test_generates_each_documented_cst_trivia_policy
+    Dir.mktmpdir("ibex-cst-trivia") do |directory|
+      grammar = File.join(directory, "grammar.y")
+      File.binwrite(grammar, <<~GRAMMAR)
+        class CSTPolicyParser
+        pragma cst
+        token VALUE
+        lexer
+          skip /[[:space:]]+/
+          VALUE /[0-9]+/
+        end
+        rule
+        start: VALUE
+        end
+      GRAMMAR
+
+      { leading: :leading, balanced: :balanced, drop: :drop, attach: :leading }.each do |option, expected|
+        output = File.join(directory, "#{option}.rb")
+        run_cli(["--cst-trivia=#{option}", "--output-file=#{output}", grammar])
+        assert_includes File.binread(output), ":trivia_policy => :#{expected}"
+      end
+    end
+  end
+
   def test_generates_rbs_beside_the_parser
     Dir.mktmpdir("ibex-rbs") do |directory|
       grammar = File.join(directory, "grammar.y")
