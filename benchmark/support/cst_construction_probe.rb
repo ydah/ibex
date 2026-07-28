@@ -22,7 +22,14 @@ module CSTConstructionProbe
     trace.enable do
       CSTBenchmark.parse_once(parser_class, input)
     end
-    counts.merge(node_and_token_constructions: counts.fetch(:nodes) + counts.fetch(:tokens))
+    measured_counts(counts)
+  end
+
+  def measured_counts(counts)
+    total = counts.fetch(:nodes) + counts.fetch(:tokens)
+    return unavailable_counts if total.zero?
+
+    counts.merge(node_and_token_constructions: total)
   end
 
   def call_tracepoint(&block)

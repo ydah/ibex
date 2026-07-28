@@ -56,4 +56,12 @@ class CSTBenchmarkTest < Minitest::Test
       assert_nil result.fetch(:node_and_token_constructions)
     end
   end
+
+  def test_construction_probe_marks_an_empty_trace_as_unavailable
+    result = CSTConstructionProbe.measured_counts(nodes: 0, tokens: 0)
+
+    assert_nil result.fetch(:nodes)
+    assert_nil result.fetch(:tokens)
+    assert_nil result.fetch(:node_and_token_constructions)
+  end
 end
