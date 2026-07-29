@@ -198,7 +198,7 @@ class RuntimeGemPackagingTest < Minitest::Test
       parser = RuntimeOnlyParser.new
       abort "push failed" unless parser.push(:VALUE, 42) == :need_more
       abort "parse failed" unless parser.finish == 42
-      abort "runtime version missing" unless Ibex::Runtime::VERSION == "0.1.0"
+      abort "runtime version missing" unless Ibex::Runtime::VERSION == #{Ibex::Runtime::VERSION.dump}
     RUBY
   end
 end
