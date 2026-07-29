@@ -23,6 +23,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     name: Ruby ${{ matrix.ruby }}
+    env:
+      BUNDLE_GEMFILE: gemfiles/compat.Gemfile
     strategy:
       fail-fast: false
       matrix:
@@ -63,6 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Frozen string literals
     env:
+      BUNDLE_WITHOUT: types:docs:mutation:profile
       RUBYOPT: --enable-frozen-string-literal
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -79,6 +82,8 @@ jobs:
   grammar-tests:
     runs-on: ubuntu-latest
     name: Grammar-declared tests
+    env:
+      BUNDLE_WITHOUT: types:docs:mutation:profile
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -97,7 +102,7 @@ jobs:
     runs-on: ubuntu-latest
     name: RBS and Steep
     env:
-      BUNDLE_GEMFILE: gemfiles/Gemfile
+      BUNDLE_WITHOUT: docs:mutation:profile
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -130,7 +135,7 @@ jobs:
     name: Bounded mutation testing
     timeout-minutes: 10
     env:
-      BUNDLE_GEMFILE: gemfiles/mutation.Gemfile
+      BUNDLE_WITHOUT: types:docs:profile
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -147,7 +152,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Browser site
     env:
-      BUNDLE_GEMFILE: gemfiles/docs.Gemfile
+      BUNDLE_WITHOUT: types:mutation:profile
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -174,6 +179,8 @@ jobs:
   benchmark:
     runs-on: ubuntu-latest
     name: Benchmark artifact
+    env:
+      BUNDLE_WITHOUT: types:docs:mutation:profile
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

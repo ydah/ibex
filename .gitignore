@@ -8,6 +8,5 @@ node_modules/
 /coverage/
 /pkg/
 /tmp/
-Gemfile.lock
-!gemfiles/*.lock
+/gemfiles/compat.Gemfile.lock
 *.gem

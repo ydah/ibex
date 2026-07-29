@@ -77,7 +77,7 @@ class SchemaFilesPackagingTest < Minitest::Test
     specification = Gem::Specification.load(File.expand_path("../../ibex.gemspec", __dir__))
     excluded = %w[
       .yardopts
-      gemfiles/docs.Gemfile
+      gemfiles/compat.Gemfile
       package-lock.json
       package.json
       site/index.html

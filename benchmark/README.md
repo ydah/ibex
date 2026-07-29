@@ -301,18 +301,14 @@ ordinary CI pass/fail threshold. Public reports follow
 ### Diagnostic profiles for public grammars
 
 When a formal row is slower than Racc, collect Ibex-only wall-clock profiles
-against the same manifest revisions before changing the implementation. Install
-the isolated, exact-version profiler bundle:
-
-```sh
-BUNDLE_GEMFILE=gemfiles/profile.Gemfile bundle install
-```
+against the same manifest revisions before changing the implementation. The
+root development bundle includes the exact-version profiler.
 
 Then profile cold generation and both lexer-inclusive runtime lifecycles for
 all three checkouts:
 
 ```sh
-BUNDLE_GEMFILE=gemfiles/profile.Gemfile bundle exec ruby benchmark/public_profile.rb \
+bundle exec ruby benchmark/public_profile.rb \
   --checkout namae=/path/to/namae \
   --checkout bcdice_command=/path/to/bcdice \
   --checkout nokogiri_css=/path/to/nokogiri \

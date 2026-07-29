@@ -5,7 +5,7 @@ require "open3"
 require "tmpdir"
 
 class RBSCodegenTest < Minitest::Test
-  TYPE_GEMFILE = File.expand_path("../../gemfiles/Gemfile", __dir__)
+  TYPE_GEMFILE = File.expand_path("../../Gemfile", __dir__)
 
   def test_generates_namespaced_parser_contract
     source = "class API::Generated < Custom::Parser\nrule\nstart: TOKEN\nend\n"

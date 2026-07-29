@@ -5,7 +5,7 @@ require "open3"
 require "tmpdir"
 
 class ASTCodegenTest < Minitest::Test
-  TYPE_GEMFILE = File.expand_path("../../gemfiles/Gemfile", __dir__)
+  TYPE_GEMFILE = File.expand_path("../../Gemfile", __dir__)
   SOURCE = <<~GRAMMAR
     class GeneratedASTParser
     pragma extended

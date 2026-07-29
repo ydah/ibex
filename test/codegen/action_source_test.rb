@@ -6,7 +6,7 @@ require "ripper"
 require "tmpdir"
 
 class ActionSourceCodegenTest < Minitest::Test
-  TYPE_GEMFILE = File.expand_path("../../gemfiles/Gemfile", __dir__)
+  TYPE_GEMFILE = File.expand_path("../../Gemfile", __dir__)
   GOLDEN = File.expand_path("../fixtures/codegen/action-source.golden", __dir__)
 
   def test_matches_the_deterministic_golden_source

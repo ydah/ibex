@@ -6,8 +6,8 @@ architecture decisions.
 
 ## Default checks
 
-Install the default development dependencies and run the unit, integration,
-documentation, and style suite:
+Use Ruby 3.4 or newer, install the complete development toolchain once, and run
+the unit, integration, documentation, and style suite:
 
 ```sh
 bundle install
@@ -29,6 +29,9 @@ zizmor .
 CI runs the supported Ruby matrix separately from optional experimental Ruby
 implementations. Workflow and dependency-update configuration are authoritative
 for the current matrix, schedules, permissions, and pinned action versions.
+The matrix uses the intentionally unlocked `gemfiles/compat.Gemfile` so each
+supported Ruby resolves compatible test dependencies. Contributors use the
+root `Gemfile` and its committed lockfile for every development tool.
 
 ## Browser site and API documentation
 
@@ -38,7 +41,7 @@ bundle exercised in CI:
 ```sh
 npm ci
 npm run test:site
-BUNDLE_GEMFILE=gemfiles/docs.Gemfile bundle exec yard doc
+bundle exec yard doc
 ```
 
 `tool/build_site.rb`, the YARD configuration, and
@@ -70,19 +73,18 @@ the committed production parser.
 
 ## RBS and Steep
 
-The optional type toolchain is isolated in `gemfiles/Gemfile`. Regenerate the
-committed RBS tree, validate it, type-check the library, and refresh the
-documented statistics with:
+The development bundle includes the type toolchain. Regenerate the committed
+RBS tree, validate it, type-check the library, and refresh the documented
+statistics with:
 
 ```sh
-BUNDLE_GEMFILE=gemfiles/Gemfile bundle install
-BUNDLE_GEMFILE=gemfiles/Gemfile ruby -e '
+ruby -e '
   sources = Dir.glob("lib/**/*.rb").sort
   exec("bundle", "exec", "rbs-inline", "--opt-out", "--base=lib", "--output=sig", *sources)
 '
-BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec rbs -r digest -r json -r optparse -r tempfile -r timeout -r tmpdir -r uri -I sig validate
-BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec steep check
-BUNDLE_GEMFILE=gemfiles/Gemfile bundle exec ruby tool/type_stats.rb --write
+bundle exec rbs -r digest -r json -r optparse -r tempfile -r timeout -r tmpdir -r uri -I sig validate
+bundle exec steep check
+bundle exec ruby tool/type_stats.rb --write
 ```
 
 CI generates signatures into a clean temporary directory and compares the
@@ -90,11 +92,10 @@ complete tree, so both missing and stale signature files fail.
 
 ## Bounded mutation testing
 
-Mutation analysis is intentionally separate from the default dependencies:
+Mutation analysis is part of the development bundle:
 
 ```sh
-BUNDLE_GEMFILE=gemfiles/mutation.Gemfile bundle install
-BUNDLE_GEMFILE=gemfiles/mutation.Gemfile bundle exec rake quality:mutation
+bundle exec rake quality:mutation
 ```
 
 The job uses MRI 4.0, two workers, a ten-minute job budget, and the focused
@@ -104,8 +105,8 @@ applies a one-second timeout to each deterministic mutation. Expanding the
 subject requires an explicit test owner, no surviving non-equivalent mutations,
 and a measured duration within the same bounded job.
 
-The isolated Gemfile keeps the mutation tool's Ruby floor and dependencies
-from changing the library's supported runtime matrix.
+The supported runtime matrix uses `gemfiles/compat.Gemfile`, so the mutation
+tool's Ruby floor does not change the library's Ruby floor.
 
 ## Benchmarks and evidence
 
@@ -114,11 +115,10 @@ Performance observations are not ordinary CI timing thresholds. Follow the
 comparison commands, environment matching, artifact validation, and
 append-only result history.
 
-The external-grammar profiler has its own exact-version tool bundle:
+The development bundle includes the exact-version external-grammar profiler:
 
 ```sh
-BUNDLE_GEMFILE=gemfiles/profile.Gemfile bundle install
-BUNDLE_GEMFILE=gemfiles/profile.Gemfile bundle exec ruby benchmark/public_profile.rb --help
+bundle exec ruby benchmark/public_profile.rb --help
 ```
 
 Its output is diagnostic-only and must remain outside `benchmark/results/`.

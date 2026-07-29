@@ -45,10 +45,7 @@ end
 namespace :quality do
   desc "Run the bounded mutation suite for compact parser tables"
   task :mutation do
-    sh(
-      { "BUNDLE_GEMFILE" => "gemfiles/mutation.Gemfile" },
-      "bundle", "exec", "mutant", "run"
-    )
+    sh "bundle", "exec", "mutant", "run"
   end
 
   desc "Verify the JSON error UX and repair evidence"
