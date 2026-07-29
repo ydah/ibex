@@ -138,7 +138,8 @@ class ASTCodegenTest < Minitest::Test
   end
 
   def type_toolchain_available?
-    system({ "BUNDLE_GEMFILE" => TYPE_GEMFILE }, "bundle", "check", out: File::NULL, err: File::NULL)
+    system({ "BUNDLE_GEMFILE" => TYPE_GEMFILE }, "bundle", "exec", "steep", "--version",
+           out: File::NULL, err: File::NULL)
   end
 
   def write_steep_project(directory, signature)

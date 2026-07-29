@@ -147,7 +147,7 @@ class RBSCodegenTest < Minitest::Test
 
   def assert_rbs_valid(signature)
     environment = { "BUNDLE_GEMFILE" => TYPE_GEMFILE }
-    available = system(environment, "bundle", "check", out: File::NULL, err: File::NULL)
+    available = system(environment, "bundle", "exec", "rbs", "--version", out: File::NULL, err: File::NULL)
     skip "the optional RBS toolchain is not installed" unless available
 
     Dir.mktmpdir("ibex-generated-rbs") do |directory|
