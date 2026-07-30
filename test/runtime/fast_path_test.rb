@@ -468,11 +468,18 @@ class RuntimeFastPathTest < Minitest::Test
   end
 
   def test_class_hook_change_invalidates_cached_eligibility
-    parser_class = Class.new(CompactActionlessProbe)
+    parent_class = Class.new(CompactActionlessProbe)
+    parent = parent_class.new([[:ITEM, 9], false])
+    assert_equal 9, parent.do_parse
+    assert parent.send(:runtime_fast_path_class_hooks_eligible?)
+
+    parser_class = Class.new(parent_class)
     first = parser_class.new([[:ITEM, 10], false])
 
     assert_equal 10, first.do_parse
     assert first.send(:runtime_fast_path_class_hooks_eligible?)
+    refute_same parent_class.method(:method_added).owner,
+                parser_class.method(:method_added).owner
 
     parser_class.define_method(:on_reduce) { |*| @class_hook_called = true }
     second = parser_class.new([[:ITEM, 11], false])
