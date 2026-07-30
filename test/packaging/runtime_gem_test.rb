@@ -24,9 +24,15 @@ class RuntimeGemPackagingTest < Minitest::Test
     runtime = Gem::Specification.load(RUNTIME_GEMSPEC)
     generator = Gem::Specification.load(GENERATOR_GEMSPEC)
 
+    assert_runtime_package(runtime)
+    assert_generator_dependency(generator, runtime)
+  end
+
+  def assert_runtime_package(runtime)
     assert_equal "ibex-runtime", runtime.name
     assert_equal Ibex::Runtime::VERSION, runtime.version.to_s
     assert_includes runtime.files, "lib/ibex/runtime.rb"
+    assert_includes runtime.files, "lib/ibex/runtime/embedded_source.rb"
     assert_includes runtime.files, "lib/ibex/runtime/version.rb"
     assert_includes runtime.files, "lib/ibex/tables/compact.rb"
     assert_includes runtime.files, "lib/ibex/tables/compact_actions.rb"
@@ -34,15 +40,19 @@ class RuntimeGemPackagingTest < Minitest::Test
     assert_runtime_signatures(runtime)
     refute_includes runtime.files, "lib/ibex/frontend.rb"
     refute_includes runtime.files, "exe/ibex"
+  end
 
+  def assert_generator_dependency(generator, runtime)
     dependency = generator.runtime_dependencies.find { |entry| entry.name == "ibex-runtime" }
     refute_nil dependency
     assert dependency.requirement.satisfied_by?(runtime.version)
     refute_includes generator.files, "lib/ibex/runtime.rb"
+    refute_includes generator.files, "lib/ibex/runtime/embedded_source.rb"
     refute_includes generator.files, "lib/ibex/runtime/parser.rb"
   end
 
   def assert_runtime_signatures(runtime)
+    assert_includes runtime.files, "sig/ibex/runtime/embedded_source.rbs"
     assert_includes runtime.files, "sig/ibex/runtime/parser.rbs"
     assert_includes runtime.files, "sig/ibex/tables/compact_actions.rbs"
     assert_includes runtime.files, "sig/ibex/tables/compact_productions.rbs"
@@ -156,6 +166,16 @@ class RuntimeGemPackagingTest < Minitest::Test
     end
     assert status.success?, stderr
     assert File.file?(output)
+
+    _stdout, stderr, status = Bundler.with_unbundled_env do
+      Open3.capture3(environment, executable, "-E", grammar, "--output-file", output, chdir: directory)
+    end
+    assert status.success?, stderr
+
+    _stdout, stderr, status = Open3.capture3(
+      ISOLATED_ENV, RbConfig.ruby, "--disable-gems", "-e", runtime_script, chdir: directory
+    )
+    assert status.success?, stderr
   end
 
   def copy_tracked_source(destination)

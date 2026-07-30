@@ -19,8 +19,6 @@ module Ibex
 
       include RubySyntax
 
-      EMBEDDED_RUNTIME_SOURCES: Array[String]
-
       @automaton: IR::Automaton
 
       @grammar: IR::Grammar
@@ -62,9 +60,6 @@ module Ibex
 
       # @rbs (Array[String] lines) -> void
       def append_runtime: (Array[String] lines) -> void
-
-      # @rbs (String relative_path) -> String
-      def embedded_source: (String relative_path) -> String
 
       # @rbs (Array[String] lines) -> void
       def append_tables: (Array[String] lines) -> void

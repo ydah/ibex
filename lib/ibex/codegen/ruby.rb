@@ -24,58 +24,6 @@ module Ibex
       include RubyAST
       include RubySyntax
 
-      EMBEDDED_RUNTIME_SOURCES = %w[
-        ../runtime/version.rb
-        ../runtime/table_format.rb
-        ../runtime/location_span.rb
-        ../runtime/cst/kind.rb
-        ../runtime/cst/annotation.rb
-        ../runtime/cst/green/trivia.rb
-        ../runtime/cst/green/token.rb
-        ../runtime/cst/green/node.rb
-        ../runtime/cst/green/cache.rb
-        ../runtime/cst/green/builder.rb
-        ../runtime/cst/source_text.rb
-        ../runtime/cst/syntax_token.rb
-        ../runtime/cst/syntax_node.rb
-        ../runtime/cst/cursor.rb
-        ../runtime/cst/typed_node.rb
-        ../runtime/cst/parse_result.rb
-        ../runtime/cst/editing.rb
-        ../runtime/cst/text_edit.rb
-        ../runtime/cst/rewriter.rb
-        ../runtime/cst/editor.rb
-        ../runtime/cst/diff.rb
-        ../runtime/cst/serialized_tree.rb
-        ../runtime/cst/validator.rb
-        ../runtime/cst/serialize.rb
-        ../runtime/cst/incremental/token_memo.rb
-        ../runtime/cst/incremental/relexer.rb
-        ../runtime/cst/incremental/parse_memo.rb
-        ../runtime/cst/incremental/lexed_syntax.rb
-        ../runtime/cst/incremental/blender.rb
-        ../runtime/cst/incremental/session.rb
-        ../runtime/cst.rb
-        ../runtime/ast_data.rb
-        ../runtime/resource_limits.rb
-        ../runtime/event_sanitizer.rb
-        ../runtime/event.rb
-        ../runtime/observation.rb
-        ../runtime/repair.rb
-        ../runtime/repair_priority_queue.rb
-        ../runtime/repair_search.rb
-        ../runtime/parser_sync_recovery.rb
-        ../runtime/parser.rb
-        ../runtime/lexer_input.rb
-        ../runtime/generated_lexer.rb
-        ../runtime/jsonl_tracer.rb
-        ../runtime/event_jsonl_tracer.rb
-        ../tables/compact.rb
-        ../tables/compact_actions.rb
-        ../tables/compact_productions.rb
-      ].freeze #: Array[String]
-      private_constant :EMBEDDED_RUNTIME_SOURCES
-
       # @rbs @automaton: IR::Automaton
       # @rbs @grammar: IR::Grammar
       # @rbs @table_format: Symbol
@@ -149,17 +97,12 @@ module Ibex
       # @rbs (Array[String] lines) -> void
       def append_runtime(lines)
         if @embedded
-          EMBEDDED_RUNTIME_SOURCES.each { |path| lines << embedded_source(path) }
+          require "ibex/runtime/embedded_source"
+          lines << Runtime::EmbeddedSource.render
         elsif @runtime_require
           lines << "require #{@runtime_require.inspect}"
         end
         lines << ""
-      end
-
-      # @rbs (String relative_path) -> String
-      def embedded_source(relative_path)
-        path = File.expand_path(relative_path, File.dirname(__FILE__))
-        File.read(path).lines.reject { |line| line.start_with?("# frozen_string_literal:") }.join.rstrip
       end
 
       # @rbs (Array[String] lines) -> void
