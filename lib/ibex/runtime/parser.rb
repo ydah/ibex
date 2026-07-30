@@ -2844,7 +2844,9 @@ module Ibex
         return if parser_class.instance_variable_get(:@__ibex_fast_path_class_tracker_installed) == true
 
         singleton = parser_class.singleton_class
-        singleton.prepend(FastPathClassMutationTracker)
+        # Keep the same module object out of both a class and its superclass
+        # callback chains; TruffleRuby can re-enter `super` in that topology.
+        singleton.prepend(FastPathClassMutationTracker.dup)
         parser_class.instance_variable_set(:@__ibex_fast_path_hook_version, 0)
         parser_class.instance_variable_set(:@__ibex_fast_path_class_tracker_installed, true)
       rescue FrozenError, TypeError
