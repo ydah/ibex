@@ -1,0 +1,21 @@
+# Generated from lib/ibex/runtime/embedded_source.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    # Assembles the installed runtime into one dependency-free Ruby source.
+    module EmbeddedSource
+      FILES: Array[String]
+
+      REQUIRE_RELATIVE: ::Regexp
+
+      # @rbs () -> String
+      def self.render: () -> String
+
+      # @rbs (Array[String] paths) -> void
+      def self.validate_manifest!: (Array[String] paths) -> void
+
+      # @rbs (String path) -> String
+      def self.source: (String path) -> String
+    end
+  end
+end
