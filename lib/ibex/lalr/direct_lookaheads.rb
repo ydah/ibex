@@ -10,7 +10,7 @@ module Ibex
     class DirectLookaheads
       AUGMENTED_PRODUCTION = -1 #: Integer
       EMPTY_PRODUCTIONS = Array.new(0).freeze #: Array[IR::Production]
-      EMPTY_NODES = Array.new(0).freeze #: Array[lookahead_node]
+      EMPTY_NODES = Array.new(0).freeze #: Array[Integer]
       private_constant :EMPTY_PRODUCTIONS, :EMPTY_NODES
 
       # @rbs @grammar: IR::Grammar
@@ -21,6 +21,7 @@ module Ibex
       # @rbs @augmented_item_cores: Array[item_core]
       # @rbs @production_item_cores: Array[Array[item_core]]
       # @rbs @item_key_stride: Integer
+      # @rbs @node_stride: Integer
       # @rbs @terminal_ids: Array[Integer]
       # @rbs @terminal_masks: Array[Integer]
 
@@ -36,7 +37,7 @@ module Ibex
         @production_item_cores = grammar.productions.map do |production|
           item_cores_for(production.id, production.rhs.length)
         end.freeze
-        @item_key_stride = [@augmented_rhs, *@production_rhs].map(&:length).max.to_i + 1
+        initialize_item_encoding(grammar.productions.length)
         @terminal_ids = grammar.terminals.map(&:id).freeze
         @terminal_masks = @terminal_ids.map { |id| 1 << id }.freeze
       end
@@ -52,6 +53,12 @@ module Ibex
       end
 
       private
+
+      # @rbs (Integer production_count) -> void
+      def initialize_item_encoding(production_count)
+        @item_key_stride = [@augmented_rhs, *@production_rhs].map(&:length).max.to_i + 1
+        @node_stride = (production_count + 1) * @item_key_stride
+      end
 
       # @rbs () -> [Array[core_set], transitions]
       def lr0_collection
@@ -116,9 +123,9 @@ module Ibex
       end
 
       # @rbs (Array[core_set] states, transitions transitions, Array[packed_items] lookaheads) ->
-      #   Hash[lookahead_node, Array[lookahead_node]]
+      #   Hash[Integer, Array[Integer]]
       def propagation_graph(states, transitions, lookaheads)
-        edges = Hash.new { |hash, key| hash[key] = [] } #: Hash[lookahead_node, Array[lookahead_node]]
+        edges = Hash.new { |hash, key| hash[key] = [] } #: Hash[Integer, Array[Integer]]
         states.each_with_index do |items, state_id|
           items.each do |production_id, dot|
             add_transition_edge(edges, transitions, state_id, production_id, dot)
@@ -129,19 +136,19 @@ module Ibex
         edges
       end
 
-      # @rbs (Hash[lookahead_node, Array[lookahead_node]] edges, transitions transitions,
+      # @rbs (Hash[Integer, Array[Integer]] edges, transitions transitions,
       #   Integer state_id, Integer production_id, Integer dot) -> void
       def add_transition_edge(edges, transitions, state_id, production_id, dot)
         symbol_id = rhs_for(production_id)[dot]
         return unless symbol_id
 
         target_state = transitions.fetch(state_id).fetch(symbol_id)
-        source = [state_id, production_id, dot] #: lookahead_node
-        target = [target_state, production_id, dot + 1] #: lookahead_node
+        source = node_id(state_id, production_id, dot)
+        target = node_id(target_state, production_id, dot + 1)
         edges[source] << target
       end
 
-      # @rbs (Hash[lookahead_node, Array[lookahead_node]] edges, Array[packed_items] lookaheads,
+      # @rbs (Hash[Integer, Array[Integer]] edges, Array[packed_items] lookaheads,
       #   Integer state_id, Integer production_id, Integer dot) -> void
       def add_closure_relations(edges, lookaheads, state_id, production_id, dot)
         rhs = rhs_for(production_id)
@@ -150,27 +157,27 @@ module Ibex
 
         suffix = rhs.drop(dot + 1)
         spontaneous = terminal_ids(@sets.first_of_sequence(suffix))
-        source = [state_id, production_id, dot] #: lookahead_node
+        source = node_id(state_id, production_id, dot)
         @productions_by_lhs.fetch(symbol.id, EMPTY_PRODUCTIONS).each do |production|
           target_item = item_core(production.id, 0)
           lookaheads.fetch(state_id).fetch(target_item).merge(spontaneous)
           if @sets.sequence_nullable?(suffix)
-            target = [state_id, production.id, 0] #: lookahead_node
+            target = node_id(state_id, production.id, 0)
             edges[source] << target
           end
         end
       end
 
-      # @rbs (Array[packed_items] lookaheads, Hash[lookahead_node, Array[lookahead_node]] edges) -> void
+      # @rbs (Array[packed_items] lookaheads, Hash[Integer, Array[Integer]] edges) -> void
       def propagate(lookaheads, edges)
         queue = lookaheads.each_with_index.flat_map do |items, state_id|
           items.filter_map do |(production_id, dot), tokens|
             next if tokens.empty?
 
-            [state_id, production_id, dot] #: lookahead_node
+            node_id(state_id, production_id, dot)
           end
-        end #: Array[lookahead_node]
-        queued = queue.to_h { |node| [node, true] } #: Hash[lookahead_node, bool]
+        end #: Array[Integer]
+        queued = queue.to_h { |node| [node, true] } #: Hash[Integer, bool]
         cursor = 0
         while cursor < queue.length
           source = queue.fetch(cursor)
@@ -189,10 +196,18 @@ module Ibex
         end
       end
 
-      # @rbs (Array[packed_items] lookaheads, lookahead_node node) -> Set[Integer]
+      # @rbs (Array[packed_items] lookaheads, Integer node) -> Set[Integer]
       def node_set(lookaheads, node)
-        state_id, production_id, dot = node
+        state_id = node / @node_stride
+        item = node % @node_stride
+        production_id = (item / @item_key_stride) - 1
+        dot = item % @item_key_stride
         lookaheads.fetch(state_id).fetch(item_core(production_id, dot))
+      end
+
+      # @rbs (Integer state_id, Integer production_id, Integer dot) -> Integer
+      def node_id(state_id, production_id, dot)
+        (state_id * @node_stride) + ((production_id + 1) * @item_key_stride) + dot
       end
 
       # @rbs (Integer bits) -> Array[Integer]

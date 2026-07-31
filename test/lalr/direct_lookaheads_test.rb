@@ -86,6 +86,19 @@ class DirectLookaheadsTest < Minitest::Test
     assert(keys.all? { |key| key.is_a?(Integer) && key >= 0 })
   end
 
+  def test_encoded_propagation_nodes_are_collision_free_for_every_item_occurrence
+    _grammar, lookaheads = recursive_list_lookaheads
+    states, = lookaheads.send(:lr0_collection)
+    nodes = states.each_with_index.flat_map do |items, state_id|
+      items.map do |production_id, dot|
+        lookaheads.send(:node_id, state_id, production_id, dot)
+      end
+    end
+
+    assert_equal states.sum(&:length), nodes.uniq.length
+    assert(nodes.all? { |node| node.is_a?(Integer) && node >= 0 })
+  end
+
   def test_grouped_shifted_kernels_match_the_previous_lr0_collection
     _grammar, lookaheads = expression_lookaheads
 
