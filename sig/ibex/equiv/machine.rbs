@@ -1,0 +1,54 @@
+# Generated from lib/ibex/equiv/machine.rb with RBS::Inline
+
+module Ibex
+  class Equiv
+    # Immutable, semantic-action-free LR state-stack machine.
+    class Machine
+      class BudgetExceeded < Ibex::Error
+      end
+
+      # One product-search component.
+      class Configuration
+        attr_reader stack: Array[Integer]
+
+        attr_reader status: Symbol?
+
+        attr_reader actions: Integer
+
+        attr_reader reductions: Array[Integer]
+
+        # @rbs (stack: Array[Integer], status: Symbol?, actions: Integer, ?reductions: Array[Integer]) -> void
+        def initialize: (stack: Array[Integer], status: Symbol?, actions: Integer, ?reductions: Array[Integer]) -> void
+      end
+
+      # @rbs (IR::Automaton automaton, max_actions: Integer, max_stack: Integer) -> void
+      def initialize: (IR::Automaton automaton, max_actions: Integer, max_stack: Integer) -> void
+
+      # @rbs () -> Configuration
+      def start: () -> Configuration
+
+      # @rbs (Array[String] tokens) -> Configuration
+      def run: (Array[String] tokens) -> Configuration
+
+      # @rbs (Configuration configuration, String token) -> Configuration
+      def push: (Configuration configuration, String token) -> Configuration
+
+      # @rbs (Configuration configuration) -> Configuration
+      def finish: (Configuration configuration) -> Configuration
+
+      private
+
+      # @rbs (Configuration configuration, Integer token_id, eof: bool) -> Configuration
+      def consume: (Configuration configuration, Integer token_id, eof: bool) -> Configuration
+
+      # @rbs (Array[Integer] stack, Integer production_id) -> void
+      def apply_reduction!: (Array[Integer] stack, Integer production_id) -> void
+
+      # @rbs (Integer actions) -> void
+      def enforce_action_budget!: (Integer actions) -> void
+
+      # @rbs (Array[Integer] stack) -> void
+      def enforce_stack_budget!: (Array[Integer] stack) -> void
+    end
+  end
+end
