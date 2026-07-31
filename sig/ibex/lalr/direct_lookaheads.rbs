@@ -9,11 +9,13 @@ module Ibex
 
       EMPTY_PRODUCTIONS: Array[IR::Production]
 
-      EMPTY_NODES: Array[lookahead_node]
+      EMPTY_NODES: Array[Integer]
 
       @terminal_masks: Array[Integer]
 
       @terminal_ids: Array[Integer]
+
+      @node_stride: Integer
 
       @item_key_stride: Integer
 
@@ -39,6 +41,9 @@ module Ibex
 
       private
 
+      # @rbs (Integer production_count) -> void
+      def initialize_item_encoding: (Integer production_count) -> void
+
       # @rbs () -> [Array[core_set], transitions]
       def lr0_collection: () -> [ Array[core_set], transitions ]
 
@@ -52,22 +57,25 @@ module Ibex
       def empty_lookaheads: (Array[core_set] states) -> Array[packed_items]
 
       # @rbs (Array[core_set] states, transitions transitions, Array[packed_items] lookaheads) ->
-      #   Hash[lookahead_node, Array[lookahead_node]]
-      def propagation_graph: (Array[core_set] states, transitions transitions, Array[packed_items] lookaheads) -> Hash[lookahead_node, Array[lookahead_node]]
+      #   Hash[Integer, Array[Integer]]
+      def propagation_graph: (Array[core_set] states, transitions transitions, Array[packed_items] lookaheads) -> Hash[Integer, Array[Integer]]
 
-      # @rbs (Hash[lookahead_node, Array[lookahead_node]] edges, transitions transitions,
+      # @rbs (Hash[Integer, Array[Integer]] edges, transitions transitions,
       #   Integer state_id, Integer production_id, Integer dot) -> void
-      def add_transition_edge: (Hash[lookahead_node, Array[lookahead_node]] edges, transitions transitions, Integer state_id, Integer production_id, Integer dot) -> void
+      def add_transition_edge: (Hash[Integer, Array[Integer]] edges, transitions transitions, Integer state_id, Integer production_id, Integer dot) -> void
 
-      # @rbs (Hash[lookahead_node, Array[lookahead_node]] edges, Array[packed_items] lookaheads,
+      # @rbs (Hash[Integer, Array[Integer]] edges, Array[packed_items] lookaheads,
       #   Integer state_id, Integer production_id, Integer dot) -> void
-      def add_closure_relations: (Hash[lookahead_node, Array[lookahead_node]] edges, Array[packed_items] lookaheads, Integer state_id, Integer production_id, Integer dot) -> void
+      def add_closure_relations: (Hash[Integer, Array[Integer]] edges, Array[packed_items] lookaheads, Integer state_id, Integer production_id, Integer dot) -> void
 
-      # @rbs (Array[packed_items] lookaheads, Hash[lookahead_node, Array[lookahead_node]] edges) -> void
-      def propagate: (Array[packed_items] lookaheads, Hash[lookahead_node, Array[lookahead_node]] edges) -> void
+      # @rbs (Array[packed_items] lookaheads, Hash[Integer, Array[Integer]] edges) -> void
+      def propagate: (Array[packed_items] lookaheads, Hash[Integer, Array[Integer]] edges) -> void
 
-      # @rbs (Array[packed_items] lookaheads, lookahead_node node) -> Set[Integer]
-      def node_set: (Array[packed_items] lookaheads, lookahead_node node) -> Set[Integer]
+      # @rbs (Array[packed_items] lookaheads, Integer node) -> Set[Integer]
+      def node_set: (Array[packed_items] lookaheads, Integer node) -> Set[Integer]
+
+      # @rbs (Integer state_id, Integer production_id, Integer dot) -> Integer
+      def node_id: (Integer state_id, Integer production_id, Integer dot) -> Integer
 
       # @rbs (Integer bits) -> Array[Integer]
       def terminal_ids: (Integer bits) -> Array[Integer]
