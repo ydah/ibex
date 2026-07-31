@@ -57,6 +57,7 @@ bundle exec rake verify:strict
 bundle exec rake equiv:test
 bundle exec rake analysis:test
 bundle exec rake fix:test
+bundle exec rake i18n:coverage
 bundle exec rake deps:zero
 bundle exec rake network:zero
 ```
@@ -91,6 +92,9 @@ classification for `diff`, plus deterministic recursion and table counts for
 another conflict, pass the independent verifier, and find no language or
 mapped-tree difference within their reported bounds. It also replays the
 committed twenty-conflict measurement.
+`i18n:coverage` requires exact message-ID and interpolation parity across every
+built-in language catalog, and exercises option, environment, fallback, text,
+and JSON paths.
 
 ## Browser site and API documentation
 

@@ -30,6 +30,8 @@ module Ibex
 
     include CLIOutputs
 
+    @language: String
+
     @options: cli_options
 
     @stderr: _CLIOutput
@@ -47,6 +49,9 @@ module Ibex
     def run: (Array[String] arguments) -> Integer
 
     private
+
+    # @rbs (Array[String] arguments) -> Array[String]
+    def extract_language: (Array[String] arguments) -> Array[String]
 
     # @rbs (Array[String] arguments) -> Integer?
     def dispatch_subcommand: (Array[String] arguments) -> Integer?

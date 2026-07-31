@@ -1,5 +1,7 @@
 # Red/Green concrete syntax trees
 
+<!-- stable:batch-cst -->
+
 `pragma cst` generates a lossless, error-tolerant syntax tree alongside the
 ordinary semantic result. Regenerate the parser with the current generator to
 receive parser-table format v6 and this API. Batch parsing, typed views,

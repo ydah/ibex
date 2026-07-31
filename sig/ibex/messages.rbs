@@ -1,0 +1,26 @@
+# Generated from lib/ibex/messages.rb with RBS::Inline
+
+module Ibex
+  # Immutable built-in diagnostic translations, separate from user E00xx
+  # sentence-keyed parser error catalogs.
+  module Messages
+    ROOT: String
+
+    LANGUAGES: Array[String]
+
+    # @rbs (String? requested) -> String
+    def self?.language: (String? requested) -> String
+
+    # @rbs (String id, ?language: String, **untyped values) -> String
+    def self?.translate: (String id, ?language: String, **untyped values) -> String
+
+    # @rbs (String id) -> bool
+    def self?.known?: (String id) -> bool
+
+    # @rbs (String language) -> Hash[String, String]
+    def self?.catalog: (String language) -> Hash[String, String]
+
+    # @rbs (String language) -> Hash[String, String]
+    def self?.load_catalog: (String language) -> Hash[String, String]
+  end
+end

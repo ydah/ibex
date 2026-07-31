@@ -34,5 +34,14 @@ module Ibex
 
     # @rbs (Frontend::ParseResult result) -> Hash[String, untyped]
     def diagnostics_document: (Frontend::ParseResult result) -> Hash[String, untyped]
+
+    # @rbs (Frontend::Diagnostic diagnostic) -> String
+    def localized_diagnostic_text: (Frontend::Diagnostic diagnostic) -> String
+
+    # @rbs (Frontend::Diagnostic diagnostic) -> Hash[Symbol, untyped]
+    def localized_diagnostic_hash: (Frontend::Diagnostic diagnostic) -> Hash[Symbol, untyped]
+
+    # @rbs (Frontend::Diagnostic diagnostic) -> String
+    def localized_diagnostic_message: (Frontend::Diagnostic diagnostic) -> String
   end
 end

@@ -5,7 +5,7 @@ module Ibex
   module CLIOutputs
     private def register_artifact: (Symbol, String, String, ?mode: Integer?, ?status: bool) -> Artifact
 
-    WARNING_MESSAGES: Hash[Symbol, ^(IR::grammar_warning) -> String]
+    WARNING_MESSAGE_IDS: Hash[Symbol, String]
 
     private
 
@@ -15,8 +15,11 @@ module Ibex
     # @rbs (IR::Grammar grammar, String input_path) -> void
     def handle_grammar_warnings: (IR::Grammar grammar, String input_path) -> void
 
-    # @rbs (IR::grammar_warning warning, String input_path) -> String
-    def format_grammar_warning: (IR::grammar_warning warning, String input_path) -> String
+    # @rbs (IR::grammar_warning warning, String input_path, ?promoted: bool) -> String
+    def format_grammar_warning: (IR::grammar_warning warning, String input_path, ?promoted: bool) -> String
+
+    # @rbs (IR::grammar_warning warning) -> String
+    def grammar_warning_message: (IR::grammar_warning warning) -> String
 
     # @rbs (IR::Automaton automaton, String input_path) -> void
     def report_conflicts: (IR::Automaton automaton, String input_path) -> void

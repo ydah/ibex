@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "messages": {
+    "cli.error": "%{detail}",
+    "diagnostic.frontend.lexical_error": "%{detail}",
+    "diagnostic.frontend.syntax_error": "%{detail}",
+    "diagnostic.frontend.resolution_error": "%{detail}",
+    "diagnostic.generic": "%{detail}",
+    "label.warning": "warning",
+    "label.warning_as_error": "warning treated as error",
+    "warning.undeclared_terminal": "undeclared terminal %{symbol}",
+    "warning.unused_terminal": "unused terminal %{symbol}",
+    "warning.unused_precedence": "unused precedence %{symbol}",
+    "warning.unreachable_terminal": "declared terminal %{symbol} is unreachable",
+    "warning.unreachable_nonterminal": "unreachable nonterminal %{symbol}",
+    "warning.duplicate_production": "duplicate production %{production} (first defined as %{original})",
+    "warning.implicit_empty": "implicit empty alternative; write %%empty to document intent",
+    "warning.empty_language": "start symbol %{symbol} derives no terminal sentence",
+    "warning.lexer_redos": "lexer pattern may exhibit excessive backtracking",
+    "warning.lexer_redos_symbol": "lexer pattern for %{symbol} may exhibit excessive backtracking",
+    "conflict.shift_reduce_expected": "%{actual} shift/reduce conflicts; expected %{expected}",
+    "conflict.reduce_reduce_expected": "%{actual} reduce/reduce conflicts; expected %{expected}",
+    "conflict.reduce_reduce": "%{actual} reduce/reduce conflicts",
+    "conflict.treated_as_error": "%{detail}; conflict treated as error",
+    "conflict.count": "%{count} %{kind} conflict%{plural}",
+    "note.ielr": "note: --algorithm=ielr avoids %{avoided}; consider --algorithm=ielr"
+  }
+}

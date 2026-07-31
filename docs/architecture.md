@@ -183,6 +183,8 @@ class in their own RBS files to declare embedded methods.
 
 ## Grammar IR versions 1 and 2
 
+<!-- stable:versioned-ir -->
+
 Top-level fields:
 
 | Field | Meaning |

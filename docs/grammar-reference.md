@@ -1,5 +1,7 @@
 # Grammar reference
 
+<!-- stable:compatible-parser -->
+
 Ibex's `default` mode accepts the compatible grammar described here. `--mode=extended` or an explicit grammar-file
 `pragma extended` adds the marked syntax; extensions are never inferred from a production.
 
@@ -601,6 +603,14 @@ uncovered, and unreachable message-catalog entries against the original table.
 symlinks or files with multiple hard links. Candidate or equivalence budget
 exhaustion exits 2. Every successful report states that bounded search is not
 a proof of equivalence.
+
+All CLI forms accept `--lang=LANG`; `IBEX_LANG` supplies the default. Built-in
+diagnostic catalogs ship for `en` and `ja`. Locale suffixes such as
+`ja_JP.UTF-8` select their base language, while unavailable translations fall
+back to English silently. Stable machine-readable diagnostic codes and report
+schemas do not change with the display language. The built-in
+`diagnostic.*`, `warning.*`, `conflict.*`, and `note.*` IDs are an internal
+translation namespace and never overlap the user-owned `E00xx` message IDs.
 
 `--emit=sets` writes deterministic JSON containing nullable nonterminals and their FIRST and FOLLOW sets. `--dot=FILE` and
 `--mermaid=FILE` write automaton graphs. `--html=FILE` writes a self-contained report with state search, conflict highlighting,

@@ -101,6 +101,11 @@ namespace :test do
   task :no_exec do
     ruby "-Itest", "test/analysis_no_exec_test.rb"
   end
+
+  desc "Require synchronized English/Japanese coverage for every Stable contract"
+  task :docs_coverage do
+    ruby "-Ilib", "-r./tool/quality/docs_coverage", "-e", "Ibex::Quality::DocsCoverage.new.verify!"
+  end
 end
 # rubocop:enable Metrics/BlockLength
 
@@ -184,6 +189,13 @@ namespace :fix do
     ruby "-Itest", "test/fix_test.rb"
     ruby "-Itest", "test/cli_fix_test.rb"
     ruby "-Ilib", "-r./tool/quality/fix", "-e", "Ibex::Quality::Fix.new.verify!"
+  end
+end
+
+namespace :i18n do
+  desc "Verify built-in diagnostic catalog parity and language selection"
+  task :coverage do
+    ruby "-Itest", "test/messages_test.rb"
   end
 end
 

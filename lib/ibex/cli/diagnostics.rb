@@ -98,7 +98,7 @@ module Ibex
       if format == "json"
         @stdout.puts(JSON.pretty_generate(diagnostics_document(result)))
       else
-        result.diagnostics.each { |diagnostic| @stdout.puts(diagnostic.to_s) }
+        result.diagnostics.each { |diagnostic| @stdout.puts(localized_diagnostic_text(diagnostic)) }
       end
     end
 
@@ -109,8 +109,27 @@ module Ibex
         "schema_version" => DIAGNOSTICS_SCHEMA_VERSION,
         "success" => result.success?,
         "ast_available" => !result.ast.nil?,
-        "diagnostics" => result.diagnostics.map(&:to_h)
+        "diagnostics" => result.diagnostics.map { |diagnostic| localized_diagnostic_hash(diagnostic) }
       }
+    end
+
+    # @rbs (Frontend::Diagnostic diagnostic) -> String
+    def localized_diagnostic_text(diagnostic)
+      return diagnostic.to_s if @language == "en"
+
+      "#{diagnostic.location}: #{localized_diagnostic_message(diagnostic)}"
+    end
+
+    # @rbs (Frontend::Diagnostic diagnostic) -> Hash[Symbol, untyped]
+    def localized_diagnostic_hash(diagnostic)
+      diagnostic.to_h.merge(message: localized_diagnostic_message(diagnostic))
+    end
+
+    # @rbs (Frontend::Diagnostic diagnostic) -> String
+    def localized_diagnostic_message(diagnostic)
+      id = "diagnostic.#{diagnostic.code}"
+      id = "diagnostic.generic" unless Messages.known?(id)
+      Messages.translate(id, language: @language, detail: diagnostic.message)
     end
   end
 end

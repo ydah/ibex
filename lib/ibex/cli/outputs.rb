@@ -6,22 +6,17 @@ module Ibex
     # @rbs!
     #   private def register_artifact: (Symbol, String, String, ?mode: Integer?, ?status: bool) -> Artifact
 
-    WARNING_MESSAGES = {
-      undeclared_terminal: ->(warning) { "undeclared terminal #{warning[:symbol]}" },
-      unused_terminal: ->(warning) { "unused terminal #{warning[:symbol]}" },
-      unused_precedence: ->(warning) { "unused precedence #{warning[:symbol]}" },
-      unreachable_terminal: ->(warning) { "declared terminal #{warning[:symbol]} is unreachable" },
-      unreachable_nonterminal: ->(warning) { "unreachable nonterminal #{warning[:symbol]}" },
-      duplicate_production: lambda do |warning|
-        "duplicate production #{warning[:production]} (first defined as #{warning[:original]})"
-      end,
-      implicit_empty: ->(_warning) { "implicit empty alternative; write %empty to document intent" },
-      empty_language: ->(warning) { "start symbol #{warning[:symbol]} derives no terminal sentence" },
-      lexer_redos: lambda do |warning|
-        subject = warning[:symbol] ? " for #{warning[:symbol]}" : ""
-        "lexer pattern#{subject} may exhibit excessive backtracking"
-      end
-    }.freeze #: Hash[Symbol, ^(IR::grammar_warning) -> String]
+    WARNING_MESSAGE_IDS = {
+      undeclared_terminal: "warning.undeclared_terminal",
+      unused_terminal: "warning.unused_terminal",
+      unused_precedence: "warning.unused_precedence",
+      unreachable_terminal: "warning.unreachable_terminal",
+      unreachable_nonterminal: "warning.unreachable_nonterminal",
+      duplicate_production: "warning.duplicate_production",
+      implicit_empty: "warning.implicit_empty",
+      empty_language: "warning.empty_language",
+      lexer_redos: "warning.lexer_redos"
+    }.freeze #: Hash[Symbol, String]
 
     private
 
@@ -42,32 +37,44 @@ module Ibex
       categories = @options[:warnings]
       return if categories.nil? || categories.include?(:none) || grammar.warnings.empty?
 
-      messages = grammar.warnings.map { |warning| format_grammar_warning(warning, input_path) }
       if categories.include?(:error)
-        promoted = messages.map { |message| message.sub(": warning:", ": warning treated as error:") }
+        promoted = grammar.warnings.map do |warning|
+          format_grammar_warning(warning, input_path, promoted: true)
+        end
         raise Ibex::Error, promoted.join("\n")
       end
 
-      messages.each { |message| @stderr.puts(message) }
+      grammar.warnings.each { |warning| @stderr.puts(format_grammar_warning(warning, input_path)) }
     end
 
-    # @rbs (IR::grammar_warning warning, String input_path) -> String
-    def format_grammar_warning(warning, input_path)
+    # @rbs (IR::grammar_warning warning, String input_path, ?promoted: bool) -> String
+    def format_grammar_warning(warning, input_path, promoted: false)
       location = warning[:loc]
       rendered = if location
                    "#{location[:file] || input_path}:#{location[:line] || 1}:#{location[:column] || 1}"
                  else
                    "#{input_path}:1:1"
                  end
-      formatter = WARNING_MESSAGES.fetch(warning[:type]) { ->(item) { item[:type].to_s.tr("_", " ") } }
-      "#{rendered}: warning: #{formatter.call(warning)}"
+      label_id = promoted ? "label.warning_as_error" : "label.warning"
+      label = Messages.translate(label_id, language: @language)
+      "#{rendered}: #{label}: #{grammar_warning_message(warning)}"
+    end
+
+    # @rbs (IR::grammar_warning warning) -> String
+    def grammar_warning_message(warning)
+      id = WARNING_MESSAGE_IDS.fetch(warning[:type])
+      id = "warning.lexer_redos_symbol" if warning[:type] == :lexer_redos && warning[:symbol]
+      Messages.translate(id, language: @language, **warning)
     end
 
     # @rbs (IR::Automaton automaton, String input_path) -> void
     def report_conflicts(automaton, input_path)
       messages = conflict_messages(automaton.conflict_summary, input_path)
       if @options[:warnings]&.include?(:error) && messages.any?
-        raise Ibex::Error, messages.map { |message| "#{message}; conflict treated as error" }.join("\n")
+        promoted = messages.map do |message|
+          Messages.translate("conflict.treated_as_error", language: @language, detail: message)
+        end
+        raise Ibex::Error, promoted.join("\n")
       end
 
       messages.each { |message| @stderr.puts(message) }
@@ -77,14 +84,27 @@ module Ibex
     def conflict_messages(summary, input_path)
       messages = [] #: Array[String]
       unless summary[:expectation_met]
-        messages << "#{input_path}:1:1: #{summary[:sr]} shift/reduce conflicts; expected #{summary[:expected_sr]}"
+        detail = Messages.translate(
+          "conflict.shift_reduce_expected",
+          language: @language,
+          actual: summary[:sr],
+          expected: summary[:expected_sr]
+        )
+        messages << "#{input_path}:1:1: #{detail}"
       end
       if summary.key?(:rr_expectation_met)
         unless summary[:rr_expectation_met]
-          messages << "#{input_path}:1:1: #{summary[:rr]} reduce/reduce conflicts; expected #{summary[:expected_rr]}"
+          detail = Messages.translate(
+            "conflict.reduce_reduce_expected",
+            language: @language,
+            actual: summary[:rr],
+            expected: summary[:expected_rr]
+          )
+          messages << "#{input_path}:1:1: #{detail}"
         end
       elsif summary[:rr].positive?
-        messages << "#{input_path}:1:1: #{summary[:rr]} reduce/reduce conflicts"
+        detail = Messages.translate("conflict.reduce_reduce", language: @language, actual: summary[:rr])
+        messages << "#{input_path}:1:1: #{detail}"
       end
       messages
     end
@@ -108,13 +128,15 @@ module Ibex
       avoided << conflict_count(removed_rr, "reduce/reduce") if removed_rr.positive?
       return if avoided.empty?
 
-      @stderr.puts("#{input_path}:1:1: note: --algorithm=ielr avoids #{avoided.join(' and ')}; " \
-                   "consider --algorithm=ielr")
+      conjunction = @language == "ja" ? "、" : " and "
+      detail = Messages.translate("note.ielr", language: @language, avoided: avoided.join(conjunction))
+      @stderr.puts("#{input_path}:1:1: #{detail}")
     end
 
     # @rbs (Integer count, String kind) -> String
     def conflict_count(count, kind)
-      "#{count} #{kind} conflict#{'s' unless count == 1}"
+      plural = @language == "en" && count != 1 ? "s" : ""
+      Messages.translate("conflict.count", language: @language, count: count, kind: kind, plural: plural)
     end
 
     # @rbs (IR::Automaton automaton, String input_path) -> void
