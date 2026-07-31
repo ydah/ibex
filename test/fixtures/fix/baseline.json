@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "corpus": {
+    "total": 20,
+    "gallery_derived": 2,
+    "synthetic": 18
+  },
+  "successes": 20,
+  "success_rate": "100.0%",
+  "cases": [
+    {
+      "name": "gallery-calc-without-precedence",
+      "origin": "gallery-derived",
+      "result": "proposed",
+      "proposals": 1
+    },
+    {
+      "name": "gallery-sql-lite-without-precedence",
+      "origin": "gallery-derived",
+      "result": "proposed",
+      "proposals": 3
+    },
+    {
+      "name": "synthetic-direct-01",
+      "origin": "synthetic",
+      "result": "proposed",
+      "proposals": 1
+    },
+    {
+      "name": "synthetic-grouped-02",
+      "origin": "synthetic",
+      "result": "proposed",
+      "proposals": 1
+    },
+    {
+      "name": "synthetic-primary-03",
+      "origin": "synthetic",
+      "result": "proposed",
+      "proposals": 1
+    },
+    {
+      "name": "synthetic-direct-04",
+      "origin": "synthetic",
+      "result": "proposed",
+      "proposals": 1
+    },
+    {
+      "name": "synthetic-grouped-05",
+      "origin": "synthetic",
+      "result": "proposed",
+      "proposals": 1
+    },
+    {
+      "name": "synthetic-primary-06",
+      "origin": "synthetic",
+      "result": "proposed",
+      "proposals": 1
+    },
+    {
+      "name": "synthetic-direct-07",
+      "origin": "synthetic",
+      "result": "proposed",
+      "proposals": 1
+    },
+    {
+      "name": "synthetic-grouped-08",
+      "origin": "synthetic",
+      "result": "proposed",
+      "proposals": 1
+    },
+    {
+      "name": "synthetic-primary-09",
+      "origin": "synthetic",
+      "result": "proposed",
+      "proposals": 1
+    },
+    {
+      "name": "synthetic-direct-10",
+      "origin": "synthetic",
+      "result": "proposed",
+      "proposals": 1
+    },
+    {
+      "name": "synthetic-grouped-11",
+      "origin": "synthetic",
+      "result": "proposed",
+      "proposals": 1
+    },
+    {
+      "name": "synthetic-primary-12",
+      "origin": "synthetic",
+      "result": "proposed",
+      "proposals": 1
+    },
+    {
+      "name": "synthetic-direct-13",
+      "origin": "synthetic",
+      "result": "proposed",
+      "proposals": 1
+    },
+    {
+      "name": "synthetic-grouped-14",
+      "origin": "synthetic",
+      "result": "proposed",
+      "proposals": 1
+    },
+    {
+      "name": "synthetic-primary-15",
+      "origin": "synthetic",
+      "result": "proposed",
+      "proposals": 1
+    },
+    {
+      "name": "synthetic-direct-16",
+      "origin": "synthetic",
+      "result": "proposed",
+      "proposals": 1
+    },
+    {
+      "name": "synthetic-grouped-17",
+      "origin": "synthetic",
+      "result": "proposed",
+      "proposals": 1
+    },
+    {
+      "name": "synthetic-primary-18",
+      "origin": "synthetic",
+      "result": "proposed",
+      "proposals": 1
+    }
+  ]
+}

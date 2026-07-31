@@ -1,0 +1,48 @@
+# Generated from lib/ibex/metrics.rb with RBS::Inline
+
+module Ibex
+  # Deterministic structural metrics over normalized Grammar and Automaton IR.
+  class Metrics
+    # @rbs (IR::Automaton automaton) -> void
+    def initialize: (IR::Automaton automaton) -> void
+
+    # @rbs () -> Hash[Symbol, untyped]
+    def to_h: () -> Hash[Symbol, untyped]
+
+    private
+
+    # @rbs () -> Hash[Symbol, Integer]
+    def symbol_metrics: () -> Hash[Symbol, Integer]
+
+    # @rbs () -> Hash[Symbol, untyped]
+    def grammar_metrics: () -> Hash[Symbol, untyped]
+
+    # @rbs () -> Hash[Symbol, untyped]
+    def automaton_metrics: () -> Hash[Symbol, untyped]
+
+    # @rbs (Array[Integer] values) -> Float
+    def average: (Array[Integer] values) -> Float
+
+    # @rbs () -> Hash[Integer, Array[Integer]]
+    def dependency_graph: () -> Hash[Integer, Array[Integer]]
+
+    # @rbs () -> Hash[Integer, Set[Integer]]
+    def reachability: () -> Hash[Integer, Set[Integer]]
+
+    # @rbs () -> Array[Array[Integer]]
+    def recursion_components: () -> Array[Array[Integer]]
+
+    # @rbs () -> Array[Integer]
+    def recursive_nonterminal_ids: () -> Array[Integer]
+
+    # Longest path after collapsing mutually recursive nonterminals.
+    # @rbs () -> Integer
+    def recursion_component_depth: () -> Integer
+
+    # @rbs (Array[Set[Integer]] edges) -> Integer
+    def longest_dag_path: (Array[Set[Integer]] edges) -> Integer
+
+    # @rbs (Integer id) -> String
+    def symbol_name: (Integer id) -> String
+  end
+end

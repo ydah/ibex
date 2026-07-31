@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/diff-v1.schema.json",
+  "title": "Ibex grammar difference report v1",
+  "type": "object",
+  "required": ["ibex_report", "schema_version", "symbols", "rules", "conflicts", "warnings", "metrics"],
+  "properties": {
+    "ibex_report": { "const": "diff" },
+    "schema_version": { "const": 1 },
+    "symbols": { "$ref": "#/$defs/classification" },
+    "rules": { "$ref": "#/$defs/classification" },
+    "conflicts": { "$ref": "#/$defs/classification" },
+    "warnings": { "$ref": "#/$defs/classification" },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["before", "after", "delta"],
+        "properties": {
+          "before": { "type": "integer", "minimum": 0 },
+          "after": { "type": "integer", "minimum": 0 },
+          "delta": { "type": "integer" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "$defs": {
+    "classification": {
+      "type": "object",
+      "required": ["added", "removed", "changed"],
+      "properties": {
+        "added": { "type": "array", "items": { "type": "object" } },
+        "removed": { "type": "array", "items": { "type": "object" } },
+        "changed": { "type": "array", "items": { "type": "object" } }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

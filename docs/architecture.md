@@ -322,6 +322,17 @@ tree comparison; without one, only accepted language is compared. Every
 successful bounded report explicitly states that it is not an equivalence
 proof.
 
+`Ibex::Fix` composes those two read-only safety oracles around a finite repair
+space. It rebuilds a candidate through the shared construction pipeline, but
+accepts it only after the target fingerprint disappears, other fingerprints
+do not increase, independent verification succeeds, and bounded language plus
+identity-mapped reduction traces find no difference. User actions remain
+opaque. Source proposals are whole-file deterministic edits; the CLI delegates
+application to the existing transactional writer and refuses aliased inputs.
+`Ibex::Diff` and `Ibex::Metrics` are deterministic views over the same frozen
+Grammar and Automaton IR. They do not add an IR stage or alter generated
+parsers.
+
 The repository's self-authored representative grammar feeds the current versioned `ibex_benchmark` v2 document. Its JSON Schema
 is shipped beside the IR schemas, while committed environment-specific observations live under the matching
 `benchmark/results/vN` directory. Timing and peak RSS remain non-gating; CI reproduces only deterministic structure and digests.

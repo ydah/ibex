@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/metrics-v1.schema.json",
+  "title": "Ibex grammar metrics report v1",
+  "type": "object",
+  "required": ["ibex_report", "schema_version", "algorithm", "grammar_digest", "symbols", "grammar", "automaton"],
+  "properties": {
+    "ibex_report": { "const": "metrics" },
+    "schema_version": { "const": 1 },
+    "algorithm": { "enum": ["slr", "lalr1", "ielr1", "lr1"] },
+    "grammar_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "symbols": {
+      "type": "object",
+      "required": ["terminals", "nonterminals"],
+      "properties": {
+        "terminals": { "type": "integer", "minimum": 0 },
+        "nonterminals": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "grammar": {
+      "type": "object",
+      "required": ["rules", "alternatives", "average_alternatives_per_rule", "maximum_branching", "epsilon_productions", "recursive_nonterminals", "recursion_component_depth", "warnings"],
+      "properties": {
+        "rules": { "type": "integer", "minimum": 0 },
+        "alternatives": { "type": "integer", "minimum": 0 },
+        "average_alternatives_per_rule": { "type": "number", "minimum": 0 },
+        "maximum_branching": { "type": "integer", "minimum": 0 },
+        "epsilon_productions": { "type": "integer", "minimum": 0 },
+        "recursive_nonterminals": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "recursion_component_depth": { "type": "integer", "minimum": 0 },
+        "warnings": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "automaton": {
+      "type": "object",
+      "required": ["states", "transitions", "action_cells", "goto_cells", "default_reductions", "conflicts"],
+      "properties": {
+        "states": { "type": "integer", "minimum": 1 },
+        "transitions": { "type": "integer", "minimum": 0 },
+        "action_cells": { "type": "integer", "minimum": 0 },
+        "goto_cells": { "type": "integer", "minimum": 0 },
+        "default_reductions": { "type": "integer", "minimum": 0 },
+        "conflicts": {
+          "type": "object",
+          "required": ["shift_reduce", "precedence_resolved_shift_reduce", "reduce_reduce"],
+          "properties": {
+            "shift_reduce": { "type": "integer", "minimum": 0 },
+            "precedence_resolved_shift_reduce": { "type": "integer", "minimum": 0 },
+            "reduce_reduce": { "type": "integer", "minimum": 0 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
