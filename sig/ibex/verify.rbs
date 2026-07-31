@@ -1,0 +1,6 @@
+# Generated from lib/ibex/verify.rb with RBS::Inline
+
+module Ibex
+  module Verify
+  end
+end

@@ -145,6 +145,23 @@ namespace :fuzz do
   end
 end
 
+desc "Verify every gallery automaton with the default independent checks"
+task :verify do
+  ruby "-Ilib", "-r./tool/quality/verify", "-e", "Ibex::Quality::Verify.new.run"
+end
+
+namespace :verify do
+  desc "Include independent completeness and table-bisimulation checks"
+  task :strict do
+    ruby "-Ilib", "-r./tool/quality/verify", "-e", "Ibex::Quality::Verify.new.run(strict: true)"
+  end
+
+  desc "Prove that all twenty Automaton IR fault types are detected"
+  task :injection do
+    ruby "-Itest", "test/verify/verifier_test.rb", "--name=/twenty_structurally_valid/"
+  end
+end
+
 namespace :deps do
   desc "Verify the standalone runtime has no runtime dependencies"
   task :zero do

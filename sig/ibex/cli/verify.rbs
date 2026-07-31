@@ -1,0 +1,28 @@
+# Generated from lib/ibex/cli/verify.rb with RBS::Inline
+
+module Ibex
+  # CLI entry point for bounded, independent Automaton IR verification.
+  module CLIVerify
+    type verify_options = { paths: Array[String], strict: bool, max_states: Integer, max_items: Integer, ?grammar: String, format: String }
+
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_verify_command: (Array[String] arguments) -> Integer
+
+    # @rbs (Array[String] arguments) -> verify_options
+    def verify_options: (Array[String] arguments) -> verify_options
+
+    # @rbs (String path) -> IR::Automaton
+    def load_verify_automaton: (String path) -> IR::Automaton
+
+    # @rbs (IR::Automaton automaton, String path) -> void
+    def verify_supplied_grammar!: (IR::Automaton automaton, String path) -> void
+
+    # @rbs (Verify::Result result, String format) -> void
+    def write_verify_result: (Verify::Result result, String format) -> void
+
+    # @rbs (Integer value, String name) -> Integer
+    def positive_verify_budget: (Integer value, String name) -> Integer
+  end
+end

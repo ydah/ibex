@@ -26,6 +26,7 @@ class IRJSONSchemaTest < Minitest::Test
       migration-check-v1.schema.json
       fuzz-v1.schema.json
       reduce-v1.schema.json
+      verify-v1.schema.json
     ].each do |name|
       schema = load_json(File.join(SCHEMA_ROOT, name))
 

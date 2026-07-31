@@ -1,0 +1,50 @@
+# Generated from lib/ibex/verify/result.rb with RBS::Inline
+
+module Ibex
+  module Verify
+    # One stable verifier finding.
+    class Violation
+      attr_reader id: String
+
+      attr_reader location: String
+
+      attr_reader message: String
+
+      # @rbs (id: String, location: String, message: String) -> void
+      def initialize: (id: String, location: String, message: String) -> void
+
+      # @rbs () -> Hash[Symbol, String]
+      def to_h: () -> Hash[Symbol, String]
+    end
+
+    # Immutable independent-verification report.
+    class Result
+      attr_reader algorithm: String
+
+      attr_reader strict: bool
+
+      attr_reader checks: Array[String]
+
+      attr_reader violations: Array[Violation]
+
+      attr_reader bounds: Hash[Symbol, Integer]
+
+      # @rbs (algorithm: String, strict: bool, checks: Array[String], violations: Array[Violation],
+      #   bounds: Hash[Symbol, Integer]) -> void
+      def initialize: (algorithm: String, strict: bool, checks: Array[String], violations: Array[Violation], bounds: Hash[Symbol, Integer]) -> void
+
+      # @rbs () -> bool
+      def valid?: () -> bool
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
+    end
+
+    class BudgetExceeded < Ibex::Error
+      attr_reader bounds: Hash[Symbol, Integer]
+
+      # @rbs (String message, bounds: Hash[Symbol, Integer]) -> void
+      def initialize: (String message, bounds: Hash[Symbol, Integer]) -> void
+    end
+  end
+end

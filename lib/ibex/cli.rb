@@ -44,6 +44,7 @@ module Ibex
   autoload :CLIRaccMigration, File.join(CLI_FEATURE_ROOT, "racc_migration")
   autoload :CLIReduce, File.join(CLI_FEATURE_ROOT, "reduce")
   autoload :CLISamples, File.join(CLI_FEATURE_ROOT, "samples")
+  autoload :CLIVerify, File.join(CLI_FEATURE_ROOT, "verify")
   autoload :CLIWatch, File.join(CLI_FEATURE_ROOT, "watch")
 
   # @rbs!
@@ -142,6 +143,7 @@ module Ibex
       "migrate-harness" => %i[CLIRaccMigration run_migrate_harness_command],
       "reduce" => %i[CLIReduce run_reduce_command],
       "samples" => %i[CLISamples run_samples_command],
+      "verify" => %i[CLIVerify run_verify_command],
       "validate-ir" => %i[CLIIRTools run_validate_ir_command],
       "compare" => %i[CLIIRTools run_compare_command],
       "migrate-ir" => %i[CLIIRTools run_migrate_ir_command]
@@ -260,6 +262,7 @@ module Ibex
       options.separator("    migrate-harness           generate a differential subprocess harness")
       options.separator("    reduce                    delta-debug a failing token, line, or byte sequence")
       options.separator("    samples                   generate bounded terminal sentences")
+      options.separator("    verify AUTOMATON         independently verify Automaton IR semantics")
       options.separator("    validate-ir FILE          validate a versioned IR document")
       options.separator("    compare BEFORE AFTER      compare two versioned IR documents")
       options.separator("    migrate-ir INPUT --to=2   migrate a versioned IR document")

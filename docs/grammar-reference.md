@@ -554,6 +554,16 @@ subprocess exit means the failure persists. The report contains the minimized
 sequence, trial count, original/minimized sizes, and whether the configured
 trial budget allowed completion; exit 2 denotes an incomplete reduction.
 
+`ibex verify automaton.json` validates table semantics by independently
+deriving the relevant LR item collection from the embedded Grammar IR. Default
+checks cover soundness, lookaheads, default reductions and explicit error
+masks, reachability/productivity, epsilon termination, and conflict
+resolution. `--strict` adds complete collection and exact plain/compact table
+checks. `--max-states` and `--max-items` bound the derivation. JSON is the
+default report format; exit 0 means valid, 1 means a concrete violation, and 2
+means the reference budget was exhausted. Opaque semantic actions are never
+executed.
+
 `--emit=sets` writes deterministic JSON containing nullable nonterminals and their FIRST and FOLLOW sets. `--dot=FILE` and
 `--mermaid=FILE` write automaton graphs. `--html=FILE` writes a self-contained report with state search, conflict highlighting,
 and a filter that keeps a selected conflict state and its one-hop neighbors. All three visualizations can be produced while

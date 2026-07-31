@@ -1,0 +1,63 @@
+# Generated from lib/ibex/verify/reference_collection.rb with RBS::Inline
+
+module Ibex
+  module Verify
+    # Independently derives canonical LR(1) and LR(0) item collections.
+    class ReferenceCollection
+      # Immutable canonical collection and its symbol transitions.
+      class Collection
+        attr_reader states: Array[Set[Array[Integer]]]
+
+        attr_reader transitions: Array[Hash[Integer, Integer]]
+
+        # @rbs (states: Array[Set[Array[Integer]]], transitions: Array[Hash[Integer, Integer]]) -> void
+        def initialize: (states: Array[Set[Array[Integer]]], transitions: Array[Hash[Integer, Integer]]) -> void
+      end
+
+      # @rbs (IR::Grammar grammar, ?max_states: Integer, ?max_items: Integer) -> void
+      def initialize: (IR::Grammar grammar, ?max_states: Integer, ?max_items: Integer) -> void
+
+      # @rbs (Symbol kind) -> Collection
+      def build: (Symbol kind) -> Collection
+
+      private
+
+      # @rbs (Array[Set[Array[Integer]]] seeds, Symbol kind) -> Collection
+      def collection: (Array[Set[Array[Integer]]] seeds, Symbol kind) -> Collection
+
+      # @rbs (Array[Set[Array[Integer]]] states, Hash[Array[Array[Integer]], Integer] indexes,
+      #   Set[Array[Integer]] state) -> Integer
+      def insert_state: (Array[Set[Array[Integer]]] states, Hash[Array[Array[Integer]], Integer] indexes, Set[Array[Integer]] state) -> Integer
+
+      # @rbs (Set[Array[Integer]] seed, Symbol kind) -> Set[Array[Integer]]
+      def closure: (Set[Array[Integer]] seed, Symbol kind) -> Set[Array[Integer]]
+
+      # @rbs (Set[Array[Integer]] state, Integer symbol_id, Symbol kind) -> Set[Array[Integer]]
+      def go_to: (Set[Array[Integer]] state, Integer symbol_id, Symbol kind) -> Set[Array[Integer]]
+
+      # @rbs (Set[Array[Integer]] items, Array[Array[Integer]] queue, Array[Integer] item) -> void
+      def add_item: (Set[Array[Integer]] items, Array[Array[Integer]] queue, Array[Integer] item) -> void
+
+      # @rbs () -> void
+      def account_item: () -> void
+
+      # @rbs (Set[Array[Integer]] state) -> Array[Integer]
+      def next_symbols: (Set[Array[Integer]] state) -> Array[Integer]
+
+      # @rbs (Integer production_id, Integer dot, Integer? inherited) -> Array[Integer]
+      def closure_lookaheads: (Integer production_id, Integer dot, Integer? inherited) -> Array[Integer]
+
+      # @rbs (Integer production_id) -> Array[Integer]
+      def rhs_for: (Integer production_id) -> Array[Integer]
+
+      # @rbs (Integer production_id) -> IR::GrammarSymbol
+      def start_symbol: (Integer production_id) -> IR::GrammarSymbol
+
+      # @rbs () -> Integer
+      def eof_id: () -> Integer
+
+      # @rbs () -> Hash[Symbol, Integer]
+      def bounds: () -> Hash[Symbol, Integer]
+    end
+  end
+end
