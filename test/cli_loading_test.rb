@@ -166,8 +166,13 @@ class CLILoadingTest < Minitest::Test
       Object.send(:remove_const, :RUBY_ENGINE)
       RUBY_ENGINE = "alternate"
       class Thread
-        def thread_variable_get(*) = raise "MRI-only lookup cache was used"
-        def thread_variable_set(*) = raise "MRI-only lookup cache was used"
+        def thread_variable_get(*)
+          raise "MRI-only lookup cache was used"
+        end
+
+        def thread_variable_set(*)
+          raise "MRI-only lookup cache was used"
+        end
       end
       #{MINIMAL_RUNTIME_RECOVERY_SCRIPT}
     RUBY
