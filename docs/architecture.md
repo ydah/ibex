@@ -335,6 +335,18 @@ application to the existing transactional writer and refuses aliased inputs.
 Grammar and Automaton IR. They do not add an IR stage or alter generated
 parsers.
 
+`Ibex::BisonImport` is a clean-room adapter in front of that frozen pipeline.
+Its iterative scanner recovers declarations, production alternatives, source
+positions, and opaque C actions under byte/token/rule/action budgets, then
+emits ordinary extended source. It adds no frontend syntax or IR field.
+Deterministic terminal/nonterminal namespaces prevent Bison casing and keyword
+rules from changing symbol kinds. The report separates unsupported directives
+that leave the recovered production graph complete from structural gaps.
+Analysis may continue across either result, but Ruby generation rejects the C
+action sentinel and `Fix` rejects structurally incomplete source. Pinned
+third-party grammars exist only in temporary external CI directories; see the
+[import guide](bison-import.md).
+
 The repository's self-authored representative grammar feeds the current versioned `ibex_benchmark` v2 document. Its JSON Schema
 is shipped beside the IR schemas, while committed environment-specific observations live under the matching
 `benchmark/results/vN` directory. Timing and peak RSS remain non-gating; CI reproduces only deterministic structure and digests.

@@ -1,0 +1,136 @@
+# Generated from lib/ibex/bison_import/importer.rb with RBS::Inline
+
+module Ibex
+  module BisonImport
+    # Converts Bison declarations and productions into analysis-only Ibex
+    # source without parsing or executing C.
+    # rubocop:disable Metrics/ClassLength -- declaration and rule recovery share one positioned directive report.
+    class Importer
+      DEFAULT_MAX_BYTES: Integer
+
+      DEFAULT_MAX_TOKENS: Integer
+
+      DEFAULT_MAX_RULES: Integer
+
+      DEFAULT_MAX_ACTIONS: Integer
+
+      # @rbs (String source, file: String, ?class_name: String?, ?max_bytes: Integer,
+      #   ?max_tokens: Integer, ?max_rules: Integer, ?max_actions: Integer) -> void
+      def initialize: (String source, file: String, ?class_name: String?, ?max_bytes: Integer, ?max_tokens: Integer, ?max_rules: Integer, ?max_actions: Integer) -> void
+
+      # @rbs () -> Result
+      def run: () -> Result
+
+      private
+
+      # @rbs () -> void
+      def validate_source: () -> void
+
+      # @rbs () -> [String, String, Integer]
+      def split_sections: () -> [ String, String, Integer ]
+
+      # @rbs (String source) -> void
+      def parse_declarations: (String source) -> void
+
+      # @rbs (String source) -> Array[{ name: String, detail: String, line: Integer, column: Integer }]
+      def declaration_chunks: (String source) -> Array[{ name: String, detail: String, line: Integer, column: Integer }]
+
+      # @rbs (String detail) -> void
+      def parse_token_declaration: (String detail) -> void
+
+      # @rbs (String association, String detail) -> void
+      def parse_precedence: (String association, String detail) -> void
+
+      # @rbs (String detail) -> void
+      def parse_start: (String detail) -> void
+
+      # @rbs (Array[Tokenizer::Token] tokens) -> Array[Hash[Symbol, untyped]]
+      def parse_rules: (Array[Tokenizer::Token] tokens) -> Array[Hash[Symbol, untyped]]
+
+      # @rbs (Array[Tokenizer::Token] tokens) -> void
+      def register_nonterminals: (Array[Tokenizer::Token] tokens) -> void
+
+      # @rbs (Array[Tokenizer::Token] tokens, Integer cursor) -> [Integer, Integer]?
+      def next_lhs: (Array[Tokenizer::Token] tokens, Integer cursor) -> [ Integer, Integer ]?
+
+      # Bison permits a named reference between an LHS and its colon:
+      # `expression[result]: ...`.
+      # @rbs (Array[Tokenizer::Token] tokens, Integer cursor) -> [Integer, Integer]?
+      def lhs_definition_at: (Array[Tokenizer::Token] tokens, Integer cursor) -> [ Integer, Integer ]?
+
+      # @rbs (Array[Tokenizer::Token] tokens, Integer cursor) -> [Array[Hash[Symbol, untyped]], Integer]
+      def parse_alternatives: (Array[Tokenizer::Token] tokens, Integer cursor) -> [ Array[Hash[Symbol, untyped]], Integer ]
+
+      # @rbs (Array[Tokenizer::Token] tokens, Integer cursor, Hash[Symbol, untyped] alternative) -> Integer
+      def consume_rule_directive: (Array[Tokenizer::Token] tokens, Integer cursor, Hash[Symbol, untyped] alternative) -> Integer
+
+      # @rbs (Tokenizer::Token token) -> String
+      def render_symbol: (Tokenizer::Token token) -> String
+
+      # @rbs (Tokenizer::Token token) -> String
+      def render_action: (Tokenizer::Token token) -> String
+
+      # @rbs (String code) -> String
+      def transform_action: (String code) -> String
+
+      # @rbs (Array[Hash[Symbol, untyped]] rules) -> String
+      def render_source: (Array[Hash[Symbol, untyped]] rules) -> String
+
+      # @rbs () -> String
+      def structural_status: () -> String
+
+      # @rbs (Array[String] lines) -> void
+      def render_precedence: (Array[String] lines) -> void
+
+      # @rbs (Array[String] lines, Hash[Symbol, untyped] rule) -> void
+      def render_rule: (Array[String] lines, Hash[Symbol, untyped] rule) -> void
+
+      # @rbs (String name, Integer line, Integer column, String detail) -> void
+      def record_directive: (String name, Integer line, Integer column, String detail) -> void
+
+      # @rbs (String detail) -> Array[String]
+      def declaration_atoms: (String detail) -> Array[String]
+
+      # @rbs (String source) -> String
+      def strip_declaration_comments: (String source) -> String
+
+      # @rbs (String value) -> bool
+      def identifier_atom?: (String value) -> bool
+
+      # @rbs (String value) -> bool
+      def literal_atom?: (String value) -> bool
+
+      # @rbs (String value) -> String
+      def sanitize_symbol: (String value) -> String
+
+      # @rbs (String value) -> String
+      def terminal_name: (String value) -> String
+
+      # All imported nonterminals receive a lowercase namespace. This avoids
+      # Ibex's terminal-by-case convention and declaration keyword collisions.
+      # @rbs (String value) -> String
+      def nonterminal_name: (String value) -> String
+
+      # @rbs () -> String
+      def resolved_class_name: () -> String
+
+      # @rbs (String value) -> String
+      def sanitize_class_name: (String value) -> String
+
+      # @rbs (String value) -> Integer?
+      def first_integer: (String value) -> Integer?
+
+      # @rbs (Integer count) -> void
+      def check_rule_budget: (Integer count) -> void
+
+      # @rbs (Integer count, Tokenizer::Token token) -> void
+      def check_action_budget: (Integer count, Tokenizer::Token token) -> void
+
+      # @rbs (Integer value, Symbol name) -> Integer
+      def positive_limit: (Integer value, Symbol name) -> Integer
+
+      # @rbs () -> Hash[Symbol, Integer]
+      def bounds: () -> Hash[Symbol, Integer]
+    end
+  end
+end

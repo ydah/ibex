@@ -15,6 +15,7 @@ require_relative "ir/serialize"
 require_relative "ir/automaton_ir"
 require_relative "normalize"
 require_relative "analysis"
+require_relative "bison_import"
 require_relative "lalr/conflict"
 require_relative "lalr/on_error_reductions"
 require_relative "lalr/default_reductions"
@@ -32,6 +33,7 @@ module Ibex
   CLI_FEATURE_ROOT = File.expand_path("cli", __dir__ || raise("CLI source directory is unavailable")) #: String
   autoload :CLIAmbiguity, File.join(CLI_FEATURE_ROOT, "ambiguity")
   autoload :CLIAnalysis, File.join(CLI_FEATURE_ROOT, "analysis")
+  autoload :CLIBisonImport, File.join(CLI_FEATURE_ROOT, "bison_import")
   autoload :CLICoverage, File.join(CLI_FEATURE_ROOT, "coverage")
   autoload :CLIDebug, File.join(CLI_FEATURE_ROOT, "debug")
   autoload :CLIDiagnostics, File.join(CLI_FEATURE_ROOT, "diagnostics")
@@ -146,6 +148,7 @@ module Ibex
       "fuzz" => %i[CLIFuzz run_fuzz_command],
       "test" => %i[CLIGrammarTests run_grammar_tests_command],
       "lsp" => %i[CLILSP run_lsp_command],
+      "import" => %i[CLIBisonImport run_bison_import_command],
       "metrics" => %i[CLIAnalysis run_metrics_command],
       "migrate-check" => %i[CLIRaccMigration run_migrate_check_command],
       "migrate-harness" => %i[CLIRaccMigration run_migrate_harness_command],
@@ -298,6 +301,7 @@ module Ibex
       options.separator("    fuzz                      run bounded grammar-derived differential fuzzing")
       options.separator("    test                      run grammar-declared source examples")
       options.separator("    lsp                       run the language server over stdio")
+      options.separator("    import bison FILE         import Bison grammar structure for analysis")
       options.separator("    migrate-check             statically check a racc grammar migration")
       options.separator("    migrate-harness           generate a differential subprocess harness")
       options.separator("    metrics GRAMMAR           report deterministic grammar/table metrics")
@@ -595,6 +599,13 @@ module Ibex
 
     # @rbs (String path) -> IR::Grammar
     def normalize_grammar_path(path)
+      source = File.binread(path)
+      if BisonImport.bison_source?(source)
+        imported = BisonImport::Importer.new(source, file: path).run
+        ast = Frontend::Parser.new(imported.source, file: path, mode: :extended).parse
+        return Normalizer.new(ast, mode: :extended).normalize
+      end
+
       Normalizer.new(resolve_grammar_path(path), mode: @options[:mode]).normalize
     end
 

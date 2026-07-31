@@ -179,6 +179,12 @@ jobs:
         run: |
           bundle exec rake test:docs_coverage
           bundle exec rake i18n:coverage
+          bundle exec rake bison:test
+      - name: Verify pinned external grammar imports
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: |
+          bison --version
+          bundle exec rake bison:external
 
   rbs:
     runs-on: ubuntu-latest

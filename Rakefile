@@ -199,6 +199,19 @@ namespace :i18n do
   end
 end
 
+namespace :bison do
+  desc "Run synthetic Bison import, schema, CLI, and safety contracts"
+  task :test do
+    ruby "-Itest", "test/bison_import_test.rb"
+    ruby "-Itest", "test/cli_bison_import_test.rb"
+  end
+
+  desc "Download pinned external grammars and verify aggregate import evidence"
+  task :external do
+    ruby "-Ilib", "-r./tool/quality/bison_external", "-e", "Ibex::Quality::BisonExternal.new.run!"
+  end
+end
+
 namespace :deps do
   desc "Verify the standalone runtime has no runtime dependencies"
   task :zero do

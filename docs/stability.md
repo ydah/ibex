@@ -85,6 +85,10 @@ useful and inserted semantic values may be nil.
 - Conflict repair passed its first fixed twenty-case capability measurement at
   20/20. The corpus is intentionally described as a regression baseline, not
   a general repair-rate claim.
+- The analysis-only Bison adapter imports and builds five checksum-pinned
+  external grammars. Bison-era CRuby production counts match, its one-state
+  acceptance-convention delta is explained, and current Lrama-only `%rule`
+  structure is reported as incomplete instead of receiving unsafe repairs.
 - IELR passed its correctness/state-bound spike and remains preview while it
   gains field experience. Direct LALR remains the default.
 - Bounded repair passed SP-4 with 8/10 useful plans and remains experimental.

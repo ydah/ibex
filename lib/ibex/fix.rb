@@ -8,6 +8,7 @@ module Ibex
   # Bounded conflict-repair candidate generation and safety evaluation.
   # rubocop:disable Metrics/ClassLength -- candidate generation and its three safety gates share one target identity.
   class Fix
+    SCHEMA_VERSION = 2 #: Integer
     CATEGORIES = %w[
       precedence_declaration precedence_override algorithm_change
       mechanical_rewrite expectation_declaration recovery_quality
@@ -28,17 +29,25 @@ module Ibex
     # @rbs (String source, file: String, grammar: IR::Grammar, automaton: IR::Automaton, algorithm: Symbol,
     #   mode: Symbol, ?state: Integer?, ?conflict_index: Integer?, ?max_candidates: Integer, ?max_builds: Integer,
     #   ?equiv_max_tokens: Integer, ?equiv_max_configurations: Integer, ?equiv_samples: Integer,
+    #   ?verify_max_states: Integer, ?verify_max_items: Integer,
     #   ?messages: ErrorMessages::Document?, ?message_file: String?) -> void
     # rubocop:disable Metrics/ParameterLists
     def initialize(source, file:, grammar:, automaton:, algorithm:, mode:, state: nil, conflict_index: nil,
                    max_candidates: 32, max_builds: 32, equiv_max_tokens: 8,
-                   equiv_max_configurations: 50_000, equiv_samples: 100, messages: nil, message_file: nil)
+                   equiv_max_configurations: 50_000, equiv_samples: 100,
+                   verify_max_states: 100_000, verify_max_items: 1_000_000,
+                   messages: nil, message_file: nil)
       { max_candidates: max_candidates, max_builds: max_builds, equiv_max_tokens: equiv_max_tokens,
-        equiv_max_configurations: equiv_max_configurations, equiv_samples: equiv_samples }.each do |name, value|
+        equiv_max_configurations: equiv_max_configurations, equiv_samples: equiv_samples,
+        verify_max_states: verify_max_states, verify_max_items: verify_max_items }.each do |name, value|
         raise ArgumentError, "#{name} must be positive" unless value.positive?
       end
 
       @source = source
+      if source.match?(/^# #{Regexp.escape(BisonImport::STRUCTURAL_STATUS_MARKER)}: incomplete$/)
+        raise Ibex::Error,
+              "(fix):1:1: cannot propose repairs for a structurally incomplete Bison import"
+      end
       @file = file
       @grammar = grammar
       @automaton = automaton
@@ -51,6 +60,8 @@ module Ibex
       @equiv_max_tokens = equiv_max_tokens
       @equiv_max_configurations = equiv_max_configurations
       @equiv_samples = equiv_samples
+      @verify_max_states = verify_max_states
+      @verify_max_items = verify_max_items
       @messages = messages
       @message_file = message_file
       @sources = {}
@@ -78,7 +89,8 @@ module Ibex
         if outcome.fetch(:status) == "safe"
           proposals << proposal(candidate, outcome, conflict, proposals.length + 1)
         else
-          incomplete ||= outcome.fetch(:reason) == "equivalence_budget_exhausted"
+          incomplete ||= %w[equivalence_budget_exhausted verification_budget_exhausted]
+                         .include?(outcome.fetch(:reason))
           rejections << rejection(candidate, outcome)
         end
       end
@@ -241,6 +253,8 @@ module Ibex
       { status: "rejected", reason: "bounded_language_or_tree_difference" }
     rescue Equiv::BudgetExceeded
       { status: "rejected", reason: "equivalence_budget_exhausted" }
+    rescue Verify::BudgetExceeded
+      { status: "rejected", reason: "verification_budget_exhausted" }
     rescue BudgetExceeded
       raise
     rescue Ibex::Error, ArgumentError => e
@@ -263,7 +277,9 @@ module Ibex
 
     # @rbs (IR::Automaton candidate) -> Hash[Symbol, String]?
     def verification_safety_failure(candidate)
-      verification = Verify::Verifier.new(candidate).verify
+      verification = Verify::Verifier.new(
+        candidate, max_states: @verify_max_states, max_items: @verify_max_items
+      ).verify
       return { status: "rejected", reason: "candidate_failed_verification" } unless verification.valid?
       return { status: "rejected", reason: "conflict_expectation_mismatch" } unless
         candidate.conflict_summary.fetch(:expectation_met)
@@ -347,7 +363,7 @@ module Ibex
                      safe: proposals.count { |entry| entry.fetch(:category) == category } }]
       end
       {
-        ibex_report: "fix", schema_version: 1,
+        ibex_report: "fix", schema_version: SCHEMA_VERSION,
         result: proposals.empty? ? "no_safe_proposal" : "proposals_found",
         target: {
           id: "state-#{state.id}-conflict-#{index}", state: state.id, index: index,
@@ -487,7 +503,8 @@ module Ibex
       {
         max_candidates: @max_candidates, max_builds: @max_builds,
         equiv_samples: @equiv_samples, equiv_max_tokens: @equiv_max_tokens,
-        equiv_max_configurations: @equiv_max_configurations
+        equiv_max_configurations: @equiv_max_configurations,
+        verify_max_states: @verify_max_states, verify_max_items: @verify_max_items
       }
     end
   end

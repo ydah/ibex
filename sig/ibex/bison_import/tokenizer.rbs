@@ -1,0 +1,91 @@
+# Generated from lib/ibex/bison_import/tokenizer.rb with RBS::Inline
+
+module Ibex
+  module BisonImport
+    # Iterative scanner for the punctuation needed to recover Bison rules.
+    class Tokenizer
+      # One structural token with a byte-oriented source position.
+      class Token
+        attr_reader type: Symbol
+
+        attr_reader value: String
+
+        attr_reader line: Integer
+
+        attr_reader column: Integer
+
+        # @rbs (type: Symbol, value: String, line: Integer, column: Integer) -> void
+        def initialize: (type: Symbol, value: String, line: Integer, column: Integer) -> void
+      end
+
+      IDENTIFIER_START: Regexp
+
+      IDENTIFIER_CONTINUE: Regexp
+
+      # @rbs (String source, start_line: Integer, max_tokens: Integer) -> void
+      def initialize: (String source, start_line: Integer, max_tokens: Integer) -> void
+
+      # @rbs () -> Array[Token]
+      def tokenize: () -> Array[Token]
+
+      private
+
+      # @rbs () -> Token
+      def scan_token: () -> Token
+
+      # @rbs () -> void
+      def skip_ignored: () -> void
+
+      # @rbs () -> String
+      def scan_identifier: () -> String
+
+      # @rbs () -> String
+      def scan_directive: () -> String
+
+      # @rbs (Integer quote) -> String
+      def scan_quoted: (Integer quote) -> String
+
+      # @rbs () -> String
+      def scan_action: () -> String
+
+      # @rbs (Integer? byte) -> bool
+      def skip_action_opaque?: (Integer? byte) -> bool
+
+      # @rbs (Integer opener, Integer closer) -> String
+      def scan_delimited: (Integer opener, Integer closer) -> String
+
+      # @rbs () -> void
+      def skip_block_comment: () -> void
+
+      # @rbs () -> void
+      def skip_line: () -> void
+
+      # @rbs (String value) -> Symbol
+      def punctuation_type: (String value) -> Symbol
+
+      # @rbs (Integer? byte) -> bool
+      def identifier_start?: (Integer? byte) -> bool
+
+      # @rbs (Integer? byte) -> bool
+      def identifier_continue?: (Integer? byte) -> bool
+
+      # @rbs (Integer? byte) -> bool
+      def whitespace?: (Integer? byte) -> bool
+
+      # @rbs (Integer count) -> void
+      def check_token_budget: (Integer count) -> void
+
+      # @rbs () -> Integer?
+      def current_byte: () -> Integer?
+
+      # @rbs () -> Integer?
+      def peek_byte: () -> Integer?
+
+      # @rbs () -> bool
+      def eof?: () -> bool
+
+      # @rbs () -> void
+      def advance: () -> void
+    end
+  end
+end

@@ -48,6 +48,7 @@ module Ibex
                      cst_trivia: :leading, runtime_require: "ibex/runtime", error_messages: {})
         @automaton = automaton
         @grammar = automaton.grammar
+        reject_foreign_actions
         @table_format = table.to_sym
         @embedded = embedded
         @line_convert = line_convert
@@ -93,6 +94,19 @@ module Ibex
       end
 
       private
+
+      # @rbs () -> void
+      def reject_foreign_actions
+        production = @grammar.productions.find do |entry|
+          entry.action&.code&.include?(BisonImport::FOREIGN_ACTION_SENTINEL)
+        end
+        return unless production
+
+        location = production.action&.location
+        rendered = location ? "#{location[:file]}:#{location[:line]}:#{location[:column]}" : "(codegen):1:1"
+        raise Ibex::Error,
+              "#{rendered}: cannot generate Ruby from imported C semantic actions; use analysis commands only"
+      end
 
       # @rbs (Array[String] lines) -> void
       def append_runtime(lines)

@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/bison-import-v1.schema.json",
+  "title": "Ibex Bison import report v1",
+  "type": "object",
+  "required": [
+    "ibex_report",
+    "schema_version",
+    "result",
+    "file",
+    "class_name",
+    "generated_source",
+    "directive_contract",
+    "directives",
+    "unsupported",
+    "structurally_complete",
+    "structural_unsupported",
+    "actions",
+    "counts",
+    "bounds",
+    "statement"
+  ],
+  "properties": {
+    "ibex_report": { "const": "bison_import" },
+    "schema_version": { "const": 1 },
+    "result": { "enum": ["imported", "imported_with_unsupported"] },
+    "file": { "type": "string" },
+    "class_name": { "type": "string" },
+    "generated_source": { "type": "string" },
+    "directive_contract": {
+      "type": "object",
+      "additionalProperties": {
+        "enum": ["converted", "recognized_metadata", "unsupported"]
+      }
+    },
+    "directives": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/directive" }
+    },
+    "unsupported": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/directive" }
+    },
+    "structurally_complete": { "type": "boolean" },
+    "structural_unsupported": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/directive" }
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "line", "column", "original", "transformed", "source_encoding"],
+        "properties": {
+          "id": { "type": "integer", "minimum": 1 },
+          "line": { "type": "integer", "minimum": 1 },
+          "column": { "type": "integer", "minimum": 1 },
+          "original": { "type": "string" },
+          "transformed": { "type": "string" },
+          "source_encoding": { "const": "hex_sentinel" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "counts": {
+      "type": "object",
+      "required": ["rules", "actions", "unsupported_directives", "structural_unsupported_directives"],
+      "properties": {
+        "rules": { "type": "integer", "minimum": 1 },
+        "actions": { "type": "integer", "minimum": 0 },
+        "unsupported_directives": { "type": "integer", "minimum": 0 },
+        "structural_unsupported_directives": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "bounds": {
+      "type": "object",
+      "required": ["max_bytes", "max_tokens", "max_rules", "max_actions"],
+      "properties": {
+        "max_bytes": { "type": "integer", "minimum": 1 },
+        "max_tokens": { "type": "integer", "minimum": 1 },
+        "max_rules": { "type": "integer", "minimum": 1 },
+        "max_actions": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "statement": {
+      "const": "C semantic actions are opaque analysis data; Ruby generation is refused."
+    }
+  },
+  "$defs": {
+    "directive": {
+      "type": "object",
+      "required": ["name", "status", "line", "column", "detail"],
+      "properties": {
+        "name": { "type": "string" },
+        "status": { "enum": ["converted", "recognized_metadata", "unsupported"] },
+        "line": { "type": "integer", "minimum": 1 },
+        "column": { "type": "integer", "minimum": 1 },
+        "detail": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

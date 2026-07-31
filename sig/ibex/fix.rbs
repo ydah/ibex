@@ -4,6 +4,8 @@ module Ibex
   # Bounded conflict-repair candidate generation and safety evaluation.
   # rubocop:disable Metrics/ClassLength -- candidate generation and its three safety gates share one target identity.
   class Fix
+    SCHEMA_VERSION: Integer
+
     CATEGORIES: Array[String]
 
     class BudgetExceeded < Ibex::Error
@@ -18,9 +20,10 @@ module Ibex
     # @rbs (String source, file: String, grammar: IR::Grammar, automaton: IR::Automaton, algorithm: Symbol,
     #   mode: Symbol, ?state: Integer?, ?conflict_index: Integer?, ?max_candidates: Integer, ?max_builds: Integer,
     #   ?equiv_max_tokens: Integer, ?equiv_max_configurations: Integer, ?equiv_samples: Integer,
+    #   ?verify_max_states: Integer, ?verify_max_items: Integer,
     #   ?messages: ErrorMessages::Document?, ?message_file: String?) -> void
     # rubocop:disable Metrics/ParameterLists
-    def initialize: (String source, file: String, grammar: IR::Grammar, automaton: IR::Automaton, algorithm: Symbol, mode: Symbol, ?state: Integer?, ?conflict_index: Integer?, ?max_candidates: Integer, ?max_builds: Integer, ?equiv_max_tokens: Integer, ?equiv_max_configurations: Integer, ?equiv_samples: Integer, ?messages: ErrorMessages::Document?, ?message_file: String?) -> void
+    def initialize: (String source, file: String, grammar: IR::Grammar, automaton: IR::Automaton, algorithm: Symbol, mode: Symbol, ?state: Integer?, ?conflict_index: Integer?, ?max_candidates: Integer, ?max_builds: Integer, ?equiv_max_tokens: Integer, ?equiv_max_configurations: Integer, ?equiv_samples: Integer, ?verify_max_states: Integer, ?verify_max_items: Integer, ?messages: ErrorMessages::Document?, ?message_file: String?) -> void
 
     # @rbs () -> Hash[Symbol, untyped]
     def run: () -> Hash[Symbol, untyped]
