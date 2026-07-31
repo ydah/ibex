@@ -161,6 +161,21 @@ class CLILoadingTest < Minitest::Test
     assert process.success?, stderr
   end
 
+  def test_alternate_ruby_engine_does_not_use_mri_lookup_cache
+    script = <<~RUBY
+      Object.send(:remove_const, :RUBY_ENGINE)
+      RUBY_ENGINE = "alternate"
+      class Thread
+        def thread_variable_get(*) = raise "MRI-only lookup cache was used"
+        def thread_variable_set(*) = raise "MRI-only lookup cache was used"
+      end
+      #{MINIMAL_RUNTIME_RECOVERY_SCRIPT}
+    RUBY
+    _stdout, stderr, process = run_minimal_runtime(script)
+
+    assert process.success?, stderr
+  end
+
   private
 
   def run_minimal_runtime(script)

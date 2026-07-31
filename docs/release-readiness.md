@@ -121,8 +121,8 @@ were assessed useful. A maintainer assessment is not independent review; at
 least one external reviewer must record a review of the cases and usefulness
 labels before this KPI passes.
 
-The current whole-library `steep stats` result is 23,512 typed calls and 2,946
-untyped calls out of 26,458, or 88.9% typed. Generated parser RBS refines
+The current whole-library `steep stats` result is 23,517 typed calls and 2,946
+untyped calls out of 26,463, or 88.9% typed. Generated parser RBS refines
 declared terminal, nonterminal, RHS tuple, and reduction result types. Untyped
 values remain explicit at undeclared grammar symbols, decoded JSON, dynamic
 table cells, and opaque application Ruby boundaries.
