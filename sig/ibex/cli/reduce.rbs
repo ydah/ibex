@@ -1,0 +1,24 @@
+# Generated from lib/ibex/cli/reduce.rb with RBS::Inline
+
+module Ibex
+  # CLI entry point for generic bounded delta debugging.
+  module CLIReduce
+    private def print_help: (OptionParser) -> Integer
+
+    private def input_path: (Array[String]) -> String
+
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_reduce_command: (Array[String] arguments) -> Integer
+
+    # @rbs () -> OptionParser
+    def reduce_option_parser: () -> OptionParser
+
+    # @rbs (String source, Symbol mode) -> Array[String | Integer]
+    def reduction_items: (String source, Symbol mode) -> Array[String | Integer]
+
+    # @rbs (Array[String] command, Array[String | Integer] candidate, Symbol mode) -> bool
+    def reduction_failure?: (Array[String] command, Array[String | Integer] candidate, Symbol mode) -> bool
+  end
+end

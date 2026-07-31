@@ -15,7 +15,7 @@ module Ibex
     def gets: () -> String?
   end
 
-  type cli_options = { emit: String, mode: Symbol, table: Symbol, ?cst_trivia: Symbol, line_convert: bool, ?line_convert_all: bool, counterexample_max_tokens: Integer, counterexample_max_configurations: Integer, ?from: String, ?algorithm: Symbol, ?suggest_ielr: bool, ?entry_isolation: bool, ?warnings: Array[Symbol], ?output: String, ?embedded: bool, ?debug: bool, ?verbose: bool, ?rbs: String | true, ?action_source: String | true, ?manifest: String | true, ?watch: bool, ?dot: String, ?mermaid: String, ?html: String, ?railroad: String, ?messages: String, ?messages_update: String | true, ?messages_algorithm_explicit: bool, ?sample_count: Integer, ?sample_seed: Integer, ?sample_max_tokens: Integer, ?sample_max_depth: Integer, ?sample_max_expansions: Integer, ?log_file: String, ?executable: String, ?frozen: bool, ?omit_actions: bool, ?superclass: String, ?verify_output: bool, ?check_only: bool, ?status: bool, ?profile: bool, ?debug_flags: String, ?version: bool, ?runtime_version: bool, ?copyright: bool, ?help: bool, ?explain_state: Integer, ?explain_token: String, ?explain_format: String, ?check_ambiguity: bool, ?check_format: String }
+  type cli_options = { emit: String, mode: Symbol, table: Symbol, ?cst_trivia: Symbol, line_convert: bool, ?line_convert_all: bool, counterexample_max_tokens: Integer, counterexample_max_configurations: Integer, ?from: String, ?algorithm: Symbol, ?suggest_ielr: bool, ?entry_isolation: bool, ?warnings: Array[Symbol], ?output: String, ?embedded: bool, ?debug: bool, ?verbose: bool, ?rbs: String | true, ?action_source: String | true, ?manifest: String | true, ?watch: bool, ?dot: String, ?mermaid: String, ?html: String, ?railroad: String, ?messages: String, ?messages_update: String | true, ?messages_algorithm_explicit: bool, ?sample_count: Integer, ?sample_seed: Integer, ?sample_max_tokens: Integer, ?sample_max_depth: Integer, ?sample_max_expansions: Integer, ?log_file: String, ?executable: String, ?frozen: bool, ?omit_actions: bool, ?superclass: String, ?verify_output: bool, ?check_only: bool, ?status: bool, ?profile: bool, ?debug_flags: String, ?version: bool, ?runtime_version: bool, ?copyright: bool, ?help: bool, ?explain_state: Integer, ?explain_token: String, ?explain_format: String, ?check_ambiguity: bool, ?check_format: String, ?fuzz_seed: Integer, ?fuzz_count: Integer, ?fuzz_max_tokens: Integer, ?fuzz_max_depth: Integer, ?fuzz_max_expansions: Integer, ?fuzz_max_actions: Integer, ?fuzz_max_stack: Integer, ?fuzz_coverage_guided: bool, ?fuzz_path_length: Integer, ?fuzz_against: String, ?reduce_command: String, ?reduce_mode: Symbol, ?reduce_max_trials: Integer }
 
   # Command-line pipeline coordinator.
   # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.
@@ -59,6 +59,9 @@ module Ibex
 
     # @rbs () -> OptionParser
     def option_parser: () -> OptionParser
+
+    # @rbs (OptionParser options) -> void
+    def add_subcommand_help: (OptionParser options) -> void
 
     # @rbs (OptionParser options) -> void
     def add_pipeline_options: (OptionParser options) -> void

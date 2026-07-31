@@ -8,6 +8,7 @@ AllCops:
     - "tmp/**/*"
     - "vendor/**/*"
     - "lib/ibex/frontend/generated_parser.rb"
+    - "test/golden/generated/**/*"
 
 Layout/LineLength:
   Max: 120

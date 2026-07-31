@@ -30,7 +30,9 @@ module Ibex
         seed: @options.fetch(:sample_seed, 0),
         max_tokens: @options.fetch(:sample_max_tokens, 32),
         max_depth: @options.fetch(:sample_max_depth, 16),
-        max_expansions: @options.fetch(:sample_max_expansions, Samples::DEFAULT_MAX_EXPANSIONS)
+        max_expansions: @options.fetch(:sample_max_expansions, Samples::DEFAULT_MAX_EXPANSIONS),
+        strategy: @options.fetch(:sample_strategy, :random),
+        path_length: @options.fetch(:sample_path_length, 1)
       )
       generator.generate(count: @options.fetch(:sample_count, 5)).each do |sample|
         @stdout.puts(JSON.generate(sample))
@@ -42,29 +44,50 @@ module Ibex
     def samples_option_parser
       OptionParser.new do |options|
         options.banner = "Usage: ibex samples [options] grammarfile"
-        options.on("--count=N", Integer, "number of samples (default 5)") do |value|
-          @options[:sample_count] = positive_sample_option!("count", value)
-        end
-        options.on("--seed=N", Integer, "deterministic random seed (default 0)") do |value|
-          @options[:sample_seed] = value
-        end
-        options.on("--max-tokens=N", Integer, "maximum tokens per sample (default 32)") do |value|
-          @options[:sample_max_tokens] = positive_sample_option!("max-tokens", value)
-        end
-        options.on("--max-depth=N", Integer, "random expansion depth (default 16)") do |value|
-          @options[:sample_max_depth] = positive_sample_option!("max-depth", value)
-        end
-        options.on("--max-expansions=N", Integer, "total expansion steps (default 100000)") do |value|
-          @options[:sample_max_expansions] = positive_sample_option!("max-expansions", value)
-        end
-        options.on("--from=FORMAT", %w[grammar-ir automaton-ir], "read versioned IR JSON") do |value|
-          @options[:from] = value
-        end
-        options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
-        options.on("--warnings=CATEGORIES", "all, error, all,error, or none") do |value|
-          @options[:warnings] = warning_categories(value)
-        end
+        add_sample_generation_options(options)
+        add_sample_input_options(options)
         options.on("--help", "show help") { @options[:help] = true }
+      end
+    end
+
+    # @rbs (OptionParser options) -> void
+    def add_sample_generation_options(options)
+      options.on("--count=N", Integer, "number of samples (default 5)") do |value|
+        @options[:sample_count] = positive_sample_option!("count", value)
+      end
+      options.on("--seed=N", Integer, "deterministic random seed (default 0)") do |value|
+        @options[:sample_seed] = value
+      end
+      options.on("--max-tokens=N", Integer, "maximum tokens per sample (default 32)") do |value|
+        @options[:sample_max_tokens] = positive_sample_option!("max-tokens", value)
+      end
+      options.on("--max-depth=N", Integer, "random expansion depth (default 16)") do |value|
+        @options[:sample_max_depth] = positive_sample_option!("max-depth", value)
+      end
+      options.on("--max-expansions=N", Integer, "total expansion steps (default 100000)") do |value|
+        @options[:sample_max_expansions] = positive_sample_option!("max-expansions", value)
+      end
+      options.on(
+        "--strategy=NAME", %w[random coverage],
+        "random or coverage-oriented production selection"
+      ) do |value|
+        @options[:sample_strategy] = value.to_sym
+      end
+      options.on("--path-length=N", Integer, "coverage path length: 1 or 2") do |value|
+        raise OptionParser::InvalidArgument, "--path-length must be 1 or 2" unless [1, 2].include?(value)
+
+        @options[:sample_path_length] = value
+      end
+    end
+
+    # @rbs (OptionParser options) -> void
+    def add_sample_input_options(options)
+      options.on("--from=FORMAT", %w[grammar-ir automaton-ir], "read versioned IR JSON") do |value|
+        @options[:from] = value
+      end
+      options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
+      options.on("--warnings=CATEGORIES", "all, error, all,error, or none") do |value|
+        @options[:warnings] = warning_categories(value)
       end
     end
 

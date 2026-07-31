@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/fuzz-v1.schema.json",
+  "title": "Ibex fuzz report v1",
+  "type": "object",
+  "required": ["ibex_report", "schema_version", "result"],
+  "properties": {
+    "ibex_report": { "const": "fuzz" },
+    "schema_version": { "const": 1 },
+    "seed": { "type": "integer" },
+    "bounds": { "type": "object" },
+    "strategy": { "enum": ["random", "coverage"] },
+    "path_length": { "enum": [1, 2] },
+    "algorithms": { "type": "array", "items": { "type": "string" } },
+    "generated_sentences": { "type": "integer", "minimum": 0 },
+    "mutated_sentences": { "type": "integer", "minimum": 0 },
+    "result": { "enum": ["no_difference_within_bounds", "difference", "budget_exhausted"] },
+    "mismatch": { "type": "object" },
+    "budget": { "type": "object" },
+    "external": { "type": "object" }
+  },
+  "additionalProperties": false
+}

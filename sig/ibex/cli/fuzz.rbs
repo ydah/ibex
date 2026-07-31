@@ -1,0 +1,36 @@
+# Generated from lib/ibex/cli/fuzz.rb with RBS::Inline
+
+module Ibex
+  # CLI entry point for bounded grammar-derived differential fuzzing.
+  module CLIFuzz
+    private def print_help: (OptionParser) -> Integer
+
+    private def input_path: (Array[String]) -> String
+
+    private def normalize_grammar_path: (String) -> IR::Grammar
+
+    private def handle_grammar_warnings: (IR::Grammar, String) -> void
+
+    private def warning_categories: (String) -> Array[Symbol]
+
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_fuzz_command: (Array[String] arguments) -> Integer
+
+    # @rbs () -> OptionParser
+    def fuzz_option_parser: () -> OptionParser
+
+    # @rbs (OptionParser options) -> void
+    def add_fuzz_generation_options: (OptionParser options) -> void
+
+    # @rbs (OptionParser options) -> void
+    def add_fuzz_execution_options: (OptionParser options) -> void
+
+    # @rbs () -> [(^(Array[String]) -> Symbol), Hash[Symbol, untyped]]?
+    def external_fuzz_target: () -> [ ^(Array[String]) -> Symbol, Hash[Symbol, untyped] ]?
+
+    # @rbs (String name, Integer value) -> Integer
+    def positive_fuzz_option!: (String name, Integer value) -> Integer
+  end
+end

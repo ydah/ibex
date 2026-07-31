@@ -7,17 +7,27 @@ module Ibex
     DEFAULT_MAX_EXPANSIONS = 100_000 #: Integer
 
     # @rbs (IR::Grammar grammar, ?seed: Integer, ?max_tokens: Integer, ?max_depth: Integer,
-    #   ?max_expansions: Integer) -> void
-    def initialize(grammar, seed: 0, max_tokens: 32, max_depth: 16, max_expansions: DEFAULT_MAX_EXPANSIONS)
+    #   ?max_expansions: Integer, ?strategy: Symbol | String, ?path_length: Integer) -> void
+    def initialize(grammar, seed: 0, max_tokens: 32, max_depth: 16, max_expansions: DEFAULT_MAX_EXPANSIONS,
+                   strategy: :random, path_length: 1)
       raise ArgumentError, "max_tokens must be positive" unless max_tokens.positive?
       raise ArgumentError, "max_depth must be positive" unless max_depth.positive?
       raise ArgumentError, "max_expansions must be positive" unless max_expansions.positive?
+
+      normalized_strategy = strategy.to_sym
+      unless %i[random coverage].include?(normalized_strategy)
+        raise ArgumentError, "strategy must be :random or :coverage"
+      end
+      raise ArgumentError, "path_length must be 1 or 2" unless [1, 2].include?(path_length)
 
       @grammar = grammar
       @random = Random.new(seed)
       @max_tokens = max_tokens
       @max_depth = max_depth
       @max_expansions = max_expansions
+      @strategy = normalized_strategy
+      @path_length = path_length
+      @path_coverage = Hash.new(0) #: Hash[Array[Integer], Integer]
       @productions = grammar.productions.group_by(&:lhs)
       @minimum_costs = compute_minimum_costs
       @minimum_heights = compute_minimum_heights
@@ -120,7 +130,7 @@ module Ibex
     # @rbs (IR::GrammarSymbol start, Integer remaining_expansions) -> [Array[String], Integer]
     def expand(start, remaining_expansions)
       result = [] #: Array[String]
-      work = [[start.id, 0]] #: Array[[Integer, Integer]]
+      work = [[start.id, 0, []]] #: Array[[Integer, Integer, Array[Integer]]]
       pending_minimum = minimum_cost!(start.id)
 
       while (entry = work.pop)
@@ -129,7 +139,7 @@ module Ibex
         end
 
         remaining_expansions -= 1
-        symbol_id, depth = entry
+        symbol_id, depth, path = entry
         pending_minimum -= minimum_cost!(symbol_id)
         symbol = @grammar.symbol_by_id(symbol_id) ||
                  raise(Ibex::Error, "(samples):1:1: missing symbol #{symbol_id}")
@@ -139,17 +149,30 @@ module Ibex
         end
 
         budget = @max_tokens - result.length - pending_minimum
-        production = choose_production(symbol_id, budget, depth)
+        production = choose_production(symbol_id, budget, depth, path)
+        production_path = (path + [production.id]).last(@path_length)
+        @path_coverage[production_path] += 1
         pending_minimum += production_cost(production) ||
                            raise(Ibex::Error, "(samples):1:1: no bounded derivation for symbol #{symbol_id}")
-        production.rhs.reverse_each { |child_id| work << [child_id, depth + 1] }
+        production.rhs.reverse_each { |child_id| work << [child_id, depth + 1, production_path] }
       end
 
       [result, remaining_expansions]
     end
 
-    # @rbs (Integer nonterminal_id, Integer budget, Integer depth) -> IR::Production
-    def choose_production(nonterminal_id, budget, depth)
+    # @rbs (Integer nonterminal_id, Integer budget, Integer depth, Array[Integer] path) -> IR::Production
+    def choose_production(nonterminal_id, budget, depth, path)
+      candidates = bounded_productions(nonterminal_id, budget)
+      candidates = minimum_height_productions(candidates) if depth >= @max_depth
+      return candidates.fetch(@random.rand(candidates.length)) if @strategy == :random
+
+      minimum_coverage = candidates.map { |production| path_count(path, production) }.min
+      least_covered = candidates.select { |production| path_count(path, production) == minimum_coverage }
+      least_covered.fetch(@random.rand(least_covered.length))
+    end
+
+    # @rbs (Integer nonterminal_id, Integer budget) -> Array[IR::Production]
+    def bounded_productions(nonterminal_id, budget)
       productions = @productions[nonterminal_id]
       raise Ibex::Error, "(samples):1:1: no bounded derivation for symbol #{nonterminal_id}" unless productions
 
@@ -159,11 +182,18 @@ module Ibex
       end
       raise Ibex::Error, "(samples):1:1: no bounded derivation for symbol #{nonterminal_id}" if candidates.empty?
 
-      if depth >= @max_depth
-        minimum = candidates.filter_map { |production| production_height(production) }.min
-        candidates = candidates.select { |production| production_height(production) == minimum }
-      end
-      candidates.fetch(@random.rand(candidates.length))
+      candidates
+    end
+
+    # @rbs (Array[IR::Production] candidates) -> Array[IR::Production]
+    def minimum_height_productions(candidates)
+      minimum = candidates.filter_map { |production| production_height(production) }.min
+      candidates.select { |production| production_height(production) == minimum }
+    end
+
+    # @rbs (Array[Integer] path, IR::Production production) -> Integer
+    def path_count(path, production)
+      @path_coverage[(path + [production.id]).last(@path_length)]
     end
 
     # @rbs (Integer symbol_id) -> Integer

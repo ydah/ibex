@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/reduce-v1.schema.json",
+  "title": "Ibex reduce report v1",
+  "type": "object",
+  "required": [
+    "ibex_report", "schema_version", "mode", "original_size",
+    "minimized_size", "trials", "complete", "minimized", "bounded"
+  ],
+  "properties": {
+    "ibex_report": { "const": "reduce" },
+    "schema_version": { "const": 1 },
+    "mode": { "enum": ["tokens", "lines", "bytes"] },
+    "original_size": { "type": "integer", "minimum": 0 },
+    "minimized_size": { "type": "integer", "minimum": 0 },
+    "trials": { "type": "integer", "minimum": 1 },
+    "complete": { "type": "boolean" },
+    "minimized": { "type": "array" },
+    "bounded": { "const": true }
+  },
+  "additionalProperties": false
+}

@@ -54,6 +54,115 @@ namespace :quality do
   end
 end
 
+# rubocop:disable Metrics/BlockLength -- quality gates are intentionally discoverable under one namespace.
+namespace :test do
+  desc "Run the representative invariant matrix"
+  task :matrix do
+    ruby "-Itest", "-r./test/support/matrix_runner", "-e",
+         "Ibex::TestSupport::MatrixRunner.new.run"
+  end
+
+  namespace :matrix do
+    desc "Run the complete invariant matrix"
+    task :full do
+      ruby "-Itest", "-r./test/support/matrix_runner", "-e",
+           "Ibex::TestSupport::MatrixRunner.new.run(full: true)"
+    end
+  end
+
+  desc "Verify feature-off generated source against reviewed golden bytes"
+  task :zero_cost do
+    ruby "-Ilib", "-r./tool/quality/golden", "-e", "Ibex::Quality::Golden.new.verify!"
+  end
+
+  desc "Generate twice under distinct locale, timezone, and RUBYOPT inputs"
+  task :reproducible do
+    ruby "-Ilib", "-r./tool/quality/golden", "-e", "Ibex::Quality::Golden.new.reproducible!"
+  end
+
+  desc "Run the compatible-mode black-box suite"
+  task :compat do
+    ruby "-Itest", "test/compat/black_box_test.rb"
+  end
+
+  desc "Run closed-schema round-trip and rejection tests"
+  task :ir_schema do
+    ruby "-Itest", "test/ir/json_schema_test.rb"
+    ruby "-Itest", "test/ir/validator_test.rb"
+    ruby "-Itest", "test/ir/golden_fixture_test.rb"
+  end
+
+  desc "Run bounded hostile-input tests"
+  task :adversarial do
+    ruby "-Itest", "test/adversarial/limits_test.rb"
+  end
+
+  desc "Prove analysis paths do not execute grammar semantic actions"
+  task :no_exec do
+    ruby "-Itest", "test/analysis_no_exec_test.rb"
+  end
+end
+# rubocop:enable Metrics/BlockLength
+
+namespace :golden do
+  desc "Create the initial generated-source golden baseline"
+  task :record do
+    ruby "-Ilib", "-r./tool/quality/golden", "-e", "Ibex::Quality::Golden.new.record!"
+  end
+
+  desc "Update generated-source golden bytes and their digest index"
+  task :update do
+    ruby "-Ilib", "-r./tool/quality/golden", "-e", "Ibex::Quality::Golden.new.update!"
+  end
+end
+
+namespace :gallery do
+  desc "Build every algorithm/table combination and execute gallery corpora"
+  task :build do
+    ruby "-Ilib", "-r./tool/quality/gallery", "-e", "Ibex::Quality::Gallery.new.build!"
+  end
+
+  desc "Check committed gallery conflict and state counts"
+  task :conflicts do
+    ruby "-Ilib", "-r./tool/quality/gallery", "-e", "Ibex::Quality::Gallery.new.conflicts!"
+  end
+end
+
+namespace :fuzz do
+  desc "Run the fixed-seed short gallery differential suite"
+  task :short do
+    ruby "-Ilib", "-r./tool/quality/fuzz", "-e", "Ibex::Quality::Fuzz.new(count: 100).run"
+  end
+
+  desc "Run 100,000 fixed-seed generated sentences per gallery grammar"
+  task :long do
+    ruby "-Ilib", "-r./tool/quality/fuzz", "-e", "Ibex::Quality::Fuzz.new(count: 100_000).run"
+  end
+
+  desc "Verify ten reachable parser-table faults are detected"
+  task :injection do
+    ruby "-Itest", "test/fuzz_test.rb", "--name=/ten_reachable/"
+  end
+end
+
+namespace :deps do
+  desc "Verify the standalone runtime has no runtime dependencies"
+  task :zero do
+    specification = Gem::Specification.load(File.expand_path("ibex-runtime.gemspec", __dir__))
+    abort "ibex-runtime must have zero runtime dependencies" unless specification.runtime_dependencies.empty?
+  end
+end
+
+namespace :network do
+  desc "Verify packaged runtime sources do not load networking libraries"
+  task :zero do
+    forbidden = %r{require\s+["'](?:net/http|open-uri|socket)["']}
+    paths = Dir.glob("lib/ibex/runtime{.rb,/**/*.rb}")
+    matches = paths.select { |path| File.binread(path).match?(forbidden) }
+    abort "runtime networking dependency found: #{matches.join(', ')}" unless matches.empty?
+  end
+end
+
 namespace :grammar do
   desc "Run source examples and require complete production coverage in gallery grammars"
   task :test do

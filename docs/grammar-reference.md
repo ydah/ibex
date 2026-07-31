@@ -533,6 +533,27 @@ error is rejected with an instruction to run the updater.
 
 ## Analysis and visualizations
 
+`ibex samples grammar.y` emits JSON token arrays derived from Grammar IR.
+`--strategy=random|coverage` selects random alternatives or least-covered
+production paths; `--path-length=1|2`, token, depth, expansion, count, and seed
+options make the search finite and reproducible.
+
+`ibex fuzz grammar.y` feeds bounded generated sentences and single-token
+insert/delete/replace mutations to SLR, LALR, IELR, and LR(1) table
+simulators. It does not execute production actions. `--coverage-guided`
+selects uncovered production paths. The JSON report records every effective
+bound and returns 0 when no difference is found within those bounds, 1 with a
+concrete differential witness, and 2 when a budget prevents completion.
+`--against=COMMAND` sends each token array as JSON to an explicit subprocess;
+exit 0 means accepted and exit 1 means rejected, and the report records the
+command and host runtime configuration.
+
+`ibex reduce --command=COMMAND input` performs trial-bounded delta debugging.
+Input mode is `tokens` (a JSON string array), `lines`, or `bytes`. A nonzero
+subprocess exit means the failure persists. The report contains the minimized
+sequence, trial count, original/minimized sizes, and whether the configured
+trial budget allowed completion; exit 2 denotes an incomplete reduction.
+
 `--emit=sets` writes deterministic JSON containing nullable nonterminals and their FIRST and FOLLOW sets. `--dot=FILE` and
 `--mermaid=FILE` write automaton graphs. `--html=FILE` writes a self-contained report with state search, conflict highlighting,
 and a filter that keeps a selected conflict state and its one-hop neighbors. All three visualizations can be produced while

@@ -1,0 +1,37 @@
+# Generated from lib/ibex/delta_reducer.rb with RBS::Inline
+
+module Ibex
+  # Deterministic, trial-bounded delta debugging over an ordered sequence.
+  class DeltaReducer
+    class Result < Struct[untyped]
+      attr_accessor items(): untyped
+
+      attr_accessor trials(): untyped
+
+      attr_accessor complete(): untyped
+
+      attr_accessor original_size(): untyped
+
+      def self.new: (?items: untyped, ?trials: untyped, ?complete: untyped, ?original_size: untyped) -> instance
+                  | ({ ?items: untyped, ?trials: untyped, ?complete: untyped, ?original_size: untyped }) -> instance
+    end
+
+    # @rbs (?max_trials: Integer) -> void
+    def initialize: (?max_trials: Integer) -> void
+
+    # `failure` must return true while the failure of interest is preserved.
+    # @rbs [T] (Array[T] items) { (Array[T]) -> bool } -> Result
+    def minimize: [T] (Array[T] items) { (Array[T]) -> bool } -> Result
+
+    private
+
+    # @rbs (Integer length, Integer count) -> Array[Range[Integer]]
+    def partitions: (Integer length, Integer count) -> Array[Range[Integer]]
+
+    # @rbs (Integer trials) -> Integer
+    def checked_trial!: (Integer trials) -> Integer
+
+    # @rbs [T] (Array[T] items, Integer trials, bool complete, Integer original_size) -> Result
+    def result: [T] (Array[T] items, Integer trials, bool complete, Integer original_size) -> Result
+  end
+end

@@ -37,10 +37,12 @@ module Ibex
   autoload :CLIErrorMessages, File.join(CLI_FEATURE_ROOT, "error_messages")
   autoload :CLIExplain, File.join(CLI_FEATURE_ROOT, "explain")
   autoload :CLIFormatting, File.join(CLI_FEATURE_ROOT, "formatting")
+  autoload :CLIFuzz, File.join(CLI_FEATURE_ROOT, "fuzz")
   autoload :CLIGrammarTests, File.join(CLI_FEATURE_ROOT, "grammar_tests")
   autoload :CLIIRTools, File.join(CLI_FEATURE_ROOT, "ir_tools")
   autoload :CLILSP, File.join(CLI_FEATURE_ROOT, "lsp")
   autoload :CLIRaccMigration, File.join(CLI_FEATURE_ROOT, "racc_migration")
+  autoload :CLIReduce, File.join(CLI_FEATURE_ROOT, "reduce")
   autoload :CLISamples, File.join(CLI_FEATURE_ROOT, "samples")
   autoload :CLIWatch, File.join(CLI_FEATURE_ROOT, "watch")
 
@@ -105,7 +107,20 @@ module Ibex
   #     ?explain_token: String,
   #     ?explain_format: String,
   #     ?check_ambiguity: bool,
-  #     ?check_format: String
+  #     ?check_format: String,
+  #     ?fuzz_seed: Integer,
+  #     ?fuzz_count: Integer,
+  #     ?fuzz_max_tokens: Integer,
+  #     ?fuzz_max_depth: Integer,
+  #     ?fuzz_max_expansions: Integer,
+  #     ?fuzz_max_actions: Integer,
+  #     ?fuzz_max_stack: Integer,
+  #     ?fuzz_coverage_guided: bool,
+  #     ?fuzz_path_length: Integer,
+  #     ?fuzz_against: String,
+  #     ?reduce_command: String,
+  #     ?reduce_mode: Symbol,
+  #     ?reduce_max_trials: Integer
   #   }
 
   # Command-line pipeline coordinator.
@@ -120,10 +135,12 @@ module Ibex
       "errors" => %i[CLIErrorMessages run_error_messages_command],
       "explain" => %i[CLIExplain run_explain_command],
       "fmt" => %i[CLIFormatting run_format_command],
+      "fuzz" => %i[CLIFuzz run_fuzz_command],
       "test" => %i[CLIGrammarTests run_grammar_tests_command],
       "lsp" => %i[CLILSP run_lsp_command],
       "migrate-check" => %i[CLIRaccMigration run_migrate_check_command],
       "migrate-harness" => %i[CLIRaccMigration run_migrate_harness_command],
+      "reduce" => %i[CLIReduce run_reduce_command],
       "samples" => %i[CLISamples run_samples_command],
       "validate-ir" => %i[CLIIRTools run_validate_ir_command],
       "compare" => %i[CLIIRTools run_compare_command],
@@ -220,25 +237,32 @@ module Ibex
         add_error_messages_generation_option(options)
         add_compatibility_options(options)
         add_information_options(options)
-        options.separator("")
-        options.separator("Subcommands:")
-        options.separator("    check --ambiguity         search for ambiguity within explicit budgets")
-        options.separator("    coverage                  collect, merge, or check runtime coverage")
-        options.separator("    debug AUTOMATON [TOKEN]  simulate validated Automaton IR tables")
-        options.separator("    diagnose                  collect frontend diagnostics")
-        options.separator("    doc                       render grammar documentation")
-        options.separator("    errors --list|--update  list or update example-keyed syntax error messages")
-        options.separator("    explain                   explain selected parser conflicts")
-        options.separator("    fmt                       format grammar source")
-        options.separator("    test                      run grammar-declared source examples")
-        options.separator("    lsp                       run the language server over stdio")
-        options.separator("    migrate-check             statically check a racc grammar migration")
-        options.separator("    migrate-harness           generate a differential subprocess harness")
-        options.separator("    samples                   generate bounded terminal sentences")
-        options.separator("    validate-ir FILE          validate a versioned IR document")
-        options.separator("    compare BEFORE AFTER      compare two versioned IR documents")
-        options.separator("    migrate-ir INPUT --to=2   migrate a versioned IR document")
+        add_subcommand_help(options)
       end
+    end
+
+    # @rbs (OptionParser options) -> void
+    def add_subcommand_help(options)
+      options.separator("")
+      options.separator("Subcommands:")
+      options.separator("    check --ambiguity         search for ambiguity within explicit budgets")
+      options.separator("    coverage                  collect, merge, or check runtime coverage")
+      options.separator("    debug AUTOMATON [TOKEN]  simulate validated Automaton IR tables")
+      options.separator("    diagnose                  collect frontend diagnostics")
+      options.separator("    doc                       render grammar documentation")
+      options.separator("    errors --list|--update  list or update example-keyed syntax error messages")
+      options.separator("    explain                   explain selected parser conflicts")
+      options.separator("    fmt                       format grammar source")
+      options.separator("    fuzz                      run bounded grammar-derived differential fuzzing")
+      options.separator("    test                      run grammar-declared source examples")
+      options.separator("    lsp                       run the language server over stdio")
+      options.separator("    migrate-check             statically check a racc grammar migration")
+      options.separator("    migrate-harness           generate a differential subprocess harness")
+      options.separator("    reduce                    delta-debug a failing token, line, or byte sequence")
+      options.separator("    samples                   generate bounded terminal sentences")
+      options.separator("    validate-ir FILE          validate a versioned IR document")
+      options.separator("    compare BEFORE AFTER      compare two versioned IR documents")
+      options.separator("    migrate-ir INPUT --to=2   migrate a versioned IR document")
     end
 
     # @rbs (OptionParser options) -> void
