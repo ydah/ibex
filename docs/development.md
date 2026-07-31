@@ -51,6 +51,9 @@ bundle exec rake gallery:build
 bundle exec rake gallery:conflicts
 bundle exec rake fuzz:short
 bundle exec rake fuzz:injection
+bundle exec rake verify
+bundle exec rake verify:injection
+bundle exec rake verify:strict
 bundle exec rake deps:zero
 bundle exec rake network:zero
 ```
@@ -69,6 +72,12 @@ fixed-seed sentences per grammar and applies one-token insert/delete/replace
 mutations; scheduled CI raises this to 100,000. All searches have token,
 depth, expansion, action, stack, or subprocess-trial bounds. Timing and memory
 remain observations, not pass/fail thresholds.
+
+`rake verify` covers every gallery grammar, construction algorithm, and plain
+or compact table representation with the default independent checks.
+`verify:injection` requires all twenty structurally valid Automaton IR
+mutations to be detected. Scheduled and manually dispatched CI additionally
+runs `verify:strict`, whose completeness checks have higher construction cost.
 
 ## Browser site and API documentation
 

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/verify-v1.schema.json",
+  "title": "Ibex independent verification report v1",
+  "type": "object",
+  "required": ["ibex_report", "schema_version", "result", "strict", "bounds", "violations"],
+  "properties": {
+    "ibex_report": { "const": "verify" },
+    "schema_version": { "const": 1 },
+    "algorithm": { "enum": ["slr", "lalr1", "ielr1", "lr1"] },
+    "strict": { "type": "boolean" },
+    "checks": {
+      "type": "array",
+      "items": { "enum": ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8"] },
+      "uniqueItems": true
+    },
+    "bounds": {
+      "type": "object",
+      "required": ["max_states", "max_items"],
+      "properties": {
+        "max_states": { "type": "integer", "minimum": 1 },
+        "max_items": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "result": { "enum": ["valid", "invalid", "budget_exhausted"] },
+    "violations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "location", "message"],
+        "properties": {
+          "id": { "enum": ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8"] },
+          "location": { "type": "string" },
+          "message": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

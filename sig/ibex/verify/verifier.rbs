@@ -1,0 +1,159 @@
+# Generated from lib/ibex/verify/verifier.rb with RBS::Inline
+
+module Ibex
+  module Verify
+    # Checks Automaton IR semantics against an independently derived collection.
+    # rubocop:disable Metrics/ClassLength -- V1-V8 share one violation and item-identity model.
+    class Verifier
+      DEFAULT_CHECKS: Array[String]
+
+      STRICT_CHECKS: Array[String]
+
+      ERROR_ACTION: IR::error_action
+
+      # @rbs (IR::Automaton automaton, ?strict: bool, ?max_states: Integer, ?max_items: Integer) -> void
+      def initialize: (IR::Automaton automaton, ?strict: bool, ?max_states: Integer, ?max_items: Integer) -> void
+
+      # @rbs () -> Result
+      def verify: () -> Result
+
+      private
+
+      # @rbs () -> void
+      def verify_grammar_digest: () -> void
+
+      # @rbs () -> void
+      def verify_item_collection: () -> void
+
+      # SLR lookaheads affect completed items only. The builder may retain
+      # propagation lookaheads on non-completed items, but they cannot select
+      # an ACTION cell and therefore are outside the SLR semantic contract.
+      # @rbs (Array[Set[Array[Integer]]] expected_states) -> void
+      def compare_slr_states: (Array[Set[Array[Integer]]] expected_states) -> void
+
+      # @rbs (IR::AutomatonState state,
+      #   Hash[Array[Array[Integer]], Array[Set[Array[Integer]]]] expected_by_core) ->
+      #   Array[Array[Integer]]?
+      def verify_slr_state: (IR::AutomatonState state, Hash[Array[Array[Integer]], Array[Set[Array[Integer]]]] expected_by_core) -> Array[Array[Integer]]?
+
+      # @rbs (IR::AutomatonState state, IR::AutomatonItem item) -> void
+      def verify_slr_lookaheads: (IR::AutomatonState state, IR::AutomatonItem item) -> void
+
+      # @rbs () -> Array[Set[Array[Integer]]]
+      def lr1_states: () -> Array[Set[Array[Integer]]]
+
+      # @rbs () -> Array[Set[Array[Integer]]]
+      def lalr_states: () -> Array[Set[Array[Integer]]]
+
+      # @rbs () -> Array[Set[Array[Integer]]]
+      def canonical_lr1_states: () -> Array[Set[Array[Integer]]]
+
+      # @rbs (Array[Set[Array[Integer]]] expected_states) -> void
+      def compare_expected_states: (Array[Set[Array[Integer]]] expected_states) -> void
+
+      # @rbs (Array[Set[Array[Integer]]] expected_states) -> void
+      def compare_ielr_states: (Array[Set[Array[Integer]]] expected_states) -> void
+
+      # @rbs () -> void
+      def verify_transitions_and_actions: () -> void
+
+      # @rbs (IR::AutomatonState state) -> void
+      def verify_transition_items: (IR::AutomatonState state) -> void
+
+      # @rbs (IR::AutomatonState state) -> void
+      def verify_state_actions: (IR::AutomatonState state) -> void
+
+      # @rbs (IR::AutomatonState state, IR::GrammarSymbol terminal, Array[IR::parser_action] expected,
+      #   IR::parser_action actual, Array[Integer] conflict_tokens) -> void
+      def verify_terminal_action: (IR::AutomatonState state, IR::GrammarSymbol terminal, Array[IR::parser_action] expected, IR::parser_action actual, Array[Integer] conflict_tokens) -> void
+
+      # @rbs (IR::AutomatonState state, IR::GrammarSymbol terminal, IR::parser_action actual) -> void
+      def verify_error_cell: (IR::AutomatonState state, IR::GrammarSymbol terminal, IR::parser_action actual) -> void
+
+      # @rbs (IR::AutomatonState state, IR::GrammarSymbol terminal, IR::parser_action expected,
+      #   IR::parser_action actual) -> void
+      def verify_single_action: (IR::AutomatonState state, IR::GrammarSymbol terminal, IR::parser_action expected, IR::parser_action actual) -> void
+
+      # @rbs (IR::AutomatonState state, IR::GrammarSymbol terminal, Array[IR::parser_action] expected,
+      #   IR::parser_action actual, Array[Integer] conflict_tokens) -> void
+      def verify_conflicted_action: (IR::AutomatonState state, IR::GrammarSymbol terminal, Array[IR::parser_action] expected, IR::parser_action actual, Array[Integer] conflict_tokens) -> void
+
+      # @rbs () -> void
+      def verify_table_formats: () -> void
+
+      # @rbs () -> void
+      def verify_reachability_and_productivity: () -> void
+
+      # @rbs () -> void
+      def verify_epsilon_termination: () -> void
+
+      # @rbs () -> void
+      def verify_conflict_determinism: () -> void
+
+      # @rbs (IR::AutomatonState state, IR::conflict conflict) -> void
+      def verify_conflict_resolution: (IR::AutomatonState state, IR::conflict conflict) -> void
+
+      # @rbs (IR::conflict conflict) -> Array[IR::parser_action]
+      def conflict_candidates: (IR::conflict conflict) -> Array[IR::parser_action]
+
+      # @rbs (IR::conflict conflict) -> IR::parser_action?
+      def resolved_conflict_action: (IR::conflict conflict) -> IR::parser_action?
+
+      # @rbs (IR::AutomatonState state) -> Hash[Integer, Array[IR::parser_action]]
+      def action_candidates: (IR::AutomatonState state) -> Hash[Integer, Array[IR::parser_action]]
+
+      # @rbs (IR::AutomatonState state, Integer symbol_id) -> Array[Array[Integer]]
+      def shifted_items: (IR::AutomatonState state, Integer symbol_id) -> Array[Array[Integer]]
+
+      # @rbs (IR::AutomatonState state, Integer terminal_id) -> IR::parser_action
+      def effective_action: (IR::AutomatonState state, Integer terminal_id) -> IR::parser_action
+
+      # @rbs () -> Set[Integer]
+      def reachable_states: () -> Set[Integer]
+
+      # @rbs () -> Set[Integer]
+      def productive_nonterminals: () -> Set[Integer]
+
+      # @rbs (Hash[Integer, Integer] edges) -> bool
+      def directed_cycle?: (Hash[Integer, Integer] edges) -> bool
+
+      # @rbs (IR::AutomatonState state) -> Set[Array[Integer]]
+      def expanded_items: (IR::AutomatonState state) -> Set[Array[Integer]]
+
+      # Automaton IR intentionally exposes every augmented production as -1,
+      # even when construction internally assigned one per start symbol.
+      # @rbs (Set[Array[Integer]] state) -> Set[Array[Integer]]
+      def visible_state: (Set[Array[Integer]] state) -> Set[Array[Integer]]
+
+      # @rbs (Set[Array[Integer]] state) -> Array[Array[Integer]]
+      def core_key: (Set[Array[Integer]] state) -> Array[Array[Integer]]
+
+      # @rbs (Array[Set[Array[Integer]]] states) -> Hash[Array[Array[Integer]], Integer]
+      def multiset: (Array[Set[Array[Integer]]] states) -> Hash[Array[Array[Integer]], Integer]
+
+      # @rbs (Integer production_id) -> Array[Integer]
+      def follow_ids: (Integer production_id) -> Array[Integer]
+
+      # @rbs (Integer production_id) -> Array[Integer]
+      def rhs_for: (Integer production_id) -> Array[Integer]
+
+      # @rbs (Integer production_id) -> IR::GrammarSymbol
+      def start_symbol: (Integer production_id) -> IR::GrammarSymbol
+
+      # @rbs () -> Integer
+      def eof_id: () -> Integer
+
+      # @rbs () -> Array[Integer]
+      def start_symbol_ids: () -> Array[Integer]
+
+      # @rbs () -> ReferenceCollection
+      def reference: () -> ReferenceCollection
+
+      # @rbs (String id, String location, String message) -> void
+      def violation: (String id, String location, String message) -> void
+
+      # @rbs (IR::AutomatonState state) -> String
+      def state_path: (IR::AutomatonState state) -> String
+    end
+  end
+end

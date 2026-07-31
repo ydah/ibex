@@ -298,6 +298,18 @@ shortest reachability witness instead of claiming ambiguity.
 shape. `Counterexample#all` retains its original all-conflict behavior. The view performs no additional parser analysis and does
 not extend Grammar or Automaton IR.
 
+`Ibex::Verify::Verifier` accepts validated Automaton IR and independently
+derives LR(0) or canonical LR(1) collections from the embedded Grammar IR.
+It deliberately does not load the parser builder. Default checks validate
+item/action soundness, algorithm-specific lookaheads, expanded default
+reductions and error masks, reachability, productivity, epsilon termination,
+and conflict resolvers. `--strict` additionally requires collection
+completeness and exact plain/compact table-row equivalence. Every reference
+search has explicit state and item budgets; exhaustion is distinct from a
+violation. The verifier reads opaque semantic-action text but never evaluates
+it. `ibex verify` reports the versioned `verify` schema and uses exit statuses
+0 for valid, 1 for a violation, and 2 for budget exhaustion.
+
 The repository's self-authored representative grammar feeds the current versioned `ibex_benchmark` v2 document. Its JSON Schema
 is shipped beside the IR schemas, while committed environment-specific observations live under the matching
 `benchmark/results/vN` directory. Timing and peak RSS remain non-gating; CI reproduces only deterministic structure and digests.
