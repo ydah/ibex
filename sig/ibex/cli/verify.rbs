@@ -3,7 +3,7 @@
 module Ibex
   # CLI entry point for bounded, independent Automaton IR verification.
   module CLIVerify
-    type verify_options = { paths: Array[String], strict: bool, max_states: Integer, max_items: Integer, ?grammar: String, format: String }
+    type verify_options = { paths: Array[String], strict: bool, max_states: Integer, max_items: Integer, ?grammar: String, format: String, ?help: String }
 
     private
 

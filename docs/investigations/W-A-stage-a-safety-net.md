@@ -60,6 +60,10 @@ provenance/corpora, and adversarial cases are not available under one task.
 - Golden bytes use generated source files plus a digest index. A mismatch
   reports the first byte offset; the source file remains available for a
   normal version-control diff.
+- Differential fuzz failures retain their original mismatch kind and outcome
+  vector during trial-bounded delta reduction. The CLI atomically records the
+  fixed seed, effective bounds, original and reduced token sequences in a
+  separate closed regression format; incomplete reduction is explicit.
 - Stage A does not introduce a DFA or a regular-expression timeout policy.
   Existing generated-lexer validation and bounded runtime tests remain the
   applicable pre-v1 contract.

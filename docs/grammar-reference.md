@@ -546,15 +546,36 @@ simulators. It does not execute production actions. `--coverage-guided`
 selects uncovered production paths. The JSON report records every effective
 bound and returns 0 when no difference is found within those bounds, 1 with a
 concrete differential witness, and 2 when a budget prevents completion.
+`--format=text` renders the same result and bounds for a terminal; JSON remains
+the default versioned contract.
 `--against=COMMAND` sends each token array as JSON to an explicit subprocess;
-exit 0 means accepted and exit 1 means rejected, and the report records the
-command and host runtime configuration.
+exit 0 means accepted and exit 1 means rejected. It requires
+`--against-runtime=DESCRIPTION`, and the report records that target runtime,
+the exact command, and the Ibex host runtime. Each invocation is bounded by
+`--against-timeout=SECONDS` (default 10) and
+`--against-max-output=N` (default 1,048,576 bytes); either limit exits 2
+instead of treating a stuck or noisy target as a language result. On
+process-group platforms, descendants are terminated with the target. A
+difference is automatically delta-minimized while preserving its mismatch kind
+and outcomes, then written atomically to `test/fuzz/regressions` with its seed
+and effective bounds.
+`--max-reduction-trials=N` bounds that work, `--regression-dir=DIR` selects
+another destination, and `--no-save-regression` disables persistence. An
+incomplete minimization remains a concrete difference and records
+`complete: false`; it is never described as minimal.
 
 `ibex reduce --command=COMMAND input` performs trial-bounded delta debugging.
 Input mode is `tokens` (a JSON string array), `lines`, or `bytes`. A nonzero
-subprocess exit means the failure persists. The report contains the minimized
-sequence, trial count, original/minimized sizes, and whether the configured
-trial budget allowed completion; exit 2 denotes an incomplete reduction.
+normal subprocess exit means the failure persists; a signal is an invocation
+error rather than evidence. The version-2 report contains the reduced
+sequence, trial count, original/final sizes, every effective limit, and whether
+the configured trial budget allowed completion. A trial-limited result is
+reported as `incomplete`, never as `minimized`. The checker timeout
+(default 10 seconds), checker output (default 1,048,576 bytes), and input
+(default 10 MiB) are bounded by `--timeout`, `--max-output-bytes`, and
+`--max-input-bytes`. Exceeding any configured budget exits 2 with a distinct
+reason. Report v1 remains the prior read-only contract.
+`--format=text` selects a human-readable report; JSON remains the default.
 
 `ibex verify automaton.json` validates table semantics by independently
 deriving the relevant LR item collection from the embedded Grammar IR. Default

@@ -3,6 +3,8 @@
 module Ibex
   # CLI entry point for bounded grammar-derived differential fuzzing.
   module CLIFuzz
+    include CLIFuzzRegressions
+
     private def print_help: (OptionParser) -> Integer
 
     private def input_path: (Array[String]) -> String
@@ -27,8 +29,15 @@ module Ibex
     # @rbs (OptionParser options) -> void
     def add_fuzz_execution_options: (OptionParser options) -> void
 
-    # @rbs () -> [(^(Array[String]) -> Symbol), Hash[Symbol, untyped]]?
-    def external_fuzz_target: () -> [ ^(Array[String]) -> Symbol, Hash[Symbol, untyped] ]?
+    # @rbs (OptionParser options) -> void
+    def add_fuzz_external_options: (OptionParser options) -> void
+
+    # @rbs () -> fuzz_external_target?
+    def external_fuzz_target: () -> fuzz_external_target?
+
+    # @rbs (BoundedSubprocess subprocess, Array[String] arguments, Array[String] tokens,
+    #   Integer timeout, Integer max_output) -> Symbol
+    def external_fuzz_outcome: (BoundedSubprocess subprocess, Array[String] arguments, Array[String] tokens, Integer timeout, Integer max_output) -> Symbol
 
     # @rbs (String name, Integer value) -> Integer
     def positive_fuzz_option!: (String name, Integer value) -> Integer

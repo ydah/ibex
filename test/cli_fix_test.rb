@@ -18,6 +18,13 @@ class CLIFixTest < Minitest::Test
     end
   GRAMMAR
 
+  def test_fix_help_does_not_require_an_input
+    output = StringIO.new
+
+    assert_equal 0, Ibex::CLI.start(%w[fix --help], stdout: output, stderr: StringIO.new)
+    assert_includes output.string, "Usage: ibex fix"
+  end
+
   def test_fix_reports_safe_proposals_and_matches_schema
     with_grammar do |path|
       output = StringIO.new
@@ -69,6 +76,25 @@ class CLIFixTest < Minitest::Test
       assert_equal 1, status
       assert_includes errors.string, "multiple hard links"
       assert_equal SOURCE, File.binread(path)
+    end
+  end
+
+  def test_fix_apply_rejects_a_symlink_input
+    Dir.mktmpdir("ibex-fix-symlink") do |directory|
+      target = File.join(directory, "grammar.y")
+      path = File.join(directory, "grammar-link.y")
+      File.binwrite(target, SOURCE)
+      File.symlink(target, path)
+      errors = StringIO.new
+
+      status = Ibex::CLI.start(
+        ["fix", "--apply", *bounded_options, path],
+        stdout: StringIO.new, stderr: errors
+      )
+
+      assert_equal 1, status
+      assert_includes errors.string, "symlink aliases"
+      assert_equal SOURCE, File.binread(target)
     end
   end
 

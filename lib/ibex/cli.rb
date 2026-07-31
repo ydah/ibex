@@ -15,7 +15,6 @@ require_relative "ir/serialize"
 require_relative "ir/automaton_ir"
 require_relative "normalize"
 require_relative "analysis"
-require_relative "bison_import"
 require_relative "lalr/conflict"
 require_relative "lalr/on_error_reductions"
 require_relative "lalr/default_reductions"
@@ -125,9 +124,20 @@ module Ibex
   #     ?fuzz_coverage_guided: bool,
   #     ?fuzz_path_length: Integer,
   #     ?fuzz_against: String,
+  #     ?fuzz_against_runtime: String,
+  #     ?fuzz_against_timeout: Integer,
+  #     ?fuzz_against_max_output: Integer,
+  #     ?fuzz_max_reduction_trials: Integer,
+  #     ?fuzz_regression_dir: String,
+  #     ?fuzz_save_regression: bool,
+  #     ?fuzz_format: String,
   #     ?reduce_command: String,
   #     ?reduce_mode: Symbol,
-  #     ?reduce_max_trials: Integer
+  #     ?reduce_max_trials: Integer,
+  #     ?reduce_timeout: Integer,
+  #     ?reduce_max_output_bytes: Integer,
+  #     ?reduce_max_input_bytes: Integer,
+  #     ?reduce_format: String
   #   }
 
   # Command-line pipeline coordinator.
@@ -600,13 +610,19 @@ module Ibex
     # @rbs (String path) -> IR::Grammar
     def normalize_grammar_path(path)
       source = File.binread(path)
-      if BisonImport.bison_source?(source)
+      if bison_source?(source)
+        require_relative "bison_import"
         imported = BisonImport::Importer.new(source, file: path).run
         ast = Frontend::Parser.new(imported.source, file: path, mode: :extended).parse
         return Normalizer.new(ast, mode: :extended).normalize
       end
 
       Normalizer.new(resolve_grammar_path(path), mode: @options[:mode]).normalize
+    end
+
+    # @rbs (String source) -> bool
+    def bison_source?(source)
+      source.lines.count { |line| line.match?(%r{^\s*%%(?:\s|/|$)}) } >= 2
     end
 
     # @rbs (String path) -> Integer

@@ -1,0 +1,6 @@
+# ibex-messages v2
+sentence: SELECT IDENTIFIER FROM ';'
+## E0001
+# entry: document
+| A source identifier is required after FROM.
+end

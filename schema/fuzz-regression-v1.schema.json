@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/fuzz-regression-v1.schema.json",
+  "title": "Ibex minimized fuzz regression v1",
+  "type": "object",
+  "required": [
+    "ibex_report",
+    "schema_version",
+    "grammar",
+    "seed",
+    "kind",
+    "sentence",
+    "algorithms",
+    "original_tokens",
+    "minimized_tokens",
+    "bounds",
+    "reduction"
+  ],
+  "properties": {
+    "ibex_report": { "const": "fuzz-regression" },
+    "schema_version": { "const": 1 },
+    "grammar": { "type": "string", "minLength": 1 },
+    "seed": { "type": "integer" },
+    "kind": { "enum": ["generated", "mutation"] },
+    "sentence": { "type": "integer", "minimum": 0 },
+    "algorithms": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "enum": ["slr", "lalr", "ielr", "lr1"] }
+    },
+    "original_tokens": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "minimized_tokens": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "bounds": {
+      "type": "object",
+      "required": ["max_actions", "max_stack"],
+      "properties": {
+        "max_actions": { "type": "integer", "minimum": 1 },
+        "max_stack": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "reduction": {
+      "type": "object",
+      "required": ["original_size", "minimized_size", "trials", "complete"],
+      "properties": {
+        "original_size": { "type": "integer", "minimum": 0 },
+        "minimized_size": { "type": "integer", "minimum": 0 },
+        "trials": { "type": "integer", "minimum": 1 },
+        "complete": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "external": {
+      "type": "object",
+      "required": [
+        "command", "target_runtime", "timeout_seconds", "max_output_bytes",
+        "host_ruby_engine", "host_ruby_version", "host_platform"
+      ],
+      "properties": {
+        "command": { "type": "string", "minLength": 1 },
+        "target_runtime": { "type": "string", "minLength": 1 },
+        "timeout_seconds": { "type": "integer", "minimum": 1 },
+        "max_output_bytes": { "type": "integer", "minimum": 1 },
+        "host_ruby_engine": { "type": "string", "minLength": 1 },
+        "host_ruby_version": { "type": "string", "minLength": 1 },
+        "host_platform": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

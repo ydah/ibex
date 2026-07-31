@@ -6,6 +6,8 @@ require "stringio"
 require "tempfile"
 
 class MessagesTest < Minitest::Test
+  BUILT_IN_ID_PATTERN = /["']((?:cli|diagnostic|label|warning|conflict|note)\.[a-z_.]+)["']/
+
   def test_all_catalogs_have_exactly_the_same_ids_and_valid_interpolations
     english = Ibex::Messages.catalog("en")
     japanese = Ibex::Messages.catalog("ja")
@@ -14,6 +16,23 @@ class MessagesTest < Minitest::Test
     english.each_key do |id|
       placeholders = english.fetch(id).scan(/%{([^}]+)}/).flatten.sort
       assert_equal placeholders, japanese.fetch(id).scan(/%{([^}]+)}/).flatten.sort, id
+    end
+  end
+
+  def test_every_message_id_used_by_code_exists_in_every_catalog
+    root = File.expand_path("../lib", __dir__)
+    literal_ids = Dir.glob(File.join(root, "**/*.rb")).flat_map do |path|
+      File.binread(path).scan(BUILT_IN_ID_PATTERN).flatten
+    end
+    dynamic_frontend_ids = %w[
+      diagnostic.frontend.lexical_error
+      diagnostic.frontend.syntax_error
+      diagnostic.frontend.resolution_error
+    ]
+    used = (literal_ids + dynamic_frontend_ids).uniq.sort
+
+    Ibex::Messages::LANGUAGES.each do |language|
+      assert_empty used - Ibex::Messages.catalog(language).keys, language
     end
   end
 

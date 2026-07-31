@@ -61,6 +61,11 @@ module Ibex
       # @rbs () -> void
       def reject_foreign_actions: () -> void
 
+      # Kept local so the generic generator does not load the optional Bison
+      # importer and its IR validation graph.
+      # @rbs () -> String
+      def foreign_action_sentinel: () -> String
+
       # @rbs (Array[String] lines) -> void
       def append_runtime: (Array[String] lines) -> void
 

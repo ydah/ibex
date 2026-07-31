@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../test_helper"
+require "stringio"
 require "tmpdir"
 
 class AdversarialLimitsTest < Minitest::Test
@@ -56,6 +57,34 @@ class AdversarialLimitsTest < Minitest::Test
       assert_includes error.message, "include cycle"
       assert_includes error.message, "first.y"
       assert_includes error.message, "second.y"
+    end
+  end
+
+  def test_pathological_lexer_pattern_can_be_stopped_as_a_positioned_error
+    Dir.mktmpdir("ibex-redos") do |directory|
+      path = File.join(directory, "redos.y")
+      File.write(path, <<~GRAMMAR)
+        class RiskyLexer
+        pragma extended
+        token ITEM
+        lexer
+          ITEM /(a+)+$/
+        end
+        rule
+        start: ITEM
+        end
+      GRAMMAR
+      errors = StringIO.new
+
+      status = Ibex::CLI.start(
+        ["--mode=extended", "--warnings=error", path],
+        stdout: StringIO.new, stderr: errors
+      )
+
+      assert_equal 1, status
+      assert_includes errors.string, "#{path}:5:3"
+      assert_includes errors.string, "excessive backtracking"
+      refute File.exist?(File.join(directory, "redos.rb"))
     end
   end
 end

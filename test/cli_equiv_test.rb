@@ -6,6 +6,13 @@ require "stringio"
 require "tmpdir"
 
 class CLIEquivTest < Minitest::Test
+  def test_equiv_help_does_not_require_inputs
+    output = StringIO.new
+
+    assert_equal 0, Ibex::CLI.start(%w[equiv --help], stdout: output, stderr: StringIO.new)
+    assert_includes output.string, "Usage: ibex equiv"
+  end
+
   def test_equiv_returns_zero_for_no_difference_and_matches_schema
     with_grammars("start: TOKEN", "start: TOKEN") do |left, right|
       output = StringIO.new

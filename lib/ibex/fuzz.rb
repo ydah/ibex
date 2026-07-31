@@ -3,8 +3,25 @@
 
 require_relative "samples"
 require_relative "table_simulation"
+require_relative "delta_reducer"
 
 module Ibex
+  # @rbs!
+  #   type fuzz_outcome = Symbol | [Symbol, String, String]
+  #   type fuzz_mismatch = {
+  #     tokens: Array[String],
+  #     kind: Symbol,
+  #     sentence: Integer,
+  #     outcomes: Hash[Symbol, fuzz_outcome],
+  #     bounds: Hash[Symbol, Integer]
+  #   }
+  #   type fuzz_budget = {
+  #     message: String,
+  #     bounds: Hash[Symbol, Integer],
+  #     ?tokens: Array[String],
+  #     ?phase: String
+  #   }
+
   # Bounded grammar-derived differential fuzzing without semantic execution.
   class Fuzz
     ALGORITHMS = %i[slr lalr ielr lr1].freeze #: Array[Symbol]
@@ -12,22 +29,22 @@ module Ibex
     DEFAULT_MAX_STACK = 10_000 #: Integer
 
     class Mismatch < Ibex::Error
-      attr_reader :details #: Hash[Symbol, untyped]
+      attr_reader :details #: fuzz_mismatch
 
-      # @rbs (Hash[Symbol, untyped] details) -> void
+      # @rbs (fuzz_mismatch details) -> void
       def initialize(details)
         @details = IR.deep_freeze(details)
-        super("(fuzz):1:1: differential mismatch for #{details.fetch(:tokens).inspect}")
+        super("(fuzz):1:1: differential mismatch for #{details[:tokens].inspect}")
       end
     end
 
     class BudgetExceeded < Ibex::Error
-      attr_reader :details #: Hash[Symbol, untyped]
+      attr_reader :details #: fuzz_budget
 
-      # @rbs (Hash[Symbol, untyped] details) -> void
+      # @rbs (fuzz_budget details) -> void
       def initialize(details)
         @details = IR.deep_freeze(details)
-        super("(fuzz):1:1: configured budget was exhausted: #{details.fetch(:message)}")
+        super("(fuzz):1:1: configured budget was exhausted: #{details[:message]}")
       end
     end
 
@@ -81,6 +98,19 @@ module Ibex
         message: e.message,
         bounds: { max_expansions: @max_expansions, max_actions: @max_actions, max_stack: @max_stack }
       )
+    end
+
+    # Minimize one observed mismatch without changing its kind or outcomes.
+    # @rbs (Mismatch mismatch, ?max_trials: Integer) -> DeltaReducer::Result
+    def minimize(mismatch, max_trials: 1_000)
+      details = mismatch.details
+      original = details[:tokens]
+      kind = details[:kind].to_sym
+      sentence = details[:sentence]
+      outcomes = details[:outcomes]
+      DeltaReducer.new(max_trials: max_trials).minimize(original) do |candidate|
+        mismatch_reproduced?(candidate, kind: kind, sentence: sentence, outcomes: outcomes)
+      end
     end
 
     private
@@ -156,6 +186,16 @@ module Ibex
       deleted = tokens.dup.tap { |items| items.delete_at(index) }
       replaced = tokens.dup.tap { |items| items[index] = replacement }
       [inserted, deleted, replaced].uniq
+    end
+
+    # @rbs (Array[String] tokens, kind: Symbol, sentence: Integer,
+    #   outcomes: Hash[Symbol, fuzz_outcome]) -> bool
+    def mismatch_reproduced?(tokens, kind:, sentence:, outcomes:)
+      compare!(tokens, kind: kind, sentence: sentence)
+      false
+    rescue Mismatch => e
+      e.details[:kind].to_sym == kind &&
+        e.details[:outcomes] == outcomes
     end
 
     # @rbs (Ibex::Error error) -> bool

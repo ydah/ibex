@@ -24,7 +24,8 @@ module Ibex
     #     ?state: Integer,
     #     ?conflict_index: Integer,
     #     ?messages: String,
-    #     ?apply: String | true
+    #     ?apply: String | true,
+    #     ?help: String
     #   }
     #   private def normalize_grammar_path: (String) -> IR::Grammar
     #   private def activate_cli_feature: (Symbol) -> void
@@ -34,6 +35,10 @@ module Ibex
     # @rbs (Array[String] arguments) -> Integer
     def run_fix_command(arguments)
       settings = fix_options(arguments)
+      if settings[:help]
+        @stdout.puts(settings.fetch(:help))
+        return 0
+      end
       paths = settings.fetch(:paths)
       raise Ibex::Error, "(fix):1:1: fix requires exactly one grammar source file" unless paths.length == 1
 
@@ -108,6 +113,7 @@ module Ibex
           settings[:messages] = value
         end
         options.on("--format=FORMAT", %w[json text], "json or text") { |value| settings[:format] = value }
+        options.on("--help", "show help") { settings[:help] = options.to_s }
       end
       settings[:paths] = parser.parse(arguments)
       settings

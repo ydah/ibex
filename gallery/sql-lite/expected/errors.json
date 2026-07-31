@@ -1,0 +1,9 @@
+{
+  "missing-source.sql": {
+    "error_id": "E0001",
+    "token": "';'",
+    "line": 1,
+    "column": 17,
+    "expected_tokens": ["IDENTIFIER"]
+  }
+}

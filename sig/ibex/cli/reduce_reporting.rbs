@@ -1,0 +1,27 @@
+# Generated from lib/ibex/cli/reduce_reporting.rb with RBS::Inline
+
+module Ibex
+  # Versioned machine and terminal reports for bounded delta reduction.
+  module CLIReduceReporting
+    @reduction_mode: Symbol
+
+    @reduction_bounds: reduction_bounds
+
+    private
+
+    # @rbs (DeltaReducer::Result result) -> reduction_success_document
+    def reduction_success_report: (DeltaReducer::Result result) -> reduction_success_document
+
+    # @rbs (reduction_budget_details details) -> reduction_budget_document
+    def reduction_budget_report: (reduction_budget_details details) -> reduction_budget_document
+
+    # @rbs () -> reduction_bounds
+    def default_reduction_bounds: () -> reduction_bounds
+
+    # @rbs (reduction_success_document report) -> void
+    def write_reduction_success: (reduction_success_document report) -> void
+
+    # @rbs (reduction_budget_document report) -> void
+    def write_reduction_budget: (reduction_budget_document report) -> void
+  end
+end

@@ -6,6 +6,15 @@ require "stringio"
 require "tmpdir"
 
 class CLIMetricsDiffTest < Minitest::Test
+  def test_analysis_help_does_not_require_inputs
+    %w[diff metrics].each do |command|
+      output = StringIO.new
+
+      assert_equal 0, Ibex::CLI.start([command, "--help"], stdout: output, stderr: StringIO.new)
+      assert_includes output.string, "Usage: ibex #{command}"
+    end
+  end
+
   def test_metrics_source_report_matches_public_schema
     with_sources("start: TOKEN", "start: TOKEN") do |before, _after|
       output = StringIO.new

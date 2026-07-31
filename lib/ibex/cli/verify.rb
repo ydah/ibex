@@ -16,7 +16,8 @@ module Ibex
     #     max_states: Integer,
     #     max_items: Integer,
     #     ?grammar: String,
-    #     format: String
+    #     format: String,
+    #     ?help: String
     #   }
 
     private
@@ -24,6 +25,10 @@ module Ibex
     # @rbs (Array[String] arguments) -> Integer
     def run_verify_command(arguments)
       settings = verify_options(arguments)
+      if settings[:help]
+        @stdout.puts(settings.fetch(:help))
+        return 0
+      end
       operands = settings.fetch(:paths)
       raise Ibex::Error, "(verify):1:1: verify requires exactly one Automaton IR file" unless operands.length == 1
 
@@ -65,6 +70,7 @@ module Ibex
           settings[:max_items] = positive_verify_budget(value, "max-items")
         end
         options.on("--format=FORMAT", %w[json text], "json or text") { |value| settings[:format] = value }
+        options.on("--help", "show help") { settings[:help] = options.to_s }
       end
       settings[:paths] = parser.parse(arguments)
       settings

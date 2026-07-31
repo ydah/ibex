@@ -54,7 +54,7 @@ bundle exec rake fuzz:injection
 bundle exec rake verify
 bundle exec rake verify:injection
 bundle exec rake verify:strict
-bundle exec rake equiv:test
+bundle exec rake equiv:regression
 bundle exec rake analysis:test
 bundle exec rake fix:test
 bundle exec rake i18n:coverage
@@ -77,12 +77,22 @@ mutations; scheduled CI raises this to 100,000. All searches have token,
 depth, expansion, action, stack, or subprocess-trial bounds. Timing and memory
 remain observations, not pass/fail thresholds.
 
+When `ibex fuzz` finds a differential failure it automatically performs
+trial-bounded reduction and atomically saves a versioned fixture under
+`test/fuzz/regressions/`. Reproduce the fixed-seed fixture, add a focused test,
+and only then commit it; incomplete reduction is explicitly recorded and must
+not be called minimal. External comparisons require an explicit
+`--against-runtime` description so their runtime configuration is not omitted
+from the report or saved fixture. Per-sentence time and output limits prevent a
+stuck external target from hanging the fuzz run, and child process groups are
+cleaned up so a checker cannot leave descendants behind.
+
 `rake verify` covers every gallery grammar, construction algorithm, and plain
 or compact table representation with the default independent checks.
 `verify:injection` requires all twenty structurally valid Automaton IR
 mutations to be detected. Scheduled and manually dispatched CI additionally
 runs `verify:strict`, whose completeness checks have higher construction cost.
-`equiv:test` fixes ten equivalent and ten non-equivalent grammar pairs,
+`equiv:regression` fixes ten equivalent and ten non-equivalent grammar pairs,
 concrete shortest witnesses, tree mappings, and exit status 2 for exhausted
 product-state budgets.
 `analysis:test` validates the closed JSON contracts and added/removed/changed
@@ -92,9 +102,41 @@ classification for `diff`, plus deterministic recursion and table counts for
 another conflict, pass the independent verifier, and find no language or
 mapped-tree difference within their reported bounds. It also replays the
 committed twenty-conflict measurement.
+The fuzz and reducer CLIs default to their versioned JSON reports and also
+exercise `--format=text` so automation and terminal use share the same result
+and exit-status contracts. Reducer subprocesses additionally have explicit
+time, output, input, and trial budgets; budget exhaustion is not accepted as a
+reproduced failure.
 `i18n:coverage` requires exact message-ID and interpolation parity across every
 built-in language catalog, and exercises option, environment, fallback, text,
 and JSON paths.
+
+## Release basis
+
+Before selecting a release revision, run:
+
+```sh
+bundle exec rake release:reproducible
+```
+
+The gate normalizes the RBS declarations named in
+`tool/quality/stable-api-v1.yml` and requires zero differences from the
+v0.2.0 baseline. Comments and blank lines do not affect the fingerprint. The
+lock covers the Stable runtime, batch CST, versioned IR, and table surfaces;
+Preview- and Experimental-only signature files are not promoted by appearing
+elsewhere in the generated RBS tree.
+
+The same task builds `ibex-runtime` and `ibex` twice in separate temporary
+directories with different locale, timezone, and frozen-string settings. It
+requires byte-identical `.gem` files, rejects unsafe or development-only
+package paths, and prints the SHA-256 digest for each artifact. It never
+publishes a package and leaves no release artifact in the repository.
+
+Artifact signing is deliberately not simulated with a repository-local key.
+The release remains blocked until the outcome gates in
+[`release-readiness.md`](release-readiness.md) pass. When that happens, the
+release environment must provide a protected external signing identity and
+bind its signature or provenance attestation to the printed artifact digest.
 
 ## Browser site and API documentation
 
@@ -145,7 +187,7 @@ ruby -e '
   sources = Dir.glob("lib/**/*.rb").sort
   exec("bundle", "exec", "rbs-inline", "--opt-out", "--base=lib", "--output=sig", *sources)
 '
-bundle exec rbs -r digest -r json -r optparse -r tempfile -r timeout -r tmpdir -r uri -I sig validate
+bundle exec rbs -r digest -r fileutils -r json -r optparse -r tempfile -r timeout -r tmpdir -r uri -I sig validate
 bundle exec steep check
 bundle exec ruby tool/type_stats.rb --write
 ```

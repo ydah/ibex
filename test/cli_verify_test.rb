@@ -6,6 +6,13 @@ require "stringio"
 require "tempfile"
 
 class CLIVerifyTest < Minitest::Test
+  def test_verify_help_does_not_require_an_input
+    output = StringIO.new
+
+    assert_equal 0, Ibex::CLI.start(%w[verify --help], stdout: output, stderr: StringIO.new)
+    assert_includes output.string, "Usage: ibex verify"
+  end
+
   def test_verify_emits_a_schema_valid_report
     with_automaton do |path|
       output = StringIO.new

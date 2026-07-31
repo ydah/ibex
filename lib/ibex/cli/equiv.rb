@@ -20,7 +20,8 @@ module Ibex
     #     algorithm: Symbol,
     #     mode: Symbol,
     #     format: String,
-    #     rule_map: Hash[String, String]
+    #     rule_map: Hash[String, String],
+    #     ?help: String
     #   }
     #   private def normalize_grammar_path: (String) -> IR::Grammar
 
@@ -29,6 +30,10 @@ module Ibex
     # @rbs (Array[String] arguments) -> Integer
     def run_equiv_command(arguments)
       settings = equiv_options(arguments)
+      if settings[:help]
+        @stdout.puts(settings.fetch(:help))
+        return 0
+      end
       paths = settings.fetch(:paths)
       raise Ibex::Error, "(equiv):1:1: equiv requires exactly two grammar or IR files" unless paths.length == 2
 
@@ -78,6 +83,7 @@ module Ibex
           settings.fetch(:rule_map)[old_name] = new_name
         end
         options.on("--format=FORMAT", %w[json text], "json or text") { |value| settings[:format] = value }
+        options.on("--help", "show help") { settings[:help] = options.to_s }
       end
       settings[:paths] = parser.parse(arguments)
       settings

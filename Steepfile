@@ -5,6 +5,7 @@ target :library do
   check "lib"
 
   library "digest"
+  library "fileutils"
   library "json"
   library "optparse"
   library "open3"

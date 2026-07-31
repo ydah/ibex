@@ -1,0 +1,76 @@
+# Generated from lib/ibex/bounded_subprocess.rb with RBS::Inline
+
+module Ibex
+  # Captures one shell-free child process under wall-clock and output budgets.
+  class BoundedSubprocess
+    DEFAULT_TIMEOUT_SECONDS: Integer
+
+    DEFAULT_MAX_OUTPUT_BYTES: Integer
+
+    TERMINATION_GRACE_SECONDS: Float
+
+    POLL_SECONDS: Float
+
+    # Immutable observation of one bounded child-process execution.
+    class Result
+      attr_reader stdout: String
+
+      attr_reader stderr: String
+
+      attr_reader status: Process::Status
+
+      attr_reader timed_out: bool
+
+      attr_reader output_limited: bool
+
+      # @rbs (stdout: String, stderr: String, status: Process::Status,
+      #   timed_out: bool, output_limited: bool) -> void
+      def initialize: (stdout: String, stderr: String, status: Process::Status, timed_out: bool, output_limited: bool) -> void
+    end
+
+    # @rbs (timeout_seconds: Integer, max_output_bytes: Integer) -> void
+    def initialize: (timeout_seconds: Integer, max_output_bytes: Integer) -> void
+
+    # @rbs (Array[String] command, input: String) -> Result
+    def run: (Array[String] command, input: String) -> Result
+
+    private
+
+    # @rbs (Array[String] command, String input, File stdin, File stdout, File stderr) -> Result
+    def run_with_files: (Array[String] command, String input, File stdin, File stdout, File stderr) -> Result
+
+    # @rbs (Array[String] command, File stdin, File stdout, File stderr) -> Integer
+    def spawn_child: (Array[String] command, File stdin, File stdout, File stderr) -> Integer
+
+    # @rbs (Integer pid, String stdout_path, String stderr_path) ->
+    #   [Process::Status, bool, bool]
+    def wait: (Integer pid, String stdout_path, String stderr_path) -> [ Process::Status, bool, bool ]
+
+    # @rbs (Integer pid) -> Process::Status
+    def terminate: (Integer pid) -> Process::Status
+
+    # @rbs (Integer pid) -> void
+    def terminate_descendants: (Integer pid) -> void
+
+    # @rbs (String signal, Integer pid) -> void
+    def signal_process_tree: (String signal, Integer pid) -> void
+
+    # @rbs (Integer pid) -> bool
+    def process_group_alive?: (Integer pid) -> bool
+
+    # @rbs () -> bool
+    def process_groups?: () -> bool
+
+    # @rbs (Integer pid) -> Process::Status
+    def process_status: (Integer pid) -> Process::Status
+
+    # @rbs (String stdout_path, String stderr_path) -> bool
+    def output_exceeded?: (String stdout_path, String stderr_path) -> bool
+
+    # @rbs (String path) -> String
+    def read_bounded: (String path) -> String
+
+    # @rbs () -> Float
+    def monotonic_time: () -> Float
+  end
+end

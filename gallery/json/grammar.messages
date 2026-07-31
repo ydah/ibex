@@ -1,0 +1,6 @@
+# ibex-messages v2
+sentence: '{' STRING ':' '}'
+## E0001
+# entry: document
+| A JSON value is required after the colon.
+end

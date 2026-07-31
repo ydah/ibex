@@ -154,7 +154,7 @@ jobs:
         run: |
           bundle exec rake verify
           bundle exec rake verify:injection
-          bundle exec rake equiv:test
+          bundle exec rake equiv:regression
           bundle exec rake analysis:test
           bundle exec rake fix:test
       - name: Run strict verification
@@ -180,6 +180,7 @@ jobs:
           bundle exec rake test:docs_coverage
           bundle exec rake i18n:coverage
           bundle exec rake bison:test
+          bundle exec rake release:reproducible
       - name: Verify pinned external grammar imports
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: |
@@ -212,7 +213,7 @@ jobs:
           '
           diff -ru sig "$RUNNER_TEMP/ibex-signatures"
       - name: Validate RBS signatures
-        run: bundle exec rbs -r digest -r json -r optparse -r tempfile -r timeout -r tmpdir -r uri -I sig validate
+        run: bundle exec rbs -r digest -r fileutils -r json -r optparse -r tempfile -r timeout -r tmpdir -r uri -I sig validate
       - name: Type check Ruby implementation
         run: bundle exec steep check
       - name: Check documented type statistics
