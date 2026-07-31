@@ -155,6 +155,8 @@ jobs:
           bundle exec rake verify
           bundle exec rake verify:injection
           bundle exec rake equiv:test
+          bundle exec rake analysis:test
+          bundle exec rake fix:test
       - name: Run strict verification
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: bundle exec rake verify:strict

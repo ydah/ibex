@@ -265,6 +265,9 @@ gem install ./ibex-0.1.0.gem
 | Emit Automaton IR | `ibex --emit=automaton-ir grammar.y > automaton.json` |
 | Independently verify Automaton IR | `ibex verify --strict automaton.json` |
 | Search two grammars for a bounded difference | `ibex equiv old.y new.y` |
+| Propose independently checked conflict repairs | `ibex fix --messages=grammar.messages grammar.y` |
+| Classify grammar and automaton changes | `ibex diff old.y new.y` |
+| Measure deterministic grammar structure | `ibex metrics grammar.y` |
 | Simulate table behavior without actions | `ibex debug automaton.json NUMBER PLUS NUMBER` |
 | Generate bounded terminal sentences | `ibex samples --strategy=coverage grammar.y` |
 | Differential-fuzz all LR algorithms | `ibex fuzz --coverage-guided grammar.y` |
@@ -332,8 +335,8 @@ bundle exec rake
 ```
 
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 21,847 typed calls and 2,608 untyped calls out of 24,455 (89.3% typed).
-The generated signature tree contains 2,143 explicit `untyped` occurrences across 109 files.
+The current whole-library `steep stats` result is 22,496 typed calls and 2,794 untyped calls out of 25,290 (89.0% typed).
+The generated signature tree contains 2,226 explicit `untyped` occurrences across 114 files.
 <!-- type-stats:end -->
 
 Performance measurements are evidence, not portable scores or CI timing

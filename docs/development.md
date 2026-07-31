@@ -55,6 +55,8 @@ bundle exec rake verify
 bundle exec rake verify:injection
 bundle exec rake verify:strict
 bundle exec rake equiv:test
+bundle exec rake analysis:test
+bundle exec rake fix:test
 bundle exec rake deps:zero
 bundle exec rake network:zero
 ```
@@ -82,6 +84,13 @@ runs `verify:strict`, whose completeness checks have higher construction cost.
 `equiv:test` fixes ten equivalent and ten non-equivalent grammar pairs,
 concrete shortest witnesses, tree mappings, and exit status 2 for exhausted
 product-state budgets.
+`analysis:test` validates the closed JSON contracts and added/removed/changed
+classification for `diff`, plus deterministic recursion and table counts for
+`metrics`.
+`fix:test` proves that emitted repairs eliminate their target without adding
+another conflict, pass the independent verifier, and find no language or
+mapped-tree difference within their reported bounds. It also replays the
+committed twenty-conflict measurement.
 
 ## Browser site and API documentation
 

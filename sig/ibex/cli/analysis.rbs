@@ -1,0 +1,27 @@
+# Generated from lib/ibex/cli/analysis.rb with RBS::Inline
+
+module Ibex
+  # CLI entry points for deterministic grammar diff and metrics reports.
+  module CLIAnalysis
+    type analysis_options = { paths: Array[String], algorithm: Symbol, mode: Symbol, format: String }
+
+    private def normalize_grammar_path: (String) -> IR::Grammar
+
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_diff_command: (Array[String] arguments) -> Integer
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_metrics_command: (Array[String] arguments) -> Integer
+
+    # @rbs (Array[String] arguments, String command, operands: String) -> analysis_options
+    def analysis_options: (Array[String] arguments, String command, operands: String) -> analysis_options
+
+    # @rbs (String path, Symbol algorithm) -> IR::Automaton
+    def load_analysis_automaton: (String path, Symbol algorithm) -> IR::Automaton
+
+    # @rbs (Hash[Symbol, untyped] report, String format) -> void
+    def write_analysis_report: (Hash[Symbol, untyped] report, String format) -> void
+  end
+end

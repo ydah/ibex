@@ -30,6 +30,7 @@ require_relative "cli/outputs"
 module Ibex
   CLI_FEATURE_ROOT = File.expand_path("cli", __dir__ || raise("CLI source directory is unavailable")) #: String
   autoload :CLIAmbiguity, File.join(CLI_FEATURE_ROOT, "ambiguity")
+  autoload :CLIAnalysis, File.join(CLI_FEATURE_ROOT, "analysis")
   autoload :CLICoverage, File.join(CLI_FEATURE_ROOT, "coverage")
   autoload :CLIDebug, File.join(CLI_FEATURE_ROOT, "debug")
   autoload :CLIDiagnostics, File.join(CLI_FEATURE_ROOT, "diagnostics")
@@ -38,6 +39,7 @@ module Ibex
   autoload :CLIEquiv, File.join(CLI_FEATURE_ROOT, "equiv")
   autoload :CLIExplain, File.join(CLI_FEATURE_ROOT, "explain")
   autoload :CLIFormatting, File.join(CLI_FEATURE_ROOT, "formatting")
+  autoload :CLIFix, File.join(CLI_FEATURE_ROOT, "fix")
   autoload :CLIFuzz, File.join(CLI_FEATURE_ROOT, "fuzz")
   autoload :CLIGrammarTests, File.join(CLI_FEATURE_ROOT, "grammar_tests")
   autoload :CLIIRTools, File.join(CLI_FEATURE_ROOT, "ir_tools")
@@ -130,6 +132,7 @@ module Ibex
   class CLI
     SUBCOMMAND_HANDLERS = {
       "check" => %i[CLIAmbiguity run_check_command],
+      "diff" => %i[CLIAnalysis run_diff_command],
       "diagnose" => %i[CLIDiagnostics run_diagnose_command],
       "coverage" => %i[CLICoverage run_coverage_command],
       "debug" => %i[CLIDebug run_debug_command],
@@ -138,9 +141,11 @@ module Ibex
       "equiv" => %i[CLIEquiv run_equiv_command],
       "explain" => %i[CLIExplain run_explain_command],
       "fmt" => %i[CLIFormatting run_format_command],
+      "fix" => %i[CLIFix run_fix_command],
       "fuzz" => %i[CLIFuzz run_fuzz_command],
       "test" => %i[CLIGrammarTests run_grammar_tests_command],
       "lsp" => %i[CLILSP run_lsp_command],
+      "metrics" => %i[CLIAnalysis run_metrics_command],
       "migrate-check" => %i[CLIRaccMigration run_migrate_check_command],
       "migrate-harness" => %i[CLIRaccMigration run_migrate_harness_command],
       "reduce" => %i[CLIReduce run_reduce_command],
@@ -253,16 +258,19 @@ module Ibex
       options.separator("    coverage                  collect, merge, or check runtime coverage")
       options.separator("    debug AUTOMATON [TOKEN]  simulate validated Automaton IR tables")
       options.separator("    diagnose                  collect frontend diagnostics")
+      options.separator("    diff OLD NEW              classify grammar and automaton changes")
       options.separator("    doc                       render grammar documentation")
       options.separator("    errors --list|--update  list or update example-keyed syntax error messages")
       options.separator("    equiv LEFT RIGHT          search for bounded language differences")
       options.separator("    explain                   explain selected parser conflicts")
       options.separator("    fmt                       format grammar source")
+      options.separator("    fix                       propose bounded-equivalent conflict repairs")
       options.separator("    fuzz                      run bounded grammar-derived differential fuzzing")
       options.separator("    test                      run grammar-declared source examples")
       options.separator("    lsp                       run the language server over stdio")
       options.separator("    migrate-check             statically check a racc grammar migration")
       options.separator("    migrate-harness           generate a differential subprocess harness")
+      options.separator("    metrics GRAMMAR           report deterministic grammar/table metrics")
       options.separator("    reduce                    delta-debug a failing token, line, or byte sequence")
       options.separator("    samples                   generate bounded terminal sentences")
       options.separator("    verify AUTOMATON         independently verify Automaton IR semantics")

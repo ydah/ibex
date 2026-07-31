@@ -1,0 +1,47 @@
+# Generated from lib/ibex/diff.rb with RBS::Inline
+
+module Ibex
+  # Deterministic grammar and automaton change classification.
+  class Diff
+    # @rbs (IR::Automaton before, IR::Automaton after) -> void
+    def initialize: (IR::Automaton before, IR::Automaton after) -> void
+
+    # @rbs () -> Hash[Symbol, untyped]
+    def to_h: () -> Hash[Symbol, untyped]
+
+    private
+
+    # @rbs (Hash[String, untyped] before, Hash[String, untyped] after) -> Hash[Symbol, untyped]
+    def classify: (Hash[String, untyped] before, Hash[String, untyped] after) -> Hash[Symbol, untyped]
+
+    # @rbs (IR::Grammar grammar) -> Hash[String, untyped]
+    def symbol_records: (IR::Grammar grammar) -> Hash[String, untyped]
+
+    # @rbs (IR::Grammar grammar) -> Hash[String, untyped]
+    def rule_records: (IR::Grammar grammar) -> Hash[String, untyped]
+
+    # @rbs (IR::Grammar grammar, IR::Production production) -> Hash[Symbol, untyped]
+    def production_record: (IR::Grammar grammar, IR::Production production) -> Hash[Symbol, untyped]
+
+    # @rbs (IR::Automaton automaton) -> Hash[String, untyped]
+    def conflict_records: (IR::Automaton automaton) -> Hash[String, untyped]
+
+    # @rbs (IR::Grammar grammar, IR::conflict conflict) -> String
+    def conflict_identity: (IR::Grammar grammar, IR::conflict conflict) -> String
+
+    # @rbs (IR::Grammar grammar, Integer id) -> String
+    def production_shape: (IR::Grammar grammar, Integer id) -> String
+
+    # @rbs (IR::Grammar grammar, Integer id) -> String
+    def symbol_name: (IR::Grammar grammar, Integer id) -> String
+
+    # @rbs (IR::Grammar grammar) -> Hash[String, untyped]
+    def warning_records: (IR::Grammar grammar) -> Hash[String, untyped]
+
+    # @rbs () -> Hash[Symbol, Hash[Symbol, Integer]]
+    def numeric_metrics: () -> Hash[Symbol, Hash[Symbol, Integer]]
+
+    # @rbs (Integer before, Integer after) -> Hash[Symbol, Integer]
+    def change: (Integer before, Integer after) -> Hash[Symbol, Integer]
+  end
+end

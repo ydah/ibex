@@ -28,6 +28,9 @@ class IRJSONSchemaTest < Minitest::Test
       reduce-v1.schema.json
       verify-v1.schema.json
       equiv-v1.schema.json
+      metrics-v1.schema.json
+      diff-v1.schema.json
+      fix-v1.schema.json
     ].each do |name|
       schema = load_json(File.join(SCHEMA_ROOT, name))
 

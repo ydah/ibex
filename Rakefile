@@ -170,6 +170,23 @@ namespace :equiv do
   end
 end
 
+namespace :analysis do
+  desc "Run deterministic diff and metrics contracts"
+  task :test do
+    ruby "-Itest", "test/metrics_diff_test.rb"
+    ruby "-Itest", "test/cli_metrics_diff_test.rb"
+  end
+end
+
+namespace :fix do
+  desc "Run conflict-repair safety contracts and the measured twenty-case baseline"
+  task :test do
+    ruby "-Itest", "test/fix_test.rb"
+    ruby "-Itest", "test/cli_fix_test.rb"
+    ruby "-Ilib", "-r./tool/quality/fix", "-e", "Ibex::Quality::Fix.new.verify!"
+  end
+end
+
 namespace :deps do
   desc "Verify the standalone runtime has no runtime dependencies"
   task :zero do

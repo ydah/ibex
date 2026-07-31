@@ -575,6 +575,33 @@ declared one-to-one rule correspondence. Without a map, only language
 acceptance is compared. A successful bounded search is explicitly not a proof
 of equivalence.
 
+`ibex diff OLD NEW` accepts the same three input forms and classifies symbols,
+rules, conflicts, and normalization warnings into `added`, `removed`, and
+`changed`. It also reports before/after/delta counts for states, productions,
+warnings, and unresolved conflicts. Conflict identities use token and
+production shapes rather than unstable state numbers.
+
+`ibex metrics GRAMMAR` reports normalized rule and alternative counts, average
+and maximum branching, epsilon productions, recursive nonterminals, the
+longest dependency path after collapsing mutually recursive components, and
+deterministic Automaton IR cell/conflict counts. The metric is deliberately
+structural; it contains no timing or memory threshold. Both commands default
+to their closed version-1 JSON schemas and support `--format=text`.
+
+`ibex fix GRAMMAR` selects an unresolved conflict and searches a finite set of
+precedence declarations and overrides, algorithm changes, mechanical
+rewrites, expectation declarations, and recovery-quality edits. A proposal is
+emitted only if the target disappears, no other conflict fingerprint
+increases, the resulting table passes the independent verifier, and bounded
+language plus mapped reduction-tree comparison finds no difference. The JSON
+report includes the exact bounds, unified diff, eliminated fingerprint, state
+delta, and rejection reasons. `--messages=FILE` measures newly moved,
+uncovered, and unreachable message-catalog entries against the original table.
+`--apply[=FXNNN]` transactionally applies a source proposal and refuses
+symlinks or files with multiple hard links. Candidate or equivalence budget
+exhaustion exits 2. Every successful report states that bounded search is not
+a proof of equivalence.
+
 `--emit=sets` writes deterministic JSON containing nullable nonterminals and their FIRST and FOLLOW sets. `--dot=FILE` and
 `--mermaid=FILE` write automaton graphs. `--html=FILE` writes a self-contained report with state search, conflict highlighting,
 and a filter that keeps a selected conflict state and its one-hop neighbors. All three visualizations can be produced while
