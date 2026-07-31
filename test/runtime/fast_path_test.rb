@@ -372,6 +372,26 @@ class RuntimeFastPathTest < Minitest::Test
     assert_same value_stack, parser.instance_variable_get(:@value_stack)
   end
 
+  def test_plain_instances_share_frozen_inactive_cst_buffers
+    first = CompactActionlessProbe.new([[:ITEM, "first"], false])
+    second = CompactActionlessProbe.new([[:ITEM, "second"], false])
+    names = %i[syntax_diagnostics green_pending_skipped green_token_states green_memo_stack]
+
+    names.each do |name|
+      first_buffer = first.instance_variable_get(:"@#{name}")
+      second_buffer = second.instance_variable_get(:"@#{name}")
+      assert_same first_buffer, second_buffer
+      assert_predicate first_buffer, :frozen?
+    end
+
+    assert_equal "first", first.do_parse
+    names.each { |name| assert_predicate first.instance_variable_get(:"@#{name}"), :frozen? }
+
+    recovering = RuntimeParserTest::RecoveringStatements.new([[:BAD, nil], [";", nil]])
+    assert_equal [:error], recovering.do_parse
+    names.each { |name| assert_predicate recovering.instance_variable_get(:"@#{name}"), :frozen? }
+  end
+
   def test_compact_pull_driver_falls_back_before_an_unknown_token
     parser = CompactActionlessProbe.new([[:UNKNOWN, "bad"], false])
 

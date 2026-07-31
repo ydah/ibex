@@ -155,6 +155,10 @@ module Ibex
 
       EMPTY_GREEN_TRIVIA: Array[CST::GreenTrivia]
 
+      EMPTY_GREEN_TOKEN_STATES: Array[Symbol]
+
+      EMPTY_GREEN_MEMO_ENTRIES: Array[CST::ParseMemo::Entry]
+
       @unknown_token_id: Integer?
 
       @unknown_token_name: String?
@@ -634,6 +638,9 @@ module Ibex
 
       # @rbs (Hash[Symbol, untyped] tables) -> void
       def prepare_green_cst: (Hash[Symbol, untyped] tables) -> void
+
+      # @rbs () -> void
+      def prepare_active_green_cst_buffers: () -> void
 
       # @rbs (Hash[Symbol, untyped] tables) -> void
       def reset_cst_results: (Hash[Symbol, untyped] tables) -> void

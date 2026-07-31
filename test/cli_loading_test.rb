@@ -69,6 +69,33 @@ class CLILoadingTest < Minitest::Test
       tempfile_loaded: $LOADED_FEATURES.any? { |path| File.basename(path) == "tempfile.rb" }
     )
   RUBY
+  MINIMAL_RUNTIME_RECOVERY_SCRIPT = <<~RUBY
+    require "ibex/runtime/parser"
+
+    parser_class = Class.new(Ibex::Runtime::Parser) do
+      tables = {
+        format_version: Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION,
+        tokens: {},
+        token_names: { 0 => "$eof", 1 => "error" },
+        actions: [{ 1 => [:shift, 1] }, { 0 => [:accept] }],
+        gotos: [{}, {}],
+        productions: []
+      }.freeze
+      define_singleton_method(:parser_tables) { tables }
+
+      def next_token
+        return false if @delivered
+
+        @delivered = true
+        [:BAD, nil]
+      end
+
+      def on_error(*) = nil
+    end
+
+    abort "recovery failed" unless parser_class.new.do_parse.nil?
+    abort "CST leaked" if defined?(Ibex::Runtime::CST::ParseMemo)
+  RUBY
 
   def test_requiring_cli_registers_but_does_not_load_optional_subcommands
     result = loaded_features_after
@@ -116,6 +143,15 @@ class CLILoadingTest < Minitest::Test
     assert_includes result.fetch("features"), "ibex/codegen/symbol_labels.rb"
     refute_includes result.fetch("features"), "ibex/lsp.rb"
     refute_includes result.fetch("features"), "ibex/coverage.rb"
+  end
+
+  def test_minimal_runtime_parser_recovers_without_loading_cst
+    _stdout, stderr, process = Open3.capture3(
+      RbConfig.ruby, "-I#{File.expand_path('../lib', __dir__)}", "-e", MINIMAL_RUNTIME_RECOVERY_SCRIPT,
+      chdir: File.expand_path("..", __dir__)
+    )
+
+    assert process.success?, stderr
   end
 
   private

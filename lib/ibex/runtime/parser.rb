@@ -254,14 +254,19 @@ module Ibex
       empty_location_names = {} # @type var empty_location_names: Hash[Symbol, Integer]
       empty_locations = [] # @type var empty_locations: Array[untyped]
       empty_green_trivia = [] # @type var empty_green_trivia: Array[CST::GreenTrivia]
+      empty_green_token_states = [] # @type var empty_green_token_states: Array[Symbol]
+      empty_green_memo_entries = [] # @type var empty_green_memo_entries: Array[CST::ParseMemo::Entry]
 
       EMPTY_ROW = empty_row.freeze #: Hash[Integer, untyped]
       EMPTY_LOCATION_NAMES = empty_location_names.freeze #: Hash[Symbol, Integer]
       EMPTY_LOCATIONS = empty_locations.freeze #: Array[untyped]
       EMPTY_GREEN_TRIVIA = empty_green_trivia.freeze #: Array[CST::GreenTrivia]
+      EMPTY_GREEN_TOKEN_STATES = empty_green_token_states.freeze #: Array[Symbol]
+      EMPTY_GREEN_MEMO_ENTRIES = empty_green_memo_entries.freeze #: Array[CST::ParseMemo::Entry]
       private_constant :ERROR_ACTION, :SYNC_RECOVER_ACTION, :CONTINUE_OUTCOME, :REPAIR_PENDING_OUTCOME,
                        :TERMINAL_OUTCOMES, :COMPACT_ACCEPTED, :FAST_PATH_HOOK_NAMES, :FAST_PATH_HOOK_REFERENCES,
-                       :FastPathMutationTracker, :FastPathClassMutationTracker
+                       :FastPathMutationTracker, :FastPathClassMutationTracker,
+                       :EMPTY_GREEN_TOKEN_STATES, :EMPTY_GREEN_MEMO_ENTRIES
 
       # @rbs @yydebug: bool
       # @rbs @yydebug_output: IO
@@ -736,8 +741,8 @@ module Ibex
         @green_kinds = nil unless preserve_existing && defined?(@green_kinds)
         @green_cache = nil unless preserve_existing && defined?(@green_cache)
         @syntax_root = nil unless preserve_existing && defined?(@syntax_root)
-        @syntax_diagnostics = [] unless preserve_existing && defined?(@syntax_diagnostics)
-        @green_pending_skipped = [] unless preserve_existing && defined?(@green_pending_skipped)
+        @syntax_diagnostics = EMPTY_LOCATIONS unless preserve_existing && defined?(@syntax_diagnostics)
+        @green_pending_skipped = EMPTY_GREEN_TRIVIA unless preserve_existing && defined?(@green_pending_skipped)
         @recovery_attempts = 0 unless preserve_existing && defined?(@recovery_attempts)
         @runtime_parser_tables = nil unless preserve_existing && defined?(@runtime_parser_tables)
         @runtime_fast_path = false unless preserve_existing && defined?(@runtime_fast_path)
@@ -749,8 +754,8 @@ module Ibex
           preserve_existing && defined?(@runtime_fast_path_singleton_ancestors)
         @syntax_only = false unless preserve_existing && defined?(@syntax_only)
         @green_cache_override = nil unless preserve_existing && defined?(@green_cache_override)
-        @green_token_states = [] unless preserve_existing && defined?(@green_token_states)
-        @green_memo_stack = [] unless preserve_existing && defined?(@green_memo_stack)
+        @green_token_states = EMPTY_GREEN_TOKEN_STATES unless preserve_existing && defined?(@green_token_states)
+        @green_memo_stack = EMPTY_GREEN_MEMO_ENTRIES unless preserve_existing && defined?(@green_memo_stack)
         @green_parse_memo_valid = false unless preserve_existing && defined?(@green_parse_memo_valid)
         @green_initial_state = 0 unless preserve_existing && defined?(@green_initial_state)
         @syntax_parse_memo = nil unless preserve_existing && defined?(@syntax_parse_memo)
@@ -1829,16 +1834,19 @@ module Ibex
       def prepare_green_cst(tables)
         @syntax_root = nil
         @syntax_parse_memo = nil
-        @syntax_diagnostics.clear
-        @green_pending_skipped.clear
         config = tables[:cst]
         unless config.is_a?(Hash)
           @green_builder = nil
           @green_kinds = nil
           @green_cache = nil
+          @syntax_diagnostics = EMPTY_LOCATIONS
+          @green_pending_skipped = EMPTY_GREEN_TRIVIA
+          @green_token_states = EMPTY_GREEN_TOKEN_STATES
+          @green_memo_stack = EMPTY_GREEN_MEMO_ENTRIES
           return
         end
 
+        prepare_active_green_cst_buffers
         kinds = tables[:cst_kinds]
         kinds = CST::Kind.new(config.fetch(:kinds), slots: config.fetch(:slots)) unless kinds.is_a?(CST::Kind)
         cache = @green_cache_override || CST::NodeCache.new
@@ -1851,6 +1859,16 @@ module Ibex
         @green_reused_right_edge = false
         @incremental_reused_descendants = 0
         @green_builder = CST::GreenBuilder.new(kinds: kinds, cache: cache)
+      end
+
+      # @rbs () -> void
+      def prepare_active_green_cst_buffers
+        @syntax_diagnostics = [] if @syntax_diagnostics.equal?(EMPTY_LOCATIONS)
+        @green_pending_skipped = [] if @green_pending_skipped.equal?(EMPTY_GREEN_TRIVIA)
+        @green_token_states = [] if @green_token_states.equal?(EMPTY_GREEN_TOKEN_STATES)
+        @green_memo_stack = [] if @green_memo_stack.equal?(EMPTY_GREEN_MEMO_ENTRIES)
+        @syntax_diagnostics.clear
+        @green_pending_skipped.clear
       end
 
       # @rbs (Hash[Symbol, untyped] tables) -> void
@@ -2434,10 +2452,13 @@ module Ibex
             @state_stack << action.fetch(1)
             push_location(@lookahead_location)
             @value_stack << nil
-            @green_builder&.absorb_into_error(popped)
-            empty = [] #: Array[CST::ParseMemo::Entry]
-            children = popped.zero? ? empty : @green_memo_stack.pop(popped)
-            @green_memo_stack << CST::ParseMemo::Entry.new(@state_stack.last, children: children)
+            builder = @green_builder
+            if builder
+              builder.absorb_into_error(popped)
+              empty = [] #: Array[CST::ParseMemo::Entry]
+              children = popped.zero? ? empty : @green_memo_stack.pop(popped)
+              @green_memo_stack << CST::ParseMemo::Entry.new(@state_stack.last, children: children)
+            end
             return true
           end
           return false if @state_stack.length == 1
@@ -2626,7 +2647,7 @@ module Ibex
       def read_compatible_lookahead
         token = read_external_token
         refresh_runtime_fast_path_after_user_code!
-        if token.is_a?(CST::ReusableSubtree)
+        if defined?(CST::ReusableSubtree) && token.is_a?(CST::ReusableSubtree)
           push_reusable_green_subtree(token)
           return
         end
