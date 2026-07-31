@@ -1,0 +1,14 @@
+version: 1
+features:
+  compatible-parser:
+    en: docs/grammar-reference.md
+    ja: docs/ja/stable-api.md
+  versioned-ir:
+    en: docs/architecture.md
+    ja: docs/ja/stable-api.md
+  batch-cst:
+    en: docs/cst.md
+    ja: docs/ja/stable-api.md
+  compatibility-policy:
+    en: docs/stability.md
+    ja: docs/ja/stable-api.md

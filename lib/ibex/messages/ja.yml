@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "messages": {
+    "cli.error": "エラー: %{detail}",
+    "diagnostic.frontend.lexical_error": "字句エラー: %{detail}",
+    "diagnostic.frontend.syntax_error": "構文エラー: %{detail}",
+    "diagnostic.frontend.resolution_error": "解決エラー: %{detail}",
+    "diagnostic.generic": "診断: %{detail}",
+    "label.warning": "警告",
+    "label.warning_as_error": "エラーとして扱われた警告",
+    "warning.undeclared_terminal": "未宣言の終端記号 %{symbol}",
+    "warning.unused_terminal": "未使用の終端記号 %{symbol}",
+    "warning.unused_precedence": "未使用の優先順位 %{symbol}",
+    "warning.unreachable_terminal": "宣言された終端記号 %{symbol} に到達できません",
+    "warning.unreachable_nonterminal": "非終端記号 %{symbol} に到達できません",
+    "warning.duplicate_production": "生成規則 %{production} は重複しています（最初の定義: %{original}）",
+    "warning.implicit_empty": "暗黙の空選択肢です。意図を示すには %%empty を記述してください",
+    "warning.empty_language": "開始記号 %{symbol} は終端記号列を導出しません",
+    "warning.lexer_redos": "字句パターンで過大なバックトラックが発生する可能性があります",
+    "warning.lexer_redos_symbol": "%{symbol} の字句パターンで過大なバックトラックが発生する可能性があります",
+    "conflict.shift_reduce_expected": "shift/reduce 競合は %{actual} 件です（期待値: %{expected}）",
+    "conflict.reduce_reduce_expected": "reduce/reduce 競合は %{actual} 件です（期待値: %{expected}）",
+    "conflict.reduce_reduce": "reduce/reduce 競合が %{actual} 件あります",
+    "conflict.treated_as_error": "%{detail}（競合をエラーとして扱いました）",
+    "conflict.count": "%{kind} 競合 %{count} 件%{plural}",
+    "note.ielr": "注記: --algorithm=ielr により %{avoided} を回避できます。--algorithm=ielr を検討してください"
+  }
+}

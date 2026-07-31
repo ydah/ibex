@@ -161,6 +161,25 @@ jobs:
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: bundle exec rake verify:strict
 
+  v1-contracts:
+    runs-on: ubuntu-latest
+    name: v1 contract coverage
+    env:
+      BUNDLE_WITHOUT: types:docs:mutation:profile
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+      - name: Verify maturity, documentation, and localization contracts
+        run: |
+          bundle exec rake test:docs_coverage
+          bundle exec rake i18n:coverage
+
   rbs:
     runs-on: ubuntu-latest
     name: RBS and Steep

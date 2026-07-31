@@ -24,9 +24,10 @@ Gem::Specification.new do |spec|
       "README.md",
       "exe/ibex",
       *Dir.glob("lib/**/*.rb"),
+      *Dir.glob("lib/**/*.yml"),
       *Dir.glob("sig/**/*.rbs"),
       *Dir.glob("schema/*.json"),
-      *Dir.glob("docs/*.md"),
+      *Dir.glob("docs/**/*.md"),
       *Dir.glob("examples/**/*").select { |path| File.file?(path) }
     ]
   end

@@ -4,6 +4,7 @@ require "json"
 require "optparse"
 require_relative "version"
 require_relative "error"
+require_relative "messages"
 require_relative "artifact_set"
 require_relative "generation_input"
 require_relative "generation_transaction"
@@ -164,6 +165,7 @@ module Ibex
     # @rbs @stdout: _CLIOutput
     # @rbs @stderr: _CLIOutput
     # @rbs @options: cli_options
+    # @rbs @language: String
 
     # rubocop:disable Layout/LineLength
     # @rbs (Array[String] arguments, ?stdin: _CLIInput, ?stdout: _CLIOutput, ?stderr: _CLIOutput, ?watch_clock: (^() -> Float)?, ?watch_sleeper: (^(Float) -> void)?, ?watch_iteration_hook: (^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil))?) -> Integer
@@ -183,6 +185,7 @@ module Ibex
       @watch_clock = watch_clock || -> { Process.clock_gettime(Process::CLOCK_MONOTONIC) }
       @watch_sleeper = watch_sleeper || ->(seconds) { sleep(seconds) }
       @watch_iteration_hook = watch_iteration_hook || ->(_event, _iteration, _paths) {}
+      @language = Messages.language(ENV.fetch("IBEX_LANG", nil))
       @options = { emit: "ruby", mode: :default, table: :compact, line_convert: true }
                  .merge(CLICounterexampleOptions::DEFAULTS)
     end
@@ -190,6 +193,7 @@ module Ibex
 
     # @rbs (Array[String] arguments) -> Integer
     def run(arguments)
+      arguments = extract_language(arguments)
       subcommand = dispatch_subcommand(arguments)
       return subcommand unless subcommand.nil?
 
@@ -209,11 +213,37 @@ module Ibex
         process_grammar(path)
       end
     rescue OptionParser::ParseError, Ibex::Error, SystemCallError, SystemStackError => e
-      @stderr.puts(e.message)
+      @stderr.puts(Messages.translate("cli.error", language: @language, detail: e.message))
       1
     end
 
     private
+
+    # @rbs (Array[String] arguments) -> Array[String]
+    def extract_language(arguments)
+      remaining = [] #: Array[String]
+      index = 0
+      while index < arguments.length
+        argument = arguments.fetch(index)
+        if argument == "--lang"
+          value = arguments[index + 1]
+          raise OptionParser::MissingArgument, "--lang" unless value
+
+          @language = Messages.language(value)
+          index += 2
+        elsif argument.start_with?("--lang=")
+          value = argument.delete_prefix("--lang=")
+          raise OptionParser::MissingArgument, "--lang" if value.empty?
+
+          @language = Messages.language(value)
+          index += 1
+        else
+          remaining << argument
+          index += 1
+        end
+      end
+      remaining
+    end
 
     # @rbs (Array[String] arguments) -> Integer?
     def dispatch_subcommand(arguments)
@@ -372,6 +402,9 @@ module Ibex
 
     # @rbs (OptionParser options) -> void
     def add_information_options(options)
+      options.on("--lang=LANG", "built-in diagnostic language (en or ja)") do |value|
+        @language = Messages.language(value)
+      end
       options.on("--version", "show version") { @options[:version] = true }
       options.on("--runtime-version", "show runtime version") { @options[:runtime_version] = true }
       options.on("--copyright", "show copyright") { @options[:copyright] = true }

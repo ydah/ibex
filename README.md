@@ -271,6 +271,11 @@ gem install ./ibex-0.1.0.gem
 | Simulate table behavior without actions | `ibex debug automaton.json NUMBER PLUS NUMBER` |
 | Generate bounded terminal sentences | `ibex samples --strategy=coverage grammar.y` |
 | Differential-fuzz all LR algorithms | `ibex fuzz --coverage-guided grammar.y` |
+
+Built-in CLI diagnostics support `--lang=en|ja` and `IBEX_LANG`. Unknown or
+partially translated locales fall back to English without emitting another
+warning. These built-in message IDs are separate from the user-owned `E00xx`
+syntax-error catalog.
 | Minimize an externally reproducible failure | `ibex reduce --command='./fails' tokens.json` |
 | Check a racc migration | `ibex migrate-check grammar.y` |
 | Start the language server | `ibex lsp --stdio` |
@@ -335,8 +340,8 @@ bundle exec rake
 ```
 
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 22,496 typed calls and 2,794 untyped calls out of 25,290 (89.0% typed).
-The generated signature tree contains 2,226 explicit `untyped` occurrences across 114 files.
+The current whole-library `steep stats` result is 22,587 typed calls and 2,793 untyped calls out of 25,380 (89.0% typed).
+The generated signature tree contains 2,230 explicit `untyped` occurrences across 115 files.
 <!-- type-stats:end -->
 
 Performance measurements are evidence, not portable scores or CI timing
