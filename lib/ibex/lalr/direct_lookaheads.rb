@@ -20,6 +20,7 @@ module Ibex
       # @rbs @production_rhs: Array[Array[Integer]]
       # @rbs @augmented_item_cores: Array[item_core]
       # @rbs @production_item_cores: Array[Array[item_core]]
+      # @rbs @item_key_stride: Integer
       # @rbs @terminal_ids: Array[Integer]
       # @rbs @terminal_masks: Array[Integer]
 
@@ -35,6 +36,7 @@ module Ibex
         @production_item_cores = grammar.productions.map do |production|
           item_cores_for(production.id, production.rhs.length)
         end.freeze
+        @item_key_stride = [@augmented_rhs, *@production_rhs].map(&:length).max.to_i + 1
         @terminal_ids = grammar.terminals.map(&:id).freeze
         @terminal_masks = @terminal_ids.map { |id| 1 << id }.freeze
       end
@@ -227,9 +229,13 @@ module Ibex
         @production_item_cores.fetch(production_id).fetch(dot)
       end
 
-      # @rbs (core_set items) -> Array[item_core]
+      # Encode each pair collision-free before sorting so Hash does not
+      # repeatedly hash and compare nested item-core arrays.
+      # @rbs (core_set items) -> Array[Integer]
       def item_key(items)
-        items.to_a.sort
+        items.map do |production_id, dot|
+          ((production_id + 1) * @item_key_stride) + dot
+        end.sort!
       end
     end
   end
