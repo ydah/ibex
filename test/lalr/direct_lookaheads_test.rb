@@ -20,7 +20,11 @@ class DirectLookaheadsTest < Minitest::Test
     lookaheads = direct_lookaheads(ids)
     bits = ids.sum { |id| 1 << id }
 
-    assert_equal ids, lookaheads.send(:terminal_ids, bits)
+    selected = lookaheads.send(:terminal_ids, bits)
+
+    assert_equal ids, selected
+    assert_same selected, lookaheads.send(:terminal_ids, bits)
+    assert_predicate selected, :frozen?
     assert_equal [100, 102], lookaheads.send(:terminal_ids, (1 << 102) | (1 << 100))
     cached_allocations = measure_allocations(iterations) { lookaheads.send(:terminal_ids, bits) }
     shifted_allocations = measure_allocations(iterations) do

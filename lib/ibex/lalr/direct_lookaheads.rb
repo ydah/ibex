@@ -24,6 +24,7 @@ module Ibex
       # @rbs @node_stride: Integer
       # @rbs @terminal_ids: Array[Integer]
       # @rbs @terminal_masks: Array[Integer]
+      # @rbs @terminal_ids_by_bits: Hash[Integer, Array[Integer]]
 
       # @rbs (IR::Grammar grammar, Analysis::Sets sets) -> void
       def initialize(grammar, sets)
@@ -40,6 +41,7 @@ module Ibex
         initialize_item_encoding(grammar.productions.length)
         @terminal_ids = grammar.terminals.map(&:id).freeze
         @terminal_masks = @terminal_ids.map { |id| 1 << id }.freeze
+        @terminal_ids_by_bits = {}
       end
 
       # @rbs () -> [Array[packed_items], transitions]
@@ -212,13 +214,15 @@ module Ibex
 
       # @rbs (Integer bits) -> Array[Integer]
       def terminal_ids(bits)
-        selected = [] #: Array[Integer]
-        index = 0
-        while index < @terminal_ids.length
-          selected << @terminal_ids[index] if bits.anybits?(@terminal_masks[index])
-          index += 1
+        @terminal_ids_by_bits.fetch(bits) do
+          selected = [] #: Array[Integer]
+          index = 0
+          while index < @terminal_ids.length
+            selected << @terminal_ids[index] if bits.anybits?(@terminal_masks[index])
+            index += 1
+          end
+          @terminal_ids_by_bits[bits] = selected.freeze
         end
-        selected
       end
 
       # @rbs (Integer production_id) -> Array[Integer]

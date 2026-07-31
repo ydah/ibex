@@ -11,6 +11,8 @@ module Ibex
 
       EMPTY_NODES: Array[Integer]
 
+      @terminal_ids_by_bits: Hash[Integer, Array[Integer]]
+
       @terminal_masks: Array[Integer]
 
       @terminal_ids: Array[Integer]
