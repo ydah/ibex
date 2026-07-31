@@ -2841,27 +2841,19 @@ module Ibex
       # @rbs (?Class? singleton) -> void
       def install_runtime_fast_path_tracker!(singleton = nil)
         unless singleton
-          singleton_lookup = Parser.instance_variable_get(:@__ibex_singleton_class_lookup)
+          thread = ::Thread.current
+          singleton_lookup = thread.thread_variable_get(:__ibex_runtime_parser_singleton_class_lookup)
           unless singleton_lookup.is_a?(UnboundMethod)
             singleton_lookup = Object.instance_method(:singleton_class)
-            begin
-              Ractor.make_shareable(singleton_lookup)
-              Parser.instance_variable_set(:@__ibex_singleton_class_lookup, singleton_lookup)
-            rescue Ractor::Error
-              nil
-            end
+            thread.thread_variable_set(:__ibex_runtime_parser_singleton_class_lookup, singleton_lookup)
           end
           singleton = singleton_lookup.bind_call(self)
         end
-        prepend_lookup = Parser.instance_variable_get(:@__ibex_module_prepend_lookup)
+        thread ||= ::Thread.current
+        prepend_lookup = thread.thread_variable_get(:__ibex_runtime_parser_module_prepend_lookup)
         unless prepend_lookup.is_a?(UnboundMethod)
           prepend_lookup = Module.instance_method(:prepend)
-          begin
-            Ractor.make_shareable(prepend_lookup)
-            Parser.instance_variable_set(:@__ibex_module_prepend_lookup, prepend_lookup)
-          rescue Ractor::Error
-            nil
-          end
+          thread.thread_variable_set(:__ibex_runtime_parser_module_prepend_lookup, prepend_lookup)
         end
         prepend_lookup.bind_call(singleton, FastPathMutationTracker)
         @runtime_fast_path_tracker_installed = true
@@ -2901,19 +2893,15 @@ module Ibex
       end
 
       # @rbs () -> bool
-      def runtime_fast_path_hooks_eligible? # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      def runtime_fast_path_hooks_eligible?
         cached = cached_runtime_fast_path_hooks_eligibility
         return cached unless cached.nil?
 
-        lookup = Parser.instance_variable_get(:@__ibex_object_method_lookup)
+        thread = ::Thread.current
+        lookup = thread.thread_variable_get(:__ibex_runtime_parser_object_method_lookup)
         unless lookup.is_a?(UnboundMethod)
           lookup = Object.instance_method(:method)
-          begin
-            Ractor.make_shareable(lookup)
-            Parser.instance_variable_set(:@__ibex_object_method_lookup, lookup)
-          rescue Ractor::Error
-            nil
-          end
+          thread.thread_variable_set(:__ibex_runtime_parser_object_method_lookup, lookup)
         end
         hooks_unchanged =
           runtime_method_unchanged?(lookup, :on_shift, :__ibex_fast_path_on_shift) &&
