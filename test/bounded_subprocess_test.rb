@@ -6,9 +6,12 @@ require "ibex/bounded_subprocess"
 require "tmpdir"
 
 class BoundedSubprocessTest < Minitest::Test
+  # Cold startup is not the behavior under test and is slower on alternative VMs.
+  CHILD_STARTUP_TIMEOUT_SECONDS = RUBY_ENGINE == "ruby" ? 2 : 10
+
   def test_captures_a_normal_exit_without_a_shell
     result = Ibex::BoundedSubprocess.new(
-      timeout_seconds: 2, max_output_bytes: 100
+      timeout_seconds: CHILD_STARTUP_TIMEOUT_SECONDS, max_output_bytes: 100
     ).run([RbConfig.ruby, "-e", "STDOUT.write(STDIN.read.upcase)"], input: "ok")
 
     assert_predicate result.status, :success?
@@ -28,7 +31,7 @@ class BoundedSubprocessTest < Minitest::Test
 
   def test_terminates_a_child_that_exceeds_the_output_budget
     result = Ibex::BoundedSubprocess.new(
-      timeout_seconds: 2, max_output_bytes: 16
+      timeout_seconds: CHILD_STARTUP_TIMEOUT_SECONDS, max_output_bytes: 16
     ).run([RbConfig.ruby, "-e", "STDOUT.write('x' * 100_000); sleep 10"], input: "")
 
     assert result.output_limited
