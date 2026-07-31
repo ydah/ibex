@@ -146,15 +146,29 @@ class CLILoadingTest < Minitest::Test
   end
 
   def test_minimal_runtime_parser_recovers_without_loading_cst
-    _stdout, stderr, process = Open3.capture3(
-      RbConfig.ruby, "-I#{File.expand_path('../lib', __dir__)}", "-e", MINIMAL_RUNTIME_RECOVERY_SCRIPT,
-      chdir: File.expand_path("..", __dir__)
-    )
+    _stdout, stderr, process = run_minimal_runtime(MINIMAL_RUNTIME_RECOVERY_SCRIPT)
+
+    assert process.success?, stderr
+  end
+
+  def test_minimal_runtime_parser_does_not_require_ractor
+    script = <<~RUBY
+      Object.send(:remove_const, :Ractor) if Object.const_defined?(:Ractor, false)
+      #{MINIMAL_RUNTIME_RECOVERY_SCRIPT}
+    RUBY
+    _stdout, stderr, process = run_minimal_runtime(script)
 
     assert process.success?, stderr
   end
 
   private
+
+  def run_minimal_runtime(script)
+    Open3.capture3(
+      RbConfig.ruby, "-I#{File.expand_path('../lib', __dir__)}", "-e", script,
+      chdir: File.expand_path("..", __dir__)
+    )
+  end
 
   def loaded_features_after(*arguments)
     stdout, stderr, process = Open3.capture3(
