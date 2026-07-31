@@ -9,11 +9,12 @@ requires no C or Java extension.
 
 > [!IMPORTANT]
 > Ibex is pre-1.0. The current v1.0 decision is
-> [**HOLD**](docs/release-readiness.md): compatibility and scale evidence pass,
-> but cold generation and new-instance runtime still trail Racc's Ruby backend,
-> and the error UX evidence still needs independent review. Compatible mode is
-> the stable baseline; opt-in features have the maturity levels documented in
-> the [stability policy](docs/stability.md).
+> [**HOLD**](docs/release-readiness.md) because the published error UX evidence
+> still needs independent review. Compatibility, scale, and public performance
+> baseline evidence pass. Cold generation and new-instance runtime still trail
+> Racc's Ruby backend, but absolute parity is diagnostic rather than a v1.0
+> release gate. Compatible mode is the stable baseline; opt-in features have
+> the maturity levels documented in the [stability policy](docs/stability.md).
 
 - Try grammar analysis in the
   [browser playground](https://ydah.github.io/ibex/playground/).
