@@ -98,6 +98,44 @@ jobs:
       - name: Verify error UX evidence
         run: bundle exec rake quality:error_ux
 
+  stage-a-safety:
+    runs-on: ubuntu-latest
+    name: Stage A safety net
+    env:
+      BUNDLE_WITHOUT: types:docs:mutation:profile
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+      - name: Verify deterministic safety gates
+        run: |
+          bundle exec rake test:matrix
+          bundle exec rake test:zero_cost
+          bundle exec rake test:reproducible
+          bundle exec rake test:compat
+          bundle exec rake test:ir_schema
+          bundle exec rake test:no_exec
+          bundle exec rake test:adversarial
+          bundle exec rake gallery:build
+          bundle exec rake gallery:conflicts
+          bundle exec rake fuzz:short
+          bundle exec rake fuzz:injection
+          bundle exec rake deps:zero
+          bundle exec rake network:zero
+      - name: Run scheduled exhaustive gates
+        if: github.event_name == 'schedule'
+        env:
+          IBEX_ADVERSARIAL_FULL: '1'
+        run: |
+          bundle exec rake test:matrix:full
+          bundle exec rake test:adversarial
+          bundle exec rake fuzz:long
+
   rbs:
     runs-on: ubuntu-latest
     name: RBS and Steep

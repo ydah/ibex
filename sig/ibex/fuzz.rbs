@@ -1,0 +1,57 @@
+# Generated from lib/ibex/fuzz.rb with RBS::Inline
+
+module Ibex
+  # Bounded grammar-derived differential fuzzing without semantic execution.
+  class Fuzz
+    ALGORITHMS: Array[Symbol]
+
+    DEFAULT_MAX_ACTIONS: Integer
+
+    DEFAULT_MAX_STACK: Integer
+
+    class Mismatch < Ibex::Error
+      attr_reader details: Hash[Symbol, untyped]
+
+      # @rbs (Hash[Symbol, untyped] details) -> void
+      def initialize: (Hash[Symbol, untyped] details) -> void
+    end
+
+    class BudgetExceeded < Ibex::Error
+      attr_reader details: Hash[Symbol, untyped]
+
+      # @rbs (Hash[Symbol, untyped] details) -> void
+      def initialize: (Hash[Symbol, untyped] details) -> void
+    end
+
+    # @rbs (IR::Grammar grammar, ?seed: Integer, ?count: Integer, ?max_tokens: Integer,
+    #   ?max_depth: Integer, ?max_expansions: Integer, ?max_actions: Integer, ?max_stack: Integer,
+    #   ?coverage_guided: bool, ?path_length: Integer, ?algorithms: Array[Symbol],
+    #   ?automata: Hash[Symbol, IR::Automaton]?, ?against: (^(Array[String]) -> Symbol)?,
+    #   ?against_description: Hash[Symbol, untyped]?) -> void
+    # rubocop:disable Metrics/ParameterLists
+    def initialize: (IR::Grammar grammar, ?seed: Integer, ?count: Integer, ?max_tokens: Integer, ?max_depth: Integer, ?max_expansions: Integer, ?max_actions: Integer, ?max_stack: Integer, ?coverage_guided: bool, ?path_length: Integer, ?algorithms: Array[Symbol], ?automata: Hash[Symbol, IR::Automaton]?, ?against: (^(Array[String]) -> Symbol)?, ?against_description: Hash[Symbol, untyped]?) -> void
+
+    # @rbs () -> Hash[Symbol, untyped]
+    def run: () -> Hash[Symbol, untyped]
+
+    private
+
+    # @rbs () -> Array[Array[String]]
+    def generate_sentences: () -> Array[Array[String]]
+
+    # @rbs (Integer sentence_count, Integer mutation_count) -> Hash[Symbol, untyped]
+    def successful_report: (Integer sentence_count, Integer mutation_count) -> Hash[Symbol, untyped]
+
+    # @rbs () -> Hash[Symbol, IR::Automaton]
+    def build_automata: () -> Hash[Symbol, IR::Automaton]
+
+    # @rbs (Array[String] tokens, kind: Symbol, sentence: Integer) -> void
+    def compare!: (Array[String] tokens, kind: Symbol, sentence: Integer) -> void
+
+    # @rbs (Array[String] tokens) -> Array[Array[String]]
+    def mutations: (Array[String] tokens) -> Array[Array[String]]
+
+    # @rbs (Ibex::Error error) -> bool
+    def budget_error?: (Ibex::Error error) -> bool
+  end
+end

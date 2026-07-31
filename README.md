@@ -264,6 +264,9 @@ gem install ./ibex-0.1.0.gem
 | Render grammar documentation | `ibex doc --format=html -o grammar.html grammar.y` |
 | Emit Automaton IR | `ibex --emit=automaton-ir grammar.y > automaton.json` |
 | Simulate table behavior without actions | `ibex debug automaton.json NUMBER PLUS NUMBER` |
+| Generate bounded terminal sentences | `ibex samples --strategy=coverage grammar.y` |
+| Differential-fuzz all LR algorithms | `ibex fuzz --coverage-guided grammar.y` |
+| Minimize an externally reproducible failure | `ibex reduce --command='./fails' tokens.json` |
 | Check a racc migration | `ibex migrate-check grammar.y` |
 | Start the language server | `ibex lsp --stdio` |
 
@@ -275,8 +278,8 @@ counterexamples.
 ## Safety boundaries and non-goals
 
 - Frontend parsing, diagnosis, formatting, documentation, LSP, static
-  migration checks, IR validation, and table simulation do not execute
-  semantic actions or user-code sections.
+  migration checks, IR validation, table simulation, sentence generation, and
+  differential fuzzing do not execute semantic actions or user-code sections.
 - Generated parsers, grammar-declared tests, and explicit migration harnesses
   do execute application Ruby. They are not sandboxes.
 - Fragment imports are confined to the declared source root and reject
@@ -326,8 +329,8 @@ bundle exec rake
 ```
 
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 20,654 typed calls and 2,276 untyped calls out of 22,930 (90.1% typed).
-The generated signature tree contains 2,084 explicit `untyped` occurrences across 103 files.
+The current whole-library `steep stats` result is 20,932 typed calls and 2,343 untyped calls out of 23,275 (89.9% typed).
+The generated signature tree contains 2,111 explicit `untyped` occurrences across 106 files.
 <!-- type-stats:end -->
 
 Performance measurements are evidence, not portable scores or CI timing

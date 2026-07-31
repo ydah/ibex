@@ -21,6 +21,12 @@ module Ibex
     # @rbs () -> OptionParser
     def samples_option_parser: () -> OptionParser
 
+    # @rbs (OptionParser options) -> void
+    def add_sample_generation_options: (OptionParser options) -> void
+
+    # @rbs (OptionParser options) -> void
+    def add_sample_input_options: (OptionParser options) -> void
+
     # @rbs (String path) -> IR::Grammar
     def grammar_for_samples: (String path) -> IR::Grammar
 

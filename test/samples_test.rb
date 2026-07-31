@@ -74,6 +74,24 @@ class SamplesTest < Minitest::Test
     assert_match(/\A\(samples\):1:1: expansion limit of 1000 steps exceeded\z/, error.message)
   end
 
+  def test_coverage_strategy_visits_every_reachable_production_deterministically
+    grammar = normalize(<<~GRAMMAR)
+      class Coverage
+      rule
+      start: first | second | third
+      first: A
+      second: B
+      third: C
+      end
+    GRAMMAR
+
+    first = Ibex::Samples.new(grammar, seed: 19, strategy: :coverage, path_length: 2).generate(count: 12)
+    second = Ibex::Samples.new(grammar, seed: 19, strategy: :coverage, path_length: 2).generate(count: 12)
+
+    assert_equal first, second
+    assert_equal %w[A B C], first.flatten.uniq.sort
+  end
+
   def test_rejects_a_count_that_cannot_fit_the_expansion_limit
     grammar = normalize("class Empty\nrule\nstart:\nend\n")
     generator = Ibex::Samples.new(grammar, max_expansions: 2)

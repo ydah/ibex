@@ -1,0 +1,4 @@
+---
+benchmark-grammars-representative.rb: 29d9d15a556181399f2675b39b504b96587b75416826693a2663697eec53657a
+gallery-json-grammar.rb: 57b9e2c2b4c49041ade8154228f80da5b47247c6060b53fd5fb31c00c51a8859
+test-fixtures-compat-calculator.rb: '05319df4607ae70c33f4a879fb8082ef2d2affdf4e1f684ff8f7db72f453f52c'

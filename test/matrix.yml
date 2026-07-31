@@ -1,0 +1,8 @@
+axes:
+  algorithm: [slr, lalr, ielr, lr1]
+  table: [plain, compact]
+  cst: ["off", "on"]
+  locations: ["off", "on"]
+  entries: [single, multi, isolated]
+representative: 12
+full: true

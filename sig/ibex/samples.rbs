@@ -6,8 +6,8 @@ module Ibex
     DEFAULT_MAX_EXPANSIONS: Integer
 
     # @rbs (IR::Grammar grammar, ?seed: Integer, ?max_tokens: Integer, ?max_depth: Integer,
-    #   ?max_expansions: Integer) -> void
-    def initialize: (IR::Grammar grammar, ?seed: Integer, ?max_tokens: Integer, ?max_depth: Integer, ?max_expansions: Integer) -> void
+    #   ?max_expansions: Integer, ?strategy: Symbol | String, ?path_length: Integer) -> void
+    def initialize: (IR::Grammar grammar, ?seed: Integer, ?max_tokens: Integer, ?max_depth: Integer, ?max_expansions: Integer, ?strategy: Symbol | String, ?path_length: Integer) -> void
 
     # @rbs (?count: Integer) -> Array[Array[String]]
     def generate: (?count: Integer) -> Array[Array[String]]
@@ -36,8 +36,17 @@ module Ibex
     # @rbs (IR::GrammarSymbol start, Integer remaining_expansions) -> [Array[String], Integer]
     def expand: (IR::GrammarSymbol start, Integer remaining_expansions) -> [ Array[String], Integer ]
 
-    # @rbs (Integer nonterminal_id, Integer budget, Integer depth) -> IR::Production
-    def choose_production: (Integer nonterminal_id, Integer budget, Integer depth) -> IR::Production
+    # @rbs (Integer nonterminal_id, Integer budget, Integer depth, Array[Integer] path) -> IR::Production
+    def choose_production: (Integer nonterminal_id, Integer budget, Integer depth, Array[Integer] path) -> IR::Production
+
+    # @rbs (Integer nonterminal_id, Integer budget) -> Array[IR::Production]
+    def bounded_productions: (Integer nonterminal_id, Integer budget) -> Array[IR::Production]
+
+    # @rbs (Array[IR::Production] candidates) -> Array[IR::Production]
+    def minimum_height_productions: (Array[IR::Production] candidates) -> Array[IR::Production]
+
+    # @rbs (Array[Integer] path, IR::Production production) -> Integer
+    def path_count: (Array[Integer] path, IR::Production production) -> Integer
 
     # @rbs (Integer symbol_id) -> Integer
     def minimum_cost!: (Integer symbol_id) -> Integer

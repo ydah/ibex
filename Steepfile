@@ -7,6 +7,8 @@ target :library do
   library "digest"
   library "json"
   library "optparse"
+  library "open3"
+  library "shellwords"
   library "tempfile"
   library "timeout"
   library "tmpdir"

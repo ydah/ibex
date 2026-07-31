@@ -1,0 +1,22 @@
+{
+  "slr": {
+    "states": 27,
+    "shift_reduce": 0,
+    "reduce_reduce": 0
+  },
+  "lalr": {
+    "states": 27,
+    "shift_reduce": 0,
+    "reduce_reduce": 0
+  },
+  "ielr": {
+    "states": 27,
+    "shift_reduce": 0,
+    "reduce_reduce": 0
+  },
+  "lr1": {
+    "states": 57,
+    "shift_reduce": 0,
+    "reduce_reduce": 0
+  }
+}
