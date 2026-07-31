@@ -19,6 +19,8 @@ module Ibex
     #     equiv_samples: Integer,
     #     equiv_max_tokens: Integer,
     #     equiv_max_configurations: Integer,
+    #     verify_max_states: Integer,
+    #     verify_max_items: Integer,
     #     ?state: Integer,
     #     ?conflict_index: Integer,
     #     ?messages: String,
@@ -42,7 +44,7 @@ module Ibex
       write_fix_report(report, settings.fetch(:format))
       report.fetch(:proposals).empty? ? 1 : 0
     rescue Fix::BudgetExceeded => e
-      report = { ibex_report: "fix", schema_version: 1 }.merge(e.details)
+      report = { ibex_report: "fix", schema_version: Fix::SCHEMA_VERSION }.merge(e.details)
       write_fix_report(report, settings&.fetch(:format) || "json")
       2
     end
@@ -50,6 +52,16 @@ module Ibex
     # @rbs (String path, fix_options settings) -> [String, Fix]
     def prepare_fixer(path, settings)
       source = File.binread(path)
+      if BisonImport.bison_source?(source)
+        imported = BisonImport::Importer.new(source, file: path).run
+        unless imported.structurally_complete?
+          names = imported.structural_unsupported.map(&:name).uniq.sort.join(", ")
+          raise Ibex::Error,
+                "(fix):1:1: Bison import is structurally incomplete due to: #{names}"
+        end
+        raise Ibex::Error,
+              "(fix):1:1: import Bison source to a canonical analysis file before requesting source repairs"
+      end
       grammar = normalize_grammar_path(path)
       automaton = LALR::Builder.new(grammar, algorithm: settings.fetch(:algorithm)).build
       message_file = settings[:messages]
@@ -63,6 +75,8 @@ module Ibex
         equiv_samples: settings.fetch(:equiv_samples),
         equiv_max_tokens: settings.fetch(:equiv_max_tokens),
         equiv_max_configurations: settings.fetch(:equiv_max_configurations),
+        verify_max_states: settings.fetch(:verify_max_states),
+        verify_max_items: settings.fetch(:verify_max_items),
         messages: messages, message_file: message_file
       )
       [source, fixer]
@@ -73,7 +87,8 @@ module Ibex
       settings = {
         paths: [], algorithm: :lalr, mode: :default, format: "json",
         max_candidates: 32, max_builds: 32, equiv_samples: 100,
-        equiv_max_tokens: 8, equiv_max_configurations: 50_000
+        equiv_max_tokens: 8, equiv_max_configurations: 50_000,
+        verify_max_states: 100_000, verify_max_items: 1_000_000
       } #: fix_options
       parser = OptionParser.new do |options|
         options.banner = "Usage: ibex fix [options] GRAMMAR"
@@ -119,7 +134,9 @@ module Ibex
         "max-builds" => :max_builds,
         "equiv-samples" => :equiv_samples,
         "equiv-max-tokens" => :equiv_max_tokens,
-        "equiv-max-configurations" => :equiv_max_configurations
+        "equiv-max-configurations" => :equiv_max_configurations,
+        "verify-max-states" => :verify_max_states,
+        "verify-max-items" => :verify_max_items
       }.each do |name, key|
         options.on("--#{name}=N", Integer, "positive bounded-search limit") do |value|
           raise OptionParser::InvalidArgument, "--#{name} must be positive" unless value.positive?

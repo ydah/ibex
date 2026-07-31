@@ -56,6 +56,18 @@ class FixTest < Minitest::Test
     assert_equal "candidate_enumeration", error.details.fetch(:phase)
   end
 
+  def test_independent_verifier_budget_exhaustion_is_not_reported_as_a_rejection
+    grammar, automaton = build(SOURCE)
+
+    error = assert_raises(Ibex::Fix::BudgetExceeded) do
+      new_fixer(grammar, automaton, verify_max_items: 1).run
+    end
+
+    assert_equal "candidate_evaluation", error.details.fetch(:phase)
+    assert_includes error.details.fetch(:rejections).map { |entry| entry.fetch(:reason) },
+                    "verification_budget_exhausted"
+  end
+
   def test_semantic_actions_are_not_executed
     source = SOURCE.sub("| NUM", '| NUM { raise "must not run" }')
     grammar, automaton = build(source)
@@ -89,12 +101,13 @@ class FixTest < Minitest::Test
 
   private
 
-  def new_fixer(grammar, automaton, source: SOURCE, max_candidates: 32)
+  def new_fixer(grammar, automaton, source: SOURCE, max_candidates: 32, verify_max_items: 1_000_000)
     Ibex::Fix.new(
       source,
       file: "ambiguous.y", grammar: grammar, automaton: automaton,
       algorithm: :lalr, mode: :extended, max_candidates: max_candidates,
-      equiv_samples: 10, equiv_max_tokens: 6, equiv_max_configurations: 1_000
+      equiv_samples: 10, equiv_max_tokens: 6, equiv_max_configurations: 1_000,
+      verify_max_items: verify_max_items
     )
   end
 

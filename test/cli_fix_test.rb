@@ -83,6 +83,25 @@ class CLIFixTest < Minitest::Test
     end
   end
 
+  def test_fix_returns_two_for_independent_verifier_budget_exhaustion
+    with_grammar do |path|
+      output = StringIO.new
+
+      status = invoke(
+        ["fix", "--verify-max-items=1", *bounded_options, path],
+        output: output
+      )
+      report = JSON.parse(output.string)
+
+      assert_equal 2, status
+      assert_equal "budget_exhausted", report.fetch("result")
+      assert_equal "candidate_evaluation", report.fetch("phase")
+      assert_includes report.fetch("rejections").map { |entry| entry.fetch("reason") },
+                      "verification_budget_exhausted"
+      assert_schema(report)
+    end
+  end
+
   def test_fix_reports_configured_message_catalog_effects
     with_grammar do |path|
       _grammar, automaton = build(File.binread(path), path)
@@ -97,6 +116,21 @@ class CLIFixTest < Minitest::Test
       assert_equal 0, status
       assert_equal "evaluated", impact.fetch("status")
       assert_equal message_path, impact.fetch("file")
+    end
+  end
+
+  def test_fix_refuses_structurally_incomplete_bison_source
+    with_grammar do |path|
+      File.binwrite(path, "%unknown setting\n%%\nstart: ITEM;\n%%\n")
+      errors = StringIO.new
+
+      status = Ibex::CLI.start(
+        ["fix", path], stdout: StringIO.new, stderr: errors
+      )
+
+      assert_equal 1, status
+      assert_includes errors.string, "structurally incomplete"
+      assert_includes errors.string, "unknown"
     end
   end
 
@@ -125,7 +159,7 @@ class CLIFixTest < Minitest::Test
   end
 
   def assert_schema(report)
-    path = File.expand_path("../schema/fix-v1.schema.json", __dir__)
+    path = File.expand_path("../schema/fix-v2.schema.json", __dir__)
     errors = JSONSchemer.schema(JSON.parse(File.binread(path))).validate(report).to_a
     assert_empty errors, errors.inspect
   end

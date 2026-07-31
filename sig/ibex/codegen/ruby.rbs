@@ -58,6 +58,9 @@ module Ibex
 
       private
 
+      # @rbs () -> void
+      def reject_foreign_actions: () -> void
+
       # @rbs (Array[String] lines) -> void
       def append_runtime: (Array[String] lines) -> void
 

@@ -1,0 +1,95 @@
+# Generated from lib/ibex/bison_import.rb with RBS::Inline
+
+module Ibex
+  # Clean-room, nonexecuting import of Bison grammar structure.
+  module BisonImport
+    DIRECTIVES: Hash[String, Symbol]
+
+    FOREIGN_ACTION_SENTINEL: String
+
+    STRUCTURAL_STATUS_MARKER: String
+
+    STRUCTURE_NEUTRAL_UNSUPPORTED: Array[String]
+
+    class BudgetExceeded < Ibex::Error
+      attr_reader details: Hash[Symbol, untyped]
+
+      # @rbs (Hash[Symbol, untyped] details) -> void
+      def initialize: (Hash[Symbol, untyped] details) -> void
+    end
+
+    # One directive occurrence and its original source position.
+    class Directive
+      attr_reader name: String
+
+      attr_reader status: Symbol
+
+      attr_reader line: Integer
+
+      attr_reader column: Integer
+
+      attr_reader detail: String
+
+      # @rbs (name: String, status: Symbol, line: Integer, column: Integer, detail: String) -> void
+      def initialize: (name: String, status: Symbol, line: Integer, column: Integer, detail: String) -> void
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
+    end
+
+    # One opaque C action and its mechanical reference rewrite.
+    class Action
+      attr_reader id: Integer
+
+      attr_reader line: Integer
+
+      attr_reader column: Integer
+
+      attr_reader original: String
+
+      attr_reader transformed: String
+
+      attr_reader encoded: String
+
+      # @rbs (id: Integer, line: Integer, column: Integer, original: String, transformed: String,
+      #   encoded: String) -> void
+      def initialize: (id: Integer, line: Integer, column: Integer, original: String, transformed: String, encoded: String) -> void
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
+    end
+
+    # Immutable source artifact and versioned analysis report.
+    class Result
+      attr_reader source: String
+
+      attr_reader file: String
+
+      attr_reader class_name: String
+
+      attr_reader directives: Array[Directive]
+
+      attr_reader actions: Array[Action]
+
+      attr_reader rule_count: Integer
+
+      attr_reader bounds: Hash[Symbol, Integer]
+
+      # @rbs (source: String, file: String, class_name: String, directives: Array[Directive],
+      #   actions: Array[Action], rule_count: Integer, bounds: Hash[Symbol, Integer]) -> void
+      def initialize: (source: String, file: String, class_name: String, directives: Array[Directive], actions: Array[Action], rule_count: Integer, bounds: Hash[Symbol, Integer]) -> void
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
+
+      # @rbs () -> Array[Directive]
+      def structural_unsupported: () -> Array[Directive]
+
+      # @rbs () -> bool
+      def structurally_complete?: () -> bool
+    end
+
+    # @rbs (String source) -> bool
+    def self?.bison_source?: (String source) -> bool
+  end
+end

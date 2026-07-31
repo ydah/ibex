@@ -22,6 +22,8 @@ requires no C or Java extension.
   [Red/Green CST guide](docs/cst.md).
 - Migrate an existing parser with the
   [racc migration guide](docs/racc-migration.md).
+- Analyze an external Bison grammar with the
+  [Bison import guide](docs/bison-import.md).
 - Browse the [API reference](https://ydah.github.io/ibex/api/).
 
 The playground runs in a local Web Worker. It does not upload grammar source
@@ -268,17 +270,20 @@ gem install ./ibex-0.1.0.gem
 | Propose independently checked conflict repairs | `ibex fix --messages=grammar.messages grammar.y` |
 | Classify grammar and automaton changes | `ibex diff old.y new.y` |
 | Measure deterministic grammar structure | `ibex metrics grammar.y` |
+| Import Bison structure for analysis | `ibex import bison parser.y -o parser.analysis.y` |
+| Explain a selected Bison conflict | `ibex explain --state=N parser.y` |
 | Simulate table behavior without actions | `ibex debug automaton.json NUMBER PLUS NUMBER` |
 | Generate bounded terminal sentences | `ibex samples --strategy=coverage grammar.y` |
 | Differential-fuzz all LR algorithms | `ibex fuzz --coverage-guided grammar.y` |
+
+| Minimize an externally reproducible failure | `ibex reduce --command='./fails' tokens.json` |
+| Check a racc migration | `ibex migrate-check grammar.y` |
+| Start the language server | `ibex lsp --stdio` |
 
 Built-in CLI diagnostics support `--lang=en|ja` and `IBEX_LANG`. Unknown or
 partially translated locales fall back to English without emitting another
 warning. These built-in message IDs are separate from the user-owned `E00xx`
 syntax-error catalog.
-| Minimize an externally reproducible failure | `ibex reduce --command='./fails' tokens.json` |
-| Check a racc migration | `ibex migrate-check grammar.y` |
-| Start the language server | `ibex lsp --stdio` |
 
 Grammar IR, Automaton IR, generated table formats, diagnostic JSON, runtime
 events, coverage, and manifests are versioned contracts. Reports can also be
@@ -297,6 +302,9 @@ counterexamples.
   traversal, cycles, and symlink escapes.
 - Counterexample, ambiguity, sample, repair, and runtime-budget searches are
   bounded. Exhausting a budget is distinct from finding no witness within it.
+- Bison import is analysis-only. C actions remain opaque, Ruby generation is
+  refused, and repair is refused when unsupported directives make the
+  recovered production graph incomplete.
 - Ibex generates deterministic LR parsers. It does not provide GLR or
   generalized ambiguity handling. Incremental CST sessions are syntax-only
   and experimental.
@@ -313,6 +321,7 @@ counterexamples.
 | Build, edit, serialize, or incrementally update syntax trees | [Red/Green CST guide](docs/cst.md) and [migration guide](docs/cst-migration.md) |
 | Learn from executable grammars | [Examples](examples/README.md) |
 | Migrate from racc | [racc migration guide](docs/racc-migration.md) |
+| Analyze Bison grammar structure | [Bison import guide](docs/bison-import.md) |
 | Adapt a handwritten lexer | [Lexer migration guide](docs/lexer-migration.md) |
 | Configure an editor or LSP client | [Editor setup](docs/editor-setup.md) |
 | Understand the pipeline, IR, algorithms, or tables | [Architecture](docs/architecture.md) |
@@ -340,8 +349,8 @@ bundle exec rake
 ```
 
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 22,587 typed calls and 2,793 untyped calls out of 25,380 (89.0% typed).
-The generated signature tree contains 2,230 explicit `untyped` occurrences across 115 files.
+The current whole-library `steep stats` result is 23,167 typed calls and 2,880 untyped calls out of 26,047 (88.9% typed).
+The generated signature tree contains 2,249 explicit `untyped` occurrences across 117 files.
 <!-- type-stats:end -->
 
 Performance measurements are evidence, not portable scores or CI timing

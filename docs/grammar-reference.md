@@ -600,9 +600,24 @@ report includes the exact bounds, unified diff, eliminated fingerprint, state
 delta, and rejection reasons. `--messages=FILE` measures newly moved,
 uncovered, and unreachable message-catalog entries against the original table.
 `--apply[=FXNNN]` transactionally applies a source proposal and refuses
-symlinks or files with multiple hard links. Candidate or equivalence budget
-exhaustion exits 2. Every successful report states that bounded search is not
-a proof of equivalence.
+symlinks or files with multiple hard links. Candidate, independent-verifier,
+or equivalence budget exhaustion exits 2. `--verify-max-states` and
+`--verify-max-items` bound the independent collection used for every
+candidate. The added bounds are reported by the closed
+`schema/fix-v2.schema.json`; version 1 remains available as the prior report
+contract. Every successful report states that bounded search is not a proof
+of equivalence.
+
+`ibex import bison [--format=source|json] [-o FILE] grammar.y` performs a
+one-way, analysis-only conversion. C actions are mechanically reference-mapped
+but remain opaque, and Ruby generation is refused. Unsupported directives are
+reported at every source position; structural gaps are distinguished from
+generator-only controls, and `fix` refuses structurally incomplete imports.
+Input bytes, structural tokens, rule groups, and actions have independent
+positive budgets. Read-only grammar analysis commands auto-detect two Bison
+`%%` section markers. The complete directive, naming, external-corpus, and
+CRuby `parse.y` contracts are in the
+[Bison import guide](bison-import.md).
 
 All CLI forms accept `--lang=LANG`; `IBEX_LANG` supplies the default. Built-in
 diagnostic catalogs ship for `en` and `ja`. Locale suffixes such as
