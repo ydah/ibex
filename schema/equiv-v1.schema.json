@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/equiv-v1.schema.json",
+  "title": "Ibex bounded equivalence report v1",
+  "type": "object",
+  "required": ["ibex_report", "schema_version", "result", "bounds", "statement"],
+  "properties": {
+    "ibex_report": { "const": "equiv" },
+    "schema_version": { "const": 1 },
+    "result": { "enum": ["no_difference_within_bounds", "difference", "budget_exhausted"] },
+    "structural_identity": { "type": "boolean" },
+    "methods": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "method": { "type": "string" },
+    "difference_kind": { "enum": ["language", "tree"] },
+    "rule_map": { "type": "object", "additionalProperties": { "type": "string" } },
+    "tree": {
+      "type": "object",
+      "required": ["requested", "result"],
+      "properties": {
+        "requested": { "type": "boolean" },
+        "result": { "enum": ["not_checked", "no_difference_within_bounds"] }
+      },
+      "additionalProperties": false
+    },
+    "checked": {
+      "type": "object",
+      "required": ["samples", "product_configurations"],
+      "properties": {
+        "samples": { "type": "integer", "minimum": 0 },
+        "product_configurations": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "checked_configurations": { "type": "integer", "minimum": 0 },
+    "witness": { "type": "array", "items": { "type": "string" } },
+    "outcomes": {
+      "type": "object",
+      "required": ["left", "right"],
+      "properties": {
+        "left": { "enum": ["accepted", "error"] },
+        "right": { "enum": ["accepted", "error"] }
+      },
+      "additionalProperties": false
+    },
+    "direction": { "enum": ["left_only", "right_only"] },
+    "phase": { "type": "string" },
+    "message": { "type": "string" },
+    "bounds": {
+      "type": "object",
+      "required": ["sample_count", "seed", "max_tokens", "max_configurations", "max_actions", "max_stack"],
+      "properties": {
+        "sample_count": { "type": "integer", "minimum": 1 },
+        "seed": { "type": "integer" },
+        "max_tokens": { "type": "integer", "minimum": 1 },
+        "max_configurations": { "type": "integer", "minimum": 1 },
+        "max_actions": { "type": "integer", "minimum": 1 },
+        "max_stack": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "statement": { "const": "Bounded search is not a proof of equivalence." }
+  },
+  "additionalProperties": false
+}

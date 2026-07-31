@@ -1,0 +1,30 @@
+# Generated from lib/ibex/cli/equiv.rb with RBS::Inline
+
+module Ibex
+  # CLI entry point for bounded language comparison.
+  module CLIEquiv
+    type equiv_options = { paths: Array[String], sample_count: Integer, seed: Integer, max_tokens: Integer, max_configurations: Integer, max_actions: Integer, max_stack: Integer, algorithm: Symbol, mode: Symbol, format: String, rule_map: Hash[String, String] }
+
+    private def normalize_grammar_path: (String) -> IR::Grammar
+
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_equiv_command: (Array[String] arguments) -> Integer
+
+    # @rbs (Array[String] arguments) -> equiv_options
+    def equiv_options: (Array[String] arguments) -> equiv_options
+
+    # @rbs (OptionParser options, equiv_options settings) -> void
+    def add_equiv_search_options: (OptionParser options, equiv_options settings) -> void
+
+    # @rbs (String path, Symbol algorithm) -> IR::Automaton
+    def load_equiv_automaton: (String path, Symbol algorithm) -> IR::Automaton
+
+    # @rbs (Hash[Symbol, untyped] report, String format) -> void
+    def write_equiv_report: (Hash[Symbol, untyped] report, String format) -> void
+
+    # @rbs (Integer value, String name) -> Integer
+    def positive_equiv_option: (Integer value, String name) -> Integer
+  end
+end

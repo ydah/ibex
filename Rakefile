@@ -162,6 +162,14 @@ namespace :verify do
   end
 end
 
+namespace :equiv do
+  desc "Run bounded equivalence acceptance, counterexample, tree-map, and budget cases"
+  task :test do
+    ruby "-Itest", "test/equiv_test.rb"
+    ruby "-Itest", "test/cli_equiv_test.rb"
+  end
+end
+
 namespace :deps do
   desc "Verify the standalone runtime has no runtime dependencies"
   task :zero do

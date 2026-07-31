@@ -310,6 +310,18 @@ violation. The verifier reads opaque semantic-action text but never evaluates
 it. `ibex verify` reports the versioned `verify` schema and uses exit statuses
 0 for valid, 1 for a violation, and 2 for budget exhaustion.
 
+`Ibex::Equiv` first compares normalized grammar structure, then generates
+sentences in both directions and explores the product of two immutable LR
+state-stack machines in breadth-first order. The product key includes both
+stacks, statuses, and consumed-action counts; a supplied rule map also adds
+both postorder reduction traces. The first reported token witness is therefore
+shortest within the declared token/configuration bounds. Simulation uses only
+Automaton IR actions and gotos. It validates both inputs with the independent
+verifier and does not evaluate semantic actions. A rule map requests bounded
+tree comparison; without one, only accepted language is compared. Every
+successful bounded report explicitly states that it is not an equivalence
+proof.
+
 The repository's self-authored representative grammar feeds the current versioned `ibex_benchmark` v2 document. Its JSON Schema
 is shipped beside the IR schemas, while committed environment-specific observations live under the matching
 `benchmark/results/vN` directory. Timing and peak RSS remain non-gating; CI reproduces only deterministic structure and digests.

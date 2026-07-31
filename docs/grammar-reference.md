@@ -564,6 +564,17 @@ default report format; exit 0 means valid, 1 means a concrete violation, and 2
 means the reference budget was exhausted. Opaque semantic actions are never
 executed.
 
+`ibex equiv LEFT RIGHT` accepts grammar source, Grammar IR, or Automaton IR.
+It combines normalized structural comparison, deterministic samples generated
+in both directions, and a breadth-first product search over the two LR state
+stacks. A difference returns 1 with a shortest token witness found within
+`--max-tokens` and `--max-configurations`; an incomplete search returns 2.
+`--samples`, `--seed`, `--max-actions`, and `--max-stack` expose the remaining
+bounds. `--map=old_rule=new_rule` requests reduction-tree comparison for a
+declared one-to-one rule correspondence. Without a map, only language
+acceptance is compared. A successful bounded search is explicitly not a proof
+of equivalence.
+
 `--emit=sets` writes deterministic JSON containing nullable nonterminals and their FIRST and FOLLOW sets. `--dot=FILE` and
 `--mermaid=FILE` write automaton graphs. `--html=FILE` writes a self-contained report with state search, conflict highlighting,
 and a filter that keeps a selected conflict state and its one-hop neighbors. All three visualizations can be produced while

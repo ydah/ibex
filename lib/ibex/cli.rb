@@ -35,6 +35,7 @@ module Ibex
   autoload :CLIDiagnostics, File.join(CLI_FEATURE_ROOT, "diagnostics")
   autoload :CLIDocumentation, File.join(CLI_FEATURE_ROOT, "documentation")
   autoload :CLIErrorMessages, File.join(CLI_FEATURE_ROOT, "error_messages")
+  autoload :CLIEquiv, File.join(CLI_FEATURE_ROOT, "equiv")
   autoload :CLIExplain, File.join(CLI_FEATURE_ROOT, "explain")
   autoload :CLIFormatting, File.join(CLI_FEATURE_ROOT, "formatting")
   autoload :CLIFuzz, File.join(CLI_FEATURE_ROOT, "fuzz")
@@ -134,6 +135,7 @@ module Ibex
       "debug" => %i[CLIDebug run_debug_command],
       "doc" => %i[CLIDocumentation run_documentation_command],
       "errors" => %i[CLIErrorMessages run_error_messages_command],
+      "equiv" => %i[CLIEquiv run_equiv_command],
       "explain" => %i[CLIExplain run_explain_command],
       "fmt" => %i[CLIFormatting run_format_command],
       "fuzz" => %i[CLIFuzz run_fuzz_command],
@@ -253,6 +255,7 @@ module Ibex
       options.separator("    diagnose                  collect frontend diagnostics")
       options.separator("    doc                       render grammar documentation")
       options.separator("    errors --list|--update  list or update example-keyed syntax error messages")
+      options.separator("    equiv LEFT RIGHT          search for bounded language differences")
       options.separator("    explain                   explain selected parser conflicts")
       options.separator("    fmt                       format grammar source")
       options.separator("    fuzz                      run bounded grammar-derived differential fuzzing")
