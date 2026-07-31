@@ -148,6 +148,7 @@ module Ibex
         assignment = /\Aresult\s*=\s*(.*)\z/m.match(body)
         body = (assignment[1] || "").strip if assignment
         return false if body.empty? || body.match?(/(?<![=!<>])=(?!=|>)/)
+        return true unless body.match?(/\bval\b/)
 
         without_reads = body.gsub(/\bval\[\s*\d+\s*\]/, "")
         without_reads != body && !without_reads.match?(/\bval\b/)

@@ -41,6 +41,28 @@ class LazyRipperLoadingTest < Minitest::Test
     assert_equal "0:false\n", generate(source)
   end
 
+  def test_value_independent_generation_does_not_load_ripper
+    source = <<~GRAMMAR
+      class ConstantParser
+      rule
+      start: TOKEN { result = 1 }
+      end
+    GRAMMAR
+
+    assert_equal "0:false\n", generate(source)
+  end
+
+  def test_lexically_ambiguous_value_name_keeps_ripper_fallback
+    source = <<~GRAMMAR
+      class AmbiguousParser
+      rule
+      start: TOKEN { result = "val" }
+      end
+    GRAMMAR
+
+    assert_equal "0:true\n", generate(source)
+  end
+
   def test_semantic_location_generation_loads_ripper
     source = <<~GRAMMAR
       class LocationParser
