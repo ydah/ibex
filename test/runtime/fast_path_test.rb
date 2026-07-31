@@ -678,6 +678,29 @@ class RuntimeFastPathTest < Minitest::Test
     assert_operator parser.generic_reductions, :>, 0
   end
 
+  def test_idle_hook_prepend_is_detected_before_the_deferred_snapshot
+    parser = ActionlessProbe.new
+    assert_equal :need_more, parser.push(:ITEM, 19)
+    assert_equal 19, parser.finish
+    parser.reset_push
+
+    hook_layer = Module.new do
+      define_method(:on_reduce) do |*payload|
+        (@idle_hook_calls ||= []) << payload
+        super(*payload)
+      end
+
+      attr_reader :idle_hook_calls
+    end
+    parser.singleton_class.prepend(hook_layer)
+
+    assert_equal :need_more, parser.push(:ITEM, 20)
+    refute parser.fast_path_active?
+    assert_equal 20, parser.finish
+    refute_empty parser.idle_hook_calls
+    assert_operator parser.generic_reductions, :>, 0
+  end
+
   def test_frozen_singleton_class_falls_back_to_the_generic_driver
     parser = ActionlessProbe.new([[:ITEM, 15], false])
     parser.singleton_class.freeze
