@@ -69,6 +69,23 @@ class DirectLookaheadsTest < Minitest::Test
     end
   end
 
+  def test_encoded_item_keys_are_collision_free_for_every_valid_core
+    grammar, lookaheads = recursive_list_lookaheads
+    cores = (0..lookaheads.send(:rhs_for, -1).length).map do |dot|
+      lookaheads.send(:item_core, -1, dot)
+    end
+    grammar.productions.each do |production|
+      (0..production.rhs.length).each do |dot|
+        cores << lookaheads.send(:item_core, production.id, dot)
+      end
+    end
+
+    keys = cores.map { |core| lookaheads.send(:item_key, Set[core]).fetch(0) }
+
+    assert_equal cores.length, keys.uniq.length
+    assert(keys.all? { |key| key.is_a?(Integer) && key >= 0 })
+  end
+
   def test_grouped_shifted_kernels_match_the_previous_lr0_collection
     _grammar, lookaheads = expression_lookaheads
 
