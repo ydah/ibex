@@ -1,6 +1,12 @@
 # Generated from lib/ibex/fuzz.rb with RBS::Inline
 
 module Ibex
+  type fuzz_outcome = Symbol | [ Symbol, String, String ]
+
+  type fuzz_mismatch = { tokens: Array[String], kind: Symbol, sentence: Integer, outcomes: Hash[Symbol, fuzz_outcome], bounds: Hash[Symbol, Integer] }
+
+  type fuzz_budget = { message: String, bounds: Hash[Symbol, Integer], ?tokens: Array[String], ?phase: String }
+
   # Bounded grammar-derived differential fuzzing without semantic execution.
   class Fuzz
     ALGORITHMS: Array[Symbol]
@@ -10,17 +16,17 @@ module Ibex
     DEFAULT_MAX_STACK: Integer
 
     class Mismatch < Ibex::Error
-      attr_reader details: Hash[Symbol, untyped]
+      attr_reader details: fuzz_mismatch
 
-      # @rbs (Hash[Symbol, untyped] details) -> void
-      def initialize: (Hash[Symbol, untyped] details) -> void
+      # @rbs (fuzz_mismatch details) -> void
+      def initialize: (fuzz_mismatch details) -> void
     end
 
     class BudgetExceeded < Ibex::Error
-      attr_reader details: Hash[Symbol, untyped]
+      attr_reader details: fuzz_budget
 
-      # @rbs (Hash[Symbol, untyped] details) -> void
-      def initialize: (Hash[Symbol, untyped] details) -> void
+      # @rbs (fuzz_budget details) -> void
+      def initialize: (fuzz_budget details) -> void
     end
 
     # @rbs (IR::Grammar grammar, ?seed: Integer, ?count: Integer, ?max_tokens: Integer,
@@ -33,6 +39,10 @@ module Ibex
 
     # @rbs () -> Hash[Symbol, untyped]
     def run: () -> Hash[Symbol, untyped]
+
+    # Minimize one observed mismatch without changing its kind or outcomes.
+    # @rbs (Mismatch mismatch, ?max_trials: Integer) -> DeltaReducer::Result
+    def minimize: (Mismatch mismatch, ?max_trials: Integer) -> DeltaReducer::Result
 
     private
 
@@ -50,6 +60,10 @@ module Ibex
 
     # @rbs (Array[String] tokens) -> Array[Array[String]]
     def mutations: (Array[String] tokens) -> Array[Array[String]]
+
+    # @rbs (Array[String] tokens, kind: Symbol, sentence: Integer,
+    #   outcomes: Hash[Symbol, fuzz_outcome]) -> bool
+    def mismatch_reproduced?: (Array[String] tokens, kind: Symbol, sentence: Integer, outcomes: Hash[Symbol, fuzz_outcome]) -> bool
 
     # @rbs (Ibex::Error error) -> bool
     def budget_error?: (Ibex::Error error) -> bool

@@ -1,0 +1,6 @@
+# ibex-messages v2
+sentence: NUMBER '+' ')'
+## E0001
+# entry: document
+| An operand is required after the operator.
+end

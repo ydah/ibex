@@ -18,6 +18,13 @@ class CLIBisonImportTest < Minitest::Test
     %%
   BISON
 
+  def test_help_does_not_require_an_input
+    output = StringIO.new
+
+    assert_equal 0, invoke(["import", "bison", "--help"], output: output)
+    assert_includes output.string, "Usage: ibex import bison"
+  end
+
   def test_json_report_matches_schema
     with_source do |path|
       output = StringIO.new

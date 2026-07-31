@@ -3,17 +3,18 @@
 module Ibex
   # Deterministic, trial-bounded delta debugging over an ordered sequence.
   class DeltaReducer
-    class Result < Struct[untyped]
-      attr_accessor items(): untyped
+    # Immutable outcome of a bounded reduction.
+    class Result
+      attr_reader items: Array[untyped]
 
-      attr_accessor trials(): untyped
+      attr_reader trials: Integer
 
-      attr_accessor complete(): untyped
+      attr_reader complete: bool
 
-      attr_accessor original_size(): untyped
+      attr_reader original_size: Integer
 
-      def self.new: (?items: untyped, ?trials: untyped, ?complete: untyped, ?original_size: untyped) -> instance
-                  | ({ ?items: untyped, ?trials: untyped, ?complete: untyped, ?original_size: untyped }) -> instance
+      # @rbs (items: Array[untyped], trials: Integer, complete: bool, original_size: Integer) -> void
+      def initialize: (items: Array[untyped], trials: Integer, complete: bool, original_size: Integer) -> void
     end
 
     # @rbs (?max_trials: Integer) -> void

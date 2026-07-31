@@ -14,7 +14,8 @@ module Ibex
     #     paths: Array[String],
     #     algorithm: Symbol,
     #     mode: Symbol,
-    #     format: String
+    #     format: String,
+    #     ?help: String
     #   }
     #   private def normalize_grammar_path: (String) -> IR::Grammar
 
@@ -23,6 +24,10 @@ module Ibex
     # @rbs (Array[String] arguments) -> Integer
     def run_diff_command(arguments)
       settings = analysis_options(arguments, "diff", operands: "OLD NEW")
+      if settings[:help]
+        @stdout.puts(settings.fetch(:help))
+        return 0
+      end
       paths = settings.fetch(:paths)
       raise Ibex::Error, "(diff):1:1: diff requires exactly two grammar or IR files" unless paths.length == 2
 
@@ -36,6 +41,10 @@ module Ibex
     # @rbs (Array[String] arguments) -> Integer
     def run_metrics_command(arguments)
       settings = analysis_options(arguments, "metrics", operands: "GRAMMAR")
+      if settings[:help]
+        @stdout.puts(settings.fetch(:help))
+        return 0
+      end
       paths = settings.fetch(:paths)
       raise Ibex::Error, "(metrics):1:1: metrics requires exactly one grammar or IR file" unless paths.length == 1
 
@@ -58,6 +67,7 @@ module Ibex
           @options[:mode] = value.to_sym
         end
         options.on("--format=FORMAT", %w[json text], "json or text") { |value| settings[:format] = value }
+        options.on("--help", "show help") { settings[:help] = options.to_s }
       end
       settings[:paths] = parser.parse(arguments)
       settings

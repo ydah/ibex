@@ -1,14 +1,17 @@
 # frozen_string_literal: true
 
 require "json"
-require "open3"
 require "optparse"
 require "shellwords"
+require_relative "../bounded_subprocess"
 require_relative "../fuzz"
+require_relative "fuzz_regressions"
 
 module Ibex
   # CLI entry point for bounded grammar-derived differential fuzzing.
   module CLIFuzz
+    include CLIFuzzRegressions
+
     # @rbs!
     #   private def print_help: (OptionParser) -> Integer
     #   private def input_path: (Array[String]) -> String
@@ -37,20 +40,20 @@ module Ibex
         max_stack: @options.fetch(:fuzz_max_stack, Fuzz::DEFAULT_MAX_STACK),
         coverage_guided: @options.fetch(:fuzz_coverage_guided, false),
         path_length: @options.fetch(:fuzz_path_length, 2),
-        against: external&.fetch(0), against_description: external&.fetch(1)
+        against: external&.[](0), against_description: external&.[](1)
       )
-      @stdout.puts JSON.pretty_generate(fuzzer.run)
+      write_fuzz_report(fuzzer.run)
       0
     rescue Fuzz::Mismatch => e
-      @stdout.puts JSON.pretty_generate(
-        { ibex_report: "fuzz", schema_version: 1, result: "difference", mismatch: e.details }
-      )
-      1
+      raise unless fuzzer && path
+
+      begin
+        write_minimized_fuzz_mismatch(fuzzer, e, path, external)
+      rescue Fuzz::BudgetExceeded => budget
+        write_fuzz_budget_report(budget, external, phase: "reduction")
+      end
     rescue Fuzz::BudgetExceeded => e
-      @stdout.puts JSON.pretty_generate(
-        { ibex_report: "fuzz", schema_version: 1, result: "budget_exhausted", budget: e.details }
-      )
-      2
+      write_fuzz_budget_report(e, external, phase: "comparison")
     end
 
     # @rbs () -> OptionParser
@@ -100,32 +103,90 @@ module Ibex
 
         @options[:fuzz_path_length] = value
       end
+      add_fuzz_external_options(options)
+    end
+
+    # @rbs (OptionParser options) -> void
+    def add_fuzz_external_options(options)
       options.on("--against=COMMAND", "compare with an explicit JSON-token subprocess") do |value|
         @options[:fuzz_against] = value
       end
+      options.on("--against-runtime=DESCRIPTION", "required target runtime configuration for --against") do |value|
+        raise OptionParser::InvalidArgument, "--against-runtime must not be empty" if value.empty?
+
+        @options[:fuzz_against_runtime] = value
+      end
+      options.on("--against-timeout=SECONDS", Integer, "target timeout per sentence (default 10)") do |value|
+        @options[:fuzz_against_timeout] = positive_fuzz_option!("against-timeout", value)
+      end
+      options.on("--against-max-output=N", Integer, "target stdout/stderr byte budget") do |value|
+        @options[:fuzz_against_max_output] = positive_fuzz_option!("against-max-output", value)
+      end
+      options.on("--max-reduction-trials=N", Integer, "automatic mismatch-reduction trial budget") do |value|
+        @options[:fuzz_max_reduction_trials] = positive_fuzz_option!("max-reduction-trials", value)
+      end
+      options.on("--regression-dir=DIR", "saved minimized regressions (default test/fuzz/regressions)") do |value|
+        raise OptionParser::InvalidArgument, "--regression-dir must not be empty" if value.empty?
+
+        @options[:fuzz_regression_dir] = value
+      end
+      options.on("--[no-]save-regression", "persist minimized mismatches (default enabled)") do |value|
+        @options[:fuzz_save_regression] = value
+      end
+      options.on("--format=FORMAT", %w[json text], "json or text (default json)") do |value|
+        @options[:fuzz_format] = value
+      end
     end
 
-    # @rbs () -> [(^(Array[String]) -> Symbol), Hash[Symbol, untyped]]?
+    # @rbs () -> fuzz_external_target?
     def external_fuzz_target
       command = @options[:fuzz_against]
-      return unless command
+      runtime = @options[:fuzz_against_runtime]
+      if command.nil?
+        raise OptionParser::InvalidArgument, "--against-runtime requires --against" if runtime
+
+        return
+      end
+      unless runtime
+        raise OptionParser::InvalidArgument,
+              "--against requires --against-runtime so the comparison target is reproducible"
+      end
 
       arguments = Shellwords.split(command)
       raise OptionParser::InvalidArgument, "--against command must not be empty" if arguments.empty?
 
+      timeout = @options.fetch(:fuzz_against_timeout, BoundedSubprocess::DEFAULT_TIMEOUT_SECONDS)
+      max_output = @options.fetch(:fuzz_against_max_output, BoundedSubprocess::DEFAULT_MAX_OUTPUT_BYTES)
+      subprocess = BoundedSubprocess.new(timeout_seconds: timeout, max_output_bytes: max_output)
       runner = lambda do |tokens|
-        output, errors, status = Open3.capture3(*arguments, stdin_data: JSON.generate(tokens))
-        unless [0, 1].include?(status.exitstatus)
-          raise Ibex::Error,
-                "(fuzz):1:1: external target exited #{status.exitstatus}: #{errors.empty? ? output : errors}"
-        end
-        status.success? ? :accepted : :error
-      end
+        external_fuzz_outcome(subprocess, arguments, tokens, timeout, max_output)
+      end #: ^(Array[String]) -> Symbol
       description = {
-        command: command, host_ruby_engine: RUBY_ENGINE, host_ruby_version: RUBY_VERSION,
+        command: command, target_runtime: runtime,
+        timeout_seconds: timeout, max_output_bytes: max_output,
+        host_ruby_engine: RUBY_ENGINE, host_ruby_version: RUBY_VERSION,
         host_platform: RUBY_PLATFORM
-      }
+      } #: fuzz_external_description
       [runner, description]
+    end
+
+    # @rbs (BoundedSubprocess subprocess, Array[String] arguments, Array[String] tokens,
+    #   Integer timeout, Integer max_output) -> Symbol
+    def external_fuzz_outcome(subprocess, arguments, tokens, timeout, max_output)
+      result = subprocess.run(arguments, input: JSON.generate(tokens))
+      if result.timed_out || result.output_limited
+        raise Fuzz::BudgetExceeded.new(
+          message: "external target exceeded its #{result.timed_out ? 'timeout' : 'output limit'}",
+          bounds: { timeout_seconds: timeout, max_output_bytes: max_output }
+        )
+      end
+      unless result.status.exited? && [0, 1].include?(result.status.exitstatus)
+        detail = result.stderr.empty? ? result.stdout : result.stderr
+        raise Ibex::Error,
+              "(fuzz):1:1: external target did not exit with 0 or 1: #{detail}"
+      end
+
+      result.status.success? ? :accepted : :error
     end
 
     # @rbs (String name, Integer value) -> Integer

@@ -1,8 +1,35 @@
 # Generated from lib/ibex/cli/reduce.rb with RBS::Inline
 
 module Ibex
+  type reduction_bounds = { max_trials: Integer, timeout_seconds: Integer, max_output_bytes: Integer, max_input_bytes: Integer }
+
+  type reduction_budget_details = { kind: String, message: String, trials: Integer }
+
+  type reduction_success_document = { ibex_report: String, schema_version: Integer, result: String, mode: Symbol, original_size: Integer, minimized_size: Integer, trials: Integer, complete: bool, minimized: Array[String | Integer], bounded: bool, bounds: reduction_bounds }
+
+  type reduction_budget_document = { ibex_report: String, schema_version: Integer, result: String, mode: Symbol, bounded: bool, bounds: reduction_bounds, budget: reduction_budget_details }
+
   # CLI entry point for generic bounded delta debugging.
   module CLIReduce
+    include CLIReduceReporting
+
+    DEFAULT_MAX_INPUT_BYTES: Integer
+
+    class ReductionBudgetExceeded < Ibex::Error
+      attr_reader details: reduction_budget_details
+
+      # @rbs (reduction_budget_details details) -> void
+      def initialize: (reduction_budget_details details) -> void
+    end
+
+    @reduction_mode: Symbol
+
+    @reduction_bounds: reduction_bounds
+
+    @reduction_trials: Integer
+
+    @reduction_subprocess: BoundedSubprocess
+
     private def print_help: (OptionParser) -> Integer
 
     private def input_path: (Array[String]) -> String
@@ -15,10 +42,19 @@ module Ibex
     # @rbs () -> OptionParser
     def reduce_option_parser: () -> OptionParser
 
+    # @rbs () -> void
+    def prepare_reduction_run: () -> void
+
+    # @rbs (String path) -> String
+    def bounded_reduction_source: (String path) -> String
+
     # @rbs (String source, Symbol mode) -> Array[String | Integer]
     def reduction_items: (String source, Symbol mode) -> Array[String | Integer]
 
     # @rbs (Array[String] command, Array[String | Integer] candidate, Symbol mode) -> bool
     def reduction_failure?: (Array[String] command, Array[String | Integer] candidate, Symbol mode) -> bool
+
+    # @rbs (String name, Integer value) -> Integer
+    def positive_reduce_option!: (String name, Integer value) -> Integer
   end
 end

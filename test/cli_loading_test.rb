@@ -19,6 +19,9 @@ class CLILoadingTest < Minitest::Test
     ibex/table_simulation.rb
   ].freeze
   DEFERRED_GENERATION_FEATURES = %w[
+    ibex/bison_import.rb
+    ibex/bison_import/importer.rb
+    ibex/bison_import/tokenizer.rb
     ibex/frontend/diagnostic_recovery.rb
     ibex/frontend/dsl.rb
     ibex/frontend/formatter.rb

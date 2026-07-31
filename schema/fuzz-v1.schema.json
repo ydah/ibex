@@ -15,9 +15,99 @@
     "generated_sentences": { "type": "integer", "minimum": 0 },
     "mutated_sentences": { "type": "integer", "minimum": 0 },
     "result": { "enum": ["no_difference_within_bounds", "difference", "budget_exhausted"] },
-    "mismatch": { "type": "object" },
-    "budget": { "type": "object" },
-    "external": { "type": "object" }
+    "mismatch": {
+      "type": "object",
+      "required": [
+        "tokens", "kind", "sentence", "outcomes", "bounds",
+        "minimized_tokens", "reduction"
+      ],
+      "properties": {
+        "tokens": { "type": "array", "items": { "type": "string" } },
+        "kind": { "enum": ["generated", "mutation"] },
+        "sentence": { "type": "integer", "minimum": 0 },
+        "outcomes": { "type": "object", "minProperties": 1 },
+        "bounds": { "type": "object" },
+        "minimized_tokens": {
+          "type": "array", "items": { "type": "string" }
+        },
+        "reduction": {
+          "type": "object",
+          "required": [
+            "original_size", "minimized_size", "trials", "complete"
+          ],
+          "properties": {
+            "original_size": { "type": "integer", "minimum": 0 },
+            "minimized_size": { "type": "integer", "minimum": 0 },
+            "trials": { "type": "integer", "minimum": 1 },
+            "complete": { "type": "boolean" }
+          },
+          "additionalProperties": false
+        },
+        "regression": {
+          "type": "object",
+          "required": ["path", "sha256"],
+          "properties": {
+            "path": { "type": "string", "minLength": 1 },
+            "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "budget": {
+      "type": "object",
+      "required": ["message", "bounds", "phase"],
+      "properties": {
+        "message": { "type": "string", "minLength": 1 },
+        "bounds": { "type": "object" },
+        "tokens": { "type": "array", "items": { "type": "string" } },
+        "phase": { "enum": ["comparison", "reduction"] }
+      },
+      "additionalProperties": false
+    },
+    "external": {
+      "type": "object",
+      "required": [
+        "command", "target_runtime", "timeout_seconds", "max_output_bytes",
+        "host_ruby_engine", "host_ruby_version", "host_platform"
+      ],
+      "properties": {
+        "command": { "type": "string", "minLength": 1 },
+        "target_runtime": { "type": "string", "minLength": 1 },
+        "timeout_seconds": { "type": "integer", "minimum": 1 },
+        "max_output_bytes": { "type": "integer", "minimum": 1 },
+        "host_ruby_engine": { "type": "string", "minLength": 1 },
+        "host_ruby_version": { "type": "string", "minLength": 1 },
+        "host_platform": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "result": { "const": "no_difference_within_bounds" }
+        }
+      },
+      "then": {
+        "required": [
+          "seed", "bounds", "strategy", "path_length", "algorithms",
+          "generated_sentences", "mutated_sentences"
+        ]
+      }
+    },
+    {
+      "if": { "properties": { "result": { "const": "difference" } } },
+      "then": { "required": ["mismatch"] }
+    },
+    {
+      "if": {
+        "properties": { "result": { "const": "budget_exhausted" } }
+      },
+      "then": { "required": ["budget"] }
+    }
+  ],
   "additionalProperties": false
 }

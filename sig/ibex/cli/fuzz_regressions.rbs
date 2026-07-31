@@ -1,0 +1,40 @@
+# Generated from lib/ibex/cli/fuzz_regressions.rb with RBS::Inline
+
+module Ibex
+  type fuzz_external_description = { command: String, target_runtime: String, timeout_seconds: Integer, max_output_bytes: Integer, host_ruby_engine: String, host_ruby_version: String, host_platform: String }
+
+  type fuzz_external_target = [ ^(Array[String]) -> Symbol, fuzz_external_description ]
+
+  # Automatic bounded minimization and persistence for fuzz differences.
+  module CLIFuzzRegressions
+    private def atomic_write_ir: (String path, String source) -> void
+
+    private
+
+    # @rbs (Fuzz fuzzer, Fuzz::Mismatch mismatch, String grammar_path,
+    #   fuzz_external_target? external) -> Integer
+    def write_minimized_fuzz_mismatch: (Fuzz fuzzer, Fuzz::Mismatch mismatch, String grammar_path, fuzz_external_target? external) -> Integer
+
+    # @rbs (Hash[Symbol, untyped] report) -> void
+    def write_fuzz_report: (Hash[Symbol, untyped] report) -> void
+
+    # @rbs (Fuzz::BudgetExceeded error,
+    #   fuzz_external_target? external, phase: String) -> Integer
+    def write_fuzz_budget_report: (Fuzz::BudgetExceeded error, fuzz_external_target? external, phase: String) -> Integer
+
+    # @rbs (Fuzz fuzzer, Fuzz::Mismatch mismatch, String grammar_path,
+    #   fuzz_external_target? external) -> Hash[Symbol, untyped]
+    def minimized_fuzz_mismatch: (Fuzz fuzzer, Fuzz::Mismatch mismatch, String grammar_path, fuzz_external_target? external) -> Hash[Symbol, untyped]
+
+    # @rbs (fuzz_mismatch mismatch, DeltaReducer::Result result, String grammar_path,
+    #   fuzz_external_description? external) -> Hash[Symbol, String]?
+    def persist_fuzz_regression: (fuzz_mismatch mismatch, DeltaReducer::Result result, String grammar_path, fuzz_external_description? external) -> Hash[Symbol, String]?
+
+    # @rbs (String path) -> void
+    def validate_fuzz_regression_target!: (String path) -> void
+
+    # @rbs (fuzz_mismatch mismatch, DeltaReducer::Result result, String grammar_path,
+    #   fuzz_external_description? external) -> Hash[Symbol, untyped]
+    def fuzz_regression_document: (fuzz_mismatch mismatch, DeltaReducer::Result result, String grammar_path, fuzz_external_description? external) -> Hash[Symbol, untyped]
+  end
+end

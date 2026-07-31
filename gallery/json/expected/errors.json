@@ -1,0 +1,9 @@
+{
+  "missing-value.json": {
+    "error_id": "E0001",
+    "token": "'}'",
+    "line": 1,
+    "column": 9,
+    "expected_tokens": ["STRING", "NUMBER", "TRUE", "FALSE", "NULL", "'{'", "'['"]
+  }
+}

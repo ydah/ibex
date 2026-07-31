@@ -11,7 +11,10 @@ module Ibex
       MANIFEST = File.join(ROOT, "docs/stable-features.yml")
       REQUIRED_CLI_TERMS = [
         "ibex verify", "ibex equiv", "ibex fix", "ibex diff", "ibex metrics",
-        "ibex samples", "ibex fuzz", "ibex reduce", "--lang"
+        "ibex samples", "ibex fuzz", "ibex reduce", "ibex import bison",
+        "--against-runtime", "--against-timeout", "--against-max-output",
+        "--max-reduction-trials", "--timeout", "--max-output-bytes",
+        "--max-input-bytes", "--regression-dir", "--lang"
       ].freeze #: Array[String]
 
       # @rbs () -> void

@@ -168,11 +168,14 @@ namespace :verify do
 end
 
 namespace :equiv do
-  desc "Run bounded equivalence acceptance, counterexample, tree-map, and budget cases"
-  task :test do
+  desc "Run the fixed bounded equivalent/non-equivalent regression corpus"
+  task :regression do
     ruby "-Itest", "test/equiv_test.rb"
     ruby "-Itest", "test/cli_equiv_test.rb"
   end
+
+  desc "Alias for equiv:regression"
+  task test: :regression
 end
 
 namespace :analysis do
@@ -209,6 +212,13 @@ namespace :bison do
   desc "Download pinned external grammars and verify aggregate import evidence"
   task :external do
     ruby "-Ilib", "-r./tool/quality/bison_external", "-e", "Ibex::Quality::BisonExternal.new.run!"
+  end
+end
+
+namespace :release do
+  desc "Verify the Stable API lock and byte-reproducible gem packages"
+  task :reproducible do
+    ruby "-Ilib", "-r./tool/quality/release", "-e", "Ibex::Quality::Release.new.verify!"
   end
 end
 

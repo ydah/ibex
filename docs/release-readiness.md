@@ -25,8 +25,9 @@ Experimental features may continue to ship in prereleases without promotion.
 | Hundreds-of-productions scale | Pass | 501 productions, 503 states, 125.008 ms average complete build |
 | Ten-case error UX comparison | Partial | 10/10 snapshots and 8/10 useful repairs are public; independent review is missing |
 | Generator and parser performance at least racc | Fail | Reuse medians are at parity, but only Nokogiri's interval passes; all cold-generation and new-instance rows fail |
-| Semantic-value RBS and typed ratchet | Pass | Generated reduction signatures include declared RHS/LHS types; whole-library Steep is 89.6% typed |
+| Semantic-value RBS and typed ratchet | Pass | Generated reduction signatures include declared RHS/LHS types; whole-library Steep is 88.9% typed |
 | Compatibility suite unbeaten | Pass at the measured revision | Current black-box, self-host, IR, property, and runtime suites are green |
+| Release basis | Pass without publication | Stable declaration diff is 0 across 48 locked files; both gems build byte-identically under two environments |
 
 ## Public-gem migration evidence
 
@@ -147,11 +148,27 @@ were assessed useful. A maintainer assessment is not independent review; at
 least one external reviewer must record a review of the cases and usefulness
 labels before this KPI passes.
 
-The current whole-library `steep stats` result is 18,115 typed calls and 2,097
-untyped calls out of 20,212, or 89.6% typed. Generated parser RBS refines
+The current whole-library `steep stats` result is 23,468 typed calls and 2,945
+untyped calls out of 26,413, or 88.9% typed. Generated parser RBS refines
 declared terminal, nonterminal, RHS tuple, and reduction result types. Untyped
 values remain explicit at undeclared grammar symbols, decoded JSON, dynamic
 table cells, and opaque application Ruby boundaries.
+
+## Release-basis evidence
+
+`bundle exec rake release:reproducible` compares 48 normalized Stable RBS
+declaration files with the v0.2.0 baseline. The current result has zero
+differences; the installed-Gem embedded-source helper is an internal packaging
+implementation and is outside that public lock. The task also builds both
+gems twice under distinct locale, timezone, and frozen-string settings and
+requires byte-identical artifacts. SHA-256 digests are emitted for the exact
+candidate revision rather than recorded as if the current HOLD revision were
+a release.
+
+No release signing credential is stored in this repository. A signature or
+provenance attestation must be supplied by a protected external release
+environment after the outcome gates pass; an unsigned local test key would not
+establish publisher identity.
 
 ## Actions required to release v1.0
 

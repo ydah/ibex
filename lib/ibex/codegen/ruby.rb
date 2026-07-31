@@ -98,7 +98,7 @@ module Ibex
       # @rbs () -> void
       def reject_foreign_actions
         production = @grammar.productions.find do |entry|
-          entry.action&.code&.include?(BisonImport::FOREIGN_ACTION_SENTINEL)
+          entry.action&.code&.include?(foreign_action_sentinel)
         end
         return unless production
 
@@ -106,6 +106,13 @@ module Ibex
         rendered = location ? "#{location[:file]}:#{location[:line]}:#{location[:column]}" : "(codegen):1:1"
         raise Ibex::Error,
               "#{rendered}: cannot generate Ruby from imported C semantic actions; use analysis commands only"
+      end
+
+      # Kept local so the generic generator does not load the optional Bison
+      # importer and its IR validation graph.
+      # @rbs () -> String
+      def foreign_action_sentinel
+        "__ibex_foreign_action_c__"
       end
 
       # @rbs (Array[String] lines) -> void

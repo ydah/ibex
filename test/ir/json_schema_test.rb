@@ -24,8 +24,8 @@ class IRJSONSchemaTest < Minitest::Test
       runtime-coverage-v1.schema.json
       table-simulation-v1.schema.json
       migration-check-v1.schema.json
-      fuzz-v1.schema.json
-      reduce-v1.schema.json
+      fuzz-v1.schema.json fuzz-regression-v1.schema.json
+      reduce-v1.schema.json reduce-v2.schema.json
       verify-v1.schema.json
       equiv-v1.schema.json
       metrics-v1.schema.json

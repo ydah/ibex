@@ -4,7 +4,22 @@
 module Ibex
   # Deterministic, trial-bounded delta debugging over an ordered sequence.
   class DeltaReducer
-    Result = Struct.new(:items, :trials, :complete, :original_size, keyword_init: true)
+    # Immutable outcome of a bounded reduction.
+    class Result
+      attr_reader :items #: Array[untyped]
+      attr_reader :trials #: Integer
+      attr_reader :complete #: bool
+      attr_reader :original_size #: Integer
+
+      # @rbs (items: Array[untyped], trials: Integer, complete: bool, original_size: Integer) -> void
+      def initialize(items:, trials:, complete:, original_size:)
+        @items = items.freeze
+        @trials = trials
+        @complete = complete
+        @original_size = original_size
+        freeze
+      end
+    end
 
     # @rbs (?max_trials: Integer) -> void
     def initialize(max_trials: 1_000)

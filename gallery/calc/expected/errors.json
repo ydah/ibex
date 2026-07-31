@@ -1,0 +1,9 @@
+{
+  "missing-operand.txt": {
+    "error_id": "E0001",
+    "token": "')'",
+    "line": 1,
+    "column": 5,
+    "expected_tokens": ["NUMBER", "'('"]
+  }
+}

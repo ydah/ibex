@@ -18,10 +18,14 @@ module Ibex
       def build!
         directories = grammar_directories
         directories.each do |directory|
+          invalid = invalid_inputs(directory)
+          expected = expected_errors(directory, invalid)
           ALGORITHMS.product(TABLES).each do |algorithm, table|
             parser_class, = compile(directory, algorithm, table)
             valid_inputs(directory).each { |path| parser_class.new.parse(File.binread(path), file: relative(path)) }
-            invalid_inputs(directory).each { |path| assert_rejected(parser_class, path) }
+            invalid.each do |path|
+              assert_rejected(parser_class, path, expected.fetch(File.basename(path)))
+            end
           end
           @output.puts "gallery build: #{File.basename(directory)}"
         end
@@ -71,8 +75,10 @@ module Ibex
         grammar = Normalizer.new(ast, mode: :extended).normalize
         builder = LALR::Builder.new(grammar, algorithm: algorithm)
         automaton = builder.build
+        messages = gallery_error_messages(directory, automaton)
         namespace = Module.new
-        namespace.module_eval(Codegen::Ruby.new(automaton, table: table).generate, relative(path))
+        generated = Codegen::Ruby.new(automaton, table: table, error_messages: messages).generate
+        namespace.module_eval(generated, relative(path))
         [constant(namespace, grammar.class_name), automaton]
       end
 
@@ -88,11 +94,41 @@ module Ibex
         Dir.glob(File.join(directory, "invalid/*")).select { |path| File.file?(path) }.sort
       end
 
-      def assert_rejected(parser_class, path)
+      def expected_errors(directory, invalid)
+        path = File.join(directory, "expected/errors.json")
+        document = JSON.parse(File.binread(path))
+        names = invalid.map { |entry| File.basename(entry) }.sort
+        unless document.keys.sort == names
+          raise Ibex::Error,
+                "#{relative(path)} must describe every invalid input exactly once " \
+                "(expected #{names.inspect}, got #{document.keys.sort.inspect})"
+        end
+        document
+      end
+
+      def gallery_error_messages(directory, automaton)
+        path = File.join(directory, "grammar.messages")
+        document = ErrorMessages.load(path)
+        ErrorMessages.records_for(document, automaton, file: relative(path))
+      end
+
+      def assert_rejected(parser_class, path, expected)
         parser_class.new.parse(File.binread(path), file: relative(path))
         raise Ibex::Error, "#{relative(path)} was expected to be rejected"
-      rescue Runtime::ParseError, Ibex::Error
-        nil
+      rescue Runtime::ParseError => e
+        location = e.location || {}
+        actual = {
+          "error_id" => e.error_id,
+          "token" => e.token_name,
+          "line" => location[:line],
+          "column" => location[:column],
+          "expected_tokens" => e.expected_tokens
+        }
+        return if actual == expected
+
+        raise Ibex::Error,
+              "#{relative(path)} error contract differs\n" \
+              "expected: #{expected.inspect}\nactual:   #{actual.inspect}"
       end
 
       def metrics(automaton)
