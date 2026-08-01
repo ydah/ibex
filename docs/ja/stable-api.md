@@ -6,7 +6,7 @@
 
 ## racc 互換パーサ生成
 
-<!-- stable:compatible-parser -->
+<!-- stable:compatible-parser:v1 -->
 
 既定モードは racc 互換の文法を読み、Pure Ruby の LR パーサを生成します。
 生成クラスは `do_parse` と `yyparse` を提供します。既定の直接 LALR 構築、
@@ -17,7 +17,7 @@ plain/compact 表、yacc `error` 回復、コールバック、観測イベン�
 
 ## バージョン付き IR と表
 
-<!-- stable:versioned-ir -->
+<!-- stable:versioned-ir:v1 -->
 
 Grammar IR、Automaton IR、Lexer IR、パーサ表、JSON レポートには版があり、
 closed schema の検証器は未知フィールド、不正な参照、版の不一致を拒否します。
@@ -27,7 +27,7 @@ dump → load → dump は決定的です。既存の版の意味は書き換え
 
 ## バッチ Red/Green CST
 
-<!-- stable:batch-cst -->
+<!-- stable:batch-cst:v1 -->
 
 format v6 のバッチ CST は、損失のない Green 値と位置・親参照を持つ Red
 ビューを分離します。typed syntax view、永続編集、差分、`ibex_cst` schema
@@ -37,7 +37,7 @@ Stable 契約には含まれません。API 例は [`cst.md`](../cst.md) を参�
 
 ## 互換性と非推奨化
 
-<!-- stable:compatibility-policy -->
+<!-- stable:compatibility-policy:v1 -->
 
 Stable API は semantic versioning に従います。v1.0 以降の削除や意味変更は、
 少なくとも2回の minor release にわたって移行警告、代替手段、最短削除版を

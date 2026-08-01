@@ -4,8 +4,8 @@ require "yaml"
 
 module Ibex
   module Quality
-    # Checks that every Stable contract has synchronized English/Japanese
-    # markers and that the v1 analysis CLI remains publicly documented.
+    # Checks that every Stable contract has the same reviewed revision in its
+    # English and Japanese documents and that the analysis CLI is public.
     class DocsCoverage
       ROOT = File.expand_path("../..", __dir__)
       MANIFEST = File.join(ROOT, "docs/stable-features.yml")
@@ -17,10 +17,16 @@ module Ibex
         "--max-input-bytes", "--regression-dir", "--lang"
       ].freeze #: Array[String]
 
+      # @rbs (?root: String, ?manifest: String?) -> void
+      def initialize(root: ROOT, manifest: nil)
+        @root = File.expand_path(root)
+        @manifest = manifest || File.join(@root, "docs/stable-features.yml")
+      end
+
       # @rbs () -> void
       def verify!
-        document = YAML.safe_load_file(MANIFEST, permitted_classes: [], aliases: false)
-        raise "stable feature manifest must have version 1" unless document["version"] == 1
+        document = YAML.safe_load_file(@manifest, permitted_classes: [], aliases: false)
+        raise "stable feature manifest must have version 2" unless document["version"] == 2
 
         features = document.fetch("features")
         raise "stable feature manifest must not be empty" if features.empty?
@@ -31,24 +37,31 @@ module Ibex
 
       private
 
-      # @rbs (String id, Hash[String, String] languages) -> void
-      def verify_feature(id, languages)
-        raise "#{id}: expected exactly en and ja documentation" unless languages.keys.sort == %w[en ja]
+      # @rbs (String id, Hash[String, untyped] contract) -> void
+      def verify_feature(id, contract)
+        expected = %w[contract_revision en ja]
+        raise "#{id}: expected contract_revision, en, and ja" unless contract.keys.sort == expected
 
-        languages.each do |language, relative_path|
-          path = File.join(ROOT, relative_path)
+        revision = contract.fetch("contract_revision")
+        raise "#{id}: contract_revision must be a positive integer" unless revision.is_a?(Integer) && revision.positive?
+
+        %w[en ja].each do |language|
+          relative_path = contract.fetch(language)
+          raise "#{id}: #{language} document path must be a string" unless relative_path.is_a?(String)
+
+          path = File.join(@root, relative_path)
           raise "#{id}: missing #{language} document #{relative_path}" unless File.file?(path)
 
-          marker = "<!-- stable:#{id} -->"
-          count = File.binread(path).scan(marker).length
-          raise "#{id}: #{relative_path} must contain #{marker} exactly once" unless count == 1
+          marker = "<!-- stable:#{id}:v#{revision} -->"
+          markers = File.binread(path).scan(/<!-- stable:#{Regexp.escape(id)}:v\d+ -->/)
+          raise "#{id}: #{relative_path} must contain only #{marker} exactly once" unless markers == [marker]
         end
       end
 
       # @rbs () -> void
       def verify_cli_documentation
-        source = [File.binread(File.join(ROOT, "README.md")),
-                  File.binread(File.join(ROOT, "docs/grammar-reference.md"))].join("\n")
+        source = [File.binread(File.join(@root, "README.md")),
+                  File.binread(File.join(@root, "docs/grammar-reference.md"))].join("\n")
         missing = REQUIRED_CLI_TERMS.reject { |term| source.include?(term) }
         raise "public CLI documentation is missing: #{missing.join(', ')}" unless missing.empty?
       end

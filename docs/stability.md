@@ -123,7 +123,7 @@ a later schema version.
 
 ## Compatibility policy
 
-<!-- stable:compatibility-policy -->
+<!-- stable:compatibility-policy:v1 -->
 
 Compatible mode is the permanent default. Opt-in extensions, exact lookahead
 defaults, repair, and research algorithms do not silently replace compatible
