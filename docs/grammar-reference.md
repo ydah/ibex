@@ -1,6 +1,6 @@
 # Grammar reference
 
-<!-- stable:compatible-parser:v1 -->
+<!-- stable:compatible-parser:v2 -->
 
 Ibex's `default` mode accepts the compatible grammar described here. `--mode=extended` or an explicit grammar-file
 `pragma extended` adds the marked syntax; extensions are never inferred from a production.
@@ -612,11 +612,15 @@ structural; it contains no timing or memory threshold. Both commands default
 to their closed version-1 JSON schemas and support `--format=text`.
 
 `ibex fix GRAMMAR` selects an unresolved conflict and searches a finite set of
-precedence declarations and overrides, algorithm changes, mechanical
-rewrites, expectation declarations, and recovery-quality edits. A proposal is
-emitted only if the target disappears, no other conflict fingerprint
+precedence declarations and overrides, algorithm changes, and `%inline`
+rewrites. Rewrites that would move opaque semantic actions, including
+recursion reversal and source factoring, are deliberately excluded. A repair
+proposal is emitted only if the target disappears, no other conflict fingerprint
 increases, the resulting table passes the independent verifier, and bounded
-language plus mapped reduction-tree comparison finds no difference. The JSON
+language plus mapped reduction-tree comparison finds no difference. `%expect`
+and recovery-quality suggestions are reported separately as non-repair advice;
+they never enter the verified proposal or `--apply` path because they do not
+eliminate the selected conflict. The JSON
 report includes the exact bounds, unified diff, eliminated fingerprint, state
 delta, and rejection reasons. `--messages=FILE` measures newly moved,
 uncovered, and unreachable message-catalog entries against the original table.
@@ -624,10 +628,10 @@ uncovered, and unreachable message-catalog entries against the original table.
 symlinks or files with multiple hard links. Candidate, independent-verifier,
 or equivalence budget exhaustion exits 2. `--verify-max-states` and
 `--verify-max-items` bound the independent collection used for every
-candidate. The added bounds are reported by the closed
-`schema/fix-v2.schema.json`; version 1 remains available as the prior report
-contract. Every successful report states that bounded search is not a proof
-of equivalence.
+candidate. The advice/repair separation and independent-verifier bounds are
+reported by the closed `schema/fix-v3.schema.json`; versions 1 and 2 remain
+available as prior report contracts. Every successful report states that
+bounded search is not a proof of equivalence.
 
 `ibex import bison [--format=source|json] [-o FILE] grammar.y` performs a
 one-way, analysis-only conversion. C actions are mechanically reference-mapped

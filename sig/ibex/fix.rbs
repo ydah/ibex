@@ -8,6 +8,10 @@ module Ibex
 
     CATEGORIES: Array[String]
 
+    ADVICE_CATEGORIES: Array[String]
+
+    ADVICE_STATEMENT: String
+
     class BudgetExceeded < Ibex::Error
       attr_reader details: Hash[Symbol, untyped]
 
@@ -35,6 +39,9 @@ module Ibex
 
     # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
     def candidate_space: (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
+
+    # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
+    def advice_space: (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
 
     # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
     def precedence_declaration_candidates: (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
@@ -80,8 +87,9 @@ module Ibex
     def rejection: (Hash[Symbol, untyped] candidate, Hash[Symbol, untyped] outcome) -> Hash[Symbol, untyped]
 
     # @rbs (IR::AutomatonState state, Integer index, IR::conflict conflict, Array[Hash[Symbol, untyped]] candidates,
-    #   Array[Hash[Symbol, untyped]] proposals, Array[Hash[Symbol, untyped]] rejections) -> Hash[Symbol, untyped]
-    def report_for: (IR::AutomatonState state, Integer index, IR::conflict conflict, Array[Hash[Symbol, untyped]] candidates, Array[Hash[Symbol, untyped]] proposals, Array[Hash[Symbol, untyped]] rejections) -> Hash[Symbol, untyped]
+    #   Array[Hash[Symbol, untyped]] proposals, Array[Hash[Symbol, untyped]] rejections,
+    #   Array[Hash[Symbol, untyped]] advice) -> Hash[Symbol, untyped]
+    def report_for: (IR::AutomatonState state, Integer index, IR::conflict conflict, Array[Hash[Symbol, untyped]] candidates, Array[Hash[Symbol, untyped]] proposals, Array[Hash[Symbol, untyped]] rejections, Array[Hash[Symbol, untyped]] advice) -> Hash[Symbol, untyped]
 
     # @rbs (IR::Automaton automaton) -> Array[[IR::AutomatonState, IR::conflict]]
     def active_conflicts: (IR::Automaton automaton) -> Array[[ IR::AutomatonState, IR::conflict ]]

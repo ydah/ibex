@@ -8,11 +8,13 @@ module Ibex
   # Bounded conflict-repair candidate generation and safety evaluation.
   # rubocop:disable Metrics/ClassLength -- candidate generation and its three safety gates share one target identity.
   class Fix
-    SCHEMA_VERSION = 2 #: Integer
+    SCHEMA_VERSION = 3 #: Integer
     CATEGORIES = %w[
       precedence_declaration precedence_override algorithm_change
-      mechanical_rewrite expectation_declaration recovery_quality
+      mechanical_rewrite
     ].freeze #: Array[String]
+    ADVICE_CATEGORIES = %w[expectation_declaration recovery_quality].freeze #: Array[String]
+    ADVICE_STATEMENT = "Advice does not eliminate the selected conflict and is not a verified repair." #: String
 
     class BudgetExceeded < Ibex::Error
       attr_reader :details #: Hash[Symbol, untyped]
@@ -73,6 +75,7 @@ module Ibex
     def run
       state, index, conflict = select_target
       candidates = candidate_space(conflict)
+      advice = advice_space(conflict)
       if candidates.length > @max_candidates
         details = {
           result: "budget_exhausted", phase: "candidate_enumeration",
@@ -94,7 +97,7 @@ module Ibex
           rejections << rejection(candidate, outcome)
         end
       end
-      report = report_for(state, index, conflict, candidates, proposals, rejections)
+      report = report_for(state, index, conflict, candidates, proposals, rejections, advice)
       raise BudgetExceeded, report.merge(result: "budget_exhausted", phase: "candidate_evaluation") if incomplete
 
       report
@@ -126,10 +129,20 @@ module Ibex
       candidates.concat(algorithm_candidates)
       rewrite = inline_candidate(conflict)
       candidates << rewrite if rewrite
-      candidates << expectation_candidate(conflict)
-      recovery = recovery_candidate(conflict)
-      candidates << recovery if recovery
       candidates
+    end
+
+    # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
+    def advice_space(conflict)
+      [expectation_candidate(conflict), recovery_candidate(conflict)].compact.map do |candidate|
+        source = candidate[:source]
+        diff = source && source != @source ? unified_diff(@source, source) : nil
+        {
+          category: candidate.fetch(:category), description: candidate.fetch(:description),
+          source_change: !diff.nil?, unified_diff: diff,
+          statement: ADVICE_STATEMENT
+        }
+      end
     end
 
     # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
@@ -354,8 +367,9 @@ module Ibex
     end
 
     # @rbs (IR::AutomatonState state, Integer index, IR::conflict conflict, Array[Hash[Symbol, untyped]] candidates,
-    #   Array[Hash[Symbol, untyped]] proposals, Array[Hash[Symbol, untyped]] rejections) -> Hash[Symbol, untyped]
-    def report_for(state, index, conflict, candidates, proposals, rejections)
+    #   Array[Hash[Symbol, untyped]] proposals, Array[Hash[Symbol, untyped]] rejections,
+    #   Array[Hash[Symbol, untyped]] advice) -> Hash[Symbol, untyped]
+    def report_for(state, index, conflict, candidates, proposals, rejections, advice)
       inventory = CATEGORIES.to_h do |category|
         values = candidates.select { |candidate| candidate.fetch(:category) == category }
         rejected = rejections.count { |entry| entry.fetch(:category) == category }
@@ -370,7 +384,7 @@ module Ibex
           type: conflict.fetch(:type), symbol: conflict.fetch(:symbol),
           fingerprint: conflict_fingerprint(@grammar, conflict)
         },
-        candidate_space: inventory,
+        candidate_space: inventory, advice: advice,
         proposals: proposals, rejections: rejections,
         bounds: bounds,
         statement: Equiv::CAVEAT

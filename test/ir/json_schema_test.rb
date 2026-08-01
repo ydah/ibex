@@ -30,7 +30,7 @@ class IRJSONSchemaTest < Minitest::Test
       equiv-v1.schema.json
       metrics-v1.schema.json
       diff-v1.schema.json
-      fix-v1.schema.json fix-v2.schema.json bison-import-v1.schema.json
+      fix-v1.schema.json fix-v2.schema.json fix-v3.schema.json bison-import-v1.schema.json
     ].each do |name|
       schema = load_json(File.join(SCHEMA_ROOT, name))
 

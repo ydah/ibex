@@ -34,7 +34,9 @@ class CLIFixTest < Minitest::Test
 
       assert_equal 0, status
       assert_equal "proposals_found", report.fetch("result")
-      assert_equal 6, report.fetch("candidate_space").length
+      assert_equal 4, report.fetch("candidate_space").length
+      advice_categories = report.fetch("advice").map { |entry| entry.fetch("category") }
+      assert_equal %w[expectation_declaration recovery_quality], advice_categories
       unsafe = report.fetch("proposals").reject do |proposal|
         proposal.dig("equivalence", "result") == "no_difference_within_bounds"
       end
@@ -185,7 +187,7 @@ class CLIFixTest < Minitest::Test
   end
 
   def assert_schema(report)
-    path = File.expand_path("../schema/fix-v2.schema.json", __dir__)
+    path = File.expand_path("../schema/fix-v3.schema.json", __dir__)
     errors = JSONSchemer.schema(JSON.parse(File.binread(path))).validate(report).to_a
     assert_empty errors, errors.inspect
   end
