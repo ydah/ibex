@@ -146,7 +146,7 @@ namespace :fuzz do
 
   desc "Verify ten reachable parser-table faults are detected"
   task :injection do
-    ruby "-Itest", "test/fuzz_test.rb", "--name=/ten_reachable/"
+    ruby "-Itest", "test/fuzz_test.rb", "--name=/ten_distinct_reachable/"
   end
 end
 
