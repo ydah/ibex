@@ -3,16 +3,20 @@
 require_relative "../test_helper"
 require "stringio"
 require "tmpdir"
+require "timeout"
 
 class AdversarialLimitsTest < Minitest::Test
   FULL = ENV["IBEX_ADVERSARIAL_FULL"] == "1"
+  TIMEOUT_SECONDS = FULL ? 120 : 30
 
   def test_deep_grammar_nesting_stops_with_a_structured_error
     depth = FULL ? 100_000 : 12_000
     source = "class Deep\npragma extended\nrule\nstart: #{'(' * depth} TOKEN #{')' * depth}\nend\n"
 
     error = assert_raises(Ibex::ResourceLimitError, Ibex::Error) do
-      Ibex::Frontend::Parser.new(source, file: "deep.y", mode: :extended).parse
+      within_limit("deep grammar") do
+        Ibex::Frontend::Parser.new(source, file: "deep.y", mode: :extended).parse
+      end
     end
     assert_match(/deep\.y|resource limit/, error.message)
   end
@@ -20,7 +24,9 @@ class AdversarialLimitsTest < Minitest::Test
   def test_giant_token_is_processed_without_recursion
     length = FULL ? 10_000_000 : 1_000_000
     source = "a" * length
-    tokens = Ibex::Frontend::Lexer.new(source, file: "giant.y").tokenize
+    tokens = within_limit("giant token") do
+      Ibex::Frontend::Lexer.new(source, file: "giant.y").tokenize
+    end
 
     assert_equal 2, tokens.length
     assert_equal source, tokens.first.value
@@ -28,7 +34,7 @@ class AdversarialLimitsTest < Minitest::Test
 
   def test_invalid_utf8_has_a_file_qualified_error
     error = assert_raises(Ibex::Error) do
-      Ibex::Frontend::Lexer.new("\xFF".b, file: "invalid.y")
+      within_limit("invalid UTF-8") { Ibex::Frontend::Lexer.new("\xFF".b, file: "invalid.y") }
     end
 
     assert_equal "invalid.y: input must be valid UTF-8", error.message
@@ -38,8 +44,10 @@ class AdversarialLimitsTest < Minitest::Test
     count = FULL ? 50_000 : 5_000
     alternatives = Array.new(count) { |index| "TOKEN_#{index}" }.join(" | ")
     source = "class Wide\nrule\nstart: #{alternatives}\nend\n"
-    ast = Ibex::Frontend::Parser.new(source, file: "wide.y").parse
-    grammar = Ibex::Normalizer.new(ast).normalize
+    grammar = within_limit("wide grammar") do
+      ast = Ibex::Frontend::Parser.new(source, file: "wide.y").parse
+      Ibex::Normalizer.new(ast).normalize
+    end
 
     assert_equal count, grammar.productions.length
   end
@@ -53,7 +61,9 @@ class AdversarialLimitsTest < Minitest::Test
       File.write(first, "fragment\ninclude \"second.y\"\nrule\nitem: TOKEN\nend\n")
       File.write(second, "fragment\ninclude \"first.y\"\nrule\nother: TOKEN\nend\n")
 
-      error = assert_raises(Ibex::Error) { Ibex::Frontend::Resolver.new(root, mode: :extended).resolve }
+      error = assert_raises(Ibex::Error) do
+        within_limit("include cycle") { Ibex::Frontend::Resolver.new(root, mode: :extended).resolve }
+      end
       assert_includes error.message, "include cycle"
       assert_includes error.message, "first.y"
       assert_includes error.message, "second.y"
@@ -76,15 +86,25 @@ class AdversarialLimitsTest < Minitest::Test
       GRAMMAR
       errors = StringIO.new
 
-      status = Ibex::CLI.start(
-        ["--mode=extended", "--warnings=error", path],
-        stdout: StringIO.new, stderr: errors
-      )
+      status = within_limit("pathological lexer pattern") do
+        Ibex::CLI.start(
+          ["--mode=extended", "--warnings=error", path],
+          stdout: StringIO.new, stderr: errors
+        )
+      end
 
       assert_equal 1, status
       assert_includes errors.string, "#{path}:5:3"
       assert_includes errors.string, "excessive backtracking"
       refute File.exist?(File.join(directory, "redos.rb"))
     end
+  end
+
+  private
+
+  def within_limit(label, &block)
+    Timeout.timeout(TIMEOUT_SECONDS, &block)
+  rescue Timeout::Error
+    flunk "#{label} exceeded the #{TIMEOUT_SECONDS}-second adversarial-test limit"
   end
 end
