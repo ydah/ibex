@@ -1,6 +1,6 @@
 # Grammar reference
 
-<!-- stable:compatible-parser -->
+<!-- stable:compatible-parser:v1 -->
 
 Ibex's `default` mode accepts the compatible grammar described here. `--mode=extended` or an explicit grammar-file
 `pragma extended` adds the marked syntax; extensions are never inferred from a production.
