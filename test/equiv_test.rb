@@ -3,29 +3,60 @@
 require_relative "test_helper"
 
 class EquivTest < Minitest::Test
+  EQUIVALENT_CASES = [
+    ["rule wrapper", "start: A", "start: wrapped\nwrapped: A"],
+    ["alternative order", "start: A | B", "start: B | A"],
+    ["recursion direction", "start: list\nlist: A | list COMMA A", "start: list\nlist: A | A COMMA list"],
+    ["common prefix", "start: A B | A C", "start: A tail\ntail: B | C"],
+    ["common suffix", "start: A C | B C", "start: head C\nhead: A | B"],
+    ["optional wrapper", "start: %empty | A", "start: maybe\nmaybe: %empty | A"],
+    ["sequence wrapper", "start: A B C", "start: A pair\npair: B C"],
+    ["distributed choice", "start: A tail | B tail\ntail: C | D", "start: A C | A D | B C | B D"],
+    ["alternative wrappers", "start: alpha | beta\nalpha: A\nbeta: B", "start: A | B"],
+    ["epsilon concatenation", "start: A empty B\nempty: %empty", "start: A B"]
+  ].freeze #: Array[[String, String, String]]
+
+  NON_EQUIVALENT_CASES = [
+    ["different terminal", "start: A", "start: B"],
+    ["empty versus token", "start: %empty", "start: A"],
+    ["missing suffix", "start: A B", "start: A"],
+    ["missing alternative", "start: A | B", "start: A"],
+    ["reversed sequence", "start: A B", "start: B A"],
+    ["one versus repeated", "start: A", "start: list\nlist: A | list A"],
+    ["optional versus empty", "start: %empty | A", "start: %empty"],
+    ["missing factored branch", "start: A B | A C", "start: A B"],
+    ["plus versus star", "start: plus\nplus: A | plus A", "start: star\nstar: %empty | star A"],
+    ["different third token", "start: A B C", "start: A B D"]
+  ].freeze #: Array[[String, String, String]]
+
   def test_ten_known_equivalent_pairs_report_no_difference
-    10.times do |index|
-      left = automaton("EquivalentLeft#{index}", "start: TOKEN#{index}")
-      right = automaton("EquivalentRight#{index}", "start: TOKEN#{index}")
+    assert_equal 10, EQUIVALENT_CASES.length
+    assert_equal 10, EQUIVALENT_CASES.map { |_label, left, right| [left, right] }.uniq.length
 
-      report = Ibex::Equiv.new(left, right, max_tokens: 2).run
+    EQUIVALENT_CASES.each_with_index do |(label, left_rules, right_rules), index|
+      left = automaton("EquivalentLeft#{index}", left_rules, extended: extended?(left_rules))
+      right = automaton("EquivalentRight#{index}", right_rules, extended: extended?(right_rules))
 
-      assert_equal "no_difference_within_bounds", report.fetch(:result)
-      assert_equal true, report.fetch(:structural_identity)
+      report = Ibex::Equiv.new(left, right, sample_count: 20, max_tokens: 6).run
+
+      assert_equal "no_difference_within_bounds", report.fetch(:result), label
     end
   end
 
   def test_ten_known_non_equivalent_pairs_return_concrete_witnesses
-    10.times do |index|
-      left = automaton("DifferentLeft#{index}", "start: LEFT#{index}")
-      right = automaton("DifferentRight#{index}", "start: RIGHT#{index}")
+    assert_equal 10, NON_EQUIVALENT_CASES.length
+    assert_equal 10, NON_EQUIVALENT_CASES.map { |_label, left, right| [left, right] }.uniq.length
 
-      error = assert_raises(Ibex::Equiv::Difference) do
-        Ibex::Equiv.new(left, right, sample_count: 1, max_tokens: 2).run
+    NON_EQUIVALENT_CASES.each_with_index do |(label, left_rules, right_rules), index|
+      left = automaton("DifferentLeft#{index}", left_rules, extended: extended?(left_rules))
+      right = automaton("DifferentRight#{index}", right_rules, extended: extended?(right_rules))
+
+      error = assert_raises(Ibex::Equiv::Difference, label) do
+        Ibex::Equiv.new(left, right, sample_count: 20, max_tokens: 6).run
       end
 
-      refute_empty error.details.fetch(:witness)
-      refute_equal error.details.dig(:outcomes, :left), error.details.dig(:outcomes, :right)
+      assert_kind_of Array, error.details.fetch(:witness), label
+      refute_equal error.details.dig(:outcomes, :left), error.details.dig(:outcomes, :right), label
     end
   end
 
@@ -98,6 +129,10 @@ class EquivTest < Minitest::Test
   end
 
   private
+
+  def extended?(rules)
+    rules.include?("%empty")
+  end
 
   def automaton(class_name, rules, extended: false)
     pragma = "pragma extended\n" if extended

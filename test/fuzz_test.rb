@@ -22,7 +22,7 @@ class FuzzTest < Minitest::Test
     assert_equal %w[slr lalr ielr lr1], report.fetch(:algorithms)
   end
 
-  def test_ten_reachable_automaton_faults_are_all_detected
+  def test_ten_distinct_reachable_table_faults_are_all_detected
     grammar = normalize("class Pair\nrule\nstart: A B\nend\n")
     automata = Ibex::Fuzz::ALGORITHMS.to_h do |algorithm|
       [algorithm, Ibex::LALR::Builder.new(grammar, algorithm: algorithm).build]
@@ -32,12 +32,12 @@ class FuzzTest < Minitest::Test
     faults = injected_faults(reference, trace)
 
     assert_equal 10, faults.length
-    faults.each_with_index do |fault, index|
+    faults.each do |name, fault|
       corrupted = automata.merge(slr: fault)
-      error = assert_raises(Ibex::Fuzz::Mismatch, "fault #{index + 1}") do
+      error = assert_raises(Ibex::Fuzz::Mismatch, name.to_s) do
         Ibex::Fuzz.new(grammar, count: 1, automata: corrupted).run
       end
-      assert_equal :generated, error.details.fetch(:kind), "fault #{index + 1}"
+      assert_equal :generated, error.details.fetch(:kind), name.to_s
     end
   end
 
@@ -49,16 +49,38 @@ class FuzzTest < Minitest::Test
   end
 
   def injected_faults(automaton, trace)
-    actionable = trace.select { |step| %w[shift reduce accept].include?(step.action) }
-    faults = actionable.flat_map do |step|
-      [
-        replace_action(automaton, step, type: :error),
-        remove_action(automaton, step)
-      ]
+    shift = trace.find { |step| step.action == "shift" } || raise("missing reachable shift")
+    reduce = trace.find { |step| step.action == "reduce" } || raise("missing reachable reduce")
+    accept = trace.find { |step| step.action == "accept" } || raise("missing reachable accept")
+    production = automaton.grammar.productions.fetch(reduce.production_id)
+    goto_state = trace_state_before_reduction(trace, reduce)
+
+    {
+      shift_action_deleted: remove_action(automaton, shift),
+      shift_retyped_as_error: replace_action(automaton, shift, type: :error),
+      shift_target_redirected: replace_action(automaton, shift, type: :shift, state: shift.state),
+      reduce_action_deleted: remove_action(automaton, reduce),
+      reduce_retyped_as_error: replace_action(automaton, reduce, type: :error),
+      reduce_retyped_as_shift: replace_action(automaton, reduce, type: :shift, state: 0),
+      goto_deleted: replace_goto(automaton, goto_state, production.lhs, nil),
+      goto_target_redirected: replace_goto(automaton, goto_state, production.lhs, 0),
+      accept_action_deleted: remove_action(automaton, accept),
+      accept_retyped_as_error: replace_action(automaton, accept, type: :error)
+    }.freeze
+  end
+
+  def trace_state_before_reduction(trace, reduction)
+    stack = [0]
+    trace.each do |step|
+      return stack.fetch(-(reduction.rhs_length + 1)) if step.equal?(reduction)
+
+      stack << step.target_state if step.action == "shift"
+      next unless step.action == "reduce"
+
+      stack.pop(step.rhs_length)
+      stack << step.target_state
     end
-    shifts = actionable.select { |step| step.action == "shift" }
-    faults.concat(shifts.map { |step| replace_action(automaton, step, type: :shift, state: step.state) })
-    faults.first(10)
+    raise "reduction is not in trace"
   end
 
   def replace_action(automaton, step, replacement)
@@ -73,13 +95,23 @@ class FuzzTest < Minitest::Test
     end
   end
 
+  def replace_goto(automaton, state_id, symbol_id, target)
+    replace_state(automaton, state_id) do |state|
+      gotos = state.gotos.reject { |id, _state| id == symbol_id }
+      gotos = gotos.merge(symbol_id => target) if target
+      [state.actions, gotos]
+    end
+  end
+
   def replace_state(automaton, state_id)
     states = automaton.states.map do |state|
       next state unless state.id == state_id
 
+      replacement = yield(state)
+      actions, gotos = replacement.is_a?(Array) ? replacement : [replacement, state.gotos]
       Ibex::IR::AutomatonState.new(
         id: state.id, items: state.items, transitions: state.transitions,
-        actions: yield(state), gotos: state.gotos, default_action: state.default_action,
+        actions: actions, gotos: gotos, default_action: state.default_action,
         conflicts: state.conflicts
       )
     end
