@@ -33,6 +33,23 @@ class FixTest < Minitest::Test
                     "bounded_language_or_tree_difference"
   end
 
+  def test_non_repairs_are_reported_only_as_advice
+    grammar, automaton = build(SOURCE)
+    report = new_fixer(grammar, automaton).run
+
+    categories = report.fetch(:advice).map { |entry| entry.fetch(:category) }
+    assert_equal Ibex::Fix::ADVICE_CATEGORIES, categories
+    assert(report.fetch(:advice).all? { |entry| entry.fetch(:statement) == Ibex::Fix::ADVICE_STATEMENT })
+    expectation, recovery = report.fetch(:advice)
+    assert_equal false, expectation.fetch(:source_change)
+    assert_nil expectation.fetch(:unified_diff)
+    assert_equal true, recovery.fetch(:source_change)
+    assert_includes recovery.fetch(:unified_diff), "%on_error_reduce"
+    refute(report.fetch(:rejections).any? do |entry|
+      Ibex::Fix::ADVICE_CATEGORIES.include?(entry.fetch(:category))
+    end)
+  end
+
   def test_every_proposed_source_rebuilds_without_the_target_conflict
     grammar, automaton = build(SOURCE)
     fixer = new_fixer(grammar, automaton)

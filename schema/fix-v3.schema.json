@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/fix-v3.schema.json",
+  "title": "Ibex conflict repair report v3",
+  "type": "object",
+  "required": ["ibex_report", "schema_version", "result", "bounds"],
+  "properties": {
+    "ibex_report": { "const": "fix" },
+    "schema_version": { "const": 3 },
+    "result": { "enum": ["proposals_found", "no_safe_proposal", "budget_exhausted"] },
+    "phase": { "type": "string" },
+    "target": { "type": "object" },
+    "candidate_space": {
+      "type": "object",
+      "required": ["precedence_declaration", "precedence_override", "algorithm_change", "mechanical_rewrite"],
+      "properties": {
+        "precedence_declaration": { "$ref": "#/$defs/candidate_count" },
+        "precedence_override": { "$ref": "#/$defs/candidate_count" },
+        "algorithm_change": { "$ref": "#/$defs/candidate_count" },
+        "mechanical_rewrite": { "$ref": "#/$defs/candidate_count" }
+      },
+      "additionalProperties": false
+    },
+    "advice": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/advice" }
+    },
+    "proposals": { "type": "array", "items": { "$ref": "#/$defs/proposal" } },
+    "rejections": { "type": "array", "items": { "type": "object" } },
+    "applied": { "type": "string", "pattern": "^FX[0-9]{3}$" },
+    "enumerated_candidates": { "type": "integer", "minimum": 0 },
+    "bounds": {
+      "type": "object",
+      "required": ["max_candidates", "max_builds", "equiv_samples", "equiv_max_tokens", "equiv_max_configurations", "verify_max_states", "verify_max_items"],
+      "properties": {
+        "max_candidates": { "type": "integer", "minimum": 1 },
+        "max_builds": { "type": "integer", "minimum": 1 },
+        "equiv_samples": { "type": "integer", "minimum": 1 },
+        "equiv_max_tokens": { "type": "integer", "minimum": 1 },
+        "equiv_max_configurations": { "type": "integer", "minimum": 1 },
+        "verify_max_states": { "type": "integer", "minimum": 1 },
+        "verify_max_items": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "statement": { "const": "Bounded search is not a proof of equivalence." }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "result": { "enum": ["proposals_found", "no_safe_proposal"] }
+        }
+      },
+      "then": {
+        "required": ["target", "candidate_space", "advice", "proposals", "rejections", "statement"]
+      }
+    }
+  ],
+  "$defs": {
+    "candidate_count": {
+      "type": "object",
+      "required": ["enumerated", "rejected", "safe"],
+      "properties": {
+        "enumerated": { "type": "integer", "minimum": 0 },
+        "rejected": { "type": "integer", "minimum": 0 },
+        "safe": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "advice": {
+      "type": "object",
+      "required": ["category", "description", "source_change", "unified_diff", "statement"],
+      "properties": {
+        "category": { "enum": ["expectation_declaration", "recovery_quality"] },
+        "description": { "type": "string" },
+        "source_change": { "type": "boolean" },
+        "unified_diff": { "type": ["string", "null"] },
+        "statement": { "const": "Advice does not eliminate the selected conflict and is not a verified repair." }
+      },
+      "additionalProperties": false
+    },
+    "proposal": {
+      "type": "object",
+      "required": ["id", "category", "description", "algorithm", "applyable", "unified_diff", "eliminates", "equivalence", "side_effects"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^FX[0-9]{3}$" },
+        "category": { "enum": ["precedence_declaration", "precedence_override", "algorithm_change", "mechanical_rewrite"] },
+        "description": { "type": "string" },
+        "algorithm": { "enum": ["slr", "lalr", "ielr", "lr1"] },
+        "applyable": { "type": "boolean" },
+        "unified_diff": { "type": ["string", "null"] },
+        "eliminates": { "type": "array", "items": { "type": "string" } },
+        "equivalence": { "type": "object" },
+        "side_effects": { "type": "object" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

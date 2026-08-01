@@ -6,7 +6,7 @@
 
 ## racc 互換パーサ生成
 
-<!-- stable:compatible-parser:v1 -->
+<!-- stable:compatible-parser:v2 -->
 
 既定モードは racc 互換の文法を読み、Pure Ruby の LR パーサを生成します。
 生成クラスは `do_parse` と `yyparse` を提供します。既定の直接 LALR 構築、
@@ -14,6 +14,11 @@ plain/compact 表、yacc `error` 回復、コールバック、観測イベン�
 `ResourceLimits`、移行検査、境界付きの競合反例解析が Stable です。
 互換モードを明示せずに拡張構文へ切り替えることはありません。構文と CLI
 の詳細は [`grammar-reference.md`](../grammar-reference.md) を参照してください。
+
+`ibex fix` が検証済み修復として出すのは、対象競合を除去し、独立検証と
+有界同値検査を通った提案だけです。`%expect` と回復品質の設定は競合を
+除去しないため、修復や `--apply` 対象ではなく未検証の助言として分離して
+表示します。
 
 ## バージョン付き IR と表
 

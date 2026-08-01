@@ -3,7 +3,7 @@
 version: 2
 features:
   compatible-parser:
-    contract_revision: 1
+    contract_revision: 2
     en: docs/grammar-reference.md
     ja: docs/ja/stable-api.md
   versioned-ir:

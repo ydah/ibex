@@ -56,6 +56,8 @@ validator, or the existing property oracles.
 | independently construct canonical LR(1)/LR(0) collections | strong V1/V2/V3 oracle | intentional algorithm duplication | use |
 | claim unbounded grammar equivalence | attractive wording | undecidable/incorrect | reject |
 | bounded samples plus shortest product search | concrete witnesses and honest bounds | may return inconclusive | use |
+| evaluate `%expect` and recovery settings as repairs | appears to cover more candidate kinds | neither removes a conflict, so both always fail the repair gate | report separately as explicitly unverified advice |
+| rewrite recursion direction or factor source around opaque actions | broader automatic edits | relocating action text can change timing, values, and locations | exclude; keep the action-preserving `%inline` rewrite |
 | write one ADR per command | procedural trace | violates the curated ADR scope gate | reject |
 
 The independent-verifier boundary follows existing durable decisions for
