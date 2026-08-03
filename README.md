@@ -13,8 +13,10 @@ requires no C or Java extension.
 > still needs independent review. Compatibility, scale, and public performance
 > baseline evidence pass. Cold generation and new-instance runtime still trail
 > Racc's Ruby backend, but absolute parity is diagnostic rather than a v1.0
-> release gate. Compatible mode is the stable baseline; opt-in features have
-> the maturity levels documented in the [stability policy](docs/stability.md).
+> release gate. Feature development is not frozen, but the v1.0 release hold
+> and versioned core IR contracts remain in force. Compatible mode is the
+> stable baseline; opt-in features have the maturity levels documented in the
+> [stability policy](docs/stability.md).
 
 - Try grammar analysis in the
   [browser playground](https://ydah.github.io/ibex/playground/).

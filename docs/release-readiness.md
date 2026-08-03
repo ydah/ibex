@@ -12,7 +12,12 @@ signatures, the repository compatibility suite, and a public performance
 baseline have evidence. The published ten-case error comparison has not
 received independent third-party review.
 
-The feature freeze remains in force while that release gate is open.
+Feature development is not frozen. The open release gate blocks publication of
+v1.0, not feature development. New work remains subject to the feature budgets,
+maturity rules, compatibility checks, and exact-revision release gates
+documented by the project. The versioned core Grammar IR and Automaton IR
+contracts remain frozen.
+
 The format-v6 batch Red/Green CST has been selected as part of the initial
 Stable v1 API. Its syntax-only incremental layer remains Experimental. Other Preview and
 Experimental features may continue to ship in prereleases without promotion.

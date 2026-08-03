@@ -42,7 +42,7 @@ design-decision file is added.
 
 | Option | Benefit | Cost | Decision |
 |---|---|---|---|
-| add Bison syntax to the canonical frontend | direct parsing | violates the v1 grammar freeze | reject |
+| add Bison syntax to the canonical frontend | direct parsing | mixes Bison syntax into the canonical racc-compatible frontend and changes its compatibility boundary | reject |
 | add an action-language field to Grammar IR | explicit | violates the closed core IR freeze | reject |
 | discard C actions | easy analysis | loses source and can be mistaken for executable equivalence | reject |
 | encode opaque actions and reject Ruby generation | no schema change; analysis remains useful | imported source is an analysis artifact | use |
