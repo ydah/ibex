@@ -16,10 +16,18 @@ class CLISystemErrorTest < Minitest::Test
   end
 
   def test_permission_error_is_one_stderr_diagnostic
-    File.stub(:realpath, "/locked/grammar.y") do
+    locked_path = "/locked/grammar.y"
+    binread = File.method(:binread)
+    reader = lambda do |path, *arguments|
+      raise Errno::EACCES, path if path == locked_path
+
+      binread.call(path, *arguments)
+    end
+
+    File.stub(:realpath, locked_path) do
       File.stub(:file?, true) do
-        File.stub(:binread, ->(*) { raise Errno::EACCES, "/locked/grammar.y" }) do
-          result = invoke(["/locked/grammar.y"])
+        File.stub(:binread, reader) do
+          result = invoke([locked_path])
           assert_equal 1, result.fetch(:status)
           assert_empty result.fetch(:stdout)
           assert_equal 1, result.fetch(:stderr).lines.length
