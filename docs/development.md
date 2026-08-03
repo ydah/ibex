@@ -33,6 +33,11 @@ The matrix uses the intentionally unlocked `gemfiles/compat.Gemfile` so each
 supported Ruby resolves compatible test dependencies. Contributors use the
 root `Gemfile` and its committed lockfile for every development tool.
 
+Feature development may proceed while a release decision is `HOLD`. Before
+merging the first user-visible change for a feature, check the active-track
+limits in [`stability.md`](stability.md#feature-development-budget) and update
+that inventory in the same pull request.
+
 ## Stage A safety net
 
 The pre-v1 safety suite keeps independent property tests and adds reviewable

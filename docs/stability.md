@@ -20,6 +20,27 @@ support where applicable, and complete public documentation replace the
 impossible two-prior-release requirement. Only Stable features may be adopted
 by the production self-hosted grammar.
 
+## Feature development budget
+
+Feature development is not frozen. A `HOLD` release decision blocks publication
+of that release candidate, not investigation or feature development. The
+following limits keep new work reviewable:
+
+- at most three active new Preview development tracks;
+- at most one of those tracks may introduce grammar syntax; and
+- at most five Experimental product features.
+
+A development track starts when its first user-visible change is merged and
+ends when the feature becomes Stable or Experimental, or is removed. An
+investigation, an ADR, and an unmerged spike do not consume the budget. An
+existing Preview feature consumes a track only while its specification is being
+changed; promotion work that preserves its specification does not.
+
+There are currently no active new Preview development tracks. A pull request
+that starts or ends one must update this statement and the inventory below.
+These limits do not relax the versioned core IR contracts described under
+[Core IR freeze](#core-ir-freeze).
+
 ## v1 inventory
 
 Stable:
