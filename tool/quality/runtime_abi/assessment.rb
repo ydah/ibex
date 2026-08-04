@@ -58,9 +58,6 @@ module Ibex
       def changed_paths(event)
         return validate_paths(@changed_paths) if @changed_paths
 
-        file = ENV.fetch("IBEX_ABI_CHANGED_PATHS_FILE", nil)
-        return validate_paths(File.readlines(file, chomp: true)) if file
-
         pull_request_paths(event)
       end
 

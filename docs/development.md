@@ -101,13 +101,15 @@ It recomputes repository-owned grammar counts without downloading external
 source. Synthetic gallery evidence remains distinct from public and production
 workloads.
 
-`quality:runtime_abi` cross-checks the published [runtime ABI evolution
+`quality:runtime_abi` is contract-only: it cross-checks the published [runtime ABI evolution
 policy](runtime-abi-evolution.md) and [test-interaction
 policy](test-interactions.md) against implementation constants, schemas, the
-96-case matrix, scheduled gates, and golden inputs. On pull-request events it
-also requires the template's structured assessment when a declared
-runtime-facing path changes. Free-form prose is not parsed as an assessment;
-reviewers still decide whether the selected boundary and evidence are correct.
+96-case matrix, scheduled gates, and golden inputs, and ignores ambient GitHub
+event variables. The `quality:runtime_abi_pr` CI entry explicitly receives the
+pull-request event and requires the template's structured assessment when a
+declared runtime-facing path changes. Free-form prose is not parsed as an
+assessment; reviewers still decide whether the selected boundary and evidence
+are correct.
 
 When `ibex fuzz` finds a differential failure it automatically performs
 trial-bounded reduction and atomically saves a versioned fixture under

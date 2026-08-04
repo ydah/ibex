@@ -2,6 +2,7 @@
 
 require "shellwords"
 require_relative "assessment_choice"
+require_relative "assessment_rationale"
 
 module Ibex
   module Quality
@@ -68,20 +69,7 @@ module Ibex
       end
 
       def verify_rationale(value)
-        unless value.is_a?(String)
-          raise "runtime ABI assessment rationale must be substantive and must replace the placeholder"
-        end
-
-        text = value.strip
-        placeholder = /\b(?:todo|tbd|fixme|template|placeholder)\b/i
-        tokens = text.downcase.scan(/[\p{L}\p{N}]+/u)
-        characters = tokens.join.each_char.to_a
-        repeated = tokens.tally.values.max.to_i * 2 > tokens.length
-        valid = text.length >= 20 && !text.match?(placeholder) && !text.match?(/\p{Cf}/u) &&
-                tokens.length >= 6 && tokens.uniq.length >= 5 && characters.uniq.length >= 10 && !repeated
-        return if valid
-
-        raise "runtime ABI assessment rationale must be substantive and must replace the placeholder"
+        RuntimeABIAssessmentRationale.verify!(value)
       end
 
       def affected_interactions(values)

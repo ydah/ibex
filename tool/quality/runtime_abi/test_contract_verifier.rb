@@ -15,7 +15,11 @@ module Ibex
         test:matrix test:zero_cost test:reproducible test:compat test:ir_schema test:no_exec
         test:adversarial gallery:build gallery:conflicts fuzz:short fuzz:injection deps:zero network:zero
       ].map { |task| "bundle exec rake #{task}" }.freeze
-      ENFORCEMENT_COMMANDS = ["bundle exec rake quality:runtime_abi"].freeze
+      ENFORCEMENT_COMMANDS = ["bundle exec rake quality:runtime_abi_pr"].freeze
+      JOB_ENVIRONMENTS = {
+        "stage-a-safety" => { "BUNDLE_WITHOUT" => "types:docs:mutation:profile" },
+        "v1-contracts" => { "BUNDLE_WITHOUT" => "types:docs:mutation:profile" }
+      }.freeze
       PR_CONDITION = "github.event_name == 'pull_request'"
       SCHEDULE_CONDITION = "github.event_name == 'schedule'"
 
@@ -93,6 +97,7 @@ module Ibex
         workflow = YAML.safe_load_file(path(".github/workflows/main.yml"), permitted_classes: [], aliases: false)
         verify_triggers(workflow)
         raise "CI workflow must use the default safe shell" if workflow.key?("defaults")
+        raise "CI workflow environment must be absent" if workflow.key?("env")
 
         safety_steps = safe_job_steps(workflow, "stage-a-safety")
         contract_steps = safe_job_steps(workflow, "v1-contracts")
@@ -146,6 +151,7 @@ module Ibex
 
         forbidden = %w[if continue-on-error defaults] & job.keys
         raise "#{name} job has fail-open controls: #{forbidden.join(', ')}" unless forbidden.empty?
+        raise "#{name} job environment is stale" unless job["env"] == JOB_ENVIRONMENTS.fetch(name)
 
         steps = job.fetch("steps")
         raise "#{name} steps are missing" unless steps.is_a?(Array)
@@ -190,7 +196,9 @@ module Ibex
         raise "golden digest index is missing" unless File.file?(path(golden.fetch("digest_path")))
 
         rakefile = File.binread(path("Rakefile"))
-        raise "Rakefile is missing quality:runtime_abi" unless rakefile.match?(/task :runtime_abi\b/)
+        %w[runtime_abi runtime_abi_pr].each do |task|
+          raise "Rakefile is missing quality:#{task}" unless rakefile.match?(/task :#{task}\b/)
+        end
 
         %w[test:zero_cost golden:update].each do |task|
           name = task.split(":").last

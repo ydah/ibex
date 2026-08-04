@@ -75,8 +75,8 @@ class RuntimeABIWorkflowTest < Minitest::Test
     mutations = [
       ["          bundle exec rake test:matrix\n", "          set +e\n          bundle exec rake test:matrix\n",
        "normal gate commands are stale"],
-      ["        run: bundle exec rake quality:runtime_abi\n",
-       "        run: bundle exec rake quality:runtime_abi || true\n", "enforcement commands are stale"],
+      ["        run: bundle exec rake quality:runtime_abi_pr\n",
+       "        run: bundle exec rake quality:runtime_abi_pr || true\n", "enforcement commands are stale"],
       ["          bundle exec rake fuzz:long\n", "          bundle exec rake fuzz:long &\n",
        "scheduled gate commands are stale"]
     ]
@@ -116,5 +116,39 @@ class RuntimeABIWorkflowTest < Minitest::Test
       error = assert_raises(RuntimeError) { verify_runtime_abi(root) }
       assert_includes error.message, "scheduled gate environment is stale"
     end
+  end
+
+  def test_workflow_job_and_enforcement_environments_reject_extra_variables
+    stage_environment = yaml_lines(
+      "  stage-a-safety:", "    runs-on: ubuntu-latest", "    name: Stage A safety net", "    env:",
+      "      BUNDLE_WITHOUT: types:docs:mutation:profile"
+    )
+    contract_environment = yaml_lines(
+      "  v1-contracts:", "    runs-on: ubuntu-latest", "    name: v1 contract coverage", "    env:",
+      "      BUNDLE_WITHOUT: types:docs:mutation:profile"
+    )
+    mutations = [
+      ["permissions:\n", "env:\n  IBEX_ABI_CHANGED_PATHS_FILE: /dev/null\n\npermissions:\n",
+       "environment must be absent"],
+      [stage_environment, "#{stage_environment}      BASH_ENV: /dev/null\n", "job environment is stale"],
+      [contract_environment, "#{contract_environment}      RUBYOPT: /dev/null\n", "job environment is stale"],
+      ["      - name: Enforce pull-request runtime ABI assessment\n",
+       "      - name: Enforce pull-request runtime ABI assessment\n        env:\n          PATH: /dev/null\n",
+       "enforcement step keys"]
+    ]
+    mutations.each do |before, after, message|
+      with_runtime_abi_root do |root|
+        replace_project_text(root, ".github/workflows/main.yml", before, after)
+
+        error = assert_raises(RuntimeError) { verify_runtime_abi(root) }
+        assert_includes error.message, message
+      end
+    end
+  end
+
+  private
+
+  def yaml_lines(*lines)
+    lines.join("\n").concat("\n")
   end
 end
