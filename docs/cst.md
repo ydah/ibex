@@ -34,6 +34,10 @@ root = result.syntax_root
 diagnostics = result.diagnostics
 ```
 
+This is a trusted application runtime path. Parser production actions and
+generated lexer actions execute, and loading the generated Ruby file may run
+`header`, `inner`, or `footer` code. `parse_with_syntax` is not a sandbox.
+
 `parse`, `do_parse`, and `yyparse` keep their semantic return values.
 `parser.syntax_root` exposes the most recent syntax root. Every successful root
 has this physical shape:
@@ -145,6 +149,13 @@ The initial parse and every edit suppress parser production actions.
 but no semantic value. Generated lexer actions still run because they define
 token emission and lexer-state changes. Run a normal parse separately when a
 semantic value or side effect is required.
+
+Consequently, `parse_syntax` and `incremental_session` are syntax-only but not
+"no user code" APIs. Loading the generated class may execute user sections,
+and lexer actions may perform arbitrary Ruby side effects. Treat the generated
+class as trusted application code. A future nonexecuting syntax profile would
+require a declarative built-in-only lexer and no `header`, `inner`, or `footer`
+sections; the current API does not provide that profile.
 
 Sessions require `SourceText`, a generated lexer, format-v6 CST metadata, and
 non-`drop` trivia. Handwritten token sources and push input are unsupported.

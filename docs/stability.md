@@ -20,6 +20,21 @@ support where applicable, and complete public documentation replace the
 impossible two-prior-release requirement. Only Stable features may be adopted
 by the production self-hosted grammar.
 
+## Execution trust is independent of maturity
+
+Stable, Preview, and Experimental describe compatibility and promotion, not
+sandbox strength. Static grammar and IR tools do not execute parser actions,
+generated lexer actions, or `header` / `inner` / `footer` sections. Generated
+semantic parses execute parser and lexer actions, while generated syntax-only
+parses suppress parser production actions but still execute lexer actions.
+Both generated runtime paths may load user sections and are trusted application
+code, not sandboxes.
+
+A future nonexecuting syntax profile is a separate product contract. It must
+require a declarative built-in-only lexer and reject all user-code sections;
+neither the Stable batch CST API nor the Experimental incremental API currently
+makes that guarantee. See the [execution trust matrix](../README.md#execution-trust-matrix).
+
 ## Feature development budget
 
 Feature development is not frozen. A `HOLD` release decision blocks publication

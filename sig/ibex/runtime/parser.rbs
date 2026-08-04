@@ -270,6 +270,9 @@ module Ibex
       attr_reader incremental_reused_descendants: Integer
 
       # Start a syntax-only incremental session backed by a generated lexer.
+      # Parser production actions are suppressed, but generated lexer actions
+      # still execute. The generated class is trusted application code, not a
+      # sandbox.
       # @rbs (CST::SourceText source_text, ?resource_limits: ResourceLimits?, ?blender: bool) ->
       #   CST::IncrementalParseSession
       def self.incremental_session: (CST::SourceText source_text, ?resource_limits: ResourceLimits?, ?blender: bool) -> CST::IncrementalParseSession

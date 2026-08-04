@@ -30,7 +30,7 @@ requires no C or Java extension.
 - Browse the [API reference](https://ydah.github.io/ibex/api/).
 
 The playground runs in a local Web Worker. It does not upload grammar source
-or execute semantic action bodies.
+or execute parser actions, generated lexer actions, or user-code sections.
 
 ## At a glance
 
@@ -147,6 +147,31 @@ Actions read RHS values through `val`. `@1`, `@2`, and so on address parallel
 semantic locations, while `@$` is the span of the current reduction. Action
 source remains opaque Ruby: Ibex preserves its source mapping but does not
 parse, type-check, or sandbox it.
+
+### Execution trust matrix
+
+`syntax-only` describes parser production actions, not all application code.
+The execution boundary is:
+
+| Path | Parser production actions | Generated lexer actions | `header` / `inner` / `footer` | Trust |
+| --- | --- | --- | --- | --- |
+| Static grammar, IR, and analysis tools | No | No | No | Nonexecuting static tooling |
+| Generated semantic parse | Yes | Yes, when declared | May execute when the generated file loads | Trusted application code; not a sandbox |
+| Generated syntax-only parse | No | Yes | May execute when the generated file loads | Trusted application code; not a sandbox |
+| Future safe syntax profile | No | Declarative built-ins only | No | Nonexecuting profile; not currently available |
+
+Static tooling includes frontend parsing, formatting, LSP, documentation,
+conflict analysis, diffing, equivalence search, verification, simulation,
+samples, and internal differential fuzzing. It consumes actions and user-code
+sections only as opaque data and never loads the generated application parser.
+
+`parse`, `parse_with_syntax`, `do_parse`, and `yyparse` are semantic runtime
+paths. `parse_syntax` and `incremental_session` suppress parser production
+actions, but a generated lexer still executes its Ruby actions to emit tokens,
+convert values, and change lexer state. Loading the generated class may also
+run arbitrary user sections. Do not use either runtime path as a sandbox for
+untrusted grammar code. A future safe profile requires a declarative lexer and
+must reject `header`, `inner`, and `footer` sections rather than loading them.
 
 ### Parse lifecycles and errors
 
@@ -298,7 +323,7 @@ counterexamples.
 - Frontend parsing, diagnosis, formatting, documentation, LSP, static
   migration checks, IR validation, independent verification, table
   simulation, sentence generation, and differential fuzzing do not execute
-  semantic actions or user-code sections.
+  parser actions, generated lexer actions, or user-code sections.
 - Generated parsers, grammar-declared tests, and explicit migration harnesses
   do execute application Ruby. They are not sandboxes.
 - Fragment imports are confined to the declared source root and reject
@@ -310,7 +335,7 @@ counterexamples.
   recovered production graph incomplete.
 - Ibex generates deterministic LR parsers. It does not provide GLR or
   generalized ambiguity handling. Incremental CST sessions are syntax-only
-  and experimental.
+  and experimental; their generated lexer actions still execute.
 - racc compatibility is a migration surface, not a claim that every generated
   parser is a byte-for-byte or adapter-free replacement.
 - Preview and experimental features may have weaker compatibility guarantees

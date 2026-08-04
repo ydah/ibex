@@ -18,6 +18,37 @@ Ruby DSL ───────────────────────�
 Frontend changes stop at the Normalizer. Algorithm strategies consume Grammar IR and produce identical Automaton IR shapes.
 Outputs consume Automaton IR and never call builder internals. The CLI only connects stages and supports JSON resumption.
 
+## Execution trust boundary
+
+`syntax-only` means that the LR runtime suppresses parser production actions.
+It does not mean that no application Ruby executes.
+
+| Execution path | Parser production actions | Generated lexer actions | User `header` / `inner` / `footer` | Trust |
+| --- | --- | --- | --- | --- |
+| Grammar parse/normalize, format, LSP, reports, conflict/diff/equiv/verify/debug | No | No | No | Nonexecuting static tooling |
+| Generated semantic parse | Yes | Yes, when declared | May execute when the generated file loads | Trusted application code; not a sandbox |
+| Generated syntax-only parse | No | Yes | May execute when the generated file loads | Trusted application code; not a sandbox |
+| Future safe syntax profile | No | Declarative built-ins only | No | Nonexecuting profile; not currently available |
+
+Static paths operate on source, Grammar IR, Lexer IR, Automaton IR, or parser
+tables without requiring the generated application parser. Parser actions,
+lexer actions, conversions, and user sections remain opaque data on those
+paths. Code generation may emit source that compiles them when the artifact is
+loaded, but the generator does not load that artifact.
+
+Semantic runtime entry points execute committed parser production actions and,
+when present, generated lexer actions. Syntax-only entry points suppress only
+the former; lexer actions still emit tokens, convert values, and mutate lexer
+state. Both paths cross the trusted application boundary because loading the
+generated Ruby file may execute arbitrary user sections. They provide resource
+budgets and process-isolation building blocks, not a sandbox.
+
+A future profile for untrusted syntax work must use data-only parser tables, a
+declarative lexer whose operations are restricted to built-ins, no parser
+actions, no arbitrary conversions, and no `header`, `inner`, or `footer`
+sections. The current generated parser API must not be described as that
+profile.
+
 An optional root-only `lexer` declaration normalizes to independently versioned
 Lexer IR v1 and is embedded unchanged in Grammar IR v2. Its flat rule list
 records state, declaration id, pattern source/options, action, and provenance;
@@ -61,8 +92,9 @@ Validation reconstructs every derived width, flag, and descendant count.
 Non-UTF-8 bytes use canonical Base64. See
 [ADR 0017](decisions/0017-persistent-syntax-artifacts.md).
 
-Incremental sessions are syntax-only: parser production actions do not run.
-The generated lexer first validates token/state resynchronization. `Blender`
+Incremental sessions are syntax-only: parser production actions do not run,
+but generated lexer actions do. The generated lexer first validates token/state
+resynchronization. `Blender`
 then offers either a fresh token or an old Green nonterminal to the LR driver.
 A subtree is pushed directly through `goto` only when damage, recorded
 left-state, follow-token identity, error flags, and positive width satisfy the

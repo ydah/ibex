@@ -55,6 +55,18 @@ class CSTIncrementalTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     end
   GRAMMAR
 
+  SYNTAX_ONLY_SENTINEL_SOURCE = <<~GRAMMAR
+    class SyntaxOnlySentinelParser
+    pragma cst
+    token WORD
+    lexer
+      WORD /[a-z]+/ { (@execution_sentinels ||= []) << :lexer; lexeme }
+    end
+    rule
+    start: WORD { (@execution_sentinels ||= []) << :parser; result = val[0] }
+    end
+  GRAMMAR
+
   def test_session_is_syntax_only_from_the_initial_parse
     source = Ibex::Runtime::CST::SourceText.new("1 + 2", file: "input.txt")
 
@@ -67,6 +79,16 @@ class CSTIncrementalTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_same source, session.source_text
     assert_equal session.result.syntax_root.green.descendant_count, session.parse_memo.left_states.length
     assert session.parse_memo.compatible?(generate.parser_tables)
+  end
+
+  def test_syntax_only_executes_lexer_action_but_not_parser_action
+    parser = generate(SYNTAX_ONLY_SENTINEL_SOURCE).new
+
+    result = parser.parse_syntax("word")
+
+    assert_equal "word", result.syntax_root.to_source
+    assert_equal [:lexer], parser.instance_variable_get(:@execution_sentinels)
+    refute_respond_to result, :value
   end
 
   def test_leaf_parse_memo_entries_share_immutable_empty_children
