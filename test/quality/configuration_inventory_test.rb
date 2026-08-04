@@ -858,6 +858,76 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     end
   end
 
+  def test_proven_instance_identity_chains_fail_closed
+    variants = {
+      "local itself" => "def add_hidden(name); parser = OptionParser.new; parser.itself.on(name); end",
+      "local dup" => "def add_hidden(name); parser = OptionParser.new; parser.dup.on(name); end",
+      "constant clone" => "PARSER = OptionParser.new\ndef add_hidden(name); PARSER.clone.on(name); end",
+      "ivar clone" => "class ParserOwner\n" \
+                      "def initialize; @parser = OptionParser.new; end\n" \
+                      "def add_hidden(name); @parser.clone.on(name); end\nend",
+      "local freeze" => "def add_hidden(name); parser = OptionParser.new; parser.freeze.on(name); end",
+      "local tap" => "def add_hidden(name); parser = OptionParser.new; parser.tap {}.on(name); end"
+    }
+    variants.each do |label, source|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/identity_#{label.tr(' ', '_')}.rb", "require \"optparse\"\n#{source}\n")
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, label)
+      end
+    end
+  end
+
+  def test_optionparser_builder_blocks_fail_closed
+    {
+      "then explicit" => "OptionParser.new.then { |parser| parser.on(name) }",
+      "yield self numbered" => "OptionParser.new.yield_self { _1.on(name) }"
+    }.each do |label, expression|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/builder_#{label.tr(' ', '_')}.rb", <<~RUBY)
+          require "optparse"
+          def add_hidden(name)
+            #{expression}
+          end
+        RUBY
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, label)
+      end
+    end
+  end
+
+  def test_builder_block_provenance_joins_instance_fixed_point
+    with_repository_copy do |root|
+      write_ruby(root, "lib/a_builder_use.rb", <<~RUBY)
+        require_relative "z_builder_registry"
+        def add_hidden(name)
+          BUILDER_REGISTRY.then { |parser| parser.on(name) }
+        end
+      RUBY
+      write_ruby(root, "lib/z_builder_registry.rb", <<~RUBY)
+        require "optparse"
+        BUILDER_REGISTRY = OptionParser.new
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_builder_block_parameters_do_not_leak
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_block_scope.rb", <<~RUBY)
+        require "optparse"
+        def subscribe(name)
+          OptionParser.new.then { |parser| parser.to_s }
+          [Object.new].each { |parser| parser.on(name) }
+          OptionParser.new.yield_self { _1.to_s }
+          [Object.new].each { _1.on(name) }
+        end
+      RUBY
+      assert inventory_for(root).verify!
+    end
+  end
+
   def test_parenthesized_receivers_retain_provenance
     variants = {
       "local" => "parser = OptionParser.new\n((parser)).on(name)",
@@ -967,6 +1037,88 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
       RUBY
       error = assert_raises(RuntimeError) { inventory_for(root).verify! }
       assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_conditional_constant_alias_qualifies_optionparser_instance
+    with_repository_copy do |root|
+      write_ruby(root, "lib/conditional_alias.rb", <<~RUBY)
+        require "optparse"
+        module Registry
+          PARSER = OptionParser.new
+        end
+        ParserRegistry ||= Registry
+        def add_hidden(name)
+          ParserRegistry::PARSER.on(name)
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_conditional_constant_alias_fixed_point_is_file_order_independent
+    with_repository_copy do |root|
+      write_ruby(root, "lib/a_conditional_alias_use.rb", <<~RUBY)
+        require_relative "m_conditional_alias"
+        def add_hidden(name)
+          FinalRegistry::PARSER.on(name)
+        end
+      RUBY
+      write_ruby(root, "lib/m_conditional_alias.rb", <<~RUBY)
+        require_relative "z_conditional_registry"
+        FinalRegistry ||= ParserRegistry
+      RUBY
+      write_ruby(root, "lib/z_conditional_registry.rb", <<~RUBY)
+        require "optparse"
+        module Registry
+          PARSER = OptionParser.new
+        end
+        ParserRegistry ||= Registry
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_conditional_constant_alias_does_not_override_existing_identity
+    with_repository_copy do |root|
+      write_ruby(root, "lib/conditional_alias_shadow.rb", <<~RUBY)
+        require "optparse"
+        module Registry
+          PARSER = OptionParser.new
+        end
+        module OtherRegistry
+          PARSER = Object.new
+        end
+        ParserRegistry = OtherRegistry
+        ParserRegistry ||= Registry
+        def subscribe(name)
+          ParserRegistry::PARSER.on(name)
+        end
+      RUBY
+      assert inventory_for(root).verify!
+    end
+  end
+
+  def test_conditional_constant_alias_uses_nearest_lexical_target
+    with_repository_copy do |root|
+      write_ruby(root, "lib/conditional_alias_lexical.rb", <<~RUBY)
+        require "optparse"
+        module Registry
+          PARSER = OptionParser.new
+        end
+        module X
+          module Registry
+            PARSER = Object.new
+          end
+          ParserRegistry ||= Registry
+          def self.subscribe(name)
+            ParserRegistry::PARSER.on(name)
+          end
+        end
+      RUBY
+      assert inventory_for(root).verify!
     end
   end
 
