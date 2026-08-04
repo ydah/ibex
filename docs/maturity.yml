@@ -15,7 +15,7 @@ audit:
         status: complete
         total_count: 0
         incomplete_results: false
-        issue_numbers: []
+        issues: []
         limitation: >-
           Zero open issues means that this exact public tracker query found no report; it is not proof
           that the feature has no correctness defects, private reports, or unreported failures.
@@ -43,16 +43,30 @@ features:
   - id: ebnf-groups
     name: EBNF groups
     maturity: preview
-    activation: { kind: explicit, mechanism: "`pragma extended` or `--mode=extended`, then parenthesized EBNF groups", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: extended-grammar
+          availability: extended
+          mechanism: "`pragma extended` or `--mode=extended`, then parenthesized EBNF groups"
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: []
       evidence: [docs/workloads.yml]
       summary: No public_real workload records use EBNF groups; repository fixtures do not establish third-party adoption.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [No feature-specific introduction-to-current released specification ledger exists, so no unchanged-release credit is claimed.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: 4ea1196c01c3dd604a42e9139a32edec0d25c7ec, path: lib/ibex/frontend/ast.rb, query: "Group = Struct", summary: Grouped EBNF entered in Expand heredoc and grouped EBNF support. }
+      first_release: { status: released, tag: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6 }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: present, source_tree_sha256: 8cfa81239f10890e886c0f48269eac546bfdb9bda423d36c0981409cc0b5d8f6 }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 9fd614c09314c28fa4fe5a4d56d2425b46fc2b5905fa72a1ab58784c4505af2f }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 9fd614c09314c28fa4fe5a4d56d2425b46fc2b5905fa72a1ab58784c4505af2f }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: canonical_source_changed, summary: The canonical lowering source changed between the two exact release snapshots. }
+        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical lowering source is byte-identical after v0.2.0 through the reviewed revision. }
+      unknowns: [Commit and source snapshots do not establish downstream compatibility or undocumented field use.]
       evidence: [docs/decisions/0006-bounded-structural-grammar-lowering.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: "The exact open-issue query found no report, but unreported correctness defects remain possible." }
     documentation:
@@ -70,7 +84,12 @@ features:
       outcome: keep
       target_maturity: preview
       criteria_status: unmet
+      user_problem: Express repeated optional and grouped grammar structure without hand-written helper productions.
+      value_classification: repository_only
+      alternatives: [Use ordinary helper nonterminals in compatible grammar syntax.]
       reason: Passing lowering tests does not establish two unchanged releases, external field use, or the pending release gates.
+      kill_condition: Remove the Preview syntax if bounded lowering cannot preserve grammar behavior or no external user emerges after the next review window.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, test/ir/normalizer_test.rb]
     next_review:
       triggers: [Two released versions complete without an EBNF specification change., A public_real workload adopts EBNF groups.]
@@ -81,16 +100,30 @@ features:
   - id: parameterized-rules
     name: parameterized rules
     maturity: preview
-    activation: { kind: explicit, mechanism: "`pragma extended` or `--mode=extended`, then parameterized rule declarations", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: extended-grammar
+          availability: extended
+          mechanism: "`pragma extended` or `--mode=extended`, then parameterized rule declarations"
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: []
       evidence: [docs/workloads.yml]
       summary: No public_real workload records use parameterized rules; the shadow frontend is repository evidence only.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [Introduction and subsequent released semantic changes are not bound by a feature ledger, so stability duration is unknown.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: 18f618c490c91837b97e628c178c6dd4e50abb4d, path: lib/ibex/frontend/ast.rb, query: ParameterizedReference, summary: Parameterized rules entered in Add parameterized grammar rules. }
+      first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 752a8f54eb3f064a8f4488253189fee24665567262e2d8cc7f00414766009e8f }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 737cc90a5cd158bba61a9984fc121fbc859f6bf91d633b31cc77d98eb5b340c1 }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 737cc90a5cd158bba61a9984fc121fbc859f6bf91d633b31cc77d98eb5b340c1 }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Parameterized rules were absent at v0.1.0 and present in v0.2.0. }
+        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical specialization source is byte-identical after v0.2.0. }
+      unknowns: [Git history does not record independent adopter compatibility across these releases.]
       evidence: [docs/decisions/0006-bounded-structural-grammar-lowering.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; private and unreported failures are outside the query. }
     documentation:
@@ -108,7 +141,12 @@ features:
       outcome: keep
       target_maturity: preview
       criteria_status: unmet
+      user_problem: Reuse structurally similar grammar rules without copying each concrete specialization.
+      value_classification: repository_only
+      alternatives: [Write explicit specialized helper nonterminals in the grammar.]
       reason: Bounded specialization and shadow tests do not replace external adoption, released stability, or exact release evidence.
+      kill_condition: Remove parameter syntax if specialization bounds or diagnostics remain unsuitable for a real adopter by the next field review.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, test/ir/parameterized_rules_test.rb]
     next_review:
       triggers: [Two releases complete without parameter-rule specification changes., Another independently maintained grammar adopts the feature.]
@@ -119,16 +157,30 @@ features:
   - id: inline-rules
     name: inline rules
     maturity: preview
-    activation: { kind: explicit, mechanism: "`pragma extended` or `--mode=extended`, then `%inline` rule declarations", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: extended-grammar
+          availability: extended
+          mechanism: "`pragma extended` or `--mode=extended`, then `%inline` rule declarations"
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: []
       evidence: [docs/workloads.yml]
       summary: No public_real workload records use inline rules; repository shadow and fixtures are not external field use.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [No release-by-release ledger identifies inline-rule action and precedence specification changes.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: 51234f2acc5080981c399f3821fe61d07f4b38af, path: lib/ibex/normalize.rb, query: inline_rule_names, summary: Inline rules entered in Add bounded inline rule expansion. }
+      first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 2310d623dcb5d0d6b51fb21478f78f24209171f60830078e6da0fe6eac1494f2 }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 02919ea72da0a741bbac49d28cc5caffc5649895c3cf46dc6fcc207c06ef47c4 }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 02919ea72da0a741bbac49d28cc5caffc5649895c3cf46dc6fcc207c06ef47c4 }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Inline rules were absent at v0.1.0 and present in v0.2.0. }
+        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical inline expansion source is byte-identical after v0.2.0. }
+      unknowns: [Git history does not establish downstream action and precedence compatibility.]
       evidence: [docs/decisions/0006-bounded-structural-grammar-lowering.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not prove action-composition correctness. }
     documentation:
@@ -146,7 +198,12 @@ features:
       outcome: keep
       target_maturity: preview
       criteria_status: unmet
+      user_problem: Reuse grammar phrases while preserving caller-visible action and precedence semantics.
+      value_classification: repository_only
+      alternatives: [Use ordinary named nonterminals and accept an additional runtime reduction.]
       reason: Expansion and action-order tests do not supply a field period, public catalog evidence, or completed release gates.
+      kill_condition: Remove inline syntax if expansion cost or composed action semantics cannot be validated on an external grammar.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, test/codegen/inline_rules_test.rb]
     next_review:
       triggers: [Two releases complete without inline-rule specification changes., A public catalog records inline expansion impact.]
@@ -157,16 +214,30 @@ features:
   - id: middle-actions
     name: middle actions
     maturity: preview
-    activation: { kind: explicit, mechanism: "`pragma extended` or `--mode=extended`, then an action before the end of a production", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: embedded-production-action
+          availability: compatible
+          mechanism: A Ruby action placed between RHS symbols in an ordinary default-mode production; no pragma is required.
+          default_enabled: true
     external_use:
       status: not_demonstrated
       workload_ids: []
       evidence: [docs/workloads.yml]
       summary: No public_real workload records use Ibex middle actions; opaque actions in imported grammars do not prove this feature.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [No feature ledger reconstructs released changes to value-stack, location, or control-flow semantics since introduction.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: 3bf5565285cbb22eb2acee9f0f6c7ea63a85e096, path: lib/ibex/frontend/ast.rb, query: InlineAction, summary: Embedded production actions entered in Parse grammars into AST. }
+      first_release: { status: released, tag: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6 }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: present, source_tree_sha256: 23b0223eee62d5d72c55243f8485909c7db9be14f44d5222bfd4064501327270 }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 14c3291260bae717d1ff850db06f73b748047d4686de72cbc85d3926903c73ce }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 14c3291260bae717d1ff850db06f73b748047d4686de72cbc85d3926903c73ce }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: canonical_source_changed, summary: Parsing and lowering sources changed between exact release snapshots. }
+        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical action parsing and lowering sources are byte-identical after v0.2.0. }
+      unknowns: [Source snapshots do not prove field compatibility of trusted action side effects.]
       evidence: [docs/grammar-reference.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; hidden action-order defects remain possible. }
     documentation:
@@ -184,27 +255,48 @@ features:
       outcome: keep
       target_maturity: preview
       criteria_status: unmet
+      user_problem: Run a semantic action before the enclosing compatible-mode production has reduced.
+      value_classification: repository_only
+      alternatives: [Introduce an explicit empty helper production or defer work to the trailing reduction.]
       reason: Opaque lowering and source-mapping coverage cannot establish production use, release stability, or external safety expectations.
+      kill_condition: Remove the Preview designation or redesign action timing if compatible-mode behavior cannot remain stable under real side effects.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, test/runtime/action_contract_test.rb]
     next_review:
       triggers: [Two releases complete without a middle-action semantic change., A public_real grammar uses middle actions in production.]
       required_evidence: [Production-use record, exact-release R002 results, semantic history ledger]
     release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
-    sources: [{ path: lib/ibex/normalize/expander.rb, sha256: 8ecd76fa9b87b83139298ba7b6238ffae9ff68dffcc90cb7a0456a02dfaed955 }]
+    sources:
+      - { path: lib/ibex/frontend/parser/rules.rb, sha256: 3e94ab8f08275e9cfdc6cc5a2db905498102648c4a9117939e2c7a7f062c46ca }
+      - { path: lib/ibex/normalize/expander.rb, sha256: 8ecd76fa9b87b83139298ba7b6238ffae9ff68dffcc90cb7a0456a02dfaed955 }
 
   - id: multiple-entries
     name: multiple entries
     maturity: preview
-    activation: { kind: explicit, mechanism: "multiple declared start symbols, optionally with `--entry-isolation`", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: multiple-start-declarations
+          availability: extended
+          mechanism: Multiple declared start symbols optionally combined with `--entry-isolation`.
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: []
       evidence: [docs/workloads.yml]
       summary: No public_real workload records multiple Ibex entry points; compatibility workloads each use one start symbol.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [No released specification ledger identifies changes to shared versus isolated entry semantics.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d, path: lib/ibex/lalr/builder.rb, query: entry_isolation, summary: Multiple entries entered in Add multiple parser entry points. }
+      first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 97c9668559cb5aa3fdfef27beca16b215fd1232f678308e883be37ba6942fff4 }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: f4188d78228e88003c7f969f1bcb54ff57e243a79eb045634cb6b7522ccadeb5 }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 827859d08df075884c10d89fd141dd8fc5f76aebde4a13a7cef5ee3cfb9304c1 }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Multiple entries were absent at v0.1.0 and present in v0.2.0. }
+        - { boundary: "v0.2.0..reviewed", status: canonical_source_changed, summary: The generated runtime source changed after v0.2.0 and is bound by the reviewed digest. }
+      unknowns: [Source history does not establish multi-entry application lifecycle compatibility.]
       evidence: [docs/grammar-reference.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: "The exact open-issue query found no report, not proof that every entry interaction is correct." }
     documentation:
@@ -222,7 +314,12 @@ features:
       outcome: keep
       target_maturity: preview
       criteria_status: unmet
+      user_problem: Expose several parser entry points from one grammar with shared or isolated construction.
+      value_classification: repository_only
+      alternatives: [Generate and maintain one parser class per start symbol.]
       reason: Matrix coverage does not replace multi-entry field use, two unchanged releases, or the pending release gates.
+      kill_condition: Remove shared multi-entry generation if no external grammar needs it or isolation cannot preserve independent behavior.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, test/codegen/multiple_start_test.rb]
     next_review:
       triggers: [Two releases complete without entry-semantics changes., A public_real multi-entry grammar is registered.]
@@ -233,16 +330,30 @@ features:
   - id: canonical-imports
     name: canonical imports
     maturity: preview
-    activation: { kind: explicit, mechanism: "`pragma extended` or `--mode=extended`, a path-backed root, and `import` declarations", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: import-declarations
+          availability: extended
+          mechanism: "`pragma extended` or `--mode=extended`, a path-backed root, and `import` declarations"
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: []
       evidence: [docs/workloads.yml]
       summary: No public_real workload uses Ibex imports; Bison inputs and the self-hosted single grammar are not import adoption.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [No feature ledger reconstructs released resolver and import-merge contract changes from introduction.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: cf4fbd16fe614d48bcdb93092399352fc7917f95, path: lib/ibex/frontend/resolver.rb, query: "class Resolver", summary: Canonical imports entered in Add canonical grammar fragment includes. }
+      first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 2d19110ae2191f758b5ecf970ff8c8592de0609f9c0de81b5e53d82afeaf19fd }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 2146bc5fe8a3e676508e4a34d966ced6f9845d7733917c701e6b27e1ea3c569f }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 2146bc5fe8a3e676508e4a34d966ced6f9845d7733917c701e6b27e1ea3c569f }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Canonical imports were absent at v0.1.0 and present in v0.2.0. }
+        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The resolver source is byte-identical after v0.2.0. }
+      unknowns: [Repository history does not establish cross-host field portability.]
       evidence: [docs/decisions/0005-contained-grammar-composition.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; filesystem boundary defects may be unreported. }
     documentation:
@@ -260,7 +371,12 @@ features:
       outcome: keep
       target_maturity: preview
       criteria_status: unmet
+      user_problem: Compose a large grammar from contained files without textual pre-processing.
+      value_classification: repository_only
+      alternatives: [Concatenate or generate a single grammar source before invoking Ibex.]
       reason: Resolver security and transaction tests do not demonstrate portable multi-file field use or released specification stability.
+      kill_condition: Remove imports if containment cannot be portable or no public multi-file grammar adopts them.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, test/frontend/resolver_security_test.rb]
     next_review:
       triggers: [Two releases complete without import-contract changes., A public multi-file grammar is registered and reproduced.]
@@ -271,16 +387,30 @@ features:
   - id: generated-lexers
     name: generated lexers
     maturity: preview
-    activation: { kind: explicit, mechanism: "`pragma extended` or `--mode=extended` with a `lexer` declaration block", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: lexer-declarations
+          availability: extended
+          mechanism: "`pragma extended` or `--mode=extended` with a `lexer` declaration block"
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: [gallery-calc, gallery-json, gallery-sql-lite]
       evidence: [docs/workloads.yml]
       summary: The three cited users are repository_synthetic gallery fixtures; they support tests but not external adoption.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [Lexer IR is versioned, but no feature ledger establishes unchanged released surface semantics since introduction.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: d8ee14f8b80a1acc4bf27b15d52b1c3517aed5b5, path: lib/ibex/runtime/generated_lexer.rb, query: "module GeneratedLexer", summary: Generated lexers entered in Generate stateful streaming lexers. }
+      first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 328671d74028c9c76f2d64016c3896d3eafe50aede2a9b9731ed3f48101259bc }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: f7f21704a0bd536f0c144a08dcd1f5df629385c6a2842fc74b81f548e33f4177 }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: d4e9109ff42f7cec6b86a37ff482c63772d3a66ac7fd70f29265b0ab5359e657 }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Generated lexers were absent at v0.1.0 and present in v0.2.0. }
+        - { boundary: "v0.2.0..reviewed", status: canonical_source_changed, summary: Generated lexer runtime code changed after v0.2.0 and is bound by the reviewed digest. }
+      unknowns: [Versioned source history does not establish third-party stateful lexer compatibility.]
       evidence: [docs/decisions/0014-versioned-generated-lexer.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not cover unreported stateful-lexer defects. }
     documentation:
@@ -298,7 +428,12 @@ features:
       outcome: keep
       target_maturity: preview
       criteria_status: unmet
+      user_problem: Generate a stateful streaming lexer together with parser tables from one grammar definition.
+      value_classification: repository_synthetic
+      alternatives: [Supply a handwritten lexer through the stable pull or token-fed runtime APIs.]
       reason: Versioned IR and adversarial regex tests cannot substitute for stateful external field use or exact release evidence.
+      kill_condition: Remove generated lexer declarations if stateful external use does not appear or regex safety cannot remain bounded.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, test/codegen/lexer_test.rb]
     next_review:
       triggers: [Two releases complete without lexer specification changes., A public_real stateful lexer is registered.]
@@ -309,16 +444,34 @@ features:
   - id: semantic-locations-types
     name: semantic locations/types
     maturity: preview
-    activation: { kind: explicit, mechanism: "extended grammar `locations` and `type` declarations", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: semantic-locations
+          availability: compatible
+          mechanism: Compatible/default grammar actions may consume lexer locations through `@N`, `@$`, `loc`, and `result_loc`.
+          default_enabled: true
+        - id: semantic-type-declarations
+          availability: extended
+          mechanism: Extended grammar `type SYMBOL "RBS type"` declarations feed generated signatures.
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: [bison-jq-parser, bison-postgresql-parser, bison-ruby-bison-era]
       evidence: [docs/workloads.yml]
       summary: The cited external_real sources contain analogous declarations but are diagnostic imports, not Ibex runtime adoption.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [No feature ledger establishes unchanged released location and generated-signature semantics from introduction.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: 1418a5a36c6fdeb5370a7cc2dc4ad62de2317656, path: lib/ibex/frontend/generated_parser_metadata.rb, query: build_semantic_type, summary: Type declarations entered first in Add typed diagnostics and parser tooling; compatible location APIs followed before v0.2.0. }
+      first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: d2afcd685bbcdfdff07c4bbdccbfff85055efbb8f84e0dfe2fd75aa5a8e7fd63 }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: e74d03cfe6c8b9026154446c579c7c5db186acc4b1ad9634d76ed27e615d41d8 }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 8dc944ed394ab5b2cc5c795be452465d5514dabe70f5ef92e9e7812b26180f17 }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Type declarations and compatible location APIs were both present by v0.2.0. }
+        - { boundary: "v0.2.0..reviewed", status: canonical_source_changed, summary: Runtime and generation sources changed after v0.2.0 and are bound by reviewed digests. }
+      unknowns: [The combined inventory row cannot supply one compatibility history for two activation and API boundaries.]
       evidence: [docs/grammar-reference.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; type unsoundness and location edge cases may be unreported. }
     documentation:
@@ -333,30 +486,52 @@ features:
       performance: [Location tracking carries runtime allocation and copying costs not measured on public_real workloads.]
       safety: [Declared RBS strings are metadata and validation does not make trusted semantic actions type-safe at runtime.]
     decision:
-      outcome: keep
+      outcome: redesign
       target_maturity: preview
-      criteria_status: unmet
-      reason: Runtime and RBS tests do not establish downstream signature stability, external use, or completed release gates.
+      criteria_status: planned
+      user_problem: Carry source locations through compatible actions while optionally declaring semantic value types for generated tooling.
+      value_classification: diagnostic_external
+      alternatives: [Use compatible runtime location values with handwritten RBS declarations maintained outside the grammar.]
+      reason: One maturity decision is unsound because compatible semantic locations and extended-only type declarations have different activation and compatibility boundaries.
+      kill_condition: Remove the combined inventory row once the two replacement records exist; remove either replacement if its own field evidence never appears.
+      redesign_plan: Split this row into semantic-locations and semantic-type-declarations with independent activation history evidence promotion criteria and release triggers.
       evidence: [docs/stability.md, test/codegen/semantic_locations_test.rb]
     next_review:
-      triggers: [Two releases complete without location or signature changes., An external generated-RBS consumer is recorded.]
-      required_evidence: [Downstream tooling record, performance evidence, exact-release R002 results]
+      triggers: [The next maturity inventory change splits this combined row., Either replacement gains external use or becomes a promotion candidate.]
+      required_evidence: [Independent location and type-declaration histories, downstream tooling records, exact-release R002 results]
     release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
-    sources: [{ path: lib/ibex/codegen/rbs.rb, sha256: a6434a24176f6501c4f28363b882ad04c056880e2520a865ecc5019e5db228c4 }]
+    sources:
+      - { path: lib/ibex/codegen/ruby.rb, sha256: d78e46dd523896151b2fb09563dd4501a63dd6643299863c4c5e9c1770944ca3 }
+      - { path: lib/ibex/frontend/generated_parser_metadata.rb, sha256: 27fdc65dd639fe8c7766bcaaa6c8e495948405e1e37b49edf042cf9cd34664b7 }
+      - { path: lib/ibex/runtime/parser.rb, sha256: 031673cfe25c868e2e2d8c19effafd70d982c2ae5f73b4ec4b7bba8dc4da2312 }
 
   - id: ast-generation
     name: AST generation
     maturity: preview
-    activation: { kind: explicit, mechanism: "extended `@node` declarations and AST/RBS generation output", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: node-declarations
+          availability: extended
+          mechanism: Extended `@node` declarations and AST/RBS generation output.
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: []
       evidence: [docs/workloads.yml]
       summary: No public_real workload records generated Data nodes, visitors, listeners, or their RBS output.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [No feature ledger records released changes to node, visitor, listener, or generated-RBS contracts.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: c7117a5acaa51b501b8de20b75bbac4e3675ec35, path: lib/ibex/codegen/ruby_ast.rb, query: RubyAST, summary: AST generation entered in Generate typed data syntax trees. }
+      first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: da8181a97680bf185e5b3a459c82d2c7a7078a64fbb4f6af8b2e8e44a8633046 }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 9d4f4758d4a277bfe13bc1ab29439bd16e6fbe1e6c91a8b501a3cc72b2d228cf }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 9d4f4758d4a277bfe13bc1ab29439bd16e6fbe1e6c91a8b501a3cc72b2d228cf }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: AST generation was absent at v0.1.0 and present in v0.2.0. }
+        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical AST generator source is byte-identical after v0.2.0. }
+      unknowns: [Git snapshots do not establish downstream generated API compatibility.]
       evidence: [docs/grammar-reference.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not prove downstream AST compatibility. }
     documentation:
@@ -374,7 +549,12 @@ features:
       outcome: keep
       target_maturity: preview
       criteria_status: unmet
+      user_problem: Generate immutable typed syntax nodes and traversal APIs directly from grammar annotations.
+      value_classification: repository_only
+      alternatives: [Maintain application AST classes and traversal code by hand.]
       reason: Generator coverage does not provide two public users, released API stability, or exact-revision release proof.
+      kill_condition: Remove generated AST annotations if two downstream users do not validate the API or allocation cost is unacceptable.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, test/codegen/ast_test.rb]
     next_review:
       triggers: [Two releases complete without generated AST contract changes., Two public users publish compatible adoption evidence.]
@@ -385,16 +565,30 @@ features:
   - id: grammar-tests
     name: grammar tests
     maturity: preview
-    activation: { kind: explicit, mechanism: "extended `%test` declarations executed by `ibex test`", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: grammar-test-command
+          availability: explicit_command
+          mechanism: Extended `%test` declarations executed by the explicit `ibex test` command.
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: []
       evidence: [docs/workloads.yml]
       summary: No public_real workload records `%test` adoption in its project CI.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [No feature ledger reconstructs released test declaration, timeout, and result semantics.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: 6a97c6580eb60f21bee3019dd5301898f4e927f1, path: lib/ibex/grammar_tests.rb, query: GrammarTests, summary: Grammar tests entered in Add grammar-declared parser tests. }
+      first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: f66fdbc3cdb54ae9aac32b70c8073ddd86cf3a4efca18219030d999e537dcc5a }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: f0d93af7ff066a056227c8e17ff986e6ceec8191942a74040c89f9942f64cf53 }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: f0d93af7ff066a056227c8e17ff986e6ceec8191942a74040c89f9942f64cf53 }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Grammar tests were absent at v0.1.0 and present in v0.2.0. }
+        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The grammar test runner source is byte-identical after v0.2.0. }
+      unknowns: [Git snapshots do not establish portability in external project CI environments.]
       evidence: [docs/grammar-reference.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; subprocess and coverage defects may still be unreported. }
     documentation:
@@ -412,7 +606,12 @@ features:
       outcome: keep
       target_maturity: preview
       criteria_status: unmet
+      user_problem: Keep parser acceptance and rejection examples beside the grammar and run them through a bounded command.
+      value_classification: repository_only
+      alternatives: [Exercise the generated parser from the application test suite.]
       reason: Deterministic isolation and thresholds do not establish external CI adoption or two unchanged releases.
+      kill_condition: Remove grammar-declared tests if external projects prefer application tests or subprocess isolation cannot be portable.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, test/grammar_tests_runner_test.rb]
     next_review:
       triggers: [Two releases complete without grammar-test contract changes., A public project adopts `%test` in CI.]
@@ -423,16 +622,30 @@ features:
   - id: documentation-tooling
     name: documentation tooling
     maturity: preview
-    activation: { kind: explicit, mechanism: "documentation/report output commands and formats selected explicitly", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: documentation-command
+          availability: explicit_command
+          mechanism: Documentation and report output commands and formats selected explicitly.
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: []
       evidence: [docs/workloads.yml]
       summary: No public_real project records generated Markdown, HTML, or railroad artifacts as maintained output.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [No feature ledger reconstructs released output schema, accessibility, or rendering changes.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: 81026ff3390990cad716e9953c8b485f9ac198fe, path: lib/ibex/codegen/documentation.rb, query: Documentation, summary: Documentation tooling entered in Add lossless rule documentation. }
+      first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: fd4cc1dfa6b66dae021d2a7dc66453112af3d5406a6414db8b731dd8450ba5cc }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 053062524dddaac323bcc886db766e68d4231697308b27409951bd49b3005d72 }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 053062524dddaac323bcc886db766e68d4231697308b27409951bd49b3005d72 }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Documentation tooling was absent at v0.1.0 and present in v0.2.0. }
+        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical documentation generator is byte-identical after v0.2.0. }
+      unknowns: [Git snapshots do not cover independent accessibility or downstream rendering compatibility.]
       evidence: [docs/grammar-reference.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; renderer and accessibility defects may be unreported. }
     documentation:
@@ -450,7 +663,12 @@ features:
       outcome: keep
       target_maturity: preview
       criteria_status: unmet
+      user_problem: Publish deterministic human-readable grammar references and railroad views from one source.
+      value_classification: repository_only
+      alternatives: [Maintain documentation separately with an external documentation generator.]
       reason: Deterministic rendering tests cannot replace accessibility review, external adoption, or released format stability.
+      kill_condition: Remove a generated format if it lacks downstream use or cannot pass independent accessibility review.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, test/codegen/documentation_test.rb]
     next_review:
       triggers: [Two releases complete without documentation-output contract changes., An independent accessibility review completes.]
@@ -461,16 +679,30 @@ features:
   - id: ielr
     name: IELR
     maturity: preview
-    activation: { kind: explicit, mechanism: "`--algorithm=ielr` or `algorithm: :ielr`", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: ielr-algorithm
+          availability: explicit_option
+          mechanism: "`--algorithm=ielr` or `algorithm: :ielr`"
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: [bison-jq-parser]
       evidence: [docs/workloads.yml]
       summary: The jq import exposes a conflict-volume problem, but diagnostic analysis does not demonstrate production IELR adoption or benefit.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [No release ledger proves unchanged IELR state construction and conflict behavior since introduction.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: 14968f22795f4fd8ff894b0753b01b92712bd183, path: lib/ibex/lalr/builder.rb, query: "algorithm == :ielr", summary: IELR entered in Add IELR parser construction. }
+      first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: fb3dee4a9b29dc724f379bab142a2aaf1cd779edf88aa093c943fa54819bd5ef }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: ded44c69663f48c36cd15fda5b10cc1c8c2a0b19b0a763269d9db2bfa969ef5a }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: ded44c69663f48c36cd15fda5b10cc1c8c2a0b19b0a763269d9db2bfa969ef5a }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: IELR was absent at v0.1.0 and present in v0.2.0. }
+        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical IELR builder source is byte-identical after v0.2.0. }
+      unknowns: [Source stability does not provide an independent algorithm oracle or application benefit.]
       evidence: [docs/decisions/0007-shared-parser-construction-pipeline.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; absence is not an independent algorithm oracle. }
     documentation:
@@ -488,7 +720,12 @@ features:
       outcome: keep
       target_maturity: preview
       criteria_status: unmet
+      user_problem: Avoid conflicts introduced only by LALR state merging without paying for fully separate canonical states.
+      value_classification: diagnostic_external
+      alternatives: [Use stable direct LALR when adequate or canonical LR1 for verified LALR inadequacy.]
       reason: Correctness and state-bound tests do not establish external LALR-inadequacy use, two stable releases, or final release evidence.
+      kill_condition: Remove IELR if V001 cannot independently validate it or no public LALR-inadequacy workload shows a benefit.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, test/lalr/builder_test.rb]
     next_review:
       triggers: [Two releases complete without IELR semantics changes., A public_real LALR-inadequacy user publishes a verified benefit.]
@@ -499,16 +736,30 @@ features:
   - id: lsp
     name: LSP
     maturity: preview
-    activation: { kind: explicit, mechanism: "`ibex lsp --stdio` and an editor client configuration", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: lsp-command
+          availability: explicit_command
+          mechanism: "`ibex lsp --stdio` and an editor client configuration"
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: []
       evidence: [docs/workloads.yml]
       summary: No public_real workload or editor integration is registered as an LSP field user.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [No released capability and protocol-behavior ledger exists from introduction to this audit.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: 5b8151385c491366deb41c930a1132599edfb9e9, path: lib/ibex/lsp/server.rb, query: "class Server", summary: LSP entered in Add overlay-aware grammar language server. }
+      first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 82d99430ea6b1c556cb7c757a507d60fbb6405c5f2e43d0893019908f8ee24eb }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: bec58a0b4eaa7387561cd67b1d3aba981ab21898c55749e188f9bc85e6155963 }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: bec58a0b4eaa7387561cd67b1d3aba981ab21898c55749e188f9bc85e6155963 }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: LSP was absent at v0.1.0 and present in v0.2.0. }
+        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical LSP server source is byte-identical after v0.2.0. }
+      unknowns: [Source history does not reconstruct real editor lifecycle and extension compatibility.]
       evidence: [docs/editor-setup.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; editor-specific failures may not be in the repository tracker. }
     documentation:
@@ -526,7 +777,12 @@ features:
       outcome: keep
       target_maturity: preview
       criteria_status: unmet
+      user_problem: Provide live grammar diagnostics and navigation to editors over the standard language-server protocol.
+      value_classification: repository_only
+      alternatives: [Run static CLI diagnostics and use editor-agnostic text navigation.]
       reason: Protocol and overlay tests do not replace two editor integrations, field latency evidence, or released compatibility.
+      kill_condition: Remove or narrow LSP capabilities if two maintained editor clients do not emerge or workspace limits prove inadequate.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, test/lsp/server_test.rb]
     next_review:
       triggers: [Two releases complete without LSP contract changes., Two independently maintained editor integrations report field use.]
@@ -537,16 +793,30 @@ features:
   - id: watch
     name: watch
     maturity: preview
-    activation: { kind: explicit, mechanism: "`ibex --watch` generation mode", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: watch-option
+          availability: explicit_option
+          mechanism: "`ibex --watch` generation mode"
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: []
       evidence: [docs/workloads.yml]
       summary: No public_real project records long-running watch use or its operational behavior.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [No release ledger records watch event, retry, cancellation, and publication contract changes.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: 570d857f582cb61ac60840210b22a86db086cc51, path: lib/ibex/watch/runner.rb, query: "class Runner", summary: Watch entered in Add transactional generation and watch mode. }
+      first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 344e787b3adf70d0e6ee2d5cd57193a35d88eeff535079eccc53d1169958ebcc }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: cda7969bb4aee0e322fe7f2fb6cc510b42e9070f1b356c1f5430c8e391c98e1c }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: cda7969bb4aee0e322fe7f2fb6cc510b42e9070f1b356c1f5430c8e391c98e1c }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Watch was absent at v0.1.0 and present in v0.2.0. }
+        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical watch runner source is byte-identical after v0.2.0. }
+      unknowns: [Git history does not establish long-running host-specific operational compatibility.]
       evidence: [docs/grammar-reference.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; long-running and host-specific defects may be unreported. }
     documentation:
@@ -564,7 +834,12 @@ features:
       outcome: keep
       target_maturity: preview
       criteria_status: unmet
+      user_problem: Regenerate parser outputs transactionally as grammar and imported files change.
+      value_classification: repository_only
+      alternatives: [Use an external file watcher to invoke one-shot generation.]
       reason: Transaction and cancellation tests do not establish sustained external use or released operational stability.
+      kill_condition: Remove built-in watch if external watchers are sufficient or long-running publication cannot be reliable across supported hosts.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, test/watch/runner_test.rb]
     next_review:
       triggers: [Two releases complete without watch-contract changes., A public project reports sustained watch operation.]
@@ -575,16 +850,30 @@ features:
   - id: debug
     name: debug
     maturity: preview
-    activation: { kind: explicit, mechanism: "`ibex debug` with validated Automaton IR and explicit tokens", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: debug-command
+          availability: explicit_command
+          mechanism: "`ibex debug` with validated Automaton IR and explicit tokens"
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: []
       evidence: [docs/workloads.yml]
       summary: No public_real project records debug-command use or public debugging reports.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [No release ledger records simulator schema and text-output contract changes.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: 4aa58c5e6f013c6ad187b9a739d55147829aa42c, path: lib/ibex/table_simulation.rb, query: "module TableSimulation", summary: Debug simulation entered in Add safe parser table simulation. }
+      first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 1431737aa190be4ea8704488f2ac6d853905ce59258f2057f0a73ea70957cfda }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: d222492d82cf0d871cec9b7c187ebe45c839ce0dfe22e980dd66950cd7c0159d }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: d222492d82cf0d871cec9b7c187ebe45c839ce0dfe22e980dd66950cd7c0159d }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Debug simulation was absent at v0.1.0 and present in v0.2.0. }
+        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical table simulation source is byte-identical after v0.2.0. }
+      unknowns: [Git snapshots do not establish external diagnostic usefulness or output compatibility.]
       evidence: [docs/grammar-reference.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not prove simulator fidelity. }
     documentation:
@@ -602,7 +891,12 @@ features:
       outcome: keep
       target_maturity: preview
       criteria_status: unmet
+      user_problem: Inspect table transitions for explicit tokens without executing user semantic actions.
+      value_classification: repository_only
+      alternatives: [Read the static automaton report and trace an application parser manually.]
       reason: Nonexecuting schema tests do not establish external diagnostic usefulness or two-release output stability.
+      kill_condition: Remove the command if public debugging reports do not show actionable value or simulator fidelity cannot be independently maintained.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, test/cli_debug_test.rb]
     next_review:
       triggers: [Two releases complete without debug schema changes., Public debugging reports demonstrate actionable use.]
@@ -613,16 +907,30 @@ features:
   - id: coverage
     name: coverage
     maturity: preview
-    activation: { kind: explicit, mechanism: "runtime observation plus explicit `ibex coverage collect|merge|check` commands", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: coverage-command
+          availability: explicit_command
+          mechanism: Runtime observation plus explicit `ibex coverage collect|merge|check` commands.
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: []
       evidence: [docs/workloads.yml]
       summary: No public_real project records the coverage event pipeline in CI.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [No release ledger reconstructs event, merge, and threshold contract changes since introduction.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: f10cb2af61566d5180724469a5498fbc7325dc2c, path: lib/ibex/coverage/collector.rb, query: "class Collector", summary: Coverage entered in Add deterministic runtime coverage. }
+      first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 91d858146819ec5ab80e08429bf58977c05cdbf1f108b52c295c01fd70cbb783 }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 9b6bb2992c0d329800afe3d235b34419311c882f91ec0f196d7407ba63a24a02 }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 9b6bb2992c0d329800afe3d235b34419311c882f91ec0f196d7407ba63a24a02 }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Coverage was absent at v0.1.0 and present in v0.2.0. }
+        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical coverage collector source is byte-identical after v0.2.0. }
+      unknowns: [Git snapshots do not establish external CI threshold usefulness or observation overhead.]
       evidence: [docs/decisions/0010-committed-runtime-observation.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; missing-event defects may be unreported. }
     documentation:
@@ -640,7 +948,12 @@ features:
       outcome: keep
       target_maturity: preview
       criteria_status: unmet
+      user_problem: Measure state and production execution across processes and enforce deterministic grammar coverage thresholds.
+      value_classification: repository_only
+      alternatives: [Collect application-specific counters from stable runtime observation events.]
       reason: Deterministic merge and threshold contracts do not establish external CI adoption or released schema stability.
+      kill_condition: Remove the specialized coverage commands if no public CI adopts them or observation overhead exceeds measured value.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, test/coverage/report_test.rb]
     next_review:
       triggers: [Two releases complete without coverage schema changes., A public project adopts coverage checks in CI.]
@@ -651,16 +964,30 @@ features:
   - id: browser-playground
     name: browser playground
     maturity: preview
-    activation: { kind: explicit, mechanism: "open the separately built browser playground and submit grammar text to its worker", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: browser-application
+          availability: explicit_application
+          mechanism: Open the separately built browser playground and submit grammar text to its worker.
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: []
       evidence: [docs/workloads.yml]
       summary: No public_real workload or published browser deployment is registered as field use.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [No release ledger records supported-browser, worker-message, or accessibility contract changes.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: 30c41be981e41c3fbd71e1f75afe296b329ddbd3, path: site/playground/analyzer.rb, query: IbexPlayground, summary: Browser playground entered in Add browser grammar playground. }
+      first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 2377befe2b991b494550b05c9a916fb6ec093e0d473c246eb248ca5e9538c3da }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 4b8e347c3ce4bd539c1e2fec9807e33c7f268265ae6ec8a3abc01fe58e6c1daa }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 4b8e347c3ce4bd539c1e2fec9807e33c7f268265ae6ec8a3abc01fe58e6c1daa }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Browser playground was absent at v0.1.0 and present in v0.2.0. }
+        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical browser analyzer source is byte-identical after v0.2.0. }
+      unknowns: [Git history does not reconstruct supported browser and assistive technology compatibility.]
       evidence: [docs/decisions/0015-worker-isolated-browser-analysis.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; browser and accessibility defects may be reported elsewhere or not at all. }
     documentation:
@@ -678,7 +1005,12 @@ features:
       outcome: keep
       target_maturity: preview
       criteria_status: unmet
+      user_problem: Explore grammar diagnostics in a browser without installing the Ruby gem locally.
+      value_classification: repository_only
+      alternatives: [Use the local nonexecuting CLI analysis commands.]
       reason: Worker isolation and site tests do not establish browser coverage, accessibility approval, external use, or release stability.
+      kill_condition: Remove the playground if supported-browser and accessibility reviews cannot be sustained or no public deployment uses it.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, test/site/playground_analyzer_test.rb]
     next_review:
       triggers: [Two releases complete without playground contract changes., Browser support and independent accessibility reviews are published.]
@@ -689,16 +1021,30 @@ features:
   - id: action-shadow
     name: action-shadow
     maturity: preview
-    activation: { kind: explicit, mechanism: "explicit action-shadow source generation output", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: action-shadow-output
+          availability: explicit_option
+          mechanism: Explicit action-shadow source generation output.
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: []
       evidence: [docs/workloads.yml]
       summary: No public_real project records action-shadow output in a type-checking workflow.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [No released ledger records changes to the shadow method-source and type-checker contract.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: 3187b74d3933259a1a44deee8ed90aabf61a2efb, path: lib/ibex/codegen/action_method_source.rb, query: "class ActionMethodSource", summary: Action-shadow entered in Add static semantic action checking. }
+      first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 08840d9c151ab14a116f9e9877e29a3b1ed52cbd0e17cde82e5c9511217bcee1 }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: a26d41b60b98d6d4b2e7e51d18c28a44242e08ec1922745be48c63ad58facff5 }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: a26d41b60b98d6d4b2e7e51d18c28a44242e08ec1922745be48c63ad58facff5 }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Action-shadow was absent at v0.1.0 and present in v0.2.0. }
+        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical shadow method generator is byte-identical after v0.2.0. }
+      unknowns: [Git snapshots do not establish compatibility with an independent type-checker consumer.]
       evidence: [docs/decisions/0011-versioned-semantic-action-boundary.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not establish semantic equivalence with runtime execution. }
     documentation:
@@ -716,7 +1062,12 @@ features:
       outcome: keep
       target_maturity: preview
       criteria_status: unmet
+      user_problem: Present semantic action method bodies to static type tools without executing grammar code.
+      value_classification: repository_only
+      alternatives: [Maintain handwritten typed wrapper methods or generated RBS without action-shadow source.]
       reason: Static generation tests do not establish type-checker field use, semantic parity, or two-release compatibility.
+      kill_condition: Remove action-shadow if no external type-checker consumes it or it cannot track runtime action semantics.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, test/codegen/action_source_test.rb]
     next_review:
       triggers: [Two releases complete without action-shadow contract changes., A public project adopts the output in type checking.]
@@ -727,16 +1078,30 @@ features:
   - id: bounded-repair
     name: bounded repair
     maturity: experimental
-    activation: { kind: explicit, mechanism: "assign an immutable `Ibex::Runtime::RepairPolicy` before parsing", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: repair-policy
+          availability: explicit_api
+          mechanism: Assign an immutable `Ibex::Runtime::RepairPolicy` before parsing.
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: []
       evidence: [docs/workloads.yml]
       summary: No public_real runtime workload records RepairPolicy use; the ten-case repository corpus is not field adoption.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [No released ledger records changes to search cost, inserted values, usefulness, and replay semantics.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: df8ac82c0ed0c8862190ac88671949f0d5e8a001, path: lib/ibex/runtime/repair.rb, query: "class RepairPolicy", summary: Bounded repair entered in Add bounded runtime token repair. }
+      first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: c104966352de61946e0e1c0da64b2847f00d60d63e1b64fc6a0bb0fa9373284b }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 1246123e021816c3e0c04887e091f72e34235356de937f669cf8a2cd18a84cc7 }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 1246123e021816c3e0c04887e091f72e34235356de937f669cf8a2cd18a84cc7 }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Bounded repair was absent at v0.1.0 and present in v0.2.0. }
+        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical repair policy source is byte-identical after v0.2.0. }
+      unknowns: [Git history does not establish external usefulness or a non-nil inserted-value contract.]
       evidence: [docs/decisions/0012-bounded-nonexecuting-analysis.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; it does not negate the two known unhelpful baseline plans. }
     documentation:
@@ -754,7 +1119,12 @@ features:
       outcome: keep
       target_maturity: experimental
       criteria_status: unmet
+      user_problem: Offer a bounded candidate repair after a syntax error instead of only rejecting the input.
+      value_classification: repository_only
+      alternatives: [Use the stable on_error callback and application-specific recovery or diagnostics.]
       reason: Eight useful baseline plans out of ten and repository tests do not establish external usefulness, value safety, or independent review.
+      kill_condition: Remove bounded repair if independent review rejects usefulness or inserted semantic values cannot receive a safe contract.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, docs/error-ux-review-status-v1.json, test/runtime/repair_test.rb]
     next_review:
       triggers: [Independent R001 review completes., External field evidence and a non-nil inserted-value contract are available.]
@@ -765,16 +1135,30 @@ features:
   - id: incremental-cst
     name: incremental CST
     maturity: experimental
-    activation: { kind: explicit, mechanism: "call generated `incremental_session` with `SourceText` and format-v6 CST metadata", default_enabled: false }
+    activation:
+      maturity_independent: true
+      surfaces:
+        - id: incremental-session
+          availability: explicit_api
+          mechanism: Call generated `incremental_session` with `SourceText` and format-v6 CST metadata.
+          default_enabled: false
     external_use:
       status: not_demonstrated
       workload_ids: []
       evidence: [docs/workloads.yml]
       summary: No public_real editor or parser workload records incremental CST use; repository properties and benchmarks are not adoption.
     specification_history:
-      status: not_reconstructed
-      changes: []
-      unknowns: [ADR semantics are current, but no released ledger establishes introduction-to-current API and reuse changes.]
+      method: git_pickaxe_and_source_snapshots_v1
+      introduction: { revision: 0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e, path: lib/ibex/runtime/parser.rb, query: incremental_session, summary: Incremental CST entered in Add syntax-only incremental parsing. }
+      first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
+      snapshots:
+        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 24a83a637a301cee30802ff35ec71d5731167c9db842800c7fcc3c0ccc5e86df }
+        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 4bcaa677fd049a44e92df235fb7b6adde0e70c3e6a8d9eb0d752ed6ff84ea8e5 }
+        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 4bcaa677fd049a44e92df235fb7b6adde0e70c3e6a8d9eb0d752ed6ff84ea8e5 }
+      changes:
+        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Incremental CST was absent at v0.1.0 and present in v0.2.0. }
+        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical incremental session source is byte-identical after v0.2.0. }
+      unknowns: [Git snapshots do not establish editor lifecycle correctness or external latency behavior.]
       evidence: [docs/decisions/0018-conservative-incremental-syntax-reuse.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; fixed-seed and property tests cannot prove every edit sequence. }
     documentation:
@@ -792,7 +1176,12 @@ features:
       outcome: keep
       target_maturity: experimental
       criteria_status: unmet
+      user_problem: Reparse edited syntax while conservatively reusing unaffected Green subtrees.
+      value_classification: repository_only
+      alternatives: [Use stable batch CST parsing or watch mode with a deterministic full reparse.]
       reason: Structural equality and repository speedups do not establish external editor use, two stable releases, or a fully nonexecuting trust boundary.
+      kill_condition: Remove incremental sessions if external editors cannot validate edit correctness or reuse fails to beat full batch parsing reliably.
+      redesign_plan: not_applicable
       evidence: [docs/stability.md, docs/cst.md, test/runtime/cst_incremental_property_test.rb]
     next_review:
       triggers: [Two releases complete without incremental API changes., An external editor integration supplies correctness and latency evidence.]

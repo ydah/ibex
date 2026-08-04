@@ -44,10 +44,18 @@
           <a href="https://github.com/ydah/ibex/blob/main/docs/error-ux.md">Measured error UX evidence →</a>
         </article>
         <article class="doc-card">
-          <h2>Algorithm research</h2>
+          <h2>Shipped incremental CST</h2>
           <p>
-            IELR remains preview after its successful spike. Generalized and incremental parsing
-            are not shipped because their measured spike gates were not met.
+            Syntax-only incremental CST sessions are shipped as Experimental. They conservatively
+            reuse Green subtrees, suppress parser actions, and still run generated lexer actions.
+          </p>
+          <a href="https://github.com/ydah/ibex/blob/main/docs/cst.md">Read the incremental trust boundary →</a>
+        </article>
+        <article class="doc-card">
+          <h2>Unshipped generalized parsing</h2>
+          <p>
+            Generalized LR and GLR ambiguity handling are not shipped. IELR is a distinct shipped
+            Preview algorithm and is not presented as generalized parsing.
           </p>
           <a href="https://github.com/ydah/ibex/blob/main/docs/stability.md">Read the research decisions →</a>
         </article>
@@ -79,7 +87,7 @@
     </main>
 
     <footer>
-      <p>Experimental means usable with an explicit risk boundary.</p>
+      <p>Experimental means shipped only when its documentation names an explicit risk boundary.</p>
       <a href="../gallery/">Try maintained examples</a>
     </footer>
   </body>

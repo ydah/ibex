@@ -8,7 +8,7 @@ maturity: a documented opt-in API can be Stable, Preview, or Experimental.
 | Level | Activation | Guarantee |
 |---|---|---|
 | Stable | Default compatible mode or a documented stable API | Semantic versioning; compatible-mode behavior remains unchanged |
-| Preview | Explicit pragma, mode, command, or algorithm | Breaking changes require notice one minor release in advance |
+| Preview | Feature-specific; compatible/default or explicit as recorded in the maturity audit | Breaking changes require notice one minor release in advance |
 | Experimental | Explicit policy/object or research entry point | May change without notice; budgets and failure modes are part of the experiment |
 
 After v1.0, promotion requires representative use in a shadow or gallery
@@ -19,6 +19,11 @@ versioned benchmark evidence, invariant/property coverage, dependent-tool
 support where applicable, and complete public documentation replace the
 impossible two-prior-release requirement. Only Stable features may be adopted
 by the production self-hosted grammar.
+
+Preview is a compatibility promise, not an opt-in synonym. Middle actions are
+accepted in compatible/default grammar productions, while most other Preview
+surfaces require an extended declaration, command, or option. The
+[maturity audit](maturity.md) records every activation surface independently.
 
 ## Execution trust is independent of maturity
 
@@ -90,7 +95,7 @@ Release dependency state: R001 **hold_external**; R002 **pending_exact_revision*
 | `multiple-entries` | multiple entries | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
 | `canonical-imports` | canonical imports | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
 | `generated-lexers` | generated lexers | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
-| `semantic-locations-types` | semantic locations/types | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `semantic-locations-types` | semantic locations/types | Preview | Redesign Preview | not demonstrated | Blocked: R001, R002 |
 | `ast-generation` | AST generation | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
 | `grammar-tests` | grammar tests | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
 | `documentation-tooling` | documentation tooling | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |

@@ -4,6 +4,7 @@ require "date"
 require "digest"
 require "open3"
 require "pathname"
+require "set"
 require "yaml"
 
 module Ibex
@@ -15,6 +16,11 @@ module Ibex
       REVISION = /\A[0-9a-f]{40}\z/
       SHA256 = /\A[0-9a-f]{64}\z/
       ID = /\A[a-z0-9]+(?:-[a-z0-9]+)*\z/
+      REVIEWED_REVISION = "96db239bb6b40723cce94f42d8d4262ba3477fec"
+      RELEASES = {
+        "v0.1.0" => "65d41edf381afb9c18e01e55332a293332f340e6",
+        "v0.2.0" => "bd88b1203706c37bf225e837a2fe46d334d4651d"
+      }.freeze
       EXPECTED = {
         "ebnf-groups" => "preview",
         "parameterized-rules" => "preview",
@@ -50,8 +56,75 @@ module Ibex
         "generated-lexers" => %w[generated_lexer],
         "semantic-locations-types" => %w[locations typed_symbols]
       }.freeze
+      CANONICAL_SOURCES = {
+        "ebnf-groups" => %w[lib/ibex/normalize/expander.rb],
+        "parameterized-rules" => %w[lib/ibex/normalize/parameters.rb],
+        "inline-rules" => %w[lib/ibex/normalize/inline_expansion.rb],
+        "middle-actions" => %w[lib/ibex/frontend/parser/rules.rb lib/ibex/normalize/expander.rb],
+        "multiple-entries" => %w[lib/ibex/codegen/ruby.rb],
+        "canonical-imports" => %w[lib/ibex/frontend/resolver.rb],
+        "generated-lexers" => %w[lib/ibex/runtime/generated_lexer.rb],
+        "semantic-locations-types" => %w[
+          lib/ibex/codegen/ruby.rb lib/ibex/frontend/generated_parser_metadata.rb lib/ibex/runtime/parser.rb
+        ],
+        "ast-generation" => %w[lib/ibex/codegen/ruby_ast.rb],
+        "grammar-tests" => %w[lib/ibex/grammar_tests.rb],
+        "documentation-tooling" => %w[lib/ibex/codegen/documentation.rb],
+        "ielr" => %w[lib/ibex/lalr/builder.rb],
+        "lsp" => %w[lib/ibex/lsp/server.rb],
+        "watch" => %w[lib/ibex/watch/runner.rb],
+        "debug" => %w[lib/ibex/table_simulation.rb],
+        "coverage" => %w[lib/ibex/coverage/collector.rb],
+        "browser-playground" => %w[site/playground/analyzer.rb],
+        "action-shadow" => %w[lib/ibex/codegen/action_method_source.rb],
+        "bounded-repair" => %w[lib/ibex/runtime/repair.rb],
+        "incremental-cst" => %w[lib/ibex/runtime/cst/incremental/session.rb]
+      }.freeze
+      ACTIVATION_SURFACES = {
+        "ebnf-groups" => [["extended-grammar", "extended", false]],
+        "parameterized-rules" => [["extended-grammar", "extended", false]],
+        "inline-rules" => [["extended-grammar", "extended", false]],
+        "middle-actions" => [["embedded-production-action", "compatible", true]],
+        "multiple-entries" => [["multiple-start-declarations", "extended", false]],
+        "canonical-imports" => [["import-declarations", "extended", false]],
+        "generated-lexers" => [["lexer-declarations", "extended", false]],
+        "semantic-locations-types" => [
+          ["semantic-locations", "compatible", true],
+          ["semantic-type-declarations", "extended", false]
+        ],
+        "ast-generation" => [["node-declarations", "extended", false]],
+        "grammar-tests" => [["grammar-test-command", "explicit_command", false]],
+        "documentation-tooling" => [["documentation-command", "explicit_command", false]],
+        "ielr" => [["ielr-algorithm", "explicit_option", false]],
+        "lsp" => [["lsp-command", "explicit_command", false]],
+        "watch" => [["watch-option", "explicit_option", false]],
+        "debug" => [["debug-command", "explicit_command", false]],
+        "coverage" => [["coverage-command", "explicit_command", false]],
+        "browser-playground" => [["browser-application", "explicit_application", false]],
+        "action-shadow" => [["action-shadow-output", "explicit_option", false]],
+        "bounded-repair" => [["repair-policy", "explicit_api", false]],
+        "incremental-cst" => [["incremental-session", "explicit_api", false]]
+      }.freeze
+      EXPECTED_DECISIONS = EXPECTED.keys.to_h do |id|
+        [id, id == "semantic-locations-types" ? "redesign" : "keep"]
+      end.freeze
       SUMMARY_START = "<!-- maturity-summary:start -->"
       SUMMARY_END = "<!-- maturity-summary:end -->"
+
+      class << self
+        def pickaxe_revision(root, reviewed_revision, relative_path, query)
+          @pickaxe_cache ||= {}
+          key = [root, reviewed_revision, relative_path, query]
+          @pickaxe_cache.fetch(key) do
+            output, error, status = Open3.capture3(
+              "git", "-C", root, "log", "--reverse", "--format=%H", "-S#{query}", "--", relative_path
+            )
+            raise "cannot reconstruct introduction: #{error.strip}" unless status.success?
+
+            @pickaxe_cache[key] = output.lines(chomp: true).first
+          end
+        end
+      end
 
       def initialize(root: ROOT, registry: nil, narrative: nil, stability: nil, today: Date.today)
         @root = File.expand_path(root)
@@ -95,12 +168,18 @@ module Ibex
 
         @reviewed_revision = audit.fetch("reviewed_repository_revision")
         revision!(@reviewed_revision, "audit reviewed_repository_revision")
+        raise "maturity audit must remain bound to the reviewed pre-H001 authority" unless
+          @reviewed_revision == REVIEWED_REVISION
+
+        load_reviewed_history
+        verify_release_tags
         issue_audits = audit.fetch("issue_audits")
         record_array!(issue_audits, "issue audits")
         issue_audits.each { |entry| verify_issue_audit(entry, audit.fetch("reviewed_at")) }
         issue_audits.to_h { |entry| [entry.fetch("id"), entry] }
       end
 
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity -- provenance is one closed record.
       def verify_issue_audit(entry, reviewed_at)
         exact_keys!(entry, %w[id provider repository query command source checked_at fresh_until result], "issue audit")
         id!(entry.fetch("id"), "issue audit id")
@@ -119,15 +198,18 @@ module Ibex
         checked = date!(entry.fetch("checked_at"), "issue audit checked_at")
         fresh_until = date!(entry.fetch("fresh_until"), "issue audit fresh_until")
         raise "issue audit predates the maturity review" if checked < Date.iso8601(reviewed_at)
+        raise "issue audit checked_at cannot be in the future" if checked > @today
+        raise "issue audit checked_at must not follow fresh_until" if checked > fresh_until
         raise "issue audit freshness window must be 30 days or less" if (fresh_until - checked).to_i > 30
         raise "issue audit is stale; rerun the exact query and review every result" if fresh_until < @today
 
         verify_issue_result(entry.fetch("result"))
       end
+      # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
       # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity -- closed result validation.
       def verify_issue_result(result)
-        exact_keys!(result, %w[status total_count incomplete_results issue_numbers limitation], "issue audit result")
+        exact_keys!(result, %w[status total_count incomplete_results issues limitation], "issue audit result")
         raise "issue audit result status must be complete" unless result.fetch("status") == "complete"
 
         count = result.fetch("total_count")
@@ -136,16 +218,62 @@ module Ibex
           raise "incomplete GitHub issue results cannot support a maturity decision"
         end
 
-        numbers = result.fetch("issue_numbers")
-        raise "issue audit issue_numbers must be ordered unique positive integers" unless
-          numbers.is_a?(Array) && numbers == numbers.uniq.sort && numbers.all? do |number|
-            number.is_a?(Integer) && number.positive?
-          end
-        raise "issue audit count does not match issue_numbers" unless numbers.length == count
+        issues = result.fetch("issues")
+        raise "issue audit issues must be an array" unless issues.is_a?(Array)
+
+        issues.each { |issue| verify_issue_disposition(issue) }
+        numbers = issues.map { |issue| issue.fetch("number") }
+        raise "issue audit issue numbers must be ordered unique positive integers" unless
+          numbers == numbers.uniq.sort && numbers.all?(&:positive?)
+        raise "issue audit count does not match issues" unless issues.length == count
 
         non_empty_string!(result.fetch("limitation"), "issue audit limitation")
       end
       # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+
+      def verify_issue_disposition(issue)
+        exact_keys!(issue, %w[number title url disposition], "issue disposition")
+        number = issue.fetch("number")
+        raise "issue number must be a positive integer" unless number.is_a?(Integer) && number.positive?
+
+        non_empty_string!(issue.fetch("title"), "issue title")
+        expected_url = "https://github.com/ydah/ibex/issues/#{number}"
+        raise "issue URL must be canonical" unless issue.fetch("url") == expected_url
+
+        disposition = issue.fetch("disposition")
+        exact_keys!(disposition, %w[feature_ids not_applicable_rationale], "issue disposition mapping")
+        ids = disposition.fetch("feature_ids")
+        string_array!(ids, "issue feature_ids", allow_empty: true)
+        raise "issue feature_ids must be unique canonical order" unless ids == ids.uniq.sort
+
+        unknown = ids - EXPECTED.keys
+        raise "issue disposition references unknown feature IDs" unless unknown.empty?
+
+        rationale = disposition.fetch("not_applicable_rationale")
+        if ids.empty?
+          non_empty_string!(rationale, "issue not_applicable_rationale")
+        elsif !rationale.nil?
+          raise "feature-assigned issue cannot also be not_applicable"
+        end
+      end
+
+      def load_reviewed_history
+        output, error, status = Open3.capture3("git", "-C", @root, "rev-list", "--reverse", @reviewed_revision)
+        raise "cannot read reviewed repository history: #{error.strip}" unless status.success?
+
+        revisions = output.lines(chomp: true)
+        @reviewed_order = revisions.each_with_index.to_h
+        @reviewed_ancestors = revisions.to_set
+      end
+
+      def verify_release_tags
+        RELEASES.each do |tag, expected|
+          actual, error, status = Open3.capture3("git", "-C", @root, "rev-parse", "#{tag}^{commit}")
+          raise "cannot resolve release tag #{tag}: #{error.strip}" unless status.success?
+          raise "release tag #{tag} drift" unless actual.strip == expected
+          raise "release tag #{tag} is outside reviewed history" unless @reviewed_ancestors.include?(expected)
+        end
+      end
 
       def verify_budgets(budgets, features)
         exact_keys!(budgets, BUDGET_KEYS, "budgets")
@@ -196,29 +324,34 @@ module Ibex
         raise "maturity inventory must contain the exact 18 Preview + 2 Experimental features in canonical order" unless
           ids == EXPECTED.keys
 
-        prepare_reviewed_sources(features)
+        prepare_history_sources
         features.each { |feature| verify_feature(feature, audit, dependencies, workloads) }
         features
       end
 
-      def prepare_reviewed_sources(features)
-        sources = features.flat_map { |feature| feature.fetch("sources") }
-        relative_paths = sources.map { |source| source.fetch("path") }.uniq
-        @reviewed_digests = {}
+      def prepare_history_sources
+        relative_paths = CANONICAL_SOURCES.values.flatten.uniq.sort
+        revisions = RELEASES.values + [@reviewed_revision]
+        expressions = revisions.product(relative_paths)
+        @git_objects = {}
         Open3.popen3("git", "-C", @root, "cat-file", "--batch") do |input, output, error, thread|
-          relative_paths.each { |relative_path| input.puts("#{@reviewed_revision}:#{relative_path}") }
+          expressions.each { |revision, relative_path| input.puts("#{revision}:#{relative_path}") }
           input.close
-          relative_paths.each { |relative_path| read_reviewed_source(output, relative_path) }
+          expressions.each { |revision, relative_path| read_history_source(output, revision, relative_path) }
           message = error.read.strip
-          raise "cannot read maturity sources at reviewed revision: #{message}" unless thread.value.success?
+          raise "cannot read maturity source history: #{message}" unless thread.value.success?
         end
       end
 
-      def read_reviewed_source(output, relative_path)
+      def read_history_source(output, revision, relative_path)
         header = output.gets&.strip
         fields = header&.split
+        if fields&.last == "missing"
+          @git_objects[[revision, relative_path]] = nil
+          return
+        end
         unless fields&.length == 3 && fields.fetch(1) == "blob"
-          raise "source is absent at reviewed revision #{@reviewed_revision}: #{relative_path}"
+          raise "invalid Git object header for #{revision}:#{relative_path}"
         end
 
         size = Integer(fields.fetch(2), 10)
@@ -226,7 +359,7 @@ module Ibex
         separator = output.read(1)
         raise "invalid Git object stream for #{relative_path}" unless bytes&.bytesize == size && separator == "\n"
 
-        @reviewed_digests[relative_path] = Digest::SHA256.hexdigest(bytes)
+        @git_objects[[revision, relative_path]] = bytes
       end
 
       # -- each evidence family must be checked together to prevent partial records.
@@ -247,18 +380,31 @@ module Ibex
         verify_documentation(id, feature.fetch("documentation"))
         verify_dependent_tooling(id, feature.fetch("dependent_tooling"))
         verify_limitations(id, feature.fetch("limitations"))
-        verify_decision(id, feature.fetch("decision"), expected_maturity, dependencies)
+        verify_decision(
+          id, feature.fetch("decision"), feature.fetch("external_use"), expected_maturity, dependencies, workloads
+        )
         verify_next_review(id, feature.fetch("next_review"))
         verify_release_gate(id, feature.fetch("release_gate"), dependencies)
         verify_sources(id, feature.fetch("sources"))
       end
 
-      def verify_activation(id, activation, maturity)
-        exact_keys!(activation, %w[kind mechanism default_enabled], "#{id}: activation")
-        raise "#{id}: activation kind must be explicit" unless activation.fetch("kind") == "explicit"
+      def verify_activation(id, activation, _maturity)
+        exact_keys!(activation, %w[maturity_independent surfaces], "#{id}: activation")
+        raise "#{id}: activation must be explicitly independent from maturity" unless
+          activation.fetch("maturity_independent") == true
 
-        non_empty_string!(activation.fetch("mechanism"), "#{id}: activation mechanism")
-        raise "#{id}: #{maturity} feature cannot be default-enabled" unless activation.fetch("default_enabled") == false
+        surfaces = activation.fetch("surfaces")
+        record_array!(surfaces, "#{id}: activation surfaces")
+        actual = surfaces.map do |surface|
+          exact_keys!(surface, %w[id availability mechanism default_enabled], "#{id}: activation surface")
+          non_empty_string!(surface.fetch("mechanism"), "#{id}: activation mechanism")
+          default = surface.fetch("default_enabled")
+          raise "#{id}: activation default_enabled must be boolean" unless [true, false].include?(default)
+
+          [surface.fetch("id"), surface.fetch("availability"), default]
+        end
+        raise "#{id}: activation surfaces drift from the reviewed runtime boundary" unless
+          actual == ACTIVATION_SURFACES.fetch(id)
       end
 
       # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity -- coupled evidence.
@@ -296,17 +442,105 @@ module Ibex
       # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
       def verify_specification_history(id, history)
-        exact_keys!(history, %w[status changes unknowns evidence], "#{id}: specification_history")
-        raise "#{id}: unsupported specification history status" unless
-          %w[complete partial not_reconstructed].include?(history.fetch("status"))
+        exact_keys!(
+          history,
+          %w[method introduction first_release snapshots changes unknowns evidence],
+          "#{id}: specification_history"
+        )
+        raise "#{id}: history method must be git_pickaxe_and_source_snapshots_v1" unless
+          history.fetch("method") == "git_pickaxe_and_source_snapshots_v1"
 
-        string_array!(history.fetch("changes"), "#{id}: specification changes", allow_empty: true)
-        string_array!(history.fetch("unknowns"), "#{id}: specification history unknowns", allow_empty: true)
-        string_array!(history.fetch("evidence"), "#{id}: specification history evidence")
-        history.fetch("evidence").each { |entry| verify_existing_path!(entry, "#{id}: history evidence") }
-        return unless history.fetch("status") == "not_reconstructed" && history.fetch("unknowns").empty?
+        introduction = verify_introduction(id, history.fetch("introduction"))
+        verify_first_release(id, history.fetch("first_release"), introduction)
+        snapshots = verify_history_snapshots(id, history.fetch("snapshots"), introduction)
+        verify_history_changes(id, history.fetch("changes"), snapshots)
+        string_array!(history.fetch("unknowns"), "#{id}: specification history unknowns")
+        verify_path_array!(history.fetch("evidence"), "#{id}: specification history evidence")
+      end
 
-        raise "#{id}: unreconstructed history requires an explicit unknown"
+      def verify_introduction(id, introduction)
+        exact_keys!(introduction, %w[revision path query summary], "#{id}: introduction")
+        revision = introduction.fetch("revision")
+        revision!(revision, "#{id}: introduction revision")
+        raise "#{id}: introduction is outside reviewed history" unless @reviewed_ancestors.include?(revision)
+
+        relative_path = introduction.fetch("path")
+        verify_existing_path!(relative_path, "#{id}: introduction path")
+        query = introduction.fetch("query")
+        non_empty_string!(query, "#{id}: introduction query")
+        non_empty_string!(introduction.fetch("summary"), "#{id}: introduction summary")
+        first = self.class.pickaxe_revision(@root, @reviewed_revision, relative_path, query)
+        raise "#{id}: introduction revision is not the first pickaxe result" unless first == revision
+
+        revision
+      end
+
+      def verify_first_release(id, release, introduction)
+        exact_keys!(release, %w[status tag revision], "#{id}: first_release")
+        raise "#{id}: every audited feature must name its first release" unless release.fetch("status") == "released"
+
+        expected_tag = RELEASES.keys.find do |tag|
+          @reviewed_order.fetch(introduction) <= @reviewed_order.fetch(RELEASES.fetch(tag))
+        end
+        raise "#{id}: no reviewed release contains the introduction" unless expected_tag
+        raise "#{id}: first release tag drift" unless release.fetch("tag") == expected_tag
+        raise "#{id}: first release revision drift" unless release.fetch("revision") == RELEASES.fetch(expected_tag)
+      end
+
+      def verify_history_snapshots(id, snapshots, introduction)
+        record_array!(snapshots, "#{id}: history snapshots")
+        expected = RELEASES.merge("reviewed" => @reviewed_revision)
+        raise "#{id}: history snapshots must cover v0.1.0, v0.2.0, and reviewed in order" unless
+          snapshots.map { |snapshot| snapshot.fetch("id") } == expected.keys
+
+        snapshots.each do |snapshot|
+          exact_keys!(snapshot, %w[id revision feature_status source_tree_sha256], "#{id}: history snapshot")
+          revision = expected.fetch(snapshot.fetch("id"))
+          raise "#{id}: snapshot revision drift" unless snapshot.fetch("revision") == revision
+
+          introduced = @reviewed_order.fetch(introduction) <= @reviewed_order.fetch(revision)
+          expected_status = introduced ? "present" : "absent"
+          raise "#{id}: snapshot feature presence drift" unless snapshot.fetch("feature_status") == expected_status
+
+          digest!(snapshot.fetch("source_tree_sha256"), "#{id}: snapshot source tree digest")
+          actual_digest = historical_source_tree_digest(id, revision)
+          raise "#{id}: snapshot source tree digest drift" unless snapshot.fetch("source_tree_sha256") == actual_digest
+        end
+        snapshots
+      end
+
+      def verify_history_changes(id, changes, snapshots)
+        record_array!(changes, "#{id}: history changes", key: "boundary")
+        expected_boundaries = %w[v0.1.0..v0.2.0 v0.2.0..reviewed]
+        raise "#{id}: history change boundaries must be chronological and canonical" unless
+          changes.map { |change| change.fetch("boundary") } == expected_boundaries
+
+        changes.each_with_index do |change, index|
+          exact_keys!(change, %w[boundary status summary], "#{id}: history change")
+          before = snapshots.fetch(index)
+          after = snapshots.fetch(index + 1)
+          expected_status = history_change_status(before, after)
+          raise "#{id}: history change status drift" unless change.fetch("status") == expected_status
+
+          non_empty_string!(change.fetch("summary"), "#{id}: history change summary")
+        end
+      end
+
+      def history_change_status(before, after)
+        return "introduced" if before.fetch("feature_status") == "absent" && after.fetch("feature_status") == "present"
+        return "not_present" if after.fetch("feature_status") == "absent"
+        return "unchanged" if before.fetch("source_tree_sha256") == after.fetch("source_tree_sha256")
+
+        "canonical_source_changed"
+      end
+
+      def historical_source_tree_digest(id, revision)
+        payload = +"".b
+        CANONICAL_SOURCES.fetch(id).sort.each do |relative_path|
+          bytes = @git_objects.fetch([revision, relative_path])
+          payload << relative_path.b << "\0".b << (bytes || "<absent>".b) << "\0".b
+        end
+        Digest::SHA256.hexdigest(payload)
       end
 
       def verify_feature_issue_audit(id, issue, audits)
@@ -316,8 +550,12 @@ module Ibex
         raise "#{id}: issue audit status must be none_found or open_found" unless
           %w[none_found open_found].include?(issue.fetch("status"))
 
-        if audit.dig("result", "total_count").zero? && issue.fetch("status") != "none_found"
-          raise "#{id}: issue audit cannot claim an open issue"
+        assigned = audit.dig("result", "issues").any? do |record|
+          record.dig("disposition", "feature_ids").include?(id)
+        end
+        expected_status = assigned ? "open_found" : "none_found"
+        unless issue.fetch("status") == expected_status
+          raise "#{id}: issue status must derive from machine issue dispositions"
         end
 
         non_empty_string!(issue.fetch("summary"), "#{id}: issue audit summary")
@@ -346,33 +584,72 @@ module Ibex
         string_array!(limitations.fetch("safety"), "#{id}: safety limitations")
       end
 
-      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity -- one compatibility contract.
-      def verify_decision(id, decision, maturity, dependencies)
-        exact_keys!(decision, %w[outcome target_maturity criteria_status reason evidence], "#{id}: decision")
+      # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity -- one contract.
+      def verify_decision(id, decision, external_use, maturity, dependencies, workloads)
+        exact_keys!(
+          decision,
+          %w[
+            outcome target_maturity criteria_status user_problem value_classification alternatives reason
+            kill_condition redesign_plan evidence
+          ],
+          "#{id}: decision"
+        )
         outcome = decision.fetch("outcome")
         raise "#{id}: invalid maturity decision" unless %w[keep promote redesign remove].include?(outcome)
         raise "#{id}: invalid decision criteria status" unless %w[met unmet
                                                                   planned].include?(decision.fetch("criteria_status"))
 
+        non_empty_string!(decision.fetch("user_problem"), "#{id}: decision user_problem")
+        verify_value_classification(id, decision.fetch("value_classification"), external_use, workloads)
+        string_array!(decision.fetch("alternatives"), "#{id}: decision alternatives")
         non_empty_string!(decision.fetch("reason"), "#{id}: decision reason")
-        if decision.fetch("reason").match?(/implementation (?:exists|existence|alone)/i)
-          raise "#{id}: implementation existence cannot be the reason for a maturity decision"
+        reason = decision.fetch("reason")
+        if reason.match?(/implementation (?:exists|existence|alone)/i) || reason.match?(/\Atests? pass(?:es|ed)?\.?\z/i)
+          raise "#{id}: implementation or passing tests alone cannot justify a maturity decision"
         end
 
+        non_empty_string!(decision.fetch("kill_condition"), "#{id}: decision kill_condition")
+        non_empty_string!(decision.fetch("redesign_plan"), "#{id}: decision redesign_plan")
+
         verify_path_array!(decision.fetch("evidence"), "#{id}: decision evidence")
-        if outcome == "keep"
+        case outcome
+        when "keep"
           raise "#{id}: keep decision must retain current maturity" unless decision.fetch("target_maturity") == maturity
           unless decision.fetch("criteria_status") == "unmet"
             raise "#{id}: keep decision must record unmet promotion criteria"
           end
-        elsif outcome == "promote"
+          unless decision.fetch("redesign_plan") == "not_applicable"
+            raise "#{id}: keep decision cannot hide a redesign plan"
+          end
+        when "redesign"
+          raise "#{id}: redesign retains current maturity until split work ships" unless
+            decision.fetch("target_maturity") == maturity && decision.fetch("criteria_status") == "planned"
+          raise "#{id}: redesign requires an explicit split plan" if decision.fetch("redesign_plan") == "not_applicable"
+        when "promote"
           raise "#{id}: promotion requires met criteria" unless decision.fetch("criteria_status") == "met"
 
           blocked = dependencies.values.any? { |dependency| dependency.fetch("status") != "complete" }
           raise "#{id}: promotion is forbidden before R001 and exact-revision R002 complete" if blocked
         end
+        raise "#{id}: reviewed maturity decision drift" unless outcome == EXPECTED_DECISIONS.fetch(id)
       end
-      # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
+
+      def verify_value_classification(id, classification, external_use, workloads)
+        workload_classes = external_use.fetch("workload_ids").map do |workload_id|
+          workloads.fetch(workload_id).fetch("classification")
+        end.uniq
+        expected = if external_use.fetch("status") == "demonstrated"
+                     "public_real"
+                   elsif workload_classes.include?("repository_synthetic")
+                     "repository_synthetic"
+                   elsif workload_classes.include?("external_real")
+                     "diagnostic_external"
+                   else
+                     "repository_only"
+                   end
+        raise "#{id}: decision value classification drifts from workload evidence" unless classification == expected
+      end
 
       def verify_next_review(id, review)
         exact_keys!(review, %w[triggers required_evidence], "#{id}: next_review")
@@ -393,6 +670,9 @@ module Ibex
 
       def verify_sources(id, sources)
         record_array!(sources, "#{id}: sources", key: "path")
+        actual_paths = sources.map { |source| source.fetch("path") }
+        raise "#{id}: authoritative canonical source path set drift" unless actual_paths == CANONICAL_SOURCES.fetch(id)
+
         sources.each do |source|
           exact_keys!(source, %w[path sha256], "#{id}: source")
           file = verify_existing_path!(source.fetch("path"), "#{id}: source")
@@ -406,7 +686,10 @@ module Ibex
 
       def verify_reviewed_source!(id, source)
         relative_path = source.fetch("path")
-        digest = @reviewed_digests.fetch(relative_path)
+        bytes = @git_objects.fetch([@reviewed_revision, relative_path])
+        raise "#{id}: source is absent at reviewed revision #{@reviewed_revision}" unless bytes
+
+        digest = Digest::SHA256.hexdigest(bytes)
         return if digest == source.fetch("sha256")
 
         raise "#{id}: source digest is not bound to reviewed revision #{@reviewed_revision}"

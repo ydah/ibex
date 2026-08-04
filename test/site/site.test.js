@@ -43,6 +43,9 @@ test("documentation separates maturity levels and publishes the covered gallery"
   assert.match(extensions, /stability\.md/);
   assert.match(experimental, /EVIDENCE BEFORE PROMOTION/);
   assert.match(experimental, /stability\.md/);
+  assert.match(experimental, /Syntax-only incremental CST sessions are shipped as Experimental/);
+  assert.match(experimental, /Generalized LR and GLR ambiguity handling are not shipped/);
+  assert.doesNotMatch(experimental, /incremental parsing\s+are not shipped/);
   assert.match(gallery, /100% production coverage in CI/);
   for (const grammar of ["calculator.y", "csv.y", "ini.y", "json.y", "tiny_language.y"]) {
     assert.match(gallery, new RegExp(grammar.replace(".", "\\.")));
