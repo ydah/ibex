@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "states"
+
 module Ibex
   module Quality
     # Exact identity and environment rules for reproducible comparative records.
@@ -32,21 +34,26 @@ module Ibex
         raise "#{label} must be an immutable 40- or 64-hex revision"
       end
 
-      def verify_comparison_set!(tools, order)
-        raise "comparison_set must be an array" unless tools.is_a?(Array)
-        raise "comparison_set must use the canonical order" unless tools.map { |tool| tool["id"] } == order
-
-        tools.each { |tool| verify_comparison_tool!(tool) }
+      def verify_comparison_set!(tools, order, claims)
+        verify_comparison_set_order!(tools, order)
+        tools.each { |tool| verify_comparison_tool!(tool, claims) }
       end
 
-      def verify_comparison_tool!(tool)
-        exact_keys!(tool, %w[id name state version revision reason aliases], "comparison_set entry")
+      def verify_comparison_set_order!(tools, order)
+        raise "comparison_set must be an array" unless tools.is_a?(Array)
+        raise "comparison_set must use the canonical order" unless tools.map { |tool| tool["id"] } == order
+      end
+
+      def verify_comparison_tool!(tool, claims)
+        exact_keys!(tool, %w[id name state version revision reason aliases pending_claims], "comparison_set entry")
         state = tool.fetch("state")
         raise "#{tool.fetch('id')}: invalid comparison state #{state.inspect}" unless TOOL_STATES.include?(state)
 
         verify_comparison_tool_identity!(tool, state)
         expected = COMPARISON_ALIASES.fetch(tool.fetch("id"))
         raise "#{tool.fetch('id')}: aliases must match the canonical list" unless tool.fetch("aliases") == expected
+
+        ClaimStates.verify!(tool, claims)
       end
 
       def verify_comparison_tool_identity!(tool, state)

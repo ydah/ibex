@@ -8,7 +8,7 @@
     "version": 1,
     "repository_url": "https://github.com/ydah/ibex",
     "rubric_path": "docs/error-ux-review-rubric-v1.md",
-    "rubric_sha256": "7b1b43bee5d3cce7ef79d19d2b7fd65ab2b57ecc4f4947bbe5461086fcf1ee80",
+    "rubric_sha256": "cbcec46e084ed50c6153aa683cda0a0825dd745b7295cccd011b2cadacd43db9",
     "schema_path": "schema/error-ux-review-v1.schema.json",
     "schema_sha256": "2266ea1963215b986a762fa01832ba2d57a553b2d80323f0da7216c9fc5ad08c",
     "records_directory": "docs/error-ux-reviews/v1/records",

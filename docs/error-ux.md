@@ -42,9 +42,12 @@ while allowing the expected HOLD in ordinary CI.
 `bundle exec rake release:error_ux_review` is the separate promotion gate and
 returns nonzero until a valid published external payload exists. When PASS is
 claimed, it additionally fetches the full-SHA blob without redirects, compares
-the exact imported bytes, and requires the GitHub commit API author, status
-publisher login, and reviewer login to agree. Network or identity uncertainty
-fails closed. Neither path changes the normative observation fixture.
+the exact imported bytes, and requires the source repository owner, GitHub
+commit API author, status publisher login, and reviewer login to agree
+case-insensitively. This verifies control of the named GitHub namespace and
+GitHub account metadata, not a cryptographic identity or signature. Network or
+account-metadata uncertainty fails closed. Neither path changes the normative
+observation fixture.
 
 ## Comparison method
 

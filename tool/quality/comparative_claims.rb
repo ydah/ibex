@@ -33,12 +33,13 @@ module Ibex
         raise "claim registry schema_version must be 1" unless document["schema_version"] == 1
 
         tools = document.fetch("comparison_set")
-        ClaimIdentities.verify_comparison_set!(tools, COMPARISON_SET)
+        ClaimIdentities.verify_comparison_set_order!(tools, COMPARISON_SET)
         claims = document.fetch("claims")
         raise "claims must be a non-empty array" unless claims.is_a?(Array) && !claims.empty?
 
         ordered!(claims, "claims") { |claim| claim["id"] }
         claims.each { |claim| verify_claim(claim) }
+        ClaimIdentities.verify_comparison_set!(tools, COMPARISON_SET, claims)
         aliases = tools.to_h { |tool| [tool.fetch("id"), tool.fetch("aliases")] }
         ClaimPublications.new(root: @root, claims: claims, readme: @readme, aliases: aliases).verify!
         true
