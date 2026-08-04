@@ -52,6 +52,22 @@ class PublicComparisonDependencyDefinitionTest < Minitest::Test
     end
   end
 
+  def test_checkout_grammar_must_match_the_pinned_digest
+    Dir.mktmpdir("public-grammar-digest-test-") do |directory|
+      checkout = File.join(directory, "checkout")
+      prepare_checkout(checkout)
+      revision = git(checkout, "rev-parse", "HEAD")
+      manifest_path = File.join(directory, "manifest.json")
+      write_manifest(manifest_path, revision, "Gemfile", grammar_sha256: "0" * 64)
+
+      manifest = BenchmarkSupport::PublicWorkloadManifest.new(manifest_path)
+      error = assert_raises(RuntimeError) do
+        manifest.verify_checkout("fixture", checkout, allow_dirty: false)
+      end
+      assert_includes error.message, "grammar digest does not match"
+    end
+  end
+
   private
 
   def prepare_checkout(checkout)
@@ -68,7 +84,8 @@ class PublicComparisonDependencyDefinitionTest < Minitest::Test
     git(checkout, "remote", "add", "origin", "https://example.com/project.git")
   end
 
-  def write_manifest(path, revision, dependency_definition_path)
+  def write_manifest(path, revision, dependency_definition_path, grammar_sha256: nil)
+    grammar_sha256 ||= Digest::SHA256.file(File.join(File.dirname(path), "checkout/lib/parser.y")).hexdigest
     document = {
       schema_version: 1,
       workloads: [{
@@ -76,6 +93,7 @@ class PublicComparisonDependencyDefinitionTest < Minitest::Test
         repository_url: "https://example.com/project.git",
         revision: revision,
         grammar_path: "lib/parser.y",
+        grammar_sha256: grammar_sha256,
         dependency_definition_path: dependency_definition_path,
         driver: "namae",
         workload_id: "fixture-v1",
