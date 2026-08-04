@@ -60,12 +60,89 @@ features:
       introduction: { revision: 4ea1196c01c3dd604a42e9139a32edec0d25c7ec, path: lib/ibex/frontend/ast.rb, query: "Group = Struct", summary: Grouped EBNF entered in Expand heredoc and grouped EBNF support. }
       first_release: { status: released, tag: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6 }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: present, source_tree_sha256: 8cfa81239f10890e886c0f48269eac546bfdb9bda423d36c0981409cc0b5d8f6 }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 9fd614c09314c28fa4fe5a4d56d2425b46fc2b5905fa72a1ab58784c4505af2f }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 9fd614c09314c28fa4fe5a4d56d2425b46fc2b5905fa72a1ab58784c4505af2f }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/normalize/expander.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 8cfa81239f10890e886c0f48269eac546bfdb9bda423d36c0981409cc0b5d8f6
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/normalize/expander.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 9fd614c09314c28fa4fe5a4d56d2425b46fc2b5905fa72a1ab58784c4505af2f
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/normalize/expander.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 9fd614c09314c28fa4fe5a4d56d2425b46fc2b5905fa72a1ab58784c4505af2f
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: canonical_source_changed, summary: The canonical lowering source changed between the two exact release snapshots. }
-        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical lowering source is byte-identical after v0.2.0 through the reviewed revision. }
+        - boundary: introduction..v0.1.0
+          from_revision: 346aabfd867a4eb13ebbe4a372084f129fb7401f
+          to_revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          classification: introduced
+          reviewed_commits:
+            - 4ea1196c01c3dd604a42e9139a32edec0d25c7ec
+            - 53718928d43cf720d4fd051844c85068bc325791
+            - 4cd9b03453b0bdcbffcf8f19812ecfa269a0d327
+            - f3bdaffde3ddb36282921954efa334b86036abd8
+          semantic_commits:
+            - 4ea1196c01c3dd604a42e9139a32edec0d25c7ec
+          diff_paths:
+            - lib/ibex/frontend/ast.rb
+            - lib/ibex/normalize/expander.rb
+          rationale: The named semantic commits introduce the reviewed public EBNF groups syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream EBNF groups compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.1.0..v0.2.0
+          from_revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: unknown
+          reviewed_commits:
+            - 1418a5a36c6fdeb5370a7cc2dc4ad62de2317656
+            - cf4fbd16fe614d48bcdb93092399352fc7917f95
+            - 81026ff3390990cad716e9953c8b485f9ac198fe
+            - 18f618c490c91837b97e628c178c6dd4e50abb4d
+            - 51234f2acc5080981c399f3821fe61d07f4b38af
+            - 3320a2a862628c14f12205575b894a604c9dffc8
+            - e170cee79243d0aa975be3e107cd95cd7cc8baf0
+            - ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
+            - af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+            - d589970fa588fd6a0464e6396fe2da668431aec4
+            - 6a97c6580eb60f21bee3019dd5301898f4e927f1
+            - 8b21624e348fb6096a0efdd87f45bc1bea1806bb
+            - 7bbab102d981df3c3efffba0bdab301ea4939293
+            - c7117a5acaa51b501b8de20b75bbac4e3675ec35
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/frontend/ast.rb
+            - lib/ibex/normalize/expander.rb
+          rationale: The reviewed commits touch shared parsing and lowering code, but do not isolate whether the public EBNF groups syntax or behavior changed across this release boundary.
+          unresolved_uncertainty: No release-bound EBNF groups contract or behavior oracle isolates this surface from adjacent edits in the shared paths, so unchanged public semantics cannot be established.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits: []
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/frontend/ast.rb
+            - lib/ibex/normalize/expander.rb
+          rationale: The exact path-limited Git review found no commits in this boundary, so no public EBNF groups syntax, API, or behavior change appears in the reviewed scope.
+          unresolved_uncertainty: This path review does not establish downstream EBNF groups compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Commit and source snapshots do not establish downstream compatibility or undocumented field use.]
       evidence: [docs/decisions/0006-bounded-structural-grammar-lowering.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: "The exact open-issue query found no report, but unreported correctness defects remain possible." }
@@ -117,12 +194,71 @@ features:
       introduction: { revision: 18f618c490c91837b97e628c178c6dd4e50abb4d, path: lib/ibex/frontend/ast.rb, query: ParameterizedReference, summary: Parameterized rules entered in Add parameterized grammar rules. }
       first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 752a8f54eb3f064a8f4488253189fee24665567262e2d8cc7f00414766009e8f }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 737cc90a5cd158bba61a9984fc121fbc859f6bf91d633b31cc77d98eb5b340c1 }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 737cc90a5cd158bba61a9984fc121fbc859f6bf91d633b31cc77d98eb5b340c1 }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: absent
+          canonical_presence:
+            status: absent
+            present_paths: []
+            absent_paths:
+              - lib/ibex/normalize/parameters.rb
+            rationale: No validator-owned canonical blob exists before this feature introduction.
+          source_tree_sha256: 752a8f54eb3f064a8f4488253189fee24665567262e2d8cc7f00414766009e8f
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/normalize/parameters.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 737cc90a5cd158bba61a9984fc121fbc859f6bf91d633b31cc77d98eb5b340c1
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/normalize/parameters.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 737cc90a5cd158bba61a9984fc121fbc859f6bf91d633b31cc77d98eb5b340c1
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Parameterized rules were absent at v0.1.0 and present in v0.2.0. }
-        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical specialization source is byte-identical after v0.2.0. }
+        - boundary: introduction..v0.2.0
+          from_revision: 81026ff3390990cad716e9953c8b485f9ac198fe
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: introduced
+          reviewed_commits:
+            - 18f618c490c91837b97e628c178c6dd4e50abb4d
+            - 51234f2acc5080981c399f3821fe61d07f4b38af
+            - 3320a2a862628c14f12205575b894a604c9dffc8
+            - e170cee79243d0aa975be3e107cd95cd7cc8baf0
+            - ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
+            - af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+            - d589970fa588fd6a0464e6396fe2da668431aec4
+            - 6a97c6580eb60f21bee3019dd5301898f4e927f1
+            - 8b21624e348fb6096a0efdd87f45bc1bea1806bb
+            - 7bbab102d981df3c3efffba0bdab301ea4939293
+            - c7117a5acaa51b501b8de20b75bbac4e3675ec35
+          semantic_commits:
+            - 18f618c490c91837b97e628c178c6dd4e50abb4d
+          diff_paths:
+            - lib/ibex/frontend/ast.rb
+            - lib/ibex/normalize/parameters.rb
+          rationale: The named semantic commits introduce the reviewed public parameterized rules syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream parameterized rules compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits: []
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/frontend/ast.rb
+            - lib/ibex/normalize/parameters.rb
+          rationale: The exact path-limited Git review found no commits in this boundary, so no public parameterized rules syntax, API, or behavior change appears in the reviewed scope.
+          unresolved_uncertainty: This path review does not establish downstream parameterized rules compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git history does not record independent adopter compatibility across these releases.]
       evidence: [docs/decisions/0006-bounded-structural-grammar-lowering.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; private and unreported failures are outside the query. }
@@ -174,12 +310,72 @@ features:
       introduction: { revision: 51234f2acc5080981c399f3821fe61d07f4b38af, path: lib/ibex/normalize.rb, query: inline_rule_names, summary: Inline rules entered in Add bounded inline rule expansion. }
       first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 2310d623dcb5d0d6b51fb21478f78f24209171f60830078e6da0fe6eac1494f2 }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 02919ea72da0a741bbac49d28cc5caffc5649895c3cf46dc6fcc207c06ef47c4 }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 02919ea72da0a741bbac49d28cc5caffc5649895c3cf46dc6fcc207c06ef47c4 }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: absent
+          canonical_presence:
+            status: absent
+            present_paths: []
+            absent_paths:
+              - lib/ibex/normalize/inline_expansion.rb
+            rationale: No validator-owned canonical blob exists before this feature introduction.
+          source_tree_sha256: 2310d623dcb5d0d6b51fb21478f78f24209171f60830078e6da0fe6eac1494f2
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/normalize/inline_expansion.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 02919ea72da0a741bbac49d28cc5caffc5649895c3cf46dc6fcc207c06ef47c4
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/normalize/inline_expansion.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 02919ea72da0a741bbac49d28cc5caffc5649895c3cf46dc6fcc207c06ef47c4
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Inline rules were absent at v0.1.0 and present in v0.2.0. }
-        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical inline expansion source is byte-identical after v0.2.0. }
+        - boundary: introduction..v0.2.0
+          from_revision: 18f618c490c91837b97e628c178c6dd4e50abb4d
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: introduced
+          reviewed_commits:
+            - 51234f2acc5080981c399f3821fe61d07f4b38af
+            - 3187b74d3933259a1a44deee8ed90aabf61a2efb
+            - 3320a2a862628c14f12205575b894a604c9dffc8
+            - e170cee79243d0aa975be3e107cd95cd7cc8baf0
+            - ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
+            - 24c7d97c2dc9f6fc9e90cef618cec56f1e5a6a9a
+            - af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+            - d589970fa588fd6a0464e6396fe2da668431aec4
+            - 6a97c6580eb60f21bee3019dd5301898f4e927f1
+            - 04dd9773f522cd76bbf3c6678b66f0ee3e9142f1
+            - c7117a5acaa51b501b8de20b75bbac4e3675ec35
+            - 97fce7fa2476bc7ecd399c7bf30d765420dfc39a
+          semantic_commits:
+            - 51234f2acc5080981c399f3821fe61d07f4b38af
+          diff_paths:
+            - lib/ibex/normalize.rb
+            - lib/ibex/normalize/inline_expansion.rb
+          rationale: The named semantic commits introduce the reviewed public inline rules syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream inline rules compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits: []
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/normalize.rb
+            - lib/ibex/normalize/inline_expansion.rb
+          rationale: The exact path-limited Git review found no commits in this boundary, so no public inline rules syntax, API, or behavior change appears in the reviewed scope.
+          unresolved_uncertainty: This path review does not establish downstream inline rules compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git history does not establish downstream action and precedence compatibility.]
       evidence: [docs/decisions/0006-bounded-structural-grammar-lowering.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not prove action-composition correctness. }
@@ -221,6 +417,12 @@ features:
           availability: compatible
           mechanism: A Ruby action placed between RHS symbols in an ordinary default-mode production; no pragma is required.
           default_enabled: true
+      stable_overlap:
+        surface_ids: [embedded-production-action]
+        governing_maturity: stable
+        breaking_policy: stable_compatibility_lock
+        guarantee: Compatible Racc middle-action syntax and lowering are governed by the Stable compatibility contract and cannot break under Preview notice.
+        separable_preview_activation: none
     external_use:
       status: not_demonstrated
       workload_ids: []
@@ -231,12 +433,100 @@ features:
       introduction: { revision: 3bf5565285cbb22eb2acee9f0f6c7ea63a85e096, path: lib/ibex/frontend/ast.rb, query: InlineAction, summary: Embedded production actions entered in Parse grammars into AST. }
       first_release: { status: released, tag: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6 }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: present, source_tree_sha256: 23b0223eee62d5d72c55243f8485909c7db9be14f44d5222bfd4064501327270 }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 14c3291260bae717d1ff850db06f73b748047d4686de72cbc85d3926903c73ce }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 14c3291260bae717d1ff850db06f73b748047d4686de72cbc85d3926903c73ce }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/frontend/parser/rules.rb
+              - lib/ibex/normalize/expander.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 23b0223eee62d5d72c55243f8485909c7db9be14f44d5222bfd4064501327270
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/frontend/parser/rules.rb
+              - lib/ibex/normalize/expander.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 14c3291260bae717d1ff850db06f73b748047d4686de72cbc85d3926903c73ce
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/frontend/parser/rules.rb
+              - lib/ibex/normalize/expander.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 14c3291260bae717d1ff850db06f73b748047d4686de72cbc85d3926903c73ce
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: canonical_source_changed, summary: Parsing and lowering sources changed between exact release snapshots. }
-        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical action parsing and lowering sources are byte-identical after v0.2.0. }
+        - boundary: introduction..v0.1.0
+          from_revision: 7a7a33b0743e80bf5a93e34259eec98318558ee5
+          to_revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          classification: introduced
+          reviewed_commits:
+            - 3bf5565285cbb22eb2acee9f0f6c7ea63a85e096
+            - cb6dc27b0a76f6023e82ba9491274fdf7a4cd42a
+            - 4ea1196c01c3dd604a42e9139a32edec0d25c7ec
+            - c6ab9265d16759a378e06644c586cda702e026d9
+            - 53718928d43cf720d4fd051844c85068bc325791
+            - 4cd9b03453b0bdcbffcf8f19812ecfa269a0d327
+            - cf3844d9f28c660570b8b5ae0545fdcf6b88a51e
+            - f3bdaffde3ddb36282921954efa334b86036abd8
+          semantic_commits:
+            - 3bf5565285cbb22eb2acee9f0f6c7ea63a85e096
+          diff_paths:
+            - lib/ibex/frontend/ast.rb
+            - lib/ibex/frontend/parser/rules.rb
+            - lib/ibex/normalize/expander.rb
+          rationale: The named semantic commits introduce the reviewed public middle actions syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream middle actions compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.1.0..v0.2.0
+          from_revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: unknown
+          reviewed_commits:
+            - 1418a5a36c6fdeb5370a7cc2dc4ad62de2317656
+            - cf4fbd16fe614d48bcdb93092399352fc7917f95
+            - 81026ff3390990cad716e9953c8b485f9ac198fe
+            - 18f618c490c91837b97e628c178c6dd4e50abb4d
+            - 51234f2acc5080981c399f3821fe61d07f4b38af
+            - 3320a2a862628c14f12205575b894a604c9dffc8
+            - e170cee79243d0aa975be3e107cd95cd7cc8baf0
+            - ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
+            - af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+            - d589970fa588fd6a0464e6396fe2da668431aec4
+            - 6a97c6580eb60f21bee3019dd5301898f4e927f1
+            - 8b21624e348fb6096a0efdd87f45bc1bea1806bb
+            - 7bbab102d981df3c3efffba0bdab301ea4939293
+            - c7117a5acaa51b501b8de20b75bbac4e3675ec35
+            - 00f17a0cd7d049ce970261b050ffb6ae60dd4186
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/frontend/ast.rb
+            - lib/ibex/frontend/parser/rules.rb
+            - lib/ibex/normalize/expander.rb
+          rationale: The reviewed commits touch shared parsing and lowering code, but do not isolate whether the public middle actions syntax or behavior changed across this release boundary.
+          unresolved_uncertainty: No release-bound middle actions contract or behavior oracle isolates this surface from adjacent edits in the shared paths, so unchanged public semantics cannot be established.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits: []
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/frontend/ast.rb
+            - lib/ibex/frontend/parser/rules.rb
+            - lib/ibex/normalize/expander.rb
+          rationale: The exact path-limited Git review found no commits in this boundary, so no public middle actions syntax, API, or behavior change appears in the reviewed scope.
+          unresolved_uncertainty: This path review does not establish downstream middle actions compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Source snapshots do not prove field compatibility of trusted action side effects.]
       evidence: [docs/grammar-reference.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; hidden action-order defects remain possible. }
@@ -252,15 +542,15 @@ features:
       performance: [Each middle action introduces a helper reduction; public_real overhead has not been measured.]
       safety: [Middle actions execute trusted Ruby earlier than the enclosing reduction and can cause irreversible side effects.]
     decision:
-      outcome: keep
+      outcome: redesign
       target_maturity: preview
-      criteria_status: unmet
+      criteria_status: planned
       user_problem: Run a semantic action before the enclosing compatible-mode production has reduced.
       value_classification: repository_only
       alternatives: [Introduce an explicit empty helper production or defer work to the trailing reduction.]
-      reason: Opaque lowering and source-mapping coverage cannot establish production use, release stability, or external safety expectations.
-      kill_condition: Remove the Preview designation or redesign action timing if compatible-mode behavior cannot remain stable under real side effects.
-      redesign_plan: not_applicable
+      reason: No separable Preview activation currently exists; the compatible/default Racc surface is already governed by the Stable compatibility lock.
+      kill_condition: Remove the redundant Preview inventory row if no distinct opt-in extension is defined for separate review.
+      redesign_plan: Split or remove the redundant Preview classification at the next reviewed release unless a distinct opt-in extension is defined.
       evidence: [docs/stability.md, test/runtime/action_contract_test.rb]
     next_review:
       triggers: [Two releases complete without a middle-action semantic change., A public_real grammar uses middle actions in production.]
@@ -290,12 +580,95 @@ features:
       introduction: { revision: af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d, path: lib/ibex/lalr/builder.rb, query: entry_isolation, summary: Multiple entries entered in Add multiple parser entry points. }
       first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 97c9668559cb5aa3fdfef27beca16b215fd1232f678308e883be37ba6942fff4 }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: f4188d78228e88003c7f969f1bcb54ff57e243a79eb045634cb6b7522ccadeb5 }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 827859d08df075884c10d89fd141dd8fc5f76aebde4a13a7cef5ee3cfb9304c1 }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: absent
+          canonical_presence:
+            status: partial
+            present_paths:
+              - lib/ibex/codegen/ruby.rb
+            absent_paths: []
+            rationale: Pre-existing or shared canonical paths are explicit and do not prove that the absent feature exists.
+          source_tree_sha256: 97c9668559cb5aa3fdfef27beca16b215fd1232f678308e883be37ba6942fff4
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/codegen/ruby.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: f4188d78228e88003c7f969f1bcb54ff57e243a79eb045634cb6b7522ccadeb5
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/codegen/ruby.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 827859d08df075884c10d89fd141dd8fc5f76aebde4a13a7cef5ee3cfb9304c1
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Multiple entries were absent at v0.1.0 and present in v0.2.0. }
-        - { boundary: "v0.2.0..reviewed", status: canonical_source_changed, summary: The generated runtime source changed after v0.2.0 and is bound by the reviewed digest. }
+        - boundary: introduction..v0.2.0
+          from_revision: 24c7d97c2dc9f6fc9e90cef618cec56f1e5a6a9a
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: introduced
+          reviewed_commits:
+            - af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+            - 050206fbc9f9d25d16e4a89a1b744caf1bfed87f
+            - d589970fa588fd6a0464e6396fe2da668431aec4
+            - d8ee14f8b80a1acc4bf27b15d52b1c3517aed5b5
+            - 7bbab102d981df3c3efffba0bdab301ea4939293
+            - c7117a5acaa51b501b8de20b75bbac4e3675ec35
+            - d606ca436f11ac98e0a0bd3ab60363b30f7ac1ae
+            - 14a35ebf10274e8ff0edab9d830068a7024f8123
+            - 7e74c7a5adaf01207b17c3b15fc6564a8fca64a7
+            - 673d5315a770a8d943f7213a0e015ca42ae496f0
+            - fb8799b9a4f1b94c54a134dcc103f2616e3c9ba4
+            - 811fb4a5414c23b93278e96fd05631a23502b43f
+            - f0550e44be15e26bb05fa59a08bada27e1a5ebfa
+            - ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
+            - 9eeb1c953548d05e071194e3f59ef0d0f411576c
+            - 013761ebf4c645180d81391e2fbd144c7770b3fb
+            - fdc4d64ccf46f866d058e7861d0a1e6dae2c6745
+            - a76eb92ea3baf1c01447159e5f174758748373dd
+            - badd607b9d6d027fb5f8172c227ce3c89acc68c8
+            - fbb97aadffee300a8f3ee2fc6dc4d5a44dacddbe
+            - d13f5c422fc83a5137375d74184f2aa1e087b26f
+            - 5633de6da189a29a05866c4a29b4f5298e45cea5
+            - 74e7f849a32d5af486117171a00e6bfe74f19632
+            - 86f9a7face90cc15cc988c3da36925981bdc1513
+            - 40771d64a0c4900afd1327e3b47552a5739b4cbb
+            - 4a30d70329e60986282a6ed292a53be1310e5e2f
+            - 5da90340090232df0e4266cf6ddd835777ca00f7
+            - 0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
+            - ba5ee02b3afcb38a62618604faf6b77a53b1671e
+            - 1be1a47400fb882a56ead8cef3d6e7a89db7f7d7
+            - 9b783bf084c8dfb3528c9164c83dc56a6f2a530f
+            - 55bb4570bbcf2690ebbd78c231facb456f205f1e
+          semantic_commits:
+            - af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+          diff_paths:
+            - lib/ibex/codegen/ruby.rb
+            - lib/ibex/lalr/builder.rb
+          rationale: The named semantic commits introduce the reviewed public multiple entries syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream multiple entries compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits:
+            - c7d02d408e1778bb8018c1876f8728949bf7aa24
+            - b111353d29475a471b564e74ec1b033109cf6025
+            - 3e2bf2e0dcfc321f1602317b0b0e2b2e6b603912
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/codegen/ruby.rb
+            - lib/ibex/lalr/builder.rb
+          rationale: The exact path-limited Git review inspected 3 commits; their changes do not alter the public multiple entries syntax, API, or behavior represented by this inventory row.
+          unresolved_uncertainty: This path review does not establish downstream multiple entries compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Source history does not establish multi-entry application lifecycle compatibility.]
       evidence: [docs/grammar-reference.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: "The exact open-issue query found no report, not proof that every entry interaction is correct." }
@@ -347,12 +720,64 @@ features:
       introduction: { revision: cf4fbd16fe614d48bcdb93092399352fc7917f95, path: lib/ibex/frontend/resolver.rb, query: "class Resolver", summary: Canonical imports entered in Add canonical grammar fragment includes. }
       first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 2d19110ae2191f758b5ecf970ff8c8592de0609f9c0de81b5e53d82afeaf19fd }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 2146bc5fe8a3e676508e4a34d966ced6f9845d7733917c701e6b27e1ea3c569f }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 2146bc5fe8a3e676508e4a34d966ced6f9845d7733917c701e6b27e1ea3c569f }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: absent
+          canonical_presence:
+            status: absent
+            present_paths: []
+            absent_paths:
+              - lib/ibex/frontend/resolver.rb
+            rationale: No validator-owned canonical blob exists before this feature introduction.
+          source_tree_sha256: 2d19110ae2191f758b5ecf970ff8c8592de0609f9c0de81b5e53d82afeaf19fd
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/frontend/resolver.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 2146bc5fe8a3e676508e4a34d966ced6f9845d7733917c701e6b27e1ea3c569f
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/frontend/resolver.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 2146bc5fe8a3e676508e4a34d966ced6f9845d7733917c701e6b27e1ea3c569f
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Canonical imports were absent at v0.1.0 and present in v0.2.0. }
-        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The resolver source is byte-identical after v0.2.0. }
+        - boundary: introduction..v0.2.0
+          from_revision: eb257df8410aa86aa230bb157bf6d82a01d33fcd
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: introduced
+          reviewed_commits:
+            - cf4fbd16fe614d48bcdb93092399352fc7917f95
+            - 5b8151385c491366deb41c930a1132599edfb9e9
+            - 570d857f582cb61ac60840210b22a86db086cc51
+            - af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+            - 7bbab102d981df3c3efffba0bdab301ea4939293
+            - 97fce7fa2476bc7ecd399c7bf30d765420dfc39a
+          semantic_commits:
+            - cf4fbd16fe614d48bcdb93092399352fc7917f95
+          diff_paths:
+            - lib/ibex/frontend/resolver.rb
+          rationale: The named semantic commits introduce the reviewed public canonical imports syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream canonical imports compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits: []
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/frontend/resolver.rb
+          rationale: The exact path-limited Git review found no commits in this boundary, so no public canonical imports syntax, API, or behavior change appears in the reviewed scope.
+          unresolved_uncertainty: This path review does not establish downstream canonical imports compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Repository history does not establish cross-host field portability.]
       evidence: [docs/decisions/0005-contained-grammar-composition.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; filesystem boundary defects may be unreported. }
@@ -404,12 +829,67 @@ features:
       introduction: { revision: d8ee14f8b80a1acc4bf27b15d52b1c3517aed5b5, path: lib/ibex/runtime/generated_lexer.rb, query: "module GeneratedLexer", summary: Generated lexers entered in Generate stateful streaming lexers. }
       first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 328671d74028c9c76f2d64016c3896d3eafe50aede2a9b9731ed3f48101259bc }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: f7f21704a0bd536f0c144a08dcd1f5df629385c6a2842fc74b81f548e33f4177 }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: d4e9109ff42f7cec6b86a37ff482c63772d3a66ac7fd70f29265b0ab5359e657 }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: absent
+          canonical_presence:
+            status: absent
+            present_paths: []
+            absent_paths:
+              - lib/ibex/runtime/generated_lexer.rb
+            rationale: No validator-owned canonical blob exists before this feature introduction.
+          source_tree_sha256: 328671d74028c9c76f2d64016c3896d3eafe50aede2a9b9731ed3f48101259bc
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/runtime/generated_lexer.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: f7f21704a0bd536f0c144a08dcd1f5df629385c6a2842fc74b81f548e33f4177
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/runtime/generated_lexer.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: d4e9109ff42f7cec6b86a37ff482c63772d3a66ac7fd70f29265b0ab5359e657
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Generated lexers were absent at v0.1.0 and present in v0.2.0. }
-        - { boundary: "v0.2.0..reviewed", status: canonical_source_changed, summary: Generated lexer runtime code changed after v0.2.0 and is bound by the reviewed digest. }
+        - boundary: introduction..v0.2.0
+          from_revision: 04dd9773f522cd76bbf3c6678b66f0ee3e9142f1
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: introduced
+          reviewed_commits:
+            - d8ee14f8b80a1acc4bf27b15d52b1c3517aed5b5
+            - 7bbab102d981df3c3efffba0bdab301ea4939293
+            - 86f9a7face90cc15cc988c3da36925981bdc1513
+            - 0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
+            - ba5ee02b3afcb38a62618604faf6b77a53b1671e
+            - f3cb3826efa6bfcdb7c7ef11494a9d43c47af352
+            - 1be1a47400fb882a56ead8cef3d6e7a89db7f7d7
+            - c6722bd9cb90e24a81786411e300edd6196619b7
+          semantic_commits:
+            - d8ee14f8b80a1acc4bf27b15d52b1c3517aed5b5
+          diff_paths:
+            - lib/ibex/runtime/generated_lexer.rb
+          rationale: The named semantic commits introduce the reviewed public generated lexers syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream generated lexers compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits:
+            - 7f248ebaa71bdf55ea8943aa75f9474e4c108831
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/runtime/generated_lexer.rb
+          rationale: The exact path-limited Git review inspected 1 commits; their changes do not alter the public generated lexers syntax, API, or behavior represented by this inventory row.
+          unresolved_uncertainty: This path review does not establish downstream generated lexers compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Versioned source history does not establish third-party stateful lexer compatibility.]
       evidence: [docs/decisions/0014-versioned-generated-lexer.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not cover unreported stateful-lexer defects. }
@@ -455,6 +935,12 @@ features:
           availability: extended
           mechanism: Extended grammar `type SYMBOL "RBS type"` declarations feed generated signatures.
           default_enabled: false
+      stable_overlap:
+        surface_ids: [semantic-locations]
+        governing_maturity: stable
+        breaking_policy: stable_compatibility_lock
+        guarantee: Compatible semantic-location behavior is governed by the Stable compatibility contract; only extended semantic type declarations remain a separable Preview surface.
+        separable_preview_activation: semantic-type-declarations
     external_use:
       status: not_demonstrated
       workload_ids: [bison-jq-parser, bison-postgresql-parser, bison-ruby-bison-era]
@@ -465,12 +951,150 @@ features:
       introduction: { revision: 1418a5a36c6fdeb5370a7cc2dc4ad62de2317656, path: lib/ibex/frontend/generated_parser_metadata.rb, query: build_semantic_type, summary: Type declarations entered first in Add typed diagnostics and parser tooling; compatible location APIs followed before v0.2.0. }
       first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: d2afcd685bbcdfdff07c4bbdccbfff85055efbb8f84e0dfe2fd75aa5a8e7fd63 }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: e74d03cfe6c8b9026154446c579c7c5db186acc4b1ad9634d76ed27e615d41d8 }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 8dc944ed394ab5b2cc5c795be452465d5514dabe70f5ef92e9e7812b26180f17 }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: absent
+          canonical_presence:
+            status: partial
+            present_paths:
+              - lib/ibex/codegen/rbs.rb
+              - lib/ibex/codegen/ruby.rb
+              - lib/ibex/runtime/parser.rb
+            absent_paths:
+              - lib/ibex/frontend/generated_parser_metadata.rb
+            rationale: Pre-existing or shared canonical paths are explicit and do not prove that the absent feature exists.
+          source_tree_sha256: 1548e7c5ced3c012ceae6ac3ef283b33fa65421f5303daeccf69947cc2914b51
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/codegen/rbs.rb
+              - lib/ibex/codegen/ruby.rb
+              - lib/ibex/frontend/generated_parser_metadata.rb
+              - lib/ibex/runtime/parser.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 3f06fbb519913e0f96033da484dbeefc2490b4756aa8d450013c511720e89bde
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/codegen/rbs.rb
+              - lib/ibex/codegen/ruby.rb
+              - lib/ibex/frontend/generated_parser_metadata.rb
+              - lib/ibex/runtime/parser.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: f10f30aad993ba6e00fbaaee2ce8b91d6f0598ba9b5388049c87cdfe893a340d
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Type declarations and compatible location APIs were both present by v0.2.0. }
-        - { boundary: "v0.2.0..reviewed", status: canonical_source_changed, summary: Runtime and generation sources changed after v0.2.0 and are bound by reviewed digests. }
+        - boundary: introduction..v0.2.0
+          from_revision: 3b763cc9f7a79618816db029de4e5d14339796f0
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: introduced
+          reviewed_commits:
+            - 1418a5a36c6fdeb5370a7cc2dc4ad62de2317656
+            - 104a8b19b007201366e25ea13e17b5b8a85076e9
+            - 978465d7996f3610e674da76718f9b2eb118f2dd
+            - 04ded745a43e364bcb8b07f1306a0731223a32ab
+            - 51234f2acc5080981c399f3821fe61d07f4b38af
+            - 3187b74d3933259a1a44deee8ed90aabf61a2efb
+            - 4e53ffb911d712a55c2465b57da6fd2a5332889c
+            - df8ac82c0ed0c8862190ac88671949f0d5e8a001
+            - bb8c9a741c96ee4b53b8b63290f988a623d32aa0
+            - e170cee79243d0aa975be3e107cd95cd7cc8baf0
+            - ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
+            - 24c7d97c2dc9f6fc9e90cef618cec56f1e5a6a9a
+            - af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+            - 050206fbc9f9d25d16e4a89a1b744caf1bfed87f
+            - d589970fa588fd6a0464e6396fe2da668431aec4
+            - d8ee14f8b80a1acc4bf27b15d52b1c3517aed5b5
+            - 7bbab102d981df3c3efffba0bdab301ea4939293
+            - c7117a5acaa51b501b8de20b75bbac4e3675ec35
+            - d606ca436f11ac98e0a0bd3ab60363b30f7ac1ae
+            - 14a35ebf10274e8ff0edab9d830068a7024f8123
+            - 7226fb9d2e3c70536d33b16511a110477f881761
+            - f391869d0d835e59613f2b2d6c899f45a49d7fc6
+            - 7e74c7a5adaf01207b17c3b15fc6564a8fca64a7
+            - fd29b7f8171cf1cdd7936b430d86bfa64b060c1e
+            - 3017150fbc2264b17a576283dfab355d2dd4da56
+            - d66277258e6e1a0b125388cfe20709f2d2bc4db7
+            - d41acedf7037e146510cf7fa2b581f840a5450b3
+            - 7dba2ac14757c9104d57907f503c8bdf01174262
+            - 1820348eb8c0b691dd57b5cc9fc5d2a7c8d60716
+            - 365404b8935b8e4c1dab840dec7159b2e5935cac
+            - 669ef003125b6b0db8e39a525093442ffbb06b6b
+            - cf073f767aa4dfefaaf370bc10a5927257b92364
+            - c81618b1a951a9e1b0b1b8101d2ea0e7cd5dcad1
+            - c7c48548cab5591f10dda9e4ee2247f011ccf267
+            - ad64016fb9873cad399f7e86b943f67feb9afb5a
+            - fcf28445211e7136042545006294d6d3995026da
+            - ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
+            - b593792b47760c3d09fa73e412a11293600d77c4
+            - 9eeb1c953548d05e071194e3f59ef0d0f411576c
+            - 013761ebf4c645180d81391e2fbd144c7770b3fb
+            - fdc4d64ccf46f866d058e7861d0a1e6dae2c6745
+            - a76eb92ea3baf1c01447159e5f174758748373dd
+            - f9475685ad8a2ae9e3e2efc40c4e48afbd669d42
+            - b150c7d9ebf2283179461c9075b96789e1b8c4e1
+            - fbb97aadffee300a8f3ee2fc6dc4d5a44dacddbe
+            - a4b17a114070a6d6447a7c62a9594d494b25b372
+            - d13f5c422fc83a5137375d74184f2aa1e087b26f
+            - 429389ca04861fff104c4bf64e449c9266caa181
+            - 5633de6da189a29a05866c4a29b4f5298e45cea5
+            - 74e7f849a32d5af486117171a00e6bfe74f19632
+            - 86f9a7face90cc15cc988c3da36925981bdc1513
+            - 40771d64a0c4900afd1327e3b47552a5739b4cbb
+            - 4a30d70329e60986282a6ed292a53be1310e5e2f
+            - 5da90340090232df0e4266cf6ddd835777ca00f7
+            - 0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
+            - ba5ee02b3afcb38a62618604faf6b77a53b1671e
+            - 5799152a6403f61af8674a1b9b4a03526dd287fe
+            - f3cb3826efa6bfcdb7c7ef11494a9d43c47af352
+            - 1be1a47400fb882a56ead8cef3d6e7a89db7f7d7
+            - 9b783bf084c8dfb3528c9164c83dc56a6f2a530f
+            - c6722bd9cb90e24a81786411e300edd6196619b7
+            - 55bb4570bbcf2690ebbd78c231facb456f205f1e
+          semantic_commits:
+            - 1418a5a36c6fdeb5370a7cc2dc4ad62de2317656
+            - 104a8b19b007201366e25ea13e17b5b8a85076e9
+            - 978465d7996f3610e674da76718f9b2eb118f2dd
+            - 04ded745a43e364bcb8b07f1306a0731223a32ab
+            - bb8c9a741c96ee4b53b8b63290f988a623d32aa0
+          diff_paths:
+            - lib/ibex/codegen/rbs.rb
+            - lib/ibex/codegen/ruby.rb
+            - lib/ibex/frontend/generated_parser_metadata.rb
+            - lib/ibex/runtime/parser.rb
+          rationale: The named semantic commits introduce the reviewed public semantic locations/types syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream semantic locations/types compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits:
+            - 5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
+            - c7d02d408e1778bb8018c1876f8728949bf7aa24
+            - b111353d29475a471b564e74ec1b033109cf6025
+            - 3e2bf2e0dcfc321f1602317b0b0e2b2e6b603912
+            - cf170cad3383bf567c87e4904bd10f445315b994
+            - f2a1421c8f02ffb4d50726452be6eae73cf7f510
+            - 08c7dc5d939a1f47b0132ae3986818cdbaec1f34
+            - edac11e91221b1c7b81883a5cb98e8bdcab82297
+            - d85b83bbfc05d99e19e9429e4bc2bd0104fd1168
+            - 7f248ebaa71bdf55ea8943aa75f9474e4c108831
+            - d2e7ce9ec93463ac8c7c957224ed76ab31c83d54
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/codegen/rbs.rb
+            - lib/ibex/codegen/ruby.rb
+            - lib/ibex/frontend/generated_parser_metadata.rb
+            - lib/ibex/runtime/parser.rb
+          rationale: The exact path-limited Git review inspected 11 commits; their changes do not alter the public semantic locations/types syntax, API, or behavior represented by this inventory row.
+          unresolved_uncertainty: This path review does not establish downstream semantic locations/types compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [The combined inventory row cannot supply one compatibility history for two activation and API boundaries.]
       evidence: [docs/grammar-reference.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; type unsoundness and location edge cases may be unreported. }
@@ -501,6 +1125,7 @@ features:
       required_evidence: [Independent location and type-declaration histories, downstream tooling records, exact-release R002 results]
     release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
     sources:
+      - { path: lib/ibex/codegen/rbs.rb, sha256: a6434a24176f6501c4f28363b882ad04c056880e2520a865ecc5019e5db228c4 }
       - { path: lib/ibex/codegen/ruby.rb, sha256: d78e46dd523896151b2fb09563dd4501a63dd6643299863c4c5e9c1770944ca3 }
       - { path: lib/ibex/frontend/generated_parser_metadata.rb, sha256: 27fdc65dd639fe8c7766bcaaa6c8e495948405e1e37b49edf042cf9cd34664b7 }
       - { path: lib/ibex/runtime/parser.rb, sha256: 031673cfe25c868e2e2d8c19effafd70d982c2ae5f73b4ec4b7bba8dc4da2312 }
@@ -525,12 +1150,61 @@ features:
       introduction: { revision: c7117a5acaa51b501b8de20b75bbac4e3675ec35, path: lib/ibex/codegen/ruby_ast.rb, query: RubyAST, summary: AST generation entered in Generate typed data syntax trees. }
       first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: da8181a97680bf185e5b3a459c82d2c7a7078a64fbb4f6af8b2e8e44a8633046 }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 9d4f4758d4a277bfe13bc1ab29439bd16e6fbe1e6c91a8b501a3cc72b2d228cf }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 9d4f4758d4a277bfe13bc1ab29439bd16e6fbe1e6c91a8b501a3cc72b2d228cf }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: absent
+          canonical_presence:
+            status: absent
+            present_paths: []
+            absent_paths:
+              - lib/ibex/codegen/ruby_ast.rb
+            rationale: No validator-owned canonical blob exists before this feature introduction.
+          source_tree_sha256: da8181a97680bf185e5b3a459c82d2c7a7078a64fbb4f6af8b2e8e44a8633046
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/codegen/ruby_ast.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 9d4f4758d4a277bfe13bc1ab29439bd16e6fbe1e6c91a8b501a3cc72b2d228cf
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/codegen/ruby_ast.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 9d4f4758d4a277bfe13bc1ab29439bd16e6fbe1e6c91a8b501a3cc72b2d228cf
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: AST generation was absent at v0.1.0 and present in v0.2.0. }
-        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical AST generator source is byte-identical after v0.2.0. }
+        - boundary: introduction..v0.2.0
+          from_revision: 7bbab102d981df3c3efffba0bdab301ea4939293
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: introduced
+          reviewed_commits:
+            - c7117a5acaa51b501b8de20b75bbac4e3675ec35
+            - ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
+            - d13f5c422fc83a5137375d74184f2aa1e087b26f
+          semantic_commits:
+            - c7117a5acaa51b501b8de20b75bbac4e3675ec35
+          diff_paths:
+            - lib/ibex/codegen/ruby_ast.rb
+          rationale: The named semantic commits introduce the reviewed public AST generation syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream AST generation compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits: []
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/codegen/ruby_ast.rb
+          rationale: The exact path-limited Git review found no commits in this boundary, so no public AST generation syntax, API, or behavior change appears in the reviewed scope.
+          unresolved_uncertainty: This path review does not establish downstream AST generation compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git snapshots do not establish downstream generated API compatibility.]
       evidence: [docs/grammar-reference.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not prove downstream AST compatibility. }
@@ -582,12 +1256,60 @@ features:
       introduction: { revision: 6a97c6580eb60f21bee3019dd5301898f4e927f1, path: lib/ibex/grammar_tests.rb, query: GrammarTests, summary: Grammar tests entered in Add grammar-declared parser tests. }
       first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: f66fdbc3cdb54ae9aac32b70c8073ddd86cf3a4efca18219030d999e537dcc5a }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: f0d93af7ff066a056227c8e17ff986e6ceec8191942a74040c89f9942f64cf53 }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: f0d93af7ff066a056227c8e17ff986e6ceec8191942a74040c89f9942f64cf53 }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: absent
+          canonical_presence:
+            status: absent
+            present_paths: []
+            absent_paths:
+              - lib/ibex/grammar_tests.rb
+            rationale: No validator-owned canonical blob exists before this feature introduction.
+          source_tree_sha256: f66fdbc3cdb54ae9aac32b70c8073ddd86cf3a4efca18219030d999e537dcc5a
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/grammar_tests.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: f0d93af7ff066a056227c8e17ff986e6ceec8191942a74040c89f9942f64cf53
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/grammar_tests.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: f0d93af7ff066a056227c8e17ff986e6ceec8191942a74040c89f9942f64cf53
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Grammar tests were absent at v0.1.0 and present in v0.2.0. }
-        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The grammar test runner source is byte-identical after v0.2.0. }
+        - boundary: introduction..v0.2.0
+          from_revision: d589970fa588fd6a0464e6396fe2da668431aec4
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: introduced
+          reviewed_commits:
+            - 6a97c6580eb60f21bee3019dd5301898f4e927f1
+            - 6d92ec6d49bf27538fcb115e26ab32c843e4187d
+          semantic_commits:
+            - 6a97c6580eb60f21bee3019dd5301898f4e927f1
+          diff_paths:
+            - lib/ibex/grammar_tests.rb
+          rationale: The named semantic commits introduce the reviewed public grammar tests syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream grammar tests compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits: []
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/grammar_tests.rb
+          rationale: The exact path-limited Git review found no commits in this boundary, so no public grammar tests syntax, API, or behavior change appears in the reviewed scope.
+          unresolved_uncertainty: This path review does not establish downstream grammar tests compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git snapshots do not establish portability in external project CI environments.]
       evidence: [docs/grammar-reference.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; subprocess and coverage defects may still be unreported. }
@@ -639,12 +1361,59 @@ features:
       introduction: { revision: 81026ff3390990cad716e9953c8b485f9ac198fe, path: lib/ibex/codegen/documentation.rb, query: Documentation, summary: Documentation tooling entered in Add lossless rule documentation. }
       first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: fd4cc1dfa6b66dae021d2a7dc66453112af3d5406a6414db8b731dd8450ba5cc }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 053062524dddaac323bcc886db766e68d4231697308b27409951bd49b3005d72 }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 053062524dddaac323bcc886db766e68d4231697308b27409951bd49b3005d72 }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: absent
+          canonical_presence:
+            status: absent
+            present_paths: []
+            absent_paths:
+              - lib/ibex/codegen/documentation.rb
+            rationale: No validator-owned canonical blob exists before this feature introduction.
+          source_tree_sha256: fd4cc1dfa6b66dae021d2a7dc66453112af3d5406a6414db8b731dd8450ba5cc
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/codegen/documentation.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 053062524dddaac323bcc886db766e68d4231697308b27409951bd49b3005d72
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/codegen/documentation.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 053062524dddaac323bcc886db766e68d4231697308b27409951bd49b3005d72
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Documentation tooling was absent at v0.1.0 and present in v0.2.0. }
-        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical documentation generator is byte-identical after v0.2.0. }
+        - boundary: introduction..v0.2.0
+          from_revision: cf4fbd16fe614d48bcdb93092399352fc7917f95
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: introduced
+          reviewed_commits:
+            - 81026ff3390990cad716e9953c8b485f9ac198fe
+          semantic_commits:
+            - 81026ff3390990cad716e9953c8b485f9ac198fe
+          diff_paths:
+            - lib/ibex/codegen/documentation.rb
+          rationale: The named semantic commits introduce the reviewed public documentation tooling syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream documentation tooling compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits: []
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/codegen/documentation.rb
+          rationale: The exact path-limited Git review found no commits in this boundary, so no public documentation tooling syntax, API, or behavior change appears in the reviewed scope.
+          unresolved_uncertainty: This path review does not establish downstream documentation tooling compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git snapshots do not cover independent accessibility or downstream rendering compatibility.]
       evidence: [docs/grammar-reference.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; renderer and accessibility defects may be unreported. }
@@ -696,12 +1465,68 @@ features:
       introduction: { revision: 14968f22795f4fd8ff894b0753b01b92712bd183, path: lib/ibex/lalr/builder.rb, query: "algorithm == :ielr", summary: IELR entered in Add IELR parser construction. }
       first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: fb3dee4a9b29dc724f379bab142a2aaf1cd779edf88aa093c943fa54819bd5ef }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: ded44c69663f48c36cd15fda5b10cc1c8c2a0b19b0a763269d9db2bfa969ef5a }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: ded44c69663f48c36cd15fda5b10cc1c8c2a0b19b0a763269d9db2bfa969ef5a }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: absent
+          canonical_presence:
+            status: partial
+            present_paths:
+              - lib/ibex/lalr/builder.rb
+            absent_paths: []
+            rationale: Pre-existing or shared canonical paths are explicit and do not prove that the absent feature exists.
+          source_tree_sha256: fb3dee4a9b29dc724f379bab142a2aaf1cd779edf88aa093c943fa54819bd5ef
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/lalr/builder.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: ded44c69663f48c36cd15fda5b10cc1c8c2a0b19b0a763269d9db2bfa969ef5a
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/lalr/builder.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: ded44c69663f48c36cd15fda5b10cc1c8c2a0b19b0a763269d9db2bfa969ef5a
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: IELR was absent at v0.1.0 and present in v0.2.0. }
-        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical IELR builder source is byte-identical after v0.2.0. }
+        - boundary: introduction..v0.2.0
+          from_revision: bd09dc7ddff179923a0d629b619f86908db8183c
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: introduced
+          reviewed_commits:
+            - 14968f22795f4fd8ff894b0753b01b92712bd183
+            - 3320a2a862628c14f12205575b894a604c9dffc8
+            - bb8c9a741c96ee4b53b8b63290f988a623d32aa0
+            - af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+            - d589970fa588fd6a0464e6396fe2da668431aec4
+            - 673d5315a770a8d943f7213a0e015ca42ae496f0
+            - fb8799b9a4f1b94c54a134dcc103f2616e3c9ba4
+            - 811fb4a5414c23b93278e96fd05631a23502b43f
+            - f0550e44be15e26bb05fa59a08bada27e1a5ebfa
+            - badd607b9d6d027fb5f8172c227ce3c89acc68c8
+          semantic_commits:
+            - 14968f22795f4fd8ff894b0753b01b92712bd183
+          diff_paths:
+            - lib/ibex/lalr/builder.rb
+          rationale: The named semantic commits introduce the reviewed public IELR syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream IELR compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits: []
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/lalr/builder.rb
+          rationale: The exact path-limited Git review found no commits in this boundary, so no public IELR syntax, API, or behavior change appears in the reviewed scope.
+          unresolved_uncertainty: This path review does not establish downstream IELR compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Source stability does not provide an independent algorithm oracle or application benefit.]
       evidence: [docs/decisions/0007-shared-parser-construction-pipeline.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; absence is not an independent algorithm oracle. }
@@ -753,12 +1578,59 @@ features:
       introduction: { revision: 5b8151385c491366deb41c930a1132599edfb9e9, path: lib/ibex/lsp/server.rb, query: "class Server", summary: LSP entered in Add overlay-aware grammar language server. }
       first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 82d99430ea6b1c556cb7c757a507d60fbb6405c5f2e43d0893019908f8ee24eb }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: bec58a0b4eaa7387561cd67b1d3aba981ab21898c55749e188f9bc85e6155963 }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: bec58a0b4eaa7387561cd67b1d3aba981ab21898c55749e188f9bc85e6155963 }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: absent
+          canonical_presence:
+            status: absent
+            present_paths: []
+            absent_paths:
+              - lib/ibex/lsp/server.rb
+            rationale: No validator-owned canonical blob exists before this feature introduction.
+          source_tree_sha256: 82d99430ea6b1c556cb7c757a507d60fbb6405c5f2e43d0893019908f8ee24eb
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/lsp/server.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: bec58a0b4eaa7387561cd67b1d3aba981ab21898c55749e188f9bc85e6155963
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/lsp/server.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: bec58a0b4eaa7387561cd67b1d3aba981ab21898c55749e188f9bc85e6155963
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: LSP was absent at v0.1.0 and present in v0.2.0. }
-        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical LSP server source is byte-identical after v0.2.0. }
+        - boundary: introduction..v0.2.0
+          from_revision: 0210f4b2be2099599ff6406e18509bee5c6e6cf8
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: introduced
+          reviewed_commits:
+            - 5b8151385c491366deb41c930a1132599edfb9e9
+          semantic_commits:
+            - 5b8151385c491366deb41c930a1132599edfb9e9
+          diff_paths:
+            - lib/ibex/lsp/server.rb
+          rationale: The named semantic commits introduce the reviewed public LSP syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream LSP compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits: []
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/lsp/server.rb
+          rationale: The exact path-limited Git review found no commits in this boundary, so no public LSP syntax, API, or behavior change appears in the reviewed scope.
+          unresolved_uncertainty: This path review does not establish downstream LSP compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Source history does not reconstruct real editor lifecycle and extension compatibility.]
       evidence: [docs/editor-setup.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; editor-specific failures may not be in the repository tracker. }
@@ -810,12 +1682,59 @@ features:
       introduction: { revision: 570d857f582cb61ac60840210b22a86db086cc51, path: lib/ibex/watch/runner.rb, query: "class Runner", summary: Watch entered in Add transactional generation and watch mode. }
       first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 344e787b3adf70d0e6ee2d5cd57193a35d88eeff535079eccc53d1169958ebcc }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: cda7969bb4aee0e322fe7f2fb6cc510b42e9070f1b356c1f5430c8e391c98e1c }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: cda7969bb4aee0e322fe7f2fb6cc510b42e9070f1b356c1f5430c8e391c98e1c }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: absent
+          canonical_presence:
+            status: absent
+            present_paths: []
+            absent_paths:
+              - lib/ibex/watch/runner.rb
+            rationale: No validator-owned canonical blob exists before this feature introduction.
+          source_tree_sha256: 344e787b3adf70d0e6ee2d5cd57193a35d88eeff535079eccc53d1169958ebcc
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/watch/runner.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: cda7969bb4aee0e322fe7f2fb6cc510b42e9070f1b356c1f5430c8e391c98e1c
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/watch/runner.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: cda7969bb4aee0e322fe7f2fb6cc510b42e9070f1b356c1f5430c8e391c98e1c
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Watch was absent at v0.1.0 and present in v0.2.0. }
-        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical watch runner source is byte-identical after v0.2.0. }
+        - boundary: introduction..v0.2.0
+          from_revision: 5b8151385c491366deb41c930a1132599edfb9e9
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: introduced
+          reviewed_commits:
+            - 570d857f582cb61ac60840210b22a86db086cc51
+          semantic_commits:
+            - 570d857f582cb61ac60840210b22a86db086cc51
+          diff_paths:
+            - lib/ibex/watch/runner.rb
+          rationale: The named semantic commits introduce the reviewed public watch syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream watch compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits: []
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/watch/runner.rb
+          rationale: The exact path-limited Git review found no commits in this boundary, so no public watch syntax, API, or behavior change appears in the reviewed scope.
+          unresolved_uncertainty: This path review does not establish downstream watch compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git history does not establish long-running host-specific operational compatibility.]
       evidence: [docs/grammar-reference.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; long-running and host-specific defects may be unreported. }
@@ -867,12 +1786,59 @@ features:
       introduction: { revision: 4aa58c5e6f013c6ad187b9a739d55147829aa42c, path: lib/ibex/table_simulation.rb, query: "module TableSimulation", summary: Debug simulation entered in Add safe parser table simulation. }
       first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 1431737aa190be4ea8704488f2ac6d853905ce59258f2057f0a73ea70957cfda }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: d222492d82cf0d871cec9b7c187ebe45c839ce0dfe22e980dd66950cd7c0159d }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: d222492d82cf0d871cec9b7c187ebe45c839ce0dfe22e980dd66950cd7c0159d }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: absent
+          canonical_presence:
+            status: absent
+            present_paths: []
+            absent_paths:
+              - lib/ibex/table_simulation.rb
+            rationale: No validator-owned canonical blob exists before this feature introduction.
+          source_tree_sha256: 1431737aa190be4ea8704488f2ac6d853905ce59258f2057f0a73ea70957cfda
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/table_simulation.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: d222492d82cf0d871cec9b7c187ebe45c839ce0dfe22e980dd66950cd7c0159d
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/table_simulation.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: d222492d82cf0d871cec9b7c187ebe45c839ce0dfe22e980dd66950cd7c0159d
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Debug simulation was absent at v0.1.0 and present in v0.2.0. }
-        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical table simulation source is byte-identical after v0.2.0. }
+        - boundary: introduction..v0.2.0
+          from_revision: f10cb2af61566d5180724469a5498fbc7325dc2c
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: introduced
+          reviewed_commits:
+            - 4aa58c5e6f013c6ad187b9a739d55147829aa42c
+          semantic_commits:
+            - 4aa58c5e6f013c6ad187b9a739d55147829aa42c
+          diff_paths:
+            - lib/ibex/table_simulation.rb
+          rationale: The named semantic commits introduce the reviewed public debug syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream debug compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits: []
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/table_simulation.rb
+          rationale: The exact path-limited Git review found no commits in this boundary, so no public debug syntax, API, or behavior change appears in the reviewed scope.
+          unresolved_uncertainty: This path review does not establish downstream debug compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git snapshots do not establish external diagnostic usefulness or output compatibility.]
       evidence: [docs/grammar-reference.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not prove simulator fidelity. }
@@ -924,12 +1890,59 @@ features:
       introduction: { revision: f10cb2af61566d5180724469a5498fbc7325dc2c, path: lib/ibex/coverage/collector.rb, query: "class Collector", summary: Coverage entered in Add deterministic runtime coverage. }
       first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 91d858146819ec5ab80e08429bf58977c05cdbf1f108b52c295c01fd70cbb783 }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 9b6bb2992c0d329800afe3d235b34419311c882f91ec0f196d7407ba63a24a02 }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 9b6bb2992c0d329800afe3d235b34419311c882f91ec0f196d7407ba63a24a02 }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: absent
+          canonical_presence:
+            status: absent
+            present_paths: []
+            absent_paths:
+              - lib/ibex/coverage/collector.rb
+            rationale: No validator-owned canonical blob exists before this feature introduction.
+          source_tree_sha256: 91d858146819ec5ab80e08429bf58977c05cdbf1f108b52c295c01fd70cbb783
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/coverage/collector.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 9b6bb2992c0d329800afe3d235b34419311c882f91ec0f196d7407ba63a24a02
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/coverage/collector.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 9b6bb2992c0d329800afe3d235b34419311c882f91ec0f196d7407ba63a24a02
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Coverage was absent at v0.1.0 and present in v0.2.0. }
-        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical coverage collector source is byte-identical after v0.2.0. }
+        - boundary: introduction..v0.2.0
+          from_revision: 4e53ffb911d712a55c2465b57da6fd2a5332889c
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: introduced
+          reviewed_commits:
+            - f10cb2af61566d5180724469a5498fbc7325dc2c
+          semantic_commits:
+            - f10cb2af61566d5180724469a5498fbc7325dc2c
+          diff_paths:
+            - lib/ibex/coverage/collector.rb
+          rationale: The named semantic commits introduce the reviewed public coverage syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream coverage compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits: []
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/coverage/collector.rb
+          rationale: The exact path-limited Git review found no commits in this boundary, so no public coverage syntax, API, or behavior change appears in the reviewed scope.
+          unresolved_uncertainty: This path review does not establish downstream coverage compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git snapshots do not establish external CI threshold usefulness or observation overhead.]
       evidence: [docs/decisions/0010-committed-runtime-observation.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; missing-event defects may be unreported. }
@@ -981,12 +1994,59 @@ features:
       introduction: { revision: 30c41be981e41c3fbd71e1f75afe296b329ddbd3, path: site/playground/analyzer.rb, query: IbexPlayground, summary: Browser playground entered in Add browser grammar playground. }
       first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 2377befe2b991b494550b05c9a916fb6ec093e0d473c246eb248ca5e9538c3da }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 4b8e347c3ce4bd539c1e2fec9807e33c7f268265ae6ec8a3abc01fe58e6c1daa }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 4b8e347c3ce4bd539c1e2fec9807e33c7f268265ae6ec8a3abc01fe58e6c1daa }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: absent
+          canonical_presence:
+            status: absent
+            present_paths: []
+            absent_paths:
+              - site/playground/analyzer.rb
+            rationale: No validator-owned canonical blob exists before this feature introduction.
+          source_tree_sha256: 2377befe2b991b494550b05c9a916fb6ec093e0d473c246eb248ca5e9538c3da
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - site/playground/analyzer.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 4b8e347c3ce4bd539c1e2fec9807e33c7f268265ae6ec8a3abc01fe58e6c1daa
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - site/playground/analyzer.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 4b8e347c3ce4bd539c1e2fec9807e33c7f268265ae6ec8a3abc01fe58e6c1daa
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Browser playground was absent at v0.1.0 and present in v0.2.0. }
-        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical browser analyzer source is byte-identical after v0.2.0. }
+        - boundary: introduction..v0.2.0
+          from_revision: 94b22d55a974db8d976c16d08a4b7daaca7989a7
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: introduced
+          reviewed_commits:
+            - 30c41be981e41c3fbd71e1f75afe296b329ddbd3
+          semantic_commits:
+            - 30c41be981e41c3fbd71e1f75afe296b329ddbd3
+          diff_paths:
+            - site/playground/analyzer.rb
+          rationale: The named semantic commits introduce the reviewed public browser playground syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream browser playground compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits: []
+          semantic_commits: []
+          diff_paths:
+            - site/playground/analyzer.rb
+          rationale: The exact path-limited Git review found no commits in this boundary, so no public browser playground syntax, API, or behavior change appears in the reviewed scope.
+          unresolved_uncertainty: This path review does not establish downstream browser playground compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git history does not reconstruct supported browser and assistive technology compatibility.]
       evidence: [docs/decisions/0015-worker-isolated-browser-analysis.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; browser and accessibility defects may be reported elsewhere or not at all. }
@@ -1038,12 +2098,64 @@ features:
       introduction: { revision: 3187b74d3933259a1a44deee8ed90aabf61a2efb, path: lib/ibex/codegen/action_method_source.rb, query: "class ActionMethodSource", summary: Action-shadow entered in Add static semantic action checking. }
       first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 08840d9c151ab14a116f9e9877e29a3b1ed52cbd0e17cde82e5c9511217bcee1 }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: a26d41b60b98d6d4b2e7e51d18c28a44242e08ec1922745be48c63ad58facff5 }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: a26d41b60b98d6d4b2e7e51d18c28a44242e08ec1922745be48c63ad58facff5 }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: absent
+          canonical_presence:
+            status: absent
+            present_paths: []
+            absent_paths:
+              - lib/ibex/codegen/action_method_source.rb
+            rationale: No validator-owned canonical blob exists before this feature introduction.
+          source_tree_sha256: 08840d9c151ab14a116f9e9877e29a3b1ed52cbd0e17cde82e5c9511217bcee1
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/codegen/action_method_source.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: a26d41b60b98d6d4b2e7e51d18c28a44242e08ec1922745be48c63ad58facff5
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/codegen/action_method_source.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: a26d41b60b98d6d4b2e7e51d18c28a44242e08ec1922745be48c63ad58facff5
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Action-shadow was absent at v0.1.0 and present in v0.2.0. }
-        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical shadow method generator is byte-identical after v0.2.0. }
+        - boundary: introduction..v0.2.0
+          from_revision: 51234f2acc5080981c399f3821fe61d07f4b38af
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: introduced
+          reviewed_commits:
+            - 3187b74d3933259a1a44deee8ed90aabf61a2efb
+            - e170cee79243d0aa975be3e107cd95cd7cc8baf0
+            - ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
+            - f7e1533003989b4c13f6158f4c482ba5cc3b9090
+            - ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
+            - d13f5c422fc83a5137375d74184f2aa1e087b26f
+          semantic_commits:
+            - 3187b74d3933259a1a44deee8ed90aabf61a2efb
+          diff_paths:
+            - lib/ibex/codegen/action_method_source.rb
+          rationale: The named semantic commits introduce the reviewed public action-shadow syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream action-shadow compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits: []
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/codegen/action_method_source.rb
+          rationale: The exact path-limited Git review found no commits in this boundary, so no public action-shadow syntax, API, or behavior change appears in the reviewed scope.
+          unresolved_uncertainty: This path review does not establish downstream action-shadow compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git snapshots do not establish compatibility with an independent type-checker consumer.]
       evidence: [docs/decisions/0011-versioned-semantic-action-boundary.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not establish semantic equivalence with runtime execution. }
@@ -1095,12 +2207,59 @@ features:
       introduction: { revision: df8ac82c0ed0c8862190ac88671949f0d5e8a001, path: lib/ibex/runtime/repair.rb, query: "class RepairPolicy", summary: Bounded repair entered in Add bounded runtime token repair. }
       first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: c104966352de61946e0e1c0da64b2847f00d60d63e1b64fc6a0bb0fa9373284b }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 1246123e021816c3e0c04887e091f72e34235356de937f669cf8a2cd18a84cc7 }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 1246123e021816c3e0c04887e091f72e34235356de937f669cf8a2cd18a84cc7 }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: absent
+          canonical_presence:
+            status: absent
+            present_paths: []
+            absent_paths:
+              - lib/ibex/runtime/repair.rb
+            rationale: No validator-owned canonical blob exists before this feature introduction.
+          source_tree_sha256: c104966352de61946e0e1c0da64b2847f00d60d63e1b64fc6a0bb0fa9373284b
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/runtime/repair.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 1246123e021816c3e0c04887e091f72e34235356de937f669cf8a2cd18a84cc7
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/runtime/repair.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 1246123e021816c3e0c04887e091f72e34235356de937f669cf8a2cd18a84cc7
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Bounded repair was absent at v0.1.0 and present in v0.2.0. }
-        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical repair policy source is byte-identical after v0.2.0. }
+        - boundary: introduction..v0.2.0
+          from_revision: 4aa58c5e6f013c6ad187b9a739d55147829aa42c
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: introduced
+          reviewed_commits:
+            - df8ac82c0ed0c8862190ac88671949f0d5e8a001
+          semantic_commits:
+            - df8ac82c0ed0c8862190ac88671949f0d5e8a001
+          diff_paths:
+            - lib/ibex/runtime/repair.rb
+          rationale: The named semantic commits introduce the reviewed public bounded repair syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream bounded repair compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits: []
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/runtime/repair.rb
+          rationale: The exact path-limited Git review found no commits in this boundary, so no public bounded repair syntax, API, or behavior change appears in the reviewed scope.
+          unresolved_uncertainty: This path review does not establish downstream bounded repair compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git history does not establish external usefulness or a non-nil inserted-value contract.]
       evidence: [docs/decisions/0012-bounded-nonexecuting-analysis.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; it does not negate the two known unhelpful baseline plans. }
@@ -1152,12 +2311,75 @@ features:
       introduction: { revision: 0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e, path: lib/ibex/runtime/parser.rb, query: incremental_session, summary: Incremental CST entered in Add syntax-only incremental parsing. }
       first_release: { status: released, tag: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d }
       snapshots:
-        - { id: v0.1.0, revision: 65d41edf381afb9c18e01e55332a293332f340e6, feature_status: absent, source_tree_sha256: 24a83a637a301cee30802ff35ec71d5731167c9db842800c7fcc3c0ccc5e86df }
-        - { id: v0.2.0, revision: bd88b1203706c37bf225e837a2fe46d334d4651d, feature_status: present, source_tree_sha256: 4bcaa677fd049a44e92df235fb7b6adde0e70c3e6a8d9eb0d752ed6ff84ea8e5 }
-        - { id: reviewed, revision: 96db239bb6b40723cce94f42d8d4262ba3477fec, feature_status: present, source_tree_sha256: 4bcaa677fd049a44e92df235fb7b6adde0e70c3e6a8d9eb0d752ed6ff84ea8e5 }
+        - id: v0.1.0
+          revision: 65d41edf381afb9c18e01e55332a293332f340e6
+          feature_status: absent
+          canonical_presence:
+            status: absent
+            present_paths: []
+            absent_paths:
+              - lib/ibex/runtime/cst/incremental/session.rb
+            rationale: No validator-owned canonical blob exists before this feature introduction.
+          source_tree_sha256: 24a83a637a301cee30802ff35ec71d5731167c9db842800c7fcc3c0ccc5e86df
+        - id: v0.2.0
+          revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/runtime/cst/incremental/session.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 4bcaa677fd049a44e92df235fb7b6adde0e70c3e6a8d9eb0d752ed6ff84ea8e5
+        - id: reviewed
+          revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          feature_status: present
+          canonical_presence:
+            status: complete
+            present_paths:
+              - lib/ibex/runtime/cst/incremental/session.rb
+            absent_paths: []
+            rationale: All validator-owned canonical blobs exist at this reviewed tree.
+          source_tree_sha256: 4bcaa677fd049a44e92df235fb7b6adde0e70c3e6a8d9eb0d752ed6ff84ea8e5
       changes:
-        - { boundary: "v0.1.0..v0.2.0", status: introduced, summary: Incremental CST was absent at v0.1.0 and present in v0.2.0. }
-        - { boundary: "v0.2.0..reviewed", status: unchanged, summary: The canonical incremental session source is byte-identical after v0.2.0. }
+        - boundary: introduction..v0.2.0
+          from_revision: 5da90340090232df0e4266cf6ddd835777ca00f7
+          to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          classification: introduced
+          reviewed_commits:
+            - 0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
+            - ba5ee02b3afcb38a62618604faf6b77a53b1671e
+            - 5799152a6403f61af8674a1b9b4a03526dd287fe
+            - f3cb3826efa6bfcdb7c7ef11494a9d43c47af352
+            - 1be1a47400fb882a56ead8cef3d6e7a89db7f7d7
+            - c6722bd9cb90e24a81786411e300edd6196619b7
+          semantic_commits:
+            - 0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
+            - ba5ee02b3afcb38a62618604faf6b77a53b1671e
+          diff_paths:
+            - lib/ibex/runtime/cst/incremental/session.rb
+            - lib/ibex/runtime/parser.rb
+          rationale: The named semantic commits introduce the reviewed public incremental CST syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
+          unresolved_uncertainty: This path review does not establish downstream incremental CST compatibility or behavior outside the validator-owned introduction and canonical source scope.
+        - boundary: v0.2.0..reviewed
+          from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
+          to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+          classification: no_semantic_change
+          reviewed_commits:
+            - 5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
+            - cf170cad3383bf567c87e4904bd10f445315b994
+            - f2a1421c8f02ffb4d50726452be6eae73cf7f510
+            - 08c7dc5d939a1f47b0132ae3986818cdbaec1f34
+            - edac11e91221b1c7b81883a5cb98e8bdcab82297
+            - d85b83bbfc05d99e19e9429e4bc2bd0104fd1168
+            - 7f248ebaa71bdf55ea8943aa75f9474e4c108831
+            - d2e7ce9ec93463ac8c7c957224ed76ab31c83d54
+          semantic_commits: []
+          diff_paths:
+            - lib/ibex/runtime/cst/incremental/session.rb
+            - lib/ibex/runtime/parser.rb
+          rationale: The exact path-limited Git review inspected 8 commits; their changes do not alter the public incremental CST syntax, API, or behavior represented by this inventory row.
+          unresolved_uncertainty: This path review does not establish downstream incremental CST compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git snapshots do not establish editor lifecycle correctness or external latency behavior.]
       evidence: [docs/decisions/0018-conservative-incremental-syntax-reuse.md, docs/stability.md]
     issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; fixed-seed and property tests cannot prove every edit sequence. }

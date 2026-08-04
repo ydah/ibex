@@ -7,6 +7,8 @@ require "pathname"
 require "set"
 require "yaml"
 
+require_relative "maturity_authority"
+
 module Ibex
   module Quality
     # rubocop:disable Metrics/ClassLength -- one validator owns the closed maturity audit and its public projections.
@@ -16,11 +18,12 @@ module Ibex
       REVISION = /\A[0-9a-f]{40}\z/
       SHA256 = /\A[0-9a-f]{64}\z/
       ID = /\A[a-z0-9]+(?:-[a-z0-9]+)*\z/
-      REVIEWED_REVISION = "96db239bb6b40723cce94f42d8d4262ba3477fec"
-      RELEASES = {
-        "v0.1.0" => "65d41edf381afb9c18e01e55332a293332f340e6",
-        "v0.2.0" => "bd88b1203706c37bf225e837a2fe46d334d4651d"
-      }.freeze
+      REVIEWED_REVISION = MaturityAuthority::REVIEWED_REVISION
+      RELEASES = MaturityAuthority::RELEASES
+      SNAPSHOTS = MaturityAuthority::SNAPSHOTS
+      INTRODUCTION_AUTHORITIES = MaturityAuthority::INTRODUCTIONS
+      SEMANTIC_AUDIT_AUTHORITIES = MaturityAuthority::SEMANTIC_AUDITS
+      STABLE_OVERLAPS = MaturityAuthority::STABLE_OVERLAPS
       EXPECTED = {
         "ebnf-groups" => "preview",
         "parameterized-rules" => "preview",
@@ -65,7 +68,8 @@ module Ibex
         "canonical-imports" => %w[lib/ibex/frontend/resolver.rb],
         "generated-lexers" => %w[lib/ibex/runtime/generated_lexer.rb],
         "semantic-locations-types" => %w[
-          lib/ibex/codegen/ruby.rb lib/ibex/frontend/generated_parser_metadata.rb lib/ibex/runtime/parser.rb
+          lib/ibex/codegen/rbs.rb lib/ibex/codegen/ruby.rb lib/ibex/frontend/generated_parser_metadata.rb
+          lib/ibex/runtime/parser.rb
         ],
         "ast-generation" => %w[lib/ibex/codegen/ruby_ast.rb],
         "grammar-tests" => %w[lib/ibex/grammar_tests.rb],
@@ -106,7 +110,7 @@ module Ibex
         "incremental-cst" => [["incremental-session", "explicit_api", false]]
       }.freeze
       EXPECTED_DECISIONS = EXPECTED.keys.to_h do |id|
-        [id, id == "semantic-locations-types" ? "redesign" : "keep"]
+        [id, %w[middle-actions semantic-locations-types].include?(id) ? "redesign" : "keep"]
       end.freeze
       SUMMARY_START = "<!-- maturity-summary:start -->"
       SUMMARY_END = "<!-- maturity-summary:end -->"
@@ -117,11 +121,37 @@ module Ibex
           key = [root, reviewed_revision, relative_path, query]
           @pickaxe_cache.fetch(key) do
             output, error, status = Open3.capture3(
-              "git", "-C", root, "log", "--reverse", "--format=%H", "-S#{query}", "--", relative_path
+              "git", "-C", root, "log", "--reverse", "--format=%H", "-S#{query}", reviewed_revision, "--",
+              relative_path
             )
             raise "cannot reconstruct introduction: #{error.strip}" unless status.success?
 
             @pickaxe_cache[key] = output.lines(chomp: true).first
+          end
+        end
+
+        def path_commits(root, from_revision, to_revision, paths)
+          @path_commit_cache ||= {}
+          key = [root, from_revision, to_revision, paths]
+          @path_commit_cache.fetch(key) do
+            output, error, status = Open3.capture3(
+              "git", "-C", root, "log", "--reverse", "--format=%H", "#{from_revision}..#{to_revision}", "--",
+              *paths
+            )
+            raise "cannot reconstruct semantic history: #{error.strip}" unless status.success?
+
+            @path_commit_cache[key] = output.lines(chomp: true)
+          end
+        end
+
+        def first_parent(root, revision)
+          @parent_cache ||= {}
+          key = [root, revision]
+          @parent_cache.fetch(key) do
+            output, error, status = Open3.capture3("git", "-C", root, "rev-parse", "#{revision}^")
+            raise "cannot resolve introduction parent: #{error.strip}" unless status.success?
+
+            @parent_cache[key] = output.strip
           end
         end
       end
@@ -262,8 +292,13 @@ module Ibex
         raise "cannot read reviewed repository history: #{error.strip}" unless status.success?
 
         revisions = output.lines(chomp: true)
-        @reviewed_order = revisions.each_with_index.to_h
         @reviewed_ancestors = revisions.to_set
+        @release_ancestors = RELEASES.to_h do |tag, revision|
+          tag_output, tag_error, tag_status = Open3.capture3("git", "-C", @root, "rev-list", revision)
+          raise "cannot read release history for #{tag}: #{tag_error.strip}" unless tag_status.success?
+
+          [tag, tag_output.lines(chomp: true).to_set]
+        end
       end
 
       def verify_release_tags
@@ -273,6 +308,8 @@ module Ibex
           raise "release tag #{tag} drift" unless actual.strip == expected
           raise "release tag #{tag} is outside reviewed history" unless @reviewed_ancestors.include?(expected)
         end
+        chronological = @release_ancestors.fetch("v0.2.0").include?(RELEASES.fetch("v0.1.0"))
+        raise "release tag history is not chronological" unless chronological
       end
 
       def verify_budgets(budgets, features)
@@ -323,6 +360,8 @@ module Ibex
         ids = features.map { |feature| feature.fetch("id") }
         raise "maturity inventory must contain the exact 18 Preview + 2 Experimental features in canonical order" unless
           ids == EXPECTED.keys
+        raise "introduction authority inventory drift" unless INTRODUCTION_AUTHORITIES.keys == EXPECTED.keys
+        raise "semantic audit authority inventory drift" unless SEMANTIC_AUDIT_AUTHORITIES.keys == EXPECTED.keys
 
         prepare_history_sources
         features.each { |feature| verify_feature(feature, audit, dependencies, workloads) }
@@ -389,7 +428,9 @@ module Ibex
       end
 
       def verify_activation(id, activation, _maturity)
-        exact_keys!(activation, %w[maturity_independent surfaces], "#{id}: activation")
+        keys = %w[maturity_independent surfaces]
+        keys << "stable_overlap" if STABLE_OVERLAPS.key?(id)
+        exact_keys!(activation, keys, "#{id}: activation")
         raise "#{id}: activation must be explicitly independent from maturity" unless
           activation.fetch("maturity_independent") == true
 
@@ -405,6 +446,34 @@ module Ibex
         end
         raise "#{id}: activation surfaces drift from the reviewed runtime boundary" unless
           actual == ACTIVATION_SURFACES.fetch(id)
+
+        stable_surface_ids = surfaces.filter_map do |surface|
+          surface.fetch("id") if surface.fetch("availability") == "compatible" && surface.fetch("default_enabled")
+        end
+        verify_stable_overlap(id, activation["stable_overlap"], stable_surface_ids)
+      end
+
+      def verify_stable_overlap(id, overlap, stable_surface_ids)
+        expected = STABLE_OVERLAPS[id]
+        if expected.nil?
+          raise "#{id}: default-compatible activation requires Stable guarantee precedence" if stable_surface_ids.any?
+
+          return
+        end
+
+        exact_keys!(
+          overlap,
+          %w[surface_ids governing_maturity breaking_policy guarantee separable_preview_activation],
+          "#{id}: stable_overlap"
+        )
+        raise "#{id}: Stable overlap surface mapping drift" unless
+          overlap.fetch("surface_ids") == stable_surface_ids && stable_surface_ids == expected.fetch(:surface_ids)
+        raise "#{id}: Stable guarantee must govern default-compatible overlap" unless
+          overlap.fetch("governing_maturity") == "stable" &&
+          overlap.fetch("breaking_policy") == "stable_compatibility_lock"
+        raise "#{id}: Stable overlap guarantee drift" unless overlap.fetch("guarantee") == expected.fetch(:guarantee)
+        raise "#{id}: separable Preview activation drift" unless
+          overlap.fetch("separable_preview_activation") == expected.fetch(:separable_preview_activation)
       end
 
       # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity -- coupled evidence.
@@ -450,19 +519,24 @@ module Ibex
         raise "#{id}: history method must be git_pickaxe_and_source_snapshots_v1" unless
           history.fetch("method") == "git_pickaxe_and_source_snapshots_v1"
 
-        introduction = verify_introduction(id, history.fetch("introduction"))
-        verify_first_release(id, history.fetch("first_release"), introduction)
-        snapshots = verify_history_snapshots(id, history.fetch("snapshots"), introduction)
-        verify_history_changes(id, history.fetch("changes"), snapshots)
+        authority = INTRODUCTION_AUTHORITIES.fetch(id)
+        introduction = verify_introduction(id, history.fetch("introduction"), authority)
+        verify_first_release(id, history.fetch("first_release"), introduction, authority)
+        verify_history_snapshots(id, history.fetch("snapshots"), authority)
+        verify_history_changes(id, history.fetch("changes"), authority)
         string_array!(history.fetch("unknowns"), "#{id}: specification history unknowns")
         verify_path_array!(history.fetch("evidence"), "#{id}: specification history evidence")
       end
 
-      def verify_introduction(id, introduction)
+      def verify_introduction(id, introduction, authority)
         exact_keys!(introduction, %w[revision path query summary], "#{id}: introduction")
         revision = introduction.fetch("revision")
         revision!(revision, "#{id}: introduction revision")
         raise "#{id}: introduction is outside reviewed history" unless @reviewed_ancestors.include?(revision)
+
+        expected = authority.values_at(:revision, :path, :query)
+        actual = introduction.values_at("revision", "path", "query")
+        raise "#{id}: introduction authority drift" unless actual == expected
 
         relative_path = introduction.fetch("path")
         verify_existing_path!(relative_path, "#{id}: introduction path")
@@ -475,32 +549,39 @@ module Ibex
         revision
       end
 
-      def verify_first_release(id, release, introduction)
+      def verify_first_release(id, release, introduction, authority)
         exact_keys!(release, %w[status tag revision], "#{id}: first_release")
         raise "#{id}: every audited feature must name its first release" unless release.fetch("status") == "released"
 
-        expected_tag = RELEASES.keys.find do |tag|
-          @reviewed_order.fetch(introduction) <= @reviewed_order.fetch(RELEASES.fetch(tag))
-        end
-        raise "#{id}: no reviewed release contains the introduction" unless expected_tag
+        expected_tag = authority.fetch(:first_release)
         raise "#{id}: first release tag drift" unless release.fetch("tag") == expected_tag
         raise "#{id}: first release revision drift" unless release.fetch("revision") == RELEASES.fetch(expected_tag)
+        raise "#{id}: introduction is not an ancestor of its first release" unless
+          @release_ancestors.fetch(expected_tag).include?(introduction)
+
+        earlier_tags = RELEASES.keys.take_while { |tag| tag != expected_tag }
+        already_released = earlier_tags.any? { |tag| @release_ancestors.fetch(tag).include?(introduction) }
+        raise "#{id}: first release is later than a tag that already contains the introduction" if already_released
       end
 
-      def verify_history_snapshots(id, snapshots, introduction)
+      def verify_history_snapshots(id, snapshots, authority)
         record_array!(snapshots, "#{id}: history snapshots")
-        expected = RELEASES.merge("reviewed" => @reviewed_revision)
         raise "#{id}: history snapshots must cover v0.1.0, v0.2.0, and reviewed in order" unless
-          snapshots.map { |snapshot| snapshot.fetch("id") } == expected.keys
+          snapshots.map { |snapshot| snapshot.fetch("id") } == SNAPSHOTS.keys
 
-        snapshots.each do |snapshot|
-          exact_keys!(snapshot, %w[id revision feature_status source_tree_sha256], "#{id}: history snapshot")
-          revision = expected.fetch(snapshot.fetch("id"))
+        snapshots.each_with_index do |snapshot, index|
+          exact_keys!(
+            snapshot, %w[id revision feature_status canonical_presence source_tree_sha256], "#{id}: history snapshot"
+          )
+          revision = SNAPSHOTS.fetch(snapshot.fetch("id"))
           raise "#{id}: snapshot revision drift" unless snapshot.fetch("revision") == revision
 
-          introduced = @reviewed_order.fetch(introduction) <= @reviewed_order.fetch(revision)
-          expected_status = introduced ? "present" : "absent"
+          expected_status = authority.fetch(:feature_status).fetch(index)
           raise "#{id}: snapshot feature presence drift" unless snapshot.fetch("feature_status") == expected_status
+
+          verify_canonical_presence(
+            id, snapshot.fetch("canonical_presence"), revision, expected_status, authority, index
+          )
 
           digest!(snapshot.fetch("source_tree_sha256"), "#{id}: snapshot source tree digest")
           actual_digest = historical_source_tree_digest(id, revision)
@@ -509,29 +590,158 @@ module Ibex
         snapshots
       end
 
-      def verify_history_changes(id, changes, snapshots)
+      def verify_canonical_presence(id, presence, revision, feature_status, authority, index)
+        exact_keys!(presence, %w[status present_paths absent_paths rationale], "#{id}: canonical presence")
+        sources = CANONICAL_SOURCES.fetch(id)
+        expected_absent = authority.fetch(:absent_sources).fetch(index)
+        actual_absent = sources.select { |relative_path| @git_objects.fetch([revision, relative_path]).nil? }
+        raise "#{id}: validator-owned canonical presence authority drift" unless actual_absent == expected_absent
+
+        expected_present = sources - expected_absent
+        raise "#{id}: canonical present path mapping drift" unless presence.fetch("present_paths") == expected_present
+        raise "#{id}: canonical absent path mapping drift" unless presence.fetch("absent_paths") == expected_absent
+
+        expected_status = if feature_status == "present"
+                            raise "#{id}: present feature is missing a canonical blob" unless expected_absent.empty?
+
+                            "complete"
+                          elsif expected_present.empty?
+                            "absent"
+                          else
+                            "partial"
+                          end
+        raise "#{id}: canonical presence status drift" unless presence.fetch("status") == expected_status
+
+        non_empty_string!(presence.fetch("rationale"), "#{id}: canonical presence rationale")
+      end
+
+      def verify_history_changes(id, changes, authority)
         record_array!(changes, "#{id}: history changes", key: "boundary")
-        expected_boundaries = %w[v0.1.0..v0.2.0 v0.2.0..reviewed]
+        expected_boundaries = semantic_boundaries(authority)
         raise "#{id}: history change boundaries must be chronological and canonical" unless
-          changes.map { |change| change.fetch("boundary") } == expected_boundaries
+          changes.map { |change| change.fetch("boundary") } == expected_boundaries.map { |entry| entry.fetch(:id) }
 
-        changes.each_with_index do |change, index|
-          exact_keys!(change, %w[boundary status summary], "#{id}: history change")
-          before = snapshots.fetch(index)
-          after = snapshots.fetch(index + 1)
-          expected_status = history_change_status(before, after)
-          raise "#{id}: history change status drift" unless change.fetch("status") == expected_status
-
-          non_empty_string!(change.fetch("summary"), "#{id}: history change summary")
+        changes.zip(expected_boundaries).each do |change, boundary|
+          exact_keys!(
+            change,
+            %w[
+              boundary from_revision to_revision classification reviewed_commits semantic_commits diff_paths
+              rationale unresolved_uncertainty
+            ],
+            "#{id}: history change"
+          )
+          verify_semantic_boundary(id, change, boundary, authority)
         end
       end
 
-      def history_change_status(before, after)
-        return "introduced" if before.fetch("feature_status") == "absent" && after.fetch("feature_status") == "present"
-        return "not_present" if after.fetch("feature_status") == "absent"
-        return "unchanged" if before.fetch("source_tree_sha256") == after.fetch("source_tree_sha256")
+      def semantic_boundaries(authority)
+        introduction = authority.fetch(:revision)
+        introduction_parent = self.class.first_parent(@root, introduction)
+        raise "introduction parent is outside reviewed history" unless @reviewed_ancestors.include?(introduction_parent)
 
-        "canonical_source_changed"
+        first_release = authority.fetch(:first_release)
+        boundaries = [{
+          id: "introduction..#{first_release}", from: introduction_parent, to: RELEASES.fetch(first_release),
+          before_status: "absent", after_status: "present"
+        }]
+        if first_release == "v0.1.0"
+          boundaries << {
+            id: "v0.1.0..v0.2.0", from: RELEASES.fetch("v0.1.0"), to: RELEASES.fetch("v0.2.0"),
+            before_status: "present", after_status: "present"
+          }
+        end
+        boundaries << {
+          id: "v0.2.0..reviewed", from: RELEASES.fetch("v0.2.0"), to: @reviewed_revision,
+          before_status: "present", after_status: "present"
+        }
+        boundaries
+      end
+
+      def verify_semantic_boundary(id, change, expected_boundary, authority)
+        boundary_id = change.fetch("boundary")
+        expected_classification, expected_semantic = SEMANTIC_AUDIT_AUTHORITIES.fetch(id).fetch(boundary_id)
+        classification = change.fetch("classification")
+        unless %w[introduced semantic_change no_semantic_change unknown].include?(classification)
+          raise "#{id}: unsupported semantic history classification"
+        end
+        raise "#{id}: semantic history classification drift" unless classification == expected_classification
+
+        raise "#{id}: semantic boundary revision drift" unless
+          boundary_id == expected_boundary.fetch(:id) &&
+          change.fetch("from_revision") == expected_boundary.fetch(:from) &&
+          change.fetch("to_revision") == expected_boundary.fetch(:to)
+
+        paths = ([authority.fetch(:path)] + CANONICAL_SOURCES.fetch(id)).uniq.sort
+        semantic = verify_semantic_commit_evidence(id, change, expected_boundary, paths, expected_semantic)
+        uncertainty = verify_semantic_audit_text(id, change)
+        verify_semantic_classification(id, classification, semantic, expected_boundary, authority, uncertainty)
+      end
+
+      def verify_semantic_commit_evidence(id, change, boundary, paths, expected_semantic)
+        verify_path_array!(change.fetch("diff_paths"), "#{id}: semantic diff paths")
+        raise "#{id}: semantic diff scope drift" unless change.fetch("diff_paths") == paths
+
+        reviewed = change.fetch("reviewed_commits")
+        semantic = change.fetch("semantic_commits")
+        string_array!(reviewed, "#{id}: reviewed semantic commits", allow_empty: true)
+        string_array!(semantic, "#{id}: semantic commits", allow_empty: true)
+        (reviewed + semantic).each { |revision| revision!(revision, "#{id}: semantic audit revision") }
+        expected_reviewed = self.class.path_commits(
+          @root, boundary.fetch(:from), boundary.fetch(:to), paths
+        )
+        raise "#{id}: reviewed semantic commit set or order drift" unless reviewed == expected_reviewed
+        raise "#{id}: semantic commits must be path-relevant reviewed commits" unless (semantic - reviewed).empty?
+        raise "#{id}: semantic commit authority drift" unless semantic == expected_semantic
+
+        semantic
+      end
+
+      def verify_semantic_audit_text(id, change)
+        rationale = change.fetch("rationale")
+        non_empty_string!(rationale, "#{id}: semantic audit rationale")
+        unless rationale.match?(/public .*?(?:syntax|API|behavior|contract)/i)
+          raise "#{id}: semantic rationale must address public syntax, API, behavior, or contract"
+        end
+
+        uncertainty = change.fetch("unresolved_uncertainty")
+        non_empty_string!(uncertainty, "#{id}: semantic audit unresolved uncertainty")
+        uncertainty
+      end
+
+      def verify_semantic_classification(id, classification, semantic, boundary, authority, uncertainty)
+        case classification
+        when "introduced"
+          verify_introduced_boundary(id, semantic, boundary, authority)
+        when "semantic_change"
+          verify_changed_boundary(id, semantic, boundary)
+        when "no_semantic_change"
+          verify_unchanged_boundary(id, semantic, boundary)
+        when "unknown"
+          verify_unknown_boundary(id, uncertainty)
+        end
+      end
+
+      def verify_introduced_boundary(id, semantic, boundary, authority)
+        transition = boundary.fetch(:before_status) == "absent" && boundary.fetch(:after_status) == "present"
+        raise "#{id}: introduced classification requires an absent-to-present boundary" unless transition
+        raise "#{id}: introduction commit must be a reviewed semantic commit" unless
+          semantic.include?(authority.fetch(:revision))
+      end
+
+      def verify_changed_boundary(id, semantic, boundary)
+        present = boundary.fetch(:before_status) == "present" && boundary.fetch(:after_status) == "present"
+        raise "#{id}: semantic_change requires a present feature and semantic commits" unless present && semantic.any?
+      end
+
+      def verify_unchanged_boundary(id, semantic, boundary)
+        present = boundary.fetch(:before_status) == "present" && boundary.fetch(:after_status) == "present"
+        raise "#{id}: no_semantic_change requires a present feature and no semantic commits" unless
+          present && semantic.empty?
+      end
+
+      def verify_unknown_boundary(id, uncertainty)
+        generic = uncertainty.length < 80 || uncertainty.match?(/\A(?:unknown|not reconstructed|none)\.?\z/i)
+        raise "#{id}: unknown semantic history requires a specific unresolved reason" if generic
       end
 
       def historical_source_tree_digest(id, revision)
@@ -610,6 +820,7 @@ module Ibex
 
         non_empty_string!(decision.fetch("kill_condition"), "#{id}: decision kill_condition")
         non_empty_string!(decision.fetch("redesign_plan"), "#{id}: decision redesign_plan")
+        verify_stable_overlap_decision(id, decision) if STABLE_OVERLAPS.key?(id)
 
         verify_path_array!(decision.fetch("evidence"), "#{id}: decision evidence")
         case outcome
@@ -649,6 +860,25 @@ module Ibex
                      "repository_only"
                    end
         raise "#{id}: decision value classification drifts from workload evidence" unless classification == expected
+      end
+
+      def verify_stable_overlap_decision(id, decision)
+        raise "#{id}: default-compatible Stable overlap cannot be kept as a breaking Preview surface" unless
+          decision.fetch("outcome") == "redesign"
+
+        text = decision.values_at("reason", "kill_condition", "redesign_plan").join(" ")
+        if text.match?(/(?:may|can|could) break[^.]*Preview|breaking changes?[^.]*Preview notice/i)
+          raise "#{id}: Stable guarantee takes precedence over Preview breaking-change notice"
+        end
+        return unless id == "middle-actions"
+
+        raise "#{id}: redesign must state that no separable Preview activation exists" unless
+          text.match?(/no separable Preview activation/i)
+        unless decision.fetch("redesign_plan").match?(
+          /split or remove .*redundant Preview classification.*next reviewed release.*distinct opt-in extension/i
+        )
+          raise "#{id}: redesign plan must split or remove the redundant Preview classification"
+        end
       end
 
       def verify_next_review(id, review)

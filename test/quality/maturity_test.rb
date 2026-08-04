@@ -167,7 +167,7 @@ class MaturityTest < Minitest::Test
     changed = document
     feature(changed, "watch").dig("specification_history", "introduction")["revision"] =
       "96db239bb6b40723cce94f42d8d4262ba3477fec"
-    assert_error(changed, "introduction revision is not the first pickaxe result")
+    assert_error(changed, "introduction authority drift")
 
     changed = document
     feature(changed, "watch").dig("specification_history", "introduction")["revision"] =
@@ -195,6 +195,59 @@ class MaturityTest < Minitest::Test
     assert_error(changed, "reviewed pre-H001 authority")
   end
   # rubocop:enable Metrics/AbcSize
+
+  def test_rejects_forged_introduction_and_canonical_presence
+    changed = document
+    introduction = feature(changed, "parameterized-rules").dig("specification_history", "introduction")
+    introduction["path"] = "README.md"
+    introduction["query"] = "Ibex"
+    introduction["revision"] = "1bce63f7734a6df2bef3f9d7de87680093a8d2a2"
+    assert_error(changed, "introduction authority drift")
+
+    changed = document
+    snapshot = feature(changed, "parameterized-rules").dig("specification_history", "snapshots", 0)
+    snapshot["canonical_presence"]["status"] = "complete"
+    assert_error(changed, "canonical presence status drift")
+  end
+
+  def test_rejects_unreviewed_or_digest_inferred_semantic_history
+    changed = document
+    audit = feature(changed, "ebnf-groups").dig("specification_history", "changes", 1)
+    audit["classification"] = "semantic_change"
+    audit["semantic_commits"] = [audit.fetch("reviewed_commits").first]
+    assert_error(changed, "semantic history classification drift")
+
+    changed = document
+    audit = feature(changed, "parameterized-rules").dig("specification_history", "changes", 0)
+    audit["semantic_commits"] = []
+    assert_error(changed, "semantic commit authority drift")
+
+    changed = document
+    audit = feature(changed, "watch").dig("specification_history", "changes", 1)
+    audit["reviewed_commits"] = ["68f649ac42af45cdbe179f4afe080c8920f0ff9d"]
+    assert_error(changed, "reviewed semantic commit set or order drift")
+
+    changed = document
+    feature(changed, "watch").dig("specification_history", "changes", 0, "diff_paths").clear
+    assert_error(changed, "semantic diff paths must be a non-empty")
+
+    changed = document
+    feature(changed, "watch").dig("specification_history", "changes", 0)["from_revision"] =
+      "65d41edf381afb9c18e01e55332a293332f340e6"
+    assert_error(changed, "semantic boundary revision drift")
+  end
+
+  def test_source_digest_changes_are_integrity_evidence_not_semantic_conclusions
+    ebnf = feature(document, "ebnf-groups").fetch("specification_history")
+    refute_equal ebnf.dig("snapshots", 0, "source_tree_sha256"), ebnf.dig("snapshots", 1, "source_tree_sha256")
+    assert_equal "unknown", ebnf.dig("changes", 1, "classification")
+
+    entries = feature(document, "multiple-entries").fetch("specification_history")
+    refute_equal entries.dig("snapshots", 1, "source_tree_sha256"),
+                 entries.dig("snapshots", 2, "source_tree_sha256")
+    assert_equal "no_semantic_change", entries.dig("changes", 1, "classification")
+    refute_empty entries.dig("changes", 1, "reviewed_commits")
+  end
 
   # rubocop:disable Metrics/AbcSize -- mutations cover every structured-decision field family.
   def test_rejects_unstructured_or_test_only_decisions
@@ -238,6 +291,23 @@ class MaturityTest < Minitest::Test
     changed = document
     feature(changed, "semantic-locations-types").dig("activation", "surfaces").pop
     assert_error(changed, "activation surfaces drift")
+
+    changed = document
+    overlap = feature(changed, "middle-actions").dig("activation", "stable_overlap")
+    overlap["breaking_policy"] = "preview_notice"
+    assert_error(changed, "Stable guarantee must govern")
+
+    changed = document
+    decision = feature(changed, "middle-actions").fetch("decision")
+    decision["outcome"] = "keep"
+    decision["criteria_status"] = "unmet"
+    decision["redesign_plan"] = "not_applicable"
+    assert_error(changed, "cannot be kept as a breaking Preview surface")
+
+    changed = document
+    feature(changed, "middle-actions")["decision"]["reason"] =
+      "The compatible surface can break under Preview notice despite its Stable contract."
+    assert_error(changed, "Stable guarantee takes precedence")
   end
 
   def test_rejects_wrong_feature_budget_or_release_dependency_state
@@ -265,6 +335,10 @@ class MaturityTest < Minitest::Test
 
     changed = document
     feature(changed, "ebnf-groups")["sources"] = feature(changed, "parameterized-rules")["sources"].map(&:dup)
+    assert_error(changed, "authoritative canonical source path set drift")
+
+    changed = document
+    feature(changed, "semantic-locations-types").fetch("sources").shift
     assert_error(changed, "authoritative canonical source path set drift")
   end
 
