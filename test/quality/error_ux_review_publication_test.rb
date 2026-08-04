@@ -50,6 +50,27 @@ class ErrorUXReviewPublicationTest < Minitest::Test
     end
   end
 
+  def test_source_owner_must_equal_publisher_and_reviewer_login
+    with_publication do |publication, registration, record|
+      registration["permalink"].sub!("example-reviewer", "different-owner")
+      source = registration.fetch("source")
+      source["owner"] = "different-owner"
+      source["raw_url"].sub!("example-reviewer", "different-owner")
+
+      error = assert_raises(RuntimeError) { publication.verify!(registration, record) }
+      assert_includes error.message, "source owner, publisher, and independent reviewer"
+    end
+
+    with_publication do |publication, registration, record|
+      registration["permalink"].sub!("example-reviewer", "EXAMPLE-REVIEWER")
+      source = registration.fetch("source")
+      source["owner"] = "EXAMPLE-REVIEWER"
+      source["raw_url"].sub!("example-reviewer", "EXAMPLE-REVIEWER")
+
+      assert publication.verify!(registration, record)
+    end
+  end
+
   def test_rejects_alias_rostered_and_nonreviewer_publishers
     ["@example-reviewer", "https://github.com/example-reviewer", "other-reviewer", "YDAH"].each do |login|
       with_publication do |publication, registration, record|
@@ -62,6 +83,10 @@ class ErrorUXReviewPublicationTest < Minitest::Test
   def test_import_vetting_requires_rostered_identity_and_exact_attestations
     with_publication do |publication, registration, record|
       registration.fetch("import_vetting")["source_bytes_verified"] = false
+      assert_raises(RuntimeError) { publication.verify!(registration, record) }
+    end
+    with_publication do |publication, registration, record|
+      registration.fetch("import_vetting")["publisher_account_metadata_reviewed"] = false
       assert_raises(RuntimeError) { publication.verify!(registration, record) }
     end
     with_publication do |publication, registration, record|
@@ -89,6 +114,11 @@ class ErrorUXReviewPublicationTest < Minitest::Test
       fetcher.bytes = bytes
       fetcher.login = "other"
       assert_raises(RuntimeError) { verifier.verify!(registration, bytes, record) }
+
+      fetcher.login = "example-reviewer"
+      registration.fetch("source")["owner"] = "different-owner"
+      error = assert_raises(RuntimeError) { verifier.verify!(registration, bytes, record) }
+      assert_includes error.message, "source owner"
     end
   end
 
@@ -141,7 +171,7 @@ class ErrorUXReviewPublicationTest < Minitest::Test
         "vetted_by_github_login" => "ydah",
         "vetted_on" => Date.today.iso8601,
         "source_bytes_verified" => true,
-        "publisher_identity_reviewed" => true
+        "publisher_account_metadata_reviewed" => true
       }
     }
   end

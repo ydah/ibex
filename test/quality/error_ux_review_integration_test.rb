@@ -114,14 +114,13 @@ class ErrorUXReviewIntegrationTest < Minitest::Test
       "publisher_github_login" => "example-reviewer",
       "import_vetting" => {
         "vetted_by_github_login" => "ydah", "vetted_on" => Date.today.iso8601,
-        "source_bytes_verified" => true, "publisher_identity_reviewed" => true
+        "source_bytes_verified" => true, "publisher_account_metadata_reviewed" => true
       }
     }
   end
 
   def bind_claim!(root, registration) # rubocop:disable Metrics/AbcSize -- explicit fixture mirrors the closed claim.
     registry = YAML.safe_load_file(File.join(root, "docs/claims.yml"), permitted_classes: [], aliases: false)
-    registry.fetch("comparison_set").find { |entry| entry["id"] == "racc" }["state"] = "compared"
     claim = registry.fetch("claims").find { |entry| entry["id"] == "racc-error-ux-json-v1" }
     claim["state"] = "measured"
     claim.fetch("binding")["kind"] = "claim"
@@ -138,6 +137,9 @@ class ErrorUXReviewIntegrationTest < Minitest::Test
       claim.fetch("limitations").include?(Ibex::Quality::ErrorUXReviewBindings::HUMAN_LIMITATION)
     provenance = "Published review provenance: #{registration.fetch('permalink')} "
     claim.fetch("limitations") << "#{provenance}(SHA-256 #{registration.fetch('sha256')})."
+
+    racc = registry.fetch("comparison_set").find { |entry| entry["id"] == "racc" }
+    racc.merge!(Ibex::Quality::ClaimStates.comparison_state("racc", registry.fetch("claims")))
 
     update_comparative_block!(root, claim)
     clean_stale_report_text!(root)
@@ -198,12 +200,21 @@ class ErrorUXReviewIntegrationTest < Minitest::Test
   end
 
   def assert_binding_mutations_fail(root, payload, registration)
+    assert_provenance_mutations_fail(root, payload, registration)
+    assert_comparison_state_mutations_fail(root, payload)
+
+    changed = FakeFetcher.new("different bytes", "example-reviewer")
+    assert_raises(RuntimeError) { verifier(root, changed).release_gate! }
+  end
+
+  def assert_provenance_mutations_fail(root, payload, registration)
     assert_mutation_fails(root, payload, "README.md", "missing record provenance") do |source|
       source.sub(registration.fetch("permalink"), "")
     end
     assert_json_mutation_fails(root, payload, "registered digest mismatch") do |status|
       status.fetch("records").first["sha256"] = "0" * 64
     end
+    assert_source_owner_mutation_fails(root, payload)
     assert_yaml_mutation_fails(root, payload, "missing R001 evidence") do |claims|
       claim = claims.fetch("claims").find { |entry| entry["id"] == "racc-error-ux-json-v1" }
       claim.fetch("evidence").reject! { |entry| entry["path"] == registration.fetch("record_path") }
@@ -215,9 +226,29 @@ class ErrorUXReviewIntegrationTest < Minitest::Test
     assert_mutation_fails(root, payload, registration.fetch("record_path"), "registered digest mismatch") do |source|
       "#{source} "
     end
+  end
 
-    changed = FakeFetcher.new("different bytes", "example-reviewer")
-    assert_raises(RuntimeError) { verifier(root, changed).release_gate! }
+  def assert_source_owner_mutation_fails(root, payload)
+    assert_json_mutation_fails(root, payload, "source owner, publisher, and independent reviewer") do |status|
+      registration = status.fetch("records").first
+      registration["permalink"].sub!("example-reviewer", "different-owner")
+      registration.fetch("source")["owner"] = "different-owner"
+      registration.fetch("source").fetch("raw_url").sub!("example-reviewer", "different-owner")
+    end
+  end
+
+  def assert_comparison_state_mutations_fail(root, payload)
+    assert_yaml_mutation_fails(root, payload, "Racc state is stale") do |claims|
+      claims.fetch("comparison_set").find { |entry| entry["id"] == "racc" }["state"] = "compared"
+    end
+    assert_yaml_mutation_fails(root, payload, "Racc pending_claims is stale") do |claims|
+      racc = claims.fetch("comparison_set").find { |entry| entry["id"] == "racc" }
+      racc.fetch("pending_claims").unshift("racc-error-ux-json-v1")
+    end
+    assert_yaml_mutation_fails(root, payload, "Racc reason is stale") do |claims|
+      racc = claims.fetch("comparison_set").find { |entry| entry["id"] == "racc" }
+      racc["reason"] = "Error-UX review is pending and the formal performance result artifact is absent."
+    end
   end
 
   def assert_mutation_fails(root, payload, relative, message)

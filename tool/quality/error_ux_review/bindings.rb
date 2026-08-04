@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "yaml"
+require_relative "../comparative_claims/identities"
 require_relative "identity"
 
 module Ibex
@@ -70,10 +71,19 @@ module Ibex
         actual = [claim.fetch("state"), claim.dig("binding", "kind"), claim.dig("subjective_review", "state")]
         raise "#{CLAIM_ID} state must be #{expected.join('/')} while R001 is #{status}" unless actual == expected
 
+        verify_racc_comparison_state!(registry)
+      end
+
+      def verify_racc_comparison_state!(registry)
         racc = registry.fetch("comparison_set").find { |entry| entry["id"] == "racc" }
-        expected_tool_state = status == "HOLD" ? "evidence_pending" : "compared"
-        raise "Racc comparison state must be #{expected_tool_state} while R001 is #{status}" unless
-          racc&.fetch("state") == expected_tool_state
+        raise "Racc comparison entry is missing" unless racc
+
+        expected = ClaimStates.comparison_state("racc", registry.fetch("claims"))
+        %w[state pending_claims reason].each do |key|
+          next if racc.fetch(key) == expected.fetch(key)
+
+          raise "Racc #{key} is stale; expected #{expected.fetch(key).inspect} from all registered claims"
+        end
       end
 
       def verify_claim_evidence!(claim, records)

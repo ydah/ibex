@@ -17,7 +17,7 @@ module Ibex
       RECORD_KEYS = %w[record_path sha256 permalink source publisher_github_login import_vetting].freeze
       SOURCE_KEYS = %w[owner repository revision path raw_url].freeze
       VETTING_KEYS = %w[
-        vetted_by_github_login vetted_on source_bytes_verified publisher_identity_reviewed
+        vetted_by_github_login vetted_on source_bytes_verified publisher_account_metadata_reviewed
       ].freeze
 
       def initialize(root:, kit:)
@@ -34,7 +34,7 @@ module Ibex
 
         verify_record_path!(registration.fetch("record_path"))
         verify_source!(registration.fetch("permalink"), source)
-        verify_publisher!(registration.fetch("publisher_github_login"), record)
+        verify_publisher!(registration.fetch("publisher_github_login"), source.fetch("owner"), record)
         verify_vetting!(vetting)
         registration
       end
@@ -77,19 +77,21 @@ module Ibex
         raise "review blob path is empty, traversing, encoded, or noncanonical" if invalid
       end
 
-      def verify_publisher!(publisher, record)
+      def verify_publisher!(publisher, source_owner, record)
         raise "publisher login is not a canonical GitHub login" unless publisher.match?(LOGIN)
 
         reviewer = record.dig("reviewer", "github_login")
-        raise "publication publisher must equal the independent reviewer" unless publisher.casecmp?(reviewer)
+        unless publisher.casecmp?(reviewer) && publisher.casecmp?(source_owner)
+          raise "review source owner, publisher, and independent reviewer logins must agree"
+        end
         return unless @kit.fetch("maintainer_github_logins").any? { |login| login.casecmp?(publisher) }
 
         raise "publication publisher is a rostered project maintainer"
       end
 
       def verify_vetting!(vetting)
-        unless vetting.values_at("source_bytes_verified", "publisher_identity_reviewed") == [true, true]
-          raise "import vetting must attest source-byte and publisher-identity checks"
+        unless vetting.values_at("source_bytes_verified", "publisher_account_metadata_reviewed") == [true, true]
+          raise "import vetting must attest source-byte and publisher-account-metadata checks"
         end
 
         importer = vetting.fetch("vetted_by_github_login")
@@ -167,8 +169,10 @@ module Ibex
         author = @fetcher.commit_author(source)
         reviewer = record.dig("reviewer", "github_login")
         publisher = registration.fetch("publisher_github_login")
-        raise "GitHub publication author does not equal reviewer and publisher" unless
-          author.casecmp?(reviewer) && author.casecmp?(publisher)
+        owner = source.fetch("owner")
+        unless author.casecmp?(reviewer) && author.casecmp?(publisher) && author.casecmp?(owner)
+          raise "GitHub publication author, source owner, reviewer, and publisher logins do not agree"
+        end
 
         true
       rescue StandardError => e

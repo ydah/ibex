@@ -87,22 +87,25 @@ rationale.
    entry records its local path and SHA-256, canonical blob URL, derived raw URL
    and source identity, publisher login, and an import-vetting attestation. The
    release gate fetches those bytes again without redirects and uses GitHub's
-   primary commit API to require that the publication author and reviewer's
-   canonical login match. Network, authentication, redirect, byte, digest, or
-   identity uncertainty fails closed. Maintainers may reject a malformed record
-   but must not rewrite labels, rationales, or disagreement statements.
+   primary commit API to require that the source repository owner, publication
+   author, status publisher, and reviewer's canonical login match
+   case-insensitively. Network, authentication, redirect, byte, digest, or
+   account-metadata uncertainty fails closed. Maintainers may reject a malformed
+   record but must not rewrite labels, rationales, or disagreement statements.
 
 The generated file is intentionally a `draft`. A draft, a self-review, an
 unpublished or locally reconstructed payload, a mutable or noncanonical link,
 missing structured consent, placeholder text, or an incomplete assessment
 cannot satisfy R001.
 
-The import-vetting attestation records who checked the source bytes and identity;
-it is not cryptographic proof of human independence, coercion resistance, or
-the truth of an affiliation/conflict disclosure. Public account identity,
-immutable source bytes, maintainer-roster exclusion, and reviewer-authored
-publication are machine checked; the remaining human claims stay explicit
-limitations.
+The import-vetting attestation records who manually checked the source bytes and
+GitHub account metadata. The owner/author/login agreement establishes only
+control of the named GitHub namespace plus the account metadata returned by
+GitHub. It is not a cryptographic identity proof, a signature proof, proof of
+human independence or coercion resistance, or proof that an affiliation or
+conflict disclosure is true. Immutable source bytes, namespace/account
+agreement, maintainer-roster exclusion, and the manual check are recorded; the
+remaining human claims stay explicit limitations.
 
 ## Interpretation
 

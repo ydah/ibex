@@ -155,8 +155,10 @@ exact checkout and environment identity, set all structured consent fields, and
 publish the final permalink-free payload at a full-SHA blob URL. Maintainers
 import the exact bytes and register publication provenance separately, without
 rewriting. Ordinary CI validates the offline kit; the release gate performs
-fail-closed blob and GitHub API author checks and remains intentionally failing
-while the public status is HOLD.
+fail-closed blob checks and requires the source owner, GitHub API author,
+publisher, and reviewer logins to agree. This establishes only GitHub namespace
+control and account metadata, not cryptographic identity or a signature. The
+gate remains intentionally failing while the public status is HOLD.
 
 The current whole-library `steep stats` result is 23,517 typed calls and 2,946
 untyped calls out of 26,463, or 88.9% typed. Generated parser RBS refines

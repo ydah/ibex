@@ -12,6 +12,15 @@ Each entry also owns its canonical public aliases. README scanning recognizes
 only this declared set and aliases; adding a tool or spelling requires a
 reviewed registry change.
 
+Tool-level state is derived from every registered claim that names that tool.
+`pending_claims` is the canonical ordered list of claim IDs that are not yet
+`measured`, and the reason is generated deterministically from those IDs,
+their pending state, and their declared missing evidence. A tool with no claims
+is `not_compared` with an empty pending list and unknown identity. A tool with
+any pending claim is `evidence_pending`, even if another claim for that tool is
+measured. `compared` is valid only when the tool has at least one claim, every
+one is measured, and `pending_claims` is empty.
+
 ## Required record
 
 Every measured, evidence-pending, or review-pending record contains:
