@@ -1187,6 +1187,48 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     end
   end
 
+  def test_parenthesized_falsey_value_permits_later_conditional_alias
+    %w[((false)) ((nil))].each_with_index do |falsey, index|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/parenthesized_falsey_#{index}.rb", <<~RUBY)
+          require "optparse"
+          module Registry
+            PARSER = OptionParser.new
+          end
+          ParserRegistry = #{falsey}
+          ParserRegistry ||= Registry
+          def add_hidden(name)
+            ParserRegistry::PARSER.on(name)
+          end
+        RUBY
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, falsey)
+      end
+    end
+  end
+
+  def test_parenthesized_truthy_value_blocks_later_conditional_alias
+    ["((Object.new))", "((true))", '(("set"))', "((OtherRegistry))"].each_with_index do |truthy, index|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/parenthesized_truthy_#{index}.rb", <<~RUBY)
+          require "optparse"
+          module Registry
+            PARSER = OptionParser.new
+          end
+          module OtherRegistry
+            PARSER = Object.new
+          end
+          ParserRegistry = #{truthy}
+          ParserRegistry ||= Registry
+          def subscribe(name)
+            ParserRegistry::PARSER.on(name)
+          end
+        RUBY
+        assert inventory_for(root).verify!, truthy
+      end
+    end
+  end
+
   def test_conflicting_cross_file_conditional_aliases_remain_unproven
     with_repository_copy do |root|
       write_ruby(root, "lib/a_parser_alias.rb", "ParserRegistry ||= Registry\n")
@@ -1267,6 +1309,64 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
         error = assert_raises(RuntimeError) { inventory_for(root).verify! }
         assert_match(/has no static spelling/, error.message, label)
       end
+    end
+  end
+
+  def test_builder_return_local_alias_identity_chains_fail_closed
+    {
+      "itself" => "alias_parser.itself",
+      "freeze" => "alias_parser.freeze",
+      "tap" => "alias_parser.tap {}",
+      "dup" => "alias_parser.dup",
+      "clone" => "alias_parser.clone"
+    }.each do |label, returned|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/builder_alias_#{label}.rb", <<~RUBY)
+          require "optparse"
+          def add_hidden(name)
+            OptionParser.new.then do |parser|
+              alias_parser = parser
+              ((#{returned}))
+            end.on(name)
+          end
+        RUBY
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, label)
+      end
+    end
+  end
+
+  def test_implicit_builder_return_local_aliases_fail_closed
+    {
+      "numbered" => "OptionParser.new.yield_self " \
+                    "{ alias_parser = _1; final_parser = alias_parser; ((final_parser)) }.on(name)",
+      "it" => "OptionParser.new.then { alias_parser = it; ((alias_parser.clone)) }.on(name)"
+    }.each do |label, expression|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/implicit_builder_alias_#{label}.rb", <<~RUBY)
+          require "optparse"
+          def add_hidden(name)
+            #{expression}
+          end
+        RUBY
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, label)
+      end
+    end
+  end
+
+  def test_transformed_or_reassigned_builder_alias_returns_remain_unproven
+    with_repository_copy do |root|
+      write_ruby(root, "lib/transformed_builder_alias_return.rb", <<~RUBY)
+        require "optparse"
+        def subscribe(name)
+          OptionParser.new.then { |parser| alias_parser = parser; alias_parser = Object.new; alias_parser }.on(name)
+          OptionParser.new.then { |parser| alias_parser = parser.to_s; alias_parser }.on(name)
+          OptionParser.new.yield_self { alias_parser = _1; alias_parser.to_s }.on(name)
+          OptionParser.new.then { |parser| alias_parser = parser; alias_parser.then { Object.new } }.on(name)
+        end
+      RUBY
+      assert inventory_for(root).verify!
     end
   end
 
