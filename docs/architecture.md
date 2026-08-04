@@ -26,7 +26,9 @@ It does not mean that no application Ruby executes.
 | Execution path | Parser production actions | Generated lexer actions | User `header` / `inner` / `footer` | Trust |
 | --- | --- | --- | --- | --- |
 | Grammar parse/normalize, format, LSP, reports, conflict/diff/equiv/verify/debug | No | No | No | Nonexecuting static tooling |
-| Generated semantic parse | Yes | Yes, when declared | May execute when the generated file loads | Trusted application code; not a sandbox |
+| Generated-lexer semantic: `parse`, `lex(...).do_parse`, `parse_with_syntax(source)` | Yes | Yes | May execute when the generated file loads | Trusted application code; not a sandbox |
+| Handwritten pull semantic: `do_parse`, no-argument `parse_with_syntax` | Yes | No | May execute when the generated file loads | Trusted application code; not a sandbox |
+| Caller-fed semantic: `yyparse`, `push` / `finish` | Yes | No | May execute when the generated file loads | Trusted application code; not a sandbox |
 | Generated syntax-only parse | No | Yes | May execute when the generated file loads | Trusted application code; not a sandbox |
 | Future safe syntax profile | No | Declarative built-ins only | No | Nonexecuting profile; not currently available |
 
@@ -36,12 +38,15 @@ lexer actions, conversions, and user sections remain opaque data on those
 paths. Code generation may emit source that compiles them when the artifact is
 loaded, but the generator does not load that artifact.
 
-Semantic runtime entry points execute committed parser production actions and,
-when present, generated lexer actions. Syntax-only entry points suppress only
-the former; lexer actions still emit tokens, convert values, and mutate lexer
-state. Both paths cross the trusted application boundary because loading the
-generated Ruby file may execute arbitrary user sections. They provide resource
-budgets and process-isolation building blocks, not a sandbox.
+Semantic runtime entry points execute committed parser production actions.
+Generated lexer actions execute only when tokens are pulled through
+`GeneratedLexer#next_token`; handwritten `next_token`, `yyparse`, and
+`push` / `finish` paths do not invoke that lexer. Syntax-only entry points
+suppress parser actions but still use the generated lexer to emit tokens,
+convert values, and mutate lexer state. Every generated runtime path crosses
+the trusted application boundary because loading the generated Ruby file may
+execute arbitrary user sections. Resource budgets and process-isolation
+building blocks do not make those paths sandboxes.
 
 A future profile for untrusted syntax work must use data-only parser tables, a
 declarative lexer whose operations are restricted to built-ins, no parser
