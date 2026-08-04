@@ -391,8 +391,11 @@ module Ibex
           return
         end
         if %i[assign opassign].include?(node.first) && constant_assignment_target?(node[1])
-          value = node[2] if node.first == :assign
-          declarations << { kind: :assignment, node: node[1], value: value, parent_id: parent_id }
+          conditional = node.first == :opassign && node.dig(2, 1) == "||="
+          value = node.first == :assign ? node[2] : node[3] if node.first == :assign || conditional
+          declarations << {
+            kind: :assignment, node: node[1], value: value, parent_id: parent_id, conditional: conditional
+          }
         end
         node.each do |child|
           discover_constant_declarations(child, parent_id, declarations) if child.is_a?(Array)
@@ -422,9 +425,14 @@ module Ibex
       end
 
       def constant_identity_aliases(declarations, resolved, previous_owners, index)
+        unconditional_definitions = declarations.each_index.filter_map do |declaration_id|
+          declaration = declarations.fetch(declaration_id)
+          resolved[declaration_id] unless declaration.fetch(:kind) == :assignment && declaration.fetch(:conditional)
+        end
         declarations.each_with_index.with_object({}) do |(declaration, declaration_id), aliases|
           value = declaration[:value]
           next unless declaration.fetch(:kind) == :assignment && constant_path_name(value)
+          next if declaration.fetch(:conditional) && unconditional_definitions.include?(resolved[declaration_id])
 
           parent_id = declaration.fetch(:parent_id)
           parent = parent_id ? previous_owners[parent_id] : nil
@@ -760,24 +768,21 @@ module Ibex
         assignments = index.fetch(:assignments)
         classes = option_parser_class_bindings(assignments, index)
         instances = option_parser_parameter_bindings(index.fetch(:methods))
-        index.fetch(:blocks).each do |block|
-          next unless option_parser_instance_expression?(block.fetch(:expression), block.fetch(:context), classes,
-                                                         index)
-
-          block.fetch(:parameters).each do |name|
-            instances << local_binding(block.fetch(:context), name)
-          end
-        end
         loop do
           previous = instances.length
           assignments.each do |assignment|
             context = assignment.fetch(:context)
             value = assignment.fetch(:value)
-            aliases_instance = binding_candidates(value, context, index).any? do |candidate|
-              instances.include?(candidate)
-            end
-            if aliases_instance || option_parser_instance_expression?(value, context, classes, index)
+            if option_parser_instance_expression?(value, context, classes, instances, index)
               instances << assignment.fetch(:target)
+            end
+          end
+          index.fetch(:blocks).each do |block|
+            next unless option_parser_yielding_expression?(block.fetch(:expression), block.fetch(:context), classes,
+                                                           instances, index)
+
+            block.fetch(:parameters).each do |name|
+              instances << local_binding(block.fetch(:context), name)
             end
           end
           instances.uniq!
@@ -814,9 +819,9 @@ module Ibex
         return false unless receiver.is_a?(Array)
 
         index = bindings.fetch(:index)
-        return true if option_parser_instance_expression?(receiver, call, bindings.fetch(:classes), index)
-
-        binding_candidates(receiver, call, index).any? { |candidate| bindings.fetch(:instances).include?(candidate) }
+        option_parser_instance_expression?(
+          receiver, call, bindings.fetch(:classes), bindings.fetch(:instances), index
+        )
       end
 
       def receiver_option_parser_class?(call, bindings)
@@ -1114,12 +1119,13 @@ module Ibex
         node&.first == :var_ref && node.dig(1, 0) == :@kw && node.dig(1, 1) == "self"
       end
 
-      def option_parser_instance_expression?(node, context, class_bindings, index)
+      def option_parser_instance_expression?(node, context, class_bindings, instance_bindings, index)
         node = unwrap_parenthesized_expression(node)
         return false unless node.is_a?(Array)
+        return true if binding_candidates(node, context, index).any? { |binding| instance_bindings.include?(binding) }
 
         if %i[method_add_arg method_add_block].include?(node.first)
-          return option_parser_instance_expression?(node[1], context, class_bindings, index)
+          return option_parser_instance_expression?(node[1], context, class_bindings, instance_bindings, index)
         end
         return false unless node.first == :call
 
@@ -1130,7 +1136,21 @@ module Ibex
         end
         return false unless %w[itself freeze tap dup clone].include?(api)
 
-        option_parser_instance_expression?(receiver, context, class_bindings, index)
+        option_parser_instance_expression?(receiver, context, class_bindings, instance_bindings, index)
+      end
+
+      def option_parser_yielding_expression?(node, context, class_bindings, instance_bindings, index)
+        node = unwrap_parenthesized_expression(node)
+        node = unwrap_parenthesized_expression(node[1]) while node&.first == :method_add_arg
+        return false unless node&.first == :call
+
+        api = node.dig(3, 1)
+        if api == "new"
+          return option_parser_instance_expression?(node, context, class_bindings, instance_bindings, index)
+        end
+        return false unless %w[tap then yield_self].include?(api)
+
+        option_parser_instance_expression?(node[1], context, class_bindings, instance_bindings, index)
       end
 
       def unwrap_parenthesized_expression(node)
