@@ -1,19 +1,29 @@
 # frozen_string_literal: true
 
+require "digest"
+
 module Ibex
   module Quality
     # Binds comparative wording or pending evidence to complete registry records.
     class ClaimPublications
-      STRONG_WORDING = /\b(?:
-        faster|slower|smaller|larger|better|best|outperform\w*|trail(?:s|ed)?|parity|fewer|superior|inferior
-      )\b/ix
-      TOOL_WORDING = /\b(?:Racc|Lrama|Bison|Menhir|Tree-sitter|ANTLR)\b/i
+      STRONG_WORDING = /(?:
+        \b(?:faster|fastest|slower|slowest|better|best|worse|worst|beats?|outperforms?|superior|inferior|
+        trail(?:s|ed)?|parity|fewer|smaller|larger)\b |
+        より(?:速い|高速|遅い|優れ(?:る|ている)?|劣る|小さい|大きい) | 最速 | 最遅 | 最高 | 最低 |
+        上回る | 下回る | 勝る | 劣る
+      )/ix
       POLICY = "docs/comparison-policy.md"
 
-      def initialize(root:, claims:, readme:)
+      def initialize(root:, claims:, readme:, aliases:)
         @root = root
         @claims = claims
         @readme = readme
+        @tool_wording = alias_pattern(aliases)
+      end
+
+      def self.body_sha256(body)
+        lines = body.gsub("\r\n", "\n").lines(chomp: true).map(&:rstrip)
+        Digest::SHA256.hexdigest("#{lines.join("\n")}\n")
       end
 
       def verify!
@@ -30,6 +40,11 @@ module Ibex
       end
 
       private
+
+      def alias_pattern(aliases)
+        alternatives = aliases.values.flatten.map { |name| Regexp.escape(name) }.join("|")
+        /(?<![A-Za-z0-9_])(?:#{alternatives})(?![A-Za-z0-9_])/i
+      end
 
       def publication_paths
         bound = @claims.map { |claim| claim.dig("binding", "path") }
@@ -97,6 +112,7 @@ module Ibex
       def verify_blocks!(path, blocks)
         blocks.each_value do |block|
           claim = @claims.find { |entry| entry.fetch("id") == block.fetch(:id) }
+          verify_body_digest!(path, claim, block)
           wording = normalize(claim.fetch("wording"))
           body = normalize(block.fetch(:body))
           unless body.include?(wording)
@@ -110,6 +126,14 @@ module Ibex
 
           verify_additional_strength!(path, claim, block)
         end
+      end
+
+      def verify_body_digest!(path, claim, block)
+        expected = claim.dig("binding", "body_sha256")
+        actual = self.class.body_sha256(block.fetch(:body))
+        return if actual == expected
+
+        raise "#{path}: marker #{block.fetch(:id)} body digest mismatch; expected #{expected}, actual #{actual}"
       end
 
       def verify_additional_strength!(path, claim, block)
@@ -140,7 +164,7 @@ module Ibex
                                .flat_map { |block| block.fetch(:range).to_a }
         visible = source.lines.each_with_index.reject { |_line, index| claimed.include?(index) }.map(&:first).join
         visible.split(/\n\s*\n/).each do |paragraph|
-          next unless paragraph.match?(TOOL_WORDING) && paragraph.match?(STRONG_WORDING)
+          next unless paragraph.match?(@tool_wording) && paragraph.match?(STRONG_WORDING)
 
           raise "#{path}: comparative strong wording must be enclosed by a measured claim marker"
         end

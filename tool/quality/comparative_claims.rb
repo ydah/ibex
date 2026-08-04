@@ -14,7 +14,6 @@ module Ibex
       ROOT = File.expand_path("../..", __dir__)
       COMPARISON_SET = %w[racc lrama bison menhir tree_sitter antlr].freeze
       CLAIM_STATES = %w[evidence_pending measured review_pending].freeze
-      TOOL_STATES = %w[compared evidence_pending not_compared].freeze
       CLAIM_KEYS = %w[
         id state title wording binding subjects public_command corpus environment
         unsupported_semantics subjective_review validity evidence limitations missing_evidence
@@ -33,13 +32,15 @@ module Ibex
         exact_keys!(document, %w[schema_version comparison_set claims], "registry")
         raise "claim registry schema_version must be 1" unless document["schema_version"] == 1
 
-        verify_comparison_set(document.fetch("comparison_set"))
+        tools = document.fetch("comparison_set")
+        ClaimIdentities.verify_comparison_set!(tools, COMPARISON_SET)
         claims = document.fetch("claims")
         raise "claims must be a non-empty array" unless claims.is_a?(Array) && !claims.empty?
 
         ordered!(claims, "claims") { |claim| claim["id"] }
         claims.each { |claim| verify_claim(claim) }
-        ClaimPublications.new(root: @root, claims: claims, readme: @readme).verify!
+        aliases = tools.to_h { |tool| [tool.fetch("id"), tool.fetch("aliases")] }
+        ClaimPublications.new(root: @root, claims: claims, readme: @readme, aliases: aliases).verify!
         true
       rescue KeyError => e
         raise "invalid comparative claim registry: #{e.message}"
@@ -54,31 +55,6 @@ module Ibex
         document
       rescue Psych::Exception => e
         raise "claim registry YAML is invalid: #{e.message}"
-      end
-
-      def verify_comparison_set(tools)
-        raise "comparison_set must be an array" unless tools.is_a?(Array)
-        raise "comparison_set must use the canonical order" unless tools.map { |tool| tool["id"] } == COMPARISON_SET
-
-        tools.each do |tool|
-          exact_keys!(tool, %w[id name state version revision reason], "comparison_set entry")
-          state = tool.fetch("state")
-          raise "#{tool.fetch('id')}: invalid comparison state #{state.inspect}" unless TOOL_STATES.include?(state)
-
-          verify_tool_identity(tool, state)
-          non_empty_string!(tool.fetch("reason"), "#{tool.fetch('id')}: reason")
-        end
-      end
-
-      def verify_tool_identity(tool, state)
-        values = tool.values_at("version", "revision")
-        if state == "not_compared"
-          raise "#{tool.fetch('id')}: not_compared identity must be unknown" unless values == %w[unknown unknown]
-        else
-          ClaimIdentities.exact_version!(tool.fetch("version"), "#{tool.fetch('id')}: version")
-          raise "#{tool.fetch('id')}: release revision must be not_applicable" unless
-            tool.fetch("revision") == "not_applicable"
-        end
       end
 
       def verify_claim(claim)
@@ -118,13 +94,15 @@ module Ibex
       end
 
       def verify_binding(id, binding)
-        exact_keys!(binding, %w[path marker kind required_text allowed_strength], "#{id}: binding")
+        exact_keys!(binding, %w[path marker kind required_text allowed_strength body_sha256], "#{id}: binding")
         non_empty_string!(binding.fetch("path"), "#{id}: binding path")
         raise "#{id}: binding marker must equal the claim id" unless binding.fetch("marker") == id
         raise "#{id}: binding kind must be claim or evidence" unless %w[claim evidence].include?(binding.fetch("kind"))
 
         string_array!(binding.fetch("required_text"), "#{id}: binding required_text")
         string_array!(binding.fetch("allowed_strength"), "#{id}: binding allowed_strength", allow_empty: true)
+        raise "#{id}: binding body_sha256 must be 64 lowercase hex" unless
+          binding.fetch("body_sha256").match?(/\A[0-9a-f]{64}\z/)
       end
 
       def verify_command(id, command)

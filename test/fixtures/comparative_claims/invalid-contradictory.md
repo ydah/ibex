@@ -8,5 +8,5 @@ independent subjective review is pending, so this is not a completed comparative
 8/10 (80%)
 | EUX-10 |
 
-Racc is slower than Ibex despite the registered evidence.
+ANTLR4 beats Ibex.
 <!-- comparative-evidence:racc-error-ux-json-v1:end -->

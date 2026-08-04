@@ -10,6 +10,15 @@ module Ibex
       ENVIRONMENT_FIELDS = %w[
         cpu_model host_cpu host_os kernel_release processors ruby_engine ruby_platform ruby_version yjit_enabled
       ].freeze
+      TOOL_STATES = %w[compared evidence_pending not_compared].freeze
+      COMPARISON_ALIASES = {
+        "racc" => ["Racc"],
+        "lrama" => ["Lrama"],
+        "bison" => ["GNU Bison", "Bison", "GNU yacc", "yacc"],
+        "menhir" => ["Menhir"],
+        "tree_sitter" => ["Tree-sitter", "Tree sitter", "tree_sitter"],
+        "antlr" => %w[ANTLR ANTLR4]
+      }.freeze
 
       module_function
 
@@ -21,6 +30,34 @@ module Ibex
         return if value.is_a?(String) && value.match?(REVISION)
 
         raise "#{label} must be an immutable 40- or 64-hex revision"
+      end
+
+      def verify_comparison_set!(tools, order)
+        raise "comparison_set must be an array" unless tools.is_a?(Array)
+        raise "comparison_set must use the canonical order" unless tools.map { |tool| tool["id"] } == order
+
+        tools.each { |tool| verify_comparison_tool!(tool) }
+      end
+
+      def verify_comparison_tool!(tool)
+        exact_keys!(tool, %w[id name state version revision reason aliases], "comparison_set entry")
+        state = tool.fetch("state")
+        raise "#{tool.fetch('id')}: invalid comparison state #{state.inspect}" unless TOOL_STATES.include?(state)
+
+        verify_comparison_tool_identity!(tool, state)
+        expected = COMPARISON_ALIASES.fetch(tool.fetch("id"))
+        raise "#{tool.fetch('id')}: aliases must match the canonical list" unless tool.fetch("aliases") == expected
+      end
+
+      def verify_comparison_tool_identity!(tool, state)
+        values = tool.values_at("version", "revision")
+        if state == "not_compared"
+          raise "#{tool.fetch('id')}: not_compared identity must be unknown" unless values == %w[unknown unknown]
+        else
+          exact_version!(tool.fetch("version"), "#{tool.fetch('id')}: version")
+          raise "#{tool.fetch('id')}: release revision must be not_applicable" unless
+            tool.fetch("revision") == "not_applicable"
+        end
       end
 
       def verify_subjects!(id, subjects, comparison_set)
