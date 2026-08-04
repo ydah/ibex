@@ -73,6 +73,9 @@ module Ibex
         value = YAML.safe_load(matches.fetch(0).fetch(0), permitted_classes: [], aliases: false)
         required = RuntimeABIReviewedPolicy::ASSESSMENT.fetch("required_fields")
         raise "pull request template ABI fields are stale" unless value.is_a?(Hash) && value.keys.sort == required.sort
+        unless value.fetch("rationale") == RuntimeABIReviewedPolicy::RATIONALE_SENTINEL
+          raise "pull request template rationale sentinel is stale"
+        end
       rescue Psych::Exception => e
         raise "pull request template ABI assessment is invalid YAML: #{e.message}"
       end
