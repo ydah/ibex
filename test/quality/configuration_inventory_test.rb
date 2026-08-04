@@ -154,6 +154,55 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
       end
     RUBY
   }.freeze
+  NAMESPACE_REOPEN_MUTATION = <<~RUBY
+    require_relative "%<namespace>s"
+    module A
+      class B::C
+        def add_hidden(name)
+          @parser.on(name)
+        end
+      end
+    end
+  RUBY
+  NAMESPACE_DEFINITION_MUTATION = <<~RUBY
+    require "optparse"
+    module A
+      module B
+        class C
+          def initialize
+            @parser = OptionParser.new
+          end
+        end
+      end
+    end
+  RUBY
+  BLOCK_PARAMETER_SHADOWING_MUTATION = <<~RUBY
+    require "optparse"
+    def subscribe(event)
+      required_receiver = OptionParser.new
+      optional_receiver = OptionParser.new
+      rest_receiver = OptionParser.new
+      post_receiver = OptionParser.new
+      keyword_receiver = OptionParser.new
+      keyword_optional_receiver = OptionParser.new
+      keyword_rest_receiver = OptionParser.new
+      block_receiver = OptionParser.new
+      block_local_receiver = OptionParser.new
+      Object.new.then do |required_receiver, optional_receiver = nil, *rest_receiver, post_receiver,
+                          keyword_receiver:, keyword_optional_receiver: nil, **keyword_rest_receiver,
+                          &block_receiver; block_local_receiver|
+        required_receiver.on(event)
+        optional_receiver.on(event)
+        rest_receiver.on(event)
+        post_receiver.on(event)
+        keyword_receiver.on(event)
+        keyword_optional_receiver.on(event)
+        keyword_rest_receiver.on(event)
+        block_receiver.on(event)
+        block_local_receiver.on(event)
+      end
+    end
+  RUBY
 
   def test_repository_inventory_and_generated_document_are_current
     assert Ibex::Quality::ConfigurationInventory.new.verify!
@@ -505,6 +554,59 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     end
   end
 
+  def test_absolute_constant_path_preserves_root_provenance
+    with_repository_copy do |root|
+      write_ruby(root, "lib/absolute_parser.rb", <<~RUBY)
+        require "optparse"
+        module Registry
+          PARSER = OptionParser.new
+        end
+        module X
+          module Registry
+            PARSER = Object.new
+          end
+          def self.add_hidden(name)
+            ::Registry::PARSER.on(name)
+          end
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_relative_constant_path_uses_nearest_lexical_namespace
+    with_repository_copy do |root|
+      write_ruby(root, "lib/relative_parser.rb", <<~RUBY)
+        require "optparse"
+        module Registry
+          PARSER = OptionParser.new
+        end
+        module X
+          module Registry
+            PARSER = Object.new
+          end
+          def self.subscribe(name)
+            Registry::PARSER.on(name)
+          end
+        end
+      RUBY
+      assert inventory_for(root).verify!
+    end
+  end
+
+  def test_qualified_namespace_reopen_is_independent_of_file_name_order
+    [%w[a_reopen.rb z_namespace.rb], %w[z_reopen.rb a_namespace.rb]].each do |reopen_file, namespace_file|
+      with_repository_copy do |root|
+        namespace_basename = File.basename(namespace_file, ".rb")
+        write_ruby(root, "lib/#{reopen_file}", format(NAMESPACE_REOPEN_MUTATION, namespace: namespace_basename))
+        write_ruby(root, "lib/#{namespace_file}", NAMESPACE_DEFINITION_MUTATION)
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, "#{reopen_file} / #{namespace_file}")
+      end
+    end
+  end
+
   def test_namespace_singleton_and_inherited_provenance_fail_closed
     LEXICAL_PROVENANCE_MUTATIONS.each do |label, source|
       with_repository_copy do |root|
@@ -582,6 +684,121 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
         class ParserOptions < OptionParser
           def add_hidden(dynamic_name)
             on(dynamic_name)
+          end
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_optionparser_subclass_explicit_self_is_an_instance_registration
+    with_repository_copy do |root|
+      write_ruby(root, "lib/subclass_explicit_self.rb", <<~RUBY)
+        require "optparse"
+        class ParserOptions < OptionParser
+          def add_hidden(dynamic_name)
+            self.on(dynamic_name)
+          end
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_optionparser_subclass_singleton_calls_are_not_instance_registrations
+    with_repository_copy do |root|
+      write_ruby(root, "lib/subclass_singleton.rb", <<~RUBY)
+        require "optparse"
+        class ParserOptions < OptionParser
+          def self.on(event); end
+          def self.subscribe(event)
+            on(event)
+            self.on(event)
+          end
+          class << self
+            def subscribe_again(event)
+              on(event)
+              self.on(event)
+            end
+          end
+        end
+      RUBY
+      assert inventory_for(root).verify!
+    end
+  end
+
+  def test_all_block_parameter_forms_and_block_locals_shadow_outer_bindings
+    with_repository_copy do |root|
+      write_ruby(root, "lib/block_parameter_shadowing.rb", BLOCK_PARAMETER_SHADOWING_MUTATION)
+      assert inventory_for(root).verify!
+    end
+  end
+
+  def test_optional_and_keyword_parameter_defaults_seed_provenance
+    {
+      "optional" => "registry = OptionParser.new",
+      "keyword" => "registry: OptionParser.new"
+    }.each do |label, parameter|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/#{label}_default.rb", <<~RUBY)
+          require "optparse"
+          def add_hidden(dynamic_name, #{parameter})
+            registry.on(dynamic_name)
+          end
+        RUBY
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, label)
+      end
+    end
+  end
+
+  def test_optional_and_keyword_block_defaults_seed_provenance
+    {
+      "optional" => "registry = OptionParser.new",
+      "keyword" => "registry: OptionParser.new"
+    }.each do |label, parameter|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/#{label}_block_default.rb", <<~RUBY)
+          require "optparse"
+          def add_hidden(dynamic_name)
+            [].each do |#{parameter}|
+              registry.on(dynamic_name)
+            end
+          end
+        RUBY
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, label)
+      end
+    end
+  end
+
+  def test_block_local_optionparser_assignment_does_not_leak_to_later_blocks
+    with_repository_copy do |root|
+      write_ruby(root, "lib/block_local_scope.rb", <<~RUBY)
+        require "optparse"
+        def subscribe(event)
+          [Object.new].each do |; block_registry|
+            block_registry = OptionParser.new
+          end
+          [Object.new].each do
+            block_registry.on(event)
+          end
+        end
+      RUBY
+      assert inventory_for(root).verify!
+    end
+  end
+
+  def test_block_local_optionparser_assignment_is_proven_inside_its_block
+    with_repository_copy do |root|
+      write_ruby(root, "lib/block_local_provenance.rb", <<~RUBY)
+        require "optparse"
+        def add_hidden(dynamic_name)
+          [Object.new].each do |; block_registry|
+            block_registry = OptionParser.new
+            block_registry.on(dynamic_name)
           end
         end
       RUBY
