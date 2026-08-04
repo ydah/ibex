@@ -1242,7 +1242,7 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
       write_ruby(root, "lib/builder_unknown_and_guard.rb", <<~RUBY)
         require "optparse"
         def add_hidden(name)
-          OptionParser.new.then do |parser, unknown|
+          OptionParser.new.then do |parser, unknown = unknown_receiver|
             unknown &&= parser.on(name)
           end
         end
@@ -1348,6 +1348,116 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
       RUBY
       error = assert_raises(RuntimeError) { inventory_for(root).verify! }
       assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_non_yielded_extra_positional_builder_parameter_starts_falsey
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_extra_positional_or.rb", <<~RUBY)
+        require "optparse"
+        def add_hidden(name)
+          OptionParser.new.then do |parser, receiver|
+            receiver ||= parser
+            receiver.on(name)
+          end
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_extra_positional_and.rb", <<~RUBY)
+        require "optparse"
+        def subscribe(name)
+          OptionParser.new.then do |parser, receiver|
+            receiver &&= parser
+            receiver.on(name)
+          end
+        end
+      RUBY
+      assert inventory_for(root).verify!
+    end
+  end
+
+  def test_builder_rest_parameter_starts_as_truthy_empty_array
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_rest_or.rb", <<~RUBY)
+        require "optparse"
+        def subscribe(name)
+          OptionParser.new.then do |parser, *receivers|
+            receivers ||= parser
+            receivers.on(name)
+          end
+        end
+      RUBY
+      assert inventory_for(root).verify!
+    end
+
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_rest_and.rb", <<~RUBY)
+        require "optparse"
+        def add_hidden(name)
+          OptionParser.new.then do |parser, *receivers|
+            receivers &&= parser
+            receivers.on(name)
+          end
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_unknown_conditional_lhs_retains_may_parser_provenance
+    %w[||= &&=].each do |operator|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/builder_unknown_#{operator == '||=' ? 'or' : 'and'}_parser.rb", <<~RUBY)
+          require "optparse"
+          def add_hidden(name)
+            OptionParser.new.then do |parser, receiver = unknown_receiver|
+              receiver #{operator} parser
+              receiver.on(name)
+            end
+          end
+        RUBY
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, operator)
+      end
+    end
+  end
+
+  def test_may_parser_truthiness_remains_unknown_for_subsequent_guards
+    %w[||= &&=].each do |operator|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/builder_may_parser_guard_#{operator == '||=' ? 'or' : 'and'}.rb", <<~RUBY)
+          require "optparse"
+          def add_hidden(name)
+            OptionParser.new.then do |parser, receiver = unknown_receiver|
+              receiver #{operator} parser
+              receiver #{operator} parser.on(name)
+            end
+          end
+        RUBY
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, operator)
+      end
+    end
+  end
+
+  def test_known_generic_truthy_conditional_lhs_does_not_resurrect_parser
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_known_generic_or.rb", <<~RUBY)
+        require "optparse"
+        def subscribe(name)
+          OptionParser.new.then do |parser|
+            receiver = Object.new
+            receiver ||= parser
+            receiver.on(name)
+          end
+        end
+      RUBY
+      assert inventory_for(root).verify!
     end
   end
 
