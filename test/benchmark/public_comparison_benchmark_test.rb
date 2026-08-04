@@ -4,6 +4,7 @@ require_relative "../test_helper"
 require_relative "../../benchmark/public_comparison"
 require_relative "../../benchmark/support/public_comparison_report"
 require "json_schemer"
+require "rbconfig"
 require "tmpdir"
 
 class PublicComparisonRootIdentityTest < Minitest::Test
@@ -29,6 +30,29 @@ class PublicComparisonRootIdentityTest < Minitest::Test
 end
 
 class PublicComparisonDependencyDefinitionTest < Minitest::Test
+  ROOT = File.expand_path("../..", __dir__)
+  MANIFEST_SUPPORT = File.join(ROOT, "benchmark/support/public_workload_manifest.rb")
+
+  def test_manifest_require_and_fetch_do_not_load_ibex
+    script = <<~'RUBY'
+      support, manifest_path = ARGV
+      before = $LOADED_FEATURES.select do |feature|
+        feature.include?("/lib/ibex/") || feature.end_with?("/lib/ibex.rb")
+      end
+      require support
+      manifest = BenchmarkSupport::PublicWorkloadManifest.new(manifest_path)
+      manifest.fetch("namae")
+      abort "Frontend loaded during data-only fetch" if defined?(Ibex::Frontend)
+      loaded_after_fetch = $LOADED_FEATURES.select do |feature|
+        feature.include?("/lib/ibex/") || feature.end_with?("/lib/ibex.rb")
+      end
+      loaded = loaded_after_fetch - before
+      abort "Ibex features loaded during data-only fetch: #{loaded.join(', ')}" unless loaded.empty?
+    RUBY
+
+    assert_subprocess_success(script, MANIFEST_SUPPORT, PublicPerformanceComparison::MANIFEST)
+  end
+
   def test_ignored_lockfile_cannot_replace_a_tracked_dependency_definition
     Dir.mktmpdir("public-dependency-definition-test-") do |directory|
       checkout = File.join(directory, "checkout")
@@ -75,6 +99,17 @@ class PublicComparisonDependencyDefinitionTest < Minitest::Test
       revision = git(checkout, "rev-parse", "HEAD")
       manifest_path = File.join(directory, "manifest.json")
       write_manifest(manifest_path, revision, "Gemfile")
+      script = <<~RUBY
+        support, manifest_path, checkout = ARGV
+        require support
+        abort "Frontend loaded before checkout verification" if defined?(Ibex::Frontend)
+        manifest = BenchmarkSupport::PublicWorkloadManifest.new(manifest_path)
+        manifest.verify_checkout("fixture", checkout, allow_dirty: false)
+        abort "Frontend not loaded for metric recomputation" unless defined?(Ibex::Frontend::Parser)
+        abort "full Ibex entrypoint loaded" if $LOADED_FEATURES.any? { |feature| feature.end_with?("/lib/ibex.rb") }
+      RUBY
+      assert_subprocess_success(script, MANIFEST_SUPPORT, manifest_path, checkout)
+
       document = JSON.parse(File.binread(manifest_path))
       document.dig("workloads", 0, "grammar_metrics")["states"] = 999
       File.write(manifest_path, JSON.generate(document))
@@ -88,6 +123,11 @@ class PublicComparisonDependencyDefinitionTest < Minitest::Test
   end
 
   private
+
+  def assert_subprocess_success(script, *arguments)
+    _stdout, stderr, status = Open3.capture3(RbConfig.ruby, "-I#{File.join(ROOT, 'lib')}", "-e", script, *arguments)
+    assert status.success?, stderr
+  end
 
   def prepare_checkout(checkout)
     FileUtils.mkdir_p(File.join(checkout, "lib"))

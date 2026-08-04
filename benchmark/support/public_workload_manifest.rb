@@ -4,7 +4,6 @@ require "digest"
 require "json"
 require "open3"
 require "pathname"
-require_relative "../../lib/ibex"
 
 module BenchmarkSupport
   # Loads fixed public workloads and verifies supplied checkouts before execution.
@@ -136,6 +135,7 @@ module BenchmarkSupport
     end
 
     def grammar_metrics(path)
+      load_metric_dependencies
       source = File.binread(path)
       ast = Ibex::Frontend::Parser.new(source, file: path, mode: :default).parse
       grammar = Ibex::Normalizer.new(ast, mode: :default).normalize
@@ -148,6 +148,14 @@ module BenchmarkSupport
         "shift_reduce" => automaton.conflict_summary.fetch(:sr),
         "reduce_reduce" => automaton.conflict_summary.fetch(:rr)
       }
+    end
+
+    def load_metric_dependencies
+      require_relative "../../lib/ibex/frontend"
+      require_relative "../../lib/ibex/ir"
+      require_relative "../../lib/ibex/normalize"
+      require_relative "../../lib/ibex/analysis"
+      require_relative "../../lib/ibex/lalr"
     end
 
     def ensure_tracked_at_head!(checkout, relative)
