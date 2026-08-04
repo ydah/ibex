@@ -6,7 +6,7 @@ require "date"
 require "tmpdir"
 require "yaml"
 
-# -- one adversarial suite mutates every closed maturity evidence family.
+# rubocop:disable Metrics/ClassLength -- one adversarial suite mutates every closed evidence family.
 class MaturityTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   REGISTRY = File.join(ROOT, "docs/maturity.yml")
@@ -103,10 +103,17 @@ class MaturityTest < Minitest::Test
     assert_error(changed, "next review triggers must be a non-empty")
   end
 
+  # rubocop:disable Metrics/AbcSize, Metrics/MethodLength -- mutations cover every issue provenance field family.
   def test_rejects_stale_incomplete_or_unknown_issue_audits
     changed = document
     changed.dig("audit", "issue_audits", 0)["fresh_until"] = "2026-08-03"
-    assert_error(changed, "issue audit is stale")
+    assert_error(changed, "checked_at must not follow fresh_until")
+
+    changed = document
+    audit = changed.dig("audit", "issue_audits", 0)
+    audit["checked_at"] = "2026-08-05"
+    audit["fresh_until"] = "2026-09-04"
+    assert_error(changed, "checked_at cannot be in the future")
 
     changed = document
     changed.dig("audit", "issue_audits", 0, "result")["status"] = "unknown"
@@ -119,16 +126,118 @@ class MaturityTest < Minitest::Test
     changed = document
     feature(changed, "debug")["issue_audit"]["status"] = "unknown"
     assert_error(changed, "must be none_found or open_found")
-  end
 
-  def test_rejects_unexplained_history_and_implementation_only_decisions
+    changed = document
+    changed.dig("audit", "issue_audits", 0, "result")["total_count"] = 1
+    assert_error(changed, "count does not match issues")
+
+    changed = document
+    result = changed.dig("audit", "issue_audits", 0, "result")
+    result["total_count"] = 1
+    result["issues"] = [issue_record(feature_ids: ["lsp"])]
+    assert_error(changed, "issue status must derive from machine issue dispositions")
+
+    changed = document
+    result = changed.dig("audit", "issue_audits", 0, "result")
+    result["total_count"] = 1
+    result["issues"] = [issue_record(feature_ids: [], rationale: "")]
+    assert_error(changed, "not_applicable_rationale must be a non-empty")
+
+    changed = document
+    result = changed.dig("audit", "issue_audits", 0, "result")
+    result["total_count"] = 1
+    result["issues"] = [issue_record(feature_ids: [])]
+    result.dig("issues", 0)["url"] = "https://example.test/issues/123"
+    assert_error(changed, "issue URL must be canonical")
+
+    changed = document
+    result = changed.dig("audit", "issue_audits", 0, "result")
+    result["total_count"] = 1
+    result["issues"] = [issue_record(feature_ids: %w[lsp lsp])]
+    assert_error(changed, "feature_ids must be unique canonical order")
+  end
+  # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+
+  # rubocop:disable Metrics/AbcSize -- mutations cover every release-history boundary field family.
+  def test_rejects_false_or_noncanonical_history
     changed = document
     feature(changed, "watch").dig("specification_history", "unknowns").clear
-    assert_error(changed, "unreconstructed history requires an explicit unknown")
+    assert_error(changed, "specification history unknowns must be a non-empty")
+
+    changed = document
+    feature(changed, "watch").dig("specification_history", "introduction")["revision"] =
+      "96db239bb6b40723cce94f42d8d4262ba3477fec"
+    assert_error(changed, "introduction revision is not the first pickaxe result")
+
+    changed = document
+    feature(changed, "watch").dig("specification_history", "introduction")["revision"] =
+      "d7d1cd0cfacdc7f59eb625b7d81fa981845ac682"
+    assert_error(changed, "introduction is outside reviewed history")
+
+    changed = document
+    feature(changed, "watch").dig("specification_history", "first_release")["tag"] = "v0.1.0"
+    assert_error(changed, "first release tag drift")
+
+    changed = document
+    feature(changed, "watch").dig("specification_history", "snapshots").rotate!
+    assert_error(changed, "snapshots must cover v0.1.0, v0.2.0, and reviewed in order")
+
+    changed = document
+    feature(changed, "watch").dig("specification_history", "snapshots", 1)["source_tree_sha256"] = "0" * 64
+    assert_error(changed, "snapshot source tree digest drift")
+
+    changed = document
+    feature(changed, "watch").dig("specification_history", "changes").reverse!
+    assert_error(changed, "change boundaries must be chronological and canonical")
+
+    changed = document
+    changed.fetch("audit")["reviewed_repository_revision"] = "24c6712db0a3da8f42f13d32b43392ba261adfed"
+    assert_error(changed, "reviewed pre-H001 authority")
+  end
+  # rubocop:enable Metrics/AbcSize
+
+  # rubocop:disable Metrics/AbcSize -- mutations cover every structured-decision field family.
+  def test_rejects_unstructured_or_test_only_decisions
+    changed = document
+    feature(changed, "watch")["decision"]["reason"] = "Tests pass."
+    assert_error(changed, "passing tests alone")
 
     changed = document
     feature(changed, "watch")["decision"]["reason"] = "The implementation exists."
-    assert_error(changed, "implementation existence cannot be the reason")
+    assert_error(changed, "implementation or passing tests alone")
+
+    %w[user_problem kill_condition].each do |field|
+      changed = document
+      feature(changed, "lsp")["decision"][field] = ""
+      assert_error(changed, "decision #{field} must be a non-empty")
+    end
+
+    changed = document
+    feature(changed, "lsp").dig("decision", "alternatives").clear
+    assert_error(changed, "decision alternatives must be a non-empty")
+
+    changed = document
+    feature(changed, "lsp").dig("decision", "evidence").clear
+    assert_error(changed, "decision evidence must be a non-empty")
+
+    changed = document
+    feature(changed, "lsp")["decision"]["value_classification"] = "public_real"
+    assert_error(changed, "value classification drifts from workload evidence")
+
+    changed = document
+    feature(changed, "semantic-locations-types")["decision"]["redesign_plan"] = "not_applicable"
+    assert_error(changed, "redesign requires an explicit split plan")
+  end
+  # rubocop:enable Metrics/AbcSize
+
+  def test_rejects_activation_boundary_drift
+    changed = document
+    feature(changed, "middle-actions").dig("activation", "surfaces", 0)["default_enabled"] = false
+    assert_error(changed, "activation surfaces drift")
+
+    changed = document
+    feature(changed, "semantic-locations-types").dig("activation", "surfaces").pop
+    assert_error(changed, "activation surfaces drift")
   end
 
   def test_rejects_wrong_feature_budget_or_release_dependency_state
@@ -153,13 +262,18 @@ class MaturityTest < Minitest::Test
     changed = document
     feature(changed, "coverage").dig("sources", 0)["sha256"] = "0" * 64
     assert_error(changed, "source digest drift")
+
+    changed = document
+    feature(changed, "ebnf-groups")["sources"] = feature(changed, "parameterized-rules")["sources"].map(&:dup)
+    assert_error(changed, "authoritative canonical source path set drift")
   end
 
   def test_rejects_hidden_redesign_or_removal_when_public_summary_is_unchanged
     %w[redesign remove].each do |outcome|
       changed = document
       feature(changed, "browser-playground")["decision"]["outcome"] = outcome
-      assert_error(changed, "maturity summary drift")
+      expected = outcome == "redesign" ? "redesign retains current maturity" : "reviewed maturity decision drift"
+      assert_error(changed, expected)
     end
   end
 
@@ -194,6 +308,15 @@ class MaturityTest < Minitest::Test
     value.fetch("features").find { |record| record.fetch("id") == id }
   end
 
+  def issue_record(feature_ids:, rationale: nil)
+    {
+      "number" => 123,
+      "title" => "Example issue",
+      "url" => "https://github.com/ydah/ibex/issues/123",
+      "disposition" => { "feature_ids" => feature_ids, "not_applicable_rationale" => rationale }
+    }
+  end
+
   def assert_error(value, message)
     Dir.mktmpdir("maturity-registry-test-") do |directory|
       registry = File.join(directory, "maturity.yml")
@@ -205,3 +328,4 @@ class MaturityTest < Minitest::Test
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
