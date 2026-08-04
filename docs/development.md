@@ -75,10 +75,10 @@ unreviewed change. Use `bundle exec rake golden:update` only when the generated
 source change is intentional and review the normal version-control diff.
 
 `test:no_exec` is a representative static-path regression for sentence
-generation and differential fuzzing. Its fixture contains parser actions,
-generated lexer actions, and all user-code sections and fails if those commands
-execute any of them. Command-level tests retain responsibility for the other
-static entries in the [execution trust matrix](../README.md#execution-trust-matrix).
+generation and internal differential fuzzing. Its fixture contains parser
+actions, generated lexer actions, and all user-code sections and fails if those
+commands execute any of them. Command-level tests retain responsibility for the
+other static entries in the [execution trust matrix](../README.md#execution-trust-matrix).
 `test/runtime/cst_incremental_test.rb` covers the generated syntax-only side
 with independent sentinels: lexer actions execute while parser production
 actions do not. These guarantees do not make a generated parser a sandbox;
@@ -100,7 +100,9 @@ not be called minimal. External comparisons require an explicit
 `--against-runtime` description so their runtime configuration is not omitted
 from the report or saved fixture. Per-sentence time and output limits prevent a
 stuck external target from hanging the fuzz run, and child process groups are
-cleaned up so a checker cannot leave descendants behind.
+cleaned up so a checker cannot leave descendants behind. `--against=COMMAND`
+is nevertheless an explicit unsafe opt-in: it executes that program with the
+developer's host permissions and is not a sandbox.
 
 `rake verify` covers every gallery grammar, construction algorithm, and plain
 or compact table representation with the default independent checks.
@@ -121,7 +123,9 @@ The fuzz and reducer CLIs default to their versioned JSON reports and also
 exercise `--format=text` so automation and terminal use share the same result
 and exit-status contracts. Reducer subprocesses additionally have explicit
 time, output, input, and trial budgets; budget exhaustion is not accepted as a
-reproduced failure.
+reproduced failure. `reduce --command=COMMAND` executes arbitrary checker code;
+those budgets do not sandbox its filesystem, network, process, or other side
+effects.
 `i18n:coverage` requires exact message-ID and interpolation parity across every
 built-in language catalog, and exercises option, environment, fallback, text,
 and JSON paths.

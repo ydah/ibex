@@ -155,7 +155,7 @@ The execution boundary is:
 
 | Path | Parser production actions | Generated lexer actions | `header` / `inner` / `footer` | Trust |
 | --- | --- | --- | --- | --- |
-| Static grammar, IR, and analysis tools | No | No | No | Nonexecuting static tooling |
+| Static grammar, IR, and internal analysis tools | No | No | No | Nonexecuting when no external-command option is supplied |
 | Generated-lexer semantic parse: `parse`, `lex(...).do_parse`, `parse_with_syntax(source)` | Yes | Yes | May execute when the generated file loads | Trusted application code; not a sandbox |
 | Handwritten pull semantic parse: `do_parse`, no-argument `parse_with_syntax` | Yes | No | May execute when the generated file loads | Trusted application code; not a sandbox |
 | Caller-fed semantic parse: `yyparse`, `push` / `finish` | Yes | No | May execute when the generated file loads | Trusted application code; not a sandbox |
@@ -164,8 +164,15 @@ The execution boundary is:
 
 Static tooling includes frontend parsing, formatting, LSP, documentation,
 conflict analysis, diffing, equivalence search, verification, simulation,
-samples, and internal differential fuzzing. It consumes actions and user-code
-sections only as opaque data and never loads the generated application parser.
+samples, and internal differential fuzzing without `--against`. It consumes
+actions and user-code sections only as opaque data and never loads the
+generated application parser.
+
+`ibex fuzz --against=COMMAND` and `ibex reduce --command=COMMAND` are explicit
+unsafe opt-ins that spawn the supplied executable. That subprocess may run
+arbitrary application code with the invoking user's host permissions. Timeout,
+output, input, and process-group cleanup limits bound resource use; they do not
+sandbox filesystem, network, process, or other side effects.
 
 All semantic runtime paths execute parser production actions. Only paths that
 pull through `GeneratedLexer#next_token` execute generated lexer actions:
@@ -311,7 +318,7 @@ gem install ./ibex-0.1.0.gem
 | Generate bounded terminal sentences | `ibex samples --strategy=coverage grammar.y` |
 | Differential-fuzz all LR algorithms | `ibex fuzz --coverage-guided grammar.y` |
 
-| Minimize an externally reproducible failure | `ibex reduce --command='./fails' tokens.json` |
+| Minimize a failure by executing an external checker | `ibex reduce --command='./fails' tokens.json` |
 | Check a racc migration | `ibex migrate-check grammar.y` |
 | Start the language server | `ibex lsp --stdio` |
 
@@ -329,8 +336,12 @@ counterexamples.
 
 - Frontend parsing, diagnosis, formatting, documentation, LSP, static
   migration checks, IR validation, independent verification, table
-  simulation, sentence generation, and differential fuzzing do not execute
-  parser actions, generated lexer actions, or user-code sections.
+  simulation, sentence generation, and internal differential fuzzing without
+  `--against` do not execute parser actions, generated lexer actions, or
+  user-code sections.
+- `ibex fuzz --against=COMMAND` and `ibex reduce --command=COMMAND` execute the
+  supplied external program as an explicit unsafe opt-in. They can run
+  arbitrary application code and are not sandboxes.
 - Generated parsers, grammar-declared tests, and explicit migration harnesses
   do execute application Ruby. They are not sandboxes.
 - Fragment imports are confined to the declared source root and reject
