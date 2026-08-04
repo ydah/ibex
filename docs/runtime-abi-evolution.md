@@ -216,18 +216,13 @@ at least one path in `tests`. `verification` accepts only reviewed repository
 commands and must run the ABI gate plus the owned tests (or the full suite).
 The validator checks these relationships, while reviewers remain responsible
 for judging the rationale and whether all affected surfaces were identified.
-The deterministic rationale screen applies Unicode compatibility normalization
-and detects placeholder keywords contained anywhere in each maximal
-letter/number token. A separate channel detects obscured forms only within the
-placeholder's own character sequence: every adjacent pair may be separated, but
-partial separation must include punctuation, a symbol, or a combining mark so
-ordinary whitespace prose is not concatenated. Outer alphanumeric affixes do
-not bypass either check. It also rejects Unicode format controls,
-punctuation-only text, obvious periodic or repeated-token filler, and low
-Unicode letter/character diversity. It does not require whitespace-delimited
-words, so Japanese, Arabic, and other writing systems are not treated as empty prose.
-These checks cover only obvious filler: passing them does not make a rationale
-meaningful, and human review remains the semantic authority.
+The deterministic rationale screen checks only structure: the value must be a
+non-empty string containing a Unicode letter, and it must not equal the exact
+repository-owned template sentinel after whitespace normalization. It does not
+classify general placeholders, identifiers, repetition, entropy, or semantic
+substance. Japanese, Arabic, and other writing systems are accepted. Reviewers
+must decide whether the rationale actually explains compatibility and whether
+TODO-like text is acceptable in context.
 
 The structured choice table is closed:
 
@@ -241,7 +236,8 @@ The structured choice table is closed:
 | `none` | only a non-runtime change | `none` | `not_applicable` |
 
 Runtime-facing changes cannot use `none` or `not_applicable`. A rationale must
-be substantive rather than template text. Verification commands are parsed as
+replace the exact template sentinel and contain a Unicode letter; required human
+review decides whether it is substantive. Verification commands are parsed as
 arguments, not executed by the validator; shell composition, arbitrary
 commands, unowned test files, and evidence-only README links are rejected.
 

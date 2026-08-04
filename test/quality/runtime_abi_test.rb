@@ -13,6 +13,16 @@ class RuntimeABITest < Minitest::Test
     Ibex::Quality::RuntimeABI.new(root: ROOT).verify!
   end
 
+  def test_rejects_a_drifted_pull_request_template_rationale_sentinel
+    with_root do |root|
+      sentinel = Ibex::Quality::RuntimeABIReviewedPolicy::RATIONALE_SENTINEL
+      replace(root, ".github/pull_request_template.md", sentinel, "Write compatibility reasoning here.")
+
+      error = assert_raises(RuntimeError) { verify(root) }
+      assert_includes error.message, "pull request template rationale sentinel is stale"
+    end
+  end
+
   def test_rejects_stale_documented_ir_version
     with_root do |root|
       replace(root, "docs/runtime-abi-evolution.md", "current_writer: 2", "current_writer: 3")

@@ -4,6 +4,7 @@ module Ibex
   module Quality
     # Reviewed head authority; pull requests also retain trusted-base paths.
     module RuntimeABIReviewedPolicy
+      RATIONALE_SENTINEL = "Replace this placeholder with the compatibility reasoning."
       REQUIRED_RUNTIME_PATHS = %w[
         .github/pull_request_template.md .github/workflows/main.yml Rakefile
         docs/runtime-abi-evolution.md docs/test-interactions.md
