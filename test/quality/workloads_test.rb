@@ -5,10 +5,12 @@ require_relative "../../tool/quality/workloads"
 require "tmpdir"
 require "yaml"
 
+# rubocop:disable Metrics/ClassLength -- one adversarial suite mutates every closed registry field family.
 class WorkloadsTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   REGISTRY = File.join(ROOT, "docs/workloads.yml")
   DOCUMENTATION = File.join(ROOT, "docs/workloads.md")
+  EVIDENCE = File.join(ROOT, "tool/quality/workloads/evidence.yml")
 
   def test_repository_registry_and_cross_manifest_bindings_are_valid
     assert Ibex::Quality::Workloads.new.verify!
@@ -37,7 +39,7 @@ class WorkloadsTest < Minitest::Test
     workload = changed.fetch("workloads").first
     workload.fetch("grammar")["source_url"] =
       workload.dig("grammar", "source_url").sub(workload.fetch("revision"), "main")
-    assert_error(changed, "pinned to the workload revision")
+    assert_error(changed, "canonical primary URL")
 
     changed = document
     find_workload(changed, "gallery-calc")["revision"] = "a" * 40
@@ -115,6 +117,105 @@ class WorkloadsTest < Minitest::Test
     assert_error(changed, "Bison external identity drift")
   end
 
+  def test_every_public_metric_and_conflict_is_bound_to_the_fixed_manifest
+    %w[productions states tokens].each do |metric|
+      changed = document
+      find_workload(changed, "bcdice-command-parser").dig("counts", metric)["value"] = 999
+      assert_error(changed, "public workload metrics drift")
+    end
+
+    %w[reduce_reduce shift_reduce].each do |metric|
+      changed = document
+      find_workload(changed, "bcdice-command-parser").dig("known_conflicts", metric)["value"] = 999
+      assert_error(changed, "public workload metrics drift")
+    end
+  end
+
+  def test_every_bison_metric_and_conflict_including_tokens_is_bound_to_fixed_expected_values
+    %w[productions states tokens].each do |metric|
+      changed = document
+      find_workload(changed, "bison-gnu-calc").dig("counts", metric)["value"] = 999
+      assert_error(changed, "Bison external counts drift")
+    end
+
+    %w[reduce_reduce shift_reduce].each do |metric|
+      changed = document
+      find_workload(changed, "bison-gnu-calc").dig("known_conflicts", metric)["value"] = 999
+      assert_error(changed, "Bison external counts drift")
+    end
+  end
+
+  def test_remote_classification_requires_public_remote_primary_evidence
+    changed = document
+    workload = find_workload(changed, "bcdice-command-parser")
+    workload.fetch("permission")["status"] = "repository_owned"
+    assert_error(changed, "permission status conflicts with classification")
+
+    changed = document
+    workload = find_workload(changed, "bcdice-command-parser")
+    workload.dig("license", "evidence", 0)["storage"] = "repository"
+    assert_error(changed, "normalized relative path")
+
+    changed = document
+    workload = find_workload(changed, "bcdice-command-parser")
+    workload["grammar"]["storage"] = "repository"
+    assert_error(changed, "repository grammar source_url must be repository")
+
+    changed = document
+    find_workload(changed, "gallery-calc").fetch("permission")["status"] = "public_source"
+    assert_error(changed, "permission status conflicts with classification")
+  end
+
+  def test_reviewed_remote_license_values_are_exact
+    changed = document
+    find_workload(changed, "bcdice-command-parser").fetch("license")["expression"] = "Apache-2.0"
+    assert_error(changed, "differs from the reviewed fixture")
+
+    changed = document
+    license = find_workload(changed, "bcdice-command-parser").dig("license", "evidence", 0)
+    license["locator"] = "https://evil.example/21b4a03789bf2080ad41aaf31299b609ee7bda86/LICENSE"
+    assert_error(changed, "not a canonical primary GitHub URL")
+
+    changed = document
+    find_workload(changed, "bcdice-command-parser").dig("license", "evidence", 0)["sha256"] = "0" * 64
+    assert_error(changed, "differs from the reviewed fixture")
+
+    changed = document
+    license = find_workload(changed, "bcdice-command-parser").dig("license", "evidence", 0)
+    license["locator"] = license.fetch("locator").sub("/LICENSE", "/LICENSE.txt")
+    assert_error(changed, "differs from the reviewed fixture")
+  end
+
+  def test_reviewed_remote_permission_values_are_exact
+    changed = document
+    permission = find_workload(changed, "bcdice-command-parser").dig("permission", "evidence", 0)
+    permission["sha256"] = "0" * 64
+    assert_error(changed, "differs from the reviewed fixture")
+
+    changed = document
+    permission = find_workload(changed, "bcdice-command-parser").dig("permission", "evidence", 0)
+    permission["locator"] = permission.fetch("locator").sub("/parser.y", "/other.y")
+    assert_error(changed, "differs from the reviewed fixture")
+  end
+
+  def test_reviewed_evidence_fixture_rejects_owner_path_revision_and_digest_mutations
+    changed = evidence_document
+    changed.fetch("records").first["owner"] = "other"
+    assert_evidence_error(changed, "repository identity mismatch")
+
+    changed = evidence_document
+    changed.fetch("records").first["grammar"]["path"] = "lib/other.y"
+    assert_evidence_error(changed, "fixed grammar source URL mismatch")
+
+    changed = evidence_document
+    changed.fetch("records").first["revision"] = "a" * 40
+    assert_evidence_error(changed, "fixed grammar source URL mismatch")
+
+    changed = evidence_document
+    changed.fetch("records").first.dig("license", "evidence", 0)["sha256"] = "0" * 64
+    assert_evidence_error(changed, "differs from the reviewed fixture")
+  end
+
   def test_structurally_incomplete_import_cannot_publish_partial_counts_as_complete
     changed = document
     workload = find_workload(changed, "bison-ruby-current-lrama")
@@ -155,6 +256,10 @@ class WorkloadsTest < Minitest::Test
     YAML.safe_load_file(REGISTRY, permitted_classes: [], permitted_symbols: [], aliases: false)
   end
 
+  def evidence_document
+    YAML.safe_load_file(EVIDENCE, permitted_classes: [], permitted_symbols: [], aliases: false)
+  end
+
   def find_workload(value, id)
     value.fetch("workloads").find { |workload| workload.fetch("id") == id }
   end
@@ -165,6 +270,17 @@ class WorkloadsTest < Minitest::Test
       File.write(path, YAML.dump(value))
       error = assert_raises(RuntimeError) do
         Ibex::Quality::Workloads.new(registry: path).verify!
+      end
+      assert_includes error.message, message
+    end
+  end
+
+  def assert_evidence_error(value, message)
+    Dir.mktmpdir("workload-evidence-test-") do |directory|
+      path = File.join(directory, "evidence.yml")
+      File.write(path, YAML.dump(value))
+      error = assert_raises(RuntimeError) do
+        Ibex::Quality::Workloads.new(evidence: path).verify!
       end
       assert_includes error.message, message
     end
@@ -181,3 +297,4 @@ class WorkloadsTest < Minitest::Test
     end
   end
 end
+# rubocop:enable Metrics/ClassLength

@@ -1,0 +1,206 @@
+schema_version: 1
+records:
+  - id: bcdice-command-parser
+    classification: public_real
+    owner: bcdice
+    project: BCDice
+    repository_url: https://github.com/bcdice/BCDice
+    revision: 21b4a03789bf2080ad41aaf31299b609ee7bda86
+    grammar:
+      path: lib/bcdice/command/parser.y
+      source_url: https://github.com/bcdice/BCDice/blob/21b4a03789bf2080ad41aaf31299b609ee7bda86/lib/bcdice/command/parser.y
+      sha256: 845f4fcd5dedfc276dd3529cc86015a1b806bb7912346a04ce5a78a1977bb4d8
+    license:
+      expression: BSD-3-Clause
+      evidence:
+        - locator: https://github.com/bcdice/BCDice/blob/21b4a03789bf2080ad41aaf31299b609ee7bda86/LICENSE
+          sha256: d7b2502fc32b0b677c329f71e349c2d7faa6d9a0c1a66cd69ae4756950026fee
+          storage: remote
+    permission:
+      status: public_source
+      evidence:
+        - locator: https://github.com/bcdice/BCDice/blob/21b4a03789bf2080ad41aaf31299b609ee7bda86/lib/bcdice/command/parser.y
+          sha256: 845f4fcd5dedfc276dd3529cc86015a1b806bb7912346a04ce5a78a1977bb4d8
+          storage: remote
+  - id: bison-gnu-calc
+    classification: external_real
+    owner: akimd
+    project: bison
+    repository_url: https://github.com/akimd/bison
+    revision: 25b3d0e1a3f97a33615099e4b211f3953990c203
+    grammar:
+      path: examples/c/calc/calc.y
+      source_url: https://github.com/akimd/bison/blob/25b3d0e1a3f97a33615099e4b211f3953990c203/examples/c/calc/calc.y
+      sha256: 59259755e8619ebb514b1c1832de28574341efbb64f3f593318961c0cfa4aa1b
+    license:
+      expression: GPL-3.0-or-later
+      evidence:
+        - locator: https://github.com/akimd/bison/blob/25b3d0e1a3f97a33615099e4b211f3953990c203/COPYING
+          sha256: 3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986
+          storage: remote
+    permission:
+      status: public_source
+      evidence:
+        - locator: https://github.com/akimd/bison/blob/25b3d0e1a3f97a33615099e4b211f3953990c203/examples/c/calc/calc.y
+          sha256: 59259755e8619ebb514b1c1832de28574341efbb64f3f593318961c0cfa4aa1b
+          storage: remote
+  - id: bison-jq-parser
+    classification: external_real
+    owner: jqlang
+    project: jq
+    repository_url: https://github.com/jqlang/jq
+    revision: 603db3f57741d217ba651e61086b550a72148b83
+    grammar:
+      path: src/parser.y
+      source_url: https://github.com/jqlang/jq/blob/603db3f57741d217ba651e61086b550a72148b83/src/parser.y
+      sha256: 803aa7c0b1acba2228e52d1de392fb51e60a7bbe23e42870aea1d62c43360c60
+    license:
+      expression: MIT
+      evidence:
+        - locator: https://github.com/jqlang/jq/blob/603db3f57741d217ba651e61086b550a72148b83/COPYING
+          sha256: ad2b4a266b2268939c1446979759706077421cf906a203aa188c6f396e8cfd74
+          storage: remote
+    permission:
+      status: public_source
+      evidence:
+        - locator: https://github.com/jqlang/jq/blob/603db3f57741d217ba651e61086b550a72148b83/src/parser.y
+          sha256: 803aa7c0b1acba2228e52d1de392fb51e60a7bbe23e42870aea1d62c43360c60
+          storage: remote
+  - id: bison-php-parser
+    classification: external_real
+    owner: php
+    project: php-src
+    repository_url: https://github.com/php/php-src
+    revision: 7b78eb4fcc29c5cafa083c667558d0fe79c0c499
+    grammar:
+      path: Zend/zend_language_parser.y
+      source_url: https://github.com/php/php-src/blob/7b78eb4fcc29c5cafa083c667558d0fe79c0c499/Zend/zend_language_parser.y
+      sha256: afb7ad325d4bd7ca4bb037c96dd31e8afdd0652469f0248cc4139a475f0d5e98
+    license:
+      expression: BSD-3-Clause
+      evidence:
+        - locator: https://github.com/php/php-src/blob/7b78eb4fcc29c5cafa083c667558d0fe79c0c499/LICENSE
+          sha256: 76000691f0de039d3080fe8226131f5c4bb29e8996c1de96b94823fad0499fbd
+          storage: remote
+    permission:
+      status: public_source
+      evidence:
+        - locator: https://github.com/php/php-src/blob/7b78eb4fcc29c5cafa083c667558d0fe79c0c499/Zend/zend_language_parser.y
+          sha256: afb7ad325d4bd7ca4bb037c96dd31e8afdd0652469f0248cc4139a475f0d5e98
+          storage: remote
+  - id: bison-postgresql-parser
+    classification: external_real
+    owner: postgres
+    project: postgres
+    repository_url: https://github.com/postgres/postgres
+    revision: d6eac691747499645f21398c9e305d7a671e0229
+    grammar:
+      path: src/backend/parser/gram.y
+      source_url: https://github.com/postgres/postgres/blob/d6eac691747499645f21398c9e305d7a671e0229/src/backend/parser/gram.y
+      sha256: 649da7c47a4d4a26062e9acde2c588ac796a3b74a94079649dd6d16c53a717fe
+    license:
+      expression: PostgreSQL
+      evidence:
+        - locator: https://github.com/postgres/postgres/blob/d6eac691747499645f21398c9e305d7a671e0229/COPYRIGHT
+          sha256: 3d6af92ff8a4c2cdf69afb1cf44edea727922f5cd0cf8b5f72b11cdecac8fdfd
+          storage: remote
+    permission:
+      status: public_source
+      evidence:
+        - locator: https://github.com/postgres/postgres/blob/d6eac691747499645f21398c9e305d7a671e0229/src/backend/parser/gram.y
+          sha256: 649da7c47a4d4a26062e9acde2c588ac796a3b74a94079649dd6d16c53a717fe
+          storage: remote
+  - id: bison-ruby-bison-era
+    classification: external_real
+    owner: ruby
+    project: ruby
+    repository_url: https://github.com/ruby/ruby
+    revision: e51014f9c05aa65cbf203442d37fef7c12390015
+    grammar:
+      path: parse.y
+      source_url: https://github.com/ruby/ruby/blob/e51014f9c05aa65cbf203442d37fef7c12390015/parse.y
+      sha256: cd9d083728abb271d24241347623c91d7e2bac2d063331938afc8fcad312b555
+    license:
+      expression: Ruby OR BSD-2-Clause
+      evidence:
+        - locator: https://github.com/ruby/ruby/blob/e51014f9c05aa65cbf203442d37fef7c12390015/COPYING
+          sha256: 967586d538a28955ec2541910cf63c5ac345fcdea94bfb1f1705a1f6eb36bcbb
+          storage: remote
+    permission:
+      status: public_source
+      evidence:
+        - locator: https://github.com/ruby/ruby/blob/e51014f9c05aa65cbf203442d37fef7c12390015/parse.y
+          sha256: cd9d083728abb271d24241347623c91d7e2bac2d063331938afc8fcad312b555
+          storage: remote
+  - id: bison-ruby-current-lrama
+    classification: external_real
+    owner: ruby
+    project: ruby
+    repository_url: https://github.com/ruby/ruby
+    revision: 825c457945cdb0d07c6075846dc778b147224cbf
+    grammar:
+      path: parse.y
+      source_url: https://github.com/ruby/ruby/blob/825c457945cdb0d07c6075846dc778b147224cbf/parse.y
+      sha256: 90ff67d6f610bacc24439dfac6c1c30ed9eb08aa8b80225c0f074947f1894bb5
+    license:
+      expression: Ruby OR BSD-2-Clause
+      evidence:
+        - locator: https://github.com/ruby/ruby/blob/825c457945cdb0d07c6075846dc778b147224cbf/COPYING
+          sha256: 4ebe48076b3ee165fbb9350aa8a9552f8043c8ed8a7edca2089133d33c1ea45f
+          storage: remote
+    permission:
+      status: public_source
+      evidence:
+        - locator: https://github.com/ruby/ruby/blob/825c457945cdb0d07c6075846dc778b147224cbf/parse.y
+          sha256: 90ff67d6f610bacc24439dfac6c1c30ed9eb08aa8b80225c0f074947f1894bb5
+          storage: remote
+  - id: namae-parser
+    classification: public_real
+    owner: berkmancenter
+    project: namae
+    repository_url: https://github.com/berkmancenter/namae
+    revision: d33875aaf1fc420a8dfe946a3b29cc3e19710061
+    grammar:
+      path: lib/namae/parser.y
+      source_url: https://github.com/berkmancenter/namae/blob/d33875aaf1fc420a8dfe946a3b29cc3e19710061/lib/namae/parser.y
+      sha256: ac626034b016696bf5b8d4868005ff98cecadf74162294d2c6f9d6e128158198
+    license:
+      expression: AGPL-3.0-only OR BSD-2-Clause
+      evidence:
+        - locator: https://github.com/berkmancenter/namae/blob/d33875aaf1fc420a8dfe946a3b29cc3e19710061/AGPL
+          sha256: 1c52b86e404c62e197b5be8623b94531b55040192a46592343c71512bebe93a0
+          storage: remote
+        - locator: https://github.com/berkmancenter/namae/blob/d33875aaf1fc420a8dfe946a3b29cc3e19710061/BSDL
+          sha256: bd0b20b9264de2ebaf6c291d8b7f45378bf2eee07c13292c60142283b958fb35
+          storage: remote
+        - locator: https://github.com/berkmancenter/namae/blob/d33875aaf1fc420a8dfe946a3b29cc3e19710061/namae.gemspec
+          sha256: 6fe3e91ea62949b102312c7bfff9fb1b850ae76d336c9ff6de00e77a7c815f0d
+          storage: remote
+    permission:
+      status: public_source
+      evidence:
+        - locator: https://github.com/berkmancenter/namae/blob/d33875aaf1fc420a8dfe946a3b29cc3e19710061/lib/namae/parser.y
+          sha256: ac626034b016696bf5b8d4868005ff98cecadf74162294d2c6f9d6e128158198
+          storage: remote
+  - id: nokogiri-css-parser
+    classification: public_real
+    owner: sparklemotion
+    project: nokogiri
+    repository_url: https://github.com/sparklemotion/nokogiri
+    revision: 04a4c29c6a605ad40a78f4ce343ced0832a1805c
+    grammar:
+      path: lib/nokogiri/css/parser.y
+      source_url: https://github.com/sparklemotion/nokogiri/blob/04a4c29c6a605ad40a78f4ce343ced0832a1805c/lib/nokogiri/css/parser.y
+      sha256: 3ba8e2b573c099686c4186d0eef0a670dcaf93d2081f5678be45fb8600dc873a
+    license:
+      expression: MIT
+      evidence:
+        - locator: https://github.com/sparklemotion/nokogiri/blob/04a4c29c6a605ad40a78f4ce343ced0832a1805c/LICENSE.md
+          sha256: fdc2068b104e269be2946e21d271d340dfd003f0c8f964308cba4404f75db1aa
+          storage: remote
+    permission:
+      status: public_source
+      evidence:
+        - locator: https://github.com/sparklemotion/nokogiri/blob/04a4c29c6a605ad40a78f4ce343ced0832a1805c/lib/nokogiri/css/parser.y
+          sha256: 3ba8e2b573c099686c4186d0eef0a670dcaf93d2081f5678be45fb8600dc873a
+          storage: remote

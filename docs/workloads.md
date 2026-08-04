@@ -39,11 +39,20 @@ figures are deliberately not promoted to production, token, state, or conflict
 counts.
 
 The registry validator recomputes repository-owned grammar counts, cross-checks
-the three public identities and grammar digests against
+the three public identities, grammar digests, production/state/token counts,
+and conflicts against
 [`benchmark/public_workloads.json`](../benchmark/public_workloads.json), and
-cross-checks Bison identities and structurally complete expected metrics against
+cross-checks Bison identities and every structurally complete expected metric,
+including tokens, against
 [`tool/quality/bison_external.rb`](../tool/quality/bison_external.rb). It does
 not download third-party source in ordinary CI.
+
+Remote source, license, and permission records have a second reviewed binding in
+[`tool/quality/workloads/evidence.yml`](../tool/quality/workloads/evidence.yml).
+The validator requires exact owner/project/revision/path-derived GitHub
+locators, license expressions, evidence digests, and classification-appropriate
+permission states to match that fixture. Repository-owned evidence is instead
+checked against both the current file and its pinned Git object.
 
 ## Registered workloads
 
@@ -109,7 +118,10 @@ registry commit.
 For a public benchmark grammar, change
 `benchmark/public_workloads.json` and this registry together. For a Bison input,
 change the source constant, digest, expected measurements, exact-revision
-license evidence, and registry together. A moving branch, tag without a
+license evidence, and registry together. Any remote source/license change also
+requires an explicitly reviewed update to `tool/quality/workloads/evidence.yml`.
+When a pinned public checkout is supplied, the benchmark recomputes and rejects
+drift in all five structural metric families. A moving branch, tag without a
 resolved commit, short SHA, missing/changed local file, digest mismatch,
 unexplained numeric placeholder, or eligible record without complete count,
 license, and permission evidence fails the quality gate.
