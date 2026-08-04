@@ -25,7 +25,7 @@ It does not mean that no application Ruby executes.
 
 | Execution path | Parser production actions | Generated lexer actions | User `header` / `inner` / `footer` | Trust |
 | --- | --- | --- | --- | --- |
-| Grammar parse/normalize, format, LSP, reports, conflict/diff/equiv/verify/debug | No | No | No | Nonexecuting static tooling |
+| Grammar parse/normalize, format, LSP, reports, conflict/diff/equiv/verify/debug, internal fuzz | No | No | No | Nonexecuting without an external-command option |
 | Generated-lexer semantic: `parse`, `lex(...).do_parse`, `parse_with_syntax(source)` | Yes | Yes | May execute when the generated file loads | Trusted application code; not a sandbox |
 | Handwritten pull semantic: `do_parse`, no-argument `parse_with_syntax` | Yes | No | May execute when the generated file loads | Trusted application code; not a sandbox |
 | Caller-fed semantic: `yyparse`, `push` / `finish` | Yes | No | May execute when the generated file loads | Trusted application code; not a sandbox |
@@ -37,6 +37,12 @@ tables without requiring the generated application parser. Parser actions,
 lexer actions, conversions, and user sections remain opaque data on those
 paths. Code generation may emit source that compiles them when the artifact is
 loaded, but the generator does not load that artifact.
+
+The static guarantee excludes explicit external-command options.
+`ibex fuzz --against=COMMAND` and `ibex reduce --command=COMMAND` spawn the
+supplied executable and may run arbitrary application code with host permissions.
+Subprocess resource limits and process-group cleanup are not sandboxes and do
+not confine side effects.
 
 Semantic runtime entry points execute committed parser production actions.
 Generated lexer actions execute only when tokens are pulled through

@@ -561,21 +561,26 @@ error is rejected with an instruction to run the updater.
 production paths; `--path-length=1|2`, token, depth, expansion, count, and seed
 options make the search finite and reproducible.
 
-`ibex fuzz grammar.y` feeds bounded generated sentences and single-token
-insert/delete/replace mutations to SLR, LALR, IELR, and LR(1) table
-simulators. It does not execute production actions. `--coverage-guided`
+`ibex fuzz grammar.y` without `--against` feeds bounded generated sentences and
+single-token insert/delete/replace mutations to SLR, LALR, IELR, and LR(1)
+table simulators. It does not execute production actions. `--coverage-guided`
 selects uncovered production paths. The JSON report records every effective
 bound and returns 0 when no difference is found within those bounds, 1 with a
 concrete differential witness, and 2 when a budget prevents completion.
 `--format=text` renders the same result and bounds for a terminal; JSON remains
 the default versioned contract.
-`--against=COMMAND` sends each token array as JSON to an explicit subprocess;
-exit 0 means accepted and exit 1 means rejected. It requires
-`--against-runtime=DESCRIPTION`, and the report records that target runtime,
-the exact command, and the Ibex host runtime. Each invocation is bounded by
-`--against-timeout=SECONDS` (default 10) and
+`--against=COMMAND` is an explicit unsafe opt-in that sends each token array as
+JSON to the supplied subprocess. It executes arbitrary application code with
+the invoking user's host permissions and is not a sandbox. The command is
+split into an executable and arguments without an implicit shell, but the
+selected executable can itself access the filesystem, network, environment,
+and other processes. Exit 0 means accepted and exit 1 means rejected. It
+requires `--against-runtime=DESCRIPTION`, and the report records that target
+runtime, the exact command, and the Ibex host runtime. Each invocation is
+bounded by `--against-timeout=SECONDS` (default 10) and
 `--against-max-output=N` (default 1,048,576 bytes); either limit exits 2
-instead of treating a stuck or noisy target as a language result. On
+instead of treating a stuck or noisy target as a language result. These limits
+and process-group cleanup bound resources but do not confine side effects. On
 process-group platforms, descendants are terminated with the target. A
 difference is automatically delta-minimized while preserving its mismatch kind
 and outcomes, then written atomically to `test/fuzz/regressions` with its seed
@@ -585,7 +590,12 @@ another destination, and `--no-save-regression` disables persistence. An
 incomplete minimization remains a concrete difference and records
 `complete: false`; it is never described as minimal.
 
-`ibex reduce --command=COMMAND input` performs trial-bounded delta debugging.
+`ibex reduce --command=COMMAND input` is an explicit unsafe opt-in that
+repeatedly executes the supplied checker to perform trial-bounded delta
+debugging. The checker may run arbitrary application code with the invoking
+user's host permissions; it is not sandboxed. As with external fuzzing,
+resource limits and process cleanup do not confine filesystem, network,
+process, or other side effects.
 Input mode is `tokens` (a JSON string array), `lines`, or `bytes`. A nonzero
 normal subprocess exit means the failure persists; a signal is an invocation
 error rather than evidence. The version-2 report contains the reduced
