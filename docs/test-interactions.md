@@ -35,7 +35,7 @@ interactions:
   - id: parser_semantics
     axes: [algorithm, table, cst, locations, entries]
     coverage: matrix
-    tests: [test/support/matrix_runner.rb]
+    tests: [test/tooling/matrix_runner_test.rb]
   - id: generated_lexer
     axes: [algorithm, table, cst, locations, entries]
     coverage: matrix_and_focused
@@ -67,7 +67,7 @@ interactions:
   - id: generated_ast
     axes: [algorithm, table, locations]
     coverage: focused_regression
-    tests: [test/codegen/ast_test.rb, test/support/matrix_runner.rb]
+    tests: [test/codegen/ast_test.rb, test/tooling/matrix_runner_test.rb]
   - id: recovery
     axes: [algorithm, table, cst, entries]
     coverage: focused_regression

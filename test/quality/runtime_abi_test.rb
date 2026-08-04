@@ -52,7 +52,7 @@ class RuntimeABITest < Minitest::Test
       replace(root, "docs/test-interactions.md", "    locations: [\"off\", \"on\"]\n", "")
 
       error = assert_raises(RuntimeError) { verify(root) }
-      assert_includes error.message, "axes are stale or missing"
+      assert_includes error.message, "documented matrix axes are stale or missing"
     end
   end
 
@@ -64,7 +64,7 @@ class RuntimeABITest < Minitest::Test
       File.binwrite(path, source)
 
       error = assert_raises(RuntimeError) { verify(root) }
-      assert_includes error.message, "inventory is stale or incomplete"
+      assert_includes error.message, "interaction inventory, axes, coverage, or ownership is stale"
     end
   end
 
@@ -73,7 +73,7 @@ class RuntimeABITest < Minitest::Test
       error = assert_raises(RuntimeError) do
         verify_event(root, "pull_request_missing.json", "runtime-paths.txt")
       end
-      assert_includes error.message, "exactly one structured ABI assessment"
+      assert_includes error.message, "exactly one complete structured ABI assessment"
     end
   end
 
@@ -81,12 +81,12 @@ class RuntimeABITest < Minitest::Test
     with_root do |root|
       event = event_copy(root, "pull_request.json")
       rewrite_body(event, "state: compatible", "state: not_applicable")
-      rewrite_body(event, "surfaces: [runtime_api]", "surfaces: [none]")
+      rewrite_body(event, "surfaces: [runtime_api, cst]", "surfaces: [none]")
       rewrite_body(event, "abi_choice: current_contract", "abi_choice: none")
       rewrite_body(event, "regeneration: not_required", "regeneration: not_applicable")
 
       error = assert_raises(RuntimeError) { verify_event_path(root, event, "runtime-paths.txt") }
-      assert_includes error.message, "cannot use state not_applicable"
+      assert_includes error.message, "cannot use not_applicable or none"
     end
   end
 
@@ -108,7 +108,7 @@ class RuntimeABITest < Minitest::Test
   def test_runtime_change_rejects_malformed_yaml
     with_root do |root|
       event = event_copy(root, "pull_request.json")
-      rewrite_body(event, "surfaces: [runtime_api]", "surfaces: [runtime_api")
+      rewrite_body(event, "surfaces: [runtime_api, cst]", "surfaces: [runtime_api")
 
       error = assert_raises(RuntimeError) { verify_event_path(root, event, "runtime-paths.txt") }
       assert_includes error.message, "invalid YAML"
