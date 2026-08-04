@@ -345,7 +345,9 @@ module Ibex
 
       def preindex_constant_definitions(source_trees, index)
         declarations = []
-        source_trees.each_value { |sexp| discover_constant_declarations(sexp, nil, declarations) }
+        source_trees.each do |source, sexp|
+          discover_constant_declarations(sexp, nil, declarations, source)
+        end
         owners = Array.new(declarations.length)
         aliases = {}
         converged = false
@@ -376,29 +378,30 @@ module Ibex
         index[:constant_aliases] = aliases
       end
 
-      def discover_constant_declarations(node, parent_id, declarations)
+      def discover_constant_declarations(node, parent_id, declarations, source)
         return unless node.is_a?(Array)
 
         if %i[class module].include?(node.first)
           declaration_id = declarations.length
-          declarations << { kind: :namespace, node: node[1], parent_id: parent_id }
+          declarations << { kind: :namespace, node: node[1], parent_id: parent_id, source: source }
           body = node.first == :class ? node[3] : node[2]
-          discover_constant_declarations(body, declaration_id, declarations)
+          discover_constant_declarations(body, declaration_id, declarations, source)
           return
         end
         if node.first == :sclass
-          discover_constant_declarations(node[2], parent_id, declarations)
+          discover_constant_declarations(node[2], parent_id, declarations, source)
           return
         end
         if %i[assign opassign].include?(node.first) && constant_assignment_target?(node[1])
           conditional = node.first == :opassign && node.dig(2, 1) == "||="
           value = node.first == :assign ? node[2] : node[3] if node.first == :assign || conditional
           declarations << {
-            kind: :assignment, node: node[1], value: value, parent_id: parent_id, conditional: conditional
+            kind: :assignment, node: node[1], value: value, parent_id: parent_id, conditional: conditional,
+            source: source
           }
         end
         node.each do |child|
-          discover_constant_declarations(child, parent_id, declarations) if child.is_a?(Array)
+          discover_constant_declarations(child, parent_id, declarations, source) if child.is_a?(Array)
         end
       end
 
@@ -425,22 +428,78 @@ module Ibex
       end
 
       def constant_identity_aliases(declarations, resolved, previous_owners, index)
-        unconditional_definitions = declarations.each_index.filter_map do |declaration_id|
+        grouped = declarations.each_index.group_by { |declaration_id| resolved[declaration_id] }
+        grouped.each_with_object({}) do |(owner, declaration_ids), aliases|
+          next unless owner
+
+          sources = declaration_ids.group_by { |declaration_id| declarations.fetch(declaration_id).fetch(:source) }
+          state = if sources.one?
+                    ordered_constant_identity_state(
+                      declaration_ids, declarations, previous_owners, index
+                    )
+                  else
+                    cross_file_constant_identity_state(
+                      sources.values, declarations, previous_owners, index
+                    )
+                  end
+          aliases[owner] = state.fetch(1) if state&.first == :identity && state.fetch(1) != owner
+        end
+      end
+
+      def ordered_constant_identity_state(declaration_ids, declarations, previous_owners, index)
+        declaration_ids.each_with_object([:unset]) do |declaration_id, state|
           declaration = declarations.fetch(declaration_id)
-          resolved[declaration_id] unless declaration.fetch(:kind) == :assignment && declaration.fetch(:conditional)
-        end
-        declarations.each_with_index.with_object({}) do |(declaration, declaration_id), aliases|
-          value = declaration[:value]
-          next unless declaration.fetch(:kind) == :assignment && constant_path_name(value)
-          next if declaration.fetch(:conditional) && unconditional_definitions.include?(resolved[declaration_id])
+          next state.replace([:truthy]) if declaration.fetch(:kind) == :namespace
 
-          parent_id = declaration.fetch(:parent_id)
-          parent = parent_id ? previous_owners[parent_id] : nil
-          next if parent_id && !parent
+          assigned = constant_assignment_state(declaration, previous_owners, index)
+          next if declaration.fetch(:conditional) && !%i[unset falsey].include?(state.first)
 
-          target = resolve_constant_node(value, { owner: parent }, index)
-          aliases[resolved[declaration_id]] = target if resolved[declaration_id] && target
+          state.replace(assigned)
         end
+      end
+
+      def cross_file_constant_identity_state(source_declaration_ids, declarations, previous_owners, index)
+        return [:unknown] unless source_declaration_ids.flatten.all? do |declaration_id|
+          declaration = declarations.fetch(declaration_id)
+          declaration.fetch(:kind) == :assignment && declaration.fetch(:conditional)
+        end
+
+        states = source_declaration_ids.map do |declaration_ids|
+          ordered_constant_identity_state(declaration_ids, declarations, previous_owners, index)
+        end
+        return [:unknown] if states.any? { |state| %i[truthy unknown].include?(state.first) }
+
+        identities = states.filter_map { |state| state.fetch(1) if state.first == :identity }.uniq
+        identities.one? ? [:identity, identities.first] : [:unknown]
+      end
+
+      def constant_assignment_state(declaration, previous_owners, index)
+        value = declaration[:value]
+        return [:falsey] if falsey_literal?(value)
+
+        parent_id = declaration.fetch(:parent_id)
+        parent = parent_id ? previous_owners[parent_id] : nil
+        return [:unknown] if parent_id && !parent
+
+        target = resolve_constant_node(value, { owner: parent }, index)
+        return [:identity, target] if target
+        return [:truthy] if constant_path_name(value) || definitely_truthy_expression?(value)
+
+        [:unknown]
+      end
+
+      def falsey_literal?(node)
+        node&.first == :var_ref && node.dig(1, 0) == :@kw && %w[false nil].include?(node.dig(1, 1))
+      end
+
+      def definitely_truthy_expression?(node)
+        node = unwrap_parenthesized_expression(node)
+        return false unless node.is_a?(Array)
+        return true if %i[array hash string_literal symbol_literal].include?(node.first)
+        return true if node.first.to_s.match?(/\A@(?:int|float|rational|imaginary|CHAR)\z/)
+        return true if node.first == :var_ref && node.dig(1, 0) == :@kw && node.dig(1, 1) == "true"
+
+        node.first == :call && node.dig(3, 1) == "new"
       end
 
       def finalize_superclasses(index)
@@ -647,7 +706,9 @@ module Ibex
         scope = "#{context[:scope]}:block:#{line}:#{index.fetch(:blocks).length}"
         nested = context.merge(scope: scope, scope_chain: [scope] + context.fetch(:scope_chain))
         index_parameters(parameters, nested, index)
-        index.fetch(:blocks) << { expression: node[1], parameters: parameters.fetch(:names), context: nested }
+        index.fetch(:blocks) << {
+          node: node, expression: node[1], parameters: parameters.fetch(:names), context: nested
+        }
         walk(node[2], nested, index)
       end
 
@@ -1106,12 +1167,15 @@ module Ibex
       end
 
       def option_parser_subclass_registration?(call, bindings)
-        return false unless call.fetch(:role) == :instance
         return false unless call.fetch(:implicit) || self_receiver?(call[:receiver])
 
-        ancestor_chain(call[:owner], bindings.fetch(:index)).any? do |ancestor|
-          bindings.fetch(:classes).include?("constant:#{ancestor}")
-        end
+        option_parser_subclass_instance_context?(call, bindings.fetch(:classes), bindings.fetch(:index))
+      end
+
+      def option_parser_subclass_instance_context?(context, class_bindings, index)
+        return false unless context.fetch(:role) == :instance
+
+        ancestor_chain(context[:owner], index).any? { |ancestor| class_bindings.include?("constant:#{ancestor}") }
       end
 
       def self_receiver?(node)
@@ -1122,9 +1186,15 @@ module Ibex
       def option_parser_instance_expression?(node, context, class_bindings, instance_bindings, index)
         node = unwrap_parenthesized_expression(node)
         return false unless node.is_a?(Array)
+        return true if self_receiver?(node) && option_parser_subclass_instance_context?(context, class_bindings, index)
         return true if binding_candidates(node, context, index).any? { |binding| instance_bindings.include?(binding) }
 
-        if %i[method_add_arg method_add_block].include?(node.first)
+        if node.first == :method_add_block
+          return true if identity_returning_builder_block?(node, class_bindings, instance_bindings, index)
+
+          return option_parser_instance_expression?(node[1], context, class_bindings, instance_bindings, index)
+        end
+        if node.first == :method_add_arg
           return option_parser_instance_expression?(node[1], context, class_bindings, instance_bindings, index)
         end
         return false unless node.first == :call
@@ -1151,6 +1221,34 @@ module Ibex
         return false unless %w[tap then yield_self].include?(api)
 
         option_parser_instance_expression?(node[1], context, class_bindings, instance_bindings, index)
+      end
+
+      def identity_returning_builder_block?(node, class_bindings, instance_bindings, index)
+        block = index.fetch(:blocks).find { |candidate| candidate.fetch(:node).equal?(node) }
+        return false unless block
+
+        expression = unwrap_parenthesized_expression(block.fetch(:expression))
+        expression = unwrap_parenthesized_expression(expression[1]) while expression&.first == :method_add_arg
+        return false unless expression&.first == :call && %w[then yield_self].include?(expression.dig(3, 1))
+        return false unless option_parser_yielding_expression?(
+          block.fetch(:expression), block.fetch(:context), class_bindings, instance_bindings, index
+        )
+
+        returned = unwrap_parenthesized_expression(block_last_expression(node))
+        yielded = block.fetch(:parameters).map { |name| local_binding(block.fetch(:context), name) }
+        reassigned = index.fetch(:assignments).any? do |assignment|
+          yielded.include?(assignment.fetch(:target)) &&
+            assignment.fetch(:context).fetch(:scope) == block.fetch(:context).fetch(:scope)
+        end
+        return false if reassigned
+
+        binding_candidates(returned, block.fetch(:context), index).any? { |binding| yielded.include?(binding) }
+      end
+
+      def block_last_expression(node)
+        body = node.dig(2, 2)
+        body = body[1] if body&.first == :bodystmt
+        body&.last
       end
 
       def unwrap_parenthesized_expression(node)
