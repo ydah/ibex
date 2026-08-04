@@ -111,7 +111,7 @@ claims:
     subjective_review:
       required: true
       state: pending
-      method: A third party reviews all ten case IDs with useful, not useful, unsafe, or unclear labels and rationale.
+      method: A non-maintainer third party reviews all ten case IDs with diagnostic labels useful, not_useful, or unclear and repair labels useful, not_useful, unsafe, or unclear; each judgment retains rationale and disagreement.
     validity:
       scope: Exact snapshot introduction revision and Racc 1.8.1 only.
       expires: No comparative UX conclusion may be published before independent review is recorded.
@@ -120,8 +120,17 @@ claims:
         - An independent assessment is added or disagrees with the maintainer assessment.
     evidence:
       - kind: method
+        path: docs/error-ux-review-rubric-v1.md
+        description: Versioned independent rubric, fixed labels, disagreement policy, publication consent, and import workflow.
+      - kind: report
+        path: docs/error-ux-review-status-v1.json
+        description: Machine-readable HOLD state, immutable kit identity, and imported-record registry.
+      - kind: method
         path: docs/error-ux.md
         description: Public method, case table, maintainer assessment, and explicit missing review.
+      - kind: method
+        path: schema/error-ux-review-v1.schema.json
+        description: Closed independent-review record contract for identity, reproduction, publication, and ten assessments.
       - kind: result_artifact
         path: test/fixtures/error_ux/json-errors-v1.json
         description: Versioned normative observations for all ten inputs.

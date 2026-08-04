@@ -1,0 +1,585 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/error-ux-review-v1.schema.json",
+  "title": "Ibex independent error UX review record version 1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "record_id",
+    "record_state",
+    "kit",
+    "evidence",
+    "reproduction",
+    "reviewer",
+    "publication",
+    "assessments",
+    "overall_rationale"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "record_id": {
+      "type": "string",
+      "pattern": "^EUXR-[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9][a-z0-9-]*$"
+    },
+    "record_state": {
+      "enum": [
+        "draft",
+        "published"
+      ]
+    },
+    "kit": {
+      "$ref": "#/$defs/kit"
+    },
+    "evidence": {
+      "$ref": "#/$defs/evidence"
+    },
+    "reproduction": {
+      "$ref": "#/$defs/reproduction"
+    },
+    "reviewer": {
+      "$ref": "#/$defs/reviewer"
+    },
+    "publication": {
+      "$ref": "#/$defs/publication"
+    },
+    "assessments": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/assessment_eux_01"
+        },
+        {
+          "$ref": "#/$defs/assessment_eux_02"
+        },
+        {
+          "$ref": "#/$defs/assessment_eux_03"
+        },
+        {
+          "$ref": "#/$defs/assessment_eux_04"
+        },
+        {
+          "$ref": "#/$defs/assessment_eux_05"
+        },
+        {
+          "$ref": "#/$defs/assessment_eux_06"
+        },
+        {
+          "$ref": "#/$defs/assessment_eux_07"
+        },
+        {
+          "$ref": "#/$defs/assessment_eux_08"
+        },
+        {
+          "$ref": "#/$defs/assessment_eux_09"
+        },
+        {
+          "$ref": "#/$defs/assessment_eux_10"
+        }
+      ],
+      "items": false
+    },
+    "overall_rationale": {
+      "$ref": "#/$defs/non_empty_string"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "non_empty_string": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "revision": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "case_ids": {
+      "type": "array",
+      "prefixItems": [
+        { "const": "EUX-01" },
+        { "const": "EUX-02" },
+        { "const": "EUX-03" },
+        { "const": "EUX-04" },
+        { "const": "EUX-05" },
+        { "const": "EUX-06" },
+        { "const": "EUX-07" },
+        { "const": "EUX-08" },
+        { "const": "EUX-09" },
+        { "const": "EUX-10" }
+      ],
+      "items": false,
+      "minItems": 10,
+      "maxItems": 10
+    },
+    "kit": {
+      "type": "object",
+      "required": [
+        "id",
+        "version",
+        "rubric_path",
+        "rubric_sha256",
+        "schema_path",
+        "schema_sha256"
+      ],
+      "properties": {
+        "id": {
+          "const": "ibex-error-ux-independent-review"
+        },
+        "version": {
+          "const": 1
+        },
+        "rubric_path": {
+          "const": "docs/error-ux-review-rubric-v1.md"
+        },
+        "rubric_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "schema_path": {
+          "const": "schema/error-ux-review-v1.schema.json"
+        },
+        "schema_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "required": [
+        "repository",
+        "snapshot",
+        "corpus",
+        "case_ids"
+      ],
+      "properties": {
+        "repository": {
+          "type": "object",
+          "required": [
+            "url",
+            "revision"
+          ],
+          "properties": {
+            "url": {
+              "const": "https://github.com/ydah/ibex"
+            },
+            "revision": {
+              "$ref": "#/$defs/revision"
+            }
+          },
+          "additionalProperties": false
+        },
+        "snapshot": {
+          "type": "object",
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "test/fixtures/error_ux/json-errors-v1.json"
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          },
+          "additionalProperties": false
+        },
+        "corpus": {
+          "type": "object",
+          "required": [
+            "ibex_grammar",
+            "ibex_grammar_sha256",
+            "racc_grammar",
+            "racc_grammar_sha256"
+          ],
+          "properties": {
+            "ibex_grammar": {
+              "const": "examples/json.y"
+            },
+            "ibex_grammar_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "racc_grammar": {
+              "const": "test/fixtures/error_ux/json_racc.y"
+            },
+            "racc_grammar_sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          },
+          "additionalProperties": false
+        },
+        "case_ids": {
+          "$ref": "#/$defs/case_ids"
+        }
+      },
+      "additionalProperties": false
+    },
+    "command": {
+      "type": "object",
+      "required": [
+        "executable",
+        "argv"
+      ],
+      "properties": {
+        "executable": {
+          "const": "bundle"
+        },
+        "argv": {
+          "const": [
+            "exec",
+            "ruby",
+            "tool/error_ux_snapshot.rb"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "ruby_identity": {
+      "type": "object",
+      "required": [
+        "description",
+        "engine",
+        "version",
+        "platform",
+        "yjit_enabled"
+      ],
+      "properties": {
+        "description": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "engine": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "version": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "platform": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "yjit_enabled": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "racc_identity": {
+      "type": "object",
+      "required": [
+        "version"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^racc version [0-9]+\\.[0-9]+\\.[0-9]+(?:[.-][0-9A-Za-z.-]+)?$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "environment": {
+      "type": "object",
+      "required": [
+        "host_cpu",
+        "host_os",
+        "kernel_release",
+        "processors"
+      ],
+      "properties": {
+        "host_cpu": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "host_os": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "kernel_release": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "processors": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "reproduction": {
+      "type": "object",
+      "required": [
+        "command",
+        "snapshot_result",
+        "ruby",
+        "racc",
+        "environment"
+      ],
+      "properties": {
+        "command": {
+          "$ref": "#/$defs/command"
+        },
+        "snapshot_result": {
+          "const": "passed"
+        },
+        "ruby": {
+          "$ref": "#/$defs/ruby_identity"
+        },
+        "racc": {
+          "$ref": "#/$defs/racc_identity"
+        },
+        "environment": {
+          "$ref": "#/$defs/environment"
+        }
+      },
+      "additionalProperties": false
+    },
+    "reviewer": {
+      "type": "object",
+      "required": [
+        "identity",
+        "affiliation",
+        "is_project_maintainer",
+        "reviewed_on",
+        "conflicts"
+      ],
+      "properties": {
+        "identity": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "affiliation": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "is_project_maintainer": {
+          "const": false
+        },
+        "reviewed_on": {
+          "type": "string",
+          "format": "date"
+        },
+        "conflicts": {
+          "$ref": "#/$defs/non_empty_string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "publication": {
+      "type": "object",
+      "required": [
+        "permalink",
+        "consent",
+        "consent_statement"
+      ],
+      "properties": {
+        "permalink": {
+          "type": "string",
+          "pattern": "^https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/(?:commit/[0-9a-f]{40}|blob/[0-9a-f]{40}/[^?#]+)$"
+        },
+        "consent": {
+          "const": true
+        },
+        "consent_statement": {
+          "type": "string",
+          "minLength": 20,
+          "pattern": "\\S"
+        }
+      },
+      "additionalProperties": false
+    },
+    "judgment": {
+      "type": "object",
+      "required": [
+        "label",
+        "rationale"
+      ],
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "rationale": {
+          "$ref": "#/$defs/non_empty_string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "diagnostic_judgment": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/judgment"
+        },
+        {
+          "properties": {
+            "label": {
+              "enum": [
+                "useful",
+                "not_useful",
+                "unclear"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "repair_judgment": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/judgment"
+        },
+        {
+          "properties": {
+            "label": {
+              "enum": [
+                "useful",
+                "not_useful",
+                "unsafe",
+                "unclear"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "disagreement": {
+      "type": "object",
+      "required": [
+        "exists",
+        "subjects",
+        "rationale"
+      ],
+      "properties": {
+        "exists": {
+          "type": "boolean"
+        },
+        "subjects": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "diagnostic",
+              "repair",
+              "normative_observation"
+            ]
+          }
+        },
+        "rationale": {
+          "$ref": "#/$defs/non_empty_string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "exists": {
+                "const": true
+              }
+            },
+            "required": [
+              "exists"
+            ]
+          },
+          "then": {
+            "properties": {
+              "subjects": {
+                "minItems": 1
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "subjects": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "assessment": {
+      "type": "object",
+      "required": [
+        "case_id",
+        "diagnostic",
+        "repair",
+        "disagreement"
+      ],
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "diagnostic": {
+          "$ref": "#/$defs/diagnostic_judgment"
+        },
+        "repair": {
+          "$ref": "#/$defs/repair_judgment"
+        },
+        "disagreement": {
+          "$ref": "#/$defs/disagreement"
+        }
+      },
+      "additionalProperties": false
+    },
+    "assessment_eux_01": {
+      "allOf": [
+        { "$ref": "#/$defs/assessment" },
+        { "properties": { "case_id": { "const": "EUX-01" } } }
+      ]
+    },
+    "assessment_eux_02": {
+      "allOf": [
+        { "$ref": "#/$defs/assessment" },
+        { "properties": { "case_id": { "const": "EUX-02" } } }
+      ]
+    },
+    "assessment_eux_03": {
+      "allOf": [
+        { "$ref": "#/$defs/assessment" },
+        { "properties": { "case_id": { "const": "EUX-03" } } }
+      ]
+    },
+    "assessment_eux_04": {
+      "allOf": [
+        { "$ref": "#/$defs/assessment" },
+        { "properties": { "case_id": { "const": "EUX-04" } } }
+      ]
+    },
+    "assessment_eux_05": {
+      "allOf": [
+        { "$ref": "#/$defs/assessment" },
+        { "properties": { "case_id": { "const": "EUX-05" } } }
+      ]
+    },
+    "assessment_eux_06": {
+      "allOf": [
+        { "$ref": "#/$defs/assessment" },
+        { "properties": { "case_id": { "const": "EUX-06" } } }
+      ]
+    },
+    "assessment_eux_07": {
+      "allOf": [
+        { "$ref": "#/$defs/assessment" },
+        { "properties": { "case_id": { "const": "EUX-07" } } }
+      ]
+    },
+    "assessment_eux_08": {
+      "allOf": [
+        { "$ref": "#/$defs/assessment" },
+        { "properties": { "case_id": { "const": "EUX-08" } } }
+      ]
+    },
+    "assessment_eux_09": {
+      "allOf": [
+        { "$ref": "#/$defs/assessment" },
+        { "properties": { "case_id": { "const": "EUX-09" } } }
+      ]
+    },
+    "assessment_eux_10": {
+      "allOf": [
+        { "$ref": "#/$defs/assessment" },
+        { "properties": { "case_id": { "const": "EUX-10" } } }
+      ]
+    }
+  }
+}

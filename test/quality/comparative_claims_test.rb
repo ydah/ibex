@@ -12,7 +12,9 @@ class ComparativeClaimsTest < Minitest::Test
   FIXTURES = File.join(ROOT, "test/fixtures/comparative_claims")
   PORTABLE_FILES = %w[
     README.md benchmark/README.md benchmark/public_workloads.json docs/claims.yml
-    docs/comparison-policy.md docs/error-ux.md docs/release-readiness.md
+    docs/comparison-policy.md docs/error-ux-review-rubric-v1.md
+    docs/error-ux-review-status-v1.json docs/error-ux.md docs/release-readiness.md
+    schema/error-ux-review-v1.schema.json
     test/fixtures/error_ux/json-errors-v1.json
   ].freeze
 
@@ -27,7 +29,10 @@ class ComparativeClaimsTest < Minitest::Test
 
   def test_rejects_missing_evidence_and_nondeterministic_claim_order
     missing = document
-    missing.fetch("claims").first.fetch("evidence").first["path"] = "docs/missing-evidence.md"
+    missing_evidence = missing.fetch("claims").first.fetch("evidence").find do |entry|
+      entry["path"] == "docs/error-ux.md"
+    end
+    missing_evidence["path"] = "docs/missing-evidence.md"
     assert_error(missing, "missing evidence")
 
     unordered = document
@@ -69,7 +74,8 @@ class ComparativeClaimsTest < Minitest::Test
       claim = changed.fetch("claims").first
       path = "test/fixtures/comparative_claims/#{fixture}"
       claim.fetch("binding")["path"] = path
-      claim.fetch("evidence").first["path"] = path
+      claim.fetch("evidence").find { |entry| entry["path"] == "docs/error-ux.md" }["path"] = path
+      claim.fetch("evidence").sort_by! { |entry| entry.fetch("path") }
 
       assert_error(changed, "body digest mismatch")
     end

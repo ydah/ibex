@@ -20,6 +20,7 @@ class SchemaFilesPackagingTest < Minitest::Test
       schema/public-performance-comparison-v1.schema.json
       schema/public-performance-profile-v1.schema.json
       schema/error-ux-v1.schema.json
+      schema/error-ux-review-v1.schema.json
       schema/migration-check-v1.schema.json
       schema/generation-manifest-v1.schema.json
       lib/ibex/codegen/action_method_source.rb
