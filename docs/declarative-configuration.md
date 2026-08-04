@@ -6,7 +6,10 @@ This inventory classifies every production `OptionParser` registration API call 
 The closed API family is `on`, `on_head`, `on_tail`, `define`, `define_head`, `define_tail`,
 `def_option`, `def_head_option`, and `def_tail_option` in explicit or implicit call forms.
 Unresolved registrations and splats fail closed; every source method has a reviewed command surface.
-Reflective registration through `send`, `public_send`, or `method(...).call` is prohibited.
+Reflective registration through `send`, `public_send`, `__send__`, or bound methods is prohibited
+at method lookup time, before assignment or `call` can hide it.
+A parser/options-style helper parameter and a static literal beginning with `-` are conservative
+OptionParser signals; unrelated receivers must avoid option-like spellings or receive explicit review.
 The admission decision follows `.idea/ibex-declarative-configuration-policy.md`: grammar-owned settings
 must pass A1-A8 and every X1-X7 exclusion remains outside grammar syntax.
 

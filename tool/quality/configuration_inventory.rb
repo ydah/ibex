@@ -18,6 +18,9 @@ module Ibex
       REGISTRATION_APIS = %w[
         on on_head on_tail define define_head define_tail def_option def_head_option def_tail_option
       ].freeze
+      REFLECTIVE_SEND_APIS = %w[send public_send __send__].freeze
+      BOUND_METHOD_APIS = %w[method public_method singleton_method].freeze
+      UNBOUND_METHOD_APIS = %w[instance_method public_instance_method].freeze
       SURFACES = {
         ["lib/ibex/cli.rb", "add_compatibility_options"] => "generate",
         ["lib/ibex/cli.rb", "add_information_options"] => "generate",
@@ -195,7 +198,10 @@ module Ibex
           "The closed API family is `on`, `on_head`, `on_tail`, `define`, `define_head`, `define_tail`,",
           "`def_option`, `def_head_option`, and `def_tail_option` in explicit or implicit call forms.",
           "Unresolved registrations and splats fail closed; every source method has a reviewed command surface.",
-          "Reflective registration through `send`, `public_send`, or `method(...).call` is prohibited.",
+          "Reflective registration through `send`, `public_send`, `__send__`, or bound methods is prohibited",
+          "at method lookup time, before assignment or `call` can hide it.",
+          "A parser/options-style helper parameter and a static literal beginning with `-` are conservative",
+          "OptionParser signals; unrelated receivers must avoid option-like spellings or receive explicit review.",
           "The admission decision follows `.idea/ibex-declarative-configuration-policy.md`: grammar-owned settings",
           "must pass A1-A8 and every X1-X7 exclusion remains outside grammar syntax.",
           "",
@@ -318,6 +324,7 @@ module Ibex
 
         calls = []
         walk(sexp, nil, nil, calls, false)
+        calls.each { |call| call[:source_node] = sexp }
         calls.select { |call| registration_candidate?(relative, call) }
              .flat_map { |call| declarations_for_call(relative, call) }
       end
@@ -410,11 +417,13 @@ module Ibex
         call = registration_call(node)
         return unless call
 
-        return reflective_send_call(call) if %w[send public_send].include?(call.fetch(:api))
+        return reflective_send_call(call) if REFLECTIVE_SEND_APIS.include?(call.fetch(:api))
+        return reflective_method_reference(call) if BOUND_METHOD_APIS.include?(call.fetch(:api))
+        return reflective_method_reference(call, unbound: true) if UNBOUND_METHOD_APIS.include?(call.fetch(:api))
         return unless call.fetch(:api) == "call"
 
         reference = registration_call(call[:receiver])
-        return unless reference&.fetch(:api) == "method"
+        return unless reference && BOUND_METHOD_APIS.include?(reference.fetch(:api))
 
         reflective_call(reference, call.fetch(:arguments), call.fetch(:splat))
       end
@@ -425,6 +434,13 @@ module Ibex
         return if api && !REGISTRATION_APIS.include?(api)
 
         reflective_call(call, call.fetch(:arguments).drop(1), call.fetch(:splat), api: api)
+      end
+
+      def reflective_method_reference(call, unbound: false)
+        api = static_reflective_name(call.fetch(:arguments).first)
+        return if api && !REGISTRATION_APIS.include?(api)
+
+        call.merge(api: api, arguments: [], reflective: true, unbound: unbound)
       end
 
       def reflective_call(reference, arguments, splat, api: nil)
@@ -475,6 +491,7 @@ module Ibex
         return true unless option_spellings(call.fetch(:arguments)).empty?
         return true if call.fetch(:option_parser_scope)
         return true if call.fetch(:implicit) && SURFACES.key?([relative, call[:method]])
+        return receiver_option_parser_class?(relative, call) if call.fetch(:unbound, false)
 
         receiver_option_parser?(relative, call)
       end
@@ -497,55 +514,147 @@ module Ibex
       def receiver_option_parser?(relative, call)
         receiver = call[:receiver]
         return false unless receiver.is_a?(Array)
-        return true if option_parser_constructor?(receiver)
 
-        name = receiver_identifier(receiver)
-        return false unless name
-        return true if option_parser_locals(call[:method_node]).include?(name)
-        return true if option_parser_block_parameters(call[:method_node]).include?(name)
+        class_bindings, instance_bindings = option_parser_bindings(relative, call)
+        return true if option_parser_instance_expression?(receiver, class_bindings)
 
-        reviewed_option_parser_parameter?(relative, call, name)
+        binding = receiver_binding_name(receiver)
+        binding && instance_bindings.include?(binding)
       end
 
-      def receiver_identifier(node)
-        return unless node&.first == :var_ref && node.dig(1, 0) == :@ident
+      def receiver_option_parser_class?(relative, call)
+        receiver = call[:receiver]
+        return false unless receiver.is_a?(Array)
 
-        node.dig(1, 1)
+        class_bindings, = option_parser_bindings(relative, call)
+        class_bindings.include?(receiver_binding_name(receiver))
       end
 
-      def option_parser_locals(node)
-        assignments = local_assignments(node)
-        found = assignments.filter_map { |name, value| name if option_parser_constructor?(value) }
+      def option_parser_bindings(relative, call)
+        assignments = binding_assignments(call)
+        classes = option_parser_class_bindings(assignments)
+        instances = option_parser_parameter_bindings(relative, call)
+        instances.concat(option_parser_block_parameters(call[:method_node], classes).map { |name| "local:#{name}" })
         loop do
-          aliases = assignments.filter_map do |name, value|
-            source = receiver_identifier(value)
-            name if source && found.include?(source)
+          previous = instances.length
+          assignments.each do |target, value|
+            source = receiver_binding_name(value)
+            if (source && instances.include?(source)) || option_parser_instance_expression?(value, classes)
+              instances << target
+            end
           end
-          expanded = (found + aliases).uniq
-          return expanded if expanded == found
-
-          found = expanded
+          instances.uniq!
+          return [classes, instances] if previous == instances.length
         end
       end
 
-      def local_assignments(node, found = [])
+      def option_parser_class_bindings(assignments)
+        classes = ["constant:OptionParser"]
+        loop do
+          previous = classes.length
+          assignments.each do |target, value|
+            source = receiver_binding_name(value)
+            classes << target if source && classes.include?(source)
+          end
+          classes.uniq!
+          return classes if previous == classes.length
+        end
+      end
+
+      def option_parser_parameter_bindings(relative, call)
+        names = method_parameter_names(call[:method_node])
+        positions = REVIEWED_OPTION_PARSER_PARAMETER_POSITIONS.fetch([relative, call[:method]], [])
+        reviewed = positions.filter_map { |position| names[position] }
+        ambiguous = names.grep(/\A(?:option_parser|options?|opts?|parser)\z/)
+        (reviewed + ambiguous).uniq.map { |name| "local:#{name}" }
+      end
+
+      def method_parameter_names(node)
+        parameters = node&.dig(2)
+        parameters = parameters[1] if parameters&.first == :paren
+        required_parameter_names(parameters)
+      end
+
+      def binding_assignments(call)
+        method_assignments = collect_binding_assignments(call[:method_node]).select do |target, _value|
+          target.start_with?("local:")
+        end
+        source_assignments = collect_binding_assignments(call[:source_node])
+        source_assignments.reject! { |target, _value| target.start_with?("local:") } if call[:method_node]
+        (method_assignments + source_assignments).uniq
+      end
+
+      def collect_binding_assignments(node, found = [])
         return found unless node.is_a?(Array)
 
-        if node.first == :assign && node.dig(1, 0) == :var_field && node.dig(1, 1, 0) == :@ident
-          found << [node.dig(1, 1, 1), node[2]]
+        if %i[assign opassign].include?(node.first)
+          target = assignment_binding_name(node[1])
+          value = node.first == :assign ? node[2] : node[3]
+          found << [target, value] if target
         end
-        node.each { |child| local_assignments(child, found) if child.is_a?(Array) }
+        node.each { |child| collect_binding_assignments(child, found) if child.is_a?(Array) }
         found
       end
 
-      def option_parser_block_parameters(node, found = [])
+      def assignment_binding_name(node)
+        return unless node.is_a?(Array)
+
+        case node.first
+        when :var_field
+          binding_token_name(node[1])
+        when :const_path_field
+          parent = constant_path_name(node[1])
+          "constant:#{[parent, node.dig(2, 1)].compact.join('::')}"
+        when :top_const_field
+          "constant:#{node.dig(1, 1)}"
+        end
+      end
+
+      def receiver_binding_name(node)
+        return unless node.is_a?(Array)
+
+        case node.first
+        when :var_ref, :vcall
+          binding_token_name(node[1])
+        when :const_path_ref
+          "constant:#{constant_path_name(node)}"
+        when :top_const_ref
+          "constant:#{node.dig(1, 1)}"
+        end
+      end
+
+      def binding_token_name(token)
+        return unless token.is_a?(Array)
+
+        kind = {
+          :@ident => "local", :@ivar => "instance", :@cvar => "class", :@gvar => "global", :@const => "constant"
+        }[token.first]
+        "#{kind}:#{token[1]}" if kind
+      end
+
+      def option_parser_instance_expression?(node, class_bindings)
+        return false unless node.is_a?(Array)
+
+        return option_parser_instance_expression?(node[1], class_bindings) if node.first == :method_add_arg
+        return option_parser_instance_expression?(node[1], class_bindings) if node.first == :method_add_block
+        return false unless node.first == :call
+
+        api = node.dig(3, 1)
+        receiver = node[1]
+        return class_bindings.include?(receiver_binding_name(receiver)) if api == "new"
+        return false unless %w[itself freeze tap].include?(api)
+
+        option_parser_instance_expression?(receiver, class_bindings)
+      end
+
+      def option_parser_block_parameters(node, class_bindings = ["constant:OptionParser"], found = [])
         return found unless node.is_a?(Array)
 
-        if node.first == :method_add_block && option_parser_constructor?(node[1])
+        if node.first == :method_add_block && option_parser_instance_expression?(node[1], class_bindings)
           params = node.dig(2, 1, 1)
           found.concat(required_parameter_names(params))
         end
-        node.each { |child| option_parser_block_parameters(child, found) if child.is_a?(Array) }
+        node.each { |child| option_parser_block_parameters(child, class_bindings, found) if child.is_a?(Array) }
         found
       end
 
@@ -553,23 +662,6 @@ module Ibex
         return [] unless node&.first == :params
 
         Array(node[1]).filter_map { |token| token[1] if token&.first == :@ident }
-      end
-
-      def reviewed_option_parser_parameter?(relative, call, receiver_name)
-        positions = REVIEWED_OPTION_PARSER_PARAMETER_POSITIONS.fetch([relative, call[:method]], [])
-        parameters = call[:method_node]&.dig(2)
-        parameters = parameters[1] if parameters&.first == :paren
-        names = required_parameter_names(parameters)
-        positions.any? { |position| names[position] == receiver_name }
-      end
-
-      def option_parser_constructor?(node)
-        return false unless node.is_a?(Array)
-
-        node = node[1] if node.first == :method_add_arg
-        return false unless node&.first == :call && node.dig(3, 1) == "new"
-
-        constant_path_name(node[1]) == "OptionParser"
       end
 
       def contains_constant?(node, name)
