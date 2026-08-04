@@ -378,7 +378,7 @@ counterexamples.
 | Adapt a handwritten lexer | [Lexer migration guide](docs/lexer-migration.md) |
 | Configure an editor or LSP client | [Editor setup](docs/editor-setup.md) |
 | Understand the pipeline, IR, algorithms, tables, or runtime compatibility | [Architecture](docs/architecture.md), [runtime ABI policy](docs/runtime-abi-evolution.md), and [test interactions](docs/test-interactions.md) |
-| Check API maturity and deprecation rules | [Stability policy](docs/stability.md) |
+| Check API maturity and deprecation rules | [Stability policy](docs/stability.md) and [Preview/Experimental audit](docs/maturity.md) |
 | Evaluate readiness, performance, workloads, or error UX | [Comparison policy](docs/comparison-policy.md), [workload registry](docs/workloads.md), [release readiness](docs/release-readiness.md), [benchmarks](benchmark/README.md), and [error UX](docs/error-ux.md) |
 | Contribute or run every quality gate | [Development guide](docs/development.md) |
 | Review implementation decisions | [Architecture decision records](docs/decisions/README.md) |

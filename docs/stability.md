@@ -70,39 +70,40 @@ Stable:
 - format-v6 Red/Green batch CST parsing, typed syntax views, persistent editing
   and diffing, and the closed `ibex_cst` schema v1 serialization contract.
 
-Preview:
+Preview and Experimental:
 
-The v1 review evaluated every Preview feature. All eighteen remain Preview;
-none was silently promoted, downgraded, deleted, or left without a decision.
-These are product-maturity judgments, so they live in this inventory rather
-than being added to the design-decision log.
+The machine-readable [maturity audit](maturity.md) re-evaluates every current
+feature. All eighteen Preview and both Experimental features remain at their
+current maturity. The canonical summary below is generated from that registry
+and checked against both public documents.
 
-| Feature | v1 judgment | Evidence and reason | Re-evaluate when |
-|---|---|---|---|
-| EBNF groups | Keep Preview | lowering/property coverage is strong; normal field period is incomplete | two released versions without a syntax change |
-| parameterized rules | Keep Preview | bounded specialization and shadow use exist; field period is incomplete | two unchanged releases plus another gallery use |
-| inline rules | Keep Preview | bounded expansion and action-order tests exist; field period is incomplete | two unchanged releases plus catalog-impact evidence |
-| middle actions | Keep Preview | opaque lowering and source mapping are tested; field period is incomplete | two unchanged releases with production use |
-| multiple entries | Keep Preview | shared/isolated matrix coverage exists; external use is still narrow | two unchanged releases with multi-entry field use |
-| canonical imports | Keep Preview | containment, cycles, aliases, and transactional snapshots are tested | two unchanged releases with a multi-file public grammar |
-| generated lexers | Keep Preview | versioned Lexer IR and adversarial regex diagnostics exist | two unchanged releases with more stateful-lexer field use |
-| semantic locations/types | Keep Preview | runtime and generated-RBS contracts are tested; declarations may still evolve | two unchanged releases without signature changes |
-| AST generation | Keep Preview | Data/Visitor/Listener/RBS coverage exists; field period is incomplete | two unchanged releases with two public users |
-| grammar tests | Keep Preview | subprocess isolation and coverage thresholds are tested | two unchanged releases with gallery adoption |
-| documentation tooling | Keep Preview | deterministic Markdown/HTML/railroad output is tested | two unchanged releases and accessibility review |
-| IELR | Keep Preview | correctness/state-bound spike and independent verification pass | two unchanged releases with LALR-inadequacy users |
-| LSP | Keep Preview | protocol/overlay/rename tests exist; editor field coverage is narrow | two unchanged releases and two editor integrations |
-| watch | Keep Preview | transactional publication and cancellation are tested | two unchanged releases with long-running field use |
-| debug | Keep Preview | table simulation is nonexecuting and schema-tested | two unchanged releases with public debugging reports |
-| coverage | Keep Preview | collection/merge/check contracts are deterministic | two unchanged releases with CI adoption |
-| browser playground | Keep Preview | worker isolation and site CI pass; browser support remains narrow | two unchanged releases and accessibility review |
-| action-shadow | Keep Preview | static-only source generation is isolated and tested | two unchanged releases with type-checker field use |
+<!-- maturity-summary:start -->
+Inventory: **18 Preview, 2 Experimental**. Active new Preview tracks: **0/3** (grammar syntax: **0/1**). Experimental product features: **2/5**.
+Release dependency state: R001 **hold_external**; R002 **pending_exact_revision**; no feature is promoted by this audit.
 
-Experimental:
-
-- opt-in bounded insertion/deletion/replacement repair through
-  `Runtime::RepairPolicy`;
-- syntax-only incremental CST sessions and conservative Blender subtree reuse.
+| Stable ID | Feature | Current maturity | Decision | External use | Release gate |
+| --- | --- | --- | --- | --- | --- |
+| `ebnf-groups` | EBNF groups | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `parameterized-rules` | parameterized rules | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `inline-rules` | inline rules | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `middle-actions` | middle actions | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `multiple-entries` | multiple entries | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `canonical-imports` | canonical imports | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `generated-lexers` | generated lexers | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `semantic-locations-types` | semantic locations/types | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `ast-generation` | AST generation | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `grammar-tests` | grammar tests | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `documentation-tooling` | documentation tooling | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `ielr` | IELR | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `lsp` | LSP | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `watch` | watch | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `debug` | debug | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `coverage` | coverage | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `browser-playground` | browser playground | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `action-shadow` | action-shadow | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `bounded-repair` | bounded repair | Experimental | Keep Experimental | not demonstrated | Blocked: R001, R002 |
+| `incremental-cst` | incremental CST | Experimental | Keep Experimental | not demonstrated | Blocked: R001, R002 |
+<!-- maturity-summary:end -->
 
 The batch CST contract is selected for the initial v1 API under the
 initial-major evidence rule above. The remaining Preview features have not

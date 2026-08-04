@@ -1,0 +1,801 @@
+schema_version: 1
+audit:
+  reviewed_at: "2026-08-04"
+  reviewed_repository_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
+  issue_audits:
+    - id: github-open-issues-2026-08-04
+      provider: github_search_api
+      repository: ydah/ibex
+      query: "repo:ydah/ibex is:issue is:open"
+      command: "gh api -X GET search/issues -f q='repo:ydah/ibex is:issue is:open' -f per_page=100"
+      source: https://api.github.com/search/issues?q=repo%3Aydah%2Fibex+is%3Aissue+is%3Aopen
+      checked_at: "2026-08-04"
+      fresh_until: "2026-09-03"
+      result:
+        status: complete
+        total_count: 0
+        incomplete_results: false
+        issue_numbers: []
+        limitation: >-
+          Zero open issues means that this exact public tracker query found no report; it is not proof
+          that the feature has no correctness defects, private reports, or unreported failures.
+budgets:
+  active_new_preview_tracks: 0
+  preview_track_limit: 3
+  active_grammar_syntax_tracks: 0
+  grammar_syntax_track_limit: 1
+  experimental_product_features: 2
+  experimental_product_limit: 5
+release_dependencies:
+  R001:
+    status: hold_external
+    evidence: docs/error-ux-review-status-v1.json
+    summary: Independent error-UX review is absent, so the release gate remains HOLD.
+  R002:
+    status: pending_exact_revision
+    evidence: docs/release-readiness.md
+    summary: The complete release suite has not been rerun and recorded for the eventual exact release revision.
+  B003:
+    status: complete
+    evidence: docs/workloads.yml
+    summary: The public workload registry is available and distinguishes public, external, repository, and synthetic evidence.
+features:
+  - id: ebnf-groups
+    name: EBNF groups
+    maturity: preview
+    activation: { kind: explicit, mechanism: "`pragma extended` or `--mode=extended`, then parenthesized EBNF groups", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: []
+      evidence: [docs/workloads.yml]
+      summary: No public_real workload records use EBNF groups; repository fixtures do not establish third-party adoption.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [No feature-specific introduction-to-current released specification ledger exists, so no unchanged-release credit is claimed.]
+      evidence: [docs/decisions/0006-bounded-structural-grammar-lowering.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: "The exact open-issue query found no report, but unreported correctness defects remain possible." }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/grammar-reference.md, README.md]
+      gaps: [No third-party migration report or released-version compatibility ledger is published.]
+    dependent_tooling:
+      status: present
+      evidence: [test/ir/normalizer_test.rb, test/frontend/parser_test.rb]
+      gaps: [Coverage is repository-owned and does not include a public_real EBNF grammar.]
+    limitations:
+      performance: [Lowering can increase production count; no public_real size or generation-time bound is published.]
+      safety: [Actions remain trusted Ruby and actions inside EBNF groups are rejected rather than sandboxed.]
+    decision:
+      outcome: keep
+      target_maturity: preview
+      criteria_status: unmet
+      reason: Passing lowering tests does not establish two unchanged releases, external field use, or the pending release gates.
+      evidence: [docs/stability.md, test/ir/normalizer_test.rb]
+    next_review:
+      triggers: [Two released versions complete without an EBNF specification change., A public_real workload adopts EBNF groups.]
+      required_evidence: [Exact-release R002 results, external-use evidence, specification-change ledger]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: lib/ibex/normalize/expander.rb, sha256: 8ecd76fa9b87b83139298ba7b6238ffae9ff68dffcc90cb7a0456a02dfaed955 }]
+
+  - id: parameterized-rules
+    name: parameterized rules
+    maturity: preview
+    activation: { kind: explicit, mechanism: "`pragma extended` or `--mode=extended`, then parameterized rule declarations", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: []
+      evidence: [docs/workloads.yml]
+      summary: No public_real workload records use parameterized rules; the shadow frontend is repository evidence only.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [Introduction and subsequent released semantic changes are not bound by a feature ledger, so stability duration is unknown.]
+      evidence: [docs/decisions/0006-bounded-structural-grammar-lowering.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; private and unreported failures are outside the query. }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/grammar-reference.md, docs/architecture.md]
+      gaps: [No public adopter migration or catalog-impact report exists.]
+    dependent_tooling:
+      status: present
+      evidence: [test/ir/parameterized_rules_test.rb, test/frontend/parameterized_rules_test.rb]
+      gaps: [Self-host shadow use is not an independent consumer and no public_real grammar is covered.]
+    limitations:
+      performance: [Specialization is bounded but can multiply grammar size; no public_real cost distribution is published.]
+      safety: [Specialized actions are trusted Ruby, and structural cycle rejection does not sandbox action effects.]
+    decision:
+      outcome: keep
+      target_maturity: preview
+      criteria_status: unmet
+      reason: Bounded specialization and shadow tests do not replace external adoption, released stability, or exact release evidence.
+      evidence: [docs/stability.md, test/ir/parameterized_rules_test.rb]
+    next_review:
+      triggers: [Two releases complete without parameter-rule specification changes., Another independently maintained grammar adopts the feature.]
+      required_evidence: [External workload record, exact-release R002 results, specification-change ledger]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: lib/ibex/normalize/parameters.rb, sha256: d0d76a1d16dc198d5bd5cf9cd8a1cc7f2b9a4a5e1c0cffcf9b24c8ac1e59cf37 }]
+
+  - id: inline-rules
+    name: inline rules
+    maturity: preview
+    activation: { kind: explicit, mechanism: "`pragma extended` or `--mode=extended`, then `%inline` rule declarations", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: []
+      evidence: [docs/workloads.yml]
+      summary: No public_real workload records use inline rules; repository shadow and fixtures are not external field use.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [No release-by-release ledger identifies inline-rule action and precedence specification changes.]
+      evidence: [docs/decisions/0006-bounded-structural-grammar-lowering.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not prove action-composition correctness. }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/grammar-reference.md, docs/architecture.md]
+      gaps: [No external catalog-impact or migration evidence is public.]
+    dependent_tooling:
+      status: present
+      evidence: [test/ir/inline_rules_test.rb, test/codegen/inline_rules_test.rb]
+      gaps: [Action-order coverage is repository-owned and lacks a public_real inline grammar.]
+    limitations:
+      performance: [Expansion has a configured bound but can multiply productions before construction.]
+      safety: [Composed semantic actions remain trusted Ruby and may have application side effects.]
+    decision:
+      outcome: keep
+      target_maturity: preview
+      criteria_status: unmet
+      reason: Expansion and action-order tests do not supply a field period, public catalog evidence, or completed release gates.
+      evidence: [docs/stability.md, test/codegen/inline_rules_test.rb]
+    next_review:
+      triggers: [Two releases complete without inline-rule specification changes., A public catalog records inline expansion impact.]
+      required_evidence: [External workload record, catalog measurements, exact-release R002 results]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: lib/ibex/normalize/inline_expansion.rb, sha256: e8d9c2f26c0804905c09ba4f489d56f873715a10eb72e8c1a3064fd0d424217f }]
+
+  - id: middle-actions
+    name: middle actions
+    maturity: preview
+    activation: { kind: explicit, mechanism: "`pragma extended` or `--mode=extended`, then an action before the end of a production", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: []
+      evidence: [docs/workloads.yml]
+      summary: No public_real workload records use Ibex middle actions; opaque actions in imported grammars do not prove this feature.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [No feature ledger reconstructs released changes to value-stack, location, or control-flow semantics since introduction.]
+      evidence: [docs/grammar-reference.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; hidden action-order defects remain possible. }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/grammar-reference.md, docs/architecture.md]
+      gaps: [No production-use report demonstrates long-term action compatibility.]
+    dependent_tooling:
+      status: present
+      evidence: [test/runtime/action_contract_test.rb, test/codegen/action_locations_test.rb]
+      gaps: [No independent grammar exercises middle-action early-exit and location semantics.]
+    limitations:
+      performance: [Each middle action introduces a helper reduction; public_real overhead has not been measured.]
+      safety: [Middle actions execute trusted Ruby earlier than the enclosing reduction and can cause irreversible side effects.]
+    decision:
+      outcome: keep
+      target_maturity: preview
+      criteria_status: unmet
+      reason: Opaque lowering and source-mapping coverage cannot establish production use, release stability, or external safety expectations.
+      evidence: [docs/stability.md, test/runtime/action_contract_test.rb]
+    next_review:
+      triggers: [Two releases complete without a middle-action semantic change., A public_real grammar uses middle actions in production.]
+      required_evidence: [Production-use record, exact-release R002 results, semantic history ledger]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: lib/ibex/normalize/expander.rb, sha256: 8ecd76fa9b87b83139298ba7b6238ffae9ff68dffcc90cb7a0456a02dfaed955 }]
+
+  - id: multiple-entries
+    name: multiple entries
+    maturity: preview
+    activation: { kind: explicit, mechanism: "multiple declared start symbols, optionally with `--entry-isolation`", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: []
+      evidence: [docs/workloads.yml]
+      summary: No public_real workload records multiple Ibex entry points; compatibility workloads each use one start symbol.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [No released specification ledger identifies changes to shared versus isolated entry semantics.]
+      evidence: [docs/grammar-reference.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: "The exact open-issue query found no report, not proof that every entry interaction is correct." }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/grammar-reference.md, docs/test-interactions.md]
+      gaps: [No multi-entry public application migration is documented.]
+    dependent_tooling:
+      status: present
+      evidence: [test/codegen/multiple_start_test.rb, test/tooling/matrix_runner_test.rb]
+      gaps: [The matrix is repository evidence and does not represent field lifecycle behavior.]
+    limitations:
+      performance: [Shared and isolated construction trade state reuse for isolation; no public_real comparison is published.]
+      safety: [Entry isolation separates construction, not trusted parser action side effects.]
+    decision:
+      outcome: keep
+      target_maturity: preview
+      criteria_status: unmet
+      reason: Matrix coverage does not replace multi-entry field use, two unchanged releases, or the pending release gates.
+      evidence: [docs/stability.md, test/codegen/multiple_start_test.rb]
+    next_review:
+      triggers: [Two releases complete without entry-semantics changes., A public_real multi-entry grammar is registered.]
+      required_evidence: [Multi-entry external workload, full promotion matrix, exact-release R002 results]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: lib/ibex/codegen/ruby.rb, sha256: d78e46dd523896151b2fb09563dd4501a63dd6643299863c4c5e9c1770944ca3 }]
+
+  - id: canonical-imports
+    name: canonical imports
+    maturity: preview
+    activation: { kind: explicit, mechanism: "`pragma extended` or `--mode=extended`, a path-backed root, and `import` declarations", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: []
+      evidence: [docs/workloads.yml]
+      summary: No public_real workload uses Ibex imports; Bison inputs and the self-hosted single grammar are not import adoption.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [No feature ledger reconstructs released resolver and import-merge contract changes from introduction.]
+      evidence: [docs/decisions/0005-contained-grammar-composition.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; filesystem boundary defects may be unreported. }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/grammar-reference.md, docs/architecture.md]
+      gaps: [No multi-file public grammar migration or portability report exists.]
+    dependent_tooling:
+      status: present
+      evidence: [test/frontend/resolver_test.rb, test/frontend/resolver_security_test.rb]
+      gaps: [Tests cover repository fixtures, not hostile external project layouts across supported hosts.]
+    limitations:
+      performance: [Every resolution hashes and parses a contained graph; no public_real graph-size profile is published.]
+      safety: [Containment rejects escapes and aliases but still reads explicitly imported local files from a trusted project.]
+    decision:
+      outcome: keep
+      target_maturity: preview
+      criteria_status: unmet
+      reason: Resolver security and transaction tests do not demonstrate portable multi-file field use or released specification stability.
+      evidence: [docs/stability.md, test/frontend/resolver_security_test.rb]
+    next_review:
+      triggers: [Two releases complete without import-contract changes., A public multi-file grammar is registered and reproduced.]
+      required_evidence: [External multi-file workload, cross-host evidence, exact-release R002 results]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: lib/ibex/frontend/resolver.rb, sha256: 8a83c279ab01d41c677c175bdbf94866338f0de7099ba14cadfcf1fd75ca5187 }]
+
+  - id: generated-lexers
+    name: generated lexers
+    maturity: preview
+    activation: { kind: explicit, mechanism: "`pragma extended` or `--mode=extended` with a `lexer` declaration block", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: [gallery-calc, gallery-json, gallery-sql-lite]
+      evidence: [docs/workloads.yml]
+      summary: The three cited users are repository_synthetic gallery fixtures; they support tests but not external adoption.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [Lexer IR is versioned, but no feature ledger establishes unchanged released surface semantics since introduction.]
+      evidence: [docs/decisions/0014-versioned-generated-lexer.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not cover unreported stateful-lexer defects. }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/grammar-reference.md, docs/lexer-migration.md]
+      gaps: [No public_real stateful-lexer adoption or compatibility history is published.]
+    dependent_tooling:
+      status: present
+      evidence: [test/codegen/lexer_test.rb, test/frontend/lexer_test.rb]
+      gaps: [Gallery coverage is synthetic and cannot establish third-party lexer semantics.]
+    limitations:
+      performance: [Regex matching and state transitions have no representative public_real throughput or memory baseline.]
+      safety: [Generated lexer actions execute trusted Ruby even on syntax-only parsing paths.]
+    decision:
+      outcome: keep
+      target_maturity: preview
+      criteria_status: unmet
+      reason: Versioned IR and adversarial regex tests cannot substitute for stateful external field use or exact release evidence.
+      evidence: [docs/stability.md, test/codegen/lexer_test.rb]
+    next_review:
+      triggers: [Two releases complete without lexer specification changes., A public_real stateful lexer is registered.]
+      required_evidence: [External lexer workload, safety review, exact-release R002 results]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: lib/ibex/runtime/generated_lexer.rb, sha256: 1a5e14efae5441aedcaafe843e52aa0d6b69f86ca67fc710487ea66dad180d5d }]
+
+  - id: semantic-locations-types
+    name: semantic locations/types
+    maturity: preview
+    activation: { kind: explicit, mechanism: "extended grammar `locations` and `type` declarations", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: [bison-jq-parser, bison-postgresql-parser, bison-ruby-bison-era]
+      evidence: [docs/workloads.yml]
+      summary: The cited external_real sources contain analogous declarations but are diagnostic imports, not Ibex runtime adoption.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [No feature ledger establishes unchanged released location and generated-signature semantics from introduction.]
+      evidence: [docs/grammar-reference.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; type unsoundness and location edge cases may be unreported. }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/grammar-reference.md, docs/architecture.md]
+      gaps: [No external generated-RBS consumer or signature migration history is published.]
+    dependent_tooling:
+      status: present
+      evidence: [test/codegen/semantic_locations_test.rb, test/ir/symbol_metadata_test.rb]
+      gaps: [Repository type validation does not demonstrate downstream signature compatibility.]
+    limitations:
+      performance: [Location tracking carries runtime allocation and copying costs not measured on public_real workloads.]
+      safety: [Declared RBS strings are metadata and validation does not make trusted semantic actions type-safe at runtime.]
+    decision:
+      outcome: keep
+      target_maturity: preview
+      criteria_status: unmet
+      reason: Runtime and RBS tests do not establish downstream signature stability, external use, or completed release gates.
+      evidence: [docs/stability.md, test/codegen/semantic_locations_test.rb]
+    next_review:
+      triggers: [Two releases complete without location or signature changes., An external generated-RBS consumer is recorded.]
+      required_evidence: [Downstream tooling record, performance evidence, exact-release R002 results]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: lib/ibex/codegen/rbs.rb, sha256: a6434a24176f6501c4f28363b882ad04c056880e2520a865ecc5019e5db228c4 }]
+
+  - id: ast-generation
+    name: AST generation
+    maturity: preview
+    activation: { kind: explicit, mechanism: "extended `@node` declarations and AST/RBS generation output", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: []
+      evidence: [docs/workloads.yml]
+      summary: No public_real workload records generated Data nodes, visitors, listeners, or their RBS output.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [No feature ledger records released changes to node, visitor, listener, or generated-RBS contracts.]
+      evidence: [docs/grammar-reference.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not prove downstream AST compatibility. }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/grammar-reference.md, README.md]
+      gaps: [No public user migration, generated API evolution history, or two-user field evidence exists.]
+    dependent_tooling:
+      status: present
+      evidence: [test/codegen/ast_test.rb, test/tooling/matrix_runner_test.rb]
+      gaps: [Generated traversal tests have no independent downstream consumer.]
+    limitations:
+      performance: [Node allocation and traversal costs have no public_real baseline.]
+      safety: [Generated immutable nodes do not sandbox parser or lexer actions used to produce their fields.]
+    decision:
+      outcome: keep
+      target_maturity: preview
+      criteria_status: unmet
+      reason: Generator coverage does not provide two public users, released API stability, or exact-revision release proof.
+      evidence: [docs/stability.md, test/codegen/ast_test.rb]
+    next_review:
+      triggers: [Two releases complete without generated AST contract changes., Two public users publish compatible adoption evidence.]
+      required_evidence: [Two external user records, allocation measurements, exact-release R002 results]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: lib/ibex/codegen/ruby_ast.rb, sha256: d7a2b97ce75a9ee3aba1097634dcb175a791e1d05ad085b1cf5e2aeffa41eab5 }]
+
+  - id: grammar-tests
+    name: grammar tests
+    maturity: preview
+    activation: { kind: explicit, mechanism: "extended `%test` declarations executed by `ibex test`", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: []
+      evidence: [docs/workloads.yml]
+      summary: No public_real workload records `%test` adoption in its project CI.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [No feature ledger reconstructs released test declaration, timeout, and result semantics.]
+      evidence: [docs/grammar-reference.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; subprocess and coverage defects may still be unreported. }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/grammar-reference.md, docs/development.md]
+      gaps: [No gallery or public project adoption report demonstrates CI lifecycle use.]
+    dependent_tooling:
+      status: present
+      evidence: [test/grammar_tests_runner_test.rb, test/cli_grammar_tests_test.rb]
+      gaps: [Repository tests do not establish portability across public project test environments.]
+    limitations:
+      performance: [Each suite executes generated parsers in bounded subprocesses; large-suite scheduling costs are unmeasured.]
+      safety: [Grammar tests execute trusted parser and lexer application code inside a subprocess, not a security sandbox.]
+    decision:
+      outcome: keep
+      target_maturity: preview
+      criteria_status: unmet
+      reason: Deterministic isolation and thresholds do not establish external CI adoption or two unchanged releases.
+      evidence: [docs/stability.md, test/grammar_tests_runner_test.rb]
+    next_review:
+      triggers: [Two releases complete without grammar-test contract changes., A public project adopts `%test` in CI.]
+      required_evidence: [External CI record, portability results, exact-release R002 results]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: lib/ibex/grammar_tests.rb, sha256: 344e986a1476d326f129350b980daa434839899b449d6ac26ca1b5835e34da62 }]
+
+  - id: documentation-tooling
+    name: documentation tooling
+    maturity: preview
+    activation: { kind: explicit, mechanism: "documentation/report output commands and formats selected explicitly", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: []
+      evidence: [docs/workloads.yml]
+      summary: No public_real project records generated Markdown, HTML, or railroad artifacts as maintained output.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [No feature ledger reconstructs released output schema, accessibility, or rendering changes.]
+      evidence: [docs/grammar-reference.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; renderer and accessibility defects may be unreported. }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/grammar-reference.md, docs/development.md]
+      gaps: [No independent accessibility review or downstream artifact compatibility report is published.]
+    dependent_tooling:
+      status: present
+      evidence: [test/codegen/documentation_test.rb, test/cli_documentation_test.rb]
+      gaps: [Deterministic snapshots do not cover independent assistive-technology review.]
+    limitations:
+      performance: [Large-grammar rendering time and output size are not measured on public_real documentation builds.]
+      safety: [Static generation does not execute actions, but rendered labels and documentation remain untrusted display content.]
+    decision:
+      outcome: keep
+      target_maturity: preview
+      criteria_status: unmet
+      reason: Deterministic rendering tests cannot replace accessibility review, external adoption, or released format stability.
+      evidence: [docs/stability.md, test/codegen/documentation_test.rb]
+    next_review:
+      triggers: [Two releases complete without documentation-output contract changes., An independent accessibility review completes.]
+      required_evidence: [Accessibility review, external artifact record, exact-release R002 results]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: lib/ibex/codegen/documentation.rb, sha256: 6551a3dc29862c1de172ee75681f20b234f7c271891419d9a997d61e1b69e5c9 }]
+
+  - id: ielr
+    name: IELR
+    maturity: preview
+    activation: { kind: explicit, mechanism: "`--algorithm=ielr` or `algorithm: :ielr`", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: [bison-jq-parser]
+      evidence: [docs/workloads.yml]
+      summary: The jq import exposes a conflict-volume problem, but diagnostic analysis does not demonstrate production IELR adoption or benefit.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [No release ledger proves unchanged IELR state construction and conflict behavior since introduction.]
+      evidence: [docs/decisions/0007-shared-parser-construction-pipeline.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; absence is not an independent algorithm oracle. }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/architecture.md, docs/grammar-reference.md]
+      gaps: [No public LALR-inadequacy user or real-workload benefit report is published.]
+    dependent_tooling:
+      status: present
+      evidence: [test/lalr/builder_test.rb, test/tooling/matrix_runner_test.rb]
+      gaps: [Repository verification does not demonstrate application benefit on the diagnostic jq import.]
+    limitations:
+      performance: [Canonical-context construction can cost more memory/time; no public_real IELR profile is published.]
+      safety: [Algorithm selection changes tables but does not sandbox trusted semantic or lexer actions.]
+    decision:
+      outcome: keep
+      target_maturity: preview
+      criteria_status: unmet
+      reason: Correctness and state-bound tests do not establish external LALR-inadequacy use, two stable releases, or final release evidence.
+      evidence: [docs/stability.md, test/lalr/builder_test.rb]
+    next_review:
+      triggers: [Two releases complete without IELR semantics changes., A public_real LALR-inadequacy user publishes a verified benefit.]
+      required_evidence: [V001/direct-comparison evidence, external workload benefit, exact-release R002 results]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: lib/ibex/lalr/builder.rb, sha256: 9c31f48a95c971a1016b50044a11f43af125dc6401db7d1f63136f63e7e27929 }]
+
+  - id: lsp
+    name: LSP
+    maturity: preview
+    activation: { kind: explicit, mechanism: "`ibex lsp --stdio` and an editor client configuration", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: []
+      evidence: [docs/workloads.yml]
+      summary: No public_real workload or editor integration is registered as an LSP field user.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [No released capability and protocol-behavior ledger exists from introduction to this audit.]
+      evidence: [docs/editor-setup.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; editor-specific failures may not be in the repository tracker. }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/editor-setup.md, README.md]
+      gaps: [No two-editor field report, capability compatibility table, or release history is published.]
+    dependent_tooling:
+      status: present
+      evidence: [test/lsp/server_test.rb, test/lsp/document_store_security_test.rb]
+      gaps: [Protocol tests do not cover real editor lifecycle and extension packaging.]
+    limitations:
+      performance: [Workspace scaling and latency have no public project measurement.]
+      safety: [The server parses workspace files and must retain containment and resource limits; it is not a sandbox.]
+    decision:
+      outcome: keep
+      target_maturity: preview
+      criteria_status: unmet
+      reason: Protocol and overlay tests do not replace two editor integrations, field latency evidence, or released compatibility.
+      evidence: [docs/stability.md, test/lsp/server_test.rb]
+    next_review:
+      triggers: [Two releases complete without LSP contract changes., Two independently maintained editor integrations report field use.]
+      required_evidence: [Editor integration records, workspace profile, exact-release R002 results]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: lib/ibex/lsp/server.rb, sha256: e370762da6a6ce513594e4f94a2034a3098d240b74b70d238a6b75f5a3958360 }]
+
+  - id: watch
+    name: watch
+    maturity: preview
+    activation: { kind: explicit, mechanism: "`ibex --watch` generation mode", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: []
+      evidence: [docs/workloads.yml]
+      summary: No public_real project records long-running watch use or its operational behavior.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [No release ledger records watch event, retry, cancellation, and publication contract changes.]
+      evidence: [docs/grammar-reference.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; long-running and host-specific defects may be unreported. }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/grammar-reference.md, docs/development.md]
+      gaps: [No public operational report covers sustained use, host watchers, or failure recovery.]
+    dependent_tooling:
+      status: present
+      evidence: [test/watch/runner_test.rb, test/cli_watch_test.rb]
+      gaps: [Bounded tests do not establish long-running field reliability.]
+    limitations:
+      performance: [Repeated hashing and regeneration costs are not profiled for large public multi-file projects.]
+      safety: [Watch publishes generated files and executes no actions itself, but generated application loading remains trusted.]
+    decision:
+      outcome: keep
+      target_maturity: preview
+      criteria_status: unmet
+      reason: Transaction and cancellation tests do not establish sustained external use or released operational stability.
+      evidence: [docs/stability.md, test/watch/runner_test.rb]
+    next_review:
+      triggers: [Two releases complete without watch-contract changes., A public project reports sustained watch operation.]
+      required_evidence: [Long-running external record, host matrix, exact-release R002 results]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: lib/ibex/watch/runner.rb, sha256: 7232e3b09415ce28c8559b1db097a2eb6b93760b9b4f0d45a4d09c715d081226 }]
+
+  - id: debug
+    name: debug
+    maturity: preview
+    activation: { kind: explicit, mechanism: "`ibex debug` with validated Automaton IR and explicit tokens", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: []
+      evidence: [docs/workloads.yml]
+      summary: No public_real project records debug-command use or public debugging reports.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [No release ledger records simulator schema and text-output contract changes.]
+      evidence: [docs/grammar-reference.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not prove simulator fidelity. }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/grammar-reference.md, docs/architecture.md]
+      gaps: [No external debugging case report or output compatibility history is published.]
+    dependent_tooling:
+      status: present
+      evidence: [test/cli_debug_test.rb, test/table_simulation_test.rb]
+      gaps: [Repository fixtures do not demonstrate user diagnostic usefulness.]
+    limitations:
+      performance: [Long token traces and large tables have no public workload latency or memory profile.]
+      safety: [Table simulation is nonexecuting, but displayed token inputs and labels are untrusted data.]
+    decision:
+      outcome: keep
+      target_maturity: preview
+      criteria_status: unmet
+      reason: Nonexecuting schema tests do not establish external diagnostic usefulness or two-release output stability.
+      evidence: [docs/stability.md, test/cli_debug_test.rb]
+    next_review:
+      triggers: [Two releases complete without debug schema changes., Public debugging reports demonstrate actionable use.]
+      required_evidence: [External debugging reports, scale profile, exact-release R002 results]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: lib/ibex/table_simulation.rb, sha256: dcf21feb35440673e7eff60d910a158696563c6569a912b213c1ddb27c0bbcf9 }]
+
+  - id: coverage
+    name: coverage
+    maturity: preview
+    activation: { kind: explicit, mechanism: "runtime observation plus explicit `ibex coverage collect|merge|check` commands", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: []
+      evidence: [docs/workloads.yml]
+      summary: No public_real project records the coverage event pipeline in CI.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [No release ledger reconstructs event, merge, and threshold contract changes since introduction.]
+      evidence: [docs/decisions/0010-committed-runtime-observation.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; missing-event defects may be unreported. }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/grammar-reference.md, docs/development.md]
+      gaps: [No external CI adoption, schema consumer, or released compatibility record exists.]
+    dependent_tooling:
+      status: present
+      evidence: [test/coverage/report_test.rb, test/cli_coverage_test.rb]
+      gaps: [Deterministic repository tests do not demonstrate usefulness of thresholds on public applications.]
+    limitations:
+      performance: [Observation and event persistence overhead is not measured on public_real runtime workloads.]
+      safety: [Coverage consumes runtime events and can expose grammar structure; it does not sandbox actions or application data.]
+    decision:
+      outcome: keep
+      target_maturity: preview
+      criteria_status: unmet
+      reason: Deterministic merge and threshold contracts do not establish external CI adoption or released schema stability.
+      evidence: [docs/stability.md, test/coverage/report_test.rb]
+    next_review:
+      triggers: [Two releases complete without coverage schema changes., A public project adopts coverage checks in CI.]
+      required_evidence: [External CI record, overhead measurement, exact-release R002 results]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: lib/ibex/coverage/collector.rb, sha256: b6ef84cb16c048d8d0d862d9183e12c40127f221ea99dc55ede8158513dc39dc }]
+
+  - id: browser-playground
+    name: browser playground
+    maturity: preview
+    activation: { kind: explicit, mechanism: "open the separately built browser playground and submit grammar text to its worker", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: []
+      evidence: [docs/workloads.yml]
+      summary: No public_real workload or published browser deployment is registered as field use.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [No release ledger records supported-browser, worker-message, or accessibility contract changes.]
+      evidence: [docs/decisions/0015-worker-isolated-browser-analysis.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; browser and accessibility defects may be reported elsewhere or not at all. }
+    documentation:
+      status: incomplete
+      evidence: [README.md, docs/stability.md]
+      gaps: [Supported browser versions and an independent accessibility review are not published.]
+    dependent_tooling:
+      status: partial
+      evidence: [test/site/playground_analyzer_test.rb, site/playground/index.html]
+      gaps: [Analyzer and site CI do not provide a cross-browser or assistive-technology matrix.]
+    limitations:
+      performance: [Wasm startup and large-grammar latency have no representative browser measurements.]
+      safety: [Worker isolation narrows UI impact but is not a security boundary for every browser or dependency defect.]
+    decision:
+      outcome: keep
+      target_maturity: preview
+      criteria_status: unmet
+      reason: Worker isolation and site tests do not establish browser coverage, accessibility approval, external use, or release stability.
+      evidence: [docs/stability.md, test/site/playground_analyzer_test.rb]
+    next_review:
+      triggers: [Two releases complete without playground contract changes., Browser support and independent accessibility reviews are published.]
+      required_evidence: [Cross-browser matrix, accessibility review, exact-release R002 results]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: site/playground/analyzer.rb, sha256: cc89ed54d761ce81bec12a080c528c92478492d67e2169f0833d219be5bc81d3 }]
+
+  - id: action-shadow
+    name: action-shadow
+    maturity: preview
+    activation: { kind: explicit, mechanism: "explicit action-shadow source generation output", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: []
+      evidence: [docs/workloads.yml]
+      summary: No public_real project records action-shadow output in a type-checking workflow.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [No released ledger records changes to the shadow method-source and type-checker contract.]
+      evidence: [docs/decisions/0011-versioned-semantic-action-boundary.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not establish semantic equivalence with runtime execution. }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/grammar-reference.md, docs/architecture.md]
+      gaps: [No external type-checker field report or generated-source compatibility history is published.]
+    dependent_tooling:
+      status: present
+      evidence: [test/codegen/action_source_test.rb, test/cli_action_source_test.rb]
+      gaps: [Static source snapshots lack an independent downstream type-checker consumer.]
+    limitations:
+      performance: [Generated shadow-source size and type-checker cost are not measured on public_real grammars.]
+      safety: [Shadow generation is static and nonexecuting, but it cannot prove runtime action behavior or remove trusted-code risk.]
+    decision:
+      outcome: keep
+      target_maturity: preview
+      criteria_status: unmet
+      reason: Static generation tests do not establish type-checker field use, semantic parity, or two-release compatibility.
+      evidence: [docs/stability.md, test/codegen/action_source_test.rb]
+    next_review:
+      triggers: [Two releases complete without action-shadow contract changes., A public project adopts the output in type checking.]
+      required_evidence: [External type-checker record, source-size profile, exact-release R002 results]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: lib/ibex/codegen/action_method_source.rb, sha256: 4eb16974cd679c3ab22de2dfb4b658108925a369939a0c2eccd736fa1323dac6 }]
+
+  - id: bounded-repair
+    name: bounded repair
+    maturity: experimental
+    activation: { kind: explicit, mechanism: "assign an immutable `Ibex::Runtime::RepairPolicy` before parsing", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: []
+      evidence: [docs/workloads.yml]
+      summary: No public_real runtime workload records RepairPolicy use; the ten-case repository corpus is not field adoption.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [No released ledger records changes to search cost, inserted values, usefulness, and replay semantics.]
+      evidence: [docs/decisions/0012-bounded-nonexecuting-analysis.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; it does not negate the two known unhelpful baseline plans. }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/grammar-reference.md, docs/error-ux.md]
+      gaps: [No external usefulness assessment, semantic-value strategy, or released behavior history exists.]
+    dependent_tooling:
+      status: present
+      evidence: [test/runtime/repair_test.rb, test/codegen/cst_runtime_integration_test.rb]
+      gaps: [The fixed ten-case maintainer assessment still lacks independent review under R001.]
+    limitations:
+      performance: [Bounded Dijkstra search adds configurable time and memory cost; public_real overhead is unmeasured.]
+      safety: [Inserted semantic values may be nil, and replay executes ordinary trusted parser actions after a plan is selected.]
+    decision:
+      outcome: keep
+      target_maturity: experimental
+      criteria_status: unmet
+      reason: Eight useful baseline plans out of ten and repository tests do not establish external usefulness, value safety, or independent review.
+      evidence: [docs/stability.md, docs/error-ux-review-status-v1.json, test/runtime/repair_test.rb]
+    next_review:
+      triggers: [Independent R001 review completes., External field evidence and a non-nil inserted-value contract are available.]
+      required_evidence: [Independent usefulness review, external runtime record, exact-release R002 results]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is directly relevant and HOLD; the exact-revision R002 rerun is also pending. }
+    sources: [{ path: lib/ibex/runtime/repair.rb, sha256: e586dafae858fcc2224a595728beaa6d429712cbca2db1ac188cf6449799c94e }]
+
+  - id: incremental-cst
+    name: incremental CST
+    maturity: experimental
+    activation: { kind: explicit, mechanism: "call generated `incremental_session` with `SourceText` and format-v6 CST metadata", default_enabled: false }
+    external_use:
+      status: not_demonstrated
+      workload_ids: []
+      evidence: [docs/workloads.yml]
+      summary: No public_real editor or parser workload records incremental CST use; repository properties and benchmarks are not adoption.
+    specification_history:
+      status: not_reconstructed
+      changes: []
+      unknowns: [ADR semantics are current, but no released ledger establishes introduction-to-current API and reuse changes.]
+      evidence: [docs/decisions/0018-conservative-incremental-syntax-reuse.md, docs/stability.md]
+    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; fixed-seed and property tests cannot prove every edit sequence. }
+    documentation:
+      status: complete_with_gaps
+      evidence: [docs/cst.md, docs/cst-migration.md]
+      gaps: [No external editor integration, released compatibility history, or cancellation API is documented.]
+    dependent_tooling:
+      status: present
+      evidence: [test/runtime/cst_incremental_test.rb, test/runtime/cst_incremental_property_test.rb]
+      gaps: [Repository edit properties do not represent external editor workloads or lifecycle cancellation.]
+    limitations:
+      performance: [Published speedups cover repository benchmarks only and do not establish public_real latency or memory bounds.]
+      safety: [Parser actions are suppressed, but generated lexer actions still execute trusted Ruby; the API is not a nonexecuting sandbox.]
+    decision:
+      outcome: keep
+      target_maturity: experimental
+      criteria_status: unmet
+      reason: Structural equality and repository speedups do not establish external editor use, two stable releases, or a fully nonexecuting trust boundary.
+      evidence: [docs/stability.md, docs/cst.md, test/runtime/cst_incremental_property_test.rb]
+    next_review:
+      triggers: [Two releases complete without incremental API changes., An external editor integration supplies correctness and latency evidence.]
+      required_evidence: [External editor workload, cancellation/lifecycle review, exact-release R002 results]
+    release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
+    sources: [{ path: lib/ibex/runtime/cst/incremental/session.rb, sha256: 5505e0ab97d97117695e0e20dafe761c0f59d666d741964cf73b9b5d58bf86da }]
