@@ -1,10 +1,13 @@
 # Preview and Experimental maturity audit
 
-[`maturity.yml`](maturity.yml) is the machine-readable authority for the H001
-review. It binds the current 18 Preview and two Experimental features to the
-reviewed repository revision, source digests, activation, external-use status,
-specification-history confidence, issue audit, documentation and tooling gaps,
-performance and safety limits, decision, next trigger, and release gates.
+[`maturity.yml`](maturity.yml) and the validator-owned commit authorities in
+[`maturity_authority.rb`](../tool/quality/maturity_authority.rb) form the joint
+human-reviewed trust boundary for H001. The registry binds the current 18
+Preview and two Experimental features to the reviewed repository revision,
+source digests, activation, external-use status, specification-history
+confidence, issue audit, documentation and tooling gaps, performance and safety
+limits, decision, next trigger, and release gates. Neither file authenticates
+the other; changing a classification requires reviewing and updating both.
 
 ## Result
 
@@ -73,11 +76,14 @@ reviewed.
 Each feature records its validator-owned first Git pickaxe introduction, first
 containing release, canonical-blob presence, and integrity snapshots at v0.1.0,
 v0.2.0, and the reviewed pre-H001 revision. Each release boundary separately
-records the exact path-limited commit set, known semantic commits, a semantic
-classification, public syntax/API/behavior rationale, and unresolved
-uncertainty. The remaining `unknowns` state what repository history cannot
-establish, such as downstream compatibility and field use; source age or a
-digest change alone receives no semantic or promotion credit.
+records one assessment for every path-relevant commit. An assessment binds the
+full revision, exact Git subject, classification, and commit-specific public
+contract effect. The validator reconstructs the reviewed commits from Git,
+checks ancestry and changed-path relevance, and derives both the boundary's
+reviewed and semantic commit sets from those exhaustive assessments. The
+remaining `unknowns` state what repository history cannot establish, such as
+downstream compatibility and field use; source age or a digest change alone
+receives no semantic or promotion credit.
 
 The introduction method is exactly
 `git log --reverse --format=%H -SQUERY REVIEWED_REVISION -- PATH`; the reviewed
@@ -87,9 +93,10 @@ the validator-owned introduction and canonical paths. The first range starts at
 the introduction commit's parent so the introduction itself is reviewed through
 its first containing release; subsequent ranges join exact release and reviewed
 revisions. Each source-tree digest hashes sorted canonical paths as path, NUL,
-exact Git blob bytes (or the literal `<absent>`), NUL, and serves only as
-integrity evidence. Tags resolve to full commit IDs, and introductions, releases,
-and reviewed commits must have the recorded ancestry and order.
+exact Git blob bytes (or the literal `<absent>`), NUL. Digests are integrity
+evidence only: they neither discover nor classify semantic changes. Tags
+resolve to full commit IDs, and introductions, releases, and reviewed commits
+must have the recorded ancestry and order.
 
 ## Updating the audit
 
@@ -100,9 +107,11 @@ bundle exec rake quality:maturity
 bundle exec ruby -Itest test/quality/maturity_test.rb
 ```
 
-Update source SHA-256 values only after reviewing the semantic change. A
-promotion also requires the feature's next-review evidence, completed R001 and
-exact-revision R002 states, and a synchronized generated summary in this file
-and [`stability.md`](stability.md). A redesign or removal is visible in the same
-summary and still follows the applicable Preview or Experimental compatibility
-policy.
+For history changes, update the exhaustive assessments in `maturity.yml` and
+the explicit per-feature/per-boundary semantic authority together after human
+review. Update source SHA-256 values only as integrity records; never use them
+to infer semantics. A promotion also requires the feature's next-review
+evidence, completed R001 and exact-revision R002 states, and a synchronized
+generated summary in this file and [`stability.md`](stability.md). A redesign
+or removal is visible in the same summary and still follows the applicable
+Preview or Experimental compatibility policy.

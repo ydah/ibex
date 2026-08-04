@@ -22,7 +22,7 @@ module Ibex
       RELEASES = MaturityAuthority::RELEASES
       SNAPSHOTS = MaturityAuthority::SNAPSHOTS
       INTRODUCTION_AUTHORITIES = MaturityAuthority::INTRODUCTIONS
-      SEMANTIC_AUDIT_AUTHORITIES = MaturityAuthority::SEMANTIC_AUDITS
+      SEMANTIC_COMMIT_AUTHORITIES = MaturityAuthority::SEMANTIC_COMMITS
       STABLE_OVERLAPS = MaturityAuthority::STABLE_OVERLAPS
       EXPECTED = {
         "ebnf-groups" => "preview",
@@ -114,6 +114,27 @@ module Ibex
       end.freeze
       SUMMARY_START = "<!-- maturity-summary:start -->"
       SUMMARY_END = "<!-- maturity-summary:end -->"
+      COMMIT_ASSESSMENT_CLASSIFICATIONS = %w[
+        semantic_change no_semantic_change internal_refactor docs_test_only
+      ].freeze
+      CONTRACT_EFFECT_REQUIREMENTS = {
+        "semantic_change" => [
+          /public .*?(?:syntax|API|output|runtime|behavior|contract)/i,
+          "semantic commit effect must identify a public contract change"
+        ],
+        "no_semantic_change" => [
+          /public contract (?:is|remains) unchanged/i,
+          "no-change effect must state that the public contract is unchanged"
+        ],
+        "internal_refactor" => [
+          /preserv(?:e|es|ing) the public contract/i,
+          "refactor effect must state that it preserves the public contract"
+        ],
+        "docs_test_only" => [
+          /executable behavior (?:is|remains) unchanged/i,
+          "docs/test effect must state that executable behavior is unchanged"
+        ]
+      }.freeze
 
       class << self
         def pickaxe_revision(root, reviewed_revision, relative_path, query)
@@ -141,6 +162,30 @@ module Ibex
             raise "cannot reconstruct semantic history: #{error.strip}" unless status.success?
 
             @path_commit_cache[key] = output.lines(chomp: true)
+          end
+        end
+
+        def commit_subject(root, revision)
+          @commit_subject_cache ||= {}
+          key = [root, revision]
+          @commit_subject_cache.fetch(key) do
+            output, error, status = Open3.capture3("git", "-C", root, "show", "-s", "--format=%s", revision)
+            raise "cannot read commit subject: #{error.strip}" unless status.success?
+
+            @commit_subject_cache[key] = output.strip
+          end
+        end
+
+        def commit_paths(root, revision)
+          @commit_paths_cache ||= {}
+          key = [root, revision]
+          @commit_paths_cache.fetch(key) do
+            output, error, status = Open3.capture3(
+              "git", "-C", root, "diff-tree", "--root", "--no-commit-id", "--name-only", "-r", revision
+            )
+            raise "cannot read commit paths: #{error.strip}" unless status.success?
+
+            @commit_paths_cache[key] = output.lines(chomp: true)
           end
         end
 
@@ -361,7 +406,7 @@ module Ibex
         raise "maturity inventory must contain the exact 18 Preview + 2 Experimental features in canonical order" unless
           ids == EXPECTED.keys
         raise "introduction authority inventory drift" unless INTRODUCTION_AUTHORITIES.keys == EXPECTED.keys
-        raise "semantic audit authority inventory drift" unless SEMANTIC_AUDIT_AUTHORITIES.keys == EXPECTED.keys
+        raise "semantic commit authority inventory drift" unless SEMANTIC_COMMIT_AUTHORITIES.keys == EXPECTED.keys
 
         prepare_history_sources
         features.each { |feature| verify_feature(feature, audit, dependencies, workloads) }
@@ -618,14 +663,17 @@ module Ibex
       def verify_history_changes(id, changes, authority)
         record_array!(changes, "#{id}: history changes", key: "boundary")
         expected_boundaries = semantic_boundaries(authority)
+        expected_ids = expected_boundaries.map { |entry| entry.fetch(:id) }
         raise "#{id}: history change boundaries must be chronological and canonical" unless
-          changes.map { |change| change.fetch("boundary") } == expected_boundaries.map { |entry| entry.fetch(:id) }
+          changes.map { |change| change.fetch("boundary") } == expected_ids
+        raise "#{id}: semantic commit authority boundary drift" unless
+          SEMANTIC_COMMIT_AUTHORITIES.fetch(id).keys == expected_ids
 
         changes.zip(expected_boundaries).each do |change, boundary|
           exact_keys!(
             change,
             %w[
-              boundary from_revision to_revision classification reviewed_commits semantic_commits diff_paths
+              boundary from_revision to_revision classification commit_assessments diff_paths
               rationale unresolved_uncertainty
             ],
             "#{id}: history change"
@@ -659,12 +707,10 @@ module Ibex
 
       def verify_semantic_boundary(id, change, expected_boundary, authority)
         boundary_id = change.fetch("boundary")
-        expected_classification, expected_semantic = SEMANTIC_AUDIT_AUTHORITIES.fetch(id).fetch(boundary_id)
         classification = change.fetch("classification")
-        unless %w[introduced semantic_change no_semantic_change unknown].include?(classification)
+        unless %w[introduced semantic_change no_semantic_change].include?(classification)
           raise "#{id}: unsupported semantic history classification"
         end
-        raise "#{id}: semantic history classification drift" unless classification == expected_classification
 
         raise "#{id}: semantic boundary revision drift" unless
           boundary_id == expected_boundary.fetch(:id) &&
@@ -672,26 +718,74 @@ module Ibex
           change.fetch("to_revision") == expected_boundary.fetch(:to)
 
         paths = ([authority.fetch(:path)] + CANONICAL_SOURCES.fetch(id)).uniq.sort
-        semantic = verify_semantic_commit_evidence(id, change, expected_boundary, paths, expected_semantic)
-        uncertainty = verify_semantic_audit_text(id, change)
-        verify_semantic_classification(id, classification, semantic, expected_boundary, authority, uncertainty)
+        assessments = verify_commit_assessments(id, change, expected_boundary, paths)
+        semantic = verify_commit_assessment_authority(id, boundary_id, assessments)
+        verify_semantic_audit_text(id, change)
+        verify_semantic_classification(id, classification, semantic, expected_boundary, authority)
       end
 
-      def verify_semantic_commit_evidence(id, change, boundary, paths, expected_semantic)
+      def verify_commit_assessments(id, change, boundary, paths)
         verify_path_array!(change.fetch("diff_paths"), "#{id}: semantic diff paths")
         raise "#{id}: semantic diff scope drift" unless change.fetch("diff_paths") == paths
 
-        reviewed = change.fetch("reviewed_commits")
-        semantic = change.fetch("semantic_commits")
-        string_array!(reviewed, "#{id}: reviewed semantic commits", allow_empty: true)
-        string_array!(semantic, "#{id}: semantic commits", allow_empty: true)
-        (reviewed + semantic).each { |revision| revision!(revision, "#{id}: semantic audit revision") }
+        assessments = change.fetch("commit_assessments")
+        record_array!(assessments, "#{id}: commit assessments", key: "revision", allow_empty: true)
+        assessments.each { |assessment| verify_commit_assessment(id, assessment, paths) }
         expected_reviewed = self.class.path_commits(
           @root, boundary.fetch(:from), boundary.fetch(:to), paths
         )
-        raise "#{id}: reviewed semantic commit set or order drift" unless reviewed == expected_reviewed
-        raise "#{id}: semantic commits must be path-relevant reviewed commits" unless (semantic - reviewed).empty?
-        raise "#{id}: semantic commit authority drift" unless semantic == expected_semantic
+        reviewed = assessments.map { |assessment| assessment.fetch("revision") }
+        raise "#{id}: commit assessment revision set or order drift" unless reviewed == expected_reviewed
+
+        effects = assessments.map { |assessment| assessment.fetch("contract_effect") }
+        raise "#{id}: commit-specific contract effects must be unique within a boundary" unless effects.uniq == effects
+
+        assessments
+      end
+
+      def verify_commit_assessment(id, assessment, paths)
+        exact_keys!(assessment, %w[revision classification summary contract_effect], "#{id}: commit assessment")
+        revision = assessment.fetch("revision")
+        revision!(revision, "#{id}: commit assessment revision")
+        unless @reviewed_ancestors.include?(revision)
+          raise "#{id}: commit assessment revision is outside reviewed ancestry"
+        end
+
+        classification = assessment.fetch("classification")
+        unless COMMIT_ASSESSMENT_CLASSIFICATIONS.include?(classification)
+          raise "#{id}: unsupported commit assessment classification"
+        end
+
+        subject = self.class.commit_subject(@root, revision)
+        raise "#{id}: commit assessment subject drift for #{revision}" unless assessment.fetch("summary") == subject
+
+        changed_paths = self.class.commit_paths(@root, revision)
+        relevant_paths = changed_paths & paths
+        raise "#{id}: commit assessment is unrelated to its audited paths" if relevant_paths.empty?
+
+        verify_contract_effect(id, assessment, subject, relevant_paths)
+      end
+
+      def verify_contract_effect(id, assessment, subject, relevant_paths)
+        effect = assessment.fetch("contract_effect")
+        non_empty_string!(effect, "#{id}: commit contract effect")
+        unless effect.length >= 80 && effect.include?(subject)
+          raise "#{id}: contract effect must be a commit-specific rationale containing the exact subject"
+        end
+        unless relevant_paths.any? { |relative_path| effect.include?(relative_path) }
+          raise "#{id}: commit-specific rationale must cite a path changed by that revision"
+        end
+
+        pattern, message = CONTRACT_EFFECT_REQUIREMENTS.fetch(assessment.fetch("classification"))
+        raise "#{id}: #{message}" unless effect.match?(pattern)
+      end
+
+      def verify_commit_assessment_authority(id, boundary_id, assessments)
+        semantic = assessments.filter_map do |assessment|
+          assessment.fetch("revision") if assessment.fetch("classification") == "semantic_change"
+        end
+        expected = SEMANTIC_COMMIT_AUTHORITIES.fetch(id).fetch(boundary_id)
+        raise "#{id}: semantic commit authority drift" unless semantic == expected
 
         semantic
       end
@@ -703,21 +797,23 @@ module Ibex
           raise "#{id}: semantic rationale must address public syntax, API, behavior, or contract"
         end
 
-        uncertainty = change.fetch("unresolved_uncertainty")
-        non_empty_string!(uncertainty, "#{id}: semantic audit unresolved uncertainty")
-        uncertainty
+        non_empty_string!(change.fetch("unresolved_uncertainty"), "#{id}: semantic audit unresolved uncertainty")
       end
 
-      def verify_semantic_classification(id, classification, semantic, boundary, authority, uncertainty)
-        case classification
-        when "introduced"
-          verify_introduced_boundary(id, semantic, boundary, authority)
-        when "semantic_change"
-          verify_changed_boundary(id, semantic, boundary)
-        when "no_semantic_change"
-          verify_unchanged_boundary(id, semantic, boundary)
-        when "unknown"
-          verify_unknown_boundary(id, uncertainty)
+      def verify_semantic_classification(id, classification, semantic, boundary, authority)
+        expected = if boundary.fetch(:before_status) == "absent"
+                     "introduced"
+                   elsif semantic.any?
+                     "semantic_change"
+                   else
+                     "no_semantic_change"
+                   end
+        raise "#{id}: semantic history classification drift" unless classification == expected
+
+        case expected
+        when "introduced" then verify_introduced_boundary(id, semantic, boundary, authority)
+        when "semantic_change" then verify_changed_boundary(id, semantic, boundary)
+        when "no_semantic_change" then verify_unchanged_boundary(id, semantic, boundary)
         end
       end
 
@@ -737,11 +833,6 @@ module Ibex
         present = boundary.fetch(:before_status) == "present" && boundary.fetch(:after_status) == "present"
         raise "#{id}: no_semantic_change requires a present feature and no semantic commits" unless
           present && semantic.empty?
-      end
-
-      def verify_unknown_boundary(id, uncertainty)
-        generic = uncertainty.length < 80 || uncertainty.match?(/\A(?:unknown|not reconstructed|none)\.?\z/i)
-        raise "#{id}: unknown semantic history requires a specific unresolved reason" if generic
       end
 
       def historical_source_tree_digest(id, revision)
@@ -996,8 +1087,10 @@ module Ibex
         raise "#{context} keys must be exactly #{expected.join(', ')}; got #{actual.join(', ')}"
       end
 
-      def record_array!(value, context, key: "id")
-        raise "#{context} must be a non-empty array" unless value.is_a?(Array) && !value.empty?
+      def record_array!(value, context, key: "id", allow_empty: false)
+        valid = value.is_a?(Array)
+        valid &&= !value.empty? unless allow_empty
+        raise "#{context} must be #{allow_empty ? 'an' : 'a non-empty'} array" unless valid
         raise "#{context} entries must be mappings" unless value.all?(Hash)
 
         ids = value.map { |entry| entry[key] }

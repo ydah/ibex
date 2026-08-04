@@ -210,22 +210,71 @@ class MaturityTest < Minitest::Test
     assert_error(changed, "canonical presence status drift")
   end
 
-  def test_rejects_unreviewed_or_digest_inferred_semantic_history
+  # rubocop:disable Metrics/AbcSize, Metrics/MethodLength -- adversarial mutations cover the commit audit contract.
+  def test_rejects_incomplete_unrelated_or_forged_commit_assessments
     changed = document
     audit = feature(changed, "ebnf-groups").dig("specification_history", "changes", 1)
     audit["classification"] = "semantic_change"
-    audit["semantic_commits"] = [audit.fetch("reviewed_commits").first]
     assert_error(changed, "semantic history classification drift")
 
     changed = document
     audit = feature(changed, "parameterized-rules").dig("specification_history", "changes", 0)
-    audit["semantic_commits"] = []
+    assessment = audit.fetch("commit_assessments").first
+    assessment["classification"] = "internal_refactor"
+    assessment["contract_effect"] =
+      "#{assessment.fetch('summary')} changes lib/ibex/frontend/ast.rb implementation mechanics, " \
+      "preserving the public contract for this row."
     assert_error(changed, "semantic commit authority drift")
 
     changed = document
-    audit = feature(changed, "watch").dig("specification_history", "changes", 1)
-    audit["reviewed_commits"] = ["68f649ac42af45cdbe179f4afe080c8920f0ff9d"]
-    assert_error(changed, "reviewed semantic commit set or order drift")
+    assessments = feature(changed, "parameterized-rules").dig(
+      "specification_history", "changes", 0, "commit_assessments"
+    )
+    assessments.pop
+    assert_error(changed, "commit assessment revision set or order drift")
+
+    changed = document
+    assessments = feature(changed, "parameterized-rules").dig(
+      "specification_history", "changes", 0, "commit_assessments"
+    )
+    assessments << assessments.first.dup
+    assert_error(changed, "commit assessments must have unique identifiers")
+
+    changed = document
+    assessment = feature(changed, "watch").dig(
+      "specification_history", "changes", 0, "commit_assessments", 0
+    )
+    revision = "68f649ac42af45cdbe179f4afe080c8920f0ff9d"
+    subject = Ibex::Quality::Maturity.commit_subject(ROOT, revision)
+    assessment.replace(
+      "revision" => revision,
+      "classification" => "no_semantic_change",
+      "summary" => subject,
+      "contract_effect" =>
+        "#{subject} changes an adjacent area; the watch public contract remains unchanged in this audit."
+    )
+    assert_error(changed, "commit assessment is unrelated to its audited paths")
+
+    changed = document
+    assessment = feature(changed, "watch").dig(
+      "specification_history", "changes", 0, "commit_assessments", 0
+    )
+    assessment["summary"] = "Forged subject"
+    assert_error(changed, "commit assessment subject drift")
+
+    changed = document
+    assessment = feature(changed, "watch").dig(
+      "specification_history", "changes", 0, "commit_assessments", 0
+    )
+    assessment["contract_effect"] = "Generic rationale"
+    assert_error(changed, "commit-specific rationale containing the exact subject")
+
+    changed = document
+    assessment = feature(changed, "watch").dig(
+      "specification_history", "changes", 0, "commit_assessments", 0
+    )
+    assessment["revision"] = "d7d1cd0cfacdc7f59eb625b7d81fa981845ac682"
+    assert_error(changed, "commit assessment revision is outside reviewed ancestry")
 
     changed = document
     feature(changed, "watch").dig("specification_history", "changes", 0, "diff_paths").clear
@@ -236,17 +285,42 @@ class MaturityTest < Minitest::Test
       "65d41edf381afb9c18e01e55332a293332f340e6"
     assert_error(changed, "semantic boundary revision drift")
   end
+  # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+
+  def test_each_authoritative_semantic_commit_cannot_be_removed_or_reclassified
+    registry = document
+    validator = Ibex::Quality::Maturity.new(today: TODAY)
+    Ibex::Quality::Maturity::SEMANTIC_COMMIT_AUTHORITIES.each do |id, boundaries|
+      history = feature(registry, id).dig("specification_history", "changes")
+      boundaries.each do |boundary, semantic_revisions|
+        assessments = history.find { |change| change.fetch("boundary") == boundary }.fetch("commit_assessments")
+        semantic_revisions.each do |revision|
+          removed = assessments.reject { |assessment| assessment.fetch("revision") == revision }
+          assert_raises(RuntimeError, "#{id} #{boundary} must reject removing #{revision}") do
+            validator.send(:verify_commit_assessment_authority, id, boundary, removed)
+          end
+
+          reclassified = assessments.map(&:dup)
+          reclassified.find { |assessment| assessment.fetch("revision") == revision }["classification"] =
+            "internal_refactor"
+          assert_raises(RuntimeError, "#{id} #{boundary} must reject reclassifying #{revision}") do
+            validator.send(:verify_commit_assessment_authority, id, boundary, reclassified)
+          end
+        end
+      end
+    end
+  end
 
   def test_source_digest_changes_are_integrity_evidence_not_semantic_conclusions
     ebnf = feature(document, "ebnf-groups").fetch("specification_history")
     refute_equal ebnf.dig("snapshots", 0, "source_tree_sha256"), ebnf.dig("snapshots", 1, "source_tree_sha256")
-    assert_equal "unknown", ebnf.dig("changes", 1, "classification")
+    assert_equal "no_semantic_change", ebnf.dig("changes", 1, "classification")
 
-    entries = feature(document, "multiple-entries").fetch("specification_history")
-    refute_equal entries.dig("snapshots", 1, "source_tree_sha256"),
-                 entries.dig("snapshots", 2, "source_tree_sha256")
-    assert_equal "no_semantic_change", entries.dig("changes", 1, "classification")
-    refute_empty entries.dig("changes", 1, "reviewed_commits")
+    lexers = feature(document, "generated-lexers").fetch("specification_history")
+    refute_equal lexers.dig("snapshots", 1, "source_tree_sha256"),
+                 lexers.dig("snapshots", 2, "source_tree_sha256")
+    assert_equal "no_semantic_change", lexers.dig("changes", 1, "classification")
+    refute_empty lexers.dig("changes", 1, "commit_assessments")
   end
 
   # rubocop:disable Metrics/AbcSize -- mutations cover every structured-decision field family.

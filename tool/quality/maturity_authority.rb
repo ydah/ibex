@@ -131,31 +131,179 @@ module Ibex
         }
       }.freeze
 
-      SEMANTIC_AUDITS = INTRODUCTIONS.to_h do |id, authority|
-        introduction = authority.fetch(:revision)
-        semantic_commits = case id
-                           when "semantic-locations-types"
-                             %w[
-                               1418a5a36c6fdeb5370a7cc2dc4ad62de2317656
-                               104a8b19b007201366e25ea13e17b5b8a85076e9
-                               978465d7996f3610e674da76718f9b2eb118f2dd
-                               04ded745a43e364bcb8b07f1306a0731223a32ab
-                               bb8c9a741c96ee4b53b8b63290f988a623d32aa0
-                             ]
-                           when "incremental-cst"
-                             %w[
-                               0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
-                               ba5ee02b3afcb38a62618604faf6b77a53b1671e
-                             ]
-                           else
-                             [introduction]
-                           end
-        first_release = authority.fetch(:first_release)
-        audits = { "introduction..#{first_release}" => ["introduced", semantic_commits] }
-        audits["v0.1.0..v0.2.0"] = ["unknown", []] if first_release == "v0.1.0"
-        audits["v0.2.0..reviewed"] = ["no_semantic_change", []]
-        [id, audits]
-      end.freeze
+      # Human-reviewed semantic commits. Empty boundaries are explicit so adding a
+      # feature or release range cannot inherit an introduction-only default.
+      SEMANTIC_COMMITS = {
+        "ebnf-groups" => {
+          "introduction..v0.1.0" => %w[
+            4ea1196c01c3dd604a42e9139a32edec0d25c7ec
+            f3bdaffde3ddb36282921954efa334b86036abd8
+          ],
+          "v0.1.0..v0.2.0" => [],
+          "v0.2.0..reviewed" => []
+        },
+        "parameterized-rules" => {
+          "introduction..v0.2.0" => %w[
+            18f618c490c91837b97e628c178c6dd4e50abb4d
+            51234f2acc5080981c399f3821fe61d07f4b38af
+            3320a2a862628c14f12205575b894a604c9dffc8
+          ],
+          "v0.2.0..reviewed" => []
+        },
+        "inline-rules" => {
+          "introduction..v0.2.0" => %w[
+            51234f2acc5080981c399f3821fe61d07f4b38af
+            3187b74d3933259a1a44deee8ed90aabf61a2efb
+          ],
+          "v0.2.0..reviewed" => []
+        },
+        "middle-actions" => {
+          "introduction..v0.1.0" => %w[
+            3bf5565285cbb22eb2acee9f0f6c7ea63a85e096
+            cb6dc27b0a76f6023e82ba9491274fdf7a4cd42a
+            cf3844d9f28c660570b8b5ae0545fdcf6b88a51e
+          ],
+          "v0.1.0..v0.2.0" => [],
+          "v0.2.0..reviewed" => []
+        },
+        "multiple-entries" => {
+          "introduction..v0.2.0" => %w[
+            af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+            d606ca436f11ac98e0a0bd3ab60363b30f7ac1ae
+            7e74c7a5adaf01207b17c3b15fc6564a8fca64a7
+            ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
+          ],
+          "v0.2.0..reviewed" => %w[
+            c7d02d408e1778bb8018c1876f8728949bf7aa24
+          ]
+        },
+        "canonical-imports" => {
+          "introduction..v0.2.0" => %w[
+            cf4fbd16fe614d48bcdb93092399352fc7917f95
+            5b8151385c491366deb41c930a1132599edfb9e9
+            570d857f582cb61ac60840210b22a86db086cc51
+            af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+            7bbab102d981df3c3efffba0bdab301ea4939293
+            97fce7fa2476bc7ecd399c7bf30d765420dfc39a
+          ],
+          "v0.2.0..reviewed" => []
+        },
+        "generated-lexers" => {
+          "introduction..v0.2.0" => %w[
+            d8ee14f8b80a1acc4bf27b15d52b1c3517aed5b5
+            7bbab102d981df3c3efffba0bdab301ea4939293
+            86f9a7face90cc15cc988c3da36925981bdc1513
+            0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
+            ba5ee02b3afcb38a62618604faf6b77a53b1671e
+            f3cb3826efa6bfcdb7c7ef11494a9d43c47af352
+            c6722bd9cb90e24a81786411e300edd6196619b7
+          ],
+          "v0.2.0..reviewed" => []
+        },
+        "semantic-locations-types" => {
+          "introduction..v0.2.0" => %w[
+            1418a5a36c6fdeb5370a7cc2dc4ad62de2317656
+            104a8b19b007201366e25ea13e17b5b8a85076e9
+            978465d7996f3610e674da76718f9b2eb118f2dd
+            04ded745a43e364bcb8b07f1306a0731223a32ab
+            51234f2acc5080981c399f3821fe61d07f4b38af
+            3187b74d3933259a1a44deee8ed90aabf61a2efb
+            bb8c9a741c96ee4b53b8b63290f988a623d32aa0
+            d606ca436f11ac98e0a0bd3ab60363b30f7ac1ae
+            7226fb9d2e3c70536d33b16511a110477f881761
+            f391869d0d835e59613f2b2d6c899f45a49d7fc6
+            7e74c7a5adaf01207b17c3b15fc6564a8fca64a7
+            7dba2ac14757c9104d57907f503c8bdf01174262
+            1820348eb8c0b691dd57b5cc9fc5d2a7c8d60716
+            cf073f767aa4dfefaaf370bc10a5927257b92364
+            c7c48548cab5591f10dda9e4ee2247f011ccf267
+            fcf28445211e7136042545006294d6d3995026da
+            ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
+            429389ca04861fff104c4bf64e449c9266caa181
+            f3cb3826efa6bfcdb7c7ef11494a9d43c47af352
+          ],
+          "v0.2.0..reviewed" => %w[
+            5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
+            edac11e91221b1c7b81883a5cb98e8bdcab82297
+            d85b83bbfc05d99e19e9429e4bc2bd0104fd1168
+          ]
+        },
+        "ast-generation" => {
+          "introduction..v0.2.0" => %w[
+            c7117a5acaa51b501b8de20b75bbac4e3675ec35
+            ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
+          ],
+          "v0.2.0..reviewed" => []
+        },
+        "grammar-tests" => {
+          "introduction..v0.2.0" => %w[
+            6a97c6580eb60f21bee3019dd5301898f4e927f1
+            6d92ec6d49bf27538fcb115e26ab32c843e4187d
+          ],
+          "v0.2.0..reviewed" => []
+        },
+        "documentation-tooling" => {
+          "introduction..v0.2.0" => %w[81026ff3390990cad716e9953c8b485f9ac198fe],
+          "v0.2.0..reviewed" => []
+        },
+        "ielr" => {
+          "introduction..v0.2.0" => %w[
+            14968f22795f4fd8ff894b0753b01b92712bd183
+            3320a2a862628c14f12205575b894a604c9dffc8
+            af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+            d589970fa588fd6a0464e6396fe2da668431aec4
+          ],
+          "v0.2.0..reviewed" => []
+        },
+        "lsp" => {
+          "introduction..v0.2.0" => %w[5b8151385c491366deb41c930a1132599edfb9e9],
+          "v0.2.0..reviewed" => []
+        },
+        "watch" => {
+          "introduction..v0.2.0" => %w[570d857f582cb61ac60840210b22a86db086cc51],
+          "v0.2.0..reviewed" => []
+        },
+        "debug" => {
+          "introduction..v0.2.0" => %w[4aa58c5e6f013c6ad187b9a739d55147829aa42c],
+          "v0.2.0..reviewed" => []
+        },
+        "coverage" => {
+          "introduction..v0.2.0" => %w[f10cb2af61566d5180724469a5498fbc7325dc2c],
+          "v0.2.0..reviewed" => []
+        },
+        "browser-playground" => {
+          "introduction..v0.2.0" => %w[30c41be981e41c3fbd71e1f75afe296b329ddbd3],
+          "v0.2.0..reviewed" => []
+        },
+        "action-shadow" => {
+          "introduction..v0.2.0" => %w[
+            3187b74d3933259a1a44deee8ed90aabf61a2efb
+            e170cee79243d0aa975be3e107cd95cd7cc8baf0
+            ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
+            f7e1533003989b4c13f6158f4c482ba5cc3b9090
+            ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
+          ],
+          "v0.2.0..reviewed" => []
+        },
+        "bounded-repair" => {
+          "introduction..v0.2.0" => %w[df8ac82c0ed0c8862190ac88671949f0d5e8a001],
+          "v0.2.0..reviewed" => []
+        },
+        "incremental-cst" => {
+          "introduction..v0.2.0" => %w[
+            0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
+            ba5ee02b3afcb38a62618604faf6b77a53b1671e
+            5799152a6403f61af8674a1b9b4a03526dd287fe
+            f3cb3826efa6bfcdb7c7ef11494a9d43c47af352
+            c6722bd9cb90e24a81786411e300edd6196619b7
+          ],
+          "v0.2.0..reviewed" => %w[
+            5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
+            edac11e91221b1c7b81883a5cb98e8bdcab82297
+            d85b83bbfc05d99e19e9429e4bc2bd0104fd1168
+          ]
+        }
+      }.freeze
 
       STABLE_OVERLAPS = {
         "middle-actions" => {
