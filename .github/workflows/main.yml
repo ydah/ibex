@@ -186,7 +186,7 @@ jobs:
           bundle exec rake release:reproducible
       - name: Enforce pull-request runtime ABI assessment
         if: github.event_name == 'pull_request'
-        run: bundle exec rake quality:runtime_abi
+        run: bundle exec rake quality:runtime_abi_pr
       - name: Verify pinned external grammar imports
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: |

@@ -216,10 +216,13 @@ at least one path in `tests`. `verification` accepts only reviewed repository
 commands and must run the ABI gate plus the owned tests (or the full suite).
 The validator checks these relationships, while reviewers remain responsible
 for judging the rationale and whether all affected surfaces were identified.
-The deterministic rationale screen rejects placeholder terms wherever they
-appear, Unicode format controls, punctuation-only text, repeated-token filler,
-and low word or character diversity. Passing those mechanical checks does not
-make a rationale meaningful; human review remains the semantic authority.
+The deterministic rationale screen applies Unicode compatibility normalization
+and rejects separator-obscured placeholder terms, Unicode format controls,
+punctuation-only text, obvious periodic or repeated-token filler, and low
+Unicode letter/character diversity. It does not require whitespace-delimited
+words, so Japanese and other writing systems are not treated as empty prose.
+These checks cover only obvious filler: passing them does not make a rationale
+meaningful, and human review remains the semantic authority.
 
 The structured choice table is closed:
 
@@ -237,9 +240,11 @@ be substantive rather than template text. Verification commands are parsed as
 arguments, not executed by the validator; shell composition, arbitrary
 commands, unowned test files, and evidence-only README links are rejected.
 
-Run `bundle exec rake quality:runtime_abi` locally. Pull-request CI also derives
-the changed path list from the event's exact base and head SHAs without GitHub
-API writes or elevated permissions. It parses `runtime_paths` from the exact
+Run the contract-only `bundle exec rake quality:runtime_abi` locally.
+Pull-request CI invokes the separate `quality:runtime_abi_pr` entry with its
+event path and name explicitly. That PR gate derives the changed path list from
+the event's exact base and head SHAs without GitHub API writes or elevated
+permissions. It parses `runtime_paths` from the exact
 trusted base revision and unions those paths with the head policy, so a pull
 request cannot exempt its own changes merely by shrinking the head contract.
 Only the first explicit addition of this contract can use the fixed bootstrap

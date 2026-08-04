@@ -145,7 +145,9 @@ class RuntimeABITrustedBaseTest < Minitest::Test
 
   def run_validator(root, event)
     env = { "GITHUB_EVENT_NAME" => "pull_request", "GITHUB_EVENT_PATH" => event }
-    expression = "Ibex::Quality::RuntimeABI.new.verify!"
+    expression = "Ibex::Quality::RuntimeABI.new(" \
+                 "event_path: ENV.fetch('GITHUB_EVENT_PATH'), " \
+                 "event_name: ENV.fetch('GITHUB_EVENT_NAME')).verify!"
     Open3.capture3(env, RbConfig.ruby, "-Ilib", "-r./tool/quality/runtime_abi", "-e", expression, chdir: root)
   end
 

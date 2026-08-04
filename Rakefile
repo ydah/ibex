@@ -42,6 +42,7 @@ namespace :runtime do
   end
 end
 
+# rubocop:disable Metrics/BlockLength -- quality gates are intentionally grouped under one namespace.
 namespace :quality do
   desc "Run the bounded mutation suite for compact parser tables"
   task :mutation do
@@ -63,11 +64,20 @@ namespace :quality do
     ruby "-Ilib", "-r./lib/ibex", "-r./tool/quality/workloads", "-e", "Ibex::Quality::Workloads.new.verify!"
   end
 
-  desc "Verify runtime ABI, test interactions, and pull-request assessment"
+  desc "Verify runtime ABI and test interaction contracts"
   task :runtime_abi do
     ruby "-Ilib", "-r./tool/quality/runtime_abi", "-e", "Ibex::Quality::RuntimeABI.new.verify!"
   end
+
+  desc "Verify a pull request's runtime ABI assessment"
+  task :runtime_abi_pr do
+    expression = "Ibex::Quality::RuntimeABI.new(" \
+                 "event_path: ENV.fetch('GITHUB_EVENT_PATH'), " \
+                 "event_name: ENV.fetch('GITHUB_EVENT_NAME')).verify!"
+    ruby "-Ilib", "-r./tool/quality/runtime_abi", "-e", expression
+  end
 end
+# rubocop:enable Metrics/BlockLength
 
 # rubocop:disable Metrics/BlockLength -- quality gates are intentionally discoverable under one namespace.
 namespace :test do

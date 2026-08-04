@@ -5,13 +5,11 @@ require_relative "runtime_abi/assessment"
 
 module Ibex
   module Quality
-    # Verifies the checked-in runtime ABI policy and, on pull requests, the
-    # structured assessment for runtime-facing changes.
+    # Verifies the checked-in contract and an explicitly supplied PR event.
     class RuntimeABI
       ROOT = File.expand_path("../..", __dir__)
 
-      def initialize(root: ROOT, event_path: ENV.fetch("GITHUB_EVENT_PATH", nil),
-                     event_name: ENV.fetch("GITHUB_EVENT_NAME", nil), changed_paths: nil)
+      def initialize(root: ROOT, event_path: nil, event_name: nil, changed_paths: nil)
         @root = File.expand_path(root)
         @event_path = event_path
         @event_name = event_name
