@@ -156,7 +156,9 @@ The execution boundary is:
 | Path | Parser production actions | Generated lexer actions | `header` / `inner` / `footer` | Trust |
 | --- | --- | --- | --- | --- |
 | Static grammar, IR, and analysis tools | No | No | No | Nonexecuting static tooling |
-| Generated semantic parse | Yes | Yes, when declared | May execute when the generated file loads | Trusted application code; not a sandbox |
+| Generated-lexer semantic parse: `parse`, `lex(...).do_parse`, `parse_with_syntax(source)` | Yes | Yes | May execute when the generated file loads | Trusted application code; not a sandbox |
+| Handwritten pull semantic parse: `do_parse`, no-argument `parse_with_syntax` | Yes | No | May execute when the generated file loads | Trusted application code; not a sandbox |
+| Caller-fed semantic parse: `yyparse`, `push` / `finish` | Yes | No | May execute when the generated file loads | Trusted application code; not a sandbox |
 | Generated syntax-only parse | No | Yes | May execute when the generated file loads | Trusted application code; not a sandbox |
 | Future safe syntax profile | No | Declarative built-ins only | No | Nonexecuting profile; not currently available |
 
@@ -165,11 +167,16 @@ conflict analysis, diffing, equivalence search, verification, simulation,
 samples, and internal differential fuzzing. It consumes actions and user-code
 sections only as opaque data and never loads the generated application parser.
 
-`parse`, `parse_with_syntax`, `do_parse`, and `yyparse` are semantic runtime
-paths. `parse_syntax` and `incremental_session` suppress parser production
-actions, but a generated lexer still executes its Ruby actions to emit tokens,
-convert values, and change lexer state. Loading the generated class may also
-run arbitrary user sections. Do not use either runtime path as a sandbox for
+All semantic runtime paths execute parser production actions. Only paths that
+pull through `GeneratedLexer#next_token` execute generated lexer actions:
+`parse(source)`, generated-lexer `lex(source).do_parse`, and generated-lexer
+`parse_with_syntax(source)`. A handwritten `next_token`, a `yyparse` receiver,
+and `push` / `finish` supply tokens without invoking the generated lexer.
+
+`parse_syntax` and `incremental_session` suppress parser production actions,
+but their required generated lexer still executes its Ruby actions to emit
+tokens, convert values, and change lexer state. Loading the generated class may
+also run arbitrary user sections. None of these runtime paths is a sandbox for
 untrusted grammar code. A future safe profile requires a declarative lexer and
 must reject `header`, `inner`, and `footer` sections rather than loading them.
 

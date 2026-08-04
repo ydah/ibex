@@ -112,10 +112,15 @@ filesystem read failures remain CLI invocation errors on stderr and do not produ
 
 Static frontend, formatting, LSP, documentation, IR, and analysis operations
 treat parser actions, generated lexer actions, and user-code sections as opaque
-data and do not execute them. Generated semantic entry points (`parse`,
-`parse_with_syntax`, `do_parse`, and `yyparse`) execute parser production
-actions and generated lexer actions. Loading the generated file may also
-execute `header`, `inner`, and `footer` code. This is trusted application code,
+data and do not execute them. Every semantic parse executes parser production
+actions. Generated lexer actions additionally execute for `parse(source)`,
+generated-lexer `lex(source).do_parse`, and generated-lexer
+`parse_with_syntax(source)`. A handwritten `next_token` used by `do_parse` or
+no-argument `parse_with_syntax` does not invoke generated lexer actions, nor do
+the caller-fed `yyparse` and `push` / `finish` APIs.
+
+Loading the generated file may execute `header`, `inner`, and `footer` code on
+all of these paths. Generated runtime execution is trusted application code,
 not a sandbox.
 
 Generated `parse_syntax` and `incremental_session` are syntax-only: they

@@ -406,13 +406,17 @@ module Ibex
         end
       end
 
-      # Pull tokens from `next_token` and parse them.
+      # Pull tokens from `next_token` and execute parser production actions.
+      # A generated-lexer `next_token` executes lexer actions; a handwritten
+      # implementation does not invoke the generated lexer.
       # @rbs () -> untyped
       def do_parse
         drive_parser(nil)
       end
 
       # Parse through `next_token` and return both the semantic value and Red root.
+      # Parser production actions execute. Generated lexer actions execute only
+      # when `next_token` is supplied by the generated lexer.
       # @rbs () -> CST::ParseResult
       def parse_with_syntax
         syntax_parse_result(do_parse)
@@ -425,7 +429,9 @@ module Ibex
         @syntax_root
       end
 
-      # Parse tokens yielded by `receiver.method_id`.
+      # Parse tokens yielded by `receiver.method_id` and execute parser
+      # production actions. This caller-fed path does not invoke generated
+      # lexer actions.
       # @rbs (untyped receiver, Symbol method_id) -> untyped
       def yyparse(receiver, method_id)
         stream = Enumerator.new do |tokens|
@@ -435,6 +441,8 @@ module Ibex
       end
 
       # Supply one token to a caller-driven parser session.
+      # Committed reductions execute parser production actions; this token-fed
+      # path does not invoke generated lexer actions.
       # Returns `:need_more` after consuming it, `[:accepted, result]` after
       # acceptance, or `[:rejected, result]` after recovery terminates.
       # rubocop:disable Layout/LineLength
@@ -460,6 +468,8 @@ module Ibex
       end
 
       # Supply EOF to a caller-driven parser session and return its result.
+      # Committed reductions execute parser production actions; this token-fed
+      # path does not invoke generated lexer actions.
       # @rbs (?location: untyped) -> untyped
       def finish(location: nil)
         run_push_driver do

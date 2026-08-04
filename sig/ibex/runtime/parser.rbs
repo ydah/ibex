@@ -304,11 +304,15 @@ module Ibex
       # @rbs (ResourceLimits limits) -> ResourceLimits
       def resource_limits=: (ResourceLimits limits) -> ResourceLimits
 
-      # Pull tokens from `next_token` and parse them.
+      # Pull tokens from `next_token` and execute parser production actions.
+      # A generated-lexer `next_token` executes lexer actions; a handwritten
+      # implementation does not invoke the generated lexer.
       # @rbs () -> untyped
       def do_parse: () -> untyped
 
       # Parse through `next_token` and return both the semantic value and Red root.
+      # Parser production actions execute. Generated lexer actions execute only
+      # when `next_token` is supplied by the generated lexer.
       # @rbs () -> CST::ParseResult
       def parse_with_syntax: () -> CST::ParseResult
 
@@ -316,11 +320,15 @@ module Ibex
       # @rbs () -> CST::SyntaxNode?
       def syntax_root: () -> CST::SyntaxNode?
 
-      # Parse tokens yielded by `receiver.method_id`.
+      # Parse tokens yielded by `receiver.method_id` and execute parser
+      # production actions. This caller-fed path does not invoke generated
+      # lexer actions.
       # @rbs (untyped receiver, Symbol method_id) -> untyped
       def yyparse: (untyped receiver, Symbol method_id) -> untyped
 
       # Supply one token to a caller-driven parser session.
+      # Committed reductions execute parser production actions; this token-fed
+      # path does not invoke generated lexer actions.
       # Returns `:need_more` after consuming it, `[:accepted, result]` after
       # acceptance, or `[:rejected, result]` after recovery terminates.
       # rubocop:disable Layout/LineLength
@@ -329,6 +337,8 @@ module Ibex
       def push: (untyped token, ?untyped value, ?untyped location) -> (:need_more | [ :accepted, untyped ] | [ :rejected, untyped ])
 
       # Supply EOF to a caller-driven parser session and return its result.
+      # Committed reductions execute parser production actions; this token-fed
+      # path does not invoke generated lexer actions.
       # @rbs (?location: untyped) -> untyped
       def finish: (?location: untyped) -> untyped
 

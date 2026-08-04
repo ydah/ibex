@@ -25,10 +25,11 @@ by the production self-hosted grammar.
 Stable, Preview, and Experimental describe compatibility and promotion, not
 sandbox strength. Static grammar and IR tools do not execute parser actions,
 generated lexer actions, or `header` / `inner` / `footer` sections. Generated
-semantic parses execute parser and lexer actions, while generated syntax-only
-parses suppress parser production actions but still execute lexer actions.
-Both generated runtime paths may load user sections and are trusted application
-code, not sandboxes.
+lexer semantic parses execute parser and lexer actions. Handwritten pull and
+caller-fed semantic parses execute parser actions but do not invoke the
+generated lexer. Generated syntax-only parses suppress parser production
+actions but still execute generated lexer actions. All generated runtime paths
+may load user sections and are trusted application code, not sandboxes.
 
 A future nonexecuting syntax profile is a separate product contract. It must
 require a declarative built-in-only lexer and reject all user-code sections;

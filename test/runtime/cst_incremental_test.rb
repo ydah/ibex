@@ -82,13 +82,34 @@ class CSTIncrementalTest < Minitest::Test # rubocop:disable Metrics/ClassLength
   end
 
   def test_syntax_only_executes_lexer_action_but_not_parser_action
-    parser = generate(SYNTAX_ONLY_SENTINEL_SOURCE).new
+    parser_class = generate(SYNTAX_ONLY_SENTINEL_SOURCE)
+    parser = parser_class.new
 
     result = parser.parse_syntax("word")
 
     assert_equal "word", result.syntax_root.to_source
     assert_equal [:lexer], parser.instance_variable_get(:@execution_sentinels)
     refute_respond_to result, :value
+
+    semantic_parser = parser_class.new
+    assert_equal "word", semantic_parser.parse("word")
+    assert_equal %i[lexer parser], semantic_parser.instance_variable_get(:@execution_sentinels)
+  end
+
+  def test_incremental_initial_parse_and_edit_execute_only_lexer_actions
+    parser_class = generate(SYNTAX_ONLY_SENTINEL_SOURCE)
+    session = parser_class.incremental_session(Ibex::Runtime::CST::SourceText.new("word"))
+    parser = session.instance_variable_get(:@parser)
+
+    assert_equal [:lexer], parser.instance_variable_get(:@execution_sentinels)
+
+    result = session.edit(
+      [Ibex::Runtime::CST::TextEdit.new(start: 0, delete_length: 1, insert_text: "s")]
+    )
+
+    assert_equal "sord", result.syntax_root.to_source
+    assert_equal %i[lexer lexer], parser.instance_variable_get(:@execution_sentinels)
+    refute_includes parser.instance_variable_get(:@execution_sentinels), :parser
   end
 
   def test_leaf_parse_memo_entries_share_immutable_empty_children
