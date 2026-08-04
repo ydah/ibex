@@ -8,8 +8,9 @@ The closed API family is `on`, `on_head`, `on_tail`, `define`, `define_head`, `d
 Unresolved registrations and splats fail closed; every source method has a reviewed command surface.
 Reflective registration through `send`, `public_send`, `__send__`, or bound methods is prohibited
 at method lookup time, before assignment or `call` can hide it.
-A parser/options-style helper parameter and a static literal beginning with `-` are conservative
-OptionParser signals; unrelated receivers must avoid option-like spellings or receive explicit review.
+A parser/options-style helper parameter is a conservative OptionParser signal.
+A static literal beginning with `-` on any otherwise-unproven receiver is deliberately rejected;
+this enforced conservative restriction has no scope-bound exclusion registry.
 The admission decision follows the documented configuration policy: grammar-owned settings
 must pass A1-A8 and every X1-X7 exclusion remains outside grammar syntax.
 

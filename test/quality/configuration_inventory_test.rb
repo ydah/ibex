@@ -46,9 +46,21 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
         end
       end
     RUBY
-    "ambiguous helper parameter" => [<<~RUBY, /has no static spelling/]
+    "ambiguous helper parameter" => [<<~RUBY, /has no static spelling/],
       require "optparse"
       def add_options(parser,dynamic_name); parser.on(dynamic_name); end
+    RUBY
+    "dup constructor chain" => [<<~RUBY, /has no static spelling/],
+      require "optparse"
+      def hidden_option(dynamic_name)
+        OptionParser.new.dup.on(dynamic_name)
+      end
+    RUBY
+    "clone constructor chain" => [<<~RUBY, /has no static spelling/]
+      require "optparse"
+      def hidden_option(dynamic_name)
+        OptionParser.new.clone.define(dynamic_name)
+      end
     RUBY
   }.freeze
   SOURCE_PROVEN_REGISTRATIONS = {
@@ -329,6 +341,83 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
         def define_record(schema, name)
           schema.define("record")
           schema.define(name)
+        end
+      RUBY
+      assert inventory_for(root).verify!
+    end
+  end
+
+  def test_cross_file_constant_and_global_provenance_fails_closed
+    variants = {
+      "top-level constant" => {
+        "lib/registry.rb" => "require \"optparse\"\nSHARED_PARSER = OptionParser.new\n",
+        "lib/use_registry.rb" => "def use_registry(name); SHARED_PARSER.on(name); end\n"
+      },
+      "qualified constant" => {
+        "lib/registry.rb" => "require \"optparse\"\nmodule Registry\nPARSER = OptionParser.new\nend\n",
+        "lib/use_registry.rb" => "def use_registry(name); Registry::PARSER.on(name); end\n"
+      },
+      "qualified constant assignment" => {
+        "lib/registry.rb" => "require \"optparse\"\nmodule Registry; end\nRegistry::PARSER = OptionParser.new\n",
+        "lib/use_registry.rb" => "def use_registry(name); Registry::PARSER.on(name); end\n"
+      },
+      "global fixed-point alias" => {
+        "lib/registry.rb" => "require \"optparse\"\n$shared_parser ||= OptionParser.new\n",
+        "lib/registry_alias.rb" => "$shared_alias = $shared_parser\n",
+        "lib/use_registry.rb" => "def use_registry(name); $shared_alias.on(name); end\n"
+      }
+    }
+    variants.each do |label, sources|
+      with_repository_copy do |root|
+        sources.each { |relative, source| write_ruby(root, relative, source) }
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, label)
+      end
+    end
+  end
+
+  def test_class_reopen_shares_ivar_provenance_across_files
+    with_repository_copy do |root|
+      write_ruby(root, "lib/shared_options.rb", <<~RUBY)
+        require "optparse"
+        class SharedOptions
+          def initialize
+            @parser = OptionParser.new
+          end
+        end
+      RUBY
+      write_ruby(root, "lib/shared_options_reopen.rb", <<~RUBY)
+        class SharedOptions
+          def add_hidden(name)
+            @parser.on(name)
+          end
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_ivar_and_local_provenance_do_not_leak_across_lexical_scopes
+    with_repository_copy do |root|
+      write_ruby(root, "lib/isolated_receivers.rb", <<~RUBY)
+        require "optparse"
+        class A
+          def initialize
+            @parser = OptionParser.new
+          end
+        end
+        class B
+          def subscribe(event)
+            @parser.on(event)
+          end
+        end
+
+        def outer_subscription(stream, event)
+          def nested_parser
+            stream = OptionParser.new
+          end
+          stream.on(event)
         end
       RUBY
       assert inventory_for(root).verify!
