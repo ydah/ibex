@@ -474,7 +474,7 @@ module Ibex
       end
 
       def constant_assignment_state(declaration, previous_owners, index)
-        value = declaration[:value]
+        value = unwrap_parenthesized_expression(declaration[:value])
         return [:falsey] if falsey_literal?(value)
 
         parent_id = declaration.fetch(:parent_id)
@@ -489,6 +489,7 @@ module Ibex
       end
 
       def falsey_literal?(node)
+        node = unwrap_parenthesized_expression(node)
         node&.first == :var_ref && node.dig(1, 0) == :@kw && %w[false nil].include?(node.dig(1, 1))
       end
 
@@ -1235,14 +1236,35 @@ module Ibex
         )
 
         returned = unwrap_parenthesized_expression(block_last_expression(node))
-        yielded = block.fetch(:parameters).map { |name| local_binding(block.fetch(:context), name) }
-        reassigned = index.fetch(:assignments).any? do |assignment|
-          yielded.include?(assignment.fetch(:target)) &&
-            assignment.fetch(:context).fetch(:scope) == block.fetch(:context).fetch(:scope)
-        end
-        return false if reassigned
+        proven = block_proven_instance_bindings(block, index)
+        block_identity_expression?(returned, block.fetch(:context), proven, index)
+      end
 
-        binding_candidates(returned, block.fetch(:context), index).any? { |binding| yielded.include?(binding) }
+      def block_proven_instance_bindings(block, index)
+        context = block.fetch(:context)
+        proven = block.fetch(:parameters).to_h { |name| [local_binding(context, name), true] }
+        index.fetch(:assignments).each do |assignment|
+          next unless assignment.fetch(:context).fetch(:scope) == context.fetch(:scope)
+
+          target = assignment.fetch(:target)
+          next unless target.start_with?("local:#{context.fetch(:scope)}:")
+
+          proven[target] = block_identity_expression?(assignment.fetch(:value), context, proven, index)
+        end
+        proven
+      end
+
+      def block_identity_expression?(node, context, proven, index)
+        node = unwrap_parenthesized_expression(node)
+        return false unless node.is_a?(Array)
+        return true if binding_candidates(node, context, index).any? { |binding| proven[binding] }
+
+        if %i[method_add_arg method_add_block].include?(node.first)
+          return block_identity_expression?(node[1], context, proven, index)
+        end
+        return false unless node.first == :call && %w[itself freeze tap dup clone].include?(node.dig(3, 1))
+
+        block_identity_expression?(node[1], context, proven, index)
       end
 
       def block_last_expression(node)
