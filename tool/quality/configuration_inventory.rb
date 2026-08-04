@@ -14,7 +14,63 @@ module Ibex
       ROOT = File.expand_path("../..", __dir__)
       REGISTRY = "test/fixtures/configuration/options-v1.yml"
       DOCUMENT = "docs/declarative-configuration.md"
-      SOURCE_GLOBS = ["lib/ibex/cli.rb", "lib/ibex/cli/**/*.rb"].freeze
+      SOURCE_GLOBS = ["exe/*", "lib/**/*.rb"].freeze
+      REGISTRATION_APIS = %w[
+        on on_head on_tail define define_head define_tail def_option def_head_option def_tail_option
+      ].freeze
+      DEFINE_APIS = %w[define define_head define_tail].freeze
+      SURFACES = {
+        ["lib/ibex/cli.rb", "add_compatibility_options"] => "generate",
+        ["lib/ibex/cli.rb", "add_information_options"] => "generate",
+        ["lib/ibex/cli.rb", "add_output_options"] => "generate",
+        ["lib/ibex/cli.rb", "add_pipeline_options"] => "generate",
+        ["lib/ibex/cli.rb", "add_signature_output_options"] => "generate",
+        ["lib/ibex/cli/ambiguity.rb", "ambiguity_option_parser"] => "check-ambiguity",
+        ["lib/ibex/cli/analysis.rb", "analysis_options"] => "diff-or-metrics",
+        ["lib/ibex/cli/bison_import.rb", "add_bison_import_budgets"] => "import-bison",
+        ["lib/ibex/cli/bison_import.rb", "bison_import_option_parser"] => "import-bison",
+        ["lib/ibex/cli/counterexample_options.rb", "add_counterexample_options"] => "generate",
+        ["lib/ibex/cli/coverage.rb", "coverage_check_options"] => "coverage-check",
+        ["lib/ibex/cli/coverage.rb", "coverage_output_options"] => "coverage-collect-or-merge",
+        ["lib/ibex/cli/debug.rb", "debug_options"] => "debug",
+        ["lib/ibex/cli/diagnostics.rb", "diagnostics_option_parser"] => "diagnostics",
+        ["lib/ibex/cli/documentation.rb", "documentation_option_parser"] => "doc",
+        ["lib/ibex/cli/equiv.rb", "add_equiv_search_options"] => "equiv",
+        ["lib/ibex/cli/equiv.rb", "equiv_options"] => "equiv",
+        ["lib/ibex/cli/error_messages.rb", "error_messages_option_parser"] => "error-messages",
+        ["lib/ibex/cli/explain.rb", "add_explain_search_options"] => "explain",
+        ["lib/ibex/cli/explain.rb", "explain_option_parser"] => "explain",
+        ["lib/ibex/cli/fix.rb", "add_fix_budget_options"] => "fix",
+        ["lib/ibex/cli/fix.rb", "add_fix_target_options"] => "fix",
+        ["lib/ibex/cli/fix.rb", "fix_options"] => "fix",
+        ["lib/ibex/cli/formatting.rb", "formatting_option_parser"] => "formatting",
+        ["lib/ibex/cli/fuzz.rb", "add_fuzz_execution_options"] => "fuzz",
+        ["lib/ibex/cli/fuzz.rb", "add_fuzz_external_options"] => "fuzz",
+        ["lib/ibex/cli/fuzz.rb", "add_fuzz_generation_options"] => "fuzz",
+        ["lib/ibex/cli/fuzz.rb", "fuzz_option_parser"] => "fuzz",
+        ["lib/ibex/cli/generation_error_messages.rb", "add_error_messages_generation_option"] => "generate",
+        ["lib/ibex/cli/grammar_tests.rb", "grammar_test_option_parser"] => "test",
+        ["lib/ibex/cli/ir_tools.rb", "migrate_ir_options"] => "migrate-ir",
+        ["lib/ibex/cli/lsp.rb", "lsp_option_parser"] => "lsp",
+        ["lib/ibex/cli/racc_migration.rb", "migrate_check_options"] => "migrate-check",
+        ["lib/ibex/cli/racc_migration.rb", "migrate_harness_options"] => "migrate-harness",
+        ["lib/ibex/cli/reduce.rb", "reduce_option_parser"] => "reduce",
+        ["lib/ibex/cli/samples.rb", "add_sample_generation_options"] => "samples",
+        ["lib/ibex/cli/samples.rb", "add_sample_input_options"] => "samples",
+        ["lib/ibex/cli/samples.rb", "samples_option_parser"] => "samples",
+        ["lib/ibex/cli/verify.rb", "verify_options"] => "verify"
+      }.freeze
+      SURFACE_OVERRIDES = {
+        "lib/ibex/cli.rb#add_information_options#--lang=LANG" => "global"
+      }.freeze
+      GRAMMAR_CONTRACT_PERSISTENCE = {
+        "grammar.mode" => %w[grammar_ir_v2_current current],
+        "parser.superclass" => %w[grammar_ir_v2_current current],
+        "actions.omit_calls" => %w[grammar_ir_v2_current current],
+        "parser.algorithm" => %w[automaton_ir_v2_only_contract_gap current],
+        "parser.entries" => %w[starts_current_strategy_gap current],
+        "cst.trivia" => %w[cst_contract_gap current_gap]
+      }.freeze
       OWNER_CLASSES = %w[grammar_contract grammar_minimum project_build_policy invocation_request].freeze
       ADMISSION_RESULTS = %w[
         admitted_a1_a8
@@ -24,6 +80,7 @@ module Ibex
         excluded_x3_presentation
         excluded_x4_caller_budget
         excluded_x5_packaging_or_deployment
+        excluded_x6_environment_or_secret
         excluded_x7_diagnostic_suppression
       ].freeze
       OVERRIDE_ALGEBRAS = %w[
@@ -36,21 +93,25 @@ module Ibex
         cst_contract_gap
         not_persisted
       ].freeze
-      MANIFEST_PRESENCE = %w[required current current_gap not_applicable].freeze
+      MANIFEST_PRESENCE = %w[current current_gap not_applicable].freeze
       COMPATIBILITY_STATES = %w[current obsolete_alias staged_compatibility internal_compatibility].freeze
+      SEMANTIC_VALUE_TYPES = %w[
+        boolean integer float string path enum set_of_enums optional_path_or_boolean optional_string_or_boolean
+      ].freeze
       ROOT_KEYS = %w[schema_version scope registrations].freeze
       SCOPE_KEYS = %w[source_globs call_site_count runtime_registration_count].freeze
       ENTRY_KEYS = %w[
-        id source method line declaration_sha256 context_sha256 surface declared_spellings effective_spellings
-        canonical_key value_type default affected_stages public_contract_effect owner_class grammar_admission
-        override_algebra ir_presence manifest_presence trust_implications compatibility_status
+        id source method line registration_api declaration_sha256 context_sha256 surface declared_spellings
+        effective_spellings canonical_key source_value_type value_type value_domain default affected_stages
+        public_contract_effect owner_class grammar_admission override_algebra ir_presence manifest_presence
+        trust_implications compatibility_status
       ].freeze
       SHA256 = /\A[0-9a-f]{64}\z/
       KEY = /\A[a-z][a-z0-9]*(?:\.[a-z][a-z0-9_]*)+\z/
 
       Declaration = Struct.new(
-        :id, :source, :method_name, :line, :declaration_sha256, :context_sha256, :declared_spellings, :spellings,
-        :value_type,
+        :id, :source, :method_name, :line, :registration_api, :declaration_sha256, :context_sha256, :surface,
+        :declared_spellings, :spellings, :source_value_type,
         keyword_init: true
       )
 
@@ -95,20 +156,33 @@ module Ibex
 
       def render(entries = load_inventory.fetch("registrations"))
         counts = entries.group_by { |entry| entry.fetch("owner_class") }.transform_values(&:length)
-        call_sites = entries.map { |entry| [entry.fetch("source"), entry.fetch("method"), entry.fetch("line")] }.uniq
+        call_site_groups = entries.group_by do |entry|
+          [entry.fetch("source"), entry.fetch("method"), entry.fetch("line")]
+        end
+        ordinary_count = call_site_groups.count { |_site, records| records.one? }
+        expanded_groups = call_site_groups.values.reject(&:one?).sort_by do |records|
+          [records.first.fetch("surface"), records.first.fetch("method")]
+        end
+        expansion_summary = expanded_groups.map do |records|
+          "#{records.length} `#{records.first.fetch('surface')}` budget variants"
+        end.join(" and ")
         spelling_count = entries.sum { |entry| entry.fetch("effective_spellings").length }
         lines = [
           "# Declarative configuration inventory",
           "",
           "<!-- Generated by tool/quality/configuration_inventory.rb; edit options-v1.yml and regenerate. -->",
           "",
-          "This inventory classifies every production `OptionParser#on` registration " \
+          "This inventory classifies every production `OptionParser` registration API call under `exe/` and `lib/` " \
           "without loading Ibex or user code.",
+          "The closed API family is `on`, `on_head`, `on_tail`, `define`, `define_head`, `define_tail`,",
+          "`def_option`, `def_head_option`, and `def_tail_option` in explicit or implicit call forms.",
+          "Unresolved registrations and splats fail closed; every source method has a reviewed command surface.",
           "The admission decision follows `.idea/ibex-declarative-configuration-policy.md`: grammar-owned settings",
           "must pass A1-A8 and every X1-X7 exclusion remains outside grammar syntax.",
           "",
-          "The static baseline is #{call_sites.length} source call sites and #{entries.length} runtime registrations:",
-          "175 ordinary call sites plus 7 `fix` budget variants and 4 `import bison` budget variants.",
+          "The static baseline is #{call_site_groups.length} source call sites and " \
+          "#{entries.length} runtime registrations:",
+          "#{ordinary_count} ordinary call sites plus #{expansion_summary}.",
           "Those registrations expose #{spelling_count} effective spelling records after aliases and",
           "`--[no-]save-regression` are expanded; optional-argument notation remains one option pattern.",
           "",
@@ -124,7 +198,7 @@ module Ibex
           "representation and packaging.",
           "It also covers source mapping and companion artifacts rejected by X5.",
           "`invocation_request` covers operations, paths, presentation, caller budgets,",
-          "and warning execution policy rejected by X1-X4 or X7.",
+          "and warning execution policy rejected by X1-X4, X6, or X7.",
           "No current registration is classified as `grammar_minimum`: `test --coverage` remains an invocation request",
           "with admission deferred until user-production coverage and monotone merge are defined.",
           "",
@@ -157,17 +231,18 @@ module Ibex
           "## Decisions",
           "",
           markdown_row([
-                         "Surface", "CLI spelling / aliases", "Canonical concept", "Type / default", "Stages",
-                         "Public-contract effect", "Owner", "Admission", "Override", "IR / manifest", "Trust",
-                         "Compatibility", "Source"
+                         "Surface", "CLI spelling / aliases", "Canonical concept", "Source / semantic type",
+                         "Domain / default", "Stages", "Public-contract effect", "Owner", "Admission", "Override",
+                         "IR / manifest", "Trust", "Compatibility", "Source"
                        ]),
-          "|---|---|---|---|---|---|---|---|---|---|---|---|---|"
+          "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"
         )
         entries.each do |entry|
           lines << "| #{cell(entry.fetch('surface'))} " \
                    "| #{cell(entry.fetch('effective_spellings').join(', '))} " \
                    "| `#{entry.fetch('canonical_key')}` " \
-                   "| #{cell("#{entry.fetch('value_type')} / #{entry.fetch('default')}")} " \
+                   "| #{cell("#{entry.fetch('source_value_type')} / #{entry.fetch('value_type')}")} " \
+                   "| #{cell("#{entry.fetch('value_domain')} / #{entry.fetch('default')}")} " \
                    "| #{cell(entry.fetch('affected_stages').join(', '))} " \
                    "| #{cell(entry.fetch('public_contract_effect'))} " \
                    "| `#{entry.fetch('owner_class')}` " \
@@ -186,7 +261,17 @@ module Ibex
       end
 
       def declarations
-        source_paths.flat_map { |relative| scan(relative) }.sort_by(&:id)
+        values = source_paths.flat_map { |relative| scan(relative) }.sort_by(&:id)
+        used_surfaces = values.map { |item| [item.source, item.method_name] }.uniq
+        stale_surfaces = SURFACES.keys - used_surfaces
+        unless stale_surfaces.empty?
+          raise "reviewed command surface mappings are stale: #{stale_surfaces.map { |item| item.join('#') }.join(',')}"
+        end
+
+        stale_overrides = SURFACE_OVERRIDES.keys - values.map(&:id)
+        raise "reviewed command surface overrides are stale: #{stale_overrides.join(',')}" unless stale_overrides.empty?
+
+        values
       end
 
       private
@@ -197,70 +282,201 @@ module Ibex
 
       def source_paths
         SOURCE_GLOBS.flat_map { |glob| Dir.glob(path(glob)) }
+                    .select { |absolute| File.file?(absolute) }
                     .uniq.sort.map { |absolute| absolute.delete_prefix("#{@root}/") }
       end
 
       def scan(relative)
         source = File.binread(path(relative))
         sexp = Ripper.sexp(source)
-        raise "cannot parse production CLI source #{relative}" unless sexp
+        raise "cannot parse production Ruby source #{relative}" unless sexp
 
         calls = []
-        walk(sexp, nil, nil, calls)
-        calls.flat_map do |call|
-          spellings = option_spellings(call.fetch(:arguments))
-          raise "#{relative}:#{call.fetch(:line)} OptionParser declaration has no static spelling" if spellings.empty?
+        walk(sexp, nil, nil, calls, false)
+        calls.select { |call| registration_candidate?(call) }
+             .flat_map { |call| declarations_for_call(relative, call) }
+      end
 
-          dynamic_context = dynamic?(spellings) ? dynamic_loop(call.fetch(:method_node), call.fetch(:line)) : nil
-          expansions = expand_dynamic_spellings(spellings, dynamic_context)
-          expansions.map do |effective_spellings|
-            primary = effective_spellings.first
-            identifier = "#{relative}##{call.fetch(:method)}##{primary}"
-            Declaration.new(
-              id: identifier,
-              source: relative,
-              method_name: call.fetch(:method),
-              line: call.fetch(:line),
-              declaration_sha256: digest_ast(call.fetch(:arguments)),
-              context_sha256: dynamic_context ? digest_ast(dynamic_context) : nil,
-              declared_spellings: spellings,
-              spellings: effective_spellings,
-              value_type: argument_value_type(call.fetch(:arguments), spellings)
-            )
-          end
+      def declarations_for_call(relative, call)
+        if call.fetch(:splat)
+          raise "#{relative}:#{call.fetch(:line)} OptionParser #{call.fetch(:api)} splat is statically unresolved"
+        end
+
+        spellings = option_spellings(call.fetch(:arguments))
+        if spellings.empty?
+          raise "#{relative}:#{call.fetch(:line)} OptionParser #{call.fetch(:api)} has no static spelling"
+        end
+        unless call[:method] && call[:method_node]
+          raise "#{relative}:#{call.fetch(:line)} OptionParser registration outside a named method is unsupported"
+        end
+
+        dynamic_context = dynamic?(spellings) ? dynamic_loop(call.fetch(:method_node), call.fetch(:line)) : nil
+        expand_dynamic_spellings(spellings, dynamic_context).map do |effective_spellings|
+          declaration(relative, call, spellings, effective_spellings, dynamic_context)
         end
       end
 
-      def walk(node, current_method, method_node, calls)
+      def declaration(relative, call, spellings, effective_spellings, dynamic_context)
+        source_primary = spellings.first
+        primary = dynamic?(spellings) ? effective_spellings.first : source_primary
+        identifier = "#{relative}##{call.fetch(:method)}##{primary}"
+        surface = SURFACE_OVERRIDES.fetch(identifier) { SURFACES[[relative, call.fetch(:method)]] }
+        raise "#{identifier} has no reviewed command surface mapping" unless surface
+
+        Declaration.new(
+          id: identifier,
+          source: relative,
+          method_name: call.fetch(:method),
+          line: call.fetch(:line),
+          registration_api: call.fetch(:api),
+          declaration_sha256: digest_ast(call.fetch(:arguments)),
+          context_sha256: dynamic_context ? digest_ast(dynamic_context) : nil,
+          surface: surface,
+          declared_spellings: spellings,
+          spellings: expand_boolean_spellings(effective_spellings),
+          source_value_type: argument_value_type(call.fetch(:arguments), spellings)
+        )
+      end
+
+      def walk(node, current_method, method_node, calls, option_parser_scope)
         return unless node.is_a?(Array)
 
-        if node.first == :def
-          name = node.fetch(1).fetch(1)
-          node.drop(2).each { |child| walk(child, name, node, calls) }
+        if node.first == :class
+          nested_scope = option_parser_scope || contains_constant?(node[2], "OptionParser")
+          node.drop(3).each { |child| walk(child, current_method, method_node, calls, nested_scope) }
           return
         end
 
-        call = option_call(node)
-        if call
-          raise "OptionParser registration outside a named method" unless current_method && method_node
-
-          calls << call.merge(method: current_method, method_node: method_node)
+        if node.first == :def
+          name = node.fetch(1).fetch(1)
+          node.drop(2).each { |child| walk(child, name, node, calls, option_parser_scope) }
+          return
         end
-        node.each { |child| walk(child, current_method, method_node, calls) if child.is_a?(Array) }
+
+        call = registration_call(node)
+        if call && REGISTRATION_APIS.include?(call.fetch(:api))
+          calls << call.merge(
+            method: current_method, method_node: method_node, option_parser_scope: option_parser_scope
+          )
+        end
+        node.each do |child|
+          walk(child, current_method, method_node, calls, option_parser_scope) if child.is_a?(Array)
+        end
       end
 
-      def option_call(node)
+      def registration_call(node)
         case node.first
         when :method_add_arg
-          call = node[1]
-          return unless call&.first == :call && call.dig(3, 1) == "on"
-
-          { line: call.dig(3, 2, 0), arguments: node.dig(2, 1, 1) || [] }
+          call_target(node[1], node.dig(2, 1))
         when :command_call
-          return unless node.dig(3, 1) == "on"
-
-          { line: node.dig(3, 2, 0), arguments: node.dig(4, 1) || [] }
+          build_call(node[3], node[1], node[4], false)
+        when :command
+          build_call(node[1], nil, node[2], true)
+        when :vcall
+          build_call(node[1], nil, nil, true)
         end
+      end
+
+      def call_target(target, arguments_node)
+        return unless target.is_a?(Array)
+
+        case target.first
+        when :call
+          build_call(target[3], target[1], arguments_node, false)
+        when :fcall
+          build_call(target[1], nil, arguments_node, true)
+        end
+      end
+
+      def build_call(method_token, receiver, arguments_node, implicit)
+        return unless method_token.is_a?(Array) && method_token.first == :@ident
+
+        arguments = static_arguments(arguments_node)
+        {
+          api: method_token[1], line: method_token.dig(2, 0), receiver: receiver, implicit: implicit,
+          arguments: arguments, splat: contains_node?(arguments_node, :args_add_star)
+        }
+      end
+
+      def static_arguments(node)
+        return [] unless node.is_a?(Array)
+        return node[1] if node.first == :args_add_block && node[1].is_a?(Array) && node[1].first.is_a?(Array)
+
+        []
+      end
+
+      def registration_candidate?(call)
+        api = call.fetch(:api)
+        return true unless DEFINE_APIS.include?(api)
+        return true unless option_spellings(call.fetch(:arguments)).empty?
+        return false if known_non_option_define_receiver?(call[:receiver])
+        return true if call.fetch(:option_parser_scope)
+        return true if call.fetch(:implicit) && (call.fetch(:splat) || !call.fetch(:arguments).empty?)
+        return true if call.fetch(:splat) || !call.fetch(:arguments).empty?
+
+        receiver = call[:receiver]
+        receiver_option_parser?(receiver, call[:method_node])
+      end
+
+      def known_non_option_define_receiver?(receiver)
+        %w[Data Ibex::Runtime::ASTData].include?(constant_path_name(receiver))
+      end
+
+      def constant_path_name(node)
+        return unless node.is_a?(Array)
+
+        case node.first
+        when :var_ref
+          node.dig(1, 1) if node.dig(1, 0) == :@const
+        when :top_const_ref
+          node.dig(1, 1)
+        when :const_path_ref
+          parent = constant_path_name(node[1])
+          child = node.dig(2, 1)
+          [parent, child].compact.join("::")
+        end
+      end
+
+      def receiver_option_parser?(receiver, method_node)
+        return false unless receiver.is_a?(Array)
+        return true if contains_constant?(receiver, "OptionParser")
+
+        name = receiver_identifier(receiver)
+        return false unless name
+        return true if name.match?(/\A(?:options?|opts?|option_parser|parser)\z/)
+
+        option_parser_locals(method_node).include?(name)
+      end
+
+      def receiver_identifier(node)
+        return unless node&.first == :var_ref && node.dig(1, 0) == :@ident
+
+        node.dig(1, 1)
+      end
+
+      def option_parser_locals(node, found = [])
+        return found unless node.is_a?(Array)
+
+        if node.first == :assign && node.dig(1, 0) == :var_field && node.dig(1, 1, 0) == :@ident &&
+           contains_constant?(node[2], "OptionParser")
+          found << node.dig(1, 1, 1)
+        end
+        node.each { |child| option_parser_locals(child, found) if child.is_a?(Array) }
+        found
+      end
+
+      def contains_constant?(node, name)
+        return false unless node.is_a?(Array)
+        return true if node.first == :@const && node[1] == name
+
+        node.any? { |child| contains_constant?(child, name) }
+      end
+
+      def contains_node?(node, kind)
+        return false unless node.is_a?(Array)
+        return true if node.first == kind
+
+        node.any? { |child| contains_node?(child, kind) }
       end
 
       def option_spellings(arguments)
@@ -341,6 +557,17 @@ module Ibex
         end
       end
 
+      def expand_boolean_spellings(spellings)
+        spellings.flat_map do |spelling|
+          if spelling.start_with?("--[no-]")
+            suffix = spelling.delete_prefix("--[no-]")
+            ["--#{suffix}", "--no-#{suffix}"]
+          else
+            spelling
+          end
+        end
+      end
+
       def dynamic_loop(node, target_line)
         return unless node.is_a?(Array)
 
@@ -358,7 +585,7 @@ module Ibex
 
       def option_line?(node, target_line)
         return false unless node.is_a?(Array)
-        return true if node.first == :@ident && node[1] == "on" && node.dig(2, 0) == target_line
+        return true if node.first == :@ident && REGISTRATION_APIS.include?(node[1]) && node.dig(2, 0) == target_line
 
         node.any? { |child| option_line?(child, target_line) }
       end
@@ -432,10 +659,13 @@ module Ibex
           "source" => declaration.source,
           "method" => declaration.method_name,
           "line" => declaration.line,
+          "registration_api" => declaration.registration_api,
           "declaration_sha256" => declaration.declaration_sha256,
           "context_sha256" => declaration.context_sha256,
+          "surface" => declaration.surface,
           "declared_spellings" => declaration.declared_spellings,
-          "value_type" => declaration.value_type
+          "effective_spellings" => declaration.spellings,
+          "source_value_type" => declaration.source_value_type
         }.each do |field, expected|
           raise "registration #{id} #{field} drift" unless entry.fetch(field) == expected
         end
@@ -461,7 +691,7 @@ module Ibex
         key = entry.fetch("canonical_key")
         raise "registration #{id} has an unclassified canonical key" unless key.is_a?(String) && key.match?(KEY)
 
-        %w[default public_contract_effect trust_implications].each do |field|
+        %w[value_type value_domain default public_contract_effect trust_implications].each do |field|
           nonempty_string!(entry.fetch(field), id, field)
         end
         stages = entry.fetch("affected_stages")
@@ -470,6 +700,7 @@ module Ibex
         end
 
         enum!(entry, "owner_class", OWNER_CLASSES)
+        enum!(entry, "value_type", SEMANTIC_VALUE_TYPES)
         enum!(entry, "grammar_admission", ADMISSION_RESULTS)
         enum!(entry, "override_algebra", OVERRIDE_ALGEBRAS)
         enum!(entry, "ir_presence", IR_PRESENCE)
@@ -484,6 +715,8 @@ module Ibex
         admission = entry.fetch("grammar_admission")
         override = entry.fetch("override_algebra")
         ir = entry.fetch("ir_presence")
+        manifest = entry.fetch("manifest_presence")
+        compatibility = entry.fetch("compatibility_status")
         case owner
         when "grammar_contract"
           raise "registration #{id} grammar contract must pass A1-A8" unless admission == "admitted_a1_a8"
@@ -491,17 +724,61 @@ module Ibex
             raise "registration #{id} grammar contract has invalid override algebra"
           end
           raise "registration #{id} grammar contract must record its IR state" if ir == "not_persisted"
+          unless %w[current current_gap].include?(manifest)
+            raise "registration #{id} grammar contract must record its manifest state"
+          end
+
+          expected_persistence = GRAMMAR_CONTRACT_PERSISTENCE[entry.fetch("canonical_key")]
+          unless expected_persistence == [ir, manifest]
+            raise "registration #{id} grammar contract IR/manifest persistence is inconsistent"
+          end
         when "grammar_minimum"
-          raise "registration #{id} grammar minimum must use minimum algebra" unless override == "minimum"
+          unless admission == "admitted_a1_a8" && override == "minimum" && ir != "not_persisted" &&
+                 %w[current current_gap].include?(manifest) && compatibility == "current"
+            raise "registration #{id} grammar minimum policy fields are inconsistent"
+          end
         when "project_build_policy"
-          unless admission == "excluded_x5_packaging_or_deployment" && override == "project_selection"
-            raise "registration #{id} project build policy must be excluded by X5 and use project selection"
+          expected_manifest = entry.fetch("canonical_key") == "companion.manifest" ? "not_applicable" : "current"
+          unless admission == "excluded_x5_packaging_or_deployment" && override == "project_selection" &&
+                 ir == "not_persisted" && manifest == expected_manifest &&
+                 %w[current obsolete_alias].include?(compatibility)
+            raise "registration #{id} project build policy fields are inconsistent"
           end
         when "invocation_request"
-          unless override == "invocation_only" && ir == "not_persisted"
-            raise "registration #{id} invocation request must remain CLI-only"
+          allowed = ADMISSION_RESULTS - %w[admitted_a1_a8 excluded_x5_packaging_or_deployment]
+          unless allowed.include?(admission) && override == "invocation_only" && ir == "not_persisted" &&
+                 manifest == "not_applicable" && %w[current internal_compatibility].include?(compatibility)
+            raise "registration #{id} invocation request fields are inconsistent"
           end
         end
+        verify_compatibility_policy(entry)
+      end
+
+      def verify_compatibility_policy(entry)
+        id = entry.fetch("id")
+        owner = entry.fetch("owner_class")
+        override = entry.fetch("override_algebra")
+        status = entry.fetch("compatibility_status")
+        if status == "staged_compatibility"
+          unless owner == "grammar_contract" && override == "staged_fixed_compatibility"
+            raise "registration #{id} staged compatibility requires a staged grammar contract"
+          end
+        elsif override == "staged_fixed_compatibility"
+          raise "registration #{id} staged fixed override must expose staged compatibility"
+        end
+        if status == "internal_compatibility" &&
+           (owner != "invocation_request" || !entry.fetch("canonical_key").start_with?("compatibility."))
+          raise "registration #{id} internal compatibility must be a compatibility invocation"
+        end
+        if entry.fetch("canonical_key").start_with?("compatibility.") && status != "internal_compatibility"
+          raise "registration #{id} compatibility invocation must remain internal compatibility"
+        end
+        if override == "fixed" && entry.fetch("surface") != "generate"
+          raise "registration #{id} fixed generation policy must use the generate surface"
+        end
+        return unless override == "analysis_override" && entry.fetch("surface") == "generate"
+
+        raise "registration #{id} analysis override cannot use the generate surface"
       end
 
       def verify_aliases(entries)
@@ -524,7 +801,9 @@ module Ibex
         obsolete.each do |entry|
           matches = entries.reject { |candidate| candidate.equal?(entry) }.select do |candidate|
             candidate.fetch("surface") == entry.fetch("surface") &&
-              candidate.fetch("canonical_key") == entry.fetch("canonical_key")
+              candidate.fetch("canonical_key") == entry.fetch("canonical_key") &&
+              candidate.fetch("owner_class") == entry.fetch("owner_class") &&
+              candidate.fetch("compatibility_status") == "current"
           end
           raise "obsolete alias #{entry.fetch('id')} must point to a canonical registration" if matches.empty?
         end
