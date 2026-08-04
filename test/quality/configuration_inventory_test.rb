@@ -98,6 +98,62 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
       alias_registry.define_tail(switch_name)
     RUBY
   }.freeze
+  LEXICAL_PROVENANCE_MUTATIONS = {
+    "qualified nested class reopen" => <<~RUBY,
+      require "optparse"
+      module A
+        module B; end
+        class B::C
+          def initialize
+            @parser = OptionParser.new
+          end
+        end
+      end
+      module A
+        class B::C
+          def add_hidden(name)
+            @parser.on(name)
+          end
+        end
+      end
+    RUBY
+    "singleton class reopen" => <<~RUBY,
+      require "optparse"
+      class A; end
+      class << A
+        def install_parser
+          @parser = OptionParser.new
+        end
+      end
+      class << A
+        def add_hidden(name)
+          @parser.on(name)
+        end
+      end
+    RUBY
+    "inherited constant" => <<~RUBY,
+      require "optparse"
+      class BaseOptions
+        PARSER = OptionParser.new
+      end
+      class ChildOptions < BaseOptions
+        def add_hidden(name)
+          PARSER.on(name)
+        end
+      end
+    RUBY
+    "inherited class variable" => <<~RUBY
+      require "optparse"
+      class BaseOptions
+        @@parser = OptionParser.new
+      end
+      class ChildOptions < BaseOptions
+        def add_hidden(name)
+          @@parser.on(name)
+        end
+      end
+    RUBY
+  }.freeze
 
   def test_repository_inventory_and_generated_document_are_current
     assert Ibex::Quality::ConfigurationInventory.new.verify!
@@ -421,6 +477,116 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
         end
       RUBY
       assert inventory_for(root).verify!
+    end
+  end
+
+  def test_nearest_lexical_constant_shadows_optionparser_provenance
+    with_repository_copy do |root|
+      write_ruby(root, "lib/shadowed_parser.rb", <<~RUBY)
+        require "optparse"
+        PARSER = OptionParser.new
+        module Shadow
+          PARSER = Object.new
+          def self.subscribe(event)
+            PARSER.on(event)
+          end
+        end
+
+        module Left; end
+        module Right
+          PARSER = Object.new
+          def self.subscribe(event)
+            PARSER.on(event)
+          end
+        end
+        Left::PARSER = OptionParser.new
+      RUBY
+      assert inventory_for(root).verify!
+    end
+  end
+
+  def test_namespace_singleton_and_inherited_provenance_fail_closed
+    LEXICAL_PROVENANCE_MUTATIONS.each do |label, source|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/lexical_provenance.rb", source)
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, label)
+      end
+    end
+  end
+
+  def test_block_parameters_and_locals_shadow_without_leaking
+    with_repository_copy do |root|
+      write_ruby(root, "lib/block_shadowing.rb", <<~RUBY)
+        require "optparse"
+        def block_shadowing(event)
+          parser = OptionParser.new
+          [Object.new].each do |parser|
+            parser.on(event)
+          end
+
+          OptionParser.new do |yielded_parser|
+          end
+          [Object.new].each do
+            yielded_parser.on(event)
+          end
+
+          [Object.new].each do
+            local_parser = OptionParser.new
+          end
+          [Object.new].each do
+            local_parser.on(event)
+          end
+        end
+      RUBY
+      assert inventory_for(root).verify!
+    end
+  end
+
+  def test_optionparser_yielded_parameter_is_proven_inside_its_block
+    with_repository_copy do |root|
+      write_ruby(root, "lib/block_option_parser.rb", <<~RUBY)
+        require "optparse"
+        def add_hidden(dynamic_name)
+          OptionParser.new do |parser|
+            parser.on(dynamic_name)
+          end
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_optionparser_subclass_context_applies_only_to_implicit_self
+    with_repository_copy do |root|
+      write_ruby(root, "lib/subclass_scope.rb", <<~RUBY)
+        require "optparse"
+        class ParserOptions < OptionParser
+          def subscribe(stream, event)
+            stream.on(event)
+          end
+          class Nested
+            def subscribe(event)
+              on(event)
+            end
+          end
+        end
+      RUBY
+      assert inventory_for(root).verify!
+    end
+
+    with_repository_copy do |root|
+      write_ruby(root, "lib/subclass_scope.rb", <<~RUBY)
+        require "optparse"
+        class ParserOptions < OptionParser
+          def add_hidden(dynamic_name)
+            on(dynamic_name)
+          end
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
     end
   end
 
