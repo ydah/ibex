@@ -5,12 +5,12 @@ module Ibex
     # Rejects obvious placeholders and mechanically repeated rationale filler.
     module RuntimeABIAssessmentRationale
       PLACEHOLDERS = %w[todo tbd fixme template placeholder].freeze
-      PLACEHOLDER_TOKEN = Regexp.new(
-        "(?<![\\p{L}\\p{N}])(?:#{PLACEHOLDERS.join('|')})(?![\\p{L}\\p{N}])"
-      )
-      OBFUSCATED_PLACEHOLDERS = PLACEHOLDERS.map do |placeholder|
+      ALNUM_TOKEN = /[\p{L}\p{N}]+/u
+      OBFUSCATING_CHARACTER = /[\p{M}\p{P}\p{S}]/u
+      PLACEHOLDER_SEQUENCES = PLACEHOLDERS.map do |placeholder|
         characters = placeholder.chars.map { |character| Regexp.escape(character) }
-        Regexp.new("(?<![\\p{L}\\p{N}])#{characters.join('[^\\p{L}\\p{N}]*')}(?![\\p{L}\\p{N}])")
+        source = characters.join("([^\\p{L}\\p{N}]*)").encode(Encoding::UTF_8)
+        Regexp.new(source)
       end.freeze
       ERROR = "runtime ABI assessment rationale must be substantive and must replace the placeholder"
 
@@ -34,9 +34,20 @@ module Ibex
       private_class_method :diverse_prose?
 
       def self.placeholder?(text)
-        text.match?(PLACEHOLDER_TOKEN) || OBFUSCATED_PLACEHOLDERS.any? { |pattern| text.match?(pattern) }
+        tokens = text.scan(ALNUM_TOKEN)
+        return true if tokens.any? { |token| PLACEHOLDERS.any? { |placeholder| token.include?(placeholder) } }
+
+        PLACEHOLDER_SEQUENCES.any? { |pattern| obfuscated_placeholder?(text, pattern) }
       end
       private_class_method :placeholder?
+
+      def self.obfuscated_placeholder?(text, pattern)
+        text.scan(pattern).any? do |separators|
+          separators.all? { |separator| !separator.empty? } ||
+            separators.any? { |separator| separator.match?(OBFUSCATING_CHARACTER) }
+        end
+      end
+      private_class_method :obfuscated_placeholder?
 
       def self.repeated_token_filler?(tokens)
         return false if tokens.length < 4

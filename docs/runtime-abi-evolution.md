@@ -217,10 +217,12 @@ commands and must run the ABI gate plus the owned tests (or the full suite).
 The validator checks these relationships, while reviewers remain responsible
 for judging the rationale and whether all affected surfaces were identified.
 The deterministic rationale screen applies Unicode compatibility normalization
-and detects placeholder tokens at letter/number boundaries. It also detects
-obscured forms by allowing punctuation, symbols, emoji, combining marks, and
-separators only between the placeholder's own characters, without concatenating
-unrelated prose. It also rejects Unicode format controls,
+and detects placeholder keywords contained anywhere in each maximal
+letter/number token. A separate channel detects obscured forms only within the
+placeholder's own character sequence: every adjacent pair may be separated, but
+partial separation must include punctuation, a symbol, or a combining mark so
+ordinary whitespace prose is not concatenated. Outer alphanumeric affixes do
+not bypass either check. It also rejects Unicode format controls,
 punctuation-only text, obvious periodic or repeated-token filler, and low
 Unicode letter/character diversity. It does not require whitespace-delimited
 words, so Japanese, Arabic, and other writing systems are not treated as empty prose.
