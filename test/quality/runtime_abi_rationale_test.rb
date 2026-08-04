@@ -16,7 +16,8 @@ class RuntimeABIRationaleTest < Minitest::Test
   end
 
   def test_placeholder_detection_normalizes_unicode_and_ignores_separators
-    ["Ｔ－Ｏ－Ｄ－Ｏ", "T B D", "F-I-X-M-E", "t e m p l a t e", "p_l_a_c_e_h_o_l_d_e_r"].each do |phrase|
+    ["Ｔ－Ｏ－Ｄ－Ｏ", "T B D", "F-I-X-M-E", "t e m p l a t e", "p_l_a_c_e_h_o_l_d_e_r",
+     "T\u2003O\u2003D\u2003O"].each do |phrase|
       assert_rationale_rejected("Runtime behavior remains compatible, but #{phrase} wording is still present here.")
     end
   end
@@ -71,6 +72,22 @@ class RuntimeABIRationaleTest < Minitest::Test
       replace_rationale(event, rationale)
 
       verify_runtime_event(root, event: event, changed_paths: [RUNTIME_PATH])
+    end
+  end
+
+  def test_rationale_does_not_join_natural_prose_into_placeholder_terms
+    rationales = [
+      "The runtime contract sends current tables to downstream consumers while preserving every parser result.",
+      "The parser records prefix metadata while preserving the current runtime contract and table layout."
+    ]
+
+    rationales.each do |rationale|
+      with_runtime_abi_root do |root|
+        event = fixture_event_copy(root)
+        replace_rationale(event, rationale)
+
+        verify_runtime_event(root, event: event, changed_paths: [RUNTIME_PATH])
+      end
     end
   end
 

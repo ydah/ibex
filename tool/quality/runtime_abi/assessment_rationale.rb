@@ -5,6 +5,13 @@ module Ibex
     # Rejects obvious placeholders and mechanically repeated rationale filler.
     module RuntimeABIAssessmentRationale
       PLACEHOLDERS = %w[todo tbd fixme template placeholder].freeze
+      PLACEHOLDER_TOKEN = Regexp.new(
+        "(?<![\\p{L}\\p{N}])(?:#{PLACEHOLDERS.join('|')})(?![\\p{L}\\p{N}])"
+      )
+      OBFUSCATED_PLACEHOLDERS = PLACEHOLDERS.map do |placeholder|
+        characters = placeholder.chars.map { |character| Regexp.escape(character) }
+        Regexp.new("(?<![\\p{L}\\p{N}])#{characters.join('[^\\p{L}\\p{N}]*')}(?![\\p{L}\\p{N}])")
+      end.freeze
       ERROR = "runtime ABI assessment rationale must be substantive and must replace the placeholder"
 
       def self.verify!(value)
@@ -27,8 +34,7 @@ module Ibex
       private_class_method :diverse_prose?
 
       def self.placeholder?(text)
-        compact = text.gsub(/[^\p{L}\p{N}]/u, "")
-        PLACEHOLDERS.any? { |placeholder| compact.include?(placeholder) }
+        text.match?(PLACEHOLDER_TOKEN) || OBFUSCATED_PLACEHOLDERS.any? { |pattern| text.match?(pattern) }
       end
       private_class_method :placeholder?
 
