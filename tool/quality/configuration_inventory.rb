@@ -458,10 +458,33 @@ module Ibex
 
       def ordered_assignment_state(current, assigned, conditional)
         kind = current.is_a?(Array) ? current.first : current
-        return current if [true, "||="].include?(conditional) && !%i[unset falsey].include?(kind)
-        return current if conditional == "&&=" && %i[unset falsey unknown].include?(kind)
+        if [true, "||="].include?(conditional)
+          return assigned if %i[unset falsey].include?(kind)
+          return :may_parser if kind == :unknown && %i[parser may_parser].include?(assigned)
+
+          return current
+        end
+        if conditional == "&&="
+          return current if %i[unset falsey].include?(kind)
+          return and_assignment_unknown_state(assigned) if kind == :unknown
+          return and_assignment_may_parser_state(assigned) if kind == :may_parser
+        end
 
         assigned
+      end
+
+      def and_assignment_unknown_state(assigned)
+        return :falsey if assigned == :falsey
+        return :may_parser if %i[parser may_parser].include?(assigned)
+
+        :unknown
+      end
+
+      def and_assignment_may_parser_state(assigned)
+        return :falsey if assigned == :falsey
+        return :may_parser if %i[parser may_parser unknown].include?(assigned)
+
+        :unknown
       end
 
       def cross_file_constant_identity_state(source_declaration_ids, declarations, previous_owners, index)
@@ -744,6 +767,8 @@ module Ibex
         index.fetch(:blocks) << {
           node: node, expression: node[1], parameters: parameters.fetch(:names),
           yielded_parameters: parameters.fetch(:yielded_names),
+          falsey_parameters: parameters.fetch(:falsey_names),
+          truthy_parameters: parameters.fetch(:truthy_names),
           block_locals: parameters.fetch(:block_local_names), context: nested
         }
         walk(node[2], nested, index)
@@ -909,7 +934,7 @@ module Ibex
           states = block_instance_states(
             block, classes, instances, index, seed_yielded: yielding, assignments: assignments
           )
-          states.each { |binding, state| instances << binding if state == :parser }
+          states.each { |binding, state| instances << binding if %i[parser may_parser].include?(state) }
         end
       end
 
@@ -1063,18 +1088,26 @@ module Ibex
         names = []
         defaults = []
         yielded_names = []
+        falsey_names = []
+        truthy_names = []
         if node&.first == :params
           first_positional = Array(node[1]).first || Array(node[2]).first&.first
           first_positional_name = parameter_name(first_positional)
           yielded_names << first_positional_name if first_positional_name
-          names.concat(parameter_names(node[1]))
+          required_names = parameter_names(node[1])
+          names.concat(required_names)
+          falsey_names.concat(required_names - yielded_names)
           Array(node[2]).each do |token, value|
             name = parameter_name(token)
             names << name if name
             defaults << { name: name, value: value } if name
           end
-          names.concat(parameter_names(node[3]))
-          names.concat(parameter_names(node[4]))
+          rest_names = parameter_names(node[3])
+          names.concat(rest_names)
+          truthy_names.concat(rest_names)
+          post_names = parameter_names(node[4])
+          names.concat(post_names)
+          falsey_names.concat(post_names)
           Array(node[5]).each do |token, value|
             name = parameter_name(token)
             names << name if name
@@ -1087,7 +1120,7 @@ module Ibex
         names.concat(block_local_names)
         {
           names: names.uniq, defaults: defaults, yielded_names: yielded_names,
-          block_local_names: block_local_names
+          falsey_names: falsey_names, truthy_names: truthy_names, block_local_names: block_local_names
         }
       end
 
@@ -1386,6 +1419,10 @@ module Ibex
                                 assignments: index.fetch(:assignments), before_order: nil)
         context = block.fetch(:context)
         states = block.fetch(:parameters).to_h { |name| [local_binding(context, name), :unknown] }
+        if seed_yielded
+          block.fetch(:falsey_parameters).each { |name| states[local_binding(context, name)] = :falsey }
+          block.fetch(:truthy_parameters).each { |name| states[local_binding(context, name)] = :truthy }
+        end
         block.fetch(:block_locals).each { |name| states[local_binding(context, name)] = :falsey }
         yielded_bindings = block.fetch(:yielded_parameters).map { |name| local_binding(context, name) }
         block.fetch(:yielded_parameters).each do |name|
@@ -1429,12 +1466,13 @@ module Ibex
         local_states = candidates.filter_map { |binding| states[binding] if states.key?(binding) }
         return if local_states.empty?
         return :parser if local_states.include?(:parser)
+        return :may_parser if local_states.include?(:may_parser)
 
         local_states.find { |state| state != :unknown } || :unknown
       end
 
       def block_identity_expression?(node, context, states, index)
-        block_local_expression_state(node, context, states, index) == :parser
+        %i[parser may_parser].include?(block_local_expression_state(node, context, states, index))
       end
 
       def block_last_expression(node)
