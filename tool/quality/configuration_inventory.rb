@@ -634,7 +634,10 @@ module Ibex
           return
         end
 
-        record_assignment(node, context, index)
+        if %i[assign opassign].include?(node.first)
+          walk_assignment(node, context, index)
+          return
+        end
 
         call = reflective_registration_call(node) || registration_call(node)
         if call && (call.fetch(:reflective, false) || REGISTRATION_APIS.include?(call.fetch(:api)))
@@ -643,6 +646,24 @@ module Ibex
         node.each do |child|
           walk(child, context, index) if child.is_a?(Array)
         end
+      end
+
+      def walk_assignment(node, context, index)
+        target = node[1]
+        value = node.first == :assign ? node[2] : node[3]
+        walk(target, context, index)
+
+        value_context = context
+        if node.first == :opassign && node.dig(2, 1) == "||="
+          guard = {
+            targets: assignment_binding_names(target, context, index),
+            order: next_index_order(index)
+          }
+          guards = context.fetch(:execution_guards, []) + [guard]
+          value_context = context.merge(execution_guards: guards)
+        end
+        walk(value, value_context, index)
+        record_assignment(node, context, index)
       end
 
       def method_context(context, node, name, role, token: node[1])
@@ -890,12 +911,35 @@ module Ibex
       end
 
       def registration_candidate?(call, bindings)
+        return false unless call_execution_reachable?(call, bindings)
         return true unless option_spellings(call.fetch(:arguments)).empty?
         return true if option_parser_subclass_registration?(call, bindings)
         return true if call.fetch(:implicit) && SURFACES.key?([call.fetch(:source), call[:method]])
         return receiver_option_parser_class?(call, bindings) if call.fetch(:unbound, false)
 
         receiver_option_parser?(call, bindings)
+      end
+
+      def call_execution_reachable?(call, bindings)
+        guards = call.fetch(:execution_guards, [])
+        return true if guards.empty?
+
+        index = bindings.fetch(:index)
+        block = index.fetch(:blocks).find do |candidate|
+          candidate.fetch(:context).fetch(:scope) == call.fetch(:scope)
+        end
+        return true unless block
+
+        yielding = option_parser_yielding_expression?(
+          block.fetch(:expression), block.fetch(:context), bindings.fetch(:classes), bindings.fetch(:instances), index
+        )
+        guards.all? do |guard|
+          states = block_instance_states(
+            block, bindings.fetch(:classes), bindings.fetch(:instances), index,
+            seed_yielded: yielding, before_order: guard.fetch(:order)
+          )
+          guard.fetch(:targets).none? { |target| %i[parser truthy].include?(states[target]) }
+        end
       end
 
       def constant_path_name(node)
@@ -1355,7 +1399,8 @@ module Ibex
 
       def block_assignment_state(node, context, states, class_bindings, instance_bindings, index)
         node = unwrap_parenthesized_expression(node)
-        return :parser if block_identity_expression?(node, context, states, index)
+        local_state = block_local_expression_state(node, context, states, index)
+        return local_state if local_state && local_state != :unknown
         return :parser if option_parser_instance_expression?(
           node, context, class_bindings, instance_bindings, index
         )
@@ -1367,17 +1412,17 @@ module Ibex
         :unknown
       end
 
+      def block_local_expression_state(node, context, states, index)
+        candidates = block_receiver_binding_candidates(node, context, index)
+        local_states = candidates.filter_map { |binding| states[binding] if states.key?(binding) }
+        return if local_states.empty?
+        return :parser if local_states.include?(:parser)
+
+        local_states.find { |state| state != :unknown } || :unknown
+      end
+
       def block_identity_expression?(node, context, states, index)
-        node = unwrap_parenthesized_expression(node)
-        return false unless node.is_a?(Array)
-        return true if binding_candidates(node, context, index).any? { |binding| states[binding] == :parser }
-
-        if %i[method_add_arg method_add_block].include?(node.first)
-          return block_identity_expression?(node[1], context, states, index)
-        end
-        return false unless node.first == :call && %w[itself freeze tap dup clone].include?(node.dig(3, 1))
-
-        block_identity_expression?(node[1], context, states, index)
+        block_local_expression_state(node, context, states, index) == :parser
       end
 
       def block_last_expression(node)

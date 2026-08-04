@@ -1102,6 +1102,101 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     end
   end
 
+  def test_builder_assignment_rhs_does_not_restore_killed_parser_provenance
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_killed_rhs_alias.rb", <<~RUBY)
+        require "optparse"
+        class EventBus; end
+        def subscribe(name)
+          OptionParser.new.then do |parser|
+            parser = EventBus.new
+            receiver = parser
+            receiver.on(name)
+          end
+        end
+      RUBY
+      assert inventory_for(root).verify!
+    end
+  end
+
+  def test_builder_assignment_rhs_propagates_live_parser_aliases
+    {
+      "direct" => "receiver = parser",
+      "parenthesized" => "receiver = ((parser))",
+      "identity" => "receiver = ((parser.itself))"
+    }.each do |label, assignment|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/builder_live_rhs_alias_#{label}.rb", <<~RUBY)
+          require "optparse"
+          def add_hidden(name)
+            OptionParser.new.then do |parser|
+              #{assignment}
+              receiver.on(name)
+            end
+          end
+        RUBY
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, label)
+      end
+    end
+  end
+
+  def test_assignment_rhs_registration_precedes_the_local_write
+    {
+      "same binding" => "parser = parser.on(name)",
+      "parenthesized" => "parser = ((parser.on(name)))",
+      "alias receiver" => "receiver = parser; parser = ((receiver.on(name)))"
+    }.each do |label, statements|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/builder_assignment_rhs_#{label.tr(' ', '_')}.rb", <<~RUBY)
+          require "optparse"
+          def add_hidden(name)
+            OptionParser.new.then { |parser| #{statements} }
+          end
+        RUBY
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, label)
+      end
+    end
+  end
+
+  def test_conditional_assignment_skips_registration_for_known_truthy_lhs
+    {
+      "yielded parser" => "parser ||= parser.on(name)",
+      "true" => "result = true; result ||= parser.on(name)",
+      "object" => "result = Object.new; result ||= ((parser.on(name)))"
+    }.each do |label, statements|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/builder_truthy_guard_#{label.tr(' ', '_')}.rb", <<~RUBY)
+          require "optparse"
+          def subscribe(name)
+            OptionParser.new.then { |parser| #{statements} }
+          end
+        RUBY
+        assert inventory_for(root).verify!, label
+      end
+    end
+  end
+
+  def test_conditional_assignment_executes_registration_for_known_falsey_lhs
+    {
+      "nil" => "result = nil; result ||= parser.on(name)",
+      "false" => "result = false; result ||= parser.on(name)",
+      "parenthesized alias" => "receiver = parser; result = ((nil)); result ||= ((receiver.on(name)))"
+    }.each do |label, statements|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/builder_falsey_guard_#{label.tr(' ', '_')}.rb", <<~RUBY)
+          require "optparse"
+          def add_hidden(name)
+            OptionParser.new.then { |parser| #{statements} }
+          end
+        RUBY
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, label)
+      end
+    end
+  end
+
   def test_optional_first_builder_parameter_ignores_its_default
     with_repository_copy do |root|
       write_ruby(root, "lib/builder_optional_first.rb", <<~RUBY)
