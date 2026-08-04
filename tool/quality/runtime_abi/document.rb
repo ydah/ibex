@@ -7,19 +7,22 @@ module Ibex
     # Extracts one strictly delimited YAML contract from a Markdown document.
     module RuntimeABIDocument
       def load_contract(path, name)
-        source = File.binread(path)
+        load_contract_source(File.binread(path), name, relative(path))
+      end
+
+      def load_contract_source(source, name, label)
         start_marker = "<!-- ibex-#{name}-contract:start -->"
         end_marker = "<!-- ibex-#{name}-contract:end -->"
         pattern = /#{Regexp.escape(start_marker)}\s*```yaml\s*\n(.*?)```\s*#{Regexp.escape(end_marker)}/m
         matches = source.scan(pattern)
-        raise "#{relative(path)} must contain exactly one #{name} contract" unless matches.length == 1
+        raise "#{label} must contain exactly one #{name} contract" unless matches.length == 1
 
         value = YAML.safe_load(matches.fetch(0).fetch(0), permitted_classes: [], aliases: false)
-        raise "#{relative(path)} #{name} contract must be a mapping" unless value.is_a?(Hash)
+        raise "#{label} #{name} contract must be a mapping" unless value.is_a?(Hash)
 
         value
       rescue Psych::Exception => e
-        raise "#{relative(path)} #{name} contract is invalid YAML: #{e.message}"
+        raise "#{label} #{name} contract is invalid YAML: #{e.message}"
       end
 
       def exact_keys!(value, keys, label)

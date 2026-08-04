@@ -181,10 +181,12 @@ jobs:
           bundle exec rake test:docs_coverage
           bundle exec rake quality:comparative_claims
           bundle exec rake quality:workloads
-          bundle exec rake quality:runtime_abi
           bundle exec rake i18n:coverage
           bundle exec rake bison:test
           bundle exec rake release:reproducible
+      - name: Enforce pull-request runtime ABI assessment
+        if: github.event_name == 'pull_request'
+        run: bundle exec rake quality:runtime_abi
       - name: Verify pinned external grammar imports
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: |
