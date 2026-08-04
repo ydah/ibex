@@ -1,0 +1,8 @@
+{
+  "action": "opened",
+  "pull_request": {
+    "base": { "sha": "1111111111111111111111111111111111111111" },
+    "head": { "sha": "2222222222222222222222222222222222222222" },
+    "body": "<!-- ibex-runtime-abi-assessment:start -->\n```yaml\nstate: compatible\nsurfaces: [runtime_api]\nabi_choice: current_contract\nregeneration: not_required\nevidence: [test/runtime/table_format_test.rb]\n```\n<!-- ibex-runtime-abi-assessment:end -->"
+  }
+}

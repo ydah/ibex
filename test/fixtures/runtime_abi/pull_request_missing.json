@@ -1,0 +1,8 @@
+{
+  "action": "opened",
+  "pull_request": {
+    "base": { "sha": "1111111111111111111111111111111111111111" },
+    "head": { "sha": "2222222222222222222222222222222222222222" },
+    "body": "No structured assessment."
+  }
+}
