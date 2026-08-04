@@ -8,9 +8,10 @@ sufficient for a stable release.
 ## Decision
 
 **HOLD v1.0.** Compatibility behavior, scale construction, semantic-value
-signatures, the repository compatibility suite, and a public performance
-baseline have evidence. The published ten-case error comparison has not
-received independent third-party review.
+signatures, and the repository compatibility suite have evidence. A historical
+public performance projection is documented, but its direct formal result
+artifact is absent. The published ten-case error comparison has not received
+independent third-party review.
 
 Feature development is not frozen. The open release gate blocks publication of
 v1.0, not feature development. New work remains subject to the feature budgets,
@@ -29,7 +30,7 @@ Experimental features may continue to ship in prereleases without promotion.
 | Three public-gem migrations | Pass with documented adapters | Namae, BCDice, and Nokogiri behavior suites below |
 | Hundreds-of-productions scale | Pass | 501 productions, 503 states, 125.008 ms average complete build |
 | Ten-case error UX comparison | Partial | 10/10 snapshots and 8/10 useful repairs are public; independent review is missing |
-| Public generator/runtime performance baseline | Pass | Fixed inputs, runtime configuration, measurements, and ratios are published below; absolute Racc parity is diagnostic, not a v1.0 gate |
+| Public generator/runtime performance baseline | Partial | A fixed-revision reviewed projection is published below, but the direct formal result artifact is absent |
 | Semantic-value RBS and typed ratchet | Pass | Generated reduction signatures include declared RHS/LHS types; whole-library Steep is 88.9% typed |
 | Compatibility suite unbeaten | Pass at the measured revision | Current black-box, self-host, IR, property, and runtime suites are green |
 | Release basis | Pass without publication | Stable declaration diff is 0 across 48 locked files; both gems build byte-identically under two environments |
@@ -66,13 +67,22 @@ that omits `super` plus historical value-stack reads, and an unqualified
 
 ## Formal Pure Ruby performance comparison
 
-Comparative claim ID: `racc-public-performance-2026-07-31`. Its complete
-scope, evidence paths, expiry rule, and limitations are registered in
-[`claims.yml`](claims.yml) under the [comparison policy](comparison-policy.md).
-The measurements below are historical observations of the exact revision and
-environment, not a statement about the current checkout.
+<!-- comparative-evidence:racc-public-performance-2026-07-31:start -->
+At clean Ibex revision 08c7dc5d939a1f47b0132ae3986818cdbaec1f34, the readiness
+projection for three pinned workloads on Ruby 4.0.0, arm64-darwin24, with YJIT disabled
+records slower cold generation and new-instance runtime than Racc 1.8.1's Ruby backend;
+the direct formal result artifact is absent, so this is evidence-pending and non-publishable
+as a comparative claim.
 
-The formal measurement was collected on 2026-07-31 from clean revision
+Evidence record ID: `racc-public-performance-2026-07-31`. Its complete scope,
+evidence paths, missing artifact, and limitations are registered in
+[`claims.yml`](claims.yml) under the [comparison policy](comparison-policy.md).
+CPU model, kernel release, and processor count were not retained in this
+readiness projection. Host CPU and host OS were also not recorded as separate
+fields. The measurements below do not describe the current checkout.
+
+The historical readiness projection says the measurement was collected on
+2026-07-31 from clean revision
 `08c7dc5d939a1f47b0132ae3986818cdbaec1f34` with ten
 alternating isolated runs per implementation, 50 warm-up workloads, 250
 measured workloads, and 10,000 bootstrap samples. Each workload parses the
@@ -104,6 +114,7 @@ estimates range from 1.5% faster to 5.2% slower. Ibex allocates fewer objects
 for every reuse workload, while new-instance allocation ratios remain
 1.051–1.190x. Generated output is smaller for all three grammars. These values
 are a release baseline, not portable scores or an assertion of parity.
+<!-- comparative-evidence:racc-public-performance-2026-07-31:end -->
 
 ## Scale evidence
 
@@ -158,5 +169,8 @@ establish publisher identity.
 
 1. Obtain and link an independent review of the ten error cases and usefulness
    judgments; revise the versioned assessment if the review disagrees.
-2. Re-run every compatibility, IR, type, benchmark, and site gate on the exact
+2. Publish the complete formal performance result artifact or rerun its
+   registered command on the exact candidate revision; do not promote the
+   readiness projection into a comparative claim by reconstruction.
+3. Re-run every compatibility, IR, type, benchmark, and site gate on the exact
    release revision.

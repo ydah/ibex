@@ -2,10 +2,10 @@ schema_version: 1
 comparison_set:
   - id: racc
     name: Racc
-    state: compared
+    state: evidence_pending
     version: 1.8.1
     revision: not_applicable
-    reason: Versioned performance and error-UX evidence exists for the public Ruby release.
+    reason: Error-UX review is pending and the formal performance result artifact is absent.
   - id: lrama
     name: Lrama
     state: not_compared
@@ -41,20 +41,33 @@ claims:
     state: review_pending
     title: JSON error callback and bounded-repair observations against Racc 1.8.1
     wording: >-
-      On ten fixed malformed JSON inputs, the committed snapshot records Ibex diagnostics,
-      Racc's public on_error callback values, and a maintainer assessment of ten bounded repairs.
-    publication:
+      At Ibex revision cc20c5eb799cc218ebea665df64261f10d030f75, on ten fixed malformed
+      JSON inputs with the Ruby, OS, CPU, kernel, processor-count, and YJIT environment unrecorded,
+      the committed result artifact records Ibex diagnostics,
+      Racc 1.8.1's public on_error callback values, and a maintainer assessment of ten bounded repairs;
+      independent subjective review is pending, so this is not a completed comparative UX claim.
+    binding:
       path: docs/error-ux.md
       marker: racc-error-ux-json-v1
+      kind: evidence
+      required_text:
+        - 8/10 (80%)
+        - "| EUX-10 |"
     subjects:
       - tool: ibex
+        identity_kind: repository
         version: 0.1.0
         revision: cc20c5eb799cc218ebea665df64261f10d030f75
       - tool: racc
+        identity_kind: release
         version: 1.8.1
         revision: not_applicable
     public_command:
-      - bundle exec ruby tool/error_ux_snapshot.rb
+      executable: bundle
+      argv:
+        - exec
+        - ruby
+        - tool/error_ux_snapshot.rb
     corpus:
       - id: json-error-cases-v1
         path: test/fixtures/error_ux/json-errors-v1.json
@@ -64,10 +77,14 @@ claims:
         racc_version: 1.8.1
       unknown:
         - cpu_model
+        - host_cpu
+        - host_os
         - kernel_release
+        - processors
         - ruby_engine
         - ruby_platform
         - ruby_version
+        - yjit_enabled
     unsupported_semantics:
       - The Racc observation is limited to the public on_error callback without an application-specific message layer.
       - The repair usefulness labels are maintainer judgments, not measured Racc recovery behavior.
@@ -82,37 +99,67 @@ claims:
         - Any diagnostic, parser table, Racc version, corpus, or repair policy changes.
         - An independent assessment is added or disagrees with the maintainer assessment.
     evidence:
-      - path: docs/error-ux.md
+      - kind: method
+        path: docs/error-ux.md
         description: Public method, case table, maintainer assessment, and explicit missing review.
-      - path: test/fixtures/error_ux/json-errors-v1.json
+      - kind: result_artifact
+        path: test/fixtures/error_ux/json-errors-v1.json
         description: Versioned normative observations for all ten inputs.
     limitations:
-      - The Ruby, operating system, and processor environment was not recorded in the v1 snapshot.
+      - "Unknown environment fields: cpu_model, host_cpu, host_os, kernel_release, processors, ruby_engine, ruby_platform, ruby_version, yjit_enabled."
       - Independent subjective review is still missing, so the 8/10 usefulness assessment is not a completed comparison.
+    missing_evidence: []
   - id: racc-public-performance-2026-07-31
-    state: measured
-    title: Fixed-revision public Ruby-backend performance observations against Racc 1.8.1
+    state: evidence_pending
+    title: Fixed-revision public Ruby-backend performance projection against Racc 1.8.1
     wording: >-
-      At clean Ibex revision 08c7dc5d939a1f47b0132ae3986818cdbaec1f34, three pinned
-      public workloads had slower cold generation and new-instance runtime than Racc 1.8.1's Ruby backend.
-    publication:
-      path: README.md
+      At clean Ibex revision 08c7dc5d939a1f47b0132ae3986818cdbaec1f34, the readiness
+      projection for three pinned workloads on Ruby 4.0.0, arm64-darwin24, with YJIT disabled
+      records slower cold generation and new-instance runtime than Racc 1.8.1's Ruby backend;
+      the direct formal result artifact is absent, so this is evidence-pending and non-publishable
+      as a comparative claim.
+    binding:
+      path: docs/release-readiness.md
       marker: racc-public-performance-2026-07-31
+      kind: evidence
+      required_text:
+        - 0.039443/0.040048
+        - 23.8–32.9% slower
     subjects:
       - tool: ibex
+        identity_kind: repository
         version: 0.2.0
         revision: 08c7dc5d939a1f47b0132ae3986818cdbaec1f34
       - tool: racc
+        identity_kind: release
         version: 1.8.1
         revision: not_applicable
     public_command:
-      - bundle exec ruby benchmark/public_comparison.rb
-      - --checkout namae=/path/to/namae
-      - --checkout bcdice_command=/path/to/bcdice
-      - --checkout nokogiri_css=/path/to/nokogiri
-      - --runs 10 --warmup 50 --runtime-iterations 250
-      - --behavior-probe-iterations 5 --bootstrap-samples 10000
-      - --expected-racc-backend ruby --output tmp/public-performance-comparison.json
+      executable: bundle
+      argv:
+        - exec
+        - ruby
+        - benchmark/public_comparison.rb
+        - --checkout
+        - namae=/path/to/namae
+        - --checkout
+        - bcdice_command=/path/to/bcdice
+        - --checkout
+        - nokogiri_css=/path/to/nokogiri
+        - --runs
+        - "10"
+        - --warmup
+        - "50"
+        - --runtime-iterations
+        - "250"
+        - --behavior-probe-iterations
+        - "5"
+        - --bootstrap-samples
+        - "10000"
+        - --expected-racc-backend
+        - ruby
+        - --output
+        - tmp/public-performance-comparison.json
     corpus:
       - id: bcdice-command
         path: benchmark/public_workloads.json
@@ -132,6 +179,8 @@ claims:
         yjit_enabled: "false"
       unknown:
         - cpu_model
+        - host_cpu
+        - host_os
         - kernel_release
         - processors
     unsupported_semantics:
@@ -141,20 +190,26 @@ claims:
     subjective_review:
       required: false
       state: not_applicable
-      method: Deterministic statistics and behavior digests are reviewed; no subjective ranking is produced.
+      method: Deterministic statistics and behavior digests are reviewed; no cross-category ordering is produced.
     validity:
-      scope: Historical observation for the exact Ibex and workload revisions on the recorded environment.
-      expires: The historical observation does not expire, but it cannot describe another revision or environment.
+      scope: Historical readiness projection for the exact Ibex and workload revisions on the recorded environment.
+      expires: It cannot become a publishable comparative claim until the direct formal result artifact is available.
       review_when:
-        - A current-revision statement is proposed.
+        - A complete formal result artifact becomes available.
         - Any subject version, workload revision, command, environment, or measured lifecycle changes.
     evidence:
-      - path: benchmark/README.md
+      - kind: method
+        path: benchmark/README.md
         description: Reproduction command, runtime scope, process isolation, and publication rules.
-      - path: benchmark/public_workloads.json
+      - kind: corpus
+        path: benchmark/public_workloads.json
         description: Pinned repositories, grammar paths, and fixed public inputs.
-      - path: docs/release-readiness.md
-        description: Exact measured revision, environment, ratios, unfavorable rows, and limitations.
+      - kind: report
+        path: docs/release-readiness.md
+        description: Historical reviewed projection with exact revision, environment, ratios, and unfavorable rows.
     limitations:
-      - The committed repository does not contain the complete formal result artifact; the readiness report publishes its reviewed projection.
-      - The result is not evidence about the current revision, unmeasured workloads, other backends, or semantic equivalence beyond behavior digests.
+      - "Unknown environment fields: cpu_model, host_cpu, host_os, kernel_release, processors."
+      - The direct formal result artifact is absent; the readiness report is a reviewed projection and cannot support a completed public comparative claim.
+      - The projection does not describe the current revision, unmeasured workloads, other backends, or semantics beyond recorded behavior digests.
+    missing_evidence:
+      - Complete formal public-performance result artifact generated by the registered command.

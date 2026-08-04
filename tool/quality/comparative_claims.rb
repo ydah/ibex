@@ -1,23 +1,23 @@
 # frozen_string_literal: true
 
-require "yaml"
 require "pathname"
+require "shellwords"
+require "yaml"
+require_relative "comparative_claims/identities"
 require_relative "comparative_claims/publications"
+require_relative "comparative_claims/wording"
 
 module Ibex
   module Quality
-    # Validates the comparative-claim registry and its public documentation bindings.
+    # Validates comparative records, evidence, and public documentation bindings.
     class ComparativeClaims
       ROOT = File.expand_path("../..", __dir__)
-      REGISTRY = File.join(ROOT, "docs/claims.yml")
       COMPARISON_SET = %w[racc lrama bison menhir tree_sitter antlr].freeze
-      CLAIM_STATES = %w[measured review_pending not_compared].freeze
-      TOOL_STATES = %w[compared not_compared].freeze
-      UNKNOWN = %w[unknown not_applicable].freeze
-      AGGREGATE_SCORE = /\b(?:aggregate|overall)\s+(?:score|ranking)\b|総合点/i
+      CLAIM_STATES = %w[evidence_pending measured review_pending].freeze
+      TOOL_STATES = %w[compared evidence_pending not_compared].freeze
       CLAIM_KEYS = %w[
-        id state title wording publication subjects public_command corpus environment
-        unsupported_semantics subjective_review validity evidence limitations
+        id state title wording binding subjects public_command corpus environment
+        unsupported_semantics subjective_review validity evidence limitations missing_evidence
       ].freeze
 
       def initialize(root: ROOT, registry: nil, readme: "README.md")
@@ -27,8 +27,8 @@ module Ibex
       end
 
       def verify!
-        source = File.binread(@registry)
-        reject_aggregate_score!(source, relative(@registry))
+        source = File.read(@registry, encoding: Encoding::UTF_8)
+        ComparativeWording.verify!(source, path: relative(@registry))
         document = load_yaml(source)
         exact_keys!(document, %w[schema_version comparison_set claims], "registry")
         raise "claim registry schema_version must be 1" unless document["schema_version"] == 1
@@ -62,21 +62,22 @@ module Ibex
 
         tools.each do |tool|
           exact_keys!(tool, %w[id name state version revision reason], "comparison_set entry")
-          verify_tool_state(tool)
+          state = tool.fetch("state")
+          raise "#{tool.fetch('id')}: invalid comparison state #{state.inspect}" unless TOOL_STATES.include?(state)
+
+          verify_tool_identity(tool, state)
           non_empty_string!(tool.fetch("reason"), "#{tool.fetch('id')}: reason")
         end
       end
 
-      def verify_tool_state(tool)
-        id = tool.fetch("id")
-        state = tool.fetch("state")
-        raise "#{id}: invalid comparison state #{state.inspect}" unless TOOL_STATES.include?(state)
-
-        values = [tool.fetch("version"), tool.fetch("revision")]
+      def verify_tool_identity(tool, state)
+        values = tool.values_at("version", "revision")
         if state == "not_compared"
-          raise "#{id}: not_compared versions must be unknown" unless values == %w[unknown unknown]
-        elsif values.include?("unknown")
-          raise "#{id}: compared tools require an exact version or revision"
+          raise "#{tool.fetch('id')}: not_compared identity must be unknown" unless values == %w[unknown unknown]
+        else
+          ClaimIdentities.exact_version!(tool.fetch("version"), "#{tool.fetch('id')}: version")
+          raise "#{tool.fetch('id')}: release revision must be not_applicable" unless
+            tool.fetch("revision") == "not_applicable"
         end
       end
 
@@ -87,61 +88,57 @@ module Ibex
         raise "#{id}: invalid state" unless CLAIM_STATES.include?(claim.fetch("state"))
 
         %w[title wording].each { |key| non_empty_string!(claim.fetch(key), "#{id}: #{key}") }
-        verify_publication_record(id, claim.fetch("publication"))
-        verify_subjects(id, claim.fetch("subjects"), claim.fetch("state"))
-        string_array!(claim.fetch("public_command"), "#{id}: public_command")
-        record_array!(claim.fetch("corpus"), %w[id path revision], "#{id}: corpus", order_key: "id")
-        verify_environment(id, claim.fetch("environment"))
+        verify_binding(id, claim.fetch("binding"))
+        ClaimIdentities.verify_subjects!(id, claim.fetch("subjects"), COMPARISON_SET)
+        verify_execution_context(id, claim)
+        verify_claim_evidence(id, claim)
+      end
+
+      def verify_execution_context(id, claim)
+        verify_command(id, claim.fetch("public_command"))
+        corpus = claim.fetch("corpus")
+        ClaimIdentities.verify_corpus!(id, corpus)
+        corpus.each do |entry|
+          path = repository_path(entry.fetch("path"), "#{id}: corpus")
+          raise "#{id}: missing corpus #{entry.fetch('path')}" unless File.file?(path)
+        end
+        ClaimIdentities.verify_environment!(
+          id, claim.fetch("environment"), claim.fetch("limitations"), wording: claim.fetch("wording")
+        )
+      end
+
+      def verify_claim_evidence(id, claim)
         string_array!(claim.fetch("unsupported_semantics"), "#{id}: unsupported_semantics")
-        verify_review(id, claim.fetch("subjective_review"), claim.fetch("state"))
         verify_validity(id, claim.fetch("validity"))
-        verify_evidence(id, claim.fetch("evidence"))
+        evidence = verify_evidence(id, claim.fetch("evidence"))
         string_array!(claim.fetch("limitations"), "#{id}: limitations")
+        missing = claim.fetch("missing_evidence")
+        string_array!(missing, "#{id}: missing_evidence", allow_empty: true)
+        verify_state!(claim, evidence, missing)
       end
 
-      def verify_publication_record(id, publication)
-        exact_keys!(publication, %w[path marker], "#{id}: publication")
-        non_empty_string!(publication.fetch("path"), "#{id}: publication path")
-        raise "#{id}: publication marker must equal the claim id" unless publication.fetch("marker") == id
+      def verify_binding(id, binding)
+        exact_keys!(binding, %w[path marker kind required_text], "#{id}: binding")
+        non_empty_string!(binding.fetch("path"), "#{id}: binding path")
+        raise "#{id}: binding marker must equal the claim id" unless binding.fetch("marker") == id
+        raise "#{id}: binding kind must be claim or evidence" unless %w[claim evidence].include?(binding.fetch("kind"))
+
+        string_array!(binding.fetch("required_text"), "#{id}: binding required_text")
       end
 
-      def verify_subjects(id, subjects, state)
-        record_array!(subjects, %w[tool version revision], "#{id}: subjects", order_key: "tool")
-        tools = subjects.map { |subject| subject.fetch("tool") }
-        raise "#{id}: subjects must include Ibex and a comparison tool" unless
-          tools.include?("ibex") && (tools & COMPARISON_SET).any?
-        return if state == "not_compared"
+      def verify_command(id, command)
+        exact_keys!(command, %w[executable argv], "#{id}: public_command")
+        executable = command.fetch("executable")
+        non_empty_string!(executable, "#{id}: command executable")
+        raise "#{id}: command executable must be one argv token" if executable.match?(/[\s\0]/)
 
-        subjects.each do |subject|
-          values = subject.values_at("version", "revision")
-          raise "#{id}: measured subjects require exact identities" if values.include?("unknown")
-        end
-      end
+        argv = command.fetch("argv")
+        string_array!(argv, "#{id}: command argv")
+        raise "#{id}: command argv cannot contain NUL" if argv.any? { |argument| argument.include?("\0") }
 
-      def verify_environment(id, environment)
-        exact_keys!(environment, %w[known unknown], "#{id}: environment")
-        known = environment.fetch("known")
-        raise "#{id}: environment known values must be a non-empty mapping" unless known.is_a?(Hash) && !known.empty?
-
-        known.each { |key, value| non_empty_string!(value, "#{id}: environment #{key}") }
-        unknown = environment.fetch("unknown")
-        raise "#{id}: environment unknown must be an array" unless unknown.is_a?(Array)
-
-        string_array!(unknown, "#{id}: environment unknown", allow_empty: true)
-        ordered_values!(unknown, "#{id}: environment unknown")
-      end
-
-      def verify_review(id, review, state)
-        exact_keys!(review, %w[required state method], "#{id}: subjective_review")
-        unless [true, false].include?(review.fetch("required"))
-          raise "#{id}: subjective_review required must be boolean"
-        end
-
-        %w[state method].each { |key| non_empty_string!(review.fetch(key), "#{id}: review #{key}") }
-        return unless state == "review_pending"
-
-        raise "#{id}: review_pending requires a pending subjective review" unless
-          review.fetch("required") && review.fetch("state") == "pending"
+        tokens = [executable, *argv]
+        rendered = Shellwords.join(tokens)
+        raise "#{id}: command cannot be reconstructed losslessly" unless Shellwords.split(rendered) == tokens
       end
 
       def verify_validity(id, validity)
@@ -151,11 +148,65 @@ module Ibex
       end
 
       def verify_evidence(id, evidence)
-        record_array!(evidence, %w[path description], "#{id}: evidence", order_key: "path")
+        record_array!(evidence, %w[kind path description], "#{id}: evidence", order_key: "path")
         evidence.each do |entry|
+          unless %w[corpus method report result_artifact].include?(entry.fetch("kind"))
+            raise "#{id}: invalid evidence kind"
+          end
+
           path = repository_path(entry.fetch("path"), "#{id}: evidence")
           raise "#{id}: missing evidence #{entry.fetch('path')}" unless File.file?(path)
         end
+        evidence
+      end
+
+      def verify_state!(claim, evidence, missing)
+        id = claim.fetch("id")
+        state = claim.fetch("state")
+        binding_kind = claim.dig("binding", "kind")
+        review = claim.fetch("subjective_review")
+        exact_keys!(review, %w[required state method], "#{id}: subjective_review")
+        unless [true, false].include?(review.fetch("required"))
+          raise "#{id}: subjective_review required must be boolean"
+        end
+
+        %w[state method].each { |key| non_empty_string!(review.fetch(key), "#{id}: review #{key}") }
+        case state
+        when "measured" then verify_measured_state!(id, binding_kind, review, evidence, missing)
+        when "review_pending" then verify_review_pending_state!(id, binding_kind, review, evidence, missing)
+        when "evidence_pending" then verify_evidence_pending_state!(id, binding_kind, review, missing)
+        end
+      end
+
+      def verify_measured_state!(id, binding_kind, review, evidence, missing)
+        raise "#{id}: measured claims require a public claim binding" unless binding_kind == "claim"
+        raise "#{id}: measured claims cannot have missing evidence" unless missing.empty?
+        raise "#{id}: measured claims require a result artifact" unless result_artifact?(evidence)
+        return if review.fetch("required") && review.fetch("state") == "complete"
+        return if !review.fetch("required") && review.fetch("state") == "not_applicable"
+
+        raise "#{id}: measured claim has an invalid subjective review state"
+      end
+
+      def verify_review_pending_state!(id, binding_kind, review, evidence, missing)
+        raise "#{id}: pending claims require an evidence binding" unless binding_kind == "evidence"
+        raise "#{id}: review_pending must not have missing evidence" unless missing.empty?
+        raise "#{id}: review_pending requires a result artifact" unless result_artifact?(evidence)
+        return if review.fetch("required") && review.fetch("state") == "pending"
+
+        raise "#{id}: review_pending requires a pending subjective review"
+      end
+
+      def verify_evidence_pending_state!(id, binding_kind, review, missing)
+        raise "#{id}: pending claims require an evidence binding" unless binding_kind == "evidence"
+        raise "#{id}: evidence_pending must name missing evidence" if missing.empty?
+        return if !review.fetch("required") && review.fetch("state") == "not_applicable"
+
+        raise "#{id}: evidence_pending has an invalid subjective review state"
+      end
+
+      def result_artifact?(evidence)
+        evidence.any? { |entry| entry["kind"] == "result_artifact" }
       end
 
       def record_array!(records, keys, label, order_key:)
@@ -177,10 +228,6 @@ module Ibex
 
       def ordered!(records, label, &key)
         values = records.map(&key)
-        ordered_values!(values, label)
-      end
-
-      def ordered_values!(values, label)
         raise "#{label} must be ordered deterministically" unless values == values.sort && values.uniq == values
       end
 
@@ -201,10 +248,6 @@ module Ibex
         raise "#{label} path escapes the repository" unless absolute.start_with?("#{@root}/")
 
         absolute
-      end
-
-      def reject_aggregate_score!(source, path)
-        raise "#{path}: aggregate scores and rankings are forbidden" if source.match?(AGGREGATE_SCORE)
       end
 
       def relative(path)

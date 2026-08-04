@@ -14,13 +14,16 @@ equality.
 
 ## Comparison method
 
-<!-- comparative-claim:racc-error-ux-json-v1:start -->
-Comparative claim ID: `racc-error-ux-json-v1`. The versioned observations and
-maintainer assessment are registered in [`claims.yml`](claims.yml), including
-the unrecorded environment fields and the still-pending independent subjective
-review. This is `review_pending` evidence, not a completed comparative UX
-conclusion.
-<!-- comparative-claim:racc-error-ux-json-v1:end -->
+<!-- comparative-evidence:racc-error-ux-json-v1:start -->
+At Ibex revision cc20c5eb799cc218ebea665df64261f10d030f75, on ten fixed malformed
+JSON inputs with the Ruby, OS, CPU, kernel, processor-count, and YJIT environment unrecorded,
+the committed result artifact records Ibex diagnostics,
+Racc 1.8.1's public on_error callback values, and a maintainer assessment of ten bounded repairs;
+independent subjective review is pending, so this is not a completed comparative UX claim.
+
+Evidence record ID: `racc-error-ux-json-v1`. The observations and assessment
+are registered in [`claims.yml`](claims.yml), including every unrecorded
+environment field and the still-pending independent review.
 
 Ibex uses [`examples/json.y`](../examples/json.y), including its generated
 lexer locations. The migration from its previous handwritten lexer is guarded
@@ -66,3 +69,4 @@ SP-4 is **go** for the existing opt-in bounded single-plan repair described by
 experimental: a selected edit can require a nil semantic value, and the search
 does not enumerate every equal-cost CPCT+ repair. The stable default answer
 remains exact expected tokens plus explicit yacc/synchronization recovery.
+<!-- comparative-evidence:racc-error-ux-json-v1:end -->

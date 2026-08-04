@@ -11,12 +11,12 @@ An unmeasured tool remains `not_compared`; unknown facts remain `unknown`.
 
 ## Required record
 
-Every measured or review-pending claim records:
+Every measured, evidence-pending, or review-pending record contains:
 
 - an immutable claim ID and narrowly scoped wording;
 - each subject's exact released version and, when applicable, repository
   revision;
-- a public command with every material option;
+- one public command represented as an executable and an ordered argv list;
 - fixed corpus paths and external revisions;
 - known environment values and an explicit list of unrecorded values;
 - excluded or unsupported semantics;
@@ -25,11 +25,11 @@ Every measured or review-pending claim records:
 - an exact-revision validity scope, expiry statement, and conditions that
   require review.
 
-`not_applicable` is valid only when an identity dimension does not exist, such
-as a repository revision for a released gem identified by its exact version.
-It must not conceal missing information. A measured environment may retain
-`unknown` fields only when the limitation is published and the wording does not
-generalize beyond the known conditions.
+Repository subjects and corpora use immutable 40- or 64-hex revisions. Released
+tools use an exact release version and may use `not_applicable` only for the
+repository revision. It must not conceal missing information. Every required
+environment identity is either recorded as a non-placeholder value or listed
+as `unknown`, and each unknown field is repeated in the public limitations.
 
 No extra JSON Schema is used for this YAML registry. Its cross-file rules—file
 existence, canonical ordering, public markers, and wording restrictions—need an
@@ -54,8 +54,9 @@ silently merged.
 Diagnostic and repair usefulness are human judgments. The review method must
 fix case IDs and the allowed labels, retain rationale and disagreements, and
 separate maintainer assessment from independent assessment. A record whose
-required independent review is missing stays `review_pending`; it cannot be
-worded as a completed comparative conclusion.
+required independent review is missing stays `review_pending`; a record missing
+its direct result artifact stays `evidence_pending`. Neither state can use a
+public strong-claim marker or be worded as a completed comparative conclusion.
 
 Performance statistics and deterministic behavior digests do not require a
 subjective reviewer, but their scope and limitations still require ordinary
@@ -64,7 +65,8 @@ code review.
 ## Scoped wording
 
 Comparative wording names the claim ID and states the relevant revision or
-release, corpus, measurement category, and important limitation. For example:
+release, corpus, environment, measurement category, and important limitation.
+For example:
 
 > At revision X, on corpus Y and environment Z, metric M had the recorded
 > relationship to tool version V. This does not describe other revisions,
@@ -72,16 +74,22 @@ release, corpus, measurement category, and important limitation. For example:
 
 Do not publish wording such as “faster than Racc” or “better diagnostics”
 without those boundaries. README comparative strength wording is enclosed by
-`comparative-claim` markers. The validator requires a matching claim record,
-existing evidence paths, and nonempty limitations; it also rejects unmarked
-README paragraphs that combine a comparison tool name with strength wording.
+`comparative-claim` markers. Only a `measured` record with a direct result
+artifact may use that marker. Pending material instead uses a
+`comparative-evidence` marker around the full table or conclusion it records.
+The validator requires each marker body to contain the registry wording exactly
+and every registered table anchor. It always scans README, even when no claim
+targets README, and rejects unmarked paragraphs that combine a comparison tool
+name with strength wording.
 
-## No combined ranking
+## No cross-category ordering
 
+<!-- comparison-policy:forbidden-terms:start -->
 Do not collapse performance, diagnostics, recovery, migration, ecosystem, and
 verification into an aggregate score or tool ranking. The categories have
 different semantics and trust boundaries. Publish each observation and its
 limitations separately. Numeric totals never imply semantic equivalence.
+<!-- comparison-policy:forbidden-terms:end -->
 
 ## Review and update workflow
 
@@ -90,7 +98,8 @@ limitations separately. Numeric totals never imply semantic equivalence.
    entries ordered by ID and path.
 3. Mark unavailable tools or facts `not_compared` or `unknown`; do not estimate
    values.
-4. Bind public wording to the claim ID with matching start and end markers.
+4. Bind measured wording with claim markers or pending tables and conclusions
+   with evidence markers. The body must retain the exact registered wording.
 5. Run `bundle exec rake quality:comparative_claims`, the focused tests, and
    documentation coverage.
 6. When a review condition fires, either remeasure under a new claim ID or
