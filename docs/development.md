@@ -21,6 +21,7 @@ bundle exec rake frontend:check
 bundle exec rake grammar:test
 bundle exec rake quality:error_ux
 bundle exec rake quality:workloads
+bundle exec rake quality:maturity
 bundle exec rake quality:runtime_abi
 npm ci
 npm run test:site
@@ -100,6 +101,11 @@ not-measured states, benchmark eligibility, and cross-manifest consistency.
 It recomputes repository-owned grammar counts without downloading external
 source. Synthetic gallery evidence remains distinct from public and production
 workloads.
+
+`quality:maturity` validates the exact 18 Preview and two Experimental records
+in the [maturity audit](maturity.md), including activation, evidence gaps,
+external-use classification, issue-audit freshness, decisions, source digests,
+feature budgets, release blockers, and the synchronized public summary.
 
 `quality:runtime_abi` is contract-only: it cross-checks the published [runtime ABI evolution
 policy](runtime-abi-evolution.md) and [test-interaction
