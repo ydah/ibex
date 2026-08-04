@@ -242,8 +242,10 @@ workloads below.
 
 The formal release-evidence workloads for Namae, BCDice's command parser, and
 Nokogiri CSS have an executable manifest in
-`benchmark/public_workloads.json`. Prepare separate, clean checkouts without
-running code from them:
+`benchmark/public_workloads.json`. Their exact source and license evidence,
+structural counts, known problems, and eligibility scopes are also bound in the
+[public workload registry](../docs/workloads.md). Prepare separate, clean
+checkouts without running code from them:
 
 ```sh
 git clone https://github.com/berkmancenter/namae.git /path/to/namae
@@ -281,7 +283,8 @@ bundle exec ruby benchmark/public_comparison.rb \
   --output tmp/public-performance-comparison.json
 ```
 
-The command verifies each full revision and origin, rejects a dirty Ibex root
+The command verifies each full revision, origin, and expected grammar SHA-256,
+rejects a dirty Ibex root
 or dirty public checkout, requires the dependency definition to be tracked at
 `HEAD`, and records grammar and dependency-definition digests plus the
 committed `lib/` Git tree object ID, status, workload, and manifest digests.

@@ -9,7 +9,7 @@ module BenchmarkSupport
   # Loads fixed public workloads and verifies supplied checkouts before execution.
   class PublicWorkloadManifest
     REQUIRED_KEYS = %w[
-      id repository_url revision grammar_path dependency_definition_path driver workload_id inputs
+      id repository_url revision grammar_path grammar_sha256 dependency_definition_path driver workload_id inputs
     ].freeze
 
     attr_reader :path
@@ -76,6 +76,8 @@ module BenchmarkSupport
       raise "public workload entry must be an object" unless workload.is_a?(Hash)
       raise "public workload keys changed" unless workload.keys.sort == REQUIRED_KEYS.sort
       raise "public workload revision must be full SHA-1" unless workload.fetch("revision").match?(/\A[0-9a-f]{40}\z/)
+      raise "public workload grammar digest must be SHA-256" unless
+        workload.fetch("grammar_sha256").match?(/\A[0-9a-f]{64}\z/)
 
       %w[grammar_path dependency_definition_path].each { |key| validate_relative_path!(workload.fetch(key)) }
       inputs = workload.fetch("inputs")
@@ -91,6 +93,11 @@ module BenchmarkSupport
 
     def checkout_metadata(workload, checkout, origin, status)
       grammar = File.join(checkout, workload.fetch("grammar_path"))
+      actual_grammar_sha256 = Digest::SHA256.file(grammar).hexdigest
+      unless actual_grammar_sha256 == workload.fetch("grammar_sha256")
+        raise "#{workload.fetch('id')} grammar digest does not match the manifest"
+      end
+
       dependency_definition_path = workload.fetch("dependency_definition_path")
       ensure_tracked_at_head!(checkout, dependency_definition_path)
       dependency_definition = File.join(checkout, dependency_definition_path)
@@ -102,7 +109,7 @@ module BenchmarkSupport
         tracked_dirty: status.any? { |line| !line.start_with?("??") },
         untracked_dirty: status.any? { |line| line.start_with?("??") },
         status_sha256: Digest::SHA256.hexdigest(status.join("\n")),
-        grammar_sha256: Digest::SHA256.file(grammar).hexdigest,
+        grammar_sha256: actual_grammar_sha256,
         dependency_definition_sha256: Digest::SHA256.file(dependency_definition).hexdigest,
         library_tree_oid: capture!(checkout, "git", "rev-parse", "HEAD:lib")
       }

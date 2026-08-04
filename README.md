@@ -373,7 +373,7 @@ counterexamples.
 | Configure an editor or LSP client | [Editor setup](docs/editor-setup.md) |
 | Understand the pipeline, IR, algorithms, or tables | [Architecture](docs/architecture.md) |
 | Check API maturity and deprecation rules | [Stability policy](docs/stability.md) |
-| Evaluate readiness, performance, or error UX | [Comparison policy](docs/comparison-policy.md), [release readiness](docs/release-readiness.md), [benchmarks](benchmark/README.md), and [error UX](docs/error-ux.md) |
+| Evaluate readiness, performance, workloads, or error UX | [Comparison policy](docs/comparison-policy.md), [workload registry](docs/workloads.md), [release readiness](docs/release-readiness.md), [benchmarks](benchmark/README.md), and [error UX](docs/error-ux.md) |
 | Contribute or run every quality gate | [Development guide](docs/development.md) |
 | Review implementation decisions | [Architecture decision records](docs/decisions/README.md) |
 

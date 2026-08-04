@@ -20,6 +20,7 @@ Additional repository checks are:
 bundle exec rake frontend:check
 bundle exec rake grammar:test
 bundle exec rake quality:error_ux
+bundle exec rake quality:workloads
 npm ci
 npm run test:site
 actionlint
@@ -91,6 +92,13 @@ fixed-seed sentences per grammar and applies one-token insert/delete/replace
 mutations; scheduled CI raises this to 100,000. All searches have token,
 depth, expansion, action, stack, or subprocess-trial bounds. Timing and memory
 remain observations, not pass/fail thresholds.
+
+`quality:workloads` validates the [public workload registry](workloads.md),
+including exact source and license-evidence identities, measured versus
+not-measured states, benchmark eligibility, and cross-manifest consistency.
+It recomputes repository-owned grammar counts without downloading external
+source. Synthetic gallery evidence remains distinct from public and production
+workloads.
 
 When `ibex fuzz` finds a differential failure it automatically performs
 trial-bounded reduction and atomically saves a versioned fixture under
@@ -237,7 +245,8 @@ tool's Ruby floor does not change the library's Ruby floor.
 Performance observations are not ordinary CI timing thresholds. Follow the
 [benchmark guide](../benchmark/README.md) for workload identities, formal
 comparison commands, environment matching, artifact validation, and
-append-only result history.
+append-only result history. Use stable workload and problem IDs from the
+[workload registry](workloads.md) when proposing or prioritizing improvements.
 
 The development bundle includes the exact-version external-grammar profiler:
 

@@ -169,6 +169,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0 # Workload evidence verifies repository bytes at its pinned source revision.
           persist-credentials: false
       - name: Set up Ruby
         uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
@@ -179,6 +180,7 @@ jobs:
         run: |
           bundle exec rake test:docs_coverage
           bundle exec rake quality:comparative_claims
+          bundle exec rake quality:workloads
           bundle exec rake i18n:coverage
           bundle exec rake bison:test
           bundle exec rake release:reproducible
