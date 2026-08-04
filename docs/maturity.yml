@@ -95,13 +95,23 @@ features:
           from_revision: 346aabfd867a4eb13ebbe4a372084f129fb7401f
           to_revision: 65d41edf381afb9c18e01e55332a293332f340e6
           classification: introduced
-          reviewed_commits:
-            - 4ea1196c01c3dd604a42e9139a32edec0d25c7ec
-            - 53718928d43cf720d4fd051844c85068bc325791
-            - 4cd9b03453b0bdcbffcf8f19812ecfa269a0d327
-            - f3bdaffde3ddb36282921954efa334b86036abd8
-          semantic_commits:
-            - 4ea1196c01c3dd604a42e9139a32edec0d25c7ec
+          commit_assessments:
+            - revision: 4ea1196c01c3dd604a42e9139a32edec0d25c7ec
+              classification: semantic_change
+              summary: "Expand heredoc and grouped EBNF support"
+              contract_effect: "Expand heredoc and grouped EBNF support expands heredoc and grouped EBNF support for EBNF groups; the audited diff changes the public EBNF syntax, lowering behavior, or report output. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 53718928d43cf720d4fd051844c85068bc325791
+              classification: internal_refactor
+              summary: "Expand whole-library type checking"
+              contract_effect: "Expand whole-library type checking expands whole-library type checking in shared implementation paths for EBNF groups, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 4cd9b03453b0bdcbffcf8f19812ecfa269a0d327
+              classification: internal_refactor
+              summary: "Strengthen whole-library type coverage"
+              contract_effect: "Strengthen whole-library type coverage changes whole-library type coverage in shared implementation paths for EBNF groups, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: f3bdaffde3ddb36282921954efa334b86036abd8
+              classification: semantic_change
+              summary: "Render EBNF origins in reports"
+              contract_effect: "Render EBNF origins in reports renders EBNF origins in reports for EBNF groups; the audited diff changes the public EBNF syntax, lowering behavior, or report output. Evidence: lib/ibex/normalize/expander.rb."
           diff_paths:
             - lib/ibex/frontend/ast.rb
             - lib/ibex/normalize/expander.rb
@@ -110,34 +120,74 @@ features:
         - boundary: v0.1.0..v0.2.0
           from_revision: 65d41edf381afb9c18e01e55332a293332f340e6
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          classification: unknown
-          reviewed_commits:
-            - 1418a5a36c6fdeb5370a7cc2dc4ad62de2317656
-            - cf4fbd16fe614d48bcdb93092399352fc7917f95
-            - 81026ff3390990cad716e9953c8b485f9ac198fe
-            - 18f618c490c91837b97e628c178c6dd4e50abb4d
-            - 51234f2acc5080981c399f3821fe61d07f4b38af
-            - 3320a2a862628c14f12205575b894a604c9dffc8
-            - e170cee79243d0aa975be3e107cd95cd7cc8baf0
-            - ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
-            - af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
-            - d589970fa588fd6a0464e6396fe2da668431aec4
-            - 6a97c6580eb60f21bee3019dd5301898f4e927f1
-            - 8b21624e348fb6096a0efdd87f45bc1bea1806bb
-            - 7bbab102d981df3c3efffba0bdab301ea4939293
-            - c7117a5acaa51b501b8de20b75bbac4e3675ec35
-          semantic_commits: []
+          classification: no_semantic_change
+          commit_assessments:
+            - revision: 1418a5a36c6fdeb5370a7cc2dc4ad62de2317656
+              classification: no_semantic_change
+              summary: "Add typed diagnostics and parser tooling"
+              contract_effect: "Add typed diagnostics and parser tooling adds typed diagnostics and parser tooling for an adjacent capability in shared audited paths; the EBNF groups public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: cf4fbd16fe614d48bcdb93092399352fc7917f95
+              classification: no_semantic_change
+              summary: "Add canonical grammar fragment includes"
+              contract_effect: "Add canonical grammar fragment includes adds canonical grammar fragment includes for an adjacent capability in shared audited paths; the EBNF groups public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 81026ff3390990cad716e9953c8b485f9ac198fe
+              classification: no_semantic_change
+              summary: "Add lossless rule documentation"
+              contract_effect: "Add lossless rule documentation adds lossless rule documentation for an adjacent capability in shared audited paths; the EBNF groups public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 18f618c490c91837b97e628c178c6dd4e50abb4d
+              classification: no_semantic_change
+              summary: "Add parameterized grammar rules"
+              contract_effect: "Add parameterized grammar rules adds parameterized grammar rules for an adjacent capability in shared audited paths; the EBNF groups public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 51234f2acc5080981c399f3821fe61d07f4b38af
+              classification: no_semantic_change
+              summary: "Add bounded inline rule expansion"
+              contract_effect: "Add bounded inline rule expansion adds bounded inline rule expansion for an adjacent capability in shared audited paths; the EBNF groups public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 3320a2a862628c14f12205575b894a604c9dffc8
+              classification: no_semantic_change
+              summary: "Add extended declaration contracts"
+              contract_effect: "Add extended declaration contracts adds extended declaration contracts for an adjacent capability in shared audited paths; the EBNF groups public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: e170cee79243d0aa975be3e107cd95cd7cc8baf0
+              classification: no_semantic_change
+              summary: "Add declarative parser parameters"
+              contract_effect: "Add declarative parser parameters adds declarative parser parameters for an adjacent capability in shared audited paths; the EBNF groups public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
+              classification: no_semantic_change
+              summary: "Add declarative debug value printers"
+              contract_effect: "Add declarative debug value printers adds declarative debug value printers for an adjacent capability in shared audited paths; the EBNF groups public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+              classification: no_semantic_change
+              summary: "Add multiple parser entry points"
+              contract_effect: "Add multiple parser entry points adds multiple parser entry points for an adjacent capability in shared audited paths; the EBNF groups public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: d589970fa588fd6a0464e6396fe2da668431aec4
+              classification: no_semantic_change
+              summary: "Add declarative parser recovery policies"
+              contract_effect: "Add declarative parser recovery policies adds declarative parser recovery policies for an adjacent capability in shared audited paths; the EBNF groups public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 6a97c6580eb60f21bee3019dd5301898f4e927f1
+              classification: no_semantic_change
+              summary: "Add grammar-declared parser tests"
+              contract_effect: "Add grammar-declared parser tests adds grammar-declared parser tests for an adjacent capability in shared audited paths; the EBNF groups public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 8b21624e348fb6096a0efdd87f45bc1bea1806bb
+              classification: no_semantic_change
+              summary: "Add lexer declaration syntax"
+              contract_effect: "Add lexer declaration syntax adds lexer declaration syntax for an adjacent capability in shared audited paths; the EBNF groups public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 7bbab102d981df3c3efffba0bdab301ea4939293
+              classification: no_semantic_change
+              summary: "Build error-tolerant concrete trees"
+              contract_effect: "Build error-tolerant concrete trees builds error-tolerant concrete trees for an adjacent capability in shared audited paths; the EBNF groups public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: c7117a5acaa51b501b8de20b75bbac4e3675ec35
+              classification: no_semantic_change
+              summary: "Generate typed data syntax trees"
+              contract_effect: "Generate typed data syntax trees generates typed data syntax trees for an adjacent capability in shared audited paths; the EBNF groups public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
           diff_paths:
             - lib/ibex/frontend/ast.rb
             - lib/ibex/normalize/expander.rb
-          rationale: The reviewed commits touch shared parsing and lowering code, but do not isolate whether the public EBNF groups syntax or behavior changed across this release boundary.
+          rationale: Every path-relevant commit is explicitly assessed above; all belong to adjacent capabilities and leave the public EBNF groups syntax and behavior unchanged in this boundary.
           unresolved_uncertainty: No release-bound EBNF groups contract or behavior oracle isolates this surface from adjacent edits in the shared paths, so unchanged public semantics cannot be established.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
           classification: no_semantic_change
-          reviewed_commits: []
-          semantic_commits: []
+          commit_assessments: []
           diff_paths:
             - lib/ibex/frontend/ast.rb
             - lib/ibex/normalize/expander.rb
@@ -229,20 +279,51 @@ features:
           from_revision: 81026ff3390990cad716e9953c8b485f9ac198fe
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           classification: introduced
-          reviewed_commits:
-            - 18f618c490c91837b97e628c178c6dd4e50abb4d
-            - 51234f2acc5080981c399f3821fe61d07f4b38af
-            - 3320a2a862628c14f12205575b894a604c9dffc8
-            - e170cee79243d0aa975be3e107cd95cd7cc8baf0
-            - ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
-            - af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
-            - d589970fa588fd6a0464e6396fe2da668431aec4
-            - 6a97c6580eb60f21bee3019dd5301898f4e927f1
-            - 8b21624e348fb6096a0efdd87f45bc1bea1806bb
-            - 7bbab102d981df3c3efffba0bdab301ea4939293
-            - c7117a5acaa51b501b8de20b75bbac4e3675ec35
-          semantic_commits:
-            - 18f618c490c91837b97e628c178c6dd4e50abb4d
+          commit_assessments:
+            - revision: 18f618c490c91837b97e628c178c6dd4e50abb4d
+              classification: semantic_change
+              summary: "Add parameterized grammar rules"
+              contract_effect: "Add parameterized grammar rules adds parameterized grammar rules for parameterized rules; the audited diff changes the public parameterized-rule syntax or lowering behavior. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 51234f2acc5080981c399f3821fe61d07f4b38af
+              classification: semantic_change
+              summary: "Add bounded inline rule expansion"
+              contract_effect: "Add bounded inline rule expansion adds bounded inline rule expansion for parameterized rules; the audited diff changes the public parameterized-rule syntax or lowering behavior. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 3320a2a862628c14f12205575b894a604c9dffc8
+              classification: semantic_change
+              summary: "Add extended declaration contracts"
+              contract_effect: "Add extended declaration contracts adds extended declaration contracts for parameterized rules; the audited diff changes the public parameterized-rule syntax or lowering behavior. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: e170cee79243d0aa975be3e107cd95cd7cc8baf0
+              classification: no_semantic_change
+              summary: "Add declarative parser parameters"
+              contract_effect: "Add declarative parser parameters adds declarative parser parameters for an adjacent capability in shared audited paths; the parameterized rules public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
+              classification: no_semantic_change
+              summary: "Add declarative debug value printers"
+              contract_effect: "Add declarative debug value printers adds declarative debug value printers for an adjacent capability in shared audited paths; the parameterized rules public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+              classification: no_semantic_change
+              summary: "Add multiple parser entry points"
+              contract_effect: "Add multiple parser entry points adds multiple parser entry points for an adjacent capability in shared audited paths; the parameterized rules public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: d589970fa588fd6a0464e6396fe2da668431aec4
+              classification: no_semantic_change
+              summary: "Add declarative parser recovery policies"
+              contract_effect: "Add declarative parser recovery policies adds declarative parser recovery policies for an adjacent capability in shared audited paths; the parameterized rules public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 6a97c6580eb60f21bee3019dd5301898f4e927f1
+              classification: no_semantic_change
+              summary: "Add grammar-declared parser tests"
+              contract_effect: "Add grammar-declared parser tests adds grammar-declared parser tests for an adjacent capability in shared audited paths; the parameterized rules public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 8b21624e348fb6096a0efdd87f45bc1bea1806bb
+              classification: no_semantic_change
+              summary: "Add lexer declaration syntax"
+              contract_effect: "Add lexer declaration syntax adds lexer declaration syntax for an adjacent capability in shared audited paths; the parameterized rules public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 7bbab102d981df3c3efffba0bdab301ea4939293
+              classification: no_semantic_change
+              summary: "Build error-tolerant concrete trees"
+              contract_effect: "Build error-tolerant concrete trees builds error-tolerant concrete trees for an adjacent capability in shared audited paths; the parameterized rules public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: c7117a5acaa51b501b8de20b75bbac4e3675ec35
+              classification: no_semantic_change
+              summary: "Generate typed data syntax trees"
+              contract_effect: "Generate typed data syntax trees generates typed data syntax trees for an adjacent capability in shared audited paths; the parameterized rules public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
           diff_paths:
             - lib/ibex/frontend/ast.rb
             - lib/ibex/normalize/parameters.rb
@@ -252,8 +333,7 @@ features:
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
           classification: no_semantic_change
-          reviewed_commits: []
-          semantic_commits: []
+          commit_assessments: []
           diff_paths:
             - lib/ibex/frontend/ast.rb
             - lib/ibex/normalize/parameters.rb
@@ -345,21 +425,55 @@ features:
           from_revision: 18f618c490c91837b97e628c178c6dd4e50abb4d
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           classification: introduced
-          reviewed_commits:
-            - 51234f2acc5080981c399f3821fe61d07f4b38af
-            - 3187b74d3933259a1a44deee8ed90aabf61a2efb
-            - 3320a2a862628c14f12205575b894a604c9dffc8
-            - e170cee79243d0aa975be3e107cd95cd7cc8baf0
-            - ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
-            - 24c7d97c2dc9f6fc9e90cef618cec56f1e5a6a9a
-            - af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
-            - d589970fa588fd6a0464e6396fe2da668431aec4
-            - 6a97c6580eb60f21bee3019dd5301898f4e927f1
-            - 04dd9773f522cd76bbf3c6678b66f0ee3e9142f1
-            - c7117a5acaa51b501b8de20b75bbac4e3675ec35
-            - 97fce7fa2476bc7ecd399c7bf30d765420dfc39a
-          semantic_commits:
-            - 51234f2acc5080981c399f3821fe61d07f4b38af
+          commit_assessments:
+            - revision: 51234f2acc5080981c399f3821fe61d07f4b38af
+              classification: semantic_change
+              summary: "Add bounded inline rule expansion"
+              contract_effect: "Add bounded inline rule expansion adds bounded inline rule expansion for inline rules; the audited diff changes the public inline-rule syntax, diagnostics, or expansion behavior. Evidence: lib/ibex/normalize.rb."
+            - revision: 3187b74d3933259a1a44deee8ed90aabf61a2efb
+              classification: semantic_change
+              summary: "Add static semantic action checking"
+              contract_effect: "Add static semantic action checking adds static semantic action checking for inline rules; the audited diff changes the public inline-rule syntax, diagnostics, or expansion behavior. Evidence: lib/ibex/normalize/inline_expansion.rb."
+            - revision: 3320a2a862628c14f12205575b894a604c9dffc8
+              classification: no_semantic_change
+              summary: "Add extended declaration contracts"
+              contract_effect: "Add extended declaration contracts adds extended declaration contracts for an adjacent capability in shared audited paths; the inline rules public contract remains unchanged. Evidence: lib/ibex/normalize.rb."
+            - revision: e170cee79243d0aa975be3e107cd95cd7cc8baf0
+              classification: no_semantic_change
+              summary: "Add declarative parser parameters"
+              contract_effect: "Add declarative parser parameters adds declarative parser parameters for an adjacent capability in shared audited paths; the inline rules public contract remains unchanged. Evidence: lib/ibex/normalize.rb."
+            - revision: ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
+              classification: no_semantic_change
+              summary: "Add declarative debug value printers"
+              contract_effect: "Add declarative debug value printers adds declarative debug value printers for an adjacent capability in shared audited paths; the inline rules public contract remains unchanged. Evidence: lib/ibex/normalize.rb."
+            - revision: 24c7d97c2dc9f6fc9e90cef618cec56f1e5a6a9a
+              classification: no_semantic_change
+              summary: "Add exact lookahead correction"
+              contract_effect: "Add exact lookahead correction adds exact lookahead correction for an adjacent capability in shared audited paths; the inline rules public contract remains unchanged. Evidence: lib/ibex/normalize.rb."
+            - revision: af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+              classification: no_semantic_change
+              summary: "Add multiple parser entry points"
+              contract_effect: "Add multiple parser entry points adds multiple parser entry points for an adjacent capability in shared audited paths; the inline rules public contract remains unchanged. Evidence: lib/ibex/normalize.rb."
+            - revision: d589970fa588fd6a0464e6396fe2da668431aec4
+              classification: no_semantic_change
+              summary: "Add declarative parser recovery policies"
+              contract_effect: "Add declarative parser recovery policies adds declarative parser recovery policies for an adjacent capability in shared audited paths; the inline rules public contract remains unchanged. Evidence: lib/ibex/normalize.rb."
+            - revision: 6a97c6580eb60f21bee3019dd5301898f4e927f1
+              classification: no_semantic_change
+              summary: "Add grammar-declared parser tests"
+              contract_effect: "Add grammar-declared parser tests adds grammar-declared parser tests for an adjacent capability in shared audited paths; the inline rules public contract remains unchanged. Evidence: lib/ibex/normalize.rb."
+            - revision: 04dd9773f522cd76bbf3c6678b66f0ee3e9142f1
+              classification: no_semantic_change
+              summary: "Add versioned lexer intermediate representation"
+              contract_effect: "Add versioned lexer intermediate representation adds versioned lexer intermediate representation for an adjacent capability in shared audited paths; the inline rules public contract remains unchanged. Evidence: lib/ibex/normalize.rb."
+            - revision: c7117a5acaa51b501b8de20b75bbac4e3675ec35
+              classification: no_semantic_change
+              summary: "Generate typed data syntax trees"
+              contract_effect: "Generate typed data syntax trees generates typed data syntax trees for an adjacent capability in shared audited paths; the inline rules public contract remains unchanged. Evidence: lib/ibex/normalize.rb."
+            - revision: 97fce7fa2476bc7ecd399c7bf30d765420dfc39a
+              classification: no_semantic_change
+              summary: "Rename the standard grammar mode to default"
+              contract_effect: "Rename the standard grammar mode to default renames the standard grammar mode to default for an adjacent capability in shared audited paths; the inline rules public contract remains unchanged. Evidence: lib/ibex/normalize.rb."
           diff_paths:
             - lib/ibex/normalize.rb
             - lib/ibex/normalize/inline_expansion.rb
@@ -369,8 +483,7 @@ features:
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
           classification: no_semantic_change
-          reviewed_commits: []
-          semantic_commits: []
+          commit_assessments: []
           diff_paths:
             - lib/ibex/normalize.rb
             - lib/ibex/normalize/inline_expansion.rb
@@ -471,17 +584,39 @@ features:
           from_revision: 7a7a33b0743e80bf5a93e34259eec98318558ee5
           to_revision: 65d41edf381afb9c18e01e55332a293332f340e6
           classification: introduced
-          reviewed_commits:
-            - 3bf5565285cbb22eb2acee9f0f6c7ea63a85e096
-            - cb6dc27b0a76f6023e82ba9491274fdf7a4cd42a
-            - 4ea1196c01c3dd604a42e9139a32edec0d25c7ec
-            - c6ab9265d16759a378e06644c586cda702e026d9
-            - 53718928d43cf720d4fd051844c85068bc325791
-            - 4cd9b03453b0bdcbffcf8f19812ecfa269a0d327
-            - cf3844d9f28c660570b8b5ae0545fdcf6b88a51e
-            - f3bdaffde3ddb36282921954efa334b86036abd8
-          semantic_commits:
-            - 3bf5565285cbb22eb2acee9f0f6c7ea63a85e096
+          commit_assessments:
+            - revision: 3bf5565285cbb22eb2acee9f0f6c7ea63a85e096
+              classification: semantic_change
+              summary: "Parse grammars into AST"
+              contract_effect: "Parse grammars into AST parses grammars into AST for middle actions; the audited diff changes the public middle-action syntax, typed API, or lowering behavior. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: cb6dc27b0a76f6023e82ba9491274fdf7a4cd42a
+              classification: semantic_change
+              summary: "Add normalized grammar IR"
+              contract_effect: "Add normalized grammar IR adds normalized grammar IR for middle actions; the audited diff changes the public middle-action syntax, typed API, or lowering behavior. Evidence: lib/ibex/normalize/expander.rb."
+            - revision: 4ea1196c01c3dd604a42e9139a32edec0d25c7ec
+              classification: no_semantic_change
+              summary: "Expand heredoc and grouped EBNF support"
+              contract_effect: "Expand heredoc and grouped EBNF support expands heredoc and grouped EBNF support for an adjacent capability in shared audited paths; the middle actions public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: c6ab9265d16759a378e06644c586cda702e026d9
+              classification: internal_refactor
+              summary: "Self-host the grammar frontend"
+              contract_effect: "Self-host the grammar frontend self-hosts the grammar frontend in shared implementation paths for middle actions, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/frontend/parser/rules.rb."
+            - revision: 53718928d43cf720d4fd051844c85068bc325791
+              classification: internal_refactor
+              summary: "Expand whole-library type checking"
+              contract_effect: "Expand whole-library type checking expands whole-library type checking in shared implementation paths for middle actions, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 4cd9b03453b0bdcbffcf8f19812ecfa269a0d327
+              classification: internal_refactor
+              summary: "Strengthen whole-library type coverage"
+              contract_effect: "Strengthen whole-library type coverage changes whole-library type coverage in shared implementation paths for middle actions, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: cf3844d9f28c660570b8b5ae0545fdcf6b88a51e
+              classification: semantic_change
+              summary: "Restore typed public contracts"
+              contract_effect: "Restore typed public contracts restores typed public contracts for middle actions; the audited diff changes the public middle-action syntax, typed API, or lowering behavior. Evidence: lib/ibex/frontend/parser/rules.rb."
+            - revision: f3bdaffde3ddb36282921954efa334b86036abd8
+              classification: no_semantic_change
+              summary: "Render EBNF origins in reports"
+              contract_effect: "Render EBNF origins in reports renders EBNF origins in reports for an adjacent capability in shared audited paths; the middle actions public contract remains unchanged. Evidence: lib/ibex/normalize/expander.rb."
           diff_paths:
             - lib/ibex/frontend/ast.rb
             - lib/ibex/frontend/parser/rules.rb
@@ -491,36 +626,79 @@ features:
         - boundary: v0.1.0..v0.2.0
           from_revision: 65d41edf381afb9c18e01e55332a293332f340e6
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          classification: unknown
-          reviewed_commits:
-            - 1418a5a36c6fdeb5370a7cc2dc4ad62de2317656
-            - cf4fbd16fe614d48bcdb93092399352fc7917f95
-            - 81026ff3390990cad716e9953c8b485f9ac198fe
-            - 18f618c490c91837b97e628c178c6dd4e50abb4d
-            - 51234f2acc5080981c399f3821fe61d07f4b38af
-            - 3320a2a862628c14f12205575b894a604c9dffc8
-            - e170cee79243d0aa975be3e107cd95cd7cc8baf0
-            - ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
-            - af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
-            - d589970fa588fd6a0464e6396fe2da668431aec4
-            - 6a97c6580eb60f21bee3019dd5301898f4e927f1
-            - 8b21624e348fb6096a0efdd87f45bc1bea1806bb
-            - 7bbab102d981df3c3efffba0bdab301ea4939293
-            - c7117a5acaa51b501b8de20b75bbac4e3675ec35
-            - 00f17a0cd7d049ce970261b050ffb6ae60dd4186
-          semantic_commits: []
+          classification: no_semantic_change
+          commit_assessments:
+            - revision: 1418a5a36c6fdeb5370a7cc2dc4ad62de2317656
+              classification: no_semantic_change
+              summary: "Add typed diagnostics and parser tooling"
+              contract_effect: "Add typed diagnostics and parser tooling adds typed diagnostics and parser tooling for an adjacent capability in shared audited paths; the middle actions public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: cf4fbd16fe614d48bcdb93092399352fc7917f95
+              classification: no_semantic_change
+              summary: "Add canonical grammar fragment includes"
+              contract_effect: "Add canonical grammar fragment includes adds canonical grammar fragment includes for an adjacent capability in shared audited paths; the middle actions public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 81026ff3390990cad716e9953c8b485f9ac198fe
+              classification: no_semantic_change
+              summary: "Add lossless rule documentation"
+              contract_effect: "Add lossless rule documentation adds lossless rule documentation for an adjacent capability in shared audited paths; the middle actions public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 18f618c490c91837b97e628c178c6dd4e50abb4d
+              classification: no_semantic_change
+              summary: "Add parameterized grammar rules"
+              contract_effect: "Add parameterized grammar rules adds parameterized grammar rules for an adjacent capability in shared audited paths; the middle actions public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 51234f2acc5080981c399f3821fe61d07f4b38af
+              classification: no_semantic_change
+              summary: "Add bounded inline rule expansion"
+              contract_effect: "Add bounded inline rule expansion adds bounded inline rule expansion for an adjacent capability in shared audited paths; the middle actions public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 3320a2a862628c14f12205575b894a604c9dffc8
+              classification: no_semantic_change
+              summary: "Add extended declaration contracts"
+              contract_effect: "Add extended declaration contracts adds extended declaration contracts for an adjacent capability in shared audited paths; the middle actions public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: e170cee79243d0aa975be3e107cd95cd7cc8baf0
+              classification: no_semantic_change
+              summary: "Add declarative parser parameters"
+              contract_effect: "Add declarative parser parameters adds declarative parser parameters for an adjacent capability in shared audited paths; the middle actions public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
+              classification: no_semantic_change
+              summary: "Add declarative debug value printers"
+              contract_effect: "Add declarative debug value printers adds declarative debug value printers for an adjacent capability in shared audited paths; the middle actions public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+              classification: no_semantic_change
+              summary: "Add multiple parser entry points"
+              contract_effect: "Add multiple parser entry points adds multiple parser entry points for an adjacent capability in shared audited paths; the middle actions public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: d589970fa588fd6a0464e6396fe2da668431aec4
+              classification: no_semantic_change
+              summary: "Add declarative parser recovery policies"
+              contract_effect: "Add declarative parser recovery policies adds declarative parser recovery policies for an adjacent capability in shared audited paths; the middle actions public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 6a97c6580eb60f21bee3019dd5301898f4e927f1
+              classification: no_semantic_change
+              summary: "Add grammar-declared parser tests"
+              contract_effect: "Add grammar-declared parser tests adds grammar-declared parser tests for an adjacent capability in shared audited paths; the middle actions public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 8b21624e348fb6096a0efdd87f45bc1bea1806bb
+              classification: no_semantic_change
+              summary: "Add lexer declaration syntax"
+              contract_effect: "Add lexer declaration syntax adds lexer declaration syntax for an adjacent capability in shared audited paths; the middle actions public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 7bbab102d981df3c3efffba0bdab301ea4939293
+              classification: no_semantic_change
+              summary: "Build error-tolerant concrete trees"
+              contract_effect: "Build error-tolerant concrete trees builds error-tolerant concrete trees for an adjacent capability in shared audited paths; the middle actions public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: c7117a5acaa51b501b8de20b75bbac4e3675ec35
+              classification: no_semantic_change
+              summary: "Generate typed data syntax trees"
+              contract_effect: "Generate typed data syntax trees generates typed data syntax trees for an adjacent capability in shared audited paths; the middle actions public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: 00f17a0cd7d049ce970261b050ffb6ae60dd4186
+              classification: no_semantic_change
+              summary: "Accept legacy user code rule endings"
+              contract_effect: "Accept legacy user code rule endings accepts legacy user code rule endings for an adjacent capability in shared audited paths; the middle actions public contract remains unchanged. Evidence: lib/ibex/frontend/parser/rules.rb."
           diff_paths:
             - lib/ibex/frontend/ast.rb
             - lib/ibex/frontend/parser/rules.rb
             - lib/ibex/normalize/expander.rb
-          rationale: The reviewed commits touch shared parsing and lowering code, but do not isolate whether the public middle actions syntax or behavior changed across this release boundary.
+          rationale: Every path-relevant commit is explicitly assessed above; all belong to adjacent capabilities or internal work and leave the public middle actions contract unchanged in this boundary.
           unresolved_uncertainty: No release-bound middle actions contract or behavior oracle isolates this surface from adjacent edits in the shared paths, so unchanged public semantics cannot be established.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
           classification: no_semantic_change
-          reviewed_commits: []
-          semantic_commits: []
+          commit_assessments: []
           diff_paths:
             - lib/ibex/frontend/ast.rb
             - lib/ibex/frontend/parser/rules.rb
@@ -615,41 +793,135 @@ features:
           from_revision: 24c7d97c2dc9f6fc9e90cef618cec56f1e5a6a9a
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           classification: introduced
-          reviewed_commits:
-            - af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
-            - 050206fbc9f9d25d16e4a89a1b744caf1bfed87f
-            - d589970fa588fd6a0464e6396fe2da668431aec4
-            - d8ee14f8b80a1acc4bf27b15d52b1c3517aed5b5
-            - 7bbab102d981df3c3efffba0bdab301ea4939293
-            - c7117a5acaa51b501b8de20b75bbac4e3675ec35
-            - d606ca436f11ac98e0a0bd3ab60363b30f7ac1ae
-            - 14a35ebf10274e8ff0edab9d830068a7024f8123
-            - 7e74c7a5adaf01207b17c3b15fc6564a8fca64a7
-            - 673d5315a770a8d943f7213a0e015ca42ae496f0
-            - fb8799b9a4f1b94c54a134dcc103f2616e3c9ba4
-            - 811fb4a5414c23b93278e96fd05631a23502b43f
-            - f0550e44be15e26bb05fa59a08bada27e1a5ebfa
-            - ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
-            - 9eeb1c953548d05e071194e3f59ef0d0f411576c
-            - 013761ebf4c645180d81391e2fbd144c7770b3fb
-            - fdc4d64ccf46f866d058e7861d0a1e6dae2c6745
-            - a76eb92ea3baf1c01447159e5f174758748373dd
-            - badd607b9d6d027fb5f8172c227ce3c89acc68c8
-            - fbb97aadffee300a8f3ee2fc6dc4d5a44dacddbe
-            - d13f5c422fc83a5137375d74184f2aa1e087b26f
-            - 5633de6da189a29a05866c4a29b4f5298e45cea5
-            - 74e7f849a32d5af486117171a00e6bfe74f19632
-            - 86f9a7face90cc15cc988c3da36925981bdc1513
-            - 40771d64a0c4900afd1327e3b47552a5739b4cbb
-            - 4a30d70329e60986282a6ed292a53be1310e5e2f
-            - 5da90340090232df0e4266cf6ddd835777ca00f7
-            - 0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
-            - ba5ee02b3afcb38a62618604faf6b77a53b1671e
-            - 1be1a47400fb882a56ead8cef3d6e7a89db7f7d7
-            - 9b783bf084c8dfb3528c9164c83dc56a6f2a530f
-            - 55bb4570bbcf2690ebbd78c231facb456f205f1e
-          semantic_commits:
-            - af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+          commit_assessments:
+            - revision: af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+              classification: semantic_change
+              summary: "Add multiple parser entry points"
+              contract_effect: "Add multiple parser entry points adds multiple parser entry points for multiple entries; the audited diff changes the public generated-parser output, entry API, or runtime behavior. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 050206fbc9f9d25d16e4a89a1b744caf1bfed87f
+              classification: no_semantic_change
+              summary: "Add stable example keyed error messages"
+              contract_effect: "Add stable example keyed error messages adds stable example keyed error messages for an adjacent capability in shared audited paths; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: d589970fa588fd6a0464e6396fe2da668431aec4
+              classification: no_semantic_change
+              summary: "Add declarative parser recovery policies"
+              contract_effect: "Add declarative parser recovery policies adds declarative parser recovery policies for an adjacent capability in shared audited paths; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: d8ee14f8b80a1acc4bf27b15d52b1c3517aed5b5
+              classification: no_semantic_change
+              summary: "Generate stateful streaming lexers"
+              contract_effect: "Generate stateful streaming lexers generates stateful streaming lexers for an adjacent capability in shared audited paths; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 7bbab102d981df3c3efffba0bdab301ea4939293
+              classification: no_semantic_change
+              summary: "Build error-tolerant concrete trees"
+              contract_effect: "Build error-tolerant concrete trees builds error-tolerant concrete trees for an adjacent capability in shared audited paths; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: c7117a5acaa51b501b8de20b75bbac4e3675ec35
+              classification: no_semantic_change
+              summary: "Generate typed data syntax trees"
+              contract_effect: "Generate typed data syntax trees generates typed data syntax trees for an adjacent capability in shared audited paths; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: d606ca436f11ac98e0a0bd3ab60363b30f7ac1ae
+              classification: semantic_change
+              summary: "Bound and isolate parser sessions"
+              contract_effect: "Bound and isolate parser sessions bounds and isolate parser sessions for multiple entries; the audited diff changes the public generated-parser output, entry API, or runtime behavior. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 14a35ebf10274e8ff0edab9d830068a7024f8123
+              classification: internal_refactor
+              summary: "Split the parser runtime package"
+              contract_effect: "Split the parser runtime package splits the parser runtime package in shared implementation paths for multiple entries, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 7e74c7a5adaf01207b17c3b15fc6564a8fca64a7
+              classification: semantic_change
+              summary: "Stabilize legacy Ruby compatibility"
+              contract_effect: "Stabilize legacy Ruby compatibility stabilizes legacy Ruby compatibility for multiple entries; the audited diff changes the public generated-parser output, entry API, or runtime behavior. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 673d5315a770a8d943f7213a0e015ca42ae496f0
+              classification: internal_refactor
+              summary: "Cache canonical closure lookaheads"
+              contract_effect: "Cache canonical closure lookaheads caches canonical closure lookaheads in shared implementation paths for multiple entries, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/lalr/builder.rb."
+            - revision: fb8799b9a4f1b94c54a134dcc103f2616e3c9ba4
+              classification: internal_refactor
+              summary: "Pack canonical automaton keys"
+              contract_effect: "Pack canonical automaton keys packs canonical automaton keys in shared implementation paths for multiple entries, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/lalr/builder.rb."
+            - revision: 811fb4a5414c23b93278e96fd05631a23502b43f
+              classification: internal_refactor
+              summary: "Reuse canonical LR items"
+              contract_effect: "Reuse canonical LR items reuses canonical LR items in shared implementation paths for multiple entries, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/lalr/builder.rb."
+            - revision: f0550e44be15e26bb05fa59a08bada27e1a5ebfa
+              classification: internal_refactor
+              summary: "Group canonical shifted kernels"
+              contract_effect: "Group canonical shifted kernels groups canonical shifted kernels in shared implementation paths for multiple entries, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/lalr/builder.rb."
+            - revision: ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
+              classification: semantic_change
+              summary: "Version values-only generated actions"
+              contract_effect: "Version values-only generated actions versions values-only generated actions for multiple entries; the audited diff changes the public generated-parser output, entry API, or runtime behavior. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 9eeb1c953548d05e071194e3f59ef0d0f411576c
+              classification: internal_refactor
+              summary: "Drive compact pull parsers directly"
+              contract_effect: "Drive compact pull parsers directly drives compact pull parsers directly in shared implementation paths for multiple entries, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 013761ebf4c645180d81391e2fbd144c7770b3fb
+              classification: internal_refactor
+              summary: "Encode compact parser actions as integers"
+              contract_effect: "Encode compact parser actions as integers encodes compact parser actions as integers in shared implementation paths for multiple entries, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: fdc4d64ccf46f866d058e7861d0a1e6dae2c6745
+              classification: internal_refactor
+              summary: "Reduce compact parser overhead"
+              contract_effect: "Reduce compact parser overhead reduces compact parser overhead in shared implementation paths for multiple entries, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: a76eb92ea3baf1c01447159e5f174758748373dd
+              classification: internal_refactor
+              summary: "Pack generated integer tables"
+              contract_effect: "Pack generated integer tables packs generated integer tables in shared implementation paths for multiple entries, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: badd607b9d6d027fb5f8172c227ce3c89acc68c8
+              classification: internal_refactor
+              summary: "Avoid optional generator work"
+              contract_effect: "Avoid optional generator work avoids optional generator work in shared implementation paths for multiple entries, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/lalr/builder.rb."
+            - revision: fbb97aadffee300a8f3ee2fc6dc4d5a44dacddbe
+              classification: internal_refactor
+              summary: "Use signed compact action codes"
+              contract_effect: "Use signed compact action codes uses signed compact action codes in shared implementation paths for multiple entries, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: d13f5c422fc83a5137375d74184f2aa1e087b26f
+              classification: internal_refactor
+              summary: "Specialize compact parser dispatch"
+              contract_effect: "Specialize compact parser dispatch specializes compact parser dispatch in shared implementation paths for multiple entries, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 5633de6da189a29a05866c4a29b4f5298e45cea5
+              classification: no_semantic_change
+              summary: "Add the immutable Green syntax core"
+              contract_effect: "Add the immutable Green syntax core adds the immutable Green syntax core for an adjacent capability in shared audited paths; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 74e7f849a32d5af486117171a00e6bfe74f19632
+              classification: no_semantic_change
+              summary: "Add lazy Red syntax navigation"
+              contract_effect: "Add lazy Red syntax navigation adds lazy Red syntax navigation for an adjacent capability in shared audited paths; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 86f9a7face90cc15cc988c3da36925981bdc1513
+              classification: no_semantic_change
+              summary: "Integrate the Red Green CST runtime"
+              contract_effect: "Integrate the Red Green CST runtime integrates the Red Green CST runtime for an adjacent capability in shared audited paths; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 40771d64a0c4900afd1327e3b47552a5739b4cbb
+              classification: no_semantic_change
+              summary: "Generate typed syntax views from node metadata"
+              contract_effect: "Generate typed syntax views from node metadata generates typed syntax views from node metadata for an adjacent capability in shared audited paths; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 4a30d70329e60986282a6ed292a53be1310e5e2f
+              classification: no_semantic_change
+              summary: "Add persistent syntax editing and tree diffing"
+              contract_effect: "Add persistent syntax editing and tree diffing adds persistent syntax editing and tree diffing for an adjacent capability in shared audited paths; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 5da90340090232df0e4266cf6ddd835777ca00f7
+              classification: no_semantic_change
+              summary: "Add versioned concrete syntax serialization"
+              contract_effect: "Add versioned concrete syntax serialization adds versioned concrete syntax serialization for an adjacent capability in shared audited paths; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
+              classification: no_semantic_change
+              summary: "Add syntax-only incremental parsing"
+              contract_effect: "Add syntax-only incremental parsing adds syntax-only incremental parsing for an adjacent capability in shared audited paths; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: ba5ee02b3afcb38a62618604faf6b77a53b1671e
+              classification: internal_refactor
+              summary: "Reuse validated syntax subtrees incrementally"
+              contract_effect: "Reuse validated syntax subtrees incrementally reuses validated syntax subtrees incrementally in shared implementation paths for multiple entries, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 1be1a47400fb882a56ead8cef3d6e7a89db7f7d7
+              classification: internal_refactor
+              summary: "Optimize CST construction hot paths"
+              contract_effect: "Optimize CST construction hot paths optimizes CST construction hot paths in shared implementation paths for multiple entries, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 9b783bf084c8dfb3528c9164c83dc56a6f2a530f
+              classification: no_semantic_change
+              summary: "Fix isolated gem packaging"
+              contract_effect: "Fix isolated gem packaging fixes isolated gem packaging for an adjacent capability in shared audited paths; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 55bb4570bbcf2690ebbd78c231facb456f205f1e
+              classification: no_semantic_change
+              summary: "Expose all CST trivia policies"
+              contract_effect: "Expose all CST trivia policies exposes all CST trivia policies for an adjacent capability in shared audited paths; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
           diff_paths:
             - lib/ibex/codegen/ruby.rb
             - lib/ibex/lalr/builder.rb
@@ -658,16 +930,24 @@ features:
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
-          classification: no_semantic_change
-          reviewed_commits:
-            - c7d02d408e1778bb8018c1876f8728949bf7aa24
-            - b111353d29475a471b564e74ec1b033109cf6025
-            - 3e2bf2e0dcfc321f1602317b0b0e2b2e6b603912
-          semantic_commits: []
+          classification: semantic_change
+          commit_assessments:
+            - revision: c7d02d408e1778bb8018c1876f8728949bf7aa24
+              classification: semantic_change
+              summary: "Fix embedded generation from installed gems"
+              contract_effect: "Fix embedded generation from installed gems fixes embedded generation from installed gems for multiple entries; the audited diff changes the public generated-parser output, entry API, or runtime behavior. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: b111353d29475a471b564e74ec1b033109cf6025
+              classification: no_semantic_change
+              summary: "Add analysis-only Bison grammar import"
+              contract_effect: "Add analysis-only Bison grammar import adds analysis-only Bison grammar import for an adjacent capability in shared audited paths; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 3e2bf2e0dcfc321f1602317b0b0e2b2e6b603912
+              classification: no_semantic_change
+              summary: "Close v1 safety and release gaps"
+              contract_effect: "Close v1 safety and release gaps closes v1 safety and release gaps for an adjacent capability in shared audited paths; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
           diff_paths:
             - lib/ibex/codegen/ruby.rb
             - lib/ibex/lalr/builder.rb
-          rationale: The exact path-limited Git review inspected 3 commits; their changes do not alter the public multiple entries syntax, API, or behavior represented by this inventory row.
+          rationale: The exhaustive commit assessments identify one public multiple entries API/runtime behavior fix and classify the two remaining shared-path commits as adjacent changes.
           unresolved_uncertainty: This path review does not establish downstream multiple entries compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Source history does not establish multi-entry application lifecycle compatibility.]
       evidence: [docs/grammar-reference.md, docs/stability.md]
@@ -755,15 +1035,31 @@ features:
           from_revision: eb257df8410aa86aa230bb157bf6d82a01d33fcd
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           classification: introduced
-          reviewed_commits:
-            - cf4fbd16fe614d48bcdb93092399352fc7917f95
-            - 5b8151385c491366deb41c930a1132599edfb9e9
-            - 570d857f582cb61ac60840210b22a86db086cc51
-            - af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
-            - 7bbab102d981df3c3efffba0bdab301ea4939293
-            - 97fce7fa2476bc7ecd399c7bf30d765420dfc39a
-          semantic_commits:
-            - cf4fbd16fe614d48bcdb93092399352fc7917f95
+          commit_assessments:
+            - revision: cf4fbd16fe614d48bcdb93092399352fc7917f95
+              classification: semantic_change
+              summary: "Add canonical grammar fragment includes"
+              contract_effect: "Add canonical grammar fragment includes adds canonical grammar fragment includes for canonical imports; the audited diff changes the public import syntax or source-resolution behavior. Evidence: lib/ibex/frontend/resolver.rb."
+            - revision: 5b8151385c491366deb41c930a1132599edfb9e9
+              classification: semantic_change
+              summary: "Add overlay-aware grammar language server"
+              contract_effect: "Add overlay-aware grammar language server adds overlay-aware grammar language server for canonical imports; the audited diff changes the public import syntax or source-resolution behavior. Evidence: lib/ibex/frontend/resolver.rb."
+            - revision: 570d857f582cb61ac60840210b22a86db086cc51
+              classification: semantic_change
+              summary: "Add transactional generation and watch mode"
+              contract_effect: "Add transactional generation and watch mode adds transactional generation and watch mode for canonical imports; the audited diff changes the public import syntax or source-resolution behavior. Evidence: lib/ibex/frontend/resolver.rb."
+            - revision: af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+              classification: semantic_change
+              summary: "Add multiple parser entry points"
+              contract_effect: "Add multiple parser entry points adds multiple parser entry points for canonical imports; the audited diff changes the public import syntax or source-resolution behavior. Evidence: lib/ibex/frontend/resolver.rb."
+            - revision: 7bbab102d981df3c3efffba0bdab301ea4939293
+              classification: semantic_change
+              summary: "Build error-tolerant concrete trees"
+              contract_effect: "Build error-tolerant concrete trees builds error-tolerant concrete trees for canonical imports; the audited diff changes the public import syntax or source-resolution behavior. Evidence: lib/ibex/frontend/resolver.rb."
+            - revision: 97fce7fa2476bc7ecd399c7bf30d765420dfc39a
+              classification: semantic_change
+              summary: "Rename the standard grammar mode to default"
+              contract_effect: "Rename the standard grammar mode to default renames the standard grammar mode to default for canonical imports; the audited diff changes the public import syntax or source-resolution behavior. Evidence: lib/ibex/frontend/resolver.rb."
           diff_paths:
             - lib/ibex/frontend/resolver.rb
           rationale: The named semantic commits introduce the reviewed public canonical imports syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
@@ -772,8 +1068,7 @@ features:
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
           classification: no_semantic_change
-          reviewed_commits: []
-          semantic_commits: []
+          commit_assessments: []
           diff_paths:
             - lib/ibex/frontend/resolver.rb
           rationale: The exact path-limited Git review found no commits in this boundary, so no public canonical imports syntax, API, or behavior change appears in the reviewed scope.
@@ -864,17 +1159,39 @@ features:
           from_revision: 04dd9773f522cd76bbf3c6678b66f0ee3e9142f1
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           classification: introduced
-          reviewed_commits:
-            - d8ee14f8b80a1acc4bf27b15d52b1c3517aed5b5
-            - 7bbab102d981df3c3efffba0bdab301ea4939293
-            - 86f9a7face90cc15cc988c3da36925981bdc1513
-            - 0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
-            - ba5ee02b3afcb38a62618604faf6b77a53b1671e
-            - f3cb3826efa6bfcdb7c7ef11494a9d43c47af352
-            - 1be1a47400fb882a56ead8cef3d6e7a89db7f7d7
-            - c6722bd9cb90e24a81786411e300edd6196619b7
-          semantic_commits:
-            - d8ee14f8b80a1acc4bf27b15d52b1c3517aed5b5
+          commit_assessments:
+            - revision: d8ee14f8b80a1acc4bf27b15d52b1c3517aed5b5
+              classification: semantic_change
+              summary: "Generate stateful streaming lexers"
+              contract_effect: "Generate stateful streaming lexers generates stateful streaming lexers for generated lexers; the audited diff changes the public generated-lexer output, API, or runtime behavior. Evidence: lib/ibex/runtime/generated_lexer.rb."
+            - revision: 7bbab102d981df3c3efffba0bdab301ea4939293
+              classification: semantic_change
+              summary: "Build error-tolerant concrete trees"
+              contract_effect: "Build error-tolerant concrete trees builds error-tolerant concrete trees for generated lexers; the audited diff changes the public generated-lexer output, API, or runtime behavior. Evidence: lib/ibex/runtime/generated_lexer.rb."
+            - revision: 86f9a7face90cc15cc988c3da36925981bdc1513
+              classification: semantic_change
+              summary: "Integrate the Red Green CST runtime"
+              contract_effect: "Integrate the Red Green CST runtime integrates the Red Green CST runtime for generated lexers; the audited diff changes the public generated-lexer output, API, or runtime behavior. Evidence: lib/ibex/runtime/generated_lexer.rb."
+            - revision: 0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
+              classification: semantic_change
+              summary: "Add syntax-only incremental parsing"
+              contract_effect: "Add syntax-only incremental parsing adds syntax-only incremental parsing for generated lexers; the audited diff changes the public generated-lexer output, API, or runtime behavior. Evidence: lib/ibex/runtime/generated_lexer.rb."
+            - revision: ba5ee02b3afcb38a62618604faf6b77a53b1671e
+              classification: semantic_change
+              summary: "Reuse validated syntax subtrees incrementally"
+              contract_effect: "Reuse validated syntax subtrees incrementally reuses validated syntax subtrees incrementally for generated lexers; the audited diff changes the public generated-lexer output, API, or runtime behavior. Evidence: lib/ibex/runtime/generated_lexer.rb."
+            - revision: f3cb3826efa6bfcdb7c7ef11494a9d43c47af352
+              classification: semantic_change
+              summary: "Harden CST fidelity and runtime contracts"
+              contract_effect: "Harden CST fidelity and runtime contracts hardens CST fidelity and runtime contracts for generated lexers; the audited diff changes the public generated-lexer output, API, or runtime behavior. Evidence: lib/ibex/runtime/generated_lexer.rb."
+            - revision: 1be1a47400fb882a56ead8cef3d6e7a89db7f7d7
+              classification: internal_refactor
+              summary: "Optimize CST construction hot paths"
+              contract_effect: "Optimize CST construction hot paths optimizes CST construction hot paths in shared implementation paths for generated lexers, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/generated_lexer.rb."
+            - revision: c6722bd9cb90e24a81786411e300edd6196619b7
+              classification: semantic_change
+              summary: "Remove legacy CST runtime"
+              contract_effect: "Remove legacy CST runtime removes legacy CST runtime for generated lexers; the audited diff changes the public generated-lexer output, API, or runtime behavior. Evidence: lib/ibex/runtime/generated_lexer.rb."
           diff_paths:
             - lib/ibex/runtime/generated_lexer.rb
           rationale: The named semantic commits introduce the reviewed public generated lexers syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
@@ -883,9 +1200,11 @@ features:
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
           classification: no_semantic_change
-          reviewed_commits:
-            - 7f248ebaa71bdf55ea8943aa75f9474e4c108831
-          semantic_commits: []
+          commit_assessments:
+            - revision: 7f248ebaa71bdf55ea8943aa75f9474e4c108831
+              classification: docs_test_only
+              summary: "docs: define generated parser trust boundaries"
+              contract_effect: "docs: define generated parser trust boundaries records documentation or test guidance in shared audited paths for generated lexers; executable behavior remains unchanged. Evidence: lib/ibex/runtime/generated_lexer.rb."
           diff_paths:
             - lib/ibex/runtime/generated_lexer.rb
           rationale: The exact path-limited Git review inspected 1 commits; their changes do not alter the public generated lexers syntax, API, or behavior represented by this inventory row.
@@ -995,75 +1314,255 @@ features:
           from_revision: 3b763cc9f7a79618816db029de4e5d14339796f0
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           classification: introduced
-          reviewed_commits:
-            - 1418a5a36c6fdeb5370a7cc2dc4ad62de2317656
-            - 104a8b19b007201366e25ea13e17b5b8a85076e9
-            - 978465d7996f3610e674da76718f9b2eb118f2dd
-            - 04ded745a43e364bcb8b07f1306a0731223a32ab
-            - 51234f2acc5080981c399f3821fe61d07f4b38af
-            - 3187b74d3933259a1a44deee8ed90aabf61a2efb
-            - 4e53ffb911d712a55c2465b57da6fd2a5332889c
-            - df8ac82c0ed0c8862190ac88671949f0d5e8a001
-            - bb8c9a741c96ee4b53b8b63290f988a623d32aa0
-            - e170cee79243d0aa975be3e107cd95cd7cc8baf0
-            - ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
-            - 24c7d97c2dc9f6fc9e90cef618cec56f1e5a6a9a
-            - af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
-            - 050206fbc9f9d25d16e4a89a1b744caf1bfed87f
-            - d589970fa588fd6a0464e6396fe2da668431aec4
-            - d8ee14f8b80a1acc4bf27b15d52b1c3517aed5b5
-            - 7bbab102d981df3c3efffba0bdab301ea4939293
-            - c7117a5acaa51b501b8de20b75bbac4e3675ec35
-            - d606ca436f11ac98e0a0bd3ab60363b30f7ac1ae
-            - 14a35ebf10274e8ff0edab9d830068a7024f8123
-            - 7226fb9d2e3c70536d33b16511a110477f881761
-            - f391869d0d835e59613f2b2d6c899f45a49d7fc6
-            - 7e74c7a5adaf01207b17c3b15fc6564a8fca64a7
-            - fd29b7f8171cf1cdd7936b430d86bfa64b060c1e
-            - 3017150fbc2264b17a576283dfab355d2dd4da56
-            - d66277258e6e1a0b125388cfe20709f2d2bc4db7
-            - d41acedf7037e146510cf7fa2b581f840a5450b3
-            - 7dba2ac14757c9104d57907f503c8bdf01174262
-            - 1820348eb8c0b691dd57b5cc9fc5d2a7c8d60716
-            - 365404b8935b8e4c1dab840dec7159b2e5935cac
-            - 669ef003125b6b0db8e39a525093442ffbb06b6b
-            - cf073f767aa4dfefaaf370bc10a5927257b92364
-            - c81618b1a951a9e1b0b1b8101d2ea0e7cd5dcad1
-            - c7c48548cab5591f10dda9e4ee2247f011ccf267
-            - ad64016fb9873cad399f7e86b943f67feb9afb5a
-            - fcf28445211e7136042545006294d6d3995026da
-            - ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
-            - b593792b47760c3d09fa73e412a11293600d77c4
-            - 9eeb1c953548d05e071194e3f59ef0d0f411576c
-            - 013761ebf4c645180d81391e2fbd144c7770b3fb
-            - fdc4d64ccf46f866d058e7861d0a1e6dae2c6745
-            - a76eb92ea3baf1c01447159e5f174758748373dd
-            - f9475685ad8a2ae9e3e2efc40c4e48afbd669d42
-            - b150c7d9ebf2283179461c9075b96789e1b8c4e1
-            - fbb97aadffee300a8f3ee2fc6dc4d5a44dacddbe
-            - a4b17a114070a6d6447a7c62a9594d494b25b372
-            - d13f5c422fc83a5137375d74184f2aa1e087b26f
-            - 429389ca04861fff104c4bf64e449c9266caa181
-            - 5633de6da189a29a05866c4a29b4f5298e45cea5
-            - 74e7f849a32d5af486117171a00e6bfe74f19632
-            - 86f9a7face90cc15cc988c3da36925981bdc1513
-            - 40771d64a0c4900afd1327e3b47552a5739b4cbb
-            - 4a30d70329e60986282a6ed292a53be1310e5e2f
-            - 5da90340090232df0e4266cf6ddd835777ca00f7
-            - 0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
-            - ba5ee02b3afcb38a62618604faf6b77a53b1671e
-            - 5799152a6403f61af8674a1b9b4a03526dd287fe
-            - f3cb3826efa6bfcdb7c7ef11494a9d43c47af352
-            - 1be1a47400fb882a56ead8cef3d6e7a89db7f7d7
-            - 9b783bf084c8dfb3528c9164c83dc56a6f2a530f
-            - c6722bd9cb90e24a81786411e300edd6196619b7
-            - 55bb4570bbcf2690ebbd78c231facb456f205f1e
-          semantic_commits:
-            - 1418a5a36c6fdeb5370a7cc2dc4ad62de2317656
-            - 104a8b19b007201366e25ea13e17b5b8a85076e9
-            - 978465d7996f3610e674da76718f9b2eb118f2dd
-            - 04ded745a43e364bcb8b07f1306a0731223a32ab
-            - bb8c9a741c96ee4b53b8b63290f988a623d32aa0
+          commit_assessments:
+            - revision: 1418a5a36c6fdeb5370a7cc2dc4ad62de2317656
+              classification: semantic_change
+              summary: "Add typed diagnostics and parser tooling"
+              contract_effect: "Add typed diagnostics and parser tooling adds typed diagnostics and parser tooling for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/codegen/rbs.rb."
+            - revision: 104a8b19b007201366e25ea13e17b5b8a85076e9
+              classification: semantic_change
+              summary: "Add semantic action locations"
+              contract_effect: "Add semantic action locations adds semantic action locations for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/codegen/rbs.rb."
+            - revision: 978465d7996f3610e674da76718f9b2eb118f2dd
+              classification: semantic_change
+              summary: "Harden semantic location contracts"
+              contract_effect: "Harden semantic location contracts hardens semantic location contracts for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 04ded745a43e364bcb8b07f1306a0731223a32ab
+              classification: semantic_change
+              summary: "Version semantic location action tables"
+              contract_effect: "Version semantic location action tables versions semantic location action tables for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: 51234f2acc5080981c399f3821fe61d07f4b38af
+              classification: semantic_change
+              summary: "Add bounded inline rule expansion"
+              contract_effect: "Add bounded inline rule expansion adds bounded inline rule expansion for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/codegen/rbs.rb."
+            - revision: 3187b74d3933259a1a44deee8ed90aabf61a2efb
+              classification: semantic_change
+              summary: "Add static semantic action checking"
+              contract_effect: "Add static semantic action checking adds static semantic action checking for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/codegen/rbs.rb."
+            - revision: 4e53ffb911d712a55c2465b57da6fd2a5332889c
+              classification: no_semantic_change
+              summary: "Add stable immutable runtime events"
+              contract_effect: "Add stable immutable runtime events adds stable immutable runtime events for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/rbs.rb."
+            - revision: df8ac82c0ed0c8862190ac88671949f0d5e8a001
+              classification: no_semantic_change
+              summary: "Add bounded runtime token repair"
+              contract_effect: "Add bounded runtime token repair adds bounded runtime token repair for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: bb8c9a741c96ee4b53b8b63290f988a623d32aa0
+              classification: semantic_change
+              summary: "Add lazy semantic location APIs"
+              contract_effect: "Add lazy semantic location APIs adds lazy semantic location APIs for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: e170cee79243d0aa975be3e107cd95cd7cc8baf0
+              classification: no_semantic_change
+              summary: "Add declarative parser parameters"
+              contract_effect: "Add declarative parser parameters adds declarative parser parameters for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/rbs.rb."
+            - revision: ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
+              classification: no_semantic_change
+              summary: "Add declarative debug value printers"
+              contract_effect: "Add declarative debug value printers adds declarative debug value printers for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/rbs.rb."
+            - revision: 24c7d97c2dc9f6fc9e90cef618cec56f1e5a6a9a
+              classification: no_semantic_change
+              summary: "Add exact lookahead correction"
+              contract_effect: "Add exact lookahead correction adds exact lookahead correction for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+              classification: no_semantic_change
+              summary: "Add multiple parser entry points"
+              contract_effect: "Add multiple parser entry points adds multiple parser entry points for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/rbs.rb."
+            - revision: 050206fbc9f9d25d16e4a89a1b744caf1bfed87f
+              classification: no_semantic_change
+              summary: "Add stable example keyed error messages"
+              contract_effect: "Add stable example keyed error messages adds stable example keyed error messages for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/rbs.rb."
+            - revision: d589970fa588fd6a0464e6396fe2da668431aec4
+              classification: no_semantic_change
+              summary: "Add declarative parser recovery policies"
+              contract_effect: "Add declarative parser recovery policies adds declarative parser recovery policies for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: d8ee14f8b80a1acc4bf27b15d52b1c3517aed5b5
+              classification: no_semantic_change
+              summary: "Generate stateful streaming lexers"
+              contract_effect: "Generate stateful streaming lexers generates stateful streaming lexers for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/rbs.rb."
+            - revision: 7bbab102d981df3c3efffba0bdab301ea4939293
+              classification: no_semantic_change
+              summary: "Build error-tolerant concrete trees"
+              contract_effect: "Build error-tolerant concrete trees builds error-tolerant concrete trees for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/rbs.rb."
+            - revision: c7117a5acaa51b501b8de20b75bbac4e3675ec35
+              classification: no_semantic_change
+              summary: "Generate typed data syntax trees"
+              contract_effect: "Generate typed data syntax trees generates typed data syntax trees for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/rbs.rb."
+            - revision: d606ca436f11ac98e0a0bd3ab60363b30f7ac1ae
+              classification: semantic_change
+              summary: "Bound and isolate parser sessions"
+              contract_effect: "Bound and isolate parser sessions bounds and isolate parser sessions for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 14a35ebf10274e8ff0edab9d830068a7024f8123
+              classification: internal_refactor
+              summary: "Split the parser runtime package"
+              contract_effect: "Split the parser runtime package splits the parser runtime package in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 7226fb9d2e3c70536d33b16511a110477f881761
+              classification: semantic_change
+              summary: "Support legacy parser session setup"
+              contract_effect: "Support legacy parser session setup supports legacy parser session setup for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: f391869d0d835e59613f2b2d6c899f45a49d7fc6
+              classification: semantic_change
+              summary: "Expose parser rejection errors"
+              contract_effect: "Expose parser rejection errors exposes parser rejection errors for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: 7e74c7a5adaf01207b17c3b15fc6564a8fca64a7
+              classification: semantic_change
+              summary: "Stabilize legacy Ruby compatibility"
+              contract_effect: "Stabilize legacy Ruby compatibility stabilizes legacy Ruby compatibility for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: fd29b7f8171cf1cdd7936b430d86bfa64b060c1e
+              classification: internal_refactor
+              summary: "Avoid dormant debug trace allocations"
+              contract_effect: "Avoid dormant debug trace allocations avoids dormant debug trace allocations in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: 3017150fbc2264b17a576283dfab355d2dd4da56
+              classification: internal_refactor
+              summary: "Reuse immutable parser control outcomes"
+              contract_effect: "Reuse immutable parser control outcomes reuses immutable parser control outcomes in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: d66277258e6e1a0b125388cfe20709f2d2bc4db7
+              classification: internal_refactor
+              summary: "Cache parser tables per parsing session"
+              contract_effect: "Cache parser tables per parsing session caches parser tables per parsing session in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: d41acedf7037e146510cf7fa2b581f840a5450b3
+              classification: internal_refactor
+              summary: "Avoid discarded reduction pop arrays"
+              contract_effect: "Avoid discarded reduction pop arrays avoids discarded reduction pop arrays in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: 7dba2ac14757c9104d57907f503c8bdf01174262
+              classification: semantic_change
+              summary: "Bound malformed reduction stack pops"
+              contract_effect: "Bound malformed reduction stack pops bounds malformed reduction stack pops for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: 1820348eb8c0b691dd57b5cc9fc5d2a7c8d60716
+              classification: semantic_change
+              summary: "Preserve coerced reduction lengths"
+              contract_effect: "Preserve coerced reduction lengths preserves coerced reduction lengths for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: 365404b8935b8e4c1dab840dec7159b2e5935cac
+              classification: internal_refactor
+              summary: "Avoid semantic action argument arrays"
+              contract_effect: "Avoid semantic action argument arrays avoids semantic action argument arrays in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: 669ef003125b6b0db8e39a525093442ffbb06b6b
+              classification: no_semantic_change
+              summary: "Add eligibility-gated runtime fast path"
+              contract_effect: "Add eligibility-gated runtime fast path adds eligibility-gated runtime fast path for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: cf073f767aa4dfefaaf370bc10a5927257b92364
+              classification: semantic_change
+              summary: "Preserve fast-path recovery diagnostics"
+              contract_effect: "Preserve fast-path recovery diagnostics preserves fast-path recovery diagnostics for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: c81618b1a951a9e1b0b1b8101d2ea0e7cd5dcad1
+              classification: no_semantic_change
+              summary: "Harden runtime fast-path eligibility"
+              contract_effect: "Harden runtime fast-path eligibility hardens runtime fast-path eligibility for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: c7c48548cab5591f10dda9e4ee2247f011ccf267
+              classification: semantic_change
+              summary: "Honor overridden parser control flags"
+              contract_effect: "Honor overridden parser control flags honors overridden parser control flags for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: ad64016fb9873cad399f7e86b943f67feb9afb5a
+              classification: internal_refactor
+              summary: "Avoid repeated fast-path method lookup"
+              contract_effect: "Avoid repeated fast-path method lookup avoids repeated fast-path method lookup in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: fcf28445211e7136042545006294d6d3995026da
+              classification: semantic_change
+              summary: "Harden fast-path invalidation boundaries"
+              contract_effect: "Harden fast-path invalidation boundaries hardens fast-path invalidation boundaries for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
+              classification: semantic_change
+              summary: "Version values-only generated actions"
+              contract_effect: "Version values-only generated actions versions values-only generated actions for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/codegen/rbs.rb."
+            - revision: b593792b47760c3d09fa73e412a11293600d77c4
+              classification: internal_refactor
+              summary: "Cache immutable parser table validation"
+              contract_effect: "Cache immutable parser table validation caches immutable parser table validation in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: 9eeb1c953548d05e071194e3f59ef0d0f411576c
+              classification: internal_refactor
+              summary: "Drive compact pull parsers directly"
+              contract_effect: "Drive compact pull parsers directly drives compact pull parsers directly in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 013761ebf4c645180d81391e2fbd144c7770b3fb
+              classification: internal_refactor
+              summary: "Encode compact parser actions as integers"
+              contract_effect: "Encode compact parser actions as integers encodes compact parser actions as integers in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: fdc4d64ccf46f866d058e7861d0a1e6dae2c6745
+              classification: internal_refactor
+              summary: "Reduce compact parser overhead"
+              contract_effect: "Reduce compact parser overhead reduces compact parser overhead in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: a76eb92ea3baf1c01447159e5f174758748373dd
+              classification: internal_refactor
+              summary: "Pack generated integer tables"
+              contract_effect: "Pack generated integer tables packs generated integer tables in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: f9475685ad8a2ae9e3e2efc40c4e48afbd669d42
+              classification: internal_refactor
+              summary: "Trim direct pull parser boundaries"
+              contract_effect: "Trim direct pull parser boundaries trims direct pull parser boundaries in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: b150c7d9ebf2283179461c9075b96789e1b8c4e1
+              classification: internal_refactor
+              summary: "Reuse parser session scratch arrays"
+              contract_effect: "Reuse parser session scratch arrays reuses parser session scratch arrays in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: fbb97aadffee300a8f3ee2fc6dc4d5a44dacddbe
+              classification: internal_refactor
+              summary: "Use signed compact action codes"
+              contract_effect: "Use signed compact action codes uses signed compact action codes in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: a4b17a114070a6d6447a7c62a9594d494b25b372
+              classification: internal_refactor
+              summary: "Read compact production columns directly"
+              contract_effect: "Read compact production columns directly reads compact production columns directly in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: d13f5c422fc83a5137375d74184f2aa1e087b26f
+              classification: internal_refactor
+              summary: "Specialize compact parser dispatch"
+              contract_effect: "Specialize compact parser dispatch specializes compact parser dispatch in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/rbs.rb."
+            - revision: 429389ca04861fff104c4bf64e449c9266caa181
+              classification: semantic_change
+              summary: "Restore cross-Ruby runtime compatibility"
+              contract_effect: "Restore cross-Ruby runtime compatibility restores cross-Ruby runtime compatibility for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: 5633de6da189a29a05866c4a29b4f5298e45cea5
+              classification: no_semantic_change
+              summary: "Add the immutable Green syntax core"
+              contract_effect: "Add the immutable Green syntax core adds the immutable Green syntax core for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 74e7f849a32d5af486117171a00e6bfe74f19632
+              classification: no_semantic_change
+              summary: "Add lazy Red syntax navigation"
+              contract_effect: "Add lazy Red syntax navigation adds lazy Red syntax navigation for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 86f9a7face90cc15cc988c3da36925981bdc1513
+              classification: no_semantic_change
+              summary: "Integrate the Red Green CST runtime"
+              contract_effect: "Integrate the Red Green CST runtime integrates the Red Green CST runtime for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 40771d64a0c4900afd1327e3b47552a5739b4cbb
+              classification: no_semantic_change
+              summary: "Generate typed syntax views from node metadata"
+              contract_effect: "Generate typed syntax views from node metadata generates typed syntax views from node metadata for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/rbs.rb."
+            - revision: 4a30d70329e60986282a6ed292a53be1310e5e2f
+              classification: no_semantic_change
+              summary: "Add persistent syntax editing and tree diffing"
+              contract_effect: "Add persistent syntax editing and tree diffing adds persistent syntax editing and tree diffing for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 5da90340090232df0e4266cf6ddd835777ca00f7
+              classification: no_semantic_change
+              summary: "Add versioned concrete syntax serialization"
+              contract_effect: "Add versioned concrete syntax serialization adds versioned concrete syntax serialization for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
+              classification: no_semantic_change
+              summary: "Add syntax-only incremental parsing"
+              contract_effect: "Add syntax-only incremental parsing adds syntax-only incremental parsing for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: ba5ee02b3afcb38a62618604faf6b77a53b1671e
+              classification: internal_refactor
+              summary: "Reuse validated syntax subtrees incrementally"
+              contract_effect: "Reuse validated syntax subtrees incrementally reuses validated syntax subtrees incrementally in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 5799152a6403f61af8674a1b9b4a03526dd287fe
+              classification: no_semantic_change
+              summary: "Finish Red Green CST rollout"
+              contract_effect: "Finish Red Green CST rollout finishes Red Green CST rollout for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: f3cb3826efa6bfcdb7c7ef11494a9d43c47af352
+              classification: semantic_change
+              summary: "Harden CST fidelity and runtime contracts"
+              contract_effect: "Harden CST fidelity and runtime contracts hardens CST fidelity and runtime contracts for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: 1be1a47400fb882a56ead8cef3d6e7a89db7f7d7
+              classification: internal_refactor
+              summary: "Optimize CST construction hot paths"
+              contract_effect: "Optimize CST construction hot paths optimizes CST construction hot paths in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/rbs.rb."
+            - revision: 9b783bf084c8dfb3528c9164c83dc56a6f2a530f
+              classification: no_semantic_change
+              summary: "Fix isolated gem packaging"
+              contract_effect: "Fix isolated gem packaging fixes isolated gem packaging for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: c6722bd9cb90e24a81786411e300edd6196619b7
+              classification: no_semantic_change
+              summary: "Remove legacy CST runtime"
+              contract_effect: "Remove legacy CST runtime removes legacy CST runtime for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: 55bb4570bbcf2690ebbd78c231facb456f205f1e
+              classification: no_semantic_change
+              summary: "Expose all CST trivia policies"
+              contract_effect: "Expose all CST trivia policies exposes all CST trivia policies for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
           diff_paths:
             - lib/ibex/codegen/rbs.rb
             - lib/ibex/codegen/ruby.rb
@@ -1074,26 +1573,58 @@ features:
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
-          classification: no_semantic_change
-          reviewed_commits:
-            - 5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
-            - c7d02d408e1778bb8018c1876f8728949bf7aa24
-            - b111353d29475a471b564e74ec1b033109cf6025
-            - 3e2bf2e0dcfc321f1602317b0b0e2b2e6b603912
-            - cf170cad3383bf567c87e4904bd10f445315b994
-            - f2a1421c8f02ffb4d50726452be6eae73cf7f510
-            - 08c7dc5d939a1f47b0132ae3986818cdbaec1f34
-            - edac11e91221b1c7b81883a5cb98e8bdcab82297
-            - d85b83bbfc05d99e19e9429e4bc2bd0104fd1168
-            - 7f248ebaa71bdf55ea8943aa75f9474e4c108831
-            - d2e7ce9ec93463ac8c7c957224ed76ab31c83d54
-          semantic_commits: []
+          classification: semantic_change
+          commit_assessments:
+            - revision: 5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
+              classification: semantic_change
+              summary: "Fix TruffleRuby fast-path tracker recursion"
+              contract_effect: "Fix TruffleRuby fast-path tracker recursion fixes TruffleRuby fast-path tracker recursion for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: c7d02d408e1778bb8018c1876f8728949bf7aa24
+              classification: no_semantic_change
+              summary: "Fix embedded generation from installed gems"
+              contract_effect: "Fix embedded generation from installed gems fixes embedded generation from installed gems for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: b111353d29475a471b564e74ec1b033109cf6025
+              classification: no_semantic_change
+              summary: "Add analysis-only Bison grammar import"
+              contract_effect: "Add analysis-only Bison grammar import adds analysis-only Bison grammar import for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: 3e2bf2e0dcfc321f1602317b0b0e2b2e6b603912
+              classification: no_semantic_change
+              summary: "Close v1 safety and release gaps"
+              contract_effect: "Close v1 safety and release gaps closes v1 safety and release gaps for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
+            - revision: cf170cad3383bf567c87e4904bd10f445315b994
+              classification: internal_refactor
+              summary: "Avoid dormant CST parser state"
+              contract_effect: "Avoid dormant CST parser state avoids dormant CST parser state in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: f2a1421c8f02ffb4d50726452be6eae73cf7f510
+              classification: internal_refactor
+              summary: "Keep dormant CST state signature-neutral"
+              contract_effect: "Keep dormant CST state signature-neutral keeps dormant CST state signature-neutral in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: 08c7dc5d939a1f47b0132ae3986818cdbaec1f34
+              classification: internal_refactor
+              summary: "Reuse shareable runtime hook lookups"
+              contract_effect: "Reuse shareable runtime hook lookups reuses shareable runtime hook lookups in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: edac11e91221b1c7b81883a5cb98e8bdcab82297
+              classification: semantic_change
+              summary: "Fix runtime caches across Ruby engines"
+              contract_effect: "Fix runtime caches across Ruby engines fixes runtime caches across Ruby engines for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: d85b83bbfc05d99e19e9429e4bc2bd0104fd1168
+              classification: semantic_change
+              summary: "Limit runtime lookup caches to MRI"
+              contract_effect: "Limit runtime lookup caches to MRI limits runtime lookup caches to MRI for semantic locations/types; the audited diff changes the public semantic-location/type API, generated output, or runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: 7f248ebaa71bdf55ea8943aa75f9474e4c108831
+              classification: docs_test_only
+              summary: "docs: define generated parser trust boundaries"
+              contract_effect: "docs: define generated parser trust boundaries records documentation or test guidance in shared audited paths for semantic locations/types; executable behavior remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: d2e7ce9ec93463ac8c7c957224ed76ab31c83d54
+              classification: docs_test_only
+              summary: "docs: distinguish semantic input trust paths"
+              contract_effect: "docs: distinguish semantic input trust paths records documentation or test guidance in shared audited paths for semantic locations/types; executable behavior remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
           diff_paths:
             - lib/ibex/codegen/rbs.rb
             - lib/ibex/codegen/ruby.rb
             - lib/ibex/frontend/generated_parser_metadata.rb
             - lib/ibex/runtime/parser.rb
-          rationale: The exact path-limited Git review inspected 11 commits; their changes do not alter the public semantic locations/types syntax, API, or behavior represented by this inventory row.
+          rationale: The exhaustive commit assessments identify three cross-engine public API/runtime behavior fixes for semantic locations/types and classify every other shared-path revision explicitly.
           unresolved_uncertainty: This path review does not establish downstream semantic locations/types compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [The combined inventory row cannot supply one compatibility history for two activation and API boundaries.]
       evidence: [docs/grammar-reference.md, docs/stability.md]
@@ -1185,12 +1716,19 @@ features:
           from_revision: 7bbab102d981df3c3efffba0bdab301ea4939293
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           classification: introduced
-          reviewed_commits:
-            - c7117a5acaa51b501b8de20b75bbac4e3675ec35
-            - ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
-            - d13f5c422fc83a5137375d74184f2aa1e087b26f
-          semantic_commits:
-            - c7117a5acaa51b501b8de20b75bbac4e3675ec35
+          commit_assessments:
+            - revision: c7117a5acaa51b501b8de20b75bbac4e3675ec35
+              classification: semantic_change
+              summary: "Generate typed data syntax trees"
+              contract_effect: "Generate typed data syntax trees generates typed data syntax trees for AST generation; the audited diff changes the public generated-AST output or API. Evidence: lib/ibex/codegen/ruby_ast.rb."
+            - revision: ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
+              classification: semantic_change
+              summary: "Version values-only generated actions"
+              contract_effect: "Version values-only generated actions versions values-only generated actions for AST generation; the audited diff changes the public generated-AST output or API. Evidence: lib/ibex/codegen/ruby_ast.rb."
+            - revision: d13f5c422fc83a5137375d74184f2aa1e087b26f
+              classification: internal_refactor
+              summary: "Specialize compact parser dispatch"
+              contract_effect: "Specialize compact parser dispatch specializes compact parser dispatch in shared implementation paths for AST generation, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/ruby_ast.rb."
           diff_paths:
             - lib/ibex/codegen/ruby_ast.rb
           rationale: The named semantic commits introduce the reviewed public AST generation syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
@@ -1199,8 +1737,7 @@ features:
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
           classification: no_semantic_change
-          reviewed_commits: []
-          semantic_commits: []
+          commit_assessments: []
           diff_paths:
             - lib/ibex/codegen/ruby_ast.rb
           rationale: The exact path-limited Git review found no commits in this boundary, so no public AST generation syntax, API, or behavior change appears in the reviewed scope.
@@ -1291,11 +1828,15 @@ features:
           from_revision: d589970fa588fd6a0464e6396fe2da668431aec4
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           classification: introduced
-          reviewed_commits:
-            - 6a97c6580eb60f21bee3019dd5301898f4e927f1
-            - 6d92ec6d49bf27538fcb115e26ab32c843e4187d
-          semantic_commits:
-            - 6a97c6580eb60f21bee3019dd5301898f4e927f1
+          commit_assessments:
+            - revision: 6a97c6580eb60f21bee3019dd5301898f4e927f1
+              classification: semantic_change
+              summary: "Add grammar-declared parser tests"
+              contract_effect: "Add grammar-declared parser tests adds grammar-declared parser tests for grammar tests; the audited diff changes the public grammar-test command, fixtures, or output. Evidence: lib/ibex/grammar_tests.rb."
+            - revision: 6d92ec6d49bf27538fcb115e26ab32c843e4187d
+              classification: semantic_change
+              summary: "Complete documentation and grammar gallery"
+              contract_effect: "Complete documentation and grammar gallery completes documentation and grammar gallery for grammar tests; the audited diff changes the public grammar-test command, fixtures, or output. Evidence: lib/ibex/grammar_tests.rb."
           diff_paths:
             - lib/ibex/grammar_tests.rb
           rationale: The named semantic commits introduce the reviewed public grammar tests syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
@@ -1304,8 +1845,7 @@ features:
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
           classification: no_semantic_change
-          reviewed_commits: []
-          semantic_commits: []
+          commit_assessments: []
           diff_paths:
             - lib/ibex/grammar_tests.rb
           rationale: The exact path-limited Git review found no commits in this boundary, so no public grammar tests syntax, API, or behavior change appears in the reviewed scope.
@@ -1396,10 +1936,11 @@ features:
           from_revision: cf4fbd16fe614d48bcdb93092399352fc7917f95
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           classification: introduced
-          reviewed_commits:
-            - 81026ff3390990cad716e9953c8b485f9ac198fe
-          semantic_commits:
-            - 81026ff3390990cad716e9953c8b485f9ac198fe
+          commit_assessments:
+            - revision: 81026ff3390990cad716e9953c8b485f9ac198fe
+              classification: semantic_change
+              summary: "Add lossless rule documentation"
+              contract_effect: "Add lossless rule documentation adds lossless rule documentation for documentation tooling; the audited diff changes the public documentation command or generated output. Evidence: lib/ibex/codegen/documentation.rb."
           diff_paths:
             - lib/ibex/codegen/documentation.rb
           rationale: The named semantic commits introduce the reviewed public documentation tooling syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
@@ -1408,8 +1949,7 @@ features:
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
           classification: no_semantic_change
-          reviewed_commits: []
-          semantic_commits: []
+          commit_assessments: []
           diff_paths:
             - lib/ibex/codegen/documentation.rb
           rationale: The exact path-limited Git review found no commits in this boundary, so no public documentation tooling syntax, API, or behavior change appears in the reviewed scope.
@@ -1500,19 +2040,47 @@ features:
           from_revision: bd09dc7ddff179923a0d629b619f86908db8183c
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           classification: introduced
-          reviewed_commits:
-            - 14968f22795f4fd8ff894b0753b01b92712bd183
-            - 3320a2a862628c14f12205575b894a604c9dffc8
-            - bb8c9a741c96ee4b53b8b63290f988a623d32aa0
-            - af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
-            - d589970fa588fd6a0464e6396fe2da668431aec4
-            - 673d5315a770a8d943f7213a0e015ca42ae496f0
-            - fb8799b9a4f1b94c54a134dcc103f2616e3c9ba4
-            - 811fb4a5414c23b93278e96fd05631a23502b43f
-            - f0550e44be15e26bb05fa59a08bada27e1a5ebfa
-            - badd607b9d6d027fb5f8172c227ce3c89acc68c8
-          semantic_commits:
-            - 14968f22795f4fd8ff894b0753b01b92712bd183
+          commit_assessments:
+            - revision: 14968f22795f4fd8ff894b0753b01b92712bd183
+              classification: semantic_change
+              summary: "Add IELR parser construction"
+              contract_effect: "Add IELR parser construction adds IELR parser construction for IELR; the audited diff changes the public IELR option, table construction, or parser behavior. Evidence: lib/ibex/lalr/builder.rb."
+            - revision: 3320a2a862628c14f12205575b894a604c9dffc8
+              classification: semantic_change
+              summary: "Add extended declaration contracts"
+              contract_effect: "Add extended declaration contracts adds extended declaration contracts for IELR; the audited diff changes the public IELR option, table construction, or parser behavior. Evidence: lib/ibex/lalr/builder.rb."
+            - revision: bb8c9a741c96ee4b53b8b63290f988a623d32aa0
+              classification: no_semantic_change
+              summary: "Add lazy semantic location APIs"
+              contract_effect: "Add lazy semantic location APIs adds lazy semantic location APIs for an adjacent capability in shared audited paths; the IELR public contract remains unchanged. Evidence: lib/ibex/lalr/builder.rb."
+            - revision: af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
+              classification: semantic_change
+              summary: "Add multiple parser entry points"
+              contract_effect: "Add multiple parser entry points adds multiple parser entry points for IELR; the audited diff changes the public IELR option, table construction, or parser behavior. Evidence: lib/ibex/lalr/builder.rb."
+            - revision: d589970fa588fd6a0464e6396fe2da668431aec4
+              classification: semantic_change
+              summary: "Add declarative parser recovery policies"
+              contract_effect: "Add declarative parser recovery policies adds declarative parser recovery policies for IELR; the audited diff changes the public IELR option, table construction, or parser behavior. Evidence: lib/ibex/lalr/builder.rb."
+            - revision: 673d5315a770a8d943f7213a0e015ca42ae496f0
+              classification: internal_refactor
+              summary: "Cache canonical closure lookaheads"
+              contract_effect: "Cache canonical closure lookaheads caches canonical closure lookaheads in shared implementation paths for IELR, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/lalr/builder.rb."
+            - revision: fb8799b9a4f1b94c54a134dcc103f2616e3c9ba4
+              classification: internal_refactor
+              summary: "Pack canonical automaton keys"
+              contract_effect: "Pack canonical automaton keys packs canonical automaton keys in shared implementation paths for IELR, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/lalr/builder.rb."
+            - revision: 811fb4a5414c23b93278e96fd05631a23502b43f
+              classification: internal_refactor
+              summary: "Reuse canonical LR items"
+              contract_effect: "Reuse canonical LR items reuses canonical LR items in shared implementation paths for IELR, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/lalr/builder.rb."
+            - revision: f0550e44be15e26bb05fa59a08bada27e1a5ebfa
+              classification: internal_refactor
+              summary: "Group canonical shifted kernels"
+              contract_effect: "Group canonical shifted kernels groups canonical shifted kernels in shared implementation paths for IELR, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/lalr/builder.rb."
+            - revision: badd607b9d6d027fb5f8172c227ce3c89acc68c8
+              classification: internal_refactor
+              summary: "Avoid optional generator work"
+              contract_effect: "Avoid optional generator work avoids optional generator work in shared implementation paths for IELR, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/lalr/builder.rb."
           diff_paths:
             - lib/ibex/lalr/builder.rb
           rationale: The named semantic commits introduce the reviewed public IELR syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
@@ -1521,8 +2089,7 @@ features:
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
           classification: no_semantic_change
-          reviewed_commits: []
-          semantic_commits: []
+          commit_assessments: []
           diff_paths:
             - lib/ibex/lalr/builder.rb
           rationale: The exact path-limited Git review found no commits in this boundary, so no public IELR syntax, API, or behavior change appears in the reviewed scope.
@@ -1613,10 +2180,11 @@ features:
           from_revision: 0210f4b2be2099599ff6406e18509bee5c6e6cf8
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           classification: introduced
-          reviewed_commits:
-            - 5b8151385c491366deb41c930a1132599edfb9e9
-          semantic_commits:
-            - 5b8151385c491366deb41c930a1132599edfb9e9
+          commit_assessments:
+            - revision: 5b8151385c491366deb41c930a1132599edfb9e9
+              classification: semantic_change
+              summary: "Add overlay-aware grammar language server"
+              contract_effect: "Add overlay-aware grammar language server adds overlay-aware grammar language server for LSP; the audited diff changes the public language-server protocol behavior. Evidence: lib/ibex/lsp/server.rb."
           diff_paths:
             - lib/ibex/lsp/server.rb
           rationale: The named semantic commits introduce the reviewed public LSP syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
@@ -1625,8 +2193,7 @@ features:
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
           classification: no_semantic_change
-          reviewed_commits: []
-          semantic_commits: []
+          commit_assessments: []
           diff_paths:
             - lib/ibex/lsp/server.rb
           rationale: The exact path-limited Git review found no commits in this boundary, so no public LSP syntax, API, or behavior change appears in the reviewed scope.
@@ -1717,10 +2284,11 @@ features:
           from_revision: 5b8151385c491366deb41c930a1132599edfb9e9
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           classification: introduced
-          reviewed_commits:
-            - 570d857f582cb61ac60840210b22a86db086cc51
-          semantic_commits:
-            - 570d857f582cb61ac60840210b22a86db086cc51
+          commit_assessments:
+            - revision: 570d857f582cb61ac60840210b22a86db086cc51
+              classification: semantic_change
+              summary: "Add transactional generation and watch mode"
+              contract_effect: "Add transactional generation and watch mode adds transactional generation and watch mode for watch; the audited diff changes the public watch command and transactional generation behavior. Evidence: lib/ibex/watch/runner.rb."
           diff_paths:
             - lib/ibex/watch/runner.rb
           rationale: The named semantic commits introduce the reviewed public watch syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
@@ -1729,8 +2297,7 @@ features:
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
           classification: no_semantic_change
-          reviewed_commits: []
-          semantic_commits: []
+          commit_assessments: []
           diff_paths:
             - lib/ibex/watch/runner.rb
           rationale: The exact path-limited Git review found no commits in this boundary, so no public watch syntax, API, or behavior change appears in the reviewed scope.
@@ -1821,10 +2388,11 @@ features:
           from_revision: f10cb2af61566d5180724469a5498fbc7325dc2c
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           classification: introduced
-          reviewed_commits:
-            - 4aa58c5e6f013c6ad187b9a739d55147829aa42c
-          semantic_commits:
-            - 4aa58c5e6f013c6ad187b9a739d55147829aa42c
+          commit_assessments:
+            - revision: 4aa58c5e6f013c6ad187b9a739d55147829aa42c
+              classification: semantic_change
+              summary: "Add safe parser table simulation"
+              contract_effect: "Add safe parser table simulation adds safe parser table simulation for debug; the audited diff changes the public debug command and table-simulation output. Evidence: lib/ibex/table_simulation.rb."
           diff_paths:
             - lib/ibex/table_simulation.rb
           rationale: The named semantic commits introduce the reviewed public debug syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
@@ -1833,8 +2401,7 @@ features:
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
           classification: no_semantic_change
-          reviewed_commits: []
-          semantic_commits: []
+          commit_assessments: []
           diff_paths:
             - lib/ibex/table_simulation.rb
           rationale: The exact path-limited Git review found no commits in this boundary, so no public debug syntax, API, or behavior change appears in the reviewed scope.
@@ -1925,10 +2492,11 @@ features:
           from_revision: 4e53ffb911d712a55c2465b57da6fd2a5332889c
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           classification: introduced
-          reviewed_commits:
-            - f10cb2af61566d5180724469a5498fbc7325dc2c
-          semantic_commits:
-            - f10cb2af61566d5180724469a5498fbc7325dc2c
+          commit_assessments:
+            - revision: f10cb2af61566d5180724469a5498fbc7325dc2c
+              classification: semantic_change
+              summary: "Add deterministic runtime coverage"
+              contract_effect: "Add deterministic runtime coverage adds deterministic runtime coverage for coverage; the audited diff changes the public coverage API and deterministic report output. Evidence: lib/ibex/coverage/collector.rb."
           diff_paths:
             - lib/ibex/coverage/collector.rb
           rationale: The named semantic commits introduce the reviewed public coverage syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
@@ -1937,8 +2505,7 @@ features:
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
           classification: no_semantic_change
-          reviewed_commits: []
-          semantic_commits: []
+          commit_assessments: []
           diff_paths:
             - lib/ibex/coverage/collector.rb
           rationale: The exact path-limited Git review found no commits in this boundary, so no public coverage syntax, API, or behavior change appears in the reviewed scope.
@@ -2029,10 +2596,11 @@ features:
           from_revision: 94b22d55a974db8d976c16d08a4b7daaca7989a7
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           classification: introduced
-          reviewed_commits:
-            - 30c41be981e41c3fbd71e1f75afe296b329ddbd3
-          semantic_commits:
-            - 30c41be981e41c3fbd71e1f75afe296b329ddbd3
+          commit_assessments:
+            - revision: 30c41be981e41c3fbd71e1f75afe296b329ddbd3
+              classification: semantic_change
+              summary: "Add browser grammar playground"
+              contract_effect: "Add browser grammar playground adds browser grammar playground for browser playground; the audited diff changes the public browser application behavior. Evidence: site/playground/analyzer.rb."
           diff_paths:
             - site/playground/analyzer.rb
           rationale: The named semantic commits introduce the reviewed public browser playground syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
@@ -2041,8 +2609,7 @@ features:
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
           classification: no_semantic_change
-          reviewed_commits: []
-          semantic_commits: []
+          commit_assessments: []
           diff_paths:
             - site/playground/analyzer.rb
           rationale: The exact path-limited Git review found no commits in this boundary, so no public browser playground syntax, API, or behavior change appears in the reviewed scope.
@@ -2133,15 +2700,31 @@ features:
           from_revision: 51234f2acc5080981c399f3821fe61d07f4b38af
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           classification: introduced
-          reviewed_commits:
-            - 3187b74d3933259a1a44deee8ed90aabf61a2efb
-            - e170cee79243d0aa975be3e107cd95cd7cc8baf0
-            - ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
-            - f7e1533003989b4c13f6158f4c482ba5cc3b9090
-            - ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
-            - d13f5c422fc83a5137375d74184f2aa1e087b26f
-          semantic_commits:
-            - 3187b74d3933259a1a44deee8ed90aabf61a2efb
+          commit_assessments:
+            - revision: 3187b74d3933259a1a44deee8ed90aabf61a2efb
+              classification: semantic_change
+              summary: "Add static semantic action checking"
+              contract_effect: "Add static semantic action checking adds static semantic action checking for action-shadow; the audited diff changes the public action-shadow generated output and checking behavior. Evidence: lib/ibex/codegen/action_method_source.rb."
+            - revision: e170cee79243d0aa975be3e107cd95cd7cc8baf0
+              classification: semantic_change
+              summary: "Add declarative parser parameters"
+              contract_effect: "Add declarative parser parameters adds declarative parser parameters for action-shadow; the audited diff changes the public action-shadow generated output and checking behavior. Evidence: lib/ibex/codegen/action_method_source.rb."
+            - revision: ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
+              classification: semantic_change
+              summary: "Add declarative debug value printers"
+              contract_effect: "Add declarative debug value printers adds declarative debug value printers for action-shadow; the audited diff changes the public action-shadow generated output and checking behavior. Evidence: lib/ibex/codegen/action_method_source.rb."
+            - revision: f7e1533003989b4c13f6158f4c482ba5cc3b9090
+              classification: semantic_change
+              summary: "Load Ruby lexer only when required"
+              contract_effect: "Load Ruby lexer only when required loads Ruby lexer only when required for action-shadow; the audited diff changes the public action-shadow generated output and checking behavior. Evidence: lib/ibex/codegen/action_method_source.rb."
+            - revision: ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
+              classification: semantic_change
+              summary: "Version values-only generated actions"
+              contract_effect: "Version values-only generated actions versions values-only generated actions for action-shadow; the audited diff changes the public action-shadow generated output and checking behavior. Evidence: lib/ibex/codegen/action_method_source.rb."
+            - revision: d13f5c422fc83a5137375d74184f2aa1e087b26f
+              classification: internal_refactor
+              summary: "Specialize compact parser dispatch"
+              contract_effect: "Specialize compact parser dispatch specializes compact parser dispatch in shared implementation paths for action-shadow, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/codegen/action_method_source.rb."
           diff_paths:
             - lib/ibex/codegen/action_method_source.rb
           rationale: The named semantic commits introduce the reviewed public action-shadow syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
@@ -2150,8 +2733,7 @@ features:
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
           classification: no_semantic_change
-          reviewed_commits: []
-          semantic_commits: []
+          commit_assessments: []
           diff_paths:
             - lib/ibex/codegen/action_method_source.rb
           rationale: The exact path-limited Git review found no commits in this boundary, so no public action-shadow syntax, API, or behavior change appears in the reviewed scope.
@@ -2242,10 +2824,11 @@ features:
           from_revision: 4aa58c5e6f013c6ad187b9a739d55147829aa42c
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           classification: introduced
-          reviewed_commits:
-            - df8ac82c0ed0c8862190ac88671949f0d5e8a001
-          semantic_commits:
-            - df8ac82c0ed0c8862190ac88671949f0d5e8a001
+          commit_assessments:
+            - revision: df8ac82c0ed0c8862190ac88671949f0d5e8a001
+              classification: semantic_change
+              summary: "Add bounded runtime token repair"
+              contract_effect: "Add bounded runtime token repair adds bounded runtime token repair for bounded repair; the audited diff changes the public repair API and bounded runtime behavior. Evidence: lib/ibex/runtime/repair.rb."
           diff_paths:
             - lib/ibex/runtime/repair.rb
           rationale: The named semantic commits introduce the reviewed public bounded repair syntax, API, or behavior; other path commits were inspected and are not classified from digest changes alone.
@@ -2254,8 +2837,7 @@ features:
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
           classification: no_semantic_change
-          reviewed_commits: []
-          semantic_commits: []
+          commit_assessments: []
           diff_paths:
             - lib/ibex/runtime/repair.rb
           rationale: The exact path-limited Git review found no commits in this boundary, so no public bounded repair syntax, API, or behavior change appears in the reviewed scope.
@@ -2346,16 +2928,31 @@ features:
           from_revision: 5da90340090232df0e4266cf6ddd835777ca00f7
           to_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           classification: introduced
-          reviewed_commits:
-            - 0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
-            - ba5ee02b3afcb38a62618604faf6b77a53b1671e
-            - 5799152a6403f61af8674a1b9b4a03526dd287fe
-            - f3cb3826efa6bfcdb7c7ef11494a9d43c47af352
-            - 1be1a47400fb882a56ead8cef3d6e7a89db7f7d7
-            - c6722bd9cb90e24a81786411e300edd6196619b7
-          semantic_commits:
-            - 0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
-            - ba5ee02b3afcb38a62618604faf6b77a53b1671e
+          commit_assessments:
+            - revision: 0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
+              classification: semantic_change
+              summary: "Add syntax-only incremental parsing"
+              contract_effect: "Add syntax-only incremental parsing adds syntax-only incremental parsing for incremental CST; the audited diff changes the public incremental-CST API and runtime behavior. Evidence: lib/ibex/runtime/cst/incremental/session.rb."
+            - revision: ba5ee02b3afcb38a62618604faf6b77a53b1671e
+              classification: semantic_change
+              summary: "Reuse validated syntax subtrees incrementally"
+              contract_effect: "Reuse validated syntax subtrees incrementally reuses validated syntax subtrees incrementally for incremental CST; the audited diff changes the public incremental-CST API and runtime behavior. Evidence: lib/ibex/runtime/cst/incremental/session.rb."
+            - revision: 5799152a6403f61af8674a1b9b4a03526dd287fe
+              classification: semantic_change
+              summary: "Finish Red Green CST rollout"
+              contract_effect: "Finish Red Green CST rollout finishes Red Green CST rollout for incremental CST; the audited diff changes the public incremental-CST API and runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: f3cb3826efa6bfcdb7c7ef11494a9d43c47af352
+              classification: semantic_change
+              summary: "Harden CST fidelity and runtime contracts"
+              contract_effect: "Harden CST fidelity and runtime contracts hardens CST fidelity and runtime contracts for incremental CST; the audited diff changes the public incremental-CST API and runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: 1be1a47400fb882a56ead8cef3d6e7a89db7f7d7
+              classification: internal_refactor
+              summary: "Optimize CST construction hot paths"
+              contract_effect: "Optimize CST construction hot paths optimizes CST construction hot paths in shared implementation paths for incremental CST, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: c6722bd9cb90e24a81786411e300edd6196619b7
+              classification: semantic_change
+              summary: "Remove legacy CST runtime"
+              contract_effect: "Remove legacy CST runtime removes legacy CST runtime for incremental CST; the audited diff changes the public incremental-CST API and runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
           diff_paths:
             - lib/ibex/runtime/cst/incremental/session.rb
             - lib/ibex/runtime/parser.rb
@@ -2364,21 +2961,44 @@ features:
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
           to_revision: 96db239bb6b40723cce94f42d8d4262ba3477fec
-          classification: no_semantic_change
-          reviewed_commits:
-            - 5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
-            - cf170cad3383bf567c87e4904bd10f445315b994
-            - f2a1421c8f02ffb4d50726452be6eae73cf7f510
-            - 08c7dc5d939a1f47b0132ae3986818cdbaec1f34
-            - edac11e91221b1c7b81883a5cb98e8bdcab82297
-            - d85b83bbfc05d99e19e9429e4bc2bd0104fd1168
-            - 7f248ebaa71bdf55ea8943aa75f9474e4c108831
-            - d2e7ce9ec93463ac8c7c957224ed76ab31c83d54
-          semantic_commits: []
+          classification: semantic_change
+          commit_assessments:
+            - revision: 5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
+              classification: semantic_change
+              summary: "Fix TruffleRuby fast-path tracker recursion"
+              contract_effect: "Fix TruffleRuby fast-path tracker recursion fixes TruffleRuby fast-path tracker recursion for incremental CST; the audited diff changes the public incremental-CST API and runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: cf170cad3383bf567c87e4904bd10f445315b994
+              classification: internal_refactor
+              summary: "Avoid dormant CST parser state"
+              contract_effect: "Avoid dormant CST parser state avoids dormant CST parser state in shared implementation paths for incremental CST, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: f2a1421c8f02ffb4d50726452be6eae73cf7f510
+              classification: internal_refactor
+              summary: "Keep dormant CST state signature-neutral"
+              contract_effect: "Keep dormant CST state signature-neutral keeps dormant CST state signature-neutral in shared implementation paths for incremental CST, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: 08c7dc5d939a1f47b0132ae3986818cdbaec1f34
+              classification: internal_refactor
+              summary: "Reuse shareable runtime hook lookups"
+              contract_effect: "Reuse shareable runtime hook lookups reuses shareable runtime hook lookups in shared implementation paths for incremental CST, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: edac11e91221b1c7b81883a5cb98e8bdcab82297
+              classification: semantic_change
+              summary: "Fix runtime caches across Ruby engines"
+              contract_effect: "Fix runtime caches across Ruby engines fixes runtime caches across Ruby engines for incremental CST; the audited diff changes the public incremental-CST API and runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: d85b83bbfc05d99e19e9429e4bc2bd0104fd1168
+              classification: semantic_change
+              summary: "Limit runtime lookup caches to MRI"
+              contract_effect: "Limit runtime lookup caches to MRI limits runtime lookup caches to MRI for incremental CST; the audited diff changes the public incremental-CST API and runtime behavior. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: 7f248ebaa71bdf55ea8943aa75f9474e4c108831
+              classification: docs_test_only
+              summary: "docs: define generated parser trust boundaries"
+              contract_effect: "docs: define generated parser trust boundaries records documentation or test guidance in shared audited paths for incremental CST; executable behavior remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: d2e7ce9ec93463ac8c7c957224ed76ab31c83d54
+              classification: docs_test_only
+              summary: "docs: distinguish semantic input trust paths"
+              contract_effect: "docs: distinguish semantic input trust paths records documentation or test guidance in shared audited paths for incremental CST; executable behavior remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
           diff_paths:
             - lib/ibex/runtime/cst/incremental/session.rb
             - lib/ibex/runtime/parser.rb
-          rationale: The exact path-limited Git review inspected 8 commits; their changes do not alter the public incremental CST syntax, API, or behavior represented by this inventory row.
+          rationale: The exhaustive commit assessments identify three cross-engine public incremental CST API/runtime behavior fixes and classify internal cache work and documentation separately.
           unresolved_uncertainty: This path review does not establish downstream incremental CST compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git snapshots do not establish editor lifecycle correctness or external latency behavior.]
       evidence: [docs/decisions/0018-conservative-incremental-syntax-reuse.md, docs/stability.md]
