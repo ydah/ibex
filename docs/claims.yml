@@ -2,36 +2,54 @@ schema_version: 1
 comparison_set:
   - id: racc
     name: Racc
+    aliases:
+      - Racc
     state: evidence_pending
     version: 1.8.1
     revision: not_applicable
     reason: Error-UX review is pending and the formal performance result artifact is absent.
   - id: lrama
     name: Lrama
+    aliases:
+      - Lrama
     state: not_compared
     version: unknown
     revision: unknown
     reason: No versioned comparative report has been published.
   - id: bison
     name: GNU Bison
+    aliases:
+      - GNU Bison
+      - Bison
+      - GNU yacc
+      - yacc
     state: not_compared
     version: unknown
     revision: unknown
     reason: Import validation is not a comparative product claim.
   - id: menhir
     name: Menhir
+    aliases:
+      - Menhir
     state: not_compared
     version: unknown
     revision: unknown
     reason: No versioned comparative report has been published.
   - id: tree_sitter
     name: Tree-sitter
+    aliases:
+      - Tree-sitter
+      - Tree sitter
+      - tree_sitter
     state: not_compared
     version: unknown
     revision: unknown
     reason: No versioned comparative report has been published.
   - id: antlr
     name: ANTLR
+    aliases:
+      - ANTLR
+      - ANTLR4
     state: not_compared
     version: unknown
     revision: unknown
@@ -54,6 +72,7 @@ claims:
         - 8/10 (80%)
         - "| EUX-10 |"
       allowed_strength: []
+      body_sha256: 8f96ed02f51364c2a71409123022dc7350b56f6583f517d157aa3ef623125ef4
     subjects:
       - tool: ibex
         identity_kind: repository
@@ -133,6 +152,7 @@ claims:
         - Ibex allocates fewer objects for every reuse workload, while new-instance allocation ratios remain 1.051–1.190x.
         - Generated output is smaller for all three grammars.
         - These values are a release baseline, not portable scores or an assertion of parity.
+      body_sha256: 1c2f3931186d83a301c27ede3895f521b4d9bbcb0bdd480a8b61db7fb94b6535
     subjects:
       - tool: ibex
         identity_kind: repository

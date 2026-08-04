@@ -7,5 +7,5 @@ independent subjective review is pending, so this is not a completed comparative
 
 8/10 (80%)
 | EUX-10 |
-Racc is faster than Ibex.
+Racc is fastest.
 <!-- comparative-evidence:racc-error-ux-json-v1:end -->

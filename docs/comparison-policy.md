@@ -8,6 +8,9 @@ public claim markers.
 The initial comparison set is Racc, Lrama, GNU Bison, Menhir, Tree-sitter, and
 ANTLR. A tool being in the set does not imply that a comparison has been made.
 An unmeasured tool remains `not_compared`; unknown facts remain `unknown`.
+Each entry also owns its canonical public aliases. README scanning recognizes
+only this declared set and aliases; adding a tool or spelling requires a
+reviewed registry change.
 
 ## Required record
 
@@ -22,6 +25,7 @@ Every measured, evidence-pending, or review-pending record contains:
 - excluded or unsupported semantics;
 - the subjective review method and its completion state;
 - repository-relative evidence paths and explicit limitations; and
+- the SHA-256 of the canonical marker body, including every table and note; and
 - an exact-revision validity scope, expiry statement, and conditions that
   require review.
 
@@ -78,9 +82,12 @@ without those boundaries. README comparative strength wording is enclosed by
 artifact may use that marker. Pending material instead uses a
 `comparative-evidence` marker around the full table or conclusion it records.
 The validator requires each marker body to contain the registry wording exactly
-and every registered table anchor. It always scans README, even when no claim
-targets README, and rejects unmarked paragraphs that combine a comparison tool
-name with strength wording.
+and every registered table anchor. It also canonicalizes line endings and
+trailing whitespace and requires the complete body SHA-256 to match, so any
+other prose, table-cell, row, or blank-line change fails independently of its
+vocabulary. It always scans README, even when no claim targets README, and
+rejects unmarked paragraphs that combine a declared tool alias with English or
+Japanese strength wording.
 
 ## No cross-category ordering
 
@@ -100,8 +107,12 @@ limitations separately. Numeric totals never imply semantic equivalence.
    values.
 4. Bind measured wording with claim markers or pending tables and conclusions
    with evidence markers. The body must retain the exact registered wording.
-5. Run `bundle exec rake quality:comparative_claims`, the focused tests, and
+5. After reviewing an intentional marker-body diff, run the quality task. Its
+   mismatch reports both the registered and actual SHA-256; copy the actual
+   digest into `body_sha256` only in the same reviewed change. Never refresh a
+   digest merely to make the task pass.
+6. Run `bundle exec rake quality:comparative_claims`, the focused tests, and
    documentation coverage.
-6. When a review condition fires, either remeasure under a new claim ID or
+7. When a review condition fires, either remeasure under a new claim ID or
    narrow the old wording to its historical scope. Historical observations are
    retained rather than rewritten as current results.
