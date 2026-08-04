@@ -170,13 +170,17 @@ class CLITest < Minitest::Test
       grammar.write("class P\ntoken USED UNUSED\nrule\nstart: USED\nend\n")
       grammar.flush
 
+      absent = StringIO.new
+      assert_equal 0, Ibex::CLI.start(["-C", grammar.path], stdout: StringIO.new, stderr: absent)
+      assert_empty absent.string
+
       visible = StringIO.new
       assert_equal 0, Ibex::CLI.start(["-C", "--warnings=all", grammar.path],
                                       stdout: StringIO.new, stderr: visible)
       assert_match(/:2:1: warning: unused terminal UNUSED/, visible.string)
 
       promoted = StringIO.new
-      assert_equal 1, Ibex::CLI.start(["-C", "--warnings=all,error", grammar.path],
+      assert_equal 1, Ibex::CLI.start(["-C", "--warnings=error", grammar.path],
                                       stdout: StringIO.new, stderr: promoted)
       assert_match(/:2:1: warning treated as error: unused terminal UNUSED/, promoted.string)
     end

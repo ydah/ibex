@@ -85,6 +85,9 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     assert_includes language.fetch("default"), "falling back to en"
     assert_includes language.fetch("trust_implications"), "non-reproducible"
 
+    warnings = find_entry(entries, "generate", "--warnings=CATEGORIES")
+    assert_equal "unset; warnings are neither displayed nor promoted to errors", warnings.fetch("default")
+
     counterexamples = find_entry(entries, "generate", "--counterexamples")
     assert_equal "excluded_x1_operation", counterexamples.fetch("grammar_admission")
     %w[equiv fuzz samples].each do |surface|
@@ -205,6 +208,73 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
       RUBY
       error = assert_raises(RuntimeError) { inventory_for(root).verify! }
       assert_match(/OptionParser define has no static spelling/, error.message)
+    end
+  end
+
+  def test_reflective_optionparser_registration_is_prohibited
+    variants = {
+      "send symbol" => 'options.send(:on, "--watch", "changed")',
+      "public_send string" => 'options.public_send("define_tail", "--watch", "changed")',
+      "public_send nonparenthesized" => 'options.public_send :on_tail, "--watch", "changed"',
+      "method call" => 'options.method(:def_option).call("--watch", "changed")',
+      "implicit method call" => 'method(:on).call("--watch", "changed")',
+      "unresolved send" => "options.send(registration_api, switch_name)",
+      "unresolved method call" => "options.method(registration_api).call(switch_name)",
+      "direct constructor" => 'OptionParser.new.public_send(:on_head, "--hidden")'
+    }
+    variants.each do |label, registration|
+      with_watch_registration(registration) do |root|
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/reflective OptionParser registration .* is prohibited/, error.message, label)
+      end
+    end
+  end
+
+  def test_unrelated_event_and_definition_dsls_are_not_registrations
+    with_repository_copy do |root|
+      write_ruby(root, "lib/unrelated_dsls.rb", <<~RUBY)
+        def subscribe(stream, event_name)
+          stream.on("data")
+          stream.on(event_name)
+        end
+
+        def define_record(schema, name)
+          schema.define("record")
+          schema.define(name)
+        end
+      RUBY
+      assert inventory_for(root).verify!
+    end
+  end
+
+  def test_source_proven_optionparser_receivers_reject_dynamic_spellings
+    variants = {
+      "local" => <<~RUBY,
+        parser = OptionParser.new
+        parser.on(switch_name)
+      RUBY
+      "local alias" => <<~RUBY,
+        original = OptionParser.new
+        parser = original
+        parser.define(switch_name)
+      RUBY
+      "block parameter" => <<~RUBY
+        OptionParser.new do |registry|
+          registry.def_tail_option(switch_name)
+        end
+      RUBY
+    }
+    variants.each do |label, registration|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/dynamic_option_parser.rb", <<~RUBY)
+          require "optparse"
+          def dynamic_option_parser(switch_name)
+            #{registration}
+          end
+        RUBY
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/OptionParser .* has no static spelling/, error.message, label)
+      end
     end
   end
 

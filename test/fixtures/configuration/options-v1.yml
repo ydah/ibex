@@ -1079,7 +1079,7 @@ registrations:
   - "--warnings=CATEGORIES"
   canonical_key: invocation.warning_policy
   value_type: set_of_enums
-  default: all warnings enabled; not promoted to errors
+  default: unset; warnings are neither displayed nor promoted to errors
   affected_stages:
   - invocation
   public_contract_effect: Changes only the selected operation, bounded evidence, destination,
