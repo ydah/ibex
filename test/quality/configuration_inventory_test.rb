@@ -7,10 +7,12 @@ require "json"
 require "tmpdir"
 require "yaml"
 
-class ConfigurationInventoryTest < Minitest::Test
+class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/ClassLength
   ROOT = File.expand_path("../..", __dir__)
   REGISTRY = File.join(ROOT, "test/fixtures/configuration/options-v1.yml")
   DOCUMENT = File.join(ROOT, "docs/declarative-configuration.md")
+  WATCH_REGISTRATION =
+    'options.on("--watch", "regenerate file outputs when grammar sources change") { @options[:watch] = true }'
 
   def test_repository_inventory_and_generated_document_are_current
     assert Ibex::Quality::ConfigurationInventory.new.verify!
@@ -22,6 +24,7 @@ class ConfigurationInventoryTest < Minitest::Test
 
     assert_equal 177, inventory.dig("scope", "call_site_count")
     assert_equal 186, inventory.dig("scope", "runtime_registration_count")
+    assert_equal ["exe/*", "lib/**/*.rb"], inventory.dig("scope", "source_globs")
     assert_equal(205, entries.sum { |entry| entry.fetch("effective_spellings").length })
 
     fix = entries.select { |entry| entry.fetch("method") == "add_fix_budget_options" }
@@ -68,6 +71,29 @@ class ConfigurationInventoryTest < Minitest::Test
                     "bounded subprocess"
   end
 
+  def test_semantic_domains_and_nonpersistent_invocation_controls_are_exact
+    entries = document.fetch("registrations")
+    emit = find_entry(entries, "generate", "--emit=FORMAT")
+    assert_equal "string", emit.fetch("source_value_type")
+    assert_equal "enum", emit.fetch("value_type")
+    assert_equal "ast | sets | lexer-ir | grammar-ir | automaton-ir | ruby", emit.fetch("value_domain")
+
+    language = find_entry(entries, "global", "--lang=LANG")
+    assert_equal "enum", language.fetch("value_type")
+    assert_equal "en | ja", language.fetch("value_domain")
+    assert_includes language.fetch("default"), "normalized IBEX_LANG"
+    assert_includes language.fetch("default"), "falling back to en"
+    assert_includes language.fetch("trust_implications"), "non-reproducible"
+
+    counterexamples = find_entry(entries, "generate", "--counterexamples")
+    assert_equal "excluded_x1_operation", counterexamples.fetch("grammar_admission")
+    %w[equiv fuzz samples].each do |surface|
+      seed = find_entry(entries, surface, "--seed=N")
+      assert_equal "excluded_x1_operation", seed.fetch("grammar_admission")
+      assert_equal "invocation_only", seed.fetch("override_algebra")
+    end
+  end
+
   def test_rejects_missing_duplicate_reordered_or_unclassified_records
     changed = document
     changed.fetch("registrations").pop
@@ -108,10 +134,108 @@ class ConfigurationInventoryTest < Minitest::Test
     end
   end
 
+  def test_effective_aliases_boolean_forms_and_surfaces_are_source_bound
+    changed = document
+    debug = find_entry(changed.fetch("registrations"), "generate", "--debug")
+    debug.fetch("effective_spellings").delete("-t")
+    assert_invalid(changed, "effective_spellings drift")
+
+    changed = document
+    save = find_entry(changed.fetch("registrations"), "fuzz", "--save-regression")
+    save["effective_spellings"] = ["--save-regression"]
+    assert_invalid(changed, "effective_spellings drift")
+
+    changed = document
+    find_entry(changed.fetch("registrations"), "generate", "--watch")["surface"] = "global"
+    assert_invalid(changed, "surface drift")
+  end
+
+  def test_every_optionparser_registration_api_is_detected
+    Ibex::Quality::ConfigurationInventory::REGISTRATION_APIS.each do |api|
+      with_watch_registration("options.#{api}(\"--watch\", \"changed\")") do |root|
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/(?:registration_api|declaration_sha256) drift/, error.message, api)
+      end
+    end
+  end
+
+  def test_receiver_and_argument_syntax_cannot_bypass_static_inventory
+    variants = {
+      "implicit parenthesized" => 'on("--watch", "changed")',
+      "explicit nonparenthesized" => 'options.on "--watch", "changed"',
+      "implicit nonparenthesized" => 'on "--watch", "changed"',
+      "direct receiver" => 'OptionParser.new.on("--watch", "changed")'
+    }
+    variants.each do |label, replacement|
+      with_watch_registration(replacement) do |root|
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/(?:declaration_sha256|declared_spellings) drift/, error.message, label)
+      end
+    end
+
+    ["options.on(*switches)", "options.on(*[\"--watch\", \"changed\"])", "options.on(switches)"].each do |replacement|
+      with_watch_registration(replacement) do |root|
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/(?:splat is statically unresolved|has no static spelling)/, error.message, replacement)
+      end
+    end
+  end
+
+  def test_unresolved_define_receivers_and_optionparser_subclasses_fail_closed
+    with_repository_copy do |root|
+      write_ruby(root, "lib/dynamic_options.rb", <<~RUBY)
+        require "optparse"
+        def dynamic_options(switch_name)
+          unusual_receiver = OptionParser.new
+          unusual_receiver.define(switch_name)
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/OptionParser define has no static spelling/, error.message)
+    end
+
+    with_repository_copy do |root|
+      write_ruby(root, "lib/subclass_options.rb", <<~RUBY)
+        require "optparse"
+        class SubclassOptions < OptionParser
+          def add_dynamic(switch_name)
+            define(switch_name)
+          end
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/OptionParser define has no static spelling/, error.message)
+    end
+  end
+
+  def test_closed_owner_and_compatibility_policy_rejects_cross_field_contradictions
+    mutate_entry("generate", "--watch", "grammar_admission", "admitted_a1_a8", "invocation request fields")
+    mutate_entry("generate", "--watch", "manifest_presence", "current", "invocation request fields")
+    mutate_entry("generate", "--table=FORMAT", "ir_presence", "grammar_ir_v2_current", "project build policy")
+    mutate_entry("generate", "--table=FORMAT", "grammar_admission", "excluded_x1_operation", "project build policy")
+    mutate_entry("generate", "--algorithm=NAME", "manifest_presence", "not_applicable", "manifest state")
+    mutate_entry("generate", "--mode=MODE", "ir_presence", "cst_contract_gap", "persistence is inconsistent")
+    mutate_entry("generate", "--manifest[=FILE]", "manifest_presence", "current", "project build policy")
+    mutate_entry("generate", "--mode=MODE", "compatibility_status", "current", "staged fixed override")
+    mutate_entry("generate", "--watch", "compatibility_status", "internal_compatibility", "internal compatibility")
+    mutate_entry("generate", "-P", "compatibility_status", "current", "must remain internal compatibility")
+
+    changed = document
+    find_entry(changed.fetch("registrations"), "generate", "--debug")["compatibility_status"] = "obsolete_alias"
+    assert_invalid(changed, "must point to a canonical registration")
+
+    changed = document
+    coverage = find_entry(changed.fetch("registrations"), "test", "--coverage=PERCENT")
+    coverage["owner_class"] = "grammar_minimum"
+    coverage["override_algebra"] = "minimum"
+    assert_invalid(changed, "grammar minimum policy fields")
+  end
+
   def test_new_optionparser_registration_without_classification_fails
     with_repository_copy do |root|
-      path = File.join(root, "lib/ibex/cli/new_command.rb")
-      File.binwrite(path, <<~RUBY)
+      path = "lib/new_command.rb"
+      write_ruby(root, path, <<~RUBY)
+        require "optparse"
         module Ibex
           module NewCommand
             def new_options(parser)
@@ -121,7 +245,7 @@ class ConfigurationInventoryTest < Minitest::Test
         end
       RUBY
       error = assert_raises(RuntimeError) { inventory_for(root).verify! }
-      assert_match(/call_site_count drift/, error.message)
+      assert_match(/no reviewed command surface mapping/, error.message)
     end
   end
 
@@ -168,6 +292,29 @@ class ConfigurationInventoryTest < Minitest::Test
       end
       assert_includes error.message, message
     end
+  end
+
+  def mutate_entry(surface, spelling, field, value, message)
+    changed = document
+    find_entry(changed.fetch("registrations"), surface, spelling)[field] = value
+    assert_invalid(changed, message)
+  end
+
+  def with_watch_registration(replacement)
+    with_repository_copy do |root|
+      path = File.join(root, "lib/ibex/cli.rb")
+      source = File.binread(path)
+      raise "watch registration fixture drift" unless source.include?(WATCH_REGISTRATION)
+
+      File.binwrite(path, source.sub(WATCH_REGISTRATION, replacement))
+      yield root
+    end
+  end
+
+  def write_ruby(root, relative, source)
+    path = File.join(root, relative)
+    FileUtils.mkdir_p(File.dirname(path))
+    File.binwrite(path, source)
   end
 
   def with_repository_copy

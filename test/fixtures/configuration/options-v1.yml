@@ -2,8 +2,8 @@
 schema_version: 1
 scope:
   source_globs:
-  - lib/ibex/cli.rb
-  - lib/ibex/cli/**/*.rb
+  - exe/*
+  - lib/**/*.rb
   call_site_count: 177
   runtime_registration_count: 186
 registrations:
@@ -33,6 +33,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_compatibility_options#--line-convert-all
   source: lib/ibex/cli.rb
   method: add_compatibility_options
@@ -60,6 +63,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_compatibility_options#--superclass=CLASS
   source: lib/ibex/cli.rb
   method: add_compatibility_options
@@ -88,6 +94,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: staged_compatibility
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: string constrained by command validation
 - id: lib/ibex/cli.rb#add_compatibility_options#-C
   source: lib/ibex/cli.rb
   method: add_compatibility_options
@@ -116,6 +125,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_compatibility_options#-D FLAGS
   source: lib/ibex/cli.rb
   method: add_compatibility_options
@@ -142,6 +154,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: internal_compatibility
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: string constrained by command validation
 - id: lib/ibex/cli.rb#add_compatibility_options#-F
   source: lib/ibex/cli.rb
   method: add_compatibility_options
@@ -171,6 +186,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_compatibility_options#-P
   source: lib/ibex/cli.rb
   method: add_compatibility_options
@@ -197,6 +215,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: internal_compatibility
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_compatibility_options#-S
   source: lib/ibex/cli.rb
   method: add_compatibility_options
@@ -225,6 +246,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_compatibility_options#-a
   source: lib/ibex/cli.rb
   method: add_compatibility_options
@@ -255,6 +279,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: staged_compatibility
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_compatibility_options#-l
   source: lib/ibex/cli.rb
   method: add_compatibility_options
@@ -284,6 +311,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_information_options#--copyright
   source: lib/ibex/cli.rb
   method: add_information_options
@@ -310,6 +340,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_information_options#--help
   source: lib/ibex/cli.rb
   method: add_information_options
@@ -336,20 +369,24 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_information_options#--lang=LANG
   source: lib/ibex/cli.rb
   method: add_information_options
   line: 419
   declaration_sha256: d74285e6c182cb7ac69159a0ee39a5f4f7a3306beb48bfa2873ebb2c001d1877
   context_sha256:
-  surface: generate
+  surface: global
   declared_spellings:
   - "--lang=LANG"
   effective_spellings:
   - "--lang=LANG"
   canonical_key: presentation.language
-  value_type: string
-  default: unset
+  value_type: enum
+  default: normalized IBEX_LANG (en/ja), falling back to en; environment-dependent
+    presentation only
   affected_stages:
   - invocation
   public_contract_effect: Changes only the selected operation, bounded evidence, destination,
@@ -359,9 +396,12 @@ registrations:
   override_algebra: invocation_only
   ir_presence: not_persisted
   manifest_presence: not_applicable
-  trust_implications: CLI input only; it must not become trusted grammar or execute
-    while inventorying.
+  trust_implications: Normalize untrusted CLI/environment text to en or ja; environment-dependent
+    presentation is non-reproducible and never grammar state.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: en | ja
 - id: lib/ibex/cli.rb#add_information_options#--runtime-version
   source: lib/ibex/cli.rb
   method: add_information_options
@@ -388,6 +428,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_information_options#--version
   source: lib/ibex/cli.rb
   method: add_information_options
@@ -414,6 +457,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_output_options#--dot=FILE
   source: lib/ibex/cli.rb
   method: add_output_options
@@ -426,7 +472,7 @@ registrations:
   effective_spellings:
   - "--dot=FILE"
   canonical_key: path.generate.dot
-  value_type: string
+  value_type: path
   default: unset
   affected_stages:
   - invocation
@@ -440,6 +486,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: caller-supplied filesystem or logical source path
 - id: lib/ibex/cli.rb#add_output_options#--html=FILE
   source: lib/ibex/cli.rb
   method: add_output_options
@@ -452,7 +501,7 @@ registrations:
   effective_spellings:
   - "--html=FILE"
   canonical_key: path.generate.html
-  value_type: string
+  value_type: path
   default: unset
   affected_stages:
   - invocation
@@ -466,6 +515,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: caller-supplied filesystem or logical source path
 - id: lib/ibex/cli.rb#add_output_options#--manifest[=FILE]
   source: lib/ibex/cli.rb
   method: add_output_options
@@ -478,7 +530,7 @@ registrations:
   effective_spellings:
   - "--manifest[=FILE]"
   canonical_key: companion.manifest
-  value_type: optional string or boolean
+  value_type: optional_path_or_boolean
   default: false; derived .ibex.json path when requested without a value
   affected_stages:
   - code_generation
@@ -493,6 +545,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: optional string or boolean
+  value_domain: false | true (derived path) | caller-supplied path
 - id: lib/ibex/cli.rb#add_output_options#--mermaid=FILE
   source: lib/ibex/cli.rb
   method: add_output_options
@@ -505,7 +560,7 @@ registrations:
   effective_spellings:
   - "--mermaid=FILE"
   canonical_key: path.generate.mermaid
-  value_type: string
+  value_type: path
   default: unset
   affected_stages:
   - invocation
@@ -519,6 +574,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: caller-supplied filesystem or logical source path
 - id: lib/ibex/cli.rb#add_output_options#--railroad=FILE
   source: lib/ibex/cli.rb
   method: add_output_options
@@ -531,7 +589,7 @@ registrations:
   effective_spellings:
   - "--railroad=FILE"
   canonical_key: path.generate.railroad
-  value_type: string
+  value_type: path
   default: unset
   affected_stages:
   - invocation
@@ -545,6 +603,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: caller-supplied filesystem or logical source path
 - id: lib/ibex/cli.rb#add_output_options#-E
   source: lib/ibex/cli.rb
   method: add_output_options
@@ -574,6 +635,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_output_options#-O
   source: lib/ibex/cli.rb
   method: add_output_options
@@ -588,7 +652,7 @@ registrations:
   - "-O"
   - "--log-file=FILE"
   canonical_key: path.generate.log_file
-  value_type: string
+  value_type: path
   default: derived .output path when reporting is requested
   affected_stages:
   - invocation
@@ -602,6 +666,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: caller-supplied filesystem or logical source path
 - id: lib/ibex/cli.rb#add_output_options#-e
   source: lib/ibex/cli.rb
   method: add_output_options
@@ -616,7 +683,7 @@ registrations:
   - "-e"
   - "--executable [RUBY]"
   canonical_key: build.executable
-  value_type: optional string or boolean
+  value_type: optional_string_or_boolean
   default: false; /usr/bin/env ruby when requested without a value
   affected_stages:
   - code_generation
@@ -631,6 +698,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: optional string or boolean
+  value_domain: false | true (command default) | caller-supplied string
 - id: lib/ibex/cli.rb#add_output_options#-g
   source: lib/ibex/cli.rb
   method: add_output_options
@@ -658,6 +728,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: obsolete_alias
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_output_options#-o
   source: lib/ibex/cli.rb
   method: add_output_options
@@ -672,7 +745,7 @@ registrations:
   - "-o"
   - "--output-file=FILE"
   canonical_key: path.generate.output_file
-  value_type: string
+  value_type: path
   default: derived .rb path beside the grammar
   affected_stages:
   - invocation
@@ -686,6 +759,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: caller-supplied filesystem or logical source path
 - id: lib/ibex/cli.rb#add_output_options#-t
   source: lib/ibex/cli.rb
   method: add_output_options
@@ -715,6 +791,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_output_options#-v
   source: lib/ibex/cli.rb
   method: add_output_options
@@ -736,13 +815,16 @@ registrations:
   public_contract_effect: Changes only the selected operation, bounded evidence, destination,
     or presentation for this invocation.
   owner_class: invocation_request
-  grammar_admission: excluded_x1_operation
+  grammar_admission: excluded_x3_presentation
   override_algebra: invocation_only
   ir_presence: not_persisted
   manifest_presence: not_applicable
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_pipeline_options#--algorithm=NAME
   source: lib/ibex/cli.rb
   method: add_pipeline_options
@@ -771,6 +853,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: slr | lalr | ielr | lr1
 - id: lib/ibex/cli.rb#add_pipeline_options#--cst-trivia=POLICY
   source: lib/ibex/cli.rb
   method: add_pipeline_options
@@ -799,6 +884,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: leading | balanced | drop; source alias attach normalizes to leading
 - id: lib/ibex/cli.rb#add_pipeline_options#--emit=FORMAT
   source: lib/ibex/cli.rb
   method: add_pipeline_options
@@ -811,7 +899,7 @@ registrations:
   effective_spellings:
   - "--emit=FORMAT"
   canonical_key: invocation.generate.emit
-  value_type: string
+  value_type: enum
   default: ruby
   affected_stages:
   - invocation
@@ -825,6 +913,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: ast | sets | lexer-ir | grammar-ir | automaton-ir | ruby
 - id: lib/ibex/cli.rb#add_pipeline_options#--entry-isolation
   source: lib/ibex/cli.rb
   method: add_pipeline_options
@@ -853,6 +944,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_pipeline_options#--from=FORMAT
   source: lib/ibex/cli.rb
   method: add_pipeline_options
@@ -879,6 +973,9 @@ registrations:
   trust_implications: Validate the selected IR as untrusted data; never execute embedded
     user sections while loading or inventorying it.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: grammar-ir | automaton-ir
 - id: lib/ibex/cli.rb#add_pipeline_options#--mode=MODE
   source: lib/ibex/cli.rb
   method: add_pipeline_options
@@ -907,6 +1004,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: staged_compatibility
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: default | extended
 - id: lib/ibex/cli.rb#add_pipeline_options#--suggest-ielr
   source: lib/ibex/cli.rb
   method: add_pipeline_options
@@ -933,6 +1033,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_pipeline_options#--table=FORMAT
   source: lib/ibex/cli.rb
   method: add_pipeline_options
@@ -960,6 +1063,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: plain | compact
 - id: lib/ibex/cli.rb#add_pipeline_options#--warnings=CATEGORIES
   source: lib/ibex/cli.rb
   method: add_pipeline_options
@@ -972,7 +1078,7 @@ registrations:
   effective_spellings:
   - "--warnings=CATEGORIES"
   canonical_key: invocation.warning_policy
-  value_type: string
+  value_type: set_of_enums
   default: all warnings enabled; not promoted to errors
   affected_stages:
   - invocation
@@ -986,6 +1092,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: all | error | all,error | none
 - id: lib/ibex/cli.rb#add_pipeline_options#--watch
   source: lib/ibex/cli.rb
   method: add_pipeline_options
@@ -1012,6 +1121,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli.rb#add_signature_output_options#--action-source[=FILE]
   source: lib/ibex/cli.rb
   method: add_signature_output_options
@@ -1024,7 +1136,7 @@ registrations:
   effective_spellings:
   - "--action-source[=FILE]"
   canonical_key: companion.action_source
-  value_type: optional string or boolean
+  value_type: optional_path_or_boolean
   default: false; derived .actions.rb path when requested without a value
   affected_stages:
   - code_generation
@@ -1039,6 +1151,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: optional string or boolean
+  value_domain: false | true (derived path) | caller-supplied path
 - id: lib/ibex/cli.rb#add_signature_output_options#--rbs[=FILE]
   source: lib/ibex/cli.rb
   method: add_signature_output_options
@@ -1051,7 +1166,7 @@ registrations:
   effective_spellings:
   - "--rbs[=FILE]"
   canonical_key: companion.rbs
-  value_type: optional string or boolean
+  value_type: optional_path_or_boolean
   default: false; derived .rbs path when requested without a value
   affected_stages:
   - code_generation
@@ -1066,6 +1181,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: optional string or boolean
+  value_domain: false | true (derived path) | caller-supplied path
 - id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--algorithm=NAME
   source: lib/ibex/cli/ambiguity.rb
   method: ambiguity_option_parser
@@ -1094,6 +1212,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: slr | lalr | ielr | lr1
 - id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--ambiguity
   source: lib/ibex/cli/ambiguity.rb
   method: ambiguity_option_parser
@@ -1120,6 +1241,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--entry-isolation
   source: lib/ibex/cli/ambiguity.rb
   method: ambiguity_option_parser
@@ -1148,6 +1272,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--format=FORMAT
   source: lib/ibex/cli/ambiguity.rb
   method: ambiguity_option_parser
@@ -1175,6 +1302,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: text | json
 - id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--help
   source: lib/ibex/cli/ambiguity.rb
   method: ambiguity_option_parser
@@ -1201,6 +1331,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--max-configurations=N
   source: lib/ibex/cli/ambiguity.rb
   method: ambiguity_option_parser
@@ -1228,6 +1361,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--max-tokens=N
   source: lib/ibex/cli/ambiguity.rb
   method: ambiguity_option_parser
@@ -1255,6 +1391,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--mode=MODE
   source: lib/ibex/cli/ambiguity.rb
   method: ambiguity_option_parser
@@ -1283,6 +1422,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: default | extended
 - id: lib/ibex/cli/analysis.rb#analysis_options#--algorithm=NAME
   source: lib/ibex/cli/analysis.rb
   method: analysis_options
@@ -1311,6 +1453,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: slr | lalr | ielr | lr1
 - id: lib/ibex/cli/analysis.rb#analysis_options#--format=FORMAT
   source: lib/ibex/cli/analysis.rb
   method: analysis_options
@@ -1338,6 +1483,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: json | text
 - id: lib/ibex/cli/analysis.rb#analysis_options#--help
   source: lib/ibex/cli/analysis.rb
   method: analysis_options
@@ -1364,6 +1512,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/analysis.rb#analysis_options#--mode=MODE
   source: lib/ibex/cli/analysis.rb
   method: analysis_options
@@ -1392,6 +1543,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: default | extended
 - id: lib/ibex/cli/bison_import.rb#add_bison_import_budgets#--max-actions=N
   source: lib/ibex/cli/bison_import.rb
   method: add_bison_import_budgets
@@ -1419,6 +1573,9 @@ registrations:
   trust_implications: Treat the foreign grammar as untrusted data; import statically
     without executing C actions or user sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/bison_import.rb#add_bison_import_budgets#--max-bytes=N
   source: lib/ibex/cli/bison_import.rb
   method: add_bison_import_budgets
@@ -1446,6 +1603,9 @@ registrations:
   trust_implications: Treat the foreign grammar as untrusted data; import statically
     without executing C actions or user sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/bison_import.rb#add_bison_import_budgets#--max-rules=N
   source: lib/ibex/cli/bison_import.rb
   method: add_bison_import_budgets
@@ -1473,6 +1633,9 @@ registrations:
   trust_implications: Treat the foreign grammar as untrusted data; import statically
     without executing C actions or user sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/bison_import.rb#add_bison_import_budgets#--max-tokens=N
   source: lib/ibex/cli/bison_import.rb
   method: add_bison_import_budgets
@@ -1500,6 +1663,9 @@ registrations:
   trust_implications: Treat the foreign grammar as untrusted data; import statically
     without executing C actions or user sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/bison_import.rb#bison_import_option_parser#--class=NAME
   source: lib/ibex/cli/bison_import.rb
   method: bison_import_option_parser
@@ -1526,6 +1692,9 @@ registrations:
   trust_implications: Treat the foreign grammar as untrusted data; import statically
     without executing C actions or user sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: string constrained by command validation
 - id: lib/ibex/cli/bison_import.rb#bison_import_option_parser#--format=FORMAT
   source: lib/ibex/cli/bison_import.rb
   method: bison_import_option_parser
@@ -1553,6 +1722,9 @@ registrations:
   trust_implications: Treat the foreign grammar as untrusted data; import statically
     without executing C actions or user sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: source | json
 - id: lib/ibex/cli/bison_import.rb#bison_import_option_parser#--help
   source: lib/ibex/cli/bison_import.rb
   method: bison_import_option_parser
@@ -1579,6 +1751,9 @@ registrations:
   trust_implications: Treat the foreign grammar as untrusted data; import statically
     without executing C actions or user sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/bison_import.rb#bison_import_option_parser#-o FILE
   source: lib/ibex/cli/bison_import.rb
   method: bison_import_option_parser
@@ -1593,7 +1768,7 @@ registrations:
   - "-o FILE"
   - "--output=FILE"
   canonical_key: path.import_bison.output
-  value_type: string
+  value_type: path
   default: unset
   affected_stages:
   - invocation
@@ -1607,6 +1782,9 @@ registrations:
   trust_implications: Treat the foreign grammar as untrusted data; import statically
     without executing C actions or user sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: caller-supplied filesystem or logical source path
 - id: lib/ibex/cli/counterexample_options.rb#add_counterexample_options#--counterexample-max-configurations=N
   source: lib/ibex/cli/counterexample_options.rb
   method: add_counterexample_options
@@ -1634,6 +1812,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/counterexample_options.rb#add_counterexample_options#--counterexample-max-tokens=N
   source: lib/ibex/cli/counterexample_options.rb
   method: add_counterexample_options
@@ -1661,6 +1842,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/counterexample_options.rb#add_counterexample_options#--counterexamples
   source: lib/ibex/cli/counterexample_options.rb
   method: add_counterexample_options
@@ -1681,13 +1865,16 @@ registrations:
   public_contract_effect: Changes only the selected operation, bounded evidence, destination,
     or presentation for this invocation.
   owner_class: invocation_request
-  grammar_admission: excluded_x4_caller_budget
+  grammar_admission: excluded_x1_operation
   override_algebra: invocation_only
   ir_presence: not_persisted
   manifest_presence: not_applicable
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/coverage.rb#coverage_check_options#--min-productions=PERCENT
   source: lib/ibex/cli/coverage.rb
   method: coverage_check_options
@@ -1714,6 +1901,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: float
+  value_domain: finite float constrained by command validation
 - id: lib/ibex/cli/coverage.rb#coverage_check_options#--min-states=PERCENT
   source: lib/ibex/cli/coverage.rb
   method: coverage_check_options
@@ -1741,6 +1931,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: float
+  value_domain: finite float constrained by command validation
 - id: lib/ibex/cli/coverage.rb#coverage_output_options#-o FILE
   source: lib/ibex/cli/coverage.rb
   method: coverage_output_options
@@ -1755,7 +1948,7 @@ registrations:
   - "-o FILE"
   - "--output=FILE"
   canonical_key: path.coverage_collect_or_merge.output
-  value_type: string
+  value_type: path
   default: unset
   affected_stages:
   - invocation
@@ -1769,6 +1962,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: caller-supplied filesystem or logical source path
 - id: lib/ibex/cli/debug.rb#debug_options#--format=FORMAT
   source: lib/ibex/cli/debug.rb
   method: debug_options
@@ -1796,6 +1992,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: text | json
 - id: lib/ibex/cli/debug.rb#debug_options#--max-stack=N
   source: lib/ibex/cli/debug.rb
   method: debug_options
@@ -1823,6 +2022,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/debug.rb#debug_options#--max-steps=N
   source: lib/ibex/cli/debug.rb
   method: debug_options
@@ -1850,6 +2052,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/diagnostics.rb#diagnostics_option_parser#--format=FORMAT
   source: lib/ibex/cli/diagnostics.rb
   method: diagnostics_option_parser
@@ -1877,6 +2082,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: text | json
 - id: lib/ibex/cli/diagnostics.rb#diagnostics_option_parser#--help
   source: lib/ibex/cli/diagnostics.rb
   method: diagnostics_option_parser
@@ -1903,6 +2111,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/diagnostics.rb#diagnostics_option_parser#--max-diagnostics=N
   source: lib/ibex/cli/diagnostics.rb
   method: diagnostics_option_parser
@@ -1930,6 +2141,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/diagnostics.rb#diagnostics_option_parser#--mode=MODE
   source: lib/ibex/cli/diagnostics.rb
   method: diagnostics_option_parser
@@ -1958,6 +2172,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: default | extended
 - id: lib/ibex/cli/documentation.rb#documentation_option_parser#--format=FORMAT
   source: lib/ibex/cli/documentation.rb
   method: documentation_option_parser
@@ -1985,6 +2202,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: markdown | html | railroad
 - id: lib/ibex/cli/documentation.rb#documentation_option_parser#--help
   source: lib/ibex/cli/documentation.rb
   method: documentation_option_parser
@@ -2011,6 +2231,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/documentation.rb#documentation_option_parser#--mode=MODE
   source: lib/ibex/cli/documentation.rb
   method: documentation_option_parser
@@ -2039,6 +2262,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: default | extended
 - id: lib/ibex/cli/documentation.rb#documentation_option_parser#-o FILE
   source: lib/ibex/cli/documentation.rb
   method: documentation_option_parser
@@ -2053,7 +2279,7 @@ registrations:
   - "-o FILE"
   - "--output=FILE"
   canonical_key: path.doc.output
-  value_type: string
+  value_type: path
   default: unset
   affected_stages:
   - invocation
@@ -2067,6 +2293,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: caller-supplied filesystem or logical source path
 - id: lib/ibex/cli/equiv.rb#add_equiv_search_options#--max-actions=N
   source: lib/ibex/cli/equiv.rb
   method: add_equiv_search_options
@@ -2094,6 +2323,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/equiv.rb#add_equiv_search_options#--max-configurations=N
   source: lib/ibex/cli/equiv.rb
   method: add_equiv_search_options
@@ -2121,6 +2353,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/equiv.rb#add_equiv_search_options#--max-stack=N
   source: lib/ibex/cli/equiv.rb
   method: add_equiv_search_options
@@ -2148,6 +2383,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/equiv.rb#add_equiv_search_options#--max-tokens=N
   source: lib/ibex/cli/equiv.rb
   method: add_equiv_search_options
@@ -2175,6 +2413,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/equiv.rb#add_equiv_search_options#--samples=N
   source: lib/ibex/cli/equiv.rb
   method: add_equiv_search_options
@@ -2202,6 +2443,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/equiv.rb#add_equiv_search_options#--seed=N
   source: lib/ibex/cli/equiv.rb
   method: add_equiv_search_options
@@ -2222,13 +2466,16 @@ registrations:
   public_contract_effect: Changes only the selected operation, bounded evidence, destination,
     or presentation for this invocation.
   owner_class: invocation_request
-  grammar_admission: excluded_x4_caller_budget
+  grammar_admission: excluded_x1_operation
   override_algebra: invocation_only
   ir_presence: not_persisted
   manifest_presence: not_applicable
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/equiv.rb#equiv_options#--algorithm=NAME
   source: lib/ibex/cli/equiv.rb
   method: equiv_options
@@ -2257,6 +2504,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: slr | lalr | ielr | lr1
 - id: lib/ibex/cli/equiv.rb#equiv_options#--format=FORMAT
   source: lib/ibex/cli/equiv.rb
   method: equiv_options
@@ -2284,6 +2534,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: json | text
 - id: lib/ibex/cli/equiv.rb#equiv_options#--help
   source: lib/ibex/cli/equiv.rb
   method: equiv_options
@@ -2310,6 +2563,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/equiv.rb#equiv_options#--map=OLD=NEW
   source: lib/ibex/cli/equiv.rb
   method: equiv_options
@@ -2336,6 +2592,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: string constrained by command validation
 - id: lib/ibex/cli/equiv.rb#equiv_options#--mode=MODE
   source: lib/ibex/cli/equiv.rb
   method: equiv_options
@@ -2364,6 +2623,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: default | extended
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--algorithm=NAME
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
@@ -2392,6 +2654,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: slr | lalr | ielr | lr1
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--from=FORMAT
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
@@ -2418,6 +2683,9 @@ registrations:
   trust_implications: Validate the selected IR as untrusted data; never execute embedded
     user sections while loading or inventorying it.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: grammar-ir | automaton-ir
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--help
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
@@ -2444,6 +2712,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--list
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
@@ -2470,6 +2741,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--max-configurations=N
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
@@ -2497,6 +2771,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--max-tokens=N
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
@@ -2524,6 +2801,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--mode=MODE
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
@@ -2552,6 +2832,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: default | extended
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--update[=FILE]
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
@@ -2564,7 +2847,7 @@ registrations:
   effective_spellings:
   - "--update[=FILE]"
   canonical_key: invocation.error_messages.update
-  value_type: optional string or boolean
+  value_type: optional_path_or_boolean
   default: false; grammar.messages when requested without a value
   affected_stages:
   - invocation
@@ -2578,6 +2861,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: optional string or boolean
+  value_domain: false | true (derived path) | caller-supplied path
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--warnings=CATEGORIES
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
@@ -2590,7 +2876,7 @@ registrations:
   effective_spellings:
   - "--warnings=CATEGORIES"
   canonical_key: invocation.warning_policy
-  value_type: string
+  value_type: set_of_enums
   default: unset
   affected_stages:
   - invocation
@@ -2604,6 +2890,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: all | error | all,error | none
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#-S
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
@@ -2632,6 +2921,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/explain.rb#add_explain_search_options#--counterexample-max-configurations=N
   source: lib/ibex/cli/explain.rb
   method: add_explain_search_options
@@ -2659,6 +2951,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/explain.rb#add_explain_search_options#--counterexample-max-tokens=N
   source: lib/ibex/cli/explain.rb
   method: add_explain_search_options
@@ -2686,6 +2981,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/explain.rb#explain_option_parser#--algorithm=NAME
   source: lib/ibex/cli/explain.rb
   method: explain_option_parser
@@ -2714,6 +3012,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: slr | lalr | ielr | lr1
 - id: lib/ibex/cli/explain.rb#explain_option_parser#--entry-isolation
   source: lib/ibex/cli/explain.rb
   method: explain_option_parser
@@ -2742,6 +3043,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/explain.rb#explain_option_parser#--format=FORMAT
   source: lib/ibex/cli/explain.rb
   method: explain_option_parser
@@ -2769,6 +3073,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: text | json
 - id: lib/ibex/cli/explain.rb#explain_option_parser#--help
   source: lib/ibex/cli/explain.rb
   method: explain_option_parser
@@ -2795,6 +3102,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/explain.rb#explain_option_parser#--mode=MODE
   source: lib/ibex/cli/explain.rb
   method: explain_option_parser
@@ -2823,6 +3133,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: default | extended
 - id: lib/ibex/cli/explain.rb#explain_option_parser#--state=N
   source: lib/ibex/cli/explain.rb
   method: explain_option_parser
@@ -2850,6 +3163,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/explain.rb#explain_option_parser#--token=NAME
   source: lib/ibex/cli/explain.rb
   method: explain_option_parser
@@ -2877,6 +3193,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: string constrained by command validation
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--equiv-max-configurations=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
@@ -2904,6 +3223,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--equiv-max-tokens=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
@@ -2931,6 +3253,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--equiv-samples=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
@@ -2958,6 +3283,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--max-builds=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
@@ -2985,6 +3313,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--max-candidates=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
@@ -3012,6 +3343,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--verify-max-items=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
@@ -3039,6 +3373,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--verify-max-states=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
@@ -3066,6 +3403,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fix.rb#add_fix_target_options#--conflict-index=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_target_options
@@ -3092,6 +3432,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fix.rb#add_fix_target_options#--state=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_target_options
@@ -3119,6 +3462,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fix.rb#fix_options#--algorithm=NAME
   source: lib/ibex/cli/fix.rb
   method: fix_options
@@ -3147,6 +3493,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: slr | lalr | ielr | lr1
 - id: lib/ibex/cli/fix.rb#fix_options#--apply[=ID]
   source: lib/ibex/cli/fix.rb
   method: fix_options
@@ -3159,7 +3508,7 @@ registrations:
   effective_spellings:
   - "--apply[=ID]"
   canonical_key: invocation.fix.apply
-  value_type: optional string or boolean
+  value_type: optional_string_or_boolean
   default: unset
   affected_stages:
   - invocation
@@ -3173,6 +3522,9 @@ registrations:
   trust_implications: Mutates the selected grammar only through the command explicit
     atomic-write safety checks; inventorying never applies a proposal.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: optional string or boolean
+  value_domain: false | true (command default) | caller-supplied string
 - id: lib/ibex/cli/fix.rb#fix_options#--format=FORMAT
   source: lib/ibex/cli/fix.rb
   method: fix_options
@@ -3200,6 +3552,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: json | text
 - id: lib/ibex/cli/fix.rb#fix_options#--help
   source: lib/ibex/cli/fix.rb
   method: fix_options
@@ -3226,6 +3581,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/fix.rb#fix_options#--messages=FILE
   source: lib/ibex/cli/fix.rb
   method: fix_options
@@ -3238,7 +3596,7 @@ registrations:
   effective_spellings:
   - "--messages=FILE"
   canonical_key: path.fix.messages
-  value_type: string
+  value_type: path
   default: unset
   affected_stages:
   - invocation
@@ -3252,6 +3610,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: caller-supplied filesystem or logical source path
 - id: lib/ibex/cli/fix.rb#fix_options#--mode=MODE
   source: lib/ibex/cli/fix.rb
   method: fix_options
@@ -3280,6 +3641,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: default | extended
 - id: lib/ibex/cli/formatting.rb#formatting_option_parser#--check
   source: lib/ibex/cli/formatting.rb
   method: formatting_option_parser
@@ -3306,6 +3670,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/formatting.rb#formatting_option_parser#--help
   source: lib/ibex/cli/formatting.rb
   method: formatting_option_parser
@@ -3332,6 +3699,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/formatting.rb#formatting_option_parser#--mode=MODE
   source: lib/ibex/cli/formatting.rb
   method: formatting_option_parser
@@ -3360,6 +3730,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: default | extended
 - id: lib/ibex/cli/formatting.rb#formatting_option_parser#--stdin-filename=FILE
   source: lib/ibex/cli/formatting.rb
   method: formatting_option_parser
@@ -3372,7 +3745,7 @@ registrations:
   effective_spellings:
   - "--stdin-filename=FILE"
   canonical_key: path.formatting.stdin_filename
-  value_type: string
+  value_type: path
   default: unset
   affected_stages:
   - invocation
@@ -3386,6 +3759,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: caller-supplied filesystem or logical source path
 - id: lib/ibex/cli/formatting.rb#formatting_option_parser#--write
   source: lib/ibex/cli/formatting.rb
   method: formatting_option_parser
@@ -3412,6 +3788,9 @@ registrations:
   trust_implications: Mutates explicit formatting targets through the command atomic-write
     checks; inventorying never writes target files.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_execution_options#--coverage-guided
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_execution_options
@@ -3438,6 +3817,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_execution_options#--max-actions=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_execution_options
@@ -3465,6 +3847,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_execution_options#--max-stack=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_execution_options
@@ -3492,6 +3877,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_execution_options#--path-length=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_execution_options
@@ -3518,6 +3906,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--[no-]save-regression
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_external_options
@@ -3545,6 +3936,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--against-max-output=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_external_options
@@ -3572,6 +3966,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--against-runtime=DESCRIPTION
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_external_options
@@ -3598,6 +3995,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: string constrained by command validation
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--against-timeout=SECONDS
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_external_options
@@ -3625,6 +4025,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--against=COMMAND
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_external_options
@@ -3651,6 +4054,9 @@ registrations:
   trust_implications: Executes the explicit untrusted JSON-token target in a bounded
     subprocess; never execute it during inventory or configuration resolution.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: string constrained by command validation
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--format=FORMAT
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_external_options
@@ -3678,6 +4084,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: json | text
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--max-reduction-trials=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_external_options
@@ -3705,6 +4114,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--regression-dir=DIR
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_external_options
@@ -3717,7 +4129,7 @@ registrations:
   effective_spellings:
   - "--regression-dir=DIR"
   canonical_key: path.fuzz.regression_dir
-  value_type: string
+  value_type: path
   default: test/fuzz/regressions
   affected_stages:
   - invocation
@@ -3731,6 +4143,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: caller-supplied filesystem or logical source path
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_generation_options#--count=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_generation_options
@@ -3757,6 +4172,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_generation_options#--max-depth=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_generation_options
@@ -3784,6 +4202,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_generation_options#--max-expansions=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_generation_options
@@ -3811,6 +4232,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_generation_options#--max-tokens=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_generation_options
@@ -3838,6 +4262,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_generation_options#--seed=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_generation_options
@@ -3858,13 +4285,16 @@ registrations:
   public_contract_effect: Changes only the selected operation, bounded evidence, destination,
     or presentation for this invocation.
   owner_class: invocation_request
-  grammar_admission: excluded_x4_caller_budget
+  grammar_admission: excluded_x1_operation
   override_algebra: invocation_only
   ir_presence: not_persisted
   manifest_presence: not_applicable
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/fuzz.rb#fuzz_option_parser#--help
   source: lib/ibex/cli/fuzz.rb
   method: fuzz_option_parser
@@ -3891,6 +4321,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/fuzz.rb#fuzz_option_parser#--mode=MODE
   source: lib/ibex/cli/fuzz.rb
   method: fuzz_option_parser
@@ -3919,6 +4352,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: default | extended
 - id: lib/ibex/cli/fuzz.rb#fuzz_option_parser#--warnings=CATEGORIES
   source: lib/ibex/cli/fuzz.rb
   method: fuzz_option_parser
@@ -3931,7 +4367,7 @@ registrations:
   effective_spellings:
   - "--warnings=CATEGORIES"
   canonical_key: invocation.warning_policy
-  value_type: string
+  value_type: set_of_enums
   default: unset
   affected_stages:
   - invocation
@@ -3945,6 +4381,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: all | error | all,error | none
 - id: lib/ibex/cli/generation_error_messages.rb#add_error_messages_generation_option#--messages=FILE
   source: lib/ibex/cli/generation_error_messages.rb
   method: add_error_messages_generation_option
@@ -3957,7 +4396,7 @@ registrations:
   effective_spellings:
   - "--messages=FILE"
   canonical_key: path.generate.messages
-  value_type: string
+  value_type: path
   default: unset
   affected_stages:
   - invocation
@@ -3971,6 +4410,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: caller-supplied filesystem or logical source path
 - id: lib/ibex/cli/grammar_tests.rb#grammar_test_option_parser#--algorithm=NAME
   source: lib/ibex/cli/grammar_tests.rb
   method: grammar_test_option_parser
@@ -3999,6 +4441,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: slr | lalr | ielr | lr1
 - id: lib/ibex/cli/grammar_tests.rb#grammar_test_option_parser#--coverage=PERCENT
   source: lib/ibex/cli/grammar_tests.rb
   method: grammar_test_option_parser
@@ -4025,6 +4470,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/grammar_tests.rb#grammar_test_option_parser#--entry-isolation
   source: lib/ibex/cli/grammar_tests.rb
   method: grammar_test_option_parser
@@ -4053,6 +4501,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/grammar_tests.rb#grammar_test_option_parser#--mode=MODE
   source: lib/ibex/cli/grammar_tests.rb
   method: grammar_test_option_parser
@@ -4081,6 +4532,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: default | extended
 - id: lib/ibex/cli/grammar_tests.rb#grammar_test_option_parser#--timeout=SECONDS
   source: lib/ibex/cli/grammar_tests.rb
   method: grammar_test_option_parser
@@ -4108,6 +4562,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/grammar_tests.rb#grammar_test_option_parser#-h
   source: lib/ibex/cli/grammar_tests.rb
   method: grammar_test_option_parser
@@ -4136,6 +4593,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/ir_tools.rb#migrate_ir_options#--to=VERSION
   source: lib/ibex/cli/ir_tools.rb
   method: migrate_ir_options
@@ -4162,6 +4622,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/ir_tools.rb#migrate_ir_options#-o FILE
   source: lib/ibex/cli/ir_tools.rb
   method: migrate_ir_options
@@ -4176,7 +4639,7 @@ registrations:
   - "-o FILE"
   - "--output=FILE"
   canonical_key: path.migrate_ir.output
-  value_type: string
+  value_type: path
   default: unset
   affected_stages:
   - invocation
@@ -4190,6 +4653,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: caller-supplied filesystem or logical source path
 - id: lib/ibex/cli/lsp.rb#lsp_option_parser#--help
   source: lib/ibex/cli/lsp.rb
   method: lsp_option_parser
@@ -4216,6 +4682,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/lsp.rb#lsp_option_parser#--stdio
   source: lib/ibex/cli/lsp.rb
   method: lsp_option_parser
@@ -4242,6 +4711,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/racc_migration.rb#migrate_check_options#--format=FORMAT
   source: lib/ibex/cli/racc_migration.rb
   method: migrate_check_options
@@ -4269,6 +4741,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: text | json
 - id: lib/ibex/cli/racc_migration.rb#migrate_check_options#--help
   source: lib/ibex/cli/racc_migration.rb
   method: migrate_check_options
@@ -4295,6 +4770,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/racc_migration.rb#migrate_harness_options#--help
   source: lib/ibex/cli/racc_migration.rb
   method: migrate_harness_options
@@ -4321,6 +4799,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/racc_migration.rb#migrate_harness_options#-o FILE
   source: lib/ibex/cli/racc_migration.rb
   method: migrate_harness_options
@@ -4335,7 +4816,7 @@ registrations:
   - "-o FILE"
   - "--output=FILE"
   canonical_key: path.migrate_harness.output
-  value_type: string
+  value_type: path
   default: unset
   affected_stages:
   - invocation
@@ -4349,6 +4830,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: caller-supplied filesystem or logical source path
 - id: lib/ibex/cli/reduce.rb#reduce_option_parser#--command=COMMAND
   source: lib/ibex/cli/reduce.rb
   method: reduce_option_parser
@@ -4375,6 +4859,9 @@ registrations:
   trust_implications: Executes the explicit untrusted checker in a bounded subprocess;
     never execute it during inventory or configuration resolution.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: string constrained by command validation
 - id: lib/ibex/cli/reduce.rb#reduce_option_parser#--format=FORMAT
   source: lib/ibex/cli/reduce.rb
   method: reduce_option_parser
@@ -4402,6 +4889,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: json | text
 - id: lib/ibex/cli/reduce.rb#reduce_option_parser#--help
   source: lib/ibex/cli/reduce.rb
   method: reduce_option_parser
@@ -4428,6 +4918,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/reduce.rb#reduce_option_parser#--max-input-bytes=N
   source: lib/ibex/cli/reduce.rb
   method: reduce_option_parser
@@ -4455,6 +4948,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/reduce.rb#reduce_option_parser#--max-output-bytes=N
   source: lib/ibex/cli/reduce.rb
   method: reduce_option_parser
@@ -4482,6 +4978,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/reduce.rb#reduce_option_parser#--max-trials=N
   source: lib/ibex/cli/reduce.rb
   method: reduce_option_parser
@@ -4509,6 +5008,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/reduce.rb#reduce_option_parser#--mode=MODE
   source: lib/ibex/cli/reduce.rb
   method: reduce_option_parser
@@ -4535,6 +5037,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: tokens | lines | bytes
 - id: lib/ibex/cli/reduce.rb#reduce_option_parser#--timeout=SECONDS
   source: lib/ibex/cli/reduce.rb
   method: reduce_option_parser
@@ -4562,6 +5067,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/samples.rb#add_sample_generation_options#--count=N
   source: lib/ibex/cli/samples.rb
   method: add_sample_generation_options
@@ -4588,6 +5096,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/samples.rb#add_sample_generation_options#--max-depth=N
   source: lib/ibex/cli/samples.rb
   method: add_sample_generation_options
@@ -4615,6 +5126,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/samples.rb#add_sample_generation_options#--max-expansions=N
   source: lib/ibex/cli/samples.rb
   method: add_sample_generation_options
@@ -4642,6 +5156,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/samples.rb#add_sample_generation_options#--max-tokens=N
   source: lib/ibex/cli/samples.rb
   method: add_sample_generation_options
@@ -4669,6 +5186,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/samples.rb#add_sample_generation_options#--path-length=N
   source: lib/ibex/cli/samples.rb
   method: add_sample_generation_options
@@ -4695,6 +5215,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/samples.rb#add_sample_generation_options#--seed=N
   source: lib/ibex/cli/samples.rb
   method: add_sample_generation_options
@@ -4715,13 +5238,16 @@ registrations:
   public_contract_effect: Changes only the selected operation, bounded evidence, destination,
     or presentation for this invocation.
   owner_class: invocation_request
-  grammar_admission: excluded_x4_caller_budget
+  grammar_admission: excluded_x1_operation
   override_algebra: invocation_only
   ir_presence: not_persisted
   manifest_presence: not_applicable
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/samples.rb#add_sample_generation_options#--strategy=NAME
   source: lib/ibex/cli/samples.rb
   method: add_sample_generation_options
@@ -4748,6 +5274,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: random | coverage
 - id: lib/ibex/cli/samples.rb#add_sample_input_options#--from=FORMAT
   source: lib/ibex/cli/samples.rb
   method: add_sample_input_options
@@ -4774,6 +5303,9 @@ registrations:
   trust_implications: Validate the selected IR as untrusted data; never execute embedded
     user sections while loading or inventorying it.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: grammar-ir | automaton-ir
 - id: lib/ibex/cli/samples.rb#add_sample_input_options#--mode=MODE
   source: lib/ibex/cli/samples.rb
   method: add_sample_input_options
@@ -4802,6 +5334,9 @@ registrations:
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: default | extended
 - id: lib/ibex/cli/samples.rb#add_sample_input_options#--warnings=CATEGORIES
   source: lib/ibex/cli/samples.rb
   method: add_sample_input_options
@@ -4814,7 +5349,7 @@ registrations:
   effective_spellings:
   - "--warnings=CATEGORIES"
   canonical_key: invocation.warning_policy
-  value_type: string
+  value_type: set_of_enums
   default: unset
   affected_stages:
   - invocation
@@ -4828,6 +5363,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: all | error | all,error | none
 - id: lib/ibex/cli/samples.rb#samples_option_parser#--help
   source: lib/ibex/cli/samples.rb
   method: samples_option_parser
@@ -4854,6 +5392,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/verify.rb#verify_options#--format=FORMAT
   source: lib/ibex/cli/verify.rb
   method: verify_options
@@ -4881,6 +5422,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: json | text
 - id: lib/ibex/cli/verify.rb#verify_options#--grammar=GRAMMAR
   source: lib/ibex/cli/verify.rb
   method: verify_options
@@ -4893,7 +5437,7 @@ registrations:
   effective_spellings:
   - "--grammar=GRAMMAR"
   canonical_key: invocation.verify.grammar
-  value_type: string
+  value_type: path
   default: unset
   affected_stages:
   - invocation
@@ -4907,6 +5451,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: caller-supplied filesystem or logical source path
 - id: lib/ibex/cli/verify.rb#verify_options#--help
   source: lib/ibex/cli/verify.rb
   method: verify_options
@@ -4933,6 +5480,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/verify.rb#verify_options#--max-items=N
   source: lib/ibex/cli/verify.rb
   method: verify_options
@@ -4960,6 +5510,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/verify.rb#verify_options#--max-states=N
   source: lib/ibex/cli/verify.rb
   method: verify_options
@@ -4987,6 +5540,9 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: integer
+  value_domain: integer constrained by command validation
 - id: lib/ibex/cli/verify.rb#verify_options#--strict
   source: lib/ibex/cli/verify.rb
   method: verify_options
@@ -5013,3 +5569,6 @@ registrations:
   trust_implications: CLI input only; it must not become trusted grammar or execute
     while inventorying.
   compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
