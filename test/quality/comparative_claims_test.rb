@@ -44,6 +44,18 @@ class ComparativeClaimsTest < Minitest::Test
     assert_error(changed, "missing bound evidence")
   end
 
+  def test_marker_rejects_appended_and_contradictory_strength_sentences
+    %w[invalid-appended.md invalid-contradictory.md].each do |fixture|
+      changed = document
+      claim = changed.fetch("claims").first
+      path = "test/fixtures/comparative_claims/#{fixture}"
+      claim.fetch("binding")["path"] = path
+      claim.fetch("evidence").first["path"] = path
+
+      assert_error(changed, "unregistered comparative strength")
+    end
+  end
+
   def test_pending_records_cannot_be_public_claims
     changed = document
     changed.fetch("claims").first.fetch("binding")["kind"] = "claim"
