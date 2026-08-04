@@ -79,6 +79,12 @@ namespace :quality do
     ruby "-Ilib", "-r./tool/quality/maturity", "-e", "Ibex::Quality::Maturity.new.verify!"
   end
 
+  desc "Verify every production CLI option has a declarative configuration owner"
+  task :configuration_inventory do
+    ruby "-Ilib", "-r./tool/quality/configuration_inventory", "-e",
+         "Ibex::Quality::ConfigurationInventory.new.verify!"
+  end
+
   desc "Verify runtime ABI and test interaction contracts"
   task :runtime_abi do
     ruby "-Ilib", "-r./tool/quality/runtime_abi", "-e", "Ibex::Quality::RuntimeABI.new.verify!"
