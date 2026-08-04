@@ -47,7 +47,10 @@ module Ibex
         self
       end
 
-      # Lex and parse one String, IO, or Fiber source.
+      # Lex and semantically parse one String, IO, or Fiber source.
+      # Parser and generated lexer actions execute. Loading the generated file
+      # may also execute user sections; this trusted application path is not a
+      # sandbox.
       # @rbs (String | IO | Fiber source, ?file: String) -> untyped
       def parse(source, file: "(input)")
         lex(source, file: file)
@@ -61,6 +64,8 @@ module Ibex
       end
 
       # Parse one generated-lexer source and return its semantic and syntax results.
+      # Parser and generated lexer actions execute. This trusted application
+      # path is not a sandbox.
       # @rbs (String | IO | Fiber source, ?file: String) -> CST::ParseResult
       def parse_with_syntax(source, file: "(input)")
         lex(source, file: file)
@@ -76,7 +81,9 @@ module Ibex
       end
 
       # Parse without executing parser production actions.
-      # Lexer actions still run because they define tokenization and lexer state.
+      # Generated lexer actions still run because they define tokenization and
+      # lexer state. Loading user sections and running lexer actions are trusted
+      # application boundaries, so this method is not a no-user-code sandbox.
       # @rbs (String source, ?file: String) -> CST::SyntaxResult
       def parse_syntax(source, file: "(input)")
         parse_syntax_with_cache(CST::SourceText.new(source, file: file), CST::NodeCache.new)

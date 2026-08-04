@@ -97,7 +97,7 @@ namespace :test do
     ruby "-Itest", "test/adversarial/limits_test.rb"
   end
 
-  desc "Prove analysis paths do not execute grammar semantic actions"
+  desc "Prove static analysis does not execute parser/lexer actions or user sections"
   task :no_exec do
     ruby "-Itest", "test/analysis_no_exec_test.rb"
   end

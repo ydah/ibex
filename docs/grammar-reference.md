@@ -108,6 +108,22 @@ includes and emits the first cross-file security, missing-target, cycle, or frag
 `frontend.resolution_error`; cross-file recovery is intentionally bounded to that one record. Permission and other actual
 filesystem read failures remain CLI invocation errors on stderr and do not produce a JSON envelope.
 
+## Generated parser execution boundary
+
+Static frontend, formatting, LSP, documentation, IR, and analysis operations
+treat parser actions, generated lexer actions, and user-code sections as opaque
+data and do not execute them. Generated semantic entry points (`parse`,
+`parse_with_syntax`, `do_parse`, and `yyparse`) execute parser production
+actions and generated lexer actions. Loading the generated file may also
+execute `header`, `inner`, and `footer` code. This is trusted application code,
+not a sandbox.
+
+Generated `parse_syntax` and `incremental_session` are syntax-only: they
+suppress parser production actions but still execute generated lexer actions.
+They may also inherit side effects from loading user sections. A future
+nonexecuting syntax profile would require a declarative built-in-only lexer and
+no user-code sections; the current generated parser API is not that profile.
+
 ## Declarations
 
 - `pragma extended` enables extended syntax for this grammar even when the CLI uses its default or explicit `--mode=default`.

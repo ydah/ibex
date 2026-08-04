@@ -22,4 +22,5 @@ query/fragment URI components, and ambiguous encoded separators are rejected. Op
 closing first clears the buffer diagnostics and then restores the disk snapshot.
 
 For a generic editor configuration, use command `ibex`, arguments `lsp --stdio`, language id `ibex`, and file pattern `*.y`.
-Ibex never executes semantic actions or `header`, `inner`, or `footer` code while serving editor requests.
+Ibex never executes parser actions, generated lexer actions, or `header`, `inner`, or `footer` code while serving editor
+requests.
