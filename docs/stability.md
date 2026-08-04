@@ -21,9 +21,11 @@ impossible two-prior-release requirement. Only Stable features may be adopted
 by the production self-hosted grammar.
 
 Preview is a compatibility promise, not an opt-in synonym. Middle actions are
-accepted in compatible/default grammar productions, while most other Preview
-surfaces require an extended declaration, command, or option. The
-[maturity audit](maturity.md) records every activation surface independently.
+accepted in compatible/default grammar productions and therefore remain under
+the Stable compatibility lock; their Preview row is retained only for
+traceability while its redundant classification is redesigned. Most other
+Preview surfaces require an extended declaration, command, or option. The
+[maturity audit](maturity.md) records activation and Stable overlap separately.
 
 ## Execution trust is independent of maturity
 
@@ -91,7 +93,7 @@ Release dependency state: R001 **hold_external**; R002 **pending_exact_revision*
 | `ebnf-groups` | EBNF groups | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
 | `parameterized-rules` | parameterized rules | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
 | `inline-rules` | inline rules | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
-| `middle-actions` | middle actions | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `middle-actions` | middle actions | Preview | Redesign Preview | not demonstrated | Blocked: R001, R002 |
 | `multiple-entries` | multiple entries | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
 | `canonical-imports` | canonical imports | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
 | `generated-lexers` | generated lexers | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
