@@ -161,7 +161,6 @@ module Ibex
           "introduction..v0.1.0" => %w[
             3bf5565285cbb22eb2acee9f0f6c7ea63a85e096
             cb6dc27b0a76f6023e82ba9491274fdf7a4cd42a
-            cf3844d9f28c660570b8b5ae0545fdcf6b88a51e
           ],
           "v0.1.0..v0.2.0" => [],
           "v0.2.0..reviewed" => []
@@ -169,13 +168,8 @@ module Ibex
         "multiple-entries" => {
           "introduction..v0.2.0" => %w[
             af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
-            d606ca436f11ac98e0a0bd3ab60363b30f7ac1ae
-            7e74c7a5adaf01207b17c3b15fc6564a8fca64a7
-            ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
           ],
-          "v0.2.0..reviewed" => %w[
-            c7d02d408e1778bb8018c1876f8728949bf7aa24
-          ]
+          "v0.2.0..reviewed" => []
         },
         "canonical-imports" => {
           "introduction..v0.2.0" => %w[
@@ -196,7 +190,6 @@ module Ibex
             0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
             ba5ee02b3afcb38a62618604faf6b77a53b1671e
             f3cb3826efa6bfcdb7c7ef11494a9d43c47af352
-            c6722bd9cb90e24a81786411e300edd6196619b7
           ],
           "v0.2.0..reviewed" => []
         },
@@ -209,24 +202,10 @@ module Ibex
             51234f2acc5080981c399f3821fe61d07f4b38af
             3187b74d3933259a1a44deee8ed90aabf61a2efb
             bb8c9a741c96ee4b53b8b63290f988a623d32aa0
-            d606ca436f11ac98e0a0bd3ab60363b30f7ac1ae
-            7226fb9d2e3c70536d33b16511a110477f881761
-            f391869d0d835e59613f2b2d6c899f45a49d7fc6
-            7e74c7a5adaf01207b17c3b15fc6564a8fca64a7
-            7dba2ac14757c9104d57907f503c8bdf01174262
-            1820348eb8c0b691dd57b5cc9fc5d2a7c8d60716
-            cf073f767aa4dfefaaf370bc10a5927257b92364
-            c7c48548cab5591f10dda9e4ee2247f011ccf267
-            fcf28445211e7136042545006294d6d3995026da
             ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
             429389ca04861fff104c4bf64e449c9266caa181
-            f3cb3826efa6bfcdb7c7ef11494a9d43c47af352
           ],
-          "v0.2.0..reviewed" => %w[
-            5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
-            edac11e91221b1c7b81883a5cb98e8bdcab82297
-            d85b83bbfc05d99e19e9429e4bc2bd0104fd1168
-          ]
+          "v0.2.0..reviewed" => []
         },
         "ast-generation" => {
           "introduction..v0.2.0" => %w[
@@ -280,7 +259,6 @@ module Ibex
             3187b74d3933259a1a44deee8ed90aabf61a2efb
             e170cee79243d0aa975be3e107cd95cd7cc8baf0
             ee83cf3f06e1b4f7d7c1ece292d43fd7844ee3aa
-            f7e1533003989b4c13f6158f4c482ba5cc3b9090
             ffbfe9765ccf4da14f2e79b0435e957b1bc5bdb5
           ],
           "v0.2.0..reviewed" => []
@@ -293,15 +271,9 @@ module Ibex
           "introduction..v0.2.0" => %w[
             0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e
             ba5ee02b3afcb38a62618604faf6b77a53b1671e
-            5799152a6403f61af8674a1b9b4a03526dd287fe
             f3cb3826efa6bfcdb7c7ef11494a9d43c47af352
-            c6722bd9cb90e24a81786411e300edd6196619b7
           ],
-          "v0.2.0..reviewed" => %w[
-            5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
-            edac11e91221b1c7b81883a5cb98e8bdcab82297
-            d85b83bbfc05d99e19e9429e4bc2bd0104fd1168
-          ]
+          "v0.2.0..reviewed" => []
         }
       }.freeze
 

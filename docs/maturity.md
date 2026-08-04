@@ -81,6 +81,11 @@ full revision, exact Git subject, classification, and commit-specific public
 contract effect. The validator reconstructs the reviewed commits from Git,
 checks ancestry and changed-path relevance, and derives both the boundary's
 reviewed and semantic commit sets from those exhaustive assessments. The
+path match determines which commits require assessment, not whether they are
+semantic. `semantic_change` is reserved for an observable syntax, API, output,
+or runtime change when that inventory row's feature configuration is active;
+changes behind mutually exclusive guards or confined to adjacent features are
+classified as nonsemantic and name the relevant guard or code path. The
 remaining `unknowns` state what repository history cannot establish, such as
 downstream compatibility and field use; source age or a digest change alone
 receives no semantic or promotion credit.

@@ -12,6 +12,25 @@ class MaturityTest < Minitest::Test
   REGISTRY = File.join(ROOT, "docs/maturity.yml")
   NARRATIVE = File.join(ROOT, "docs/maturity.md")
   TODAY = Date.new(2026, 8, 4)
+  KNOWN_NONSEMANTIC_MAPPINGS = {
+    "semantic-locations-types" => {
+      "v0.2.0..reviewed" => %w[
+        5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
+        edac11e91221b1c7b81883a5cb98e8bdcab82297
+        d85b83bbfc05d99e19e9429e4bc2bd0104fd1168
+      ]
+    },
+    "action-shadow" => {
+      "introduction..v0.2.0" => %w[f7e1533003989b4c13f6158f4c482ba5cc3b9090]
+    },
+    "incremental-cst" => {
+      "v0.2.0..reviewed" => %w[
+        5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
+        edac11e91221b1c7b81883a5cb98e8bdcab82297
+        d85b83bbfc05d99e19e9429e4bc2bd0104fd1168
+      ]
+    }
+  }.freeze
 
   def test_repository_inventory_evidence_and_public_summaries_are_valid
     assert Ibex::Quality::Maturity.new(today: TODAY).verify!
@@ -305,6 +324,26 @@ class MaturityTest < Minitest::Test
             "internal_refactor"
           assert_raises(RuntimeError, "#{id} #{boundary} must reject reclassifying #{revision}") do
             validator.send(:verify_commit_assessment_authority, id, boundary, reclassified)
+          end
+        end
+      end
+    end
+  end
+
+  def test_known_guarded_or_lazy_load_commits_cannot_be_promoted_to_semantic
+    registry = document
+    validator = Ibex::Quality::Maturity.new(today: TODAY)
+    KNOWN_NONSEMANTIC_MAPPINGS.each do |id, boundaries|
+      history = feature(registry, id).dig("specification_history", "changes")
+      boundaries.each do |boundary, revisions|
+        assessments = history.find { |change| change.fetch("boundary") == boundary }.fetch("commit_assessments")
+        revisions.each do |revision|
+          promoted = assessments.map(&:dup)
+          assessment = promoted.find { |entry| entry.fetch("revision") == revision }
+          refute_equal "semantic_change", assessment.fetch("classification")
+          assessment["classification"] = "semantic_change"
+          assert_raises(RuntimeError, "#{id} #{boundary} must reject promoting #{revision}") do
+            validator.send(:verify_commit_assessment_authority, id, boundary, promoted)
           end
         end
       end
