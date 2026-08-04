@@ -322,7 +322,10 @@ module Ibex
       end
 
       def build_source_index
-        index = { calls: [], assignments: [], methods: [], blocks: [] }
+        index = {
+          calls: [], assignments: [], methods: [], blocks: [], constant_definitions: ["OptionParser"],
+          local_definitions: [], class_variable_definitions: [], superclass_references: [], superclasses: {}
+        }
         source_paths.each do |relative|
           source = File.binread(path(relative))
           sexp = Ripper.sexp(source)
@@ -331,15 +334,24 @@ module Ibex
           context = lexical_context(source: relative)
           walk(sexp, context, index)
         end
+        finalize_superclasses(index)
         index
       end
 
+      def finalize_superclasses(index)
+        index.fetch(:superclass_references).each do |reference|
+          superclass = resolve_constant_node(reference.fetch(:node), reference.fetch(:context), index)
+          index.fetch(:superclasses)[reference.fetch(:owner)] = superclass if superclass
+        end
+      end
+
       def lexical_context(source:, owner: nil, method: nil, method_node: nil, scope: nil, role: :singleton,
-                          option_parser_scope: false, singleton_class: false)
+                          option_parser_scope: false, singleton_class: false, scope_chain: nil)
+        resolved_scope = scope || "#{source}:top"
         {
           source: source, owner: owner, method: method, method_node: method_node,
-          scope: scope || "#{source}:top", role: role, option_parser_scope: option_parser_scope,
-          singleton_class: singleton_class
+          scope: resolved_scope, scope_chain: scope_chain || [resolved_scope], role: role,
+          option_parser_scope: option_parser_scope, singleton_class: singleton_class
         }
       end
 
@@ -392,28 +404,37 @@ module Ibex
         return unless node.is_a?(Array)
 
         if node.first == :class
-          owner = lexical_owner(node[1], context[:owner])
+          owner = lexical_owner(node[1], context[:owner], index)
+          index.fetch(:constant_definitions) << owner
+          index.fetch(:superclass_references) << { owner: owner, node: node[2], context: context } if node[2]
           nested = context.merge(
             owner: owner, method: nil, method_node: nil, scope: "#{context[:source]}:#{owner}:body", role: :singleton,
-            singleton_class: false,
-            option_parser_scope: context[:option_parser_scope] || contains_constant?(node[2], "OptionParser")
+            scope_chain: ["#{context[:source]}:#{owner}:body"], singleton_class: false,
+            option_parser_scope: false
           )
           walk(node[3], nested, index)
           return
         end
 
         if node.first == :module
-          owner = lexical_owner(node[1], context[:owner])
+          owner = lexical_owner(node[1], context[:owner], index)
+          index.fetch(:constant_definitions) << owner
           nested = context.merge(
             owner: owner, method: nil, method_node: nil, scope: "#{context[:source]}:#{owner}:body", role: :singleton,
-            singleton_class: false
+            scope_chain: ["#{context[:source]}:#{owner}:body"], singleton_class: false,
+            option_parser_scope: false
           )
           walk(node[2], nested, index)
           return
         end
 
         if node.first == :sclass
-          nested = context.merge(method: nil, method_node: nil, role: :singleton, singleton_class: true)
+          owner = singleton_definition_owner(node[1], context, index)
+          nested = context.merge(
+            owner: owner, method: nil, method_node: nil, role: :singleton,
+            scope: "#{context[:source]}:#{owner}:singleton", scope_chain: ["#{context[:source]}:#{owner}:singleton"],
+            singleton_class: true, option_parser_scope: false
+          )
           walk(node[2], nested, index)
           return
         end
@@ -422,22 +443,30 @@ module Ibex
           name = node.fetch(1).fetch(1)
           role = context[:singleton_class] ? :singleton : :instance
           nested = method_context(context, node, name, role)
-          index.fetch(:methods) << nested.merge(parameters: method_parameter_names(node))
+          parameters = method_parameter_names(node)
+          parameters.each { |parameter| index.fetch(:local_definitions) << local_binding(nested, parameter) }
+          index.fetch(:methods) << nested.merge(parameters: parameters)
           node.drop(2).each { |child| walk(child, nested, index) }
           return
         end
 
         if node.first == :defs
           name = node.fetch(3).fetch(1)
-          owner = singleton_definition_owner(node[1], context[:owner])
+          owner = singleton_definition_owner(node[1], context, index)
           nested = method_context(context.merge(owner: owner), node, name, :singleton, token: node[3])
-          index.fetch(:methods) << nested.merge(parameters: singleton_method_parameter_names(node))
+          parameters = singleton_method_parameter_names(node)
+          parameters.each { |parameter| index.fetch(:local_definitions) << local_binding(nested, parameter) }
+          index.fetch(:methods) << nested.merge(parameters: parameters)
           node.drop(4).each { |child| walk(child, nested, index) }
           return
         end
 
+        if node.first == :method_add_block
+          walk_block(node, context, index)
+          return
+        end
+
         record_assignment(node, context, index)
-        record_block(node, context, index)
 
         call = reflective_registration_call(node) || registration_call(node)
         if call && (call.fetch(:reflective, false) || REGISTRATION_APIS.include?(call.fetch(:api)))
@@ -453,7 +482,9 @@ module Ibex
         owner = context[:owner] || "Object"
         separator = role == :instance ? "#" : "."
         context.merge(
-          method: name, method_node: node, scope: "#{context[:source]}:#{line}:#{owner}#{separator}#{name}", role: role
+          method: name, method_node: node, scope: "#{context[:source]}:#{line}:#{owner}#{separator}#{name}",
+          scope_chain: ["#{context[:source]}:#{line}:#{owner}#{separator}#{name}"], role: role,
+          singleton_class: role == :singleton
         )
       end
 
@@ -463,37 +494,61 @@ module Ibex
         required_parameter_names(parameters)
       end
 
-      def singleton_definition_owner(target, current_owner)
-        return current_owner if target&.first == :var_ref && target.dig(1, 0) == :@kw && target.dig(1, 1) == "self"
+      def singleton_definition_owner(target, context, index)
+        if target&.first == :var_ref && target.dig(1, 0) == :@kw && target.dig(1, 1) == "self"
+          return context[:owner] || "Object"
+        end
 
-        lexical_owner(target, current_owner)
+        resolve_constant_node(target, context, index) || lexical_owner(target, context[:owner], index)
       end
 
-      def lexical_owner(node, parent)
+      def lexical_owner(node, parent, index)
         name = constant_path_name(node)
         return parent || "Object" unless name
-        return name if node.first == :top_const_ref || name.include?("::") || !parent
+        return name if node.first == :top_const_ref || !parent
+        return "#{parent}::#{name}" unless name.include?("::")
 
-        "#{parent}::#{name}"
+        namespace = name.rpartition("::").first
+        lexical_namespace = nearest_defined_constant(namespace, parent, index)
+        lexical_namespace ? "#{lexical_namespace}::#{name.split('::').last}" : name
       end
 
       def record_assignment(node, context, index)
         return unless %i[assign opassign].include?(node.first)
 
         value = node.first == :assign ? node[2] : node[3]
-        assignment_binding_names(node[1], context).each do |target|
+        assignment_binding_names(node[1], context, index).each do |target|
           index.fetch(:assignments) << { target: target, value: value, context: context }
+          index.fetch(:constant_definitions) << target.delete_prefix("constant:") if target.start_with?("constant:")
+          if target.start_with?("class_variable:")
+            index.fetch(:class_variable_definitions) << target
+          elsif target.start_with?("local:")
+            index.fetch(:local_definitions) << target
+          end
         end
       end
 
-      def record_block(node, context, index)
-        return unless node.first == :method_add_block
-
+      def walk_block(node, context, index)
+        walk(node[1], context, index)
         params = node.dig(2, 1, 1)
         names = required_parameter_names(params)
-        return if names.empty?
+        line = find_line(node[1]) || 0
+        scope = "#{context[:scope]}:block:#{line}:#{index.fetch(:blocks).length}"
+        nested = context.merge(scope: scope, scope_chain: [scope] + context.fetch(:scope_chain))
+        names.each { |name| index.fetch(:local_definitions) << local_binding(nested, name) }
+        index.fetch(:blocks) << { expression: node[1], parameters: names, context: nested }
+        walk(node[2], nested, index)
+      end
 
-        index.fetch(:blocks) << { expression: node[1], parameters: names, context: context }
+      def find_line(node)
+        return unless node.is_a?(Array)
+        return node.dig(2, 0) if node.first.to_s.start_with?("@")
+
+        node.each do |child|
+          line = find_line(child)
+          return line if line
+        end
+        nil
       end
 
       def registration_call(node)
@@ -585,10 +640,11 @@ module Ibex
 
       def build_option_parser_bindings(index)
         assignments = index.fetch(:assignments)
-        classes = option_parser_class_bindings(assignments)
+        classes = option_parser_class_bindings(assignments, index)
         instances = option_parser_parameter_bindings(index.fetch(:methods))
         index.fetch(:blocks).each do |block|
-          next unless option_parser_instance_expression?(block.fetch(:expression), block.fetch(:context), classes)
+          next unless option_parser_instance_expression?(block.fetch(:expression), block.fetch(:context), classes,
+                                                         index)
 
           block.fetch(:parameters).each do |name|
             instances << local_binding(block.fetch(:context), name)
@@ -599,19 +655,21 @@ module Ibex
           assignments.each do |assignment|
             context = assignment.fetch(:context)
             value = assignment.fetch(:value)
-            aliases_instance = binding_candidates(value, context).any? { |candidate| instances.include?(candidate) }
-            if aliases_instance || option_parser_instance_expression?(value, context, classes)
+            aliases_instance = binding_candidates(value, context, index).any? do |candidate|
+              instances.include?(candidate)
+            end
+            if aliases_instance || option_parser_instance_expression?(value, context, classes, index)
               instances << assignment.fetch(:target)
             end
           end
           instances.uniq!
-          return { classes: classes, instances: instances } if previous == instances.length
+          return { classes: classes, instances: instances, index: index } if previous == instances.length
         end
       end
 
       def registration_candidate?(call, bindings)
         return true unless option_spellings(call.fetch(:arguments)).empty?
-        return true if call.fetch(:option_parser_scope)
+        return true if call.fetch(:implicit) && option_parser_subclass_context?(call, bindings)
         return true if call.fetch(:implicit) && SURFACES.key?([call.fetch(:source), call[:method]])
         return receiver_option_parser_class?(call, bindings) if call.fetch(:unbound, false)
 
@@ -636,24 +694,28 @@ module Ibex
       def receiver_option_parser?(call, bindings)
         receiver = call[:receiver]
         return false unless receiver.is_a?(Array)
-        return true if option_parser_instance_expression?(receiver, call, bindings.fetch(:classes))
 
-        binding_candidates(receiver, call).any? { |candidate| bindings.fetch(:instances).include?(candidate) }
+        index = bindings.fetch(:index)
+        return true if option_parser_instance_expression?(receiver, call, bindings.fetch(:classes), index)
+
+        binding_candidates(receiver, call, index).any? { |candidate| bindings.fetch(:instances).include?(candidate) }
       end
 
       def receiver_option_parser_class?(call, bindings)
         receiver = call[:receiver]
         return false unless receiver.is_a?(Array)
 
-        binding_candidates(receiver, call).any? { |candidate| bindings.fetch(:classes).include?(candidate) }
+        binding_candidates(receiver, call, bindings.fetch(:index)).any? do |candidate|
+          bindings.fetch(:classes).include?(candidate)
+        end
       end
 
-      def option_parser_class_bindings(assignments)
+      def option_parser_class_bindings(assignments, index)
         classes = ["constant:OptionParser"]
         loop do
           previous = classes.length
           assignments.each do |assignment|
-            candidates = binding_candidates(assignment.fetch(:value), assignment.fetch(:context))
+            candidates = binding_candidates(assignment.fetch(:value), assignment.fetch(:context), index)
             classes << assignment.fetch(:target) if candidates.any? { |candidate| classes.include?(candidate) }
           end
           classes.uniq!
@@ -679,28 +741,30 @@ module Ibex
         required_parameter_names(parameters)
       end
 
-      def assignment_binding_names(node, context)
+      def assignment_binding_names(node, context, index)
         return [] unless node.is_a?(Array)
 
         case node.first
         when :var_field
-          [assignment_token_name(node[1], context)].compact
+          [assignment_token_name(node[1], context, index)].compact
         when :const_path_field
-          constant_reference_candidates(constant_path_name(node), context[:owner])
+          name = constant_path_name(node)
+          ["constant:#{resolve_qualified_assignment(name, context[:owner], index)}"]
         when :top_const_field
           ["constant:#{node.dig(1, 1)}"]
         else []
         end
       end
 
-      def binding_candidates(node, context)
-        return unless node.is_a?(Array)
+      def binding_candidates(node, context, index)
+        return [] unless node.is_a?(Array)
 
         case node.first
         when :var_ref, :vcall
-          reference_token_names(node[1], context)
+          reference_token_names(node[1], context, index)
         when :const_path_ref
-          constant_reference_candidates(constant_path_name(node), context[:owner])
+          resolved = resolve_constant_name(constant_path_name(node), context[:owner], index)
+          resolved ? ["constant:#{resolved}"] : []
         when :top_const_ref
           ["constant:#{node.dig(1, 1)}"]
         else
@@ -708,33 +772,47 @@ module Ibex
         end || []
       end
 
-      def assignment_token_name(token, context)
+      def assignment_token_name(token, context, index)
         return unless token.is_a?(Array)
 
         case token.first
-        when :@ident then local_binding(context, token[1])
+        when :@ident then local_assignment_binding(context, token[1], index)
         when :@ivar then ivar_binding(context, token[1])
-        when :@cvar then "class_variable:#{context[:owner] || 'Object'}:#{token[1]}"
+        when :@cvar then class_variable_binding(context, token[1], index)
         when :@gvar then "global:#{token[1]}"
         when :@const then qualified_constant_binding(context[:owner], token[1])
         end
       end
 
-      def reference_token_names(token, context)
+      def reference_token_names(token, context, index)
         return [] unless token.is_a?(Array)
 
         case token.first
-        when :@ident then [local_binding(context, token[1])]
+        when :@ident then [local_reference_binding(context, token[1], index)]
         when :@ivar then [ivar_binding(context, token[1])]
-        when :@cvar then ["class_variable:#{context[:owner] || 'Object'}:#{token[1]}"]
+        when :@cvar then [class_variable_binding(context, token[1], index)]
         when :@gvar then ["global:#{token[1]}"]
-        when :@const then constant_reference_candidates(token[1], context[:owner])
+        when :@const
+          resolved = resolve_constant_name(token[1], context[:owner], index)
+          resolved ? ["constant:#{resolved}"] : []
         else []
         end
       end
 
       def local_binding(context, name)
         "local:#{context.fetch(:scope)}:#{name}"
+      end
+
+      def local_reference_binding(context, name, index)
+        context.fetch(:scope_chain).each do |scope|
+          binding = "local:#{scope}:#{name}"
+          return binding if index.fetch(:local_definitions).include?(binding)
+        end
+        local_binding(context, name)
+      end
+
+      def local_assignment_binding(context, name, index)
+        local_reference_binding(context, name, index)
       end
 
       def ivar_binding(context, name)
@@ -747,44 +825,99 @@ module Ibex
         "constant:#{owner ? "#{owner}::#{name}" : name}"
       end
 
-      def constant_reference_candidates(name, owner)
-        prefixes = []
-        current = owner
-        while current
-          prefixes << "constant:#{current}::#{name}"
-          current = current.include?("::") ? current.rpartition("::").first : nil
-        end
-        (prefixes << "constant:#{name}").uniq
+      def resolve_constant_node(node, context, index)
+        name = constant_path_name(node)
+        resolve_constant_name(name, context[:owner], index) if name
       end
 
-      def option_parser_instance_expression?(node, context, class_bindings)
+      def resolve_constant_name(name, owner, index)
+        return unless name
+
+        definitions = index.fetch(:constant_definitions)
+        constant_search_names(name, owner, index).find { |candidate| definitions.include?(candidate) }
+      end
+
+      def constant_search_names(name, owner, index)
+        if name.include?("::")
+          namespace, _, leaf = name.rpartition("::")
+          resolved_namespace = resolve_constant_name(namespace, owner, index)
+          return ["#{resolved_namespace}::#{leaf}", name].compact.uniq
+        end
+
+        lexical = lexical_owner_chain(owner).map { |candidate| "#{candidate}::#{name}" }
+        inherited = ancestor_chain(owner, index).map { |ancestor| "#{ancestor}::#{name}" }
+        (lexical + inherited + [name]).uniq
+      end
+
+      def resolve_qualified_assignment(name, owner, index)
+        namespace, _, leaf = name.rpartition("::")
+        resolved_namespace = resolve_constant_name(namespace, owner, index)
+        "#{resolved_namespace || namespace}::#{leaf}"
+      end
+
+      def nearest_defined_constant(name, owner, index)
+        resolve_constant_name(name, owner, index)
+      end
+
+      def lexical_owner_chain(owner)
+        values = []
+        current = owner
+        while current
+          values << current
+          current = current.include?("::") ? current.rpartition("::").first : nil
+        end
+        values
+      end
+
+      def ancestor_chain(owner, index)
+        values = []
+        current = owner
+        seen = []
+        while current && !seen.include?(current)
+          seen << current
+          current = index.fetch(:superclasses)[current]
+          values << current if current
+        end
+        values
+      end
+
+      def class_variable_binding(context, name, index)
+        owner = context[:owner] || "Object"
+        candidates = [owner, *ancestor_chain(owner, index)].map { |candidate| "class_variable:#{candidate}:#{name}" }
+        existing = candidates.find { |candidate| index.fetch(:class_variable_definitions).include?(candidate) }
+        existing || candidates.first
+      end
+
+      def option_parser_subclass_context?(call, bindings)
+        return true if call.fetch(:option_parser_scope)
+
+        ancestor_chain(call[:owner], bindings.fetch(:index)).any? do |ancestor|
+          bindings.fetch(:classes).include?("constant:#{ancestor}")
+        end
+      end
+
+      def option_parser_instance_expression?(node, context, class_bindings, index)
         return false unless node.is_a?(Array)
 
-        return option_parser_instance_expression?(node[1], context, class_bindings) if node.first == :method_add_arg
-        return option_parser_instance_expression?(node[1], context, class_bindings) if node.first == :method_add_block
+        if %i[method_add_arg method_add_block].include?(node.first)
+          return option_parser_instance_expression?(node[1], context, class_bindings, index)
+        end
         return false unless node.first == :call
 
         api = node.dig(3, 1)
         receiver = node[1]
         if api == "new"
-          return binding_candidates(receiver, context).any? { |candidate| class_bindings.include?(candidate) }
+          return binding_candidates(receiver, context, index).any? { |candidate| class_bindings.include?(candidate) }
         end
         return false unless %w[itself freeze tap dup clone].include?(api)
 
-        option_parser_instance_expression?(receiver, context, class_bindings)
+        option_parser_instance_expression?(receiver, context, class_bindings, index)
       end
 
       def required_parameter_names(node)
         return [] unless node&.first == :params
 
         Array(node[1]).filter_map { |token| token[1] if token&.first == :@ident }
-      end
-
-      def contains_constant?(node, name)
-        return false unless node.is_a?(Array)
-        return true if node.first == :@const && node[1] == name
-
-        node.any? { |child| contains_constant?(child, name) }
       end
 
       def contains_node?(node, kind)
