@@ -1,0 +1,5015 @@
+---
+schema_version: 1
+scope:
+  source_globs:
+  - lib/ibex/cli.rb
+  - lib/ibex/cli/**/*.rb
+  call_site_count: 177
+  runtime_registration_count: 186
+registrations:
+- id: lib/ibex/cli.rb#add_compatibility_options#--check
+  source: lib/ibex/cli.rb
+  method: add_compatibility_options
+  line: 410
+  declaration_sha256: 443f5d25effa69a331535ab9154a4c06d9b821aa4bef6ce8b88d27d7ce33ae8c
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--check"
+  effective_spellings:
+  - "--check"
+  canonical_key: invocation.generate.check
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_compatibility_options#--line-convert-all
+  source: lib/ibex/cli.rb
+  method: add_compatibility_options
+  line: 400
+  declaration_sha256: 8dd8059cf2bd6ef852fb6305ee7ff774977db6f9082e6d8bff3027d2dc4373de
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--line-convert-all"
+  effective_spellings:
+  - "--line-convert-all"
+  canonical_key: source.line_mapping
+  value_type: boolean
+  default: action sections only
+  affected_stages:
+  - code_generation
+  - artifact_publication
+  public_contract_effect: Changes artifact representation, packaging, source mapping,
+    or companion output; parser language semantics stay unchanged.
+  owner_class: project_build_policy
+  grammar_admission: excluded_x5_packaging_or_deployment
+  override_algebra: project_selection
+  ir_presence: not_persisted
+  manifest_presence: current
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_compatibility_options#--superclass=CLASS
+  source: lib/ibex/cli.rb
+  method: add_compatibility_options
+  line: 409
+  declaration_sha256: f2c7568aea8f731f1995e44bfc69c782d7d2109fb5e52dc886dfb0b53f9d0b16
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--superclass=CLASS"
+  effective_spellings:
+  - "--superclass=CLASS"
+  canonical_key: parser.superclass
+  value_type: string
+  default: grammar superclass or runtime parser base
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (parser.superclass).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: staged_fixed_compatibility
+  ir_presence: grammar_ir_v2_current
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: staged_compatibility
+- id: lib/ibex/cli.rb#add_compatibility_options#-C
+  source: lib/ibex/cli.rb
+  method: add_compatibility_options
+  line: 411
+  declaration_sha256: 97a76c875c408281218b584dc7717c5b865049a9a90c0d2e496316fff2f148fc
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "-C"
+  - "--check-only"
+  effective_spellings:
+  - "-C"
+  - "--check-only"
+  canonical_key: invocation.generate.check_only
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_compatibility_options#-D FLAGS
+  source: lib/ibex/cli.rb
+  method: add_compatibility_options
+  line: 414
+  declaration_sha256: a4602876bd7c1939a40c017a680bf4af2ec374f9cf5bee0e22951f361051de79
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "-D FLAGS"
+  effective_spellings:
+  - "-D FLAGS"
+  canonical_key: compatibility.debug_flags
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: internal_compatibility
+- id: lib/ibex/cli.rb#add_compatibility_options#-F
+  source: lib/ibex/cli.rb
+  method: add_compatibility_options
+  line: 399
+  declaration_sha256: feae7f9e2992b81fbf19cf67598ed66b31672793f6d66335187edb224a699276
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "-F"
+  - "--frozen"
+  effective_spellings:
+  - "-F"
+  - "--frozen"
+  canonical_key: build.frozen_strings
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - code_generation
+  - artifact_publication
+  public_contract_effect: Changes artifact representation, packaging, source mapping,
+    or companion output; parser language semantics stay unchanged.
+  owner_class: project_build_policy
+  grammar_admission: excluded_x5_packaging_or_deployment
+  override_algebra: project_selection
+  ir_presence: not_persisted
+  manifest_presence: current
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_compatibility_options#-P
+  source: lib/ibex/cli.rb
+  method: add_compatibility_options
+  line: 413
+  declaration_sha256: 7d0146e956d496ef9f64c7dac9244b060852c36db4fea89872a582a40c2e17d1
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "-P"
+  effective_spellings:
+  - "-P"
+  canonical_key: compatibility.profiling
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: internal_compatibility
+- id: lib/ibex/cli.rb#add_compatibility_options#-S
+  source: lib/ibex/cli.rb
+  method: add_compatibility_options
+  line: 412
+  declaration_sha256: 3221e99176d685edce285edac739dad60c8f6ca84904a2698cc701bd5147c71b
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "-S"
+  - "--output-status"
+  effective_spellings:
+  - "-S"
+  - "--output-status"
+  canonical_key: report.output_status
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_compatibility_options#-a
+  source: lib/ibex/cli.rb
+  method: add_compatibility_options
+  line: 408
+  declaration_sha256: cab1a23eab4c2955d6e8c8536002d6c97d4a2b192207a5a5a4c01562b4da2b73
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "-a"
+  - "--no-omit-actions"
+  effective_spellings:
+  - "-a"
+  - "--no-omit-actions"
+  canonical_key: actions.omit_calls
+  value_type: boolean
+  default: nil; grammar/code-generator action ABI default
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (actions.omit_calls).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: staged_fixed_compatibility
+  ir_presence: grammar_ir_v2_current
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: staged_compatibility
+- id: lib/ibex/cli.rb#add_compatibility_options#-l
+  source: lib/ibex/cli.rb
+  method: add_compatibility_options
+  line: 404
+  declaration_sha256: 4d335ac0e2370641ab361bc3343f417c78f65acf316a70dda730e57756bb33cd
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "-l"
+  - "--no-line-convert"
+  effective_spellings:
+  - "-l"
+  - "--no-line-convert"
+  canonical_key: source.line_mapping
+  value_type: boolean
+  default: action sections only
+  affected_stages:
+  - code_generation
+  - artifact_publication
+  public_contract_effect: Changes artifact representation, packaging, source mapping,
+    or companion output; parser language semantics stay unchanged.
+  owner_class: project_build_policy
+  grammar_admission: excluded_x5_packaging_or_deployment
+  override_algebra: project_selection
+  ir_presence: not_persisted
+  manifest_presence: current
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_information_options#--copyright
+  source: lib/ibex/cli.rb
+  method: add_information_options
+  line: 424
+  declaration_sha256: 18dcd34d9db826a188de381ca90ad9fb846fba89c9c4b21c94d79b0bcd5066b5
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--copyright"
+  effective_spellings:
+  - "--copyright"
+  canonical_key: presentation.copyright
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_information_options#--help
+  source: lib/ibex/cli.rb
+  method: add_information_options
+  line: 425
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_information_options#--lang=LANG
+  source: lib/ibex/cli.rb
+  method: add_information_options
+  line: 419
+  declaration_sha256: d74285e6c182cb7ac69159a0ee39a5f4f7a3306beb48bfa2873ebb2c001d1877
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--lang=LANG"
+  effective_spellings:
+  - "--lang=LANG"
+  canonical_key: presentation.language
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_information_options#--runtime-version
+  source: lib/ibex/cli.rb
+  method: add_information_options
+  line: 423
+  declaration_sha256: e080747e09ff4a83abd24d79dfcca2efd7de010de0c9ab38fe7718bff2bce4f2
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--runtime-version"
+  effective_spellings:
+  - "--runtime-version"
+  canonical_key: presentation.runtime_version
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_information_options#--version
+  source: lib/ibex/cli.rb
+  method: add_information_options
+  line: 422
+  declaration_sha256: f2c5209e622c167542f94751a7090083831f2f54353f93b8287cbd5490830e26
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--version"
+  effective_spellings:
+  - "--version"
+  canonical_key: presentation.version
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_output_options#--dot=FILE
+  source: lib/ibex/cli.rb
+  method: add_output_options
+  line: 372
+  declaration_sha256: ddfe1eecb6913dee7a68bc83d1c636cf8135253fb6863393affbb7d284f62858
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--dot=FILE"
+  effective_spellings:
+  - "--dot=FILE"
+  canonical_key: path.generate.dot
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x2_path_or_destination
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_output_options#--html=FILE
+  source: lib/ibex/cli.rb
+  method: add_output_options
+  line: 374
+  declaration_sha256: 92039dac81a2a29bf01b5aa8d12e1995c4e9852c6fe5fb9ace46a2b87849329a
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--html=FILE"
+  effective_spellings:
+  - "--html=FILE"
+  canonical_key: path.generate.html
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x2_path_or_destination
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_output_options#--manifest[=FILE]
+  source: lib/ibex/cli.rb
+  method: add_output_options
+  line: 369
+  declaration_sha256: 2f29af69fd3f043578384f6efc1d1ef1dfe0317fa4c3b0274a1e95d22e045cb9
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--manifest[=FILE]"
+  effective_spellings:
+  - "--manifest[=FILE]"
+  canonical_key: companion.manifest
+  value_type: optional string or boolean
+  default: false; derived .ibex.json path when requested without a value
+  affected_stages:
+  - code_generation
+  - artifact_publication
+  public_contract_effect: Changes artifact representation, packaging, source mapping,
+    or companion output; parser language semantics stay unchanged.
+  owner_class: project_build_policy
+  grammar_admission: excluded_x5_packaging_or_deployment
+  override_algebra: project_selection
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_output_options#--mermaid=FILE
+  source: lib/ibex/cli.rb
+  method: add_output_options
+  line: 373
+  declaration_sha256: 91b2e7a9bdb94d131e21796e663649fc6395bfc817291d1acfa0802174928701
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--mermaid=FILE"
+  effective_spellings:
+  - "--mermaid=FILE"
+  canonical_key: path.generate.mermaid
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x2_path_or_destination
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_output_options#--railroad=FILE
+  source: lib/ibex/cli.rb
+  method: add_output_options
+  line: 375
+  declaration_sha256: dd40352cab41bc3cf6753e481adab55acaaeee0c55f0794741469dc11eca5c6a
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--railroad=FILE"
+  effective_spellings:
+  - "--railroad=FILE"
+  canonical_key: path.generate.railroad
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x2_path_or_destination
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_output_options#-E
+  source: lib/ibex/cli.rb
+  method: add_output_options
+  line: 363
+  declaration_sha256: '01137593a952d57f3359b2085a512e5b97ecdfb70b050a8247b561876122b859'
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "-E"
+  - "--embedded"
+  effective_spellings:
+  - "-E"
+  - "--embedded"
+  canonical_key: runtime.embedded
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - code_generation
+  - artifact_publication
+  public_contract_effect: Changes artifact representation, packaging, source mapping,
+    or companion output; parser language semantics stay unchanged.
+  owner_class: project_build_policy
+  grammar_admission: excluded_x5_packaging_or_deployment
+  override_algebra: project_selection
+  ir_presence: not_persisted
+  manifest_presence: current
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_output_options#-O
+  source: lib/ibex/cli.rb
+  method: add_output_options
+  line: 378
+  declaration_sha256: 3ce52e899256e292d9965d5971a4c6adb175608e63b16f72a5b86e572cc63f18
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "-O"
+  - "--log-file=FILE"
+  effective_spellings:
+  - "-O"
+  - "--log-file=FILE"
+  canonical_key: path.generate.log_file
+  value_type: string
+  default: derived .output path when reporting is requested
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x2_path_or_destination
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_output_options#-e
+  source: lib/ibex/cli.rb
+  method: add_output_options
+  line: 382
+  declaration_sha256: f3d7c1a278e5e0c15225754713e16aa9b1ad1c9b8bbf7df21655d3a926c16d12
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "-e"
+  - "--executable [RUBY]"
+  effective_spellings:
+  - "-e"
+  - "--executable [RUBY]"
+  canonical_key: build.executable
+  value_type: optional string or boolean
+  default: false; /usr/bin/env ruby when requested without a value
+  affected_stages:
+  - code_generation
+  - artifact_publication
+  public_contract_effect: Changes artifact representation, packaging, source mapping,
+    or companion output; parser language semantics stay unchanged.
+  owner_class: project_build_policy
+  grammar_admission: excluded_x5_packaging_or_deployment
+  override_algebra: project_selection
+  ir_presence: not_persisted
+  manifest_presence: current
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_output_options#-g
+  source: lib/ibex/cli.rb
+  method: add_output_options
+  line: 365
+  declaration_sha256: a10896148a7d794e8e32862d9f69d472808c191c8285ca66b28fef69c17d0edb
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "-g"
+  effective_spellings:
+  - "-g"
+  canonical_key: build.debug
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - code_generation
+  - artifact_publication
+  public_contract_effect: Changes artifact representation, packaging, source mapping,
+    or companion output; parser language semantics stay unchanged.
+  owner_class: project_build_policy
+  grammar_admission: excluded_x5_packaging_or_deployment
+  override_algebra: project_selection
+  ir_presence: not_persisted
+  manifest_presence: current
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: obsolete_alias
+- id: lib/ibex/cli.rb#add_output_options#-o
+  source: lib/ibex/cli.rb
+  method: add_output_options
+  line: 362
+  declaration_sha256: 56dc6d4839effdff14d0485bb012f7520e7d721cf44f05f82ebffa6e9f86fb8d
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "-o"
+  - "--output-file=FILE"
+  effective_spellings:
+  - "-o"
+  - "--output-file=FILE"
+  canonical_key: path.generate.output_file
+  value_type: string
+  default: derived .rb path beside the grammar
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x2_path_or_destination
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_output_options#-t
+  source: lib/ibex/cli.rb
+  method: add_output_options
+  line: 364
+  declaration_sha256: 49ee674ec49ce5094f7fb4f0d315ca020b0320aa0d49217a8c01155d3c4aae22
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "-t"
+  - "--debug"
+  effective_spellings:
+  - "-t"
+  - "--debug"
+  canonical_key: build.debug
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - code_generation
+  - artifact_publication
+  public_contract_effect: Changes artifact representation, packaging, source mapping,
+    or companion output; parser language semantics stay unchanged.
+  owner_class: project_build_policy
+  grammar_admission: excluded_x5_packaging_or_deployment
+  override_algebra: project_selection
+  ir_presence: not_persisted
+  manifest_presence: current
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_output_options#-v
+  source: lib/ibex/cli.rb
+  method: add_output_options
+  line: 366
+  declaration_sha256: 6e27a41170bf811293fce2a55eb278496bdadd72abb9f9008876aaf6e3a8ea0f
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "-v"
+  - "--verbose"
+  effective_spellings:
+  - "-v"
+  - "--verbose"
+  canonical_key: invocation.generate.verbose
+  value_type: boolean
+  default: false; no automaton report
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_pipeline_options#--algorithm=NAME
+  source: lib/ibex/cli.rb
+  method: add_pipeline_options
+  line: 345
+  declaration_sha256: c56187a226db393b2bfef9c28688fcfabda890037001b765883a7c428927d09d
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--algorithm=NAME"
+  effective_spellings:
+  - "--algorithm=NAME"
+  canonical_key: parser.algorithm
+  value_type: enum
+  default: lalr
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (parser.algorithm).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: fixed
+  ir_presence: automaton_ir_v2_only_contract_gap
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_pipeline_options#--cst-trivia=POLICY
+  source: lib/ibex/cli.rb
+  method: add_pipeline_options
+  line: 338
+  declaration_sha256: a7f71e3926748295d0070f51d3dd42574524c0d35dc42a01c5c29a0a9eaa9d08
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--cst-trivia=POLICY"
+  effective_spellings:
+  - "--cst-trivia=POLICY"
+  canonical_key: cst.trivia
+  value_type: enum
+  default: leading
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (cst.trivia).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: fixed
+  ir_presence: cst_contract_gap
+  manifest_presence: current_gap
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_pipeline_options#--emit=FORMAT
+  source: lib/ibex/cli.rb
+  method: add_pipeline_options
+  line: 328
+  declaration_sha256: ac9d948843a655f7726d8a6c84e562cce4edfd1f2bda1f97ad50776196e1838c
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--emit=FORMAT"
+  effective_spellings:
+  - "--emit=FORMAT"
+  canonical_key: invocation.generate.emit
+  value_type: string
+  default: ruby
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_pipeline_options#--entry-isolation
+  source: lib/ibex/cli.rb
+  method: add_pipeline_options
+  line: 351
+  declaration_sha256: 78ea8fb9bf0bdb81240576914525161a0dbf090bdda92c66860dfec281b93567
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--entry-isolation"
+  effective_spellings:
+  - "--entry-isolation"
+  canonical_key: parser.entries
+  value_type: boolean
+  default: shared
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (parser.entries).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: fixed
+  ir_presence: starts_current_strategy_gap
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_pipeline_options#--from=FORMAT
+  source: lib/ibex/cli.rb
+  method: add_pipeline_options
+  line: 331
+  declaration_sha256: e50eb9153ff8d86ff2c6f66e818d605c72747cf798bb0616730a20e76503e79b
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--from=FORMAT"
+  effective_spellings:
+  - "--from=FORMAT"
+  canonical_key: invocation.generate.from
+  value_type: enum
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: Validate the selected IR as untrusted data; never execute embedded
+    user sections while loading or inventorying it.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_pipeline_options#--mode=MODE
+  source: lib/ibex/cli.rb
+  method: add_pipeline_options
+  line: 334
+  declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--mode=MODE"
+  effective_spellings:
+  - "--mode=MODE"
+  canonical_key: grammar.mode
+  value_type: enum
+  default: default
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (grammar.mode).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: staged_fixed_compatibility
+  ir_presence: grammar_ir_v2_current
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: staged_compatibility
+- id: lib/ibex/cli.rb#add_pipeline_options#--suggest-ielr
+  source: lib/ibex/cli.rb
+  method: add_pipeline_options
+  line: 348
+  declaration_sha256: 00621c494bd7042cc5c76586707cd8e194b0d75f1e945dba667c155493cb8dde
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--suggest-ielr"
+  effective_spellings:
+  - "--suggest-ielr"
+  canonical_key: invocation.generate.suggest_ielr
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_pipeline_options#--table=FORMAT
+  source: lib/ibex/cli.rb
+  method: add_pipeline_options
+  line: 335
+  declaration_sha256: 260c72882d445350585de1e190211be22c0f9cfaf0dd41550e38b869828681aa
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--table=FORMAT"
+  effective_spellings:
+  - "--table=FORMAT"
+  canonical_key: table.representation
+  value_type: enum
+  default: compact
+  affected_stages:
+  - code_generation
+  - artifact_publication
+  public_contract_effect: Changes artifact representation, packaging, source mapping,
+    or companion output; parser language semantics stay unchanged.
+  owner_class: project_build_policy
+  grammar_admission: excluded_x5_packaging_or_deployment
+  override_algebra: project_selection
+  ir_presence: not_persisted
+  manifest_presence: current
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_pipeline_options#--warnings=CATEGORIES
+  source: lib/ibex/cli.rb
+  method: add_pipeline_options
+  line: 354
+  declaration_sha256: 3c90736ad6244292fd2b025e1cfd7f043ec076a3b48ec8522e35dfe055422460
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--warnings=CATEGORIES"
+  effective_spellings:
+  - "--warnings=CATEGORIES"
+  canonical_key: invocation.warning_policy
+  value_type: string
+  default: all warnings enabled; not promoted to errors
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x7_diagnostic_suppression
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_pipeline_options#--watch
+  source: lib/ibex/cli.rb
+  method: add_pipeline_options
+  line: 357
+  declaration_sha256: c4faa026fbe76191cb1f5907397521738cba961fd82324729fe16ac9e03a132d
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--watch"
+  effective_spellings:
+  - "--watch"
+  canonical_key: invocation.generate.watch
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_signature_output_options#--action-source[=FILE]
+  source: lib/ibex/cli.rb
+  method: add_signature_output_options
+  line: 392
+  declaration_sha256: 4532f17a13c7abb5fc8674d8adce49188d17517d75ef98d81fc8260e4607e126
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--action-source[=FILE]"
+  effective_spellings:
+  - "--action-source[=FILE]"
+  canonical_key: companion.action_source
+  value_type: optional string or boolean
+  default: false; derived .actions.rb path when requested without a value
+  affected_stages:
+  - code_generation
+  - artifact_publication
+  public_contract_effect: Changes artifact representation, packaging, source mapping,
+    or companion output; parser language semantics stay unchanged.
+  owner_class: project_build_policy
+  grammar_admission: excluded_x5_packaging_or_deployment
+  override_algebra: project_selection
+  ir_presence: not_persisted
+  manifest_presence: current
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli.rb#add_signature_output_options#--rbs[=FILE]
+  source: lib/ibex/cli.rb
+  method: add_signature_output_options
+  line: 389
+  declaration_sha256: 547af7a7627464745222957929ba7907624b07ffb475840b155afc6dcc9476ea
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--rbs[=FILE]"
+  effective_spellings:
+  - "--rbs[=FILE]"
+  canonical_key: companion.rbs
+  value_type: optional string or boolean
+  default: false; derived .rbs path when requested without a value
+  affected_stages:
+  - code_generation
+  - artifact_publication
+  public_contract_effect: Changes artifact representation, packaging, source mapping,
+    or companion output; parser language semantics stay unchanged.
+  owner_class: project_build_policy
+  grammar_admission: excluded_x5_packaging_or_deployment
+  override_algebra: project_selection
+  ir_presence: not_persisted
+  manifest_presence: current
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--algorithm=NAME
+  source: lib/ibex/cli/ambiguity.rb
+  method: ambiguity_option_parser
+  line: 55
+  declaration_sha256: c56187a226db393b2bfef9c28688fcfabda890037001b765883a7c428927d09d
+  context_sha256:
+  surface: check-ambiguity
+  declared_spellings:
+  - "--algorithm=NAME"
+  effective_spellings:
+  - "--algorithm=NAME"
+  canonical_key: parser.algorithm
+  value_type: enum
+  default: lalr
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (parser.algorithm).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: automaton_ir_v2_only_contract_gap
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--ambiguity
+  source: lib/ibex/cli/ambiguity.rb
+  method: ambiguity_option_parser
+  line: 43
+  declaration_sha256: 7f9062097ad6cd10435192afdd2fbe73100645bcc09bc1fd0b014d4219144f02
+  context_sha256:
+  surface: check-ambiguity
+  declared_spellings:
+  - "--ambiguity"
+  effective_spellings:
+  - "--ambiguity"
+  canonical_key: invocation.check_ambiguity.ambiguity
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--entry-isolation
+  source: lib/ibex/cli/ambiguity.rb
+  method: ambiguity_option_parser
+  line: 58
+  declaration_sha256: 78ea8fb9bf0bdb81240576914525161a0dbf090bdda92c66860dfec281b93567
+  context_sha256:
+  surface: check-ambiguity
+  declared_spellings:
+  - "--entry-isolation"
+  effective_spellings:
+  - "--entry-isolation"
+  canonical_key: parser.entries
+  value_type: boolean
+  default: shared
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (parser.entries).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: starts_current_strategy_gap
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--format=FORMAT
+  source: lib/ibex/cli/ambiguity.rb
+  method: ambiguity_option_parser
+  line: 52
+  declaration_sha256: 918f5475f0e267b415743dde57244aa0146ffcb60207c86c3a9274bf1301cc69
+  context_sha256:
+  surface: check-ambiguity
+  declared_spellings:
+  - "--format=FORMAT"
+  effective_spellings:
+  - "--format=FORMAT"
+  canonical_key: report.check_ambiguity.format
+  value_type: enum
+  default: text
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--help
+  source: lib/ibex/cli/ambiguity.rb
+  method: ambiguity_option_parser
+  line: 62
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: check-ambiguity
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--max-configurations=N
+  source: lib/ibex/cli/ambiguity.rb
+  method: ambiguity_option_parser
+  line: 49
+  declaration_sha256: a28736e6f9ef56401aaabc86810402f30a657b883b577eb6bffc16679e9da90e
+  context_sha256:
+  surface: check-ambiguity
+  declared_spellings:
+  - "--max-configurations=N"
+  effective_spellings:
+  - "--max-configurations=N"
+  canonical_key: invocation.check_ambiguity.max_configurations
+  value_type: integer
+  default: '50000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--max-tokens=N
+  source: lib/ibex/cli/ambiguity.rb
+  method: ambiguity_option_parser
+  line: 46
+  declaration_sha256: cb390d45336fe11e8215b352310d559eb173b1e849c2a92a335d8fd7acf3da85
+  context_sha256:
+  surface: check-ambiguity
+  declared_spellings:
+  - "--max-tokens=N"
+  effective_spellings:
+  - "--max-tokens=N"
+  canonical_key: invocation.check_ambiguity.max_tokens
+  value_type: integer
+  default: '32'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--mode=MODE
+  source: lib/ibex/cli/ambiguity.rb
+  method: ambiguity_option_parser
+  line: 61
+  declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
+  context_sha256:
+  surface: check-ambiguity
+  declared_spellings:
+  - "--mode=MODE"
+  effective_spellings:
+  - "--mode=MODE"
+  canonical_key: grammar.mode
+  value_type: enum
+  default: default
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (grammar.mode).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: grammar_ir_v2_current
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/analysis.rb#analysis_options#--algorithm=NAME
+  source: lib/ibex/cli/analysis.rb
+  method: analysis_options
+  line: 62
+  declaration_sha256: 0ea734cec697453c0cd6fd6b1a50007a643de8258d8f6cd2be9bdb14e790be12
+  context_sha256:
+  surface: diff-or-metrics
+  declared_spellings:
+  - "--algorithm=NAME"
+  effective_spellings:
+  - "--algorithm=NAME"
+  canonical_key: parser.algorithm
+  value_type: enum
+  default: lalr
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (parser.algorithm).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: automaton_ir_v2_only_contract_gap
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/analysis.rb#analysis_options#--format=FORMAT
+  source: lib/ibex/cli/analysis.rb
+  method: analysis_options
+  line: 69
+  declaration_sha256: 03d0ea46cc73dfd89e8e1d7db753efada82431442e23693be017d52738438776
+  context_sha256:
+  surface: diff-or-metrics
+  declared_spellings:
+  - "--format=FORMAT"
+  effective_spellings:
+  - "--format=FORMAT"
+  canonical_key: report.diff_or_metrics.format
+  value_type: enum
+  default: json
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/analysis.rb#analysis_options#--help
+  source: lib/ibex/cli/analysis.rb
+  method: analysis_options
+  line: 70
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: diff-or-metrics
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/analysis.rb#analysis_options#--mode=MODE
+  source: lib/ibex/cli/analysis.rb
+  method: analysis_options
+  line: 65
+  declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
+  context_sha256:
+  surface: diff-or-metrics
+  declared_spellings:
+  - "--mode=MODE"
+  effective_spellings:
+  - "--mode=MODE"
+  canonical_key: grammar.mode
+  value_type: enum
+  default: default
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (grammar.mode).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: grammar_ir_v2_current
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/bison_import.rb#add_bison_import_budgets#--max-actions=N
+  source: lib/ibex/cli/bison_import.rb
+  method: add_bison_import_budgets
+  line: 84
+  declaration_sha256: a1f38cbe1da20f0656ecb9d8b7c66cac290856cf60f76faec62a82e1e7d8f9e9
+  context_sha256: d01c66e657f2bc4b82d01eff76028cab997caad3e9c16777703e8ab68e602d76
+  surface: import-bison
+  declared_spellings:
+  - "--#{name}=N"
+  effective_spellings:
+  - "--max-actions=N"
+  canonical_key: invocation.import_bison.max_actions
+  value_type: integer
+  default: '100000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: Treat the foreign grammar as untrusted data; import statically
+    without executing C actions or user sections.
+  compatibility_status: current
+- id: lib/ibex/cli/bison_import.rb#add_bison_import_budgets#--max-bytes=N
+  source: lib/ibex/cli/bison_import.rb
+  method: add_bison_import_budgets
+  line: 84
+  declaration_sha256: a1f38cbe1da20f0656ecb9d8b7c66cac290856cf60f76faec62a82e1e7d8f9e9
+  context_sha256: d01c66e657f2bc4b82d01eff76028cab997caad3e9c16777703e8ab68e602d76
+  surface: import-bison
+  declared_spellings:
+  - "--#{name}=N"
+  effective_spellings:
+  - "--max-bytes=N"
+  canonical_key: invocation.import_bison.max_bytes
+  value_type: integer
+  default: '20971520'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: Treat the foreign grammar as untrusted data; import statically
+    without executing C actions or user sections.
+  compatibility_status: current
+- id: lib/ibex/cli/bison_import.rb#add_bison_import_budgets#--max-rules=N
+  source: lib/ibex/cli/bison_import.rb
+  method: add_bison_import_budgets
+  line: 84
+  declaration_sha256: a1f38cbe1da20f0656ecb9d8b7c66cac290856cf60f76faec62a82e1e7d8f9e9
+  context_sha256: d01c66e657f2bc4b82d01eff76028cab997caad3e9c16777703e8ab68e602d76
+  surface: import-bison
+  declared_spellings:
+  - "--#{name}=N"
+  effective_spellings:
+  - "--max-rules=N"
+  canonical_key: invocation.import_bison.max_rules
+  value_type: integer
+  default: '50000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: Treat the foreign grammar as untrusted data; import statically
+    without executing C actions or user sections.
+  compatibility_status: current
+- id: lib/ibex/cli/bison_import.rb#add_bison_import_budgets#--max-tokens=N
+  source: lib/ibex/cli/bison_import.rb
+  method: add_bison_import_budgets
+  line: 84
+  declaration_sha256: a1f38cbe1da20f0656ecb9d8b7c66cac290856cf60f76faec62a82e1e7d8f9e9
+  context_sha256: d01c66e657f2bc4b82d01eff76028cab997caad3e9c16777703e8ab68e602d76
+  surface: import-bison
+  declared_spellings:
+  - "--#{name}=N"
+  effective_spellings:
+  - "--max-tokens=N"
+  canonical_key: invocation.import_bison.max_tokens
+  value_type: integer
+  default: '1000000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: Treat the foreign grammar as untrusted data; import statically
+    without executing C actions or user sections.
+  compatibility_status: current
+- id: lib/ibex/cli/bison_import.rb#bison_import_option_parser#--class=NAME
+  source: lib/ibex/cli/bison_import.rb
+  method: bison_import_option_parser
+  line: 70
+  declaration_sha256: 5c8f92d11fd2f2062433628b0b603171e7109de32f1eab5473bc331f3996e761
+  context_sha256:
+  surface: import-bison
+  declared_spellings:
+  - "--class=NAME"
+  effective_spellings:
+  - "--class=NAME"
+  canonical_key: invocation.import_bison.class
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: Treat the foreign grammar as untrusted data; import statically
+    without executing C actions or user sections.
+  compatibility_status: current
+- id: lib/ibex/cli/bison_import.rb#bison_import_option_parser#--format=FORMAT
+  source: lib/ibex/cli/bison_import.rb
+  method: bison_import_option_parser
+  line: 66
+  declaration_sha256: 6801de43d3ef20c9cc65a5f0bb8b0af4daceef25793ed043010ecaa5f00cd69a
+  context_sha256:
+  surface: import-bison
+  declared_spellings:
+  - "--format=FORMAT"
+  effective_spellings:
+  - "--format=FORMAT"
+  canonical_key: report.import_bison.format
+  value_type: enum
+  default: source
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: Treat the foreign grammar as untrusted data; import statically
+    without executing C actions or user sections.
+  compatibility_status: current
+- id: lib/ibex/cli/bison_import.rb#bison_import_option_parser#--help
+  source: lib/ibex/cli/bison_import.rb
+  method: bison_import_option_parser
+  line: 72
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: import-bison
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: Treat the foreign grammar as untrusted data; import statically
+    without executing C actions or user sections.
+  compatibility_status: current
+- id: lib/ibex/cli/bison_import.rb#bison_import_option_parser#-o FILE
+  source: lib/ibex/cli/bison_import.rb
+  method: bison_import_option_parser
+  line: 69
+  declaration_sha256: 342bff26cec377728543f6c11ce944806391c2058dfd36146342dd48eb7575b7
+  context_sha256:
+  surface: import-bison
+  declared_spellings:
+  - "-o FILE"
+  - "--output=FILE"
+  effective_spellings:
+  - "-o FILE"
+  - "--output=FILE"
+  canonical_key: path.import_bison.output
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x2_path_or_destination
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: Treat the foreign grammar as untrusted data; import statically
+    without executing C actions or user sections.
+  compatibility_status: current
+- id: lib/ibex/cli/counterexample_options.rb#add_counterexample_options#--counterexample-max-configurations=N
+  source: lib/ibex/cli/counterexample_options.rb
+  method: add_counterexample_options
+  line: 23
+  declaration_sha256: 62f6ebfcae1fadc576748da7be6d6acba621bbce78a2e9da385538d1edb53e70
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--counterexample-max-configurations=N"
+  effective_spellings:
+  - "--counterexample-max-configurations=N"
+  canonical_key: analysis.counterexample.max_configurations
+  value_type: integer
+  default: '50000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/counterexample_options.rb#add_counterexample_options#--counterexample-max-tokens=N
+  source: lib/ibex/cli/counterexample_options.rb
+  method: add_counterexample_options
+  line: 20
+  declaration_sha256: 89d57c319aee247a47e7c76d2c1063adb7b060e483d0d22962c74b57c13efd39
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--counterexample-max-tokens=N"
+  effective_spellings:
+  - "--counterexample-max-tokens=N"
+  canonical_key: analysis.counterexample.max_tokens
+  value_type: integer
+  default: '32'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/counterexample_options.rb#add_counterexample_options#--counterexamples
+  source: lib/ibex/cli/counterexample_options.rb
+  method: add_counterexample_options
+  line: 19
+  declaration_sha256: d5d77f24a32319b293c87178599d88a5b5190deeb2f17413f28134e646fa1c86
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--counterexamples"
+  effective_spellings:
+  - "--counterexamples"
+  canonical_key: invocation.generate.counterexamples
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/coverage.rb#coverage_check_options#--min-productions=PERCENT
+  source: lib/ibex/cli/coverage.rb
+  method: coverage_check_options
+  line: 105
+  declaration_sha256: 238be84eb7cae3d3029f8c03d18e001e5aeb27508075b33c76e3a8aae32efcbc
+  context_sha256:
+  surface: coverage-check
+  declared_spellings:
+  - "--min-productions=PERCENT"
+  effective_spellings:
+  - "--min-productions=PERCENT"
+  canonical_key: invocation.coverage_check.min_productions
+  value_type: float
+  default: '0.0'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/coverage.rb#coverage_check_options#--min-states=PERCENT
+  source: lib/ibex/cli/coverage.rb
+  method: coverage_check_options
+  line: 102
+  declaration_sha256: 5e737eaccb2cc8fbd4adcd710d741d78c97e072c3f156ec9459768e94b8a1708
+  context_sha256:
+  surface: coverage-check
+  declared_spellings:
+  - "--min-states=PERCENT"
+  effective_spellings:
+  - "--min-states=PERCENT"
+  canonical_key: invocation.coverage_check.min_states
+  value_type: float
+  default: '0.0'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/coverage.rb#coverage_output_options#-o FILE
+  source: lib/ibex/cli/coverage.rb
+  method: coverage_output_options
+  line: 91
+  declaration_sha256: 342bff26cec377728543f6c11ce944806391c2058dfd36146342dd48eb7575b7
+  context_sha256:
+  surface: coverage-collect-or-merge
+  declared_spellings:
+  - "-o FILE"
+  - "--output=FILE"
+  effective_spellings:
+  - "-o FILE"
+  - "--output=FILE"
+  canonical_key: path.coverage_collect_or_merge.output
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x2_path_or_destination
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/debug.rb#debug_options#--format=FORMAT
+  source: lib/ibex/cli/debug.rb
+  method: debug_options
+  line: 55
+  declaration_sha256: efb19236ef76ce0b3ad34e82e292cbecdc03f590762ae752efb6ab773d3b2dfb
+  context_sha256:
+  surface: debug
+  declared_spellings:
+  - "--format=FORMAT"
+  effective_spellings:
+  - "--format=FORMAT"
+  canonical_key: report.debug.format
+  value_type: enum
+  default: text
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/debug.rb#debug_options#--max-stack=N
+  source: lib/ibex/cli/debug.rb
+  method: debug_options
+  line: 59
+  declaration_sha256: 6918d78a5a3bf638019db40f05487d45219444e38e9cdecfb0302b55f9f01b4b
+  context_sha256:
+  surface: debug
+  declared_spellings:
+  - "--max-stack=N"
+  effective_spellings:
+  - "--max-stack=N"
+  canonical_key: invocation.debug.max_stack
+  value_type: integer
+  default: '10000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/debug.rb#debug_options#--max-steps=N
+  source: lib/ibex/cli/debug.rb
+  method: debug_options
+  line: 56
+  declaration_sha256: cdd20ae80a10c0c670cf81c887e8f3565228bf05064199dc5033d945e58f8b56
+  context_sha256:
+  surface: debug
+  declared_spellings:
+  - "--max-steps=N"
+  effective_spellings:
+  - "--max-steps=N"
+  canonical_key: invocation.debug.max_steps
+  value_type: integer
+  default: '100000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/diagnostics.rb#diagnostics_option_parser#--format=FORMAT
+  source: lib/ibex/cli/diagnostics.rb
+  method: diagnostics_option_parser
+  line: 77
+  declaration_sha256: efb19236ef76ce0b3ad34e82e292cbecdc03f590762ae752efb6ab773d3b2dfb
+  context_sha256:
+  surface: diagnostics
+  declared_spellings:
+  - "--format=FORMAT"
+  effective_spellings:
+  - "--format=FORMAT"
+  canonical_key: report.diagnostics.format
+  value_type: enum
+  default: text
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/diagnostics.rb#diagnostics_option_parser#--help
+  source: lib/ibex/cli/diagnostics.rb
+  method: diagnostics_option_parser
+  line: 82
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: diagnostics
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/diagnostics.rb#diagnostics_option_parser#--max-diagnostics=N
+  source: lib/ibex/cli/diagnostics.rb
+  method: diagnostics_option_parser
+  line: 78
+  declaration_sha256: 17152386dd52bc0a6fa6fe822e15e194bd278e9068c9a9c978a3f9fc8bb33bac
+  context_sha256:
+  surface: diagnostics
+  declared_spellings:
+  - "--max-diagnostics=N"
+  effective_spellings:
+  - "--max-diagnostics=N"
+  canonical_key: invocation.diagnostics.max_diagnostics
+  value_type: integer
+  default: '20'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/diagnostics.rb#diagnostics_option_parser#--mode=MODE
+  source: lib/ibex/cli/diagnostics.rb
+  method: diagnostics_option_parser
+  line: 81
+  declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
+  context_sha256:
+  surface: diagnostics
+  declared_spellings:
+  - "--mode=MODE"
+  effective_spellings:
+  - "--mode=MODE"
+  canonical_key: grammar.mode
+  value_type: enum
+  default: default
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (grammar.mode).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: grammar_ir_v2_current
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/documentation.rb#documentation_option_parser#--format=FORMAT
+  source: lib/ibex/cli/documentation.rb
+  method: documentation_option_parser
+  line: 58
+  declaration_sha256: 98055dec5deb549fe619ebfd5f28e9e5db1b23d76574f7694f6c90fb5a0019c8
+  context_sha256:
+  surface: doc
+  declared_spellings:
+  - "--format=FORMAT"
+  effective_spellings:
+  - "--format=FORMAT"
+  canonical_key: report.doc.format
+  value_type: enum
+  default: markdown
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/documentation.rb#documentation_option_parser#--help
+  source: lib/ibex/cli/documentation.rb
+  method: documentation_option_parser
+  line: 63
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: doc
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/documentation.rb#documentation_option_parser#--mode=MODE
+  source: lib/ibex/cli/documentation.rb
+  method: documentation_option_parser
+  line: 62
+  declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
+  context_sha256:
+  surface: doc
+  declared_spellings:
+  - "--mode=MODE"
+  effective_spellings:
+  - "--mode=MODE"
+  canonical_key: grammar.mode
+  value_type: enum
+  default: default
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (grammar.mode).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: grammar_ir_v2_current
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/documentation.rb#documentation_option_parser#-o FILE
+  source: lib/ibex/cli/documentation.rb
+  method: documentation_option_parser
+  line: 61
+  declaration_sha256: 342bff26cec377728543f6c11ce944806391c2058dfd36146342dd48eb7575b7
+  context_sha256:
+  surface: doc
+  declared_spellings:
+  - "-o FILE"
+  - "--output=FILE"
+  effective_spellings:
+  - "-o FILE"
+  - "--output=FILE"
+  canonical_key: path.doc.output
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x2_path_or_destination
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/equiv.rb#add_equiv_search_options#--max-actions=N
+  source: lib/ibex/cli/equiv.rb
+  method: add_equiv_search_options
+  line: 104
+  declaration_sha256: 60adc45bb76559b62c840aa69dea711ce9ab886bc6af182a5601d4bc0e4a53c3
+  context_sha256:
+  surface: equiv
+  declared_spellings:
+  - "--max-actions=N"
+  effective_spellings:
+  - "--max-actions=N"
+  canonical_key: invocation.equiv.max_actions
+  value_type: integer
+  default: '100000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/equiv.rb#add_equiv_search_options#--max-configurations=N
+  source: lib/ibex/cli/equiv.rb
+  method: add_equiv_search_options
+  line: 101
+  declaration_sha256: 5af489293aaabc4e02f31fa529ea245ec32c957e26c79918bc38799b77cbaa94
+  context_sha256:
+  surface: equiv
+  declared_spellings:
+  - "--max-configurations=N"
+  effective_spellings:
+  - "--max-configurations=N"
+  canonical_key: invocation.equiv.max_configurations
+  value_type: integer
+  default: '50000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/equiv.rb#add_equiv_search_options#--max-stack=N
+  source: lib/ibex/cli/equiv.rb
+  method: add_equiv_search_options
+  line: 107
+  declaration_sha256: c87afaa0fe03f62cf8817add352fa38c7c894ae7028a1485136482191c7a6da2
+  context_sha256:
+  surface: equiv
+  declared_spellings:
+  - "--max-stack=N"
+  effective_spellings:
+  - "--max-stack=N"
+  canonical_key: invocation.equiv.max_stack
+  value_type: integer
+  default: '10000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/equiv.rb#add_equiv_search_options#--max-tokens=N
+  source: lib/ibex/cli/equiv.rb
+  method: add_equiv_search_options
+  line: 98
+  declaration_sha256: 1c786a1275f448c4620227b895e32c67c67b01aa59a3b5f508d1cbd23b3373c0
+  context_sha256:
+  surface: equiv
+  declared_spellings:
+  - "--max-tokens=N"
+  effective_spellings:
+  - "--max-tokens=N"
+  canonical_key: invocation.equiv.max_tokens
+  value_type: integer
+  default: '8'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/equiv.rb#add_equiv_search_options#--samples=N
+  source: lib/ibex/cli/equiv.rb
+  method: add_equiv_search_options
+  line: 94
+  declaration_sha256: cc98f67b68ac133743d5322ba248b4cc3f56b747733f38f34dd09861482f32fe
+  context_sha256:
+  surface: equiv
+  declared_spellings:
+  - "--samples=N"
+  effective_spellings:
+  - "--samples=N"
+  canonical_key: invocation.equiv.samples
+  value_type: integer
+  default: '100'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/equiv.rb#add_equiv_search_options#--seed=N
+  source: lib/ibex/cli/equiv.rb
+  method: add_equiv_search_options
+  line: 97
+  declaration_sha256: 67157155e23e54dda994b436fe3c2554f941edc94ef13c5c773cc92281c03491
+  context_sha256:
+  surface: equiv
+  declared_spellings:
+  - "--seed=N"
+  effective_spellings:
+  - "--seed=N"
+  canonical_key: invocation.equiv.seed
+  value_type: integer
+  default: '0'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/equiv.rb#equiv_options#--algorithm=NAME
+  source: lib/ibex/cli/equiv.rb
+  method: equiv_options
+  line: 70
+  declaration_sha256: 0ea734cec697453c0cd6fd6b1a50007a643de8258d8f6cd2be9bdb14e790be12
+  context_sha256:
+  surface: equiv
+  declared_spellings:
+  - "--algorithm=NAME"
+  effective_spellings:
+  - "--algorithm=NAME"
+  canonical_key: parser.algorithm
+  value_type: enum
+  default: lalr
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (parser.algorithm).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: automaton_ir_v2_only_contract_gap
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/equiv.rb#equiv_options#--format=FORMAT
+  source: lib/ibex/cli/equiv.rb
+  method: equiv_options
+  line: 85
+  declaration_sha256: 03d0ea46cc73dfd89e8e1d7db753efada82431442e23693be017d52738438776
+  context_sha256:
+  surface: equiv
+  declared_spellings:
+  - "--format=FORMAT"
+  effective_spellings:
+  - "--format=FORMAT"
+  canonical_key: report.equiv.format
+  value_type: enum
+  default: json
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/equiv.rb#equiv_options#--help
+  source: lib/ibex/cli/equiv.rb
+  method: equiv_options
+  line: 86
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: equiv
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/equiv.rb#equiv_options#--map=OLD=NEW
+  source: lib/ibex/cli/equiv.rb
+  method: equiv_options
+  line: 77
+  declaration_sha256: 32d98cc1d631661a2df9658cfca9f38a09142ca4a114317bcf02d4a0a5a194d6
+  context_sha256:
+  surface: equiv
+  declared_spellings:
+  - "--map=OLD=NEW"
+  effective_spellings:
+  - "--map=OLD=NEW"
+  canonical_key: invocation.equiv.map
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/equiv.rb#equiv_options#--mode=MODE
+  source: lib/ibex/cli/equiv.rb
+  method: equiv_options
+  line: 73
+  declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
+  context_sha256:
+  surface: equiv
+  declared_spellings:
+  - "--mode=MODE"
+  effective_spellings:
+  - "--mode=MODE"
+  canonical_key: grammar.mode
+  value_type: enum
+  default: default
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (grammar.mode).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: grammar_ir_v2_current
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--algorithm=NAME
+  source: lib/ibex/cli/error_messages.rb
+  method: error_messages_option_parser
+  line: 65
+  declaration_sha256: c56187a226db393b2bfef9c28688fcfabda890037001b765883a7c428927d09d
+  context_sha256:
+  surface: error-messages
+  declared_spellings:
+  - "--algorithm=NAME"
+  effective_spellings:
+  - "--algorithm=NAME"
+  canonical_key: parser.algorithm
+  value_type: enum
+  default: lalr
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (parser.algorithm).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: automaton_ir_v2_only_contract_gap
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--from=FORMAT
+  source: lib/ibex/cli/error_messages.rb
+  method: error_messages_option_parser
+  line: 61
+  declaration_sha256: e50eb9153ff8d86ff2c6f66e818d605c72747cf798bb0616730a20e76503e79b
+  context_sha256:
+  surface: error-messages
+  declared_spellings:
+  - "--from=FORMAT"
+  effective_spellings:
+  - "--from=FORMAT"
+  canonical_key: invocation.error_messages.from
+  value_type: enum
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: Validate the selected IR as untrusted data; never execute embedded
+    user sections while loading or inventorying it.
+  compatibility_status: current
+- id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--help
+  source: lib/ibex/cli/error_messages.rb
+  method: error_messages_option_parser
+  line: 73
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: error-messages
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--list
+  source: lib/ibex/cli/error_messages.rb
+  method: error_messages_option_parser
+  line: 51
+  declaration_sha256: f654ffae0c6be90db167c0aa1df9bb5e1641e5233cbef3ef3b7b85f95a580fd9
+  context_sha256:
+  surface: error-messages
+  declared_spellings:
+  - "--list"
+  effective_spellings:
+  - "--list"
+  canonical_key: invocation.error_messages.list
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--max-configurations=N
+  source: lib/ibex/cli/error_messages.rb
+  method: error_messages_option_parser
+  line: 58
+  declaration_sha256: 7d75906688f2732da8558ae55950697bedbde778dee0976ee1c7bf70507cb89d
+  context_sha256:
+  surface: error-messages
+  declared_spellings:
+  - "--max-configurations=N"
+  effective_spellings:
+  - "--max-configurations=N"
+  canonical_key: invocation.error_messages.max_configurations
+  value_type: integer
+  default: '50000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--max-tokens=N
+  source: lib/ibex/cli/error_messages.rb
+  method: error_messages_option_parser
+  line: 55
+  declaration_sha256: a722d48a3a1c8a6783b82f5045125895391cbe2b0abe8851627abd468f584e19
+  context_sha256:
+  surface: error-messages
+  declared_spellings:
+  - "--max-tokens=N"
+  effective_spellings:
+  - "--max-tokens=N"
+  canonical_key: invocation.error_messages.max_tokens
+  value_type: integer
+  default: '32'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--mode=MODE
+  source: lib/ibex/cli/error_messages.rb
+  method: error_messages_option_parser
+  line: 64
+  declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
+  context_sha256:
+  surface: error-messages
+  declared_spellings:
+  - "--mode=MODE"
+  effective_spellings:
+  - "--mode=MODE"
+  canonical_key: grammar.mode
+  value_type: enum
+  default: default
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (grammar.mode).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: grammar_ir_v2_current
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--update[=FILE]
+  source: lib/ibex/cli/error_messages.rb
+  method: error_messages_option_parser
+  line: 52
+  declaration_sha256: ea37a7d7116059132d1edda8b6d1532b87b7b4c40f06b15dce90ce9a87533734
+  context_sha256:
+  surface: error-messages
+  declared_spellings:
+  - "--update[=FILE]"
+  effective_spellings:
+  - "--update[=FILE]"
+  canonical_key: invocation.error_messages.update
+  value_type: optional string or boolean
+  default: false; grammar.messages when requested without a value
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--warnings=CATEGORIES
+  source: lib/ibex/cli/error_messages.rb
+  method: error_messages_option_parser
+  line: 69
+  declaration_sha256: 3c90736ad6244292fd2b025e1cfd7f043ec076a3b48ec8522e35dfe055422460
+  context_sha256:
+  surface: error-messages
+  declared_spellings:
+  - "--warnings=CATEGORIES"
+  effective_spellings:
+  - "--warnings=CATEGORIES"
+  canonical_key: invocation.warning_policy
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x7_diagnostic_suppression
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#-S
+  source: lib/ibex/cli/error_messages.rb
+  method: error_messages_option_parser
+  line: 72
+  declaration_sha256: 3221e99176d685edce285edac739dad60c8f6ca84904a2698cc701bd5147c71b
+  context_sha256:
+  surface: error-messages
+  declared_spellings:
+  - "-S"
+  - "--output-status"
+  effective_spellings:
+  - "-S"
+  - "--output-status"
+  canonical_key: report.output_status
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/explain.rb#add_explain_search_options#--counterexample-max-configurations=N
+  source: lib/ibex/cli/explain.rb
+  method: add_explain_search_options
+  line: 67
+  declaration_sha256: 62f6ebfcae1fadc576748da7be6d6acba621bbce78a2e9da385538d1edb53e70
+  context_sha256:
+  surface: explain
+  declared_spellings:
+  - "--counterexample-max-configurations=N"
+  effective_spellings:
+  - "--counterexample-max-configurations=N"
+  canonical_key: analysis.counterexample.max_configurations
+  value_type: integer
+  default: '50000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/explain.rb#add_explain_search_options#--counterexample-max-tokens=N
+  source: lib/ibex/cli/explain.rb
+  method: add_explain_search_options
+  line: 64
+  declaration_sha256: 89d57c319aee247a47e7c76d2c1063adb7b060e483d0d22962c74b57c13efd39
+  context_sha256:
+  surface: explain
+  declared_spellings:
+  - "--counterexample-max-tokens=N"
+  effective_spellings:
+  - "--counterexample-max-tokens=N"
+  canonical_key: analysis.counterexample.max_tokens
+  value_type: integer
+  default: '32'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/explain.rb#explain_option_parser#--algorithm=NAME
+  source: lib/ibex/cli/explain.rb
+  method: explain_option_parser
+  line: 50
+  declaration_sha256: c56187a226db393b2bfef9c28688fcfabda890037001b765883a7c428927d09d
+  context_sha256:
+  surface: explain
+  declared_spellings:
+  - "--algorithm=NAME"
+  effective_spellings:
+  - "--algorithm=NAME"
+  canonical_key: parser.algorithm
+  value_type: enum
+  default: lalr
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (parser.algorithm).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: automaton_ir_v2_only_contract_gap
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/explain.rb#explain_option_parser#--entry-isolation
+  source: lib/ibex/cli/explain.rb
+  method: explain_option_parser
+  line: 53
+  declaration_sha256: 78ea8fb9bf0bdb81240576914525161a0dbf090bdda92c66860dfec281b93567
+  context_sha256:
+  surface: explain
+  declared_spellings:
+  - "--entry-isolation"
+  effective_spellings:
+  - "--entry-isolation"
+  canonical_key: parser.entries
+  value_type: boolean
+  default: shared
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (parser.entries).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: starts_current_strategy_gap
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/explain.rb#explain_option_parser#--format=FORMAT
+  source: lib/ibex/cli/explain.rb
+  method: explain_option_parser
+  line: 47
+  declaration_sha256: 918f5475f0e267b415743dde57244aa0146ffcb60207c86c3a9274bf1301cc69
+  context_sha256:
+  surface: explain
+  declared_spellings:
+  - "--format=FORMAT"
+  effective_spellings:
+  - "--format=FORMAT"
+  canonical_key: report.explain.format
+  value_type: enum
+  default: text
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/explain.rb#explain_option_parser#--help
+  source: lib/ibex/cli/explain.rb
+  method: explain_option_parser
+  line: 58
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: explain
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/explain.rb#explain_option_parser#--mode=MODE
+  source: lib/ibex/cli/explain.rb
+  method: explain_option_parser
+  line: 56
+  declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
+  context_sha256:
+  surface: explain
+  declared_spellings:
+  - "--mode=MODE"
+  effective_spellings:
+  - "--mode=MODE"
+  canonical_key: grammar.mode
+  value_type: enum
+  default: default
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (grammar.mode).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: grammar_ir_v2_current
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/explain.rb#explain_option_parser#--state=N
+  source: lib/ibex/cli/explain.rb
+  method: explain_option_parser
+  line: 43
+  declaration_sha256: ece617d377673f78ed884f83e85d0d7d96897b936d9eb12f5333036c7d402632
+  context_sha256:
+  surface: explain
+  declared_spellings:
+  - "--state=N"
+  effective_spellings:
+  - "--state=N"
+  canonical_key: invocation.explain.state
+  value_type: integer
+  default: unset
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/explain.rb#explain_option_parser#--token=NAME
+  source: lib/ibex/cli/explain.rb
+  method: explain_option_parser
+  line: 44
+  declaration_sha256: ef0e87186ce751b76cfc24a7cdd25a71b8c61f0033498d254aece1ff0a9ccb75
+  context_sha256:
+  surface: explain
+  declared_spellings:
+  - "--token=NAME"
+  effective_spellings:
+  - "--token=NAME"
+  canonical_key: invocation.explain.token
+  value_type: string
+  default: unset
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fix.rb#add_fix_budget_options#--equiv-max-configurations=N
+  source: lib/ibex/cli/fix.rb
+  method: add_fix_budget_options
+  line: 147
+  declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
+  context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
+  surface: fix
+  declared_spellings:
+  - "--#{name}=N"
+  effective_spellings:
+  - "--equiv-max-configurations=N"
+  canonical_key: invocation.fix.equiv_max_configurations
+  value_type: integer
+  default: '50000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fix.rb#add_fix_budget_options#--equiv-max-tokens=N
+  source: lib/ibex/cli/fix.rb
+  method: add_fix_budget_options
+  line: 147
+  declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
+  context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
+  surface: fix
+  declared_spellings:
+  - "--#{name}=N"
+  effective_spellings:
+  - "--equiv-max-tokens=N"
+  canonical_key: invocation.fix.equiv_max_tokens
+  value_type: integer
+  default: '8'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fix.rb#add_fix_budget_options#--equiv-samples=N
+  source: lib/ibex/cli/fix.rb
+  method: add_fix_budget_options
+  line: 147
+  declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
+  context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
+  surface: fix
+  declared_spellings:
+  - "--#{name}=N"
+  effective_spellings:
+  - "--equiv-samples=N"
+  canonical_key: invocation.fix.equiv_samples
+  value_type: integer
+  default: '100'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fix.rb#add_fix_budget_options#--max-builds=N
+  source: lib/ibex/cli/fix.rb
+  method: add_fix_budget_options
+  line: 147
+  declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
+  context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
+  surface: fix
+  declared_spellings:
+  - "--#{name}=N"
+  effective_spellings:
+  - "--max-builds=N"
+  canonical_key: invocation.fix.max_builds
+  value_type: integer
+  default: '32'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fix.rb#add_fix_budget_options#--max-candidates=N
+  source: lib/ibex/cli/fix.rb
+  method: add_fix_budget_options
+  line: 147
+  declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
+  context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
+  surface: fix
+  declared_spellings:
+  - "--#{name}=N"
+  effective_spellings:
+  - "--max-candidates=N"
+  canonical_key: invocation.fix.max_candidates
+  value_type: integer
+  default: '32'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fix.rb#add_fix_budget_options#--verify-max-items=N
+  source: lib/ibex/cli/fix.rb
+  method: add_fix_budget_options
+  line: 147
+  declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
+  context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
+  surface: fix
+  declared_spellings:
+  - "--#{name}=N"
+  effective_spellings:
+  - "--verify-max-items=N"
+  canonical_key: invocation.fix.verify_max_items
+  value_type: integer
+  default: '1000000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fix.rb#add_fix_budget_options#--verify-max-states=N
+  source: lib/ibex/cli/fix.rb
+  method: add_fix_budget_options
+  line: 147
+  declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
+  context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
+  surface: fix
+  declared_spellings:
+  - "--#{name}=N"
+  effective_spellings:
+  - "--verify-max-states=N"
+  canonical_key: invocation.fix.verify_max_states
+  value_type: integer
+  default: '100000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fix.rb#add_fix_target_options#--conflict-index=N
+  source: lib/ibex/cli/fix.rb
+  method: add_fix_target_options
+  line: 129
+  declaration_sha256: 33009e4b0258f57a8e91aaf96f312b60caa31c36d88e2e95d6ea04786f7ef99c
+  context_sha256:
+  surface: fix
+  declared_spellings:
+  - "--conflict-index=N"
+  effective_spellings:
+  - "--conflict-index=N"
+  canonical_key: invocation.fix.conflict_index
+  value_type: integer
+  default: first conflict in the selected state
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fix.rb#add_fix_target_options#--state=N
+  source: lib/ibex/cli/fix.rb
+  method: add_fix_target_options
+  line: 124
+  declaration_sha256: e23c24cf6bbfe0d8e1a0b60c1255389babb02fd4a71e230ab9324543dd6fa86d
+  context_sha256:
+  surface: fix
+  declared_spellings:
+  - "--state=N"
+  effective_spellings:
+  - "--state=N"
+  canonical_key: invocation.fix.state
+  value_type: integer
+  default: first unresolved conflict
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fix.rb#fix_options#--algorithm=NAME
+  source: lib/ibex/cli/fix.rb
+  method: fix_options
+  line: 102
+  declaration_sha256: 89210154cacba47cd0d24cc749724dcb050285e50ecc4d4fe63181d5fabbfe98
+  context_sha256:
+  surface: fix
+  declared_spellings:
+  - "--algorithm=NAME"
+  effective_spellings:
+  - "--algorithm=NAME"
+  canonical_key: parser.algorithm
+  value_type: enum
+  default: lalr
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (parser.algorithm).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: automaton_ir_v2_only_contract_gap
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/fix.rb#fix_options#--apply[=ID]
+  source: lib/ibex/cli/fix.rb
+  method: fix_options
+  line: 109
+  declaration_sha256: 2b09175a47ab7c63c2ded8f0542a2a6af4b5d10ca3f6737ad464b8bb2a6e582e
+  context_sha256:
+  surface: fix
+  declared_spellings:
+  - "--apply[=ID]"
+  effective_spellings:
+  - "--apply[=ID]"
+  canonical_key: invocation.fix.apply
+  value_type: optional string or boolean
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: Mutates the selected grammar only through the command explicit
+    atomic-write safety checks; inventorying never applies a proposal.
+  compatibility_status: current
+- id: lib/ibex/cli/fix.rb#fix_options#--format=FORMAT
+  source: lib/ibex/cli/fix.rb
+  method: fix_options
+  line: 115
+  declaration_sha256: 03d0ea46cc73dfd89e8e1d7db753efada82431442e23693be017d52738438776
+  context_sha256:
+  surface: fix
+  declared_spellings:
+  - "--format=FORMAT"
+  effective_spellings:
+  - "--format=FORMAT"
+  canonical_key: report.fix.format
+  value_type: enum
+  default: json
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fix.rb#fix_options#--help
+  source: lib/ibex/cli/fix.rb
+  method: fix_options
+  line: 116
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: fix
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fix.rb#fix_options#--messages=FILE
+  source: lib/ibex/cli/fix.rb
+  method: fix_options
+  line: 112
+  declaration_sha256: 8e6fa2bc5179b5b2afaed58a71fce4f97cdf7aff69f6f6d3bfcd34af192ddcf5
+  context_sha256:
+  surface: fix
+  declared_spellings:
+  - "--messages=FILE"
+  effective_spellings:
+  - "--messages=FILE"
+  canonical_key: path.fix.messages
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x2_path_or_destination
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fix.rb#fix_options#--mode=MODE
+  source: lib/ibex/cli/fix.rb
+  method: fix_options
+  line: 105
+  declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
+  context_sha256:
+  surface: fix
+  declared_spellings:
+  - "--mode=MODE"
+  effective_spellings:
+  - "--mode=MODE"
+  canonical_key: grammar.mode
+  value_type: enum
+  default: default
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (grammar.mode).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: grammar_ir_v2_current
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/formatting.rb#formatting_option_parser#--check
+  source: lib/ibex/cli/formatting.rb
+  method: formatting_option_parser
+  line: 80
+  declaration_sha256: 8439a1da167b62fd46ff06958dbeb31d9213e22cf298eb0b7ab70deccc02e79b
+  context_sha256:
+  surface: formatting
+  declared_spellings:
+  - "--check"
+  effective_spellings:
+  - "--check"
+  canonical_key: invocation.formatting.check
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/formatting.rb#formatting_option_parser#--help
+  source: lib/ibex/cli/formatting.rb
+  method: formatting_option_parser
+  line: 86
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: formatting
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/formatting.rb#formatting_option_parser#--mode=MODE
+  source: lib/ibex/cli/formatting.rb
+  method: formatting_option_parser
+  line: 82
+  declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
+  context_sha256:
+  surface: formatting
+  declared_spellings:
+  - "--mode=MODE"
+  effective_spellings:
+  - "--mode=MODE"
+  canonical_key: grammar.mode
+  value_type: enum
+  default: default
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (grammar.mode).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: grammar_ir_v2_current
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/formatting.rb#formatting_option_parser#--stdin-filename=FILE
+  source: lib/ibex/cli/formatting.rb
+  method: formatting_option_parser
+  line: 83
+  declaration_sha256: 1ec57baed75ee22aac6739cb078a82be584e15233686cb1d0cf30cf505907d41
+  context_sha256:
+  surface: formatting
+  declared_spellings:
+  - "--stdin-filename=FILE"
+  effective_spellings:
+  - "--stdin-filename=FILE"
+  canonical_key: path.formatting.stdin_filename
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x2_path_or_destination
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/formatting.rb#formatting_option_parser#--write
+  source: lib/ibex/cli/formatting.rb
+  method: formatting_option_parser
+  line: 81
+  declaration_sha256: 8c476caa0aa494d56ff615654be137b279ddad472b6580d5cd9de505980e45da
+  context_sha256:
+  surface: formatting
+  declared_spellings:
+  - "--write"
+  effective_spellings:
+  - "--write"
+  canonical_key: invocation.formatting.write
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: Mutates explicit formatting targets through the command atomic-write
+    checks; inventorying never writes target files.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#add_fuzz_execution_options#--coverage-guided
+  source: lib/ibex/cli/fuzz.rb
+  method: add_fuzz_execution_options
+  line: 98
+  declaration_sha256: c2b2f816369c2af7ccdf61317fc92b668c6ab64f4dce830371ff07ef6575a465
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--coverage-guided"
+  effective_spellings:
+  - "--coverage-guided"
+  canonical_key: invocation.fuzz.coverage_guided
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#add_fuzz_execution_options#--max-actions=N
+  source: lib/ibex/cli/fuzz.rb
+  method: add_fuzz_execution_options
+  line: 92
+  declaration_sha256: b76f7363a0bc6d55e4847303024aa66556763efd8f315b55700331d939d71f47
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--max-actions=N"
+  effective_spellings:
+  - "--max-actions=N"
+  canonical_key: invocation.fuzz.max_actions
+  value_type: integer
+  default: '100000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#add_fuzz_execution_options#--max-stack=N
+  source: lib/ibex/cli/fuzz.rb
+  method: add_fuzz_execution_options
+  line: 95
+  declaration_sha256: c87afaa0fe03f62cf8817add352fa38c7c894ae7028a1485136482191c7a6da2
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--max-stack=N"
+  effective_spellings:
+  - "--max-stack=N"
+  canonical_key: invocation.fuzz.max_stack
+  value_type: integer
+  default: '10000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#add_fuzz_execution_options#--path-length=N
+  source: lib/ibex/cli/fuzz.rb
+  method: add_fuzz_execution_options
+  line: 101
+  declaration_sha256: 157f7ac316c37e0676914ae2ce66ad00755cbcd5d59d776bf2bc3ea882549f5c
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--path-length=N"
+  effective_spellings:
+  - "--path-length=N"
+  canonical_key: invocation.fuzz.path_length
+  value_type: integer
+  default: '2'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--[no-]save-regression
+  source: lib/ibex/cli/fuzz.rb
+  method: add_fuzz_external_options
+  line: 133
+  declaration_sha256: 5cde88ede55068cee14d1e0979122e9143ae3482f8a0eeec07faf2d159b13e6e
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--[no-]save-regression"
+  effective_spellings:
+  - "--save-regression"
+  - "--no-save-regression"
+  canonical_key: invocation.fuzz.save_regression
+  value_type: boolean
+  default: 'true'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--against-max-output=N
+  source: lib/ibex/cli/fuzz.rb
+  method: add_fuzz_external_options
+  line: 122
+  declaration_sha256: 72733fe7cf851b319fe3814f1a24b782feba08b7fd0cfc1f3e183821228c0c15
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--against-max-output=N"
+  effective_spellings:
+  - "--against-max-output=N"
+  canonical_key: invocation.fuzz.against_max_output
+  value_type: integer
+  default: '1048576'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--against-runtime=DESCRIPTION
+  source: lib/ibex/cli/fuzz.rb
+  method: add_fuzz_external_options
+  line: 114
+  declaration_sha256: fda0bb1890268909b59283a37bde956546a7904e373ae618ce1790c92900663a
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--against-runtime=DESCRIPTION"
+  effective_spellings:
+  - "--against-runtime=DESCRIPTION"
+  canonical_key: invocation.fuzz.against_runtime
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--against-timeout=SECONDS
+  source: lib/ibex/cli/fuzz.rb
+  method: add_fuzz_external_options
+  line: 119
+  declaration_sha256: 77338a43c001fe92a7d90564310fc0f2aba678956b2d19f96bed8ac4f4b79d70
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--against-timeout=SECONDS"
+  effective_spellings:
+  - "--against-timeout=SECONDS"
+  canonical_key: invocation.fuzz.against_timeout
+  value_type: integer
+  default: '10'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--against=COMMAND
+  source: lib/ibex/cli/fuzz.rb
+  method: add_fuzz_external_options
+  line: 111
+  declaration_sha256: eff982a9d29787a6314a1ee2cc229aa30a9efb49e43436d8cd163c8ec05480d3
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--against=COMMAND"
+  effective_spellings:
+  - "--against=COMMAND"
+  canonical_key: invocation.fuzz.against
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: Executes the explicit untrusted JSON-token target in a bounded
+    subprocess; never execute it during inventory or configuration resolution.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--format=FORMAT
+  source: lib/ibex/cli/fuzz.rb
+  method: add_fuzz_external_options
+  line: 136
+  declaration_sha256: df970aa668feb3539f521d2c7129b10008371be9d9295dbacf8be21dbb8cfa25
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--format=FORMAT"
+  effective_spellings:
+  - "--format=FORMAT"
+  canonical_key: report.fuzz.format
+  value_type: enum
+  default: json
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--max-reduction-trials=N
+  source: lib/ibex/cli/fuzz.rb
+  method: add_fuzz_external_options
+  line: 125
+  declaration_sha256: c9238632b2744f1bd495cd9a1b7269c79f6f4629b1d994d877a2ead7db428339
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--max-reduction-trials=N"
+  effective_spellings:
+  - "--max-reduction-trials=N"
+  canonical_key: invocation.fuzz.max_reduction_trials
+  value_type: integer
+  default: '1000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--regression-dir=DIR
+  source: lib/ibex/cli/fuzz.rb
+  method: add_fuzz_external_options
+  line: 128
+  declaration_sha256: b77cfb4ee2cdf6b0b13e3fabccb36552796c8e2264ac67264eaf07ee8d3475b5
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--regression-dir=DIR"
+  effective_spellings:
+  - "--regression-dir=DIR"
+  canonical_key: path.fuzz.regression_dir
+  value_type: string
+  default: test/fuzz/regressions
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x2_path_or_destination
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#add_fuzz_generation_options#--count=N
+  source: lib/ibex/cli/fuzz.rb
+  method: add_fuzz_generation_options
+  line: 75
+  declaration_sha256: a4367c570f0a14eb2766051291ecd5e713dbac690b927c44a142db27beb5f668
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--count=N"
+  effective_spellings:
+  - "--count=N"
+  canonical_key: invocation.fuzz.count
+  value_type: integer
+  default: '100'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#add_fuzz_generation_options#--max-depth=N
+  source: lib/ibex/cli/fuzz.rb
+  method: add_fuzz_generation_options
+  line: 82
+  declaration_sha256: 4e88b480fec93c234d368ed79dc928114f0ad3a3594932c9d12a08603f80bf7c
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--max-depth=N"
+  effective_spellings:
+  - "--max-depth=N"
+  canonical_key: invocation.fuzz.max_depth
+  value_type: integer
+  default: '16'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#add_fuzz_generation_options#--max-expansions=N
+  source: lib/ibex/cli/fuzz.rb
+  method: add_fuzz_generation_options
+  line: 85
+  declaration_sha256: 61b0367ce06b161f488702f5e537c1195e4b57a1cb6e389128cf74a476b9fe16
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--max-expansions=N"
+  effective_spellings:
+  - "--max-expansions=N"
+  canonical_key: invocation.fuzz.max_expansions
+  value_type: integer
+  default: '100000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#add_fuzz_generation_options#--max-tokens=N
+  source: lib/ibex/cli/fuzz.rb
+  method: add_fuzz_generation_options
+  line: 79
+  declaration_sha256: 6f4239569292f57f3e65c66d7c5c80323f2174fea1855b2dff5149dcfa9132dc
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--max-tokens=N"
+  effective_spellings:
+  - "--max-tokens=N"
+  canonical_key: invocation.fuzz.max_tokens
+  value_type: integer
+  default: '32'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#add_fuzz_generation_options#--seed=N
+  source: lib/ibex/cli/fuzz.rb
+  method: add_fuzz_generation_options
+  line: 78
+  declaration_sha256: d2dc1cff601f567fda26f712aee887de29d3834ee17e17ef98faa2ce54ed8740
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--seed=N"
+  effective_spellings:
+  - "--seed=N"
+  canonical_key: invocation.fuzz.seed
+  value_type: integer
+  default: '0'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#fuzz_option_parser#--help
+  source: lib/ibex/cli/fuzz.rb
+  method: fuzz_option_parser
+  line: 69
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#fuzz_option_parser#--mode=MODE
+  source: lib/ibex/cli/fuzz.rb
+  method: fuzz_option_parser
+  line: 65
+  declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--mode=MODE"
+  effective_spellings:
+  - "--mode=MODE"
+  canonical_key: grammar.mode
+  value_type: enum
+  default: default
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (grammar.mode).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: grammar_ir_v2_current
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/fuzz.rb#fuzz_option_parser#--warnings=CATEGORIES
+  source: lib/ibex/cli/fuzz.rb
+  method: fuzz_option_parser
+  line: 66
+  declaration_sha256: 3c90736ad6244292fd2b025e1cfd7f043ec076a3b48ec8522e35dfe055422460
+  context_sha256:
+  surface: fuzz
+  declared_spellings:
+  - "--warnings=CATEGORIES"
+  effective_spellings:
+  - "--warnings=CATEGORIES"
+  canonical_key: invocation.warning_policy
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x7_diagnostic_suppression
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/generation_error_messages.rb#add_error_messages_generation_option#--messages=FILE
+  source: lib/ibex/cli/generation_error_messages.rb
+  method: add_error_messages_generation_option
+  line: 14
+  declaration_sha256: ac0b87e59660178a79c6d60403ec2587952468c76d7e7d46c3b486ef3d6e7eb6
+  context_sha256:
+  surface: generate
+  declared_spellings:
+  - "--messages=FILE"
+  effective_spellings:
+  - "--messages=FILE"
+  canonical_key: path.generate.messages
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x2_path_or_destination
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/grammar_tests.rb#grammar_test_option_parser#--algorithm=NAME
+  source: lib/ibex/cli/grammar_tests.rb
+  method: grammar_test_option_parser
+  line: 59
+  declaration_sha256: c56187a226db393b2bfef9c28688fcfabda890037001b765883a7c428927d09d
+  context_sha256:
+  surface: test
+  declared_spellings:
+  - "--algorithm=NAME"
+  effective_spellings:
+  - "--algorithm=NAME"
+  canonical_key: parser.algorithm
+  value_type: enum
+  default: lalr
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (parser.algorithm).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: automaton_ir_v2_only_contract_gap
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/grammar_tests.rb#grammar_test_option_parser#--coverage=PERCENT
+  source: lib/ibex/cli/grammar_tests.rb
+  method: grammar_test_option_parser
+  line: 70
+  declaration_sha256: 285b07f112bdc40d4cf60ca67d3c40f69cb725b9ce01b83aeb8b5057f304e864
+  context_sha256:
+  surface: test
+  declared_spellings:
+  - "--coverage=PERCENT"
+  effective_spellings:
+  - "--coverage=PERCENT"
+  canonical_key: invocation.test.coverage
+  value_type: integer
+  default: disabled
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: deferred_a5_minimum_undefined
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/grammar_tests.rb#grammar_test_option_parser#--entry-isolation
+  source: lib/ibex/cli/grammar_tests.rb
+  method: grammar_test_option_parser
+  line: 62
+  declaration_sha256: 78ea8fb9bf0bdb81240576914525161a0dbf090bdda92c66860dfec281b93567
+  context_sha256:
+  surface: test
+  declared_spellings:
+  - "--entry-isolation"
+  effective_spellings:
+  - "--entry-isolation"
+  canonical_key: parser.entries
+  value_type: boolean
+  default: shared
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (parser.entries).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: starts_current_strategy_gap
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/grammar_tests.rb#grammar_test_option_parser#--mode=MODE
+  source: lib/ibex/cli/grammar_tests.rb
+  method: grammar_test_option_parser
+  line: 58
+  declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
+  context_sha256:
+  surface: test
+  declared_spellings:
+  - "--mode=MODE"
+  effective_spellings:
+  - "--mode=MODE"
+  canonical_key: grammar.mode
+  value_type: enum
+  default: default
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (grammar.mode).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: grammar_ir_v2_current
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/grammar_tests.rb#grammar_test_option_parser#--timeout=SECONDS
+  source: lib/ibex/cli/grammar_tests.rb
+  method: grammar_test_option_parser
+  line: 65
+  declaration_sha256: 7a444081267e52d0d74303374434a5d177ee2eb03dd62fff65856b1f83de2c29
+  context_sha256:
+  surface: test
+  declared_spellings:
+  - "--timeout=SECONDS"
+  effective_spellings:
+  - "--timeout=SECONDS"
+  canonical_key: invocation.test.timeout
+  value_type: integer
+  default: '10'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/grammar_tests.rb#grammar_test_option_parser#-h
+  source: lib/ibex/cli/grammar_tests.rb
+  method: grammar_test_option_parser
+  line: 73
+  declaration_sha256: 5a7a551ca61be0f1293f821654f9ba457e230d10b8604bda7fe14ebc4808449b
+  context_sha256:
+  surface: test
+  declared_spellings:
+  - "-h"
+  - "--help"
+  effective_spellings:
+  - "-h"
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/ir_tools.rb#migrate_ir_options#--to=VERSION
+  source: lib/ibex/cli/ir_tools.rb
+  method: migrate_ir_options
+  line: 89
+  declaration_sha256: eda005d69e7d617a4759de83c1d152aced7d459915d7ed18b00bc40e25cf7b74
+  context_sha256:
+  surface: migrate-ir
+  declared_spellings:
+  - "--to=VERSION"
+  effective_spellings:
+  - "--to=VERSION"
+  canonical_key: invocation.migrate_ir.to
+  value_type: integer
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/ir_tools.rb#migrate_ir_options#-o FILE
+  source: lib/ibex/cli/ir_tools.rb
+  method: migrate_ir_options
+  line: 90
+  declaration_sha256: 342bff26cec377728543f6c11ce944806391c2058dfd36146342dd48eb7575b7
+  context_sha256:
+  surface: migrate-ir
+  declared_spellings:
+  - "-o FILE"
+  - "--output=FILE"
+  effective_spellings:
+  - "-o FILE"
+  - "--output=FILE"
+  canonical_key: path.migrate_ir.output
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x2_path_or_destination
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/lsp.rb#lsp_option_parser#--help
+  source: lib/ibex/cli/lsp.rb
+  method: lsp_option_parser
+  line: 29
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: lsp
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/lsp.rb#lsp_option_parser#--stdio
+  source: lib/ibex/cli/lsp.rb
+  method: lsp_option_parser
+  line: 28
+  declaration_sha256: 8a2ebfaf6a157e2677c5ec540e077bf7c105ee3f021fdd518d8a6339fbb5bfe9
+  context_sha256:
+  surface: lsp
+  declared_spellings:
+  - "--stdio"
+  effective_spellings:
+  - "--stdio"
+  canonical_key: invocation.lsp.stdio
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/racc_migration.rb#migrate_check_options#--format=FORMAT
+  source: lib/ibex/cli/racc_migration.rb
+  method: migrate_check_options
+  line: 73
+  declaration_sha256: efb19236ef76ce0b3ad34e82e292cbecdc03f590762ae752efb6ab773d3b2dfb
+  context_sha256:
+  surface: migrate-check
+  declared_spellings:
+  - "--format=FORMAT"
+  effective_spellings:
+  - "--format=FORMAT"
+  canonical_key: report.migrate_check.format
+  value_type: enum
+  default: text
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/racc_migration.rb#migrate_check_options#--help
+  source: lib/ibex/cli/racc_migration.rb
+  method: migrate_check_options
+  line: 74
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: migrate-check
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/racc_migration.rb#migrate_harness_options#--help
+  source: lib/ibex/cli/racc_migration.rb
+  method: migrate_harness_options
+  line: 83
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: migrate-harness
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/racc_migration.rb#migrate_harness_options#-o FILE
+  source: lib/ibex/cli/racc_migration.rb
+  method: migrate_harness_options
+  line: 82
+  declaration_sha256: f4a71bd2dc52916a21938a648dc301c1d7b828967a555ec1a69a49ad1f786667
+  context_sha256:
+  surface: migrate-harness
+  declared_spellings:
+  - "-o FILE"
+  - "--output=FILE"
+  effective_spellings:
+  - "-o FILE"
+  - "--output=FILE"
+  canonical_key: path.migrate_harness.output
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x2_path_or_destination
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/reduce.rb#reduce_option_parser#--command=COMMAND
+  source: lib/ibex/cli/reduce.rb
+  method: reduce_option_parser
+  line: 102
+  declaration_sha256: b3ae5b05664126dd74a4fe0bc2c28929e6082bdf4777902714b3ef0c32830769
+  context_sha256:
+  surface: reduce
+  declared_spellings:
+  - "--command=COMMAND"
+  effective_spellings:
+  - "--command=COMMAND"
+  canonical_key: invocation.reduce.command
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: Executes the explicit untrusted checker in a bounded subprocess;
+    never execute it during inventory or configuration resolution.
+  compatibility_status: current
+- id: lib/ibex/cli/reduce.rb#reduce_option_parser#--format=FORMAT
+  source: lib/ibex/cli/reduce.rb
+  method: reduce_option_parser
+  line: 120
+  declaration_sha256: df970aa668feb3539f521d2c7129b10008371be9d9295dbacf8be21dbb8cfa25
+  context_sha256:
+  surface: reduce
+  declared_spellings:
+  - "--format=FORMAT"
+  effective_spellings:
+  - "--format=FORMAT"
+  canonical_key: report.reduce.format
+  value_type: enum
+  default: json
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/reduce.rb#reduce_option_parser#--help
+  source: lib/ibex/cli/reduce.rb
+  method: reduce_option_parser
+  line: 123
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: reduce
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/reduce.rb#reduce_option_parser#--max-input-bytes=N
+  source: lib/ibex/cli/reduce.rb
+  method: reduce_option_parser
+  line: 117
+  declaration_sha256: a993387a400cf4f1f6ceb02a7f9f096c21afa0846ed077e4e54316a0fa9cc3e8
+  context_sha256:
+  surface: reduce
+  declared_spellings:
+  - "--max-input-bytes=N"
+  effective_spellings:
+  - "--max-input-bytes=N"
+  canonical_key: invocation.reduce.max_input_bytes
+  value_type: integer
+  default: '10485760'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/reduce.rb#reduce_option_parser#--max-output-bytes=N
+  source: lib/ibex/cli/reduce.rb
+  method: reduce_option_parser
+  line: 114
+  declaration_sha256: 6f80b6dbb6554621ce556aa537b75230efd4cd04eb04b7fc2af6efbbffdc5e73
+  context_sha256:
+  surface: reduce
+  declared_spellings:
+  - "--max-output-bytes=N"
+  effective_spellings:
+  - "--max-output-bytes=N"
+  canonical_key: invocation.reduce.max_output_bytes
+  value_type: integer
+  default: '1048576'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/reduce.rb#reduce_option_parser#--max-trials=N
+  source: lib/ibex/cli/reduce.rb
+  method: reduce_option_parser
+  line: 108
+  declaration_sha256: 5eba7d50cd066a46c3474f5c532034a386b2a31e8c090f29438ca4fbd7a2ff4b
+  context_sha256:
+  surface: reduce
+  declared_spellings:
+  - "--max-trials=N"
+  effective_spellings:
+  - "--max-trials=N"
+  canonical_key: invocation.reduce.max_trials
+  value_type: integer
+  default: '1000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/reduce.rb#reduce_option_parser#--mode=MODE
+  source: lib/ibex/cli/reduce.rb
+  method: reduce_option_parser
+  line: 105
+  declaration_sha256: dbf96405761158f561f4bdc7ee094fc347f9e2a1674dc2af3d70d253ac3cbfe8
+  context_sha256:
+  surface: reduce
+  declared_spellings:
+  - "--mode=MODE"
+  effective_spellings:
+  - "--mode=MODE"
+  canonical_key: invocation.reduce.mode
+  value_type: enum
+  default: tokens
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/reduce.rb#reduce_option_parser#--timeout=SECONDS
+  source: lib/ibex/cli/reduce.rb
+  method: reduce_option_parser
+  line: 111
+  declaration_sha256: 9abb3ab63398b63fd5546a0bdd6af076ee344a4d1da227d103d4049eb2003739
+  context_sha256:
+  surface: reduce
+  declared_spellings:
+  - "--timeout=SECONDS"
+  effective_spellings:
+  - "--timeout=SECONDS"
+  canonical_key: invocation.reduce.timeout
+  value_type: integer
+  default: '10'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/samples.rb#add_sample_generation_options#--count=N
+  source: lib/ibex/cli/samples.rb
+  method: add_sample_generation_options
+  line: 55
+  declaration_sha256: 283d5275c4216ac84e147bb063067b2a2d953b560f16934439bad926efb3ccbe
+  context_sha256:
+  surface: samples
+  declared_spellings:
+  - "--count=N"
+  effective_spellings:
+  - "--count=N"
+  canonical_key: invocation.samples.count
+  value_type: integer
+  default: '5'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/samples.rb#add_sample_generation_options#--max-depth=N
+  source: lib/ibex/cli/samples.rb
+  method: add_sample_generation_options
+  line: 64
+  declaration_sha256: 4d22d3ec4a72afa2ad8e57c78577fa8cff4d339060fb0449a51cac71438c7a90
+  context_sha256:
+  surface: samples
+  declared_spellings:
+  - "--max-depth=N"
+  effective_spellings:
+  - "--max-depth=N"
+  canonical_key: invocation.samples.max_depth
+  value_type: integer
+  default: '16'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/samples.rb#add_sample_generation_options#--max-expansions=N
+  source: lib/ibex/cli/samples.rb
+  method: add_sample_generation_options
+  line: 67
+  declaration_sha256: 5cc68e0b315cfd7ff171fc1971c0cadfdb67284f192ff99c5ef1623fa95e4153
+  context_sha256:
+  surface: samples
+  declared_spellings:
+  - "--max-expansions=N"
+  effective_spellings:
+  - "--max-expansions=N"
+  canonical_key: invocation.samples.max_expansions
+  value_type: integer
+  default: '100000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/samples.rb#add_sample_generation_options#--max-tokens=N
+  source: lib/ibex/cli/samples.rb
+  method: add_sample_generation_options
+  line: 61
+  declaration_sha256: 26f430e00a0f1f5d82bb75653731cc1ce9a2f2539d24c95344ab76c1917c2fbd
+  context_sha256:
+  surface: samples
+  declared_spellings:
+  - "--max-tokens=N"
+  effective_spellings:
+  - "--max-tokens=N"
+  canonical_key: invocation.samples.max_tokens
+  value_type: integer
+  default: '32'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/samples.rb#add_sample_generation_options#--path-length=N
+  source: lib/ibex/cli/samples.rb
+  method: add_sample_generation_options
+  line: 76
+  declaration_sha256: 157f7ac316c37e0676914ae2ce66ad00755cbcd5d59d776bf2bc3ea882549f5c
+  context_sha256:
+  surface: samples
+  declared_spellings:
+  - "--path-length=N"
+  effective_spellings:
+  - "--path-length=N"
+  canonical_key: invocation.samples.path_length
+  value_type: integer
+  default: '1'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/samples.rb#add_sample_generation_options#--seed=N
+  source: lib/ibex/cli/samples.rb
+  method: add_sample_generation_options
+  line: 58
+  declaration_sha256: 18505dc055a6fa9ab543d8661b0513a623c3cf56ffa47e4e4c0672cb1c6b3c79
+  context_sha256:
+  surface: samples
+  declared_spellings:
+  - "--seed=N"
+  effective_spellings:
+  - "--seed=N"
+  canonical_key: invocation.samples.seed
+  value_type: integer
+  default: '0'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/samples.rb#add_sample_generation_options#--strategy=NAME
+  source: lib/ibex/cli/samples.rb
+  method: add_sample_generation_options
+  line: 70
+  declaration_sha256: 678da0d60ebcdb60daf97cae6fbe10837e725befba8bf2143c8f90c57f5c46e2
+  context_sha256:
+  surface: samples
+  declared_spellings:
+  - "--strategy=NAME"
+  effective_spellings:
+  - "--strategy=NAME"
+  canonical_key: invocation.samples.strategy
+  value_type: enum
+  default: random
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/samples.rb#add_sample_input_options#--from=FORMAT
+  source: lib/ibex/cli/samples.rb
+  method: add_sample_input_options
+  line: 85
+  declaration_sha256: ab1883d76fd83f641283da87e4ae6613bb64785c70c33587121dad748910fb75
+  context_sha256:
+  surface: samples
+  declared_spellings:
+  - "--from=FORMAT"
+  effective_spellings:
+  - "--from=FORMAT"
+  canonical_key: invocation.samples.from
+  value_type: enum
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: Validate the selected IR as untrusted data; never execute embedded
+    user sections while loading or inventorying it.
+  compatibility_status: current
+- id: lib/ibex/cli/samples.rb#add_sample_input_options#--mode=MODE
+  source: lib/ibex/cli/samples.rb
+  method: add_sample_input_options
+  line: 88
+  declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
+  context_sha256:
+  surface: samples
+  declared_spellings:
+  - "--mode=MODE"
+  effective_spellings:
+  - "--mode=MODE"
+  canonical_key: grammar.mode
+  value_type: enum
+  default: default
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (grammar.mode).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: analysis_override
+  ir_presence: grammar_ir_v2_current
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+- id: lib/ibex/cli/samples.rb#add_sample_input_options#--warnings=CATEGORIES
+  source: lib/ibex/cli/samples.rb
+  method: add_sample_input_options
+  line: 89
+  declaration_sha256: 3c90736ad6244292fd2b025e1cfd7f043ec076a3b48ec8522e35dfe055422460
+  context_sha256:
+  surface: samples
+  declared_spellings:
+  - "--warnings=CATEGORIES"
+  effective_spellings:
+  - "--warnings=CATEGORIES"
+  canonical_key: invocation.warning_policy
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x7_diagnostic_suppression
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/samples.rb#samples_option_parser#--help
+  source: lib/ibex/cli/samples.rb
+  method: samples_option_parser
+  line: 49
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: samples
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/verify.rb#verify_options#--format=FORMAT
+  source: lib/ibex/cli/verify.rb
+  method: verify_options
+  line: 72
+  declaration_sha256: 03d0ea46cc73dfd89e8e1d7db753efada82431442e23693be017d52738438776
+  context_sha256:
+  surface: verify
+  declared_spellings:
+  - "--format=FORMAT"
+  effective_spellings:
+  - "--format=FORMAT"
+  canonical_key: report.verify.format
+  value_type: enum
+  default: json
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/verify.rb#verify_options#--grammar=GRAMMAR
+  source: lib/ibex/cli/verify.rb
+  method: verify_options
+  line: 63
+  declaration_sha256: 47735ae499b3c48d4725cf7c77db8fe3a2d53d3fa93d3df6139462456b891084
+  context_sha256:
+  surface: verify
+  declared_spellings:
+  - "--grammar=GRAMMAR"
+  effective_spellings:
+  - "--grammar=GRAMMAR"
+  canonical_key: invocation.verify.grammar
+  value_type: string
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/verify.rb#verify_options#--help
+  source: lib/ibex/cli/verify.rb
+  method: verify_options
+  line: 73
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: verify
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/verify.rb#verify_options#--max-items=N
+  source: lib/ibex/cli/verify.rb
+  method: verify_options
+  line: 69
+  declaration_sha256: 25ad80d1a89070cd8434595285dfa424a39d94b32228d813742c801be45334c6
+  context_sha256:
+  surface: verify
+  declared_spellings:
+  - "--max-items=N"
+  effective_spellings:
+  - "--max-items=N"
+  canonical_key: invocation.verify.max_items
+  value_type: integer
+  default: '1000000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/verify.rb#verify_options#--max-states=N
+  source: lib/ibex/cli/verify.rb
+  method: verify_options
+  line: 66
+  declaration_sha256: 869ed53aaeaf1a9e4f406ede84b3d1e0846925f772901191192ffb8715ad8eb0
+  context_sha256:
+  surface: verify
+  declared_spellings:
+  - "--max-states=N"
+  effective_spellings:
+  - "--max-states=N"
+  canonical_key: invocation.verify.max_states
+  value_type: integer
+  default: '100000'
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x4_caller_budget
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+- id: lib/ibex/cli/verify.rb#verify_options#--strict
+  source: lib/ibex/cli/verify.rb
+  method: verify_options
+  line: 62
+  declaration_sha256: 0c9e55e9aa06c67616acc7583dfc05c39384b579dea8c4f9aa5c6cf08e50c16c
+  context_sha256:
+  surface: verify
+  declared_spellings:
+  - "--strict"
+  effective_spellings:
+  - "--strict"
+  canonical_key: invocation.verify.strict
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
