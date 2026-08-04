@@ -3,8 +3,10 @@
 require_relative "../test_helper"
 require_relative "../../tool/quality/error_ux_review"
 require "date"
+require "fileutils"
 require "json"
 require "json_schemer"
+require "tmpdir"
 
 class ErrorUXReviewTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
@@ -30,7 +32,29 @@ class ErrorUXReviewTest < Minitest::Test
     assert_equal revision, first.dig("evidence", "repository", "revision")
     assert_equal kit.dig("snapshot", "sha256"), first.dig("evidence", "snapshot", "sha256")
     assert_equal "racc version 1.8.1", first.dig("reproduction", "racc", "version")
-    refute first.dig("publication", "consent")
+    assert_equal ["ydah"], first.dig("independence", "reviewed_maintainer_github_logins")
+    assert_equal [false, false, false, false], first.fetch("consent").values
+  end
+
+  def test_template_cleanliness_check_rejects_tracked_and_untracked_changes
+    Dir.mktmpdir("error-ux-template-clean-") do |root|
+      system("git", "init", "--quiet", root) || raise("git init failed")
+      system("git", "-C", root, "config", "user.email", "review@example.test") || raise("git config failed")
+      system("git", "-C", root, "config", "user.name", "Review Test") || raise("git config failed")
+      tracked = File.join(root, "tracked.txt")
+      File.write(tracked, "fixed\n")
+      system("git", "-C", root, "add", "tracked.txt") || raise("git add failed")
+      system("git", "-C", root, "commit", "--quiet", "-m", "fixture") || raise("git commit failed")
+      checker = Ibex::Quality::ErrorUXReviewTemplate.new(root: root, kit: {})
+
+      assert_nil checker.send(:ensure_clean_tracked_checkout!)
+      File.write(tracked, "changed\n")
+      assert_raises(RuntimeError) { checker.send(:ensure_clean_tracked_checkout!) }
+      File.write(tracked, "fixed\n")
+      File.write(File.join(root, "untracked.txt"), "new\n")
+      error = assert_raises(RuntimeError) { checker.send(:ensure_clean_tracked_checkout!) }
+      assert_includes error.message, "tracked or untracked"
+    end
   end
 
   def test_closed_schema_accepts_a_complete_hypothetical_record
@@ -42,15 +66,11 @@ class ErrorUXReviewTest < Minitest::Test
     refute_empty schemer.validate(changed).to_a
   end
 
-  def test_draft_self_review_and_placeholders_cannot_complete_the_gate
+  def test_draft_and_placeholders_cannot_complete_the_gate
     error = assert_raises(RuntimeError) do
       record_validator.verify!(template.build, path: "draft.json")
     end
     assert_includes error.message, "schema violation"
-
-    self_review = valid_record
-    self_review.fetch("reviewer")["is_project_maintainer"] = true
-    refute_empty schemer.validate(self_review).to_a
 
     placeholder = valid_record
     placeholder["overall_rationale"] = "REPLACE_WITH_APPROVAL"
@@ -58,6 +78,28 @@ class ErrorUXReviewTest < Minitest::Test
       record_validator.verify!(placeholder, path: "placeholder.json")
     end
     assert_includes error.message, "placeholder"
+  end
+
+  def test_reviewer_identity_and_complete_maintainer_roster_are_enforced
+    self_review = valid_record
+    self_review.fetch("reviewer")["github_login"] = "YDAH"
+    error = assert_raises(RuntimeError) do
+      record_validator.verify!(self_review, path: "self-review.json")
+    end
+    assert_includes error.message, "rostered project maintainer"
+
+    ["@example-reviewer", "https://github.com/example-reviewer"].each do |identity_alias|
+      aliased = valid_record
+      aliased.fetch("reviewer")["github_login"] = identity_alias
+      refute_empty schemer.validate(aliased).to_a
+    end
+
+    incomplete_roster = valid_record
+    incomplete_roster.fetch("independence")["reviewed_maintainer_github_logins"] = ["someone-else"]
+    error = assert_raises(RuntimeError) do
+      record_validator.verify!(incomplete_roster, path: "incomplete-roster.json")
+    end
+    assert_includes error.message, "does not match the public kit"
   end
 
   def test_case_set_and_labels_are_closed
@@ -89,15 +131,17 @@ class ErrorUXReviewTest < Minitest::Test
     refute_empty schemer.validate(contradiction).to_a
   end
 
-  def test_publication_consent_permalink_and_source_identity_are_enforced
-    mutable = valid_record
-    mutable.fetch("publication")["permalink"] = "https://github.com/ydah/ibex/blob/main/review.json"
-    refute_empty schemer.validate(mutable).to_a
-
+  def test_structured_consent_and_payload_publication_separation_are_enforced
     no_consent = valid_record
-    no_consent.fetch("publication")["consent"] = false
+    no_consent.fetch("consent")["store_identity"] = false
     refute_empty schemer.validate(no_consent).to_a
 
+    self_referential = valid_record
+    self_referential["permalink"] = "https://github.com/example/reviews/blob/#{'a' * 40}/review.json"
+    refute_empty schemer.validate(self_referential).to_a
+  end
+
+  def test_source_identity_is_enforced
     drift = valid_record
     drift.dig("evidence", "corpus")["ibex_grammar_sha256"] = "0" * 64
     error = assert_raises(RuntimeError) { record_validator.verify!(drift, path: "drift.json") }
@@ -140,16 +184,17 @@ class ErrorUXReviewTest < Minitest::Test
     record["record_id"] = "EUXR-#{date}-example-reviewer"
     record["record_state"] = "published"
     record["reviewer"] = {
-      "identity" => "Example Independent Reviewer",
+      "github_login" => "example-reviewer",
+      "display_name" => "Example Independent Reviewer",
       "affiliation" => "Example Review Organization",
-      "is_project_maintainer" => false,
       "reviewed_on" => date,
       "conflicts" => "No project role, financial interest, or authorship conflict."
     }
-    record["publication"] = {
-      "permalink" => "https://github.com/example/reviews/commit/#{'a' * 40}",
-      "consent" => true,
-      "consent_statement" => "I consent to publication of my identity, labels, and complete rationales."
+    record["consent"] = {
+      "store_identity" => true,
+      "store_labels" => true,
+      "store_rationales" => true,
+      "republish_review" => true
     }
     record.fetch("assessments").each do |assessment|
       assessment.fetch("diagnostic")["rationale"] = "The fixed diagnostic observation supports this label."

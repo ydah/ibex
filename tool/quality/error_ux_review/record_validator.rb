@@ -23,6 +23,7 @@ module Ibex
 
         verify_record_date!(record, path)
         verify_kit_identity!(record.fetch("kit"), path)
+        verify_independence!(record, path)
         verify_evidence!(record, path)
         record
       end
@@ -51,6 +52,18 @@ module Ibex
         return if record_kit == expected
 
         raise "#{path}: review kit identity does not match the public status registry"
+      end
+
+      def verify_independence!(record, path)
+        reviewer = record.dig("reviewer", "github_login")
+        roster = record.dig("independence", "reviewed_maintainer_github_logins")
+        expected = @kit.fetch("maintainer_github_logins")
+        unless roster.map(&:downcase) == expected.map(&:downcase)
+          raise "#{path}: reviewed maintainer roster does not match the public kit"
+        end
+        return unless roster.any? { |login| login.casecmp?(reviewer) }
+
+        raise "#{path}: reviewer #{reviewer} is a rostered project maintainer"
       end
 
       def verify_evidence!(record, path)

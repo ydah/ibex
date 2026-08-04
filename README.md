@@ -21,6 +21,10 @@ requires no C or Java extension.
 > stable baseline; opt-in features have the maturity levels documented in the
 > [stability policy](docs/stability.md).
 
+<!-- r001-review-status:start -->
+R001: `HOLD` — [`awaiting_independent_review`](docs/error-ux-review-status-v1.json).
+<!-- r001-review-status:end -->
+
 - Try grammar analysis in the
   [browser playground](https://ydah.github.io/ibex/playground/).
 - Start with the [grammar reference](docs/grammar-reference.md).

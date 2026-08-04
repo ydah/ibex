@@ -111,7 +111,7 @@ claims:
     subjective_review:
       required: true
       state: pending
-      method: A non-maintainer third party reviews all ten case IDs with diagnostic labels useful, not_useful, or unclear and repair labels useful, not_useful, unsafe, or unclear; each judgment retains rationale and disagreement.
+      method: A third party whose canonical GitHub login is absent from the explicit maintainer roster reviews all ten case IDs with fixed diagnostic and repair labels, rationales, disagreements, and structured publication consent.
     validity:
       scope: Exact snapshot introduction revision and Racc 1.8.1 only.
       expires: No comparative UX conclusion may be published before independent review is recorded.
@@ -137,6 +137,7 @@ claims:
     limitations:
       - "Unknown environment fields: cpu_model, host_cpu, host_os, kernel_release, processors, ruby_engine, ruby_platform, ruby_version, yjit_enabled."
       - Independent subjective review is still missing, so the 8/10 usefulness assessment is not a completed comparison.
+      - Independent human review remains subjective and cannot prove affiliation, conflict disclosure, coercion resistance, or general error UX quality.
     missing_evidence: []
   - id: racc-public-performance-2026-07-31
     state: evidence_pending

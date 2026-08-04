@@ -17,6 +17,10 @@ independent third-party review. Its machine-readable
 rubric, closed record schema, immutable evidence identity, and imported-record
 registry.
 
+<!-- r001-review-status:start -->
+R001: `HOLD` — [`awaiting_independent_review`](error-ux-review-status-v1.json).
+<!-- r001-review-status:end -->
+
 Feature development is not frozen. The open release gate blocks publication of
 v1.0, not feature development. New work remains subject to the feature budgets,
 maturity rules, compatibility checks, and exact-revision release gates
@@ -147,10 +151,12 @@ were assessed useful. A maintainer assessment is not independent review; at
 least one external reviewer must record a review of the cases and usefulness
 labels before this KPI passes. Reviewers use the versioned
 [`independent rubric`](error-ux-review-rubric-v1.md), generate a draft with the
-exact checkout and environment identity, publish it with explicit consent and
-an immutable permalink, and submit it without maintainer rewriting. Ordinary
-CI validates kit readiness; `bundle exec rake release:error_ux_review` remains
-the intentionally failing promotion gate while the public status is HOLD.
+exact checkout and environment identity, set all structured consent fields, and
+publish the final permalink-free payload at a full-SHA blob URL. Maintainers
+import the exact bytes and register publication provenance separately, without
+rewriting. Ordinary CI validates the offline kit; the release gate performs
+fail-closed blob and GitHub API author checks and remains intentionally failing
+while the public status is HOLD.
 
 The current whole-library `steep stats` result is 23,517 typed calls and 2,946
 untyped calls out of 26,463, or 88.9% typed. Generated parser RBS refines

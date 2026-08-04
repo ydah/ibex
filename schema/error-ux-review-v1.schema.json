@@ -11,7 +11,8 @@
     "evidence",
     "reproduction",
     "reviewer",
-    "publication",
+    "independence",
+    "consent",
     "assessments",
     "overall_rationale"
   ],
@@ -41,8 +42,11 @@
     "reviewer": {
       "$ref": "#/$defs/reviewer"
     },
-    "publication": {
-      "$ref": "#/$defs/publication"
+    "independence": {
+      "$ref": "#/$defs/independence"
+    },
+    "consent": {
+      "$ref": "#/$defs/consent"
     },
     "assessments": {
       "type": "array",
@@ -339,21 +343,22 @@
     "reviewer": {
       "type": "object",
       "required": [
-        "identity",
+        "github_login",
+        "display_name",
         "affiliation",
-        "is_project_maintainer",
         "reviewed_on",
         "conflicts"
       ],
       "properties": {
-        "identity": {
+        "github_login": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$"
+        },
+        "display_name": {
           "$ref": "#/$defs/non_empty_string"
         },
         "affiliation": {
           "$ref": "#/$defs/non_empty_string"
-        },
-        "is_project_maintainer": {
-          "const": false
         },
         "reviewed_on": {
           "type": "string",
@@ -365,25 +370,44 @@
       },
       "additionalProperties": false
     },
-    "publication": {
+    "independence": {
       "type": "object",
       "required": [
-        "permalink",
-        "consent",
-        "consent_statement"
+        "reviewed_maintainer_github_logins"
       ],
       "properties": {
-        "permalink": {
-          "type": "string",
-          "pattern": "^https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/(?:commit/[0-9a-f]{40}|blob/[0-9a-f]{40}/[^?#]+)$"
-        },
-        "consent": {
+        "reviewed_maintainer_github_logins": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "consent": {
+      "type": "object",
+      "required": [
+        "store_identity",
+        "store_labels",
+        "store_rationales",
+        "republish_review"
+      ],
+      "properties": {
+        "store_identity": {
           "const": true
         },
-        "consent_statement": {
-          "type": "string",
-          "minLength": 20,
-          "pattern": "\\S"
+        "store_labels": {
+          "const": true
+        },
+        "store_rationales": {
+          "const": true
+        },
+        "republish_review": {
+          "const": true
         }
       },
       "additionalProperties": false
