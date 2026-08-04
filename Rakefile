@@ -52,6 +52,11 @@ namespace :quality do
   task :error_ux do
     sh "bundle", "exec", "ruby", "tool/error_ux_snapshot.rb"
   end
+
+  desc "Verify comparative claims, evidence, limitations, and public wording"
+  task :comparative_claims do
+    ruby "-Ilib", "-r./tool/quality/comparative_claims", "-e", "Ibex::Quality::ComparativeClaims.new.verify!"
+  end
 end
 
 # rubocop:disable Metrics/BlockLength -- quality gates are intentionally discoverable under one namespace.

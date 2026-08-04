@@ -10,10 +10,19 @@ requires no C or Java extension.
 > [!IMPORTANT]
 > Ibex is pre-1.0. The current v1.0 decision is
 > [**HOLD**](docs/release-readiness.md) because the published error UX evidence
-> still needs independent review. Compatibility, scale, and public performance
-> baseline evidence pass. Cold generation and new-instance runtime still trail
-> Racc's Ruby backend, but absolute parity is diagnostic rather than a v1.0
-> release gate. Feature development is not frozen, but the v1.0 release hold
+> still needs independent review. Compatibility, scale, and a historical public
+> performance baseline have evidence.
+> <!-- comparative-claim:racc-public-performance-2026-07-31:start -->
+> At clean Ibex revision `08c7dc5d939a1f47b0132ae3986818cdbaec1f34`,
+> the three pinned public workloads recorded slower cold generation and
+> new-instance runtime than Racc 1.8.1's Ruby backend. This is the scoped,
+> historical claim `racc-public-performance-2026-07-31`, not evidence about the
+> current revision or an assertion of parity. See the
+> [measurements and limitations](docs/release-readiness.md#formal-pure-ruby-performance-comparison)
+> and the [claim record](docs/claims.yml).
+> <!-- comparative-claim:racc-public-performance-2026-07-31:end -->
+> Absolute parity is diagnostic rather than a v1.0 release gate. Feature
+> development is not frozen, but the v1.0 release hold
 > and versioned core IR contracts remain in force. Compatible mode is the
 > stable baseline; opt-in features have the maturity levels documented in the
 > [stability policy](docs/stability.md).
@@ -372,7 +381,7 @@ counterexamples.
 | Configure an editor or LSP client | [Editor setup](docs/editor-setup.md) |
 | Understand the pipeline, IR, algorithms, or tables | [Architecture](docs/architecture.md) |
 | Check API maturity and deprecation rules | [Stability policy](docs/stability.md) |
-| Evaluate readiness, performance, or error UX | [Release readiness](docs/release-readiness.md), [benchmarks](benchmark/README.md), and [error UX](docs/error-ux.md) |
+| Evaluate readiness, performance, or error UX | [Comparison policy](docs/comparison-policy.md), [release readiness](docs/release-readiness.md), [benchmarks](benchmark/README.md), and [error UX](docs/error-ux.md) |
 | Contribute or run every quality gate | [Development guide](docs/development.md) |
 | Review implementation decisions | [Architecture decision records](docs/decisions/README.md) |
 
