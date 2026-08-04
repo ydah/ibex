@@ -15,6 +15,12 @@ class RuntimeABIRationaleTest < Minitest::Test
     end
   end
 
+  def test_placeholder_keywords_are_rejected_inside_unicode_alnum_tokens
+    %w[TODO123 TODOish xTODOx FIXMElater 修正TODO予定].each do |phrase|
+      assert_rationale_rejected("Runtime behavior remains compatible, but #{phrase} wording is still present here.")
+    end
+  end
+
   def test_placeholder_detection_normalizes_unicode_and_ignores_separators
     ["Ｔ－Ｏ－Ｄ－Ｏ", "T B D", "F-I-X-M-E", "t e m p l a t e", "p_l_a_c_e_h_o_l_d_e_r",
      "T\u2003O\u2003D\u2003O"].each do |phrase|
@@ -24,6 +30,12 @@ class RuntimeABIRationaleTest < Minitest::Test
 
   def test_placeholder_detection_ignores_symbols_emoji_and_combining_marks
     ["T+O+D+O", "T💣O💣D💣O", "T\u0338O\u0338D\u0338O"].each do |phrase|
+      assert_rationale_rejected("Runtime behavior remains compatible, but #{phrase} wording is still present here.")
+    end
+  end
+
+  def test_placeholder_obfuscation_cannot_be_hidden_by_partial_separators_or_affixes
+    ["T-O-DO", "xT-O-DOy", "修正T\u2003O\u2003D\u2003O予定"].each do |phrase|
       assert_rationale_rejected("Runtime behavior remains compatible, but #{phrase} wording is still present here.")
     end
   end
