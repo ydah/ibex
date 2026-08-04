@@ -13,6 +13,79 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
   DOCUMENT = File.join(ROOT, "docs/declarative-configuration.md")
   WATCH_REGISTRATION =
     'options.on("--watch", "regenerate file outputs when grammar sources change") { @options[:watch] = true }'
+  REVIEWER_MUTATIONS = {
+    "__send__" => [<<~RUBY, /reflective OptionParser registration/],
+      require "optparse"
+      def hidden_option
+        parser = OptionParser.new
+        parser.__send__(:on,"--unclassified")
+      end
+    RUBY
+    "bound method assignment" => [<<~RUBY, /reflective OptionParser registration/],
+      require "optparse"
+      def hidden_option
+        parser = OptionParser.new
+        register=parser.method(:on); register.call("--unclassified")
+      end
+    RUBY
+    "constant" => [<<~RUBY, /has no static spelling/],
+      require "optparse"
+      PARSER=OptionParser.new
+      def hidden_option(dynamic_name)
+        PARSER.on(dynamic_name)
+      end
+    RUBY
+    "instance variable" => [<<~RUBY, /has no static spelling/],
+      require "optparse"
+      class HiddenOptions
+        def initialize
+          @parser=OptionParser.new
+        end
+        def hidden_option(dynamic_name)
+          @parser.on(dynamic_name)
+        end
+      end
+    RUBY
+    "ambiguous helper parameter" => [<<~RUBY, /has no static spelling/]
+      require "optparse"
+      def add_options(parser,dynamic_name); parser.on(dynamic_name); end
+    RUBY
+  }.freeze
+  SOURCE_PROVEN_REGISTRATIONS = {
+    "local" => <<~RUBY,
+      parser = OptionParser.new
+      parser.on(switch_name)
+    RUBY
+    "local alias" => <<~RUBY,
+      original = OptionParser.new
+      parser = original
+      parser.define(switch_name)
+    RUBY
+    "block parameter" => <<~RUBY,
+      OptionParser.new do |registry|
+        registry.def_tail_option(switch_name)
+      end
+    RUBY
+    "class alias and constructor chain" => <<~RUBY,
+      parser_class = OptionParser
+      parser = parser_class.new.freeze
+      parser.on_head(switch_name)
+    RUBY
+    "instance variable or assignment" => <<~RUBY,
+      @registry ||= OptionParser.new
+      @registry.on_tail(switch_name)
+    RUBY
+    "class variable alias" => <<~RUBY,
+      @@registry = OptionParser.new
+      alias_registry = @@registry
+      alias_registry.define_head(switch_name)
+    RUBY
+    "global alias" => <<~RUBY
+      $option_registry ||= OptionParser.new
+      alias_registry = $option_registry
+      alias_registry.define_tail(switch_name)
+    RUBY
+  }.freeze
 
   def test_repository_inventory_and_generated_document_are_current
     assert Ibex::Quality::ConfigurationInventory.new.verify!
@@ -216,8 +289,13 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
       "send symbol" => 'options.send(:on, "--watch", "changed")',
       "public_send string" => 'options.public_send("define_tail", "--watch", "changed")',
       "public_send nonparenthesized" => 'options.public_send :on_tail, "--watch", "changed"',
+      "__send__" => 'options.__send__(:define_head, "--watch", "changed")',
       "method call" => 'options.method(:def_option).call("--watch", "changed")',
       "implicit method call" => 'method(:on).call("--watch", "changed")',
+      "public method lookup" => "options.public_method(:on)",
+      "singleton method lookup" => "options.singleton_method(:on)",
+      "unbound method lookup" => "OptionParser.instance_method(:on)",
+      "public unbound method lookup" => 'OptionParser.public_instance_method("on")',
       "unresolved send" => "options.send(registration_api, switch_name)",
       "unresolved method call" => "options.method(registration_api).call(switch_name)",
       "direct constructor" => 'OptionParser.new.public_send(:on_head, "--hidden")'
@@ -226,6 +304,16 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
       with_watch_registration(registration) do |root|
         error = assert_raises(RuntimeError) { inventory_for(root).verify! }
         assert_match(/reflective OptionParser registration .* is prohibited/, error.message, label)
+      end
+    end
+  end
+
+  def test_reviewer_optionparser_mutations_fail_without_inventory_updates
+    REVIEWER_MUTATIONS.each do |label, (source, message)|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/reviewer_mutation.rb", source)
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(message, error.message, label)
       end
     end
   end
@@ -248,23 +336,7 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
   end
 
   def test_source_proven_optionparser_receivers_reject_dynamic_spellings
-    variants = {
-      "local" => <<~RUBY,
-        parser = OptionParser.new
-        parser.on(switch_name)
-      RUBY
-      "local alias" => <<~RUBY,
-        original = OptionParser.new
-        parser = original
-        parser.define(switch_name)
-      RUBY
-      "block parameter" => <<~RUBY
-        OptionParser.new do |registry|
-          registry.def_tail_option(switch_name)
-        end
-      RUBY
-    }
-    variants.each do |label, registration|
+    SOURCE_PROVEN_REGISTRATIONS.each do |label, registration|
       with_repository_copy do |root|
         write_ruby(root, "lib/dynamic_option_parser.rb", <<~RUBY)
           require "optparse"
