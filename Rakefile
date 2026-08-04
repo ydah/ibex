@@ -62,6 +62,11 @@ namespace :quality do
   task :workloads do
     ruby "-Ilib", "-r./lib/ibex", "-r./tool/quality/workloads", "-e", "Ibex::Quality::Workloads.new.verify!"
   end
+
+  desc "Verify runtime ABI, test interactions, and pull-request assessment"
+  task :runtime_abi do
+    ruby "-Ilib", "-r./tool/quality/runtime_abi", "-e", "Ibex::Quality::RuntimeABI.new.verify!"
+  end
 end
 
 # rubocop:disable Metrics/BlockLength -- quality gates are intentionally discoverable under one namespace.
