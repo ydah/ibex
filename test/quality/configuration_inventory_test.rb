@@ -928,6 +928,124 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     end
   end
 
+  def test_only_first_builder_positional_parameter_receives_provenance
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_first_parameter.rb", <<~RUBY)
+        require "optparse"
+        def add_hidden(name)
+          OptionParser.new.then { |parser, event_bus| parser.on(name) }
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_builder_second_and_rest_parameters_are_not_parser_proven
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_extra_parameters.rb", <<~RUBY)
+        require "optparse"
+        def subscribe(name)
+          OptionParser.new.then { |parser, event_bus| event_bus.on(name) }
+          OptionParser.new.yield_self { |parser, *event_buses| event_buses.on(name) }
+        end
+      RUBY
+      assert inventory_for(root).verify!
+    end
+  end
+
+  def test_builder_extra_parameter_forms_shadow_without_provenance
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_parameter_forms.rb", <<~RUBY)
+        require "optparse"
+        def subscribe(name)
+          OptionParser.new.then do |parser, event_bus = Object.new, *events, post_event,
+                                    keyword_event:, optional_event: Object.new, **keyword_events,
+                                    &callback; block_event|
+            event_bus.on(name)
+            events.on(name)
+            post_event.on(name)
+            keyword_event.on(name)
+            optional_event.on(name)
+            keyword_events.on(name)
+            callback.on(name)
+            block_event.on(name)
+          end
+        end
+      RUBY
+      assert inventory_for(root).verify!
+    end
+  end
+
+  def test_builder_extra_parameter_is_proven_after_separate_assignment
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_assigned_extra_parameter.rb", <<~RUBY)
+        require "optparse"
+        def add_hidden(name)
+          OptionParser.new.then do |parser, event_bus|
+            event_bus = OptionParser.new
+            event_bus.on(name)
+          end
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_builder_local_first_truthy_conditional_stays_generic
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_generic_conditional.rb", <<~RUBY)
+        require "optparse"
+        class EventBus; end
+        def subscribe(name)
+          OptionParser.new.then do |parser|
+            result ||= EventBus.new
+            result ||= parser
+            result
+          end.on(name)
+        end
+      RUBY
+      assert inventory_for(root).verify!
+    end
+  end
+
+  def test_builder_local_parser_conditional_is_not_overwritten
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_parser_conditional.rb", <<~RUBY)
+        require "optparse"
+        def add_hidden(name)
+          OptionParser.new.then do |parser|
+            result ||= parser
+            result ||= Object.new
+            result
+          end.on(name)
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_builder_local_falsey_conditional_becomes_parser
+    %w[nil false ((nil)) ((false))].each_with_index do |falsey, index|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/builder_falsey_conditional_#{index}.rb", <<~RUBY)
+          require "optparse"
+          def add_hidden(name)
+            OptionParser.new.yield_self do |parser|
+              result = #{falsey}
+              result ||= parser
+              ((result))
+            end.on(name)
+          end
+        RUBY
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, falsey)
+      end
+    end
+  end
+
   def test_parenthesized_receivers_retain_provenance
     variants = {
       "local" => "parser = OptionParser.new\n((parser)).on(name)",

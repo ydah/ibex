@@ -452,10 +452,15 @@ module Ibex
           next state.replace([:truthy]) if declaration.fetch(:kind) == :namespace
 
           assigned = constant_assignment_state(declaration, previous_owners, index)
-          next if declaration.fetch(:conditional) && !%i[unset falsey].include?(state.first)
-
-          state.replace(assigned)
+          state.replace(ordered_assignment_state(state, assigned, declaration.fetch(:conditional)))
         end
+      end
+
+      def ordered_assignment_state(current, assigned, conditional)
+        kind = current.is_a?(Array) ? current.first : current
+        return current if conditional && !%i[unset falsey].include?(kind)
+
+        assigned
       end
 
       def cross_file_constant_identity_state(source_declaration_ids, declarations, previous_owners, index)
@@ -682,8 +687,11 @@ module Ibex
         return unless %i[assign opassign].include?(node.first)
 
         value = node.first == :assign ? node[2] : node[3]
+        conditional = node.first == :opassign && node.dig(2, 1) == "||="
         assignment_binding_names(node[1], context, index).each do |target|
-          index.fetch(:assignments) << { target: target, value: value, context: context }
+          index.fetch(:assignments) << {
+            target: target, value: value, context: context, conditional: conditional
+          }
           index.fetch(:constant_definitions) << target.delete_prefix("constant:") if target.start_with?("constant:")
           if target.start_with?("class_variable:")
             index.fetch(:class_variable_definitions) << target
@@ -702,13 +710,16 @@ module Ibex
         if block_variables.nil?
           implicit = implicit_block_parameter_names(node.dig(2, 2))
           parameters[:names] = (parameters.fetch(:names) + implicit).uniq
+          parameters[:yielded_names] = implicit
         end
         line = find_line(node[1]) || 0
         scope = "#{context[:scope]}:block:#{line}:#{index.fetch(:blocks).length}"
         nested = context.merge(scope: scope, scope_chain: [scope] + context.fetch(:scope_chain))
         index_parameters(parameters, nested, index)
         index.fetch(:blocks) << {
-          node: node, expression: node[1], parameters: parameters.fetch(:names), context: nested
+          node: node, expression: node[1], parameters: parameters.fetch(:names),
+          yielded_parameters: parameters.fetch(:yielded_names),
+          block_locals: parameters.fetch(:block_local_names), context: nested
         }
         walk(node[2], nested, index)
       end
@@ -830,25 +841,46 @@ module Ibex
         assignments = index.fetch(:assignments)
         classes = option_parser_class_bindings(assignments, index)
         instances = option_parser_parameter_bindings(index.fetch(:methods))
+        blocks = index.fetch(:blocks)
+        block_scopes = blocks.to_h { |block| [block.fetch(:context).fetch(:scope), true] }
+        assignments_by_scope = assignments.group_by { |assignment| assignment.fetch(:context).fetch(:scope) }
         loop do
           previous = instances.length
-          assignments.each do |assignment|
-            context = assignment.fetch(:context)
-            value = assignment.fetch(:value)
-            if option_parser_instance_expression?(value, context, classes, instances, index)
-              instances << assignment.fetch(:target)
-            end
-          end
-          index.fetch(:blocks).each do |block|
-            next unless option_parser_yielding_expression?(block.fetch(:expression), block.fetch(:context), classes,
-                                                           instances, index)
-
-            block.fetch(:parameters).each do |name|
-              instances << local_binding(block.fetch(:context), name)
-            end
-          end
+          add_assignment_instance_bindings(assignments, block_scopes, classes, instances, index)
+          add_block_instance_bindings(blocks, assignments_by_scope, classes, instances, index)
           instances.uniq!
           return { classes: classes, instances: instances, index: index } if previous == instances.length
+        end
+      end
+
+      def add_assignment_instance_bindings(assignments, block_scopes, classes, instances, index)
+        assignments.each do |assignment|
+          context = assignment.fetch(:context)
+          block_local = assignment.fetch(:target).start_with?("local:#{context.fetch(:scope)}:") &&
+                        block_scopes.key?(context.fetch(:scope))
+          next if block_local && assignment.fetch(:conditional, false)
+
+          value = assignment.fetch(:value)
+          instances << assignment.fetch(:target) if option_parser_instance_expression?(
+            value, context, classes, instances, index
+          )
+        end
+      end
+
+      def add_block_instance_bindings(blocks, assignments_by_scope, classes, instances, index)
+        blocks.each do |block|
+          context = block.fetch(:context)
+          yielding = option_parser_yielding_expression?(
+            block.fetch(:expression), context, classes, instances, index
+          )
+          block.fetch(:yielded_parameters).each do |name|
+            instances << local_binding(context, name) if yielding
+          end
+          assignments = assignments_by_scope.fetch(context.fetch(:scope), [])
+          states = block_instance_states(
+            block, classes, instances, index, seed_yielded: yielding, assignments: assignments
+          )
+          states.each { |binding, state| instances << binding if state == :parser }
         end
       end
 
@@ -929,7 +961,11 @@ module Ibex
       def parameter_details(node, block_locals: nil)
         names = []
         defaults = []
+        yielded_names = []
         if node&.first == :params
+          first_positional = Array(node[1]).first || Array(node[2]).first&.first
+          first_positional_name = parameter_name(first_positional)
+          yielded_names << first_positional_name if first_positional_name
           names.concat(parameter_names(node[1]))
           Array(node[2]).each do |token, value|
             name = parameter_name(token)
@@ -946,8 +982,12 @@ module Ibex
           names.concat(parameter_names(node[6]))
           names.concat(parameter_names(node[7]))
         end
-        names.concat(parameter_names(block_locals))
-        { names: names.uniq, defaults: defaults }
+        block_local_names = parameter_names(block_locals)
+        names.concat(block_local_names)
+        {
+          names: names.uniq, defaults: defaults, yielded_names: yielded_names,
+          block_local_names: block_local_names
+        }
       end
 
       def parameter_names(node)
@@ -973,7 +1013,8 @@ module Ibex
         end
         parameters.fetch(:defaults).each do |default|
           index.fetch(:assignments) << {
-            target: local_binding(context, default.fetch(:name)), value: default.fetch(:value), context: context
+            target: local_binding(context, default.fetch(:name)), value: default.fetch(:value), context: context,
+            conditional: false
           }
         end
       end
@@ -1236,35 +1277,59 @@ module Ibex
         )
 
         returned = unwrap_parenthesized_expression(block_last_expression(node))
-        proven = block_proven_instance_bindings(block, index)
-        block_identity_expression?(returned, block.fetch(:context), proven, index)
+        states = block_instance_states(block, class_bindings, instance_bindings, index, seed_yielded: true)
+        block_identity_expression?(returned, block.fetch(:context), states, index)
       end
 
-      def block_proven_instance_bindings(block, index)
+      def block_instance_states(block, class_bindings, instance_bindings, index, seed_yielded:,
+                                assignments: index.fetch(:assignments))
         context = block.fetch(:context)
-        proven = block.fetch(:parameters).to_h { |name| [local_binding(context, name), true] }
-        index.fetch(:assignments).each do |assignment|
+        states = block.fetch(:parameters).to_h { |name| [local_binding(context, name), :unknown] }
+        block.fetch(:block_locals).each { |name| states[local_binding(context, name)] = :falsey }
+        block.fetch(:yielded_parameters).each do |name|
+          states[local_binding(context, name)] = :parser if seed_yielded
+        end
+        assignments.each do |assignment|
           next unless assignment.fetch(:context).fetch(:scope) == context.fetch(:scope)
 
           target = assignment.fetch(:target)
           next unless target.start_with?("local:#{context.fetch(:scope)}:")
 
-          proven[target] = block_identity_expression?(assignment.fetch(:value), context, proven, index)
+          assigned = block_assignment_state(
+            assignment.fetch(:value), context, states, class_bindings, instance_bindings, index
+          )
+          states[target] = ordered_assignment_state(
+            states.fetch(target, :unset), assigned, assignment.fetch(:conditional, false)
+          )
         end
-        proven
+        states
       end
 
-      def block_identity_expression?(node, context, proven, index)
+      def block_assignment_state(node, context, states, class_bindings, instance_bindings, index)
+        node = unwrap_parenthesized_expression(node)
+        return :parser if block_identity_expression?(node, context, states, index)
+        return :parser if option_parser_instance_expression?(
+          node, context, class_bindings, instance_bindings, index
+        )
+        return :falsey if falsey_literal?(node)
+        return :truthy if constant_path_name(node) || definitely_truthy_expression?(node)
+
+        candidates = binding_candidates(node, context, index)
+        candidates.each { |binding| return states.fetch(binding) if states.key?(binding) }
+        :unknown
+      end
+
+      def block_identity_expression?(node, context, states, index)
         node = unwrap_parenthesized_expression(node)
         return false unless node.is_a?(Array)
-        return true if binding_candidates(node, context, index).any? { |binding| proven[binding] }
+        return true if binding_candidates(node, context, index).any? { |binding| states[binding] == :parser }
 
         if %i[method_add_arg method_add_block].include?(node.first)
-          return block_identity_expression?(node[1], context, proven, index)
+          return block_identity_expression?(node[1], context, states, index)
         end
         return false unless node.first == :call && %w[itself freeze tap dup clone].include?(node.dig(3, 1))
 
-        block_identity_expression?(node[1], context, proven, index)
+        block_identity_expression?(node[1], context, states, index)
       end
 
       def block_last_expression(node)
