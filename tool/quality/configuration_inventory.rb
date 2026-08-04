@@ -458,7 +458,8 @@ module Ibex
 
       def ordered_assignment_state(current, assigned, conditional)
         kind = current.is_a?(Array) ? current.first : current
-        return current if conditional && !%i[unset falsey].include?(kind)
+        return current if [true, "||="].include?(conditional) && !%i[unset falsey].include?(kind)
+        return current if conditional == "&&=" && %i[unset falsey unknown].include?(kind)
 
         assigned
       end
@@ -654,10 +655,11 @@ module Ibex
         walk(target, context, index)
 
         value_context = context
-        if node.first == :opassign && node.dig(2, 1) == "||="
+        operator = node.dig(2, 1) if node.first == :opassign
+        if %w[||= &&=].include?(operator)
           guard = {
             targets: assignment_binding_names(target, context, index),
-            order: next_index_order(index)
+            order: next_index_order(index), operator: operator
           }
           guards = context.fetch(:execution_guards, []) + [guard]
           value_context = context.merge(execution_guards: guards)
@@ -708,7 +710,8 @@ module Ibex
         return unless %i[assign opassign].include?(node.first)
 
         value = node.first == :assign ? node[2] : node[3]
-        conditional = node.first == :opassign && node.dig(2, 1) == "||="
+        operator = node.dig(2, 1) if node.first == :opassign
+        conditional = %w[||= &&=].include?(operator) ? operator : false
         assignment_binding_names(node[1], context, index).each do |target|
           index.fetch(:assignments) << {
             target: target, value: value, context: context, conditional: conditional,
@@ -938,7 +941,16 @@ module Ibex
             block, bindings.fetch(:classes), bindings.fetch(:instances), index,
             seed_yielded: yielding, before_order: guard.fetch(:order)
           )
-          guard.fetch(:targets).none? { |target| %i[parser truthy].include?(states[target]) }
+          guard_execution_reachable?(guard, states)
+        end
+      end
+
+      def guard_execution_reachable?(guard, states)
+        kinds = guard.fetch(:targets).map { |target| states.fetch(target, :unset) }
+        case guard.fetch(:operator)
+        when "||=" then kinds.none? { |kind| %i[parser truthy].include?(kind) }
+        when "&&=" then kinds.none? { |kind| %i[unset falsey].include?(kind) }
+        else true
         end
       end
 

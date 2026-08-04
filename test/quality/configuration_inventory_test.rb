@@ -1197,6 +1197,122 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     end
   end
 
+  def test_and_assignment_skips_registration_for_known_falsey_lhs
+    {
+      "nil" => "result = nil; result &&= parser.on(name)",
+      "false" => "result = false; result &&= parser.on(name)",
+      "falsey lhs alias" => "gate = nil; result = ((gate)); result &&= parser.on(name)",
+      "parenthesized alias" => "receiver = parser; result = ((nil)); result &&= ((receiver.on(name)))"
+    }.each do |label, statements|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/builder_falsey_and_guard_#{label.tr(' ', '_')}.rb", <<~RUBY)
+          require "optparse"
+          def subscribe(name)
+            OptionParser.new.then { |parser| #{statements} }
+          end
+        RUBY
+        assert inventory_for(root).verify!, label
+      end
+    end
+  end
+
+  def test_and_assignment_executes_registration_for_known_truthy_lhs
+    {
+      "yielded parser" => "parser &&= parser.on(name)",
+      "true" => "result = true; result &&= parser.on(name)",
+      "object" => "result = Object.new; result &&= ((parser.on(name)))",
+      "truthy lhs alias" => "gate = Object.new; result = ((gate)); result &&= parser.on(name)",
+      "alias" => "receiver = parser; result = true; result &&= ((receiver.on(name)))"
+    }.each do |label, statements|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/builder_truthy_and_guard_#{label.tr(' ', '_')}.rb", <<~RUBY)
+          require "optparse"
+          def add_hidden(name)
+            OptionParser.new.then { |parser| #{statements} }
+          end
+        RUBY
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, label)
+      end
+    end
+  end
+
+  def test_and_assignment_unknown_lhs_conservatively_scans_rhs
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_unknown_and_guard.rb", <<~RUBY)
+        require "optparse"
+        def add_hidden(name)
+          OptionParser.new.then do |parser, unknown|
+            unknown &&= parser.on(name)
+          end
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_and_assignment_preserves_known_falsey_state
+    {
+      "nil stays falsey" => "result = nil; result &&= parser; result.on(name)",
+      "false stays falsey" => "result = false; result &&= parser; result.on(name)",
+      "parser becomes generic" => "result = parser; result &&= Object.new; result.on(name)"
+    }.each do |label, statements|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/builder_and_state_negative_#{label.tr(' ', '_')}.rb", <<~RUBY)
+          require "optparse"
+          def subscribe(name)
+            OptionParser.new.then { |parser| #{statements} }
+          end
+        RUBY
+        assert inventory_for(root).verify!, label
+      end
+    end
+  end
+
+  def test_and_assignment_writes_known_truthy_state
+    %w[true Object.new].each do |truthy|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/builder_and_state_positive_#{truthy.tr('.', '_')}.rb", <<~RUBY)
+          require "optparse"
+          def add_hidden(name)
+            OptionParser.new.then do |parser|
+              result = #{truthy}
+              result &&= parser
+              result.on(name)
+            end
+          end
+        RUBY
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, truthy)
+      end
+    end
+  end
+
+  def test_nested_and_or_assignment_guards_follow_ruby_short_circuiting
+    {
+      "falsey and skips inner or" => ["outer = nil; inner = nil; outer &&= (inner ||= parser.on(name))", false],
+      "truthy or skips inner and" => ["outer = true; inner = true; outer ||= (inner &&= parser.on(name))", false],
+      "truthy and enters falsey or" => ["outer = true; inner = nil; outer &&= (inner ||= parser.on(name))", true],
+      "falsey or enters truthy and" => ["outer = nil; inner = true; outer ||= (inner &&= parser.on(name))", true]
+    }.each do |label, (statements, detected)|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/builder_nested_guard_#{label.tr(' ', '_')}.rb", <<~RUBY)
+          require "optparse"
+          def add_hidden(name)
+            OptionParser.new.then { |parser| #{statements} }
+          end
+        RUBY
+        if detected
+          error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+          assert_match(/has no static spelling/, error.message, label)
+        else
+          assert inventory_for(root).verify!, label
+        end
+      end
+    end
+  end
+
   def test_optional_first_builder_parameter_ignores_its_default
     with_repository_copy do |root|
       write_ruby(root, "lib/builder_optional_first.rb", <<~RUBY)
