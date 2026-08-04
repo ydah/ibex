@@ -11,6 +11,13 @@ module Ibex
       include RuntimeABIDocument
 
       LONG_GATES = %w[test:matrix:full test:adversarial fuzz:long].freeze
+      NORMAL_COMMANDS = %w[
+        test:matrix test:zero_cost test:reproducible test:compat test:ir_schema test:no_exec
+        test:adversarial gallery:build gallery:conflicts fuzz:short fuzz:injection deps:zero network:zero
+      ].map { |task| "bundle exec rake #{task}" }.freeze
+      ENFORCEMENT_COMMANDS = ["bundle exec rake quality:runtime_abi"].freeze
+      PR_CONDITION = "github.event_name == 'pull_request'"
+      SCHEDULE_CONDITION = "github.event_name == 'schedule'"
 
       def initialize(root:, contract:)
         @root = File.expand_path(root)
@@ -84,41 +91,77 @@ module Ibex
         raise "scheduled long gates are stale" unless gates == LONG_GATES
 
         workflow = YAML.safe_load_file(path(".github/workflows/main.yml"), permitted_classes: [], aliases: false)
-        triggers = workflow.fetch(true)
-        raise "CI schedule is missing" unless triggers.is_a?(Hash) && triggers.key?("schedule")
+        verify_triggers(workflow)
+        raise "CI workflow must use the default safe shell" if workflow.key?("defaults")
 
-        steps = workflow.dig("jobs", "stage-a-safety", "steps")
-        raise "stage-a-safety steps are missing" unless steps.is_a?(Array)
+        safety_steps = safe_job_steps(workflow, "stage-a-safety")
+        contract_steps = safe_job_steps(workflow, "v1-contracts")
 
-        verify_normal_step(steps)
-        verify_scheduled_step(steps)
-        verify_enforcement_step(workflow)
+        verify_normal_step(safety_steps)
+        verify_scheduled_step(safety_steps)
+        verify_enforcement_step(contract_steps)
       end
 
       def verify_normal_step(steps)
         step = named_step(steps, "Verify deterministic safety gates")
-        commands = run_commands(step)
-        %w[test:matrix test:zero_cost].each do |task|
-          raise "normal CI is missing bundle exec rake #{task}" unless commands.include?("bundle exec rake #{task}")
-        end
+        verify_step_safety(step, expected_condition: nil)
+        exact_keys!(step, %w[name run], "normal CI gate step")
+        raise "normal gate commands are stale" unless run_commands(step) == NORMAL_COMMANDS
       end
 
       def verify_scheduled_step(steps)
         step = named_step(steps, "Run scheduled exhaustive gates")
-        expected_condition = "github.event_name == 'schedule'"
-        raise "scheduled gate condition is stale" unless step.fetch("if") == expected_condition
+        verify_step_safety(step, expected_condition: SCHEDULE_CONDITION)
+        exact_keys!(step, %w[env if name run], "scheduled CI gate step")
+        expected_env = { "IBEX_ADVERSARIAL_FULL" => "1" }
+        raise "scheduled gate environment is stale" unless step.fetch("env") == expected_env
 
         expected = LONG_GATES.map { |task| "bundle exec rake #{task}" }
         raise "scheduled gate commands are stale" unless run_commands(step) == expected
       end
 
-      def verify_enforcement_step(workflow)
-        steps = workflow.dig("jobs", "v1-contracts", "steps")
-        raise "v1-contracts steps are missing" unless steps.is_a?(Array)
+      def verify_enforcement_step(steps)
+        step = named_step(steps, "Enforce pull-request runtime ABI assessment")
+        verify_step_safety(step, expected_condition: PR_CONDITION)
+        exact_keys!(step, %w[if name run], "pull-request ABI enforcement step")
+        raise "pull-request ABI enforcement commands are stale" unless run_commands(step) == ENFORCEMENT_COMMANDS
+      end
 
-        step = named_step(steps, "Verify maturity, documentation, and localization contracts")
-        command = "bundle exec rake quality:runtime_abi"
-        raise "v1-contracts CI is missing #{command}" unless run_commands(step).include?(command)
+      def verify_triggers(workflow)
+        triggers = workflow.fetch(true)
+        expected = {
+          "push" => { "branches" => ["main"] },
+          "pull_request" => nil,
+          "schedule" => [{ "cron" => "27 3 * * 1" }]
+        }
+        invalid = expected.reject do |trigger, value|
+          triggers.is_a?(Hash) && triggers.key?(trigger) && triggers[trigger] == value
+        end.keys
+        raise "CI has missing or stale required triggers: #{invalid.join(', ')}" unless invalid.empty?
+      end
+
+      def safe_job_steps(workflow, name)
+        job = workflow.dig("jobs", name)
+        raise "#{name} job is missing" unless job.is_a?(Hash)
+
+        forbidden = %w[if continue-on-error defaults] & job.keys
+        raise "#{name} job has fail-open controls: #{forbidden.join(', ')}" unless forbidden.empty?
+
+        steps = job.fetch("steps")
+        raise "#{name} steps are missing" unless steps.is_a?(Array)
+
+        steps
+      end
+
+      def verify_step_safety(step, expected_condition:)
+        forbidden = %w[continue-on-error shell] & step.keys
+        raise "CI gate step has fail-open controls: #{forbidden.join(', ')}" unless forbidden.empty?
+
+        if expected_condition
+          raise "CI gate step condition is stale" unless step["if"] == expected_condition
+        elsif step.key?("if")
+          raise "normal CI gate must be unconditional"
+        end
       end
 
       def named_step(steps, name)

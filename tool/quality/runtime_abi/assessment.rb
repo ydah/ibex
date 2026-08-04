@@ -5,6 +5,7 @@ require "open3"
 require "pathname"
 require "yaml"
 require_relative "assessment_fields"
+require_relative "trusted_base"
 
 module Ibex
   module Quality
@@ -12,8 +13,6 @@ module Ibex
     class RuntimeABIAssessment
       START = "<!-- ibex-runtime-abi-assessment:start -->"
       FINISH = "<!-- ibex-runtime-abi-assessment:end -->"
-      SHA = /\A[0-9a-f]{40,64}\z/
-
       def initialize(root:, contract:, test_contract:, event_path:, event_name:, changed_paths:)
         @root = File.expand_path(root)
         @contract = contract
@@ -28,8 +27,10 @@ module Ibex
         pull_request_event = @event_name == "pull_request" || (@event_name.nil? && event.key?("pull_request"))
         return unless pull_request_event
 
+        trusted_base = RuntimeABITrustedBase.new(root: @root, head_contract: @contract)
+        runtime_patterns = trusted_base.union(event)
         paths = changed_paths(event)
-        runtime_paths = paths.select { |path| runtime_facing?(path) }
+        runtime_paths = paths.select { |path| runtime_facing?(path, runtime_patterns) }
         return if runtime_paths.empty?
 
         body = event.dig("pull_request", "body")
@@ -64,11 +65,7 @@ module Ibex
       end
 
       def pull_request_paths(event)
-        base = event.dig("pull_request", "base", "sha")
-        head = event.dig("pull_request", "head", "sha")
-        unless base.is_a?(String) && head.is_a?(String) && base.match?(SHA) && head.match?(SHA)
-          raise "pull_request event must provide hexadecimal base and head SHAs"
-        end
+        base, head = RuntimeABITrustedBase.new(root: @root, head_contract: @contract).pull_request_shas!(event)
 
         stdout, stderr, status = Open3.capture3(
           "git", "diff", "--name-only", "-z", "--no-renames", "#{base}...#{head}", chdir: @root
@@ -108,8 +105,8 @@ module Ibex
         value
       end
 
-      def runtime_facing?(changed_path)
-        @contract.fetch("runtime_paths").any? do |pattern|
+      def runtime_facing?(changed_path, patterns)
+        patterns.any? do |pattern|
           File.fnmatch?(pattern, changed_path, File::FNM_PATHNAME | File::FNM_EXTGLOB)
         end
       end

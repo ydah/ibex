@@ -62,7 +62,7 @@ class RuntimeABIHardeningTest < Minitest::Test
       replace_project_text(root, ".github/workflows/main.yml", condition, "if: false")
 
       error = assert_raises(RuntimeError) { verify_runtime_abi(root) }
-      assert_includes error.message, "scheduled gate condition is stale"
+      assert_includes error.message, "CI gate step condition is stale"
     end
   end
 
@@ -99,6 +99,7 @@ class RuntimeABIHardeningTest < Minitest::Test
     git!(root, "init", "-q")
     git!(root, "config", "user.email", "abi-test@example.invalid")
     git!(root, "config", "user.name", "ABI Test")
+    write(root, "docs/runtime-abi-evolution.md", File.binread(File.join(PROJECT_ROOT, "docs/runtime-abi-evolution.md")))
     write(root, "lib/ibex/runtime/deleted file.rb", "delete\n")
     write(root, "lib/ibex/runtime/renamed old.rb", "rename\n")
     git!(root, "add", "-A")

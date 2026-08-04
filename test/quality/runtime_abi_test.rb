@@ -2,13 +2,12 @@
 
 require_relative "../test_helper"
 require_relative "../../tool/quality/runtime_abi"
-require "fileutils"
-require "json"
-require "tmpdir"
+require_relative "../support/runtime_abi_test_project"
 
 class RuntimeABITest < Minitest::Test
-  ROOT = File.expand_path("../..", __dir__)
-  COPY_PATHS = %w[.github docs lib schema test tool Rakefile ibex.gemspec ibex-runtime.gemspec].freeze
+  include RuntimeABITestProject
+
+  ROOT = PROJECT_ROOT
 
   def test_current_contract_matches_implementation
     Ibex::Quality::RuntimeABI.new(root: ROOT).verify!
@@ -141,11 +140,8 @@ class RuntimeABITest < Minitest::Test
 
   private
 
-  def with_root
-    Dir.mktmpdir("ibex-runtime-abi") do |root|
-      COPY_PATHS.each { |path| FileUtils.cp_r(File.join(ROOT, path), File.join(root, path)) }
-      yield root
-    end
+  def with_root(&block)
+    with_runtime_abi_root(&block)
   end
 
   def verify(root)
@@ -153,7 +149,7 @@ class RuntimeABITest < Minitest::Test
   end
 
   def verify_event(root, event_name, paths_name)
-    event = File.join(root, "test/fixtures/runtime_abi", event_name)
+    event = event_copy(root, event_name)
     verify_event_path(root, event, paths_name)
   end
 
@@ -168,10 +164,7 @@ class RuntimeABITest < Minitest::Test
   end
 
   def event_copy(root, name)
-    source = File.join(root, "test/fixtures/runtime_abi", name)
-    target = File.join(root, "event.json")
-    FileUtils.cp(source, target)
-    target
+    fixture_event_copy(root, name)
   end
 
   def rewrite_body(path, before, after)

@@ -2,6 +2,7 @@
 
 require "fileutils"
 require "json"
+require "open3"
 require "tmpdir"
 
 module RuntimeABITestProject
@@ -26,10 +27,31 @@ module RuntimeABITestProject
   end
 
   def fixture_event_copy(root, name = "pull_request.json")
+    sha = ensure_runtime_abi_git(root)
     source = File.join(root, "test/fixtures/runtime_abi", name)
     target = File.join(root, "event.json")
     FileUtils.cp(source, target)
+    rewrite_event_shas(target, sha, sha)
     target
+  end
+
+  def ensure_runtime_abi_git(root)
+    return git_runtime_abi!(root, "rev-parse", "HEAD").strip if File.directory?(File.join(root, ".git"))
+
+    git_runtime_abi!(root, "init", "-q")
+    git_runtime_abi!(root, "config", "user.email", "abi-test@example.invalid")
+    git_runtime_abi!(root, "config", "user.name", "ABI Test")
+    git_runtime_abi!(root, "add", "-A")
+    git_runtime_abi!(root, "commit", "-q", "-m", "base")
+    git_runtime_abi!(root, "rev-parse", "HEAD").strip
+  end
+
+  def rewrite_event_shas(path, base, head)
+    document = JSON.parse(File.binread(path))
+    pull_request = document.fetch("pull_request")
+    pull_request.fetch("base")["sha"] = base
+    pull_request.fetch("head")["sha"] = head
+    File.binwrite(path, JSON.pretty_generate(document))
   end
 
   def rewrite_event_body(path, before, after)
@@ -47,5 +69,12 @@ module RuntimeABITestProject
     raise "fixture text not found: #{before}" unless source.include?(before)
 
     File.binwrite(path, source.sub(before, after))
+  end
+
+  def git_runtime_abi!(root, *arguments)
+    stdout, stderr, status = Open3.capture3("git", *arguments, chdir: root)
+    raise "git #{arguments.join(' ')} failed: #{stderr}" unless status.success?
+
+    stdout
   end
 end

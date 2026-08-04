@@ -2,7 +2,7 @@
 
 module Ibex
   module Quality
-    # Non-shrinkable review authority for ABI protection and assessment fields.
+    # Reviewed head authority; pull requests also retain trusted-base paths.
     module RuntimeABIReviewedPolicy
       REQUIRED_RUNTIME_PATHS = %w[
         .github/pull_request_template.md .github/workflows/main.yml Rakefile

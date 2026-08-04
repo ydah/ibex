@@ -67,6 +67,54 @@ class RuntimeABIAssessmentTest < Minitest::Test
     end
   end
 
+  def test_placeholder_phrases_are_rejected_by_containment
+    %w[TODO TBD FIXME template placeholder].each do |phrase|
+      with_runtime_abi_root do |root|
+        event = fixture_event_copy(root)
+        rationale = "Runtime behavior remains compatible, but #{phrase} wording is still present here."
+        replace_rationale(event, rationale)
+
+        error = assert_raises(RuntimeError) { verify(root, event) }
+        assert_includes error.message, "rationale must be substantive"
+      end
+    end
+  end
+
+  def test_rationale_rejects_embedded_placeholders_punctuation_and_repeated_filler
+    examples = [
+      "Compatibility remains unresolved; FIXME after the release tests complete.",
+      "............................................................",
+      "safe safe safe safe safe safe safe safe safe safe"
+    ]
+    examples.each do |rationale|
+      with_runtime_abi_root do |root|
+        event = fixture_event_copy(root)
+        replace_rationale(event, rationale)
+
+        error = assert_raises(RuntimeError) { verify(root, event) }
+        assert_includes error.message, "rationale must be substantive"
+      end
+    end
+  end
+
+  def test_rationale_rejects_low_diversity_and_zero_width_controls
+    examples = [
+      "aaaa bbbb aaaa bbbb aaaa bbbb aaaa bbbb",
+      "The runtime contract remains\u200B compatible because behavior is unchanged for every parser session.",
+      "The runtime contract remains compatible because behavior is\u2060 unchanged for every parser session.",
+      "\uFEFFThe runtime contract remains compatible because behavior is unchanged for every parser session."
+    ]
+    examples.each do |rationale|
+      with_runtime_abi_root do |root|
+        event = fixture_event_copy(root)
+        replace_rationale(event, rationale)
+
+        error = assert_raises(RuntimeError) { verify(root, event) }
+        assert_includes error.message, "rationale must be substantive"
+      end
+    end
+  end
+
   def test_unknown_interaction_and_unowned_test_are_rejected
     [
       ["affected_interactions: [cst]", "affected_interactions: [unknown]", "documented interaction ids"],
@@ -169,6 +217,11 @@ class RuntimeABIAssessmentTest < Minitest::Test
   end
 
   private
+
+  def replace_rationale(event, rationale)
+    original = "rationale: The runtime implementation preserves the current table and CST contracts."
+    rewrite_event_body(event, original, "rationale: #{rationale}")
+  end
 
   def verify(root, event)
     verify_runtime_event(root, event: event, changed_paths: [RUNTIME_PATH])
