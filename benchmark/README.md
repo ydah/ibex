@@ -1,5 +1,13 @@
 # Whole-builder benchmark
 
+Comparative measurements are publishable claims only when they follow the
+[comparison policy](../docs/comparison-policy.md) and have a validated entry in
+[`docs/claims.yml`](../docs/claims.yml). Benchmark output alone is not a claim:
+the registry also fixes its wording, subjects, corpus, environment, unsupported
+semantics, evidence, limitations, and review conditions. Run
+`bundle exec rake quality:comparative_claims` before publishing comparative
+wording.
+
 Capture the pre-Red/Green CST construction baseline with:
 
 ```sh

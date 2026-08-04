@@ -14,6 +14,14 @@ equality.
 
 ## Comparison method
 
+<!-- comparative-claim:racc-error-ux-json-v1:start -->
+Comparative claim ID: `racc-error-ux-json-v1`. The versioned observations and
+maintainer assessment are registered in [`claims.yml`](claims.yml), including
+the unrecorded environment fields and the still-pending independent subjective
+review. This is `review_pending` evidence, not a completed comparative UX
+conclusion.
+<!-- comparative-claim:racc-error-ux-json-v1:end -->
+
 Ibex uses [`examples/json.y`](../examples/json.y), including its generated
 lexer locations. The migration from its previous handwritten lexer is guarded
 by exact location and error-snapshot tests. The comparison uses the self-authored compatible grammar

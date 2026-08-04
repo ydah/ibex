@@ -66,6 +66,12 @@ that omits `super` plus historical value-stack reads, and an unqualified
 
 ## Formal Pure Ruby performance comparison
 
+Comparative claim ID: `racc-public-performance-2026-07-31`. Its complete
+scope, evidence paths, expiry rule, and limitations are registered in
+[`claims.yml`](claims.yml) under the [comparison policy](comparison-policy.md).
+The measurements below are historical observations of the exact revision and
+environment, not a statement about the current checkout.
+
 The formal measurement was collected on 2026-07-31 from clean revision
 `08c7dc5d939a1f47b0132ae3986818cdbaec1f34` with ten
 alternating isolated runs per implementation, 50 warm-up workloads, 250
