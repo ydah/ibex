@@ -10,7 +10,9 @@ requires no C or Java extension.
 > [!IMPORTANT]
 > Ibex is pre-1.0. The current v1.0 decision is
 > [**HOLD**](docs/release-readiness.md) because the published error UX evidence
-> still needs independent review. Compatibility, scale, and a historical public
+> still needs independent review; the machine-readable
+> [R001 status and review kit](docs/error-ux-review-status-v1.json) remain
+> `awaiting_independent_review`. Compatibility, scale, and a historical public
 > performance projection is recorded in the readiness report. Its direct
 > formal result artifact is absent, so the registry marks it
 > `evidence_pending` and this README makes no comparative performance claim.

@@ -11,7 +11,11 @@ sufficient for a stable release.
 signatures, and the repository compatibility suite have evidence. A historical
 public performance projection is documented, but its direct formal result
 artifact is absent. The published ten-case error comparison has not received
-independent third-party review.
+independent third-party review. Its machine-readable
+[`R001` status](error-ux-review-status-v1.json) is
+`HOLD / awaiting_independent_review`; the linked status leads to the complete
+rubric, closed record schema, immutable evidence identity, and imported-record
+registry.
 
 Feature development is not frozen. The open release gate blocks publication of
 v1.0, not feature development. New work remains subject to the feature budgets,
@@ -141,7 +145,12 @@ presented as a substitute for an application-specific benchmark.
 malformed JSON inputs against the public racc callback. Eight selected repairs
 were assessed useful. A maintainer assessment is not independent review; at
 least one external reviewer must record a review of the cases and usefulness
-labels before this KPI passes.
+labels before this KPI passes. Reviewers use the versioned
+[`independent rubric`](error-ux-review-rubric-v1.md), generate a draft with the
+exact checkout and environment identity, publish it with explicit consent and
+an immutable permalink, and submit it without maintainer rewriting. Ordinary
+CI validates kit readiness; `bundle exec rake release:error_ux_review` remains
+the intentionally failing promotion gate while the public status is HOLD.
 
 The current whole-library `steep stats` result is 23,517 typed calls and 2,946
 untyped calls out of 26,463, or 88.9% typed. Generated parser RBS refines
@@ -167,8 +176,10 @@ establish publisher identity.
 
 ## Actions required to release v1.0
 
-1. Obtain and link an independent review of the ten error cases and usefulness
-   judgments; revise the versioned assessment if the review disagrees.
+1. Obtain and publish an independent review of the ten error cases using the
+   R001 rubric, then import the record byte-for-byte with its immutable
+   permalink and consent. Preserve disagreements separately from the normative
+   maintainer assessment.
 2. Publish the complete formal performance result artifact or rerun its
    registered command on the exact candidate revision; do not promote the
    readiness projection into a comparative claim by reconstruction.

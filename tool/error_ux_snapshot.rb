@@ -92,8 +92,9 @@ module ErrorUXSnapshot
       output = File.join(directory, "json_racc_parser.rb")
       system(command, "-o", output, RACC_GRAMMAR, out: File::NULL, err: File::NULL) ||
         raise("racc compilation failed")
-      load output
-      Object.const_get(:ErrorUXJSONRaccParser, false)
+      namespace = Module.new
+      namespace.module_eval(File.binread(output), output)
+      namespace.const_get(:ErrorUXJSONRaccParser, false)
     end
     [parser, version.strip]
   end

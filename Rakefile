@@ -54,6 +54,16 @@ namespace :quality do
     sh "bundle", "exec", "ruby", "tool/error_ux_snapshot.rb"
   end
 
+  desc "Verify the independent error UX review kit and truthful gate state"
+  task :error_ux_review_kit do
+    sh "bundle", "exec", "ruby", "tool/error_ux_review.rb", "check"
+  end
+
+  desc "Report the independent error UX review state without promoting a release"
+  task :error_ux_review_status do
+    sh "bundle", "exec", "ruby", "tool/error_ux_review.rb", "status"
+  end
+
   desc "Verify comparative claims, evidence, limitations, and public wording"
   task :comparative_claims do
     ruby "-Ilib", "-r./tool/quality/comparative_claims", "-e", "Ibex::Quality::ComparativeClaims.new.verify!"
@@ -244,6 +254,11 @@ namespace :release do
   desc "Verify the Stable API lock and byte-reproducible gem packages"
   task :reproducible do
     ruby "-Ilib", "-r./tool/quality/release", "-e", "Ibex::Quality::Release.new.verify!"
+  end
+
+  desc "Require a published independent error UX review before promotion"
+  task :error_ux_review do
+    sh "bundle", "exec", "ruby", "tool/error_ux_review.rb", "release"
   end
 end
 

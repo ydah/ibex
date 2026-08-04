@@ -20,6 +20,7 @@ class IRJSONSchemaTest < Minitest::Test
       benchmark-v2.schema.json
       generation-manifest-v1.schema.json
       error-ux-v1.schema.json
+      error-ux-review-v1.schema.json
       runtime-event-v1.schema.json
       runtime-coverage-v1.schema.json
       table-simulation-v1.schema.json

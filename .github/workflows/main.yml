@@ -180,6 +180,7 @@ jobs:
         run: |
           bundle exec rake test:docs_coverage
           bundle exec rake quality:comparative_claims
+          bundle exec rake quality:error_ux_review_kit
           bundle exec rake quality:workloads
           bundle exec rake i18n:coverage
           bundle exec rake bison:test

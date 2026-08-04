@@ -12,6 +12,29 @@ Use `--write` only after reviewing a deliberate diagnostic, parser-table, racc,
 or repair-policy change. CI regenerates the evidence and requires byte-for-byte
 equality.
 
+## Independent review gate
+
+The fixed observations include a maintainer repair assessment. They do not
+include an independent diagnostic or repair assessment. R001 therefore remains
+[`HOLD / awaiting_independent_review`](error-ux-review-status-v1.json).
+
+Third-party reviewers use the versioned
+[`rubric`](error-ux-review-rubric-v1.md) and closed
+[`review-record schema`](../schema/error-ux-review-v1.schema.json). Run:
+
+```sh
+bundle exec rake quality:error_ux_review_kit
+bundle exec rake quality:error_ux_review_status
+bundle exec ruby tool/error_ux_review.rb template review.json
+```
+
+The first command verifies the immutable snapshot, corpus identities, schema,
+rubric, imported-record registry, and truthful status while allowing the
+expected HOLD in ordinary CI. `bundle exec rake release:error_ux_review` is the
+separate promotion gate and returns nonzero until a valid published external
+record exists. The review record preserves independent labels, rationales, and
+disagreements without changing the normative observation fixture.
+
 ## Comparison method
 
 <!-- comparative-evidence:racc-error-ux-json-v1:start -->
