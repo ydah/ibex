@@ -325,7 +325,7 @@ module Ibex
         index = {
           calls: [], assignments: [], methods: [], blocks: [], constant_definitions: ["OptionParser"],
           constant_aliases: {}, local_definitions: [], class_variable_definitions: [],
-          superclass_references: [], superclasses: {}
+          superclass_references: [], superclasses: {}, sequence: 0
         }
         source_trees = source_paths.to_h do |relative|
           source = File.binread(path(relative))
@@ -638,7 +638,7 @@ module Ibex
 
         call = reflective_registration_call(node) || registration_call(node)
         if call && (call.fetch(:reflective, false) || REGISTRATION_APIS.include?(call.fetch(:api)))
-          index.fetch(:calls) << call.merge(context)
+          index.fetch(:calls) << call.merge(context).merge(order: next_index_order(index))
         end
         node.each do |child|
           walk(child, context, index) if child.is_a?(Array)
@@ -690,7 +690,8 @@ module Ibex
         conditional = node.first == :opassign && node.dig(2, 1) == "||="
         assignment_binding_names(node[1], context, index).each do |target|
           index.fetch(:assignments) << {
-            target: target, value: value, context: context, conditional: conditional
+            target: target, value: value, context: context, conditional: conditional,
+            order: next_index_order(index), parameter_default: false
           }
           index.fetch(:constant_definitions) << target.delete_prefix("constant:") if target.start_with?("constant:")
           if target.start_with?("class_variable:")
@@ -748,6 +749,10 @@ module Ibex
           return line if line
         end
         nil
+      end
+
+      def next_index_order(index)
+        index[:sequence] += 1
       end
 
       def registration_call(node)
@@ -913,9 +918,49 @@ module Ibex
         return false unless receiver.is_a?(Array)
 
         index = bindings.fetch(:index)
+        block_local = block_local_receiver_provenance(call, receiver, bindings)
+        return block_local unless block_local.nil?
+
         option_parser_instance_expression?(
           receiver, call, bindings.fetch(:classes), bindings.fetch(:instances), index
         )
+      end
+
+      def block_local_receiver_provenance(call, receiver, bindings)
+        index = bindings.fetch(:index)
+        block = index.fetch(:blocks).find do |candidate|
+          candidate.fetch(:context).fetch(:scope) == call.fetch(:scope)
+        end
+        return unless block
+
+        local_prefix = "local:#{block.fetch(:context).fetch(:scope)}:"
+        local_candidates = block_receiver_binding_candidates(receiver, call, index).select do |candidate|
+          candidate.start_with?(local_prefix)
+        end
+        return if local_candidates.empty?
+
+        yielding = option_parser_yielding_expression?(
+          block.fetch(:expression), block.fetch(:context), bindings.fetch(:classes), bindings.fetch(:instances), index
+        )
+        states = block_instance_states(
+          block, bindings.fetch(:classes), bindings.fetch(:instances), index,
+          seed_yielded: yielding, before_order: call.fetch(:order)
+        )
+        block_identity_expression?(receiver, block.fetch(:context), states, index)
+      end
+
+      def block_receiver_binding_candidates(node, context, index)
+        node = unwrap_parenthesized_expression(node)
+        candidates = binding_candidates(node, context, index)
+        return candidates unless candidates.empty?
+        return [] unless node.is_a?(Array)
+
+        if %i[method_add_arg method_add_block].include?(node.first)
+          return block_receiver_binding_candidates(node[1], context, index)
+        end
+        return [] unless node.first == :call && %w[itself freeze tap dup clone].include?(node.dig(3, 1))
+
+        block_receiver_binding_candidates(node[1], context, index)
       end
 
       def receiver_option_parser_class?(call, bindings)
@@ -1014,7 +1059,7 @@ module Ibex
         parameters.fetch(:defaults).each do |default|
           index.fetch(:assignments) << {
             target: local_binding(context, default.fetch(:name)), value: default.fetch(:value), context: context,
-            conditional: false
+            conditional: false, order: next_index_order(index), parameter_default: true
           }
         end
       end
@@ -1282,18 +1327,21 @@ module Ibex
       end
 
       def block_instance_states(block, class_bindings, instance_bindings, index, seed_yielded:,
-                                assignments: index.fetch(:assignments))
+                                assignments: index.fetch(:assignments), before_order: nil)
         context = block.fetch(:context)
         states = block.fetch(:parameters).to_h { |name| [local_binding(context, name), :unknown] }
         block.fetch(:block_locals).each { |name| states[local_binding(context, name)] = :falsey }
+        yielded_bindings = block.fetch(:yielded_parameters).map { |name| local_binding(context, name) }
         block.fetch(:yielded_parameters).each do |name|
           states[local_binding(context, name)] = :parser if seed_yielded
         end
         assignments.each do |assignment|
           next unless assignment.fetch(:context).fetch(:scope) == context.fetch(:scope)
+          next if before_order && assignment.fetch(:order) >= before_order
 
           target = assignment.fetch(:target)
           next unless target.start_with?("local:#{context.fetch(:scope)}:")
+          next if seed_yielded && assignment.fetch(:parameter_default, false) && yielded_bindings.include?(target)
 
           assigned = block_assignment_state(
             assignment.fetch(:value), context, states, class_bindings, instance_bindings, index
