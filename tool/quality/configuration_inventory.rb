@@ -18,7 +18,6 @@ module Ibex
       REGISTRATION_APIS = %w[
         on on_head on_tail define define_head define_tail def_option def_head_option def_tail_option
       ].freeze
-      DEFINE_APIS = %w[define define_head define_tail].freeze
       SURFACES = {
         ["lib/ibex/cli.rb", "add_compatibility_options"] => "generate",
         ["lib/ibex/cli.rb", "add_information_options"] => "generate",
@@ -59,6 +58,25 @@ module Ibex
         ["lib/ibex/cli/samples.rb", "add_sample_input_options"] => "samples",
         ["lib/ibex/cli/samples.rb", "samples_option_parser"] => "samples",
         ["lib/ibex/cli/verify.rb", "verify_options"] => "verify"
+      }.freeze
+      REVIEWED_OPTION_PARSER_PARAMETER_POSITIONS = {
+        ["lib/ibex/cli.rb", "add_compatibility_options"] => [0],
+        ["lib/ibex/cli.rb", "add_information_options"] => [0],
+        ["lib/ibex/cli.rb", "add_output_options"] => [0],
+        ["lib/ibex/cli.rb", "add_pipeline_options"] => [0],
+        ["lib/ibex/cli.rb", "add_signature_output_options"] => [0],
+        ["lib/ibex/cli/bison_import.rb", "add_bison_import_budgets"] => [0],
+        ["lib/ibex/cli/counterexample_options.rb", "add_counterexample_options"] => [0],
+        ["lib/ibex/cli/equiv.rb", "add_equiv_search_options"] => [0],
+        ["lib/ibex/cli/explain.rb", "add_explain_search_options"] => [0],
+        ["lib/ibex/cli/fix.rb", "add_fix_budget_options"] => [0],
+        ["lib/ibex/cli/fix.rb", "add_fix_target_options"] => [0],
+        ["lib/ibex/cli/fuzz.rb", "add_fuzz_execution_options"] => [0],
+        ["lib/ibex/cli/fuzz.rb", "add_fuzz_external_options"] => [0],
+        ["lib/ibex/cli/fuzz.rb", "add_fuzz_generation_options"] => [0],
+        ["lib/ibex/cli/generation_error_messages.rb", "add_error_messages_generation_option"] => [0],
+        ["lib/ibex/cli/samples.rb", "add_sample_generation_options"] => [0],
+        ["lib/ibex/cli/samples.rb", "add_sample_input_options"] => [0]
       }.freeze
       SURFACE_OVERRIDES = {
         "lib/ibex/cli.rb#add_information_options#--lang=LANG" => "global"
@@ -177,6 +195,7 @@ module Ibex
           "The closed API family is `on`, `on_head`, `on_tail`, `define`, `define_head`, `define_tail`,",
           "`def_option`, `def_head_option`, and `def_tail_option` in explicit or implicit call forms.",
           "Unresolved registrations and splats fail closed; every source method has a reviewed command surface.",
+          "Reflective registration through `send`, `public_send`, or `method(...).call` is prohibited.",
           "The admission decision follows the documented configuration policy: grammar-owned settings",
           "must pass A1-A8 and every X1-X7 exclusion remains outside grammar syntax.",
           "",
@@ -271,6 +290,12 @@ module Ibex
         stale_overrides = SURFACE_OVERRIDES.keys - values.map(&:id)
         raise "reviewed command surface overrides are stale: #{stale_overrides.join(',')}" unless stale_overrides.empty?
 
+        stale_parameters = REVIEWED_OPTION_PARSER_PARAMETER_POSITIONS.keys - used_surfaces
+        unless stale_parameters.empty?
+          raise "reviewed OptionParser parameter mappings are stale: " \
+                "#{stale_parameters.map { |item| item.join('#') }.join(',')}"
+        end
+
         values
       end
 
@@ -293,11 +318,15 @@ module Ibex
 
         calls = []
         walk(sexp, nil, nil, calls, false)
-        calls.select { |call| registration_candidate?(call) }
+        calls.select { |call| registration_candidate?(relative, call) }
              .flat_map { |call| declarations_for_call(relative, call) }
       end
 
       def declarations_for_call(relative, call)
+        if call.fetch(:reflective, false)
+          api = call[:api] || "unresolved method"
+          raise "#{relative}:#{call.fetch(:line)} reflective OptionParser registration (#{api}) is prohibited"
+        end
         if call.fetch(:splat)
           raise "#{relative}:#{call.fetch(:line)} OptionParser #{call.fetch(:api)} splat is statically unresolved"
         end
@@ -353,8 +382,8 @@ module Ibex
           return
         end
 
-        call = registration_call(node)
-        if call && REGISTRATION_APIS.include?(call.fetch(:api))
+        call = reflective_registration_call(node) || registration_call(node)
+        if call && (call.fetch(:reflective, false) || REGISTRATION_APIS.include?(call.fetch(:api)))
           calls << call.merge(
             method: current_method, method_node: method_node, option_parser_scope: option_parser_scope
           )
@@ -375,6 +404,43 @@ module Ibex
         when :vcall
           build_call(node[1], nil, nil, true)
         end
+      end
+
+      def reflective_registration_call(node)
+        call = registration_call(node)
+        return unless call
+
+        return reflective_send_call(call) if %w[send public_send].include?(call.fetch(:api))
+        return unless call.fetch(:api) == "call"
+
+        reference = registration_call(call[:receiver])
+        return unless reference&.fetch(:api) == "method"
+
+        reflective_call(reference, call.fetch(:arguments), call.fetch(:splat))
+      end
+
+      def reflective_send_call(call)
+        selector = call.fetch(:arguments).first
+        api = static_reflective_name(selector)
+        return if api && !REGISTRATION_APIS.include?(api)
+
+        reflective_call(call, call.fetch(:arguments).drop(1), call.fetch(:splat), api: api)
+      end
+
+      def reflective_call(reference, arguments, splat, api: nil)
+        selector = reference.fetch(:arguments).first
+        api ||= static_reflective_name(selector)
+        return if api && !REGISTRATION_APIS.include?(api)
+
+        reference.merge(api: api, arguments: arguments, splat: splat || reference.fetch(:splat), reflective: true)
+      end
+
+      def static_reflective_name(node)
+        return render_string(node) if node&.first == :string_literal
+        return unless node&.first == :symbol_literal
+
+        token = node.dig(1, 1)
+        token[1] if token.is_a?(Array) && token.first.to_s.start_with?("@")
       end
 
       def call_target(target, arguments_node)
@@ -405,21 +471,12 @@ module Ibex
         []
       end
 
-      def registration_candidate?(call)
-        api = call.fetch(:api)
-        return true unless DEFINE_APIS.include?(api)
+      def registration_candidate?(relative, call)
         return true unless option_spellings(call.fetch(:arguments)).empty?
-        return false if known_non_option_define_receiver?(call[:receiver])
         return true if call.fetch(:option_parser_scope)
-        return true if call.fetch(:implicit) && (call.fetch(:splat) || !call.fetch(:arguments).empty?)
-        return true if call.fetch(:splat) || !call.fetch(:arguments).empty?
+        return true if call.fetch(:implicit) && SURFACES.key?([relative, call[:method]])
 
-        receiver = call[:receiver]
-        receiver_option_parser?(receiver, call[:method_node])
-      end
-
-      def known_non_option_define_receiver?(receiver)
-        %w[Data Ibex::Runtime::ASTData].include?(constant_path_name(receiver))
+        receiver_option_parser?(relative, call)
       end
 
       def constant_path_name(node)
@@ -437,15 +494,17 @@ module Ibex
         end
       end
 
-      def receiver_option_parser?(receiver, method_node)
+      def receiver_option_parser?(relative, call)
+        receiver = call[:receiver]
         return false unless receiver.is_a?(Array)
-        return true if contains_constant?(receiver, "OptionParser")
+        return true if option_parser_constructor?(receiver)
 
         name = receiver_identifier(receiver)
         return false unless name
-        return true if name.match?(/\A(?:options?|opts?|option_parser|parser)\z/)
+        return true if option_parser_locals(call[:method_node]).include?(name)
+        return true if option_parser_block_parameters(call[:method_node]).include?(name)
 
-        option_parser_locals(method_node).include?(name)
+        reviewed_option_parser_parameter?(relative, call, name)
       end
 
       def receiver_identifier(node)
@@ -454,15 +513,63 @@ module Ibex
         node.dig(1, 1)
       end
 
-      def option_parser_locals(node, found = [])
+      def option_parser_locals(node)
+        assignments = local_assignments(node)
+        found = assignments.filter_map { |name, value| name if option_parser_constructor?(value) }
+        loop do
+          aliases = assignments.filter_map do |name, value|
+            source = receiver_identifier(value)
+            name if source && found.include?(source)
+          end
+          expanded = (found + aliases).uniq
+          return expanded if expanded == found
+
+          found = expanded
+        end
+      end
+
+      def local_assignments(node, found = [])
         return found unless node.is_a?(Array)
 
-        if node.first == :assign && node.dig(1, 0) == :var_field && node.dig(1, 1, 0) == :@ident &&
-           contains_constant?(node[2], "OptionParser")
-          found << node.dig(1, 1, 1)
+        if node.first == :assign && node.dig(1, 0) == :var_field && node.dig(1, 1, 0) == :@ident
+          found << [node.dig(1, 1, 1), node[2]]
         end
-        node.each { |child| option_parser_locals(child, found) if child.is_a?(Array) }
+        node.each { |child| local_assignments(child, found) if child.is_a?(Array) }
         found
+      end
+
+      def option_parser_block_parameters(node, found = [])
+        return found unless node.is_a?(Array)
+
+        if node.first == :method_add_block && option_parser_constructor?(node[1])
+          params = node.dig(2, 1, 1)
+          found.concat(required_parameter_names(params))
+        end
+        node.each { |child| option_parser_block_parameters(child, found) if child.is_a?(Array) }
+        found
+      end
+
+      def required_parameter_names(node)
+        return [] unless node&.first == :params
+
+        Array(node[1]).filter_map { |token| token[1] if token&.first == :@ident }
+      end
+
+      def reviewed_option_parser_parameter?(relative, call, receiver_name)
+        positions = REVIEWED_OPTION_PARSER_PARAMETER_POSITIONS.fetch([relative, call[:method]], [])
+        parameters = call[:method_node]&.dig(2)
+        parameters = parameters[1] if parameters&.first == :paren
+        names = required_parameter_names(parameters)
+        positions.any? { |position| names[position] == receiver_name }
+      end
+
+      def option_parser_constructor?(node)
+        return false unless node.is_a?(Array)
+
+        node = node[1] if node.first == :method_add_arg
+        return false unless node&.first == :call && node.dig(3, 1) == "new"
+
+        constant_path_name(node[1]) == "OptionParser"
       end
 
       def contains_constant?(node, name)
