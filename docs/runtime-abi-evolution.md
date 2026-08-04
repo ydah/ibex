@@ -34,20 +34,32 @@ versions:
   runtime: "0.2.0"
   runtime_dependency: "~> 0.2.0"
 runtime_paths:
+  - .github/pull_request_template.md
+  - .github/workflows/main.yml
+  - Rakefile
+  - docs/runtime-abi-evolution.md
+  - docs/test-interactions.md
+  - tool/quality/runtime_abi.rb
+  - tool/quality/runtime_abi/**/*
+  - test/quality/runtime_abi*_test.rb
+  - test/support/runtime_abi_test_project.rb
+  - test/fixtures/runtime_abi/**/*
   - ibex.gemspec
   - ibex-runtime.gemspec
+  - lib/ibex/version.rb
   - lib/ibex/runtime.rb
   - lib/ibex/runtime/**/*
+  - lib/ibex/runtime/version.rb
   - lib/ibex/tables.rb
   - lib/ibex/tables/**/*
+  - sig/ibex/tables.rbs
   - sig/ibex/runtime.rbs
   - sig/ibex/runtime/**/*
   - sig/ibex/tables/**/*
-  - lib/ibex/codegen/action*.rb
-  - lib/ibex/codegen/generated_action_abi.rb
-  - lib/ibex/codegen/rbs.rb
-  - lib/ibex/codegen/ruby*.rb
-  - lib/ibex/codegen/cst_metadata.rb
+  - lib/ibex/codegen.rb
+  - lib/ibex/codegen/**/*
+  - sig/ibex/codegen.rbs
+  - sig/ibex/codegen/**/*
   - lib/ibex/frontend/generated_parser.rb
   - lib/ibex/ir.rb
   - lib/ibex/ir/**/*
@@ -58,12 +70,17 @@ runtime_paths:
   - schema/lexer-ir-v*.schema.json
   - schema/cst-v*.json
   - test/matrix.yml
+  - test/support/matrix_contract.rb
+  - test/support/matrix_runner.rb
+  - test/tooling/matrix_runner_test.rb
+  - tool/quality/golden.rb
+  - test/golden/**/*
 assessment:
   states: [compatible, breaking, not_applicable]
-  surfaces: [parser_table, grammar_ir, automaton_ir, lexer_ir, runtime_api, embedded_runtime, cst, test_matrix, none]
+  surfaces: [parser_table, grammar_ir, automaton_ir, lexer_ir, runtime_api, embedded_runtime, generation_metadata, cst, test_matrix, policy, none]
   abi_choices: [current_contract, new_table_format, new_ir_version, new_runtime_major, sidecar, none]
   regeneration: [required, not_required, not_applicable]
-  required_fields: [state, surfaces, abi_choice, regeneration, evidence]
+  required_fields: [state, surfaces, abi_choice, regeneration, rationale, affected_interactions, evidence, tests, verification]
 ```
 <!-- ibex-runtime-abi-contract:end -->
 
@@ -192,9 +209,29 @@ new table format requires regeneration. An IR-only or Ruby-runtime-API break
 must still make an explicit `required`/`not_required` regeneration decision;
 application migration can be required even when parser regeneration is not.
 `not_applicable` is accepted only when no declared runtime-facing path changed.
-Evidence entries are repository paths reviewed with the change. The validator
-checks structure and path existence, while reviewers remain responsible for
-judging the stated surface, compatibility reasoning, and adequacy of tests.
+Every changed runtime-facing path must appear in `evidence`; additional evidence
+must be a changed path or an existing regression test. `affected_interactions`
+uses ids from the test-interaction contract, and every listed interaction owns
+at least one path in `tests`. `verification` accepts only reviewed repository
+commands and must run the ABI gate plus the owned tests (or the full suite).
+The validator checks these relationships, while reviewers remain responsible
+for judging the rationale and whether all affected surfaces were identified.
+
+The structured choice table is closed:
+
+| `abi_choice` | Required state | Required surface | Regeneration |
+| --- | --- | --- | --- |
+| `current_contract` | `compatible` | one or more concrete surfaces | `required` or `not_required` must be decided |
+| `sidecar` | `compatible` | exactly `generation_metadata` | `not_required` |
+| `new_table_format` | `breaking` | includes `parser_table` | `required` |
+| `new_ir_version` | `breaking` | includes `grammar_ir`, `automaton_ir`, or `lexer_ir` | `required` or `not_required` must be decided |
+| `new_runtime_major` | `breaking` | includes `runtime_api` or `embedded_runtime` | `required` or `not_required` must be decided |
+| `none` | only a non-runtime change | `none` | `not_applicable` |
+
+Runtime-facing changes cannot use `none` or `not_applicable`. A rationale must
+be substantive rather than template text. Verification commands are parsed as
+arguments, not executed by the validator; shell composition, arbitrary
+commands, unowned test files, and evidence-only README links are rejected.
 
 Run `bundle exec rake quality:runtime_abi` locally. Pull-request CI also derives
 the changed path list from the event's exact base and head SHAs without GitHub

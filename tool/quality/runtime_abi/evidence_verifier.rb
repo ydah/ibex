@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "yaml"
+require_relative "reviewed_policy"
+
 module Ibex
   module Quality
     # Binds behavioral ABI policy statements to executable regression evidence.
@@ -25,6 +28,7 @@ module Ibex
           "test_embeds_the_lexer_without_changing_its_schema_version"
         )
         verify_runtime_evidence
+        verify_pull_request_template
       end
 
       private
@@ -52,6 +56,25 @@ module Ibex
         source = File.binread(File.join(@root, relative_path))
         missing = fragments.reject { |fragment| source.include?(fragment) }
         raise "#{relative_path} is missing ABI evidence: #{missing.join(', ')}" unless missing.empty?
+      end
+
+      def verify_pull_request_template
+        source = File.binread(File.join(@root, ".github/pull_request_template.md"))
+        start_marker = "<!-- ibex-runtime-abi-assessment:start -->"
+        end_marker = "<!-- ibex-runtime-abi-assessment:end -->"
+        unless source.scan(start_marker).length == 1 && source.scan(end_marker).length == 1
+          raise "pull request template must contain one complete ABI assessment"
+        end
+
+        pattern = /#{Regexp.escape(start_marker)}\s*```yaml\s*\n(.*?)```\s*#{Regexp.escape(end_marker)}/m
+        matches = source.scan(pattern)
+        raise "pull request template must contain one ABI assessment" unless matches.length == 1
+
+        value = YAML.safe_load(matches.fetch(0).fetch(0), permitted_classes: [], aliases: false)
+        required = RuntimeABIReviewedPolicy::ASSESSMENT.fetch("required_fields")
+        raise "pull request template ABI fields are stale" unless value.is_a?(Hash) && value.keys.sort == required.sort
+      rescue Psych::Exception => e
+        raise "pull request template ABI assessment is invalid YAML: #{e.message}"
       end
     end
   end

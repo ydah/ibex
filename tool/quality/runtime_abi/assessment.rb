@@ -2,7 +2,9 @@
 
 require "json"
 require "open3"
+require "pathname"
 require "yaml"
+require_relative "assessment_fields"
 
 module Ibex
   module Quality
@@ -12,9 +14,10 @@ module Ibex
       FINISH = "<!-- ibex-runtime-abi-assessment:end -->"
       SHA = /\A[0-9a-f]{40,64}\z/
 
-      def initialize(root:, contract:, event_path:, event_name:, changed_paths:)
+      def initialize(root:, contract:, test_contract:, event_path:, event_name:, changed_paths:)
         @root = File.expand_path(root)
         @contract = contract
+        @test_contract = test_contract
         @event_path = event_path
         @event_name = event_name
         @changed_paths = changed_paths
@@ -31,7 +34,10 @@ module Ibex
 
         body = event.dig("pull_request", "body")
         assessment = parse_assessment(body)
-        verify_assessment(assessment, runtime_paths)
+        RuntimeABIAssessmentFields.new(
+          root: @root, contract: @contract, test_contract: @test_contract,
+          changed_paths: paths, runtime_paths: runtime_paths
+        ).verify!(assessment)
       end
 
       private
@@ -65,24 +71,41 @@ module Ibex
         end
 
         stdout, stderr, status = Open3.capture3(
-          "git", "diff", "--name-only", "--no-renames", "#{base}...#{head}", chdir: @root
+          "git", "diff", "--name-only", "-z", "--no-renames", "#{base}...#{head}", chdir: @root
         )
         raise "cannot derive pull-request changed paths: #{stderr.strip}" unless status.success?
 
-        validate_paths(stdout.lines(chomp: true))
+        validate_paths(nul_paths(stdout))
       end
 
       def validate_paths(paths)
-        unless paths.is_a?(Array) && paths.all? { |path| valid_relative_path?(path) }
-          raise "changed paths must be normalized repository-relative strings"
-        end
+        raise "changed paths must be normalized repository-relative strings" unless paths.is_a?(Array)
 
-        paths.uniq.sort
+        normalized = paths.map { |path| normalized_relative_path(path) }
+        raise "changed paths must be unique" unless normalized.uniq.length == normalized.length
+
+        normalized.sort
       end
 
-      def valid_relative_path?(path)
-        path.is_a?(String) && !path.empty? && !path.start_with?("/", "../") &&
-          !path.include?("/../") && !path.include?("\0")
+      def nul_paths(output)
+        bytes = output.b
+        return [] if bytes.empty?
+        raise "git diff path output is not NUL terminated" unless bytes.end_with?("\0")
+
+        bytes.byteslice(0, bytes.bytesize - 1).split("\0", -1)
+      end
+
+      def normalized_relative_path(path)
+        raise "changed path must be a String" unless path.is_a?(String)
+
+        value = path.b.dup.force_encoding(Encoding::UTF_8)
+        unless value.valid_encoding? && !value.empty? && !value.include?("\0") && !value.start_with?("/") &&
+               value.split("/", -1).none? { |part| part.empty? || %w[. ..].include?(part) } &&
+               Pathname.new(value).cleanpath.to_s == value
+          raise "changed paths must be normalized repository-relative UTF-8 strings"
+        end
+
+        value
       end
 
       def runtime_facing?(changed_path)
@@ -93,6 +116,9 @@ module Ibex
 
       def parse_assessment(body)
         raise "runtime-facing changes require a structured ABI assessment" unless body.is_a?(String)
+        unless body.scan(START).length == 1 && body.scan(FINISH).length == 1
+          raise "runtime-facing changes require exactly one complete structured ABI assessment"
+        end
 
         pattern = /#{Regexp.escape(START)}\s*```yaml\s*\n(.*?)```\s*#{Regexp.escape(FINISH)}/m
         matches = body.scan(pattern)
@@ -104,73 +130,6 @@ module Ibex
         value
       rescue Psych::Exception => e
         raise "runtime ABI assessment is invalid YAML: #{e.message}"
-      end
-
-      def verify_assessment(value, _runtime_paths)
-        policy = @contract.fetch("assessment")
-        required = policy.fetch("required_fields")
-        unless value.keys.sort == required.sort
-          raise "runtime ABI assessment fields must be #{required.sort.join(', ')}"
-        end
-
-        state = vocabulary!(value, "state", policy.fetch("states"))
-        choice = vocabulary!(value, "abi_choice", policy.fetch("abi_choices"))
-        regeneration = vocabulary!(value, "regeneration", policy.fetch("regeneration"))
-        surfaces = array_vocabulary!(value, "surfaces", policy.fetch("surfaces"))
-        evidence = evidence_paths!(value.fetch("evidence"))
-
-        raise "runtime-facing changes cannot use state not_applicable" if state == "not_applicable"
-        raise "runtime-facing changes must declare a concrete surface" if surfaces.include?("none")
-        raise "runtime-facing changes must declare evidence paths" if evidence.empty?
-
-        verify_choice(state, choice, regeneration)
-      end
-
-      def vocabulary!(value, field, allowed)
-        actual = value.fetch(field)
-        raise "runtime ABI assessment #{field} must be one of #{allowed.join(', ')}" unless allowed.include?(actual)
-
-        actual
-      end
-
-      def array_vocabulary!(value, field, allowed)
-        actual = value.fetch(field)
-        unless actual.is_a?(Array) && !actual.empty? && actual.uniq.length == actual.length && (actual - allowed).empty?
-          raise "runtime ABI assessment #{field} must be a non-empty unique subset of #{allowed.join(', ')}"
-        end
-
-        actual
-      end
-
-      def evidence_paths!(values)
-        unless values.is_a?(Array) && values.all? { |path| valid_relative_path?(path) }
-          raise "runtime ABI assessment evidence must contain repository-relative paths"
-        end
-
-        missing = values.reject { |path| File.file?(File.join(@root, path)) }
-        raise "runtime ABI assessment evidence paths are missing: #{missing.join(', ')}" unless missing.empty?
-
-        values
-      end
-
-      def verify_choice(state, choice, regeneration)
-        if state == "compatible"
-          unless %w[current_contract sidecar].include?(choice)
-            raise "compatible assessment must choose current_contract or sidecar"
-          end
-
-          raise "compatible assessment must decide regeneration" if regeneration == "not_applicable"
-
-          return
-        end
-
-        unless %w[new_table_format new_ir_version new_runtime_major].include?(choice)
-          raise "breaking assessment must choose a new table, IR, or runtime-major contract"
-        end
-        if choice == "new_table_format" && regeneration != "required"
-          raise "a new parser-table format requires regeneration"
-        end
-        raise "breaking assessment must decide regeneration" if regeneration == "not_applicable"
       end
     end
   end

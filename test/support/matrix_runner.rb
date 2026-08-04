@@ -2,12 +2,14 @@
 
 require "yaml"
 require_relative "../../lib/ibex"
+require_relative "matrix_contract"
 
 module Ibex
   module TestSupport
     # Runs the declared parser pipeline combinations and reports invariant ids.
     class MatrixRunner
-      AXIS_ORDER = %w[algorithm table cst locations entries].freeze
+      AXIS_ORDER = MatrixContract::AXIS_ORDER
+      AXIS_VALUES = MatrixContract::AXIS_VALUES
       INVARIANTS = %w[INV1 INV2 INV3 INV4 INV5 INV6].freeze
       def initialize(path: File.expand_path("../matrix.yml", __dir__), output: $stdout)
         @configuration = YAML.safe_load_file(path)
@@ -32,6 +34,7 @@ module Ibex
 
       def declared_combinations
         axes = @configuration.fetch("axes")
+        MatrixContract.validate_axes!(axes)
         values = AXIS_ORDER.map { |axis| axes.fetch(axis) }
         values.shift.product(*values).map { |row| AXIS_ORDER.zip(row).to_h.freeze }.freeze
       end

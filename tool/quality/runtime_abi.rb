@@ -19,10 +19,10 @@ module Ibex
       end
 
       def verify!
-        contract = RuntimeABIContractVerifier.new(root: @root).verify!
+        contracts = RuntimeABIContractVerifier.new(root: @root).verify!
         RuntimeABIAssessment.new(
-          root: @root, contract: contract, event_path: @event_path,
-          event_name: @event_name, changed_paths: @changed_paths
+          root: @root, contract: contracts.abi_contract, test_contract: contracts.test_contract,
+          event_path: @event_path, event_name: @event_name, changed_paths: @changed_paths
         ).verify!
       end
     end

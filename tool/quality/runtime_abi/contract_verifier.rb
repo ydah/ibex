@@ -3,6 +3,7 @@
 require "yaml"
 require_relative "document"
 require_relative "evidence_verifier"
+require_relative "reviewed_policy"
 require_relative "test_contract_verifier"
 
 module Ibex
@@ -11,30 +12,23 @@ module Ibex
     class RuntimeABIContractVerifier
       include RuntimeABIDocument
 
+      attr_reader :abi_contract, :test_contract
+
       ABI_KEYS = %w[assessment contract_version ir parser_tables runtime_paths versions].freeze
       IR_KEYS = %w[automaton grammar lexer].freeze
       VERSION_FIELDS = %w[current_writer readable migrations preserve_loaded_version].freeze
       LEXER_FIELDS = %w[current_writer embedded_in_grammar migrations readable standalone].freeze
-      ASSESSMENT = {
-        "states" => %w[compatible breaking not_applicable],
-        "surfaces" => %w[
-          parser_table grammar_ir automaton_ir lexer_ir runtime_api embedded_runtime cst test_matrix none
-        ],
-        "abi_choices" => %w[current_contract new_table_format new_ir_version new_runtime_major sidecar none],
-        "regeneration" => %w[required not_required not_applicable],
-        "required_fields" => %w[state surfaces abi_choice regeneration evidence]
-      }.freeze
 
       def initialize(root:)
         @root = File.expand_path(root)
       end
 
       def verify!
-        abi = load_contract(path("docs/runtime-abi-evolution.md"), "runtime-abi")
-        tests = load_contract(path("docs/test-interactions.md"), "test-interaction")
-        verify_abi(abi)
-        RuntimeABITestContractVerifier.new(root: @root, contract: tests).verify!
-        abi
+        @abi_contract = load_contract(path("docs/runtime-abi-evolution.md"), "runtime-abi")
+        @test_contract = load_contract(path("docs/test-interactions.md"), "test-interaction")
+        verify_abi(@abi_contract)
+        RuntimeABITestContractVerifier.new(root: @root, contract: @test_contract).verify!
+        self
       end
 
       private
@@ -47,7 +41,9 @@ module Ibex
         verify_tables(contract.fetch("parser_tables"))
         verify_versions(contract.fetch("versions"))
         verify_paths(contract.fetch("runtime_paths"))
-        raise "runtime ABI assessment vocabulary is stale" unless contract.fetch("assessment") == ASSESSMENT
+        unless contract.fetch("assessment") == RuntimeABIReviewedPolicy::ASSESSMENT
+          raise "runtime ABI assessment vocabulary is stale"
+        end
 
         RuntimeABIEvidenceVerifier.new(root: @root).verify!
       end
@@ -118,6 +114,9 @@ module Ibex
           raise "runtime_paths must be a non-empty string list"
         end
         raise "runtime_paths must be unique" unless paths.uniq.length == paths.length
+
+        missing = RuntimeABIReviewedPolicy::REQUIRED_RUNTIME_PATHS - paths
+        raise "runtime_paths cannot omit required protections: #{missing.join(', ')}" unless missing.empty?
       end
 
       def verify_schemas(kind, versions)

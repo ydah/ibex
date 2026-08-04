@@ -14,7 +14,11 @@ state: not_applicable
 surfaces: [none]
 abi_choice: none
 regeneration: not_applicable
+rationale: Replace this placeholder with the compatibility reasoning.
+affected_interactions: []
 evidence: []
+tests: []
+verification: []
 ```
 <!-- ibex-runtime-abi-assessment:end -->
 

@@ -2,6 +2,7 @@
 
 require "yaml"
 require_relative "document"
+require_relative "reviewed_test_contract"
 
 module Ibex
   module Quality
@@ -9,12 +10,6 @@ module Ibex
     class RuntimeABITestContractVerifier
       include RuntimeABIDocument
 
-      AXES = %w[algorithm table cst locations entries].freeze
-      INTERACTIONS = %w[
-        parser_semantics generated_lexer semantic_actions table_encoding locations cst entry_modes
-        parser_drivers generated_ast recovery resource_limits observation incremental_cst embedded_runtime
-      ].freeze
-      COVERAGE = %w[matrix matrix_and_focused focused_regression].freeze
       LONG_GATES = %w[test:matrix:full test:adversarial fuzz:long].freeze
 
       def initialize(root:, contract:)
@@ -39,7 +34,9 @@ module Ibex
         declared = YAML.safe_load_file(path("test/matrix.yml"), permitted_classes: [], aliases: false)
         matrix = @contract.fetch("matrix")
         exact_keys!(matrix, %w[axes expected_cases representative_cases roles], "test interaction matrix")
-        raise "matrix axes are stale or missing" unless matrix.fetch("axes") == declared.fetch("axes")
+        expected_axes = RuntimeABIReviewedTestContract::AXES
+        raise "documented matrix axes are stale or missing" unless matrix.fetch("axes") == expected_axes
+        raise "test/matrix.yml axes are stale or invalid" unless declared.fetch("axes") == expected_axes
 
         product = matrix.fetch("axes").values.map(&:length).inject(1, :*)
         expected = matrix.fetch("expected_cases")
@@ -58,25 +55,18 @@ module Ibex
         interactions = @contract.fetch("interactions")
         raise "interactions must be a non-empty list" unless interactions.is_a?(Array) && !interactions.empty?
 
-        ids = interactions.map { |entry| entry.fetch("id") }
-        raise "interaction inventory is stale or incomplete" unless ids.sort == INTERACTIONS.sort
-        raise "interaction ids must be unique" unless ids.uniq.length == ids.length
-
-        interactions.each { |entry| verify_interaction(entry) }
-      rescue KeyError => e
-        raise "interaction is missing a required field: #{e.message}"
-      end
-
-      def verify_interaction(entry)
-        exact_keys!(entry, %w[axes coverage id tests], "interaction #{entry['id']}")
-        axes = entry.fetch("axes")
-        unless axes.is_a?(Array) && !axes.empty? && (axes - AXES).empty? && axes.uniq.length == axes.length
-          raise "interaction #{entry.fetch('id')} has invalid or missing axes"
+        actual = interactions.to_h do |entry|
+          exact_keys!(entry, %w[axes coverage id tests], "interaction #{entry['id']}")
+          [entry.fetch("id"), entry.values_at("axes", "coverage", "tests")]
+        end
+        raise "interaction ids must be unique" unless actual.length == interactions.length
+        unless actual == RuntimeABIReviewedTestContract::INTERACTIONS
+          raise "interaction inventory, axes, coverage, or ownership is stale"
         end
 
-        raise "interaction #{entry.fetch('id')} has invalid coverage" unless COVERAGE.include?(entry.fetch("coverage"))
-
-        verify_test_paths(entry)
+        interactions.each { |entry| verify_test_paths(entry) }
+      rescue KeyError => e
+        raise "interaction is missing a required field: #{e.message}"
       end
 
       def verify_test_paths(entry)
@@ -93,15 +83,56 @@ module Ibex
         gates = @contract.fetch("scheduled_long_gates")
         raise "scheduled long gates are stale" unless gates == LONG_GATES
 
-        workflow = File.binread(path(".github/workflows/main.yml"))
-        raise "CI schedule is missing" unless workflow.match?(/^\s+schedule:\s*$/)
+        workflow = YAML.safe_load_file(path(".github/workflows/main.yml"), permitted_classes: [], aliases: false)
+        triggers = workflow.fetch(true)
+        raise "CI schedule is missing" unless triggers.is_a?(Hash) && triggers.key?("schedule")
 
-        LONG_GATES.each do |gate|
-          command = "bundle exec rake #{gate}"
-          raise "scheduled CI is missing #{command}" unless workflow.include?(command)
+        steps = workflow.dig("jobs", "stage-a-safety", "steps")
+        raise "stage-a-safety steps are missing" unless steps.is_a?(Array)
+
+        verify_normal_step(steps)
+        verify_scheduled_step(steps)
+        verify_enforcement_step(workflow)
+      end
+
+      def verify_normal_step(steps)
+        step = named_step(steps, "Verify deterministic safety gates")
+        commands = run_commands(step)
+        %w[test:matrix test:zero_cost].each do |task|
+          raise "normal CI is missing bundle exec rake #{task}" unless commands.include?("bundle exec rake #{task}")
         end
-        raise "normal CI is missing representative matrix" unless workflow.include?("bundle exec rake test:matrix\n")
-        raise "normal CI is missing zero-cost golden" unless workflow.include?("bundle exec rake test:zero_cost")
+      end
+
+      def verify_scheduled_step(steps)
+        step = named_step(steps, "Run scheduled exhaustive gates")
+        expected_condition = "github.event_name == 'schedule'"
+        raise "scheduled gate condition is stale" unless step.fetch("if") == expected_condition
+
+        expected = LONG_GATES.map { |task| "bundle exec rake #{task}" }
+        raise "scheduled gate commands are stale" unless run_commands(step) == expected
+      end
+
+      def verify_enforcement_step(workflow)
+        steps = workflow.dig("jobs", "v1-contracts", "steps")
+        raise "v1-contracts steps are missing" unless steps.is_a?(Array)
+
+        step = named_step(steps, "Verify maturity, documentation, and localization contracts")
+        command = "bundle exec rake quality:runtime_abi"
+        raise "v1-contracts CI is missing #{command}" unless run_commands(step).include?(command)
+      end
+
+      def named_step(steps, name)
+        matches = steps.select { |step| step["name"] == name }
+        raise "CI must contain exactly one #{name.inspect} step" unless matches.length == 1
+
+        matches.fetch(0)
+      end
+
+      def run_commands(step)
+        run = step.fetch("run")
+        raise "CI step run must be a String" unless run.is_a?(String)
+
+        run.lines.map(&:strip).reject(&:empty?)
       end
 
       def verify_golden
@@ -116,6 +147,8 @@ module Ibex
         raise "golden digest index is missing" unless File.file?(path(golden.fetch("digest_path")))
 
         rakefile = File.binread(path("Rakefile"))
+        raise "Rakefile is missing quality:runtime_abi" unless rakefile.match?(/task :runtime_abi\b/)
+
         %w[test:zero_cost golden:update].each do |task|
           name = task.split(":").last
           raise "Rakefile is missing #{task}" unless rakefile.match?(/task :#{Regexp.escape(name)}\b/)
