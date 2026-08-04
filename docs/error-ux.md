@@ -15,8 +15,11 @@ equality.
 ## Independent review gate
 
 The fixed observations include a maintainer repair assessment. They do not
-include an independent diagnostic or repair assessment. R001 therefore remains
-[`HOLD / awaiting_independent_review`](error-ux-review-status-v1.json).
+include an independent diagnostic or repair assessment.
+
+<!-- r001-review-status:start -->
+R001: `HOLD` — [`awaiting_independent_review`](error-ux-review-status-v1.json).
+<!-- r001-review-status:end -->
 
 Third-party reviewers use the versioned
 [`rubric`](error-ux-review-rubric-v1.md) and closed
@@ -28,12 +31,20 @@ bundle exec rake quality:error_ux_review_status
 bundle exec ruby tool/error_ux_review.rb template review.json
 ```
 
-The first command verifies the immutable snapshot, corpus identities, schema,
-rubric, imported-record registry, and truthful status while allowing the
-expected HOLD in ordinary CI. `bundle exec rake release:error_ux_review` is the
-separate promotion gate and returns nonzero until a valid published external
-record exists. The review record preserves independent labels, rationales, and
-disagreements without changing the normative observation fixture.
+The generated payload contains the reviewer identity, reviewed maintainer
+roster, structured consent, labels, rationales, and disagreements, but no
+permalink. Publication metadata is kept separately in the status registry so a
+reviewer can commit the final payload without a self-referential SHA. The first
+command verifies the immutable snapshot, corpus identities, schema, local
+byte/digest bindings, reports, claims, and truthful status entirely offline
+while allowing the expected HOLD in ordinary CI.
+
+`bundle exec rake release:error_ux_review` is the separate promotion gate and
+returns nonzero until a valid published external payload exists. When PASS is
+claimed, it additionally fetches the full-SHA blob without redirects, compares
+the exact imported bytes, and requires the GitHub commit API author, status
+publisher login, and reviewer login to agree. Network or identity uncertainty
+fails closed. Neither path changes the normative observation fixture.
 
 ## Comparison method
 

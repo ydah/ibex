@@ -8,10 +8,13 @@
     "version": 1,
     "repository_url": "https://github.com/ydah/ibex",
     "rubric_path": "docs/error-ux-review-rubric-v1.md",
-    "rubric_sha256": "0dd4fc9388c958d2ee7e23b6085942a3f49a6cb8e9065c32511e9bef938c2735",
+    "rubric_sha256": "7b1b43bee5d3cce7ef79d19d2b7fd65ab2b57ecc4f4947bbe5461086fcf1ee80",
     "schema_path": "schema/error-ux-review-v1.schema.json",
-    "schema_sha256": "8f7e052ea9bb5f3083a714dd180d71ea673b0cc257127580170ba608d4d0deca",
+    "schema_sha256": "2266ea1963215b986a762fa01832ba2d57a553b2d80323f0da7216c9fc5ad08c",
     "records_directory": "docs/error-ux-reviews/v1/records",
+    "maintainer_github_logins": [
+      "ydah"
+    ],
     "snapshot": {
       "path": "test/fixtures/error_ux/json-errors-v1.json",
       "introduced_at_revision": "cc20c5eb799cc218ebea665df64261f10d030f75",

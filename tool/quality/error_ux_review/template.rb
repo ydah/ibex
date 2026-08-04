@@ -33,7 +33,8 @@ module Ibex
           "evidence" => evidence(revision),
           "reproduction" => reproduction,
           "reviewer" => reviewer,
-          "publication" => publication,
+          "independence" => independence,
+          "consent" => consent,
           "assessments" => CASE_IDS.map { |id| assessment(id) },
           "overall_rationale" => "REPLACE_WITH_OVERALL_RATIONALE"
         }
@@ -50,10 +51,12 @@ module Ibex
 
       def ensure_clean_tracked_checkout!
         output, error, status = Open3.capture3(
-          "git", "-C", @root, "status", "--porcelain=v1", "--untracked-files=no"
+          "git", "-C", @root, "status", "--porcelain=v1"
         )
         raise "cannot inspect repository status: #{error.strip}" unless status.success?
-        raise "tracked source changes must be committed before generating a review draft" unless output.empty?
+        return if output.empty?
+
+        raise "tracked or untracked source changes must be committed before generating a review draft"
       end
 
       def kit_identity
@@ -120,19 +123,26 @@ module Ibex
 
       def reviewer
         {
-          "identity" => "REPLACE_WITH_REVIEWER_IDENTITY",
+          "github_login" => "REPLACE_WITH_CANONICAL_GITHUB_LOGIN",
+          "display_name" => "REPLACE_WITH_REVIEWER_DISPLAY_NAME",
           "affiliation" => "REPLACE_WITH_REVIEWER_AFFILIATION",
-          "is_project_maintainer" => false,
           "reviewed_on" => "REPLACE_WITH_YYYY-MM-DD",
           "conflicts" => "REPLACE_WITH_CONFLICT_DISCLOSURE"
         }
       end
 
-      def publication
+      def independence
         {
-          "permalink" => "REPLACE_WITH_IMMUTABLE_GITHUB_PERMALINK",
-          "consent" => false,
-          "consent_statement" => "REPLACE_WITH_EXPLICIT_PUBLICATION_CONSENT"
+          "reviewed_maintainer_github_logins" => @kit.fetch("maintainer_github_logins")
+        }
+      end
+
+      def consent
+        {
+          "store_identity" => false,
+          "store_labels" => false,
+          "store_rationales" => false,
+          "republish_review" => false
         }
       end
 

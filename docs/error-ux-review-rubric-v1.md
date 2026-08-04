@@ -14,9 +14,12 @@ The current gate state and immutable kit identity are published in
 
 ## Reviewer qualification
 
-The reviewer must not be an Ibex maintainer and must disclose an identity,
-affiliation, and relevant conflicts of interest. The review must be their own
-assessment rather than a maintainer filling out the form on their behalf. A
+The reviewer must provide their canonical GitHub login, display name,
+affiliation, and relevant conflicts of interest. They must compare that login,
+case-insensitively, with the complete maintainer roster embedded in the kit;
+the v1 roster includes `ydah`. A rostered maintainer cannot satisfy the gate.
+An `@login`, profile URL, display-name alias, or maintainer-selected substitute
+is not an identity. The review must be the reviewer's own assessment. A
 maintainer may answer reproduction questions but must not choose labels or
 rewrite rationales.
 
@@ -65,24 +68,41 @@ rationale.
    `assessment` fields in the normative snapshot. Record every disagreement,
    including disagreement with a diagnostic observation. A disagreement is
    retained in the review record; it is not resolved by editing the snapshot.
-5. Set a stable record ID, reviewer identity, affiliation, ISO 8601 review date,
-   and conflict disclosure. Set `record_state` to `published` only after the
-   assessment is final.
-6. Publish the complete assessment and consent in a durable public location.
-   Supported immutable permalinks are a GitHub commit URL or a GitHub blob URL
-   containing a full 40-hex commit. Branch links, issue comments, and
-   pull-request comments are editable and are not accepted as immutable. Set
-   publication consent to `true` and state explicitly that the identity,
-   rationales, and labels may be stored and republished by the Ibex project.
-7. Submit the published JSON and its permalink to the maintainers. Maintainers
-   copy it byte-for-byte into `docs/error-ux-reviews/v1/records/`, register its
-   path and SHA-256 in the status file, and run the kit and release gates. They
-   may reject a malformed record but must not rewrite a reviewer's labels,
-   rationales, or disagreement statements.
+5. Set a stable record ID, canonical reviewer GitHub login, display name,
+   affiliation, ISO 8601 review date, and conflict disclosure. Confirm the
+   exact reviewed maintainer roster. Set all four structured consent fields—
+   storage of identity, labels, and rationales, plus republication of the
+   review—to `true`. Set `record_state` to `published` only after the assessment
+   is final.
+6. Publish that final payload JSON unchanged in a reviewer-controlled GitHub
+   repository. The payload deliberately contains no URL or publication
+   metadata, so its bytes can be committed without a self-referential commit
+   hash. Send the canonical
+   `https://github.com/<owner>/<repo>/blob/<40-hex-sha>/<nonempty-path>` URL to
+   the maintainers. Branches, tags, commit-only URLs, issue or pull-request
+   comments, releases, query strings, fragments, encoded traversal, and
+   abbreviated revisions are not accepted.
+7. Maintainers fetch the immutable blob and copy its bytes without any
+   normalization into `docs/error-ux-reviews/v1/records/`. The separate status
+   entry records its local path and SHA-256, canonical blob URL, derived raw URL
+   and source identity, publisher login, and an import-vetting attestation. The
+   release gate fetches those bytes again without redirects and uses GitHub's
+   primary commit API to require that the publication author and reviewer's
+   canonical login match. Network, authentication, redirect, byte, digest, or
+   identity uncertainty fails closed. Maintainers may reject a malformed record
+   but must not rewrite labels, rationales, or disagreement statements.
 
 The generated file is intentionally a `draft`. A draft, a self-review, an
-unpublished file, a mutable branch link, missing consent, placeholder text, or
-an incomplete assessment cannot satisfy R001.
+unpublished or locally reconstructed payload, a mutable or noncanonical link,
+missing structured consent, placeholder text, or an incomplete assessment
+cannot satisfy R001.
+
+The import-vetting attestation records who checked the source bytes and identity;
+it is not cryptographic proof of human independence, coercion resistance, or
+the truth of an affiliation/conflict disclosure. Public account identity,
+immutable source bytes, maintainer-roster exclusion, and reviewer-authored
+publication are machine checked; the remaining human claims stay explicit
+limitations.
 
 ## Interpretation
 

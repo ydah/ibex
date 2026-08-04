@@ -2,7 +2,10 @@
 
 require "json_schemer"
 require_relative "../error_ux_snapshot"
+require_relative "comparative_claims"
+require_relative "error_ux_review/bindings"
 require_relative "error_ux_review/identity"
+require_relative "error_ux_review/publication"
 require_relative "error_ux_review/record_validator"
 require_relative "error_ux_review/template"
 
@@ -16,9 +19,12 @@ module Ibex
       STATUS = "docs/error-ux-review-status-v1.json"
       SNAPSHOT_SCHEMA = "schema/error-ux-v1.schema.json"
 
-      def initialize(root: ROOT, status: STATUS)
+      def initialize(root: ROOT, status: STATUS, fetcher: ErrorUXReviewStrictFetcher.new,
+                     snapshot_checker: -> { ErrorUXSnapshot.verify? })
         @root = File.expand_path(root)
         @status_path = ErrorUXReviewIdentity.repository_path(@root, status, "review status")
+        @fetcher = fetcher
+        @snapshot_checker = snapshot_checker
       end
 
       def verify_kit!
@@ -27,6 +33,7 @@ module Ibex
         verify_assets!(document.fetch("kit"))
         records = verify_records!(document.fetch("kit"), document.fetch("records"))
         verify_gate_state!(document, records)
+        @records = records
         @document = document
         document
       end
@@ -38,9 +45,16 @@ module Ibex
 
       def release_gate!
         verify_kit! unless @document
-        return current_status_line if @document.fetch("status") == "PASS"
+        unless @document.fetch("status") == "PASS"
+          raise "#{current_status_line}; a valid published external record is required for release promotion"
+        end
 
-        raise "#{current_status_line}; a valid published external record is required for release promotion"
+        ComparativeClaims.new(root: @root).verify!
+        verifier = ErrorUXReviewRemoteVerifier.new(fetcher: @fetcher)
+        @records.each do |item|
+          verifier.verify!(item.fetch(:registration), item.fetch(:bytes), item.fetch(:record))
+        end
+        current_status_line
       end
 
       def write_template!(path)
@@ -70,19 +84,27 @@ module Ibex
       def verify_kit_contract!(kit)
         keys = %w[
           id version repository_url rubric_path rubric_sha256 schema_path schema_sha256 records_directory
-          snapshot corpus_at_introduction
+          maintainer_github_logins snapshot corpus_at_introduction
         ]
         ErrorUXReviewIdentity.exact_keys!(kit, keys, "review kit")
         raise "review kit ID is invalid" unless kit.fetch("id") == "ibex-error-ux-independent-review"
         raise "review kit version must be 1" unless kit.fetch("version") == 1
         raise "review repository URL is invalid" unless kit.fetch("repository_url") == "https://github.com/ydah/ibex"
 
+        verify_maintainer_roster!(kit.fetch("maintainer_github_logins"))
         verify_snapshot_contract!(kit.fetch("snapshot"))
         ErrorUXReviewIdentity.exact_keys!(
           kit.fetch("corpus_at_introduction"),
           %w[ibex_grammar ibex_grammar_sha256 racc_grammar racc_grammar_sha256],
           "review corpus identity"
         )
+      end
+
+      def verify_maintainer_roster!(roster)
+        valid = roster.is_a?(Array) && roster == roster.sort && roster.uniq == roster
+        valid &&= roster.all? { |login| login.is_a?(String) && login.match?(ErrorUXReviewPublication::LOGIN) }
+        raise "maintainer GitHub login roster must be canonical, ordered, and unique" unless valid
+        raise "maintainer GitHub login roster must include ydah" unless roster.any? { |login| login.casecmp?("ydah") }
       end
 
       def verify_snapshot_contract!(snapshot)
@@ -122,7 +144,7 @@ module Ibex
         raise "review snapshot case IDs changed" unless ids == snapshot.fetch("case_ids")
 
         verify_introduction_identity!(kit)
-        raise "review snapshot regeneration is stale" unless ErrorUXSnapshot.verify?
+        raise "review snapshot regeneration is stale" unless @snapshot_checker.call
       end
 
       def verify_introduction_identity!(kit)
@@ -140,10 +162,7 @@ module Ibex
       end
 
       def verify_records!(kit, registry)
-        paths = registry.map do |entry|
-          ErrorUXReviewIdentity.exact_keys!(entry, %w[path sha256], "review record registration")
-          entry.fetch("path")
-        end
+        paths = registry.map { |entry| entry.fetch("record_path") }
         raise "review record registrations must be ordered and unique" unless paths == paths.sort && paths.uniq == paths
 
         directory = ErrorUXReviewIdentity.repository_path(@root, kit.fetch("records_directory"), "records directory")
@@ -151,22 +170,24 @@ module Ibex
         raise "registered review paths do not match imported JSON files" unless actual == paths
 
         validator = ErrorUXReviewRecordValidator.new(root: @root, kit: kit, schema: @record_schema)
+        publication = ErrorUXReviewPublication.new(root: @root, kit: kit)
         registry.map do |entry|
-          verify_registered_record!(entry, validator)
+          verify_registered_record!(entry, validator, publication)
         end
       end
 
-      def verify_registered_record!(entry, validator)
-        path = ErrorUXReviewIdentity.repository_path(@root, entry.fetch("path"), "review record")
+      def verify_registered_record!(entry, validator, publication)
+        relative = entry.fetch("record_path")
+        path = ErrorUXReviewIdentity.repository_path(@root, relative, "review record")
         expected = entry.fetch("sha256")
-        raise "#{entry.fetch('path')}: registered digest must be SHA-256" unless expected.match?(SHA256)
-        unless ErrorUXReviewIdentity.file_digest(path) == expected
-          raise "#{entry.fetch('path')}: registered digest mismatch"
-        end
+        raise "#{relative}: registered digest must be SHA-256" unless expected.match?(SHA256)
+        raise "#{relative}: registered digest mismatch" unless ErrorUXReviewIdentity.file_digest(path) == expected
 
-        record = ErrorUXReviewIdentity.parse_json(path, entry.fetch("path"))
-        validator.verify!(record, path: entry.fetch("path"))
-        record
+        bytes = File.binread(path)
+        record = ErrorUXReviewIdentity.parse_json(path, relative)
+        validator.verify!(record, path: relative)
+        publication.verify!(entry, record)
+        { registration: entry, record: record, bytes: bytes }
       end
 
       def verify_gate_state!(document, records)
@@ -174,7 +195,9 @@ module Ibex
         actual = document.values_at("status", "reason")
         raise "R001 status must be #{expected.join('/')} for the registered review records" unless actual == expected
 
-        ErrorUXReviewIdentity.verify_claim_state!(@root, document.fetch("status"))
+        ErrorUXReviewBindings.verify_claim_state!(@root, document.fetch("status"), document.fetch("records"))
+        ErrorUXReviewBindings.verify_report_bindings!(@root, document.fetch("status"), document.fetch("records"))
+        ComparativeClaims.new(root: @root).verify! if document.fetch("status") == "PASS"
       end
 
       def verify_file_digest!(relative, expected, label)
