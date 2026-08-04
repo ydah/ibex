@@ -27,7 +27,7 @@ module Ibex
       private_class_method :diverse_prose?
 
       def self.placeholder?(text)
-        compact = text.gsub(/[\p{Z}\p{P}]/u, "")
+        compact = text.gsub(/[^\p{L}\p{N}]/u, "")
         PLACEHOLDERS.any? { |placeholder| compact.include?(placeholder) }
       end
       private_class_method :placeholder?

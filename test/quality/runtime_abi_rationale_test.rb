@@ -21,6 +21,12 @@ class RuntimeABIRationaleTest < Minitest::Test
     end
   end
 
+  def test_placeholder_detection_ignores_symbols_emoji_and_combining_marks
+    ["T+O+D+O", "T💣O💣D💣O", "T\u0338O\u0338D\u0338O"].each do |phrase|
+      assert_rationale_rejected("Runtime behavior remains compatible, but #{phrase} wording is still present here.")
+    end
+  end
+
   def test_rationale_rejects_exact_obvious_filler_examples
     examples = [
       "Compatibility remains unresolved; FIXME after the release tests complete.",
@@ -52,6 +58,17 @@ class RuntimeABIRationaleTest < Minitest::Test
     with_runtime_abi_root do |root|
       event = fixture_event_copy(root)
       replace_rationale(event, "実行時契約は既存の表形式を維持し、入力前の検証動作と解析結果も変更しません。")
+
+      verify_runtime_event(root, event: event, changed_paths: [RUNTIME_PATH])
+    end
+  end
+
+  def test_rationale_accepts_arabic_unicode_prose
+    with_runtime_abi_root do |root|
+      event = fixture_event_copy(root)
+      rationale = "يحافظ عقد وقت التشغيل على تنسيق الجدول الحالي " \
+                  "ولا يغير التحقق قبل الإدخال أو نتائج التحليل."
+      replace_rationale(event, rationale)
 
       verify_runtime_event(root, event: event, changed_paths: [RUNTIME_PATH])
     end

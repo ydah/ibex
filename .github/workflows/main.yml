@@ -169,7 +169,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0 # Workload evidence and ABI assessment require repository history.
+          fetch-depth: 0 # Workload evidence requires repository history.
           persist-credentials: false
       - name: Set up Ruby
         uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
@@ -184,14 +184,32 @@ jobs:
           bundle exec rake i18n:coverage
           bundle exec rake bison:test
           bundle exec rake release:reproducible
-      - name: Enforce pull-request runtime ABI assessment
-        if: github.event_name == 'pull_request'
-        run: bundle exec rake quality:runtime_abi_pr
       - name: Verify pinned external grammar imports
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: |
           bison --version
           bundle exec rake bison:external
+
+  runtime-abi-assessment:
+    runs-on: ubuntu-latest
+    name: Runtime ABI assessment
+    permissions:
+      contents: read
+    env:
+      BUNDLE_WITHOUT: types:docs:mutation:profile
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+      - name: Enforce pull-request runtime ABI assessment
+        if: github.event_name == 'pull_request'
+        run: bundle exec rake quality:runtime_abi_pr
 
   rbs:
     runs-on: ubuntu-latest

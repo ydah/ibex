@@ -62,7 +62,7 @@ class RuntimeABIHardeningTest < Minitest::Test
       replace_project_text(root, ".github/workflows/main.yml", condition, "if: false")
 
       error = assert_raises(RuntimeError) { verify_runtime_abi(root) }
-      assert_includes error.message, "CI gate step condition is stale"
+      assert_includes error.message, "stage-a-safety protected CI job structure is stale"
     end
   end
 

@@ -217,10 +217,12 @@ commands and must run the ABI gate plus the owned tests (or the full suite).
 The validator checks these relationships, while reviewers remain responsible
 for judging the rationale and whether all affected surfaces were identified.
 The deterministic rationale screen applies Unicode compatibility normalization
-and rejects separator-obscured placeholder terms, Unicode format controls,
+and removes every non-letter/non-number codepoint before detecting obscured
+placeholder terms, including punctuation, symbols, emoji, and combining marks.
+It also rejects Unicode format controls,
 punctuation-only text, obvious periodic or repeated-token filler, and low
 Unicode letter/character diversity. It does not require whitespace-delimited
-words, so Japanese and other writing systems are not treated as empty prose.
+words, so Japanese, Arabic, and other writing systems are not treated as empty prose.
 These checks cover only obvious filler: passing them does not make a rationale
 meaningful, and human review remains the semantic authority.
 
@@ -241,8 +243,9 @@ arguments, not executed by the validator; shell composition, arbitrary
 commands, unowned test files, and evidence-only README links are rejected.
 
 Run the contract-only `bundle exec rake quality:runtime_abi` locally.
-Pull-request CI invokes the separate `quality:runtime_abi_pr` entry with its
-event path and name explicitly. That PR gate derives the changed path list from
+Pull-request CI uses a minimal dedicated job to invoke the separate
+`quality:runtime_abi_pr` entry with its event path and name explicitly. That PR
+gate derives the changed path list from
 the event's exact base and head SHAs without GitHub API writes or elevated
 permissions. It parses `runtime_paths` from the exact
 trusted base revision and unions those paths with the head policy, so a pull
