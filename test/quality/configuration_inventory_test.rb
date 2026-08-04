@@ -1046,6 +1046,100 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     end
   end
 
+  def test_builder_call_site_reassignment_kills_yielded_parser
+    {
+      "event bus" => "parser = EventBus.new; parser.on(name)",
+      "object" => "parser = Object.new; parser.on(name)",
+      "alias reassigned" => "alias_parser = parser; alias_parser = EventBus.new; alias_parser.on(name)",
+      "restore after call" => "parser = EventBus.new; parser.on(name); parser = OptionParser.new"
+    }.each do |label, statements|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/builder_call_kill_#{label.tr(' ', '_')}.rb", <<~RUBY)
+          require "optparse"
+          class EventBus; end
+          def subscribe(name)
+            OptionParser.new.then { |parser| #{statements} }
+          end
+        RUBY
+        assert inventory_for(root).verify!, label
+      end
+    end
+  end
+
+  def test_builder_call_site_uses_state_before_later_reassignment
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_call_before_kill.rb", <<~RUBY)
+        require "optparse"
+        class EventBus; end
+        def add_hidden(name)
+          OptionParser.new.then do |parser|
+            parser.on(name)
+            parser = EventBus.new
+          end
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_builder_call_site_reassignment_back_to_parser_restores_provenance
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_call_restore.rb", <<~RUBY)
+        require "optparse"
+        class EventBus; end
+        def add_hidden(name)
+          OptionParser.new.then do |parser|
+            yielded_parser = parser
+            parser = EventBus.new
+            parser = yielded_parser
+            parser.on(name)
+          end
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_optional_first_builder_parameter_ignores_its_default
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_optional_first.rb", <<~RUBY)
+        require "optparse"
+        def add_hidden(name)
+          OptionParser.new.then { |parser = Object.new| parser.on(name) }
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_optional_extra_builder_parameter_uses_non_parser_default
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_optional_extra_generic.rb", <<~RUBY)
+        require "optparse"
+        def subscribe(name)
+          OptionParser.new.then { |parser, event_bus = Object.new| event_bus.on(name) }
+        end
+      RUBY
+      assert inventory_for(root).verify!
+    end
+  end
+
+  def test_optional_extra_builder_parameter_can_be_independently_proven
+    with_repository_copy do |root|
+      write_ruby(root, "lib/builder_optional_extra_parser.rb", <<~RUBY)
+        require "optparse"
+        def add_hidden(name)
+          OptionParser.new.then { |parser, extra_parser = OptionParser.new| extra_parser.on(name) }
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
   def test_parenthesized_receivers_retain_provenance
     variants = {
       "local" => "parser = OptionParser.new\n((parser)).on(name)",
