@@ -4,13 +4,16 @@ require "digest"
 require "json"
 require "open3"
 require "pathname"
+require_relative "../../lib/ibex"
 
 module BenchmarkSupport
   # Loads fixed public workloads and verifies supplied checkouts before execution.
   class PublicWorkloadManifest
     REQUIRED_KEYS = %w[
-      id repository_url revision grammar_path grammar_sha256 dependency_definition_path driver workload_id inputs
+      id repository_url revision grammar_path grammar_sha256 grammar_metrics
+      dependency_definition_path driver workload_id inputs
     ].freeze
+    METRIC_KEYS = %w[method productions states tokens shift_reduce reduce_reduce].freeze
 
     attr_reader :path
 
@@ -79,10 +82,22 @@ module BenchmarkSupport
       raise "public workload grammar digest must be SHA-256" unless
         workload.fetch("grammar_sha256").match?(/\A[0-9a-f]{64}\z/)
 
+      validate_metrics!(workload.fetch("grammar_metrics"))
+
       %w[grammar_path dependency_definition_path].each { |key| validate_relative_path!(workload.fetch(key)) }
       inputs = workload.fetch("inputs")
       valid_inputs = inputs.is_a?(Array) && inputs.all? { |input| input.is_a?(String) && !input.empty? }
       raise "public workload inputs must be non-empty strings" unless valid_inputs
+    end
+
+    def validate_metrics!(metrics)
+      raise "public workload grammar metrics must be an object" unless metrics.is_a?(Hash)
+      raise "public workload grammar metric keys changed" unless metrics.keys.sort == METRIC_KEYS.sort
+      raise "public workload grammar metric method changed" unless metrics.fetch("method") == "ibex-normalized-lalr-v1"
+
+      values = metrics.except("method").values
+      raise "public workload grammar metrics must be non-negative integers" unless
+        values.all? { |value| value.is_a?(Integer) && value >= 0 }
     end
 
     def validate_relative_path!(path)
@@ -96,6 +111,11 @@ module BenchmarkSupport
       actual_grammar_sha256 = Digest::SHA256.file(grammar).hexdigest
       unless actual_grammar_sha256 == workload.fetch("grammar_sha256")
         raise "#{workload.fetch('id')} grammar digest does not match the manifest"
+      end
+
+      actual_metrics = grammar_metrics(grammar)
+      unless actual_metrics == workload.fetch("grammar_metrics")
+        raise "#{workload.fetch('id')} grammar metrics do not match the manifest"
       end
 
       dependency_definition_path = workload.fetch("dependency_definition_path")
@@ -112,6 +132,21 @@ module BenchmarkSupport
         grammar_sha256: actual_grammar_sha256,
         dependency_definition_sha256: Digest::SHA256.file(dependency_definition).hexdigest,
         library_tree_oid: capture!(checkout, "git", "rev-parse", "HEAD:lib")
+      }
+    end
+
+    def grammar_metrics(path)
+      source = File.binread(path)
+      ast = Ibex::Frontend::Parser.new(source, file: path, mode: :default).parse
+      grammar = Ibex::Normalizer.new(ast, mode: :default).normalize
+      automaton = Ibex::LALR::Builder.new(grammar).build
+      {
+        "method" => "ibex-normalized-lalr-v1",
+        "productions" => grammar.productions.length,
+        "states" => automaton.states.length,
+        "tokens" => grammar.terminals.length,
+        "shift_reduce" => automaton.conflict_summary.fetch(:sr),
+        "reduce_reduce" => automaton.conflict_summary.fetch(:rr)
       }
     end
 

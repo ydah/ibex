@@ -20,35 +20,47 @@ module Ibex
           url: "https://raw.githubusercontent.com/akimd/bison/" \
                "25b3d0e1a3f97a33615099e4b211f3953990c203/examples/c/calc/calc.y",
           sha256: "59259755e8619ebb514b1c1832de28574341efbb64f3f593318961c0cfa4aa1b",
-          expected: { rules: 5, actions: 7, unsupported: 1, productions: 13, states: 22, sr: 0, rr: 0 }
+          expected: {
+            rules: 5, actions: 7, unsupported: 1, productions: 13, states: 22, tokens: 11, sr: 0, rr: 0
+          }
         },
         {
           name: "jq",
           url: "https://raw.githubusercontent.com/jqlang/jq/" \
                "603db3f57741d217ba651e61086b550a72148b83/src/parser.y",
           sha256: "803aa7c0b1acba2228e52d1de392fb51e60a7bbe23e42870aea1d62c43360c60",
-          expected: { rules: 29, actions: 167, unsupported: 1, productions: 167, states: 311, sr: 408, rr: 0 }
+          expected: {
+            rules: 29, actions: 167, unsupported: 1, productions: 167, states: 311, tokens: 100, sr: 408, rr: 0
+          }
         },
         {
           name: "php",
           url: "https://raw.githubusercontent.com/php/php-src/" \
                "7b78eb4fcc29c5cafa083c667558d0fe79c0c499/Zend/zend_language_parser.y",
           sha256: "afb7ad325d4bd7ca4bb037c96dd31e8afdd0652469f0248cc4139a475f0d5e98",
-          expected: { rules: 177, actions: 552, unsupported: 1, productions: 635, states: 1203, sr: 0, rr: 0 }
+          expected: {
+            rules: 177, actions: 552, unsupported: 1, productions: 635, states: 1203, tokens: 185, sr: 0, rr: 0
+          }
         },
         {
           name: "postgresql",
           url: "https://raw.githubusercontent.com/postgres/postgres/" \
                "d6eac691747499645f21398c9e305d7a671e0229/src/backend/parser/gram.y",
           sha256: "649da7c47a4d4a26062e9acde2c588ac796a3b74a94079649dd6d16c53a717fe",
-          expected: { rules: 795, actions: 2436, unsupported: 3, productions: 3640, states: 6942, sr: 0, rr: 0 }
+          expected: {
+            rules: 795, actions: 2436, unsupported: 3, productions: 3640, states: 6942,
+            tokens: 562, sr: 0, rr: 0
+          }
         },
         {
           name: "ruby-bison-era",
           url: "https://raw.githubusercontent.com/ruby/ruby/" \
                "e51014f9c05aa65cbf203442d37fef7c12390015/parse.y",
           sha256: "cd9d083728abb271d24241347623c91d7e2bac2d063331938afc8fcad312b555",
-          expected: { rules: 223, actions: 594, unsupported: 2, productions: 781, states: 1303, sr: 0, rr: 0 }
+          expected: {
+            rules: 223, actions: 594, unsupported: 2, productions: 781, states: 1303,
+            tokens: 158, sr: 0, rr: 0
+          }
         }
       ].freeze
       CURRENT_RUBY = {
@@ -58,7 +70,7 @@ module Ibex
         sha256: "90ff67d6f610bacc24439dfac6c1c30ed9eb08aa8b80225c0f074947f1894bb5",
         expected: {
           rules: 231, actions: 486, unsupported: 23, structural_unsupported: 22,
-          productions: 695, states: 1152, sr: 27, rr: 0
+          productions: 695, states: 1152, tokens: 171, sr: 27, rr: 0
         }
       }.freeze
 
@@ -132,6 +144,7 @@ module Ibex
           unsupported: result.to_h.dig(:counts, :unsupported_directives),
           productions: grammar.productions.length,
           states: automaton.states.length,
+          tokens: grammar.terminals.length,
           sr: automaton.conflict_summary.fetch(:sr),
           rr: automaton.conflict_summary.fetch(:rr)
         }

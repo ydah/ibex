@@ -68,6 +68,25 @@ class PublicComparisonDependencyDefinitionTest < Minitest::Test
     end
   end
 
+  def test_checkout_grammar_must_match_every_pinned_metric
+    Dir.mktmpdir("public-grammar-metrics-test-") do |directory|
+      checkout = File.join(directory, "checkout")
+      prepare_checkout(checkout)
+      revision = git(checkout, "rev-parse", "HEAD")
+      manifest_path = File.join(directory, "manifest.json")
+      write_manifest(manifest_path, revision, "Gemfile")
+      document = JSON.parse(File.binread(manifest_path))
+      document.dig("workloads", 0, "grammar_metrics")["states"] = 999
+      File.write(manifest_path, JSON.generate(document))
+
+      manifest = BenchmarkSupport::PublicWorkloadManifest.new(manifest_path)
+      error = assert_raises(RuntimeError) do
+        manifest.verify_checkout("fixture", checkout, allow_dirty: false)
+      end
+      assert_includes error.message, "grammar metrics do not match"
+    end
+  end
+
   private
 
   def prepare_checkout(checkout)
@@ -78,7 +97,7 @@ class PublicComparisonDependencyDefinitionTest < Minitest::Test
     File.write(File.join(checkout, ".gitignore"), "Gemfile.lock\n")
     File.write(File.join(checkout, "Gemfile"), "source \"https://rubygems.org\"\n")
     File.write(File.join(checkout, "Gemfile.lock"), "ignored local lock\n")
-    File.write(File.join(checkout, "lib/parser.y"), "class FixtureParser\nrule\nend\n")
+    File.write(File.join(checkout, "lib/parser.y"), "class FixtureParser\nrule\nstart: 'x'\nend\n")
     git(checkout, "add", ".")
     git(checkout, "commit", "--quiet", "-m", "Add fixture")
     git(checkout, "remote", "add", "origin", "https://example.com/project.git")
@@ -94,6 +113,14 @@ class PublicComparisonDependencyDefinitionTest < Minitest::Test
         revision: revision,
         grammar_path: "lib/parser.y",
         grammar_sha256: grammar_sha256,
+        grammar_metrics: {
+          method: "ibex-normalized-lalr-v1",
+          productions: 1,
+          states: 3,
+          tokens: 3,
+          shift_reduce: 0,
+          reduce_reduce: 0
+        },
         dependency_definition_path: dependency_definition_path,
         driver: "namae",
         workload_id: "fixture-v1",
@@ -242,12 +269,13 @@ class PublicComparisonBenchmarkTest < Minitest::Test
     assert_includes error.message, "namae"
   end
 
-  def test_checkout_identity_uses_the_git_tree_without_reading_tracked_files
+  def test_checkout_identity_uses_the_git_tree_and_reads_only_the_pinned_grammar_metrics
     source = File.read(File.join(ROOT, "benchmark/support/public_workload_manifest.rb"))
 
     assert_includes source, '"HEAD:lib"'
     assert_includes source, '"ls-tree"'
-    refute_includes source, "File.binread"
+    assert_includes source, "grammar_metrics(grammar)"
+    assert_includes source, "File.binread(path)"
     refute_includes source, "tracked_library_sha256"
   end
 

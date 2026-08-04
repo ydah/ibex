@@ -7,6 +7,14 @@
       "revision": "d33875aaf1fc420a8dfe946a3b29cc3e19710061",
       "grammar_path": "lib/namae/parser.y",
       "grammar_sha256": "ac626034b016696bf5b8d4868005ff98cecadf74162294d2c6f9d6e128158198",
+      "grammar_metrics": {
+        "method": "ibex-normalized-lalr-v1",
+        "productions": 51,
+        "states": 78,
+        "tokens": 12,
+        "shift_reduce": 0,
+        "reduce_reduce": 0
+      },
       "dependency_definition_path": "Gemfile",
       "driver": "namae",
       "workload_id": "representative-public-names-v1",
@@ -24,6 +32,14 @@
       "revision": "21b4a03789bf2080ad41aaf31299b609ee7bda86",
       "grammar_path": "lib/bcdice/command/parser.y",
       "grammar_sha256": "845f4fcd5dedfc276dd3529cc86015a1b806bb7912346a04ce5a78a1977bb4d8",
+      "grammar_metrics": {
+        "method": "ibex-normalized-lalr-v1",
+        "productions": 34,
+        "states": 56,
+        "tokens": 19,
+        "shift_reduce": 2,
+        "reduce_reduce": 0
+      },
       "dependency_definition_path": "Gemfile",
       "driver": "bcdice_command",
       "workload_id": "command-parser-options-v1",
@@ -41,6 +57,14 @@
       "revision": "04a4c29c6a605ad40a78f4ce343ced0832a1805c",
       "grammar_path": "lib/nokogiri/css/parser.y",
       "grammar_sha256": "3ba8e2b573c099686c4186d0eef0a670dcaf93d2081f5678be45fb8600dc873a",
+      "grammar_metrics": {
+        "method": "ibex-normalized-lalr-v1",
+        "productions": 81,
+        "states": 117,
+        "tokens": 32,
+        "shift_reduce": 0,
+        "reduce_reduce": 1
+      },
       "dependency_definition_path": "Gemfile",
       "driver": "nokogiri_css",
       "workload_id": "css-selector-ast-v1",

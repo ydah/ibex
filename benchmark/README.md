@@ -283,8 +283,8 @@ bundle exec ruby benchmark/public_comparison.rb \
   --output tmp/public-performance-comparison.json
 ```
 
-The command verifies each full revision, origin, and expected grammar SHA-256,
-rejects a dirty Ibex root
+The command verifies each full revision, origin, expected grammar SHA-256, and
+expected production/state/token/conflict metrics, rejects a dirty Ibex root
 or dirty public checkout, requires the dependency definition to be tracked at
 `HEAD`, and records grammar and dependency-definition digests plus the
 committed `lib/` Git tree object ID, status, workload, and manifest digests.
