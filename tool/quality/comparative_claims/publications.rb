@@ -5,7 +5,7 @@ module Ibex
     # Binds comparative wording or pending evidence to complete registry records.
     class ClaimPublications
       STRONG_WORDING = /\b(?:
-        faster|slower|smaller|larger|better|best|outperform\w*|trail\w*|parity|fewer|superior|inferior
+        faster|slower|smaller|larger|better|best|outperform\w*|trail(?:s|ed)?|parity|fewer|superior|inferior
       )\b/ix
       TOOL_WORDING = /\b(?:Racc|Lrama|Bison|Menhir|Tree-sitter|ANTLR)\b/i
       POLICY = "docs/comparison-policy.md"
@@ -107,7 +107,32 @@ module Ibex
           unless missing.empty?
             raise "#{path}: marker #{block.fetch(:id)} is missing bound evidence: #{missing.join(', ')}"
           end
+
+          verify_additional_strength!(path, claim, block)
         end
+      end
+
+      def verify_additional_strength!(path, claim, block)
+        wording = normalize(claim.fetch("wording"))
+        units = strength_units(block.fetch(:body), wording)
+        allowed = claim.dig("binding", "allowed_strength").map { |text| normalize(text) }
+        unexpected = units - allowed
+        missing = allowed - units
+        unless unexpected.empty?
+          raise "#{path}: marker #{block.fetch(:id)} has unregistered comparative strength: #{unexpected.first}"
+        end
+        return if missing.empty?
+
+        raise "#{path}: marker #{block.fetch(:id)} is missing registered comparative strength: #{missing.first}"
+      end
+
+      def strength_units(body, wording)
+        units = body.split(/\n\s*\n/).flat_map do |paragraph|
+          remainder = normalize(paragraph)
+          remainder = remainder.delete_prefix(wording).strip if remainder.start_with?(wording)
+          remainder.split(/(?<=[.!?])\s+/)
+        end
+        units.grep(STRONG_WORDING)
       end
 
       def verify_unmarked_readme_strength!(source, blocks, path)

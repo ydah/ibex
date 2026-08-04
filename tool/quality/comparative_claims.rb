@@ -118,12 +118,13 @@ module Ibex
       end
 
       def verify_binding(id, binding)
-        exact_keys!(binding, %w[path marker kind required_text], "#{id}: binding")
+        exact_keys!(binding, %w[path marker kind required_text allowed_strength], "#{id}: binding")
         non_empty_string!(binding.fetch("path"), "#{id}: binding path")
         raise "#{id}: binding marker must equal the claim id" unless binding.fetch("marker") == id
         raise "#{id}: binding kind must be claim or evidence" unless %w[claim evidence].include?(binding.fetch("kind"))
 
         string_array!(binding.fetch("required_text"), "#{id}: binding required_text")
+        string_array!(binding.fetch("allowed_strength"), "#{id}: binding allowed_strength", allow_empty: true)
       end
 
       def verify_command(id, command)

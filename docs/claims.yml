@@ -53,6 +53,7 @@ claims:
       required_text:
         - 8/10 (80%)
         - "| EUX-10 |"
+      allowed_strength: []
     subjects:
       - tool: ibex
         identity_kind: repository
@@ -125,6 +126,13 @@ claims:
       required_text:
         - 0.039443/0.040048
         - 23.8–32.9% slower
+      allowed_strength:
+        - The harness's `target_met` field marks absolute parity when the interval's upper bound is no greater than 1.0.
+        - "The results deliberately retain the unfavorable rows: cold generation is 23.8–32.9% slower, and new-instance parsing is 18.6–37.3% slower."
+        - Reuse point estimates range from 1.5% faster to 5.2% slower.
+        - Ibex allocates fewer objects for every reuse workload, while new-instance allocation ratios remain 1.051–1.190x.
+        - Generated output is smaller for all three grammars.
+        - These values are a release baseline, not portable scores or an assertion of parity.
     subjects:
       - tool: ibex
         identity_kind: repository
