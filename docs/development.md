@@ -105,7 +105,8 @@ workloads.
 policy](runtime-abi-evolution.md) and [test-interaction
 policy](test-interactions.md) against implementation constants, schemas, the
 96-case matrix, scheduled gates, and golden inputs, and ignores ambient GitHub
-event variables. The `quality:runtime_abi_pr` CI entry explicitly receives the
+event variables. The minimal `runtime-abi-assessment` CI job runs only checkout,
+Ruby setup, and the `quality:runtime_abi_pr` entry, which explicitly receives the
 pull-request event and requires the template's structured assessment when a
 declared runtime-facing path changes. Free-form prose is not parsed as an
 assessment; reviewers still decide whether the selected boundary and evidence

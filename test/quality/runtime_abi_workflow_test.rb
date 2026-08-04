@@ -38,11 +38,11 @@ class RuntimeABIWorkflowTest < Minitest::Test
 
   def test_protected_jobs_reject_conditions_continue_on_error_and_shell_defaults
     mutations = [
-      ["  stage-a-safety:\n", "  stage-a-safety:\n    if: false\n", "fail-open controls"],
+      ["  stage-a-safety:\n", "  stage-a-safety:\n    if: false\n", "protected CI job structure is stale"],
       ["  v1-contracts:\n", "  v1-contracts:\n    continue-on-error: false\n", "fail-open controls"],
       ["name: CI\n", "name: CI\n\ndefaults:\n  run:\n    shell: bash {0}\n", "default safe shell"],
       ["  stage-a-safety:\n",
-       "  stage-a-safety:\n    defaults:\n      run:\n        shell: bash {0}\n", "fail-open controls"]
+       "  stage-a-safety:\n    defaults:\n      run:\n        shell: bash {0}\n", "protected CI job structure is stale"]
     ]
     mutations.each do |before, after, message|
       with_runtime_abi_root do |root|
@@ -57,9 +57,9 @@ class RuntimeABIWorkflowTest < Minitest::Test
   def test_gate_step_conditions_are_exact
     mutations = [
       ["      - name: Verify deterministic safety gates\n",
-       "      - name: Verify deterministic safety gates\n        if: false\n", "unconditional"],
-      ["        if: github.event_name == 'schedule'\n", "        if: false\n", "condition is stale"],
-      ["        if: github.event_name == 'pull_request'\n", "        if: true\n", "condition is stale"]
+       "      - name: Verify deterministic safety gates\n        if: false\n", "protected CI job structure is stale"],
+      ["        if: github.event_name == 'schedule'\n", "        if: false\n", "protected CI job structure is stale"],
+      ["        if: github.event_name == 'pull_request'\n", "        if: true\n", "protected CI job structure is stale"]
     ]
     mutations.each do |before, after, message|
       with_runtime_abi_root do |root|
@@ -74,11 +74,11 @@ class RuntimeABIWorkflowTest < Minitest::Test
   def test_gate_commands_reject_fail_open_or_background_additions
     mutations = [
       ["          bundle exec rake test:matrix\n", "          set +e\n          bundle exec rake test:matrix\n",
-       "normal gate commands are stale"],
+       "protected CI job structure is stale"],
       ["        run: bundle exec rake quality:runtime_abi_pr\n",
-       "        run: bundle exec rake quality:runtime_abi_pr || true\n", "enforcement commands are stale"],
+       "        run: bundle exec rake quality:runtime_abi_pr || true\n", "protected CI job structure is stale"],
       ["          bundle exec rake fuzz:long\n", "          bundle exec rake fuzz:long &\n",
-       "scheduled gate commands are stale"]
+       "protected CI job structure is stale"]
     ]
     mutations.each do |before, after, message|
       with_runtime_abi_root do |root|
@@ -102,7 +102,7 @@ class RuntimeABIWorkflowTest < Minitest::Test
         replace_project_text(root, ".github/workflows/main.yml", before, after)
 
         error = assert_raises(RuntimeError) { verify_runtime_abi(root) }
-        assert_includes error.message, "fail-open controls"
+        assert_includes error.message, "protected CI job structure is stale"
       end
     end
   end
@@ -114,7 +114,7 @@ class RuntimeABIWorkflowTest < Minitest::Test
       )
 
       error = assert_raises(RuntimeError) { verify_runtime_abi(root) }
-      assert_includes error.message, "scheduled gate environment is stale"
+      assert_includes error.message, "protected CI job structure is stale"
     end
   end
 
@@ -130,11 +130,11 @@ class RuntimeABIWorkflowTest < Minitest::Test
     mutations = [
       ["permissions:\n", "env:\n  IBEX_ABI_CHANGED_PATHS_FILE: /dev/null\n\npermissions:\n",
        "environment must be absent"],
-      [stage_environment, "#{stage_environment}      BASH_ENV: /dev/null\n", "job environment is stale"],
+      [stage_environment, "#{stage_environment}      BASH_ENV: /dev/null\n", "protected CI job structure is stale"],
       [contract_environment, "#{contract_environment}      RUBYOPT: /dev/null\n", "job environment is stale"],
       ["      - name: Enforce pull-request runtime ABI assessment\n",
        "      - name: Enforce pull-request runtime ABI assessment\n        env:\n          PATH: /dev/null\n",
-       "enforcement step keys"]
+       "protected CI job structure is stale"]
     ]
     mutations.each do |before, after, message|
       with_runtime_abi_root do |root|

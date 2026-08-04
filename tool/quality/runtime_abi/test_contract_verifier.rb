@@ -3,6 +3,7 @@
 require "yaml"
 require_relative "document"
 require_relative "reviewed_test_contract"
+require_relative "reviewed_workflow"
 
 module Ibex
   module Quality
@@ -11,17 +12,6 @@ module Ibex
       include RuntimeABIDocument
 
       LONG_GATES = %w[test:matrix:full test:adversarial fuzz:long].freeze
-      NORMAL_COMMANDS = %w[
-        test:matrix test:zero_cost test:reproducible test:compat test:ir_schema test:no_exec
-        test:adversarial gallery:build gallery:conflicts fuzz:short fuzz:injection deps:zero network:zero
-      ].map { |task| "bundle exec rake #{task}" }.freeze
-      ENFORCEMENT_COMMANDS = ["bundle exec rake quality:runtime_abi_pr"].freeze
-      JOB_ENVIRONMENTS = {
-        "stage-a-safety" => { "BUNDLE_WITHOUT" => "types:docs:mutation:profile" },
-        "v1-contracts" => { "BUNDLE_WITHOUT" => "types:docs:mutation:profile" }
-      }.freeze
-      PR_CONDITION = "github.event_name == 'pull_request'"
-      SCHEDULE_CONDITION = "github.event_name == 'schedule'"
 
       def initialize(root:, contract:)
         @root = File.expand_path(root)
@@ -99,37 +89,10 @@ module Ibex
         raise "CI workflow must use the default safe shell" if workflow.key?("defaults")
         raise "CI workflow environment must be absent" if workflow.key?("env")
 
-        safety_steps = safe_job_steps(workflow, "stage-a-safety")
-        contract_steps = safe_job_steps(workflow, "v1-contracts")
-
-        verify_normal_step(safety_steps)
-        verify_scheduled_step(safety_steps)
-        verify_enforcement_step(contract_steps)
-      end
-
-      def verify_normal_step(steps)
-        step = named_step(steps, "Verify deterministic safety gates")
-        verify_step_safety(step, expected_condition: nil)
-        exact_keys!(step, %w[name run], "normal CI gate step")
-        raise "normal gate commands are stale" unless run_commands(step) == NORMAL_COMMANDS
-      end
-
-      def verify_scheduled_step(steps)
-        step = named_step(steps, "Run scheduled exhaustive gates")
-        verify_step_safety(step, expected_condition: SCHEDULE_CONDITION)
-        exact_keys!(step, %w[env if name run], "scheduled CI gate step")
-        expected_env = { "IBEX_ADVERSARIAL_FULL" => "1" }
-        raise "scheduled gate environment is stale" unless step.fetch("env") == expected_env
-
-        expected = LONG_GATES.map { |task| "bundle exec rake #{task}" }
-        raise "scheduled gate commands are stale" unless run_commands(step) == expected
-      end
-
-      def verify_enforcement_step(steps)
-        step = named_step(steps, "Enforce pull-request runtime ABI assessment")
-        verify_step_safety(step, expected_condition: PR_CONDITION)
-        exact_keys!(step, %w[if name run], "pull-request ABI enforcement step")
-        raise "pull-request ABI enforcement commands are stale" unless run_commands(step) == ENFORCEMENT_COMMANDS
+        RuntimeABIReviewedWorkflow::PROTECTED_JOBS.each do |name, expected|
+          verify_protected_job(workflow, name, expected)
+        end
+        verify_v1_job_safety(workflow)
       end
 
       def verify_triggers(workflow)
@@ -145,43 +108,23 @@ module Ibex
         raise "CI has missing or stale required triggers: #{invalid.join(', ')}" unless invalid.empty?
       end
 
-      def safe_job_steps(workflow, name)
+      def verify_protected_job(workflow, name, expected)
         job = workflow.dig("jobs", name)
         raise "#{name} job is missing" unless job.is_a?(Hash)
+        return if job == expected
+
+        raise "#{name} protected CI job structure is stale"
+      end
+
+      def verify_v1_job_safety(workflow)
+        job = workflow.dig("jobs", "v1-contracts")
+        raise "v1-contracts job is missing" unless job.is_a?(Hash)
 
         forbidden = %w[if continue-on-error defaults] & job.keys
-        raise "#{name} job has fail-open controls: #{forbidden.join(', ')}" unless forbidden.empty?
-        raise "#{name} job environment is stale" unless job["env"] == JOB_ENVIRONMENTS.fetch(name)
+        raise "v1-contracts job has fail-open controls: #{forbidden.join(', ')}" unless forbidden.empty?
 
-        steps = job.fetch("steps")
-        raise "#{name} steps are missing" unless steps.is_a?(Array)
-
-        steps
-      end
-
-      def verify_step_safety(step, expected_condition:)
-        forbidden = %w[continue-on-error shell] & step.keys
-        raise "CI gate step has fail-open controls: #{forbidden.join(', ')}" unless forbidden.empty?
-
-        if expected_condition
-          raise "CI gate step condition is stale" unless step["if"] == expected_condition
-        elsif step.key?("if")
-          raise "normal CI gate must be unconditional"
-        end
-      end
-
-      def named_step(steps, name)
-        matches = steps.select { |step| step["name"] == name }
-        raise "CI must contain exactly one #{name.inspect} step" unless matches.length == 1
-
-        matches.fetch(0)
-      end
-
-      def run_commands(step)
-        run = step.fetch("run")
-        raise "CI step run must be a String" unless run.is_a?(String)
-
-        run.lines.map(&:strip).reject(&:empty?)
+        expected_env = RuntimeABIReviewedWorkflow::BUNDLE_ENV
+        raise "v1-contracts job environment is stale" unless job["env"] == expected_env
       end
 
       def verify_golden
