@@ -324,7 +324,8 @@ module Ibex
       def build_source_index
         index = {
           calls: [], assignments: [], methods: [], blocks: [], constant_definitions: ["OptionParser"],
-          local_definitions: [], class_variable_definitions: [], superclass_references: [], superclasses: {}
+          constant_aliases: {}, local_definitions: [], class_variable_definitions: [],
+          superclass_references: [], superclasses: {}
         }
         source_trees = source_paths.to_h do |relative|
           source = File.binread(path(relative))
@@ -346,9 +347,13 @@ module Ibex
         declarations = []
         source_trees.each_value { |sexp| discover_constant_declarations(sexp, nil, declarations) }
         owners = Array.new(declarations.length)
+        aliases = {}
         converged = false
         (declarations.length + 2).times do
-          candidate_index = index.merge(constant_definitions: (["OptionParser"] + owners.compact).uniq)
+          candidate_index = index.merge(
+            constant_definitions: (["OptionParser"] + owners.compact).uniq,
+            constant_aliases: aliases
+          )
           resolved = declarations.map do |declaration|
             parent_id = declaration.fetch(:parent_id)
             next if parent_id && !owners[parent_id]
@@ -356,16 +361,19 @@ module Ibex
             parent = parent_id ? owners.fetch(parent_id) : nil
             raw_constant_declaration_owner(declaration, parent, candidate_index)
           end
-          if resolved == owners
+          resolved_aliases = constant_identity_aliases(declarations, resolved, owners, candidate_index)
+          if resolved == owners && resolved_aliases == aliases
             converged = true
             break
           end
 
           owners = resolved
+          aliases = resolved_aliases
         end
         raise "constant namespace owner index did not converge" unless converged
 
         index[:constant_definitions] = (["OptionParser"] + owners.compact).uniq
+        index[:constant_aliases] = aliases
       end
 
       def discover_constant_declarations(node, parent_id, declarations)
@@ -383,7 +391,8 @@ module Ibex
           return
         end
         if %i[assign opassign].include?(node.first) && constant_assignment_target?(node[1])
-          declarations << { kind: :assignment, node: node[1], parent_id: parent_id }
+          value = node[2] if node.first == :assign
+          declarations << { kind: :assignment, node: node[1], value: value, parent_id: parent_id }
         end
         node.each do |child|
           discover_constant_declarations(child, parent_id, declarations) if child.is_a?(Array)
@@ -409,6 +418,20 @@ module Ibex
           resolve_qualified_assignment(constant_path_name(node), parent, index)
         when :top_const_field
           node.dig(1, 1)
+        end
+      end
+
+      def constant_identity_aliases(declarations, resolved, previous_owners, index)
+        declarations.each_with_index.with_object({}) do |(declaration, declaration_id), aliases|
+          value = declaration[:value]
+          next unless declaration.fetch(:kind) == :assignment && constant_path_name(value)
+
+          parent_id = declaration.fetch(:parent_id)
+          parent = parent_id ? previous_owners[parent_id] : nil
+          next if parent_id && !parent
+
+          target = resolve_constant_node(value, { owner: parent }, index)
+          aliases[resolved[declaration_id]] = target if resolved[declaration_id] && target
         end
       end
 
@@ -577,13 +600,14 @@ module Ibex
       def lexical_owner(node, parent, index)
         name = constant_path_name(node)
         return parent || "Object" unless name
-        return name.delete_prefix("::") if absolute_constant_name?(name)
-        return name unless parent
-        return "#{parent}::#{name}" unless name.include?("::")
+        return canonical_constant_name(name.delete_prefix("::"), index) if absolute_constant_name?(name)
+        return canonical_constant_name(name, index) unless parent
+        return canonical_constant_name("#{parent}::#{name}", index) unless name.include?("::")
 
         namespace = name.rpartition("::").first
         lexical_namespace = nearest_defined_constant(namespace, parent, index)
-        lexical_namespace ? "#{lexical_namespace}::#{name.split('::').last}" : name
+        owner = lexical_namespace ? "#{lexical_namespace}::#{name.split('::').last}" : name
+        canonical_constant_name(owner, index)
       end
 
       def record_assignment(node, context, index)
@@ -607,12 +631,31 @@ module Ibex
         params = block_variables&.first == :block_var ? block_variables[1] : nil
         block_locals = block_variables&.first == :block_var ? block_variables[2] : nil
         parameters = parameter_details(params, block_locals: block_locals)
+        if block_variables.nil?
+          implicit = implicit_block_parameter_names(node.dig(2, 2))
+          parameters[:names] = (parameters.fetch(:names) + implicit).uniq
+        end
         line = find_line(node[1]) || 0
         scope = "#{context[:scope]}:block:#{line}:#{index.fetch(:blocks).length}"
         nested = context.merge(scope: scope, scope_chain: [scope] + context.fetch(:scope_chain))
         index_parameters(parameters, nested, index)
         index.fetch(:blocks) << { expression: node[1], parameters: parameters.fetch(:names), context: nested }
         walk(node[2], nested, index)
+      end
+
+      def implicit_block_parameter_names(node, names = [])
+        return names unless node.is_a?(Array)
+        return names if %i[class module sclass def defs].include?(node.first)
+
+        if node.first == :method_add_block
+          implicit_block_parameter_names(node[1], names)
+          return names
+        end
+
+        token = node[1] if %i[var_ref vcall].include?(node.first)
+        names << token[1] if token&.first == :@ident && %w[_1 it].include?(token[1])
+        node.each { |child| implicit_block_parameter_names(child, names) if child.is_a?(Array) }
+        names.uniq
       end
 
       def find_line(node)
@@ -884,6 +927,7 @@ module Ibex
       end
 
       def binding_candidates(node, context, index)
+        node = unwrap_parenthesized_expression(node)
         return [] unless node.is_a?(Array)
 
         case node.first
@@ -963,18 +1007,23 @@ module Ibex
         definitions = index.fetch(:constant_definitions)
         if absolute_constant_name?(name)
           absolute = name.delete_prefix("::")
-          return absolute if definitions.include?(absolute)
+          canonical = canonical_constant_name(absolute, index)
+          return canonical if definitions.include?(absolute) || definitions.include?(canonical)
 
           return
         end
-        constant_search_names(name, owner, index).find { |candidate| definitions.include?(candidate) }
+        candidate = constant_search_names(name, owner, index).find do |value|
+          definitions.include?(value) || definitions.include?(canonical_constant_name(value, index))
+        end
+        canonical_constant_name(candidate, index) if candidate
       end
 
       def constant_search_names(name, owner, index)
         if name.include?("::")
           namespace, _, leaf = name.rpartition("::")
           resolved_namespace = resolve_constant_name(namespace, owner, index)
-          return ["#{resolved_namespace}::#{leaf}", name].compact.uniq
+          qualified = "#{resolved_namespace}::#{leaf}" if resolved_namespace
+          return [qualified, name].compact.uniq
         end
 
         lexical = lexical_owner_chain(owner).map { |candidate| "#{candidate}::#{name}" }
@@ -983,15 +1032,39 @@ module Ibex
       end
 
       def resolve_qualified_assignment(name, owner, index)
-        return name.delete_prefix("::") if absolute_constant_name?(name)
+        if absolute_constant_name?(name)
+          namespace, _, leaf = name.delete_prefix("::").rpartition("::")
+          return "#{canonical_constant_name(namespace, index)}::#{leaf}"
+        end
 
         namespace, _, leaf = name.rpartition("::")
         resolved_namespace = resolve_constant_name(namespace, owner, index)
-        "#{resolved_namespace || namespace}::#{leaf}"
+        canonical_namespace = canonical_constant_name(resolved_namespace || namespace, index)
+        "#{canonical_namespace}::#{leaf}"
       end
 
       def absolute_constant_name?(name)
         name.start_with?("::")
+      end
+
+      def canonical_constant_name(name, index)
+        return name unless name
+
+        aliases = index.fetch(:constant_aliases)
+        seen = []
+        current = name
+        loop do
+          return current if seen.include?(current)
+
+          seen << current
+          prefixes = aliases.keys.select do |candidate|
+            current == candidate || current.start_with?("#{candidate}::")
+          end
+          prefix = prefixes.max_by(&:length)
+          return current unless prefix
+
+          current = "#{aliases.fetch(prefix)}#{current.delete_prefix(prefix)}"
+        end
       end
 
       def nearest_defined_constant(name, owner, index)
@@ -1037,10 +1110,12 @@ module Ibex
       end
 
       def self_receiver?(node)
+        node = unwrap_parenthesized_expression(node)
         node&.first == :var_ref && node.dig(1, 0) == :@kw && node.dig(1, 1) == "self"
       end
 
       def option_parser_instance_expression?(node, context, class_bindings, index)
+        node = unwrap_parenthesized_expression(node)
         return false unless node.is_a?(Array)
 
         if %i[method_add_arg method_add_block].include?(node.first)
@@ -1056,6 +1131,16 @@ module Ibex
         return false unless %w[itself freeze tap dup clone].include?(api)
 
         option_parser_instance_expression?(receiver, context, class_bindings, index)
+      end
+
+      def unwrap_parenthesized_expression(node)
+        while node.is_a?(Array) && node.first == :paren
+          expressions = node[1]
+          break unless expressions.is_a?(Array) && !expressions.empty?
+
+          node = expressions.last
+        end
+        node
       end
 
       def contains_node?(node, kind)

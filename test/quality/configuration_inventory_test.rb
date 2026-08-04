@@ -203,6 +203,27 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
       end
     end
   RUBY
+  IDENTITY_ALIAS_MUTATION = <<~RUBY
+    module Registry; end
+    ParserRegistry = Registry
+  RUBY
+  IDENTITY_CLASS_MUTATION = <<~RUBY
+    require "optparse"
+    require_relative "m_identity_alias"
+    class %<owner>s::Handler
+      def initialize
+        @parser = OptionParser.new
+      end
+    end
+  RUBY
+  IDENTITY_REOPEN_MUTATION = <<~RUBY
+    require_relative "m_identity_alias"
+    class %<owner>s::Handler
+      def add_hidden(name)
+        @parser.on(name)
+      end
+    end
+  RUBY
 
   def test_repository_inventory_and_generated_document_are_current
     assert Ibex::Quality::ConfigurationInventory.new.verify!
@@ -807,6 +828,148 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     end
   end
 
+  def test_implicit_optionparser_block_parameters_fail_closed
+    { "numbered" => "_1", "ruby 3.4 it" => "it" }.each do |label, parameter|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/#{label.tr(' ', '_')}_block.rb", <<~RUBY)
+          require "optparse"
+          def add_hidden(name)
+            OptionParser.new { #{parameter}.on(name) }
+          end
+        RUBY
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, label)
+      end
+    end
+  end
+
+  def test_implicit_optionparser_block_parameters_do_not_leak
+    { "numbered" => "_1", "ruby 3.4 it" => "it" }.each do |label, parameter|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/#{label.tr(' ', '_')}_scope.rb", <<~RUBY)
+          require "optparse"
+          def subscribe(name)
+            OptionParser.new { #{parameter}.to_s }
+            [Object.new].each { #{parameter}.on(name) }
+          end
+        RUBY
+        assert inventory_for(root).verify!, label
+      end
+    end
+  end
+
+  def test_parenthesized_receivers_retain_provenance
+    variants = {
+      "local" => "parser = OptionParser.new\n((parser)).on(name)",
+      "constant" => "PARSER = OptionParser.new\ndef add_hidden(name); ((PARSER)).on(name); end",
+      "self" => "class WrappedParser < OptionParser\n" \
+                "def add_hidden(name); ((self)).on(name); end\nend"
+    }
+    variants.each do |label, body|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/parenthesized_#{label}.rb", "require \"optparse\"\n#{body}\n")
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, label)
+      end
+    end
+  end
+
+  def test_constant_alias_qualifies_optionparser_instance
+    { "direct" => "ParserRegistry", "fixed point" => "FinalRegistry" }.each do |label, receiver|
+      with_repository_copy do |root|
+        write_ruby(root, "lib/aliased_registry.rb", <<~RUBY)
+          require "optparse"
+          module Registry
+            PARSER = OptionParser.new
+          end
+          ParserRegistry = Registry
+          FinalRegistry = ParserRegistry
+          def add_hidden(name)
+            #{receiver}::PARSER.on(name)
+          end
+        RUBY
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        assert_match(/has no static spelling/, error.message, label)
+      end
+    end
+  end
+
+  def test_constant_aliases_preserve_nearest_lexical_shadowing
+    with_repository_copy do |root|
+      write_ruby(root, "lib/lexical_alias.rb", <<~RUBY)
+        require "optparse"
+        module Registry
+          PARSER = OptionParser.new
+        end
+        module X
+          module Registry
+            PARSER = Object.new
+          end
+          ParserRegistry = Registry
+          def self.subscribe(name)
+            ParserRegistry::PARSER.on(name)
+          end
+        end
+      RUBY
+      assert inventory_for(root).verify!
+    end
+  end
+
+  def test_absolute_constant_alias_path_ignores_lexical_shadowing
+    with_repository_copy do |root|
+      write_ruby(root, "lib/absolute_alias.rb", <<~RUBY)
+        require "optparse"
+        module Registry
+          PARSER = OptionParser.new
+        end
+        ParserRegistry = Registry
+        module X
+          module ParserRegistry
+            PARSER = Object.new
+          end
+          def self.add_hidden(name)
+            ::ParserRegistry::PARSER.on(name)
+          end
+        end
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
+  def test_namespace_identity_alias_reopens_are_direction_and_order_independent
+    directions = [%w[ParserRegistry Registry], %w[Registry ParserRegistry]]
+    orders = [%w[a_create.rb z_reopen.rb], %w[z_create.rb a_reopen.rb]]
+    directions.product(orders).each do |(created_as, reopened_as), (create_file, reopen_file)|
+      with_repository_copy do |root|
+        write_identity_alias_fixture(root, created_as, reopened_as, create_file, reopen_file)
+        error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+        label = "#{created_as} -> #{reopened_as}, #{create_file} -> #{reopen_file}"
+        assert_match(/has no static spelling/, error.message, label)
+      end
+    end
+  end
+
+  def test_superclass_alias_preserves_indirect_optionparser_subclass_context
+    with_repository_copy do |root|
+      write_ruby(root, "lib/a_aliased_child.rb", <<~RUBY)
+        require_relative "z_aliased_base"
+        class ChildParser < BaseAlias
+          def add_hidden(name)
+            on(name)
+          end
+        end
+      RUBY
+      write_ruby(root, "lib/z_aliased_base.rb", <<~RUBY)
+        require "optparse"
+        class BaseParser < OptionParser; end
+        BaseAlias = BaseParser
+      RUBY
+      error = assert_raises(RuntimeError) { inventory_for(root).verify! }
+      assert_match(/has no static spelling/, error.message)
+    end
+  end
+
   def test_source_proven_optionparser_receivers_reject_dynamic_spellings
     SOURCE_PROVEN_REGISTRATIONS.each do |label, registration|
       with_repository_copy do |root|
@@ -929,6 +1092,12 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     path = File.join(root, relative)
     FileUtils.mkdir_p(File.dirname(path))
     File.binwrite(path, source)
+  end
+
+  def write_identity_alias_fixture(root, created_as, reopened_as, create_file, reopen_file)
+    write_ruby(root, "lib/m_identity_alias.rb", IDENTITY_ALIAS_MUTATION)
+    write_ruby(root, "lib/#{create_file}", format(IDENTITY_CLASS_MUTATION, owner: created_as))
+    write_ruby(root, "lib/#{reopen_file}", format(IDENTITY_REOPEN_MUTATION, owner: reopened_as))
   end
 
   def with_repository_copy
