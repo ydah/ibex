@@ -72,6 +72,6 @@ module Ibex
 
     type interpretation = Hash[Symbol, untyped]
 
-    type counterexample = { state: Integer, type: Symbol, symbol_path: Array[String], sentence: Array[String], lookahead_index: Integer, unifying: bool, inconclusive: bool, search: LALR::search_outcome, interpretations: Array[interpretation] }
+    type counterexample = { state: Integer, type: Symbol, symbol_path: Array[String], sentence: Array[String], lookahead_index: Integer, unifying: bool, interpretations: Array[interpretation] }
   end
 end

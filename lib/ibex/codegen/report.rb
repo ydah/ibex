@@ -12,19 +12,21 @@ module Ibex
       #     Array[String] lines,
       #     IR::AutomatonState state,
       #     IR::Grammar grammar,
-      #     Array[IR::counterexample] examples,
+      #     Array[LALR::search_counterexample] examples,
       #     Hash[Integer, String] labels
       #   ) -> void
       #   private def self.append_state: (
       #     Array[String] lines,
       #     IR::AutomatonState state,
       #     IR::Grammar grammar,
-      #     Array[IR::counterexample] examples,
+      #     Array[LALR::search_counterexample] examples,
       #     Hash[Integer, String] labels
       #   ) -> void
-      #   private def append_counterexample: (Array[String] lines, IR::counterexample example, IR::Grammar grammar,
+      #   private def append_counterexample: (Array[String] lines, LALR::search_counterexample example,
+      #     IR::Grammar grammar,
       #     Hash[Integer, String] labels) -> void
-      #   private def self.append_counterexample: (Array[String] lines, IR::counterexample example, IR::Grammar grammar,
+      #   private def self.append_counterexample: (Array[String] lines, LALR::search_counterexample example,
+      #     IR::Grammar grammar,
       #     Hash[Integer, String] labels) -> void
       #   private def append_tree: (Array[String] lines, untyped tree, String indentation, IR::Grammar grammar,
       #     Hash[Integer, String] labels) -> void

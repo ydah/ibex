@@ -38,5 +38,16 @@ module Ibex
     #     exhausted: bool,
     #     bounds: search_bounds
     #   }
+    #   type search_counterexample = {
+    #     state: Integer,
+    #     type: Symbol,
+    #     symbol_path: Array[String],
+    #     sentence: Array[String],
+    #     lookahead_index: Integer,
+    #     unifying: bool,
+    #     inconclusive: bool,
+    #     search: search_outcome,
+    #     interpretations: Array[IR::interpretation]
+    #   }
   end
 end

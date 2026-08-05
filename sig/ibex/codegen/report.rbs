@@ -4,13 +4,13 @@ module Ibex
   module Codegen
     # Renders a human-readable state and conflict report from Automaton IR.
     module Report
-      private def append_state: (Array[String] lines, IR::AutomatonState state, IR::Grammar grammar, Array[IR::counterexample] examples, Hash[Integer, String] labels) -> void
+      private def append_state: (Array[String] lines, IR::AutomatonState state, IR::Grammar grammar, Array[LALR::search_counterexample] examples, Hash[Integer, String] labels) -> void
 
-      private def self.append_state: (Array[String] lines, IR::AutomatonState state, IR::Grammar grammar, Array[IR::counterexample] examples, Hash[Integer, String] labels) -> void
+      private def self.append_state: (Array[String] lines, IR::AutomatonState state, IR::Grammar grammar, Array[LALR::search_counterexample] examples, Hash[Integer, String] labels) -> void
 
-      private def append_counterexample: (Array[String] lines, IR::counterexample example, IR::Grammar grammar, Hash[Integer, String] labels) -> void
+      private def append_counterexample: (Array[String] lines, LALR::search_counterexample example, IR::Grammar grammar, Hash[Integer, String] labels) -> void
 
-      private def self.append_counterexample: (Array[String] lines, IR::counterexample example, IR::Grammar grammar, Hash[Integer, String] labels) -> void
+      private def self.append_counterexample: (Array[String] lines, LALR::search_counterexample example, IR::Grammar grammar, Hash[Integer, String] labels) -> void
 
       private def append_tree: (Array[String] lines, untyped tree, String indentation, IR::Grammar grammar, Hash[Integer, String] labels) -> void
 

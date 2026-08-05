@@ -11,23 +11,23 @@ module Ibex
       # @rbs (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> void
       def initialize: (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> void
 
-      # @rbs () -> Array[IR::counterexample]
-      def all: () -> Array[IR::counterexample]
+      # @rbs () -> Array[search_counterexample]
+      def all: () -> Array[search_counterexample]
 
-      # @rbs (Integer state_id, Integer conflict_index) -> IR::counterexample
-      def for_conflict: (Integer state_id, Integer conflict_index) -> IR::counterexample
+      # @rbs (Integer state_id, Integer conflict_index) -> search_counterexample
+      def for_conflict: (Integer state_id, Integer conflict_index) -> search_counterexample
 
       private
 
-      # @rbs (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample
-      def build_example: (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample
+      # @rbs (IR::AutomatonState state, IR::conflict conflict) -> search_counterexample
+      def build_example: (IR::AutomatonState state, IR::conflict conflict) -> search_counterexample
 
       # @rbs (IR::AutomatonState state, IR::conflict conflict, search_outcome outcome,
-      #   search_result result) -> IR::counterexample
-      def unifying_example: (IR::AutomatonState state, IR::conflict conflict, search_outcome outcome, search_result result) -> IR::counterexample
+      #   search_result result) -> search_counterexample
+      def unifying_example: (IR::AutomatonState state, IR::conflict conflict, search_outcome outcome, search_result result) -> search_counterexample
 
-      # @rbs (IR::AutomatonState state, IR::conflict conflict, search_outcome outcome) -> IR::counterexample
-      def reachability_example: (IR::AutomatonState state, IR::conflict conflict, search_outcome outcome) -> IR::counterexample
+      # @rbs (IR::AutomatonState state, IR::conflict conflict, search_outcome outcome) -> search_counterexample
+      def reachability_example: (IR::AutomatonState state, IR::conflict conflict, search_outcome outcome) -> search_counterexample
 
       # @rbs (Integer target, IR::conflict conflict) -> Array[Integer]
       def shortest_state_path: (Integer target, IR::conflict conflict) -> Array[Integer]
