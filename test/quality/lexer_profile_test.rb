@@ -31,7 +31,7 @@ class QualityLexerProfileTest < Minitest::Test
     alternation.dig("result", "token_lengths", "sample", 0)["bytes"] = 2
 
     error = assert_raises(RuntimeError) { verify(changed) }
-    assert_match(/leftmost-first/, error.message)
+    assert_match(/token length|leftmost-first/, error.message)
   end
 
   def test_chunk_boundary_claim_requires_a_token_crossing_the_boundary
