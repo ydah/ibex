@@ -17,9 +17,11 @@ and malformed or duplicate artifacts. Every mutation names the layer and
 invariant expected to reject it.
 
 The corpus distinguishes structural validation from digest binding. It may
-refresh the table payload digest to reach a deeper structural invariant, but a
-semantically plausible in-range cell mutation is expected to cross the table
-validator and then fail the unchanged report or manifest binding. It never
+refresh the table payload digest to reach a deeper structural invariant. It
+refreshes the derived canonical byte count only when a structurally valid
+survivor would otherwise stop at that derived cost field. A semantically
+plausible in-range cell mutation is expected to cross the table validator and
+then fail the unchanged report or manifest binding. It never
 claims to reject an attacker who coherently replaces and re-signs every layer;
 V003 explicitly excludes authenticity and table semantic derivation.
 
@@ -65,7 +67,8 @@ validation still succeeds, then requires the unchanged outer binding to fail.
 - each mutation is deterministic and independent;
 - refreshed structural mutations reach their intended validator;
 - in-range semantic mutations are stopped by report/manifest binding;
-- truncated JSON and duplicate manifest artifact roles fail closed;
+- table/report and report/manifest byte bindings, truncated JSON, and duplicate
+  manifest artifact roles fail closed;
 - no mutation is accepted as a valid unchanged bundle.
 
 ## Claims
