@@ -129,7 +129,7 @@ module Ibex
         checks = integer_array(table.fetch("checks"), "#{path}.checks", allow_nil: true, minimum: 0)
         invalid(path, "#{value_key} and checks must have equal length") unless values.length == checks.length
 
-        rows = Array.new(@state_count) { {} }
+        rows = Array.new(@state_count) { {} } #: Array[Hash[Integer, untyped]]
         checks.each_index do |index|
           row = checks[index]
           value = values[index]

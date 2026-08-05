@@ -64,8 +64,9 @@ module Ibex
         bytes = +"".b
         loop do
           chunk = source.read((max_bytes + 1) - bytes.bytesize)
-          break if chunk.nil? || chunk.empty?
+          break if chunk.nil?
           raise ValidationError, "table artifact reader must return strings" unless chunk.is_a?(String)
+          break if chunk.empty?
 
           bytes << chunk
           break if bytes.bytesize > max_bytes

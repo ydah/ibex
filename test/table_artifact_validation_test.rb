@@ -84,6 +84,17 @@ class TableArtifactValidationTest < Minitest::Test
     assert_equal fixture_dump, Ibex::TableArtifact.load(reader).dump
   end
 
+  def test_loader_rejects_non_string_reader_chunks
+    reader = Class.new do
+      def read(_length) = 1
+    end.new
+
+    error = assert_raises(Ibex::TableArtifact::ValidationError) do
+      Ibex::TableArtifact.load(reader)
+    end
+    assert_includes error.message, "reader must return strings"
+  end
+
   private
 
   def resign!(document)
