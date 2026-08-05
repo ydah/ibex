@@ -1,0 +1,115 @@
+# Generated from lib/ibex/verification_report/validator.rb with RBS::Inline
+
+module Ibex
+  module VerificationReport
+    # Validates a report and its cross-artifact manifest/table bindings.
+    # rubocop:disable Metrics/ClassLength -- closed report and cross-artifact invariants form one validator contract.
+    class Validator
+      ROOT_KEYS: Array[String]
+
+      CHECKER_KEYS: Array[String]
+
+      BOUNDS_KEYS: Array[String]
+
+      INPUT_KEYS: Array[String]
+
+      INPUT_FILE_KEYS: Array[String]
+
+      IR_KEYS: Array[String]
+
+      GRAMMAR_KEYS: Array[String]
+
+      AUTOMATON_KEYS: Array[String]
+
+      TABLE_KEYS: Array[String]
+
+      OUTCOME_KEYS: Array[String]
+
+      VIOLATION_KEYS: Array[String]
+
+      EXHAUSTION_KEYS: Array[String]
+
+      DIGEST: Regexp
+
+      ALGORITHMS: Array[String]
+
+      # @rbs (String source) -> Hash[String, untyped]
+      def validate: (String source) -> Hash[String, untyped]
+
+      # @rbs (manifest_source: String, report_source: String, table_source: String) -> Hash[String, untyped]
+      def validate_bundle: (manifest_source: String, report_source: String, table_source: String) -> Hash[String, untyped]
+
+      # @rbs (String manifest_path) -> Hash[String, untyped]
+      def validate_bundle_file: (String manifest_path) -> Hash[String, untyped]
+
+      private
+
+      # @rbs (untyped document) -> void
+      def validate_document: (untyped document) -> void
+
+      # @rbs (untyped value) -> void
+      def validate_checker: (untyped value) -> void
+
+      # @rbs (untyped value) -> void
+      def validate_bounds: (untyped value) -> void
+
+      # @rbs (untyped value) -> void
+      def validate_input: (untyped value) -> void
+
+      # @rbs (untyped value) -> void
+      def validate_ir: (untyped value) -> void
+
+      # @rbs (untyped value) -> void
+      def validate_table: (untyped value) -> void
+
+      # @rbs (untyped value, String profile) -> void
+      def validate_outcome: (untyped value, String profile) -> void
+
+      # @rbs (untyped value, Array[String] requested) -> Array[untyped]
+      def validate_violations: (untyped value, Array[String] requested) -> Array[untyped]
+
+      # @rbs (Hash[String, untyped] manifest, String kind) -> Hash[String, untyped]
+      def unique_artifact: (Hash[String, untyped] manifest, String kind) -> Hash[String, untyped]
+
+      # @rbs (Hash[String, untyped] entry, String source, String label) -> void
+      def validate_manifest_bytes!: (Hash[String, untyped] entry, String source, String label) -> void
+
+      # @rbs (Hash[String, untyped] manifest, Hash[String, untyped] report) -> void
+      def validate_inputs!: (Hash[String, untyped] manifest, Hash[String, untyped] report) -> void
+
+      # @rbs (Hash[String, untyped] report, TableArtifact::Document table,
+      #   Hash[String, untyped] table_entry) -> void
+      def validate_table_binding!: (Hash[String, untyped] report, TableArtifact::Document table, Hash[String, untyped] table_entry) -> void
+
+      # @rbs (untyped value, String path) -> Array[String]
+      def checks: (untyped value, String path) -> Array[String]
+
+      # @rbs (untyped value, Array[String] keys, String path) -> Hash[String, untyped]
+      def object: (untyped value, Array[String] keys, String path) -> Hash[String, untyped]
+
+      # @rbs (untyped value, String path) -> Array[untyped]
+      def array: (untyped value, String path) -> Array[untyped]
+
+      # @rbs (untyped value, String path, ?allow_empty: bool) -> String
+      def string: (untyped value, String path, ?allow_empty: bool) -> String
+
+      # @rbs (untyped value, String path) -> String
+      def logical_path: (untyped value, String path) -> String
+
+      # @rbs (untyped value, String path) -> String
+      def digest: (untyped value, String path) -> String
+
+      # @rbs (untyped value, String path) -> Integer
+      def positive_integer: (untyped value, String path) -> Integer
+
+      # @rbs (untyped value, String path) -> Integer
+      def nonnegative_integer: (untyped value, String path) -> Integer
+
+      # @rbs [T] (T value, Array[T] values, String path) -> T
+      def enum: [T] (T value, Array[T] values, String path) -> T
+
+      # @rbs (untyped actual, untyped expected, String path) -> void
+      def equal: (untyped actual, untyped expected, String path) -> void
+    end
+  end
+end

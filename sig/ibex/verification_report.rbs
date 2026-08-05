@@ -1,0 +1,38 @@
+# Generated from lib/ibex/verification_report.rb with RBS::Inline
+
+module Ibex
+  # A versioned, scoped report that binds bounded verification to input and
+  # data-only parser table identities without claiming to verify opaque code.
+  module VerificationReport
+    IDENTIFIER: String
+
+    SCHEMA_VERSION: Integer
+
+    DEFAULT_MAX_STATES: Integer
+
+    DEFAULT_MAX_ITEMS: Integer
+
+    EXCLUDED_TRUST: Array[String]
+
+    class ValidationError < Ibex::Error
+    end
+
+    # @rbs (IR::Automaton automaton, table: TableArtifact::Document,
+    #   source_records: Array[GenerationInput], table_path: String, ?strict: bool,
+    #   ?max_states: Integer, ?max_items: Integer) -> String
+    def self?.render: (IR::Automaton automaton, table: TableArtifact::Document, source_records: Array[GenerationInput], table_path: String, ?strict: bool, ?max_states: Integer, ?max_items: Integer) -> String
+
+    # Validate the closed report shape and its canonical evidence digest.
+    # @rbs (String source) -> Hash[String, untyped]
+    def self?.validate: (String source) -> Hash[String, untyped]
+
+    # Validate report, table, and manifest bytes as one non-cyclic bundle.
+    # @rbs (manifest_source: String, report_source: String, table_source: String) -> Hash[String, untyped]
+    def self?.validate_bundle: (manifest_source: String, report_source: String, table_source: String) -> Hash[String, untyped]
+
+    # Resolve the report and table through a manifest and validate every
+    # published artifact before checking the cross-artifact identities.
+    # @rbs (String manifest_path) -> Hash[String, untyped]
+    def self?.validate_bundle_file: (String manifest_path) -> Hash[String, untyped]
+  end
+end

@@ -1,0 +1,24 @@
+# Generated from lib/ibex/verifiable_generation_bundle.rb with RBS::Inline
+
+module Ibex
+  # Explicitly renders and publishes one manifest-bound verification bundle.
+  class VerifiableGenerationBundle
+    # rubocop:disable Metrics/ParameterLists -- persisted artifact paths and verification bounds are explicit inputs.
+    # @rbs (IR::Automaton automaton, wrapper_path: String, wrapper_source: String,
+    #   table_path: String, report_path: String, manifest_path: String,
+    #   source_records: Array[GenerationInput], ?manifest_options: Hash[String, untyped],
+    #   ?wrapper_mode: Integer?, ?representation: Symbol | String, ?cst_trivia: Symbol | String?,
+    #   ?omit_action_call: bool?, ?strict: bool, ?max_states: Integer, ?max_items: Integer) -> void
+    def initialize: (IR::Automaton automaton, wrapper_path: String, wrapper_source: String, table_path: String, report_path: String, manifest_path: String, source_records: Array[GenerationInput], ?manifest_options: Hash[String, untyped], ?wrapper_mode: Integer?, ?representation: Symbol | String, ?cst_trivia: Symbol | String?, ?omit_action_call: bool?, ?strict: bool, ?max_states: Integer, ?max_items: Integer) -> void
+
+    # Render table, wrapper, and report before the non-cyclic manifest marker.
+    # @rbs () -> ArtifactSet
+    def render: () -> ArtifactSet
+
+    # @rbs (?warning: ^(String) -> void, ?stability_check: ^() -> bool) -> ArtifactSet
+    def publish: (?warning: ^(String) -> void, ?stability_check: ^() -> bool) -> ArtifactSet
+
+    # @rbs (String manifest_path) -> Hash[String, untyped]
+    def self.validate_file: (String manifest_path) -> Hash[String, untyped]
+  end
+end
