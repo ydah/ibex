@@ -179,6 +179,34 @@ correctness, or performance fixes: the application that chooses embedding owns
 regeneration and redeployment. Loading embedded and installed copies into one
 process is not a supported upgrade mechanism.
 
+### Syntax-session ABI classification
+
+Adding `SyntaxSession` keeps parser-table format v6 unchanged and adds methods
+and immutable result types to the current Ruby runtime API. Existing
+non-embedded generated source remains byte-identical and acquires the API from
+a compatible runtime-package upgrade. Embedded generated source copies runtime
+implementation bytes, so its bytes change and regeneration plus redeployment
+is required to acquire the API or later session correctness fixes. Existing
+embedded parsers that are not regenerated retain their previous parsing
+behavior but do not gain the new façade.
+
+The repository contract can represent that combined assessment without
+claiming a table-format bump. The conservative `regeneration: required` value
+applies to the affected embedded artifacts; the rationale records why the
+non-embedded path only needs a runtime upgrade:
+
+```yaml
+state: compatible
+surfaces: [runtime_api, embedded_runtime, cst]
+abi_choice: current_contract
+regeneration: required
+rationale: Table v6 is unchanged and the runtime API is additive; embedded output bytes change and must be regenerated to acquire SyntaxSession.
+affected_interactions: [incremental_cst, syntax_session, embedded_runtime]
+evidence: [lib/ibex/runtime/cst/incremental/relexer.rb, lib/ibex/runtime/cst/incremental/session.rb, lib/ibex/runtime/syntax_session.rb, lib/ibex/runtime/parser.rb, lib/ibex/runtime/embedded_source.rb, test/runtime/syntax_session_test.rb, test/packaging/runtime_gem_test.rb]
+tests: [test/runtime/cst_incremental_test.rb, test/runtime/syntax_session_test.rb, test/packaging/runtime_gem_test.rb]
+verification: [bundle exec rake quality:runtime_abi, bundle exec ruby -Itest test/runtime/cst_incremental_test.rb, bundle exec ruby -Itest test/runtime/syntax_session_test.rb, bundle exec ruby -Itest test/packaging/runtime_gem_test.rb]
+```
+
 ## Sidecar, IR version, or table-format version
 
 Choose the boundary by its consumer:

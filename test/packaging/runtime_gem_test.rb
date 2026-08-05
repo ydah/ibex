@@ -7,7 +7,7 @@ require "rbconfig"
 require "rubygems/package"
 require "tmpdir"
 
-class RuntimeGemPackagingTest < Minitest::Test
+class RuntimeGemPackagingTest < Minitest::Test # rubocop:disable Metrics/ClassLength -- one package boundary suite.
   ROOT = File.expand_path("../..", __dir__)
   RUNTIME_GEMSPEC = File.join(ROOT, "ibex-runtime.gemspec")
   GENERATOR_GEMSPEC = File.join(ROOT, "ibex.gemspec")
@@ -17,6 +17,20 @@ class RuntimeGemPackagingTest < Minitest::Test
     token VALUE
     rule
     start: VALUE { result = val[0] }
+    end
+  GRAMMAR
+  SYNTAX_SOURCE = <<~GRAMMAR
+    class EmbeddedSyntaxParser
+    pragma cst
+    token NUM PLUS
+    lexer
+      skip /[[:space:]]+/
+      NUM /[0-9]+/
+      PLUS '+'
+    end
+    rule
+    start: expression { raise "parser action executed" }
+    expression: NUM PLUS NUM { raise "parser action executed" }
     end
   GRAMMAR
 
@@ -33,6 +47,7 @@ class RuntimeGemPackagingTest < Minitest::Test
     assert_equal Ibex::Runtime::VERSION, runtime.version.to_s
     assert_includes runtime.files, "lib/ibex/runtime.rb"
     assert_includes runtime.files, "lib/ibex/runtime/embedded_source.rb"
+    assert_includes runtime.files, "lib/ibex/runtime/syntax_session.rb"
     assert_includes runtime.files, "lib/ibex/runtime/version.rb"
     assert_includes runtime.files, "lib/ibex/tables/compact.rb"
     assert_includes runtime.files, "lib/ibex/tables/compact_actions.rb"
@@ -54,6 +69,7 @@ class RuntimeGemPackagingTest < Minitest::Test
   def assert_runtime_signatures(runtime)
     assert_includes runtime.files, "sig/ibex/runtime/embedded_source.rbs"
     assert_includes runtime.files, "sig/ibex/runtime/parser.rbs"
+    assert_includes runtime.files, "sig/ibex/runtime/syntax_session.rbs"
     assert_includes runtime.files, "sig/ibex/tables/compact_actions.rbs"
     assert_includes runtime.files, "sig/ibex/tables/compact_productions.rbs"
   end
@@ -116,6 +132,28 @@ class RuntimeGemPackagingTest < Minitest::Test
       File.binwrite(File.join(directory, "parser.rb"), generated_parser(embedded: true))
       _stdout, stderr, status = Open3.capture3(
         ISOLATED_ENV, RbConfig.ruby, "--disable-gems", "-e", runtime_script, chdir: directory
+      )
+
+      assert status.success?, stderr
+    end
+  end
+
+  def test_embedded_generated_parser_opens_and_edits_a_syntax_session
+    Dir.mktmpdir("ibex-embedded-syntax-session") do |directory|
+      source = generated_parser(embedded: true, grammar_source: SYNTAX_SOURCE)
+      File.binwrite(File.join(directory, "parser.rb"), source)
+      script = <<~RUBY
+        load File.expand_path("parser.rb", Dir.pwd)
+        session = EmbeddedSyntaxParser.syntax_session(
+          "1 + 2", execution_profile: :trusted_application_code
+        )
+        abort "initial syntax failed" unless session.result.syntax_root.to_source == "1 + 2"
+        edit = Ibex::Runtime::CST::TextEdit.new(start: 4, delete_length: 1, insert_text: "8")
+        result = session.apply_edits([edit])
+        abort "syntax edit failed" unless result.success? && result.syntax_root.to_source == "1 + 8"
+      RUBY
+      _stdout, stderr, status = Open3.capture3(
+        ISOLATED_ENV, RbConfig.ruby, "--disable-gems", "-e", script, chdir: directory
       )
 
       assert status.success?, stderr
@@ -192,8 +230,8 @@ class RuntimeGemPackagingTest < Minitest::Test
     end
   end
 
-  def generated_parser(embedded:)
-    ast = Ibex::Frontend::Parser.new(SOURCE, file: "runtime-only.y").parse
+  def generated_parser(embedded:, grammar_source: SOURCE)
+    ast = Ibex::Frontend::Parser.new(grammar_source, file: "runtime-only.y").parse
     grammar = Ibex::Normalizer.new(ast).normalize
     automaton = Ibex::LALR::Builder.new(grammar).build
     Ibex::Codegen::Ruby.new(automaton, embedded: embedded).generate
