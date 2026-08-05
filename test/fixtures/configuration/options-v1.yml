@@ -4,8 +4,8 @@ scope:
   source_globs:
   - exe/*
   - lib/**/*.rb
-  call_site_count: 177
-  runtime_registration_count: 186
+  call_site_count: 186
+  runtime_registration_count: 195
 registrations:
 - id: lib/ibex/cli.rb#add_compatibility_options#--check
   source: lib/ibex/cli.rb
@@ -1785,6 +1785,280 @@ registrations:
   registration_api: 'on'
   source_value_type: string
   value_domain: caller-supplied filesystem or logical source path
+- id: lib/ibex/cli/config.rb#add_config_contract_options#--algorithm=NAME
+  source: lib/ibex/cli/config.rb
+  method: add_config_contract_options
+  line: 85
+  declaration_sha256: c56187a226db393b2bfef9c28688fcfabda890037001b765883a7c428927d09d
+  context_sha256:
+  surface: config
+  declared_spellings:
+  - "--algorithm=NAME"
+  effective_spellings:
+  - "--algorithm=NAME"
+  canonical_key: parser.algorithm
+  value_type: enum
+  default: lalr
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (parser.algorithm).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: fixed
+  ir_presence: grammar_ir_v3_parser_contract
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: slr | lalr | ielr | lr1
+- id: lib/ibex/cli/config.rb#add_config_contract_options#--cst-trivia=POLICY
+  source: lib/ibex/cli/config.rb
+  method: add_config_contract_options
+  line: 91
+  declaration_sha256: 45307ec015ebfe5d6508f8601d4f4f995c8d9c1b70d3923910c9afcf5a3387ed
+  context_sha256:
+  surface: config
+  declared_spellings:
+  - "--cst-trivia=POLICY"
+  effective_spellings:
+  - "--cst-trivia=POLICY"
+  canonical_key: cst.trivia
+  value_type: enum
+  default: leading
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (cst.trivia).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: fixed
+  ir_presence: grammar_ir_v3_parser_contract
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: leading | balanced | drop; source alias attach normalizes to leading
+- id: lib/ibex/cli/config.rb#add_config_contract_options#--entry-isolation
+  source: lib/ibex/cli/config.rb
+  method: add_config_contract_options
+  line: 88
+  declaration_sha256: 78ea8fb9bf0bdb81240576914525161a0dbf090bdda92c66860dfec281b93567
+  context_sha256:
+  surface: config
+  declared_spellings:
+  - "--entry-isolation"
+  effective_spellings:
+  - "--entry-isolation"
+  canonical_key: parser.entries
+  value_type: boolean
+  default: shared
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (parser.entries).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: fixed
+  ir_presence: grammar_ir_v3_parser_contract
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
+- id: lib/ibex/cli/config.rb#add_config_contract_options#--mode=MODE
+  source: lib/ibex/cli/config.rb
+  method: add_config_contract_options
+  line: 82
+  declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
+  context_sha256:
+  surface: config
+  declared_spellings:
+  - "--mode=MODE"
+  effective_spellings:
+  - "--mode=MODE"
+  canonical_key: grammar.mode
+  value_type: enum
+  default: default
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (grammar.mode).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: staged_fixed_compatibility
+  ir_presence: grammar_ir_v2_current
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: staged_compatibility
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: default | extended
+- id: lib/ibex/cli/config.rb#add_config_contract_options#--no-omit-actions
+  source: lib/ibex/cli/config.rb
+  method: add_config_contract_options
+  line: 97
+  declaration_sha256: ec6db9c5dd253bcb5644fcc555baf01957007cc1ebd73105a28cf28f58867b83
+  context_sha256:
+  surface: config
+  declared_spellings:
+  - "--no-omit-actions"
+  effective_spellings:
+  - "--no-omit-actions"
+  canonical_key: actions.omit_calls
+  value_type: boolean
+  default: nil; grammar/code-generator action ABI default
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (actions.omit_calls).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: staged_fixed_compatibility
+  ir_presence: grammar_ir_v2_current
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: staged_compatibility
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
+- id: lib/ibex/cli/config.rb#add_config_contract_options#--superclass=CLASS
+  source: lib/ibex/cli/config.rb
+  method: add_config_contract_options
+  line: 94
+  declaration_sha256: '0771299cbc33a7b7460268d3fd9133630b456ad9c5204a98bba523a8c8c43e55'
+  context_sha256:
+  surface: config
+  declared_spellings:
+  - "--superclass=CLASS"
+  effective_spellings:
+  - "--superclass=CLASS"
+  canonical_key: parser.superclass
+  value_type: string
+  default: grammar superclass or runtime parser base
+  affected_stages:
+  - frontend
+  - normalization
+  - parser_generation
+  public_contract_effect: Changes parser construction, grammar/action ABI, tree ownership,
+    or parser public contract (parser.superclass).
+  owner_class: grammar_contract
+  grammar_admission: admitted_a1_a8
+  override_algebra: staged_fixed_compatibility
+  ir_presence: grammar_ir_v2_current
+  manifest_presence: current
+  trust_implications: Validate statically; do not execute grammar actions or user
+    sections.
+  compatibility_status: staged_compatibility
+  registration_api: 'on'
+  source_value_type: string
+  value_domain: string constrained by command validation
+- id: lib/ibex/cli/config.rb#add_config_options#--format=FORMAT
+  source: lib/ibex/cli/config.rb
+  method: add_config_options
+  line: 70
+  declaration_sha256: 918f5475f0e267b415743dde57244aa0146ffcb60207c86c3a9274bf1301cc69
+  context_sha256:
+  surface: config
+  declared_spellings:
+  - "--format=FORMAT"
+  effective_spellings:
+  - "--format=FORMAT"
+  canonical_key: report.config.format
+  value_type: enum
+  default: text
+  affected_stages:
+  - analysis
+  - report
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: text | json
+- id: lib/ibex/cli/config.rb#add_config_options#--from=FORMAT
+  source: lib/ibex/cli/config.rb
+  method: add_config_options
+  line: 73
+  declaration_sha256: 10b920240e8549f909179bf2724cda507e96e6c4fddd6b9666445234b2d176ed
+  context_sha256:
+  surface: config
+  declared_spellings:
+  - "--from=FORMAT"
+  effective_spellings:
+  - "--from=FORMAT"
+  canonical_key: invocation.config.from
+  value_type: enum
+  default: unset
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x1_operation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: Validate the selected IR as untrusted data; never execute embedded
+    user sections while loading or inventorying it.
+  compatibility_status: current
+  registration_api: 'on'
+  source_value_type: enum
+  value_domain: grammar-ir
+- id: lib/ibex/cli/config.rb#add_config_options#--help
+  source: lib/ibex/cli/config.rb
+  method: add_config_options
+  line: 77
+  declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
+  context_sha256:
+  surface: config
+  declared_spellings:
+  - "--help"
+  effective_spellings:
+  - "--help"
+  canonical_key: presentation.help
+  value_type: boolean
+  default: 'false'
+  affected_stages:
+  - invocation
+  public_contract_effect: Changes only the selected operation, bounded evidence, destination,
+    or presentation for this invocation.
+  owner_class: invocation_request
+  grammar_admission: excluded_x3_presentation
+  override_algebra: invocation_only
+  ir_presence: not_persisted
+  manifest_presence: not_applicable
+  trust_implications: CLI input only; it must not become trusted grammar or execute
+    while inventorying.
+  compatibility_status: current
+  registration_api: 'on'
+  source_value_type: boolean
+  value_domain: true | false
 - id: lib/ibex/cli/counterexample_options.rb#add_counterexample_options#--counterexample-max-configurations=N
   source: lib/ibex/cli/counterexample_options.rb
   method: add_counterexample_options

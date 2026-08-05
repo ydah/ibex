@@ -1,0 +1,28 @@
+# Effective configuration reports
+
+`ibex config` explains every key in `Ibex::Configuration::Registry` without generating or loading a parser:
+
+```console
+ibex config grammar.y
+ibex config --format=json grammar.y
+ibex config --from=grammar-ir --format=json grammar.json
+```
+
+The command has a `static-no-user-code` trust boundary. For grammar source it uses the contained source resolver, so
+the root grammar and its import closure are parsed as data while parent traversal, absolute imports, glob imports,
+and symlink escapes are rejected. Parser actions, lexer actions, user-code sections, and generated parser classes are
+never executed or required. Grammar IR input is accepted only through the normal versioned IR validator.
+
+Each setting reports its effective value, owner, override policy, origin and source location when recorded,
+explicit or implicit selection, canonical or noncanonical conformance, recording status, and source evidence.
+Evidence is classified as `accepted`, `ignored`, `duplicate`, or `conflicting`. The JSON projection is deterministic,
+uses schema version 1, and always lists canonical keys in lexical order.
+
+Grammar IR v3 `parser_contract` entries are authoritative for `parser.algorithm`, `parser.entries`, and `cst.trivia`.
+A matching command-line request is retained as accepted evidence. A contradictory request produces a positioned,
+structured conflict report and exits nonzero. An unspecified v3 entry remains explicitly `unspecified`; Grammar IR
+v1 and v2 report the parser contract as `unavailable`. In both cases a current builtin or CLI value is not presented
+as a historical fact.
+
+The source grammar syntax does not yet include the future declarative parser block. `ibex config` does not add or
+silently recognize that syntax; it reports currently supported source facts and validated Grammar IR contracts only.

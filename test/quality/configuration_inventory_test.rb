@@ -233,10 +233,10 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     inventory = document
     entries = inventory.fetch("registrations")
 
-    assert_equal 177, inventory.dig("scope", "call_site_count")
-    assert_equal 186, inventory.dig("scope", "runtime_registration_count")
+    assert_equal 186, inventory.dig("scope", "call_site_count")
+    assert_equal 195, inventory.dig("scope", "runtime_registration_count")
     assert_equal ["exe/*", "lib/**/*.rb"], inventory.dig("scope", "source_globs")
-    assert_equal(205, entries.sum { |entry| entry.fetch("effective_spellings").length })
+    assert_equal(214, entries.sum { |entry| entry.fetch("effective_spellings").length })
 
     fix = entries.select { |entry| entry.fetch("method") == "add_fix_budget_options" }
     imports = entries.select { |entry| entry.fetch("method") == "add_bison_import_budgets" }
@@ -263,13 +263,20 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     assert_contract(entries, "generate", "--algorithm=NAME", "parser.algorithm", "fixed")
     assert_contract(entries, "generate", "--entry-isolation", "parser.entries", "fixed")
     assert_contract(entries, "generate", "--cst-trivia=POLICY", "cst.trivia", "fixed")
-
     assert_equal "project_build_policy", find_entry(entries, "generate", "--table=FORMAT").fetch("owner_class")
     assert_equal "project_build_policy", find_entry(entries, "generate", "--embedded").fetch("owner_class")
     assert_equal "invocation_request", find_entry(entries, "generate", "--watch").fetch("owner_class")
     coverage = find_entry(entries, "test", "--coverage=PERCENT")
     assert_equal "invocation_request", coverage.fetch("owner_class")
     assert_equal "deferred_a5_minimum_undefined", coverage.fetch("grammar_admission")
+  end
+
+  def test_config_surface_uses_fixed_parser_contracts
+    entries = document.fetch("registrations")
+
+    assert_contract(entries, "config", "--algorithm=NAME", "parser.algorithm", "fixed")
+    assert_contract(entries, "config", "--entry-isolation", "parser.entries", "fixed")
+    assert_contract(entries, "config", "--cst-trivia=POLICY", "cst.trivia", "fixed")
   end
 
   def test_cst_trivia_contract_is_persisted_in_grammar_ir_v3_and_manifest
