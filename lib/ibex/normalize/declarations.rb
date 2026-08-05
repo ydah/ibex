@@ -28,6 +28,7 @@ module Ibex
       @on_error_reduce_locations = {} #: Hash[String, Frontend::Location]
       @grammar_tests = [] #: Array[IR::grammar_test]
       @lexer_declaration = nil #: Frontend::AST::Lexer?
+      @parser_configuration = nil #: Frontend::AST::ParserConfiguration?
       @node_shapes = {} #: Hash[String, Array[String]]
       @ast.declarations.each { |declaration| read_declaration(declaration) }
     end
@@ -46,6 +47,7 @@ module Ibex
       when Frontend::AST::Lexer
         fail_at(declaration.loc, "duplicate lexer declaration") if @lexer_declaration
         @lexer_declaration = declaration
+      when Frontend::AST::ParserConfiguration then read_parser_configuration(declaration)
       when Frontend::AST::Convert then read_conversions(declaration)
       when Frontend::AST::DisplayName, Frontend::AST::SemanticType, Frontend::AST::Parameter, Frontend::AST::Printer
         read_extended_declaration(declaration)
