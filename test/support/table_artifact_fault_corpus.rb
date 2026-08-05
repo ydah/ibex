@@ -31,6 +31,7 @@ module Ibex
         "V004-CST-METADATA-DIGEST" => :fault_cst_metadata_digest,
         "V004-TABLE-HASH" => :fault_table_hash,
         "V004-REPORT-HASH" => :fault_report_hash,
+        "V004-REPORT-MANIFEST-HASH" => :fault_report_manifest_hash,
         "V004-MANIFEST-HASH" => :fault_manifest_hash,
         "V004-TRUNCATED-ARTIFACT" => :fault_truncated_artifact,
         "V004-DUPLICATE-ARTIFACT" => :fault_duplicate_artifact
@@ -53,6 +54,7 @@ module Ibex
         "V004-CST-METADATA-DIGEST" => /cst_metadata_digest does not match payload cst/,
         "V004-TABLE-HASH" => /payload_digest does not match the canonical payload/,
         "V004-REPORT-HASH" => /evidence_digest mismatch/,
+        "V004-REPORT-MANIFEST-HASH" => /verification report manifest digest mismatch/,
         "V004-MANIFEST-HASH" => /parser table manifest digest mismatch/,
         "V004-TRUNCATED-ARTIFACT" => /invalid table artifact JSON/,
         "V004-DUPLICATE-ARTIFACT" => /exactly one parser_table artifact/
@@ -68,8 +70,8 @@ module Ibex
         expect 1
         rule
         start: expression @node Root(value)
-        expression: expression PLUS expression
-                  | NUM @node Number(value)
+        expression: expression PLUS expression { raise "V004 semantic action executed" }
+                  | NUM { raise "V004 semantic action executed" }
         end
       GRAMMAR
 
@@ -198,6 +200,15 @@ module Ibex
         FaultResult.new(error: error, standalone_accepted: false)
       end
 
+      def fault_report_manifest_hash
+        sources = bundle_sources
+        report = JSON.parse(sources.fetch(:verification_report))
+        report.fetch("checker")["version"] = "fault"
+        report_source = resign_report!(report)
+        error = capture_error { validate_bundle(sources.merge(verification_report: report_source)) }
+        FaultResult.new(error: error, standalone_accepted: false)
+      end
+
       def fault_manifest_hash
         sources = bundle_sources
         manifest = JSON.parse(sources.fetch(:manifest))
@@ -242,14 +253,17 @@ module Ibex
         sources = bundle_sources
         table = JSON.parse(sources.fetch(:parser_table))
         actions = table.dig("payload", "tables", "actions")
-        state_id, token_id, production_id = conflict_coordinates
+        state_id, token_id, shift_id, production_id = conflict_coordinates
         index = actions.fetch("offsets").fetch(state_id) + token_id
         unless actions.fetch("checks").fetch(index) == state_id
           raise "conflict action is not stored in the selected row"
         end
+        unless actions.fetch("codes").fetch(index) == shift_id + 1
+          raise "conflict action does not match the selected shift alternative"
+        end
 
         actions.fetch("codes")[index] = -2 - production_id
-        resign_table!(table)
+        resign_table!(table, refresh_cost: true)
         table_source = dump(table)
         manifest = JSON.parse(sources.fetch(:manifest))
         rebind_manifest!(manifest, "parser_table", table_source)
@@ -263,8 +277,10 @@ module Ibex
         state = bundle_automaton.states.find { |candidate| candidate.conflicts.any? } || raise("missing conflict")
         conflict = state.conflicts.find { |candidate| candidate.fetch(:type) == :shift_reduce } ||
                    raise("missing shift/reduce conflict")
+        raise "fixture conflict must select shift before mutation" unless conflict.dig(:resolution, :chose) == :shift
+
         token_id = bundle_automaton.grammar.symbol(conflict.fetch(:symbol)).id
-        [state.id, token_id, conflict.fetch(:reduce)]
+        [state.id, token_id, conflict.fetch(:shift_to), conflict.fetch(:reduce)]
       end
 
       def structural_fault
@@ -282,11 +298,12 @@ module Ibex
         Ibex::TableArtifact.load(dump(document))
       end
 
-      def resign_table!(document)
+      def resign_table!(document, refresh_cost: false)
         payload = document.fetch("payload")
         document.fetch("identity")["payload_digest"] = Ibex::TableArtifact::Serializer.digest(payload)
-        document.fetch("cost")["canonical_payload_bytes"] =
-          Ibex::TableArtifact::Serializer.compact(payload).bytesize
+        return unless refresh_cost
+
+        document.fetch("cost")["canonical_payload_bytes"] = Ibex::TableArtifact::Serializer.compact(payload).bytesize
       end
 
       def resign_report!(document)
@@ -332,24 +349,38 @@ module Ibex
 
       def bundle_sources
         @bundle_sources ||= Dir.mktmpdir("ibex-v004") do |directory|
-          source_path = File.join(directory, "grammar.y")
-          File.binwrite(source_path, V004_SOURCE)
-          @bundle_automaton = build_bundle_automaton(source_path)
-          records = [Ibex::GenerationInput.new(source_path, V004_SOURCE)]
-          bundle = Ibex::VerifiableGenerationBundle.new(
-            @bundle_automaton,
-            wrapper_path: File.join(directory, "parser.rb"),
-            wrapper_source: Ibex::Codegen::Ruby.new(@bundle_automaton).generate,
-            table_path: File.join(directory, "parser.tables.ibex.json"),
-            report_path: File.join(directory, "parser.verification.ibex.json"),
-            manifest_path: File.join(directory, "manifest.ibex.json"),
-            source_records: records,
-            manifest_options: { "table" => "compact" },
-            representation: :compact,
-            cst_trivia: :leading
-          )
-          bundle.render.to_h { |artifact| [artifact.kind, artifact.content] }.freeze
+          render_bundle_sources(directory)
         end
+      end
+
+      def with_bundle_directory(directory)
+        previous_sources = @bundle_sources
+        previous_automaton = @bundle_automaton
+        @bundle_sources = render_bundle_sources(directory)
+        yield
+      ensure
+        @bundle_sources = previous_sources
+        @bundle_automaton = previous_automaton
+      end
+
+      def render_bundle_sources(directory)
+        source_path = File.join(directory, "grammar.y")
+        File.binwrite(source_path, V004_SOURCE)
+        @bundle_automaton = build_bundle_automaton(source_path)
+        records = [Ibex::GenerationInput.new(source_path, V004_SOURCE)]
+        bundle = Ibex::VerifiableGenerationBundle.new(
+          @bundle_automaton,
+          wrapper_path: File.join(directory, "parser.rb"),
+          wrapper_source: Ibex::Codegen::Ruby.new(@bundle_automaton).generate,
+          table_path: File.join(directory, "parser.tables.ibex.json"),
+          report_path: File.join(directory, "parser.verification.ibex.json"),
+          manifest_path: File.join(directory, "manifest.ibex.json"),
+          source_records: records,
+          manifest_options: { "table" => "compact" },
+          representation: :compact,
+          cst_trivia: :leading
+        )
+        bundle.render.to_h { |artifact| [artifact.kind, artifact.content] }.freeze
       end
 
       def bundle_automaton

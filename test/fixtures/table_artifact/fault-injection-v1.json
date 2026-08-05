@@ -4,6 +4,7 @@
   "threat_model": {
     "faults_per_run": 1,
     "payload_digest_may_be_refreshed": true,
+    "derived_cost_may_be_refreshed_only_for_structural_survivor": true,
     "outer_binding_may_be_refreshed_only_to_reach_the_named_invariant": true,
     "coherent_all_layer_replacement": "excluded-authenticity-and-semantic-derivation"
   },
@@ -103,6 +104,12 @@
       "class": "report-hash",
       "layer": "report-identity",
       "invariant": "evidence_digest mismatch"
+    },
+    {
+      "id": "V004-REPORT-MANIFEST-HASH",
+      "class": "report-manifest-hash",
+      "layer": "manifest-binding",
+      "invariant": "verification report manifest digest mismatch"
     },
     {
       "id": "V004-MANIFEST-HASH",
