@@ -46,21 +46,22 @@ class VerificationReportSchemaTest < Minitest::Test
     refute_empty schemer.validate(document).to_a
   end
 
-  def test_schema_rejects_noncanonical_logical_paths_and_excess_inputs
+  def test_schema_rejects_noncanonical_and_control_character_logical_paths
     schemer = JSONSchemer.schema(JSON.parse(File.read(SCHEMA_PATH)))
     original = report_document
-    mutations = [
-      ->(value) { value.dig("input", "files", 0)["logical_path"] = "input/0000/subdir/x" },
-      ->(value) { value.dig("input", "files", 0)["logical_path"] = "input/0000/" },
-      ->(value) { value.fetch("table")["logical_path"] = "table/subdir/x" },
-      ->(value) { value.fetch("table")["logical_path"] = "table/" }
-    ]
 
-    mutations.each do |mutate|
-      document = Marshal.load(Marshal.dump(original))
-      mutate.call(document)
-      refute_empty schemer.validate(document).to_a
+    invalid_logical_paths.each do |kind, paths|
+      paths.each do |path|
+        document = Marshal.load(Marshal.dump(original))
+        set_logical_path(document, kind, path)
+        refute_empty schemer.validate(document).to_a, "#{kind}: #{path.inspect}"
+      end
     end
+  end
+
+  def test_schema_rejects_excess_inputs
+    schemer = JSONSchemer.schema(JSON.parse(File.read(SCHEMA_PATH)))
+    original = report_document
 
     too_many = Marshal.load(Marshal.dump(original))
     entry = too_many.dig("input", "files", 0)
@@ -68,7 +69,31 @@ class VerificationReportSchemaTest < Minitest::Test
     refute_empty schemer.validate(too_many).to_a
   end
 
+  def test_schema_accepts_unicode_logical_basenames
+    schemer = JSONSchemer.schema(JSON.parse(File.read(SCHEMA_PATH)))
+    document = report_document
+    document.dig("input", "files", 0)["logical_path"] = "input/0000/文法.y"
+    document.fetch("table")["logical_path"] = "table/表.ibex.json"
+
+    assert_empty schemer.validate(document).to_a
+  end
+
   private
+
+  def invalid_logical_paths
+    {
+      input: ["input/0000/subdir/x", "input/0000/", "input/0000/x\n", "input/0000/x\r", "input/0000/x\u0001"],
+      table: ["table/subdir/x", "table/", "table/x\n", "table/x\r", "table/x\u0001"]
+    }
+  end
+
+  def set_logical_path(document, kind, path)
+    if kind == :input
+      document.dig("input", "files", 0)["logical_path"] = path
+    else
+      document.fetch("table")["logical_path"] = path
+    end
+  end
 
   def report_document
     Dir.mktmpdir("ibex-verification-schema") do |directory|
