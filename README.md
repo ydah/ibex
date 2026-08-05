@@ -389,6 +389,7 @@ counterexamples.
 | Understand the pipeline, IR, algorithms, tables, verifier boundary, or runtime compatibility | [Architecture](docs/architecture.md), [verifier trust boundary](docs/verifier-trust-boundary.md), [runtime ABI policy](docs/runtime-abi-evolution.md), and [test interactions](docs/test-interactions.md) |
 | Check API maturity and deprecation rules | [Stability policy](docs/stability.md) and [Preview/Experimental audit](docs/maturity.md) |
 | Evaluate readiness, performance, workloads, or error UX | [Comparison policy](docs/comparison-policy.md), [workload registry](docs/workloads.md), [release readiness](docs/release-readiness.md), [benchmarks](benchmark/README.md), and [error UX](docs/error-ux.md) |
+| Review the direct IELR feature gate | [Direct IELR decision dossier](docs/direct-ielr-decision.md) |
 | Contribute or run every quality gate | [Development guide](docs/development.md) |
 | Review implementation decisions | [Architecture decision records](docs/decisions/README.md) |
 
