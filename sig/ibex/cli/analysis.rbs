@@ -7,10 +7,6 @@ module Ibex
 
     private def normalize_grammar_path: (String) -> IR::Grammar
 
-    private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
-
-    private def configuration_value: (String) -> untyped
-
     private def set_configuration_option: (Symbol, untyped) -> void
 
     private def local_configuration_value: (Hash[Symbol, untyped], String) -> untyped
@@ -28,13 +24,20 @@ module Ibex
     # @rbs (Array[String] arguments, String command, operands: String) -> analysis_options
     def analysis_options: (Array[String] arguments, String command, operands: String) -> analysis_options
 
-    # @rbs (String path, Symbol algorithm, algorithm_explicit: bool) -> IR::Automaton
-    def load_analysis_automaton: (String path, Symbol algorithm, algorithm_explicit: bool) -> IR::Automaton
+    # @rbs (String path, Symbol algorithm, explicit: bool) -> IR::Automaton
+    def load_analysis_automaton: (String path, Symbol algorithm, explicit: bool) -> IR::Automaton
 
     # @rbs (IR::Grammar grammar, Symbol algorithm, bool algorithm_explicit) -> IR::Automaton
     def build_analysis_automaton: (IR::Grammar grammar, Symbol algorithm, bool algorithm_explicit) -> IR::Automaton
 
     # @rbs (Hash[Symbol, untyped] report, String format) -> void
     def write_analysis_report: (Hash[Symbol, untyped] report, String format) -> void
+
+    # @rbs (analysis_options settings) -> bool
+    def algo_set?: (analysis_options settings) -> bool
+
+    private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
+
+    private def configuration_value: (String) -> untyped
   end
 end

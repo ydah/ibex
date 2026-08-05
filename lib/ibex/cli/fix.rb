@@ -29,10 +29,6 @@ module Ibex
     #     ?help: String
     #   }
     #   private def normalize_grammar_path: (String) -> IR::Grammar
-    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped],
-    #     ?explicit_keys: Array[Symbol]) -> IR::Grammar
-    #   private def construct_analysis_automaton: (IR::Grammar, Hash[Symbol, untyped], Array[Symbol]) ->
-    #     [IR::Grammar, Symbol, IR::Automaton]
     #   private def activate_cli_feature: (Symbol) -> void
     #   private def configuration_value: (String) -> untyped
     #   private def set_configuration_option: (Symbol, untyped) -> void
@@ -76,7 +72,8 @@ module Ibex
         raise Ibex::Error,
               "(fix):1:1: import Bison source to a canonical analysis file before requesting source repairs"
       end
-      grammar, algorithm, automaton = fixer_construction(path, settings)
+      grammar = normalize_grammar_path(path)
+      grammar, algorithm, automaton = fixer_construction(grammar, settings)
       message_file = settings[:messages]
       messages = ErrorMessages.load(message_file) if message_file
       fixer = Fix.new(
@@ -95,13 +92,7 @@ module Ibex
       [source, fixer]
     end
 
-    # @rbs (String path, fix_options settings) -> [IR::Grammar, Symbol, IR::Automaton]
-    def fixer_construction(path, settings)
-      grammar = normalize_grammar_path(path)
-      explicit_keys = settings.fetch(:configuration_explicit) & [:algorithm]
-      construct_analysis_automaton(grammar, { algorithm: settings.fetch(:algorithm) }, explicit_keys)
-    end
-
+    # Keep command-local construction settings separate from reusable CLI state.
     # @rbs (Array[String] arguments) -> fix_options
     def fix_options(arguments)
       settings = {
@@ -168,6 +159,16 @@ module Ibex
         end
       end
     end
+
+    # @rbs (IR::Grammar grammar, fix_options settings) -> [IR::Grammar, Symbol, IR::Automaton]
+    def fixer_construction(grammar, settings)
+      explicit_keys = settings.fetch(:configuration_explicit) & [:algorithm]
+      construct_analysis_automaton(grammar, { algorithm: settings.fetch(:algorithm) }, explicit_keys)
+    end
+
+    # @rbs!
+    #   private def construct_analysis_automaton: (IR::Grammar, Hash[Symbol, untyped], Array[Symbol]) ->
+    #     [IR::Grammar, Symbol, IR::Automaton]
 
     # @rbs (String path, String original, Hash[Symbol, untyped] report, Fix fixer, String | true selector) -> void
     def apply_fix!(path, original, report, fixer, selector)

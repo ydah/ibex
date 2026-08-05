@@ -12,8 +12,6 @@ module Ibex
     #   private def input_path: (Array[String]) -> String
     #   private def positive_counterexample_limit: (Integer, String) -> Integer
     #   private def normalize_grammar_path: (String) -> IR::Grammar
-    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped],
-    #     ?explicit_keys: Array[Symbol]) -> IR::Grammar
     #   private def configuration_value: (String) -> untyped
     #   private def set_configuration_option: (Symbol, untyped) -> void
 
@@ -26,8 +24,7 @@ module Ibex
       return print_help(parser) if @options[:help]
 
       path = input_path(remaining)
-      grammar = normalize_grammar_path(path)
-      grammar = activate_analysis_grammar(grammar)
+      grammar = activate_analysis_grammar(normalize_grammar_path(path))
       automaton = LALR::Builder.new(
         grammar, algorithm: configuration_value("parser.algorithm"),
                  entry_isolation: configuration_value("parser.entries") == :isolated
@@ -80,5 +77,9 @@ module Ibex
         )
       end
     end
+
+    # @rbs!
+    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped],
+    #     ?explicit_keys: Array[Symbol]) -> IR::Grammar
   end
 end

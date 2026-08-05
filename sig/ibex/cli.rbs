@@ -30,21 +30,19 @@ module Ibex
 
     include CLIOutputs
 
-    @analysis_configuration: Configuration::Resolver?
-
-    @generation_automaton: IR::Automaton?
-
-    @generation_grammar: IR::Grammar?
-
-    @configuration_explicit_options: Hash[Symbol, bool]
-
-    @language: String
-
-    @options: cli_options
+    @stdout: _CLIOutput
 
     @stderr: _CLIOutput
 
-    @stdout: _CLIOutput
+    @options: cli_options
+
+    @language: String
+
+    @configuration_explicit_options: Hash[Symbol, bool]
+
+    @generation_grammar: IR::Grammar?
+
+    @generation_automaton: IR::Automaton?
 
     # rubocop:disable Layout/LineLength
     # @rbs (Array[String] arguments, ?stdin: _CLIInput, ?stdout: _CLIOutput, ?stderr: _CLIOutput, ?watch_clock: (^() -> Float)?, ?watch_sleeper: (^(Float) -> void)?, ?watch_iteration_hook: (^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil))?) -> Integer
@@ -69,13 +67,6 @@ module Ibex
 
     # @rbs () -> Configuration::Resolver
     def effective_configuration: () -> Configuration::Resolver
-
-    # @rbs (IR::Grammar grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
-    def activate_analysis_grammar: (IR::Grammar grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
-
-    # @rbs (IR::Grammar grammar, Hash[Symbol, untyped] options, Array[Symbol] explicit_keys) ->
-    #   [IR::Grammar, Symbol, IR::Automaton]
-    def construct_analysis_automaton: (IR::Grammar grammar, Hash[Symbol, untyped] options, Array[Symbol] explicit_keys) -> [ IR::Grammar, Symbol, IR::Automaton ]
 
     # Resolve a command-local legacy option hash without promoting it into the
     # reusable CLI instance's generation settings.
@@ -123,6 +114,15 @@ module Ibex
 
     # @rbs (OptionParser options) -> void
     def add_information_options: (OptionParser options) -> void
+
+    @analysis_configuration: Configuration::Resolver?
+
+    # @rbs (IR::Grammar grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
+    def activate_analysis_grammar: (IR::Grammar grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
+
+    # @rbs (IR::Grammar grammar, Hash[Symbol, untyped] options, Array[Symbol] explicit_keys) ->
+    #   [IR::Grammar, Symbol, IR::Automaton]
+    def construct_analysis_automaton: (IR::Grammar grammar, Hash[Symbol, untyped] options, Array[Symbol] explicit_keys) -> [ IR::Grammar, Symbol, IR::Automaton ]
 
     # @rbs (OptionParser parser) -> Integer?
     def informational_result: (OptionParser parser) -> Integer?

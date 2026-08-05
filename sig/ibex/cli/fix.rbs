@@ -7,10 +7,6 @@ module Ibex
 
     private def normalize_grammar_path: (String) -> IR::Grammar
 
-    private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
-
-    private def construct_analysis_automaton: (IR::Grammar, Hash[Symbol, untyped], Array[Symbol]) -> [ IR::Grammar, Symbol, IR::Automaton ]
-
     private def activate_cli_feature: (Symbol) -> void
 
     private def configuration_value: (String) -> untyped
@@ -29,9 +25,7 @@ module Ibex
     # @rbs (String path, fix_options settings) -> [String, Fix]
     def prepare_fixer: (String path, fix_options settings) -> [ String, Fix ]
 
-    # @rbs (String path, fix_options settings) -> [IR::Grammar, Symbol, IR::Automaton]
-    def fixer_construction: (String path, fix_options settings) -> [ IR::Grammar, Symbol, IR::Automaton ]
-
+    # Keep command-local construction settings separate from reusable CLI state.
     # @rbs (Array[String] arguments) -> fix_options
     def fix_options: (Array[String] arguments) -> fix_options
 
@@ -40,6 +34,11 @@ module Ibex
 
     # @rbs (OptionParser options, fix_options settings) -> void
     def add_fix_budget_options: (OptionParser options, fix_options settings) -> void
+
+    # @rbs (IR::Grammar grammar, fix_options settings) -> [IR::Grammar, Symbol, IR::Automaton]
+    def fixer_construction: (IR::Grammar grammar, fix_options settings) -> [ IR::Grammar, Symbol, IR::Automaton ]
+
+    private def construct_analysis_automaton: (IR::Grammar, Hash[Symbol, untyped], Array[Symbol]) -> [ IR::Grammar, Symbol, IR::Automaton ]
 
     # @rbs (String path, String original, Hash[Symbol, untyped] report, Fix fixer, String | true selector) -> void
     def apply_fix!: (String path, String original, Hash[Symbol, untyped] report, Fix fixer, String | true selector) -> void
