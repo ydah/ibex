@@ -190,7 +190,7 @@ class MaturityTest < Minitest::Test
 
     changed = document
     feature(changed, "watch").dig("specification_history", "introduction")["revision"] =
-      "d7d1cd0cfacdc7f59eb625b7d81fa981845ac682"
+      "7025560263fedfd8724cf25387ede86cd981ca3f"
     assert_error(changed, "introduction is outside reviewed history")
 
     changed = document
@@ -292,7 +292,7 @@ class MaturityTest < Minitest::Test
     assessment = feature(changed, "watch").dig(
       "specification_history", "changes", 0, "commit_assessments", 0
     )
-    assessment["revision"] = "d7d1cd0cfacdc7f59eb625b7d81fa981845ac682"
+    assessment["revision"] = "7025560263fedfd8724cf25387ede86cd981ca3f"
     assert_error(changed, "commit assessment revision is outside reviewed ancestry")
 
     changed = document
