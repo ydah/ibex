@@ -1,0 +1,34 @@
+# Generated from lib/ibex/verification_report/logical_path.rb with RBS::Inline
+
+module Ibex
+  module VerificationReport
+    # Closed logical identities used by version 1 verification reports.
+    module LogicalPath
+      MAX_INPUT_FILES: Integer
+
+      BASENAME: Regexp
+
+      INPUT: Regexp
+
+      TABLE: Regexp
+
+      # @rbs (String path, Integer index) -> String
+      def self?.input: (String path, Integer index) -> String
+
+      # @rbs (String path) -> String
+      def self?.table: (String path) -> String
+
+      # @rbs (untyped value, Integer index) -> bool
+      def self?.canonical_input?: (untyped value, Integer index) -> bool
+
+      # @rbs (untyped value) -> bool
+      def self?.canonical_table?: (untyped value) -> bool
+
+      # @rbs (String path) -> String
+      def self?.basename: (String path) -> String
+
+      # @rbs (String value) -> bool
+      def self?.usable_basename?: (String value) -> bool
+    end
+  end
+end

@@ -25,6 +25,11 @@ module Ibex
       @wrapper_path = wrapper_path
       @wrapper_source = wrapper_source
       @table_path = table_path
+      VerificationReport::LogicalPath.table(table_path)
+      if source_records.length > VerificationReport::LogicalPath::MAX_INPUT_FILES
+        raise ArgumentError,
+              "verification reports support at most #{VerificationReport::LogicalPath::MAX_INPUT_FILES} input files"
+      end
       @report_path = report_path
       @manifest_path = manifest_path
       @source_records = source_records

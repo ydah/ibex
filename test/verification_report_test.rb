@@ -99,6 +99,50 @@ class VerificationReportTest < Minitest::Test
     end
   end
 
+  def test_builder_rejects_paths_without_a_canonical_logical_basename_and_excess_inputs
+    Dir.mktmpdir("ibex-verification-report") do |directory|
+      input = input_for(directory, SOURCE)
+      table = Ibex::TableArtifact.build(automaton)
+
+      path_error = assert_raises(ArgumentError) do
+        Ibex::VerificationReport.render(
+          automaton, table: table, source_records: [input], table_path: "/"
+        )
+      end
+      assert_includes path_error.message, "logical basename"
+
+      count_error = assert_raises(ArgumentError) do
+        Ibex::VerificationReport.render(
+          automaton, table: table,
+                     source_records: Array.new(Ibex::VerificationReport::LogicalPath::MAX_INPUT_FILES + 1, input),
+                     table_path: "parser.tables.ibex.json"
+        )
+      end
+      assert_includes count_error.message, "at most 10000 input files"
+    end
+  end
+
+  def test_validator_rejects_noncanonical_nested_and_empty_logical_basenames
+    Dir.mktmpdir("ibex-verification-report") do |directory|
+      original = JSON.parse(render_report(automaton, input_for(directory, SOURCE)))
+      mutations = {
+        "input/0000/subdir/x" => ->(value) { value.dig("input", "files", 0)["logical_path"] = "input/0000/subdir/x" },
+        "input/0000/" => ->(value) { value.dig("input", "files", 0)["logical_path"] = "input/0000/" },
+        "table/subdir/x" => ->(value) { value.fetch("table")["logical_path"] = "table/subdir/x" },
+        "table/" => ->(value) { value.fetch("table")["logical_path"] = "table/" }
+      }
+
+      mutations.each do |path, mutate|
+        document = Marshal.load(Marshal.dump(original))
+        mutate.call(document)
+        error = assert_raises(Ibex::VerificationReport::ValidationError, path) do
+          Ibex::VerificationReport.validate(JSON.generate(document))
+        end
+        assert_includes error.message, "logical_path", path
+      end
+    end
+  end
+
   private
 
   def render_report(value, input, strict: false, max_states: 100_000)

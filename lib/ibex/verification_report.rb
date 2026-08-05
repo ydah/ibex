@@ -5,6 +5,7 @@ require "json"
 require_relative "error"
 require_relative "generation_manifest"
 require_relative "table_artifact"
+require_relative "verification_report/logical_path"
 require_relative "verification_report/builder"
 require_relative "verification_report/validator"
 
