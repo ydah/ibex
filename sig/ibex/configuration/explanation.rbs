@@ -1,0 +1,194 @@
+# Generated from lib/ibex/configuration/explanation.rb with RBS::Inline
+
+module Ibex
+  module Configuration
+    # One observed configuration source and how it participated in selection.
+    class Evidence
+      STATUSES: Array[Symbol]
+
+      SOURCES: Array[Symbol]
+
+      attr_reader key: Key
+
+      attr_reader source: Symbol
+
+      attr_reader value: untyped
+
+      attr_reader status: Symbol
+
+      attr_reader location: Location?
+
+      attr_reader reason: String
+
+      # @rbs (Key key, source: Symbol, value: untyped, status: Symbol, reason: String, ?location: Location?) -> void
+      def initialize: (Key key, source: Symbol, value: untyped, status: Symbol, reason: String, ?location: Location?) -> void
+
+      # @rbs () -> Hash[String, untyped]
+      def to_h: () -> Hash[String, untyped]
+
+      private
+
+      # @rbs (untyped value) -> untyped
+      def json_value: (untyped value) -> untyped
+    end
+
+    # Whether an input can prove the historical source of a selected setting.
+    class Recording
+      STATES: Array[Symbol]
+
+      attr_reader state: Symbol
+
+      attr_reader reason: String
+
+      # @rbs (Symbol state, String reason) -> void
+      def initialize: (Symbol state, String reason) -> void
+
+      # @rbs () -> Hash[String, String]
+      def to_h: () -> Hash[String, String]
+    end
+
+    # Canonical, static input facts used to build a configuration report.
+    class Input
+      KINDS: Array[Symbol]
+
+      attr_reader kind: Symbol
+
+      attr_reader path: String
+
+      attr_reader files: Array[String]
+
+      attr_reader schema_version: Integer?
+
+      attr_reader grammar_values: Hash[String, untyped]
+
+      attr_reader grammar_locations: Hash[String, Location]
+
+      attr_reader evidence: Hash[String, Array[Evidence]]
+
+      attr_reader recordings: Hash[String, Recording]
+
+      # @rbs (kind: Symbol, path: String, ?files: Array[String], ?schema_version: Integer?,
+      #   ?grammar_values: Hash[String, untyped], ?grammar_locations: Hash[String, Location],
+      #   ?evidence: Hash[String, Array[Evidence]], ?recordings: Hash[String, Recording]) -> void
+      def initialize: (kind: Symbol, path: String, ?files: Array[String], ?schema_version: Integer?, ?grammar_values: Hash[String, untyped], ?grammar_locations: Hash[String, Location], ?evidence: Hash[String, Array[Evidence]], ?recordings: Hash[String, Recording]) -> void
+
+      # @rbs () -> Hash[String, untyped]
+      def to_h: () -> Hash[String, untyped]
+
+      private
+
+      # @rbs (Symbol kind, String path, Array[String] files, Integer? schema_version,
+      #   Hash[String, untyped] grammar_values, Hash[String, Location] grammar_locations,
+      #   Hash[String, Array[Evidence]] evidence, Hash[String, Recording] recordings) -> void
+      def assign_input: (Symbol kind, String path, Array[String] files, Integer? schema_version, Hash[String, untyped] grammar_values, Hash[String, Location] grammar_locations, Hash[String, Array[Evidence]] evidence, Hash[String, Recording] recordings) -> void
+
+      # @rbs (Array[String] files, String path) -> void
+      def validate_files!: (Array[String] files, String path) -> void
+
+      # @rbs (Symbol kind, Integer? schema_version) -> void
+      def validate_schema_version!: (Symbol kind, Integer? schema_version) -> void
+
+      # @rbs (Hash[String, untyped] values, Hash[String, Location] locations,
+      #   Hash[String, Array[Evidence]] evidence, Hash[String, Recording] recordings) -> void
+      def validate_entries!: (Hash[String, untyped] values, Hash[String, Location] locations, Hash[String, Array[Evidence]] evidence, Hash[String, Recording] recordings) -> void
+
+      # @rbs (*untyped values) -> void
+      def validate_fact_hashes!: (*untyped values) -> void
+
+      # @rbs (Hash[String, untyped] values, Hash[String, Location] locations) -> void
+      def validate_locations!: (Hash[String, untyped] values, Hash[String, Location] locations) -> void
+
+      # @rbs (Hash[String, Array[Evidence]] evidence) -> void
+      def validate_evidence!: (Hash[String, Array[Evidence]] evidence) -> void
+
+      # @rbs (Hash[String, Recording] recordings) -> void
+      def validate_recordings!: (Hash[String, Recording] recordings) -> void
+
+      # @rbs (Hash[String, untyped] values) -> Hash[String, untyped]
+      def immutable_values: (Hash[String, untyped] values) -> Hash[String, untyped]
+    end
+
+    # A fixed-contract mismatch retained as structured report data.
+    class ConflictRecord
+      attr_reader key: Key
+
+      attr_reader declared: Value
+
+      attr_reader requested: Value
+
+      # @rbs (Conflict conflict) -> void
+      def initialize: (Conflict conflict) -> void
+
+      # @rbs () -> Hash[String, untyped]
+      def to_h: () -> Hash[String, untyped]
+
+      # @rbs () -> String
+      def message: () -> String
+
+      private
+
+      # @rbs (Value value) -> Hash[String, untyped]
+      def selection: (Value value) -> Hash[String, untyped]
+    end
+
+    # The effective value and all accepted or rejected evidence for one key.
+    class Explanation
+      attr_reader value: Value
+
+      attr_reader evidence: Array[Evidence]
+
+      attr_reader recording: Recording
+
+      # @rbs (Value value, evidence: Array[Evidence], recording: Recording) -> void
+      def initialize: (Value value, evidence: Array[Evidence], recording: Recording) -> void
+
+      # @rbs () -> Hash[String, untyped]
+      def to_h: () -> Hash[String, untyped]
+    end
+
+    # Deterministic, static-no-user-code explanation of every registered setting.
+    class Report
+      attr_reader input: Input
+
+      attr_reader explanations: Array[Explanation]
+
+      attr_reader conflicts: Array[ConflictRecord]
+
+      # @rbs (Input input, ?cli: Hash[String, untyped]) -> void
+      def initialize: (Input input, ?cli: Hash[String, untyped]) -> void
+
+      # @rbs () -> bool
+      def success?: () -> bool
+
+      # @rbs () -> Hash[String, untyped]
+      def to_h: () -> Hash[String, untyped]
+
+      # Deterministic JSON independent of caller hash insertion order.
+      # @rbs () -> String
+      def dump: () -> String
+
+      # @rbs () -> String
+      def render_text: () -> String
+
+      private
+
+      # @rbs (Key key, Hash[String, untyped] cli) -> Value
+      def resolve_key: (Key key, Hash[String, untyped] cli) -> Value
+
+      # @rbs (Value value, Hash[String, untyped] cli, ?conflict: ConflictRecord?) -> Explanation
+      def explanation: (Value value, Hash[String, untyped] cli, ?conflict: ConflictRecord?) -> Explanation
+
+      # @rbs (Key key, untyped raw, conflicting: bool) -> Evidence
+      def cli_evidence: (Key key, untyped raw, conflicting: bool) -> Evidence
+
+      # @rbs (untyped value) -> String
+      def display: (untyped value) -> String
+
+      # @rbs (Location location) -> String
+      def location_label: (Location location) -> String
+
+      # @rbs (Explanation entry) -> Array[String]
+      def render_explanation: (Explanation entry) -> Array[String]
+    end
+  end
+end

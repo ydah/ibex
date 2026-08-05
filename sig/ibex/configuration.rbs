@@ -215,10 +215,12 @@ module Ibex
       # @rbs (?grammar: Hash[String, untyped], ?locations: Hash[String, Location]) -> Resolver
       def resolve: (?grammar: Hash[String, untyped], ?locations: Hash[String, Location]) -> Resolver
 
-      private
-
+      # Canonical configuration values selected by explicit legacy CLI options.
+      # Raw option spellings stop at this adapter boundary.
       # @rbs () -> Hash[String, untyped]
-      def canonical_options: () -> Hash[String, untyped]
+      def configuration_values: () -> Hash[String, untyped]
+
+      private
 
       # @rbs (Symbol name, untyped value) -> untyped
       def convert: (Symbol name, untyped value) -> untyped
