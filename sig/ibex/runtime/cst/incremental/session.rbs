@@ -46,6 +46,11 @@ module Ibex
         # @rbs (Observation::Subscription subscription) -> bool
         def unobserve: (Observation::Subscription subscription) -> bool
 
+        # Whether the last completed edit discarded all incremental reuse and
+        # reparsed the current source from a fresh token stream.
+        # @rbs () -> bool
+        def last_full_fallback?: () -> bool
+
         private
 
         # @rbs (Array[TextEdit] edits) -> SyntaxResult

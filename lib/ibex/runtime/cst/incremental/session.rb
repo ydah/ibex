@@ -37,6 +37,7 @@ module Ibex
           @source_text = source_text
           @last_relex_result = nil #: RelexResult?
           @last_blender = nil #: Blender?
+          @last_full_fallback = false #: bool
           @blender_enabled = blender
           @mutex = Mutex.new
           @result, @token_memo, @parse_memo = parse_current(0.0)
@@ -60,6 +61,11 @@ module Ibex
           @parser.unobserve(subscription)
         end
 
+        # Whether the last completed edit discarded all incremental reuse and
+        # reparsed the current source from a fresh token stream.
+        # @rbs () -> bool
+        def last_full_fallback? = @last_full_fallback
+
         private
 
         # @rbs (Array[TextEdit] edits) -> SyntaxResult
@@ -73,6 +79,7 @@ module Ibex
           previous_result = @result
           previous_relex_result = @last_relex_result
           previous_blender = @last_blender
+          previous_full_fallback = @last_full_fallback
           @source_text = @source_text.apply(edits)
           lexed = scan_current
           return finish_full_fallback(previous_memo, edits, :lexical_error) unless lexed
@@ -87,6 +94,7 @@ module Ibex
           @result = previous_result
           @last_relex_result = previous_relex_result
           @last_blender = previous_blender
+          @last_full_fallback = previous_full_fallback
           raise
         end
 
@@ -113,6 +121,7 @@ module Ibex
         def finish_blended_edit(relexed, blender)
           @last_relex_result = relexed
           @last_blender = blender
+          @last_full_fallback = false
           parsed = @parser.__send__(:parse_syntax_token_source, blender, @cache)
           reused_ratio = blender_reused_ratio(blender, parsed.syntax_root.green, relexed)
           @token_memo = relexed.memo
@@ -211,6 +220,7 @@ module Ibex
           fresh_result, fresh_memo, fresh_parse_memo = parse_current(0.0)
           @last_relex_result = Relexer.reconcile(previous_memo, fresh_memo, edits)
           @last_blender = nil
+          @last_full_fallback = true
           @token_memo = fresh_memo
           @parse_memo = fresh_parse_memo
           @result = fresh_result

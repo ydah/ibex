@@ -123,6 +123,9 @@ module Ibex
 
         # @rbs (TokenMemo previous, Integer old_index, TokenMemo current, Integer new_index) -> bool
         def self.reusable_token?(previous, old_index, current, new_index)
+          return false unless old_index.between?(0, previous.tokens.length - 1)
+          return false unless new_index.between?(0, current.tokens.length - 1)
+
           previous.states.fetch(old_index) == current.states.fetch(new_index) &&
             previous.tokens.fetch(old_index) == current.tokens.fetch(new_index)
         end

@@ -65,11 +65,20 @@ result.metrics         # immutable reuse/fallback evidence
 lookahead-correction policy. With several recoverable failures it is the
 first-seen union for that operation; it is not a completion ranking.
 
-The result and metrics snapshots are frozen. `reused_ratio`, `reused_tokens`,
-and `token_count` describe the completed operation. `fallback?` and
-`fallback_reasons` distinguish a clean incremental operation from successful
-fresh-token fallback. A fallback remains a valid syntax result; it is not
-reported as reuse.
+The result and metrics snapshots are frozen. Metrics always describe the
+installed result of the completed operation. `token_count` is the number of
+entries in that result's final token memo, including parser-supporting tokens
+represented there. `reused_tokens` is the number of those entries whose Green
+token identity was reused from the preceding memo. It is zero for an initial
+open and for a full fresh-parse fallback. `reused_ratio` is the parser's
+completed structural-reuse ratio (or lexical ratio when the Blender is
+disabled), so it is not generally `reused_tokens / token_count`.
+
+`fallback?` and `fallback_reasons` distinguish a clean incremental operation
+from a successful fallback. A full lexical-error fallback reports no reuse.
+A decomposition or memo-budget fallback may still report independently
+validated lexical token reuse even though subtree reuse or memo retention was
+declined. Every fallback remains a valid syntax result.
 
 Fresh syntax sessions are the reference semantics. Incremental results must
 match fresh results in source bytes, Green structure and flags, and diagnostic
