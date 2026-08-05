@@ -13,6 +13,7 @@ module Ibex
     #   private def verify_file: (String, String, String) -> void
     #   private def default_output_path: (String, String) -> String
     #   private def configuration_value: (String) -> untyped
+    #   private def effective_configuration: () -> Configuration::Resolver
 
     private
 
@@ -22,6 +23,7 @@ module Ibex
       @generation_statuses = [] #: Array[String]
       @generation_sources = [] #: Array[String]
       @generation_inputs = [] #: Array[GenerationInput]
+      @generation_automaton = nil
     end
 
     # @rbs (Symbol kind, String path, String content, ?mode: Integer?, ?status: bool) -> Artifact
@@ -134,7 +136,49 @@ module Ibex
         options[key.to_s] = value unless value.nil?
       end
       options["cst_trivia"] = effective_cst_trivia.to_s
+      append_ir_manifest_options(options)
       options
+    end
+
+    # @rbs (Hash[String, untyped] options) -> void
+    def append_ir_manifest_options(options)
+      automaton = @generation_automaton
+      return unless automaton && automaton.schema_version >= 3
+
+      grammar = automaton.grammar
+      contract = grammar.parser_contract || raise("Grammar IR v3 parser contract is missing")
+      options["grammar_ir"] = {
+        "schema_version" => grammar.schema_version,
+        "digest" => automaton.grammar_digest,
+        "parser_contract" => stringify_contract(contract)
+      }
+      options["automaton_ir"] = {
+        "schema_version" => automaton.schema_version,
+        "algorithm" => automaton.algorithm,
+        "entry_construction" => automaton.entry_construction,
+        "construction_authority" => construction_authority
+      }
+      options["effective_configuration"] = manifest_effective_configuration
+    end
+
+    # @rbs () -> String
+    def construction_authority
+      @options[:from] == "automaton-ir" ? "embedded_automaton" : "grammar_contract"
+    end
+
+    # @rbs () -> Array[Hash[String, untyped]]
+    def manifest_effective_configuration
+      values = effective_configuration.to_h.fetch("configuration")
+      return values unless @options[:from] == "automaton-ir"
+
+      values.reject { |entry| %w[parser.algorithm parser.entries].include?(entry.fetch("key")) }
+    end
+
+    # @rbs (IR::ParserContract contract) -> Hash[String, untyped]
+    def stringify_contract(contract)
+      contract.to_h.to_h do |name, entry|
+        [name.to_s, entry.to_h { |key, value| [key.to_s, value] }]
+      end
     end
 
     # @rbs () -> Symbol

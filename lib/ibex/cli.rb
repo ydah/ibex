@@ -181,6 +181,8 @@ module Ibex
     # @rbs @options: cli_options
     # @rbs @language: String
     # @rbs @configuration_explicit_options: Hash[Symbol, bool]
+    # @rbs @generation_grammar: IR::Grammar?
+    # @rbs @generation_automaton: IR::Automaton?
 
     # rubocop:disable Layout/LineLength
     # @rbs (Array[String] arguments, ?stdin: _CLIInput, ?stdout: _CLIOutput, ?stderr: _CLIOutput, ?watch_clock: (^() -> Float)?, ?watch_sleeper: (^(Float) -> void)?, ?watch_iteration_hook: (^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil))?) -> Integer
@@ -207,6 +209,8 @@ module Ibex
       }
                  .merge(CLICounterexampleOptions::DEFAULTS)
       @configuration_explicit_options = {}
+      @generation_grammar = nil
+      @generation_automaton = nil
     end
     # rubocop:enable Layout/LineLength
 
@@ -218,6 +222,8 @@ module Ibex
 
       parser = option_parser
       remaining = parser.parse(arguments)
+      @generation_grammar = nil
+      @generation_automaton = nil
       validate_watch_information_options
       information = informational_result(parser)
       return information unless information.nil?
@@ -256,7 +262,14 @@ module Ibex
 
     # @rbs () -> Configuration::Resolver
     def effective_configuration
-      resolve_configuration_options(@options, explicit_keys: @configuration_explicit_options.keys)
+      grammar = @generation_grammar
+      contract = grammar&.parser_contract
+      Configuration::CLIAdapter.new(
+        @options, explicit_keys: @configuration_explicit_options.keys
+      ).resolve(
+        grammar: contract&.configuration_values || {},
+        locations: contract&.configuration_locations || {}
+      )
     end
 
     # Resolve a command-local legacy option hash without promoting it into the
@@ -371,7 +384,7 @@ module Ibex
       options.separator("    verify AUTOMATON         independently verify Automaton IR semantics")
       options.separator("    validate-ir FILE          validate a versioned IR document")
       options.separator("    compare BEFORE AFTER      compare two versioned IR documents")
-      options.separator("    migrate-ir INPUT --to=2   migrate a versioned IR document")
+      options.separator("    migrate-ir INPUT --to=3   migrate a versioned IR document")
     end
 
     # @rbs (OptionParser options) -> void
@@ -507,14 +520,24 @@ module Ibex
 
     # @rbs () -> void
     def validate_generation_options
-      if configuration_value("parser.entries") == :isolated && @options[:from] == "automaton-ir"
-        raise Ibex::Error, "(cli):1:1: --entry-isolation cannot be combined with --from=automaton-ir"
-      end
+      validate_automaton_construction_options
 
       validate_watch_generation_options if @options[:watch]
       validate_manifest_generation_options
       validate_action_source_generation_options
       validate_verification_generation_options
+    end
+
+    # @rbs () -> void
+    def validate_automaton_construction_options
+      return unless @options[:from] == "automaton-ir"
+
+      if @configuration_explicit_options[:algorithm]
+        raise Ibex::Error, "(cli):1:1: --algorithm cannot be combined with --from=automaton-ir"
+      end
+      return unless @configuration_explicit_options[:entry_isolation]
+
+      raise Ibex::Error, "(cli):1:1: --entry-isolation cannot be combined with --from=automaton-ir"
     end
 
     # @rbs () -> void
@@ -709,6 +732,7 @@ module Ibex
 
     # @rbs (IR::Grammar grammar, String path) -> Integer
     def dispatch_grammar(grammar, path)
+      activate_generation_grammar(grammar)
       handle_grammar_warnings(grammar, path)
       if @options[:check_only]
         build_automaton(grammar, path) if @options[:warnings]&.include?(:error)
@@ -727,6 +751,7 @@ module Ibex
 
     # @rbs (IR::Automaton automaton, String path) -> Integer
     def dispatch_automaton(automaton, path)
+      activate_generation_grammar(automaton.grammar)
       handle_grammar_warnings(automaton.grammar, path)
       return 0 if @options[:check_only]
 
@@ -742,6 +767,12 @@ module Ibex
       end
 
       raise Ibex::Error, "(cli):1:1: AST cannot be reconstructed from Automaton IR"
+    end
+
+    # @rbs (IR::Grammar grammar) -> void
+    def activate_generation_grammar(grammar)
+      @generation_grammar = grammar
+      effective_configuration
     end
 
     # @rbs () -> Integer
@@ -815,6 +846,7 @@ module Ibex
 
     # @rbs (IR::Automaton automaton, String input_path) -> Integer
     def generate_ruby(automaton, input_path)
+      @generation_automaton = automaton
       configuration = effective_configuration
       line_mapping = configuration.value("source.line_mapping")
       executable = configuration.value("build.executable")

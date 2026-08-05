@@ -494,9 +494,11 @@ module Ibex
         @explicit_keys = explicit_keys.dup.freeze
       end
 
-      # @rbs () -> Resolver
-      def resolve
-        Resolver.new(cli: canonical_options)
+      # @rbs (?grammar: Hash[String, untyped], ?locations: Hash[String, Location]) -> Resolver
+      def resolve(grammar: {}, locations: {})
+        source_locations = {} #: Hash[Symbol, Hash[String, Location]]
+        source_locations[:grammar] = locations unless locations.empty?
+        Resolver.new(grammar: grammar, cli: canonical_options, locations: source_locations)
       end
 
       private

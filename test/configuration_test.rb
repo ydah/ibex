@@ -322,6 +322,30 @@ class ConfigurationTest < Minitest::Test # rubocop:disable Metrics/ClassLength -
     assert_equal :extended, configuration.value("grammar.mode")
   end
 
+  def test_cli_adapter_resolves_persisted_grammar_contract_with_locations
+    location = Ibex::Location.new(file: "contract.y", line: 3, column: 5)
+    configuration = Configuration::CLIAdapter.new({ algorithm: :ielr }).resolve(
+      grammar: { "parser.algorithm" => :ielr },
+      locations: { "parser.algorithm" => location }
+    )
+
+    algorithm = configuration.fetch("parser.algorithm")
+    assert_equal :ielr, algorithm.value
+    assert_equal :grammar, algorithm.origin.kind
+    assert_equal location, algorithm.origin.location
+  end
+
+  def test_cli_adapter_rejects_a_cli_conflict_with_persisted_grammar_contract
+    error = assert_raises(Configuration::Conflict) do
+      Configuration::CLIAdapter.new({ algorithm: :lr1 }).resolve(
+        grammar: { "parser.algorithm" => :ielr }
+      )
+    end
+
+    assert_equal :ielr, error.declared.value
+    assert_equal :lr1, error.requested.value
+  end
+
   def test_cli_adapter_accepts_line_convert_all_without_synthetic_line_convert
     configuration = Configuration::CLIAdapter.new({ line_convert_all: true }).resolve
 
