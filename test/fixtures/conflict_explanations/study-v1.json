@@ -1,0 +1,1658 @@
+{
+  "ibex_conflict_explanation_study": "h004",
+  "schema_version": 1,
+  "capture": {
+    "algorithm": "lalr",
+    "mode": "extended",
+    "search_bounds": {
+      "max_tokens": 16,
+      "max_configurations": 100000
+    },
+    "repair_bounds": {
+      "max_candidates": 32,
+      "max_builds": 32,
+      "equiv_max_tokens": 12,
+      "equiv_max_configurations": 50000,
+      "equiv_samples": 10,
+      "verify_max_states": 100000,
+      "verify_max_items": 1000000
+    },
+    "executes_grammar_actions": false
+  },
+  "coverage": {
+    "case_count": 4,
+    "conflict_count": 5,
+    "shapes": [
+      "ambiguous_expression",
+      "dangling_optional_clause",
+      "lr1_not_lalr_merge",
+      "reduce_reduce_choice"
+    ],
+    "conflict_types": [
+      "reduce_reduce",
+      "shift_reduce"
+    ],
+    "witness_kinds": [
+      "nonunifying_witness",
+      "unifying_counterexample"
+    ]
+  },
+  "cases": [
+    {
+      "id": "H004-EXPR",
+      "shape": "ambiguous_expression",
+      "grammar": {
+        "path": "test/fixtures/conflict_explanations/expression.y",
+        "sha256": "20046e2f14f85da56f65e85981c0d29d26c0dfb6e57d139c9fe07ee4b8c98b9e",
+        "bytes": 143
+      },
+      "maintainer_hypothesis": {
+        "cause": "missing operator associativity",
+        "repair_goal": "choose and declare the intended PLUS associativity"
+      },
+      "automaton": {
+        "algorithm": "lalr1",
+        "state_count": 6,
+        "digest": "c8405e1c2a861dcebf17eb72b5f481ebd538f8e8c5ff11c76d0193b3287d617d",
+        "conflict_summary": {
+          "sr": 1,
+          "resolved_sr": 0,
+          "rr": 0,
+          "expected_sr": 1,
+          "expectation_met": true
+        }
+      },
+      "conflicts": [
+        {
+          "explanation": {
+            "state": 5,
+            "type": "shift_reduce",
+            "token": {
+              "name": "PLUS",
+              "display_name": null,
+              "label": "PLUS"
+            },
+            "alternatives": [
+              {
+                "kind": "shift",
+                "state": 4
+              },
+              {
+                "kind": "reduce",
+                "production": 1
+              }
+            ],
+            "resolution": {
+              "by": "default_shift",
+              "chose": "shift"
+            },
+            "witness": {
+              "kind": "unifying_counterexample",
+              "sentence": [
+                {
+                  "name": "NUM",
+                  "display_name": null,
+                  "label": "NUM"
+                },
+                {
+                  "name": "PLUS",
+                  "display_name": null,
+                  "label": "PLUS"
+                },
+                {
+                  "name": "NUM",
+                  "display_name": null,
+                  "label": "NUM"
+                },
+                {
+                  "name": "PLUS",
+                  "display_name": null,
+                  "label": "PLUS"
+                },
+                {
+                  "name": "NUM",
+                  "display_name": null,
+                  "label": "NUM"
+                }
+              ],
+              "lookahead_index": 3,
+              "symbol_path": [],
+              "interpretations": [
+                {
+                  "kind": "shift",
+                  "tree": {
+                    "symbol": {
+                      "name": "start",
+                      "display_name": null,
+                      "label": "start"
+                    },
+                    "production": 0,
+                    "children": [
+                      {
+                        "symbol": {
+                          "name": "expression",
+                          "display_name": null,
+                          "label": "expression"
+                        },
+                        "production": 1,
+                        "children": [
+                          {
+                            "symbol": {
+                              "name": "expression",
+                              "display_name": null,
+                              "label": "expression"
+                            },
+                            "production": 2,
+                            "children": [
+                              {
+                                "symbol": {
+                                  "name": "NUM",
+                                  "display_name": null,
+                                  "label": "NUM"
+                                },
+                                "token": {
+                                  "name": "NUM",
+                                  "display_name": null,
+                                  "label": "NUM"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "symbol": {
+                              "name": "PLUS",
+                              "display_name": null,
+                              "label": "PLUS"
+                            },
+                            "token": {
+                              "name": "PLUS",
+                              "display_name": null,
+                              "label": "PLUS"
+                            }
+                          },
+                          {
+                            "symbol": {
+                              "name": "expression",
+                              "display_name": null,
+                              "label": "expression"
+                            },
+                            "production": 1,
+                            "children": [
+                              {
+                                "symbol": {
+                                  "name": "expression",
+                                  "display_name": null,
+                                  "label": "expression"
+                                },
+                                "production": 2,
+                                "children": [
+                                  {
+                                    "symbol": {
+                                      "name": "NUM",
+                                      "display_name": null,
+                                      "label": "NUM"
+                                    },
+                                    "token": {
+                                      "name": "NUM",
+                                      "display_name": null,
+                                      "label": "NUM"
+                                    }
+                                  }
+                                ]
+                              },
+                              {
+                                "symbol": {
+                                  "name": "PLUS",
+                                  "display_name": null,
+                                  "label": "PLUS"
+                                },
+                                "token": {
+                                  "name": "PLUS",
+                                  "display_name": null,
+                                  "label": "PLUS"
+                                }
+                              },
+                              {
+                                "symbol": {
+                                  "name": "expression",
+                                  "display_name": null,
+                                  "label": "expression"
+                                },
+                                "production": 2,
+                                "children": [
+                                  {
+                                    "symbol": {
+                                      "name": "NUM",
+                                      "display_name": null,
+                                      "label": "NUM"
+                                    },
+                                    "token": {
+                                      "name": "NUM",
+                                      "display_name": null,
+                                      "label": "NUM"
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "state": 4
+                },
+                {
+                  "kind": "reduce",
+                  "tree": {
+                    "symbol": {
+                      "name": "start",
+                      "display_name": null,
+                      "label": "start"
+                    },
+                    "production": 0,
+                    "children": [
+                      {
+                        "symbol": {
+                          "name": "expression",
+                          "display_name": null,
+                          "label": "expression"
+                        },
+                        "production": 1,
+                        "children": [
+                          {
+                            "symbol": {
+                              "name": "expression",
+                              "display_name": null,
+                              "label": "expression"
+                            },
+                            "production": 1,
+                            "children": [
+                              {
+                                "symbol": {
+                                  "name": "expression",
+                                  "display_name": null,
+                                  "label": "expression"
+                                },
+                                "production": 2,
+                                "children": [
+                                  {
+                                    "symbol": {
+                                      "name": "NUM",
+                                      "display_name": null,
+                                      "label": "NUM"
+                                    },
+                                    "token": {
+                                      "name": "NUM",
+                                      "display_name": null,
+                                      "label": "NUM"
+                                    }
+                                  }
+                                ]
+                              },
+                              {
+                                "symbol": {
+                                  "name": "PLUS",
+                                  "display_name": null,
+                                  "label": "PLUS"
+                                },
+                                "token": {
+                                  "name": "PLUS",
+                                  "display_name": null,
+                                  "label": "PLUS"
+                                }
+                              },
+                              {
+                                "symbol": {
+                                  "name": "expression",
+                                  "display_name": null,
+                                  "label": "expression"
+                                },
+                                "production": 2,
+                                "children": [
+                                  {
+                                    "symbol": {
+                                      "name": "NUM",
+                                      "display_name": null,
+                                      "label": "NUM"
+                                    },
+                                    "token": {
+                                      "name": "NUM",
+                                      "display_name": null,
+                                      "label": "NUM"
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "symbol": {
+                              "name": "PLUS",
+                              "display_name": null,
+                              "label": "PLUS"
+                            },
+                            "token": {
+                              "name": "PLUS",
+                              "display_name": null,
+                              "label": "PLUS"
+                            }
+                          },
+                          {
+                            "symbol": {
+                              "name": "expression",
+                              "display_name": null,
+                              "label": "expression"
+                            },
+                            "production": 2,
+                            "children": [
+                              {
+                                "symbol": {
+                                  "name": "NUM",
+                                  "display_name": null,
+                                  "label": "NUM"
+                                },
+                                "token": {
+                                  "name": "NUM",
+                                  "display_name": null,
+                                  "label": "NUM"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "production": 1
+                }
+              ]
+            }
+          },
+          "state_items": [
+            {
+              "production": 1,
+              "dot": 1,
+              "lookaheads": [
+                "$eof",
+                "PLUS"
+              ],
+              "lhs": "expression",
+              "rhs": [
+                "expression",
+                "PLUS",
+                "expression"
+              ]
+            },
+            {
+              "production": 1,
+              "dot": 3,
+              "lookaheads": [
+                "$eof",
+                "PLUS"
+              ],
+              "lhs": "expression",
+              "rhs": [
+                "expression",
+                "PLUS",
+                "expression"
+              ]
+            }
+          ],
+          "repair": {
+            "result": "proposals_found",
+            "bounds": {
+              "max_candidates": 32,
+              "max_builds": 32,
+              "equiv_samples": 10,
+              "equiv_max_tokens": 12,
+              "equiv_max_configurations": 50000,
+              "verify_max_states": 100000,
+              "verify_max_items": 1000000
+            },
+            "proposals": [
+              {
+                "id": "FX001",
+                "category": "precedence_declaration",
+                "description": "declare right precedence for PLUS",
+                "applyable": true,
+                "unified_diff": "--- test/fixtures/conflict_explanations/expression.y\n+++ test/fixtures/conflict_explanations/expression.y\n@@ -1,9 +1,12 @@\n-class H004Expression\n-pragma extended\n-token NUM PLUS\n-expect 1\n-rule\n-start: expression\n-expression: expression PLUS expression\n-          | NUM\n-end\n+class H004Expression\n+pragma extended\n+token NUM PLUS\n+expect 0\n+preclow\n+  right PLUS\n+prechigh\n+rule\n+start: expression\n+expression: expression PLUS expression\n+          | NUM\n+end\n",
+                "verification": {
+                  "equivalence_result": "no_difference_within_bounds",
+                  "tree_result": "no_difference_within_bounds",
+                  "checked": {
+                    "samples": 20,
+                    "product_configurations": 25
+                  },
+                  "bounds": {
+                    "sample_count": 10,
+                    "seed": 0,
+                    "max_tokens": 12,
+                    "max_configurations": 50000,
+                    "max_actions": 100000,
+                    "max_stack": 10000
+                  },
+                  "removed_conflicts": 1,
+                  "states": {
+                    "before": 6,
+                    "after": 6,
+                    "delta": 0
+                  }
+                }
+              }
+            ],
+            "rejections": [
+              {
+                "category": "precedence_declaration",
+                "description": "declare left precedence for PLUS",
+                "reason": "bounded_language_or_tree_difference",
+                "message": null
+              },
+              {
+                "category": "precedence_declaration",
+                "description": "declare nonassoc precedence for PLUS",
+                "reason": "bounded_language_or_tree_difference",
+                "message": null
+              },
+              {
+                "category": "precedence_declaration",
+                "description": "declare %precedence precedence for PLUS",
+                "reason": "target_conflict_remains",
+                "message": null
+              },
+              {
+                "category": "precedence_override",
+                "description": "override production 1 precedence with PLUS",
+                "reason": "target_conflict_remains",
+                "message": null
+              },
+              {
+                "category": "algorithm_change",
+                "description": "construct with ielr",
+                "reason": "target_conflict_remains",
+                "message": null
+              },
+              {
+                "category": "algorithm_change",
+                "description": "construct with lr1",
+                "reason": "target_conflict_remains",
+                "message": null
+              },
+              {
+                "category": "mechanical_rewrite",
+                "description": "inline nonterminal expression",
+                "reason": "candidate_build_failed",
+                "message": "test/fixtures/conflict_explanations/expression.y:7:21: inline expansion cycle: expression -> expression"
+              }
+            ],
+            "advice": [
+              {
+                "category": "expectation_declaration",
+                "description": "acknowledge the current conflict count",
+                "statement": "Advice does not eliminate the selected conflict and is not a verified repair.",
+                "source_change": false,
+                "unified_diff": null
+              },
+              {
+                "category": "recovery_quality",
+                "description": "prefer expression during error recovery",
+                "statement": "Advice does not eliminate the selected conflict and is not a verified repair.",
+                "source_change": true,
+                "unified_diff": "--- test/fixtures/conflict_explanations/expression.y\n+++ test/fixtures/conflict_explanations/expression.y\n@@ -1,9 +1,10 @@\n-class H004Expression\n-pragma extended\n-token NUM PLUS\n-expect 1\n-rule\n-start: expression\n-expression: expression PLUS expression\n-          | NUM\n-end\n+class H004Expression\n+pragma extended\n+token NUM PLUS\n+expect 1\n+%on_error_reduce expression\n+rule\n+start: expression\n+expression: expression PLUS expression\n+          | NUM\n+end\n"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "H004-ELSE",
+      "shape": "dangling_optional_clause",
+      "grammar": {
+        "path": "test/fixtures/conflict_explanations/dangling_else.y",
+        "sha256": "4e66966d9bcdb4c313c11982a3b0ae4e73e31f05752b36de0900a9640986921e",
+        "bytes": 203
+      },
+      "maintainer_hypothesis": {
+        "cause": "ELSE can attach to either unmatched IF",
+        "repair_goal": "make the intended ELSE attachment explicit"
+      },
+      "automaton": {
+        "algorithm": "lalr1",
+        "state_count": 10,
+        "digest": "6ee85992edc25bce777970e062a10a8866836b2dd39ed3257858da0bb42a8bba",
+        "conflict_summary": {
+          "sr": 1,
+          "resolved_sr": 0,
+          "rr": 0,
+          "expected_sr": 1,
+          "expectation_met": true
+        }
+      },
+      "conflicts": [
+        {
+          "explanation": {
+            "state": 7,
+            "type": "shift_reduce",
+            "token": {
+              "name": "ELSE",
+              "display_name": null,
+              "label": "ELSE"
+            },
+            "alternatives": [
+              {
+                "kind": "shift",
+                "state": 8
+              },
+              {
+                "kind": "reduce",
+                "production": 0
+              }
+            ],
+            "resolution": {
+              "by": "default_shift",
+              "chose": "shift"
+            },
+            "witness": {
+              "kind": "unifying_counterexample",
+              "sentence": [
+                {
+                  "name": "IF",
+                  "display_name": null,
+                  "label": "IF"
+                },
+                {
+                  "name": "ID",
+                  "display_name": null,
+                  "label": "ID"
+                },
+                {
+                  "name": "THEN",
+                  "display_name": null,
+                  "label": "THEN"
+                },
+                {
+                  "name": "IF",
+                  "display_name": null,
+                  "label": "IF"
+                },
+                {
+                  "name": "ID",
+                  "display_name": null,
+                  "label": "ID"
+                },
+                {
+                  "name": "THEN",
+                  "display_name": null,
+                  "label": "THEN"
+                },
+                {
+                  "name": "ID",
+                  "display_name": null,
+                  "label": "ID"
+                },
+                {
+                  "name": "ELSE",
+                  "display_name": null,
+                  "label": "ELSE"
+                },
+                {
+                  "name": "ID",
+                  "display_name": null,
+                  "label": "ID"
+                }
+              ],
+              "lookahead_index": 7,
+              "symbol_path": [],
+              "interpretations": [
+                {
+                  "kind": "shift",
+                  "tree": {
+                    "symbol": {
+                      "name": "statement",
+                      "display_name": null,
+                      "label": "statement"
+                    },
+                    "production": 0,
+                    "children": [
+                      {
+                        "symbol": {
+                          "name": "IF",
+                          "display_name": null,
+                          "label": "IF"
+                        },
+                        "token": {
+                          "name": "IF",
+                          "display_name": null,
+                          "label": "IF"
+                        }
+                      },
+                      {
+                        "symbol": {
+                          "name": "expression",
+                          "display_name": null,
+                          "label": "expression"
+                        },
+                        "production": 3,
+                        "children": [
+                          {
+                            "symbol": {
+                              "name": "ID",
+                              "display_name": null,
+                              "label": "ID"
+                            },
+                            "token": {
+                              "name": "ID",
+                              "display_name": null,
+                              "label": "ID"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "symbol": {
+                          "name": "THEN",
+                          "display_name": null,
+                          "label": "THEN"
+                        },
+                        "token": {
+                          "name": "THEN",
+                          "display_name": null,
+                          "label": "THEN"
+                        }
+                      },
+                      {
+                        "symbol": {
+                          "name": "statement",
+                          "display_name": null,
+                          "label": "statement"
+                        },
+                        "production": 1,
+                        "children": [
+                          {
+                            "symbol": {
+                              "name": "IF",
+                              "display_name": null,
+                              "label": "IF"
+                            },
+                            "token": {
+                              "name": "IF",
+                              "display_name": null,
+                              "label": "IF"
+                            }
+                          },
+                          {
+                            "symbol": {
+                              "name": "expression",
+                              "display_name": null,
+                              "label": "expression"
+                            },
+                            "production": 3,
+                            "children": [
+                              {
+                                "symbol": {
+                                  "name": "ID",
+                                  "display_name": null,
+                                  "label": "ID"
+                                },
+                                "token": {
+                                  "name": "ID",
+                                  "display_name": null,
+                                  "label": "ID"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "symbol": {
+                              "name": "THEN",
+                              "display_name": null,
+                              "label": "THEN"
+                            },
+                            "token": {
+                              "name": "THEN",
+                              "display_name": null,
+                              "label": "THEN"
+                            }
+                          },
+                          {
+                            "symbol": {
+                              "name": "statement",
+                              "display_name": null,
+                              "label": "statement"
+                            },
+                            "production": 2,
+                            "children": [
+                              {
+                                "symbol": {
+                                  "name": "ID",
+                                  "display_name": null,
+                                  "label": "ID"
+                                },
+                                "token": {
+                                  "name": "ID",
+                                  "display_name": null,
+                                  "label": "ID"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "symbol": {
+                              "name": "ELSE",
+                              "display_name": null,
+                              "label": "ELSE"
+                            },
+                            "token": {
+                              "name": "ELSE",
+                              "display_name": null,
+                              "label": "ELSE"
+                            }
+                          },
+                          {
+                            "symbol": {
+                              "name": "statement",
+                              "display_name": null,
+                              "label": "statement"
+                            },
+                            "production": 2,
+                            "children": [
+                              {
+                                "symbol": {
+                                  "name": "ID",
+                                  "display_name": null,
+                                  "label": "ID"
+                                },
+                                "token": {
+                                  "name": "ID",
+                                  "display_name": null,
+                                  "label": "ID"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "state": 8
+                },
+                {
+                  "kind": "reduce",
+                  "tree": {
+                    "symbol": {
+                      "name": "statement",
+                      "display_name": null,
+                      "label": "statement"
+                    },
+                    "production": 1,
+                    "children": [
+                      {
+                        "symbol": {
+                          "name": "IF",
+                          "display_name": null,
+                          "label": "IF"
+                        },
+                        "token": {
+                          "name": "IF",
+                          "display_name": null,
+                          "label": "IF"
+                        }
+                      },
+                      {
+                        "symbol": {
+                          "name": "expression",
+                          "display_name": null,
+                          "label": "expression"
+                        },
+                        "production": 3,
+                        "children": [
+                          {
+                            "symbol": {
+                              "name": "ID",
+                              "display_name": null,
+                              "label": "ID"
+                            },
+                            "token": {
+                              "name": "ID",
+                              "display_name": null,
+                              "label": "ID"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "symbol": {
+                          "name": "THEN",
+                          "display_name": null,
+                          "label": "THEN"
+                        },
+                        "token": {
+                          "name": "THEN",
+                          "display_name": null,
+                          "label": "THEN"
+                        }
+                      },
+                      {
+                        "symbol": {
+                          "name": "statement",
+                          "display_name": null,
+                          "label": "statement"
+                        },
+                        "production": 0,
+                        "children": [
+                          {
+                            "symbol": {
+                              "name": "IF",
+                              "display_name": null,
+                              "label": "IF"
+                            },
+                            "token": {
+                              "name": "IF",
+                              "display_name": null,
+                              "label": "IF"
+                            }
+                          },
+                          {
+                            "symbol": {
+                              "name": "expression",
+                              "display_name": null,
+                              "label": "expression"
+                            },
+                            "production": 3,
+                            "children": [
+                              {
+                                "symbol": {
+                                  "name": "ID",
+                                  "display_name": null,
+                                  "label": "ID"
+                                },
+                                "token": {
+                                  "name": "ID",
+                                  "display_name": null,
+                                  "label": "ID"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "symbol": {
+                              "name": "THEN",
+                              "display_name": null,
+                              "label": "THEN"
+                            },
+                            "token": {
+                              "name": "THEN",
+                              "display_name": null,
+                              "label": "THEN"
+                            }
+                          },
+                          {
+                            "symbol": {
+                              "name": "statement",
+                              "display_name": null,
+                              "label": "statement"
+                            },
+                            "production": 2,
+                            "children": [
+                              {
+                                "symbol": {
+                                  "name": "ID",
+                                  "display_name": null,
+                                  "label": "ID"
+                                },
+                                "token": {
+                                  "name": "ID",
+                                  "display_name": null,
+                                  "label": "ID"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "symbol": {
+                          "name": "ELSE",
+                          "display_name": null,
+                          "label": "ELSE"
+                        },
+                        "token": {
+                          "name": "ELSE",
+                          "display_name": null,
+                          "label": "ELSE"
+                        }
+                      },
+                      {
+                        "symbol": {
+                          "name": "statement",
+                          "display_name": null,
+                          "label": "statement"
+                        },
+                        "production": 2,
+                        "children": [
+                          {
+                            "symbol": {
+                              "name": "ID",
+                              "display_name": null,
+                              "label": "ID"
+                            },
+                            "token": {
+                              "name": "ID",
+                              "display_name": null,
+                              "label": "ID"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "production": 0
+                }
+              ]
+            }
+          },
+          "state_items": [
+            {
+              "production": 0,
+              "dot": 4,
+              "lookaheads": [
+                "$eof",
+                "ELSE"
+              ],
+              "lhs": "statement",
+              "rhs": [
+                "IF",
+                "expression",
+                "THEN",
+                "statement"
+              ]
+            },
+            {
+              "production": 1,
+              "dot": 4,
+              "lookaheads": [
+                "$eof",
+                "ELSE"
+              ],
+              "lhs": "statement",
+              "rhs": [
+                "IF",
+                "expression",
+                "THEN",
+                "statement",
+                "ELSE",
+                "statement"
+              ]
+            }
+          ],
+          "repair": {
+            "result": "no_safe_proposal",
+            "bounds": {
+              "max_candidates": 32,
+              "max_builds": 32,
+              "equiv_samples": 10,
+              "equiv_max_tokens": 12,
+              "equiv_max_configurations": 50000,
+              "verify_max_states": 100000,
+              "verify_max_items": 1000000
+            },
+            "proposals": [],
+            "rejections": [
+              {
+                "category": "precedence_declaration",
+                "description": "declare left precedence for ELSE",
+                "reason": "target_conflict_remains",
+                "message": null
+              },
+              {
+                "category": "precedence_declaration",
+                "description": "declare right precedence for ELSE",
+                "reason": "target_conflict_remains",
+                "message": null
+              },
+              {
+                "category": "precedence_declaration",
+                "description": "declare nonassoc precedence for ELSE",
+                "reason": "target_conflict_remains",
+                "message": null
+              },
+              {
+                "category": "precedence_declaration",
+                "description": "declare %precedence precedence for ELSE",
+                "reason": "target_conflict_remains",
+                "message": null
+              },
+              {
+                "category": "precedence_override",
+                "description": "override production 0 precedence with ELSE",
+                "reason": "target_conflict_remains",
+                "message": null
+              },
+              {
+                "category": "algorithm_change",
+                "description": "construct with ielr",
+                "reason": "target_conflict_remains",
+                "message": null
+              },
+              {
+                "category": "algorithm_change",
+                "description": "construct with lr1",
+                "reason": "target_conflict_remains",
+                "message": null
+              }
+            ],
+            "advice": [
+              {
+                "category": "expectation_declaration",
+                "description": "acknowledge the current conflict count",
+                "statement": "Advice does not eliminate the selected conflict and is not a verified repair.",
+                "source_change": false,
+                "unified_diff": null
+              },
+              {
+                "category": "recovery_quality",
+                "description": "prefer statement during error recovery",
+                "statement": "Advice does not eliminate the selected conflict and is not a verified repair.",
+                "source_change": true,
+                "unified_diff": "--- test/fixtures/conflict_explanations/dangling_else.y\n+++ test/fixtures/conflict_explanations/dangling_else.y\n@@ -1,10 +1,11 @@\n-class H004DanglingElse\n-pragma extended\n-token IF THEN ELSE ID\n-expect 1\n-rule\n-statement: IF expression THEN statement\n-         | IF expression THEN statement ELSE statement\n-         | ID\n-expression: ID\n-end\n+class H004DanglingElse\n+pragma extended\n+token IF THEN ELSE ID\n+expect 1\n+%on_error_reduce statement\n+rule\n+statement: IF expression THEN statement\n+         | IF expression THEN statement ELSE statement\n+         | ID\n+expression: ID\n+end\n"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "H004-RR",
+      "shape": "reduce_reduce_choice",
+      "grammar": {
+        "path": "test/fixtures/conflict_explanations/reduce_reduce.y",
+        "sha256": "efe3ed72a7b388cd6447a3691ce0c4b549baca125db799fb6bb05a327f03eea9",
+        "bytes": 120
+      },
+      "maintainer_hypothesis": {
+        "cause": "the same WORD can reduce through left or right",
+        "repair_goal": "remove or semantically distinguish one reduction"
+      },
+      "automaton": {
+        "algorithm": "lalr1",
+        "state_count": 5,
+        "digest": "5bf5f218031835ffc1c3f21a7f427d1750c15dbfe4c5c71e4ad12b10df23fb27",
+        "conflict_summary": {
+          "sr": 0,
+          "resolved_sr": 0,
+          "rr": 1,
+          "expected_sr": 0,
+          "expectation_met": true,
+          "expected_rr": 1,
+          "rr_expectation_met": true
+        }
+      },
+      "conflicts": [
+        {
+          "explanation": {
+            "state": 1,
+            "type": "reduce_reduce",
+            "token": {
+              "name": "$eof",
+              "display_name": null,
+              "label": "$eof"
+            },
+            "alternatives": [
+              {
+                "kind": "reduce",
+                "production": 2
+              },
+              {
+                "kind": "reduce",
+                "production": 3
+              }
+            ],
+            "resolution": {
+              "by": "definition_order",
+              "chose": 2
+            },
+            "witness": {
+              "kind": "unifying_counterexample",
+              "sentence": [
+                {
+                  "name": "WORD",
+                  "display_name": null,
+                  "label": "WORD"
+                }
+              ],
+              "lookahead_index": 1,
+              "symbol_path": [],
+              "interpretations": [
+                {
+                  "kind": "reduce",
+                  "tree": {
+                    "symbol": {
+                      "name": "start",
+                      "display_name": null,
+                      "label": "start"
+                    },
+                    "production": 0,
+                    "children": [
+                      {
+                        "symbol": {
+                          "name": "left",
+                          "display_name": null,
+                          "label": "left"
+                        },
+                        "production": 2,
+                        "children": [
+                          {
+                            "symbol": {
+                              "name": "WORD",
+                              "display_name": null,
+                              "label": "WORD"
+                            },
+                            "token": {
+                              "name": "WORD",
+                              "display_name": null,
+                              "label": "WORD"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "production": 2
+                },
+                {
+                  "kind": "reduce",
+                  "tree": {
+                    "symbol": {
+                      "name": "start",
+                      "display_name": null,
+                      "label": "start"
+                    },
+                    "production": 1,
+                    "children": [
+                      {
+                        "symbol": {
+                          "name": "right",
+                          "display_name": null,
+                          "label": "right"
+                        },
+                        "production": 3,
+                        "children": [
+                          {
+                            "symbol": {
+                              "name": "WORD",
+                              "display_name": null,
+                              "label": "WORD"
+                            },
+                            "token": {
+                              "name": "WORD",
+                              "display_name": null,
+                              "label": "WORD"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "production": 3
+                }
+              ]
+            }
+          },
+          "state_items": [
+            {
+              "production": 2,
+              "dot": 1,
+              "lookaheads": [
+                "$eof"
+              ],
+              "lhs": "left",
+              "rhs": [
+                "WORD"
+              ]
+            },
+            {
+              "production": 3,
+              "dot": 1,
+              "lookaheads": [
+                "$eof"
+              ],
+              "lhs": "right",
+              "rhs": [
+                "WORD"
+              ]
+            }
+          ],
+          "repair": {
+            "result": "no_safe_proposal",
+            "bounds": {
+              "max_candidates": 32,
+              "max_builds": 32,
+              "equiv_samples": 10,
+              "equiv_max_tokens": 12,
+              "equiv_max_configurations": 50000,
+              "verify_max_states": 100000,
+              "verify_max_items": 1000000
+            },
+            "proposals": [],
+            "rejections": [
+              {
+                "category": "algorithm_change",
+                "description": "construct with ielr",
+                "reason": "target_conflict_remains",
+                "message": null
+              },
+              {
+                "category": "algorithm_change",
+                "description": "construct with lr1",
+                "reason": "target_conflict_remains",
+                "message": null
+              },
+              {
+                "category": "mechanical_rewrite",
+                "description": "inline nonterminal left",
+                "reason": "conflict_count_did_not_decrease",
+                "message": null
+              }
+            ],
+            "advice": [
+              {
+                "category": "expectation_declaration",
+                "description": "acknowledge the current conflict count",
+                "statement": "Advice does not eliminate the selected conflict and is not a verified repair.",
+                "source_change": false,
+                "unified_diff": null
+              },
+              {
+                "category": "recovery_quality",
+                "description": "prefer left during error recovery",
+                "statement": "Advice does not eliminate the selected conflict and is not a verified repair.",
+                "source_change": true,
+                "unified_diff": "--- test/fixtures/conflict_explanations/reduce_reduce.y\n+++ test/fixtures/conflict_explanations/reduce_reduce.y\n@@ -1,10 +1,11 @@\n-class H004ReduceReduce\n-pragma extended\n-token WORD\n-%expect-rr 1\n-rule\n-start: left\n-     | right\n-left: WORD\n-right: WORD\n-end\n+class H004ReduceReduce\n+pragma extended\n+token WORD\n+%expect-rr 1\n+%on_error_reduce left\n+rule\n+start: left\n+     | right\n+left: WORD\n+right: WORD\n+end\n"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "H004-MERGE",
+      "shape": "lr1_not_lalr_merge",
+      "grammar": {
+        "path": "test/fixtures/conflict_explanations/lalr_merge.y",
+        "sha256": "290aeb9a07f3ec0a0dc247eb4701ddf83dac7c7455035fe173ee393ac589e2e3",
+        "bytes": 167
+      },
+      "maintainer_hypothesis": {
+        "cause": "LALR merges LR(1) contexts whose reductions require disjoint lookaheads",
+        "repair_goal": "use a compatible precise construction and update the expected RR count"
+      },
+      "automaton": {
+        "algorithm": "lalr1",
+        "state_count": 13,
+        "digest": "b7cdde5ba5f0c425ee320e561f82c652afd78d9fc8c07b5c041bc5f7c7520f4a",
+        "conflict_summary": {
+          "sr": 0,
+          "resolved_sr": 0,
+          "rr": 2,
+          "expected_sr": 0,
+          "expectation_met": true,
+          "expected_rr": 2,
+          "rr_expectation_met": true
+        }
+      },
+      "conflicts": [
+        {
+          "explanation": {
+            "state": 6,
+            "type": "reduce_reduce",
+            "token": {
+              "name": "'d'",
+              "display_name": null,
+              "label": "'d'"
+            },
+            "alternatives": [
+              {
+                "kind": "reduce",
+                "production": 4
+              },
+              {
+                "kind": "reduce",
+                "production": 5
+              }
+            ],
+            "resolution": {
+              "by": "definition_order",
+              "chose": 4
+            },
+            "witness": {
+              "kind": "nonunifying_witness",
+              "sentence": [
+                {
+                  "name": "'a'",
+                  "display_name": null,
+                  "label": "'a'"
+                },
+                {
+                  "name": "'c'",
+                  "display_name": null,
+                  "label": "'c'"
+                },
+                {
+                  "name": "'d'",
+                  "display_name": null,
+                  "label": "'d'"
+                }
+              ],
+              "lookahead_index": 2,
+              "symbol_path": [
+                {
+                  "name": "'a'",
+                  "display_name": null,
+                  "label": "'a'"
+                },
+                {
+                  "name": "'c'",
+                  "display_name": null,
+                  "label": "'c'"
+                }
+              ],
+              "interpretations": [
+                {
+                  "kind": "reduce",
+                  "tree": {
+                    "symbol": {
+                      "name": "first",
+                      "display_name": null,
+                      "label": "first"
+                    },
+                    "children": [
+                      {
+                        "name": "'c'",
+                        "display_name": null,
+                        "label": "'c'"
+                      }
+                    ]
+                  },
+                  "production": 4
+                },
+                {
+                  "kind": "reduce",
+                  "tree": {
+                    "symbol": {
+                      "name": "second",
+                      "display_name": null,
+                      "label": "second"
+                    },
+                    "children": [
+                      {
+                        "name": "'c'",
+                        "display_name": null,
+                        "label": "'c'"
+                      }
+                    ]
+                  },
+                  "production": 5
+                }
+              ]
+            }
+          },
+          "state_items": [
+            {
+              "production": 4,
+              "dot": 1,
+              "lookaheads": [
+                "'d'",
+                "'e'"
+              ],
+              "lhs": "first",
+              "rhs": [
+                "'c'"
+              ]
+            },
+            {
+              "production": 5,
+              "dot": 1,
+              "lookaheads": [
+                "'d'",
+                "'e'"
+              ],
+              "lhs": "second",
+              "rhs": [
+                "'c'"
+              ]
+            }
+          ],
+          "repair": {
+            "result": "no_safe_proposal",
+            "bounds": {
+              "max_candidates": 32,
+              "max_builds": 32,
+              "equiv_samples": 10,
+              "equiv_max_tokens": 12,
+              "equiv_max_configurations": 50000,
+              "verify_max_states": 100000,
+              "verify_max_items": 1000000
+            },
+            "proposals": [],
+            "rejections": [
+              {
+                "category": "algorithm_change",
+                "description": "construct with ielr",
+                "reason": "conflict_expectation_mismatch",
+                "message": null
+              },
+              {
+                "category": "algorithm_change",
+                "description": "construct with lr1",
+                "reason": "conflict_expectation_mismatch",
+                "message": null
+              },
+              {
+                "category": "mechanical_rewrite",
+                "description": "inline nonterminal first",
+                "reason": "conflict_expectation_mismatch",
+                "message": null
+              }
+            ],
+            "advice": [
+              {
+                "category": "expectation_declaration",
+                "description": "acknowledge the current conflict count",
+                "statement": "Advice does not eliminate the selected conflict and is not a verified repair.",
+                "source_change": false,
+                "unified_diff": null
+              },
+              {
+                "category": "recovery_quality",
+                "description": "prefer first during error recovery",
+                "statement": "Advice does not eliminate the selected conflict and is not a verified repair.",
+                "source_change": true,
+                "unified_diff": "--- test/fixtures/conflict_explanations/lalr_merge.y\n+++ test/fixtures/conflict_explanations/lalr_merge.y\n@@ -1,11 +1,12 @@\n-class H004LALRMerge\n-pragma extended\n-%expect-rr 2\n-rule\n-start: 'a' first 'd'\n-     | 'b' second 'd'\n-     | 'a' second 'e'\n-     | 'b' first 'e'\n-first: 'c'\n-second: 'c'\n-end\n+class H004LALRMerge\n+pragma extended\n+%expect-rr 2\n+%on_error_reduce first\n+rule\n+start: 'a' first 'd'\n+     | 'b' second 'd'\n+     | 'a' second 'e'\n+     | 'b' first 'e'\n+first: 'c'\n+second: 'c'\n+end\n"
+              }
+            ]
+          }
+        },
+        {
+          "explanation": {
+            "state": 6,
+            "type": "reduce_reduce",
+            "token": {
+              "name": "'e'",
+              "display_name": null,
+              "label": "'e'"
+            },
+            "alternatives": [
+              {
+                "kind": "reduce",
+                "production": 4
+              },
+              {
+                "kind": "reduce",
+                "production": 5
+              }
+            ],
+            "resolution": {
+              "by": "definition_order",
+              "chose": 4
+            },
+            "witness": {
+              "kind": "nonunifying_witness",
+              "sentence": [
+                {
+                  "name": "'a'",
+                  "display_name": null,
+                  "label": "'a'"
+                },
+                {
+                  "name": "'c'",
+                  "display_name": null,
+                  "label": "'c'"
+                },
+                {
+                  "name": "'e'",
+                  "display_name": null,
+                  "label": "'e'"
+                }
+              ],
+              "lookahead_index": 2,
+              "symbol_path": [
+                {
+                  "name": "'a'",
+                  "display_name": null,
+                  "label": "'a'"
+                },
+                {
+                  "name": "'c'",
+                  "display_name": null,
+                  "label": "'c'"
+                }
+              ],
+              "interpretations": [
+                {
+                  "kind": "reduce",
+                  "tree": {
+                    "symbol": {
+                      "name": "first",
+                      "display_name": null,
+                      "label": "first"
+                    },
+                    "children": [
+                      {
+                        "name": "'c'",
+                        "display_name": null,
+                        "label": "'c'"
+                      }
+                    ]
+                  },
+                  "production": 4
+                },
+                {
+                  "kind": "reduce",
+                  "tree": {
+                    "symbol": {
+                      "name": "second",
+                      "display_name": null,
+                      "label": "second"
+                    },
+                    "children": [
+                      {
+                        "name": "'c'",
+                        "display_name": null,
+                        "label": "'c'"
+                      }
+                    ]
+                  },
+                  "production": 5
+                }
+              ]
+            }
+          },
+          "state_items": [
+            {
+              "production": 4,
+              "dot": 1,
+              "lookaheads": [
+                "'d'",
+                "'e'"
+              ],
+              "lhs": "first",
+              "rhs": [
+                "'c'"
+              ]
+            },
+            {
+              "production": 5,
+              "dot": 1,
+              "lookaheads": [
+                "'d'",
+                "'e'"
+              ],
+              "lhs": "second",
+              "rhs": [
+                "'c'"
+              ]
+            }
+          ],
+          "repair": {
+            "result": "no_safe_proposal",
+            "bounds": {
+              "max_candidates": 32,
+              "max_builds": 32,
+              "equiv_samples": 10,
+              "equiv_max_tokens": 12,
+              "equiv_max_configurations": 50000,
+              "verify_max_states": 100000,
+              "verify_max_items": 1000000
+            },
+            "proposals": [],
+            "rejections": [
+              {
+                "category": "algorithm_change",
+                "description": "construct with ielr",
+                "reason": "conflict_expectation_mismatch",
+                "message": null
+              },
+              {
+                "category": "algorithm_change",
+                "description": "construct with lr1",
+                "reason": "conflict_expectation_mismatch",
+                "message": null
+              },
+              {
+                "category": "mechanical_rewrite",
+                "description": "inline nonterminal first",
+                "reason": "conflict_expectation_mismatch",
+                "message": null
+              }
+            ],
+            "advice": [
+              {
+                "category": "expectation_declaration",
+                "description": "acknowledge the current conflict count",
+                "statement": "Advice does not eliminate the selected conflict and is not a verified repair.",
+                "source_change": false,
+                "unified_diff": null
+              },
+              {
+                "category": "recovery_quality",
+                "description": "prefer first during error recovery",
+                "statement": "Advice does not eliminate the selected conflict and is not a verified repair.",
+                "source_change": true,
+                "unified_diff": "--- test/fixtures/conflict_explanations/lalr_merge.y\n+++ test/fixtures/conflict_explanations/lalr_merge.y\n@@ -1,11 +1,12 @@\n-class H004LALRMerge\n-pragma extended\n-%expect-rr 2\n-rule\n-start: 'a' first 'd'\n-     | 'b' second 'd'\n-     | 'a' second 'e'\n-     | 'b' first 'e'\n-first: 'c'\n-second: 'c'\n-end\n+class H004LALRMerge\n+pragma extended\n+%expect-rr 2\n+%on_error_reduce first\n+rule\n+start: 'a' first 'd'\n+     | 'b' second 'd'\n+     | 'a' second 'e'\n+     | 'b' first 'e'\n+first: 'c'\n+second: 'c'\n+end\n"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "subjective_review": {
+    "status": "external_pending",
+    "required_tasks": [
+      "identify_cause",
+      "choose_edit"
+    ],
+    "registry_path": "docs/conflict-explanation-review-status-v1.json"
+  }
+}

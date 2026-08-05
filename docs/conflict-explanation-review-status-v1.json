@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "gate_id": "H004-subjective-usefulness",
+  "status": "HOLD",
+  "reason": "awaiting_at_least_two_independent_human_reviews",
+  "study_path": "test/fixtures/conflict_explanations/study-v1.json",
+  "study_sha256": "af0081be0b2c7a2b78e77b87617560cc84847309c17cc0fdc8d20ecd45c7544a",
+  "records": [],
+  "disagreement_summary": "not_available_without_reviews"
+}
