@@ -1,0 +1,437 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/conflict-explanation-study-v1.schema.json",
+  "title": "Ibex H004 conflict-explanation usefulness study version 1",
+  "type": "object",
+  "required": [
+    "ibex_conflict_explanation_study",
+    "schema_version",
+    "capture",
+    "coverage",
+    "cases",
+    "subjective_review"
+  ],
+  "properties": {
+    "ibex_conflict_explanation_study": { "const": "h004" },
+    "schema_version": { "const": 1 },
+    "capture": { "$ref": "#/$defs/capture" },
+    "coverage": { "$ref": "#/$defs/coverage" },
+    "cases": {
+      "type": "array",
+      "minItems": 4,
+      "items": { "$ref": "#/$defs/case" }
+    },
+    "subjective_review": { "$ref": "#/$defs/subjective_review" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "positive_bounds": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 },
+      "minProperties": 1
+    },
+    "capture": {
+      "type": "object",
+      "required": [
+        "algorithm",
+        "mode",
+        "search_bounds",
+        "repair_bounds",
+        "executes_grammar_actions"
+      ],
+      "properties": {
+        "algorithm": { "const": "lalr" },
+        "mode": { "const": "extended" },
+        "search_bounds": {
+          "type": "object",
+          "required": ["max_tokens", "max_configurations"],
+          "properties": {
+            "max_tokens": { "type": "integer", "minimum": 1 },
+            "max_configurations": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": false
+        },
+        "repair_bounds": {
+          "type": "object",
+          "required": [
+            "max_candidates",
+            "max_builds",
+            "equiv_max_tokens",
+            "equiv_max_configurations",
+            "equiv_samples",
+            "verify_max_states",
+            "verify_max_items"
+          ],
+          "properties": {
+            "max_candidates": { "type": "integer", "minimum": 1 },
+            "max_builds": { "type": "integer", "minimum": 1 },
+            "equiv_max_tokens": { "type": "integer", "minimum": 1 },
+            "equiv_max_configurations": { "type": "integer", "minimum": 1 },
+            "equiv_samples": { "type": "integer", "minimum": 1 },
+            "verify_max_states": { "type": "integer", "minimum": 1 },
+            "verify_max_items": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": false
+        },
+        "executes_grammar_actions": { "const": false }
+      },
+      "additionalProperties": false
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["case_count", "conflict_count", "shapes", "conflict_types", "witness_kinds"],
+      "properties": {
+        "case_count": { "type": "integer", "minimum": 4 },
+        "conflict_count": { "type": "integer", "minimum": 4 },
+        "shapes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "ambiguous_expression",
+              "dangling_optional_clause",
+              "reduce_reduce_choice",
+              "lr1_not_lalr_merge"
+            ]
+          }
+        },
+        "conflict_types": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["shift_reduce", "reduce_reduce"] }
+        },
+        "witness_kinds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["unifying_counterexample", "nonunifying_witness"] }
+        }
+      },
+      "additionalProperties": false
+    },
+    "case": {
+      "type": "object",
+      "required": ["id", "shape", "grammar", "maintainer_hypothesis", "automaton", "conflicts"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^H004-[A-Z0-9-]+$" },
+        "shape": {
+          "enum": [
+            "ambiguous_expression",
+            "dangling_optional_clause",
+            "reduce_reduce_choice",
+            "lr1_not_lalr_merge"
+          ]
+        },
+        "grammar": { "$ref": "#/$defs/grammar_identity" },
+        "maintainer_hypothesis": { "$ref": "#/$defs/maintainer_hypothesis" },
+        "automaton": { "$ref": "#/$defs/automaton" },
+        "conflicts": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/conflict_record" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "grammar_identity": {
+      "type": "object",
+      "required": ["path", "sha256", "bytes"],
+      "properties": {
+        "path": { "type": "string", "pattern": "^test/fixtures/conflict_explanations/[a-z0-9_]+\\.y$" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "bytes": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "maintainer_hypothesis": {
+      "type": "object",
+      "required": ["cause", "repair_goal"],
+      "properties": {
+        "cause": { "type": "string", "minLength": 1 },
+        "repair_goal": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "automaton": {
+      "type": "object",
+      "required": ["algorithm", "state_count", "digest", "conflict_summary"],
+      "properties": {
+        "algorithm": { "const": "lalr1" },
+        "state_count": { "type": "integer", "minimum": 1 },
+        "digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "conflict_summary": { "$ref": "#/$defs/conflict_summary" }
+      },
+      "additionalProperties": false
+    },
+    "conflict_summary": {
+      "type": "object",
+      "required": ["sr", "resolved_sr", "rr", "expected_sr", "expectation_met"],
+      "properties": {
+        "sr": { "type": "integer", "minimum": 0 },
+        "resolved_sr": { "type": "integer", "minimum": 0 },
+        "rr": { "type": "integer", "minimum": 0 },
+        "expected_sr": { "type": "integer", "minimum": 0 },
+        "expectation_met": { "type": "boolean" },
+        "expected_rr": { "type": "integer", "minimum": 0 },
+        "rr_expectation_met": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "conflict_record": {
+      "type": "object",
+      "required": ["explanation", "state_items", "repair"],
+      "properties": {
+        "explanation": { "$ref": "#/$defs/explanation" },
+        "state_items": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/item" }
+        },
+        "repair": { "$ref": "#/$defs/repair" }
+      },
+      "additionalProperties": false
+    },
+    "item": {
+      "type": "object",
+      "required": ["production", "lhs", "rhs", "dot", "lookaheads"],
+      "properties": {
+        "production": { "type": "integer", "minimum": 0 },
+        "lhs": { "type": "string", "minLength": 1 },
+        "rhs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "dot": { "type": "integer", "minimum": 0 },
+        "lookaheads": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "symbol": {
+      "type": "object",
+      "required": ["name", "display_name", "label"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "display_name": { "type": ["string", "null"] },
+        "label": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "shift": {
+      "type": "object",
+      "required": ["kind", "state"],
+      "properties": {
+        "kind": { "const": "shift" },
+        "state": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "reduce": {
+      "type": "object",
+      "required": ["kind", "production"],
+      "properties": {
+        "kind": { "const": "reduce" },
+        "production": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "resolution": {
+      "type": "object",
+      "required": ["by", "chose"],
+      "properties": {
+        "by": { "enum": ["default_shift", "definition_order", "precedence", "associativity"] },
+        "chose": {
+          "oneOf": [
+            { "enum": ["shift", "reduce", "error"] },
+            { "type": "integer", "minimum": 0 }
+          ]
+        },
+        "associativity": { "enum": ["left", "right", "nonassoc"] }
+      },
+      "additionalProperties": false
+    },
+    "explanation": {
+      "type": "object",
+      "required": ["state", "type", "token", "alternatives", "resolution", "witness"],
+      "properties": {
+        "state": { "type": "integer", "minimum": 0 },
+        "type": { "enum": ["shift_reduce", "reduce_reduce"] },
+        "token": { "$ref": "#/$defs/symbol" },
+        "alternatives": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "oneOf": [{ "$ref": "#/$defs/shift" }, { "$ref": "#/$defs/reduce" }] }
+        },
+        "resolution": { "$ref": "#/$defs/resolution" },
+        "witness": { "$ref": "#/$defs/witness" },
+        "midrule_origins": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/location" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "location": {
+      "type": "object",
+      "required": ["file", "line", "column"],
+      "properties": {
+        "file": { "type": "string", "minLength": 1 },
+        "line": { "type": "integer", "minimum": 1 },
+        "column": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "witness": {
+      "type": "object",
+      "required": ["kind", "sentence", "lookahead_index", "symbol_path", "interpretations"],
+      "properties": {
+        "kind": { "enum": ["unifying_counterexample", "nonunifying_witness"] },
+        "sentence": { "type": "array", "items": { "$ref": "#/$defs/symbol" } },
+        "lookahead_index": { "type": "integer", "minimum": 0 },
+        "symbol_path": { "type": "array", "items": { "$ref": "#/$defs/symbol" } },
+        "interpretations": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "$ref": "#/$defs/interpretation" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "interpretation": {
+      "type": "object",
+      "required": ["kind", "tree"],
+      "properties": {
+        "kind": { "enum": ["shift", "reduce"] },
+        "tree": { "$ref": "#/$defs/tree" },
+        "state": { "type": "integer", "minimum": 0 },
+        "production": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "tree": {
+      "oneOf": [
+        { "$ref": "#/$defs/symbol" },
+        {
+          "type": "object",
+          "properties": {
+            "symbol": { "$ref": "#/$defs/symbol" },
+            "token": { "$ref": "#/$defs/symbol" },
+            "production": { "type": "integer", "minimum": 0 },
+            "children": { "type": "array", "items": { "$ref": "#/$defs/tree" } }
+          },
+          "additionalProperties": false,
+          "anyOf": [{ "required": ["symbol"] }, { "required": ["token"] }]
+        }
+      ]
+    },
+    "repair": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["result", "bounds", "proposals", "rejections", "advice"],
+          "properties": {
+            "result": { "enum": ["proposals_found", "no_safe_proposal"] },
+            "bounds": { "$ref": "#/$defs/positive_bounds" },
+            "proposals": { "type": "array", "items": { "$ref": "#/$defs/proposal" } },
+            "rejections": { "type": "array", "items": { "$ref": "#/$defs/rejection" } },
+            "advice": { "type": "array", "items": { "$ref": "#/$defs/advice" } }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["result", "details"],
+          "properties": {
+            "result": { "const": "budget_exhausted" },
+            "details": { "type": "object" }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "proposal": {
+      "type": "object",
+      "required": ["id", "category", "description", "applyable", "unified_diff", "verification"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^FX[0-9]{3}$" },
+        "category": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "applyable": { "type": "boolean" },
+        "unified_diff": { "type": ["string", "null"] },
+        "verification": { "$ref": "#/$defs/proposal_verification" }
+      },
+      "additionalProperties": false
+    },
+    "proposal_verification": {
+      "type": "object",
+      "required": [
+        "equivalence_result",
+        "tree_result",
+        "checked",
+        "bounds",
+        "removed_conflicts",
+        "states"
+      ],
+      "properties": {
+        "equivalence_result": { "const": "no_difference_within_bounds" },
+        "tree_result": { "const": "no_difference_within_bounds" },
+        "checked": { "$ref": "#/$defs/nonnegative_numbers" },
+        "bounds": { "$ref": "#/$defs/positive_bounds" },
+        "removed_conflicts": { "type": "integer", "minimum": 1 },
+        "states": {
+          "type": "object",
+          "required": ["before", "after", "delta"],
+          "properties": {
+            "before": { "type": "integer", "minimum": 1 },
+            "after": { "type": "integer", "minimum": 1 },
+            "delta": { "type": "integer" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "nonnegative_numbers": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 },
+      "minProperties": 1
+    },
+    "rejection": {
+      "type": "object",
+      "required": ["category", "description", "reason", "message"],
+      "properties": {
+        "category": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 },
+        "message": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "advice": {
+      "type": "object",
+      "required": ["category", "description", "statement", "source_change", "unified_diff"],
+      "properties": {
+        "category": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "statement": { "const": "Advice does not eliminate the selected conflict and is not a verified repair." },
+        "source_change": { "type": "boolean" },
+        "unified_diff": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "subjective_review": {
+      "type": "object",
+      "required": ["status", "required_tasks", "registry_path"],
+      "properties": {
+        "status": { "const": "external_pending" },
+        "required_tasks": {
+          "const": ["identify_cause", "choose_edit"]
+        },
+        "registry_path": { "const": "docs/conflict-explanation-review-status-v1.json" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

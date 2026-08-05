@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/conflict-explanation-review-v1.schema.json",
+  "title": "Ibex H004 independent conflict-explanation review registry version 1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "gate_id",
+    "status",
+    "reason",
+    "study_path",
+    "study_sha256",
+    "records",
+    "disagreement_summary"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "gate_id": { "const": "H004-subjective-usefulness" },
+    "status": { "enum": ["HOLD", "PASS"] },
+    "reason": { "type": "string", "minLength": 1 },
+    "study_path": { "const": "test/fixtures/conflict_explanations/study-v1.json" },
+    "study_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "records": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/review_record" }
+    },
+    "disagreement_summary": { "type": "string", "minLength": 1 }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "PASS" } } },
+      "then": { "properties": { "records": { "minItems": 2 } } }
+    }
+  ],
+  "$defs": {
+    "review_record": {
+      "type": "object",
+      "required": [
+        "reviewer",
+        "reviewed_at",
+        "independent_of_implementation",
+        "case_reviews",
+        "disagreement_summary"
+      ],
+      "properties": {
+        "reviewer": { "type": "string", "minLength": 1 },
+        "reviewed_at": { "type": "string", "format": "date" },
+        "independent_of_implementation": { "const": true },
+        "case_reviews": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": { "$ref": "#/$defs/case_review" }
+        },
+        "disagreement_summary": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "case_review": {
+      "type": "object",
+      "required": [
+        "case_id",
+        "identified_cause",
+        "chosen_edit",
+        "explanation_usefulness",
+        "repair_usefulness",
+        "rationale"
+      ],
+      "properties": {
+        "case_id": { "enum": ["H004-EXPR", "H004-ELSE", "H004-RR", "H004-MERGE"] },
+        "identified_cause": { "type": "string", "minLength": 1 },
+        "chosen_edit": { "type": "string", "minLength": 1 },
+        "explanation_usefulness": { "enum": ["useful", "not_useful", "unclear"] },
+        "repair_usefulness": { "enum": ["useful", "not_useful", "no_verified_repair", "unclear"] },
+        "rationale": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    }
+  }
+}
