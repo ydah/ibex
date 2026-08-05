@@ -17,7 +17,8 @@ class CounterexampleSelectionTest < Minitest::Test
     selected_state = automaton.states.find { |state| state.conflicts.length > 1 }
     calls = []
     search = Object.new
-    search.define_singleton_method(:call) { nil }
+    outcome = not_found_outcome
+    search.define_singleton_method(:call) { outcome }
     factory = lambda do |_automaton, state, conflict, **_options|
       calls << [state.id, conflict[:symbol]]
       search
@@ -49,7 +50,8 @@ class CounterexampleSelectionTest < Minitest::Test
     automaton = build("class P\nexpect 1\nrule\nstart: start start | TOKEN\nend\n")
     calls = 0
     search = Object.new
-    search.define_singleton_method(:call) { nil }
+    outcome = not_found_outcome
+    search.define_singleton_method(:call) { outcome }
     factory = lambda do |*_arguments, **_options|
       calls += 1
       search
@@ -63,6 +65,13 @@ class CounterexampleSelectionTest < Minitest::Test
   end
 
   private
+
+  def not_found_outcome
+    {
+      status: :not_found, result: nil, explored: 0, exhausted: false,
+      bounds: { max_tokens: 32, max_configurations: 50_000 }
+    }
+  end
 
   def build(source)
     ast = Ibex::Frontend::Parser.new(source, file: "counterexample-selection.y").parse

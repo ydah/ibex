@@ -100,6 +100,8 @@ module Ibex
     #     sentence: Array[String],
     #     lookahead_index: Integer,
     #     unifying: bool,
+    #     inconclusive: bool,
+    #     search: LALR::search_outcome,
     #     interpretations: Array[interpretation]
     #   }
   end

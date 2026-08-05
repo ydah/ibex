@@ -30,6 +30,7 @@ class ConflictExplanationStudyTest < Minitest::Test
         refute_empty conflict.fetch("state_items")
         assert_includes %w[unifying_counterexample nonunifying_witness],
                         conflict.dig("explanation", "witness", "kind")
+        assert_search_evidence(conflict)
         assert conflict.fetch("repair").key?("proposals")
         assert conflict.fetch("repair").key?("advice")
       end
@@ -38,6 +39,19 @@ class ConflictExplanationStudyTest < Minitest::Test
     proposal = expression.dig("repair", "proposals", 0)
     assert_equal "declare right precedence for PLUS", proposal.fetch("description")
     assert_equal 1, proposal.dig("verification", "removed_conflicts")
+  end
+
+  def test_exhausted_conflict_search_is_inconclusive_instead_of_nonunifying
+    source = File.binread(File.join(ROOT, "test/fixtures/conflict_explanations/expression.y"))
+    ast = Ibex::Frontend::Parser.new(source, file: "expression.y", mode: :extended).parse
+    grammar = Ibex::Normalizer.new(ast, mode: :extended).normalize
+    automaton = Ibex::LALR::Builder.new(grammar, algorithm: :lalr).build
+    document = Ibex::Codegen::Explain.new(automaton, max_tokens: 16, max_configurations: 1).to_h
+    witness = document.dig(:conflicts, 0, :witness)
+
+    assert_equal "inconclusive", witness.fetch(:kind)
+    assert_equal({ status: "exhausted", explored: 1, exhausted: true,
+                   bounds: { max_tokens: 16, max_configurations: 1 } }, witness.fetch(:search))
   end
 
   def test_lalr_merge_is_nonunifying_and_precise_construction_removes_the_conflicts
@@ -104,6 +118,14 @@ class ConflictExplanationStudyTest < Minitest::Test
   end
 
   private
+
+  def assert_search_evidence(conflict)
+    search = conflict.dig("explanation", "witness", "search")
+    assert_includes %w[found not_found], search.fetch("status")
+    refute search.fetch("exhausted")
+    assert_operator search.fetch("explored"), :>, 0
+    assert_equal evidence.dig("capture", "search_bounds"), search.fetch("bounds")
+  end
 
   def study
     Ibex::Quality::ConflictExplanationStudy.new(root: ROOT)

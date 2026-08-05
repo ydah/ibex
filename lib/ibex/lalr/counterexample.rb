@@ -41,29 +41,32 @@ module Ibex
 
       # @rbs (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample
       def build_example(state, conflict)
-        unifying = ConflictSearch.new(
+        outcome = ConflictSearch.new(
           @automaton, state, conflict, max_tokens: @max_tokens, max_configurations: @max_configurations
         ).call
-        return unifying_example(state, conflict, unifying) if unifying
+        result = outcome[:result]
+        return unifying_example(state, conflict, outcome, result) if outcome[:status] == :found && result
 
-        reachability_example(state, conflict)
+        reachability_example(state, conflict, outcome)
       end
 
-      # @rbs (IR::AutomatonState state, IR::conflict conflict, Hash[Symbol, untyped] result) -> IR::counterexample
-      def unifying_example(state, conflict, result)
+      # @rbs (IR::AutomatonState state, IR::conflict conflict, search_outcome outcome,
+      #   search_result result) -> IR::counterexample
+      def unifying_example(state, conflict, outcome, result)
         { state: state.id, type: conflict[:type], symbol_path: Array.new(0),
           sentence: names(result[:sentence_ids]), lookahead_index: result[:lookahead_index], unifying: true,
-          interpretations: result[:interpretations] }
+          inconclusive: false, search: outcome, interpretations: result[:interpretations] }
       end
 
-      # @rbs (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample
-      def reachability_example(state, conflict)
+      # @rbs (IR::AutomatonState state, IR::conflict conflict, search_outcome outcome) -> IR::counterexample
+      def reachability_example(state, conflict, outcome)
         path = shortest_state_path(state.id, conflict)
         lookahead = @grammar.symbol(conflict[:symbol])
         terminal_ids = path.flat_map { |symbol_id| @shortest_yields[symbol_id] || [] }
         terminal_ids << lookahead.id if lookahead
         { state: state.id, type: conflict[:type], symbol_path: names(path), sentence: names(terminal_ids),
-          lookahead_index: terminal_ids.length - 1, unifying: false, interpretations: interpretations(conflict) }
+          lookahead_index: terminal_ids.length - 1, unifying: false,
+          inconclusive: outcome[:status] == :exhausted, search: outcome, interpretations: interpretations(conflict) }
       end
 
       # @rbs (Integer target, IR::conflict conflict) -> Array[Integer]

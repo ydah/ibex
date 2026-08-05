@@ -46,13 +46,16 @@ module Ibex
       #   ?max_tokens: Integer, ?max_configurations: Integer) -> void
       def initialize: (IR::Automaton automaton, IR::AutomatonState state, IR::conflict conflict, ?max_tokens: Integer, ?max_configurations: Integer) -> void
 
-      # @rbs () -> search_result?
-      def call: () -> search_result?
+      # @rbs () -> search_outcome
+      def call: () -> search_outcome
 
       # @rbs () -> bool
       def exhausted?: () -> bool
 
       private
+
+      # @rbs (:found | :not_found | :exhausted status, ?search_result? result) -> search_outcome
+      def outcome: (:found | :not_found | :exhausted status, ?search_result? result) -> search_outcome
 
       # @rbs (Configuration current) -> Array[Configuration]
       def conflict_configurations: (Configuration current) -> Array[Configuration]

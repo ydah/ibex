@@ -134,17 +134,18 @@ module Ibex
           @automaton, state, conflict,
           max_tokens: @max_tokens, max_configurations: @max_configurations
         )
-        result = search.call
+        outcome = search.call
+        result = outcome[:result]
         {
           state: state.id,
           type: conflict.fetch(:type).to_s,
           token: conflict.fetch(:symbol),
-          result: result ? "ambiguous" : "not_found",
+          result: outcome[:status] == :found ? "ambiguous" : "not_found",
           sentence: result ? symbol_names(result.fetch(:sentence_ids)) : [],
           lookahead_index: result&.fetch(:lookahead_index),
           interpretations: result ? result.fetch(:interpretations) : [],
-          explored_configurations: search.explored,
-          configuration_budget_exhausted: search.exhausted?
+          explored_configurations: outcome.fetch(:explored),
+          configuration_budget_exhausted: outcome.fetch(:exhausted)
         }
       end
 

@@ -103,7 +103,7 @@
         "witness_kinds": {
           "type": "array",
           "uniqueItems": true,
-          "items": { "enum": ["unifying_counterexample", "nonunifying_witness"] }
+          "items": { "enum": ["unifying_counterexample", "nonunifying_witness", "inconclusive"] }
         }
       },
       "additionalProperties": false
@@ -285,18 +285,45 @@
     },
     "witness": {
       "type": "object",
-      "required": ["kind", "sentence", "lookahead_index", "symbol_path", "interpretations"],
+      "required": ["kind", "sentence", "lookahead_index", "symbol_path", "search", "interpretations"],
       "properties": {
-        "kind": { "enum": ["unifying_counterexample", "nonunifying_witness"] },
+        "kind": { "enum": ["unifying_counterexample", "nonunifying_witness", "inconclusive"] },
         "sentence": { "type": "array", "items": { "$ref": "#/$defs/symbol" } },
         "lookahead_index": { "type": "integer", "minimum": 0 },
         "symbol_path": { "type": "array", "items": { "$ref": "#/$defs/symbol" } },
+        "search": { "$ref": "#/$defs/witness_search" },
         "interpretations": {
           "type": "array",
           "minItems": 2,
           "items": { "$ref": "#/$defs/interpretation" }
         }
       },
+      "additionalProperties": false
+    },
+    "witness_search": {
+      "type": "object",
+      "required": ["status", "explored", "exhausted", "bounds"],
+      "properties": {
+        "status": { "enum": ["found", "not_found", "exhausted"] },
+        "explored": { "type": "integer", "minimum": 0 },
+        "exhausted": { "type": "boolean" },
+        "bounds": {
+          "type": "object",
+          "required": ["max_tokens", "max_configurations"],
+          "properties": {
+            "max_tokens": { "type": "integer", "minimum": 1 },
+            "max_configurations": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "exhausted" } } },
+          "then": { "properties": { "exhausted": { "const": true } } },
+          "else": { "properties": { "exhausted": { "const": false } } }
+        }
+      ],
       "additionalProperties": false
     },
     "interpretation": {

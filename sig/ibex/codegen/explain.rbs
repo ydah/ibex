@@ -38,6 +38,12 @@ module Ibex
       # @rbs (explain_entry entry) -> Hash[Symbol, untyped]
       def conflict_document: (explain_entry entry) -> Hash[Symbol, untyped]
 
+      # @rbs (IR::counterexample example) -> String
+      def witness_kind: (IR::counterexample example) -> String
+
+      # @rbs (LALR::search_outcome outcome) -> Hash[Symbol, untyped]
+      def search_document: (LALR::search_outcome outcome) -> Hash[Symbol, untyped]
+
       # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
       def conflict_alternatives: (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
 

@@ -88,10 +88,20 @@ module Ibex
 
       # @rbs skip
       def append_counterexample(lines, example, grammar, labels)
-        label = example[:unifying] ? "unifying counterexample" : "nonunifying witness"
+        label = if example[:unifying]
+                  "unifying counterexample"
+                elsif example[:inconclusive]
+                  "inconclusive reachability witness"
+                else
+                  "nonunifying witness"
+                end
         sentence = example[:sentence].map { |name| tree_label(grammar, labels, name) }
         sentence = sentence.dup.insert(example[:lookahead_index], "•").join(" ")
         lines << "  #{label}: #{sentence}"
+        if example[:inconclusive]
+          search = example.fetch(:search)
+          lines << "    search exhausted after #{search.fetch(:explored)} configurations; no classification was made"
+        end
         example[:interpretations].each do |interpretation|
           lines << "    #{interpretation[:kind]} derivation:"
           append_tree(lines, interpretation[:tree], "      ", grammar, labels)
