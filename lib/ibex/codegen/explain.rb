@@ -15,7 +15,7 @@ module Ibex
     #   type explain_entry = {
     #     state: IR::AutomatonState,
     #     conflict: IR::conflict,
-    #     example: IR::counterexample
+    #     example: LALR::search_counterexample
     #   }
 
     # Renders a selected conflict explanation from Automaton IR and counterexamples.
@@ -164,7 +164,7 @@ module Ibex
         document
       end
 
-      # @rbs (IR::counterexample example) -> String
+      # @rbs (LALR::search_counterexample example) -> String
       def witness_kind(example)
         return "unifying_counterexample" if example.fetch(:unifying)
         return "inconclusive" if example.fetch(:inconclusive)
@@ -270,7 +270,7 @@ module Ibex
       end
 
       # @rbs (Array[String] lines, IR::AutomatonState state, IR::conflict conflict,
-      #   IR::counterexample example) -> void
+      #   LALR::search_counterexample example) -> void
       def append_witness_steps(lines, state, conflict, example)
         lines << "  1. Reach state #{state.id} with the witness prefix."
         sentence = example.fetch(:sentence).map { |name| display_name(name) }
@@ -287,7 +287,7 @@ module Ibex
         lines << "  3. Resolution: #{resolution.fetch(:by)} chose #{resolution.fetch(:chose)}."
       end
 
-      # @rbs (Array[String] lines, IR::counterexample example) -> void
+      # @rbs (Array[String] lines, LALR::search_counterexample example) -> void
       def append_interpretations(lines, example)
         lines << "  Competing derivations:"
         example.fetch(:interpretations).each_with_index do |interpretation, index|

@@ -17,14 +17,14 @@ module Ibex
         @shortest_yields = compute_shortest_yields
       end
 
-      # @rbs () -> Array[IR::counterexample]
+      # @rbs () -> Array[search_counterexample]
       def all
         @automaton.states.flat_map do |state|
           state.conflicts.map { |conflict| build_example(state, conflict) }
         end
       end
 
-      # @rbs (Integer state_id, Integer conflict_index) -> IR::counterexample
+      # @rbs (Integer state_id, Integer conflict_index) -> search_counterexample
       def for_conflict(state_id, conflict_index)
         state = @automaton.states.find { |candidate| candidate.id == state_id }
         raise ArgumentError, "unknown automaton state #{state_id}" unless state
@@ -39,7 +39,7 @@ module Ibex
 
       private
 
-      # @rbs (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample
+      # @rbs (IR::AutomatonState state, IR::conflict conflict) -> search_counterexample
       def build_example(state, conflict)
         outcome = ConflictSearch.new(
           @automaton, state, conflict, max_tokens: @max_tokens, max_configurations: @max_configurations
@@ -51,14 +51,14 @@ module Ibex
       end
 
       # @rbs (IR::AutomatonState state, IR::conflict conflict, search_outcome outcome,
-      #   search_result result) -> IR::counterexample
+      #   search_result result) -> search_counterexample
       def unifying_example(state, conflict, outcome, result)
         { state: state.id, type: conflict[:type], symbol_path: Array.new(0),
           sentence: names(result[:sentence_ids]), lookahead_index: result[:lookahead_index], unifying: true,
           inconclusive: false, search: outcome, interpretations: result[:interpretations] }
       end
 
-      # @rbs (IR::AutomatonState state, IR::conflict conflict, search_outcome outcome) -> IR::counterexample
+      # @rbs (IR::AutomatonState state, IR::conflict conflict, search_outcome outcome) -> search_counterexample
       def reachability_example(state, conflict, outcome)
         path = shortest_state_path(state.id, conflict)
         lookahead = @grammar.symbol(conflict[:symbol])
