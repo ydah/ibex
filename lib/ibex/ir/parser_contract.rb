@@ -8,9 +8,15 @@ module Ibex
     # Root-owned parser configuration persisted by Grammar IR version 3.
     class ParserContract
       DEFINITIONS = {
-        algorithm: { configuration: "parser.algorithm", values: %i[slr lalr ielr lr1] },
-        entries: { configuration: "parser.entries", values: %i[shared isolated] },
-        cst_trivia: { configuration: "cst.trivia", values: %i[leading balanced drop] }
+        algorithm: {
+          configuration: "parser.algorithm".freeze, values: %i[slr lalr ielr lr1].freeze
+        }.freeze,
+        entries: {
+          configuration: "parser.entries".freeze, values: %i[shared isolated].freeze
+        }.freeze,
+        cst_trivia: {
+          configuration: "cst.trivia".freeze, values: %i[leading balanced drop].freeze
+        }.freeze
       }.freeze #: Hash[Symbol, Hash[Symbol, untyped]]
 
       # One specified or explicitly unspecified contract field.
