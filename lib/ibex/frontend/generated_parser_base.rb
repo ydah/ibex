@@ -12,6 +12,7 @@ module Ibex
       include GeneratedParserMetadata
       include GeneratedParserIncludes
       include GeneratedParserParameters
+      include ParserConfigurationSupport
 
       attr_reader :diagnostic_token #: Token?
 

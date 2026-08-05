@@ -64,6 +64,12 @@ module Ibex
         # @rbs (Token token, Array[Token] remaining) -> external_token
         def classify_identifier: (Token token, Array[Token] remaining) -> external_token
 
+        # @rbs (Token token) -> external_token
+        def begin_parser_setting: (Token token) -> external_token
+
+        # @rbs () -> external_token
+        def finish_parser_setting: () -> external_token
+
         # @rbs (Array[Token] remaining) -> external_token
         def constant_name: (Array[Token] remaining) -> external_token
 

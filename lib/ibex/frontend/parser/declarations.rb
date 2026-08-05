@@ -8,7 +8,7 @@ module Ibex
     module BootstrapParserDeclarations
       DECLARATIONS = %w[
         include import token prechigh preclow options expect expect_rr start recover on_error_reduce
-        test lexer convert display type param printer pragma rule
+        test lexer convert display type param printer parser pragma rule
       ].freeze #: Array[String]
       ASSOCIATIVITIES = %w[left right nonassoc precedence].freeze #: Array[String]
 
@@ -58,9 +58,24 @@ module Ibex
         when "type" then parse_symbol_metadata(AST::SemanticType, "type")
         when "param" then parse_parameter
         when "printer" then parse_printer
+        when "parser" then parse_parser_configuration
         when "pragma" then fail_at(current.location, "expected rule, got pragma")
         else fail_expected("a declaration or rule")
         end
+      end
+
+      # @rbs () -> AST::ParserConfiguration
+      def parse_parser_configuration
+        # @type self: BootstrapParser
+        keyword = advance
+        settings = [] #: Array[AST::ParserSetting]
+        until keyword?("end") || current.type == :eof
+          key = expect(:identifier)
+          value = expect(:identifier)
+          settings << build_parser_setting(key, value)
+        end
+        expect_keyword("end")
+        build_parser_configuration(keyword, settings)
       end
 
       # @rbs () -> AST::Include

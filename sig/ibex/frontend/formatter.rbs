@@ -51,6 +51,9 @@ module Ibex
       # @rbs (external_token external, Hash[Symbol, untyped] state) -> Symbol?
       def document_token_role: (external_token external, Hash[Symbol, untyped] state) -> Symbol?
 
+      # @rbs (external_token external, Hash[Symbol, untyped] state) -> Symbol?
+      def nested_declaration_role: (external_token external, Hash[Symbol, untyped] state) -> Symbol?
+
       # @rbs (Hash[Symbol, untyped] state) -> Symbol?
       def section_end_role: (Hash[Symbol, untyped] state) -> Symbol?
 
@@ -62,6 +65,9 @@ module Ibex
 
       # @rbs (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
       def advance_role_state: (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
+
+      # @rbs (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
+      def advance_parser_state: (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
 
       # @rbs (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
       def advance_precedence_state: (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void

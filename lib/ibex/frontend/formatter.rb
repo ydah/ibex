@@ -7,7 +7,7 @@ module Ibex
     class Formatter
       DECLARATION_STARTS = %i[
         PRAGMA INCLUDE IMPORT TOKEN PRECHIGH PRECLOW OPTIONS EXPECT EXPECT_RR START RECOVER ON_ERROR_REDUCE TEST LEXER
-        CONVERT DISPLAY TYPE PARAM PRINTER RULE
+        CONVERT DISPLAY TYPE PARAM PRINTER PARSER RULE
       ].freeze #: Array[Symbol]
       ASSOCIATIONS = %i[LEFT RIGHT NONASSOC].freeze #: Array[Symbol]
       CALLABLES = %i[LHS PARAMETERIZED_REFERENCE SEPARATED_LIST SEPARATED_NONEMPTY_LIST].freeze #: Array[Symbol]
@@ -105,7 +105,7 @@ module Ibex
       def annotate_roles(elements)
         state = {
           section: :declarations, precedence_closer: nil, conversion: false,
-          conversion_name: true, depth: 0, rule_colon: false
+          conversion_name: true, parser: false, parser_key: true, depth: 0, rule_colon: false
         } #: Hash[Symbol, untyped]
         elements.each do |element|
           external = element.fetch(:external)
@@ -142,12 +142,23 @@ module Ibex
       # @rbs (external_token external, Hash[Symbol, untyped] state) -> Symbol?
       def document_token_role(external, state)
         return :user_code if external == :USER_CODE
-        return precedence_role(external, state) if %i[PRECHIGH PRECLOW].include?(external)
-        return :precedence_level if ASSOCIATIONS.include?(external) && state[:precedence_closer]
-        return section_end_role(state) if external == :END
+
+        nested_role = nested_declaration_role(external, state)
+        return nested_role if nested_role
         return :conversion_entry if state.fetch(:conversion) && state.fetch(:conversion_name)
         return :rule_keyword if external == :RULE
         return :declaration if DECLARATION_STARTS.include?(external)
+
+        nil
+      end
+
+      # @rbs (external_token external, Hash[Symbol, untyped] state) -> Symbol?
+      def nested_declaration_role(external, state)
+        return precedence_role(external, state) if %i[PRECHIGH PRECLOW].include?(external)
+        return :precedence_level if ASSOCIATIONS.include?(external) && state[:precedence_closer]
+        return :parser_end if external == :END && state.fetch(:parser)
+        return :parser_setting if state.fetch(:parser) && state.fetch(:parser_key)
+        return section_end_role(state) if external == :END
 
         nil
       end
@@ -186,7 +197,20 @@ module Ibex
       def advance_role_state(external, role, state)
         advance_precedence_state(external, role, state)
         advance_conversion_state(external, role, state)
+        advance_parser_state(external, role, state)
         advance_rule_state(external, role, state)
+      end
+
+      # @rbs (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
+      def advance_parser_state(external, role, state)
+        if external == :PARSER
+          state[:parser] = true
+          state[:parser_key] = true
+        elsif role == :parser_end
+          state[:parser] = false
+        elsif state.fetch(:parser)
+          state[:parser_key] = !state.fetch(:parser_key)
+        end
       end
 
       # @rbs (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
@@ -310,7 +334,8 @@ module Ibex
         return false if current_role == :rule_start && previous.fetch(:external) == :INLINE
 
         return true if %i[declaration rule_keyword precedence_level precedence_end conversion_entry
-                          conversion_end rule_start alternative grammar_end user_code].include?(current_role)
+                          conversion_end parser_setting parser_end rule_start alternative grammar_end
+                          user_code].include?(current_role)
         return true if previous_role == :rule_keyword
         return false unless current.fetch(:segment).kind == :user_code_marker
 
@@ -320,7 +345,7 @@ module Ibex
       # @rbs (formatter_element element) -> Integer
       def indentation(element)
         case element.fetch(:role)
-        when :rule_start, :precedence_level, :conversion_entry, :rule_comment then 2
+        when :rule_start, :precedence_level, :conversion_entry, :parser_setting, :rule_comment then 2
         when :alternative, :alternative_comment then 4
         else 0
         end

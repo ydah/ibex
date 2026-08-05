@@ -24,7 +24,7 @@ module Ibex
       # @rbs!
       #   type symbol_metadata = DisplayName | SemanticType
       #   type declaration = Include | Tokens | Precedence | Options | Expect | ExpectRR | Start | Recovery |
-      #     OnErrorReduce | GrammarTest | Lexer | Convert | Parameter | Printer | symbol_metadata
+      #     OnErrorReduce | GrammarTest | Lexer | Convert | Parameter | Printer | ParserConfiguration | symbol_metadata
       #   type lexer_entry = LexerRule | LexerState
       #   type item = SymbolReference | ParameterizedReference | InlineAction | Optional | Star | Plus | Group |
       #     SeparatedList | Empty
@@ -202,6 +202,22 @@ module Ibex
         :loc, #: Location
         keyword_init: true
       ) { include Node }
+      ParserConfiguration = Struct.new(
+        :settings, #: Array[ParserSetting]
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      ParserSetting = Struct.new(
+        :key, #: Symbol
+        :value, #: Symbol
+        :loc, #: Location
+        keyword_init: true
+      ) { include Node }
+      ROOT_ONLY_DECLARATION_NAMES = {
+        Options => "options", Expect => "expect", ExpectRR => "%expect-rr", Parameter => "%param",
+        Start => "start", Recovery => "%recover", OnErrorReduce => "%on_error_reduce", GrammarTest => "%test",
+        Lexer => "lexer", ParserConfiguration => "parser"
+      }.freeze #: Hash[untyped, String]
       # @rbs skip
       Rule = Struct.new(
         :lhs, #: String

@@ -1,6 +1,6 @@
 class Ibex::Frontend::GeneratedParser < Ibex::Frontend::GeneratedParserBase
 token CLASS FRAGMENT INCLUDE IMPORT TOKEN PRECHIGH PRECLOW OPTIONS EXPECT EXPECT_RR START RECOVER ON_ERROR_REDUCE TEST LEXER
-token CONVERT DISPLAY TYPE PARAM PRINTER PRAGMA RULE END
+token CONVERT DISPLAY TYPE PARAM PRINTER PARSER PRAGMA RULE END
 token LEFT RIGHT NONASSOC PRECEDENCE IDENTIFIER LITERAL INTEGER ACTION USER_CODE INLINE EMPTY LHS
 token PARAMETERIZED_REFERENCE TOKEN_ALIAS NODE
 token SEPARATED_LIST SEPARATED_NONEMPTY_LIST STATE DO SKIP ON REGEXP
@@ -59,6 +59,7 @@ rule
     | type_declaration                   { result = val[0] }
     | param_declaration                  { result = val[0] }
     | printer_declaration                { result = val[0] }
+    | parser_declaration                 { result = val[0] }
 
   include_declaration
     : INCLUDE LITERAL                    { result = build_include(val[0], val[1]) }
@@ -169,6 +170,16 @@ rule
 
   printer_declaration
     : PRINTER grammar_symbol ACTION          { result = build_printer(val[0], val[1], val[2]) }
+
+  parser_declaration
+    : PARSER parser_settings END         { result = build_parser_configuration(val[0], val[1]) }
+
+  parser_settings
+    :                                    { result = Array.new(0) }
+    | parser_settings parser_setting     { result = val[0] + [val[1]] }
+
+  parser_setting
+    : IDENTIFIER IDENTIFIER              { result = build_parser_setting(val[0], val[1]) }
 
   identifiers
     :                                    { result = Array.new(0) }

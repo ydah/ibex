@@ -10,6 +10,8 @@ module Ibex
 
       include BootstrapParserParameters
 
+      include ParserConfigurationSupport
+
       @mode: Symbol
 
       @index: Integer
