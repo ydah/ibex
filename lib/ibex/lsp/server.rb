@@ -8,7 +8,7 @@ module Ibex
 
       REQUEST_METHODS = %w[
         initialize shutdown textDocument/definition textDocument/references textDocument/prepareRename
-        textDocument/rename textDocument/hover
+        textDocument/rename textDocument/hover textDocument/completion
       ].freeze #: Array[String]
       NOTIFICATION_METHODS = %w[
         initialized exit textDocument/didOpen textDocument/didChange textDocument/didSave textDocument/didClose

@@ -1,0 +1,49 @@
+# Generated from lib/ibex/lsp/parser_configuration_assistance.rb with RBS::Inline
+
+module Ibex
+  module LSP
+    # Provides static editor assistance for the root parser declaration without evaluating grammar code.
+    class ParserConfigurationAssistance
+      SETTING_VALUES: Hash[String, Array[String]]
+
+      SETTING_DOCUMENTATION: Hash[String, String]
+
+      VALUE_DOCUMENTATION: Hash[String, String]
+
+      # @rbs (DocumentStore store, String path) -> void
+      def initialize: (DocumentStore store, String path) -> void
+
+      # @rbs (Hash[String, untyped] position) -> Hash[String, untyped]
+      def completion: (Hash[String, untyped] position) -> Hash[String, untyped]
+
+      # @rbs (Hash[String, untyped] position) -> Hash[String, untyped]?
+      def hover: (Hash[String, untyped] position) -> Hash[String, untyped]?
+
+      private
+
+      # @rbs () -> String
+      def source!: () -> String
+
+      # @rbs (String source, Integer offset) -> Integer
+      def line_start: (String source, Integer offset) -> Integer
+
+      # @rbs (String source) -> bool
+      def parser_block_open?: (String source) -> bool
+
+      # @rbs () -> Array[Hash[String, untyped]]
+      def setting_items: () -> Array[Hash[String, untyped]]
+
+      # @rbs (String setting) -> Array[Hash[String, untyped]]
+      def value_items: (String setting) -> Array[Hash[String, untyped]]
+
+      # @rbs (String label, Integer kind, String documentation) -> Hash[String, untyped]
+      def completion_item: (String label, Integer kind, String documentation) -> Hash[String, untyped]
+
+      # @rbs (Array[Hash[String, untyped]] items) -> Hash[String, untyped]
+      def completion_list: (Array[Hash[String, untyped]] items) -> Hash[String, untyped]
+
+      # @rbs (MatchData match, String line, Integer line_start, Integer offset) -> [String?, Integer, Integer]
+      def hovered_token: (MatchData match, String line, Integer line_start, Integer offset) -> [ String?, Integer, Integer ]
+    end
+  end
+end

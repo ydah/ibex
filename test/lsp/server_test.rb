@@ -34,12 +34,14 @@ class LSPServerTest < Minitest::Test
       response_ids = messages.map { |message| message["id"] }
       assert_equal [1, nil, 2, 3], response_ids
       assert_equal "utf-16", messages.fetch(0).dig("result", "capabilities", "positionEncoding")
+      assert_equal false, messages.fetch(0).dig("result", "capabilities", "completionProvider", "resolveProvider")
       assert_equal "textDocument/publishDiagnostics", messages.fetch(1).fetch("method")
       assert_equal uri, messages.fetch(2).dig("result", 0, "uri")
       assert_nil messages.fetch(3).fetch("result")
       assert stdout.string.scan("Content-Length:").length == messages.length
     end
   end
+
   # rubocop:enable Metrics/AbcSize, Metrics/BlockLength
 
   def test_lifecycle_unknown_method_and_exit_status

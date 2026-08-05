@@ -53,6 +53,7 @@ module Ibex
           "referencesProvider" => true,
           "renameProvider" => { "prepareProvider" => true },
           "hoverProvider" => true,
+          "completionProvider" => { "resolveProvider" => false },
           "workspace" => { "workspaceFolders" => { "supported" => true, "changeNotifications" => false } }
         }
       end

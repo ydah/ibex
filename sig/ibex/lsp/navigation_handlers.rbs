@@ -23,6 +23,9 @@ module Ibex
       # @rbs (untyped raw_params) -> Hash[String, untyped]?
       def hover: (untyped raw_params) -> Hash[String, untyped]?
 
+      # @rbs (untyped raw_params) -> Hash[String, untyped]
+      def completion: (untyped raw_params) -> Hash[String, untyped]
+
       # @rbs (untyped raw_params) { (SymbolIndex, String, Hash[String, untyped]) -> untyped } -> untyped
       def with_index: (untyped raw_params) { (SymbolIndex, String, Hash[String, untyped]) -> untyped } -> untyped
     end
