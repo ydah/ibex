@@ -11,6 +11,8 @@ module Ibex
 
     private def configuration_value: (String) -> untyped
 
+    private def effective_configuration: () -> Configuration::Resolver
+
     private
 
     # @rbs () -> void
@@ -48,6 +50,18 @@ module Ibex
 
     # @rbs () -> Hash[String, untyped]
     def generation_manifest_options: () -> Hash[String, untyped]
+
+    # @rbs (Hash[String, untyped] options) -> void
+    def append_ir_manifest_options: (Hash[String, untyped] options) -> void
+
+    # @rbs () -> String
+    def construction_authority: () -> String
+
+    # @rbs () -> Array[Hash[String, untyped]]
+    def manifest_effective_configuration: () -> Array[Hash[String, untyped]]
+
+    # @rbs (IR::ParserContract contract) -> Hash[String, untyped]
+    def stringify_contract: (IR::ParserContract contract) -> Hash[String, untyped]
 
     # @rbs () -> Symbol
     def effective_cst_trivia: () -> Symbol

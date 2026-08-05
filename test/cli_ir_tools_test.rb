@@ -66,6 +66,19 @@ class CLIIRToolsTest < Minitest::Test
     assert_equal File.read(fixture_path("grammar-v1-migrated-v2.json")), second.string
   end
 
+  def test_migrate_ir_writes_v3_without_guessing_historical_configuration
+    output = StringIO.new
+    assert_equal 0, run_cli(["migrate-ir", fixture_path("grammar-v2.json"), "--to=3"], stdout: output)
+
+    migrated = Ibex::IR::Validator.validate(output.string)
+    assert_equal 3, migrated.schema_version
+    assert_equal Ibex::IR::Migration::UNAVAILABLE_V2_CONFIGURATION,
+                 migrated.migration.fetch(:unavailable)
+    migrated.parser_contract.to_h.each_value do |entry|
+      assert_equal({ value: nil, explicit: false, loc: nil }, entry)
+    end
+  end
+
   def test_migrate_ir_atomically_writes_output_without_temporary_files
     Dir.mktmpdir do |directory|
       output = File.join(directory, "grammar.json")

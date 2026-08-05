@@ -30,6 +30,10 @@ module Ibex
 
     include CLIOutputs
 
+    @generation_automaton: IR::Automaton?
+
+    @generation_grammar: IR::Grammar?
+
     @configuration_explicit_options: Hash[Symbol, bool]
 
     @language: String
@@ -121,6 +125,9 @@ module Ibex
     def validate_generation_options: () -> void
 
     # @rbs () -> void
+    def validate_automaton_construction_options: () -> void
+
+    # @rbs () -> void
     def validate_manifest_generation_options: () -> void
 
     # @rbs () -> void
@@ -170,6 +177,9 @@ module Ibex
 
     # @rbs (IR::Automaton automaton, String path) -> Integer
     def dispatch_automaton: (IR::Automaton automaton, String path) -> Integer
+
+    # @rbs (IR::Grammar grammar) -> void
+    def activate_generation_grammar: (IR::Grammar grammar) -> void
 
     # @rbs () -> Integer
     def print_version: () -> Integer

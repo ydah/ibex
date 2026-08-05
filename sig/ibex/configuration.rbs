@@ -212,8 +212,8 @@ module Ibex
       # @rbs (Hash[Symbol, untyped] options, ?explicit_keys: Array[Symbol]) -> void
       def initialize: (Hash[Symbol, untyped] options, ?explicit_keys: Array[Symbol]) -> void
 
-      # @rbs () -> Resolver
-      def resolve: () -> Resolver
+      # @rbs (?grammar: Hash[String, untyped], ?locations: Hash[String, Location]) -> Resolver
+      def resolve: (?grammar: Hash[String, untyped], ?locations: Hash[String, Location]) -> Resolver
 
       private
 
