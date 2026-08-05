@@ -87,7 +87,8 @@ diagnostics collapse, or the committed fresh-reparse outcome changes.
 
 The same quality gate validates the external registry fail-closed. `PASS`
 requires at least two complete, independent, external records from
-normalized-distinct reviewers. Every record must assess all seven cases with a
+reviewers whose names remain distinct after Unicode NFKC normalization, full
+case folding, trimming, and whitespace collapse. Every record must assess all seven cases with a
 label, rationale, and semantic-value risk assessment. If reviewer labels
 differ, every reviewer-pair disagreement must remain explicit rather than
 being reduced to a majority conclusion. See the

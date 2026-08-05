@@ -18,7 +18,9 @@ for each of the seven required case IDs. Each assessment needs one of
 semantic-value risk assessment.
 
 The registry stays `HOLD` until at least two normalized-distinct external
-reviewers have complete records. If their labels differ for any case, retain
+reviewers have complete records. Reviewer names are compared after Unicode
+NFKC normalization, full case folding, trimming, and whitespace collapse. If
+their labels differ for any case, retain
 every reviewer pair and its two labels in `disagreements`; do not collapse
 them into a majority label. The quality gate verifies that disagreement
 inventory against the records.
