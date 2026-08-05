@@ -2,6 +2,7 @@
 
 require_relative "../test_helper"
 require "json_schemer"
+require_relative "../support/public_json_schemas"
 
 class IRJSONSchemaTest < Minitest::Test
   SCHEMA_ROOT = File.expand_path("../../schema", __dir__)
@@ -9,31 +10,7 @@ class IRJSONSchemaTest < Minitest::Test
   DRAFT_2020_12 = "https://json-schema.org/draft/2020-12/schema"
 
   def test_public_schemas_are_valid_json_schema_2020_12_documents
-    %w[
-      grammar-ir-v1.schema.json
-      automaton-ir-v1.schema.json
-      grammar-ir-v2.schema.json
-      automaton-ir-v2.schema.json
-      lexer-ir-v1.schema.json
-      explain-v1.schema.json
-      benchmark-v1.schema.json
-      benchmark-v2.schema.json
-      generation-manifest-v1.schema.json
-      error-ux-v1.schema.json
-      error-ux-review-v1.schema.json
-      runtime-event-v1.schema.json
-      runtime-coverage-v1.schema.json
-      table-simulation-v1.schema.json
-      migration-check-v1.schema.json
-      fuzz-v1.schema.json fuzz-regression-v1.schema.json
-      reduce-v1.schema.json reduce-v2.schema.json
-      verify-v1.schema.json
-      equiv-v1.schema.json
-      metrics-v1.schema.json
-      construction-profile-v1.schema.json
-      diff-v1.schema.json
-      fix-v1.schema.json fix-v2.schema.json fix-v3.schema.json bison-import-v1.schema.json
-    ].each do |name|
+    Ibex::TestSupport::PublicJSONSchemas::NAMES.each do |name|
       schema = load_json(File.join(SCHEMA_ROOT, name))
 
       assert_equal DRAFT_2020_12, schema.fetch("$schema")
