@@ -616,11 +616,15 @@ reason. Report v1 remains the prior read-only contract.
 deriving the relevant LR item collection from the embedded Grammar IR. Default
 checks cover soundness, lookaheads, default reductions and explicit error
 masks, reachability/productivity, epsilon termination, and conflict
-resolution. `--strict` adds complete collection and exact plain/compact table
-checks. `--max-states` and `--max-items` bound the derivation. JSON is the
-default report format; exit 0 means valid, 1 means a concrete violation, and 2
-means the reference budget was exhausted. Opaque semantic actions are never
-executed.
+resolution consistency. Both modes rebuild and compare plain/compact rows;
+`--strict` adds complete collection checks and reports row mismatches under
+the strict V5 identifier. `--max-states` and `--max-items` bound only the
+reference derivation. JSON is the default report format; exit 0 means valid, 1
+means a concrete violation, and 2 means the reference budget was exhausted.
+Opaque semantic actions are never executed. See the
+[verifier trust boundary](verifier-trust-boundary.md) for the exact TCB,
+algorithm-specific strength, resource non-goals, and generated-artifact
+boundary.
 
 `ibex equiv LEFT RIGHT` accepts grammar source, Grammar IR, or Automaton IR.
 It combines normalized structural comparison, deterministic samples generated
