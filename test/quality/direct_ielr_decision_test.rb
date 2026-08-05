@@ -13,6 +13,8 @@ class DirectIELRDecisionTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   DOSSIER = File.join(ROOT, "tool/quality/evidence/direct-ielr-decision-v1.json")
   SCHEMA = File.join(ROOT, "schema/direct-ielr-decision-v1.schema.json")
+  SHALLOW_BOUNDARY_BASE = "7e55e86190a5ec96fc2f5749e3a84e32e32764b8"
+  V001_REVISION = "5cf20f6c9d5b82738965bd0aead8fa3a2ac14d8b"
 
   def test_committed_no_go_matches_h005_and_v001
     output = StringIO.new
@@ -90,6 +92,10 @@ class DirectIELRDecisionTest < Minitest::Test
     changed = dossier
     changed.fetch("decision")["revision_role"] = "dossier publication revision"
     assert_verification_error(changed, /violates schema|decision revision role drift/)
+
+    changed = dossier
+    changed.fetch("decision")["date"] = "2099-01-01"
+    assert_verification_error(changed, /decision date identity drift/)
   end
 
   def test_condition_observations_and_reconsideration_evidence_are_closed
@@ -128,7 +134,30 @@ class DirectIELRDecisionTest < Minitest::Test
       error = assert_raises(RuntimeError) do
         Ibex::Quality::DirectIELRDecision.new(root: checkout, output: StringIO.new).verify!
       end
-      assert_match(/decision revision is unavailable/, error.message)
+      assert_match(/requires full Git history/, error.message)
+    end
+  end
+
+  def test_shallow_v001_boundary_cannot_masquerade_as_source_introduction
+    Dir.mktmpdir("ibex-direct-ielr-v001-boundary") do |directory|
+      staging = File.join(directory, "staging")
+      checkout = File.join(directory, "checkout")
+      assert system("git", "clone", "--quiet", ROOT, staging)
+      git!(staging, "switch", "--detach", SHALLOW_BOUNDARY_BASE)
+      git!(staging, "-c", "user.name=Ibex Test", "-c", "user.email=test@example.invalid",
+           "commit", "--quiet", "--allow-empty", "-m", "test: place V001 at shallow boundary")
+      git!(staging, "branch", "-D", "main")
+      git!(staging, "branch", "shallow-boundary", "HEAD")
+      assert system("git", "clone", "--quiet", "--depth=64", "--single-branch", "--no-tags",
+                    "--branch=shallow-boundary",
+                    "file://#{staging}", checkout)
+      assert git_success?(checkout, "cat-file", "-e", "#{V001_REVISION}^{commit}")
+      refute git_success?(checkout, "cat-file", "-e", "#{V001_REVISION}^^{commit}")
+
+      error = assert_raises(RuntimeError) do
+        Ibex::Quality::DirectIELRDecision.new(root: checkout, output: StringIO.new).verify!
+      end
+      assert_match(/requires full Git history/, error.message)
     end
   end
 
@@ -177,5 +206,10 @@ class DirectIELRDecisionTest < Minitest::Test
     raise "git #{arguments.join(' ')} failed: #{error}" unless status.success?
 
     output
+  end
+
+  def git_success?(root, *arguments)
+    _output, _error, status = Open3.capture3("git", *arguments, chdir: root)
+    status.success?
   end
 end

@@ -94,8 +94,12 @@ module Ibex
       }.freeze
       DECISION_REVISION = "58cc36cfdc38ff3169d9578fcbba307f6ea95dad"
       DECISION_REVISION_ROLE = "reviewed repository evidence immediately before dossier publication"
+      DECISION_DATE = "2026-08-05"
       DOSSIER_REVISION = "d8be60292cadb635bd4c4a8173d382bf0549d926"
+      DOSSIER_PATH = "tool/quality/evidence/direct-ielr-decision-v1.json"
+      DOSSIER_DIGEST = "9fce0830439003878902599a1bf39cdff24011f790ec43f2c13a137a6a220b27"
       V001_REVISION = "5cf20f6c9d5b82738965bd0aead8fa3a2ac14d8b"
+      V001_PARENT_REVISION = "e892ffad7d7178028dcf1c074d2db90af068d866"
       V001_SOURCE_DIGESTS = {
         "docs/verifier-trust-boundary.md" => "12568cd0e22a291a3d1466e537c32062fc490fd4bcb6bc886971b78f1aefbe46",
         "lib/ibex/verify/reference_collection.rb" => "d07e900652c61ddd942380d49edce0a3c811605cd82490c1e0e6db54010746fb",
@@ -109,12 +113,14 @@ module Ibex
       end
 
       def verify!
+        validate_repository_history!
         document = JSON.parse(File.binread(@dossier))
         validate_schema!(document)
         validate_decision!(document)
         profile = validate_profile!(document)
         validate_verifier_boundary!(document)
         validate_provenance!(document, profile)
+        validate_dossier_identity!
         @output.puts "I001 direct IELR NO-GO dossier matches H005 and V001 evidence"
         document
       end
@@ -145,6 +151,7 @@ module Ibex
         finalized = decision.values_at("value", "status", "basis", "review_state")
         expected = %w[NO-GO final_no_go repository_evidence validated]
         raise "direct IELR decision is not a finalized evidence-based NO-GO" unless finalized == expected
+        raise "decision date identity drift" unless decision.fetch("date") == DECISION_DATE
         raise "decision revision identity drift" unless decision.fetch("revision") == DECISION_REVISION
         raise "decision revision role drift" unless decision.fetch("revision_role") == DECISION_REVISION_ROLE
       end
@@ -316,6 +323,13 @@ module Ibex
       end
 
       def verify_v001_sources!
+        parent, status = capture("git", "rev-parse", "#{V001_REVISION}^")
+        raise "V001 parent revision is unavailable" unless status.success?
+        raise "V001 parent revision identity drift" unless parent.strip == V001_PARENT_REVISION
+
+        _output, status = capture("git", "cat-file", "-e", "#{V001_PARENT_REVISION}^{commit}")
+        raise "V001 parent commit object is unavailable" unless status.success?
+
         V001_SOURCE_DIGESTS.each do |path, digest|
           bytes, status = capture("git", "show", "#{V001_REVISION}:#{path}")
           raise "V001 source is unavailable at the bound revision: #{path}" unless status.success?
@@ -323,8 +337,24 @@ module Ibex
             Digest::SHA256.hexdigest(bytes.b) == digest
         end
 
-        _bytes, status = capture("git", "show", "#{V001_REVISION}^:docs/verifier-trust-boundary.md")
+        _bytes, status = capture("git", "show", "#{V001_PARENT_REVISION}:docs/verifier-trust-boundary.md")
         raise "V001 trust-boundary source was not introduced at the bound revision" if status.success?
+      end
+
+      def validate_repository_history!
+        shallow, status = capture("git", "rev-parse", "--is-shallow-repository")
+        raise "repository history state is unavailable" unless status.success?
+        raise "direct IELR decision requires full Git history" unless shallow.strip == "false"
+      end
+
+      def validate_dossier_identity!
+        source = File.binread(@dossier)
+        raise "direct IELR decision dossier digest drift" unless Digest::SHA256.hexdigest(source) == DOSSIER_DIGEST
+
+        bytes, status = capture("git", "show", "#{DOSSIER_REVISION}:#{DOSSIER_PATH}")
+        raise "direct IELR decision dossier is unavailable at its publication revision" unless status.success?
+        raise "direct IELR decision dossier publication digest drift" unless
+          Digest::SHA256.hexdigest(bytes.b) == DOSSIER_DIGEST
       end
 
       def verify_revision!(revision, label, ancestor_of: "HEAD")
