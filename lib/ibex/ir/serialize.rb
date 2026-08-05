@@ -30,6 +30,8 @@ module Ibex
       #   private def self.load_symbol_metadata: (untyped symbol, String field) -> String?
       #   private def load_grammar_tests: (untyped tests) -> untyped
       #   private def self.load_grammar_tests: (untyped tests) -> untyped
+      #   private def load_parser_contract: (untyped value) -> untyped
+      #   private def self.load_parser_contract: (untyped value) -> untyped
       #   private def symbol_source_position: (untyped symbol) -> String
       #   private def self.symbol_source_position: (untyped symbol) -> String
       #   private def symbolize: (untyped value) -> untyped
@@ -88,8 +90,7 @@ module Ibex
         productions = data.fetch("productions").map { |production| load_production(production, schema_version) }
         Grammar.new(class_name: data.fetch("class_name"), superclass: data["superclass"], start: data.fetch("start"),
                     expect: data.fetch("expect"), options: symbolize(data.fetch("options")), symbols: symbols,
-                    mode: (data["mode"] || "default").to_sym,
-                    starts: data["starts"],
+                    mode: (data["mode"] || "default").to_sym, starts: data["starts"],
                     expect_rr: data["expect_rr"],
                     parser_parameters: symbolize(data.fetch("params", empty_parameters)),
                     value_printers: symbolize(data.fetch("printers", empty_printers)),
@@ -100,7 +101,8 @@ module Ibex
                     conversions: data.fetch("conversions"), warnings: symbolize(data.fetch("warnings")),
                     user_code_chunks: load_user_code_chunks(data.fetch("user_code_chunks", empty_chunks)),
                     schema_version: schema_version, source_provenance: symbolize(data["source_provenance"]),
-                    migration: symbolize(data["migration"]))
+                    migration: symbolize(data["migration"]),
+                    parser_contract: load_parser_contract(data["parser_contract"]))
       end # rubocop:enable Metrics/AbcSize
 
       # @rbs skip
@@ -109,7 +111,8 @@ module Ibex
         states = data.fetch("states").map { |state| load_state(state, grammar) }
         Automaton.new(grammar: grammar, states: states, conflict_summary: symbolize(data.fetch("conflict_summary")),
                       algorithm: data.fetch("algorithm"), grammar_digest: data.fetch("grammar_digest"),
-                      schema_version: data.fetch("schema_version"), entry_states: data["entry_states"])
+                      schema_version: data.fetch("schema_version"), entry_states: data["entry_states"],
+                      entry_construction: data["entry_construction"])
       end
 
       # @rbs skip
@@ -223,6 +226,29 @@ module Ibex
       end
 
       # @rbs skip
+      def load_parser_contract(value)
+        return unless value
+
+        entries = ParserContract::DEFINITIONS.keys.to_h do |key|
+          entry = value.fetch(key.to_s)
+          location = entry["loc"]
+          loaded_location = if location
+                              Location.new(
+                                file: location.fetch("file"), line: location.fetch("line"),
+                                column: location.fetch("column")
+                              )
+                            end
+          [
+            key,
+            ParserContract::Entry.new(
+              key, value: entry["value"]&.to_sym, explicit: entry.fetch("explicit"), location: loaded_location
+            )
+          ]
+        end
+        ParserContract.new(**entries)
+      end
+
+      # @rbs skip
       def symbolize(value)
         case value
         when Array then value.map { |item| symbolize(item) }
@@ -232,12 +258,12 @@ module Ibex
       end
       module_function :validate_version, :load_grammar, :load_automaton, :load_lexer, :load_state, :symbol_keyed,
                       :normalize_action, :load_production, :load_user_code_chunks, :load_symbol_metadata,
-                      :symbol_source_position, :load_grammar_tests, :symbolize
+                      :symbol_source_position, :load_grammar_tests, :load_parser_contract, :symbolize
 
       class << self
         private :validate_version, :load_grammar, :load_automaton, :load_lexer, :load_state, :symbol_keyed,
                 :normalize_action, :load_production, :load_user_code_chunks, :load_symbol_metadata,
-                :symbol_source_position, :load_grammar_tests, :symbolize
+                :symbol_source_position, :load_grammar_tests, :load_parser_contract, :symbolize
       end
     end
     # rubocop:enable Metrics/ModuleLength

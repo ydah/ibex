@@ -29,6 +29,87 @@ class IRValidatorTest < Minitest::Test
     assert_equal 2, automaton.grammar.schema_version
   end
 
+  def test_validates_and_loads_native_and_migrated_v3_fixtures
+    native_grammar = Ibex::IR::Validator.validate(fixture("grammar-v3.json"))
+    native_automaton = Ibex::IR::Validator.validate(fixture("automaton-v3.json"))
+    migrated_grammar = Ibex::IR::Validator.validate(fixture("grammar-v2-migrated-v3.json"))
+    migrated_automaton = Ibex::IR::Validator.validate(fixture("automaton-v2-migrated-v3.json"))
+
+    assert_equal :ielr, native_grammar.parser_contract.algorithm.value
+    assert_equal "shared", native_automaton.entry_construction
+    refute migrated_grammar.parser_contract.algorithm.explicit
+    assert_equal "unknown", migrated_automaton.entry_construction
+  end
+
+  def test_v3_unspecified_contract_cannot_smuggle_builtin_defaults
+    document = parsed_fixture("grammar-v2-migrated-v3.json")
+    document.dig("parser_contract", "algorithm")["value"] = "lalr"
+
+    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
+
+    assert_equal "(ir):1:1: $.parser_contract.algorithm.value must be nil", error.message
+  end
+
+  def test_v3_explicit_contract_requires_a_source_location
+    document = parsed_fixture("grammar-v3.json")
+    document.dig("parser_contract", "algorithm")["loc"] = nil
+
+    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
+
+    assert_equal "(ir):1:1: $.parser_contract.algorithm.loc must be an object", error.message
+  end
+
+  def test_v3_parser_contract_is_closed_and_cst_aware
+    document = parsed_fixture("grammar-v3.json")
+    document.fetch("parser_contract")["future"] = {}
+
+    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
+    assert_equal "(ir):1:1: $.parser_contract has unsupported field \"future\"", error.message
+
+    document = parsed_fixture("grammar-v3.json")
+    document.fetch("options").delete("cst")
+    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
+    assert_equal "(ir):1:1: $.parser_contract.cst_trivia requires options.cst", error.message
+  end
+
+  def test_v3_automaton_must_match_embedded_parser_contract
+    algorithm = parsed_fixture("automaton-v3.json")
+    algorithm["algorithm"] = "lalr1"
+    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(algorithm)) }
+    assert_equal "(ir):1:1: $.algorithm must match the embedded parser contract", error.message
+
+    entries = parsed_fixture("automaton-v3.json")
+    entries["entry_construction"] = "isolated"
+    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(entries)) }
+    assert_equal "(ir):1:1: $.entry_construction must match the embedded parser contract", error.message
+  end
+
+  def test_v3_unknown_entry_construction_is_migration_only
+    document = parsed_fixture("automaton-v3.json")
+    document.dig("grammar", "parser_contract")["entries"] = {
+      "value" => nil, "explicit" => false, "loc" => nil
+    }
+    grammar = Ibex::IR::Serialize.load(JSON.generate(document.fetch("grammar")))
+    document["grammar_digest"] = "sha256:#{Digest::SHA256.hexdigest(Ibex::IR::Serialize.dump(grammar))}"
+    document["entry_construction"] = "unknown"
+
+    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
+
+    assert_equal(
+      "(ir):1:1: $.entry_construction may be unknown only for migrated unavailable history",
+      error.message
+    )
+  end
+
+  def test_v3_grammar_digest_covers_the_parser_contract
+    document = parsed_fixture("automaton-v3.json")
+    document.dig("grammar", "parser_contract", "cst_trivia")["value"] = "leading"
+
+    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
+
+    assert_match(/\$\.grammar_digest does not match the embedded grammar/, error.message)
+  end
+
   def test_preserves_populated_v2_metadata
     document = grammar_with_populated_v2_metadata
 
@@ -297,7 +378,7 @@ class IRValidatorTest < Minitest::Test
     document = parsed_fixture("grammar-v1.json")
     document["schema_version"] = 99
     unsupported = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
-    assert_equal "(ir):1:1: unsupported schema_version 99; expected one of 1, 2", unsupported.message
+    assert_equal "(ir):1:1: unsupported schema_version 99; expected one of 1, 2, 3", unsupported.message
   end
 
   private

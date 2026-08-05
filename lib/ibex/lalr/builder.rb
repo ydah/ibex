@@ -74,7 +74,9 @@ module Ibex
         final_items, final_lookahead_items = profiled_final_item_counts(merged_items)
         @metrics = build_metrics(collection, states.length, final_items, final_lookahead_items)
         IR::Automaton.new(grammar: @grammar, states: states, conflict_summary: summary,
-                          algorithm: algorithm_name, entry_states: entry_states)
+                          algorithm: algorithm_name, entry_states: entry_states,
+                          schema_version: output_schema_version,
+                          entry_construction: output_entry_construction)
       end
 
       private
@@ -517,7 +519,8 @@ module Ibex
         @metrics = isolated_metrics(entries, construction_states, canonical_states, states.length)
         IR::Automaton.new(
           grammar: @grammar, states: states, conflict_summary: conflict_summary(states),
-          algorithm: algorithm_name, entry_states: entry_states
+          algorithm: algorithm_name, entry_states: entry_states, schema_version: output_schema_version,
+          entry_construction: output_entry_construction
         )
       end
 
@@ -542,6 +545,18 @@ module Ibex
       def sum_optional_metric(entries, method)
         values = entries.map { |_name, _automaton, metrics| metrics.public_send(method) }
         values.compact.sum if values.none?(&:nil?)
+      end
+
+      # @rbs () -> Integer
+      def output_schema_version
+        [@grammar.schema_version, IR::SCHEMA_VERSION].max
+      end
+
+      # @rbs () -> String?
+      def output_entry_construction
+        return unless output_schema_version >= 3
+
+        @entry_isolation ? "isolated" : "shared"
       end
 
       # @rbs (String name) -> [String, IR::Automaton, BuildMetrics]

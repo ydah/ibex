@@ -6,6 +6,7 @@ module Ibex
       NAMES = %w[
         grammar-ir-v1.schema.json automaton-ir-v1.schema.json
         grammar-ir-v2.schema.json automaton-ir-v2.schema.json
+        grammar-ir-v3.schema.json automaton-ir-v3.schema.json
         lexer-ir-v1.schema.json explain-v1.schema.json
         benchmark-v1.schema.json benchmark-v2.schema.json
         generation-manifest-v1.schema.json error-ux-v1.schema.json

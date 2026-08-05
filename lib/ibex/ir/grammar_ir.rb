@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
+require_relative "parser_contract"
+
 module Ibex
   module IR
     SCHEMA_VERSION = 2
-    SUPPORTED_SCHEMA_VERSIONS = [1, 2].freeze #: Array[Integer]
+    LATEST_SCHEMA_VERSION = 3
+    SUPPORTED_SCHEMA_VERSIONS = [1, 2, 3].freeze #: Array[Integer]
 
     # @rbs (untyped value) -> untyped
     def deep_freeze(value)
@@ -175,6 +178,7 @@ module Ibex
       attr_reader :schema_version #: Integer
       attr_reader :source_provenance #: source_provenance?
       attr_reader :migration #: migration_metadata?
+      attr_reader :parser_contract #: ParserContract?
 
       # @rbs (class_name: String, superclass: String?, start: String, expect: Integer, ?expect_rr: Integer?,
       #   options: grammar_options,
@@ -184,15 +188,16 @@ module Ibex
       #   ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter],
       #   ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test],
       #   ?recovery: recovery_policy?, ?lexer: Lexer?,
-      #   ?mode: grammar_mode, ?starts: Array[String]?) -> void
+      #   ?mode: grammar_mode, ?starts: Array[String]?, ?parser_contract: ParserContract?) -> void
       # rubocop:disable Metrics/AbcSize, Metrics/ParameterLists
       # Immutable versioned IR is constructed from explicit public fields.
       def initialize(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
                      conversions:, warnings:, user_code_chunks: nil, schema_version: SCHEMA_VERSION,
                      source_provenance: nil, migration: nil, expect_rr: nil, parser_parameters: [], value_printers: [],
-                     grammar_tests: [], recovery: nil, lexer: nil, mode: :default, starts: nil)
+                     grammar_tests: [], recovery: nil, lexer: nil, mode: :default, starts: nil, parser_contract: nil)
         validate_mode(mode)
         normalized_starts = validate_starts(start, starts, mode)
+        validate_parser_contract(schema_version, parser_contract)
 
         @class_name = class_name.freeze
         @superclass = superclass&.freeze
@@ -217,6 +222,7 @@ module Ibex
         @schema_version = schema_version
         @source_provenance = IR.deep_freeze(source_provenance)
         @migration = IR.deep_freeze(migration)
+        @parser_contract = parser_contract || (ParserContract.new if schema_version >= 3)
         @symbols_by_name = @symbols.to_h { |symbol| [symbol.name, symbol] }.freeze
         @symbols_by_id = @symbols.to_h { |symbol| [symbol.id, symbol] }.freeze
         freeze
@@ -272,6 +278,7 @@ module Ibex
 
         value[:source_provenance] = @source_provenance
         value[:migration] = @migration
+        value[:parser_contract] = @parser_contract.to_h if @schema_version >= 3
       end
 
       # @rbs (Hash[Symbol, untyped] value) -> void
@@ -299,6 +306,19 @@ module Ibex
 
           raise Ibex::Error, "(ir):1:1: user-code chunks do not match the concatenated #{name} section"
         end
+      end
+
+      # @rbs (Integer schema_version, ParserContract? parser_contract) -> void
+      def validate_parser_contract(schema_version, parser_contract)
+        unless SUPPORTED_SCHEMA_VERSIONS.include?(schema_version)
+          raise ArgumentError, "unsupported grammar schema_version #{schema_version.inspect}"
+        end
+        if schema_version < 3 && parser_contract
+          raise ArgumentError, "parser_contract requires Grammar IR schema_version 3"
+        end
+        return if parser_contract.nil? || parser_contract.is_a?(ParserContract)
+
+        raise ArgumentError, "parser_contract must be a ParserContract"
       end
     end
   end

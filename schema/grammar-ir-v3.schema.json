@@ -1,0 +1,322 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/grammar-ir-v3.schema.json",
+  "title": "Ibex Grammar IR version 3",
+  "description": "The normalized grammar with one root-owned parser contract.",
+  "type": "object",
+  "required": [
+    "ibex_ir",
+    "schema_version",
+    "class_name",
+    "superclass",
+    "start",
+    "expect",
+    "options",
+    "symbols",
+    "productions",
+    "user_code",
+    "conversions",
+    "warnings",
+    "source_provenance",
+    "migration",
+    "parser_contract"
+  ],
+  "properties": {
+    "ibex_ir": {
+      "const": "grammar"
+    },
+    "schema_version": {
+      "const": 3
+    },
+    "class_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "superclass": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "start": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "enum": [
+        "default",
+        "extended"
+      ]
+    },
+    "starts": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "expect": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "expect_rr": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "options": {
+      "$ref": "grammar-ir-v2.schema.json#/$defs/options"
+    },
+    "params": {
+      "type": "array",
+      "items": {
+        "$ref": "grammar-ir-v2.schema.json#/$defs/parser_parameter"
+      }
+    },
+    "printers": {
+      "type": "array",
+      "items": {
+        "$ref": "grammar-ir-v2.schema.json#/$defs/value_printer"
+      }
+    },
+    "tests": {
+      "type": "array",
+      "items": {
+        "$ref": "grammar-ir-v2.schema.json#/$defs/grammar_test"
+      }
+    },
+    "recovery": {
+      "$ref": "grammar-ir-v2.schema.json#/$defs/recovery_policy"
+    },
+    "lexer": {
+      "$ref": "lexer-ir-v1.schema.json"
+    },
+    "symbols": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "$ref": "grammar-ir-v2.schema.json#/$defs/symbol"
+      }
+    },
+    "productions": {
+      "type": "array",
+      "items": {
+        "$ref": "grammar-ir-v2.schema.json#/$defs/production"
+      }
+    },
+    "user_code": {
+      "$ref": "grammar-ir-v1.schema.json#/$defs/string_map"
+    },
+    "conversions": {
+      "$ref": "grammar-ir-v1.schema.json#/$defs/string_map"
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "grammar-ir-v1.schema.json#/$defs/warning"
+      }
+    },
+    "user_code_chunks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "grammar-ir-v1.schema.json#/$defs/user_code_chunk"
+        }
+      }
+    },
+    "source_provenance": {
+      "$ref": "grammar-ir-v2.schema.json#/$defs/nullable_source_provenance"
+    },
+    "migration": {
+      "$ref": "#/$defs/nullable_migration"
+    },
+    "parser_contract": {
+      "$ref": "#/$defs/parser_contract"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "parser_contract": {
+      "type": "object",
+      "required": [
+        "algorithm",
+        "entries",
+        "cst_trivia"
+      ],
+      "properties": {
+        "algorithm": {
+          "$ref": "#/$defs/algorithm_contract"
+        },
+        "entries": {
+          "$ref": "#/$defs/entries_contract"
+        },
+        "cst_trivia": {
+          "$ref": "#/$defs/cst_trivia_contract"
+        }
+      },
+      "additionalProperties": false
+    },
+    "unspecified_contract": {
+      "type": "object",
+      "required": [
+        "value",
+        "explicit",
+        "loc"
+      ],
+      "properties": {
+        "value": {
+          "type": "null"
+        },
+        "explicit": {
+          "const": false
+        },
+        "loc": {
+          "type": "null"
+        }
+      },
+      "additionalProperties": false
+    },
+    "algorithm_contract": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/unspecified_contract"
+        },
+        {
+          "type": "object",
+          "required": [
+            "value",
+            "explicit",
+            "loc"
+          ],
+          "properties": {
+            "value": {
+              "enum": [
+                "slr",
+                "lalr",
+                "ielr",
+                "lr1"
+              ]
+            },
+            "explicit": {
+              "const": true
+            },
+            "loc": {
+              "$ref": "grammar-ir-v1.schema.json#/$defs/location"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "entries_contract": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/unspecified_contract"
+        },
+        {
+          "type": "object",
+          "required": [
+            "value",
+            "explicit",
+            "loc"
+          ],
+          "properties": {
+            "value": {
+              "enum": [
+                "shared",
+                "isolated"
+              ]
+            },
+            "explicit": {
+              "const": true
+            },
+            "loc": {
+              "$ref": "grammar-ir-v1.schema.json#/$defs/location"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "cst_trivia_contract": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/unspecified_contract"
+        },
+        {
+          "type": "object",
+          "required": [
+            "value",
+            "explicit",
+            "loc"
+          ],
+          "properties": {
+            "value": {
+              "enum": [
+                "leading",
+                "balanced",
+                "drop"
+              ]
+            },
+            "explicit": {
+              "const": true
+            },
+            "loc": {
+              "$ref": "grammar-ir-v1.schema.json#/$defs/location"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "migration": {
+      "type": "object",
+      "required": [
+        "from_schema_version",
+        "unavailable"
+      ],
+      "properties": {
+        "from_schema_version": {
+          "enum": [
+            1,
+            2
+          ]
+        },
+        "unavailable": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "source_provenance",
+              "symbol_docs",
+              "production_docs",
+              "production_expansion",
+              "action_composition",
+              "grammar_tests",
+              "lexer",
+              "cst",
+              "ast_nodes",
+              "effective_parser_algorithm",
+              "effective_parser_entries",
+              "effective_cst_trivia"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "nullable_migration": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/migration"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

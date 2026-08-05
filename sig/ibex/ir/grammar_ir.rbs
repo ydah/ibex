@@ -4,6 +4,8 @@ module Ibex
   module IR
     SCHEMA_VERSION: ::Integer
 
+    LATEST_SCHEMA_VERSION: ::Integer
+
     SUPPORTED_SCHEMA_VERSIONS: Array[Integer]
 
     # @rbs (untyped value) -> untyped
@@ -151,6 +153,8 @@ module Ibex
 
       attr_reader migration: migration_metadata?
 
+      attr_reader parser_contract: ParserContract?
+
       # @rbs (class_name: String, superclass: String?, start: String, expect: Integer, ?expect_rr: Integer?,
       #   options: grammar_options,
       #   symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String],
@@ -159,10 +163,10 @@ module Ibex
       #   ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter],
       #   ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test],
       #   ?recovery: recovery_policy?, ?lexer: Lexer?,
-      #   ?mode: grammar_mode, ?starts: Array[String]?) -> void
+      #   ?mode: grammar_mode, ?starts: Array[String]?, ?parser_contract: ParserContract?) -> void
       # rubocop:disable Metrics/AbcSize, Metrics/ParameterLists
       # Immutable versioned IR is constructed from explicit public fields.
-      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?expect_rr: Integer?, ?user_code_chunks: user_code_chunks?, ?schema_version: Integer, ?source_provenance: source_provenance?, ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter], ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test], ?recovery: recovery_policy?, ?lexer: Lexer?, ?mode: grammar_mode, ?starts: Array[String]?) -> void
+      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?expect_rr: Integer?, ?user_code_chunks: user_code_chunks?, ?schema_version: Integer, ?source_provenance: source_provenance?, ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter], ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test], ?recovery: recovery_policy?, ?lexer: Lexer?, ?mode: grammar_mode, ?starts: Array[String]?, ?parser_contract: ParserContract?) -> void
 
       # @rbs (String name) -> GrammarSymbol?
       def symbol: (String name) -> GrammarSymbol?
@@ -198,6 +202,9 @@ module Ibex
 
       # @rbs () -> void
       def validate_user_code_chunks: () -> void
+
+      # @rbs (Integer schema_version, ParserContract? parser_contract) -> void
+      def validate_parser_contract: (Integer schema_version, ParserContract? parser_contract) -> void
     end
   end
 end

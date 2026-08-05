@@ -63,10 +63,12 @@ module Ibex
 
       attr_reader schema_version: Integer
 
+      attr_reader entry_construction: String?
+
       # @rbs (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary,
       #   ?algorithm: String, ?grammar_digest: String?, ?schema_version: Integer,
-      #   ?entry_states: Hash[String, Integer]?) -> void
-      def initialize: (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary, ?algorithm: String, ?grammar_digest: String?, ?schema_version: Integer, ?entry_states: Hash[String, Integer]?) -> void
+      #   ?entry_states: Hash[String, Integer]?, ?entry_construction: String?) -> void
+      def initialize: (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary, ?algorithm: String, ?grammar_digest: String?, ?schema_version: Integer, ?entry_states: Hash[String, Integer]?, ?entry_construction: String?) -> void
 
       # @rbs () -> Hash[Symbol, untyped]
       def to_h: () -> Hash[Symbol, untyped]
@@ -78,6 +80,12 @@ module Ibex
 
       # @rbs (Grammar grammar) -> String
       def digest_for: (Grammar grammar) -> String
+
+      # @rbs (Integer schema_version, String? value) -> String?
+      def validate_entry_construction: (Integer schema_version, String? value) -> String?
+
+      # @rbs () -> void
+      def validate_parser_contract: () -> void
     end
   end
 end
