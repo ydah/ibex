@@ -17,6 +17,7 @@ module Ibex
     POLICIES = %i[fixed minimum build invocation].freeze #: Array[Symbol]
     ORIGIN_KINDS = %i[builtin grammar project cli analysis_override].freeze #: Array[Symbol]
     BOOLEAN_VALUES = [true, false].freeze #: Array[bool]
+    DECLARED_VALUE_UNSET = Object.new.freeze #: Object
     OWNER_POLICIES = {
       grammar_contract: :fixed, grammar_minimum: :minimum,
       project_build: :build, invocation: :invocation
@@ -113,6 +114,9 @@ module Ibex
       # @rbs (Symbol kind, ?location: Location?) -> void
       def initialize(kind, location: nil)
         raise ArgumentError, "unknown configuration origin: #{kind.inspect}" unless ORIGIN_KINDS.include?(kind)
+        unless location.nil? || location.is_a?(Location)
+          raise ArgumentError, "configuration location must be an Ibex::Location"
+        end
         if location && !%i[grammar project].include?(kind)
           raise ArgumentError, "#{kind} configuration cannot have a source location"
         end
@@ -158,18 +162,20 @@ module Ibex
 
       # @rbs (Key key, untyped value, origin: Origin, explicit: bool, canonical: bool,
       #   ?declared_value: untyped) -> void
-      def initialize(key, value, origin:, explicit:, canonical:, declared_value: nil)
+      def initialize(key, value, origin:, explicit:, canonical:, declared_value: DECLARED_VALUE_UNSET)
+        raise ArgumentError, "configuration value key must be a Configuration::Key" unless key.is_a?(Key)
+        raise ArgumentError, "configuration value origin must be a Configuration::Origin" unless origin.is_a?(Origin)
         raise ArgumentError, "explicit must be boolean" unless BOOLEAN_VALUES.include?(explicit)
         raise ArgumentError, "canonical must be boolean" unless BOOLEAN_VALUES.include?(canonical)
+
+        validate_provenance!(key, origin, explicit, canonical, declared_value)
 
         @key = key
         @value = key.validate(value)
         @origin = origin
         @explicit = explicit
         @canonical = canonical
-        @declared_value = declared_value.nil? ? nil : key.validate(declared_value)
-        raise ArgumentError, "declared value is only valid for a noncanonical selection" if
-          @canonical && !@declared_value.nil?
+        @declared_value = declared_value.equal?(DECLARED_VALUE_UNSET) ? nil : key.validate(declared_value)
 
         freeze
       end
@@ -197,6 +203,50 @@ module Ibex
       end
 
       private
+
+      # @rbs (Key key, Origin origin, bool explicit, bool canonical, untyped declared_value) -> void
+      def validate_provenance!(key, origin, explicit, canonical, declared_value)
+        validate_canonical_origin!(key, origin, canonical)
+        validate_owner_source!(key, origin)
+        validate_explicitness!(origin, explicit)
+        validate_declared_evidence!(canonical, declared_value)
+      end
+
+      # @rbs (Key key, Origin origin, bool canonical) -> void
+      def validate_canonical_origin!(key, origin, canonical)
+        analysis_override = origin.kind == :analysis_override
+        unless analysis_override == !canonical
+          raise ArgumentError, "analysis_override origin must identify a noncanonical selection"
+        end
+        return if canonical || key.policy == :fixed
+
+        raise ArgumentError, "noncanonical selections are only valid for fixed configuration"
+      end
+
+      # @rbs (Key key, Origin origin) -> void
+      def validate_owner_source!(key, origin)
+        if origin.kind == :grammar && !%i[fixed minimum].include?(key.policy)
+          raise ArgumentError, "#{key.name} is #{key.policy} configuration and cannot be grammar-owned"
+        end
+        return unless origin.kind == :project && key.policy == :invocation
+
+        raise ArgumentError, "#{key.name} is invocation configuration and cannot be project-owned"
+      end
+
+      # @rbs (Origin origin, bool explicit) -> void
+      def validate_explicitness!(origin, explicit)
+        raise ArgumentError, "builtin configuration cannot be explicit" if origin.kind == :builtin && explicit
+        raise ArgumentError, "non-builtin configuration must be explicit" if origin.kind != :builtin && !explicit
+      end
+
+      # @rbs (bool canonical, untyped declared_value) -> void
+      def validate_declared_evidence!(canonical, declared_value)
+        declared = !declared_value.equal?(DECLARED_VALUE_UNSET)
+        raise ArgumentError, "canonical selections cannot carry declared evidence" if canonical && declared
+        return if canonical || declared
+
+        raise ArgumentError, "noncanonical selections require declared evidence"
+      end
 
       # @rbs (untyped value) -> untyped
       def json_value(value)
@@ -403,6 +453,9 @@ module Ibex
         if sources.fetch(:grammar).key?(key.name)
           raise ArgumentError, "#{key.name} is #{key.policy} configuration and cannot be grammar-owned"
         end
+        if key.policy == :invocation && sources.fetch(:project).key?(key.name)
+          raise ArgumentError, "#{key.name} is invocation configuration and cannot be project-owned"
+        end
 
         source_value(key, :cli, sources, locations) ||
           source_value(key, :project, sources, locations) || builtin
@@ -455,7 +508,16 @@ module Ibex
           raw_name = key.cli_option
           next unless raw_name && @explicit_keys.include?(raw_name) && @options.key?(raw_name)
 
-          options[key.name] = convert(raw_name, @options.fetch(raw_name))
+          options[key.name] = if raw_name == :line_convert
+                                convert_line_mapping
+                              else
+                                convert(raw_name, @options.fetch(raw_name))
+                              end
+        end
+        line_mapping = Registry.fetch("source.line_mapping")
+        if !options.key?(line_mapping.name) && @explicit_keys.include?(:line_convert_all) &&
+           @options.key?(:line_convert_all)
+          options[line_mapping.name] = convert_line_mapping
         end
         options
       end
@@ -465,7 +527,6 @@ module Ibex
         case name
         when :entry_isolation then convert_entry_isolation(value)
         when :cst_trivia then value == :attach ? :leading : value
-        when :line_convert then convert_line_mapping(value)
         else value
         end
       end
@@ -478,17 +539,23 @@ module Ibex
         value
       end
 
-      # @rbs (untyped value) -> untyped
-      def convert_line_mapping(value)
+      # @rbs () -> Symbol
+      def convert_line_mapping
+        line_convert = @options.fetch(:line_convert, true)
         line_convert_all = @options.fetch(:line_convert_all, false)
+        unless BOOLEAN_VALUES.include?(line_convert)
+          raise ArgumentError, "line_convert expects boolean, got #{line_convert.inspect}"
+        end
         unless BOOLEAN_VALUES.include?(line_convert_all)
           raise ArgumentError, "line_convert_all expects boolean, got #{line_convert_all.inspect}"
         end
+        if line_convert_all && !line_convert
+          raise ArgumentError, "line_convert_all=true conflicts with line_convert=false"
+        end
         return :all if line_convert_all
-        return :none if value == false
-        return :actions if value == true
+        return :none unless line_convert
 
-        value
+        :actions
       end
     end
   end

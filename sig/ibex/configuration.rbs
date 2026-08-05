@@ -11,6 +11,8 @@ module Ibex
 
     BOOLEAN_VALUES: Array[bool]
 
+    DECLARED_VALUE_UNSET: Object
+
     OWNER_POLICIES: Hash[Symbol, Symbol]
 
     # One closed definition of a configuration concept and its value domain.
@@ -98,6 +100,21 @@ module Ibex
       def to_h: () -> Hash[String, untyped]
 
       private
+
+      # @rbs (Key key, Origin origin, bool explicit, bool canonical, untyped declared_value) -> void
+      def validate_provenance!: (Key key, Origin origin, bool explicit, bool canonical, untyped declared_value) -> void
+
+      # @rbs (Key key, Origin origin, bool canonical) -> void
+      def validate_canonical_origin!: (Key key, Origin origin, bool canonical) -> void
+
+      # @rbs (Key key, Origin origin) -> void
+      def validate_owner_source!: (Key key, Origin origin) -> void
+
+      # @rbs (Origin origin, bool explicit) -> void
+      def validate_explicitness!: (Origin origin, bool explicit) -> void
+
+      # @rbs (bool canonical, untyped declared_value) -> void
+      def validate_declared_evidence!: (bool canonical, untyped declared_value) -> void
 
       # @rbs (untyped value) -> untyped
       def json_value: (untyped value) -> untyped
@@ -209,8 +226,8 @@ module Ibex
       # @rbs (untyped value) -> untyped
       def convert_entry_isolation: (untyped value) -> untyped
 
-      # @rbs (untyped value) -> untyped
-      def convert_line_mapping: (untyped value) -> untyped
+      # @rbs () -> Symbol
+      def convert_line_mapping: () -> Symbol
     end
   end
 end

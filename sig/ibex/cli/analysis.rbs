@@ -3,13 +3,15 @@
 module Ibex
   # CLI entry points for deterministic grammar diff and metrics reports.
   module CLIAnalysis
-    type analysis_options = { paths: Array[String], algorithm: Symbol, mode: Symbol, format: String, ?help: String }
+    type analysis_options = { paths: Array[String], algorithm: Symbol, mode: Symbol, format: String, configuration_explicit: Array[Symbol], ?help: String }
 
     private def normalize_grammar_path: (String) -> IR::Grammar
 
-    private def configuration_value: (String) -> untyped
+    private def set_configuration_option: (Symbol, untyped) -> void
 
-    private def mark_configuration_option: (Symbol) -> void
+    private def local_configuration_value: (Hash[Symbol, untyped], String) -> untyped
+
+    private def set_local_configuration_option: (Hash[Symbol, untyped], Symbol, untyped) -> void
 
     private
 

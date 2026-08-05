@@ -64,6 +64,17 @@ module Ibex
     # @rbs () -> Configuration::Resolver
     def effective_configuration: () -> Configuration::Resolver
 
+    # Resolve a command-local legacy option hash without promoting it into the
+    # reusable CLI instance's generation settings.
+    # @rbs (Hash[Symbol, untyped] options, explicit_keys: Array[Symbol]) -> Configuration::Resolver
+    def resolve_configuration_options: (Hash[Symbol, untyped] options, explicit_keys: Array[Symbol]) -> Configuration::Resolver
+
+    # @rbs (Hash[Symbol, untyped] options, String name) -> untyped
+    def local_configuration_value: (Hash[Symbol, untyped] options, String name) -> untyped
+
+    # @rbs (Hash[Symbol, untyped] options, Symbol name, untyped value) -> void
+    def set_local_configuration_option: (Hash[Symbol, untyped] options, Symbol name, untyped value) -> void
+
     # @rbs (String name) -> untyped
     def configuration_value: (String name) -> untyped
 

@@ -4,7 +4,7 @@ module Ibex
   # CLI coordination for deterministic, semantics-preserving grammar formatting.
   # rubocop:disable Metrics/ModuleLength -- transaction lifecycle stays cohesive and auditable.
   module CLIFormatting
-    type formatting_settings = { paths: Array[String], mode: Symbol, check: bool, write: bool, ?stdin_filename: String, ?help: bool }
+    type formatting_settings = { paths: Array[String], mode: Symbol, check: bool, write: bool, configuration_explicit: Array[Symbol], ?stdin_filename: String, ?help: bool }
 
     type formatting_result = { path: String, label: String, source: String, formatted: String }
 
@@ -12,9 +12,9 @@ module Ibex
 
     type formatting_cleanup_result = { errors: Array[String], remaining: Array[String] }
 
-    private def configuration_value: (String) -> untyped
+    private def local_configuration_value: (Hash[Symbol, untyped], String) -> untyped
 
-    private def select_configuration_mode: (String) -> void
+    private def set_local_configuration_option: (Hash[Symbol, untyped], Symbol, untyped) -> void
 
     private
 

@@ -3,7 +3,7 @@
 module Ibex
   # Generates standalone grammar documentation from the canonical include closure.
   module CLIDocumentation
-    type documentation_settings = { format: String, mode: Symbol, ?output: String, ?help: bool }
+    type documentation_settings = { format: String, mode: Symbol, configuration_explicit: Array[Symbol], ?output: String, ?help: bool }
 
     private def input_path: (Array[String]) -> String
 
@@ -11,9 +11,9 @@ module Ibex
 
     private def atomic_write_ir: (String path, String source) -> void
 
-    private def configuration_value: (String) -> untyped
+    private def local_configuration_value: (Hash[Symbol, untyped], String) -> untyped
 
-    private def select_configuration_mode: (String) -> void
+    private def set_local_configuration_option: (Hash[Symbol, untyped], Symbol, untyped) -> void
 
     private
 

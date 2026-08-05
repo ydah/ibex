@@ -161,8 +161,103 @@ class ConfigurationTest < Minitest::Test # rubocop:disable Metrics/ClassLength -
                                              owner: :grammar_contract, policy: :build)
     end
     assert_raises(ArgumentError) { Configuration::Origin.new(:environment) }
+    assert_raises(ArgumentError) { Configuration::Origin.new(:grammar, location: "grammar.y:1:1") }
     assert_raises(ArgumentError) do
       Configuration::Origin.new(:cli, location: Ibex::Location.new(line: 1, column: 1))
+    end
+  end
+
+  def test_value_constructor_rejects_untyped_provenance_fields
+    key = Configuration::Registry.fetch("parser.algorithm")
+    builtin = Configuration::Origin.new(:builtin)
+
+    assert_raises(ArgumentError) do
+      Configuration::Value.new("parser.algorithm", :lalr, origin: builtin, explicit: false, canonical: true)
+    end
+    assert_raises(ArgumentError) do
+      Configuration::Value.new(key, :lalr, origin: :builtin, explicit: false, canonical: true)
+    end
+    assert_raises(ArgumentError) do
+      Configuration::Value.new(key, :lalr, origin: builtin, explicit: "no", canonical: true)
+    end
+    assert_raises(ArgumentError) do
+      Configuration::Value.new(key, :lalr, origin: builtin, explicit: false, canonical: nil)
+    end
+  end
+
+  def test_value_constructor_rejects_incoherent_origin_and_explicitness
+    key = Configuration::Registry.fetch("parser.algorithm")
+    builtin = Configuration::Origin.new(:builtin)
+    cli = Configuration::Origin.new(:cli)
+    override = Configuration::Origin.new(:analysis_override)
+
+    assert_raises(ArgumentError) do
+      Configuration::Value.new(key, :lalr, origin: builtin, explicit: true, canonical: true)
+    end
+    assert_raises(ArgumentError) do
+      Configuration::Value.new(key, :lalr, origin: cli, explicit: false, canonical: true)
+    end
+    assert_raises(ArgumentError) do
+      Configuration::Value.new(key, :lalr, origin: override, explicit: true, canonical: true)
+    end
+  end
+
+  def test_value_constructor_requires_coherent_declared_evidence
+    key = Configuration::Registry.fetch("parser.algorithm")
+    cli = Configuration::Origin.new(:cli)
+    override = Configuration::Origin.new(:analysis_override)
+
+    assert_raises(ArgumentError) do
+      Configuration::Value.new(
+        key, :lr1, origin: cli, explicit: true, canonical: false, declared_value: :lalr
+      )
+    end
+    assert_raises(ArgumentError) do
+      Configuration::Value.new(key, :lr1, origin: override, explicit: true, canonical: false)
+    end
+    assert_raises(ArgumentError) do
+      Configuration::Value.new(
+        key, :lalr, origin: cli, explicit: true, canonical: true, declared_value: nil
+      )
+    end
+
+    build_key = Configuration::Registry.fetch("table.representation")
+    assert_raises(ArgumentError) do
+      Configuration::Value.new(
+        build_key, :plain, origin: override, explicit: true, canonical: false, declared_value: :compact
+      )
+    end
+  end
+
+  def test_noncanonical_optional_nil_declaration_is_present_in_evidence
+    value = Configuration::Resolver.new(
+      analysis_overrides: { "parser.superclass" => "ExperimentParser" }
+    ).fetch("parser.superclass")
+
+    assert_nil value.declared_value
+    assert_nil value.to_h.fetch("analysis").fetch("declared")
+    assert_equal "ExperimentParser", value.to_h.fetch("analysis").fetch("selected")
+  end
+
+  def test_value_and_resolver_enforce_owner_source_combinations
+    build_key = Configuration::Registry.fetch("table.representation")
+    assert_raises(ArgumentError) do
+      Configuration::Value.new(
+        build_key, :plain, origin: Configuration::Origin.new(:grammar), explicit: true, canonical: true
+      )
+    end
+
+    invocation_key = Configuration::Key.new(
+      "test.output_mode", type: :symbol, default: :normal,
+                          owner: :invocation, policy: :invocation, allowed_values: %i[normal quiet]
+    )
+    assert_raises(ArgumentError) do
+      Configuration::Value.new(
+        invocation_key, :quiet, origin: Configuration::Origin.new(:project), explicit: true, canonical: true
+      )
+    end
+    assert_raises(ArgumentError) do
+      Configuration::Resolver.new(keys: [invocation_key], project: { invocation_key.name => :quiet })
     end
   end
 
@@ -227,6 +322,35 @@ class ConfigurationTest < Minitest::Test # rubocop:disable Metrics/ClassLength -
     assert_equal :extended, configuration.value("grammar.mode")
   end
 
+  def test_cli_adapter_accepts_line_convert_all_without_synthetic_line_convert
+    configuration = Configuration::CLIAdapter.new({ line_convert_all: true }).resolve
+
+    assert_equal :all, configuration.value("source.line_mapping")
+    assert_equal :cli, configuration.fetch("source.line_mapping").origin.kind
+    assert configuration.fetch("source.line_mapping").explicit
+  end
+
+  def test_cli_adapter_validates_every_explicit_line_conversion_shape
+    assert_equal(
+      :actions,
+      Configuration::CLIAdapter.new({ line_convert_all: false }).resolve.value("source.line_mapping")
+    )
+    assert_equal(
+      :none,
+      Configuration::CLIAdapter.new({ line_convert: false, line_convert_all: false })
+                               .resolve.value("source.line_mapping")
+    )
+    assert_raises(ArgumentError) do
+      Configuration::CLIAdapter.new({ line_convert: false, line_convert_all: true }).resolve
+    end
+    assert_raises(ArgumentError) do
+      Configuration::CLIAdapter.new({ line_convert: "yes" }).resolve
+    end
+    assert_raises(ArgumentError) do
+      Configuration::CLIAdapter.new({ line_convert_all: "yes" }).resolve
+    end
+  end
+
   def test_cli_adapter_rejects_invalid_boolean_shapes
     assert_raises(ArgumentError) do
       Configuration::CLIAdapter.new({ entry_isolation: "yes" }).resolve
@@ -244,6 +368,16 @@ class ConfigurationTest < Minitest::Test # rubocop:disable Metrics/ClassLength -
       assert_equal :builtin, configuration.fetch(name).origin.kind
       refute configuration.fetch(name).explicit
     end
+  end
+
+  def test_legacy_line_mapping_defaults_remain_implicit
+    configuration = Configuration::CLIAdapter.new(
+      { line_convert: true }, explicit_keys: []
+    ).resolve.fetch("source.line_mapping")
+
+    assert_equal :actions, configuration.value
+    assert_equal :builtin, configuration.origin.kind
+    refute configuration.explicit
   end
 
   def test_explicit_cli_default_is_not_mistaken_for_an_implicit_default

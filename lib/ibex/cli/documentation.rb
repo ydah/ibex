@@ -12,6 +12,7 @@ module Ibex
     #   type documentation_settings = {
     #     format: String,
     #     mode: Symbol,
+    #     configuration_explicit: Array[Symbol],
     #     ?output: String,
     #     ?help: bool
     #   }
@@ -19,19 +20,20 @@ module Ibex
     #   private def input_path: (Array[String]) -> String
     #   private def same_file_target?: (String left, String right) -> bool
     #   private def atomic_write_ir: (String path, String source) -> void
-    #   private def configuration_value: (String) -> untyped
-    #   private def select_configuration_mode: (String) -> void
+    #   private def local_configuration_value: (Hash[Symbol, untyped], String) -> untyped
+    #   private def set_local_configuration_option: (Hash[Symbol, untyped], Symbol, untyped) -> void
 
     private
 
     # @rbs (Array[String] arguments) -> Integer
     def run_documentation_command(arguments)
       settings = {
-        format: "markdown", mode: Configuration::Registry.fetch("grammar.mode").default
+        format: "markdown", mode: Configuration::Registry.fetch("grammar.mode").default,
+        configuration_explicit: []
       } #: documentation_settings
       parser = documentation_option_parser(settings)
       remaining = parser.parse(arguments)
-      settings[:mode] = configuration_value("grammar.mode")
+      settings[:mode] = local_configuration_value(settings, "grammar.mode")
       if settings[:help]
         @stdout.puts(parser)
         return 0
@@ -64,7 +66,9 @@ module Ibex
           settings[:format] = value
         end
         options.on("-o FILE", "--output=FILE", "write atomically to FILE") { |value| settings[:output] = value }
-        options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| select_configuration_mode(value) }
+        options.on("--mode=MODE", %w[default extended], "grammar mode") do |value|
+          set_local_configuration_option(settings, :mode, value.to_sym)
+        end
         options.on("--help", "show help") { settings[:help] = true }
       end
     end
