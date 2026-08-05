@@ -74,6 +74,12 @@ namespace :quality do
     ruby "-Ilib", "-r./lib/ibex", "-r./tool/quality/workloads", "-e", "Ibex::Quality::Workloads.new.verify!"
   end
 
+  desc "Verify IELR and multi-entry construction profile evidence"
+  task :construction_profile do
+    ruby "-Ilib", "-r./tool/quality/construction_profile", "-e",
+         "Ibex::Quality::ConstructionProfile.new.verify!"
+  end
+
   desc "Verify Preview and Experimental maturity decisions and evidence"
   task :maturity do
     ruby "-Ilib", "-r./tool/quality/maturity", "-e", "Ibex::Quality::Maturity.new.verify!"

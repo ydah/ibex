@@ -1,0 +1,1134 @@
+{
+  "ibex_report": "construction_profile",
+  "schema_version": 1,
+  "trust": "internal_local_observation",
+  "environment": {
+    "ibex_revision": "2baa47384e97c4092f87c01fb1c534ba3a4cb5fd",
+    "ibex_worktree_clean": false,
+    "implementation_sha256": "f70b0a7023bba261f8757b886e66b4fa164a1bac4328c4fe292389142814d53f",
+    "ruby_engine": "ruby",
+    "ruby_version": "4.0.0",
+    "ruby_patchlevel": 0,
+    "ruby_description": "ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin24]",
+    "ruby_platform": "arm64-darwin24",
+    "rubyopt": "-r/Users/yudai.takada/.rbenv/versions/4.0.0/lib/ruby/gems/4.0.0/gems/bundler-4.0.13/lib/bundler/setup",
+    "yjit_enabled": false,
+    "host_os": "darwin24",
+    "host_cpu": "arm64",
+    "kernel_name": "Darwin",
+    "kernel_release": "25.3.0",
+    "kernel_version": "Darwin Kernel Version 25.3.0: Wed Jan 28 20:48:41 PST 2026; root:xnu-12377.81.4~5/RELEASE_ARM64_T6041",
+    "kernel_machine": "arm64",
+    "logical_processors": 12
+  },
+  "measurement_policy": {
+    "wall_seconds_per_run": 60.0,
+    "wall_time_role": "observation_only",
+    "state_limit": {
+      "status": "not_supported",
+      "reason": "current builders expose no state budget"
+    },
+    "memory_limit": {
+      "status": "not_supported",
+      "reason": "no portable per-build Ruby heap limit"
+    },
+    "peak_retained_objects": {
+      "status": "not_measured",
+      "reason": "GC live-slot deltas are not a reproducible peak-retained-object measurement"
+    },
+    "item_counting": {
+      "lr0_items": "LR(0) core item occurrences across distinct LR(0) cores",
+      "canonical_items": "LR(1) item triples across canonical states",
+      "final_items": "core item occurrences after merge or partition",
+      "final_lookahead_items": "lookahead memberships across final core items"
+    }
+  },
+  "cohorts": [
+    {
+      "kind": "synthetic",
+      "workloads": [
+        {
+          "id": "gallery-calc",
+          "classification": "repository_synthetic",
+          "grammar": {
+            "identity": "Self-authored calculator gallery grammar",
+            "path": "gallery/calc/grammar.y",
+            "revision": "2bb20ab24e26cae4ee7cd397fcc12938b7d24e59",
+            "sha256": "e9c25a35bd0351e58c3aefd9397097ac04701e052bad7fd234e72e357b5bac07"
+          },
+          "registry_status": "registered",
+          "availability": {
+            "status": "verified_repository_source",
+            "reason": null
+          },
+          "entries": {
+            "count": 1,
+            "names": [
+              "document"
+            ]
+          },
+          "runs": [
+            {
+              "algorithm": "lalr",
+              "entry_mode": "shared",
+              "entries": 1,
+              "entry_names": [
+                "document"
+              ],
+              "status": "completed",
+              "strategy": "direct_lalr",
+              "structural": {
+                "lr0_states": {
+                  "status": "measured",
+                  "value": 15
+                },
+                "lr0_items": {
+                  "status": "measured",
+                  "value": 76
+                },
+                "canonical_states": {
+                  "status": "not_applicable",
+                  "reason": "canonical LR(1) was not constructed"
+                },
+                "canonical_items": {
+                  "status": "not_applicable",
+                  "reason": "canonical LR(1) was not constructed"
+                },
+                "final_states": {
+                  "status": "measured",
+                  "value": 15
+                },
+                "final_items": {
+                  "status": "measured",
+                  "value": 76
+                },
+                "final_lookahead_items": {
+                  "status": "measured",
+                  "value": 416
+                },
+                "propagation_edges": {
+                  "status": "measured",
+                  "value": 99
+                },
+                "ielr_initial_partitions": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run IELR partitioning"
+                },
+                "ielr_final_partitions": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run IELR partitioning"
+                }
+              },
+              "conflicts": {
+                "shift_reduce": 0,
+                "reduce_reduce": 0
+              },
+              "observations": {
+                "elapsed_seconds": {
+                  "status": "observation",
+                  "value": 0.00153,
+                  "release_gate": false
+                }
+              },
+              "exhaustion": {
+                "status": "not_observed",
+                "resource": null,
+                "limit": null
+              },
+              "failure": null
+            },
+            {
+              "algorithm": "ielr",
+              "entry_mode": "shared",
+              "entries": 1,
+              "entry_names": [
+                "document"
+              ],
+              "status": "completed",
+              "strategy": "ielr_partition",
+              "structural": {
+                "lr0_states": {
+                  "status": "measured",
+                  "value": 15
+                },
+                "lr0_items": {
+                  "status": "measured",
+                  "value": 76
+                },
+                "canonical_states": {
+                  "status": "measured",
+                  "value": 27
+                },
+                "canonical_items": {
+                  "status": "measured",
+                  "value": 674
+                },
+                "final_states": {
+                  "status": "measured",
+                  "value": 15
+                },
+                "final_items": {
+                  "status": "measured",
+                  "value": 76
+                },
+                "final_lookahead_items": {
+                  "status": "measured",
+                  "value": 416
+                },
+                "propagation_edges": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not use direct lookahead propagation"
+                },
+                "ielr_initial_partitions": {
+                  "status": "measured",
+                  "value": 15
+                },
+                "ielr_final_partitions": {
+                  "status": "measured",
+                  "value": 15
+                }
+              },
+              "conflicts": {
+                "shift_reduce": 0,
+                "reduce_reduce": 0
+              },
+              "observations": {
+                "elapsed_seconds": {
+                  "status": "observation",
+                  "value": 0.004142,
+                  "release_gate": false
+                }
+              },
+              "exhaustion": {
+                "status": "not_observed",
+                "resource": null,
+                "limit": null
+              },
+              "failure": null
+            }
+          ]
+        },
+        {
+          "id": "gallery-json",
+          "classification": "repository_synthetic",
+          "grammar": {
+            "identity": "Self-authored JSON gallery grammar",
+            "path": "gallery/json/grammar.y",
+            "revision": "2bb20ab24e26cae4ee7cd397fcc12938b7d24e59",
+            "sha256": "162484428a798541dfced3a12e6e38eb6f1231aec03157c273b25493fa6f9f66"
+          },
+          "registry_status": "registered",
+          "availability": {
+            "status": "verified_repository_source",
+            "reason": null
+          },
+          "entries": {
+            "count": 1,
+            "names": [
+              "document"
+            ]
+          },
+          "runs": [
+            {
+              "algorithm": "lalr",
+              "entry_mode": "shared",
+              "entries": 1,
+              "entry_names": [
+                "document"
+              ],
+              "status": "completed",
+              "strategy": "direct_lalr",
+              "structural": {
+                "lr0_states": {
+                  "status": "measured",
+                  "value": 27
+                },
+                "lr0_items": {
+                  "status": "measured",
+                  "value": 82
+                },
+                "canonical_states": {
+                  "status": "not_applicable",
+                  "reason": "canonical LR(1) was not constructed"
+                },
+                "canonical_items": {
+                  "status": "not_applicable",
+                  "reason": "canonical LR(1) was not constructed"
+                },
+                "final_states": {
+                  "status": "measured",
+                  "value": 27
+                },
+                "final_items": {
+                  "status": "measured",
+                  "value": 82
+                },
+                "final_lookahead_items": {
+                  "status": "measured",
+                  "value": 183
+                },
+                "propagation_edges": {
+                  "status": "measured",
+                  "value": 111
+                },
+                "ielr_initial_partitions": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run IELR partitioning"
+                },
+                "ielr_final_partitions": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run IELR partitioning"
+                }
+              },
+              "conflicts": {
+                "shift_reduce": 0,
+                "reduce_reduce": 0
+              },
+              "observations": {
+                "elapsed_seconds": {
+                  "status": "observation",
+                  "value": 0.000637,
+                  "release_gate": false
+                }
+              },
+              "exhaustion": {
+                "status": "not_observed",
+                "resource": null,
+                "limit": null
+              },
+              "failure": null
+            },
+            {
+              "algorithm": "ielr",
+              "entry_mode": "shared",
+              "entries": 1,
+              "entry_names": [
+                "document"
+              ],
+              "status": "completed",
+              "strategy": "ielr_partition",
+              "structural": {
+                "lr0_states": {
+                  "status": "measured",
+                  "value": 27
+                },
+                "lr0_items": {
+                  "status": "measured",
+                  "value": 82
+                },
+                "canonical_states": {
+                  "status": "measured",
+                  "value": 57
+                },
+                "canonical_items": {
+                  "status": "measured",
+                  "value": 272
+                },
+                "final_states": {
+                  "status": "measured",
+                  "value": 27
+                },
+                "final_items": {
+                  "status": "measured",
+                  "value": 82
+                },
+                "final_lookahead_items": {
+                  "status": "measured",
+                  "value": 183
+                },
+                "propagation_edges": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not use direct lookahead propagation"
+                },
+                "ielr_initial_partitions": {
+                  "status": "measured",
+                  "value": 27
+                },
+                "ielr_final_partitions": {
+                  "status": "measured",
+                  "value": 27
+                }
+              },
+              "conflicts": {
+                "shift_reduce": 0,
+                "reduce_reduce": 0
+              },
+              "observations": {
+                "elapsed_seconds": {
+                  "status": "observation",
+                  "value": 0.001402,
+                  "release_gate": false
+                }
+              },
+              "exhaustion": {
+                "status": "not_observed",
+                "resource": null,
+                "limit": null
+              },
+              "failure": null
+            }
+          ]
+        },
+        {
+          "id": "gallery-sql-lite",
+          "classification": "repository_synthetic",
+          "grammar": {
+            "identity": "Self-authored SQL subset gallery grammar",
+            "path": "gallery/sql-lite/grammar.y",
+            "revision": "2bb20ab24e26cae4ee7cd397fcc12938b7d24e59",
+            "sha256": "1369ba9384456fc02d0ccb9cef81dd0e96fcdd387f00266b28df0ac5be1b5f2a"
+          },
+          "registry_status": "registered",
+          "availability": {
+            "status": "verified_repository_source",
+            "reason": null
+          },
+          "entries": {
+            "count": 1,
+            "names": [
+              "document"
+            ]
+          },
+          "runs": [
+            {
+              "algorithm": "lalr",
+              "entry_mode": "shared",
+              "entries": 1,
+              "entry_names": [
+                "document"
+              ],
+              "status": "completed",
+              "strategy": "direct_lalr",
+              "structural": {
+                "lr0_states": {
+                  "status": "measured",
+                  "value": 26
+                },
+                "lr0_items": {
+                  "status": "measured",
+                  "value": 53
+                },
+                "canonical_states": {
+                  "status": "not_applicable",
+                  "reason": "canonical LR(1) was not constructed"
+                },
+                "canonical_items": {
+                  "status": "not_applicable",
+                  "reason": "canonical LR(1) was not constructed"
+                },
+                "final_states": {
+                  "status": "measured",
+                  "value": 26
+                },
+                "final_items": {
+                  "status": "measured",
+                  "value": 53
+                },
+                "final_lookahead_items": {
+                  "status": "measured",
+                  "value": 115
+                },
+                "propagation_edges": {
+                  "status": "measured",
+                  "value": 55
+                },
+                "ielr_initial_partitions": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run IELR partitioning"
+                },
+                "ielr_final_partitions": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run IELR partitioning"
+                }
+              },
+              "conflicts": {
+                "shift_reduce": 0,
+                "reduce_reduce": 0
+              },
+              "observations": {
+                "elapsed_seconds": {
+                  "status": "observation",
+                  "value": 0.000459,
+                  "release_gate": false
+                }
+              },
+              "exhaustion": {
+                "status": "not_observed",
+                "resource": null,
+                "limit": null
+              },
+              "failure": null
+            },
+            {
+              "algorithm": "ielr",
+              "entry_mode": "shared",
+              "entries": 1,
+              "entry_names": [
+                "document"
+              ],
+              "status": "completed",
+              "strategy": "ielr_partition",
+              "structural": {
+                "lr0_states": {
+                  "status": "measured",
+                  "value": 26
+                },
+                "lr0_items": {
+                  "status": "measured",
+                  "value": 53
+                },
+                "canonical_states": {
+                  "status": "measured",
+                  "value": 26
+                },
+                "canonical_items": {
+                  "status": "measured",
+                  "value": 115
+                },
+                "final_states": {
+                  "status": "measured",
+                  "value": 26
+                },
+                "final_items": {
+                  "status": "measured",
+                  "value": 53
+                },
+                "final_lookahead_items": {
+                  "status": "measured",
+                  "value": 115
+                },
+                "propagation_edges": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not use direct lookahead propagation"
+                },
+                "ielr_initial_partitions": {
+                  "status": "measured",
+                  "value": 26
+                },
+                "ielr_final_partitions": {
+                  "status": "measured",
+                  "value": 26
+                }
+              },
+              "conflicts": {
+                "shift_reduce": 0,
+                "reduce_reduce": 0
+              },
+              "observations": {
+                "elapsed_seconds": {
+                  "status": "observation",
+                  "value": 0.000674,
+                  "release_gate": false
+                }
+              },
+              "exhaustion": {
+                "status": "not_observed",
+                "resource": null,
+                "limit": null
+              },
+              "failure": null
+            }
+          ]
+        },
+        {
+          "id": "matrix-multi-entry",
+          "classification": "repository_synthetic",
+          "grammar": {
+            "identity": "Representative matrix multi-entry diagnostic",
+            "path": "test/support/matrix_runner.rb#grammar_source(entries=multi,cst=off,locations=off)",
+            "revision": "e892ffad7d7178028dcf1c074d2db90af068d866",
+            "sha256": "af2a9c3b46c31b80e7f9dc983f70b33979d46e6a519b681d7d8a403b4b0f6d8d"
+          },
+          "registry_status": "unregistered_diagnostic",
+          "availability": {
+            "status": "verified_generated_fixture",
+            "reason": null
+          },
+          "entries": {
+            "count": 2,
+            "names": [
+              "document",
+              "atom"
+            ]
+          },
+          "runs": [
+            {
+              "algorithm": "lalr",
+              "entry_mode": "shared",
+              "entries": 2,
+              "entry_names": [
+                "document",
+                "atom"
+              ],
+              "status": "completed",
+              "strategy": "canonical_merge_multi_entry",
+              "structural": {
+                "lr0_states": {
+                  "status": "measured",
+                  "value": 9
+                },
+                "lr0_items": {
+                  "status": "measured",
+                  "value": 14
+                },
+                "canonical_states": {
+                  "status": "measured",
+                  "value": 9
+                },
+                "canonical_items": {
+                  "status": "measured",
+                  "value": 20
+                },
+                "final_states": {
+                  "status": "measured",
+                  "value": 9
+                },
+                "final_items": {
+                  "status": "measured",
+                  "value": 14
+                },
+                "final_lookahead_items": {
+                  "status": "measured",
+                  "value": 20
+                },
+                "propagation_edges": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not use direct lookahead propagation"
+                },
+                "ielr_initial_partitions": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run IELR partitioning"
+                },
+                "ielr_final_partitions": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run IELR partitioning"
+                }
+              },
+              "conflicts": {
+                "shift_reduce": 0,
+                "reduce_reduce": 0
+              },
+              "observations": {
+                "elapsed_seconds": {
+                  "status": "observation",
+                  "value": 0.000349,
+                  "release_gate": false
+                }
+              },
+              "exhaustion": {
+                "status": "not_observed",
+                "resource": null,
+                "limit": null
+              },
+              "failure": null
+            },
+            {
+              "algorithm": "ielr",
+              "entry_mode": "shared",
+              "entries": 2,
+              "entry_names": [
+                "document",
+                "atom"
+              ],
+              "status": "completed",
+              "strategy": "ielr_partition",
+              "structural": {
+                "lr0_states": {
+                  "status": "measured",
+                  "value": 9
+                },
+                "lr0_items": {
+                  "status": "measured",
+                  "value": 14
+                },
+                "canonical_states": {
+                  "status": "measured",
+                  "value": 9
+                },
+                "canonical_items": {
+                  "status": "measured",
+                  "value": 20
+                },
+                "final_states": {
+                  "status": "measured",
+                  "value": 9
+                },
+                "final_items": {
+                  "status": "measured",
+                  "value": 14
+                },
+                "final_lookahead_items": {
+                  "status": "measured",
+                  "value": 20
+                },
+                "propagation_edges": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not use direct lookahead propagation"
+                },
+                "ielr_initial_partitions": {
+                  "status": "measured",
+                  "value": 9
+                },
+                "ielr_final_partitions": {
+                  "status": "measured",
+                  "value": 9
+                }
+              },
+              "conflicts": {
+                "shift_reduce": 0,
+                "reduce_reduce": 0
+              },
+              "observations": {
+                "elapsed_seconds": {
+                  "status": "observation",
+                  "value": 0.000421,
+                  "release_gate": false
+                }
+              },
+              "exhaustion": {
+                "status": "not_observed",
+                "resource": null,
+                "limit": null
+              },
+              "failure": null
+            },
+            {
+              "algorithm": "lalr",
+              "entry_mode": "isolated",
+              "entries": 2,
+              "entry_names": [
+                "document",
+                "atom"
+              ],
+              "status": "completed",
+              "strategy": "entry_isolation",
+              "structural": {
+                "lr0_states": {
+                  "status": "measured",
+                  "value": 9
+                },
+                "lr0_items": {
+                  "status": "measured",
+                  "value": 14
+                },
+                "canonical_states": {
+                  "status": "measured",
+                  "value": 9
+                },
+                "canonical_items": {
+                  "status": "measured",
+                  "value": 20
+                },
+                "final_states": {
+                  "status": "measured",
+                  "value": 9
+                },
+                "final_items": {
+                  "status": "measured",
+                  "value": 14
+                },
+                "final_lookahead_items": {
+                  "status": "measured",
+                  "value": 20
+                },
+                "propagation_edges": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not use direct lookahead propagation"
+                },
+                "ielr_initial_partitions": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run IELR partitioning"
+                },
+                "ielr_final_partitions": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run IELR partitioning"
+                }
+              },
+              "conflicts": {
+                "shift_reduce": 0,
+                "reduce_reduce": 0
+              },
+              "observations": {
+                "elapsed_seconds": {
+                  "status": "observation",
+                  "value": 0.00026,
+                  "release_gate": false
+                }
+              },
+              "exhaustion": {
+                "status": "not_observed",
+                "resource": null,
+                "limit": null
+              },
+              "failure": null
+            },
+            {
+              "algorithm": "ielr",
+              "entry_mode": "isolated",
+              "entries": 2,
+              "entry_names": [
+                "document",
+                "atom"
+              ],
+              "status": "completed",
+              "strategy": "entry_isolation",
+              "structural": {
+                "lr0_states": {
+                  "status": "measured",
+                  "value": 9
+                },
+                "lr0_items": {
+                  "status": "measured",
+                  "value": 14
+                },
+                "canonical_states": {
+                  "status": "measured",
+                  "value": 9
+                },
+                "canonical_items": {
+                  "status": "measured",
+                  "value": 20
+                },
+                "final_states": {
+                  "status": "measured",
+                  "value": 9
+                },
+                "final_items": {
+                  "status": "measured",
+                  "value": 14
+                },
+                "final_lookahead_items": {
+                  "status": "measured",
+                  "value": 20
+                },
+                "propagation_edges": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not use direct lookahead propagation"
+                },
+                "ielr_initial_partitions": {
+                  "status": "measured",
+                  "value": 9
+                },
+                "ielr_final_partitions": {
+                  "status": "measured",
+                  "value": 9
+                }
+              },
+              "conflicts": {
+                "shift_reduce": 0,
+                "reduce_reduce": 0
+              },
+              "observations": {
+                "elapsed_seconds": {
+                  "status": "observation",
+                  "value": 0.000263,
+                  "release_gate": false
+                }
+              },
+              "exhaustion": {
+                "status": "not_observed",
+                "resource": null,
+                "limit": null
+              },
+              "failure": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "real",
+      "workloads": [
+        {
+          "id": "bcdice-command-parser",
+          "classification": "public_real",
+          "grammar": {
+            "identity": "BCDice command parser",
+            "path": "lib/bcdice/command/parser.y",
+            "revision": "21b4a03789bf2080ad41aaf31299b609ee7bda86",
+            "sha256": "845f4fcd5dedfc276dd3529cc86015a1b806bb7912346a04ce5a78a1977bb4d8"
+          },
+          "registry_status": "registered",
+          "availability": {
+            "status": "not_run",
+            "reason": "no verified checkout supplied; pass --checkout bcdice_command=PATH to collect this observation"
+          },
+          "entries": null,
+          "runs": []
+        },
+        {
+          "id": "ibex-frontend",
+          "classification": "repository_real",
+          "grammar": {
+            "identity": "Ibex production self-hosted grammar frontend",
+            "path": "lib/ibex/frontend/grammar.y",
+            "revision": "2bb20ab24e26cae4ee7cd397fcc12938b7d24e59",
+            "sha256": "fb6dcea088aec1a09fa0d63dc5cfd529310635dd3c4568cd1d734fc9ac1bf64c"
+          },
+          "registry_status": "registered",
+          "availability": {
+            "status": "verified_repository_source",
+            "reason": null
+          },
+          "entries": {
+            "count": 1,
+            "names": [
+              "document"
+            ]
+          },
+          "runs": [
+            {
+              "algorithm": "lalr",
+              "entry_mode": "shared",
+              "entries": 1,
+              "entry_names": [
+                "document"
+              ],
+              "status": "completed",
+              "strategy": "direct_lalr",
+              "structural": {
+                "lr0_states": {
+                  "status": "measured",
+                  "value": 220
+                },
+                "lr0_items": {
+                  "status": "measured",
+                  "value": 618
+                },
+                "canonical_states": {
+                  "status": "not_applicable",
+                  "reason": "canonical LR(1) was not constructed"
+                },
+                "canonical_items": {
+                  "status": "not_applicable",
+                  "reason": "canonical LR(1) was not constructed"
+                },
+                "final_states": {
+                  "status": "measured",
+                  "value": 220
+                },
+                "final_items": {
+                  "status": "measured",
+                  "value": 618
+                },
+                "final_lookahead_items": {
+                  "status": "measured",
+                  "value": 6733
+                },
+                "propagation_edges": {
+                  "status": "measured",
+                  "value": 734
+                },
+                "ielr_initial_partitions": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run IELR partitioning"
+                },
+                "ielr_final_partitions": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run IELR partitioning"
+                }
+              },
+              "conflicts": {
+                "shift_reduce": 0,
+                "reduce_reduce": 0
+              },
+              "observations": {
+                "elapsed_seconds": {
+                  "status": "observation",
+                  "value": 0.008665,
+                  "release_gate": false
+                }
+              },
+              "exhaustion": {
+                "status": "not_observed",
+                "resource": null,
+                "limit": null
+              },
+              "failure": null
+            },
+            {
+              "algorithm": "ielr",
+              "entry_mode": "shared",
+              "entries": 1,
+              "entry_names": [
+                "document"
+              ],
+              "status": "completed",
+              "strategy": "ielr_partition",
+              "structural": {
+                "lr0_states": {
+                  "status": "measured",
+                  "value": 220
+                },
+                "lr0_items": {
+                  "status": "measured",
+                  "value": 618
+                },
+                "canonical_states": {
+                  "status": "measured",
+                  "value": 449
+                },
+                "canonical_items": {
+                  "status": "measured",
+                  "value": 10103
+                },
+                "final_states": {
+                  "status": "measured",
+                  "value": 220
+                },
+                "final_items": {
+                  "status": "measured",
+                  "value": 618
+                },
+                "final_lookahead_items": {
+                  "status": "measured",
+                  "value": 6733
+                },
+                "propagation_edges": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not use direct lookahead propagation"
+                },
+                "ielr_initial_partitions": {
+                  "status": "measured",
+                  "value": 220
+                },
+                "ielr_final_partitions": {
+                  "status": "measured",
+                  "value": 220
+                }
+              },
+              "conflicts": {
+                "shift_reduce": 0,
+                "reduce_reduce": 0
+              },
+              "observations": {
+                "elapsed_seconds": {
+                  "status": "observation",
+                  "value": 0.050638,
+                  "release_gate": false
+                }
+              },
+              "exhaustion": {
+                "status": "not_observed",
+                "resource": null,
+                "limit": null
+              },
+              "failure": null
+            }
+          ]
+        },
+        {
+          "id": "namae-parser",
+          "classification": "public_real",
+          "grammar": {
+            "identity": "Namae personal-name parser",
+            "path": "lib/namae/parser.y",
+            "revision": "d33875aaf1fc420a8dfe946a3b29cc3e19710061",
+            "sha256": "ac626034b016696bf5b8d4868005ff98cecadf74162294d2c6f9d6e128158198"
+          },
+          "registry_status": "registered",
+          "availability": {
+            "status": "not_run",
+            "reason": "no verified checkout supplied; pass --checkout namae=PATH to collect this observation"
+          },
+          "entries": null,
+          "runs": []
+        },
+        {
+          "id": "nokogiri-css-parser",
+          "classification": "public_real",
+          "grammar": {
+            "identity": "Nokogiri CSS selector parser",
+            "path": "lib/nokogiri/css/parser.y",
+            "revision": "04a4c29c6a605ad40a78f4ce343ced0832a1805c",
+            "sha256": "3ba8e2b573c099686c4186d0eef0a670dcaf93d2081f5678be45fb8600dc873a"
+          },
+          "registry_status": "registered",
+          "availability": {
+            "status": "not_run",
+            "reason": "no verified checkout supplied; pass --checkout nokogiri_css=PATH to collect this observation"
+          },
+          "entries": null,
+          "runs": []
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "feature": "direct-ielr",
+      "decision": "NO-GO",
+      "thresholds": [
+        {
+          "id": "representative-real-profiles",
+          "target": "at least 2",
+          "observed": "1",
+          "satisfied": false
+        },
+        {
+          "id": "real-ielr-need",
+          "target": "at least 2 grammars with meaningful conflicts removed",
+          "observed": "0 structural candidates; 0 semantically reviewed",
+          "satisfied": false
+        },
+        {
+          "id": "verifier-tcb",
+          "target": "V001 complete and reviewed",
+          "observed": "complete at 5cf20f6",
+          "satisfied": true
+        },
+        {
+          "id": "scale-independent-verification",
+          "target": "verification avoids canonical LR(1) enumeration",
+          "observed": "not satisfied: default and strict IELR verification enumerate canonical LR(1)",
+          "satisfied": false
+        }
+      ],
+      "reason": "The current verifier still enumerates canonical LR(1), 3 public workloads are not run, and no real conflict removal has semantic review; direct IELR is not justified now.",
+      "counterevidence_required": [
+        "verified real grammars show material canonical collection cost",
+        "IELR removes semantically meaningful conflicts on those grammars",
+        "a bounded verification plan avoids mandatory canonical enumeration",
+        "an owner accepts the specification and maintenance budget"
+      ]
+    },
+    {
+      "feature": "direct-multi-entry",
+      "decision": "MORE DATA",
+      "thresholds": [
+        {
+          "id": "representative-real-multi-entry",
+          "target": "at least 2",
+          "observed": "0",
+          "satisfied": false
+        },
+        {
+          "id": "synthetic-shared-isolated-coverage",
+          "target": "at least 1",
+          "observed": "1",
+          "satisfied": true
+        },
+        {
+          "id": "practical-current-cost",
+          "target": "state/item exhaustion or >=2x structural overhead on real inputs",
+          "observed": "not observed on a real multi-entry workload",
+          "satisfied": false
+        }
+      ],
+      "reason": "The shared-versus-isolated path is measurable on a synthetic fixture, but the registry has no real multi-entry workload and timing observations are not decision gates.",
+      "counterevidence_required": [
+        "verified real multi-entry grammars show material shared construction cost",
+        "a direct construction preserves shared-entry conflict attribution",
+        "an owner accepts the semantic and maintenance plan"
+      ]
+    }
+  ],
+  "limitations": [
+    "A timeout or resource failure is evidence of an observed bound, not a negative proof of correctness.",
+    "Elapsed time varies by host and is not a release gate or a committed performance golden.",
+    "Peak retained objects are not reported because the current Ruby VM interface cannot measure them reproducibly.",
+    "Unavailable public workloads retain registry identity only and contribute no construction measurements.",
+    "V001 records that current IELR verification enumerates canonical LR(1) in default and strict modes.",
+    "This profile implements neither direct IELR nor direct shared multi-entry construction."
+  ]
+}

@@ -30,6 +30,7 @@ class IRJSONSchemaTest < Minitest::Test
       verify-v1.schema.json
       equiv-v1.schema.json
       metrics-v1.schema.json
+      construction-profile-v1.schema.json
       diff-v1.schema.json
       fix-v1.schema.json fix-v2.schema.json fix-v3.schema.json bison-import-v1.schema.json
     ].each do |name|

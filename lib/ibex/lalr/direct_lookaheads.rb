@@ -25,9 +25,17 @@ module Ibex
       # @rbs @terminal_ids: Array[Integer]
       # @rbs @terminal_masks: Array[Integer]
       # @rbs @terminal_ids_by_bits: Hash[Integer, Array[Integer]]
+      # @rbs @lr0_state_count: Integer?
+      # @rbs @lr0_item_count: Integer?
+      # @rbs @propagation_edge_count: Integer?
+      # @rbs @profile: bool
 
-      # @rbs (IR::Grammar grammar, Analysis::Sets sets) -> void
-      def initialize(grammar, sets)
+      attr_reader :lr0_state_count #: Integer?
+      attr_reader :lr0_item_count #: Integer?
+      attr_reader :propagation_edge_count #: Integer?
+
+      # @rbs (IR::Grammar grammar, Analysis::Sets sets, ?profile: bool) -> void
+      def initialize(grammar, sets, profile: false)
         @grammar = grammar
         @sets = sets
         @productions_by_lhs = grammar.productions.group_by(&:lhs)
@@ -42,6 +50,10 @@ module Ibex
         @terminal_ids = grammar.terminals.map(&:id).freeze
         @terminal_masks = @terminal_ids.map { |id| 1 << id }.freeze
         @terminal_ids_by_bits = {}
+        @lr0_state_count = nil
+        @lr0_item_count = nil
+        @propagation_edge_count = nil
+        @profile = profile
       end
 
       # @rbs () -> [Array[packed_items], transitions]
@@ -49,6 +61,11 @@ module Ibex
         states, transitions = lr0_collection
         lookaheads = empty_lookaheads(states)
         propagation = propagation_graph(states, transitions, lookaheads)
+        if @profile
+          @lr0_state_count = states.length
+          @lr0_item_count = states.sum(&:length)
+          @propagation_edge_count = propagation.values.sum(&:length)
+        end
         lookaheads.fetch(0).fetch(item_core(AUGMENTED_PRODUCTION, 0)) << 0
         propagate(lookaheads, propagation)
         [lookaheads, transitions]

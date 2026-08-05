@@ -7,6 +7,12 @@ module Ibex
     class IELRPartition
       AUGMENTED_PRODUCTION: Integer
 
+      @profile: bool
+
+      @final_partition_count: Integer?
+
+      @initial_partition_count: Integer?
+
       @contributions: Array[Hash[Integer, Set[Array[untyped]]]]
 
       @transitions: transitions
@@ -15,8 +21,12 @@ module Ibex
 
       @grammar: IR::Grammar
 
-      # @rbs (IR::Grammar grammar, Array[item_set] states, transitions transitions) -> void
-      def initialize: (IR::Grammar grammar, Array[item_set] states, transitions transitions) -> void
+      attr_reader initial_partition_count: Integer?
+
+      attr_reader final_partition_count: Integer?
+
+      # @rbs (IR::Grammar grammar, Array[item_set] states, transitions transitions, ?profile: bool) -> void
+      def initialize: (IR::Grammar grammar, Array[item_set] states, transitions transitions, ?profile: bool) -> void
 
       # @rbs () -> [Array[packed_items], transitions]
       def build: () -> [ Array[packed_items], transitions ]
