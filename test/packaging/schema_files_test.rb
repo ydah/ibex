@@ -48,8 +48,11 @@ class SchemaFilesPackagingTest < Minitest::Test
     specification = Gem::Specification.load(File.expand_path("../../ibex.gemspec", __dir__))
     expected = %w[
       schema/error-ux-round2-v1.schema.json
+      schema/error-ux-round2-review-v1.schema.json
       docs/error-ux-round2.md
       docs/error-ux-round2-v1.json
+      docs/error-ux-round2-review-status-v1.json
+      docs/error-ux-round2-reviews/v1/records/README.md
     ]
 
     expected.each { |path| assert_includes specification.files, path }

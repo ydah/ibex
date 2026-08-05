@@ -4,6 +4,7 @@ require "digest"
 require "json"
 require "json_schemer"
 require_relative "../error_ux_round2/capture"
+require_relative "error_ux_round2/review_registry"
 
 module Ibex
   module Quality
@@ -11,9 +12,10 @@ module Ibex
     class ErrorUXRound2
       SCHEMA = "schema/error-ux-round2-v1.schema.json"
 
-      def initialize(root: Ibex::ErrorUXRound2::ROOT, evidence: nil, output: $stdout)
+      def initialize(root: Ibex::ErrorUXRound2::ROOT, evidence: nil, review_registry: nil, output: $stdout)
         @root = File.expand_path(root)
         @evidence = evidence || File.join(@root, "docs/error-ux-round2-v1.json")
+        @review_registry = review_registry || File.join(@root, "docs/error-ux-round2-review-status-v1.json")
         @output = output
       end
 
@@ -27,7 +29,9 @@ module Ibex
         validate_fresh_outcomes!(document)
         validate_r001_snapshot!(document)
         validate_regeneration!(document)
-        @output.puts "verified H003 repository capture; external subjective gate remains HOLD"
+        review_status = validate_external_review_registry!(document)
+        @output.puts "verified H003 repository capture; external subjective gate remains HOLD; " \
+                     "external review registry is #{review_status}"
         true
       end
 
@@ -113,6 +117,12 @@ module Ibex
         actual = "#{JSON.pretty_generate(document)}\n"
         expected = Ibex::ErrorUXRound2::Capture.new(root: @root).render
         raise "H003 deterministic evidence drift" unless actual == expected
+      end
+
+      def validate_external_review_registry!(document)
+        ErrorUXRound2ReviewRegistry.new(
+          root: @root, evidence_path: @evidence, registry_path: @review_registry
+        ).verify!(document)
       end
 
       def cases_for(document, dimension)

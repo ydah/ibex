@@ -10,6 +10,7 @@ require_relative "../../tool/quality/error_ux_round2"
 class ErrorUXRound2QualityTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   EVIDENCE = File.join(ROOT, "docs/error-ux-round2-v1.json")
+  REVIEW_REGISTRY = File.join(ROOT, "docs/error-ux-round2-review-status-v1.json")
   R001 = File.join(ROOT, "test/fixtures/error_ux/json-errors-v1.json")
 
   def test_committed_h003_capture_is_current_and_truthfully_held
@@ -17,6 +18,7 @@ class ErrorUXRound2QualityTest < Minitest::Test
 
     assert Ibex::Quality::ErrorUXRound2.new(root: ROOT, output: output).verify!
     assert_includes output.string, "external subjective gate remains HOLD"
+    assert_includes output.string, "external review registry is HOLD"
   end
 
   def test_r001_normative_snapshot_bytes_remain_unchanged
@@ -64,10 +66,84 @@ class ErrorUXRound2QualityTest < Minitest::Test
     assert_verification_error(changed, /violates schema/)
   end
 
+  def test_review_registry_rejects_stale_digest_case_inventory_and_empty_pass
+    changed = review_registry
+    changed.fetch("evidence")["sha256"] = "0" * 64
+    assert_registry_error(changed, /evidence digest drift/)
+
+    changed = review_registry
+    changed.fetch("required_case_ids").pop
+    assert_registry_error(changed, /violates schema|case inventory drift/)
+
+    changed = review_registry
+    changed["status"] = "PASS"
+    changed["reason"] = "independent-reviews-published"
+    assert_registry_error(changed, /violates schema/)
+  end
+
+  def test_review_registry_rejects_normalized_duplicate_reviewers
+    changed = passing_registry(
+      review_record("Alice Reviewer", "alice"),
+      review_record("  Ａlice   Reviewer ", "alice-duplicate")
+    )
+
+    assert_registry_error(changed, /normalized reviewer identities must be unique/)
+  end
+
+  def test_review_registry_preserves_every_multi_reviewer_disagreement
+    alice = review_record("Alice Reviewer", "alice")
+    bob = review_record("Bob Reviewer", "bob", "H003-EOF-01" => "unclear")
+    changed = passing_registry(alice, bob)
+    assert_registry_error(changed, /disagreement inventory drift/)
+
+    changed.fetch("disagreements") << {
+      "case_id" => "H003-EOF-01",
+      "reviewers" => ["Alice Reviewer", "Bob Reviewer"],
+      "labels" => %w[useful unclear],
+      "rationale" => "The reviewers reached different conclusions about the over-closing edit."
+    }
+
+    assert_registry_valid(changed)
+  end
+
   private
 
   def evidence
     JSON.parse(File.binread(EVIDENCE))
+  end
+
+  def review_registry
+    JSON.parse(File.binread(REVIEW_REGISTRY))
+  end
+
+  def passing_registry(*records)
+    review_registry.merge(
+      "status" => "PASS",
+      "reason" => "independent-reviews-published",
+      "records" => records,
+      "disagreements" => []
+    )
+  end
+
+  def review_record(name, suffix, labels = {})
+    digest = Digest::SHA256.hexdigest(File.binread(EVIDENCE))
+    {
+      "record_id" => "H003R-2026-08-05-#{suffix}",
+      "reviewer" => { "name" => name, "affiliation" => "External Review Lab", "relationship" => "external" },
+      "reviewed_at" => "2026-08-05",
+      "independent_of_implementation" => true,
+      "publication_consent" => true,
+      "evidence_sha256" => digest,
+      "case_reviews" => review_registry.fetch("required_case_ids").map do |case_id|
+        {
+          "case_id" => case_id,
+          "label" => labels.fetch(case_id, "useful"),
+          "rationale" => "Independent assessment of the diagnostic and proposed edit.",
+          "semantic_value_risk_assessment" => "The fresh parse does not establish author intent."
+        }
+      end,
+      "overall_rationale" => "Independent assessment of all seven fixed cases."
+    }
   end
 
   def case_for(document, dimension)
@@ -83,5 +159,34 @@ class ErrorUXRound2QualityTest < Minitest::Test
       end
       assert_match message, error.message
     end
+  end
+
+  def assert_registry_error(document, message)
+    with_review_registry(document) do |path|
+      error = assert_raises(RuntimeError) do
+        verifier(review_registry: path).verify!
+      end
+      assert_match message, error.message
+    end
+  end
+
+  def assert_registry_valid(document)
+    with_review_registry(document) do |path|
+      assert verifier(review_registry: path).verify!
+    end
+  end
+
+  def with_review_registry(document)
+    Dir.mktmpdir("ibex-h003-review") do |directory|
+      path = File.join(directory, "review-status.json")
+      File.binwrite(path, "#{JSON.pretty_generate(document)}\n")
+      yield path
+    end
+  end
+
+  def verifier(review_registry: REVIEW_REGISTRY)
+    Ibex::Quality::ErrorUXRound2.new(
+      root: ROOT, review_registry: review_registry, output: StringIO.new
+    )
   end
 end
