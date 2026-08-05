@@ -343,17 +343,18 @@ shortest reachability witness instead of claiming ambiguity.
 shape. `Counterexample#all` retains its original all-conflict behavior. The view performs no additional parser analysis and does
 not extend Grammar or Automaton IR.
 
-`Ibex::Verify::Verifier` accepts validated Automaton IR and independently
-derives LR(0) or canonical LR(1) collections from the embedded Grammar IR.
-It deliberately does not load the parser builder. Default checks validate
-item/action soundness, algorithm-specific lookaheads, expanded default
-reductions and error masks, reachability, productivity, epsilon termination,
-and conflict resolvers. `--strict` additionally requires collection
-completeness and exact plain/compact table-row equivalence. Every reference
-search has explicit state and item budgets; exhaustion is distinct from a
-violation. The verifier reads opaque semantic-action text but never evaluates
-it. `ibex verify` reports the versioned `verify` schema and uses exit statuses
-0 for valid, 1 for a violation, and 2 for budget exhaustion.
+`Ibex::Verify::Verifier` accepts validated Automaton IR and derives LR(0) or
+canonical LR(1) collections from the embedded Grammar IR without calling the
+parser builder. Default checks validate item/action soundness,
+algorithm-specific lookaheads, expanded default reductions and error masks,
+reachability, productivity, epsilon termination, resolver consistency, and
+rebuilt plain/compact row equality. `--strict` adds collection completeness
+and reports that same row equality as V5 rather than V4. The verifier does not
+consume generated Ruby or a supplied executable table artifact. Its exact
+shared dependencies, algorithm limits, resource semantics, fault mapping, and
+non-goals are documented in the [verifier trust boundary](verifier-trust-boundary.md).
+`ibex verify` uses exit statuses 0 for valid, 1 for a violation, and 2 for
+reference-budget exhaustion.
 
 `Ibex::Equiv` first compares normalized grammar structure, then generates
 sentences in both directions and explores the product of two immutable LR
