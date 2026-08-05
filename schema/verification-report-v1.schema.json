@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/verification-report-v1.schema.json",
+  "title": "Ibex scoped generation verification report version 1",
+  "type": "object",
+  "required": [
+    "ibex_report",
+    "schema_version",
+    "checker",
+    "profile",
+    "bounds",
+    "input",
+    "ir",
+    "table",
+    "outcome",
+    "excluded_trust",
+    "evidence_digest"
+  ],
+  "properties": {
+    "ibex_report": { "const": "scoped_verification" },
+    "schema_version": { "const": 1 },
+    "checker": { "$ref": "#/$defs/checker" },
+    "profile": { "enum": ["default", "strict"] },
+    "bounds": { "$ref": "#/$defs/bounds" },
+    "input": { "$ref": "#/$defs/input" },
+    "ir": { "$ref": "#/$defs/ir" },
+    "table": { "$ref": "#/$defs/table" },
+    "outcome": { "$ref": "#/$defs/outcome" },
+    "excluded_trust": {
+      "const": [
+        "source_to_ir",
+        "table_semantic_derivation",
+        "generated_wrapper",
+        "semantic_actions",
+        "lexer_actions",
+        "runtime",
+        "application_hooks",
+        "grammar_unambiguity"
+      ]
+    },
+    "evidence_digest": { "$ref": "#/$defs/digest" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "checker": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "const": "ibex.verify" },
+        "version": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "bounds": {
+      "type": "object",
+      "required": ["max_states", "max_items"],
+      "properties": {
+        "max_states": { "type": "integer", "minimum": 1 },
+        "max_items": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "input_file": {
+      "type": "object",
+      "required": ["logical_path", "sha256", "bytesize"],
+      "properties": {
+        "logical_path": {
+          "type": "string",
+          "pattern": "^input/[0-9]{4}/[^/\\u0000-\\u001f\\u007f]+$"
+        },
+        "sha256": { "$ref": "#/$defs/digest" },
+        "bytesize": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "input": {
+      "type": "object",
+      "required": ["digest", "files"],
+      "properties": {
+        "digest": { "$ref": "#/$defs/digest" },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/input_file" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "grammar_ir": {
+      "type": "object",
+      "required": ["schema_version", "digest"],
+      "properties": {
+        "schema_version": { "type": "integer", "minimum": 1 },
+        "digest": { "$ref": "#/$defs/digest" }
+      },
+      "additionalProperties": false
+    },
+    "automaton_ir": {
+      "type": "object",
+      "required": ["schema_version", "algorithm", "digest"],
+      "properties": {
+        "schema_version": { "type": "integer", "minimum": 1 },
+        "algorithm": { "enum": ["slr", "lalr1", "ielr1", "lr1"] },
+        "digest": { "$ref": "#/$defs/digest" }
+      },
+      "additionalProperties": false
+    },
+    "ir": {
+      "type": "object",
+      "required": ["grammar", "automaton"],
+      "properties": {
+        "grammar": { "$ref": "#/$defs/grammar_ir" },
+        "automaton": { "$ref": "#/$defs/automaton_ir" }
+      },
+      "additionalProperties": false
+    },
+    "table": {
+      "type": "object",
+      "required": [
+        "logical_path",
+        "artifact_type",
+        "schema_version",
+        "representation",
+        "artifact_digest",
+        "payload_digest"
+      ],
+      "properties": {
+        "logical_path": {
+          "type": "string",
+          "pattern": "^table/[^/\\u0000-\\u001f\\u007f]+$"
+        },
+        "artifact_type": { "const": "ibex.parser-table" },
+        "schema_version": { "const": 1 },
+        "representation": { "enum": ["plain", "compact"] },
+        "artifact_digest": { "$ref": "#/$defs/digest" },
+        "payload_digest": { "$ref": "#/$defs/digest" }
+      },
+      "additionalProperties": false
+    },
+    "checks": {
+      "type": "array",
+      "items": { "enum": ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8"] },
+      "uniqueItems": true
+    },
+    "violation": {
+      "type": "object",
+      "required": ["id", "location", "message"],
+      "properties": {
+        "id": { "enum": ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8"] },
+        "location": { "type": "string" },
+        "message": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "exhaustion": {
+      "type": "object",
+      "required": ["kind", "message"],
+      "properties": {
+        "kind": { "const": "reference_collection_budget" },
+        "message": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "outcome": {
+      "type": "object",
+      "required": ["status", "requested_checks", "executed_checks", "violations", "exhaustion"],
+      "properties": {
+        "status": { "enum": ["pass", "violations", "exhausted"] },
+        "requested_checks": { "$ref": "#/$defs/checks" },
+        "executed_checks": { "$ref": "#/$defs/checks" },
+        "violations": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/violation" }
+        },
+        "exhaustion": {
+          "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/exhaustion" }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "pass" } } },
+          "then": {
+            "properties": {
+              "violations": { "maxItems": 0 },
+              "exhaustion": { "type": "null" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "const": "violations" } } },
+          "then": {
+            "properties": {
+              "violations": { "minItems": 1 },
+              "exhaustion": { "type": "null" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "const": "exhausted" } } },
+          "then": {
+            "properties": {
+              "executed_checks": { "maxItems": 0 },
+              "violations": { "maxItems": 0 },
+              "exhaustion": { "$ref": "#/$defs/exhaustion" }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    }
+  }
+}

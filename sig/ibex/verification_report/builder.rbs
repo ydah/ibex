@@ -1,0 +1,57 @@
+# Generated from lib/ibex/verification_report/builder.rb with RBS::Inline
+
+module Ibex
+  module VerificationReport
+    # Builds deterministic evidence from an Automaton IR verification run.
+    class Builder
+      # @rbs (IR::Automaton automaton, table: TableArtifact::Document,
+      #   source_records: Array[GenerationInput], table_path: String, strict: bool,
+      #   max_states: Integer, max_items: Integer) -> void
+      def initialize: (IR::Automaton automaton, table: TableArtifact::Document, source_records: Array[GenerationInput], table_path: String, strict: bool, max_states: Integer, max_items: Integer) -> void
+
+      # @rbs () -> String
+      def render: () -> String
+
+      private
+
+      # @rbs () -> Hash[Symbol, Integer]
+      def bounds: () -> Hash[Symbol, Integer]
+
+      # @rbs () -> Array[String]
+      def requested_checks: () -> Array[String]
+
+      # @rbs () -> Hash[String, untyped]
+      def verification_outcome: () -> Hash[String, untyped]
+
+      # @rbs () -> Hash[String, untyped]
+      def input_identity: () -> Hash[String, untyped]
+
+      # @rbs () -> Hash[String, untyped]
+      def ir_identity: () -> Hash[String, untyped]
+
+      # @rbs () -> Hash[String, untyped]
+      def table_identity: () -> Hash[String, untyped]
+
+      # @rbs () -> void
+      def validate_table_identity!: () -> void
+
+      # @rbs () -> String
+      def grammar_digest: () -> String
+
+      # @rbs () -> String
+      def automaton_digest: () -> String
+
+      # @rbs (String path, Integer index) -> String
+      def logical_input_path: (String path, Integer index) -> String
+
+      # @rbs (String namespace, String path) -> String
+      def logical_artifact_path: (String namespace, String path) -> String
+
+      # @rbs (String digest) -> String
+      def prefixed_digest: (String digest) -> String
+
+      # @rbs (Hash[Symbol, String] value) -> Hash[String, String]
+      def stringify_keys: (Hash[Symbol, String] value) -> Hash[String, String]
+    end
+  end
+end
