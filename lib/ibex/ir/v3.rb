@@ -40,11 +40,17 @@ module Ibex
     #
     #     def self?.to_v3: (Grammar | Automaton value) -> (Grammar | Automaton)
     #
-    #     def self?.migrate_grammar_to_v3: (Grammar grammar) -> Grammar
+    #     private def migrate_grammar_to_v3: (Grammar grammar) -> Grammar
     #
-    #     def self?.migrate_automaton_to_v3: (Automaton automaton) -> Automaton
+    #     private def self.migrate_grammar_to_v3: (Grammar grammar) -> Grammar
     #
-    #     def self?.migration_to_v3: (Grammar grammar) -> migration_metadata
+    #     private def migrate_automaton_to_v3: (Automaton automaton) -> Automaton
+    #
+    #     private def self.migrate_automaton_to_v3: (Automaton automaton) -> Automaton
+    #
+    #     private def migration_to_v3: (Grammar grammar) -> migration_metadata
+    #
+    #     private def self.migration_to_v3: (Grammar grammar) -> migration_metadata
     #   end
     #
     #   module Serialize
