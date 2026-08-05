@@ -7,12 +7,13 @@ generated parser, a verifier for arbitrary Ruby, or a security sandbox.
 
 ## Input and result boundary
 
-The command reads one complete JSON document with `File.binread`, passes it
-through `IR::Validator`, and only then constructs immutable Grammar and
-Automaton IR objects. Structural validation rejects unknown fields, invalid
-schema versions, bad symbol/state/production references, invalid conflict
-records and summaries, and an embedded-grammar digest mismatch. Those checks
-are a prerequisite to, not a substitute for, the semantic checks below.
+The command reads one complete JSON document with `File.binread`.
+`IR::Validator` first parses it and validates its raw shape, schema version,
+symbol/state/production references, and conflict records and summaries. It
+then calls `IR::Serialize.load` to construct immutable Grammar and Automaton
+IR objects. Finally, before returning the Automaton, it recomputes and checks
+the embedded-grammar digest. Those validation and construction steps are a
+prerequisite to, not a substitute for, the semantic checks below.
 
 The embedded Grammar IR is the verifier's semantic source of truth. Supplying
 `--grammar=GRAMMAR.json` requires byte-deterministic serialized equality with

@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require_relative "../test_helper"
-require_relative "../verify/verifier_test"
+require_relative "../support/verifier_fault_corpus"
 
 class VerifierTrustBoundaryDocumentationTest < Minitest::Test
+  include Ibex::TestSupport::VerifierFaultCorpus
+
   ROOT = File.expand_path("../..", __dir__)
   DOCUMENT = File.join(ROOT, "docs/verifier-trust-boundary.md")
 
@@ -33,7 +35,7 @@ class VerifierTrustBoundaryDocumentationTest < Minitest::Test
   end
 
   def test_documented_limits_match_default_verifier_result
-    result = Ibex::Verify::Verifier.new(harness.send(:build_calculator)).verify
+    result = Ibex::Verify::Verifier.new(build_calculator).verify
     documented = rows("verifier-limits").to_h do |row|
       [row.fetch(0).delete("`"), Integer(row.fetch(1).delete("`"))]
     end
@@ -77,16 +79,12 @@ class VerifierTrustBoundaryDocumentationTest < Minitest::Test
   end
 
   def observed_faults
-    VerifyVerifierTest::FAULTS.to_h do |fault|
-      document = harness.send(fault == :epsilon_cycle ? :epsilon_document : :calculator_document)
-      harness.send(:inject_fault, document, fault)
+    Ibex::TestSupport::VerifierFaultCorpus::FAULTS.to_h do |fault|
+      document = fault == :epsilon_cycle ? epsilon_document : calculator_document
+      inject_fault(document, fault)
       automaton = Ibex::IR::Validator.validate(JSON.generate(document))
       ids = Ibex::Verify::Verifier.new(automaton, strict: true).verify.violations.map(&:id).uniq
       [fault.to_s, ids]
     end
-  end
-
-  def harness
-    @harness ||= VerifyVerifierTest.new("documentation contract")
   end
 end
