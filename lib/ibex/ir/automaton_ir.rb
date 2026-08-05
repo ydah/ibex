@@ -124,7 +124,12 @@ module Ibex
 
         @algorithm = algorithm.freeze
         @grammar = grammar
-        @grammar_digest = (grammar_digest || digest_for(grammar)).freeze
+        expected_digest = digest_for(grammar)
+        if schema_version >= 3 && grammar_digest && grammar_digest != expected_digest
+          raise Ibex::Error,
+                "(ir):1:1: $.grammar_digest does not match the embedded grammar; expected #{expected_digest.inspect}"
+        end
+        @grammar_digest = (grammar_digest || expected_digest).freeze
         @states = states.freeze
         @entry_states = IR.deep_freeze(entry_states || { grammar.start => 0 })
         validate_entry_states
@@ -192,9 +197,16 @@ module Ibex
         if contract.algorithm.explicit && contract.algorithm.value != selected_algorithm
           raise Ibex::Error, "automaton algorithm conflicts with the embedded parser contract"
         end
-        return unless contract.entries.explicit && contract.entries.value.to_s != @entry_construction
+        if contract.entries.explicit && contract.entries.value.to_s != @entry_construction
+          raise Ibex::Error, "automaton entry construction conflicts with the embedded parser contract"
+        end
+        return unless @entry_construction == "unknown"
 
-        raise Ibex::Error, "automaton entry construction conflicts with the embedded parser contract"
+        unavailable = @grammar.migration&.fetch(:unavailable, []) || []
+        return if unavailable.include?("effective_parser_entries") && !contract.entries.explicit
+
+        raise Ibex::Error,
+              "(ir):1:1: $.entry_construction may be unknown only for migrated unavailable history"
       end
     end
   end
