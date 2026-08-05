@@ -21,7 +21,7 @@ module Ibex
         raise ArgumentError, "max_states must be positive" unless max_states.is_a?(Integer) && max_states.positive?
         raise ArgumentError, "max_items must be positive" unless max_items.is_a?(Integer) && max_items.positive?
 
-        @automaton = automaton
+        @automaton = CanonicalIR.new(automaton, source_records: source_records).build
         @table = table
         @source_records = source_records
         @table_path = LogicalPath.table(table_path)
@@ -98,6 +98,7 @@ module Ibex
       # @rbs () -> Hash[String, untyped]
       def ir_identity
         {
+          "identity_scope" => IR_IDENTITY_SCOPE,
           "grammar" => {
             "schema_version" => @automaton.grammar.schema_version,
             "digest" => grammar_digest

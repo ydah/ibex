@@ -1,0 +1,33 @@
+# Generated from lib/ibex/verification_report/canonical_ir.rb with RBS::Inline
+
+module Ibex
+  module VerificationReport
+    # Rebuilds immutable IR with source locations expressed as report logical identities.
+    class CanonicalIR
+      LOGICAL_ROOT: String
+
+      # @rbs (IR::Automaton automaton, source_records: Array[GenerationInput]) -> void
+      def initialize: (IR::Automaton automaton, source_records: Array[GenerationInput]) -> void
+
+      # @rbs () -> IR::Automaton
+      def build: () -> IR::Automaton
+
+      private
+
+      # @rbs (untyped value) -> untyped
+      def normalize_source_identity!: (untyped value) -> untyped
+
+      # @rbs (String file) -> String
+      def logical_file: (String file) -> String
+
+      # @rbs (GenerationInput record, String file) -> bool
+      def record_matches?: (GenerationInput record, String file) -> bool
+
+      # @rbs (String file) -> bool
+      def absolute_file?: (String file) -> bool
+
+      # @rbs (IR::Grammar grammar) -> String
+      def digest: (IR::Grammar grammar) -> String
+    end
+  end
+end

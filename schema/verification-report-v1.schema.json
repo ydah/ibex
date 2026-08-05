@@ -112,8 +112,10 @@
     },
     "ir": {
       "type": "object",
-      "required": ["grammar", "automaton"],
+      "description": "Digests of Automaton IR rebuilt with source-logical-v1 location identities; raw diagnostic paths are not hashed in this scope.",
+      "required": ["identity_scope", "grammar", "automaton"],
       "properties": {
+        "identity_scope": { "const": "source-logical-v1" },
         "grammar": { "$ref": "#/$defs/grammar_ir" },
         "automaton": { "$ref": "#/$defs/automaton_ir" }
       },

@@ -38,9 +38,22 @@ coherence marker.
 
 Canonical report evidence uses ordered logical identities rather than
 absolute paths: indexed input basenames and a role-qualified table basename.
-The required IR digests are preserved unchanged. The bundle validator checks
-report self-identity, manifest artifact bytes, input identity, table identity
-and payload, and IR/table linkage without parsing or loading generated Ruby.
+Version 1 closes both forms to one basename, exactly four input-index digits,
+and at most 10,000 inputs.
+
+IR claims use the explicitly named `source-logical-v1` identity scope. Bundle
+construction rebuilds an immutable Automaton IR copy from the supplied IR and
+`source_records`: every location file becomes its ordered logical input
+identity and each non-null source root becomes `input`. The table and verifier
+consume that same copy, so its Grammar IR digest, embedded Automaton IR
+grammar digest, Automaton IR digest, table identity, report claims, and report
+evidence digest cannot disagree. An unmapped or ambiguous source location is
+an error. The original Automaton, its diagnostic provenance, and ordinary
+V002 table construction remain unchanged.
+
+The bundle validator checks report self-identity, manifest artifact bytes,
+input identity, table identity and payload, and IR/table linkage without
+parsing or loading generated Ruby.
 
 The API stays outside the default `ibex` require path and generator CLI. An
 application must explicitly require and invoke it. This preserves existing
@@ -51,8 +64,8 @@ decision.
 
 - A manifest is the single non-cyclic publication marker for table, wrapper,
   and report coherence.
-- Equivalent source records can produce identical report evidence across
-  checkout roots when their IR and logical basenames are identical.
+- Equivalent source records produce identical table and report evidence
+  across checkout roots when their ordered logical basenames and bytes match.
 - Missing, stale, duplicated, or cross-generation table/report/manifest
   combinations are rejected before generated Ruby is loaded.
 - A passing report remains bounded evidence for named V1-V8 checks, not proof

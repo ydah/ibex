@@ -29,6 +29,7 @@ class VerificationReportTest < Minitest::Test
       document = Ibex::VerificationReport.validate(report)
 
       assert_equal "scoped_verification", document.fetch("ibex_report")
+      assert_equal "source-logical-v1", document.dig("ir", "identity_scope")
       assert_equal "default", document.fetch("profile")
       assert_equal "pass", document.dig("outcome", "status")
       assert_equal Ibex::Verify::Verifier::DEFAULT_CHECKS, document.dig("outcome", "executed_checks")
@@ -62,10 +63,11 @@ class VerificationReportTest < Minitest::Test
       state = document.fetch("states").find { |entry| entry.fetch("items").length > 1 }
       state.fetch("items").shift
       faulty = Ibex::IR::Validator.validate(JSON.generate(document))
-      table = Ibex::TableArtifact.build(faulty)
+      input = input_for(directory, SOURCE)
+      canonical = Ibex::VerificationReport.canonical_automaton(faulty, source_records: [input])
+      table = Ibex::TableArtifact.build(canonical)
       report = Ibex::VerificationReport.render(
-        faulty, table: table, source_records: [input_for(directory, SOURCE)],
-                table_path: "parser.tables.ibex.json", strict: true
+        canonical, table: table, source_records: [input], table_path: "parser.tables.ibex.json", strict: true
       )
       outcome = Ibex::VerificationReport.validate(report).fetch("outcome")
 
@@ -96,6 +98,19 @@ class VerificationReportTest < Minitest::Test
         Ibex::VerificationReport.validate(JSON.generate(document))
       end
       assert_includes error.message, "excluded_trust"
+    end
+  end
+
+  def test_report_rejects_a_different_ir_identity_scope
+    Dir.mktmpdir("ibex-verification-report") do |directory|
+      document = JSON.parse(render_report(automaton, input_for(directory, SOURCE)))
+      document.fetch("ir")["identity_scope"] = "raw-source-path-v1"
+      resign_report!(document)
+
+      error = assert_raises(Ibex::VerificationReport::ValidationError) do
+        Ibex::VerificationReport.validate(JSON.generate(document))
+      end
+      assert_includes error.message, "ir.identity_scope mismatch"
     end
   end
 
@@ -146,10 +161,11 @@ class VerificationReportTest < Minitest::Test
   private
 
   def render_report(value, input, strict: false, max_states: 100_000)
-    table = Ibex::TableArtifact.build(value)
+    canonical = Ibex::VerificationReport.canonical_automaton(value, source_records: [input])
+    table = Ibex::TableArtifact.build(canonical)
     Ibex::VerificationReport.render(
-      value, table: table, source_records: [input], table_path: "parser.tables.ibex.json",
-             strict: strict, max_states: max_states
+      canonical, table: table, source_records: [input], table_path: "parser.tables.ibex.json",
+                 strict: strict, max_states: max_states
     )
   end
 

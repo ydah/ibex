@@ -15,7 +15,7 @@ module Ibex
       BOUNDS_KEYS = %w[max_states max_items].freeze #: Array[String]
       INPUT_KEYS = %w[digest files].freeze #: Array[String]
       INPUT_FILE_KEYS = %w[logical_path sha256 bytesize].freeze #: Array[String]
-      IR_KEYS = %w[grammar automaton].freeze #: Array[String]
+      IR_KEYS = %w[identity_scope grammar automaton].freeze #: Array[String]
       GRAMMAR_KEYS = %w[schema_version digest].freeze #: Array[String]
       AUTOMATON_KEYS = %w[schema_version algorithm digest].freeze #: Array[String]
       TABLE_KEYS = %w[
@@ -131,6 +131,7 @@ module Ibex
       # @rbs (untyped value) -> void
       def validate_ir(value)
         ir = object(value, IR_KEYS, "ir")
+        equal(ir.fetch("identity_scope"), IR_IDENTITY_SCOPE, "ir.identity_scope")
         grammar = object(ir.fetch("grammar"), GRAMMAR_KEYS, "ir.grammar")
         automaton = object(ir.fetch("automaton"), AUTOMATON_KEYS, "ir.automaton")
         positive_integer(grammar.fetch("schema_version"), "ir.grammar.schema_version")
