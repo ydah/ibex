@@ -54,6 +54,9 @@ Synthetic success is not evidence that public-real lexers are suitable for an
 automaton migration. The base revision, bound source paths, base/current byte
 digests, capture status, implementation digest, environment digest, policy
 digest, and heuristic-policy digest make the local observation reconstructible.
+Verification requires those recorded Git objects. A shallow checkout that does
+not contain the evidence base or pinned fixture revisions fails closed; CI must
+fetch full history rather than treating missing provenance as a match.
 
 ## Measurements and limits
 
