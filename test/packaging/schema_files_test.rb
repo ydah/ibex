@@ -44,6 +44,17 @@ class SchemaFilesPackagingTest < Minitest::Test
     assert_includes specification.files, "docs/lexer-construction-profile.md"
   end
 
+  def test_h003_error_ux_evidence_contract_is_packaged
+    specification = Gem::Specification.load(File.expand_path("../../ibex.gemspec", __dir__))
+    expected = %w[
+      schema/error-ux-round2-v1.schema.json
+      docs/error-ux-round2.md
+      docs/error-ux-round2-v1.json
+    ]
+
+    expected.each { |path| assert_includes specification.files, path }
+  end
+
   def test_verifiable_generation_bundle_contract_is_packaged
     specification = Gem::Specification.load(File.expand_path("../../ibex.gemspec", __dir__))
     expected = %w[

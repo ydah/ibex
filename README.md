@@ -388,7 +388,7 @@ counterexamples.
 | Configure an editor or LSP client | [Editor setup](docs/editor-setup.md) |
 | Understand the pipeline, IR, algorithms, tables, verifier boundary, or runtime compatibility | [Architecture](docs/architecture.md), [verifier trust boundary](docs/verifier-trust-boundary.md), [runtime ABI policy](docs/runtime-abi-evolution.md), and [test interactions](docs/test-interactions.md) |
 | Check API maturity and deprecation rules | [Stability policy](docs/stability.md) and [Preview/Experimental audit](docs/maturity.md) |
-| Evaluate readiness, performance, workloads, or error UX | [Comparison policy](docs/comparison-policy.md), [workload registry](docs/workloads.md), [release readiness](docs/release-readiness.md), [benchmarks](benchmark/README.md), and [error UX](docs/error-ux.md) |
+| Evaluate readiness, performance, workloads, or error UX | [Comparison policy](docs/comparison-policy.md), [workload registry](docs/workloads.md), [release readiness](docs/release-readiness.md), [benchmarks](benchmark/README.md), [R001 error UX](docs/error-ux.md), and [H003 error UX round 2](docs/error-ux-round2.md) |
 | Review the direct IELR feature gate | [Direct IELR decision dossier](docs/direct-ielr-decision.md) |
 | Review the direct multi-entry construction gate | [Direct multi-entry decision](docs/direct-multi-entry-decision.md) |
 | Contribute or run every quality gate | [Development guide](docs/development.md) |
