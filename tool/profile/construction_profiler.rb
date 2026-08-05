@@ -301,6 +301,7 @@ module Ibex
     # Binds the dirty capture to a Git base plus every H005 contract path.
     class ConstructionProvenance
       BOUND_PATHS = %w[
+        .github/workflows/main.yml
         Rakefile
         docs/construction-profiling.md
         docs/maturity.md
@@ -319,6 +320,7 @@ module Ibex
         test/profile/construction_profile_schema_test.rb
         test/profile/construction_profiler_test.rb
         test/quality/construction_profile_test.rb
+        test/quality/construction_profile_workflow_test.rb
         test/quality/maturity_test.rb
         test/support/public_json_schemas.rb
         tool/construction_profile.rb
