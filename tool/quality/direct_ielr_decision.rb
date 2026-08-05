@@ -11,27 +11,96 @@ module Ibex
     # Validates the I001 decision, its H005/V001 evidence, and its provenance.
     class DirectIELRDecision # rubocop:disable Metrics/ClassLength -- one closed decision record and evidence contract.
       GO_CONDITIONS = {
-        "representative-practical-canonical-cost" => "not_satisfied",
-        "ielr-required-by-representative-grammars" => "not_satisfied",
-        "algorithm-and-specification-owner" => "not_satisfied",
-        "noncanonical-verification-plan" => "not_satisfied",
-        "maintenance-budget-accepted" => "not_satisfied"
+        "representative-practical-canonical-cost" => {
+          "status" => "not_satisfied",
+          "observed" => "one measured real grammar; at least two representative real grammars are required"
+        }.freeze,
+        "ielr-required-by-representative-grammars" => {
+          "status" => "not_satisfied",
+          "observed" => "zero real IELR-required workloads and zero semantically reviewed conflict removals"
+        }.freeze,
+        "algorithm-and-specification-owner" => {
+          "status" => "not_satisfied", "observed" => "no accepted owner is recorded"
+        }.freeze,
+        "noncanonical-verification-plan" => {
+          "status" => "not_satisfied",
+          "observed" =>
+            "no accepted scale-independent verification plan; current verification requires full canonical LR(1)"
+        }.freeze,
+        "maintenance-budget-accepted" => {
+          "status" => "not_satisfied", "observed" => "no accepted maintenance budget is recorded"
+        }.freeze
       }.freeze
       NO_GO_CONDITIONS = {
-        "no-real-ielr-required-workload" => "satisfied",
-        "canonical-lr1-completes-within-current-measured-budget" => "satisfied",
-        "lr1-or-grammar-rewrite-is-simpler" => "not_assessable",
-        "verifier-still-enumerates-full-canonical-collection" => "satisfied",
-        "only-state-count-benefit" => "satisfied"
+        "no-real-ielr-required-workload" => {
+          "status" => "satisfied", "observed" => "zero real workloads currently require IELR"
+        }.freeze,
+        "canonical-lr1-completes-within-current-measured-budget" => {
+          "status" => "satisfied",
+          "observed" =>
+            "the one measured real grammar completes canonical LR(1) without observed exhaustion; " \
+            "no broader budget claim is made"
+        }.freeze,
+        "lr1-or-grammar-rewrite-is-simpler" => {
+          "status" => "not_assessable",
+          "observed" => "there is no concrete real conflict case on which to compare alternatives"
+        }.freeze,
+        "verifier-still-enumerates-full-canonical-collection" => {
+          "status" => "satisfied",
+          "observed" => "default and strict ielr1 verification both enumerate full canonical LR(1)"
+        }.freeze,
+        "only-state-count-benefit" => {
+          "status" => "satisfied",
+          "observed" =>
+            "no semantic conflict-removal benefit is established; structural state and item counts alone do not " \
+            "justify direct IELR"
+        }.freeze
       }.freeze
-      TRIGGERS = %w[
-        representative-real-grammars material-canonical-cost meaningful-ielr-need
-        scale-independent-verification algorithm-and-specification-owner maintenance-budget
-      ].freeze
-      SOURCE_IDS = %w[
-        h005-human-report h005-machine-evidence h005-evidence-schema
-        v001-trust-boundary v001-reference-collection v001-verifier
-      ].freeze
+      TRIGGERS = {
+        "representative-real-grammars" => "at least two verified representative real grammars",
+        "material-canonical-cost" =>
+          "material canonical state or item cost, or observed bounded exhaustion, on those grammars",
+        "meaningful-ielr-need" =>
+          "IELR removes semantically reviewed meaningful conflicts on those grammars",
+        "scale-independent-verification" =>
+          "a bounded verification plan does not make full canonical LR(1) enumeration mandatory",
+        "algorithm-and-specification-owner" => "an identified owner accepts the algorithm and specification",
+        "maintenance-budget" =>
+          "the ongoing implementation, verification, review, and maintenance budget is accepted"
+      }.freeze
+      SOURCES = {
+        "h005-human-report" => {
+          "path" => "docs/construction-profiling.md",
+          "role" => "H005 thresholds, observations, NO-GO rationale, and reconsideration evidence"
+        }.freeze,
+        "h005-machine-evidence" => {
+          "path" => "tool/profile/evidence/construction-profile-v1.json",
+          "role" => "machine-readable workload measurements, thresholds, decision, and capture provenance"
+        }.freeze,
+        "h005-evidence-schema" => {
+          "path" => "schema/construction-profile-v1.schema.json", "role" => "closed H005 evidence contract"
+        }.freeze,
+        "v001-trust-boundary" => {
+          "path" => "docs/verifier-trust-boundary.md",
+          "role" => "verifier reference cost, assurance boundary, and explicit IELR non-goals"
+        }.freeze,
+        "v001-reference-collection" => {
+          "path" => "lib/ibex/verify/reference_collection.rb",
+          "role" => "independent reference collection implementation reviewed by V001"
+        }.freeze,
+        "v001-verifier" => {
+          "path" => "lib/ibex/verify/verifier.rb", "role" => "current verifier checks reviewed by V001"
+        }.freeze
+      }.freeze
+      DECISION_REVISION = "58cc36cfdc38ff3169d9578fcbba307f6ea95dad"
+      DECISION_REVISION_ROLE = "reviewed repository evidence immediately before dossier publication"
+      DOSSIER_REVISION = "d8be60292cadb635bd4c4a8173d382bf0549d926"
+      V001_REVISION = "5cf20f6c9d5b82738965bd0aead8fa3a2ac14d8b"
+      V001_SOURCE_DIGESTS = {
+        "docs/verifier-trust-boundary.md" => "12568cd0e22a291a3d1466e537c32062fc490fd4bcb6bc886971b78f1aefbe46",
+        "lib/ibex/verify/reference_collection.rb" => "d07e900652c61ddd942380d49edce0a3c811605cd82490c1e0e6db54010746fb",
+        "lib/ibex/verify/verifier.rb" => "66efb73edf90d5466e102ea756c5b36e645ea6f5a780250b0b056dbfe34a80a3"
+      }.freeze
 
       def initialize(root: File.expand_path("../..", __dir__), dossier: nil, output: $stdout)
         @root = File.expand_path(root)
@@ -76,16 +145,21 @@ module Ibex
         finalized = decision.values_at("value", "status", "basis", "review_state")
         expected = %w[NO-GO final_no_go repository_evidence validated]
         raise "direct IELR decision is not a finalized evidence-based NO-GO" unless finalized == expected
+        raise "decision revision identity drift" unless decision.fetch("revision") == DECISION_REVISION
+        raise "decision revision role drift" unless decision.fetch("revision_role") == DECISION_REVISION_ROLE
       end
 
       def validate_policy!(policy)
         verify_conditions!(policy.fetch("go_conditions"), GO_CONDITIONS, "GO")
         verify_conditions!(policy.fetch("no_go_conditions"), NO_GO_CONDITIONS, "NO-GO")
-        raise "NO-GO has no satisfied condition" unless NO_GO_CONDITIONS.value?("satisfied")
+        raise "NO-GO has no satisfied condition" unless
+          NO_GO_CONDITIONS.values.any? { |condition| condition.fetch("status") == "satisfied" }
       end
 
       def validate_triggers!(records)
-        triggers = records.map { |item| item.fetch("id") }
+        triggers = records.to_h do |item|
+          [item.fetch("id"), item.fetch("required_evidence")]
+        end
         raise "direct IELR reconsideration trigger inventory drift" unless triggers == TRIGGERS
       end
 
@@ -99,7 +173,9 @@ module Ibex
       end
 
       def verify_conditions!(conditions, expected, label)
-        actual = conditions.to_h { |condition| condition.values_at("id", "status") }
+        actual = conditions.to_h do |condition|
+          [condition.fetch("id"), condition.slice("status", "observed")]
+        end
         raise "direct IELR #{label} condition inventory drift" unless actual == expected
       end
 
@@ -113,7 +189,7 @@ module Ibex
         expected_thresholds = {
           "representative-real-profiles" => ["1", false],
           "real-ielr-need" => ["0 structural candidates; 0 semantically reviewed", false],
-          "verifier-tcb" => ["complete at 5cf20f6", true],
+          "verifier-tcb" => ["complete at #{V001_REVISION[0, 7]}", true],
           "scale-independent-verification" =>
             ["not satisfied: default and strict IELR verification enumerate canonical LR(1)", false]
         }
@@ -202,8 +278,13 @@ module Ibex
       def validate_provenance!(document, profile)
         decision_revision = document.dig("decision", "revision")
         verify_revision!(decision_revision, "decision")
+        verify_dossier_parent!(decision_revision)
         identity = document.fetch("evidence_identity")
-        verify_revision!(identity.fetch("v001_revision"), "V001", ancestor_of: decision_revision)
+        v001_revision = identity.fetch("v001_revision")
+        raise "V001 revision identity drift" unless v001_revision == V001_REVISION
+
+        verify_revision!(v001_revision, "V001", ancestor_of: decision_revision)
+        verify_v001_sources!
         provenance = profile.fetch("provenance")
         identity_fields = {
           "profile_capture_base_revision" => "base_revision",
@@ -217,11 +298,33 @@ module Ibex
         end
 
         sources = identity.fetch("sources")
-        raise "direct IELR evidence source inventory drift" unless sources.map { |item| item.fetch("id") } == SOURCE_IDS
+        source_identities = sources.to_h do |source|
+          [source.fetch("id"), source.slice("path", "role")]
+        end
+        raise "direct IELR evidence source identity drift" unless source_identities == SOURCES
 
         sources.each { |source| verify_source!(decision_revision, source) }
         digest = Digest::SHA256.hexdigest(JSON.generate(sources))
         raise "direct IELR evidence source digest drift" unless digest == identity.fetch("sources_sha256")
+      end
+
+      def verify_dossier_parent!(decision_revision)
+        verify_revision!(DOSSIER_REVISION, "dossier")
+        parent, status = capture("git", "rev-parse", "#{DOSSIER_REVISION}^")
+        raise "dossier parent revision is unavailable" unless status.success?
+        raise "decision revision is not the dossier commit parent" unless parent.strip == decision_revision
+      end
+
+      def verify_v001_sources!
+        V001_SOURCE_DIGESTS.each do |path, digest|
+          bytes, status = capture("git", "show", "#{V001_REVISION}:#{path}")
+          raise "V001 source is unavailable at the bound revision: #{path}" unless status.success?
+          raise "V001 source identity drift at the bound revision: #{path}" unless
+            Digest::SHA256.hexdigest(bytes.b) == digest
+        end
+
+        _bytes, status = capture("git", "show", "#{V001_REVISION}^:docs/verifier-trust-boundary.md")
+        raise "V001 trust-boundary source was not introduced at the bound revision" if status.success?
       end
 
       def verify_revision!(revision, label, ancestor_of: "HEAD")
