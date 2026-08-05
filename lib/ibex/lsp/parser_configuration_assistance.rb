@@ -35,7 +35,10 @@ module Ibex
 
         prefix = source.byteslice(line_start, offset - line_start) || ""
         value_match = prefix.match(/\A\s*(algorithm|entries)\s+([A-Za-z_]*)\z/)
-        return completion_list(value_items(value_match[1])) if value_match
+        if value_match
+          setting = value_match[1] || raise("parser setting capture is missing")
+          return completion_list(value_items(setting))
+        end
         return completion_list(setting_items) if prefix.match?(/\A\s*[A-Za-z_]*\z/)
 
         completion_list([])
@@ -125,6 +128,8 @@ module Ibex
       def hovered_token(match, line, line_start, offset)
         [1, 2].each do |capture|
           token = match[capture]
+          next unless token
+
           before = line[0...match.begin(capture)] || ""
           start = line_start + before.bytesize
           finish = start + token.bytesize

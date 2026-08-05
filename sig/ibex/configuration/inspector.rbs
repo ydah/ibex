@@ -22,6 +22,10 @@ module Ibex
       #   Hash[String, Array[Evidence]] evidence) -> void
       def self?.add_source_options: (Frontend::AST::Root root, Hash[String, untyped] values, Hash[String, Location] locations, Hash[String, Array[Evidence]] evidence) -> void
 
+      # @rbs (Frontend::AST::Root root, Hash[String, untyped] values, Hash[String, Location] locations,
+      #   Hash[String, Array[Evidence]] evidence) -> void
+      def self?.add_source_parser_contract: (Frontend::AST::Root root, Hash[String, untyped] values, Hash[String, Location] locations, Hash[String, Array[Evidence]] evidence) -> void
+
       # @rbs (String name) -> bool?
       def self?.option_value: (String name) -> bool?
 

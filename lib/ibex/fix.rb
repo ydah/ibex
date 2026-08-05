@@ -3,6 +3,7 @@
 
 require_relative "equiv"
 require_relative "error_messages"
+require_relative "configuration/analysis_grammar"
 
 module Ibex
   # Bounded conflict-repair candidate generation and safety evaluation.
@@ -313,6 +314,7 @@ module Ibex
                 else
                   @grammar
                 end
+      grammar = Configuration::AnalysisGrammar.for_algorithm(grammar, candidate.fetch(:algorithm))
       LALR::Builder.new(grammar, algorithm: candidate.fetch(:algorithm)).build
     end
 

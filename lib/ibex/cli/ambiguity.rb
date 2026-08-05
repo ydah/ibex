@@ -12,6 +12,8 @@ module Ibex
     #   private def input_path: (Array[String]) -> String
     #   private def positive_counterexample_limit: (Integer, String) -> Integer
     #   private def normalize_grammar_path: (String) -> IR::Grammar
+    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped],
+    #     ?explicit_keys: Array[Symbol]) -> IR::Grammar
     #   private def configuration_value: (String) -> untyped
     #   private def set_configuration_option: (Symbol, untyped) -> void
 
@@ -25,6 +27,7 @@ module Ibex
       raise Ibex::Error, "(cli):1:1: check command requires --ambiguity" unless @options[:check_ambiguity]
 
       grammar = normalize_grammar_path(input_path(remaining))
+      grammar = activate_analysis_grammar(grammar)
       automaton = LALR::Builder.new(
         grammar, algorithm: configuration_value("parser.algorithm"),
                  entry_isolation: configuration_value("parser.entries") == :isolated

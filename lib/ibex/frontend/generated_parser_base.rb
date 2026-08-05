@@ -3,6 +3,7 @@
 require_relative "generated_parser_metadata"
 require_relative "generated_parser_includes"
 require_relative "generated_parser_parameters"
+require_relative "parser_configuration_support"
 
 module Ibex
   module Frontend
@@ -105,6 +106,7 @@ module Ibex
       # @rbs (Token class_token, Array[String] class_parts, Array[String]? superclass,
       #   Array[AST::declaration] declarations, Array[AST::Rule] rules, AST::user_code user_code) -> AST::Root
       def build_root(class_token, class_parts, superclass, declarations, rules, user_code)
+        validate_root_parser_configuration(declarations)
         AST::Root.new(class_name: class_parts.join("::"), superclass: superclass&.join("::"),
                       declarations: declarations, rules: rules, user_code: user_code, loc: class_token.location,
                       extended: @mode == :extended || @adapter.extended_pragma? || @adapter.cst_pragma?,
