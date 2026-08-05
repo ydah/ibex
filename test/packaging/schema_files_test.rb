@@ -44,6 +44,25 @@ class SchemaFilesPackagingTest < Minitest::Test
     assert_includes specification.files, "docs/lexer-construction-profile.md"
   end
 
+  def test_verifiable_generation_bundle_contract_is_packaged
+    specification = Gem::Specification.load(File.expand_path("../../ibex.gemspec", __dir__))
+    expected = %w[
+      lib/ibex/verifiable_generation_bundle.rb
+      lib/ibex/verification_report.rb
+      lib/ibex/verification_report/builder.rb
+      lib/ibex/verification_report/validator.rb
+      sig/ibex/verifiable_generation_bundle.rbs
+      sig/ibex/verification_report.rbs
+      sig/ibex/verification_report/builder.rbs
+      sig/ibex/verification_report/validator.rbs
+      schema/verification-report-v1.schema.json
+      docs/verification-report.md
+      docs/decisions/0022-manifest-bound-verification-report.md
+    ]
+
+    expected.each { |path| assert_includes specification.files, path }
+  end
+
   def test_lsp_sources_and_signatures_are_packaged_in_the_gem
     specification = Gem::Specification.load(File.expand_path("../../ibex.gemspec", __dir__))
 
