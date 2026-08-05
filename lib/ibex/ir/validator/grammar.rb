@@ -13,6 +13,7 @@ module Ibex
         ROOT_OPTIONAL = %w[user_code_chunks expect_rr].freeze #: Array[String]
         V2_ROOT_REQUIRED = %w[source_provenance migration].freeze #: Array[String]
         V2_ROOT_OPTIONAL = %w[params printers tests recovery lexer mode starts].freeze #: Array[String]
+        V3_ROOT_REQUIRED = %w[parser_contract].freeze #: Array[String]
         SYMBOL_REQUIRED = %w[id name kind reserved prec loc].freeze #: Array[String]
         SYMBOL_OPTIONAL = %w[display_name semantic_type].freeze #: Array[String]
         V2_SYMBOL_REQUIRED = %w[doc].freeze #: Array[String]
@@ -48,33 +49,55 @@ module Ibex
 
         # @rbs () -> self
         def validate
-          required = ROOT_REQUIRED + (@version >= 2 ? V2_ROOT_REQUIRED : [])
-          optional = ROOT_OPTIONAL + (@version >= 2 ? V2_ROOT_OPTIONAL : [])
-          record(@data, @path, required, optional)
+          validate_root_record
           validate_envelope
           validate_header
           validate_options
-          validate_parser_parameters if @data.key?("params")
+          validate_parser_parameters_if_present
           validate_symbols
-          validate_value_printers if @data.key?("printers")
-          validate_grammar_tests if @data.key?("tests")
+          validate_optional_parser_metadata
           validate_reserved_symbols
           validate_start
-          validate_lexer if @data.key?("lexer")
-          validate_recovery if @data.key?("recovery")
           validate_productions
           validate_string_map(@data["user_code"], "#{@path}.user_code")
           validate_string_map(@data["conversions"], "#{@path}.conversions")
           validate_warnings
-          validate_user_code_chunks if @data.key?("user_code_chunks")
-          if @version >= 2
-            validate_source_provenance(@data["source_provenance"], "#{@path}.source_provenance")
-            validate_migration
-          end
+          validate_optional_source_metadata
           self
         end
 
         private
+
+        # @rbs () -> void
+        def validate_root_record
+          required = ROOT_REQUIRED + (@version >= 2 ? V2_ROOT_REQUIRED : []) +
+                     (@version >= 3 ? V3_ROOT_REQUIRED : [])
+          optional = ROOT_OPTIONAL + (@version >= 2 ? V2_ROOT_OPTIONAL : [])
+          record(@data, @path, required, optional)
+        end
+
+        # @rbs () -> void
+        def validate_optional_parser_metadata
+          validate_value_printers if @data.key?("printers")
+          validate_grammar_tests if @data.key?("tests")
+          validate_lexer if @data.key?("lexer")
+          validate_recovery if @data.key?("recovery")
+          validate_parser_contract if @version >= 3
+        end
+
+        # @rbs () -> void
+        def validate_parser_parameters_if_present
+          validate_parser_parameters if @data.key?("params")
+        end
+
+        # @rbs () -> void
+        def validate_optional_source_metadata
+          validate_user_code_chunks if @data.key?("user_code_chunks")
+          return unless @version >= 2
+
+          validate_source_provenance(@data["source_provenance"], "#{@path}.source_provenance")
+          validate_migration
+        end
 
         # @rbs () -> void
         def validate_envelope
@@ -482,13 +505,56 @@ module Ibex
           return if value.nil?
 
           migration = record(value, path, %w[from_schema_version unavailable])
-          literal(migration["from_schema_version"], "#{path}.from_schema_version", 1)
+          from = migration["from_schema_version"]
+          if @version >= 3
+            invalid("#{path}.from_schema_version", "must be 1 or 2") unless [1, 2].include?(from)
+          else
+            literal(from, "#{path}.from_schema_version", 1)
+          end
           values = array(migration["unavailable"], "#{path}.unavailable")
           invalid("#{path}.unavailable", "must not be empty") if values.empty?
-          values.each_with_index do |name, index|
-            enum(name, "#{path}.unavailable[#{index}]", Migration::UNAVAILABLE_V1_METADATA)
-          end
+          expected = migration_loss_inventory(from)
+          values.each_with_index { |name, index| enum(name, "#{path}.unavailable[#{index}]", expected) }
           invalid("#{path}.unavailable", "must contain unique names") unless values.uniq.length == values.length
+          invalid("#{path}.unavailable", "must equal the deterministic migration loss inventory") unless
+            values == expected
+        end
+
+        # @rbs (untyped from) -> Array[String]
+        def migration_loss_inventory(from)
+          return Migration::UNAVAILABLE_V1_METADATA unless @version >= 3
+
+          prefix = from == 1 ? Migration::UNAVAILABLE_V1_METADATA : Array.new(0) #: Array[String]
+          prefix + Migration::UNAVAILABLE_V2_CONFIGURATION
+        end
+
+        # @rbs () -> void
+        def validate_parser_contract
+          path = "#{@path}.parser_contract"
+          contract = record(@data["parser_contract"], path, %w[algorithm entries cst_trivia])
+          validate_contract_entry(contract["algorithm"], "#{path}.algorithm", %w[slr lalr ielr lr1])
+          validate_contract_entry(contract["entries"], "#{path}.entries", %w[shared isolated])
+          cst = validate_contract_entry(
+            contract["cst_trivia"], "#{path}.cst_trivia", %w[leading balanced drop]
+          )
+          return unless cst["explicit"]
+
+          invalid("#{path}.cst_trivia", "requires options.cst") unless @data.dig("options", "cst") == true
+        end
+
+        # @rbs (untyped value, String path, Array[String] allowed) -> Hash[String, untyped]
+        def validate_contract_entry(value, path, allowed)
+          entry = record(value, path, %w[value explicit loc])
+          explicit = boolean(entry["explicit"], "#{path}.explicit")
+          unless explicit
+            literal(entry["value"], "#{path}.value", nil)
+            literal(entry["loc"], "#{path}.loc", nil)
+            return entry
+          end
+
+          enum(entry["value"], "#{path}.value", allowed)
+          location(entry["loc"], "#{path}.loc", nullable: false)
+          entry
         end
 
         # @rbs (untyped value, String path) -> void

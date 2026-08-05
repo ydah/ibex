@@ -4,7 +4,7 @@ require_relative "../test_helper"
 require "json_schemer"
 require_relative "../support/public_json_schemas"
 
-class IRJSONSchemaTest < Minitest::Test
+class IRJSONSchemaTest < Minitest::Test # rubocop:disable Metrics/ClassLength -- one public schema family.
   SCHEMA_ROOT = File.expand_path("../../schema", __dir__)
   FIXTURE_ROOT = File.expand_path("../fixtures/ir", __dir__)
   DRAFT_2020_12 = "https://json-schema.org/draft/2020-12/schema"
@@ -77,6 +77,28 @@ class IRJSONSchemaTest < Minitest::Test
     automaton_schemer = JSONSchemer.schema(automaton, ref_resolver: resolver)
     assert_empty automaton_schemer.validate(fixture("automaton-v2.json")).to_a
     assert_empty automaton_schemer.validate(fixture("automaton-v1-migrated-v2.json")).to_a
+  end
+
+  def test_v3_schemas_accept_native_and_migrated_golden_documents
+    grammar = schema("grammar-ir-v3.schema.json")
+    automaton = schema("automaton-ir-v3.schema.json")
+    resolver = public_schema_resolver(grammar, automaton)
+
+    grammar_schemer = JSONSchemer.schema(grammar, ref_resolver: resolver)
+    assert_empty grammar_schemer.validate(fixture("grammar-v3.json")).to_a
+    assert_empty grammar_schemer.validate(fixture("grammar-v2-migrated-v3.json")).to_a
+
+    automaton_schemer = JSONSchemer.schema(automaton, ref_resolver: resolver)
+    assert_empty automaton_schemer.validate(fixture("automaton-v3.json")).to_a
+    assert_empty automaton_schemer.validate(fixture("automaton-v2-migrated-v3.json")).to_a
+  end
+
+  def test_v3_schema_distinguishes_unspecified_from_builtin_default
+    grammar = schema("grammar-ir-v3.schema.json")
+    document = fixture("grammar-v2-migrated-v3.json")
+    document.dig("parser_contract", "algorithm")["value"] = "lalr"
+
+    refute_empty JSONSchemer.schema(grammar, ref_resolver: public_schema_resolver(grammar)).validate(document).to_a
   end
 
   def test_v2_grammar_schema_accepts_constructor_parameters
@@ -212,6 +234,19 @@ class IRJSONSchemaTest < Minitest::Test
 
   def schema(name)
     load_json(File.join(SCHEMA_ROOT, name))
+  end
+
+  def public_schema_resolver(*additional)
+    documents = [
+      grammar_schema,
+      automaton_schema,
+      schema("grammar-ir-v2.schema.json"),
+      schema("automaton-ir-v2.schema.json"),
+      schema("lexer-ir-v1.schema.json"),
+      *additional
+    ]
+    by_id = documents.to_h { |document| [document.fetch("$id"), document] }
+    ->(uri) { by_id[uri.to_s] }
   end
 
   def fixture(name)

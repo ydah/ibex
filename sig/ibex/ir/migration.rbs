@@ -6,11 +6,16 @@ module Ibex
     module Migration
       UNAVAILABLE_V1_METADATA: Array[String]
 
+      UNAVAILABLE_V2_CONFIGURATION: Array[String]
+
       # @rbs (Grammar | Automaton value, ?to: Integer) -> (Grammar | Automaton)
       def self?.to_version: (Grammar | Automaton value, ?to: Integer) -> (Grammar | Automaton)
 
       # @rbs (Grammar | Automaton value) -> (Grammar | Automaton)
       def self?.to_v2: (Grammar | Automaton value) -> (Grammar | Automaton)
+
+      # @rbs (Grammar | Automaton value) -> (Grammar | Automaton)
+      def self?.to_v3: (Grammar | Automaton value) -> (Grammar | Automaton)
 
       # @rbs (Grammar grammar) -> Grammar
       def self?.migrate_grammar: (Grammar grammar) -> Grammar
@@ -29,6 +34,15 @@ module Ibex
 
       # @rbs (Automaton automaton) -> Automaton
       def self?.migrate_automaton: (Automaton automaton) -> Automaton
+
+      # @rbs (Grammar grammar) -> Grammar
+      def self?.migrate_grammar_to_v3: (Grammar grammar) -> Grammar
+
+      # @rbs (Automaton automaton) -> Automaton
+      def self?.migrate_automaton_to_v3: (Automaton automaton) -> Automaton
+
+      # @rbs (Grammar grammar) -> migration_metadata
+      def self?.migration_to_v3: (Grammar grammar) -> migration_metadata
     end
   end
 end

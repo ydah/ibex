@@ -10,6 +10,7 @@ module Ibex
           ibex_ir schema_version algorithm grammar_digest grammar states conflict_summary
         ].freeze #: Array[String]
         V2_ROOT_OPTIONAL = %w[entry_states].freeze #: Array[String]
+        V3_ROOT_REQUIRED = %w[entry_construction].freeze #: Array[String]
         STATE_REQUIRED = %w[id items transitions actions gotos default_action conflicts].freeze #: Array[String]
         ACTION_TYPES = %w[shift reduce accept error].freeze #: Array[String]
         RESOLUTION_KINDS = %w[definition_order default_shift precedence associativity].freeze #: Array[String]
@@ -29,7 +30,8 @@ module Ibex
 
         # @rbs () -> self
         def validate
-          record(@data, "$", ROOT_REQUIRED, @version >= 2 ? V2_ROOT_OPTIONAL : [])
+          required = ROOT_REQUIRED + (@version >= 3 ? V3_ROOT_REQUIRED : [])
+          record(@data, "$", required, @version >= 2 ? V2_ROOT_OPTIONAL : [])
           literal(@data["ibex_ir"], "$.ibex_ir", "automaton")
           literal(@data["schema_version"], "$.schema_version", @version)
           enum(@data["algorithm"], "$.algorithm", %w[slr lalr1 ielr1 lr1])
@@ -37,6 +39,7 @@ module Ibex
           grammar = object(@data["grammar"], "$.grammar")
           literal(grammar["schema_version"], "$.grammar.schema_version", @version)
           @grammar = GrammarDocument.new(grammar, path: "$.grammar", version: @version).validate
+          validate_construction_contract(grammar) if @version >= 3
           validate_state_records
           validate_entry_states
           validate_state_contents
@@ -61,6 +64,32 @@ module Ibex
             nonnegative_integer(state, "$.entry_states.#{name}")
             invalid("$.entry_states.#{name}", "references missing state #{state}") unless @states_by_id[state]
           end
+        end
+
+        # @rbs (Hash[String, untyped] grammar) -> void
+        def validate_construction_contract(grammar)
+          entry_construction = enum(
+            @data["entry_construction"], "$.entry_construction", %w[shared isolated unknown]
+          )
+          contract = grammar.fetch("parser_contract")
+          algorithm = contract.fetch("algorithm")
+          expected_algorithm = { "lalr" => "lalr1", "ielr" => "ielr1" }.fetch(
+            algorithm["value"], algorithm["value"]
+          )
+          if algorithm["explicit"] && @data["algorithm"] != expected_algorithm
+            invalid("$.algorithm", "must match the embedded parser contract")
+          end
+
+          entries = contract.fetch("entries")
+          if entries["explicit"] && entry_construction != entries["value"]
+            invalid("$.entry_construction", "must match the embedded parser contract")
+          end
+          return unless entry_construction == "unknown"
+
+          unavailable = grammar.dig("migration", "unavailable") || []
+          return if unavailable.include?("effective_parser_entries") && !entries["explicit"]
+
+          invalid("$.entry_construction", "may be unknown only for migrated unavailable history")
         end
 
         # @rbs () -> void

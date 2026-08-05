@@ -77,17 +77,20 @@ module Ibex
       attr_reader :entry_states #: Hash[String, Integer]
       attr_reader :conflict_summary #: conflict_summary
       attr_reader :schema_version #: Integer
+      attr_reader :entry_construction #: String?
 
       # @rbs (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary,
       #   ?algorithm: String, ?grammar_digest: String?, ?schema_version: Integer,
-      #   ?entry_states: Hash[String, Integer]?) -> void
+      #   ?entry_states: Hash[String, Integer]?, ?entry_construction: String?) -> void
       def initialize(grammar:, states:, conflict_summary:, algorithm: "lalr1", grammar_digest: nil,
-                     schema_version: SCHEMA_VERSION, entry_states: nil)
+                     schema_version: SCHEMA_VERSION, entry_states: nil, entry_construction: nil)
         unless SUPPORTED_SCHEMA_VERSIONS.include?(schema_version)
           raise Ibex::Error, "unsupported automaton schema_version #{schema_version.inspect}"
         end
 
-        grammar = Migration.to_v2(grammar) if schema_version >= 2 && grammar.schema_version != schema_version
+        if schema_version >= 2 && grammar.schema_version < schema_version
+          grammar = Migration.to_version(grammar, to: schema_version)
+        end
         raise Ibex::Error, "automaton migration did not produce a grammar" unless grammar.is_a?(Grammar)
         unless grammar.schema_version == schema_version
           raise Ibex::Error,
@@ -103,6 +106,8 @@ module Ibex
         validate_entry_states
         @conflict_summary = IR.deep_freeze(conflict_summary)
         @schema_version = schema_version
+        @entry_construction = validate_entry_construction(schema_version, entry_construction)
+        validate_parser_contract
         freeze
       end
 
@@ -113,6 +118,7 @@ module Ibex
                   states: @states.map { |state| state.to_h(@grammar) },
                   conflict_summary: @conflict_summary } #: Hash[Symbol, untyped]
         value[:entry_states] = @entry_states unless @entry_states == { @grammar.start => 0 }
+        value[:entry_construction] = @entry_construction if @schema_version >= 3
         value
       end
 
@@ -136,6 +142,34 @@ module Ibex
       def digest_for(grammar)
         require "digest"
         "sha256:#{Digest::SHA256.hexdigest(IR::Serialize.dump(grammar))}"
+      end
+
+      # @rbs (Integer schema_version, String? value) -> String?
+      def validate_entry_construction(schema_version, value)
+        if schema_version >= 3
+          unless %w[shared isolated unknown].include?(value)
+            raise Ibex::Error, "Automaton IR v3 requires shared, isolated, or unknown entry construction"
+          end
+
+          return value&.dup&.freeze
+        end
+        raise Ibex::Error, "entry construction requires Automaton IR schema_version 3" if value
+
+        nil
+      end
+
+      # @rbs () -> void
+      def validate_parser_contract
+        return unless @schema_version >= 3
+
+        contract = @grammar.parser_contract || raise(Ibex::Error, "Grammar IR v3 parser contract is missing")
+        selected_algorithm = { "lalr1" => :lalr, "ielr1" => :ielr }.fetch(@algorithm, @algorithm.to_sym)
+        if contract.algorithm.explicit && contract.algorithm.value != selected_algorithm
+          raise Ibex::Error, "automaton algorithm conflicts with the embedded parser contract"
+        end
+        return unless contract.entries.explicit && contract.entries.value.to_s != @entry_construction
+
+        raise Ibex::Error, "automaton entry construction conflicts with the embedded parser contract"
       end
     end
   end

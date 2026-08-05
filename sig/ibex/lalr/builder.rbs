@@ -164,6 +164,12 @@ module Ibex
       # @rbs (Array[[String, IR::Automaton, BuildMetrics]] entries, Symbol method) -> Integer?
       def sum_optional_metric: (Array[[ String, IR::Automaton, BuildMetrics ]] entries, Symbol method) -> Integer?
 
+      # @rbs () -> Integer
+      def output_schema_version: () -> Integer
+
+      # @rbs () -> String?
+      def output_entry_construction: () -> String?
+
       # @rbs (String name) -> [String, IR::Automaton, BuildMetrics]
       def isolated_entry: (String name) -> [ String, IR::Automaton, BuildMetrics ]
 
