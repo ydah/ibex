@@ -29,7 +29,7 @@ module Ibex
 
         @pragma_location: Location?
 
-        @pragmas: Hash[String, bool]
+        @pragmas: Hash[String, Location]
 
         @fragment: bool?
 
@@ -49,6 +49,12 @@ module Ibex
 
         # @rbs () -> bool
         def cst_pragma?: () -> bool
+
+        # @rbs () -> Location?
+        def extended_pragma_location: () -> Location?
+
+        # @rbs () -> Location?
+        def cst_pragma_location: () -> Location?
 
         # @rbs (Token? token) -> String?
         def expectation: (Token? token) -> String?

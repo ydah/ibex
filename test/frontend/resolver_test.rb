@@ -42,6 +42,10 @@ class FrontendResolverTest < Minitest::Test
       resolution = Ibex::Frontend::Resolver.new(root).resolve
 
       assert_equal true, resolution.root.extended
+      assert_equal(
+        { file: File.realpath(root), line: 2, column: 1 },
+        resolution.root.extended_loc.to_h
+      )
       assert_equal :extended, Ibex::Normalizer.new(resolution).normalize.mode
     end
   end

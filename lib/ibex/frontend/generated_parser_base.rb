@@ -107,7 +107,8 @@ module Ibex
         AST::Root.new(class_name: class_parts.join("::"), superclass: superclass&.join("::"),
                       declarations: declarations, rules: rules, user_code: user_code, loc: class_token.location,
                       extended: @mode == :extended || @adapter.extended_pragma? || @adapter.cst_pragma?,
-                      cst: @adapter.cst_pragma?)
+                      cst: @adapter.cst_pragma?,
+                      extended_loc: @adapter.extended_pragma_location || @adapter.cst_pragma_location)
       end
 
       # @rbs (Token keyword, Array[[String, String?]] entries) -> AST::Tokens

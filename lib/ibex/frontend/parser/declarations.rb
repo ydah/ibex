@@ -33,7 +33,7 @@ module Ibex
           fail_at(value.location, "unknown pragma #{name}") unless %w[extended cst].include?(name)
           fail_at(keyword.location, "duplicate pragma #{name}") if @pragmas[name]
 
-          @pragmas[name] = true
+          @pragmas[name] = keyword.location
           @mode = :extended
         end
       end

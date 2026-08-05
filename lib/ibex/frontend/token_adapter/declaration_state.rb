@@ -59,13 +59,13 @@ module Ibex
 
         # @rbs @extended_mode: bool
         # @rbs @fragment: bool?
-        # @rbs @pragmas: Hash[String, bool]
+        # @rbs @pragmas: Hash[String, Location]
         # @rbs @pragma_location: Location?
 
         # @rbs (?extended: bool) -> void
         def initialize(extended: false)
           @extended_mode = extended
-          @pragmas = {} #: Hash[String, bool]
+          @pragmas = {} #: Hash[String, Location]
           @state = :class_keyword
         end
 
@@ -84,12 +84,22 @@ module Ibex
 
         # @rbs () -> bool
         def extended_pragma?
-          @pragmas["extended"] == true
+          @pragmas.key?("extended")
         end
 
         # @rbs () -> bool
         def cst_pragma?
-          @pragmas["cst"] == true
+          @pragmas.key?("cst")
+        end
+
+        # @rbs () -> Location?
+        def extended_pragma_location
+          @pragmas["extended"]
+        end
+
+        # @rbs () -> Location?
+        def cst_pragma_location
+          @pragmas["cst"]
         end
 
         # @rbs (Token? token) -> String?
@@ -179,7 +189,7 @@ module Ibex
           location = @pragma_location || token.location
           raise Ibex::Error, "#{location}: duplicate pragma #{value}" if @pragmas[value]
 
-          @pragmas[value] = true
+          @pragmas[value] = location
           @pragma_location = nil
           @state = :declaration
           @declaration = nil

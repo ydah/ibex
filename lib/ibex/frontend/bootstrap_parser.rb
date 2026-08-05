@@ -19,7 +19,7 @@ module Ibex
         @tokens = source.is_a?(Array) ? source : Lexer.new(source, file: file).tokenize
         @index = 0
         @mode = mode
-        @pragmas = {} #: Hash[String, bool]
+        @pragmas = {} #: Hash[String, Location]
       end
 
       # @rbs () -> AST::Root
@@ -37,7 +37,8 @@ module Ibex
         AST::Root.new(class_name: class_name, superclass: superclass, declarations: declarations,
                       rules: rules, user_code: user_code, loc: location,
                       extended: @mode == :extended || @pragmas.key?("extended") || @pragmas.key?("cst"),
-                      cst: @pragmas.key?("cst"))
+                      cst: @pragmas.key?("cst"),
+                      extended_loc: @pragmas["extended"] || @pragmas["cst"])
       end
 
       # @rbs () -> AST::Fragment
