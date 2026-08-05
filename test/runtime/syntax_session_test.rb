@@ -55,6 +55,27 @@ class SyntaxSessionTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     'start: expression { result = @1; raise "parser action executed" }'
   )
 
+  DISABLED_CST_SOURCE = <<~GRAMMAR
+    class SyntaxServiceDisabledCSTParser
+    pragma extended
+    token NUM
+    lexer
+      NUM /[0-9]+/ { raise "lexer action executed" }
+    end
+    rule
+    start: NUM { raise "parser action executed" }
+    end
+  GRAMMAR
+
+  CALLER_LEXER_SOURCE = <<~GRAMMAR
+    class SyntaxServiceCallerLexerParser
+    pragma cst
+    token NUM
+    rule
+    start: NUM { raise "parser action executed" }
+    end
+  GRAMMAR
+
   PROFILE = :trusted_application_code
 
   def test_profile_is_truthful_and_must_be_acknowledged
@@ -79,6 +100,30 @@ class SyntaxSessionTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     end
 
     assert_match(/not available/, error.message)
+  end
+
+  def test_disabled_cst_is_rejected_before_generated_lexer_consumes_input
+    parser_class = generate(DISABLED_CST_SOURCE, mode: :extended)
+    token_consumption = instrument_token_consumption(parser_class)
+
+    error = assert_raises(Ibex::Runtime::CST::IncrementalUnsupportedError) do
+      parser_class.syntax_session("1", execution_profile: PROFILE)
+    end
+
+    assert_match(%r{format-v6 Red/Green CST parser}, error.message)
+    assert_equal 0, token_consumption.call
+  end
+
+  def test_caller_lexer_is_rejected_before_it_is_asked_for_a_token
+    parser_class = generate(CALLER_LEXER_SOURCE)
+    token_consumption = instrument_token_consumption(parser_class)
+
+    error = assert_raises(Ibex::Runtime::CST::IncrementalUnsupportedError) do
+      parser_class.syntax_session("1", execution_profile: PROFILE)
+    end
+
+    assert_match(/generated lexer/, error.message)
+    assert_equal 0, token_consumption.call
   end
 
   def test_open_and_edits_execute_lexer_actions_but_never_parser_actions
@@ -442,6 +487,18 @@ class SyntaxSessionTest < Minitest::Test # rubocop:disable Metrics/ClassLength
   end
 
   private
+
+  def instrument_token_consumption(parser_class)
+    consumption_count = 0
+    instrumentation = Module.new do
+      define_method(:next_token) do
+        consumption_count += 1
+        super()
+      end
+    end
+    parser_class.prepend(instrumentation)
+    -> { consumption_count }
+  end
 
   def diagnostic_snapshot(diagnostics)
     diagnostics.map do |diagnostic|
