@@ -1,0 +1,324 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/table-artifact-v1.schema.json",
+  "title": "Ibex data-only parser table artifact version 1",
+  "type": "object",
+  "required": ["artifact_type", "schema_version", "identity", "payload", "cost"],
+  "properties": {
+    "artifact_type": { "const": "ibex.parser-table" },
+    "schema_version": { "const": 1 },
+    "identity": { "$ref": "#/$defs/identity" },
+    "payload": { "$ref": "#/$defs/payload" },
+    "cost": { "$ref": "#/$defs/cost" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "nullable_string": {
+      "type": ["string", "null"]
+    },
+    "nullable_integer": {
+      "type": ["integer", "null"]
+    },
+    "identity": {
+      "type": "object",
+      "required": ["grammar_digest", "automaton_digest", "payload_digest", "cst_metadata_digest", "recovery_metadata_digest"],
+      "properties": {
+        "grammar_digest": { "$ref": "#/$defs/digest" },
+        "automaton_digest": { "$ref": "#/$defs/digest" },
+        "payload_digest": { "$ref": "#/$defs/digest" },
+        "cst_metadata_digest": { "$ref": "#/$defs/digest" },
+        "recovery_metadata_digest": { "$ref": "#/$defs/digest" }
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": ["grammar_digest", "automaton_digest"],
+      "properties": {
+        "grammar_digest": { "$ref": "#/$defs/digest" },
+        "automaton_digest": { "$ref": "#/$defs/digest" }
+      },
+      "additionalProperties": false
+    },
+    "table_format": {
+      "type": "object",
+      "required": ["family", "version", "representation", "action_encoding", "goto_encoding"],
+      "properties": {
+        "family": { "const": "ibex-runtime-parser-table" },
+        "version": { "const": 6 },
+        "representation": { "enum": ["plain", "compact"] },
+        "action_encoding": { "enum": ["signed-sparse-rows-v1", "signed-row-displacement-v1"] },
+        "goto_encoding": { "enum": ["sparse-rows-v1", "row-displacement-v1"] }
+      },
+      "additionalProperties": false
+    },
+    "symbol": {
+      "type": "object",
+      "required": ["id", "name", "kind", "display_name"],
+      "properties": {
+        "id": { "type": "integer", "minimum": 0 },
+        "name": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["terminal", "nonterminal"] },
+        "display_name": { "$ref": "#/$defs/nullable_string" }
+      },
+      "additionalProperties": false
+    },
+    "token": {
+      "type": "object",
+      "required": ["id", "name", "display_name"],
+      "properties": {
+        "id": { "type": "integer", "minimum": 0 },
+        "name": { "type": "string", "minLength": 1 },
+        "display_name": { "$ref": "#/$defs/nullable_string" }
+      },
+      "additionalProperties": false
+    },
+    "entry_state": {
+      "type": "object",
+      "required": ["name", "state"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "state": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "action_cell": {
+      "type": "object",
+      "required": ["token_id", "code"],
+      "properties": {
+        "token_id": { "type": "integer", "minimum": 0 },
+        "code": { "type": "integer" }
+      },
+      "additionalProperties": false
+    },
+    "goto_cell": {
+      "type": "object",
+      "required": ["symbol_id", "state"],
+      "properties": {
+        "symbol_id": { "type": "integer", "minimum": 0 },
+        "state": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "plain_actions": {
+      "type": "object",
+      "required": ["encoding", "rows"],
+      "properties": {
+        "encoding": { "const": "signed-sparse-rows-v1" },
+        "rows": {
+          "type": "array",
+          "items": { "type": "array", "items": { "$ref": "#/$defs/action_cell" } }
+        }
+      },
+      "additionalProperties": false
+    },
+    "plain_gotos": {
+      "type": "object",
+      "required": ["encoding", "rows"],
+      "properties": {
+        "encoding": { "const": "sparse-rows-v1" },
+        "rows": {
+          "type": "array",
+          "items": { "type": "array", "items": { "$ref": "#/$defs/goto_cell" } }
+        }
+      },
+      "additionalProperties": false
+    },
+    "compact_actions": {
+      "type": "object",
+      "required": ["encoding", "row_count", "column_count", "offsets", "codes", "checks"],
+      "properties": {
+        "encoding": { "const": "signed-row-displacement-v1" },
+        "row_count": { "type": "integer", "minimum": 1 },
+        "column_count": { "$ref": "#/$defs/nullable_integer" },
+        "offsets": { "type": "array", "items": { "type": "integer", "minimum": 0 } },
+        "codes": { "type": "array", "items": { "type": ["integer", "null"] } },
+        "checks": { "type": "array", "items": { "$ref": "#/$defs/nullable_integer" } }
+      },
+      "additionalProperties": false
+    },
+    "compact_gotos": {
+      "type": "object",
+      "required": ["encoding", "row_count", "dense_width", "offsets", "values", "checks"],
+      "properties": {
+        "encoding": { "const": "row-displacement-v1" },
+        "row_count": { "type": "integer", "minimum": 1 },
+        "dense_width": { "$ref": "#/$defs/nullable_integer" },
+        "offsets": { "type": "array", "items": { "type": "integer", "minimum": 0 } },
+        "values": { "type": "array", "items": { "$ref": "#/$defs/nullable_integer" } },
+        "checks": { "type": "array", "items": { "$ref": "#/$defs/nullable_integer" } }
+      },
+      "additionalProperties": false
+    },
+    "tables": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["actions", "gotos", "default_actions"],
+          "properties": {
+            "actions": { "$ref": "#/$defs/plain_actions" },
+            "gotos": { "$ref": "#/$defs/plain_gotos" },
+            "default_actions": { "type": "array", "items": { "type": ["integer", "null"] } }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["actions", "gotos", "default_actions"],
+          "properties": {
+            "actions": { "$ref": "#/$defs/compact_actions" },
+            "gotos": { "$ref": "#/$defs/compact_gotos" },
+            "default_actions": { "type": "array", "items": { "type": ["integer", "null"] } }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "production": {
+      "type": "object",
+      "required": ["id", "lhs", "rhs", "rhs_length", "action_slot"],
+      "properties": {
+        "id": { "type": "integer", "minimum": 0 },
+        "lhs": { "type": "integer", "minimum": 0 },
+        "rhs": { "type": "array", "items": { "type": "integer", "minimum": 0 } },
+        "rhs_length": { "type": "integer", "minimum": 0 },
+        "action_slot": { "$ref": "#/$defs/nullable_integer" }
+      },
+      "additionalProperties": false
+    },
+    "named_kind": {
+      "type": "object",
+      "required": ["name", "id"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "id": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "named_nonterminal": {
+      "type": "object",
+      "required": ["kind_id", "symbol_id"],
+      "properties": {
+        "kind_id": { "type": "integer", "minimum": 0 },
+        "symbol_id": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "cst_field": {
+      "type": "object",
+      "required": ["name", "index", "extraction"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "index": { "type": "integer", "minimum": 0 },
+        "extraction": { "type": ["string", "null"], "enum": ["repetition", "separated_list", null] }
+      },
+      "additionalProperties": false
+    },
+    "cst_slot": {
+      "type": "object",
+      "required": ["production_id", "node_kind_id", "node_name", "fields"],
+      "properties": {
+        "production_id": { "type": "integer", "minimum": 0 },
+        "node_kind_id": { "type": "integer", "minimum": 0 },
+        "node_name": { "type": "string", "minLength": 1 },
+        "fields": { "type": "array", "items": { "$ref": "#/$defs/cst_field" } }
+      },
+      "additionalProperties": false
+    },
+    "cst": {
+      "type": "object",
+      "required": ["version", "trivia_policy", "kinds", "slots"],
+      "properties": {
+        "version": { "const": 1 },
+        "trivia_policy": { "enum": ["leading", "balanced", "drop"] },
+        "kinds": {
+          "type": "object",
+          "required": ["names", "terminal_range", "nonterminal_range", "named", "named_nonterminals", "trivia", "synthetic"],
+          "properties": {
+            "names": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+            "terminal_range": { "$ref": "#/$defs/range" },
+            "nonterminal_range": { "$ref": "#/$defs/range" },
+            "named": { "type": "array", "items": { "$ref": "#/$defs/named_kind" } },
+            "named_nonterminals": { "type": "array", "items": { "$ref": "#/$defs/named_nonterminal" } },
+            "trivia": { "type": "array", "items": { "$ref": "#/$defs/named_kind" } },
+            "synthetic": { "type": "array", "items": { "$ref": "#/$defs/named_kind" } }
+          },
+          "additionalProperties": false
+        },
+        "slots": { "type": "array", "items": { "$ref": "#/$defs/cst_slot" } }
+      },
+      "additionalProperties": false
+    },
+    "range": {
+      "type": "array",
+      "prefixItems": [
+        { "type": "integer", "minimum": 0 },
+        { "type": "integer", "minimum": 0 }
+      ],
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "recovery": {
+      "type": "object",
+      "required": ["sync_token_ids", "on_error_reduce_symbol_ids"],
+      "properties": {
+        "sync_token_ids": { "type": "array", "items": { "type": "integer", "minimum": 0 } },
+        "on_error_reduce_symbol_ids": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "integer", "minimum": 0 }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "semantic_actions": {
+      "type": "object",
+      "required": ["binding", "verified", "slots"],
+      "properties": {
+        "binding": { "const": "opaque-wrapper-production-id-v1" },
+        "verified": { "const": false },
+        "slots": { "type": "array", "items": { "type": "integer", "minimum": 0 } }
+      },
+      "additionalProperties": false
+    },
+    "payload": {
+      "type": "object",
+      "required": ["table_format", "source", "state_count", "symbols", "tokens", "entry_states", "tables", "productions", "cst", "recovery", "semantic_actions"],
+      "properties": {
+        "table_format": { "$ref": "#/$defs/table_format" },
+        "source": { "$ref": "#/$defs/source" },
+        "state_count": { "type": "integer", "minimum": 1 },
+        "symbols": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/symbol" } },
+        "tokens": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/token" } },
+        "entry_states": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/entry_state" } },
+        "tables": { "$ref": "#/$defs/tables" },
+        "productions": { "type": "array", "items": { "$ref": "#/$defs/production" } },
+        "cst": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/cst" }] },
+        "recovery": { "$ref": "#/$defs/recovery" },
+        "semantic_actions": { "$ref": "#/$defs/semantic_actions" }
+      },
+      "additionalProperties": false
+    },
+    "cost": {
+      "type": "object",
+      "required": ["canonical_payload_bytes", "action_cells", "goto_cells", "lookup_cost", "recognition_cost", "measurement", "bounded_by_max_steps"],
+      "properties": {
+        "canonical_payload_bytes": { "type": "integer", "minimum": 1 },
+        "action_cells": { "type": "integer", "minimum": 0 },
+        "goto_cells": { "type": "integer", "minimum": 0 },
+        "lookup_cost": { "const": "constant-time indexed probe" },
+        "recognition_cost": { "type": "string", "minLength": 1 },
+        "measurement": { "const": "not-measured" },
+        "bounded_by_max_steps": { "const": true }
+      },
+      "additionalProperties": false
+    }
+  }
+}

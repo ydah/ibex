@@ -1,0 +1,61 @@
+module Ibex
+  module TableArtifact
+    ARTIFACT_TYPE: String
+    SCHEMA_VERSION: Integer
+    DEFAULT_MAX_BYTES: Integer
+
+    class ValidationError < Ibex::Error
+    end
+
+    def self.build: (IR::Automaton automaton, ?representation: Symbol | String, ?cst_trivia: Symbol | String?, ?omit_action_call: bool?) -> Document
+    def self.load: (String | _Reader source, ?max_bytes: Integer) -> Document
+
+    interface _Reader
+      def read: (Integer length) -> String
+    end
+
+    module Serializer
+      def self.canonical: (untyped value) -> untyped
+      def self.compact: (untyped value) -> String
+      def self.dump: (untyped value) -> String
+      def self.digest: (untyped value) -> String
+      def self.deep_freeze: [T] (T value) -> T
+    end
+
+    class Document
+      attr_reader data: Hash[String, untyped]
+      def initialize: (Hash[String, untyped] data) -> void
+      def dump: () -> String
+      def payload: () -> Hash[String, untyped]
+      def identity: () -> Hash[String, String]
+      def cost: () -> Hash[String, untyped]
+    end
+
+    class Builder
+      REPRESENTATIONS: Array[Symbol]
+      def initialize: (IR::Automaton automaton, ?representation: Symbol | String, ?cst_trivia: Symbol | String?, ?omit_action_call: bool?) -> void
+      def build: () -> Document
+    end
+
+    class Validator
+      def self.validate!: (Hash[String, untyped] data) -> true
+      def initialize: (Hash[String, untyped] data) -> void
+      def validate!: () -> true
+    end
+
+    class Executor
+      class Result < Struct[untyped]
+        attr_accessor status: Symbol
+        attr_accessor steps: Integer
+        attr_accessor consumed_tokens: Integer
+        attr_accessor reason: String?
+        def accepted?: () -> bool
+        def rejected?: () -> bool
+        def exhausted?: () -> bool
+      end
+
+      def initialize: (Document | Hash[String, untyped] document) -> void
+      def recognize: (Array[Integer] token_ids, ?entry: String | Symbol?, ?max_steps: Integer) -> Result
+    end
+  end
+end
