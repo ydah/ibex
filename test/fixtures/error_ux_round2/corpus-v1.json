@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "H003-DELIMITER-01",
+      "dimensions": ["delimiter-heavy"],
+      "grammar": "test/fixtures/error_ux_round2/delimiters.y",
+      "input": "outer(inner(a,b),c]",
+      "proposed_edit": {
+        "summary": "replace the mismatched closing bracket with a parenthesis",
+        "operations": [{ "start_byte": 18, "end_byte": 19, "replacement": ")" }]
+      },
+      "semantic_value_risk": {
+        "level": "low",
+        "category": "structural-delimiter",
+        "statement": "The edit changes only a nil-valued delimiter token."
+      }
+    },
+    {
+      "id": "H003-STATEMENT-01",
+      "dimensions": ["statement-language"],
+      "grammar": "test/fixtures/error_ux_round2/statements.y",
+      "input": "answer = ;",
+      "proposed_edit": {
+        "summary": "insert an explicit numeric value before the terminator",
+        "operations": [{ "start_byte": 9, "end_byte": 9, "replacement": "0" }]
+      },
+      "semantic_value_risk": {
+        "level": "high",
+        "category": "invented-literal",
+        "statement": "The repair invents the numeric semantic value zero and may change program meaning."
+      }
+    },
+    {
+      "id": "H003-STATEFUL-01",
+      "dimensions": ["stateful-string-lexer"],
+      "grammar": "test/fixtures/error_ux_round2/stateful_strings.y",
+      "input": "\"hello",
+      "proposed_edit": {
+        "summary": "close the string at end of input",
+        "operations": [{ "start_byte": 6, "end_byte": 6, "replacement": "\"" }]
+      },
+      "semantic_value_risk": {
+        "level": "low",
+        "category": "lexer-state-closure",
+        "statement": "The edit closes the active lexer state without inventing string content."
+      }
+    },
+    {
+      "id": "H003-EOF-01",
+      "dimensions": ["eof-error", "delimiter-heavy"],
+      "grammar": "test/fixtures/error_ux_round2/delimiters.y",
+      "input": "outer(inner(a,b),c",
+      "proposed_edit": {
+        "summary": "insert two candidate closing parentheses and let a fresh parse expose over-closure",
+        "operations": [{ "start_byte": 18, "end_byte": 18, "replacement": "))" }]
+      },
+      "semantic_value_risk": {
+        "level": "low",
+        "category": "structural-delimiter",
+        "statement": "The edit adds only nil-valued closing delimiters."
+      }
+    },
+    {
+      "id": "H003-MULTI-01",
+      "dimensions": ["multi-error-continuation", "statement-language"],
+      "grammar": "test/fixtures/error_ux_round2/statements.y",
+      "input": "first = ; good = 1; second = = 2; third = 3;",
+      "proposed_edit": {
+        "summary": "supply the first value and remove the second extra equals sign",
+        "operations": [
+          { "start_byte": 8, "end_byte": 8, "replacement": "0" },
+          { "start_byte": 29, "end_byte": 31, "replacement": "" }
+        ]
+      },
+      "semantic_value_risk": {
+        "level": "high",
+        "category": "invented-literal",
+        "statement": "The first edit invents zero while the second deletes syntax; accepting input does not prove intended semantics."
+      }
+    },
+    {
+      "id": "H003-UNKNOWN-01",
+      "dimensions": ["unknown-token"],
+      "grammar": "test/fixtures/error_ux_round2/unknown_token.y",
+      "input": "ok @",
+      "proposed_edit": {
+        "summary": "delete the unknown external token",
+        "operations": [{ "start_byte": 3, "end_byte": 4, "replacement": "" }]
+      },
+      "semantic_value_risk": {
+        "level": "medium",
+        "category": "deleted-input",
+        "statement": "Deleting an unknown token can discard user intent even when the remaining parse succeeds."
+      }
+    },
+    {
+      "id": "H003-LEXER-01",
+      "dimensions": ["lexer-failure"],
+      "grammar": "test/fixtures/error_ux_round2/delimiters.y",
+      "input": "outer($)",
+      "proposed_edit": {
+        "summary": "replace unmatched lexer input with a valid name",
+        "operations": [{ "start_byte": 6, "end_byte": 7, "replacement": "item" }]
+      },
+      "semantic_value_risk": {
+        "level": "high",
+        "category": "invented-lexeme",
+        "statement": "The edit invents a semantic name and only demonstrates a syntactically accepted alternative."
+      }
+    }
+  ]
+}

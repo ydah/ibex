@@ -1,0 +1,752 @@
+{
+  "ibex_error_ux_round2": "repository-capture",
+  "schema_version": 1,
+  "repository_capture": {
+    "status": "complete",
+    "generator": "tool/error_ux_round2.rb",
+    "corpus": {
+      "path": "test/fixtures/error_ux_round2/corpus-v1.json",
+      "sha256": "b3545aea560ac5b8d23589124fb5d2276673e5c84e69eca61f5da233c2f5bfb9"
+    },
+    "implementation_sources": [
+      {
+        "path": "lib/ibex/frontend/parser.rb",
+        "sha256": "a7ca03ed4092c476cef2ca05f22831438b6688b65f6abbbb446dd91b2966e17f"
+      },
+      {
+        "path": "lib/ibex/normalize.rb",
+        "sha256": "1997abdffa061c541a3824a7185b1e33caecef1fc4eb23456cedb2136d611b82"
+      },
+      {
+        "path": "lib/ibex/codegen/ruby.rb",
+        "sha256": "d78e46dd523896151b2fb09563dd4501a63dd6643299863c4c5e9c1770944ca3"
+      },
+      {
+        "path": "lib/ibex/runtime/parser.rb",
+        "sha256": "1387c68be9bc1e26f8469e9d96963c847aa49d52f0fd354f120fad3182e9c143"
+      },
+      {
+        "path": "lib/ibex/runtime/generated_lexer.rb",
+        "sha256": "1a5e14efae5441aedcaafe843e52aa0d6b69f86ca67fc710487ea66dad180d5d"
+      },
+      {
+        "path": "lib/ibex/runtime/repair.rb",
+        "sha256": "e586dafae858fcc2224a595728beaa6d429712cbca2db1ac188cf6449799c94e"
+      },
+      {
+        "path": "lib/ibex/runtime/repair_search.rb",
+        "sha256": "13b758264b82871034ae1d394b136307294023004bcf5dc8daf9c34787f72dd1"
+      },
+      {
+        "path": "tool/error_ux_round2.rb",
+        "sha256": "5dd51f74c5f356b1fce9081eb7408331c36d5b64ad075fac69962d715b28ffc7"
+      },
+      {
+        "path": "tool/error_ux_round2/capture.rb",
+        "sha256": "a22729711079a5a55e97f8369a1274e37d82de49f257ca50de28fa1c51ba087f"
+      },
+      {
+        "path": "tool/error_ux_round2/case_runner.rb",
+        "sha256": "39df6ff51aee27074695bb267ff000b8980e46fbde29e8dec81d3ce282a42390"
+      },
+      {
+        "path": "tool/error_ux_round2/policy.rb",
+        "sha256": "4c1c63d10de76142acaf3d228ed061226aa90dbfd4cf98c13aaaa55cb6119c68"
+      },
+      {
+        "path": "tool/error_ux_round2/source_edit.rb",
+        "sha256": "cd77ab39d85716a849ca742af8dbb054ee3c6fc1648a45d989776fc3a01f057a"
+      }
+    ],
+    "case_count": 7,
+    "deterministic_regeneration": true,
+    "r001_normative_snapshot": {
+      "path": "test/fixtures/error_ux/json-errors-v1.json",
+      "sha256": "bf49b2f8ba5329f1984d6e90e4b170b5811f4c800536fca56eba1f2725189dbf",
+      "expected_sha256": "bf49b2f8ba5329f1984d6e90e4b170b5811f4c800536fca56eba1f2725189dbf",
+      "status": "unchanged"
+    }
+  },
+  "problem": {
+    "statement": "Repository evidence must test diagnostic and repair behavior beyond the ten R001 JSON cases.",
+    "required_dimensions": [
+      "delimiter-heavy",
+      "statement-language",
+      "stateful-string-lexer",
+      "eof-error",
+      "multi-error-continuation",
+      "unknown-token",
+      "lexer-failure"
+    ],
+    "excluded_dimensions": [
+      {
+        "dimension": "indentation-sensitive-language",
+        "status": "excluded-unimplemented",
+        "reason": "ibex-has-no-indentation-tokenization-contract"
+      }
+    ]
+  },
+  "semantics": {
+    "expected_tokens": "Parser diagnostics report the exact runtime expected-token set; lexer failures have no parser state.",
+    "proposed_edit": "A repository-authored source edit is evaluated separately from the bounded runtime repair plan.",
+    "fresh_reparse": "Edits are applied by byte range and parsed by a newly allocated generated parser.",
+    "semantic_value_risk": "Syntactic acceptance does not establish that inserted, deleted, or replaced semantic values match user intent."
+  },
+  "trust_boundary": {
+    "fixture_code": "repository-owned-trusted",
+    "generated_code_execution": "enabled-for-listed-fixtures-only",
+    "external_code_execution": "forbidden",
+    "statement": "The capture executes generated lexer and action code only from the four allowlisted repository fixtures."
+  },
+  "external_subjective_gate": {
+    "status": "HOLD",
+    "reason": "no-external-review-records",
+    "allowed_labels": [
+      "useful",
+      "misleading",
+      "unsafe",
+      "unclear"
+    ],
+    "records": []
+  },
+  "limitations": [
+    {
+      "code": "repository-only",
+      "statement": "No external workload or reviewer is represented."
+    },
+    {
+      "code": "single-selected-repair",
+      "statement": "Bounded repair reports one selected plan, not every equal-cost edit."
+    },
+    {
+      "code": "acceptance-not-intent",
+      "statement": "A successful fresh parse does not prove intended program semantics."
+    },
+    {
+      "code": "no-indentation",
+      "statement": "Indentation diagnostics are excluded because no indentation contract exists."
+    }
+  ],
+  "kill_conditions": [
+    {
+      "code": "fixture-drift",
+      "statement": "Fail when a fixture or corpus digest changes without regenerated evidence."
+    },
+    {
+      "code": "coverage-loss",
+      "statement": "Fail when a required H003 dimension has no case."
+    },
+    {
+      "code": "r001-mutation",
+      "statement": "Fail when the normative R001 snapshot digest changes."
+    },
+    {
+      "code": "review-overclaim",
+      "statement": "Fail when HOLD has a review record or a pending case has labels."
+    },
+    {
+      "code": "fresh-reparse-regression",
+      "statement": "Fail when a proposed edit no longer produces its committed fresh outcome."
+    }
+  ],
+  "cases": [
+    {
+      "id": "H003-DELIMITER-01",
+      "dimensions": [
+        "delimiter-heavy"
+      ],
+      "grammar": "test/fixtures/error_ux_round2/delimiters.y",
+      "input": "outer(inner(a,b),c]",
+      "input_sha256": "f2039b19d0256dada39bdc4861df60f81c176348dfbe66d57db9bf06ea204926",
+      "observation": {
+        "mode": "single-rejection",
+        "parse_status": "rejected",
+        "diagnostics": [
+          {
+            "phase": "parser",
+            "message": "(h003-delimiters):1:19: unexpected \"]\"; expected '(', ')', ',' (nil)\nouter(inner(a,b),c]\n                  ^",
+            "token": "\"]\"",
+            "expected_tokens": {
+              "availability": "available",
+              "tokens": [
+                "'('",
+                "')'",
+                "','"
+              ],
+              "reason": null
+            },
+            "state": 5,
+            "location": {
+              "line": 1,
+              "column": 19,
+              "start_byte": 18,
+              "source_line": "outer(inner(a,b),c]",
+              "caret": "                  ^"
+            }
+          }
+        ]
+      },
+      "bounded_repair": {
+        "status": "selected",
+        "parse_status": "accepted",
+        "plan": {
+          "cost": 2,
+          "configurations": 73,
+          "edits": [
+            {
+              "kind": "delete",
+              "position": 0,
+              "token_id": null,
+              "token_name": "\"]\"",
+              "cost": 1,
+              "token_id_scope": "temporary-external"
+            },
+            {
+              "kind": "insert",
+              "position": 1,
+              "token_id": 8,
+              "token_name": "')'",
+              "cost": 1,
+              "token_id_scope": "grammar"
+            }
+          ]
+        }
+      },
+      "proposed_edit": {
+        "summary": "replace the mismatched closing bracket with a parenthesis",
+        "operations": [
+          {
+            "start_byte": 18,
+            "end_byte": 19,
+            "replacement": ")"
+          }
+        ],
+        "applied_source_sha256": "66a840098bcc1fc9ae297a6d420f064c4b8d131fff6d4007fd2f0887780239af"
+      },
+      "fresh_reparse": {
+        "status": "accepted",
+        "diagnostic_count": 0,
+        "value_class": "Array"
+      },
+      "semantic_value_risk": {
+        "level": "low",
+        "category": "structural-delimiter",
+        "statement": "The edit changes only a nil-valued delimiter token."
+      },
+      "external_review": {
+        "status": "pending",
+        "labels": []
+      },
+      "grammar_sha256": "dba52fd7b54466caab8c7dc29534e1df1ef2673c7c13816e4c15fe33750b5045"
+    },
+    {
+      "id": "H003-STATEMENT-01",
+      "dimensions": [
+        "statement-language"
+      ],
+      "grammar": "test/fixtures/error_ux_round2/statements.y",
+      "input": "answer = ;",
+      "input_sha256": "0eb15eaab4e30f29b570c3a33f6592e23048d802a6062a95208bb03930837174",
+      "observation": {
+        "mode": "single-rejection",
+        "parse_status": "rejected",
+        "diagnostics": [
+          {
+            "phase": "parser",
+            "message": "(h003-statements):1:10: unexpected ';'; expected NUMBER (nil)\nanswer = ;\n         ^",
+            "token": "';'",
+            "expected_tokens": {
+              "availability": "available",
+              "tokens": [
+                "NUMBER"
+              ],
+              "reason": null
+            },
+            "state": 8,
+            "location": {
+              "line": 1,
+              "column": 10,
+              "start_byte": 9,
+              "source_line": "answer = ;",
+              "caret": "         ^"
+            }
+          }
+        ]
+      },
+      "bounded_repair": {
+        "status": "selected",
+        "parse_status": "accepted",
+        "plan": {
+          "cost": 1,
+          "configurations": 37,
+          "edits": [
+            {
+              "kind": "insert",
+              "position": 0,
+              "token_id": 3,
+              "token_name": "NUMBER",
+              "cost": 1,
+              "token_id_scope": "grammar"
+            }
+          ]
+        }
+      },
+      "proposed_edit": {
+        "summary": "insert an explicit numeric value before the terminator",
+        "operations": [
+          {
+            "start_byte": 9,
+            "end_byte": 9,
+            "replacement": "0"
+          }
+        ],
+        "applied_source_sha256": "11f279e93ac4b68690d617af80227eb97f850aaa143cbb43060064f4b7342183"
+      },
+      "fresh_reparse": {
+        "status": "accepted",
+        "diagnostic_count": 0,
+        "value_class": "Array"
+      },
+      "semantic_value_risk": {
+        "level": "high",
+        "category": "invented-literal",
+        "statement": "The repair invents the numeric semantic value zero and may change program meaning."
+      },
+      "external_review": {
+        "status": "pending",
+        "labels": []
+      },
+      "grammar_sha256": "7dee0cf9174a4fc59746a215b50aedc21643a3f213d056f819ca7eafee1f27f5"
+    },
+    {
+      "id": "H003-STATEFUL-01",
+      "dimensions": [
+        "stateful-string-lexer"
+      ],
+      "grammar": "test/fixtures/error_ux_round2/stateful_strings.y",
+      "input": "\"hello",
+      "input_sha256": "196d3d58bf5c0427d2b094fb9b2c70b277ac1b4b96de1d191de8f1abe90ce149",
+      "observation": {
+        "mode": "single-rejection",
+        "parse_status": "rejected",
+        "diagnostics": [
+          {
+            "phase": "parser",
+            "message": "(h003-stateful-string):1:7: unexpected $eof; expected STRING_END (nil)",
+            "token": "$eof",
+            "expected_tokens": {
+              "availability": "available",
+              "tokens": [
+                "STRING_END"
+              ],
+              "reason": null
+            },
+            "state": 3,
+            "location": {
+              "line": 1,
+              "column": 7,
+              "start_byte": 6,
+              "source_line": "\"hello",
+              "caret": "      ^"
+            }
+          }
+        ]
+      },
+      "bounded_repair": {
+        "status": "selected",
+        "parse_status": "accepted",
+        "plan": {
+          "cost": 1,
+          "configurations": 9,
+          "edits": [
+            {
+              "kind": "insert",
+              "position": 0,
+              "token_id": 4,
+              "token_name": "STRING_END",
+              "cost": 1,
+              "token_id_scope": "grammar"
+            }
+          ]
+        }
+      },
+      "proposed_edit": {
+        "summary": "close the string at end of input",
+        "operations": [
+          {
+            "start_byte": 6,
+            "end_byte": 6,
+            "replacement": "\""
+          }
+        ],
+        "applied_source_sha256": "5aa762ae383fbb727af3c7a36d4940a5b8c40a989452d2304fc958ff3f354e7a"
+      },
+      "fresh_reparse": {
+        "status": "accepted",
+        "diagnostic_count": 0,
+        "value_class": "String"
+      },
+      "semantic_value_risk": {
+        "level": "low",
+        "category": "lexer-state-closure",
+        "statement": "The edit closes the active lexer state without inventing string content."
+      },
+      "external_review": {
+        "status": "pending",
+        "labels": []
+      },
+      "grammar_sha256": "65a2f83c108ad5aa10c7d31eeafae9bd8241beac91d6dea40f81256cac5f9438"
+    },
+    {
+      "id": "H003-EOF-01",
+      "dimensions": [
+        "eof-error",
+        "delimiter-heavy"
+      ],
+      "grammar": "test/fixtures/error_ux_round2/delimiters.y",
+      "input": "outer(inner(a,b),c",
+      "input_sha256": "402db8f3f0246976daa0ceabd406ef527179a49b51eccca85c6a3387cde76883",
+      "observation": {
+        "mode": "single-rejection",
+        "parse_status": "rejected",
+        "diagnostics": [
+          {
+            "phase": "parser",
+            "message": "(h003-delimiters):1:19: unexpected $eof; expected '(', ')', ',' (nil)",
+            "token": "$eof",
+            "expected_tokens": {
+              "availability": "available",
+              "tokens": [
+                "'('",
+                "')'",
+                "','"
+              ],
+              "reason": null
+            },
+            "state": 5,
+            "location": {
+              "line": 1,
+              "column": 19,
+              "start_byte": 18,
+              "source_line": "outer(inner(a,b),c",
+              "caret": "                  ^"
+            }
+          }
+        ]
+      },
+      "bounded_repair": {
+        "status": "selected",
+        "parse_status": "accepted",
+        "plan": {
+          "cost": 1,
+          "configurations": 21,
+          "edits": [
+            {
+              "kind": "insert",
+              "position": 0,
+              "token_id": 8,
+              "token_name": "')'",
+              "cost": 1,
+              "token_id_scope": "grammar"
+            }
+          ]
+        }
+      },
+      "proposed_edit": {
+        "summary": "insert two candidate closing parentheses and let a fresh parse expose over-closure",
+        "operations": [
+          {
+            "start_byte": 18,
+            "end_byte": 18,
+            "replacement": "))"
+          }
+        ],
+        "applied_source_sha256": "251c7dfb6f215074b56a3a638b1c7986debc833228f676015b43db200205261a"
+      },
+      "fresh_reparse": {
+        "status": "progress",
+        "diagnostic_count": 1,
+        "value_class": null,
+        "diagnostic": {
+          "phase": "parser",
+          "message": "(h003-delimiters):1:20: unexpected ')'; expected $eof (nil)\nouter(inner(a,b),c))\n                   ^",
+          "token": "')'",
+          "expected_tokens": {
+            "availability": "available",
+            "tokens": [
+              "$eof"
+            ],
+            "reason": null
+          },
+          "state": 3,
+          "location": {
+            "line": 1,
+            "column": 20,
+            "start_byte": 19,
+            "source_line": "outer(inner(a,b),c))",
+            "caret": "                   ^"
+          }
+        }
+      },
+      "semantic_value_risk": {
+        "level": "low",
+        "category": "structural-delimiter",
+        "statement": "The edit adds only nil-valued closing delimiters."
+      },
+      "external_review": {
+        "status": "pending",
+        "labels": []
+      },
+      "grammar_sha256": "dba52fd7b54466caab8c7dc29534e1df1ef2673c7c13816e4c15fe33750b5045"
+    },
+    {
+      "id": "H003-MULTI-01",
+      "dimensions": [
+        "multi-error-continuation",
+        "statement-language"
+      ],
+      "grammar": "test/fixtures/error_ux_round2/statements.y",
+      "input": "first = ; good = 1; second = = 2; third = 3;",
+      "input_sha256": "7a6b365f7aa15f0c579d63197b78908d2ba27be901a263b8029c4f23c12478e5",
+      "observation": {
+        "mode": "synchronized-continuation",
+        "parse_status": "accepted-after-recovery",
+        "diagnostics": [
+          {
+            "phase": "parser",
+            "message": "(h003-statements):1:9: unexpected ';'; expected NUMBER (nil)\nfirst = ; good = 1; second = = 2; third = 3;\n        ^",
+            "token": "';'",
+            "expected_tokens": {
+              "availability": "available",
+              "tokens": [
+                "NUMBER"
+              ],
+              "reason": null
+            },
+            "state": 8,
+            "location": {
+              "line": 1,
+              "column": 9,
+              "start_byte": 8,
+              "source_line": "first = ; good = 1; second = = 2; third = 3;",
+              "caret": "        ^"
+            }
+          },
+          {
+            "phase": "parser",
+            "message": "(h003-statements):1:30: unexpected '='; expected NUMBER (nil)\nfirst = ; good = 1; second = = 2; third = 3;\n                             ^",
+            "token": "'='",
+            "expected_tokens": {
+              "availability": "available",
+              "tokens": [
+                "NUMBER"
+              ],
+              "reason": null
+            },
+            "state": 8,
+            "location": {
+              "line": 1,
+              "column": 30,
+              "start_byte": 29,
+              "source_line": "first = ; good = 1; second = = 2; third = 3;",
+              "caret": "                             ^"
+            }
+          }
+        ]
+      },
+      "bounded_repair": {
+        "status": "selected",
+        "parse_status": "accepted",
+        "plan": {
+          "cost": 1,
+          "configurations": 61,
+          "edits": [
+            {
+              "kind": "insert",
+              "position": 0,
+              "token_id": 3,
+              "token_name": "NUMBER",
+              "cost": 1,
+              "token_id_scope": "grammar"
+            }
+          ]
+        }
+      },
+      "proposed_edit": {
+        "summary": "supply the first value and remove the second extra equals sign",
+        "operations": [
+          {
+            "start_byte": 8,
+            "end_byte": 8,
+            "replacement": "0"
+          },
+          {
+            "start_byte": 29,
+            "end_byte": 31,
+            "replacement": ""
+          }
+        ],
+        "applied_source_sha256": "c94f3324600f050b42f7ea9a1573be95f37d1723a0bbf0aaaf6c3b603ff8946d"
+      },
+      "fresh_reparse": {
+        "status": "accepted",
+        "diagnostic_count": 0,
+        "value_class": "Array"
+      },
+      "semantic_value_risk": {
+        "level": "high",
+        "category": "invented-literal",
+        "statement": "The first edit invents zero while the second deletes syntax; accepting input does not prove intended semantics."
+      },
+      "external_review": {
+        "status": "pending",
+        "labels": []
+      },
+      "grammar_sha256": "7dee0cf9174a4fc59746a215b50aedc21643a3f213d056f819ca7eafee1f27f5"
+    },
+    {
+      "id": "H003-UNKNOWN-01",
+      "dimensions": [
+        "unknown-token"
+      ],
+      "grammar": "test/fixtures/error_ux_round2/unknown_token.y",
+      "input": "ok @",
+      "input_sha256": "f90789301474fba9a4cbfc7ba17120391ca3cb1ba10a61f7e2035922246073ce",
+      "observation": {
+        "mode": "single-rejection",
+        "parse_status": "rejected",
+        "diagnostics": [
+          {
+            "phase": "parser",
+            "message": "(h003-unknown-token):1:4: unexpected :H003_UNKNOWN; expected $eof (\"@\")\nok @\n   ^",
+            "token": ":H003_UNKNOWN",
+            "expected_tokens": {
+              "availability": "available",
+              "tokens": [
+                "$eof"
+              ],
+              "reason": null
+            },
+            "state": 1,
+            "location": {
+              "line": 1,
+              "column": 4,
+              "start_byte": 3,
+              "source_line": "ok @",
+              "caret": "   ^"
+            }
+          }
+        ]
+      },
+      "bounded_repair": {
+        "status": "selected",
+        "parse_status": "accepted",
+        "plan": {
+          "cost": 1,
+          "configurations": 8,
+          "edits": [
+            {
+              "kind": "delete",
+              "position": 0,
+              "token_id": null,
+              "token_name": ":H003_UNKNOWN",
+              "cost": 1,
+              "token_id_scope": "temporary-external"
+            }
+          ]
+        }
+      },
+      "proposed_edit": {
+        "summary": "delete the unknown external token",
+        "operations": [
+          {
+            "start_byte": 3,
+            "end_byte": 4,
+            "replacement": ""
+          }
+        ],
+        "applied_source_sha256": "bf2a63ad5d209b2be8586a0f249aac31e432115a64d4fb93433d702564be2469"
+      },
+      "fresh_reparse": {
+        "status": "accepted",
+        "diagnostic_count": 0,
+        "value_class": "String"
+      },
+      "semantic_value_risk": {
+        "level": "medium",
+        "category": "deleted-input",
+        "statement": "Deleting an unknown token can discard user intent even when the remaining parse succeeds."
+      },
+      "external_review": {
+        "status": "pending",
+        "labels": []
+      },
+      "grammar_sha256": "aca5bdcba455fab8c924737bb901ea5dd1a247c1325000a3c8979bd29aed83cc"
+    },
+    {
+      "id": "H003-LEXER-01",
+      "dimensions": [
+        "lexer-failure"
+      ],
+      "grammar": "test/fixtures/error_ux_round2/delimiters.y",
+      "input": "outer($)",
+      "input_sha256": "314a7b267053917af6ec13c39c8624c674384991fc20c09a2331528026f4ce4e",
+      "observation": {
+        "mode": "single-rejection",
+        "parse_status": "lexer-failure",
+        "diagnostics": [
+          {
+            "phase": "lexer",
+            "message": "(h003-delimiters):1:7: no lexer rule matches \"$)\" in state INITIAL",
+            "token": "lexer input",
+            "expected_tokens": {
+              "availability": "not-available",
+              "tokens": [],
+              "reason": "lexer-failure-precedes-parser-state"
+            },
+            "state": null,
+            "location": {
+              "line": 1,
+              "column": 7,
+              "start_byte": 6,
+              "source_line": "outer($)",
+              "caret": "      ^"
+            }
+          }
+        ]
+      },
+      "bounded_repair": {
+        "status": "not-applicable",
+        "parse_status": "lexer-failure",
+        "plan": null,
+        "reason": "lexer-failure-precedes-parser-repair"
+      },
+      "proposed_edit": {
+        "summary": "replace unmatched lexer input with a valid name",
+        "operations": [
+          {
+            "start_byte": 6,
+            "end_byte": 7,
+            "replacement": "item"
+          }
+        ],
+        "applied_source_sha256": "17675879754586465963dc4ee6dde8631d1ead4252f6d6ca2c0a4d4c60291a74"
+      },
+      "fresh_reparse": {
+        "status": "accepted",
+        "diagnostic_count": 0,
+        "value_class": "Array"
+      },
+      "semantic_value_risk": {
+        "level": "high",
+        "category": "invented-lexeme",
+        "statement": "The edit invents a semantic name and only demonstrates a syntactically accepted alternative."
+      },
+      "external_review": {
+        "status": "pending",
+        "labels": []
+      },
+      "grammar_sha256": "dba52fd7b54466caab8c7dc29534e1df1ef2673c7c13816e4c15fe33750b5045"
+    }
+  ]
+}

@@ -1,0 +1,524 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/error-ux-round2-v1.schema.json",
+  "title": "Ibex H003 error UX repository evidence version 1",
+  "type": "object",
+  "required": [
+    "ibex_error_ux_round2",
+    "schema_version",
+    "repository_capture",
+    "problem",
+    "semantics",
+    "trust_boundary",
+    "external_subjective_gate",
+    "limitations",
+    "kill_conditions",
+    "cases"
+  ],
+  "properties": {
+    "ibex_error_ux_round2": { "const": "repository-capture" },
+    "schema_version": { "const": 1 },
+    "repository_capture": { "$ref": "#/$defs/repository_capture" },
+    "problem": { "$ref": "#/$defs/problem" },
+    "semantics": { "$ref": "#/$defs/semantics" },
+    "trust_boundary": { "$ref": "#/$defs/trust_boundary" },
+    "external_subjective_gate": { "$ref": "#/$defs/external_gate" },
+    "limitations": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": { "$ref": "#/$defs/limitation" }
+    },
+    "kill_conditions": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": { "$ref": "#/$defs/kill_condition" }
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 7,
+      "items": { "$ref": "#/$defs/case" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "repository_capture": {
+      "type": "object",
+      "required": [
+        "status",
+        "generator",
+        "corpus",
+        "implementation_sources",
+        "case_count",
+        "deterministic_regeneration",
+        "r001_normative_snapshot"
+      ],
+      "properties": {
+        "status": { "const": "complete" },
+        "generator": { "const": "tool/error_ux_round2.rb" },
+        "corpus": {
+          "type": "object",
+          "required": ["path", "sha256"],
+          "properties": {
+            "path": { "const": "test/fixtures/error_ux_round2/corpus-v1.json" },
+            "sha256": { "$ref": "#/$defs/sha256" }
+          },
+          "additionalProperties": false
+        },
+        "implementation_sources": {
+          "type": "array",
+          "minItems": 12,
+          "maxItems": 12,
+          "items": {
+            "type": "object",
+            "required": ["path", "sha256"],
+            "properties": {
+              "path": {
+                "enum": [
+                  "lib/ibex/frontend/parser.rb",
+                  "lib/ibex/normalize.rb",
+                  "lib/ibex/codegen/ruby.rb",
+                  "lib/ibex/runtime/parser.rb",
+                  "lib/ibex/runtime/generated_lexer.rb",
+                  "lib/ibex/runtime/repair.rb",
+                  "lib/ibex/runtime/repair_search.rb",
+                  "tool/error_ux_round2.rb",
+                  "tool/error_ux_round2/capture.rb",
+                  "tool/error_ux_round2/case_runner.rb",
+                  "tool/error_ux_round2/policy.rb",
+                  "tool/error_ux_round2/source_edit.rb"
+                ]
+              },
+              "sha256": { "$ref": "#/$defs/sha256" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "case_count": { "type": "integer", "minimum": 7 },
+        "deterministic_regeneration": { "const": true },
+        "r001_normative_snapshot": {
+          "type": "object",
+          "required": ["path", "sha256", "expected_sha256", "status"],
+          "properties": {
+            "path": { "const": "test/fixtures/error_ux/json-errors-v1.json" },
+            "sha256": { "$ref": "#/$defs/sha256" },
+            "expected_sha256": { "$ref": "#/$defs/sha256" },
+            "status": { "const": "unchanged" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "problem": {
+      "type": "object",
+      "required": ["statement", "required_dimensions", "excluded_dimensions"],
+      "properties": {
+        "statement": { "type": "string", "minLength": 1 },
+        "required_dimensions": {
+          "const": [
+            "delimiter-heavy",
+            "statement-language",
+            "stateful-string-lexer",
+            "eof-error",
+            "multi-error-continuation",
+            "unknown-token",
+            "lexer-failure"
+          ]
+        },
+        "excluded_dimensions": {
+          "const": [
+            {
+              "dimension": "indentation-sensitive-language",
+              "status": "excluded-unimplemented",
+              "reason": "ibex-has-no-indentation-tokenization-contract"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "semantics": {
+      "type": "object",
+      "required": ["expected_tokens", "proposed_edit", "fresh_reparse", "semantic_value_risk"],
+      "properties": {
+        "expected_tokens": { "type": "string", "minLength": 1 },
+        "proposed_edit": { "type": "string", "minLength": 1 },
+        "fresh_reparse": { "type": "string", "minLength": 1 },
+        "semantic_value_risk": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "trust_boundary": {
+      "type": "object",
+      "required": ["fixture_code", "generated_code_execution", "external_code_execution", "statement"],
+      "properties": {
+        "fixture_code": { "const": "repository-owned-trusted" },
+        "generated_code_execution": { "const": "enabled-for-listed-fixtures-only" },
+        "external_code_execution": { "const": "forbidden" },
+        "statement": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "external_gate": {
+      "type": "object",
+      "required": ["status", "reason", "allowed_labels", "records"],
+      "properties": {
+        "status": { "const": "HOLD" },
+        "reason": { "const": "no-external-review-records" },
+        "allowed_labels": { "const": ["useful", "misleading", "unsafe", "unclear"] },
+        "records": { "type": "array", "maxItems": 0 }
+      },
+      "additionalProperties": false
+    },
+    "limitation": {
+      "type": "object",
+      "required": ["code", "statement"],
+      "properties": {
+        "code": {
+          "enum": ["repository-only", "single-selected-repair", "acceptance-not-intent", "no-indentation"]
+        },
+        "statement": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "kill_condition": {
+      "type": "object",
+      "required": ["code", "statement"],
+      "properties": {
+        "code": {
+          "enum": [
+            "fixture-drift",
+            "coverage-loss",
+            "r001-mutation",
+            "review-overclaim",
+            "fresh-reparse-regression"
+          ]
+        },
+        "statement": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "case": {
+      "type": "object",
+      "required": [
+        "id",
+        "dimensions",
+        "grammar",
+        "input",
+        "input_sha256",
+        "observation",
+        "bounded_repair",
+        "proposed_edit",
+        "fresh_reparse",
+        "semantic_value_risk",
+        "external_review",
+        "grammar_sha256"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^H003-[A-Z]+-[0-9]{2}$" },
+        "dimensions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "delimiter-heavy",
+              "statement-language",
+              "stateful-string-lexer",
+              "eof-error",
+              "multi-error-continuation",
+              "unknown-token",
+              "lexer-failure"
+            ]
+          }
+        },
+        "grammar": {
+          "enum": [
+            "test/fixtures/error_ux_round2/delimiters.y",
+            "test/fixtures/error_ux_round2/statements.y",
+            "test/fixtures/error_ux_round2/stateful_strings.y",
+            "test/fixtures/error_ux_round2/unknown_token.y"
+          ]
+        },
+        "input": { "type": "string", "minLength": 1 },
+        "input_sha256": { "$ref": "#/$defs/sha256" },
+        "observation": { "$ref": "#/$defs/observation" },
+        "bounded_repair": { "$ref": "#/$defs/bounded_repair" },
+        "proposed_edit": { "$ref": "#/$defs/proposed_edit" },
+        "fresh_reparse": { "$ref": "#/$defs/fresh_reparse" },
+        "semantic_value_risk": { "$ref": "#/$defs/semantic_value_risk" },
+        "external_review": { "$ref": "#/$defs/case_review" },
+        "grammar_sha256": { "$ref": "#/$defs/sha256" }
+      },
+      "additionalProperties": false
+    },
+    "observation": {
+      "type": "object",
+      "required": ["mode", "parse_status", "diagnostics"],
+      "properties": {
+        "mode": { "enum": ["single-rejection", "synchronized-continuation"] },
+        "parse_status": { "enum": ["rejected", "lexer-failure", "accepted-after-recovery"] },
+        "diagnostics": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/diagnostic" }
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "mode": { "const": "single-rejection" } } },
+          "then": {
+            "properties": {
+              "parse_status": { "enum": ["rejected", "lexer-failure"] },
+              "diagnostics": { "maxItems": 1 }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "mode": { "const": "synchronized-continuation" } } },
+          "then": {
+            "properties": {
+              "parse_status": { "const": "accepted-after-recovery" },
+              "diagnostics": { "minItems": 2 }
+            }
+          }
+        }
+      ]
+    },
+    "diagnostic": {
+      "type": "object",
+      "required": ["phase", "message", "token", "expected_tokens", "state", "location"],
+      "properties": {
+        "phase": { "enum": ["parser", "lexer"] },
+        "message": { "type": "string", "minLength": 1 },
+        "token": { "type": "string", "minLength": 1 },
+        "expected_tokens": { "$ref": "#/$defs/expected_tokens" },
+        "state": { "type": ["integer", "null"], "minimum": 0 },
+        "location": { "$ref": "#/$defs/location" }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "phase": { "const": "lexer" } } },
+          "then": {
+            "properties": {
+              "state": { "type": "null" },
+              "expected_tokens": {
+                "properties": { "availability": { "const": "not-available" } }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "phase": { "const": "parser" } } },
+          "then": {
+            "properties": {
+              "state": { "type": "integer", "minimum": 0 },
+              "expected_tokens": {
+                "properties": { "availability": { "const": "available" } }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "expected_tokens": {
+      "type": "object",
+      "required": ["availability", "tokens", "reason"],
+      "properties": {
+        "availability": { "enum": ["available", "not-available"] },
+        "tokens": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "reason": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "properties": {
+            "availability": { "const": "available" },
+            "tokens": { "minItems": 1 },
+            "reason": { "type": "null" }
+          }
+        },
+        {
+          "properties": {
+            "availability": { "const": "not-available" },
+            "tokens": { "maxItems": 0 },
+            "reason": { "const": "lexer-failure-precedes-parser-state" }
+          }
+        }
+      ]
+    },
+    "location": {
+      "type": "object",
+      "required": ["line", "column", "start_byte", "source_line", "caret"],
+      "properties": {
+        "line": { "type": "integer", "minimum": 1 },
+        "column": { "type": "integer", "minimum": 1 },
+        "start_byte": { "type": ["integer", "null"], "minimum": 0 },
+        "source_line": { "type": "string" },
+        "caret": { "type": "string", "pattern": "^ *\\^$" }
+      },
+      "additionalProperties": false
+    },
+    "bounded_repair": {
+      "type": "object",
+      "required": ["status", "parse_status", "plan"],
+      "properties": {
+        "status": { "enum": ["selected", "not-found", "not-applicable"] },
+        "parse_status": { "enum": ["accepted", "rejected", "lexer-failure"] },
+        "plan": { "oneOf": [{ "$ref": "#/$defs/repair_plan" }, { "type": "null" }] },
+        "reason": { "const": "lexer-failure-precedes-parser-repair" }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "selected" } } },
+          "then": { "properties": { "plan": { "$ref": "#/$defs/repair_plan" } } }
+        },
+        {
+          "if": { "properties": { "status": { "enum": ["not-found", "not-applicable"] } } },
+          "then": { "properties": { "plan": { "type": "null" } } }
+        },
+        {
+          "if": { "properties": { "status": { "const": "not-applicable" } } },
+          "then": {
+            "required": ["reason"],
+            "properties": { "parse_status": { "const": "lexer-failure" } }
+          }
+        }
+      ]
+    },
+    "repair_plan": {
+      "type": "object",
+      "required": ["cost", "configurations", "edits"],
+      "properties": {
+        "cost": { "type": "integer", "minimum": 1 },
+        "configurations": { "type": "integer", "minimum": 1 },
+        "edits": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/repair_edit" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "repair_edit": {
+      "type": "object",
+      "required": ["kind", "position", "token_id", "token_id_scope", "token_name", "cost"],
+      "properties": {
+        "kind": { "enum": ["insert", "delete", "replace"] },
+        "position": { "type": "integer", "minimum": 0 },
+        "token_id": { "type": ["integer", "null"] },
+        "token_id_scope": { "enum": ["grammar", "temporary-external"] },
+        "token_name": { "type": "string", "minLength": 1 },
+        "cost": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "properties": {
+            "token_id": { "type": "integer", "minimum": 0 },
+            "token_id_scope": { "const": "grammar" }
+          }
+        },
+        {
+          "properties": {
+            "token_id": { "type": "null" },
+            "token_id_scope": { "const": "temporary-external" }
+          }
+        }
+      ]
+    },
+    "proposed_edit": {
+      "type": "object",
+      "required": ["summary", "operations", "applied_source_sha256"],
+      "properties": {
+        "summary": { "type": "string", "minLength": 1 },
+        "operations": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/source_edit" }
+        },
+        "applied_source_sha256": { "$ref": "#/$defs/sha256" }
+      },
+      "additionalProperties": false
+    },
+    "source_edit": {
+      "type": "object",
+      "required": ["start_byte", "end_byte", "replacement"],
+      "properties": {
+        "start_byte": { "type": "integer", "minimum": 0 },
+        "end_byte": { "type": "integer", "minimum": 0 },
+        "replacement": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "fresh_reparse": {
+      "type": "object",
+      "required": ["status", "diagnostic_count", "value_class"],
+      "properties": {
+        "status": { "enum": ["accepted", "progress", "rejected"] },
+        "diagnostic_count": { "type": "integer", "minimum": 0 },
+        "value_class": { "type": ["string", "null"] },
+        "diagnostic": { "$ref": "#/$defs/diagnostic" }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "properties": {
+            "status": { "const": "accepted" },
+            "diagnostic_count": { "const": 0 },
+            "value_class": { "type": "string", "minLength": 1 }
+          },
+          "not": { "required": ["diagnostic"] }
+        },
+        {
+          "required": ["diagnostic"],
+          "properties": {
+            "status": { "enum": ["progress", "rejected"] },
+            "diagnostic_count": { "type": "integer", "minimum": 1 },
+            "value_class": { "type": "null" }
+          }
+        }
+      ]
+    },
+    "semantic_value_risk": {
+      "type": "object",
+      "required": ["level", "category", "statement"],
+      "properties": {
+        "level": { "enum": ["low", "medium", "high"] },
+        "category": {
+          "enum": [
+            "structural-delimiter",
+            "invented-literal",
+            "lexer-state-closure",
+            "deleted-input",
+            "invented-lexeme"
+          ]
+        },
+        "statement": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "case_review": {
+      "type": "object",
+      "required": ["status", "labels"],
+      "properties": {
+        "status": { "const": "pending" },
+        "labels": { "type": "array", "maxItems": 0 }
+      },
+      "additionalProperties": false
+    }
+  }
+}
