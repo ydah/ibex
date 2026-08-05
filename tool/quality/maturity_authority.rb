@@ -5,7 +5,7 @@ module Ibex
     # rubocop:disable Metrics/ModuleLength -- one closed authority maps every audited feature.
     # Human-reviewed Git authorities used by the executable maturity audit.
     module MaturityAuthority
-      REVIEWED_REVISION = "87491f2c009fa98ffbc3a1a865c097926ef79864"
+      REVIEWED_REVISION = "84e1b26f95758c4fe67eef67e84d7453072fff5d"
       RELEASES = {
         "v0.1.0" => "65d41edf381afb9c18e01e55332a293332f340e6",
         "v0.2.0" => "bd88b1203706c37bf225e837a2fe46d334d4651d"
@@ -126,8 +126,17 @@ module Ibex
         "incremental-cst" => {
           path: "lib/ibex/runtime/parser.rb", query: "incremental_session",
           revision: "0b33bac2d2a2e2bfdaa31f5721d34231f23ce23e", first_release: "v0.2.0",
-          feature_status: %w[absent present present],
-          absent_sources: [["lib/ibex/runtime/cst/incremental/session.rb"], [], []]
+          feature_status: %w[absent partial present],
+          absent_sources: [
+            %w[
+              lib/ibex/runtime/embedded_source.rb
+              lib/ibex/runtime/syntax_session.rb
+              lib/ibex/runtime/cst/incremental/relexer.rb
+              lib/ibex/runtime/cst/incremental/session.rb
+            ],
+            %w[lib/ibex/runtime/embedded_source.rb lib/ibex/runtime/syntax_session.rb],
+            []
+          ]
         }
       }.freeze
 
@@ -274,6 +283,7 @@ module Ibex
             f3cb3826efa6bfcdb7c7ef11494a9d43c47af352
           ],
           "v0.2.0..reviewed" => %w[
+            c7d02d408e1778bb8018c1876f8728949bf7aa24
             57d4d7a6e45603f3ea703121a6d45616b8c1929b
             87491f2c009fa98ffbc3a1a865c097926ef79864
           ]

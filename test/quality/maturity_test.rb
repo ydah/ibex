@@ -3,6 +3,7 @@
 require_relative "../test_helper"
 require_relative "../../tool/quality/maturity"
 require "date"
+require "fileutils"
 require "tmpdir"
 require "yaml"
 
@@ -471,6 +472,22 @@ class MaturityTest < Minitest::Test
     assert_error(changed, "authoritative canonical source path set drift")
   end
 
+  def test_trusted_syntax_profile_mutation_fails_canonical_source_verification
+    registry = document
+    sources = feature(registry, "incremental-cst").fetch("sources")
+    expected_paths = Ibex::Quality::Maturity::CANONICAL_SOURCES.fetch("incremental-cst")
+    actual_paths = sources.map { |source| source.fetch("path") }
+    assert_equal expected_paths, actual_paths
+    assert_includes expected_paths, "lib/ibex/runtime/syntax_session.rb"
+
+    with_mutated_trust_profile(registry, sources) do |validator|
+      error = assert_raises(RuntimeError) do
+        validator.send(:verify_sources, "incremental-cst", sources)
+      end
+      assert_includes error.message, "source digest drift for lib/ibex/runtime/syntax_session.rb"
+    end
+  end
+
   def test_rejects_hidden_redesign_or_removal_when_public_summary_is_unchanged
     %w[redesign remove].each do |outcome|
       changed = document
@@ -502,6 +519,43 @@ class MaturityTest < Minitest::Test
   end
 
   private
+
+  def with_mutated_trust_profile(registry, sources)
+    Dir.mktmpdir("maturity-trust-profile-") do |root|
+      copy_maturity_sources(root, sources)
+      syntax_session = File.join(root, "lib/ibex/runtime/syntax_session.rb")
+      mutated = File.binread(syntax_session)
+      replacement = mutated.sub!(
+        "TRUSTED_PROFILE = :trusted_application_code",
+        "TRUSTED_PROFILE = :unreviewed_application_code"
+      )
+      raise "trusted profile fixture is missing" unless replacement
+
+      File.binwrite(syntax_session, mutated)
+      yield isolated_source_validator(root, registry, sources)
+    end
+  end
+
+  def copy_maturity_sources(root, sources)
+    sources.each do |source|
+      relative = source.fetch("path")
+      target = File.join(root, relative)
+      FileUtils.mkdir_p(File.dirname(target))
+      FileUtils.cp(File.join(ROOT, relative), target)
+    end
+  end
+
+  def isolated_source_validator(root, registry, sources)
+    revision = registry.dig("audit", "reviewed_repository_revision")
+    git_objects = sources.to_h do |source|
+      relative = source.fetch("path")
+      [[revision, relative], File.binread(File.join(ROOT, relative))]
+    end
+    validator = Ibex::Quality::Maturity.new(root: root, today: TODAY)
+    validator.instance_variable_set(:@reviewed_revision, revision)
+    validator.instance_variable_set(:@git_objects, git_objects)
+    validator
+  end
 
   def document
     YAML.safe_load_file(REGISTRY, permitted_classes: [], permitted_symbols: [], aliases: false)
