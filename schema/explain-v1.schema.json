@@ -165,6 +165,10 @@
         "nonunifying_witnesses": {
           "type": "integer",
           "minimum": 0
+        },
+        "inconclusive_searches": {
+          "type": "integer",
+          "minimum": 0
         }
       },
       "additionalProperties": false
@@ -346,7 +350,8 @@
         "kind": {
           "enum": [
             "unifying_counterexample",
-            "nonunifying_witness"
+            "nonunifying_witness",
+            "inconclusive"
           ]
         },
         "sentence": {
@@ -365,6 +370,9 @@
             "$ref": "#/$defs/symbol_reference"
           }
         },
+        "search": {
+          "$ref": "#/$defs/witness_search"
+        },
         "interpretations": {
           "type": "array",
           "minItems": 2,
@@ -373,6 +381,60 @@
           }
         }
       },
+      "additionalProperties": false
+    },
+    "witness_search": {
+      "type": "object",
+      "required": [
+        "status",
+        "explored",
+        "exhausted",
+        "bounds"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "found",
+            "not_found",
+            "exhausted"
+          ]
+        },
+        "explored": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "exhausted": {
+          "type": "boolean"
+        },
+        "bounds": {
+          "$ref": "#/$defs/search"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "exhausted"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "exhausted": {
+                "const": true
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "exhausted": {
+                "const": false
+              }
+            }
+          }
+        }
+      ],
       "additionalProperties": false
     },
     "conflict": {

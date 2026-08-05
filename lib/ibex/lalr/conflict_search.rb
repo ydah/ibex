@@ -47,9 +47,9 @@ module Ibex
         @initial_state = automaton.entry_states.fetch(entry)
       end
 
-      # @rbs () -> search_result?
+      # @rbs () -> search_outcome
       def call
-        return unless @lookahead
+        return outcome(:not_found) unless @lookahead
 
         initial = configuration([@initial_state], Array.new(0))
         queue = [[initial, Array.new(0)]] #: Array[[Configuration, Array[Integer]]]
@@ -58,17 +58,28 @@ module Ibex
           current, prefix = queue.shift
           conflict_configurations(current).each do |candidate|
             result = unify_from(candidate, prefix)
-            return result if result
+            return outcome(:found, result) if result
           end
           enqueue_prefixes(queue, visited, current, prefix)
         end
-        nil
+        outcome(exhausted? ? :exhausted : :not_found)
       end
 
       # @rbs () -> bool
       def exhausted? = @explored >= @max_configurations
 
       private
+
+      # @rbs (:found | :not_found | :exhausted status, ?search_result? result) -> search_outcome
+      def outcome(status, result = nil)
+        {
+          status: status,
+          result: result,
+          explored: @explored,
+          exhausted: status == :exhausted,
+          bounds: { max_tokens: @max_tokens, max_configurations: @max_configurations }
+        }
+      end
 
       # @rbs (Configuration current) -> Array[Configuration]
       def conflict_configurations(current)

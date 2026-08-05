@@ -333,6 +333,8 @@ module Ibex
         raise "H004 explanation state is outside its automaton" unless
           explanation.fetch("state") < entry.dig("automaton", "state_count")
 
+        validate_witness_search!(explanation.fetch("witness"))
+
         repair = conflict.fetch("repair")
         return if repair.fetch("result") == "budget_exhausted"
 
@@ -341,6 +343,20 @@ module Ibex
         raise "H004 repair result/proposal mismatch" unless repair.fetch("result") == expected
 
         proposals.each { |proposal| validate_proposal!(proposal) }
+      end
+
+      # @rbs (Hash[String, untyped] witness) -> void
+      def validate_witness_search!(witness)
+        search = witness.fetch("search")
+        raise "H004 explanation search bounds drift" unless search.fetch("bounds") == stringify(SEARCH_BOUNDS)
+        if search.fetch("exhausted") || search.fetch("status") == "exhausted" || witness.fetch("kind") == "inconclusive"
+          raise "H004 explanation search exhausted; recapture with sufficient fixed bounds"
+        end
+
+        expected_status = witness.fetch("kind") == "unifying_counterexample" ? "found" : "not_found"
+        return if search.fetch("status") == expected_status
+
+        raise "H004 explanation witness/search outcome mismatch"
       end
 
       # @rbs (Hash[String, untyped] proposal) -> void

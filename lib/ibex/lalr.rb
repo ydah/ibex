@@ -30,5 +30,13 @@ module Ibex
     #     lookahead_index: Integer,
     #     interpretations: Array[IR::interpretation]
     #   }
+    #   type search_bounds = { max_tokens: Integer, max_configurations: Integer }
+    #   type search_outcome = {
+    #     status: :found | :not_found | :exhausted,
+    #     result: search_result?,
+    #     explored: Integer,
+    #     exhausted: bool,
+    #     bounds: search_bounds
+    #   }
   end
 end

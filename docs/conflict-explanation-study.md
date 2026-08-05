@@ -17,6 +17,11 @@ recorded bounds. The other cases truthfully record `no_safe_proposal`; advice
 that merely acknowledges a conflict or changes recovery is labeled as not a
 verified repair.
 
+Every witness records its typed search outcome, explored configuration count,
+exhaustion flag, and token/configuration bounds. A configuration-budget
+exhaustion is `inconclusive`; it is never relabeled as a nonunifying witness or
+accepted into the fixed study capture.
+
 Regenerate or verify the machine capture with:
 
 ```sh

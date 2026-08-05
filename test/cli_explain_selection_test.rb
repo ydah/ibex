@@ -21,7 +21,8 @@ class CLIExplainSelectionTest < Minitest::Test
     token = state.conflicts.first.fetch(:symbol)
     calls = []
     search = Object.new
-    search.define_singleton_method(:call) { nil }
+    outcome = not_found_outcome
+    search.define_singleton_method(:call) { outcome }
     factory = lambda do |_automaton, selected_state, conflict, **_options|
       calls << [selected_state.id, conflict.fetch(:symbol)]
       search
@@ -63,6 +64,13 @@ class CLIExplainSelectionTest < Minitest::Test
   end
 
   private
+
+  def not_found_outcome
+    {
+      status: :not_found, result: nil, explored: 0, exhausted: false,
+      bounds: { max_tokens: 32, max_configurations: 50_000 }
+    }
+  end
 
   def build_automaton(source)
     ast = Ibex::Frontend::Parser.new(source, file: "explain-selection.y").parse

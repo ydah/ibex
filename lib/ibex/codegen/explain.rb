@@ -42,6 +42,7 @@ module Ibex
       # @rbs () -> Hash[Symbol, untyped]
       def to_h
         unifying = @entries.count { |entry| entry.fetch(:example).fetch(:unifying) }
+        inconclusive = @entries.count { |entry| entry.fetch(:example).fetch(:inconclusive) }
         {
           ibex_explain: "conflicts",
           schema_version: SCHEMA_VERSION,
@@ -54,7 +55,8 @@ module Ibex
           summary: {
             matched_conflicts: @entries.length,
             unifying_counterexamples: unifying,
-            nonunifying_witnesses: @entries.length - unifying
+            nonunifying_witnesses: @entries.length - unifying - inconclusive,
+            inconclusive_searches: inconclusive
           },
           conflicts: @entries.map { |entry| conflict_document(entry) }
         }
@@ -150,15 +152,34 @@ module Ibex
           alternatives: conflict_alternatives(conflict),
           resolution: string_values(conflict.fetch(:resolution)),
           witness: {
-            kind: example.fetch(:unifying) ? "unifying_counterexample" : "nonunifying_witness",
+            kind: witness_kind(example),
             sentence: example.fetch(:sentence).map { |name| symbol_reference(name) },
             lookahead_index: example.fetch(:lookahead_index),
             symbol_path: example.fetch(:symbol_path).map { |name| symbol_reference(name) },
+            search: search_document(example.fetch(:search)),
             interpretations: example.fetch(:interpretations).map { |item| interpretation_document(item) }
           }
         } #: Hash[Symbol, untyped]
         document[:midrule_origins] = conflict[:midrule_origins] if conflict[:midrule_origins]
         document
+      end
+
+      # @rbs (IR::counterexample example) -> String
+      def witness_kind(example)
+        return "unifying_counterexample" if example.fetch(:unifying)
+        return "inconclusive" if example.fetch(:inconclusive)
+
+        "nonunifying_witness"
+      end
+
+      # @rbs (LALR::search_outcome outcome) -> Hash[Symbol, untyped]
+      def search_document(outcome)
+        {
+          status: outcome.fetch(:status).to_s,
+          explored: outcome.fetch(:explored),
+          exhausted: outcome.fetch(:exhausted),
+          bounds: outcome.fetch(:bounds)
+        }
       end
 
       # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
@@ -229,7 +250,10 @@ module Ibex
         append_midrule_origins(lines, conflict)
         append_witness_steps(lines, state, conflict, example)
         append_interpretations(lines, example)
-        unless example.fetch(:unifying)
+        if example.fetch(:inconclusive)
+          search = example.fetch(:search)
+          lines << "  Search exhausted after #{search.fetch(:explored)} configurations; classification is inconclusive."
+        elsif !example.fetch(:unifying)
           lines << "  The search found no shared sentence within the configured budget; this witness is deterministic."
         end
         lines << ""
@@ -251,7 +275,11 @@ module Ibex
         lines << "  1. Reach state #{state.id} with the witness prefix."
         sentence = example.fetch(:sentence).map { |name| display_name(name) }
         sentence.insert(example.fetch(:lookahead_index), "•")
-        kind = example.fetch(:unifying) ? "Unifying counterexample" : "Nonunifying reachability witness"
+        kind = case witness_kind(example)
+               when "unifying_counterexample" then "Unifying counterexample"
+               when "inconclusive" then "Inconclusive reachability witness"
+               else "Nonunifying reachability witness"
+               end
         lines << "     #{kind}: #{sentence.join(' ')}"
         lines << "  2. The lookahead permits these competing actions:"
         conflict_alternatives(conflict).each { |alternative| lines << "     - #{alternative_text(alternative)}" }

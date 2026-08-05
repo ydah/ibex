@@ -22,11 +22,12 @@ module Ibex
       # @rbs (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample
       def build_example: (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample
 
-      # @rbs (IR::AutomatonState state, IR::conflict conflict, Hash[Symbol, untyped] result) -> IR::counterexample
-      def unifying_example: (IR::AutomatonState state, IR::conflict conflict, Hash[Symbol, untyped] result) -> IR::counterexample
+      # @rbs (IR::AutomatonState state, IR::conflict conflict, search_outcome outcome,
+      #   search_result result) -> IR::counterexample
+      def unifying_example: (IR::AutomatonState state, IR::conflict conflict, search_outcome outcome, search_result result) -> IR::counterexample
 
-      # @rbs (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample
-      def reachability_example: (IR::AutomatonState state, IR::conflict conflict) -> IR::counterexample
+      # @rbs (IR::AutomatonState state, IR::conflict conflict, search_outcome outcome) -> IR::counterexample
+      def reachability_example: (IR::AutomatonState state, IR::conflict conflict, search_outcome outcome) -> IR::counterexample
 
       # @rbs (Integer target, IR::conflict conflict) -> Array[Integer]
       def shortest_state_path: (Integer target, IR::conflict conflict) -> Array[Integer]

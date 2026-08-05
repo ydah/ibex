@@ -129,18 +129,40 @@ class CLIExplainTest < Minitest::Test
     end
   end
 
-  def test_search_budget_falls_back_to_a_nonunifying_witness
+  def test_search_budget_distinguishes_bounded_absence_from_configuration_exhaustion
     with_grammar(dangling_else_grammar) do |path|
       result = invoke(["explain", "--format=json", "--counterexample-max-tokens=8", path])
       document = JSON.parse(result.fetch(:stdout))
 
       assert_equal 0, result.fetch(:status), result.fetch(:stderr)
       assert_equal 1, document.dig("summary", "nonunifying_witnesses")
+      assert_equal 0, document.dig("summary", "inconclusive_searches")
       assert_equal "nonunifying_witness", document.dig("conflicts", 0, "witness", "kind")
+      assert_equal "not_found", document.dig("conflicts", 0, "witness", "search", "status")
+      refute document.dig("conflicts", 0, "witness", "search", "exhausted")
 
       text = invoke(["explain", "--counterexample-max-configurations=100", path]).fetch(:stdout)
-      assert_includes text, "Nonunifying reachability witness"
-      assert_includes text, "within the configured budget"
+      assert_includes text, "Inconclusive reachability witness"
+      assert_includes text, "Search exhausted after 100 configurations; classification is inconclusive."
+    end
+  end
+
+  def test_one_configuration_budget_is_schema_valid_and_explicitly_inconclusive
+    with_grammar(expression_grammar) do |path|
+      result = invoke(["explain", "--format=json", "--counterexample-max-configurations=1", path])
+      document = JSON.parse(result.fetch(:stdout))
+      witness = document.dig("conflicts", 0, "witness")
+
+      assert_equal 0, result.fetch(:status), result.fetch(:stderr)
+      assert_equal document.dig("summary", "matched_conflicts"),
+                   document.dig("summary", "inconclusive_searches")
+      assert_equal 0, document.dig("summary", "nonunifying_witnesses")
+      assert_equal "inconclusive", witness.fetch("kind")
+      assert_equal({ "status" => "exhausted", "explored" => 1, "exhausted" => true,
+                     "bounds" => { "max_tokens" => 32, "max_configurations" => 1 } },
+                   witness.fetch("search"))
+      schema = JSON.parse(File.read(SCHEMA))
+      assert_empty JSONSchemer.schema(schema).validate(document).to_a
     end
   end
 

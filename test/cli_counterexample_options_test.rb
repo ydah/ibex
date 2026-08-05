@@ -6,8 +6,8 @@ require "tmpdir"
 
 class CLICounterexampleOptionsTest < Minitest::Test
   def test_search_limits_affect_reports
-    assert_limited_report("--counterexample-max-tokens=8")
-    assert_limited_report("--counterexample-max-configurations=100")
+    assert_limited_report("--counterexample-max-tokens=8", "nonunifying witness:")
+    assert_limited_report("--counterexample-max-configurations=100", "inconclusive reachability witness:")
   end
 
   def test_search_limits_must_be_positive
@@ -23,7 +23,7 @@ class CLICounterexampleOptionsTest < Minitest::Test
 
   private
 
-  def assert_limited_report(option)
+  def assert_limited_report(option, expected)
     Dir.mktmpdir("ibex-counterexample-limit") do |directory|
       grammar = File.join(directory, "conflicting.y")
       report = File.join(directory, "conflicting.output")
@@ -31,7 +31,7 @@ class CLICounterexampleOptionsTest < Minitest::Test
       errors = StringIO.new
       status = Ibex::CLI.start([option, grammar], stdout: StringIO.new, stderr: errors)
       assert_equal 0, status, errors.string
-      assert_includes File.read(report), "nonunifying witness:"
+      assert_includes File.read(report), expected
     end
   end
 

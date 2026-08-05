@@ -45,6 +45,7 @@ class CounterexampleTest < Minitest::Test
     example = Ibex::LALR::Counterexample.new(automaton).all.first
     assert_equal :reduce_reduce, example[:type]
     assert example[:unifying]
+    assert_equal({ status: :found, exhausted: false }, example.fetch(:search).slice(:status, :exhausted))
     assert_equal ["TOKEN"], example[:sentence]
     assert_equal 2, example[:interpretations].length
     productions = example[:interpretations].map { |item| item[:production] }
@@ -66,6 +67,8 @@ class CounterexampleTest < Minitest::Test
     examples = Ibex::LALR::Counterexample.new(automaton).all
     assert examples.any?
     refute examples.first[:unifying]
+    refute examples.first[:inconclusive]
+    assert_equal :not_found, examples.first.dig(:search, :status)
   end
 
   def test_report_includes_unifying_counterexample_and_derivations
@@ -80,7 +83,9 @@ class CounterexampleTest < Minitest::Test
     automaton = build("class P\nexpect 1\nrule\nstart: start start | TOKEN\nend\n")
     captured = nil
     search = Object.new
-    search.define_singleton_method(:call) { nil }
+    outcome = { status: :not_found, result: nil, explored: 0, exhausted: false,
+                bounds: { max_tokens: 7, max_configurations: 123 } }
+    search.define_singleton_method(:call) { outcome }
 
     factory = lambda do |*_arguments, **options|
       captured = options
@@ -133,10 +138,25 @@ class CounterexampleTest < Minitest::Test
     )
 
     search = Ibex::LALR::ConflictSearch.new(automaton_with_conflict, state_with_conflict, conflict)
-    assert_nil search.call
+    outcome = search.call
+    assert_equal :not_found, outcome.fetch(:status)
+    refute outcome.fetch(:exhausted)
     example = Ibex::LALR::Counterexample.new(automaton_with_conflict).all.first
     refute example[:unifying]
+    refute example[:inconclusive]
     assert_equal :shift_reduce, example[:type]
+  end
+
+  def test_configuration_exhaustion_is_an_explicit_inconclusive_outcome
+    automaton = build("class P\nexpect 1\nrule\nstart: start start | TOKEN\nend\n")
+    example = Ibex::LALR::Counterexample.new(automaton, max_tokens: 16, max_configurations: 1).all.first
+
+    refute example.fetch(:unifying)
+    assert example.fetch(:inconclusive)
+    assert_equal :exhausted, example.dig(:search, :status)
+    assert example.dig(:search, :exhausted)
+    assert_equal 1, example.dig(:search, :explored)
+    assert_equal({ max_tokens: 16, max_configurations: 1 }, example.dig(:search, :bounds))
   end
 
   def test_token_budget_includes_a_non_eof_conflict_lookahead
@@ -195,6 +215,7 @@ class CounterexampleTest < Minitest::Test
     token_limited = Ibex::Codegen::Report.render(automaton, max_tokens: 8)
     configuration_limited = Ibex::Codegen::Report.render(automaton, max_configurations: 100)
     assert_includes token_limited, "nonunifying witness:"
-    assert_includes configuration_limited, "nonunifying witness:"
+    assert_includes configuration_limited, "inconclusive reachability witness:"
+    assert_includes configuration_limited, "search exhausted after 100 configurations; no classification was made"
   end
 end

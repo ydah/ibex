@@ -60,9 +60,10 @@ quality tool and its study schema describes evidence, not a runtime API.
 
 Each case fixes positive token/configuration limits for explanation search and
 the existing candidate, build, equivalence, and verifier limits for suggested
-repairs. Exhaustion is recorded as an outcome and cannot be converted to a
-successful explanation or safe repair. Corpus-level ratios are descriptive for
-the fixed cases only.
+repairs. Explanation evidence records the typed outcome, explored count,
+exhaustion flag, and both bounds. Exhaustion is explicitly `inconclusive` and
+cannot be converted to a nonunifying witness, successful explanation, or safe
+repair. Corpus-level ratios are descriptive for the fixed cases only.
 
 ## Oracle
 
