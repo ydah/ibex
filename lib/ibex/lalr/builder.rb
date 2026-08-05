@@ -73,13 +73,27 @@ module Ibex
         summary = conflict_summary(states)
         final_items, final_lookahead_items = profiled_final_item_counts(merged_items)
         @metrics = build_metrics(collection, states.length, final_items, final_lookahead_items)
-        IR::Automaton.new(grammar: @grammar, states: states, conflict_summary: summary,
-                          algorithm: algorithm_name, entry_states: entry_states,
-                          schema_version: output_schema_version,
-                          entry_construction: output_entry_construction)
+        build_output_automaton(states: states, conflict_summary: summary, entry_states: entry_states)
       end
 
       private
+
+      # @rbs (states: Array[IR::AutomatonState], conflict_summary: IR::conflict_summary,
+      #   entry_states: Hash[String, Integer]) -> IR::Automaton
+      def build_output_automaton(states:, conflict_summary:, entry_states:)
+        if output_schema_version >= 3
+          entry_construction = output_entry_construction || raise(Ibex::Error, "missing v3 entry construction")
+          return IR::Automaton.v3(
+            grammar: @grammar, states: states, conflict_summary: conflict_summary,
+            algorithm: algorithm_name, entry_states: entry_states, entry_construction: entry_construction
+          )
+        end
+
+        IR::Automaton.new(
+          grammar: @grammar, states: states, conflict_summary: conflict_summary,
+          algorithm: algorithm_name, entry_states: entry_states, schema_version: output_schema_version
+        )
+      end
 
       # @rbs (Array[IR::AutomatonState] states) -> IR::conflict_summary
       def conflict_summary(states)
@@ -517,10 +531,8 @@ module Ibex
         end
         canonical_states = canonical_counts.compact.sum if canonical_counts.none?(&:nil?)
         @metrics = isolated_metrics(entries, construction_states, canonical_states, states.length)
-        IR::Automaton.new(
-          grammar: @grammar, states: states, conflict_summary: conflict_summary(states),
-          algorithm: algorithm_name, entry_states: entry_states, schema_version: output_schema_version,
-          entry_construction: output_entry_construction
+        build_output_automaton(
+          states: states, conflict_summary: conflict_summary(states), entry_states: entry_states
         )
       end
 

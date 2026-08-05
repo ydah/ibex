@@ -30,8 +30,6 @@ module Ibex
       #   private def self.load_symbol_metadata: (untyped symbol, String field) -> String?
       #   private def load_grammar_tests: (untyped tests) -> untyped
       #   private def self.load_grammar_tests: (untyped tests) -> untyped
-      #   private def load_parser_contract: (untyped value) -> untyped
-      #   private def self.load_parser_contract: (untyped value) -> untyped
       #   private def symbol_source_position: (untyped symbol) -> String
       #   private def self.symbol_source_position: (untyped symbol) -> String
       #   private def symbolize: (untyped value) -> untyped
@@ -72,7 +70,7 @@ module Ibex
       end
 
       # @rbs skip
-      def load_grammar(data) # rubocop:disable Metrics/AbcSize -- explicit fields preserve the public IR contract.
+      def load_grammar(data)
         empty_chunks = {} #: Hash[String, untyped]
         empty_parameters = [] #: Array[untyped]
         empty_printers = [] #: Array[untyped]
@@ -88,31 +86,75 @@ module Ibex
                             documentation: symbol["doc"])
         end
         productions = data.fetch("productions").map { |production| load_production(production, schema_version) }
-        Grammar.new(class_name: data.fetch("class_name"), superclass: data["superclass"], start: data.fetch("start"),
-                    expect: data.fetch("expect"), options: symbolize(data.fetch("options")), symbols: symbols,
-                    mode: (data["mode"] || "default").to_sym, starts: data["starts"],
-                    expect_rr: data["expect_rr"],
-                    parser_parameters: symbolize(data.fetch("params", empty_parameters)),
-                    value_printers: symbolize(data.fetch("printers", empty_printers)),
-                    grammar_tests: load_grammar_tests(data.fetch("tests", empty_tests)),
-                    lexer: data["lexer"] && load_lexer(data.fetch("lexer")),
-                    recovery: symbolize(data.fetch("recovery", empty_recovery)),
-                    productions: productions, user_code: data.fetch("user_code"),
-                    conversions: data.fetch("conversions"), warnings: symbolize(data.fetch("warnings")),
-                    user_code_chunks: load_user_code_chunks(data.fetch("user_code_chunks", empty_chunks)),
-                    schema_version: schema_version, source_provenance: symbolize(data["source_provenance"]),
-                    migration: symbolize(data["migration"]),
-                    parser_contract: load_parser_contract(data["parser_contract"]))
+        if schema_version >= 3
+          return load_grammar_v3(
+            data, symbols, productions, empty_chunks, empty_parameters, empty_printers, empty_tests, empty_recovery
+          )
+        end
+
+        load_grammar_legacy(
+          data, symbols, productions, empty_chunks, empty_parameters, empty_printers, empty_tests, empty_recovery,
+          schema_version
+        )
       end # rubocop:enable Metrics/AbcSize
+
+      # @rbs skip
+      def load_grammar_v3(data, symbols, productions, empty_chunks, empty_parameters, empty_printers, empty_tests,
+                          empty_recovery)
+        Grammar.v3(
+          class_name: data.fetch("class_name"), superclass: data["superclass"], start: data.fetch("start"),
+          expect: data.fetch("expect"), options: symbolize(data.fetch("options")), symbols: symbols,
+          mode: (data["mode"] || "default").to_sym, starts: data["starts"], expect_rr: data["expect_rr"],
+          parser_parameters: symbolize(data.fetch("params", empty_parameters)),
+          value_printers: symbolize(data.fetch("printers", empty_printers)),
+          grammar_tests: load_grammar_tests(data.fetch("tests", empty_tests)),
+          lexer: data["lexer"] && load_lexer(data.fetch("lexer")),
+          recovery: symbolize(data.fetch("recovery", empty_recovery)), productions: productions,
+          user_code: data.fetch("user_code"), conversions: data.fetch("conversions"),
+          warnings: symbolize(data.fetch("warnings")),
+          user_code_chunks: load_user_code_chunks(data.fetch("user_code_chunks", empty_chunks)),
+          source_provenance: symbolize(data["source_provenance"]), migration: symbolize(data["migration"]),
+          parser_contract: load_parser_contract(data["parser_contract"])
+        )
+      end
+
+      # @rbs skip
+      def load_grammar_legacy(data, symbols, productions, empty_chunks, empty_parameters, empty_printers, empty_tests,
+                              empty_recovery, schema_version)
+        Grammar.new(
+          class_name: data.fetch("class_name"), superclass: data["superclass"], start: data.fetch("start"),
+          expect: data.fetch("expect"), options: symbolize(data.fetch("options")), symbols: symbols,
+          mode: (data["mode"] || "default").to_sym, starts: data["starts"], expect_rr: data["expect_rr"],
+          parser_parameters: symbolize(data.fetch("params", empty_parameters)),
+          value_printers: symbolize(data.fetch("printers", empty_printers)),
+          grammar_tests: load_grammar_tests(data.fetch("tests", empty_tests)),
+          lexer: data["lexer"] && load_lexer(data.fetch("lexer")),
+          recovery: symbolize(data.fetch("recovery", empty_recovery)), productions: productions,
+          user_code: data.fetch("user_code"), conversions: data.fetch("conversions"),
+          warnings: symbolize(data.fetch("warnings")),
+          user_code_chunks: load_user_code_chunks(data.fetch("user_code_chunks", empty_chunks)),
+          schema_version: schema_version, source_provenance: symbolize(data["source_provenance"]),
+          migration: symbolize(data["migration"])
+        )
+      end
 
       # @rbs skip
       def load_automaton(data)
         grammar = load_grammar(data.fetch("grammar"))
         states = data.fetch("states").map { |state| load_state(state, grammar) }
-        Automaton.new(grammar: grammar, states: states, conflict_summary: symbolize(data.fetch("conflict_summary")),
-                      algorithm: data.fetch("algorithm"), grammar_digest: data.fetch("grammar_digest"),
-                      schema_version: data.fetch("schema_version"), entry_states: data["entry_states"],
-                      entry_construction: data["entry_construction"])
+        if data.fetch("schema_version") >= 3
+          return Automaton.v3(
+            grammar: grammar, states: states, conflict_summary: symbolize(data.fetch("conflict_summary")),
+            algorithm: data.fetch("algorithm"), grammar_digest: data.fetch("grammar_digest"),
+            entry_states: data["entry_states"], entry_construction: data.fetch("entry_construction")
+          )
+        end
+
+        Automaton.new(
+          grammar: grammar, states: states, conflict_summary: symbolize(data.fetch("conflict_summary")),
+          algorithm: data.fetch("algorithm"), grammar_digest: data.fetch("grammar_digest"),
+          entry_states: data["entry_states"], schema_version: data.fetch("schema_version")
+        )
       end
 
       # @rbs skip
@@ -258,12 +300,14 @@ module Ibex
       end
       module_function :validate_version, :load_grammar, :load_automaton, :load_lexer, :load_state, :symbol_keyed,
                       :normalize_action, :load_production, :load_user_code_chunks, :load_symbol_metadata,
-                      :symbol_source_position, :load_grammar_tests, :load_parser_contract, :symbolize
+                      :symbol_source_position, :load_grammar_tests, :load_grammar_v3, :load_grammar_legacy,
+                      :load_parser_contract, :symbolize
 
       class << self
         private :validate_version, :load_grammar, :load_automaton, :load_lexer, :load_state, :symbol_keyed,
                 :normalize_action, :load_production, :load_user_code_chunks, :load_symbol_metadata,
-                :symbol_source_position, :load_grammar_tests, :load_parser_contract, :symbolize
+                :symbol_source_position, :load_grammar_tests, :load_grammar_v3, :load_grammar_legacy,
+                :load_parser_contract, :symbolize
       end
     end
     # rubocop:enable Metrics/ModuleLength

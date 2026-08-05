@@ -77,13 +77,37 @@ module Ibex
       attr_reader :entry_states #: Hash[String, Integer]
       attr_reader :conflict_summary #: conflict_summary
       attr_reader :schema_version #: Integer
+      # @rbs skip
       attr_reader :entry_construction #: String?
 
       # @rbs (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary,
       #   ?algorithm: String, ?grammar_digest: String?, ?schema_version: Integer,
-      #   ?entry_states: Hash[String, Integer]?, ?entry_construction: String?) -> void
+      #   ?entry_states: Hash[String, Integer]?) -> void
       def initialize(grammar:, states:, conflict_summary:, algorithm: "lalr1", grammar_digest: nil,
-                     schema_version: SCHEMA_VERSION, entry_states: nil, entry_construction: nil)
+                     schema_version: SCHEMA_VERSION, entry_states: nil)
+        initialize_versioned(
+          grammar: grammar, states: states, conflict_summary: conflict_summary, algorithm: algorithm,
+          grammar_digest: grammar_digest, schema_version: schema_version, entry_states: entry_states,
+          entry_construction: nil
+        )
+      end
+
+      # @rbs skip
+      def self.v3(grammar:, states:, conflict_summary:, entry_construction:, algorithm: "lalr1", grammar_digest: nil,
+                  entry_states: nil)
+        automaton = allocate
+        automaton.send(
+          :initialize_versioned,
+          grammar: grammar, states: states, conflict_summary: conflict_summary, algorithm: algorithm,
+          grammar_digest: grammar_digest, schema_version: LATEST_SCHEMA_VERSION, entry_states: entry_states,
+          entry_construction: entry_construction
+        )
+        automaton
+      end
+
+      # @rbs skip
+      def initialize_versioned(grammar:, states:, conflict_summary:, algorithm:, grammar_digest:, schema_version:,
+                               entry_states:, entry_construction:)
         unless SUPPORTED_SCHEMA_VERSIONS.include?(schema_version)
           raise Ibex::Error, "unsupported automaton schema_version #{schema_version.inspect}"
         end
@@ -110,6 +134,7 @@ module Ibex
         validate_parser_contract
         freeze
       end
+      private :initialize_versioned
 
       # @rbs () -> Hash[Symbol, untyped]
       def to_h
@@ -144,7 +169,7 @@ module Ibex
         "sha256:#{Digest::SHA256.hexdigest(IR::Serialize.dump(grammar))}"
       end
 
-      # @rbs (Integer schema_version, String? value) -> String?
+      # @rbs skip
       def validate_entry_construction(schema_version, value)
         if schema_version >= 3
           unless %w[shared isolated unknown].include?(value)
@@ -158,7 +183,7 @@ module Ibex
         nil
       end
 
-      # @rbs () -> void
+      # @rbs skip
       def validate_parser_contract
         return unless @schema_version >= 3
 

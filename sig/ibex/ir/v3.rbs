@@ -1,0 +1,89 @@
+# Generated from lib/ibex/ir/v3.rb with RBS::Inline
+
+module Ibex
+  module IR
+    LATEST_SCHEMA_VERSION: ::Integer
+
+    class Grammar
+      attr_reader parser_contract: ParserContract?
+
+      def self.v3: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?expect_rr: Integer?, ?user_code_chunks: user_code_chunks?, ?source_provenance: source_provenance?, ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter], ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test], ?recovery: recovery_policy?, ?lexer: Lexer?, ?mode: grammar_mode, ?starts: Array[String]?, ?parser_contract: ParserContract) -> Grammar
+
+      private
+
+      def initialize_versioned: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], user_code_chunks: user_code_chunks?, schema_version: Integer, source_provenance: source_provenance?, migration: migration_metadata?, expect_rr: Integer?, parser_parameters: Array[parser_parameter], value_printers: Array[value_printer], grammar_tests: Array[grammar_test], recovery: recovery_policy?, lexer: Lexer?, mode: grammar_mode, starts: Array[String]?, parser_contract: ParserContract?) -> void
+
+      def validate_parser_contract: (Integer schema_version, ParserContract? parser_contract) -> void
+    end
+
+    class Automaton
+      attr_reader entry_construction: String?
+
+      def self.v3: (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary, entry_construction: String, ?algorithm: String, ?grammar_digest: String?, ?entry_states: Hash[String, Integer]?) -> Automaton
+
+      private
+
+      def initialize_versioned: (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary, algorithm: String, grammar_digest: String?, schema_version: Integer, entry_states: Hash[String, Integer]?, entry_construction: String?) -> void
+
+      def validate_entry_construction: (Integer schema_version, String? value) -> String?
+
+      def validate_parser_contract: () -> void
+    end
+
+    module Migration
+      UNAVAILABLE_V2_CONFIGURATION: Array[String]
+
+      def self?.to_v3: (Grammar | Automaton value) -> (Grammar | Automaton)
+
+      def self?.migrate_grammar_to_v3: (Grammar grammar) -> Grammar
+
+      def self?.migrate_automaton_to_v3: (Automaton automaton) -> Automaton
+
+      def self?.migration_to_v3: (Grammar grammar) -> migration_metadata
+    end
+
+    module Serialize
+      private def load_grammar_v3: (untyped data, untyped symbols, untyped productions, untyped empty_chunks, untyped empty_parameters, untyped empty_printers, untyped empty_tests, untyped empty_recovery) -> Grammar
+
+      private def self.load_grammar_v3: (untyped data, untyped symbols, untyped productions, untyped empty_chunks, untyped empty_parameters, untyped empty_printers, untyped empty_tests, untyped empty_recovery) -> Grammar
+
+      private def load_grammar_legacy: (untyped data, untyped symbols, untyped productions, untyped empty_chunks, untyped empty_parameters, untyped empty_printers, untyped empty_tests, untyped empty_recovery, Integer schema_version) -> Grammar
+
+      private def self.load_grammar_legacy: (untyped data, untyped symbols, untyped productions, untyped empty_chunks, untyped empty_parameters, untyped empty_printers, untyped empty_tests, untyped empty_recovery, Integer schema_version) -> Grammar
+
+      private def load_parser_contract: (untyped value) -> untyped
+
+      private def self.load_parser_contract: (untyped value) -> untyped
+    end
+
+    module Validator
+      class AutomatonDocument
+        V3_ROOT_REQUIRED: Array[String]
+
+        private
+
+        def validate_construction_contract: (Hash[String, untyped] grammar) -> void
+      end
+
+      class GrammarDocument
+        V3_ROOT_REQUIRED: Array[String]
+
+        private
+
+        def validate_root_record: () -> void
+
+        def validate_optional_parser_metadata: () -> void
+
+        def validate_parser_parameters_if_present: () -> void
+
+        def validate_optional_source_metadata: () -> void
+
+        def migration_loss_inventory: (untyped from) -> Array[String]
+
+        def validate_parser_contract: () -> void
+
+        def validate_contract_entry: (untyped value, String path, Array[String] allowed) -> Hash[String, untyped]
+      end
+    end
+  end
+end

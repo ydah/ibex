@@ -5,6 +5,7 @@ require_relative "parser_contract"
 module Ibex
   module IR
     SCHEMA_VERSION = 2
+    # @rbs skip
     LATEST_SCHEMA_VERSION = 3
     SUPPORTED_SCHEMA_VERSIONS = [1, 2, 3].freeze #: Array[Integer]
 
@@ -178,6 +179,7 @@ module Ibex
       attr_reader :schema_version #: Integer
       attr_reader :source_provenance #: source_provenance?
       attr_reader :migration #: migration_metadata?
+      # @rbs skip
       attr_reader :parser_contract #: ParserContract?
 
       # @rbs (class_name: String, superclass: String?, start: String, expect: Integer, ?expect_rr: Integer?,
@@ -188,13 +190,49 @@ module Ibex
       #   ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter],
       #   ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test],
       #   ?recovery: recovery_policy?, ?lexer: Lexer?,
-      #   ?mode: grammar_mode, ?starts: Array[String]?, ?parser_contract: ParserContract?) -> void
-      # rubocop:disable Metrics/AbcSize, Metrics/ParameterLists
+      #   ?mode: grammar_mode, ?starts: Array[String]?) -> void
+      # rubocop:disable Metrics/ParameterLists
       # Immutable versioned IR is constructed from explicit public fields.
       def initialize(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
                      conversions:, warnings:, user_code_chunks: nil, schema_version: SCHEMA_VERSION,
                      source_provenance: nil, migration: nil, expect_rr: nil, parser_parameters: [], value_printers: [],
-                     grammar_tests: [], recovery: nil, lexer: nil, mode: :default, starts: nil, parser_contract: nil)
+                     grammar_tests: [], recovery: nil, lexer: nil, mode: :default, starts: nil)
+        initialize_versioned(
+          class_name: class_name, superclass: superclass, start: start, expect: expect, options: options,
+          symbols: symbols, productions: productions, user_code: user_code, conversions: conversions,
+          warnings: warnings, user_code_chunks: user_code_chunks, schema_version: schema_version,
+          source_provenance: source_provenance, migration: migration, expect_rr: expect_rr,
+          parser_parameters: parser_parameters, value_printers: value_printers, grammar_tests: grammar_tests,
+          recovery: recovery, lexer: lexer, mode: mode, starts: starts, parser_contract: nil
+        )
+      end
+
+      # @rbs skip
+      def self.v3(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
+                  conversions:, warnings:, user_code_chunks: nil, source_provenance: nil, migration: nil,
+                  expect_rr: nil, parser_parameters: [], value_printers: [], grammar_tests: [], recovery: nil,
+                  lexer: nil, mode: :default, starts: nil, parser_contract: ParserContract.new)
+        grammar = allocate
+        grammar.send(
+          :initialize_versioned,
+          class_name: class_name, superclass: superclass, start: start, expect: expect, options: options,
+          symbols: symbols, productions: productions, user_code: user_code, conversions: conversions,
+          warnings: warnings, user_code_chunks: user_code_chunks, schema_version: LATEST_SCHEMA_VERSION,
+          source_provenance: source_provenance, migration: migration, expect_rr: expect_rr,
+          parser_parameters: parser_parameters, value_printers: value_printers, grammar_tests: grammar_tests,
+          recovery: recovery, lexer: lexer, mode: mode, starts: starts, parser_contract: parser_contract
+        )
+        grammar
+      end
+      # rubocop:enable Metrics/ParameterLists
+
+      # @rbs skip
+      # Immutable v3 IR is constructed through the explicit versioned factory.
+      # rubocop:disable Metrics/AbcSize, Metrics/ParameterLists
+      def initialize_versioned(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
+                               conversions:, warnings:, user_code_chunks:, schema_version:, source_provenance:,
+                               migration:, expect_rr:, parser_parameters:, value_printers:, grammar_tests:, recovery:,
+                               lexer:, mode:, starts:, parser_contract:)
         validate_mode(mode)
         normalized_starts = validate_starts(start, starts, mode)
         validate_parser_contract(schema_version, parser_contract)
@@ -228,6 +266,7 @@ module Ibex
         freeze
       end
       # rubocop:enable Metrics/AbcSize, Metrics/ParameterLists
+      private :initialize_versioned
 
       # @rbs (String name) -> GrammarSymbol?
       def symbol(name) = @symbols_by_name[name]
@@ -308,7 +347,7 @@ module Ibex
         end
       end
 
-      # @rbs (Integer schema_version, ParserContract? parser_contract) -> void
+      # @rbs skip
       def validate_parser_contract(schema_version, parser_contract)
         unless SUPPORTED_SCHEMA_VERSIONS.include?(schema_version)
           raise ArgumentError, "unsupported grammar schema_version #{schema_version.inspect}"

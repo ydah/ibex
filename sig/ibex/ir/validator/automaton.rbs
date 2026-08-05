@@ -10,8 +10,6 @@ module Ibex
 
         V2_ROOT_OPTIONAL: Array[String]
 
-        V3_ROOT_REQUIRED: Array[String]
-
         STATE_REQUIRED: Array[String]
 
         ACTION_TYPES: Array[String]
@@ -36,9 +34,6 @@ module Ibex
 
         # @rbs () -> void
         def validate_entry_states: () -> void
-
-        # @rbs (Hash[String, untyped] grammar) -> void
-        def validate_construction_contract: (Hash[String, untyped] grammar) -> void
 
         # @rbs () -> void
         def validate_digest: () -> void

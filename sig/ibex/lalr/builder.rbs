@@ -50,6 +50,10 @@ module Ibex
 
       private
 
+      # @rbs (states: Array[IR::AutomatonState], conflict_summary: IR::conflict_summary,
+      #   entry_states: Hash[String, Integer]) -> IR::Automaton
+      def build_output_automaton: (states: Array[IR::AutomatonState], conflict_summary: IR::conflict_summary, entry_states: Hash[String, Integer]) -> IR::Automaton
+
       # @rbs (Array[IR::AutomatonState] states) -> IR::conflict_summary
       def conflict_summary: (Array[IR::AutomatonState] states) -> IR::conflict_summary
 

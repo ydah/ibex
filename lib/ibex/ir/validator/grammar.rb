@@ -13,7 +13,8 @@ module Ibex
         ROOT_OPTIONAL = %w[user_code_chunks expect_rr].freeze #: Array[String]
         V2_ROOT_REQUIRED = %w[source_provenance migration].freeze #: Array[String]
         V2_ROOT_OPTIONAL = %w[params printers tests recovery lexer mode starts].freeze #: Array[String]
-        V3_ROOT_REQUIRED = %w[parser_contract].freeze #: Array[String]
+        # @rbs skip
+        V3_ROOT_REQUIRED = %w[parser_contract].freeze
         SYMBOL_REQUIRED = %w[id name kind reserved prec loc].freeze #: Array[String]
         SYMBOL_OPTIONAL = %w[display_name semantic_type].freeze #: Array[String]
         V2_SYMBOL_REQUIRED = %w[doc].freeze #: Array[String]
@@ -68,7 +69,7 @@ module Ibex
 
         private
 
-        # @rbs () -> void
+        # @rbs skip
         def validate_root_record
           required = ROOT_REQUIRED + (@version >= 2 ? V2_ROOT_REQUIRED : []) +
                      (@version >= 3 ? V3_ROOT_REQUIRED : [])
@@ -76,7 +77,7 @@ module Ibex
           record(@data, @path, required, optional)
         end
 
-        # @rbs () -> void
+        # @rbs skip
         def validate_optional_parser_metadata
           validate_value_printers if @data.key?("printers")
           validate_grammar_tests if @data.key?("tests")
@@ -85,12 +86,12 @@ module Ibex
           validate_parser_contract if @version >= 3
         end
 
-        # @rbs () -> void
+        # @rbs skip
         def validate_parser_parameters_if_present
           validate_parser_parameters if @data.key?("params")
         end
 
-        # @rbs () -> void
+        # @rbs skip
         def validate_optional_source_metadata
           validate_user_code_chunks if @data.key?("user_code_chunks")
           return unless @version >= 2
@@ -520,7 +521,7 @@ module Ibex
             values == expected
         end
 
-        # @rbs (untyped from) -> Array[String]
+        # @rbs skip
         def migration_loss_inventory(from)
           return Migration::UNAVAILABLE_V1_METADATA unless @version >= 3
 
@@ -528,7 +529,7 @@ module Ibex
           prefix + Migration::UNAVAILABLE_V2_CONFIGURATION
         end
 
-        # @rbs () -> void
+        # @rbs skip
         def validate_parser_contract
           path = "#{@path}.parser_contract"
           contract = record(@data["parser_contract"], path, %w[algorithm entries cst_trivia])
@@ -542,7 +543,7 @@ module Ibex
           invalid("#{path}.cst_trivia", "requires options.cst") unless @data.dig("options", "cst") == true
         end
 
-        # @rbs (untyped value, String path, Array[String] allowed) -> Hash[String, untyped]
+        # @rbs skip
         def validate_contract_entry(value, path, allowed)
           entry = record(value, path, %w[value explicit loc])
           explicit = boolean(entry["explicit"], "#{path}.explicit")
