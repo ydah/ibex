@@ -94,9 +94,6 @@ module Ibex
       def string: (untyped value, String path, ?allow_empty: bool) -> String
 
       # @rbs (untyped value, String path) -> String
-      def logical_path: (untyped value, String path) -> String
-
-      # @rbs (untyped value, String path) -> String
       def digest: (untyped value, String path) -> String
 
       # @rbs (untyped value, String path) -> Integer

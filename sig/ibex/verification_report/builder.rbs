@@ -41,12 +41,6 @@ module Ibex
       # @rbs () -> String
       def automaton_digest: () -> String
 
-      # @rbs (String path, Integer index) -> String
-      def logical_input_path: (String path, Integer index) -> String
-
-      # @rbs (String namespace, String path) -> String
-      def logical_artifact_path: (String namespace, String path) -> String
-
       # @rbs (String digest) -> String
       def prefixed_digest: (String digest) -> String
 

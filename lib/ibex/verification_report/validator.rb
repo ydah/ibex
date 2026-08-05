@@ -116,9 +116,10 @@ module Ibex
 
         files.each_with_index do |entry, index|
           file = object(entry, INPUT_FILE_KEYS, "input.files[#{index}]")
-          path = logical_path(file.fetch("logical_path"), "input.files[#{index}].logical_path")
-          expected_prefix = format("input/%04d/", index)
-          raise TypeError, "input logical paths must use canonical indexes" unless path.start_with?(expected_prefix)
+          path = file.fetch("logical_path")
+          unless LogicalPath.canonical_input?(path, index)
+            raise TypeError, "input.files[#{index}].logical_path must be input/NNNN/BASENAME"
+          end
 
           digest(file.fetch("sha256"), "input.files[#{index}].sha256")
           nonnegative_integer(file.fetch("bytesize"), "input.files[#{index}].bytesize")
@@ -142,8 +143,9 @@ module Ibex
       # @rbs (untyped value) -> void
       def validate_table(value)
         table = object(value, TABLE_KEYS, "table")
-        path = logical_path(table.fetch("logical_path"), "table.logical_path")
-        raise TypeError, "table.logical_path must use the table namespace" unless path.start_with?("table/")
+        unless LogicalPath.canonical_table?(table.fetch("logical_path"))
+          raise TypeError, "table.logical_path must be table/BASENAME"
+        end
 
         equal(table.fetch("artifact_type"), TableArtifact::ARTIFACT_TYPE, "table.artifact_type")
         equal(table.fetch("schema_version"), TableArtifact::SCHEMA_VERSION, "table.schema_version")
@@ -212,7 +214,7 @@ module Ibex
       def validate_inputs!(manifest, report)
         manifest_files = manifest.dig("input", "files").map.with_index do |entry, index|
           [
-            "input/#{format('%04d', index)}/#{File.basename(entry.fetch('path'))}",
+            LogicalPath.input(entry.fetch("path"), index),
             "sha256:#{entry.fetch('sha256')}", entry.fetch("bytesize")
           ]
         end
@@ -226,7 +228,7 @@ module Ibex
       #   Hash[String, untyped] table_entry) -> void
       def validate_table_binding!(report, table, table_entry)
         claim = report.fetch("table")
-        expected_logical_path = "table/#{File.basename(table_entry.fetch('path'))}"
+        expected_logical_path = LogicalPath.table(table_entry.fetch("path"))
         equal(claim.fetch("logical_path"), expected_logical_path, "table.logical_path")
         equal(claim.fetch("artifact_digest"), "sha256:#{table_entry.fetch('sha256')}", "table.artifact_digest")
         equal(claim.fetch("payload_digest"), table.identity.fetch("payload_digest"), "table.payload_digest")
@@ -272,18 +274,6 @@ module Ibex
         return value if value.is_a?(String) && (allow_empty || !value.empty?)
 
         raise TypeError, "#{path} must be #{allow_empty ? 'a string' : 'a non-empty string'}"
-      end
-
-      # @rbs (untyped value, String path) -> String
-      def logical_path(value, path)
-        value = string(value, path)
-        components = value.split("/")
-        absolute = value.start_with?("/") || value.match?(%r{\A[A-Za-z]:[\\/]})
-        if absolute || components.include?("..") || value.include?("\\") || value.match?(/[[:cntrl:]]/)
-          raise TypeError, "#{path} must be a logical relative path"
-        end
-
-        value
       end
 
       # @rbs (untyped value, String path) -> String

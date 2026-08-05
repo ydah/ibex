@@ -15,13 +15,16 @@ module Ibex
       #   max_states: Integer, max_items: Integer) -> void
       def initialize(automaton, table:, source_records:, table_path:, strict:, max_states:, max_items:)
         raise ArgumentError, "source_records must not be empty" if source_records.empty?
+        if source_records.length > LogicalPath::MAX_INPUT_FILES
+          raise ArgumentError, "verification reports support at most #{LogicalPath::MAX_INPUT_FILES} input files"
+        end
         raise ArgumentError, "max_states must be positive" unless max_states.is_a?(Integer) && max_states.positive?
         raise ArgumentError, "max_items must be positive" unless max_items.is_a?(Integer) && max_items.positive?
 
         @automaton = automaton
         @table = table
         @source_records = source_records
-        @table_path = table_path
+        @table_path = LogicalPath.table(table_path)
         @strict = strict
         @max_states = max_states
         @max_items = max_items
@@ -84,7 +87,7 @@ module Ibex
       def input_identity
         files = @source_records.map.with_index do |record, index|
           {
-            "logical_path" => logical_input_path(record.path, index),
+            "logical_path" => LogicalPath.input(record.path, index),
             "sha256" => prefixed_digest(record.sha256),
             "bytesize" => record.bytesize
           }
@@ -110,7 +113,7 @@ module Ibex
       # @rbs () -> Hash[String, untyped]
       def table_identity
         {
-          "logical_path" => logical_artifact_path("table", @table_path),
+          "logical_path" => @table_path,
           "artifact_type" => TableArtifact::ARTIFACT_TYPE,
           "schema_version" => TableArtifact::SCHEMA_VERSION,
           "representation" => @table.payload.dig("table_format", "representation"),
@@ -136,22 +139,6 @@ module Ibex
       # @rbs () -> String
       def automaton_digest
         @automaton_digest ||= "sha256:#{Digest::SHA256.hexdigest(IR::Serialize.dump(@automaton))}"
-      end
-
-      # @rbs (String path, Integer index) -> String
-      def logical_input_path(path, index)
-        logical_artifact_path(format("input/%04d", index), path)
-      end
-
-      # @rbs (String namespace, String path) -> String
-      def logical_artifact_path(namespace, path)
-        basename = File.basename(path)
-        if basename.empty? || basename == "." || basename == ".." || basename.include?("\\") ||
-           basename.match?(/[[:cntrl:]]/)
-          raise ArgumentError, "artifact path has no usable logical basename"
-        end
-
-        "#{namespace}/#{basename}"
       end
 
       # @rbs (String digest) -> String
