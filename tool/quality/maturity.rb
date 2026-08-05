@@ -82,7 +82,14 @@ module Ibex
         "browser-playground" => %w[site/playground/analyzer.rb],
         "action-shadow" => %w[lib/ibex/codegen/action_method_source.rb],
         "bounded-repair" => %w[lib/ibex/runtime/repair.rb],
-        "incremental-cst" => %w[lib/ibex/runtime/cst/incremental/session.rb]
+        "incremental-cst" => %w[
+          lib/ibex/runtime.rb
+          lib/ibex/runtime/embedded_source.rb
+          lib/ibex/runtime/parser.rb
+          lib/ibex/runtime/syntax_session.rb
+          lib/ibex/runtime/cst/incremental/relexer.rb
+          lib/ibex/runtime/cst/incremental/session.rb
+        ]
       }.freeze
       ACTIVATION_SURFACES = {
         "ebnf-groups" => [["extended-grammar", "extended", false]],
