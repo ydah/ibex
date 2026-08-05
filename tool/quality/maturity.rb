@@ -391,9 +391,9 @@ module Ibex
       def verify_budgets(budgets, features)
         exact_keys!(budgets, BUDGET_KEYS, "budgets")
         expected = {
-          "active_new_preview_tracks" => 0,
+          "active_new_preview_tracks" => 1,
           "preview_track_limit" => 3,
-          "active_grammar_syntax_tracks" => 0,
+          "active_grammar_syntax_tracks" => 1,
           "grammar_syntax_track_limit" => 1,
           "experimental_product_features" => 2,
           "experimental_product_limit" => 5

@@ -20,9 +20,9 @@ audit:
           Zero open issues means that this exact public tracker query found no report; it is not proof
           that the feature has no correctness defects, private reports, or unreported failures.
 budgets:
-  active_new_preview_tracks: 0
+  active_new_preview_tracks: 1
   preview_track_limit: 3
-  active_grammar_syntax_tracks: 0
+  active_grammar_syntax_tracks: 1
   grammar_syntax_track_limit: 1
   experimental_product_features: 2
   experimental_product_limit: 5

@@ -12,7 +12,7 @@ the other; changing a classification requires reviewing and updating both.
 ## Result
 
 <!-- maturity-summary:start -->
-Inventory: **18 Preview, 2 Experimental**. Active new Preview tracks: **0/3** (grammar syntax: **0/1**). Experimental product features: **2/5**.
+Inventory: **18 Preview, 2 Experimental**. Active new Preview tracks: **1/3** (grammar syntax: **1/1**). Experimental product features: **2/5**.
 Release dependency state: R001 **hold_external**; R002 **pending_exact_revision**; no feature is promoted by this audit.
 
 | Stable ID | Feature | Current maturity | Decision | External use | Release gate |
@@ -55,6 +55,12 @@ production, so the Stable guarantee takes precedence over Preview notice.
 Compatible semantic actions can consume lexer locations; only grammar `type`
 declarations require extended mode. Preview therefore does not imply that every
 audited surface is disabled by default or may break under Preview policy.
+
+The active declarative-parser-construction track changes how the already
+Preview IELR and multiple-entry contracts can be activated: an extended root
+grammar may now own those settings. It consumes the grammar-syntax budget but
+does not add or promote a maturity-inventory row. Its source history and field
+experience must be incorporated into the next reviewed maturity audit.
 
 ## Evidence boundaries
 
