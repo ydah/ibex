@@ -21,7 +21,7 @@ module Ibex
       def self.compact: (untyped value) -> String
       def self.dump: (untyped value) -> String
       def self.digest: (untyped value) -> String
-      def self.deep_freeze: [T] (T value) -> T
+      def self.deep_freeze: (untyped value) -> untyped
     end
 
     class Document
