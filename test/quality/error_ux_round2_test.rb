@@ -88,6 +88,13 @@ class ErrorUXRound2QualityTest < Minitest::Test
     )
 
     assert_registry_error(changed, /normalized reviewer identities must be unique/)
+
+    changed = passing_registry(
+      review_record("Straße Reviewer", "strasse"),
+      review_record("STRASSE Reviewer", "strasse-duplicate")
+    )
+
+    assert_registry_error(changed, /normalized reviewer identities must be unique/)
   end
 
   def test_review_registry_preserves_every_multi_reviewer_disagreement
