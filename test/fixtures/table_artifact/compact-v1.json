@@ -1,0 +1,356 @@
+{
+  "artifact_type": "ibex.parser-table",
+  "cost": {
+    "action_cells": 6,
+    "bounded_by_max_steps": true,
+    "canonical_payload_bytes": 2954,
+    "goto_cells": 2,
+    "lookup_cost": "constant-time indexed probe",
+    "measurement": "not-measured",
+    "recognition_cost": "O(input tokens + reductions); lexer, recovery search, and semantic actions excluded"
+  },
+  "identity": {
+    "automaton_digest": "sha256:841f5e7948435204e9feb245d8018d5d743d39407b473a29623d1ca6ea1ca3e7",
+    "cst_metadata_digest": "sha256:c73094eb0350dde0a798104931d6f3fd042b8f4d1a793adad6ba02729d323643",
+    "grammar_digest": "sha256:4580f3d15f1ca70191bf30518b2ee80d590e394fca159d4154b28db383c7af71",
+    "payload_digest": "sha256:480bf6fe7230eadd234961b1354f06de8d2d7cc5ce62f9afce342df853bcfb94",
+    "recovery_metadata_digest": "sha256:608714c717302ceb7e65a38fb7fc90a9105fe68f8883d3c9d727efc182af26ad"
+  },
+  "payload": {
+    "cst": {
+      "kinds": {
+        "named": [
+          {
+            "id": 7,
+            "name": "Number"
+          },
+          {
+            "id": 8,
+            "name": "Root"
+          }
+        ],
+        "named_nonterminals": [
+          {
+            "kind_id": 7,
+            "symbol_id": 6
+          },
+          {
+            "kind_id": 8,
+            "symbol_id": 5
+          }
+        ],
+        "names": [
+          "$eof",
+          "error",
+          "NUM",
+          "PLUS",
+          "SEMI",
+          "start",
+          "expression",
+          "Number",
+          "Root",
+          "whitespace",
+          "newline",
+          "line_comment",
+          "block_comment",
+          "custom_skip",
+          "skipped_tokens",
+          "lexical_error_token",
+          "missing_token",
+          "error_node",
+          "source_file",
+          "synthetic_root"
+        ],
+        "nonterminal_range": [
+          5,
+          7
+        ],
+        "synthetic": [
+          {
+            "id": 15,
+            "name": "lexical_error_token"
+          },
+          {
+            "id": 16,
+            "name": "missing_token"
+          },
+          {
+            "id": 17,
+            "name": "error_node"
+          },
+          {
+            "id": 18,
+            "name": "source_file"
+          },
+          {
+            "id": 19,
+            "name": "synthetic_root"
+          }
+        ],
+        "terminal_range": [
+          0,
+          5
+        ],
+        "trivia": [
+          {
+            "id": 9,
+            "name": "whitespace"
+          },
+          {
+            "id": 10,
+            "name": "newline"
+          },
+          {
+            "id": 11,
+            "name": "line_comment"
+          },
+          {
+            "id": 12,
+            "name": "block_comment"
+          },
+          {
+            "id": 13,
+            "name": "custom_skip"
+          },
+          {
+            "id": 14,
+            "name": "skipped_tokens"
+          }
+        ]
+      },
+      "slots": [
+        {
+          "fields": [
+            {
+              "extraction": null,
+              "index": 0,
+              "name": "value"
+            }
+          ],
+          "node_kind_id": 8,
+          "node_name": "Root",
+          "production_id": 0
+        },
+        {
+          "fields": [
+            {
+              "extraction": null,
+              "index": 0,
+              "name": "value"
+            }
+          ],
+          "node_kind_id": 7,
+          "node_name": "Number",
+          "production_id": 1
+        }
+      ],
+      "trivia_policy": "leading",
+      "version": 1
+    },
+    "entry_states": [
+      {
+        "name": "start",
+        "state": 0
+      }
+    ],
+    "productions": [
+      {
+        "action_slot": 0,
+        "id": 0,
+        "lhs": 5,
+        "rhs": [
+          6
+        ],
+        "rhs_length": 1
+      },
+      {
+        "action_slot": 1,
+        "id": 1,
+        "lhs": 6,
+        "rhs": [
+          2
+        ],
+        "rhs_length": 1
+      },
+      {
+        "action_slot": 2,
+        "id": 2,
+        "lhs": 6,
+        "rhs": [
+          3
+        ],
+        "rhs_length": 1
+      }
+    ],
+    "recovery": {
+      "on_error_reduce_symbol_ids": [
+        [
+          6
+        ]
+      ],
+      "sync_token_ids": [
+        4
+      ]
+    },
+    "semantic_actions": {
+      "binding": "opaque-wrapper-production-id-v1",
+      "slots": [
+        0,
+        1,
+        2
+      ],
+      "verified": false
+    },
+    "source": {
+      "automaton_digest": "sha256:841f5e7948435204e9feb245d8018d5d743d39407b473a29623d1ca6ea1ca3e7",
+      "grammar_digest": "sha256:4580f3d15f1ca70191bf30518b2ee80d590e394fca159d4154b28db383c7af71"
+    },
+    "state_count": 5,
+    "symbols": [
+      {
+        "display_name": null,
+        "id": 0,
+        "kind": "terminal",
+        "name": "$eof"
+      },
+      {
+        "display_name": null,
+        "id": 1,
+        "kind": "terminal",
+        "name": "error"
+      },
+      {
+        "display_name": null,
+        "id": 2,
+        "kind": "terminal",
+        "name": "NUM"
+      },
+      {
+        "display_name": null,
+        "id": 3,
+        "kind": "terminal",
+        "name": "PLUS"
+      },
+      {
+        "display_name": null,
+        "id": 4,
+        "kind": "terminal",
+        "name": "SEMI"
+      },
+      {
+        "display_name": null,
+        "id": 5,
+        "kind": "nonterminal",
+        "name": "start"
+      },
+      {
+        "display_name": null,
+        "id": 6,
+        "kind": "nonterminal",
+        "name": "expression"
+      }
+    ],
+    "table_format": {
+      "action_encoding": "signed-row-displacement-v1",
+      "family": "ibex-runtime-parser-table",
+      "goto_encoding": "row-displacement-v1",
+      "representation": "compact",
+      "version": 6
+    },
+    "tables": {
+      "actions": {
+        "checks": [
+          3,
+          1,
+          0,
+          0,
+          2,
+          4
+        ],
+        "codes": [
+          0,
+          -1,
+          2,
+          3,
+          -1,
+          -2
+        ],
+        "column_count": 4,
+        "encoding": "signed-row-displacement-v1",
+        "offsets": [
+          0,
+          0,
+          3,
+          0,
+          5
+        ],
+        "row_count": 5
+      },
+      "default_actions": [
+        null,
+        -3,
+        -4,
+        null,
+        null
+      ],
+      "gotos": {
+        "checks": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          0,
+          0
+        ],
+        "dense_width": 7,
+        "encoding": "row-displacement-v1",
+        "offsets": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "row_count": 5,
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          3,
+          4
+        ]
+      }
+    },
+    "tokens": [
+      {
+        "display_name": null,
+        "id": 0,
+        "name": "$eof"
+      },
+      {
+        "display_name": null,
+        "id": 1,
+        "name": "error"
+      },
+      {
+        "display_name": null,
+        "id": 2,
+        "name": "NUM"
+      },
+      {
+        "display_name": null,
+        "id": 3,
+        "name": "PLUS"
+      },
+      {
+        "display_name": null,
+        "id": 4,
+        "name": "SEMI"
+      }
+    ]
+  },
+  "schema_version": 1
+}

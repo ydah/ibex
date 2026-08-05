@@ -16,6 +16,7 @@ module Ibex
         fuzz-regression-v1.schema.json reduce-v1.schema.json
         reduce-v2.schema.json verify-v1.schema.json equiv-v1.schema.json
         metrics-v1.schema.json construction-profile-v1.schema.json
+        table-artifact-v1.schema.json
         diff-v1.schema.json fix-v1.schema.json fix-v2.schema.json
         fix-v3.schema.json bison-import-v1.schema.json
       ].freeze
