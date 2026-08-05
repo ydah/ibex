@@ -31,8 +31,9 @@ module Ibex
 
         @resource_limits: ResourceLimits
 
-        # @rbs (Class parser_class, SourceText source_text, ?resource_limits: ResourceLimits?, ?blender: bool) -> void
-        def initialize: (Class parser_class, SourceText source_text, ?resource_limits: ResourceLimits?, ?blender: bool) -> void
+        # @rbs (Class parser_class, SourceText source_text, ?resource_limits: ResourceLimits?,
+        #   ?blender: bool, ?event_observer: Proc?) -> void
+        def initialize: (Class parser_class, SourceText source_text, ?resource_limits: ResourceLimits?, ?blender: bool, ?event_observer: Proc?) -> void
 
         # Apply edits expressed against the current source and return syntax only.
         # @rbs (Array[TextEdit] edits) -> SyntaxResult

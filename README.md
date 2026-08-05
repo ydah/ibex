@@ -194,6 +194,15 @@ also run arbitrary user sections. None of these runtime paths is a sandbox for
 untrusted grammar code. A future safe profile requires a declarative lexer and
 must reject `header`, `inner`, and `footer` sections rather than loading them.
 
+The Experimental generated-language
+[`syntax_session`](docs/syntax-sessions.md) façade uses the same Red/Green
+incremental engine while adding explicit trust acknowledgement, immutable
+results, expected tokens, reuse/fallback metrics, cancellation, and service
+resource bounds. Current generated classes report
+`:trusted_application_code`; opening a session must acknowledge that exact
+profile because generated lexer actions still execute. It is not an LSP or a
+workspace API.
+
 ### Parse lifecycles and errors
 
 Generated parsers support:

@@ -67,3 +67,4 @@ Use [`0000-template.md`](0000-template.md) for a new implementation decision.
 - [0016: Represent concrete syntax with immutable Green data and lazy Red views](0016-red-green-concrete-syntax.md)
 - [0017: Persist and edit syntax through Green structure](0017-persistent-syntax-artifacts.md)
 - [0018: Reuse incremental syntax only with conservative proofs](0018-conservative-incremental-syntax-reuse.md)
+- [0019: Keep generated-language syntax sessions in the runtime](0019-runtime-syntax-session-boundary.md)
