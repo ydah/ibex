@@ -498,13 +498,13 @@ module Ibex
       def resolve(grammar: {}, locations: {})
         source_locations = {} #: Hash[Symbol, Hash[String, Location]]
         source_locations[:grammar] = locations unless locations.empty?
-        Resolver.new(grammar: grammar, cli: canonical_options, locations: source_locations)
+        Resolver.new(grammar: grammar, cli: configuration_values, locations: source_locations)
       end
 
-      private
-
+      # Canonical configuration values selected by explicit legacy CLI options.
+      # Raw option spellings stop at this adapter boundary.
       # @rbs () -> Hash[String, untyped]
-      def canonical_options
+      def configuration_values
         options = {} #: Hash[String, untyped]
         Registry::DEFINITIONS.each do |key|
           raw_name = key.cli_option
@@ -523,6 +523,8 @@ module Ibex
         end
         options
       end
+
+      private
 
       # @rbs (Symbol name, untyped value) -> untyped
       def convert(name, value)
@@ -562,3 +564,5 @@ module Ibex
     end
   end
 end
+
+require_relative "configuration/explanation"
