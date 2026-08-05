@@ -2,6 +2,8 @@
 
 require_relative "../test_helper"
 require "json"
+require "open3"
+require "rbconfig"
 
 class IRParserContractTest < Minitest::Test
   def test_unspecified_contract_has_no_configuration_values_or_locations
@@ -99,6 +101,63 @@ class IRParserContractTest < Minitest::Test
     assert_match(/\A\(ir\):1:1: \$\.grammar_digest does not match the embedded grammar/, error.message)
   end
 
+  def test_v3_grammar_factory_rejects_forged_current_schema_migration
+    grammar = automaton_fixture("automaton-v2-migrated-v3.json").grammar
+    forged = { from_schema_version: 3, unavailable: ["effective_parser_entries"] }
+
+    error = assert_raises(Ibex::Error) { rebuild_v3_grammar(grammar, migration: forged) }
+
+    assert_equal "(ir):1:1: $.migration.from_schema_version must be 1 or 2", error.message
+  end
+
+  def test_v3_grammar_factory_preserves_valid_migration_metadata
+    grammar = automaton_fixture("automaton-v2-migrated-v3.json").grammar
+
+    rebuilt = rebuild_v3_grammar(grammar, migration: grammar.migration)
+    validated = Ibex::IR::Validator.validate(Ibex::IR::Serialize.dump(rebuilt))
+
+    assert_equal grammar.migration, rebuilt.migration
+    assert_equal grammar.migration, validated.migration
+  end
+
+  def test_direct_grammar_ir_require_preserves_migration_validation
+    script = <<~RUBY
+      require "ibex/ir/grammar_ir"
+
+      begin
+        Ibex::IR::Grammar.v3(
+          class_name: "Parser", superclass: nil, start: "start", expect: 0,
+          options: { result_var: false, omit_action_call: false }, symbols: [], productions: [],
+          user_code: {}, conversions: {}, warnings: [],
+          migration: { from_schema_version: 3, unavailable: ["effective_parser_entries"] }
+        )
+      rescue Ibex::Error => error
+        puts error.message
+      end
+    RUBY
+
+    stdout, stderr, status = Open3.capture3(
+      RbConfig.ruby, "-I#{File.expand_path('../../lib', __dir__)}", "-e", script
+    )
+
+    assert_predicate status, :success?, stderr
+    assert_equal "(ir):1:1: $.migration.from_schema_version must be 1 or 2\n", stdout
+  end
+
+  def test_direct_migration_require_loads_the_shared_inventory
+    script = <<~RUBY
+      require "ibex/ir/migration"
+      puts Ibex::IR::Migration::UNAVAILABLE_V1_METADATA.first
+    RUBY
+
+    stdout, stderr, status = Open3.capture3(
+      RbConfig.ruby, "-I#{File.expand_path('../../lib', __dir__)}", "-e", script
+    )
+
+    assert_predicate status, :success?, stderr
+    assert_equal "source_provenance\n", stdout
+  end
+
   private
 
   def automaton_fixture(name)
@@ -113,6 +172,19 @@ class IRParserContractTest < Minitest::Test
       grammar: grammar, states: automaton.states, conflict_summary: automaton.conflict_summary,
       algorithm: automaton.algorithm, grammar_digest: grammar_digest,
       entry_states: automaton.entry_states, entry_construction: entry_construction
+    )
+  end
+
+  def rebuild_v3_grammar(grammar, migration: grammar.migration)
+    Ibex::IR::Grammar.v3(
+      class_name: grammar.class_name, superclass: grammar.superclass, start: grammar.start,
+      expect: grammar.expect, options: grammar.options, symbols: grammar.symbols,
+      productions: grammar.productions, user_code: grammar.user_code, conversions: grammar.conversions,
+      warnings: grammar.warnings, expect_rr: grammar.expect_rr, user_code_chunks: grammar.user_code_chunks,
+      source_provenance: grammar.source_provenance, migration: migration,
+      parser_parameters: grammar.parser_parameters, value_printers: grammar.value_printers,
+      grammar_tests: grammar.grammar_tests, recovery: grammar.recovery, lexer: grammar.lexer,
+      mode: grammar.mode, starts: grammar.starts, parser_contract: grammar.parser_contract
     )
   end
 end

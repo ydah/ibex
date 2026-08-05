@@ -523,10 +523,7 @@ module Ibex
 
         # @rbs skip
         def migration_loss_inventory(from)
-          return Migration::UNAVAILABLE_V1_METADATA unless @version >= 3
-
-          prefix = from == 1 ? Migration::UNAVAILABLE_V1_METADATA : Array.new(0) #: Array[String]
-          prefix + Migration::UNAVAILABLE_V2_CONFIGURATION
+          MigrationMetadata.loss_inventory(@version, from)
         end
 
         # @rbs skip
