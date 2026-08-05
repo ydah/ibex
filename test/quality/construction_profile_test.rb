@@ -55,8 +55,9 @@ class QualityConstructionProfileTest < Minitest::Test
     assert_provenance_error(changed, /base revision is unavailable/)
 
     changed = evidence
-    changed.fetch("provenance")["capture_worktree_clean"] = true
-    assert_provenance_error(changed, /capture clean-state drift/)
+    provenance = changed.fetch("provenance")
+    provenance["capture_worktree_status_sha256"] = "0" * 64
+    assert_provenance_error(changed, /capture worktree status digest drift/)
 
     changed = evidence
     changed.fetch("provenance")["implementation_sha256"] = "0" * 64
