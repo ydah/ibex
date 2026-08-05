@@ -33,6 +33,23 @@ class SyntaxSessionTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     end
   GRAMMAR
 
+  MULTI_ENTRY_SOURCE = <<~GRAMMAR
+    class SyntaxServiceEntriesParser
+    pragma extended
+    pragma cst
+    start expression atom
+    token NUM PLUS
+    lexer
+      skip /[[:space:]]+/
+      NUM /[0-9]+/
+      PLUS '+'
+    end
+    rule
+    expression: NUM PLUS NUM { raise "parser action executed" }
+    atom: NUM { raise "parser action executed" }
+    end
+  GRAMMAR
+
   LOCATED_SOURCE = SOURCE.sub(
     'start: expression { raise "parser action executed" }',
     'start: expression { result = @1; raise "parser action executed" }'
@@ -97,6 +114,31 @@ class SyntaxSessionTest < Minitest::Test # rubocop:disable Metrics/ClassLength
       )
 
       assert_equal "1 + 7", result.syntax_root.to_source
+      assert_predicate result, :success?
+    end
+  end
+
+  def test_all_algorithms_tables_and_multi_entry_strategies_share_the_session_contract
+    cases = %i[slr lalr ielr lr1].product(%i[plain compact], [false, true])
+    assert_equal 16, cases.length
+
+    cases.each do |algorithm, table, entry_isolation|
+      parser_class = generate(
+        MULTI_ENTRY_SOURCE,
+        mode: :extended,
+        algorithm: algorithm,
+        table: table,
+        entry_isolation: entry_isolation
+      )
+      assert_equal %i[expression atom], parser_class::ENTRY_STATES.keys
+
+      session = parser_class.syntax_session("1 + 2", execution_profile: PROFILE)
+      result = session.apply_edits(
+        [Ibex::Runtime::CST::TextEdit.new(start: 4, delete_length: 1, insert_text: "9")]
+      )
+      fresh = parser_class.syntax_session(session.source_text, execution_profile: PROFILE).result
+
+      assert_syntax_session_equivalent(fresh, result)
       assert_predicate result, :success?
     end
   end
@@ -424,10 +466,12 @@ class SyntaxSessionTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     true
   end
 
-  def generate(source = SOURCE, table: :compact)
-    ast = Ibex::Frontend::Parser.new(source, file: "syntax-session.y").parse
-    grammar = Ibex::Normalizer.new(ast).normalize
-    automaton = Ibex::LALR::Builder.new(grammar).build
+  def generate(source = SOURCE, mode: :default, algorithm: :lalr, table: :compact, entry_isolation: false)
+    ast = Ibex::Frontend::Parser.new(source, file: "syntax-session.y", mode: mode).parse
+    grammar = Ibex::Normalizer.new(ast, mode: mode).normalize
+    automaton = Ibex::LALR::Builder.new(
+      grammar, algorithm: algorithm, entry_isolation: entry_isolation
+    ).build
     generated = Ibex::Codegen::Ruby.new(automaton, table: table).generate
     namespace = Module.new
     namespace.module_eval(generated, "generated_syntax_session.rb")

@@ -40,7 +40,7 @@ module Ibex
                           %w[test/runtime/observation_test.rb test/codegen/embedded_tracer_test.rb]],
         "incremental_cst" => [%w[cst table locations], "focused_regression",
                               %w[test/runtime/cst_incremental_test.rb]],
-        "syntax_session" => [%w[cst table locations], "focused_regression",
+        "syntax_session" => [%w[algorithm table cst locations entries], "focused_regression",
                              %w[test/runtime/syntax_session_test.rb test/packaging/runtime_gem_test.rb]],
         "embedded_runtime" => [%w[table cst], "focused_regression",
                                %w[test/packaging/runtime_gem_test.rb test/codegen/ractor_shareability_test.rb]]

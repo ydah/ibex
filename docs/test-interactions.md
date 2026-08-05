@@ -85,7 +85,7 @@ interactions:
     coverage: focused_regression
     tests: [test/runtime/cst_incremental_test.rb]
   - id: syntax_session
-    axes: [cst, table, locations]
+    axes: [algorithm, table, cst, locations, entries]
     coverage: focused_regression
     tests: [test/runtime/syntax_session_test.rb, test/packaging/runtime_gem_test.rb]
   - id: embedded_runtime
@@ -164,10 +164,15 @@ they do not multiply the 96 common cases.
 
 Syntax sessions require CST and a generated lexer, so a disabled-CST value is
 rejected by the service boundary rather than multiplied into the common
-product. `test/runtime/syntax_session_test.rb` exhaustively crosses plain and
-compact tables with grammar actions that omit or reference semantic locations;
-its remaining tests own trust acknowledgement, fresh-result equivalence,
-fallback metrics, cancellation, resource bounds, and malformed edit sequences.
+product. `test/runtime/syntax_session_test.rb` exhaustively crosses all four
+algorithms, both table encodings, and shared versus isolated multi-entry
+construction (16 cases). A separate four-case cross covers both table encodings
+with grammar actions that omit or reference semantic locations. Production
+actions, including their semantic-location references, never execute in a
+syntax session, so that location-action choice is independent of algorithm and
+entry construction; CST source locations remain mandatory internally. The
+remaining tests own trust acknowledgement, fresh-result equivalence, fallback
+metrics, cancellation, resource bounds, and malformed edit sequences.
 `test/packaging/runtime_gem_test.rb` owns the embedded-runtime acquisition path.
 
 ## Normal, scheduled, and promotion gates
