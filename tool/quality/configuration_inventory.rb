@@ -217,8 +217,9 @@ module Ibex
           "",
           "## Decision rules",
           "",
-          "This D001 artifact is inventory-only: it adds neither grammar syntax " \
-          "nor the D002 effective-configuration model.",
+          "This D001 artifact is inventory-only and adds no grammar syntax. " \
+          "The D002 typed effective-configuration model",
+          "consumes these canonical classifications without changing the inventory's admission decisions.",
           "`grammar_contract` is reserved for parser meaning/public contract and requires A1-A8, fixed semantics,",
           "root-only composition, provenance, and IR persistence. `project_build_policy` covers " \
           "representation and packaging.",
@@ -244,7 +245,8 @@ module Ibex
           "",
           "Fixed means a future grammar declaration may be matched but not silently contradicted by generation CLI.",
           "Analysis commands may choose a different value only as an explicit noncanonical analysis override.",
-          "The inventory records present compatibility gaps; it does not claim that later D002-D008 work is complete.",
+          "The inventory records present compatibility gaps; the typed model does not by itself claim that later",
+          "declarative syntax, IR persistence, and conflict-diagnostic work is complete.",
           "",
           "## Owner summary",
           "",

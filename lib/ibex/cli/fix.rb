@@ -29,6 +29,8 @@ module Ibex
     #   }
     #   private def normalize_grammar_path: (String) -> IR::Grammar
     #   private def activate_cli_feature: (Symbol) -> void
+    #   private def configuration_value: (String) -> untyped
+    #   private def set_configuration_option: (Symbol, untyped) -> void
 
     private
 
@@ -68,13 +70,14 @@ module Ibex
               "(fix):1:1: import Bison source to a canonical analysis file before requesting source repairs"
       end
       grammar = normalize_grammar_path(path)
-      automaton = LALR::Builder.new(grammar, algorithm: settings.fetch(:algorithm)).build
+      algorithm = configuration_value("parser.algorithm")
+      automaton = LALR::Builder.new(grammar, algorithm: algorithm).build
       message_file = settings[:messages]
       messages = ErrorMessages.load(message_file) if message_file
       fixer = Fix.new(
         source,
         file: path, grammar: grammar, automaton: automaton,
-        algorithm: settings.fetch(:algorithm), mode: settings.fetch(:mode),
+        algorithm: algorithm, mode: configuration_value("grammar.mode"),
         state: settings[:state], conflict_index: settings[:conflict_index],
         max_candidates: settings.fetch(:max_candidates), max_builds: settings.fetch(:max_builds),
         equiv_samples: settings.fetch(:equiv_samples),
@@ -90,7 +93,8 @@ module Ibex
     # @rbs (Array[String] arguments) -> fix_options
     def fix_options(arguments)
       settings = {
-        paths: [], algorithm: :lalr, mode: :default, format: "json",
+        paths: [], algorithm: Configuration::Registry.fetch("parser.algorithm").default,
+        mode: Configuration::Registry.fetch("grammar.mode").default, format: "json",
         max_candidates: 32, max_builds: 32, equiv_samples: 100,
         equiv_max_tokens: 8, equiv_max_configurations: 50_000,
         verify_max_states: 100_000, verify_max_items: 1_000_000
@@ -101,10 +105,11 @@ module Ibex
         add_fix_budget_options(options, settings)
         options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "current construction algorithm") do |value|
           settings[:algorithm] = value.to_sym
+          set_configuration_option(:algorithm, value.to_sym)
         end
         options.on("--mode=MODE", %w[default extended], "grammar mode") do |value|
           settings[:mode] = value.to_sym
-          @options[:mode] = value.to_sym
+          set_configuration_option(:mode, value.to_sym)
         end
         options.on("--apply[=ID]", "atomically apply one safe source proposal") do |value|
           settings[:apply] = value || true

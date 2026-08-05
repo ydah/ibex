@@ -30,6 +30,8 @@ module Ibex
 
     include CLIOutputs
 
+    @configuration_explicit_options: Hash[Symbol, bool]
+
     @language: String
 
     @options: cli_options
@@ -49,6 +51,21 @@ module Ibex
     def run: (Array[String] arguments) -> Integer
 
     private
+
+    # @rbs (Symbol name) -> void
+    def mark_configuration_option: (Symbol name) -> void
+
+    # @rbs (Symbol name, untyped value) -> void
+    def set_configuration_option: (Symbol name, untyped value) -> void
+
+    # @rbs (String value) -> void
+    def select_configuration_mode: (String value) -> void
+
+    # @rbs () -> Configuration::Resolver
+    def effective_configuration: () -> Configuration::Resolver
+
+    # @rbs (String name) -> untyped
+    def configuration_value: (String name) -> untyped
 
     # @rbs (Array[String] arguments) -> Array[String]
     def extract_language: (Array[String] arguments) -> Array[String]

@@ -12,6 +12,10 @@ module Ibex
 
     type formatting_cleanup_result = { errors: Array[String], remaining: Array[String] }
 
+    private def configuration_value: (String) -> untyped
+
+    private def select_configuration_mode: (String) -> void
+
     private
 
     # @rbs (Array[String] arguments) -> Integer

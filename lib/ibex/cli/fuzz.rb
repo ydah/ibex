@@ -18,6 +18,7 @@ module Ibex
     #   private def normalize_grammar_path: (String) -> IR::Grammar
     #   private def handle_grammar_warnings: (IR::Grammar, String) -> void
     #   private def warning_categories: (String) -> Array[Symbol]
+    #   private def select_configuration_mode: (String) -> void
 
     private
 
@@ -62,7 +63,7 @@ module Ibex
         options.banner = "Usage: ibex fuzz [options] grammarfile"
         add_fuzz_generation_options(options)
         add_fuzz_execution_options(options)
-        options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
+        options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| select_configuration_mode(value) }
         options.on("--warnings=CATEGORIES", "all, error, all,error, or none") do |value|
           @options[:warnings] = warning_categories(value)
         end

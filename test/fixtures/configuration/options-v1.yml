@@ -10,7 +10,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_compatibility_options#--check
   source: lib/ibex/cli.rb
   method: add_compatibility_options
-  line: 410
+  line: 456
   declaration_sha256: 443f5d25effa69a331535ab9154a4c06d9b821aa4bef6ce8b88d27d7ce33ae8c
   context_sha256:
   surface: generate
@@ -39,7 +39,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_compatibility_options#--line-convert-all
   source: lib/ibex/cli.rb
   method: add_compatibility_options
-  line: 400
+  line: 442
   declaration_sha256: 8dd8059cf2bd6ef852fb6305ee7ff774977db6f9082e6d8bff3027d2dc4373de
   context_sha256:
   surface: generate
@@ -69,7 +69,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_compatibility_options#--superclass=CLASS
   source: lib/ibex/cli.rb
   method: add_compatibility_options
-  line: 409
+  line: 453
   declaration_sha256: f2c7568aea8f731f1995e44bfc69c782d7d2109fb5e52dc886dfb0b53f9d0b16
   context_sha256:
   surface: generate
@@ -100,7 +100,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_compatibility_options#-C
   source: lib/ibex/cli.rb
   method: add_compatibility_options
-  line: 411
+  line: 457
   declaration_sha256: 97a76c875c408281218b584dc7717c5b865049a9a90c0d2e496316fff2f148fc
   context_sha256:
   surface: generate
@@ -131,7 +131,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_compatibility_options#-D FLAGS
   source: lib/ibex/cli.rb
   method: add_compatibility_options
-  line: 414
+  line: 460
   declaration_sha256: a4602876bd7c1939a40c017a680bf4af2ec374f9cf5bee0e22951f361051de79
   context_sha256:
   surface: generate
@@ -160,7 +160,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_compatibility_options#-F
   source: lib/ibex/cli.rb
   method: add_compatibility_options
-  line: 399
+  line: 439
   declaration_sha256: feae7f9e2992b81fbf19cf67598ed66b31672793f6d66335187edb224a699276
   context_sha256:
   surface: generate
@@ -192,7 +192,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_compatibility_options#-P
   source: lib/ibex/cli.rb
   method: add_compatibility_options
-  line: 413
+  line: 459
   declaration_sha256: 7d0146e956d496ef9f64c7dac9244b060852c36db4fea89872a582a40c2e17d1
   context_sha256:
   surface: generate
@@ -221,7 +221,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_compatibility_options#-S
   source: lib/ibex/cli.rb
   method: add_compatibility_options
-  line: 412
+  line: 458
   declaration_sha256: 3221e99176d685edce285edac739dad60c8f6ca84904a2698cc701bd5147c71b
   context_sha256:
   surface: generate
@@ -252,7 +252,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_compatibility_options#-a
   source: lib/ibex/cli.rb
   method: add_compatibility_options
-  line: 408
+  line: 450
   declaration_sha256: cab1a23eab4c2955d6e8c8536002d6c97d4a2b192207a5a5a4c01562b4da2b73
   context_sha256:
   surface: generate
@@ -285,7 +285,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_compatibility_options#-l
   source: lib/ibex/cli.rb
   method: add_compatibility_options
-  line: 404
+  line: 446
   declaration_sha256: 4d335ac0e2370641ab361bc3343f417c78f65acf316a70dda730e57756bb33cd
   context_sha256:
   surface: generate
@@ -317,7 +317,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_information_options#--copyright
   source: lib/ibex/cli.rb
   method: add_information_options
-  line: 424
+  line: 470
   declaration_sha256: 18dcd34d9db826a188de381ca90ad9fb846fba89c9c4b21c94d79b0bcd5066b5
   context_sha256:
   surface: generate
@@ -346,7 +346,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_information_options#--help
   source: lib/ibex/cli.rb
   method: add_information_options
-  line: 425
+  line: 471
   declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
   context_sha256:
   surface: generate
@@ -375,7 +375,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_information_options#--lang=LANG
   source: lib/ibex/cli.rb
   method: add_information_options
-  line: 419
+  line: 465
   declaration_sha256: d74285e6c182cb7ac69159a0ee39a5f4f7a3306beb48bfa2873ebb2c001d1877
   context_sha256:
   surface: global
@@ -405,7 +405,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_information_options#--runtime-version
   source: lib/ibex/cli.rb
   method: add_information_options
-  line: 423
+  line: 469
   declaration_sha256: e080747e09ff4a83abd24d79dfcca2efd7de010de0c9ab38fe7718bff2bce4f2
   context_sha256:
   surface: generate
@@ -434,7 +434,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_information_options#--version
   source: lib/ibex/cli.rb
   method: add_information_options
-  line: 422
+  line: 468
   declaration_sha256: f2c5209e622c167542f94751a7090083831f2f54353f93b8287cbd5490830e26
   context_sha256:
   surface: generate
@@ -463,7 +463,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_output_options#--dot=FILE
   source: lib/ibex/cli.rb
   method: add_output_options
-  line: 372
+  line: 412
   declaration_sha256: ddfe1eecb6913dee7a68bc83d1c636cf8135253fb6863393affbb7d284f62858
   context_sha256:
   surface: generate
@@ -492,7 +492,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_output_options#--html=FILE
   source: lib/ibex/cli.rb
   method: add_output_options
-  line: 374
+  line: 414
   declaration_sha256: 92039dac81a2a29bf01b5aa8d12e1995c4e9852c6fe5fb9ace46a2b87849329a
   context_sha256:
   surface: generate
@@ -521,7 +521,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_output_options#--manifest[=FILE]
   source: lib/ibex/cli.rb
   method: add_output_options
-  line: 369
+  line: 409
   declaration_sha256: 2f29af69fd3f043578384f6efc1d1ef1dfe0317fa4c3b0274a1e95d22e045cb9
   context_sha256:
   surface: generate
@@ -551,7 +551,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_output_options#--mermaid=FILE
   source: lib/ibex/cli.rb
   method: add_output_options
-  line: 373
+  line: 413
   declaration_sha256: 91b2e7a9bdb94d131e21796e663649fc6395bfc817291d1acfa0802174928701
   context_sha256:
   surface: generate
@@ -580,7 +580,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_output_options#--railroad=FILE
   source: lib/ibex/cli.rb
   method: add_output_options
-  line: 375
+  line: 415
   declaration_sha256: dd40352cab41bc3cf6753e481adab55acaaeee0c55f0794741469dc11eca5c6a
   context_sha256:
   surface: generate
@@ -609,7 +609,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_output_options#-E
   source: lib/ibex/cli.rb
   method: add_output_options
-  line: 363
+  line: 397
   declaration_sha256: '01137593a952d57f3359b2085a512e5b97ecdfb70b050a8247b561876122b859'
   context_sha256:
   surface: generate
@@ -641,7 +641,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_output_options#-O
   source: lib/ibex/cli.rb
   method: add_output_options
-  line: 378
+  line: 418
   declaration_sha256: 3ce52e899256e292d9965d5971a4c6adb175608e63b16f72a5b86e572cc63f18
   context_sha256:
   surface: generate
@@ -672,7 +672,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_output_options#-e
   source: lib/ibex/cli.rb
   method: add_output_options
-  line: 382
+  line: 422
   declaration_sha256: f3d7c1a278e5e0c15225754713e16aa9b1ad1c9b8bbf7df21655d3a926c16d12
   context_sha256:
   surface: generate
@@ -704,7 +704,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_output_options#-g
   source: lib/ibex/cli.rb
   method: add_output_options
-  line: 365
+  line: 403
   declaration_sha256: a10896148a7d794e8e32862d9f69d472808c191c8285ca66b28fef69c17d0edb
   context_sha256:
   surface: generate
@@ -734,7 +734,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_output_options#-o
   source: lib/ibex/cli.rb
   method: add_output_options
-  line: 362
+  line: 396
   declaration_sha256: 56dc6d4839effdff14d0485bb012f7520e7d721cf44f05f82ebffa6e9f86fb8d
   context_sha256:
   surface: generate
@@ -765,7 +765,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_output_options#-t
   source: lib/ibex/cli.rb
   method: add_output_options
-  line: 364
+  line: 400
   declaration_sha256: 49ee674ec49ce5094f7fb4f0d315ca020b0320aa0d49217a8c01155d3c4aae22
   context_sha256:
   surface: generate
@@ -797,7 +797,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_output_options#-v
   source: lib/ibex/cli.rb
   method: add_output_options
-  line: 366
+  line: 406
   declaration_sha256: 6e27a41170bf811293fce2a55eb278496bdadd72abb9f9008876aaf6e3a8ea0f
   context_sha256:
   surface: generate
@@ -828,7 +828,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_pipeline_options#--algorithm=NAME
   source: lib/ibex/cli.rb
   method: add_pipeline_options
-  line: 345
+  line: 379
   declaration_sha256: c56187a226db393b2bfef9c28688fcfabda890037001b765883a7c428927d09d
   context_sha256:
   surface: generate
@@ -859,7 +859,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_pipeline_options#--cst-trivia=POLICY
   source: lib/ibex/cli.rb
   method: add_pipeline_options
-  line: 338
+  line: 372
   declaration_sha256: a7f71e3926748295d0070f51d3dd42574524c0d35dc42a01c5c29a0a9eaa9d08
   context_sha256:
   surface: generate
@@ -890,7 +890,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_pipeline_options#--emit=FORMAT
   source: lib/ibex/cli.rb
   method: add_pipeline_options
-  line: 328
+  line: 362
   declaration_sha256: ac9d948843a655f7726d8a6c84e562cce4edfd1f2bda1f97ad50776196e1838c
   context_sha256:
   surface: generate
@@ -919,7 +919,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_pipeline_options#--entry-isolation
   source: lib/ibex/cli.rb
   method: add_pipeline_options
-  line: 351
+  line: 385
   declaration_sha256: 78ea8fb9bf0bdb81240576914525161a0dbf090bdda92c66860dfec281b93567
   context_sha256:
   surface: generate
@@ -950,7 +950,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_pipeline_options#--from=FORMAT
   source: lib/ibex/cli.rb
   method: add_pipeline_options
-  line: 331
+  line: 365
   declaration_sha256: e50eb9153ff8d86ff2c6f66e818d605c72747cf798bb0616730a20e76503e79b
   context_sha256:
   surface: generate
@@ -979,7 +979,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_pipeline_options#--mode=MODE
   source: lib/ibex/cli.rb
   method: add_pipeline_options
-  line: 334
+  line: 368
   declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
   context_sha256:
   surface: generate
@@ -1010,7 +1010,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_pipeline_options#--suggest-ielr
   source: lib/ibex/cli.rb
   method: add_pipeline_options
-  line: 348
+  line: 382
   declaration_sha256: 00621c494bd7042cc5c76586707cd8e194b0d75f1e945dba667c155493cb8dde
   context_sha256:
   surface: generate
@@ -1039,7 +1039,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_pipeline_options#--table=FORMAT
   source: lib/ibex/cli.rb
   method: add_pipeline_options
-  line: 335
+  line: 369
   declaration_sha256: 260c72882d445350585de1e190211be22c0f9cfaf0dd41550e38b869828681aa
   context_sha256:
   surface: generate
@@ -1069,7 +1069,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_pipeline_options#--warnings=CATEGORIES
   source: lib/ibex/cli.rb
   method: add_pipeline_options
-  line: 354
+  line: 388
   declaration_sha256: 3c90736ad6244292fd2b025e1cfd7f043ec076a3b48ec8522e35dfe055422460
   context_sha256:
   surface: generate
@@ -1098,7 +1098,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_pipeline_options#--watch
   source: lib/ibex/cli.rb
   method: add_pipeline_options
-  line: 357
+  line: 391
   declaration_sha256: c4faa026fbe76191cb1f5907397521738cba961fd82324729fe16ac9e03a132d
   context_sha256:
   surface: generate
@@ -1127,7 +1127,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_signature_output_options#--action-source[=FILE]
   source: lib/ibex/cli.rb
   method: add_signature_output_options
-  line: 392
+  line: 432
   declaration_sha256: 4532f17a13c7abb5fc8674d8adce49188d17517d75ef98d81fc8260e4607e126
   context_sha256:
   surface: generate
@@ -1157,7 +1157,7 @@ registrations:
 - id: lib/ibex/cli.rb#add_signature_output_options#--rbs[=FILE]
   source: lib/ibex/cli.rb
   method: add_signature_output_options
-  line: 389
+  line: 429
   declaration_sha256: 547af7a7627464745222957929ba7907624b07ffb475840b155afc6dcc9476ea
   context_sha256:
   surface: generate
@@ -1187,7 +1187,7 @@ registrations:
 - id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--algorithm=NAME
   source: lib/ibex/cli/ambiguity.rb
   method: ambiguity_option_parser
-  line: 55
+  line: 58
   declaration_sha256: c56187a226db393b2bfef9c28688fcfabda890037001b765883a7c428927d09d
   context_sha256:
   surface: check-ambiguity
@@ -1218,7 +1218,7 @@ registrations:
 - id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--ambiguity
   source: lib/ibex/cli/ambiguity.rb
   method: ambiguity_option_parser
-  line: 43
+  line: 46
   declaration_sha256: 7f9062097ad6cd10435192afdd2fbe73100645bcc09bc1fd0b014d4219144f02
   context_sha256:
   surface: check-ambiguity
@@ -1247,7 +1247,7 @@ registrations:
 - id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--entry-isolation
   source: lib/ibex/cli/ambiguity.rb
   method: ambiguity_option_parser
-  line: 58
+  line: 61
   declaration_sha256: 78ea8fb9bf0bdb81240576914525161a0dbf090bdda92c66860dfec281b93567
   context_sha256:
   surface: check-ambiguity
@@ -1278,7 +1278,7 @@ registrations:
 - id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--format=FORMAT
   source: lib/ibex/cli/ambiguity.rb
   method: ambiguity_option_parser
-  line: 52
+  line: 55
   declaration_sha256: 918f5475f0e267b415743dde57244aa0146ffcb60207c86c3a9274bf1301cc69
   context_sha256:
   surface: check-ambiguity
@@ -1308,7 +1308,7 @@ registrations:
 - id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--help
   source: lib/ibex/cli/ambiguity.rb
   method: ambiguity_option_parser
-  line: 62
+  line: 67
   declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
   context_sha256:
   surface: check-ambiguity
@@ -1337,7 +1337,7 @@ registrations:
 - id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--max-configurations=N
   source: lib/ibex/cli/ambiguity.rb
   method: ambiguity_option_parser
-  line: 49
+  line: 52
   declaration_sha256: a28736e6f9ef56401aaabc86810402f30a657b883b577eb6bffc16679e9da90e
   context_sha256:
   surface: check-ambiguity
@@ -1367,7 +1367,7 @@ registrations:
 - id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--max-tokens=N
   source: lib/ibex/cli/ambiguity.rb
   method: ambiguity_option_parser
-  line: 46
+  line: 49
   declaration_sha256: cb390d45336fe11e8215b352310d559eb173b1e849c2a92a335d8fd7acf3da85
   context_sha256:
   surface: check-ambiguity
@@ -1397,7 +1397,7 @@ registrations:
 - id: lib/ibex/cli/ambiguity.rb#ambiguity_option_parser#--mode=MODE
   source: lib/ibex/cli/ambiguity.rb
   method: ambiguity_option_parser
-  line: 61
+  line: 64
   declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
   context_sha256:
   surface: check-ambiguity
@@ -1428,7 +1428,7 @@ registrations:
 - id: lib/ibex/cli/analysis.rb#analysis_options#--algorithm=NAME
   source: lib/ibex/cli/analysis.rb
   method: analysis_options
-  line: 62
+  line: 68
   declaration_sha256: 0ea734cec697453c0cd6fd6b1a50007a643de8258d8f6cd2be9bdb14e790be12
   context_sha256:
   surface: diff-or-metrics
@@ -1459,7 +1459,7 @@ registrations:
 - id: lib/ibex/cli/analysis.rb#analysis_options#--format=FORMAT
   source: lib/ibex/cli/analysis.rb
   method: analysis_options
-  line: 69
+  line: 76
   declaration_sha256: 03d0ea46cc73dfd89e8e1d7db753efada82431442e23693be017d52738438776
   context_sha256:
   surface: diff-or-metrics
@@ -1489,7 +1489,7 @@ registrations:
 - id: lib/ibex/cli/analysis.rb#analysis_options#--help
   source: lib/ibex/cli/analysis.rb
   method: analysis_options
-  line: 70
+  line: 77
   declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
   context_sha256:
   surface: diff-or-metrics
@@ -1518,7 +1518,7 @@ registrations:
 - id: lib/ibex/cli/analysis.rb#analysis_options#--mode=MODE
   source: lib/ibex/cli/analysis.rb
   method: analysis_options
-  line: 65
+  line: 72
   declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
   context_sha256:
   surface: diff-or-metrics
@@ -2058,7 +2058,7 @@ registrations:
 - id: lib/ibex/cli/diagnostics.rb#diagnostics_option_parser#--format=FORMAT
   source: lib/ibex/cli/diagnostics.rb
   method: diagnostics_option_parser
-  line: 77
+  line: 81
   declaration_sha256: efb19236ef76ce0b3ad34e82e292cbecdc03f590762ae752efb6ab773d3b2dfb
   context_sha256:
   surface: diagnostics
@@ -2088,7 +2088,7 @@ registrations:
 - id: lib/ibex/cli/diagnostics.rb#diagnostics_option_parser#--help
   source: lib/ibex/cli/diagnostics.rb
   method: diagnostics_option_parser
-  line: 82
+  line: 86
   declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
   context_sha256:
   surface: diagnostics
@@ -2117,7 +2117,7 @@ registrations:
 - id: lib/ibex/cli/diagnostics.rb#diagnostics_option_parser#--max-diagnostics=N
   source: lib/ibex/cli/diagnostics.rb
   method: diagnostics_option_parser
-  line: 78
+  line: 82
   declaration_sha256: 17152386dd52bc0a6fa6fe822e15e194bd278e9068c9a9c978a3f9fc8bb33bac
   context_sha256:
   surface: diagnostics
@@ -2147,7 +2147,7 @@ registrations:
 - id: lib/ibex/cli/diagnostics.rb#diagnostics_option_parser#--mode=MODE
   source: lib/ibex/cli/diagnostics.rb
   method: diagnostics_option_parser
-  line: 81
+  line: 85
   declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
   context_sha256:
   surface: diagnostics
@@ -2178,7 +2178,7 @@ registrations:
 - id: lib/ibex/cli/documentation.rb#documentation_option_parser#--format=FORMAT
   source: lib/ibex/cli/documentation.rb
   method: documentation_option_parser
-  line: 58
+  line: 63
   declaration_sha256: 98055dec5deb549fe619ebfd5f28e9e5db1b23d76574f7694f6c90fb5a0019c8
   context_sha256:
   surface: doc
@@ -2208,7 +2208,7 @@ registrations:
 - id: lib/ibex/cli/documentation.rb#documentation_option_parser#--help
   source: lib/ibex/cli/documentation.rb
   method: documentation_option_parser
-  line: 63
+  line: 68
   declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
   context_sha256:
   surface: doc
@@ -2237,7 +2237,7 @@ registrations:
 - id: lib/ibex/cli/documentation.rb#documentation_option_parser#--mode=MODE
   source: lib/ibex/cli/documentation.rb
   method: documentation_option_parser
-  line: 62
+  line: 67
   declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
   context_sha256:
   surface: doc
@@ -2268,7 +2268,7 @@ registrations:
 - id: lib/ibex/cli/documentation.rb#documentation_option_parser#-o FILE
   source: lib/ibex/cli/documentation.rb
   method: documentation_option_parser
-  line: 61
+  line: 66
   declaration_sha256: 342bff26cec377728543f6c11ce944806391c2058dfd36146342dd48eb7575b7
   context_sha256:
   surface: doc
@@ -2299,7 +2299,7 @@ registrations:
 - id: lib/ibex/cli/equiv.rb#add_equiv_search_options#--max-actions=N
   source: lib/ibex/cli/equiv.rb
   method: add_equiv_search_options
-  line: 104
+  line: 114
   declaration_sha256: 60adc45bb76559b62c840aa69dea711ce9ab886bc6af182a5601d4bc0e4a53c3
   context_sha256:
   surface: equiv
@@ -2329,7 +2329,7 @@ registrations:
 - id: lib/ibex/cli/equiv.rb#add_equiv_search_options#--max-configurations=N
   source: lib/ibex/cli/equiv.rb
   method: add_equiv_search_options
-  line: 101
+  line: 111
   declaration_sha256: 5af489293aaabc4e02f31fa529ea245ec32c957e26c79918bc38799b77cbaa94
   context_sha256:
   surface: equiv
@@ -2359,7 +2359,7 @@ registrations:
 - id: lib/ibex/cli/equiv.rb#add_equiv_search_options#--max-stack=N
   source: lib/ibex/cli/equiv.rb
   method: add_equiv_search_options
-  line: 107
+  line: 117
   declaration_sha256: c87afaa0fe03f62cf8817add352fa38c7c894ae7028a1485136482191c7a6da2
   context_sha256:
   surface: equiv
@@ -2389,7 +2389,7 @@ registrations:
 - id: lib/ibex/cli/equiv.rb#add_equiv_search_options#--max-tokens=N
   source: lib/ibex/cli/equiv.rb
   method: add_equiv_search_options
-  line: 98
+  line: 108
   declaration_sha256: 1c786a1275f448c4620227b895e32c67c67b01aa59a3b5f508d1cbd23b3373c0
   context_sha256:
   surface: equiv
@@ -2419,7 +2419,7 @@ registrations:
 - id: lib/ibex/cli/equiv.rb#add_equiv_search_options#--samples=N
   source: lib/ibex/cli/equiv.rb
   method: add_equiv_search_options
-  line: 94
+  line: 104
   declaration_sha256: cc98f67b68ac133743d5322ba248b4cc3f56b747733f38f34dd09861482f32fe
   context_sha256:
   surface: equiv
@@ -2449,7 +2449,7 @@ registrations:
 - id: lib/ibex/cli/equiv.rb#add_equiv_search_options#--seed=N
   source: lib/ibex/cli/equiv.rb
   method: add_equiv_search_options
-  line: 97
+  line: 107
   declaration_sha256: 67157155e23e54dda994b436fe3c2554f941edc94ef13c5c773cc92281c03491
   context_sha256:
   surface: equiv
@@ -2479,7 +2479,7 @@ registrations:
 - id: lib/ibex/cli/equiv.rb#equiv_options#--algorithm=NAME
   source: lib/ibex/cli/equiv.rb
   method: equiv_options
-  line: 70
+  line: 69
   declaration_sha256: 0ea734cec697453c0cd6fd6b1a50007a643de8258d8f6cd2be9bdb14e790be12
   context_sha256:
   surface: equiv
@@ -2629,7 +2629,7 @@ registrations:
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--algorithm=NAME
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
-  line: 65
+  line: 67
   declaration_sha256: c56187a226db393b2bfef9c28688fcfabda890037001b765883a7c428927d09d
   context_sha256:
   surface: error-messages
@@ -2660,7 +2660,7 @@ registrations:
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--from=FORMAT
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
-  line: 61
+  line: 63
   declaration_sha256: e50eb9153ff8d86ff2c6f66e818d605c72747cf798bb0616730a20e76503e79b
   context_sha256:
   surface: error-messages
@@ -2689,7 +2689,7 @@ registrations:
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--help
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
-  line: 73
+  line: 75
   declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
   context_sha256:
   surface: error-messages
@@ -2718,7 +2718,7 @@ registrations:
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--list
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
-  line: 51
+  line: 53
   declaration_sha256: f654ffae0c6be90db167c0aa1df9bb5e1641e5233cbef3ef3b7b85f95a580fd9
   context_sha256:
   surface: error-messages
@@ -2747,7 +2747,7 @@ registrations:
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--max-configurations=N
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
-  line: 58
+  line: 60
   declaration_sha256: 7d75906688f2732da8558ae55950697bedbde778dee0976ee1c7bf70507cb89d
   context_sha256:
   surface: error-messages
@@ -2777,7 +2777,7 @@ registrations:
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--max-tokens=N
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
-  line: 55
+  line: 57
   declaration_sha256: a722d48a3a1c8a6783b82f5045125895391cbe2b0abe8851627abd468f584e19
   context_sha256:
   surface: error-messages
@@ -2807,7 +2807,7 @@ registrations:
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--mode=MODE
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
-  line: 64
+  line: 66
   declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
   context_sha256:
   surface: error-messages
@@ -2838,7 +2838,7 @@ registrations:
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--update[=FILE]
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
-  line: 52
+  line: 54
   declaration_sha256: ea37a7d7116059132d1edda8b6d1532b87b7b4c40f06b15dce90ce9a87533734
   context_sha256:
   surface: error-messages
@@ -2867,7 +2867,7 @@ registrations:
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#--warnings=CATEGORIES
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
-  line: 69
+  line: 71
   declaration_sha256: 3c90736ad6244292fd2b025e1cfd7f043ec076a3b48ec8522e35dfe055422460
   context_sha256:
   surface: error-messages
@@ -2896,7 +2896,7 @@ registrations:
 - id: lib/ibex/cli/error_messages.rb#error_messages_option_parser#-S
   source: lib/ibex/cli/error_messages.rb
   method: error_messages_option_parser
-  line: 72
+  line: 74
   declaration_sha256: 3221e99176d685edce285edac739dad60c8f6ca84904a2698cc701bd5147c71b
   context_sha256:
   surface: error-messages
@@ -2927,7 +2927,7 @@ registrations:
 - id: lib/ibex/cli/explain.rb#add_explain_search_options#--counterexample-max-configurations=N
   source: lib/ibex/cli/explain.rb
   method: add_explain_search_options
-  line: 67
+  line: 72
   declaration_sha256: 62f6ebfcae1fadc576748da7be6d6acba621bbce78a2e9da385538d1edb53e70
   context_sha256:
   surface: explain
@@ -2957,7 +2957,7 @@ registrations:
 - id: lib/ibex/cli/explain.rb#add_explain_search_options#--counterexample-max-tokens=N
   source: lib/ibex/cli/explain.rb
   method: add_explain_search_options
-  line: 64
+  line: 69
   declaration_sha256: 89d57c319aee247a47e7c76d2c1063adb7b060e483d0d22962c74b57c13efd39
   context_sha256:
   surface: explain
@@ -2987,7 +2987,7 @@ registrations:
 - id: lib/ibex/cli/explain.rb#explain_option_parser#--algorithm=NAME
   source: lib/ibex/cli/explain.rb
   method: explain_option_parser
-  line: 50
+  line: 53
   declaration_sha256: c56187a226db393b2bfef9c28688fcfabda890037001b765883a7c428927d09d
   context_sha256:
   surface: explain
@@ -3018,7 +3018,7 @@ registrations:
 - id: lib/ibex/cli/explain.rb#explain_option_parser#--entry-isolation
   source: lib/ibex/cli/explain.rb
   method: explain_option_parser
-  line: 53
+  line: 56
   declaration_sha256: 78ea8fb9bf0bdb81240576914525161a0dbf090bdda92c66860dfec281b93567
   context_sha256:
   surface: explain
@@ -3049,7 +3049,7 @@ registrations:
 - id: lib/ibex/cli/explain.rb#explain_option_parser#--format=FORMAT
   source: lib/ibex/cli/explain.rb
   method: explain_option_parser
-  line: 47
+  line: 50
   declaration_sha256: 918f5475f0e267b415743dde57244aa0146ffcb60207c86c3a9274bf1301cc69
   context_sha256:
   surface: explain
@@ -3079,7 +3079,7 @@ registrations:
 - id: lib/ibex/cli/explain.rb#explain_option_parser#--help
   source: lib/ibex/cli/explain.rb
   method: explain_option_parser
-  line: 58
+  line: 63
   declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
   context_sha256:
   surface: explain
@@ -3108,7 +3108,7 @@ registrations:
 - id: lib/ibex/cli/explain.rb#explain_option_parser#--mode=MODE
   source: lib/ibex/cli/explain.rb
   method: explain_option_parser
-  line: 56
+  line: 59
   declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
   context_sha256:
   surface: explain
@@ -3139,7 +3139,7 @@ registrations:
 - id: lib/ibex/cli/explain.rb#explain_option_parser#--state=N
   source: lib/ibex/cli/explain.rb
   method: explain_option_parser
-  line: 43
+  line: 46
   declaration_sha256: ece617d377673f78ed884f83e85d0d7d96897b936d9eb12f5333036c7d402632
   context_sha256:
   surface: explain
@@ -3169,7 +3169,7 @@ registrations:
 - id: lib/ibex/cli/explain.rb#explain_option_parser#--token=NAME
   source: lib/ibex/cli/explain.rb
   method: explain_option_parser
-  line: 44
+  line: 47
   declaration_sha256: ef0e87186ce751b76cfc24a7cdd25a71b8c61f0033498d254aece1ff0a9ccb75
   context_sha256:
   surface: explain
@@ -3199,7 +3199,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--equiv-max-configurations=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
-  line: 147
+  line: 152
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
   context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
   surface: fix
@@ -3229,7 +3229,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--equiv-max-tokens=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
-  line: 147
+  line: 152
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
   context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
   surface: fix
@@ -3259,7 +3259,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--equiv-samples=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
-  line: 147
+  line: 152
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
   context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
   surface: fix
@@ -3289,7 +3289,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--max-builds=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
-  line: 147
+  line: 152
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
   context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
   surface: fix
@@ -3319,7 +3319,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--max-candidates=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
-  line: 147
+  line: 152
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
   context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
   surface: fix
@@ -3349,7 +3349,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--verify-max-items=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
-  line: 147
+  line: 152
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
   context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
   surface: fix
@@ -3379,7 +3379,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--verify-max-states=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
-  line: 147
+  line: 152
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
   context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
   surface: fix
@@ -3409,7 +3409,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#add_fix_target_options#--conflict-index=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_target_options
-  line: 129
+  line: 134
   declaration_sha256: 33009e4b0258f57a8e91aaf96f312b60caa31c36d88e2e95d6ea04786f7ef99c
   context_sha256:
   surface: fix
@@ -3438,7 +3438,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#add_fix_target_options#--state=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_target_options
-  line: 124
+  line: 129
   declaration_sha256: e23c24cf6bbfe0d8e1a0b60c1255389babb02fd4a71e230ab9324543dd6fa86d
   context_sha256:
   surface: fix
@@ -3468,7 +3468,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#fix_options#--algorithm=NAME
   source: lib/ibex/cli/fix.rb
   method: fix_options
-  line: 102
+  line: 106
   declaration_sha256: 89210154cacba47cd0d24cc749724dcb050285e50ecc4d4fe63181d5fabbfe98
   context_sha256:
   surface: fix
@@ -3499,7 +3499,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#fix_options#--apply[=ID]
   source: lib/ibex/cli/fix.rb
   method: fix_options
-  line: 109
+  line: 114
   declaration_sha256: 2b09175a47ab7c63c2ded8f0542a2a6af4b5d10ca3f6737ad464b8bb2a6e582e
   context_sha256:
   surface: fix
@@ -3528,7 +3528,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#fix_options#--format=FORMAT
   source: lib/ibex/cli/fix.rb
   method: fix_options
-  line: 115
+  line: 120
   declaration_sha256: 03d0ea46cc73dfd89e8e1d7db753efada82431442e23693be017d52738438776
   context_sha256:
   surface: fix
@@ -3558,7 +3558,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#fix_options#--help
   source: lib/ibex/cli/fix.rb
   method: fix_options
-  line: 116
+  line: 121
   declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
   context_sha256:
   surface: fix
@@ -3587,7 +3587,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#fix_options#--messages=FILE
   source: lib/ibex/cli/fix.rb
   method: fix_options
-  line: 112
+  line: 117
   declaration_sha256: 8e6fa2bc5179b5b2afaed58a71fce4f97cdf7aff69f6f6d3bfcd34af192ddcf5
   context_sha256:
   surface: fix
@@ -3616,7 +3616,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#fix_options#--mode=MODE
   source: lib/ibex/cli/fix.rb
   method: fix_options
-  line: 105
+  line: 110
   declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
   context_sha256:
   surface: fix
@@ -3647,7 +3647,7 @@ registrations:
 - id: lib/ibex/cli/formatting.rb#formatting_option_parser#--check
   source: lib/ibex/cli/formatting.rb
   method: formatting_option_parser
-  line: 80
+  line: 85
   declaration_sha256: 8439a1da167b62fd46ff06958dbeb31d9213e22cf298eb0b7ab70deccc02e79b
   context_sha256:
   surface: formatting
@@ -3676,7 +3676,7 @@ registrations:
 - id: lib/ibex/cli/formatting.rb#formatting_option_parser#--help
   source: lib/ibex/cli/formatting.rb
   method: formatting_option_parser
-  line: 86
+  line: 91
   declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
   context_sha256:
   surface: formatting
@@ -3705,7 +3705,7 @@ registrations:
 - id: lib/ibex/cli/formatting.rb#formatting_option_parser#--mode=MODE
   source: lib/ibex/cli/formatting.rb
   method: formatting_option_parser
-  line: 82
+  line: 87
   declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
   context_sha256:
   surface: formatting
@@ -3736,7 +3736,7 @@ registrations:
 - id: lib/ibex/cli/formatting.rb#formatting_option_parser#--stdin-filename=FILE
   source: lib/ibex/cli/formatting.rb
   method: formatting_option_parser
-  line: 83
+  line: 88
   declaration_sha256: 1ec57baed75ee22aac6739cb078a82be584e15233686cb1d0cf30cf505907d41
   context_sha256:
   surface: formatting
@@ -3765,7 +3765,7 @@ registrations:
 - id: lib/ibex/cli/formatting.rb#formatting_option_parser#--write
   source: lib/ibex/cli/formatting.rb
   method: formatting_option_parser
-  line: 81
+  line: 86
   declaration_sha256: 8c476caa0aa494d56ff615654be137b279ddad472b6580d5cd9de505980e45da
   context_sha256:
   surface: formatting
@@ -3794,7 +3794,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_execution_options#--coverage-guided
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_execution_options
-  line: 98
+  line: 99
   declaration_sha256: c2b2f816369c2af7ccdf61317fc92b668c6ab64f4dce830371ff07ef6575a465
   context_sha256:
   surface: fuzz
@@ -3823,7 +3823,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_execution_options#--max-actions=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_execution_options
-  line: 92
+  line: 93
   declaration_sha256: b76f7363a0bc6d55e4847303024aa66556763efd8f315b55700331d939d71f47
   context_sha256:
   surface: fuzz
@@ -3853,7 +3853,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_execution_options#--max-stack=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_execution_options
-  line: 95
+  line: 96
   declaration_sha256: c87afaa0fe03f62cf8817add352fa38c7c894ae7028a1485136482191c7a6da2
   context_sha256:
   surface: fuzz
@@ -3883,7 +3883,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_execution_options#--path-length=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_execution_options
-  line: 101
+  line: 102
   declaration_sha256: 157f7ac316c37e0676914ae2ce66ad00755cbcd5d59d776bf2bc3ea882549f5c
   context_sha256:
   surface: fuzz
@@ -3912,7 +3912,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--[no-]save-regression
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_external_options
-  line: 133
+  line: 134
   declaration_sha256: 5cde88ede55068cee14d1e0979122e9143ae3482f8a0eeec07faf2d159b13e6e
   context_sha256:
   surface: fuzz
@@ -3942,7 +3942,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--against-max-output=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_external_options
-  line: 122
+  line: 123
   declaration_sha256: 72733fe7cf851b319fe3814f1a24b782feba08b7fd0cfc1f3e183821228c0c15
   context_sha256:
   surface: fuzz
@@ -3972,7 +3972,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--against-runtime=DESCRIPTION
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_external_options
-  line: 114
+  line: 115
   declaration_sha256: fda0bb1890268909b59283a37bde956546a7904e373ae618ce1790c92900663a
   context_sha256:
   surface: fuzz
@@ -4001,7 +4001,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--against-timeout=SECONDS
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_external_options
-  line: 119
+  line: 120
   declaration_sha256: 77338a43c001fe92a7d90564310fc0f2aba678956b2d19f96bed8ac4f4b79d70
   context_sha256:
   surface: fuzz
@@ -4031,7 +4031,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--against=COMMAND
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_external_options
-  line: 111
+  line: 112
   declaration_sha256: eff982a9d29787a6314a1ee2cc229aa30a9efb49e43436d8cd163c8ec05480d3
   context_sha256:
   surface: fuzz
@@ -4060,7 +4060,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--format=FORMAT
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_external_options
-  line: 136
+  line: 137
   declaration_sha256: df970aa668feb3539f521d2c7129b10008371be9d9295dbacf8be21dbb8cfa25
   context_sha256:
   surface: fuzz
@@ -4090,7 +4090,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--max-reduction-trials=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_external_options
-  line: 125
+  line: 126
   declaration_sha256: c9238632b2744f1bd495cd9a1b7269c79f6f4629b1d994d877a2ead7db428339
   context_sha256:
   surface: fuzz
@@ -4120,7 +4120,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_external_options#--regression-dir=DIR
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_external_options
-  line: 128
+  line: 129
   declaration_sha256: b77cfb4ee2cdf6b0b13e3fabccb36552796c8e2264ac67264eaf07ee8d3475b5
   context_sha256:
   surface: fuzz
@@ -4149,7 +4149,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_generation_options#--count=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_generation_options
-  line: 75
+  line: 76
   declaration_sha256: a4367c570f0a14eb2766051291ecd5e713dbac690b927c44a142db27beb5f668
   context_sha256:
   surface: fuzz
@@ -4178,7 +4178,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_generation_options#--max-depth=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_generation_options
-  line: 82
+  line: 83
   declaration_sha256: 4e88b480fec93c234d368ed79dc928114f0ad3a3594932c9d12a08603f80bf7c
   context_sha256:
   surface: fuzz
@@ -4208,7 +4208,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_generation_options#--max-expansions=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_generation_options
-  line: 85
+  line: 86
   declaration_sha256: 61b0367ce06b161f488702f5e537c1195e4b57a1cb6e389128cf74a476b9fe16
   context_sha256:
   surface: fuzz
@@ -4238,7 +4238,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_generation_options#--max-tokens=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_generation_options
-  line: 79
+  line: 80
   declaration_sha256: 6f4239569292f57f3e65c66d7c5c80323f2174fea1855b2dff5149dcfa9132dc
   context_sha256:
   surface: fuzz
@@ -4268,7 +4268,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#add_fuzz_generation_options#--seed=N
   source: lib/ibex/cli/fuzz.rb
   method: add_fuzz_generation_options
-  line: 78
+  line: 79
   declaration_sha256: d2dc1cff601f567fda26f712aee887de29d3834ee17e17ef98faa2ce54ed8740
   context_sha256:
   surface: fuzz
@@ -4298,7 +4298,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#fuzz_option_parser#--help
   source: lib/ibex/cli/fuzz.rb
   method: fuzz_option_parser
-  line: 69
+  line: 70
   declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
   context_sha256:
   surface: fuzz
@@ -4327,7 +4327,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#fuzz_option_parser#--mode=MODE
   source: lib/ibex/cli/fuzz.rb
   method: fuzz_option_parser
-  line: 65
+  line: 66
   declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
   context_sha256:
   surface: fuzz
@@ -4358,7 +4358,7 @@ registrations:
 - id: lib/ibex/cli/fuzz.rb#fuzz_option_parser#--warnings=CATEGORIES
   source: lib/ibex/cli/fuzz.rb
   method: fuzz_option_parser
-  line: 66
+  line: 67
   declaration_sha256: 3c90736ad6244292fd2b025e1cfd7f043ec076a3b48ec8522e35dfe055422460
   context_sha256:
   surface: fuzz
@@ -4416,7 +4416,7 @@ registrations:
 - id: lib/ibex/cli/grammar_tests.rb#grammar_test_option_parser#--algorithm=NAME
   source: lib/ibex/cli/grammar_tests.rb
   method: grammar_test_option_parser
-  line: 59
+  line: 72
   declaration_sha256: c56187a226db393b2bfef9c28688fcfabda890037001b765883a7c428927d09d
   context_sha256:
   surface: test
@@ -4447,7 +4447,7 @@ registrations:
 - id: lib/ibex/cli/grammar_tests.rb#grammar_test_option_parser#--coverage=PERCENT
   source: lib/ibex/cli/grammar_tests.rb
   method: grammar_test_option_parser
-  line: 70
+  line: 85
   declaration_sha256: 285b07f112bdc40d4cf60ca67d3c40f69cb725b9ce01b83aeb8b5057f304e864
   context_sha256:
   surface: test
@@ -4476,7 +4476,7 @@ registrations:
 - id: lib/ibex/cli/grammar_tests.rb#grammar_test_option_parser#--entry-isolation
   source: lib/ibex/cli/grammar_tests.rb
   method: grammar_test_option_parser
-  line: 62
+  line: 76
   declaration_sha256: 78ea8fb9bf0bdb81240576914525161a0dbf090bdda92c66860dfec281b93567
   context_sha256:
   surface: test
@@ -4507,7 +4507,7 @@ registrations:
 - id: lib/ibex/cli/grammar_tests.rb#grammar_test_option_parser#--mode=MODE
   source: lib/ibex/cli/grammar_tests.rb
   method: grammar_test_option_parser
-  line: 58
+  line: 68
   declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
   context_sha256:
   surface: test
@@ -4538,7 +4538,7 @@ registrations:
 - id: lib/ibex/cli/grammar_tests.rb#grammar_test_option_parser#--timeout=SECONDS
   source: lib/ibex/cli/grammar_tests.rb
   method: grammar_test_option_parser
-  line: 65
+  line: 80
   declaration_sha256: 7a444081267e52d0d74303374434a5d177ee2eb03dd62fff65856b1f83de2c29
   context_sha256:
   surface: test
@@ -4568,7 +4568,7 @@ registrations:
 - id: lib/ibex/cli/grammar_tests.rb#grammar_test_option_parser#-h
   source: lib/ibex/cli/grammar_tests.rb
   method: grammar_test_option_parser
-  line: 73
+  line: 88
   declaration_sha256: 5a7a551ca61be0f1293f821654f9ba457e230d10b8604bda7fe14ebc4808449b
   context_sha256:
   surface: test
@@ -5073,7 +5073,7 @@ registrations:
 - id: lib/ibex/cli/samples.rb#add_sample_generation_options#--count=N
   source: lib/ibex/cli/samples.rb
   method: add_sample_generation_options
-  line: 55
+  line: 56
   declaration_sha256: 283d5275c4216ac84e147bb063067b2a2d953b560f16934439bad926efb3ccbe
   context_sha256:
   surface: samples
@@ -5102,7 +5102,7 @@ registrations:
 - id: lib/ibex/cli/samples.rb#add_sample_generation_options#--max-depth=N
   source: lib/ibex/cli/samples.rb
   method: add_sample_generation_options
-  line: 64
+  line: 65
   declaration_sha256: 4d22d3ec4a72afa2ad8e57c78577fa8cff4d339060fb0449a51cac71438c7a90
   context_sha256:
   surface: samples
@@ -5132,7 +5132,7 @@ registrations:
 - id: lib/ibex/cli/samples.rb#add_sample_generation_options#--max-expansions=N
   source: lib/ibex/cli/samples.rb
   method: add_sample_generation_options
-  line: 67
+  line: 68
   declaration_sha256: 5cc68e0b315cfd7ff171fc1971c0cadfdb67284f192ff99c5ef1623fa95e4153
   context_sha256:
   surface: samples
@@ -5162,7 +5162,7 @@ registrations:
 - id: lib/ibex/cli/samples.rb#add_sample_generation_options#--max-tokens=N
   source: lib/ibex/cli/samples.rb
   method: add_sample_generation_options
-  line: 61
+  line: 62
   declaration_sha256: 26f430e00a0f1f5d82bb75653731cc1ce9a2f2539d24c95344ab76c1917c2fbd
   context_sha256:
   surface: samples
@@ -5192,7 +5192,7 @@ registrations:
 - id: lib/ibex/cli/samples.rb#add_sample_generation_options#--path-length=N
   source: lib/ibex/cli/samples.rb
   method: add_sample_generation_options
-  line: 76
+  line: 77
   declaration_sha256: 157f7ac316c37e0676914ae2ce66ad00755cbcd5d59d776bf2bc3ea882549f5c
   context_sha256:
   surface: samples
@@ -5221,7 +5221,7 @@ registrations:
 - id: lib/ibex/cli/samples.rb#add_sample_generation_options#--seed=N
   source: lib/ibex/cli/samples.rb
   method: add_sample_generation_options
-  line: 58
+  line: 59
   declaration_sha256: 18505dc055a6fa9ab543d8661b0513a623c3cf56ffa47e4e4c0672cb1c6b3c79
   context_sha256:
   surface: samples
@@ -5251,7 +5251,7 @@ registrations:
 - id: lib/ibex/cli/samples.rb#add_sample_generation_options#--strategy=NAME
   source: lib/ibex/cli/samples.rb
   method: add_sample_generation_options
-  line: 70
+  line: 71
   declaration_sha256: 678da0d60ebcdb60daf97cae6fbe10837e725befba8bf2143c8f90c57f5c46e2
   context_sha256:
   surface: samples
@@ -5280,7 +5280,7 @@ registrations:
 - id: lib/ibex/cli/samples.rb#add_sample_input_options#--from=FORMAT
   source: lib/ibex/cli/samples.rb
   method: add_sample_input_options
-  line: 85
+  line: 86
   declaration_sha256: ab1883d76fd83f641283da87e4ae6613bb64785c70c33587121dad748910fb75
   context_sha256:
   surface: samples
@@ -5309,7 +5309,7 @@ registrations:
 - id: lib/ibex/cli/samples.rb#add_sample_input_options#--mode=MODE
   source: lib/ibex/cli/samples.rb
   method: add_sample_input_options
-  line: 88
+  line: 89
   declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
   context_sha256:
   surface: samples
@@ -5340,7 +5340,7 @@ registrations:
 - id: lib/ibex/cli/samples.rb#add_sample_input_options#--warnings=CATEGORIES
   source: lib/ibex/cli/samples.rb
   method: add_sample_input_options
-  line: 89
+  line: 92
   declaration_sha256: 3c90736ad6244292fd2b025e1cfd7f043ec076a3b48ec8522e35dfe055422460
   context_sha256:
   surface: samples
@@ -5369,7 +5369,7 @@ registrations:
 - id: lib/ibex/cli/samples.rb#samples_option_parser#--help
   source: lib/ibex/cli/samples.rb
   method: samples_option_parser
-  line: 49
+  line: 50
   declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
   context_sha256:
   surface: samples

@@ -168,6 +168,20 @@ The executable's ordinary generation path declares this pipeline directly instea
 subcommand. Optional subcommands and generation outputs load at their invocation boundary while their public constants remain
 autoloadable.
 
+### Effective configuration boundary
+
+`Ibex::Configuration` gives generation, grammar-test, and analysis paths one closed definition for parser construction and
+build-policy concepts. Each immutable value records its canonical key, typed domain, owner, override policy, selected origin,
+explicitness, and whether the selection is canonical. `Configuration::CLIAdapter` translates the existing internal option
+hash into domain values such as `parser.entries=isolated`, `cst.trivia=leading`, and
+`source.line_mapping=all`; code generators do not interpret legacy CLI shapes directly.
+
+`Configuration::Resolver` applies fixed and monotone-minimum algebra without loading a grammar file or executing user code.
+A fixed grammar declaration accepts a matching request and raises `Configuration::Conflict` for a contradiction. An explicit
+analysis override remains noncanonical and serializes both the declared and selected values. Evidence JSON is emitted in
+canonical-key order. This boundary intentionally adds neither grammar syntax nor a project configuration file; those adapters
+must supply the same closed keys when their separately reviewed formats exist.
+
 Extended grammar paths cross an explicit `Frontend::Resolver` boundary. The canonical `import` declaration and compatible
 `include` spelling share this boundary. Roots retain class, start, options, and user code;
 fragments contain composable declarations and rules. Canonical realpaths define DFS order, diamond deduplication, cycle identity,

@@ -13,10 +13,17 @@ module Ibex
 
     private def build_automaton: (IR::Grammar, String) -> IR::Automaton
 
+    private def configuration_value: (String) -> untyped
+
+    private def mark_configuration_option: (Symbol) -> void
+
     private
 
     # @rbs (Array[String] arguments) -> Integer
     def run_grammar_tests_command: (Array[String] arguments) -> Integer
+
+    # @rbs () -> grammar_test_settings
+    def default_grammar_test_settings: () -> grammar_test_settings
 
     # @rbs (grammar_test_settings settings) -> OptionParser
     def grammar_test_option_parser: (grammar_test_settings settings) -> OptionParser

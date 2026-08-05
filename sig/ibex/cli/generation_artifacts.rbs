@@ -9,6 +9,8 @@ module Ibex
 
     private def default_output_path: (String, String) -> String
 
+    private def configuration_value: (String) -> untyped
+
     private
 
     # @rbs () -> void

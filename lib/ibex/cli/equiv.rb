@@ -24,6 +24,8 @@ module Ibex
     #     ?help: String
     #   }
     #   private def normalize_grammar_path: (String) -> IR::Grammar
+    #   private def configuration_value: (String) -> untyped
+    #   private def set_configuration_option: (Symbol, untyped) -> void
 
     private
 
@@ -37,8 +39,9 @@ module Ibex
       paths = settings.fetch(:paths)
       raise Ibex::Error, "(equiv):1:1: equiv requires exactly two grammar or IR files" unless paths.length == 2
 
-      left = load_equiv_automaton(paths.fetch(0), settings.fetch(:algorithm))
-      right = load_equiv_automaton(paths.fetch(1), settings.fetch(:algorithm))
+      algorithm = configuration_value("parser.algorithm")
+      left = load_equiv_automaton(paths.fetch(0), algorithm)
+      right = load_equiv_automaton(paths.fetch(1), algorithm)
       comparison = Equiv.new(
         left, right,
         sample_count: settings.fetch(:sample_count), seed: settings.fetch(:seed),
@@ -59,20 +62,17 @@ module Ibex
 
     # @rbs (Array[String] arguments) -> equiv_options
     def equiv_options(arguments)
-      settings = {
-        paths: [], sample_count: 100, seed: 0, max_tokens: 8, max_configurations: 50_000,
-        max_actions: Equiv::DEFAULT_MAX_ACTIONS, max_stack: Equiv::DEFAULT_MAX_STACK,
-        algorithm: :lalr, mode: :default, format: "json", rule_map: {}
-      } #: equiv_options
+      settings = default_equiv_options
       parser = OptionParser.new do |options|
         options.banner = "Usage: ibex equiv [options] LEFT RIGHT"
         add_equiv_search_options(options, settings)
         options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "algorithm for grammar inputs") do |value|
           settings[:algorithm] = value.to_sym
+          set_configuration_option(:algorithm, value.to_sym)
         end
         options.on("--mode=MODE", %w[default extended], "grammar mode") do |value|
           settings[:mode] = value.to_sym
-          @options[:mode] = value.to_sym
+          set_configuration_option(:mode, value.to_sym)
         end
         options.on("--map=OLD=NEW", "declare a nonterminal correspondence; repeatable") do |value|
           old_name, new_name = value.split("=", 2)
@@ -87,6 +87,16 @@ module Ibex
       end
       settings[:paths] = parser.parse(arguments)
       settings
+    end
+
+    # @rbs () -> equiv_options
+    def default_equiv_options
+      {
+        paths: [], sample_count: 100, seed: 0, max_tokens: 8, max_configurations: 50_000,
+        max_actions: Equiv::DEFAULT_MAX_ACTIONS, max_stack: Equiv::DEFAULT_MAX_STACK,
+        algorithm: Configuration::Registry.fetch("parser.algorithm").default,
+        mode: Configuration::Registry.fetch("grammar.mode").default, format: "json", rule_map: {}
+      }
     end
 
     # @rbs (OptionParser options, equiv_options settings) -> void

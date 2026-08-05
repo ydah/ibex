@@ -7,6 +7,10 @@ module Ibex
 
     private def normalize_grammar_path: (String) -> IR::Grammar
 
+    private def configuration_value: (String) -> untyped
+
+    private def mark_configuration_option: (Symbol) -> void
+
     private
 
     # @rbs (Array[String] arguments) -> Integer

@@ -13,6 +13,7 @@ module Ibex
     #   private def handle_grammar_warnings: (IR::Grammar, String) -> void
     #   private def warning_categories: (String) -> Array[Symbol]
     #   private def normalize_grammar_path: (String) -> IR::Grammar
+    #   private def set_configuration_option: (Symbol, untyped) -> void
 
     private
 
@@ -85,7 +86,9 @@ module Ibex
       options.on("--from=FORMAT", %w[grammar-ir automaton-ir], "read versioned IR JSON") do |value|
         @options[:from] = value
       end
-      options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
+      options.on("--mode=MODE", %w[default extended], "grammar mode") do |value|
+        set_configuration_option(:mode, value.to_sym)
+      end
       options.on("--warnings=CATEGORIES", "all, error, all,error, or none") do |value|
         @options[:warnings] = warning_categories(value)
       end
