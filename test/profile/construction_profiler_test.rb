@@ -93,8 +93,10 @@ class ConstructionProfilerTest < Minitest::Test
     assert_equal expected, report.send(:matrix_source)
   end
 
-  def test_committed_evidence_satisfies_schema_and_truthful_decision_contract
-    document = JSON.parse(File.binread(EVIDENCE))
+  def test_committed_evidence_is_stale_until_final_recapture
+    refute_empty SCHEMA.validate(committed_evidence).to_a
+
+    document = evidence_with_current_multi_entry_decision
     assert_empty SCHEMA.validate(document).to_a
     assert_equal(%w[synthetic real], document.fetch("cohorts").map { |cohort| cohort.fetch("kind") })
 
@@ -131,7 +133,7 @@ class ConstructionProfilerTest < Minitest::Test
   end
 
   def test_schema_prevents_elapsed_time_from_becoming_a_release_gate
-    document = JSON.parse(File.binread(EVIDENCE))
+    document = evidence_with_current_multi_entry_decision
     run = document.fetch("cohorts").first.fetch("workloads").first.fetch("runs").first
     run.dig("observations", "elapsed_seconds")["release_gate"] = true
 
@@ -139,12 +141,12 @@ class ConstructionProfilerTest < Minitest::Test
   end
 
   def test_schema_prevents_source_class_and_availability_cross_contamination
-    document = JSON.parse(File.binread(EVIDENCE))
+    document = evidence_with_current_multi_entry_decision
     synthetic = document.fetch("cohorts").first.fetch("workloads").first
     synthetic["classification"] = "public_real"
     refute_empty SCHEMA.validate(document).to_a
 
-    document = JSON.parse(File.binread(EVIDENCE))
+    document = evidence_with_current_multi_entry_decision
     public_workload = document.fetch("cohorts").last.fetch("workloads").find do |workload|
       workload.fetch("classification") == "public_real"
     end
@@ -154,10 +156,35 @@ class ConstructionProfilerTest < Minitest::Test
 
   private
 
+  def committed_evidence
+    JSON.parse(File.binread(EVIDENCE))
+  end
+
+  def evidence_with_current_multi_entry_decision
+    document = committed_evidence
+    index = document.fetch("decisions").index do |decision|
+      decision.fetch("feature") == "direct-multi-entry"
+    end
+    replacement = Ibex::Profile::ConstructionDecisions.new(document.fetch("cohorts")).build.find do |decision|
+      decision.fetch("feature") == "direct-multi-entry"
+    end
+    document.fetch("decisions")[index] = replacement
+    document
+  end
+
   def assert_decisions(document)
     decisions = document.fetch("decisions").to_h { |decision| [decision.fetch("feature"), decision] }
     assert_equal "NO-GO", decisions.fetch("direct-ielr").fetch("decision")
     assert_equal "MORE DATA", decisions.fetch("direct-multi-entry").fetch("decision")
+    assert_equal(
+      %w[
+        representative-real-multi-entry
+        material-canonical-fallback-cost
+        clear-shared-benefit-over-isolation
+        conflict-attribution-preservation
+      ],
+      decisions.fetch("direct-multi-entry").fetch("thresholds").map { |item| item.fetch("id") }
+    )
     verifier_threshold = threshold(decisions.fetch("direct-ielr"), "verifier-tcb")
     assert verifier_threshold.fetch("satisfied")
     refute threshold(decisions.fetch("direct-ielr"), "scale-independent-verification").fetch("satisfied")
