@@ -81,9 +81,9 @@ class QualityConstructionProfileTest < Minitest::Test
   end
 
   def completed_run(document)
-    document.fetch("cohorts").flat_map { |cohort| cohort.fetch("workloads") }
-                             .flat_map { |workload| workload.fetch("runs") }
-                             .find { |run| run.fetch("status") == "completed" }
+    workloads = document.fetch("cohorts").flat_map { |cohort| cohort.fetch("workloads") }
+    workloads.flat_map { |workload| workload.fetch("runs") }
+             .find { |run| run.fetch("status") == "completed" }
   end
 
   def measured_workload(document)
