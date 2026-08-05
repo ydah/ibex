@@ -54,9 +54,26 @@ is not a pass. The meanings and limitations of V1-V8 remain those in
 The report's `evidence_digest` covers the complete report except that digest
 field itself. Input identities use `input/NNNN/BASENAME`, and the table uses
 `table/BASENAME`. These logical identities preserve ordering and artifact
-roles without embedding an absolute checkout path. The required IR digests
-remain identities of the supplied IR; the report does not rewrite IR source
-locations.
+roles without embedding an absolute checkout path. Both forms are closed:
+`NNNN` is exactly four decimal digits, a report contains at most 10,000 input
+records, and `BASENAME` is one non-empty component other than `.` or `..`
+without slash, backslash, or control characters.
+
+The `ir.identity_scope` value `source-logical-v1` defines the versioned digest
+scope. Before building the bundle table, Ibex rebuilds an immutable Automaton
+IR copy in which every source-location `file` is the corresponding indexed
+input identity and every non-null source-provenance `root` is `input`. The
+Grammar IR digest, embedded Automaton IR grammar digest, Automaton IR digest,
+table source identities, report IR claims, and evidence digest all derive
+from that same copy. Every IR source file must map uniquely to
+`source_records`; an absent or ambiguous mapping is rejected.
+
+This normalization is limited to the explicit bundle/report boundary. It does
+not mutate the supplied Automaton, change diagnostic locations, or alter the
+ordinary V002 `TableArtifact.build(automaton)` identity. Lower-level callers
+that render a report directly can obtain the required copy with
+`VerificationReport.canonical_automaton`; pairing a raw-path table with the
+canonical report is rejected as an IR/table mismatch.
 
 ## Non-cyclic manifest binding
 

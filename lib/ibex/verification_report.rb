@@ -6,6 +6,7 @@ require_relative "error"
 require_relative "generation_manifest"
 require_relative "table_artifact"
 require_relative "verification_report/logical_path"
+require_relative "verification_report/canonical_ir"
 require_relative "verification_report/builder"
 require_relative "verification_report/validator"
 
@@ -15,6 +16,7 @@ module Ibex
   module VerificationReport
     IDENTIFIER = "scoped_verification" #: String
     SCHEMA_VERSION = 1 #: Integer
+    IR_IDENTITY_SCOPE = "source-logical-v1" #: String
     DEFAULT_MAX_STATES = 100_000 #: Integer
     DEFAULT_MAX_ITEMS = 1_000_000 #: Integer
     EXCLUDED_TRUST = %w[
@@ -25,6 +27,12 @@ module Ibex
     class ValidationError < Ibex::Error; end
 
     module_function
+
+    # Rebuild the supplied Automaton IR with path-neutral source locations for one bundle.
+    # @rbs (IR::Automaton automaton, source_records: Array[GenerationInput]) -> IR::Automaton
+    def canonical_automaton(automaton, source_records:)
+      CanonicalIR.new(automaton, source_records: source_records).build
+    end
 
     # @rbs (IR::Automaton automaton, table: TableArtifact::Document,
     #   source_records: Array[GenerationInput], table_path: String, ?strict: bool,

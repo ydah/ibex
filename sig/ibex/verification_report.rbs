@@ -8,6 +8,8 @@ module Ibex
 
     SCHEMA_VERSION: Integer
 
+    IR_IDENTITY_SCOPE: String
+
     DEFAULT_MAX_STATES: Integer
 
     DEFAULT_MAX_ITEMS: Integer
@@ -16,6 +18,10 @@ module Ibex
 
     class ValidationError < Ibex::Error
     end
+
+    # Rebuild the supplied Automaton IR with path-neutral source locations for one bundle.
+    # @rbs (IR::Automaton automaton, source_records: Array[GenerationInput]) -> IR::Automaton
+    def self?.canonical_automaton: (IR::Automaton automaton, source_records: Array[GenerationInput]) -> IR::Automaton
 
     # @rbs (IR::Automaton automaton, table: TableArtifact::Document,
     #   source_records: Array[GenerationInput], table_path: String, ?strict: bool,

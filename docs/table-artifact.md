@@ -81,6 +81,12 @@ establish its authenticity. A caller that has the source IR must recompute and
 compare those digests, and a publication system must separately authenticate
 the artifact. Digests detect inconsistency; they are not signatures.
 
+Ordinary V002 construction hashes the supplied IR, including its diagnostic
+source locations. The explicit verifiable-generation-bundle API instead
+passes a `source-logical-v1` Automaton copy to this unchanged builder. Its
+table identities are therefore path-neutral and exactly match the companion
+report without changing the meaning of standalone `TableArtifact.build`.
+
 The validator checks structural and internal table consistency. It does not
 prove that the table implements a claimed grammar, that CST or recovery
 metadata was derived correctly, or that the parser runtime and semantic

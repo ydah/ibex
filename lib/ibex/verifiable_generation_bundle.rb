@@ -47,16 +47,19 @@ module Ibex
     # Render table, wrapper, and report before the non-cyclic manifest marker.
     # @rbs () -> ArtifactSet
     def render
+      canonical_automaton = VerificationReport.canonical_automaton(
+        @automaton, source_records: @source_records
+      )
       table = TableArtifact.build(
-        @automaton, representation: @representation, cst_trivia: @cst_trivia,
-                    omit_action_call: @omit_action_call
+        canonical_automaton, representation: @representation, cst_trivia: @cst_trivia,
+                             omit_action_call: @omit_action_call
       )
       artifacts = ArtifactSet.new
       artifacts.add(kind: :parser_table, path: @table_path, content: table.dump)
       artifacts.add(kind: :parser, path: @wrapper_path, content: @wrapper_source, mode: @wrapper_mode)
       report = VerificationReport.render(
-        @automaton, table: table, source_records: @source_records, table_path: @table_path,
-                    strict: @strict, max_states: @max_states, max_items: @max_items
+        canonical_automaton, table: table, source_records: @source_records, table_path: @table_path,
+                             strict: @strict, max_states: @max_states, max_items: @max_items
       )
       artifacts.add(kind: :verification_report, path: @report_path, content: report)
       manifest = GenerationManifest.render(

@@ -23,10 +23,11 @@ class VerificationReportSchemaTest < Minitest::Test
       path = File.join(directory, "grammar.y")
       File.binwrite(path, source)
       input = Ibex::GenerationInput.new(path, source)
-      table = Ibex::TableArtifact.build(automaton)
+      canonical = Ibex::VerificationReport.canonical_automaton(automaton, source_records: [input])
+      table = Ibex::TableArtifact.build(canonical)
       [{}, { strict: true }, { max_states: 1 }].each do |options|
         report = Ibex::VerificationReport.render(
-          automaton, table: table, source_records: [input], table_path: "parser.tables.ibex.json", **options
+          canonical, table: table, source_records: [input], table_path: "parser.tables.ibex.json", **options
         )
         assert_empty schemer.validate(JSON.parse(report)).to_a
       end
@@ -38,6 +39,10 @@ class VerificationReportSchemaTest < Minitest::Test
     document = report_document
     document["manifest_digest"] = "sha256:#{'0' * 64}"
 
+    refute_empty schemer.validate(document).to_a
+
+    document = report_document
+    document.fetch("ir")["identity_scope"] = "raw-source-path-v1"
     refute_empty schemer.validate(document).to_a
   end
 
@@ -70,10 +75,11 @@ class VerificationReportSchemaTest < Minitest::Test
       path = File.join(directory, "grammar.y")
       File.binwrite(path, source)
       input = Ibex::GenerationInput.new(path, source)
-      table = Ibex::TableArtifact.build(automaton)
+      canonical = Ibex::VerificationReport.canonical_automaton(automaton, source_records: [input])
+      table = Ibex::TableArtifact.build(canonical)
       return JSON.parse(
         Ibex::VerificationReport.render(
-          automaton, table: table, source_records: [input], table_path: "parser.tables.ibex.json"
+          canonical, table: table, source_records: [input], table_path: "parser.tables.ibex.json"
         )
       )
     end
