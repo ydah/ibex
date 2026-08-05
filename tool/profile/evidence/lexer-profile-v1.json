@@ -1,0 +1,1605 @@
+{
+  "ibex_report": "lexer_profile",
+  "schema_version": 1,
+  "trust": "internal_local_observation",
+  "environment": {
+    "observation_role": "host_bound_not_regression_golden",
+    "ruby_engine": "ruby",
+    "ruby_version": "4.0.0",
+    "ruby_patchlevel": 0,
+    "ruby_description": "ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin24]",
+    "ruby_platform": "arm64-darwin24",
+    "rubyopt": "-r/Users/yudai.takada/.rbenv/versions/4.0.0/lib/ruby/gems/4.0.0/gems/bundler-4.0.13/lib/bundler/setup",
+    "yjit_enabled": false,
+    "host_os": "darwin24",
+    "host_cpu": "arm64",
+    "kernel_name": "Darwin",
+    "kernel_release": "25.3.0",
+    "kernel_version": "Darwin Kernel Version 25.3.0: Wed Jan 28 20:48:41 PST 2026; root:xnu-12377.81.4~5/RELEASE_ARM64_T6041",
+    "kernel_machine": "arm64",
+    "logical_processors": 12
+  },
+  "provenance": {
+    "base_revision": "7274e8eb60082af00e19b702c9b860220cc4dd53",
+    "base_revision_role": "Git base; bound path state and digest record any capture-time difference",
+    "capture_worktree_clean": false,
+    "capture_worktree_status": [
+      " M docs/architecture.md",
+      " M docs/decisions/0020-grammar-ir-parser-contract.md",
+      " M docs/maturity.yml",
+      " M lib/ibex/configuration.rb",
+      " M lib/ibex/ir/automaton_ir.rb",
+      " M lib/ibex/ir/grammar_ir.rb",
+      " M lib/ibex/ir/migration.rb",
+      " M lib/ibex/ir/serialize.rb",
+      " M lib/ibex/ir/validator/automaton.rb",
+      " M lib/ibex/ir/validator/grammar.rb",
+      " M lib/ibex/lalr/builder.rb",
+      " M sig/ibex/ir/automaton_ir.rbs",
+      " M sig/ibex/ir/grammar_ir.rbs",
+      " M sig/ibex/ir/migration.rbs",
+      " M sig/ibex/ir/serialize.rbs",
+      " M sig/ibex/ir/validator/automaton.rbs",
+      " M sig/ibex/ir/validator/grammar.rbs",
+      " M sig/ibex/lalr/builder.rbs",
+      " M test/ir/golden_fixture_test.rb",
+      " M tool/profile/evidence/construction-profile-v1.json",
+      "?? lib/ibex/configuration/",
+      "?? lib/ibex/ir/v3.rb",
+      "?? sig/ibex/ir/v3.rbs",
+      "?? tool/profile/evidence/lexer-profile-v1.json"
+    ],
+    "capture_worktree_status_sha256": "e2ceb48f9f346c3658f3e964d76becf1f828c34bc97ac89c51c5eb91a6bab76c",
+    "bound_paths": [
+      {
+        "path": "Rakefile",
+        "sha256": "6e1a7981a594c7518b142ed052cc5e8c5e831a5f3060e8702350434df5358fcd",
+        "git_state": "base",
+        "base_sha256": "6e1a7981a594c7518b142ed052cc5e8c5e831a5f3060e8702350434df5358fcd"
+      },
+      {
+        "path": "docs/lexer-construction-profile.md",
+        "sha256": "ad4616434c377ce715f736e3283b4f508713fda6013f5dcb7f4ff92a6504451e",
+        "git_state": "base",
+        "base_sha256": "ad4616434c377ce715f736e3283b4f508713fda6013f5dcb7f4ff92a6504451e"
+      },
+      {
+        "path": "docs/workloads.yml",
+        "sha256": "486bec9845c063011ac123f2d2a94392f041fbb2d4838f47eb5994e010520d12",
+        "git_state": "base",
+        "base_sha256": "486bec9845c063011ac123f2d2a94392f041fbb2d4838f47eb5994e010520d12"
+      },
+      {
+        "path": "schema/lexer-profile-v1.schema.json",
+        "sha256": "ef2c4c030dc2928514b4a5b3b5ac9e649a7fa07ddeedfc6d8afeb6325666b8f6",
+        "git_state": "base",
+        "base_sha256": "ef2c4c030dc2928514b4a5b3b5ac9e649a7fa07ddeedfc6d8afeb6325666b8f6"
+      },
+      {
+        "path": "test/fixtures/lexer_profile/alternation.txt",
+        "sha256": "a63d8014dba891345b30174df2b2a57efbb65b4f9f09b98f245d1b3192277ece",
+        "git_state": "base",
+        "base_sha256": "a63d8014dba891345b30174df2b2a57efbb65b4f9f09b98f245d1b3192277ece"
+      },
+      {
+        "path": "test/fixtures/lexer_profile/alternation.y",
+        "sha256": "eece0f8ffd24f81557063ca255bbd55a6d63f3e9b970249dd68a9076c50fe35f",
+        "git_state": "base",
+        "base_sha256": "eece0f8ffd24f81557063ca255bbd55a6d63f3e9b970249dd68a9076c50fe35f"
+      },
+      {
+        "path": "test/fixtures/lexer_profile/chunk-boundary.txt",
+        "sha256": "5631a72978ee6a9435825d50f06204723175de90d8b1ff918503cd90416adcf6",
+        "git_state": "base",
+        "base_sha256": "5631a72978ee6a9435825d50f06204723175de90d8b1ff918503cd90416adcf6"
+      },
+      {
+        "path": "test/fixtures/lexer_profile/chunk-boundary.y",
+        "sha256": "bfe52e9cf41c852f58d1c384d59a8dc3964e8177842fff1c9d5a7694884d068b",
+        "git_state": "base",
+        "base_sha256": "bfe52e9cf41c852f58d1c384d59a8dc3964e8177842fff1c9d5a7694884d068b"
+      },
+      {
+        "path": "test/fixtures/lexer_profile/lazy-quantifier.txt",
+        "sha256": "17e682f060b5f8e47ea04c5c4855908b0a5ad612022260fe50e11ecb0cc0ab76",
+        "git_state": "base",
+        "base_sha256": "17e682f060b5f8e47ea04c5c4855908b0a5ad612022260fe50e11ecb0cc0ab76"
+      },
+      {
+        "path": "test/fixtures/lexer_profile/lazy-quantifier.y",
+        "sha256": "336bb977e5938371c89a26a448bb134eb79b5fbeeffc07a24cf30f5d7017c055",
+        "git_state": "base",
+        "base_sha256": "336bb977e5938371c89a26a448bb134eb79b5fbeeffc07a24cf30f5d7017c055"
+      },
+      {
+        "path": "test/fixtures/lexer_profile/long-common-prefix.txt",
+        "sha256": "c3851d838ad6c5fac24308f0987bcde8c1b8406c20974070cafb05bc24444f91",
+        "git_state": "base",
+        "base_sha256": "c3851d838ad6c5fac24308f0987bcde8c1b8406c20974070cafb05bc24444f91"
+      },
+      {
+        "path": "test/fixtures/lexer_profile/long-common-prefix.y",
+        "sha256": "0a040a74c63798417c29518f156da7929b4084f1720291a9f77caba1c73e17ea",
+        "git_state": "base",
+        "base_sha256": "0a040a74c63798417c29518f156da7929b4084f1720291a9f77caba1c73e17ea"
+      },
+      {
+        "path": "test/fixtures/lexer_profile/nested-quantifier.txt",
+        "sha256": "c3851d838ad6c5fac24308f0987bcde8c1b8406c20974070cafb05bc24444f91",
+        "git_state": "base",
+        "base_sha256": "c3851d838ad6c5fac24308f0987bcde8c1b8406c20974070cafb05bc24444f91"
+      },
+      {
+        "path": "test/fixtures/lexer_profile/nested-quantifier.y",
+        "sha256": "159a9c6e80a65d6954e36a70b495bd580e9073a31084fe92a80746a906a4a4ed",
+        "git_state": "base",
+        "base_sha256": "159a9c6e80a65d6954e36a70b495bd580e9073a31084fe92a80746a906a4a4ed"
+      },
+      {
+        "path": "test/fixtures/lexer_profile/parser-feedback.txt",
+        "sha256": "f90e7a914704ef8934e42909fa65925008945cb45a87257159480fb2aa09b2f7",
+        "git_state": "base",
+        "base_sha256": "f90e7a914704ef8934e42909fa65925008945cb45a87257159480fb2aa09b2f7"
+      },
+      {
+        "path": "test/fixtures/lexer_profile/parser-feedback.y",
+        "sha256": "2b0fb668e6390dca47d951297cf51a2bae8c3e290d5e8e37f2d029031ac33bd2",
+        "git_state": "base",
+        "base_sha256": "2b0fb668e6390dca47d951297cf51a2bae8c3e290d5e8e37f2d029031ac33bd2"
+      },
+      {
+        "path": "test/fixtures/lexer_profile/stateful-string.txt",
+        "sha256": "b8e5044c6b4543bbaaede9876d3f60bdf83b5549ca3ca7ec97e728b4b3443406",
+        "git_state": "base",
+        "base_sha256": "b8e5044c6b4543bbaaede9876d3f60bdf83b5549ca3ca7ec97e728b4b3443406"
+      },
+      {
+        "path": "test/fixtures/lexer_profile/stateful-string.y",
+        "sha256": "0d572ddf563565292359342db5b67d3fe43daebc58538e9441e59dc0802cfad1",
+        "git_state": "base",
+        "base_sha256": "0d572ddf563565292359342db5b67d3fe43daebc58538e9441e59dc0802cfad1"
+      },
+      {
+        "path": "test/fixtures/lexer_profile/unicode-property.txt",
+        "sha256": "1626007c1bf98be793d78d7707233677bfb6fe140e9a45affdd352882672fae1",
+        "git_state": "base",
+        "base_sha256": "1626007c1bf98be793d78d7707233677bfb6fe140e9a45affdd352882672fae1"
+      },
+      {
+        "path": "test/fixtures/lexer_profile/unicode-property.y",
+        "sha256": "8ff2023aab526b16a2f722bca3c4035959df5ab934eb7e8b078c9e51c6d724ce",
+        "git_state": "base",
+        "base_sha256": "8ff2023aab526b16a2f722bca3c4035959df5ab934eb7e8b078c9e51c6d724ce"
+      },
+      {
+        "path": "test/profile/lexer_profile_schema_test.rb",
+        "sha256": "dbf37f9655f2a3e234e76bc9bbd8fa46f767458a21af6fdf3dff2c062869fca4",
+        "git_state": "base",
+        "base_sha256": "dbf37f9655f2a3e234e76bc9bbd8fa46f767458a21af6fdf3dff2c062869fca4"
+      },
+      {
+        "path": "test/profile/lexer_profiler_test.rb",
+        "sha256": "40209d0ca1b967ddd8eca0dbd2fc2058d4cc3c44f8d501e15e4990838db9b019",
+        "git_state": "base",
+        "base_sha256": "40209d0ca1b967ddd8eca0dbd2fc2058d4cc3c44f8d501e15e4990838db9b019"
+      },
+      {
+        "path": "test/quality/lexer_profile_test.rb",
+        "sha256": "9d85bd54434b607297503500a7e27d689d4fd37e3d686b392f24d9e26dea1432",
+        "git_state": "base",
+        "base_sha256": "9d85bd54434b607297503500a7e27d689d4fd37e3d686b392f24d9e26dea1432"
+      },
+      {
+        "path": "test/support/public_json_schemas.rb",
+        "sha256": "6c72bf7a17f5aca4b4e9c425d272aee07f68fd343fddec011d32e06c242a9224",
+        "git_state": "base",
+        "base_sha256": "6c72bf7a17f5aca4b4e9c425d272aee07f68fd343fddec011d32e06c242a9224"
+      },
+      {
+        "path": "tool/lexer_profile.rb",
+        "sha256": "a4afd95f58bf63975af541e7b26f07ef9dd05cd41a6b5aeb4d82532991095be5",
+        "git_state": "base",
+        "base_sha256": "a4afd95f58bf63975af541e7b26f07ef9dd05cd41a6b5aeb4d82532991095be5"
+      },
+      {
+        "path": "tool/profile/lexer_profile_report.rb",
+        "sha256": "6e322fcd301d4bf82b1ff76350ff031195c79c232f84c73ec55bb50e33ce8e44",
+        "git_state": "base",
+        "base_sha256": "6e322fcd301d4bf82b1ff76350ff031195c79c232f84c73ec55bb50e33ce8e44"
+      },
+      {
+        "path": "tool/profile/lexer_profiler.rb",
+        "sha256": "292e3c8bf9087c54c4dc6dd946618bc9ace4af3dc21e508e5a4b318bced36e01",
+        "git_state": "base",
+        "base_sha256": "292e3c8bf9087c54c4dc6dd946618bc9ace4af3dc21e508e5a4b318bced36e01"
+      },
+      {
+        "path": "tool/quality/lexer_profile.rb",
+        "sha256": "aa6626342def685099fb43b3f58bf1dcd52e4ce467ea19cf71a023c25d155de5",
+        "git_state": "base",
+        "base_sha256": "aa6626342def685099fb43b3f58bf1dcd52e4ce467ea19cf71a023c25d155de5"
+      },
+      {
+        "path": "tool/quality/lexer_profile_integrity.rb",
+        "sha256": "b3c21254933e0a5e8a5c29714088f69d3c1bdb745830c987d38039e421c3f95a",
+        "git_state": "base",
+        "base_sha256": "b3c21254933e0a5e8a5c29714088f69d3c1bdb745830c987d38039e421c3f95a"
+      }
+    ],
+    "bound_paths_sha256": "44d3b0b07ad770960340b83ab63f23926fb102931072b8f2f54f13a2c2695aef",
+    "implementation_sha256": "c8827fccc8ef3fa92e466b85863815078a5557a0f3c6c1ce6e00931278c1316a",
+    "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
+    "measurement_policy_sha256": "a3541bc86aa89a1e973407149ee6e0302a5de51e3e4d4d7d0b34be18599b1b78",
+    "heuristic_analysis_sha256": "1870a00b14aea7a46278e4b80e9bd60db4b499c343c7a7a90faf9c3923e27e76",
+    "evidence_path": "tool/profile/evidence/lexer-profile-v1.json",
+    "evidence_exclusion_reason": "the evidence file is excluded from its own digest to avoid circularity"
+  },
+  "measurement_policy": {
+    "runtime_role": "diagnostic_observation_only",
+    "elapsed_time_release_gate": false,
+    "allocation_count_release_gate": false,
+    "allocation_metric": "GC.total_allocated_objects delta; not retained bytes or peak memory",
+    "streaming_chunk_size_bytes": 16384,
+    "incremental_metric": "bytes read by the generated lexer after an identity edit divided by source bytes",
+    "action_execution": "trusted committed repository actions execute; remote source actions are never run",
+    "public_workload_rule": "unported external lexers remain not_run and contribute no inferred metrics"
+  },
+  "heuristic_analysis": {
+    "method": "normalized-source-pattern-scan",
+    "fields": [
+      "alternation_rule_ids",
+      "lazy_rule_ids",
+      "state_mutation_sources",
+      "parser_to_lexer_feedback"
+    ],
+    "coverage": "literal normalized Regexp source and direct `lexer_state =` action text",
+    "false_negative_possible": true,
+    "limitations": [
+      "escaped or dynamically constructed Regexp semantics are not a complete Regexp AST analysis",
+      "aliases, helper calls, metaprogramming, and indirect state mutation are not detected",
+      "a zero count is an observation from this heuristic, not proof that a behavior is absent"
+    ]
+  },
+  "semantic_comparison": {
+    "current_engine": "Ruby Regexp per declared rule",
+    "current_inside_rule_selection": "Ruby leftmost-first alternative selection",
+    "current_across_rule_selection": "longest matched byte length, then declaration-order tie break",
+    "candidate_engine": "separate automaton profile, not implemented by H006",
+    "candidate_selection": "maximal munch with declaration-order tie break",
+    "equivalent": false,
+    "witness": "/a|ab/ matches `a` in the current rule although maximal munch would match `ab`",
+    "migration_risks": [
+      "inside-rule alternation and lazy quantifiers can change token boundaries",
+      "arbitrary Ruby lexer actions have no declarative automaton translation",
+      "parser reductions can mutate lexer state before the next lookahead"
+    ]
+  },
+  "cohorts": [
+    {
+      "kind": "synthetic",
+      "workloads": [
+        {
+          "id": "adversarial-alternation",
+          "classification": "repository_synthetic",
+          "grammar": {
+            "identity": "H006 adversarial alternation",
+            "path": "test/fixtures/lexer_profile/alternation.y",
+            "revision": "4e5fa8bd60e40caac37aea34f801a31c19742d7d",
+            "sha256": "eece0f8ffd24f81557063ca255bbd55a6d63f3e9b970249dd68a9076c50fe35f",
+            "storage": "repository",
+            "source_url": "repository"
+          },
+          "suite": "adversarial",
+          "adversarial_features": [
+            "alternation",
+            "regexp-leftmost-first"
+          ],
+          "input": {
+            "path": "test/fixtures/lexer_profile/alternation.txt",
+            "revision": "4e5fa8bd60e40caac37aea34f801a31c19742d7d",
+            "seed_sha256": "fb8e20fc2e4c3f248c60c39bd652f3c1347298bb977b8b4d5903b85055620603",
+            "sha256": "fb8e20fc2e4c3f248c60c39bd652f3c1347298bb977b8b4d5903b85055620603",
+            "bytes": 2,
+            "derivation": "exact file bytes"
+          },
+          "availability": {
+            "status": "measured",
+            "reason": null
+          },
+          "result": {
+            "structure": {
+              "states": [
+                "INITIAL"
+              ],
+              "rules_per_state": {
+                "INITIAL": 2
+              },
+              "rule_count": 2,
+              "alternation_rule_ids": [
+                0
+              ],
+              "lazy_rule_ids": [],
+              "arbitrary_lexer_action_rule_ids": [],
+              "state_mutation_sources": {
+                "lexer_rule_ids": [],
+                "parser_production_ids": []
+              },
+              "parser_to_lexer_feedback": false,
+              "regexp_warnings": []
+            },
+            "token_lengths": {
+              "count": 2,
+              "minimum_bytes": 1,
+              "maximum_bytes": 1,
+              "total_bytes": 2,
+              "sequence_sha256": "532deabf88729cb43995ab5a9cd49bf9b90a079904dc0645ecda9e47ce7345a9",
+              "sample": [
+                {
+                  "token": "A",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "B",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                }
+              ]
+            },
+            "streaming": {
+              "source_kind": "io",
+              "chunk_size_bytes": 16384,
+              "peak_buffer_bytes": 2,
+              "source_bytes_read": 2
+            },
+            "runtime_observations": {
+              "elapsed_seconds": {
+                "status": "observation",
+                "value": 0.000232,
+                "release_gate": false
+              },
+              "allocated_objects": {
+                "status": "observation",
+                "value": 475,
+                "release_gate": false
+              }
+            },
+            "incremental_full_scan": {
+              "status": "measured",
+              "edited_source_bytes": 2,
+              "bytes_scanned_from_zero": 2,
+              "share": 1.0,
+              "basis": "scan_syntax_with_cache initializes the current generated lexer at byte zero"
+            }
+          },
+          "notes": [
+            "Ruby Regexp chooses the first successful alternative inside one rule; this is not maximal munch."
+          ]
+        },
+        {
+          "id": "adversarial-lazy-quantifier",
+          "classification": "repository_synthetic",
+          "grammar": {
+            "identity": "H006 adversarial lazy-quantifier",
+            "path": "test/fixtures/lexer_profile/lazy-quantifier.y",
+            "revision": "4e5fa8bd60e40caac37aea34f801a31c19742d7d",
+            "sha256": "336bb977e5938371c89a26a448bb134eb79b5fbeeffc07a24cf30f5d7017c055",
+            "storage": "repository",
+            "source_url": "repository"
+          },
+          "suite": "adversarial",
+          "adversarial_features": [
+            "lazy-quantifier"
+          ],
+          "input": {
+            "path": "test/fixtures/lexer_profile/lazy-quantifier.txt",
+            "revision": "4e5fa8bd60e40caac37aea34f801a31c19742d7d",
+            "seed_sha256": "9834876dcfb05cb167a5c24953eba58c4ac89b1adf57f28f2f9d09af107ee8f0",
+            "sha256": "9834876dcfb05cb167a5c24953eba58c4ac89b1adf57f28f2f9d09af107ee8f0",
+            "bytes": 3,
+            "derivation": "exact file bytes"
+          },
+          "availability": {
+            "status": "measured",
+            "reason": null
+          },
+          "result": {
+            "structure": {
+              "states": [
+                "INITIAL"
+              ],
+              "rules_per_state": {
+                "INITIAL": 1
+              },
+              "rule_count": 1,
+              "alternation_rule_ids": [],
+              "lazy_rule_ids": [
+                0
+              ],
+              "arbitrary_lexer_action_rule_ids": [],
+              "state_mutation_sources": {
+                "lexer_rule_ids": [],
+                "parser_production_ids": []
+              },
+              "parser_to_lexer_feedback": false,
+              "regexp_warnings": []
+            },
+            "token_lengths": {
+              "count": 3,
+              "minimum_bytes": 1,
+              "maximum_bytes": 1,
+              "total_bytes": 3,
+              "sequence_sha256": "f3dd2c58f4b546018d9a5e147e195b7744eee27b76cae299dad63f221173cca0",
+              "sample": [
+                {
+                  "token": "A",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "A",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "A",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                }
+              ]
+            },
+            "streaming": {
+              "source_kind": "io",
+              "chunk_size_bytes": 16384,
+              "peak_buffer_bytes": 3,
+              "source_bytes_read": 3
+            },
+            "runtime_observations": {
+              "elapsed_seconds": {
+                "status": "observation",
+                "value": 0.00017,
+                "release_gate": false
+              },
+              "allocated_objects": {
+                "status": "observation",
+                "value": 302,
+                "release_gate": false
+              }
+            },
+            "incremental_full_scan": {
+              "status": "measured",
+              "edited_source_bytes": 3,
+              "bytes_scanned_from_zero": 3,
+              "share": 1.0,
+              "basis": "scan_syntax_with_cache initializes the current generated lexer at byte zero"
+            }
+          },
+          "notes": [
+            "Committed adversarial observation of the current generated Ruby Regexp lexer."
+          ]
+        },
+        {
+          "id": "adversarial-long-common-prefix",
+          "classification": "repository_synthetic",
+          "grammar": {
+            "identity": "H006 adversarial long-common-prefix",
+            "path": "test/fixtures/lexer_profile/long-common-prefix.y",
+            "revision": "4e5fa8bd60e40caac37aea34f801a31c19742d7d",
+            "sha256": "0a040a74c63798417c29518f156da7929b4084f1720291a9f77caba1c73e17ea",
+            "storage": "repository",
+            "source_url": "repository"
+          },
+          "suite": "adversarial",
+          "adversarial_features": [
+            "long-common-prefix"
+          ],
+          "input": {
+            "path": "test/fixtures/lexer_profile/long-common-prefix.txt",
+            "revision": "4e5fa8bd60e40caac37aea34f801a31c19742d7d",
+            "seed_sha256": "3e63da2d835edc34e3bca8eef3a454427eae1b01381bbc01c6ca812e1066d660",
+            "sha256": "3e63da2d835edc34e3bca8eef3a454427eae1b01381bbc01c6ca812e1066d660",
+            "bytes": 65,
+            "derivation": "exact file bytes"
+          },
+          "availability": {
+            "status": "measured",
+            "reason": null
+          },
+          "result": {
+            "structure": {
+              "states": [
+                "INITIAL"
+              ],
+              "rules_per_state": {
+                "INITIAL": 2
+              },
+              "rule_count": 2,
+              "alternation_rule_ids": [],
+              "lazy_rule_ids": [],
+              "arbitrary_lexer_action_rule_ids": [],
+              "state_mutation_sources": {
+                "lexer_rule_ids": [],
+                "parser_production_ids": []
+              },
+              "parser_to_lexer_feedback": false,
+              "regexp_warnings": []
+            },
+            "token_lengths": {
+              "count": 1,
+              "minimum_bytes": 65,
+              "maximum_bytes": 65,
+              "total_bytes": 65,
+              "sequence_sha256": "c7befc2ac0d86316d594f56992c97b0029624290a2abbb3a1651509503081381",
+              "sample": [
+                {
+                  "token": "RIGHT",
+                  "bytes": 65,
+                  "state": "INITIAL"
+                }
+              ]
+            },
+            "streaming": {
+              "source_kind": "io",
+              "chunk_size_bytes": 16384,
+              "peak_buffer_bytes": 65,
+              "source_bytes_read": 65
+            },
+            "runtime_observations": {
+              "elapsed_seconds": {
+                "status": "observation",
+                "value": 0.00013,
+                "release_gate": false
+              },
+              "allocated_objects": {
+                "status": "observation",
+                "value": 303,
+                "release_gate": false
+              }
+            },
+            "incremental_full_scan": {
+              "status": "measured",
+              "edited_source_bytes": 65,
+              "bytes_scanned_from_zero": 65,
+              "share": 1.0,
+              "basis": "scan_syntax_with_cache initializes the current generated lexer at byte zero"
+            }
+          },
+          "notes": [
+            "Committed adversarial observation of the current generated Ruby Regexp lexer."
+          ]
+        },
+        {
+          "id": "adversarial-nested-quantifier",
+          "classification": "repository_synthetic",
+          "grammar": {
+            "identity": "H006 adversarial nested-quantifier",
+            "path": "test/fixtures/lexer_profile/nested-quantifier.y",
+            "revision": "4e5fa8bd60e40caac37aea34f801a31c19742d7d",
+            "sha256": "159a9c6e80a65d6954e36a70b495bd580e9073a31084fe92a80746a906a4a4ed",
+            "storage": "repository",
+            "source_url": "repository"
+          },
+          "suite": "adversarial",
+          "adversarial_features": [
+            "nested-quantifier",
+            "regexp-warning"
+          ],
+          "input": {
+            "path": "test/fixtures/lexer_profile/nested-quantifier.txt",
+            "revision": "4e5fa8bd60e40caac37aea34f801a31c19742d7d",
+            "seed_sha256": "3e63da2d835edc34e3bca8eef3a454427eae1b01381bbc01c6ca812e1066d660",
+            "sha256": "3e63da2d835edc34e3bca8eef3a454427eae1b01381bbc01c6ca812e1066d660",
+            "bytes": 65,
+            "derivation": "exact file bytes"
+          },
+          "availability": {
+            "status": "measured",
+            "reason": null
+          },
+          "result": {
+            "structure": {
+              "states": [
+                "INITIAL"
+              ],
+              "rules_per_state": {
+                "INITIAL": 1
+              },
+              "rule_count": 1,
+              "alternation_rule_ids": [],
+              "lazy_rule_ids": [],
+              "arbitrary_lexer_action_rule_ids": [],
+              "state_mutation_sources": {
+                "lexer_rule_ids": [],
+                "parser_production_ids": []
+              },
+              "parser_to_lexer_feedback": false,
+              "regexp_warnings": [
+                {
+                  "type": "redos",
+                  "rule_id": 0
+                }
+              ]
+            },
+            "token_lengths": {
+              "count": 1,
+              "minimum_bytes": 65,
+              "maximum_bytes": 65,
+              "total_bytes": 65,
+              "sequence_sha256": "c7befc2ac0d86316d594f56992c97b0029624290a2abbb3a1651509503081381",
+              "sample": [
+                {
+                  "token": "WORD",
+                  "bytes": 65,
+                  "state": "INITIAL"
+                }
+              ]
+            },
+            "streaming": {
+              "source_kind": "io",
+              "chunk_size_bytes": 16384,
+              "peak_buffer_bytes": 65,
+              "source_bytes_read": 65
+            },
+            "runtime_observations": {
+              "elapsed_seconds": {
+                "status": "observation",
+                "value": 0.000138,
+                "release_gate": false
+              },
+              "allocated_objects": {
+                "status": "observation",
+                "value": 303,
+                "release_gate": false
+              }
+            },
+            "incremental_full_scan": {
+              "status": "measured",
+              "edited_source_bytes": 65,
+              "bytes_scanned_from_zero": 65,
+              "share": 1.0,
+              "basis": "scan_syntax_with_cache initializes the current generated lexer at byte zero"
+            }
+          },
+          "notes": [
+            "Committed adversarial observation of the current generated Ruby Regexp lexer."
+          ]
+        },
+        {
+          "id": "adversarial-chunk-boundary",
+          "classification": "repository_synthetic",
+          "grammar": {
+            "identity": "H006 adversarial chunk-boundary",
+            "path": "test/fixtures/lexer_profile/chunk-boundary.y",
+            "revision": "4e5fa8bd60e40caac37aea34f801a31c19742d7d",
+            "sha256": "bfe52e9cf41c852f58d1c384d59a8dc3964e8177842fff1c9d5a7694884d068b",
+            "storage": "repository",
+            "source_url": "repository"
+          },
+          "suite": "adversarial",
+          "adversarial_features": [
+            "chunk-boundary-inside-token"
+          ],
+          "input": {
+            "path": "test/fixtures/lexer_profile/chunk-boundary.txt",
+            "revision": "4e5fa8bd60e40caac37aea34f801a31c19742d7d",
+            "seed_sha256": "6836cf13bac400e9105071cd6af47084dfacad4e5e302c94bfed24e013afb73e",
+            "sha256": "e272ab033e681c493db52e4b95a86de8d6d5d0a83ca42b430d924db69ba6686a",
+            "bytes": 16512,
+            "derivation": "newline-stripped seed repeated 129 times"
+          },
+          "availability": {
+            "status": "measured",
+            "reason": null
+          },
+          "result": {
+            "structure": {
+              "states": [
+                "INITIAL"
+              ],
+              "rules_per_state": {
+                "INITIAL": 1
+              },
+              "rule_count": 1,
+              "alternation_rule_ids": [],
+              "lazy_rule_ids": [],
+              "arbitrary_lexer_action_rule_ids": [],
+              "state_mutation_sources": {
+                "lexer_rule_ids": [],
+                "parser_production_ids": []
+              },
+              "parser_to_lexer_feedback": false,
+              "regexp_warnings": []
+            },
+            "token_lengths": {
+              "count": 1,
+              "minimum_bytes": 16512,
+              "maximum_bytes": 16512,
+              "total_bytes": 16512,
+              "sequence_sha256": "31d079692463570b42399e2bdc997ae94c08d5f2becc3524b01d6a02885d3336",
+              "sample": [
+                {
+                  "token": "WORD",
+                  "bytes": 16512,
+                  "state": "INITIAL"
+                }
+              ]
+            },
+            "streaming": {
+              "source_kind": "io",
+              "chunk_size_bytes": 16384,
+              "peak_buffer_bytes": 16512,
+              "source_bytes_read": 16512
+            },
+            "runtime_observations": {
+              "elapsed_seconds": {
+                "status": "observation",
+                "value": 0.003894,
+                "release_gate": false
+              },
+              "allocated_objects": {
+                "status": "observation",
+                "value": 16755,
+                "release_gate": false
+              }
+            },
+            "incremental_full_scan": {
+              "status": "measured",
+              "edited_source_bytes": 16512,
+              "bytes_scanned_from_zero": 16512,
+              "share": 1.0,
+              "basis": "scan_syntax_with_cache initializes the current generated lexer at byte zero"
+            }
+          },
+          "notes": [
+            "A 128-byte seed is repeated 129 times; the single token crosses byte offset 16384."
+          ]
+        },
+        {
+          "id": "adversarial-unicode-property",
+          "classification": "repository_synthetic",
+          "grammar": {
+            "identity": "H006 adversarial unicode-property",
+            "path": "test/fixtures/lexer_profile/unicode-property.y",
+            "revision": "4e5fa8bd60e40caac37aea34f801a31c19742d7d",
+            "sha256": "8ff2023aab526b16a2f722bca3c4035959df5ab934eb7e8b078c9e51c6d724ce",
+            "storage": "repository",
+            "source_url": "repository"
+          },
+          "suite": "adversarial",
+          "adversarial_features": [
+            "unicode-property"
+          ],
+          "input": {
+            "path": "test/fixtures/lexer_profile/unicode-property.txt",
+            "revision": "4e5fa8bd60e40caac37aea34f801a31c19742d7d",
+            "seed_sha256": "f549bd57652fb420ffa70f7c7b3b4ce1594055b1a20b8599f654ec6d5cadc0fa",
+            "sha256": "f549bd57652fb420ffa70f7c7b3b4ce1594055b1a20b8599f654ec6d5cadc0fa",
+            "bytes": 6,
+            "derivation": "exact file bytes"
+          },
+          "availability": {
+            "status": "measured",
+            "reason": null
+          },
+          "result": {
+            "structure": {
+              "states": [
+                "INITIAL"
+              ],
+              "rules_per_state": {
+                "INITIAL": 1
+              },
+              "rule_count": 1,
+              "alternation_rule_ids": [],
+              "lazy_rule_ids": [],
+              "arbitrary_lexer_action_rule_ids": [],
+              "state_mutation_sources": {
+                "lexer_rule_ids": [],
+                "parser_production_ids": []
+              },
+              "parser_to_lexer_feedback": false,
+              "regexp_warnings": []
+            },
+            "token_lengths": {
+              "count": 1,
+              "minimum_bytes": 6,
+              "maximum_bytes": 6,
+              "total_bytes": 6,
+              "sequence_sha256": "14ac577cdb2ef6d986078b4054cc9893a9a14a16dbb0d8f37b89167c1f1aacdf",
+              "sample": [
+                {
+                  "token": "WORD",
+                  "bytes": 6,
+                  "state": "INITIAL"
+                }
+              ]
+            },
+            "streaming": {
+              "source_kind": "string",
+              "chunk_size_bytes": 16384,
+              "peak_buffer_bytes": 6,
+              "source_bytes_read": 6
+            },
+            "runtime_observations": {
+              "elapsed_seconds": {
+                "status": "observation",
+                "value": 0.000213,
+                "release_gate": false
+              },
+              "allocated_objects": {
+                "status": "observation",
+                "value": 236,
+                "release_gate": false
+              }
+            },
+            "incremental_full_scan": {
+              "status": "not_requested",
+              "reason": "workload has no committed incremental edit"
+            }
+          },
+          "notes": [
+            "Measured with String input; incremental SourceText is binary and is not claimed compatible here."
+          ]
+        },
+        {
+          "id": "adversarial-stateful-string",
+          "classification": "repository_synthetic",
+          "grammar": {
+            "identity": "H006 adversarial stateful-string",
+            "path": "test/fixtures/lexer_profile/stateful-string.y",
+            "revision": "4e5fa8bd60e40caac37aea34f801a31c19742d7d",
+            "sha256": "0d572ddf563565292359342db5b67d3fe43daebc58538e9441e59dc0802cfad1",
+            "storage": "repository",
+            "source_url": "repository"
+          },
+          "suite": "adversarial",
+          "adversarial_features": [
+            "stateful-string",
+            "lexer-state-mutation"
+          ],
+          "input": {
+            "path": "test/fixtures/lexer_profile/stateful-string.txt",
+            "revision": "4e5fa8bd60e40caac37aea34f801a31c19742d7d",
+            "seed_sha256": "f2635eaef8f96cf4836c7cd5063f445b17cb2bb6185c1b208e2b97b38c930139",
+            "sha256": "f2635eaef8f96cf4836c7cd5063f445b17cb2bb6185c1b208e2b97b38c930139",
+            "bytes": 15,
+            "derivation": "exact file bytes"
+          },
+          "availability": {
+            "status": "measured",
+            "reason": null
+          },
+          "result": {
+            "structure": {
+              "states": [
+                "INITIAL",
+                "STRING"
+              ],
+              "rules_per_state": {
+                "INITIAL": 1,
+                "STRING": 2
+              },
+              "rule_count": 3,
+              "alternation_rule_ids": [],
+              "lazy_rule_ids": [],
+              "arbitrary_lexer_action_rule_ids": [
+                0,
+                2
+              ],
+              "state_mutation_sources": {
+                "lexer_rule_ids": [
+                  0,
+                  2
+                ],
+                "parser_production_ids": []
+              },
+              "parser_to_lexer_feedback": false,
+              "regexp_warnings": []
+            },
+            "token_lengths": {
+              "count": 1,
+              "minimum_bytes": 13,
+              "maximum_bytes": 13,
+              "total_bytes": 13,
+              "sequence_sha256": "1f5edc6f1efb165d45a654798d4baaa50e3b4d24182913aef5110a15580ebaad",
+              "sample": [
+                {
+                  "token": "CONTENT",
+                  "bytes": 13,
+                  "state": "STRING"
+                }
+              ]
+            },
+            "streaming": {
+              "source_kind": "io",
+              "chunk_size_bytes": 16384,
+              "peak_buffer_bytes": 15,
+              "source_bytes_read": 15
+            },
+            "runtime_observations": {
+              "elapsed_seconds": {
+                "status": "observation",
+                "value": 0.000181,
+                "release_gate": false
+              },
+              "allocated_objects": {
+                "status": "observation",
+                "value": 325,
+                "release_gate": false
+              }
+            },
+            "incremental_full_scan": {
+              "status": "measured",
+              "edited_source_bytes": 15,
+              "bytes_scanned_from_zero": 15,
+              "share": 1.0,
+              "basis": "scan_syntax_with_cache initializes the current generated lexer at byte zero"
+            }
+          },
+          "notes": [
+            "Committed adversarial observation of the current generated Ruby Regexp lexer."
+          ]
+        },
+        {
+          "id": "adversarial-parser-feedback",
+          "classification": "repository_synthetic",
+          "grammar": {
+            "identity": "H006 adversarial parser-feedback",
+            "path": "test/fixtures/lexer_profile/parser-feedback.y",
+            "revision": "4e5fa8bd60e40caac37aea34f801a31c19742d7d",
+            "sha256": "2b0fb668e6390dca47d951297cf51a2bae8c3e290d5e8e37f2d029031ac33bd2",
+            "storage": "repository",
+            "source_url": "repository"
+          },
+          "suite": "adversarial",
+          "adversarial_features": [
+            "parser-action-state-mutation",
+            "parser-to-lexer-feedback"
+          ],
+          "input": {
+            "path": "test/fixtures/lexer_profile/parser-feedback.txt",
+            "revision": "4e5fa8bd60e40caac37aea34f801a31c19742d7d",
+            "seed_sha256": "87c2aebe999878ed1c244b6a85d1a2ad0b5c6f0916afed00797c1bc7d6097961",
+            "sha256": "87c2aebe999878ed1c244b6a85d1a2ad0b5c6f0916afed00797c1bc7d6097961",
+            "bytes": 8,
+            "derivation": "exact file bytes"
+          },
+          "availability": {
+            "status": "measured",
+            "reason": null
+          },
+          "result": {
+            "structure": {
+              "states": [
+                "INITIAL",
+                "AFTER"
+              ],
+              "rules_per_state": {
+                "INITIAL": 1,
+                "AFTER": 1
+              },
+              "rule_count": 2,
+              "alternation_rule_ids": [],
+              "lazy_rule_ids": [],
+              "arbitrary_lexer_action_rule_ids": [],
+              "state_mutation_sources": {
+                "lexer_rule_ids": [],
+                "parser_production_ids": [
+                  1
+                ]
+              },
+              "parser_to_lexer_feedback": true,
+              "regexp_warnings": []
+            },
+            "token_lengths": {
+              "count": 2,
+              "minimum_bytes": 4,
+              "maximum_bytes": 4,
+              "total_bytes": 8,
+              "sequence_sha256": "506e4e49be39ab12a36ea829987d0342a825349fc28a13182dd3e053322e4545",
+              "sample": [
+                {
+                  "token": "HEAD",
+                  "bytes": 4,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "TAIL",
+                  "bytes": 4,
+                  "state": "AFTER"
+                }
+              ]
+            },
+            "streaming": {
+              "source_kind": "io",
+              "chunk_size_bytes": 16384,
+              "peak_buffer_bytes": 8,
+              "source_bytes_read": 8
+            },
+            "runtime_observations": {
+              "elapsed_seconds": {
+                "status": "observation",
+                "value": 0.000156,
+                "release_gate": false
+              },
+              "allocated_objects": {
+                "status": "observation",
+                "value": 310,
+                "release_gate": false
+              }
+            },
+            "incremental_full_scan": {
+              "status": "not_measured",
+              "reason": "syntax-only incremental parsing suppresses the parser action that changes lexer state"
+            }
+          },
+          "notes": [
+            "Semantic parsing executes the reduction action before lexing TAIL; syntax-only incremental scanning cannot."
+          ]
+        },
+        {
+          "id": "gallery-calc",
+          "classification": "repository_synthetic",
+          "grammar": {
+            "identity": "Self-authored calculator gallery grammar",
+            "path": "gallery/calc/grammar.y",
+            "revision": "2bb20ab24e26cae4ee7cd397fcc12938b7d24e59",
+            "sha256": "e9c25a35bd0351e58c3aefd9397097ac04701e052bad7fd234e72e357b5bac07",
+            "storage": "repository",
+            "source_url": "repository"
+          },
+          "suite": "registered",
+          "adversarial_features": [],
+          "input": {
+            "path": "gallery/calc/corpus/basic.txt",
+            "revision": "2bb20ab24e26cae4ee7cd397fcc12938b7d24e59",
+            "seed_sha256": "a5ae8556110541da35acd9579cc0ce21d01edff2844d5305eabd4bc05dca40d7",
+            "sha256": "a5ae8556110541da35acd9579cc0ce21d01edff2844d5305eabd4bc05dca40d7",
+            "bytes": 16,
+            "derivation": "exact file bytes"
+          },
+          "availability": {
+            "status": "measured",
+            "reason": null
+          },
+          "result": {
+            "structure": {
+              "states": [
+                "INITIAL"
+              ],
+              "rules_per_state": {
+                "INITIAL": 3
+              },
+              "rule_count": 3,
+              "alternation_rule_ids": [
+                1
+              ],
+              "lazy_rule_ids": [],
+              "arbitrary_lexer_action_rule_ids": [
+                1,
+                2
+              ],
+              "state_mutation_sources": {
+                "lexer_rule_ids": [],
+                "parser_production_ids": []
+              },
+              "parser_to_lexer_feedback": false,
+              "regexp_warnings": []
+            },
+            "token_lengths": {
+              "count": 9,
+              "minimum_bytes": 1,
+              "maximum_bytes": 1,
+              "total_bytes": 9,
+              "sequence_sha256": "e62386a1ec5b8fd0ece7344a7cae775d73179cfc0950c4fdeed26c7e8944e795",
+              "sample": [
+                {
+                  "token": "NUMBER",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "+",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "NUMBER",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "*",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "(",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "NUMBER",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "+",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "NUMBER",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": ")",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                }
+              ]
+            },
+            "streaming": {
+              "source_kind": "io",
+              "chunk_size_bytes": 16384,
+              "peak_buffer_bytes": 16,
+              "source_bytes_read": 16
+            },
+            "runtime_observations": {
+              "elapsed_seconds": {
+                "status": "observation",
+                "value": 0.000195,
+                "release_gate": false
+              },
+              "allocated_objects": {
+                "status": "observation",
+                "value": 752,
+                "release_gate": false
+              }
+            },
+            "incremental_full_scan": {
+              "status": "not_requested",
+              "reason": "workload has no committed incremental edit"
+            }
+          },
+          "notes": [
+            "Trusted repository lexer and parser actions execute during this diagnostic profile."
+          ]
+        },
+        {
+          "id": "gallery-json",
+          "classification": "repository_synthetic",
+          "grammar": {
+            "identity": "Self-authored JSON gallery grammar",
+            "path": "gallery/json/grammar.y",
+            "revision": "2bb20ab24e26cae4ee7cd397fcc12938b7d24e59",
+            "sha256": "162484428a798541dfced3a12e6e38eb6f1231aec03157c273b25493fa6f9f66",
+            "storage": "repository",
+            "source_url": "repository"
+          },
+          "suite": "registered",
+          "adversarial_features": [],
+          "input": {
+            "path": "gallery/json/corpus/nested.json",
+            "revision": "2bb20ab24e26cae4ee7cd397fcc12938b7d24e59",
+            "seed_sha256": "5c075188acfe68ca076a670b1ec8858b9fdabd2ad9b3919cd956ee1d5da42613",
+            "sha256": "5c075188acfe68ca076a670b1ec8858b9fdabd2ad9b3919cd956ee1d5da42613",
+            "bytes": 62,
+            "derivation": "exact file bytes"
+          },
+          "availability": {
+            "status": "measured",
+            "reason": null
+          },
+          "result": {
+            "structure": {
+              "states": [
+                "INITIAL"
+              ],
+              "rules_per_state": {
+                "INITIAL": 7
+              },
+              "rule_count": 7,
+              "alternation_rule_ids": [
+                1,
+                2
+              ],
+              "lazy_rule_ids": [],
+              "arbitrary_lexer_action_rule_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+              ],
+              "state_mutation_sources": {
+                "lexer_rule_ids": [],
+                "parser_production_ids": []
+              },
+              "parser_to_lexer_feedback": false,
+              "regexp_warnings": []
+            },
+            "token_lengths": {
+              "count": 23,
+              "minimum_bytes": 1,
+              "maximum_bytes": 8,
+              "total_bytes": 61,
+              "sequence_sha256": "a10182b34a06a5af5d8eabd6034f20db60048252de5b37a106766af996528791",
+              "sample": [
+                {
+                  "token": "{",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "STRING",
+                  "bytes": 6,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": ":",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "STRING",
+                  "bytes": 6,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": ",",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "STRING",
+                  "bytes": 8,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": ":",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "[",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "NUMBER",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": ",",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "TRUE",
+                  "bytes": 4,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": ",",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "NULL",
+                  "bytes": 4,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "]",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": ",",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "STRING",
+                  "bytes": 8,
+                  "state": "INITIAL"
+                }
+              ]
+            },
+            "streaming": {
+              "source_kind": "io",
+              "chunk_size_bytes": 16384,
+              "peak_buffer_bytes": 62,
+              "source_bytes_read": 62
+            },
+            "runtime_observations": {
+              "elapsed_seconds": {
+                "status": "observation",
+                "value": 0.000507,
+                "release_gate": false
+              },
+              "allocated_objects": {
+                "status": "observation",
+                "value": 1261,
+                "release_gate": false
+              }
+            },
+            "incremental_full_scan": {
+              "status": "not_requested",
+              "reason": "workload has no committed incremental edit"
+            }
+          },
+          "notes": [
+            "Trusted repository lexer and parser actions execute during this diagnostic profile."
+          ]
+        },
+        {
+          "id": "gallery-sql-lite",
+          "classification": "repository_synthetic",
+          "grammar": {
+            "identity": "Self-authored SQL subset gallery grammar",
+            "path": "gallery/sql-lite/grammar.y",
+            "revision": "2bb20ab24e26cae4ee7cd397fcc12938b7d24e59",
+            "sha256": "1369ba9384456fc02d0ccb9cef81dd0e96fcdd387f00266b28df0ac5be1b5f2a",
+            "storage": "repository",
+            "source_url": "repository"
+          },
+          "suite": "registered",
+          "adversarial_features": [],
+          "input": {
+            "path": "gallery/sql-lite/corpus/basic.sql",
+            "revision": "2bb20ab24e26cae4ee7cd397fcc12938b7d24e59",
+            "seed_sha256": "875d3306294ddb403afb95f8d89b359570a5c3571f04b7a3a8a044165ce476a1",
+            "sha256": "875d3306294ddb403afb95f8d89b359570a5c3571f04b7a3a8a044165ce476a1",
+            "bytes": 23,
+            "derivation": "exact file bytes"
+          },
+          "availability": {
+            "status": "measured",
+            "reason": null
+          },
+          "result": {
+            "structure": {
+              "states": [
+                "INITIAL"
+              ],
+              "rules_per_state": {
+                "INITIAL": 10
+              },
+              "rule_count": 10,
+              "alternation_rule_ids": [
+                6,
+                7
+              ],
+              "lazy_rule_ids": [],
+              "arbitrary_lexer_action_rule_ids": [
+                9
+              ],
+              "state_mutation_sources": {
+                "lexer_rule_ids": [],
+                "parser_production_ids": []
+              },
+              "parser_to_lexer_feedback": false,
+              "regexp_warnings": []
+            },
+            "token_lengths": {
+              "count": 5,
+              "minimum_bytes": 1,
+              "maximum_bytes": 7,
+              "total_bytes": 19,
+              "sequence_sha256": "ef82f5834e4d05ba16753d65c7615053c73e9aabc90dfd53687accc37d0d2448",
+              "sample": [
+                {
+                  "token": "SELECT",
+                  "bytes": 6,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "*",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "FROM",
+                  "bytes": 4,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": "IDENTIFIER",
+                  "bytes": 7,
+                  "state": "INITIAL"
+                },
+                {
+                  "token": ";",
+                  "bytes": 1,
+                  "state": "INITIAL"
+                }
+              ]
+            },
+            "streaming": {
+              "source_kind": "io",
+              "chunk_size_bytes": 16384,
+              "peak_buffer_bytes": 23,
+              "source_bytes_read": 23
+            },
+            "runtime_observations": {
+              "elapsed_seconds": {
+                "status": "observation",
+                "value": 0.000188,
+                "release_gate": false
+              },
+              "allocated_objects": {
+                "status": "observation",
+                "value": 517,
+                "release_gate": false
+              }
+            },
+            "incremental_full_scan": {
+              "status": "not_requested",
+              "reason": "workload has no committed incremental edit"
+            }
+          },
+          "notes": [
+            "Trusted repository lexer and parser actions execute during this diagnostic profile."
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "public_real",
+      "workloads": [
+        {
+          "id": "bcdice-command-parser",
+          "classification": "public_real",
+          "grammar": {
+            "identity": "BCDice command parser",
+            "path": "lib/bcdice/command/parser.y",
+            "revision": "21b4a03789bf2080ad41aaf31299b609ee7bda86",
+            "sha256": "845f4fcd5dedfc276dd3529cc86015a1b806bb7912346a04ce5a78a1977bb4d8",
+            "storage": "remote",
+            "source_url": "https://github.com/bcdice/BCDice/blob/21b4a03789bf2080ad41aaf31299b609ee7bda86/lib/bcdice/command/parser.y"
+          },
+          "suite": "registered",
+          "adversarial_features": [],
+          "input": null,
+          "availability": {
+            "status": "not_run",
+            "reason": "registered source does not use the Ibex generated lexer and no verified port was supplied"
+          },
+          "result": null,
+          "notes": [
+            "No generated-lexer metrics are inferred from an external application lexer."
+          ]
+        },
+        {
+          "id": "namae-parser",
+          "classification": "public_real",
+          "grammar": {
+            "identity": "Namae personal-name parser",
+            "path": "lib/namae/parser.y",
+            "revision": "d33875aaf1fc420a8dfe946a3b29cc3e19710061",
+            "sha256": "ac626034b016696bf5b8d4868005ff98cecadf74162294d2c6f9d6e128158198",
+            "storage": "remote",
+            "source_url": "https://github.com/berkmancenter/namae/blob/d33875aaf1fc420a8dfe946a3b29cc3e19710061/lib/namae/parser.y"
+          },
+          "suite": "registered",
+          "adversarial_features": [],
+          "input": null,
+          "availability": {
+            "status": "not_run",
+            "reason": "registered source does not use the Ibex generated lexer and no verified port was supplied"
+          },
+          "result": null,
+          "notes": [
+            "No generated-lexer metrics are inferred from an external application lexer."
+          ]
+        },
+        {
+          "id": "nokogiri-css-parser",
+          "classification": "public_real",
+          "grammar": {
+            "identity": "Nokogiri CSS selector parser",
+            "path": "lib/nokogiri/css/parser.y",
+            "revision": "04a4c29c6a605ad40a78f4ce343ced0832a1805c",
+            "sha256": "3ba8e2b573c099686c4186d0eef0a670dcaf93d2081f5678be45fb8600dc873a",
+            "storage": "remote",
+            "source_url": "https://github.com/sparklemotion/nokogiri/blob/04a4c29c6a605ad40a78f4ce343ced0832a1805c/lib/nokogiri/css/parser.y"
+          },
+          "suite": "registered",
+          "adversarial_features": [],
+          "input": null,
+          "availability": {
+            "status": "not_run",
+            "reason": "registered source does not use the Ibex generated lexer and no verified port was supplied"
+          },
+          "result": null,
+          "notes": [
+            "No generated-lexer metrics are inferred from an external application lexer."
+          ]
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "feature": "automatic-regexp-replacement",
+      "decision": "NO-GO",
+      "thresholds": [
+        {
+          "id": "regexp-semantic-equivalence",
+          "target": "leftmost-first and maximal-munch agree",
+          "observed": "/a|ab/ consumes 1 byte under the current Ruby Regexp rule; maximal-munch would consume 2",
+          "satisfied": false
+        },
+        {
+          "id": "arbitrary-action-migration",
+          "target": "all actions have a specified declarative translation",
+          "observed": "11 trusted Ruby lexer actions observed; no translation is specified",
+          "satisfied": false
+        },
+        {
+          "id": "parser-feedback-migration",
+          "target": "parser-to-lexer feedback is absent or specified",
+          "observed": "parser-feedback fixture changes lexer state before the next lookahead",
+          "satisfied": false
+        }
+      ],
+      "reason": "Automatic replacement is semantically unsafe: inside-rule Ruby Regexp selection, opaque Ruby actions, and parser-driven state changes are not an automaton-equivalent contract.",
+      "counterevidence_required": [
+        "a formal compatibility mode preserving Ruby Regexp inside-rule leftmost-first behavior",
+        "a reviewed translation or explicit rejection contract for arbitrary lexer actions",
+        "a reviewed parser-feedback state transition contract",
+        "differential evidence over verified real generated-lexer workloads"
+      ]
+    },
+    {
+      "feature": "separate-automaton-profile",
+      "decision": "MORE DATA",
+      "thresholds": [
+        {
+          "id": "adversarial-semantics",
+          "target": "all 8 required fixtures measured",
+          "observed": "8",
+          "satisfied": true
+        },
+        {
+          "id": "public-real-generated-lexer",
+          "target": "at least 2 verified generated-lexer workloads",
+          "observed": "0",
+          "satisfied": false
+        },
+        {
+          "id": "independent-semantics-contract",
+          "target": "L001 semantics and action boundary implemented",
+          "observed": "not implemented; this profile observes only the current Regexp lexer",
+          "satisfied": false
+        },
+        {
+          "id": "adoption-trigger",
+          "target": "at least 2 verified users blocked by current lexer construction",
+          "observed": "0 verified users",
+          "satisfied": false
+        }
+      ],
+      "reason": "A separate automaton profile remains plausible, but the registry has no public-real Ibex generated-lexer workload and no verified adoption trigger. Diagnostic elapsed time and allocations do not affect this decision.",
+      "counterevidence_required": [
+        "at least two verified public-real Ibex generated-lexer workloads",
+        "a standalone automaton semantic contract with declaration-order tie breaking",
+        "a bounded action interface that excludes arbitrary parser feedback",
+        "verified adoption pressure that structural evidence can address"
+      ]
+    }
+  ],
+  "limitations": [
+    "The profiler observes the current generated lexer and does not implement an automaton lexer.",
+    "Synthetic fixtures and galleries are not substitutes for public-real generated-lexer workloads.",
+    "Elapsed time and allocation deltas are host-bound diagnostics, not release gates or golden values.",
+    "Peak buffer bytes are process-local instrumentation of LexerInput, not whole-process peak memory.",
+    "Incremental full-scan share describes the current byte-zero scan path, not incremental parser reuse.",
+    "Static source heuristics can miss indirect Regexp and state-mutation behavior."
+  ]
+}
