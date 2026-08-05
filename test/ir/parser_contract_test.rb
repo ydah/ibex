@@ -48,6 +48,19 @@ class IRParserContractTest < Minitest::Test
     assert_equal "explicit entries requires a source location with a file", error.message
   end
 
+  def test_closed_contract_definitions_are_deeply_frozen
+    definitions = Ibex::IR::ParserContract::DEFINITIONS
+    algorithm = definitions.fetch(:algorithm)
+
+    assert definitions.frozen?
+    assert algorithm.frozen?
+    assert algorithm.fetch(:configuration).frozen?
+    assert algorithm.fetch(:values).frozen?
+    assert_raises(FrozenError) { algorithm[:future] = true }
+    assert_raises(FrozenError) { algorithm.fetch(:configuration) << ".changed" }
+    assert_raises(FrozenError) { algorithm.fetch(:values) << :future }
+  end
+
   def test_v3_factories_do_not_expand_the_frozen_constructors
     grammar_constructor = Ibex::IR::Grammar.instance_method(:initialize).parameters.map(&:last)
     automaton_constructor = Ibex::IR::Automaton.instance_method(:initialize).parameters.map(&:last)
