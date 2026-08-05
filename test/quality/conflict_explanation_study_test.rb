@@ -89,6 +89,20 @@ class ConflictExplanationStudyTest < Minitest::Test
     end
   end
 
+  def test_review_registry_rejects_case_insensitive_duplicate_reviewers
+    registry = JSON.parse(File.binread(File.join(ROOT, "docs/conflict-explanation-review-status-v1.json")))
+    registry["status"] = "PASS"
+    registry["reason"] = "claimed independent reviews"
+    registry["records"] = [review_record("Example Reviewer"), review_record("example reviewer")]
+
+    Dir.mktmpdir("ibex-h004-review") do |directory|
+      path = File.join(directory, "review.json")
+      File.binwrite(path, "#{JSON.pretty_generate(registry)}\n")
+      error = assert_raises(RuntimeError) { study.verify!(review_path: path) }
+      assert_includes error.message, "reviewer identities must be unique"
+    end
+  end
+
   private
 
   def study
@@ -101,5 +115,24 @@ class ConflictExplanationStudyTest < Minitest::Test
 
   def schemer
     @schemer ||= JSONSchemer.schema(JSON.parse(File.binread(SCHEMA)))
+  end
+
+  def review_record(reviewer)
+    {
+      "reviewer" => reviewer,
+      "reviewed_at" => "2026-08-05",
+      "independent_of_implementation" => true,
+      "case_reviews" => %w[H004-EXPR H004-ELSE H004-RR H004-MERGE].map do |case_id|
+        {
+          "case_id" => case_id,
+          "identified_cause" => "independent cause analysis",
+          "chosen_edit" => "independent edit choice",
+          "explanation_usefulness" => "useful",
+          "repair_usefulness" => "unclear",
+          "rationale" => "independent case rationale"
+        }
+      end,
+      "disagreement_summary" => "no disagreement recorded"
+    }
   end
 end

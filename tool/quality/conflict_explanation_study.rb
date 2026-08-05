@@ -271,18 +271,30 @@ module Ibex
 
       # @rbs (Hash[String, untyped] review, Array[Hash[String, untyped]] records) -> void
       def validate_review_records!(review, records)
-        reviewers = records.map { |record| record.fetch("reviewer") }
-        raise "H004 reviewer identities must be unique" unless reviewers.uniq.length == reviewers.length
+        validate_reviewer_identities!(records)
+        validate_review_case_ids!(records)
+        return if review.fetch("status") == "HOLD"
+        return if records.length >= 2
 
+        raise "H004 review PASS requires at least two independent records"
+      end
+
+      # @rbs (Array[Hash[String, untyped]] records) -> void
+      def validate_reviewer_identities!(records)
+        reviewers = records.map { |record| record.fetch("reviewer").strip.downcase }
+        raise "H004 reviewer identity must not be blank" if reviewers.any?(&:empty?)
+        return if reviewers.uniq.length == reviewers.length
+
+        raise "H004 reviewer identities must be unique"
+      end
+
+      # @rbs (Array[Hash[String, untyped]] records) -> void
+      def validate_review_case_ids!(records)
         expected_ids = CASES.map { |entry| entry.fetch(:id) }.sort
         records.each do |record|
           ids = record.fetch("case_reviews").map { |entry| entry.fetch("case_id") }.sort
           raise "H004 review case inventory drift" unless ids == expected_ids
         end
-        return if review.fetch("status") == "HOLD"
-        return if records.length >= 2
-
-        raise "H004 review PASS requires at least two independent records"
       end
 
       # @rbs (Hash[String, untyped] coverage, Array[Hash[String, untyped]] cases) -> void
