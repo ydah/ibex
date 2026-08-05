@@ -88,9 +88,9 @@ module Ibex
         "grammar.mode" => %w[grammar_ir_v2_current current],
         "parser.superclass" => %w[grammar_ir_v2_current current],
         "actions.omit_calls" => %w[grammar_ir_v2_current current],
-        "parser.algorithm" => %w[automaton_ir_v2_only_contract_gap current],
-        "parser.entries" => %w[starts_current_strategy_gap current],
-        "cst.trivia" => %w[cst_contract_gap current]
+        "parser.algorithm" => %w[grammar_ir_v3_parser_contract current],
+        "parser.entries" => %w[grammar_ir_v3_parser_contract current],
+        "cst.trivia" => %w[grammar_ir_v3_parser_contract current]
       }.freeze
       OWNER_CLASSES = %w[grammar_contract grammar_minimum project_build_policy invocation_request].freeze
       ADMISSION_RESULTS = %w[
@@ -109,9 +109,7 @@ module Ibex
       ].freeze
       IR_PRESENCE = %w[
         grammar_ir_v2_current
-        automaton_ir_v2_only_contract_gap
-        starts_current_strategy_gap
-        cst_contract_gap
+        grammar_ir_v3_parser_contract
         not_persisted
       ].freeze
       MANIFEST_PRESENCE = %w[current current_gap not_applicable].freeze
@@ -233,11 +231,9 @@ module Ibex
           "|---|---|---|---|",
           markdown_row(["`grammar.mode`, `parser.superclass`, `actions.omit_calls`", "Grammar Contract",
                         "staged fixed compatibility", "Grammar IR v2; legacy CLI override needs D008"]),
-          markdown_row(["`parser.algorithm`", "Grammar Contract", "fixed generation / explicit analysis override",
-                        "Automaton IR only; grammar-contract persistence gap"]),
-          markdown_row(["`parser.entries`", "Grammar Contract", "fixed generation / explicit analysis override",
-                        "start symbols persist; isolation strategy gap"]),
-          markdown_row(["`cst.trivia`", "Grammar Contract", "fixed", "IR gap; generation manifest current"]),
+          markdown_row(["`parser.algorithm`, `parser.entries`, `cst.trivia`", "Grammar Contract",
+                        "fixed generation / explicit analysis override",
+                        "Grammar IR v3 root parser contract; manifest records contract and construction facts"]),
           markdown_row(["table/runtime/debug/source mapping/companions", "Project Build Policy", "project selection",
                         "manifest records current generation choices"]),
           markdown_row(["emit/path/watch/report/budget/locale/help/warnings", "Invocation Request", "invocation only",
@@ -245,8 +241,9 @@ module Ibex
           "",
           "Fixed means a future grammar declaration may be matched but not silently contradicted by generation CLI.",
           "Analysis commands may choose a different value only as an explicit noncanonical analysis override.",
-          "The inventory records present compatibility gaps; the typed model does not by itself claim that later",
-          "declarative syntax, IR persistence, and conflict-diagnostic work is complete.",
+          "Grammar IR v3 closes persistence for the first-wave construction and CST concepts " \
+          "without adding source syntax.",
+          "The typed model still does not claim that declarative syntax or every conflict diagnostic is complete.",
           "",
           "## Owner summary",
           "",

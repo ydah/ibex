@@ -152,7 +152,7 @@ bounded ambiguity/counterexample analysis for ambiguous grammars, and
 
 The required fields, meanings, identity rules, ordering, and validation
 semantics of the published core Grammar IR and Automaton IR versions are
-frozen. Existing version-1 and version-2 documents retain byte-stable
+frozen. Existing version-1, version-2, and version-3 documents retain byte-stable
 round-trips and one-generation read compatibility.
 
 Additive optional core fields require a minor release. Meaning changes,
@@ -183,8 +183,9 @@ the freeze.
 Parser-table formats v1 through v6 remain readable for non-CST parsers. CST
 tables must use the current format v6 structured metadata; older CST tables
 and the boolean `cst: true` shape fail before token consumption with a
-regeneration instruction. Format v6 is the only writer and does not change
-Grammar IR v2. The closed `ibex_cst` schema v1 is a versioned interchange
+regeneration instruction. Format v6 is the only table writer. Grammar IR v3
+adds generator-owned parser configuration without changing that runtime table
+contract. The closed `ibex_cst` schema v1 is a versioned interchange
 contract. Additive meaning requires a new schema version; readers do not
 accept unknown fields.
 
