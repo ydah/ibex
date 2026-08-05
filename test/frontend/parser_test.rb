@@ -56,6 +56,7 @@ class FrontendParserTest < Minitest::Test
     items = ast.rules.first.alternatives.first.items
 
     assert_equal [], ast.declarations
+    assert_equal({ file: "grammar.y", line: 2, column: 1 }, ast.extended_loc.to_h)
     assert_equal "first", items.first.named_reference
     assert_instance_of Ibex::Frontend::AST::Star, items.last
   end

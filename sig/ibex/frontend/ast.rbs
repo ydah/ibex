@@ -42,7 +42,7 @@ module Ibex
         def serialize: (untyped value) -> untyped
       end
 
-      class Root < Struct[String | String? | Array[declaration] | Array[Rule] | user_code | Location | bool?]
+      class Root < Struct[String | String? | Array[declaration] | Array[Rule] | user_code | Location | bool? | Location?]
         attr_accessor class_name(): String
 
         attr_accessor superclass(): String?
@@ -59,8 +59,10 @@ module Ibex
 
         attr_accessor cst(): bool?
 
-        def self.new: (?class_name: String, ?superclass: String?, ?declarations: Array[declaration], ?rules: Array[Rule], ?user_code: user_code, ?loc: Location, ?extended: bool?, ?cst: bool?) -> instance
-                    | ({ ?class_name: String, ?superclass: String?, ?declarations: Array[declaration], ?rules: Array[Rule], ?user_code: user_code, ?loc: Location, ?extended: bool?, ?cst: bool? }) -> instance
+        attr_accessor extended_loc(): Location?
+
+        def self.new: (?class_name: String, ?superclass: String?, ?declarations: Array[declaration], ?rules: Array[Rule], ?user_code: user_code, ?loc: Location, ?extended: bool?, ?cst: bool?, ?extended_loc: Location?) -> instance
+                    | ({ ?class_name: String, ?superclass: String?, ?declarations: Array[declaration], ?rules: Array[Rule], ?user_code: user_code, ?loc: Location, ?extended: bool?, ?cst: bool?, ?extended_loc: Location? }) -> instance
       end
 
       class Fragment < Struct[Array[declaration] | Array[Rule] | Location]

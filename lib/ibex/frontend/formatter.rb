@@ -394,7 +394,7 @@ module Ibex
 
       # @rbs (Struct[untyped] value) -> Array[Symbol]
       def semantic_members(value)
-        value.members.reject { |member| %i[loc span].include?(member) }
+        value.members.reject { |member| %i[loc span extended_loc].include?(member) }
       end
 
       # @rbs (Hash[untyped, untyped] value) -> Array[untyped]

@@ -65,6 +65,16 @@ module Ibex
         @declarations.cst_pragma?
       end
 
+      # @rbs () -> Location?
+      def extended_pragma_location
+        @declarations.extended_pragma_location
+      end
+
+      # @rbs () -> Location?
+      def cst_pragma_location
+        @declarations.cst_pragma_location
+      end
+
       # @rbs () -> parser_section
       def section
         rules = @rules

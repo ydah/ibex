@@ -23,7 +23,8 @@ module Ibex
         locations = {} #: Hash[String, Location]
         evidence = {} #: Hash[String, Array[Evidence]]
         root = resolution.root
-        add_source_fact(values, locations, evidence, "grammar.mode", :extended, root.loc) if root.extended
+        extended_loc = root.extended_loc
+        add_source_fact(values, locations, evidence, "grammar.mode", :extended, extended_loc) if extended_loc
         add_source_fact(values, locations, evidence, "parser.superclass", root.superclass, root.loc) if root.superclass
         add_source_options(root, values, locations, evidence)
         recordings = Registry.keys.to_h do |key|

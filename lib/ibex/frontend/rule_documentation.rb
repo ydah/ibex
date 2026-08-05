@@ -26,7 +26,8 @@ module Ibex
         if node.is_a?(AST::Root)
           AST::Root.new(
             class_name: node.class_name, superclass: node.superclass, declarations: node.declarations,
-            rules: rules, user_code: node.user_code, loc: node.loc, extended: node.extended, cst: node.cst
+            rules: rules, user_code: node.user_code, loc: node.loc, extended: node.extended, cst: node.cst,
+            extended_loc: node.extended_loc
           )
         else
           AST::Fragment.new(declarations: node.declarations, rules: rules, loc: node.loc)

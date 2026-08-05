@@ -43,6 +43,12 @@ module Ibex
       # @rbs () -> bool
       def cst_pragma?: () -> bool
 
+      # @rbs () -> Location?
+      def extended_pragma_location: () -> Location?
+
+      # @rbs () -> Location?
+      def cst_pragma_location: () -> Location?
+
       # @rbs () -> parser_section
       def section: () -> parser_section
 

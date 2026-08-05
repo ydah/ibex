@@ -50,6 +50,7 @@ module Ibex
           fields.delete(:aliases) if self.class.name.end_with?("::Tokens") && !fields[:aliases]
           if self.class.name.end_with?("::Root")
             fields.delete(:extended) unless fields[:extended]
+            fields.delete(:extended_loc) unless fields[:extended_loc]
             fields.delete(:cst) unless fields[:cst]
           end
           fields.delete(:node_annotation) if self.class.name.end_with?("::Alternative") && !fields[:node_annotation]
@@ -78,6 +79,7 @@ module Ibex
         :loc, #: Location
         :extended, #: bool?
         :cst, #: bool?
+        :extended_loc, #: Location?
         keyword_init: true
       ) { include Node }
       Fragment = Struct.new(
