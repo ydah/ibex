@@ -11,6 +11,54 @@
     "payload": { "$ref": "#/$defs/payload" },
     "cost": { "$ref": "#/$defs/cost" }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "payload": {
+            "properties": {
+              "table_format": {
+                "properties": { "representation": { "const": "compact" } }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "cost": {
+            "properties": {
+              "lookup_cost": { "const": "O(1) row-displacement probe" },
+              "recognition_cost": { "const": "O(input tokens + reductions); lexer, recovery search, and semantic actions excluded" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "payload": {
+            "properties": {
+              "table_format": {
+                "properties": { "representation": { "const": "plain" } }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "cost": {
+            "properties": {
+              "lookup_cost": { "const": "O(log row width) binary search" },
+              "recognition_cost": { "const": "O((input tokens + reductions) * log maximum row width); lexer, recovery search, and semantic actions excluded" }
+            }
+          }
+        }
+      }
+    }
+  ],
   "additionalProperties": false,
   "$defs": {
     "digest": {
@@ -314,7 +362,12 @@
         "action_cells": { "type": "integer", "minimum": 0 },
         "goto_cells": { "type": "integer", "minimum": 0 },
         "lookup_cost": { "enum": ["O(1) row-displacement probe", "O(log row width) binary search"] },
-        "recognition_cost": { "type": "string", "minLength": 1 },
+        "recognition_cost": {
+          "enum": [
+            "O(input tokens + reductions); lexer, recovery search, and semantic actions excluded",
+            "O((input tokens + reductions) * log maximum row width); lexer, recovery search, and semantic actions excluded"
+          ]
+        },
         "measurement": { "const": "not-measured" },
         "bounded_by_max_steps": { "const": true }
       },

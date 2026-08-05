@@ -44,7 +44,7 @@ module Ibex
             record(cell, path, %w[token_id code])
             token_id = integer(cell.fetch("token_id"), "#{path}.token_id", minimum: 0)
             invalid("#{path}.token_id", "must reference a terminal") unless @terminal_ids.include?(token_id)
-            validate_action_code(cell.fetch("code"), "#{path}.code")
+            validate_token_action(cell.fetch("code"), token_id, "#{path}.code")
             token_id
           end
           sorted_unique!(token_ids, "$.payload.tables.actions.rows[#{state}]")
@@ -58,11 +58,16 @@ module Ibex
         validate_row_count(table, "$.payload.tables.actions")
         column_count = nullable_integer(table.fetch("column_count"), "$.payload.tables.actions.column_count",
                                         minimum: 1)
-        validate_displacement(table, value_key: "codes", path: "$.payload.tables.actions") do |column, code, cell_path|
+        rows = validate_displacement(table, value_key: "codes", path: "$.payload.tables.actions") do |column, code,
+                                                                                                         cell_path|
           invalid(cell_path, "column must reference a terminal") unless @terminal_ids.include?(column)
           invalid(cell_path, "column exceeds column_count") if column_count && column >= column_count
-          validate_action_code(code, "#{cell_path}.code")
+          validate_token_action(code, column, "#{cell_path}.code")
         end
+        validate_canonical_displacement(
+          table, rows, value_key: "codes", width_key: "column_count", width: column_count, dense: false,
+                       path: "$.payload.tables.actions"
+        )
       end
 
       def validate_gotos(table)
@@ -99,11 +104,16 @@ module Ibex
         enum(table.fetch("encoding"), "$.payload.tables.gotos.encoding", ["row-displacement-v1"])
         validate_row_count(table, "$.payload.tables.gotos")
         dense_width = nullable_integer(table.fetch("dense_width"), "$.payload.tables.gotos.dense_width", minimum: 1)
-        validate_displacement(table, value_key: "values", path: "$.payload.tables.gotos") do |column, state, cell_path|
+        rows = validate_displacement(table, value_key: "values", path: "$.payload.tables.gotos") do |column, state,
+                                                                                                         cell_path|
           invalid(cell_path, "column must reference a nonterminal") unless @nonterminal_ids.include?(column)
           invalid(cell_path, "column exceeds dense_width") if dense_width && column >= dense_width
           validate_state(state, "#{cell_path}.state")
         end
+        validate_canonical_displacement(
+          table, rows, value_key: "values", width_key: "dense_width", width: dense_width, dense: true,
+                       path: "$.payload.tables.gotos"
+        )
       end
 
       def validate_row_count(table, path)
@@ -119,6 +129,7 @@ module Ibex
         checks = integer_array(table.fetch("checks"), "#{path}.checks", allow_nil: true, minimum: 0)
         invalid(path, "#{value_key} and checks must have equal length") unless values.length == checks.length
 
+        rows = Array.new(@state_count) { {} }
         checks.each_index do |index|
           row = checks[index]
           value = values[index]
@@ -129,7 +140,24 @@ module Ibex
           column = index - offsets.fetch(row)
           invalid("#{path}[#{index}]", "has a negative column") if column.negative?
           yield(column, value, "#{path}[#{index}]")
+          rows.fetch(row)[column] = value
         end
+        rows
+      end
+
+      def validate_canonical_displacement(table, rows, value_key:, width_key:, width:, dense:, path:)
+        canonical = Tables::Compact.build(rows, dense: dense)
+        expected = [canonical.offsets, canonical.values, canonical.checks]
+        actual = [table.fetch("offsets"), table.fetch(value_key), table.fetch("checks")]
+        invalid(path, "must use the canonical minimal row-displacement layout") unless actual == expected
+
+        expected_width = if width_key == "column_count"
+                           rows.flat_map(&:keys).max.to_i + 1
+                         else
+                           canonical.dense_width
+                         end
+        expected_width = nil if expected_width && (@state_count * expected_width) > Tables::Compact::DENSE_CELL_LIMIT
+        invalid("#{path}.#{width_key}", "does not match the canonical table width") unless width == expected_width
       end
 
       def integer_array(value, path, allow_nil:, minimum:)
@@ -147,8 +175,18 @@ module Ibex
                   "must contain one entry per state")
         end
         values.each_with_index do |code, state|
-          validate_action_code(code, "$.payload.tables.default_actions[#{state}]") unless code.nil?
+          next if code.nil?
+
+          path = "$.payload.tables.default_actions[#{state}]"
+          validate_action_code(code, path)
+          invalid(path, "must be an error or reduction") if code >= 0
         end
+      end
+
+      def validate_token_action(code, token_id, path)
+        validate_action_code(code, path)
+        invalid(path, "accept is only valid for $eof") if code.zero? && !token_id.zero?
+        invalid(path, "$eof cannot be shifted") if token_id.zero? && code.positive?
       end
 
       def validate_action_code(code, path)

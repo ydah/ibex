@@ -32,6 +32,14 @@ class TableArtifactSchemaTest < Minitest::Test
     refute_empty schemer.validate(document).to_a
   end
 
+  def test_schema_binds_cost_claims_to_the_table_representation
+    schemer = JSONSchemer.schema(JSON.parse(File.read(SCHEMA_PATH)))
+    document = JSON.parse(Ibex::TableArtifact.build(automaton, representation: :compact).dump)
+    document.fetch("cost")["lookup_cost"] = "O(log row width) binary search"
+
+    refute_empty schemer.validate(document).to_a
+  end
+
   private
 
   def automaton
