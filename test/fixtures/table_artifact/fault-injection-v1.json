@@ -1,0 +1,126 @@
+{
+  "ibex_table_fault_injection": "v004",
+  "schema_version": 1,
+  "threat_model": {
+    "faults_per_run": 1,
+    "payload_digest_may_be_refreshed": true,
+    "outer_binding_may_be_refreshed_only_to_reach_the_named_invariant": true,
+    "coherent_all_layer_replacement": "excluded-authenticity-and-semantic-derivation"
+  },
+  "faults": [
+    {
+      "id": "V004-GRAMMAR-DIGEST",
+      "class": "grammar-digest",
+      "layer": "bundle",
+      "invariant": "ir.grammar.digest mismatch"
+    },
+    {
+      "id": "V004-SYMBOL-ID",
+      "class": "symbol-ids",
+      "layer": "table-structure",
+      "invariant": "symbols id must be contiguous and ordered"
+    },
+    {
+      "id": "V004-PRODUCTION-LENGTH",
+      "class": "production-length",
+      "layer": "table-structure",
+      "invariant": "production rhs_length must match rhs"
+    },
+    {
+      "id": "V004-PRODUCTION-LHS",
+      "class": "production-lhs",
+      "layer": "table-structure",
+      "invariant": "production lhs must reference a nonterminal"
+    },
+    {
+      "id": "V004-SHIFT-TARGET",
+      "class": "shift-target",
+      "layer": "table-structure",
+      "invariant": "shift action references a missing state"
+    },
+    {
+      "id": "V004-GOTO-TARGET",
+      "class": "goto-target",
+      "layer": "table-structure",
+      "invariant": "goto value references a missing state"
+    },
+    {
+      "id": "V004-ACCEPT-CELL",
+      "class": "accept-cell",
+      "layer": "table-structure",
+      "invariant": "accept is only valid for eof"
+    },
+    {
+      "id": "V004-DEFAULT-REDUCTION",
+      "class": "default-reduction",
+      "layer": "table-structure",
+      "invariant": "default action must be an error or reduction"
+    },
+    {
+      "id": "V004-CONFLICT-RESOLVER",
+      "class": "conflict-resolver",
+      "layer": "report-table-binding",
+      "invariant": "table.artifact_digest mismatch"
+    },
+    {
+      "id": "V004-COMPACT-OFFSET",
+      "class": "compact-offset",
+      "layer": "table-structure",
+      "invariant": "canonical minimal row-displacement layout"
+    },
+    {
+      "id": "V004-COMPACT-CHECK",
+      "class": "compact-check",
+      "layer": "table-structure",
+      "invariant": "compact check references a missing state"
+    },
+    {
+      "id": "V004-COMPACT-VALUE",
+      "class": "compact-value",
+      "layer": "table-structure",
+      "invariant": "compact value and check occupancy must match"
+    },
+    {
+      "id": "V004-ENTRY-STATE",
+      "class": "entry-state",
+      "layer": "table-structure",
+      "invariant": "entry references a missing state"
+    },
+    {
+      "id": "V004-CST-METADATA-DIGEST",
+      "class": "cst-metadata-digest",
+      "layer": "table-identity",
+      "invariant": "cst_metadata_digest does not match payload cst"
+    },
+    {
+      "id": "V004-TABLE-HASH",
+      "class": "table-hash",
+      "layer": "table-identity",
+      "invariant": "payload_digest does not match the canonical payload"
+    },
+    {
+      "id": "V004-REPORT-HASH",
+      "class": "report-hash",
+      "layer": "report-identity",
+      "invariant": "evidence_digest mismatch"
+    },
+    {
+      "id": "V004-MANIFEST-HASH",
+      "class": "manifest-hash",
+      "layer": "manifest-binding",
+      "invariant": "parser table manifest digest mismatch"
+    },
+    {
+      "id": "V004-TRUNCATED-ARTIFACT",
+      "class": "truncated-artifact",
+      "layer": "table-loader",
+      "invariant": "invalid JSON"
+    },
+    {
+      "id": "V004-DUPLICATE-ARTIFACT",
+      "class": "duplicate-artifact",
+      "layer": "manifest-binding",
+      "invariant": "exactly one parser_table artifact"
+    }
+  ]
+}
