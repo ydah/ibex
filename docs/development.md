@@ -107,7 +107,9 @@ workloads.
 and repair capture in memory, validates its closed schema and required case
 coverage, and compares it byte-for-byte with the committed evidence. It also
 keeps the completed repository capture separate from the still-HOLD external
-subjective gate and binds the unchanged R001 normative snapshot.
+subjective gate, validates the digest-bound independent-review registry and
+reviewer/disagreement inventory, and binds the unchanged R001 normative
+snapshot.
 
 `quality:maturity` validates the exact 18 Preview and two Experimental records
 in the [maturity audit](maturity.md), including activation, evidence gaps,

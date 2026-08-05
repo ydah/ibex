@@ -15,6 +15,13 @@ case has `status: pending` with an empty label list. Repository observations
 cannot be promoted into external `useful`, `misleading`, `unsafe`, or `unclear`
 labels.
 
+The immutable machine capture intentionally has no slot for later subjective
+labels. H003's separate
+[`review status registry`](error-ux-round2-review-status-v1.json) and
+[`review schema`](../schema/error-ux-round2-review-v1.schema.json) provide that
+pathway without rewriting the capture. The registry binds the exact capture
+SHA-256 and required case inventory. It remains `HOLD` with `records: []`.
+
 The fixed corpus covers these distinct dimensions:
 
 | Case | Shape | Observation | Fresh reparse |
@@ -77,6 +84,20 @@ repair plan rather than every equal-cost plan, and does not infer intent from
 acceptance. It must fail closed when fixture/corpus bytes drift, a required
 dimension disappears, R001 changes, review state is overstated, synchronized
 diagnostics collapse, or the committed fresh-reparse outcome changes.
+
+The same quality gate validates the external registry fail-closed. `PASS`
+requires at least two complete, independent, external records from
+normalized-distinct reviewers. Every record must assess all seven cases with a
+label, rationale, and semantic-value risk assessment. If reviewer labels
+differ, every reviewer-pair disagreement must remain explicit rather than
+being reduced to a majority conclusion. See the
+[`records workflow`](error-ux-round2-reviews/v1/records/README.md).
+
+Independence and identity remain human attestations: schema validation can
+require the declarations and reject duplicate normalized names, but cannot
+prove who authored a review. A record must never be added merely to clear the
+gate. Evidence drift, incomplete case coverage, duplicate reviewer identity,
+or missing disagreement entries kills `PASS`.
 
 Regenerate only after reviewing intentional parser, lexer, diagnostic, or
 repair changes:

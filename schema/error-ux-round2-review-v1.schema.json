@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/error-ux-round2-review-v1.schema.json",
+  "title": "Ibex H003 independent error UX review registry version 1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "gate_id",
+    "status",
+    "reason",
+    "evidence",
+    "allowed_labels",
+    "required_case_ids",
+    "records",
+    "disagreements"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "gate_id": { "const": "H003-external-subjective-review" },
+    "status": { "enum": ["HOLD", "PASS"] },
+    "reason": {
+      "enum": [
+        "awaiting-at-least-two-independent-reviews",
+        "independent-reviews-published"
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "const": "docs/error-ux-round2-v1.json" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      },
+      "additionalProperties": false
+    },
+    "allowed_labels": {
+      "const": ["useful", "misleading", "unsafe", "unclear"]
+    },
+    "required_case_ids": {
+      "const": [
+        "H003-DELIMITER-01",
+        "H003-STATEMENT-01",
+        "H003-STATEFUL-01",
+        "H003-EOF-01",
+        "H003-MULTI-01",
+        "H003-UNKNOWN-01",
+        "H003-LEXER-01"
+      ]
+    },
+    "records": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/review_record" }
+    },
+    "disagreements": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/disagreement" }
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": { "status": { "const": "HOLD" } },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "reason": { "const": "awaiting-at-least-two-independent-reviews" },
+          "records": { "maxItems": 1 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "status": { "const": "PASS" } },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "reason": { "const": "independent-reviews-published" },
+          "records": { "minItems": 2 }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "non_empty_string": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "case_id": {
+      "enum": [
+        "H003-DELIMITER-01",
+        "H003-STATEMENT-01",
+        "H003-STATEFUL-01",
+        "H003-EOF-01",
+        "H003-MULTI-01",
+        "H003-UNKNOWN-01",
+        "H003-LEXER-01"
+      ]
+    },
+    "label": {
+      "enum": ["useful", "misleading", "unsafe", "unclear"]
+    },
+    "reviewer": {
+      "type": "object",
+      "required": ["name", "affiliation", "relationship"],
+      "properties": {
+        "name": { "$ref": "#/$defs/non_empty_string" },
+        "affiliation": { "$ref": "#/$defs/non_empty_string" },
+        "relationship": { "const": "external" }
+      },
+      "additionalProperties": false
+    },
+    "case_review": {
+      "type": "object",
+      "required": [
+        "case_id",
+        "label",
+        "rationale",
+        "semantic_value_risk_assessment"
+      ],
+      "properties": {
+        "case_id": { "$ref": "#/$defs/case_id" },
+        "label": { "$ref": "#/$defs/label" },
+        "rationale": { "$ref": "#/$defs/non_empty_string" },
+        "semantic_value_risk_assessment": { "$ref": "#/$defs/non_empty_string" }
+      },
+      "additionalProperties": false
+    },
+    "review_record": {
+      "type": "object",
+      "required": [
+        "record_id",
+        "reviewer",
+        "reviewed_at",
+        "independent_of_implementation",
+        "publication_consent",
+        "evidence_sha256",
+        "case_reviews",
+        "overall_rationale"
+      ],
+      "properties": {
+        "record_id": {
+          "type": "string",
+          "pattern": "^H003R-[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9][a-z0-9-]*$"
+        },
+        "reviewer": { "$ref": "#/$defs/reviewer" },
+        "reviewed_at": { "type": "string", "format": "date" },
+        "independent_of_implementation": { "const": true },
+        "publication_consent": { "const": true },
+        "evidence_sha256": { "$ref": "#/$defs/sha256" },
+        "case_reviews": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "items": { "$ref": "#/$defs/case_review" }
+        },
+        "overall_rationale": { "$ref": "#/$defs/non_empty_string" }
+      },
+      "additionalProperties": false
+    },
+    "disagreement": {
+      "type": "object",
+      "required": ["case_id", "reviewers", "labels", "rationale"],
+      "properties": {
+        "case_id": { "$ref": "#/$defs/case_id" },
+        "reviewers": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/non_empty_string" }
+        },
+        "labels": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": { "$ref": "#/$defs/label" }
+        },
+        "rationale": { "$ref": "#/$defs/non_empty_string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
