@@ -5,6 +5,12 @@ module Ibex
     class TableValidator
       include ValidationSupport
 
+      # @rbs!
+      #   private def integer_array: (untyped value, String path, allow_nil: false, minimum: Integer?) -> Array[Integer]
+      #                            | (untyped value, String path, allow_nil: true, minimum: Integer?) -> Array[Integer?]
+
+      # @rbs (Hash[String, untyped] data, state_count: Integer, production_count: Integer,
+      #   terminal_ids: Set[Integer], nonterminal_ids: Set[Integer], representation: String) -> void
       def initialize(data, state_count:, production_count:, terminal_ids:, nonterminal_ids:, representation:)
         @data = data
         @state_count = state_count
@@ -14,6 +20,7 @@ module Ibex
         @representation = representation
       end
 
+      # @rbs () -> void
       def validate!
         record(@data, "$.payload.tables", %w[actions gotos default_actions])
         validate_actions(@data.fetch("actions"))
@@ -23,6 +30,7 @@ module Ibex
 
       private
 
+      # @rbs (untyped table) -> void
       def validate_actions(table)
         encoding = table.is_a?(Hash) && table["encoding"]
         expected = @representation == "compact" ? "signed-row-displacement-v1" : "signed-sparse-rows-v1"
@@ -34,6 +42,7 @@ module Ibex
         end
       end
 
+      # @rbs (Hash[String, untyped] table) -> void
       def validate_sparse_actions(table)
         record(table, "$.payload.tables.actions", %w[encoding rows])
         rows = array(table.fetch("rows"), "$.payload.tables.actions.rows")
@@ -51,6 +60,7 @@ module Ibex
         end
       end
 
+      # @rbs (Hash[String, untyped] table) -> void
       def validate_compact_actions(table)
         keys = %w[encoding row_count column_count offsets codes checks]
         record(table, "$.payload.tables.actions", keys)
@@ -70,6 +80,7 @@ module Ibex
         )
       end
 
+      # @rbs (untyped table) -> void
       def validate_gotos(table)
         encoding = table.is_a?(Hash) && table["encoding"]
         expected = @representation == "compact" ? "row-displacement-v1" : "sparse-rows-v1"
@@ -81,6 +92,7 @@ module Ibex
         end
       end
 
+      # @rbs (Hash[String, untyped] table) -> void
       def validate_sparse_gotos(table)
         record(table, "$.payload.tables.gotos", %w[encoding rows])
         rows = array(table.fetch("rows"), "$.payload.tables.gotos.rows")
@@ -98,6 +110,7 @@ module Ibex
         end
       end
 
+      # @rbs (Hash[String, untyped] table) -> void
       def validate_compact_gotos(table)
         keys = %w[encoding row_count dense_width offsets values checks]
         record(table, "$.payload.tables.gotos", keys)
@@ -116,11 +129,14 @@ module Ibex
         )
       end
 
+      # @rbs (Hash[String, untyped] table, String path) -> void
       def validate_row_count(table, path)
         count = integer(table.fetch("row_count"), "#{path}.row_count", minimum: 1)
         invalid("#{path}.row_count", "must equal state_count") unless count == @state_count
       end
 
+      # @rbs (Hash[String, untyped] table, value_key: String, path: String)
+      #   { (Integer, untyped, String) -> void } -> Array[Hash[Integer, untyped]]
       def validate_displacement(table, value_key:, path:)
         offsets = integer_array(table.fetch("offsets"), "#{path}.offsets", allow_nil: false, minimum: 0)
         invalid("#{path}.offsets", "must contain one offset per state") unless offsets.length == @state_count
@@ -145,6 +161,8 @@ module Ibex
         rows
       end
 
+      # @rbs (Hash[String, untyped] table, Array[Hash[Integer, untyped]] rows, value_key: String,
+      #   width_key: String, width: Integer?, dense: bool, path: String) -> void
       def validate_canonical_displacement(table, rows, value_key:, width_key:, width:, dense:, path:)
         canonical = Tables::Compact.build(rows, dense: dense)
         expected = [canonical.offsets, canonical.values, canonical.checks]
@@ -160,6 +178,7 @@ module Ibex
         invalid("#{path}.#{width_key}", "does not match the canonical table width") unless width == expected_width
       end
 
+      # @rbs skip
       def integer_array(value, path, allow_nil:, minimum:)
         array(value, path).map.with_index do |item, index|
           next if allow_nil && item.nil?
@@ -168,6 +187,7 @@ module Ibex
         end
       end
 
+      # @rbs (untyped defaults) -> void
       def validate_defaults(defaults)
         values = array(defaults, "$.payload.tables.default_actions")
         unless values.length == @state_count
@@ -183,12 +203,14 @@ module Ibex
         end
       end
 
+      # @rbs (untyped code, Integer token_id, String path) -> void
       def validate_token_action(code, token_id, path)
         validate_action_code(code, path)
         invalid(path, "accept is only valid for $eof") if code.zero? && !token_id.zero?
         invalid(path, "$eof cannot be shifted") if token_id.zero? && code.positive?
       end
 
+      # @rbs (untyped code, String path) -> void
       def validate_action_code(code, path)
         integer(code, path)
         return if [0, -1].include?(code)
@@ -198,6 +220,7 @@ module Ibex
         invalid(path, "references a missing production") unless production.between?(0, @production_count - 1)
       end
 
+      # @rbs (untyped state, String path) -> void
       def validate_state(state, path)
         integer(state, path, minimum: 0)
         invalid(path, "references a missing state") unless state.between?(0, @state_count - 1)

@@ -5,6 +5,8 @@ module Ibex
     class MetadataValidator
       include ValidationSupport
 
+      # @rbs (Hash[String, untyped] payload, symbols: Array[Hash[String, untyped]],
+      #   productions: Array[Hash[String, untyped]]) -> void
       def initialize(payload, symbols:, productions:)
         @payload = payload
         @symbols = symbols
@@ -13,6 +15,7 @@ module Ibex
         @nonterminal_ids = ids_for_kind(symbols, "nonterminal")
       end
 
+      # @rbs () -> void
       def validate!
         validate_semantic_actions(@payload.fetch("semantic_actions"))
         validate_recovery(@payload.fetch("recovery"))
@@ -21,10 +24,12 @@ module Ibex
 
       private
 
+      # @rbs (Array[Hash[String, untyped]] symbols, String kind) -> Set[Integer]
       def ids_for_kind(symbols, kind)
         symbols.filter_map { |symbol| symbol.fetch("id") if symbol.fetch("kind") == kind }.to_set
       end
 
+      # @rbs (untyped data) -> void
       def validate_semantic_actions(data)
         path = "$.payload.semantic_actions"
         record(data, path, %w[binding verified slots])
@@ -35,6 +40,7 @@ module Ibex
         invalid("#{path}.slots", "must match production action slots") unless slots == expected
       end
 
+      # @rbs (untyped data) -> void
       def validate_recovery(data)
         path = "$.payload.recovery"
         record(data, path, %w[sync_token_ids on_error_reduce_symbol_ids])
@@ -53,6 +59,7 @@ module Ibex
         end
       end
 
+      # @rbs (untyped data) -> void
       def validate_cst(data)
         return if data.nil?
 
@@ -64,6 +71,7 @@ module Ibex
         validate_cst_slots(data.fetch("slots"), "#{path}.slots", kind_count)
       end
 
+      # @rbs (untyped data, String path) -> Integer
       def validate_cst_kinds(data, path)
         keys = %w[names terminal_range nonterminal_range named named_nonterminals trivia synthetic]
         record(data, path, keys)
@@ -76,6 +84,7 @@ module Ibex
         names.length
       end
 
+      # @rbs (untyped data, String path, Integer limit) -> void
       def validate_range(data, path, limit)
         values = array(data, path)
         invalid(path, "must contain two bounds") unless values.length == 2
@@ -84,6 +93,7 @@ module Ibex
         invalid(path, "must be an ordered half-open range") unless finish.between?(start, limit)
       end
 
+      # @rbs (untyped data, String path, Array[untyped] names) -> void
       def validate_named_kinds(data, path, names)
         entries = array(data, path)
         ids = entries.map.with_index do |entry, index|
@@ -97,6 +107,7 @@ module Ibex
         sorted_unique!(ids, path)
       end
 
+      # @rbs (untyped data, String path, Integer kind_count) -> void
       def validate_named_nonterminals(data, path, kind_count)
         pairs = array(data, path).map.with_index do |entry, index|
           entry_path = "#{path}[#{index}]"
@@ -113,6 +124,7 @@ module Ibex
                 "must be sorted with unique kind ids")
       end
 
+      # @rbs (untyped data, String path, Integer kind_count) -> void
       def validate_cst_slots(data, path, kind_count)
         production_ids = array(data, path).map.with_index do |slot, index|
           slot_path = "#{path}[#{index}]"
@@ -131,6 +143,7 @@ module Ibex
         sorted_unique!(production_ids, path)
       end
 
+      # @rbs (untyped data, String path, Hash[String, untyped] production) -> void
       def validate_fields(data, path, production)
         names = array(data, path).map.with_index do |field, index|
           field_path = "#{path}[#{index}]"
@@ -145,6 +158,7 @@ module Ibex
         invalid(path, "must have unique field names") unless names.uniq.length == names.length
       end
 
+      # @rbs (untyped data, String path, ?sorted: bool) -> Array[Integer]
       def integer_ids(data, path, sorted: true)
         ids = array(data, path).map.with_index { |id, index| integer(id, "#{path}[#{index}]", minimum: 0) }
         if sorted

@@ -191,7 +191,7 @@ module Ibex
       #   ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test],
       #   ?recovery: recovery_policy?, ?lexer: Lexer?,
       #   ?mode: grammar_mode, ?starts: Array[String]?) -> void
-      # rubocop:disable Metrics/ParameterLists
+      # rubocop:disable Metrics/AbcSize, Metrics/ParameterLists
       # Immutable versioned IR is constructed from explicit public fields.
       def initialize(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
                      conversions:, warnings:, user_code_chunks: nil, schema_version: SCHEMA_VERSION,
@@ -224,11 +224,9 @@ module Ibex
         )
         grammar
       end
-      # rubocop:enable Metrics/ParameterLists
 
       # @rbs skip
       # Immutable v3 IR is constructed through the explicit versioned factory.
-      # rubocop:disable Metrics/AbcSize, Metrics/ParameterLists
       def initialize_versioned(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
                                conversions:, warnings:, user_code_chunks:, schema_version:, source_provenance:,
                                migration:, expect_rr:, parser_parameters:, value_printers:, grammar_tests:, recovery:,

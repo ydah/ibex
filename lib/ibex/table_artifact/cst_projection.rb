@@ -6,12 +6,14 @@ module Ibex
     module CSTProjection
       private
 
+      # @rbs () -> Hash[String, untyped]?
       def cst
         return unless @grammar.options[:cst]
 
         normalize_cst(Codegen::CSTMetadata.new(@grammar, trivia_policy: @cst_trivia).build)
       end
 
+      # @rbs (untyped metadata) -> Hash[String, untyped]
       def normalize_cst(metadata)
         kinds = metadata.fetch(:kinds)
         {
@@ -22,6 +24,7 @@ module Ibex
         }
       end
 
+      # @rbs (untyped kinds) -> Hash[String, untyped]
       def normalize_cst_kinds(kinds)
         {
           "names" => kinds.fetch(:names),
@@ -36,10 +39,12 @@ module Ibex
         }
       end
 
+      # @rbs (untyped values) -> Array[Hash[String, untyped]]
       def named_kinds(values)
         values.sort_by { |_name, id| id }.map { |name, id| { "name" => name, "id" => id } }
       end
 
+      # @rbs (Integer production_id, untyped slot) -> Hash[String, untyped]
       def normalize_cst_slot(production_id, slot)
         fields = slot.fetch(:fields).map do |name, value|
           value = { index: value, extraction: nil } if value.is_a?(Integer)

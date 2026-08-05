@@ -1,197 +1,32 @@
+# Generated from lib/ibex/table_artifact.rb with RBS::Inline
+
 module Ibex
+  # Experimental data-only authority for executable parser tables.
   module TableArtifact
+    interface _Reader
+      def read: (Integer length) -> String?
+    end
+
     ARTIFACT_TYPE: String
+
     SCHEMA_VERSION: Integer
+
     DEFAULT_MAX_BYTES: Integer
 
     class ValidationError < Ibex::Error
     end
 
+    # @rbs (IR::Automaton automaton, ?representation: Symbol | String, ?cst_trivia: Symbol | String?,
+    #   ?omit_action_call: bool?) -> Document
     def self.build: (IR::Automaton automaton, ?representation: Symbol | String, ?cst_trivia: Symbol | String?, ?omit_action_call: bool?) -> Document
+
+    # @rbs (String | _Reader source, ?max_bytes: Integer) -> Document
     def self.load: (String | _Reader source, ?max_bytes: Integer) -> Document
+
+    # @rbs (untyped source, Integer max_bytes) -> String
     private def self.read_bounded: (untyped source, Integer max_bytes) -> String
+
+    # @rbs (untyped source, Integer max_bytes) -> String
     private def self.read_from: (untyped source, Integer max_bytes) -> String
-
-    interface _Reader
-      def read: (Integer length) -> String?
-    end
-
-    module Serializer
-      def self.canonical: (untyped value) -> untyped
-      def self.compact: (untyped value) -> String
-      def self.dump: (untyped value) -> String
-      def self.digest: (untyped value) -> String
-      def self.deep_freeze: (untyped value) -> untyped
-    end
-
-    class Document
-      attr_reader data: Hash[String, untyped]
-      def initialize: (Hash[String, untyped] data) -> void
-      def dump: () -> String
-      def payload: () -> Hash[String, untyped]
-      def identity: () -> Hash[String, String]
-      def cost: () -> Hash[String, untyped]
-    end
-
-    class Builder
-      REPRESENTATIONS: Array[Symbol]
-
-      include CSTProjection
-
-      def initialize: (IR::Automaton automaton, ?representation: Symbol | String, ?cst_trivia: Symbol | String?, ?omit_action_call: bool?) -> void
-      def build: () -> Document
-
-      private
-
-      def build_payload: (Hash[String, String] source_identity) -> Hash[String, untyped]
-      def automaton_digest: () -> String
-      def table_format: () -> Hash[String, untyped]
-      def symbols: () -> Array[Hash[String, untyped]]
-      def tokens: () -> Array[Hash[String, untyped]]
-      def entry_states: () -> Array[Hash[String, untyped]]
-      def tables: () -> Hash[String, untyped]
-      def action_table: (untyped table) -> Hash[String, untyped]
-      def compact_action_table: (untyped table) -> Hash[String, untyped]
-      def goto_table: (untyped table) -> Hash[String, untyped]
-      def compact_goto_table: (untyped table) -> Hash[String, untyped]
-      def productions: () -> Array[Hash[String, untyped]]
-      def action_slot?: (untyped production) -> bool
-      def semantic_actions: () -> Hash[String, untyped]
-      def recovery: () -> Hash[String, untyped]
-      def build_cost: (Hash[String, untyped] payload) -> Hash[String, untyped]
-      def occupied_cells: (Hash[String, untyped] table, String values_key) -> Integer
-      def lookup_cost: () -> String
-      def recognition_cost: () -> String
-      def effective_cst_trivia: (Symbol | String? requested) -> Symbol
-    end
-
-    module CSTProjection
-      private
-
-      def cst: () -> Hash[String, untyped]?
-      def normalize_cst: (untyped metadata) -> Hash[String, untyped]
-      def normalize_cst_kinds: (untyped kinds) -> Hash[String, untyped]
-      def named_kinds: (untyped values) -> Array[Hash[String, untyped]]
-      def normalize_cst_slot: (Integer production_id, untyped slot) -> Hash[String, untyped]
-    end
-
-    module ValidationSupport
-      DIGEST: Regexp
-
-      private
-
-      def record: (untyped value, String path, Array[String] keys) -> Hash[String, untyped]
-      def array: (untyped value, String path) -> Array[untyped]
-      def string: (untyped value, String path, ?allow_empty: bool) -> String
-      def integer: (untyped value, String path, ?minimum: Integer?) -> Integer
-      def boolean: (untyped value, String path) -> bool
-      def enum: [T] (T value, String path, Array[T] values) -> T
-      def digest: (untyped value, String path) -> String
-      def nullable_string: (untyped value, String path) -> String?
-      def nullable_integer: (untyped value, String path, ?minimum: Integer?) -> Integer?
-      def sorted_unique!: (Array[untyped] values, String path) -> void
-      def invalid: (String path, String message) -> bot
-    end
-
-    class Validator
-      ROOT_KEYS: Array[String]
-      PAYLOAD_KEYS: Array[String]
-
-      include ValidationSupport
-
-      def self.validate!: (Hash[String, untyped] data) -> true
-      def initialize: (Hash[String, untyped] data) -> void
-      def validate!: () -> true
-
-      private
-
-      def validate_root_identity: () -> void
-      def validate_table_format: (untyped data) -> String
-      def validate_source: (untyped data) -> void
-      def validate_symbols: (untyped data) -> Array[Hash[String, untyped]]
-      def validate_tokens: (untyped data, Array[Hash[String, untyped]] symbols) -> void
-      def validate_entries: (untyped data, Array[Hash[String, untyped]] symbols, Integer state_count) -> void
-      def validate_productions: (untyped data, Array[Hash[String, untyped]] symbols) -> Array[Hash[String, untyped]]
-      def validate_cost: (untyped data, Hash[String, untyped] payload) -> void
-      def expected_costs: (Hash[String, untyped] payload) -> [String, String]
-      def occupied: (Hash[String, untyped] table, String values_key) -> Integer
-      def symbol_ids: (Array[Hash[String, untyped]] symbols, String kind) -> Set[Integer]
-      def validate_named_digest: (Hash[String, untyped] identity, Hash[String, untyped] payload, String identity_name, String payload_name) -> void
-    end
-
-    class TableValidator
-      include ValidationSupport
-
-      def initialize: (Hash[String, untyped] data, state_count: Integer, production_count: Integer, terminal_ids: Set[Integer], nonterminal_ids: Set[Integer], representation: String) -> void
-      def validate!: () -> void
-
-      private
-
-      def validate_actions: (untyped table) -> void
-      def validate_sparse_actions: (Hash[String, untyped] table) -> void
-      def validate_compact_actions: (Hash[String, untyped] table) -> void
-      def validate_gotos: (untyped table) -> void
-      def validate_sparse_gotos: (Hash[String, untyped] table) -> void
-      def validate_compact_gotos: (Hash[String, untyped] table) -> void
-      def validate_row_count: (Hash[String, untyped] table, String path) -> void
-      def validate_displacement: (Hash[String, untyped] table, value_key: String, path: String) { (Integer, untyped, String) -> void } -> Array[Hash[Integer, untyped]]
-      def validate_canonical_displacement: (Hash[String, untyped] table, Array[Hash[Integer, untyped]] rows, value_key: String, width_key: String, width: Integer?, dense: bool, path: String) -> void
-      def integer_array: (untyped value, String path, allow_nil: false, minimum: Integer?) -> Array[Integer]
-                       | (untyped value, String path, allow_nil: true, minimum: Integer?) -> Array[Integer?]
-      def validate_defaults: (untyped defaults) -> void
-      def validate_token_action: (untyped code, Integer token_id, String path) -> void
-      def validate_action_code: (untyped code, String path) -> void
-      def validate_state: (untyped state, String path) -> void
-    end
-
-    class MetadataValidator
-      include ValidationSupport
-
-      def initialize: (Hash[String, untyped] payload, symbols: Array[Hash[String, untyped]], productions: Array[Hash[String, untyped]]) -> void
-      def validate!: () -> void
-
-      private
-
-      def ids_for_kind: (Array[Hash[String, untyped]] symbols, String kind) -> Set[Integer]
-      def validate_semantic_actions: (untyped data) -> void
-      def validate_recovery: (untyped data) -> void
-      def validate_cst: (untyped data) -> void
-      def validate_cst_kinds: (untyped data, String path) -> Integer
-      def validate_range: (untyped data, String path, Integer limit) -> void
-      def validate_named_kinds: (untyped data, String path, Array[untyped] names) -> void
-      def validate_named_nonterminals: (untyped data, String path, Integer kind_count) -> void
-      def validate_cst_slots: (untyped data, String path, Integer kind_count) -> void
-      def validate_fields: (untyped data, String path, Hash[String, untyped] production) -> void
-      def integer_ids: (untyped data, String path, ?sorted: bool) -> Array[Integer]
-    end
-
-    class Executor
-      class Result
-        attr_reader status: Symbol
-        attr_reader steps: Integer
-        attr_reader consumed_tokens: Integer
-        attr_reader reason: String?
-
-        def initialize: (status: Symbol, steps: Integer, consumed_tokens: Integer, reason: String?) -> void
-        def accepted?: () -> bool
-        def rejected?: () -> bool
-        def exhausted?: () -> bool
-      end
-
-      def initialize: (Document | Hash[String, untyped] document) -> void
-      def recognize: (Array[Integer] token_ids, ?entry: String | Symbol?, ?max_steps: Integer) -> Result
-
-      private
-
-      def execute: (Array[Integer] input, Array[Integer] stack, Integer max_steps) -> Result
-      def immediate_result: (Integer? code, Integer token_id, Integer step, Integer cursor) -> Result?
-      def validate_input: (Array[Integer] token_ids) -> Array[Integer]
-      def entry_state: (String | Symbol? requested) -> Integer
-      def action: (Integer row, Integer column) -> Integer?
-      def goto_state: (Integer row, Integer column) -> Integer?
-      def displacement_lookup: (Hash[String, untyped] table, Integer row, Integer column, String value_key) -> Integer?
-      def reduce_stack: (Array[Integer] stack, Integer code) -> String?
-      def result: (Symbol status, Integer steps, Integer consumed, String? reason) -> Result
-    end
   end
 end

@@ -1,0 +1,65 @@
+# Generated from lib/ibex/table_artifact/executor.rb with RBS::Inline
+
+module Ibex
+  module TableArtifact
+    # Recognition-only driver over internal token ids; it never loads wrapper code.
+    class Executor
+      class Result
+        attr_reader status: Symbol
+
+        attr_reader steps: Integer
+
+        attr_reader consumed_tokens: Integer
+
+        attr_reader reason: String?
+
+        # @rbs (status: Symbol, steps: Integer, consumed_tokens: Integer, reason: String?) -> void
+        def initialize: (status: Symbol, steps: Integer, consumed_tokens: Integer, reason: String?) -> void
+
+        # @rbs () -> bool
+        def accepted?: () -> bool
+
+        # @rbs () -> bool
+        def rejected?: () -> bool
+
+        # @rbs () -> bool
+        def exhausted?: () -> bool
+      end
+
+      # @rbs (Document | Hash[String, untyped] document) -> void
+      def initialize: (Document | Hash[String, untyped] document) -> void
+
+      # @rbs (Array[Integer] token_ids, ?entry: String | Symbol?, ?max_steps: Integer) -> Result
+      def recognize: (Array[Integer] token_ids, ?entry: String | Symbol?, ?max_steps: Integer) -> Result
+
+      private
+
+      # @rbs (Array[Integer] input, Array[Integer] stack, Integer max_steps) -> Result
+      def execute: (Array[Integer] input, Array[Integer] stack, Integer max_steps) -> Result
+
+      # @rbs (Integer? code, Integer token_id, Integer step, Integer cursor) -> Result?
+      def immediate_result: (Integer? code, Integer token_id, Integer step, Integer cursor) -> Result?
+
+      # @rbs (Array[Integer] token_ids) -> Array[Integer]
+      def validate_input: (Array[Integer] token_ids) -> Array[Integer]
+
+      # @rbs (String | Symbol? requested) -> Integer
+      def entry_state: (String | Symbol? requested) -> Integer
+
+      # @rbs (Integer row, Integer column) -> Integer?
+      def action: (Integer row, Integer column) -> Integer?
+
+      # @rbs (Integer row, Integer column) -> Integer?
+      def goto_state: (Integer row, Integer column) -> Integer?
+
+      # @rbs (Hash[String, untyped] table, Integer row, Integer column, String value_key) -> Integer?
+      def displacement_lookup: (Hash[String, untyped] table, Integer row, Integer column, String value_key) -> Integer?
+
+      # @rbs (Array[Integer] stack, Integer code) -> String?
+      def reduce_stack: (Array[Integer] stack, Integer code) -> String?
+
+      # @rbs (Symbol status, Integer steps, Integer consumed, String? reason) -> Result
+      def result: (Symbol status, Integer steps, Integer consumed, String? reason) -> Result
+    end
+  end
+end

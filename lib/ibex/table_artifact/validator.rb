@@ -10,22 +10,25 @@ module Ibex
     class Validator
       include ValidationSupport
 
-      ROOT_KEYS = %w[artifact_type schema_version identity payload cost].freeze
+      ROOT_KEYS = %w[artifact_type schema_version identity payload cost].freeze #: Array[String]
       PAYLOAD_KEYS = %w[
         table_format source state_count symbols tokens entry_states tables productions cst recovery semantic_actions
-      ].freeze
+      ].freeze #: Array[String]
 
       class << self
+        # @rbs (Hash[String, untyped] data) -> true
         def validate!(data)
           new(data).validate!
         end
       end
 
+      # @rbs (Hash[String, untyped] data) -> void
       def initialize(data)
         @data = data
       end
 
       # rubocop:disable Naming/PredicateMethod -- bang denotes fail-fast validation.
+      # @rbs () -> true
       def validate!
         record(@data, "$", ROOT_KEYS)
         payload = record(@data.fetch("payload"), "$.payload", PAYLOAD_KEYS)
@@ -51,6 +54,7 @@ module Ibex
 
       private
 
+      # @rbs () -> void
       def validate_root_identity
         invalid("$.artifact_type", "is unsupported") unless @data.fetch("artifact_type") == ARTIFACT_TYPE
         invalid("$.schema_version", "is unsupported") unless @data.fetch("schema_version") == SCHEMA_VERSION
@@ -67,6 +71,7 @@ module Ibex
         validate_named_digest(identity, payload, "recovery_metadata", "recovery")
       end
 
+      # @rbs (untyped data) -> String
       def validate_table_format(data)
         path = "$.payload.table_format"
         keys = %w[family version representation action_encoding goto_encoding]
@@ -84,6 +89,7 @@ module Ibex
         representation
       end
 
+      # @rbs (untyped data) -> void
       def validate_source(data)
         source = record(data, "$.payload.source", %w[grammar_digest automaton_digest])
         source.each { |key, value| digest(value, "$.payload.source.#{key}") }
@@ -93,6 +99,7 @@ module Ibex
           source.fetch("automaton_digest") == identity.fetch("automaton_digest")
       end
 
+      # @rbs (untyped data) -> Array[Hash[String, untyped]]
       def validate_symbols(data)
         symbols = array(data, "$.payload.symbols")
         invalid("$.payload.symbols", "must not be empty") if symbols.empty?
@@ -109,6 +116,7 @@ module Ibex
         symbols
       end
 
+      # @rbs (untyped data, Array[Hash[String, untyped]] symbols) -> void
       def validate_tokens(data, symbols)
         tokens = array(data, "$.payload.tokens")
         expected = symbols.select { |symbol| symbol.fetch("kind") == "terminal" }.map do |symbol|
@@ -122,6 +130,7 @@ module Ibex
                                                                       tokens.first.fetch("name") == "$eof"
       end
 
+      # @rbs (untyped data, Array[Hash[String, untyped]] symbols, Integer state_count) -> void
       def validate_entries(data, symbols, state_count)
         entries = array(data, "$.payload.entry_states")
         invalid("$.payload.entry_states", "must not be empty") if entries.empty?
@@ -138,6 +147,7 @@ module Ibex
         invalid("$.payload.entry_states", "names must be unique") unless names.uniq.length == names.length
       end
 
+      # @rbs (untyped data, Array[Hash[String, untyped]] symbols) -> Array[Hash[String, untyped]]
       def validate_productions(data, symbols)
         productions = array(data, "$.payload.productions")
         nonterminals = symbol_ids(symbols, "nonterminal")
@@ -159,6 +169,7 @@ module Ibex
         productions
       end
 
+      # @rbs (untyped data, Hash[String, untyped] payload) -> void
       def validate_cost(data, payload)
         path = "$.cost"
         keys = %w[
@@ -188,6 +199,7 @@ module Ibex
                                                                                "#{path}.bounded_by_max_steps")
       end
 
+      # @rbs (Hash[String, untyped] payload) -> [String, String]
       def expected_costs(payload)
         compact = payload.fetch("table_format").fetch("representation") == "compact"
         lookup = compact ? "O(1) row-displacement probe" : "O(log row width) binary search"
@@ -199,16 +211,20 @@ module Ibex
         [lookup, "#{recognition}; lexer, recovery search, and semantic actions excluded"]
       end
 
+      # @rbs (Hash[String, untyped] table, String values_key) -> Integer
       def occupied(table, values_key)
         return table.fetch("rows").sum(&:length) if table.key?("rows")
 
         table.fetch(values_key).compact.length
       end
 
+      # @rbs (Array[Hash[String, untyped]] symbols, String kind) -> Set[Integer]
       def symbol_ids(symbols, kind)
         symbols.filter_map { |symbol| symbol.fetch("id") if symbol.fetch("kind") == kind }.to_set
       end
 
+      # @rbs (Hash[String, untyped] identity, Hash[String, untyped] payload, String identity_name,
+      #   String payload_name) -> void
       def validate_named_digest(identity, payload, identity_name, payload_name)
         expected = Serializer.digest(payload.fetch(payload_name))
         path = "$.identity.#{identity_name}_digest"

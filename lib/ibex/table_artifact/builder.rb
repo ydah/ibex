@@ -6,8 +6,10 @@ module Ibex
     class Builder
       include CSTProjection
 
-      REPRESENTATIONS = %i[plain compact].freeze
+      REPRESENTATIONS = %i[plain compact].freeze #: Array[Symbol]
 
+      # @rbs (IR::Automaton automaton, ?representation: Symbol | String, ?cst_trivia: Symbol | String?,
+      #   ?omit_action_call: bool?) -> void
       def initialize(automaton, representation: :compact, cst_trivia: nil, omit_action_call: nil)
         @automaton = automaton
         @grammar = automaton.grammar
@@ -19,6 +21,7 @@ module Ibex
         raise ArgumentError, "representation must be :plain or :compact"
       end
 
+      # @rbs () -> Document
       def build
         source_identity = {
           "grammar_digest" => @automaton.grammar_digest,
@@ -42,6 +45,7 @@ module Ibex
 
       private
 
+      # @rbs (Hash[String, String] source_identity) -> Hash[String, untyped]
       def build_payload(source_identity)
         {
           "table_format" => table_format,
@@ -58,10 +62,12 @@ module Ibex
         }
       end
 
+      # @rbs () -> String
       def automaton_digest
         "sha256:#{Digest::SHA256.hexdigest(IR::Serialize.dump(@automaton))}"
       end
 
+      # @rbs () -> Hash[String, untyped]
       def table_format
         {
           "family" => "ibex-runtime-parser-table",
@@ -72,6 +78,7 @@ module Ibex
         }
       end
 
+      # @rbs () -> Array[Hash[String, untyped]]
       def symbols
         @grammar.symbols.sort_by(&:id).map do |symbol|
           {
@@ -83,16 +90,19 @@ module Ibex
         end
       end
 
+      # @rbs () -> Array[Hash[String, untyped]]
       def tokens
         @grammar.terminals.sort_by(&:id).map do |symbol|
           { "id" => symbol.id, "name" => symbol.name, "display_name" => symbol.display_name }
         end
       end
 
+      # @rbs () -> Array[Hash[String, untyped]]
       def entry_states
         @automaton.entry_states.map { |name, state| { "name" => name, "state" => state } }
       end
 
+      # @rbs () -> Hash[String, untyped]
       def tables
         table_set = Tables.build(@automaton, format: @representation)
         {
@@ -102,6 +112,7 @@ module Ibex
         }
       end
 
+      # @rbs (untyped table) -> Hash[String, untyped]
       def action_table(table)
         return compact_action_table(table) if table.is_a?(Tables::CompactActions)
 
@@ -113,6 +124,7 @@ module Ibex
         }
       end
 
+      # @rbs (untyped table) -> Hash[String, untyped]
       def compact_action_table(table)
         {
           "encoding" => "signed-row-displacement-v1",
@@ -124,6 +136,7 @@ module Ibex
         }
       end
 
+      # @rbs (untyped table) -> Hash[String, untyped]
       def goto_table(table)
         return compact_goto_table(table) if table.is_a?(Tables::Compact)
 
@@ -135,6 +148,7 @@ module Ibex
         }
       end
 
+      # @rbs (untyped table) -> Hash[String, untyped]
       def compact_goto_table(table)
         {
           "encoding" => "row-displacement-v1",
@@ -146,6 +160,7 @@ module Ibex
         }
       end
 
+      # @rbs () -> Array[Hash[String, untyped]]
       def productions
         @grammar.productions.sort_by(&:id).map do |production|
           {
@@ -158,10 +173,12 @@ module Ibex
         end
       end
 
+      # @rbs (untyped production) -> bool
       def action_slot?(production)
         !!(production.node || production.action || !@omit_action_call)
       end
 
+      # @rbs () -> Hash[String, untyped]
       def semantic_actions
         {
           "binding" => "opaque-wrapper-production-id-v1",
@@ -170,6 +187,7 @@ module Ibex
         }
       end
 
+      # @rbs () -> Hash[String, untyped]
       def recovery
         {
           "sync_token_ids" => @grammar.recovery.fetch(:sync_tokens).map { |name| @grammar.symbol(name).id },
@@ -179,6 +197,7 @@ module Ibex
         }
       end
 
+      # @rbs (Hash[String, untyped] payload) -> Hash[String, untyped]
       def build_cost(payload)
         tables = payload.fetch("tables")
         {
@@ -192,18 +211,21 @@ module Ibex
         }
       end
 
+      # @rbs (Hash[String, untyped] table, String values_key) -> Integer
       def occupied_cells(table, values_key)
         return table.fetch("rows").sum(&:length) if table.key?("rows")
 
         table.fetch(values_key).compact.length
       end
 
+      # @rbs () -> String
       def lookup_cost
         return "O(1) row-displacement probe" if @representation == :compact
 
         "O(log row width) binary search"
       end
 
+      # @rbs () -> String
       def recognition_cost
         prefix = if @representation == :compact
                    "O(input tokens + reductions)"
@@ -213,6 +235,7 @@ module Ibex
         "#{prefix}; lexer, recovery search, and semantic actions excluded"
       end
 
+      # @rbs (Symbol | String? requested) -> Symbol
       def effective_cst_trivia(requested)
         contract_entry = @grammar.parser_contract&.cst_trivia
         persisted = contract_entry.value if contract_entry&.explicit

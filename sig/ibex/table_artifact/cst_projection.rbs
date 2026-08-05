@@ -1,0 +1,25 @@
+# Generated from lib/ibex/table_artifact/cst_projection.rb with RBS::Inline
+
+module Ibex
+  module TableArtifact
+    # Converts code-generation CST metadata into closed JSON records.
+    module CSTProjection
+      private
+
+      # @rbs () -> Hash[String, untyped]?
+      def cst: () -> Hash[String, untyped]?
+
+      # @rbs (untyped metadata) -> Hash[String, untyped]
+      def normalize_cst: (untyped metadata) -> Hash[String, untyped]
+
+      # @rbs (untyped kinds) -> Hash[String, untyped]
+      def normalize_cst_kinds: (untyped kinds) -> Hash[String, untyped]
+
+      # @rbs (untyped values) -> Array[Hash[String, untyped]]
+      def named_kinds: (untyped values) -> Array[Hash[String, untyped]]
+
+      # @rbs (Integer production_id, untyped slot) -> Hash[String, untyped]
+      def normalize_cst_slot: (Integer production_id, untyped slot) -> Hash[String, untyped]
+    end
+  end
+end
