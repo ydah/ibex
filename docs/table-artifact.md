@@ -91,13 +91,16 @@ not make them independently true.
 This does not extend the claims of [`ibex verify`](verifier-trust-boundary.md).
 Default and strict verification still rebuild tables from Automaton IR; strict
 still adds collection-completeness checks only. Neither mode consumes this
-sidecar. A later bundle report may bind verified IR, this table identity, a
-wrapper, and a manifest without changing that distinction.
+sidecar. The separate [scoped generation verification
+report](verification-report.md) binds a verifier outcome to this table's
+identity and lets the generation manifest bind both to a wrapper without
+changing that distinction.
 
 ## Compatibility and stop-condition result
 
 The prototype is intentionally absent from the default `ibex` require path,
 the generator CLI, `Codegen::Ruby`, generated constants, and `ibex-runtime`.
+The explicitly required bundle API can publish it as a companion artifact.
 Existing generation therefore emits byte-for-byte the same output when the
 feature is not explicitly used, and runtime packaging has no new dependency.
 
@@ -110,6 +113,7 @@ The V002 stop conditions do not apply to this scoped adoption:
 - action bodies remain opaque wrapper authority, so loading or parsing them is
   not required.
 
-Promoting the sidecar into generated output, accepting it in `ibex-runtime`,
-binding action calling conventions, or promising compatibility beyond schema
-version 1 requires a separate compatibility decision and migration plan.
+Promoting the sidecar into default generated output, accepting it in
+`ibex-runtime`, binding action calling conventions, or promising compatibility
+beyond schema version 1 requires a separate compatibility decision and
+migration plan.

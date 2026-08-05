@@ -139,7 +139,7 @@ an unqualified correctness proof.
 | `resolver-policy` | Whether a resolver's claimed `by` reason correctly applies grammar precedence/associativity policy; V8 checks record/candidate/selected-cell consistency. |
 | `grammar-properties` | Unambiguity, language equivalence to another grammar/parser, completeness of `%expect` as a design claim, or application semantics. |
 | `ielr-adequacy` | Conflict preservation, why an IELR state was split, or a proof that every split has the required canonical correspondence. |
-| `data-only-artifact` | A supplied executable table artifact, compact-table bytes, generated bundle, manifest/report binding, or artifact digest. The current Automaton IR contains states and actions, and the verifier rebuilds table views from them. |
+| `data-only-artifact` | The standalone `ibex verify` command does not consume a supplied executable table artifact, compact-table bytes, generated bundle, manifest/report binding, or artifact digest. The current Automaton IR contains states and actions, and the verifier rebuilds table views from them. The separate bundle report records this verifier result and binds table identities without widening V1-V8. |
 | `security` | Authenticity, trusted publication, signatures, sandboxing, confidentiality, or availability under hostile resource use. |
 <!-- verifier-non-goals:end -->
 
@@ -147,11 +147,11 @@ Opaque action and user-code strings participate in serialized Grammar IR and
 therefore its digest, but checking that self-contained digest is not semantic
 verification of the code and never executes it.
 
-The `data-only-artifact` boundary is the current V001 state. A future V002
-design may define a canonical executable table artifact, and a later V003
-bundle may bind table, wrapper, report, and manifest digests. Until those
-formats and checks exist, this verifier must not be described as validating
-them.
+The data-only table and scoped bundle are separate layers around this
+verifier. Their validators check closed formats and digest relationships, but
+they do not make the standalone V1-V8 implementation consume or independently
+verify sidecar bytes. Consequently `ibex verify` must still not be described
+as validating generated Ruby, table artifacts, or manifests.
 
 ## Committed fault corpus
 
