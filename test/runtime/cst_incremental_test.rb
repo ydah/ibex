@@ -332,6 +332,29 @@ class CSTIncrementalTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_nil session.last_blender
   end
 
+  def test_observer_failure_rolls_back_and_the_next_edit_matches_fresh_parse
+    parser_class = generate
+    session = parser_class.incremental_session(Ibex::Runtime::CST::SourceText.new("1 + 2"))
+    previous_result = session.result
+    previous_memo = session.token_memo
+    subscription = session.observe do |event|
+      raise "observer failure" if event.type == :cst_reuse
+    end
+    edit = Ibex::Runtime::CST::TextEdit.new(start: 4, delete_length: 1, insert_text: "7")
+
+    error = assert_raises(RuntimeError) { session.edit([edit]) }
+    assert_equal "observer failure", error.message
+    assert_equal "1 + 2", session.source_text.text
+    assert_same previous_result, session.result
+    assert_same previous_memo, session.token_memo
+
+    assert session.unobserve(subscription)
+    completed = session.edit([edit])
+    fresh = parser_class.incremental_session(session.source_text).result
+    assert_equal fresh.syntax_root.green, completed.syntax_root.green
+    assert_equal fresh.diagnostics, completed.diagnostics
+  end
+
   def test_incremental_session_rejects_unsupported_sources
     source = Ibex::Runtime::CST::SourceText.new("1+2")
 

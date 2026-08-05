@@ -224,8 +224,6 @@ module Ibex
         @revision = 0 #: Integer
         @operation_expected_tokens = [] #: Array[String]
         @operation_fallback_reasons = [] #: Array[Symbol]
-        @operation_reused_tokens = 0 #: Integer
-        @operation_token_count = 0 #: Integer
 
         source_text = normalize_source(source)
         enforce_limit!(:source_bytes, @limits.max_source_bytes, source_text.bytesize)
@@ -335,9 +333,6 @@ module Ibex
           end
         when :cst_fallback
           @operation_fallback_reasons << event.data.fetch("reason").to_sym
-        when :cst_reuse
-          @operation_reused_tokens = Integer(event.data.fetch("reused_tokens"))
-          @operation_token_count = Integer(event.data.fetch("token_count"))
         end
       end
 
@@ -345,16 +340,20 @@ module Ibex
       def reset_operation_evidence
         @operation_expected_tokens = [] #: Array[String]
         @operation_fallback_reasons = [] #: Array[Symbol]
-        @operation_reused_tokens = 0
-        @operation_token_count = 0
       end
 
       # @rbs (CST::SyntaxResult parsed) -> SyntaxSessionResult
       def snapshot(parsed)
+        token_count = @incremental.token_memo.tokens.length
+        reused_tokens = if @incremental.last_full_fallback?
+                          0
+                        else
+                          @incremental.last_relex_result&.reused_count.to_i
+                        end
         metrics = SyntaxSessionMetrics.new(
           reused_ratio: parsed.reused_ratio,
-          reused_tokens: @operation_reused_tokens,
-          token_count: @operation_token_count,
+          reused_tokens: reused_tokens,
+          token_count: token_count,
           fallback_reasons: @operation_fallback_reasons
         )
         SyntaxSessionResult.new(

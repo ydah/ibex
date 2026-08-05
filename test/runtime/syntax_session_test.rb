@@ -100,8 +100,50 @@ class SyntaxSessionTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_equal 1, result.revision
     assert_predicate result.metrics, :fallback?
     assert_includes result.metrics.fallback_reasons, :decomposition_budget
-    assert_equal 0, result.metrics.reused_tokens if result.metrics.token_count.zero?
+    assert_equal initial.syntax_root.tokens.length, initial.metrics.token_count
+    assert_equal 0, initial.metrics.reused_tokens
+    assert_equal result.syntax_root.tokens.length, result.metrics.token_count
     assert_operator result.metrics.reused_ratio, :>=, 0.0
+  end
+
+  def test_full_lexical_fallback_reports_final_token_count_without_reuse
+    session = generate.syntax_session("1 + 2", execution_profile: PROFILE)
+
+    result = session.apply_edits(
+      [Ibex::Runtime::CST::TextEdit.new(start: 2, delete_length: 1, insert_text: "@")]
+    )
+
+    assert_equal :syntax_error, result.status
+    assert_includes result.metrics.fallback_reasons, :lexical_error
+    assert_equal result.syntax_root.tokens.length, result.metrics.token_count
+    assert_operator result.metrics.token_count, :>, 0
+    assert_equal 0, result.metrics.reused_tokens
+    assert_equal 0.0, result.metrics.reused_ratio
+  end
+
+  def test_error_sequence_with_shrinking_memos_matches_fresh_session
+    parser_class = generate(LIST_SOURCE)
+    session = parser_class.syntax_session("1+2+3", execution_profile: PROFILE)
+    edits = [
+      [1, 2, "", "1+3"],
+      [1, 2, "@", "1@"],
+      [1, 0, "+", "1+@"],
+      [2, 0, "12", "1+12@"],
+      [0, 2, "+", "+12@"],
+      [3, 1, " ", "+12 "]
+    ]
+
+    edits.each do |start, delete_length, insert_text, expected_source|
+      incremental = session.apply_edits(
+        [Ibex::Runtime::CST::TextEdit.new(
+          start: start, delete_length: delete_length, insert_text: insert_text
+        )]
+      )
+      fresh = parser_class.syntax_session(session.source_text, execution_profile: PROFILE).result
+
+      assert_equal expected_source.b, session.source_text.text
+      assert_syntax_session_equivalent(fresh, incremental)
+    end
   end
 
   def test_cancellation_is_not_reported_as_a_success_and_preserves_source
@@ -152,6 +194,31 @@ class SyntaxSessionTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
     assert_equal "1 + 2", session.source_text.text
     assert_same previous_result, session.result
+  end
+
+  def test_failed_operation_evidence_does_not_leak_into_the_next_result
+    parser_class = generate
+    parser_limits = Ibex::Runtime::ResourceLimits.new(max_recovery_attempts: 0)
+    session = parser_class.syntax_session(
+      "1 + 2", execution_profile: PROFILE, resource_limits: parser_limits
+    )
+    previous_result = session.result
+    invalid = Ibex::Runtime::CST::TextEdit.new(start: 2, delete_length: 1, insert_text: "")
+
+    assert_raises(Ibex::Runtime::SyntaxSessionResourceLimitError) do
+      session.apply_edits([invalid])
+    end
+    assert_equal "1 + 2", session.source_text.text
+    assert_same previous_result, session.result
+
+    valid = Ibex::Runtime::CST::TextEdit.new(start: 4, delete_length: 1, insert_text: "9")
+    completed = session.apply_edits([valid])
+    fresh = parser_class.syntax_session(
+      session.source_text, execution_profile: PROFILE, resource_limits: parser_limits
+    ).result
+    assert_syntax_session_equivalent(fresh, completed)
+    assert_empty completed.expected_tokens
+    refute_predicate completed.metrics, :fallback?
   end
 
   def test_cancellation_after_the_last_runtime_checkpoint_applies_to_the_next_operation
@@ -284,12 +351,44 @@ class SyntaxSessionTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     end
   end
 
+  def test_random_insert_delete_replace_and_error_edits_match_fresh_sessions
+    parser_class = generate(LIST_SOURCE)
+    session = parser_class.syntax_session("1+2+3", execution_profile: PROFILE)
+    random = Random.new(20_260_806)
+    inserts = ["", "0", "12", "+", "++", " ", "@", "?"]
+
+    500.times do
+      source = session.source_text.text
+      start = random.rand(source.bytesize + 1)
+      delete_length = random.rand([source.bytesize - start, 3].min + 1)
+      insert_text = inserts.fetch(random.rand(inserts.length))
+      edit = Ibex::Runtime::CST::TextEdit.new(
+        start: start, delete_length: delete_length, insert_text: insert_text
+      )
+      expected_source = session.source_text.apply([edit]).text
+      incremental = session.apply_edits([edit])
+      fresh = parser_class.syntax_session(session.source_text, execution_profile: PROFILE).result
+
+      assert_equal expected_source, session.source_text.text
+      assert_syntax_session_equivalent(fresh, incremental)
+    end
+  end
+
   private
 
   def diagnostic_snapshot(diagnostics)
     diagnostics.map do |diagnostic|
       [diagnostic.kind, diagnostic.to_h]
     end
+  end
+
+  def assert_syntax_session_equivalent(fresh, incremental)
+    assert_equal fresh.syntax_root.source_text.text, incremental.syntax_root.source_text.text
+    assert_equal fresh.syntax_root.to_source, incremental.syntax_root.to_source
+    assert_equal fresh.syntax_root.green, incremental.syntax_root.green
+    assert_equal fresh.syntax_root.green.flags, incremental.syntax_root.green.flags
+    assert_equal diagnostic_snapshot(fresh.diagnostics), diagnostic_snapshot(incremental.diagnostics)
+    assert_equal fresh.expected_tokens, incremental.expected_tokens
   end
 
   def deeply_frozen?(value)
