@@ -26,6 +26,7 @@ module Ibex
           "display" => %i[DISPLAY display_symbol], "type" => %i[TYPE type_symbol],
           "param" => %i[PARAM param_name],
           "printer" => %i[PRINTER printer_symbol],
+          "parser" => %i[PARSER parser_key],
           "rule" => %i[RULE rules]
         }.freeze #: Hash[String, [external_token, Symbol]]
         ASSOCIATIONS = {
@@ -49,7 +50,8 @@ module Ibex
           test_source: "a double-quoted string",
           lexer_entries: "a lexer rule, state, or end", lexer_state_name: "a state name",
           lexer_state_do: "do", lexer_pattern: "a regular expression or quoted literal",
-          lexer_action_or_entry: "an action, lexer rule, state, or end"
+          lexer_action_or_entry: "an action, lexer rule, state, or end",
+          parser_key: "a parser setting or end", parser_value: "a parser setting value"
         }.freeze #: Hash[Symbol, String]
 
         attr_reader :conversion_name #: Token?
@@ -144,8 +146,28 @@ module Ibex
           when :test_expectation then begin_test_source(token)
           when :pragma_value then finish_pragma(token)
           when :convert_name then begin_conversion(token, :IDENTIFIER, remaining)
+          when :parser_key then begin_parser_setting(token)
+          when :parser_value then finish_parser_setting
           else :IDENTIFIER
           end
+        end
+
+        # @rbs (Token token) -> external_token
+        def begin_parser_setting(token)
+          if string_value(token) == "end"
+            @state = :declaration
+            @declaration = nil
+            return :END
+          end
+
+          @state = :parser_value
+          :IDENTIFIER
+        end
+
+        # @rbs () -> external_token
+        def finish_parser_setting
+          @state = :parser_key
+          :IDENTIFIER
         end
 
         # @rbs (Array[Token] remaining) -> external_token

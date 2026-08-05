@@ -1,0 +1,18 @@
+# Generated from lib/ibex/frontend/parser_configuration_support.rb with RBS::Inline
+
+module Ibex
+  module Frontend
+    # Shares the closed parser-declaration semantics between bootstrap and generated frontends.
+    module ParserConfigurationSupport
+      PARSER_SETTING_VALUES: Hash[String, Array[String]]
+
+      private
+
+      # @rbs (Token key, Token value) -> AST::ParserSetting
+      def build_parser_setting: (Token key, Token value) -> AST::ParserSetting
+
+      # @rbs (Token keyword, Array[AST::ParserSetting] settings) -> AST::ParserConfiguration
+      def build_parser_configuration: (Token keyword, Array[AST::ParserSetting] settings) -> AST::ParserConfiguration
+    end
+  end
+end

@@ -44,17 +44,7 @@ module Ibex
 
       # @rbs (AST::declaration declaration) -> String?
       def fragment_root_declaration_name(declaration)
-        return "options" if declaration.is_a?(AST::Options)
-        return "expect" if declaration.is_a?(AST::Expect)
-        return "%expect-rr" if declaration.is_a?(AST::ExpectRR)
-        return "%param" if declaration.is_a?(AST::Parameter)
-        return "start" if declaration.is_a?(AST::Start)
-        return "%recover" if declaration.is_a?(AST::Recovery)
-        return "%on_error_reduce" if declaration.is_a?(AST::OnErrorReduce)
-        return "%test" if declaration.is_a?(AST::GrammarTest)
-        return "lexer" if declaration.is_a?(AST::Lexer)
-
-        nil
+        AST::ROOT_ONLY_DECLARATION_NAMES.find { |node_class, _name| declaration.is_a?(node_class) }&.last
       end
     end
   end

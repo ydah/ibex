@@ -11,6 +11,8 @@ module Ibex
 
       include GeneratedParserParameters
 
+      include ParserConfigurationSupport
+
       attr_reader diagnostic_token: Token?
 
       @mode: Symbol
