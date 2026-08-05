@@ -1,26 +1,14 @@
 # frozen_string_literal: true
 
+require_relative "migration_metadata"
+
 module Ibex
   module IR
     # Meaning-preserving upgrades between published IR schema versions.
     module Migration
-      UNAVAILABLE_V1_METADATA = %w[
-        source_provenance
-        symbol_docs
-        production_docs
-        production_expansion
-        action_composition
-        grammar_tests
-        lexer
-        cst
-        ast_nodes
-      ].freeze #: Array[String]
+      UNAVAILABLE_V1_METADATA = MigrationMetadata::UNAVAILABLE_V1_METADATA #: Array[String]
       # @rbs skip
-      UNAVAILABLE_V2_CONFIGURATION = %w[
-        effective_parser_algorithm
-        effective_parser_entries
-        effective_cst_trivia
-      ].freeze #: Array[String]
+      UNAVAILABLE_V2_CONFIGURATION = MigrationMetadata::UNAVAILABLE_V2_CONFIGURATION
 
       # @rbs (Grammar | Automaton value, ?to: Integer) -> (Grammar | Automaton)
       def to_version(value, to: SCHEMA_VERSION)

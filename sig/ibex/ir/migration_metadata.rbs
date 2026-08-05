@@ -1,0 +1,27 @@
+# Generated from lib/ibex/ir/migration_metadata.rb with RBS::Inline
+
+module Ibex
+  module IR
+    # Closed migration provenance shared by factories and serialized-document validation.
+    module MigrationMetadata
+      UNAVAILABLE_V1_METADATA: Array[String]
+
+      UNAVAILABLE_V2_CONFIGURATION: Array[String]
+
+      # @rbs (Integer schema_version, migration_metadata? migration) -> void
+      def self.validate!: (Integer schema_version, migration_metadata? migration) -> void
+
+      # @rbs (Integer schema_version, Integer from) -> Array[String]
+      def self.loss_inventory: (Integer schema_version, Integer from) -> Array[String]
+
+      # @rbs (untyped migration, String path) -> migration_metadata
+      private def self.validate_record: (untyped migration, String path) -> migration_metadata
+
+      # @rbs (Integer schema_version, Integer from, String path) -> void
+      private def self.validate_source_version: (Integer schema_version, Integer from, String path) -> void
+
+      # @rbs (untyped unavailable, Array[String] expected, String path) -> void
+      private def self.validate_inventory: (untyped unavailable, Array[String] expected, String path) -> void
+    end
+  end
+end

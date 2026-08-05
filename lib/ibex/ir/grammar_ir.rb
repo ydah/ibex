@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "parser_contract"
+require_relative "migration_metadata"
 
 module Ibex
   module IR
@@ -233,7 +234,7 @@ module Ibex
                                lexer:, mode:, starts:, parser_contract:)
         validate_mode(mode)
         normalized_starts = validate_starts(start, starts, mode)
-        validate_parser_contract(schema_version, parser_contract)
+        validate_versioned_metadata(schema_version, parser_contract, migration)
 
         @class_name = class_name.freeze
         @superclass = superclass&.freeze
@@ -346,16 +347,18 @@ module Ibex
       end
 
       # @rbs skip
-      def validate_parser_contract(schema_version, parser_contract)
+      def validate_versioned_metadata(schema_version, parser_contract, migration)
         unless SUPPORTED_SCHEMA_VERSIONS.include?(schema_version)
           raise ArgumentError, "unsupported grammar schema_version #{schema_version.inspect}"
         end
         if schema_version < 3 && parser_contract
           raise ArgumentError, "parser_contract requires Grammar IR schema_version 3"
         end
-        return if parser_contract.nil? || parser_contract.is_a?(ParserContract)
+        unless parser_contract.nil? || parser_contract.is_a?(ParserContract)
+          raise ArgumentError, "parser_contract must be a ParserContract"
+        end
 
-        raise ArgumentError, "parser_contract must be a ParserContract"
+        MigrationMetadata.validate!(schema_version, migration)
       end
     end
   end

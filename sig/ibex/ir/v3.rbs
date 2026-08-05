@@ -13,7 +13,7 @@ module Ibex
 
       def initialize_versioned: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], user_code_chunks: user_code_chunks?, schema_version: Integer, source_provenance: source_provenance?, migration: migration_metadata?, expect_rr: Integer?, parser_parameters: Array[parser_parameter], value_printers: Array[value_printer], grammar_tests: Array[grammar_test], recovery: recovery_policy?, lexer: Lexer?, mode: grammar_mode, starts: Array[String]?, parser_contract: ParserContract?) -> void
 
-      def validate_parser_contract: (Integer schema_version, ParserContract? parser_contract) -> void
+      def validate_versioned_metadata: (Integer schema_version, ParserContract? parser_contract, migration_metadata? migration) -> void
     end
 
     class Automaton
