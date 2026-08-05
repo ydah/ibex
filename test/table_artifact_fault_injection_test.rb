@@ -68,6 +68,7 @@ class TableArtifactFaultInjectionTest < Minitest::Test
     assert_equal EXPECTED_FAULT_CONTRACTS, contracts
     assert_equal ERROR_PATTERNS.keys, FAULT_METHODS.keys
     assert_equal faults.length, faults.map { |fault| fault.fetch("id") }.uniq.length
+    faults.each { |fault| assert_equal %w[id class layer invariant], fault.keys, fault.fetch("id") }
   end
 
   def test_every_v1_fault_is_rejected_at_its_named_invariant
