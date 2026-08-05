@@ -107,7 +107,10 @@ module Ibex
         "browser-playground" => [["browser-application", "explicit_application", false]],
         "action-shadow" => [["action-shadow-output", "explicit_option", false]],
         "bounded-repair" => [["repair-policy", "explicit_api", false]],
-        "incremental-cst" => [["incremental-session", "explicit_api", false]]
+        "incremental-cst" => [
+          ["incremental-session", "explicit_api", false],
+          ["syntax-session", "explicit_api", false]
+        ]
       }.freeze
       EXPECTED_DECISIONS = EXPECTED.keys.to_h do |id|
         [id, %w[middle-actions semantic-locations-types].include?(id) ? "redesign" : "keep"]
