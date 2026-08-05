@@ -33,6 +33,8 @@ class TableArtifactTest < Minitest::Test
     end
     assert_equal "compact", compact.payload.dig("table_format", "representation")
     assert_equal "plain", plain.payload.dig("table_format", "representation")
+    assert_equal "O(1) row-displacement probe", compact.cost.fetch("lookup_cost")
+    assert_equal "O(log row width) binary search", plain.cost.fetch("lookup_cost")
   end
 
   def test_round_trip_is_canonical_and_deeply_immutable

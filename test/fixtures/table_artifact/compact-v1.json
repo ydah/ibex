@@ -5,7 +5,7 @@
     "bounded_by_max_steps": true,
     "canonical_payload_bytes": 2954,
     "goto_cells": 2,
-    "lookup_cost": "constant-time indexed probe",
+    "lookup_cost": "O(1) row-displacement probe",
     "measurement": "not-measured",
     "recognition_cost": "O(input tokens + reductions); lexer, recovery search, and semantic actions excluded"
   },

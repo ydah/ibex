@@ -185,8 +185,8 @@ module Ibex
           "canonical_payload_bytes" => Serializer.compact(payload).bytesize,
           "action_cells" => occupied_cells(tables.fetch("actions"), "codes"),
           "goto_cells" => occupied_cells(tables.fetch("gotos"), "values"),
-          "lookup_cost" => "constant-time indexed probe",
-          "recognition_cost" => "O(input tokens + reductions); lexer, recovery search, and semantic actions excluded",
+          "lookup_cost" => lookup_cost,
+          "recognition_cost" => recognition_cost,
           "measurement" => "not-measured",
           "bounded_by_max_steps" => true
         }
@@ -196,6 +196,21 @@ module Ibex
         return table.fetch("rows").sum(&:length) if table.key?("rows")
 
         table.fetch(values_key).compact.length
+      end
+
+      def lookup_cost
+        return "O(1) row-displacement probe" if @representation == :compact
+
+        "O(log row width) binary search"
+      end
+
+      def recognition_cost
+        prefix = if @representation == :compact
+                   "O(input tokens + reductions)"
+                 else
+                   "O((input tokens + reductions) * log maximum row width)"
+                 end
+        "#{prefix}; lexer, recovery search, and semantic actions excluded"
       end
 
       def effective_cst_trivia(requested)
