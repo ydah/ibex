@@ -17,6 +17,8 @@ class CLILoadingTest < Minitest::Test
     ibex/racc_migration.rb
     ibex/samples.rb
     ibex/table_simulation.rb
+    ibex/verifiable_generation_bundle.rb
+    ibex/verification_report.rb
   ].freeze
   DEFERRED_GENERATION_FEATURES = %w[
     ibex/bison_import.rb
