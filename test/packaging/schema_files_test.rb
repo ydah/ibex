@@ -37,6 +37,13 @@ class SchemaFilesPackagingTest < Minitest::Test
     expected.each { |path| assert_includes specification.files, path }
   end
 
+  def test_lexer_profile_schema_and_documentation_are_packaged
+    specification = Gem::Specification.load(File.expand_path("../../ibex.gemspec", __dir__))
+
+    assert_includes specification.files, "schema/lexer-profile-v1.schema.json"
+    assert_includes specification.files, "docs/lexer-construction-profile.md"
+  end
+
   def test_lsp_sources_and_signatures_are_packaged_in_the_gem
     specification = Gem::Specification.load(File.expand_path("../../ibex.gemspec", __dir__))
 

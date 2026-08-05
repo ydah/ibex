@@ -6,6 +6,7 @@ require "json"
 require "open3"
 require "rbconfig"
 require "yaml"
+require_relative "lexer_profile_dependencies"
 require_relative "lexer_profiler"
 
 module Ibex
@@ -24,6 +25,17 @@ module Ibex
         when Array then value.map { |item| canonical(item) }
         else value
         end
+      end
+
+      def deterministic_report_input(document)
+        copy = Marshal.load(Marshal.dump(document))
+        copy.delete("environment")
+        copy.delete("provenance")
+        copy.fetch("cohorts").fetch(0).fetch("workloads").each do |workload|
+          observations = workload.dig("result", "runtime_observations")
+          observations&.each_value { |item| item["value"] = 0 }
+        end
+        copy
       end
     end
 
@@ -59,7 +71,7 @@ module Ibex
       end
     end
 
-    # Binds H006 policy, fixtures, implementation, schema, and tests to one Git base.
+    # Binds H006 inputs and execution dependencies to one exact clean capture.
     class LexerProfileProvenance
       FIXTURE_PATHS = %w[
         test/fixtures/lexer_profile/alternation.txt
@@ -79,52 +91,70 @@ module Ibex
         test/fixtures/lexer_profile/unicode-property.txt
         test/fixtures/lexer_profile/unicode-property.y
       ].freeze
+      SOURCE_DEPENDENCY_PATHS = LexerProfileDependencies::SOURCE_PATHS
       BOUND_PATHS = (%w[
+        ibex.gemspec
         Rakefile
         docs/lexer-construction-profile.md
         docs/workloads.yml
         schema/lexer-profile-v1.schema.json
+        test/packaging/schema_files_test.rb
         test/profile/lexer_profile_schema_test.rb
         test/profile/lexer_profiler_test.rb
         test/quality/lexer_profile_test.rb
         test/support/public_json_schemas.rb
         tool/lexer_profile.rb
+        tool/profile/lexer_profile_dependencies.rb
         tool/profile/lexer_profile_report.rb
         tool/profile/lexer_profiler.rb
         tool/quality/lexer_profile.rb
         tool/quality/lexer_profile_integrity.rb
-      ] + FIXTURE_PATHS).sort.freeze
-      IMPLEMENTATION_PATHS = %w[
+      ] + FIXTURE_PATHS + SOURCE_DEPENDENCY_PATHS).sort.freeze
+      IMPLEMENTATION_PATHS = (SOURCE_DEPENDENCY_PATHS + %w[
         schema/lexer-profile-v1.schema.json
+        tool/profile/lexer_profile_dependencies.rb
         tool/profile/lexer_profile_report.rb
         tool/profile/lexer_profiler.rb
         tool/quality/lexer_profile.rb
         tool/quality/lexer_profile_integrity.rb
-      ].freeze
+      ]).sort.freeze
 
       def initialize(root)
         @root = root
       end
 
-      def build(environment, measurement_policy, heuristic_analysis)
+      def build(environment, measurement_policy, heuristic_analysis, deterministic_report_input)
         base = capture!("git", "rev-parse", "HEAD").strip
         bindings = BOUND_PATHS.map { |path| binding(base, path) }
         status_lines = capture!("git", "status", "--porcelain=v1", "--untracked-files=normal").lines(chomp: true)
-        {
+        provenance = {
           "base_revision" => base,
-          "base_revision_role" => "Git base; bound path state and digest record any capture-time difference",
+          "base_revision_role" => "Exact clean capture revision and parent of the committed evidence revision",
           "capture_worktree_clean" => status_lines.empty?,
           "capture_worktree_status" => status_lines,
           "capture_worktree_status_sha256" => LexerProfileDigest.sha256(status_lines),
           "bound_paths" => bindings,
           "bound_paths_sha256" => LexerProfileDigest.sha256(bindings),
           "implementation_sha256" => implementation_digest(bindings),
+          "deterministic_report_input_sha256" => LexerProfileDigest.sha256(deterministic_report_input),
           "environment_observation_sha256" => LexerProfileDigest.sha256(environment),
           "measurement_policy_sha256" => LexerProfileDigest.sha256(measurement_policy),
           "heuristic_analysis_sha256" => LexerProfileDigest.sha256(heuristic_analysis),
           "evidence_path" => "tool/profile/evidence/lexer-profile-v1.json",
           "evidence_exclusion_reason" => "the evidence file is excluded from its own digest to avoid circularity"
         }
+        provenance["capture_identity_sha256"] = self.class.capture_identity(provenance)
+        provenance
+      end
+
+      def self.capture_identity(provenance)
+        LexerProfileDigest.sha256(
+          provenance.slice(
+            "base_revision", "capture_worktree_clean", "capture_worktree_status_sha256",
+            "bound_paths_sha256", "implementation_sha256", "deterministic_report_input_sha256",
+            "environment_observation_sha256", "measurement_policy_sha256", "heuristic_analysis_sha256"
+          )
+        )
       end
 
       private
@@ -278,12 +308,32 @@ module Ibex
         environment = LexerProfileEnvironment.new.build
         policy = measurement_policy
         heuristics = heuristic_analysis
+        content = report_content(cohorts, environment, policy, heuristics)
+        deterministic_input = LexerProfileDigest.deterministic_report_input(content)
+        provenance = LexerProfileProvenance.new(@root).build(environment, policy, heuristics, deterministic_input)
+        {
+          "ibex_report" => content.fetch("ibex_report"),
+          "schema_version" => content.fetch("schema_version"),
+          "trust" => content.fetch("trust"),
+          "environment" => environment,
+          "provenance" => provenance,
+          "measurement_policy" => policy,
+          "heuristic_analysis" => heuristics,
+          "semantic_comparison" => content.fetch("semantic_comparison"),
+          "cohorts" => cohorts,
+          "decisions" => content.fetch("decisions"),
+          "limitations" => content.fetch("limitations")
+        }
+      end
+
+      private
+
+      def report_content(cohorts, environment, policy, heuristics)
         {
           "ibex_report" => "lexer_profile",
           "schema_version" => 1,
           "trust" => "internal_local_observation",
           "environment" => environment,
-          "provenance" => LexerProfileProvenance.new(@root).build(environment, policy, heuristics),
           "measurement_policy" => policy,
           "heuristic_analysis" => heuristics,
           "semantic_comparison" => semantic_comparison,
@@ -292,8 +342,6 @@ module Ibex
           "limitations" => limitations
         }
       end
-
-      private
 
       def synthetic_cohort
         fixtures = FIXTURES.map { |name, features| fixture_record(name, features) }

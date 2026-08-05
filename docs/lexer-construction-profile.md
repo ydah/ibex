@@ -51,12 +51,22 @@ The evidence keeps source classes separate:
   and they contribute no inferred measurements.
 
 Synthetic success is not evidence that public-real lexers are suitable for an
-automaton migration. The base revision, bound source paths, base/current byte
-digests, capture status, implementation digest, environment digest, policy
-digest, and heuristic-policy digest make the local observation reconstructible.
-Verification requires those recorded Git objects. A shallow checkout that does
-not contain the evidence base or pinned fixture revisions fails closed; CI must
-fetch full history rather than treating missing provenance as a match.
+automaton migration. Evidence is generated from a clean exact revision, and
+that revision must be the first parent of the commit that records the evidence.
+The capture identity covers that revision, clean/status provenance, the complete
+bound execution-source closure, implementation subset, deterministic report
+input, measurement policy, and heuristic policy. The verifier locates the same
+identity in committed evidence history instead of accepting any ancestor with
+rewritten derived fields. A shallow checkout that lacks the evidence commit's
+parent or pinned fixture revisions fails closed; CI must fetch full history
+rather than treating missing provenance as a match.
+
+The capture command deliberately loads only the frontend, Grammar/Automaton IR,
+normalizer, analysis/LALR construction, Ruby code generator, and generated
+runtime graph. It does not load the public `ibex` aggregate, CLI, or configuration
+graph. Every repository Ruby source reachable from that measurement graph is a
+bound path, and capture aborts if another repository source is loaded. The public
+schema and this document are explicit generator-gem packaging expectations.
 
 ## Measurements and limits
 
