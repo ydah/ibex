@@ -78,7 +78,7 @@ module Ibex
         exact_keys!(value, VERSION_FIELDS, "#{label} IR")
         expected = {
           "current_writer" => current, "readable" => readable,
-          "migrations" => ["1->2"], "preserve_loaded_version" => true
+          "migrations" => ["1->2", "1->3", "2->3"], "preserve_loaded_version" => true
         }
         raise "#{label} IR policy is stale" unless value == expected
       end

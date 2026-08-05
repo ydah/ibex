@@ -272,8 +272,9 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     assert_equal "deferred_a5_minimum_undefined", coverage.fetch("grammar_admission")
   end
 
-  def test_cst_trivia_manifest_gap_is_closed
+  def test_cst_trivia_contract_is_persisted_in_grammar_ir_v3_and_manifest
     entry = find_entry(document.fetch("registrations"), "generate", "--cst-trivia=POLICY")
+    assert_equal "grammar_ir_v3_parser_contract", entry.fetch("ir_presence")
     assert_equal "current", entry.fetch("manifest_presence")
   end
 
@@ -1943,7 +1944,13 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     mutate_entry("generate", "--table=FORMAT", "ir_presence", "grammar_ir_v2_current", "project build policy")
     mutate_entry("generate", "--table=FORMAT", "grammar_admission", "excluded_x1_operation", "project build policy")
     mutate_entry("generate", "--algorithm=NAME", "manifest_presence", "not_applicable", "manifest state")
-    mutate_entry("generate", "--mode=MODE", "ir_presence", "cst_contract_gap", "persistence is inconsistent")
+    mutate_entry(
+      "generate",
+      "--mode=MODE",
+      "ir_presence",
+      "grammar_ir_v3_parser_contract",
+      "persistence is inconsistent"
+    )
     mutate_entry("generate", "--manifest[=FILE]", "manifest_presence", "current", "project build policy")
     mutate_entry("generate", "--mode=MODE", "compatibility_status", "current", "staged fixed override")
     mutate_entry("generate", "--watch", "compatibility_status", "internal_compatibility", "internal compatibility")
