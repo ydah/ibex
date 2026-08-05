@@ -31,6 +31,8 @@ module Ibex
         ["lib/ibex/cli/analysis.rb", "analysis_options"] => "diff-or-metrics",
         ["lib/ibex/cli/bison_import.rb", "add_bison_import_budgets"] => "import-bison",
         ["lib/ibex/cli/bison_import.rb", "bison_import_option_parser"] => "import-bison",
+        ["lib/ibex/cli/config.rb", "add_config_contract_options"] => "config",
+        ["lib/ibex/cli/config.rb", "add_config_options"] => "config",
         ["lib/ibex/cli/counterexample_options.rb", "add_counterexample_options"] => "generate",
         ["lib/ibex/cli/coverage.rb", "coverage_check_options"] => "coverage-check",
         ["lib/ibex/cli/coverage.rb", "coverage_output_options"] => "coverage-collect-or-merge",
@@ -69,6 +71,8 @@ module Ibex
         ["lib/ibex/cli.rb", "add_pipeline_options"] => [0],
         ["lib/ibex/cli.rb", "add_signature_output_options"] => [0],
         ["lib/ibex/cli/bison_import.rb", "add_bison_import_budgets"] => [0],
+        ["lib/ibex/cli/config.rb", "add_config_contract_options"] => [0],
+        ["lib/ibex/cli/config.rb", "add_config_options"] => [0],
         ["lib/ibex/cli/counterexample_options.rb", "add_counterexample_options"] => [0],
         ["lib/ibex/cli/equiv.rb", "add_equiv_search_options"] => [0],
         ["lib/ibex/cli/explain.rb", "add_explain_search_options"] => [0],
@@ -1791,8 +1795,8 @@ module Ibex
         if entry.fetch("canonical_key").start_with?("compatibility.") && status != "internal_compatibility"
           raise "registration #{id} compatibility invocation must remain internal compatibility"
         end
-        if override == "fixed" && entry.fetch("surface") != "generate"
-          raise "registration #{id} fixed generation policy must use the generate surface"
+        if override == "fixed" && !%w[generate config].include?(entry.fetch("surface"))
+          raise "registration #{id} fixed policy must use the generate or config surface"
         end
         return unless override == "analysis_override" && entry.fetch("surface") == "generate"
 
