@@ -1,0 +1,486 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/lexer-profile-v1.schema.json",
+  "title": "Ibex generated lexer profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ibex_report", "schema_version", "trust", "environment", "provenance",
+    "measurement_policy", "heuristic_analysis", "semantic_comparison", "cohorts", "decisions", "limitations"
+  ],
+  "properties": {
+    "ibex_report": { "const": "lexer_profile" },
+    "schema_version": { "const": 1 },
+    "trust": { "const": "internal_local_observation" },
+    "environment": { "$ref": "#/$defs/environment" },
+    "provenance": { "$ref": "#/$defs/provenance" },
+    "measurement_policy": { "$ref": "#/$defs/measurementPolicy" },
+    "heuristic_analysis": { "$ref": "#/$defs/heuristicAnalysis" },
+    "semantic_comparison": { "$ref": "#/$defs/semanticComparison" },
+    "cohorts": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        { "$ref": "#/$defs/syntheticCohort" },
+        { "$ref": "#/$defs/publicRealCohort" }
+      ],
+      "items": false
+    },
+    "decisions": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "allOf": [
+            { "$ref": "#/$defs/decision" },
+            {
+              "properties": {
+                "feature": { "const": "automatic-regexp-replacement" },
+                "decision": { "const": "NO-GO" }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/decision" },
+            {
+              "properties": {
+                "feature": { "const": "separate-automaton-profile" },
+                "decision": { "const": "MORE DATA" }
+              }
+            }
+          ]
+        }
+      ],
+      "items": false
+    },
+    "limitations": { "$ref": "#/$defs/nonemptyStrings" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "nonemptyString": { "type": "string", "minLength": 1 },
+    "nonemptyStrings": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/nonemptyString" }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observation_role", "ruby_engine", "ruby_version", "ruby_patchlevel", "ruby_description",
+        "ruby_platform", "rubyopt", "yjit_enabled", "host_os", "host_cpu", "kernel_name",
+        "kernel_release", "kernel_version", "kernel_machine", "logical_processors"
+      ],
+      "properties": {
+        "observation_role": { "const": "host_bound_not_regression_golden" },
+        "ruby_engine": { "$ref": "#/$defs/nonemptyString" },
+        "ruby_version": { "$ref": "#/$defs/nonemptyString" },
+        "ruby_patchlevel": { "type": "integer" },
+        "ruby_description": { "$ref": "#/$defs/nonemptyString" },
+        "ruby_platform": { "$ref": "#/$defs/nonemptyString" },
+        "rubyopt": { "type": ["string", "null"] },
+        "yjit_enabled": { "type": "boolean" },
+        "host_os": { "$ref": "#/$defs/nonemptyString" },
+        "host_cpu": { "$ref": "#/$defs/nonemptyString" },
+        "kernel_name": { "$ref": "#/$defs/nonemptyString" },
+        "kernel_release": { "$ref": "#/$defs/nonemptyString" },
+        "kernel_version": { "$ref": "#/$defs/nonemptyString" },
+        "kernel_machine": { "$ref": "#/$defs/nonemptyString" },
+        "logical_processors": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "base_revision", "base_revision_role", "capture_worktree_clean", "capture_worktree_status",
+        "capture_worktree_status_sha256", "bound_paths", "bound_paths_sha256", "implementation_sha256",
+        "environment_observation_sha256", "measurement_policy_sha256", "heuristic_analysis_sha256",
+        "evidence_path", "evidence_exclusion_reason"
+      ],
+      "properties": {
+        "base_revision": { "$ref": "#/$defs/revision" },
+        "base_revision_role": { "$ref": "#/$defs/nonemptyString" },
+        "capture_worktree_clean": { "type": "boolean" },
+        "capture_worktree_status": { "type": "array", "items": { "type": "string" } },
+        "capture_worktree_status_sha256": { "$ref": "#/$defs/sha256" },
+        "bound_paths": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/binding" }
+        },
+        "bound_paths_sha256": { "$ref": "#/$defs/sha256" },
+        "implementation_sha256": { "$ref": "#/$defs/sha256" },
+        "environment_observation_sha256": { "$ref": "#/$defs/sha256" },
+        "measurement_policy_sha256": { "$ref": "#/$defs/sha256" },
+        "heuristic_analysis_sha256": { "$ref": "#/$defs/sha256" },
+        "evidence_path": { "const": "tool/profile/evidence/lexer-profile-v1.json" },
+        "evidence_exclusion_reason": { "$ref": "#/$defs/nonemptyString" }
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "git_state", "base_sha256"],
+      "properties": {
+        "path": { "$ref": "#/$defs/nonemptyString" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "git_state": { "enum": ["base", "modified", "untracked"] },
+        "base_sha256": { "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }] }
+      }
+    },
+    "measurementPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runtime_role", "elapsed_time_release_gate", "allocation_count_release_gate", "allocation_metric",
+        "streaming_chunk_size_bytes", "incremental_metric", "action_execution", "public_workload_rule"
+      ],
+      "properties": {
+        "runtime_role": { "const": "diagnostic_observation_only" },
+        "elapsed_time_release_gate": { "const": false },
+        "allocation_count_release_gate": { "const": false },
+        "allocation_metric": { "$ref": "#/$defs/nonemptyString" },
+        "streaming_chunk_size_bytes": { "type": "integer", "minimum": 1 },
+        "incremental_metric": { "$ref": "#/$defs/nonemptyString" },
+        "action_execution": { "$ref": "#/$defs/nonemptyString" },
+        "public_workload_rule": { "$ref": "#/$defs/nonemptyString" }
+      }
+    },
+    "heuristicAnalysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "fields", "coverage", "false_negative_possible", "limitations"],
+      "properties": {
+        "method": { "const": "normalized-source-pattern-scan" },
+        "fields": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "prefixItems": [
+            { "const": "alternation_rule_ids" },
+            { "const": "lazy_rule_ids" },
+            { "const": "state_mutation_sources" },
+            { "const": "parser_to_lexer_feedback" }
+          ],
+          "items": false
+        },
+        "coverage": { "$ref": "#/$defs/nonemptyString" },
+        "false_negative_possible": { "const": true },
+        "limitations": { "$ref": "#/$defs/nonemptyStrings" }
+      }
+    },
+    "semanticComparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "current_engine", "current_inside_rule_selection", "current_across_rule_selection", "candidate_engine",
+        "candidate_selection", "equivalent", "witness", "migration_risks"
+      ],
+      "properties": {
+        "current_engine": { "const": "Ruby Regexp per declared rule" },
+        "current_inside_rule_selection": { "const": "Ruby leftmost-first alternative selection" },
+        "current_across_rule_selection": { "$ref": "#/$defs/nonemptyString" },
+        "candidate_engine": { "$ref": "#/$defs/nonemptyString" },
+        "candidate_selection": { "const": "maximal munch with declaration-order tie break" },
+        "equivalent": { "const": false },
+        "witness": { "$ref": "#/$defs/nonemptyString" },
+        "migration_risks": { "$ref": "#/$defs/nonemptyStrings" }
+      }
+    },
+    "grammar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "path", "revision", "sha256", "storage", "source_url"],
+      "properties": {
+        "identity": { "$ref": "#/$defs/nonemptyString" },
+        "path": { "$ref": "#/$defs/nonemptyString" },
+        "revision": { "$ref": "#/$defs/revision" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "storage": { "enum": ["repository", "remote"] },
+        "source_url": { "$ref": "#/$defs/nonemptyString" }
+      }
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "revision", "seed_sha256", "sha256", "bytes", "derivation"],
+      "properties": {
+        "path": { "$ref": "#/$defs/nonemptyString" },
+        "revision": { "$ref": "#/$defs/revision" },
+        "seed_sha256": { "$ref": "#/$defs/sha256" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "bytes": { "type": "integer", "minimum": 1 },
+        "derivation": { "$ref": "#/$defs/nonemptyString" }
+      }
+    },
+    "measuredAvailability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason"],
+      "properties": {
+        "status": { "const": "measured" },
+        "reason": { "type": "null" }
+      }
+    },
+    "notRunAvailability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason"],
+      "properties": {
+        "status": { "const": "not_run" },
+        "reason": { "$ref": "#/$defs/nonemptyString" }
+      }
+    },
+    "feature": {
+      "enum": [
+        "alternation", "regexp-leftmost-first", "lazy-quantifier", "long-common-prefix",
+        "nested-quantifier", "regexp-warning", "chunk-boundary-inside-token", "unicode-property",
+        "stateful-string", "lexer-state-mutation", "parser-action-state-mutation", "parser-to-lexer-feedback"
+      ]
+    },
+    "syntheticCohort": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "workloads"],
+      "properties": {
+        "kind": { "const": "synthetic" },
+        "workloads": {
+          "type": "array",
+          "minItems": 8,
+          "items": { "$ref": "#/$defs/syntheticWorkload" }
+        }
+      }
+    },
+    "publicRealCohort": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "workloads"],
+      "properties": {
+        "kind": { "const": "public_real" },
+        "workloads": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/publicRealWorkload" }
+        }
+      }
+    },
+    "syntheticWorkload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "classification", "grammar", "suite", "adversarial_features", "input",
+        "availability", "result", "notes"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/nonemptyString" },
+        "classification": { "const": "repository_synthetic" },
+        "grammar": { "$ref": "#/$defs/grammar" },
+        "suite": { "enum": ["adversarial", "registered"] },
+        "adversarial_features": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/feature" }
+        },
+        "input": { "$ref": "#/$defs/input" },
+        "availability": { "$ref": "#/$defs/measuredAvailability" },
+        "result": { "$ref": "#/$defs/result" },
+        "notes": { "$ref": "#/$defs/nonemptyStrings" }
+      }
+    },
+    "publicRealWorkload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "classification", "grammar", "suite", "adversarial_features", "input",
+        "availability", "result", "notes"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/nonemptyString" },
+        "classification": { "const": "public_real" },
+        "grammar": { "$ref": "#/$defs/grammar" },
+        "suite": { "const": "registered" },
+        "adversarial_features": { "type": "array", "maxItems": 0 },
+        "input": { "type": "null" },
+        "availability": { "$ref": "#/$defs/notRunAvailability" },
+        "result": { "type": "null" },
+        "notes": { "$ref": "#/$defs/nonemptyStrings" }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["structure", "token_lengths", "streaming", "runtime_observations", "incremental_full_scan"],
+      "properties": {
+        "structure": { "$ref": "#/$defs/structure" },
+        "token_lengths": { "$ref": "#/$defs/tokenLengths" },
+        "streaming": { "$ref": "#/$defs/streaming" },
+        "runtime_observations": { "$ref": "#/$defs/runtimeObservations" },
+        "incremental_full_scan": { "$ref": "#/$defs/incremental" }
+      }
+    },
+    "structure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "states", "rules_per_state", "rule_count", "alternation_rule_ids", "lazy_rule_ids",
+        "arbitrary_lexer_action_rule_ids", "state_mutation_sources", "parser_to_lexer_feedback", "regexp_warnings"
+      ],
+      "properties": {
+        "states": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonemptyString" }
+        },
+        "rules_per_state": {
+          "type": "object",
+          "propertyNames": { "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" },
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "rule_count": { "type": "integer", "minimum": 1 },
+        "alternation_rule_ids": { "$ref": "#/$defs/ruleIds" },
+        "lazy_rule_ids": { "$ref": "#/$defs/ruleIds" },
+        "arbitrary_lexer_action_rule_ids": { "$ref": "#/$defs/ruleIds" },
+        "state_mutation_sources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["lexer_rule_ids", "parser_production_ids"],
+          "properties": {
+            "lexer_rule_ids": { "$ref": "#/$defs/ruleIds" },
+            "parser_production_ids": { "$ref": "#/$defs/ruleIds" }
+          }
+        },
+        "parser_to_lexer_feedback": { "type": "boolean" },
+        "regexp_warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "rule_id"],
+            "properties": {
+              "type": { "const": "redos" },
+              "rule_id": { "type": "integer", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
+    "ruleIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "integer", "minimum": 0 }
+    },
+    "tokenLengths": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["count", "minimum_bytes", "maximum_bytes", "total_bytes", "sequence_sha256", "sample"],
+      "properties": {
+        "count": { "type": "integer", "minimum": 1 },
+        "minimum_bytes": { "type": "integer", "minimum": 1 },
+        "maximum_bytes": { "type": "integer", "minimum": 1 },
+        "total_bytes": { "type": "integer", "minimum": 1 },
+        "sequence_sha256": { "$ref": "#/$defs/sha256" },
+        "sample": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["token", "bytes", "state"],
+            "properties": {
+              "token": { "$ref": "#/$defs/nonemptyString" },
+              "bytes": { "type": "integer", "minimum": 1 },
+              "state": { "$ref": "#/$defs/nonemptyString" }
+            }
+          }
+        }
+      }
+    },
+    "streaming": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_kind", "chunk_size_bytes", "peak_buffer_bytes", "source_bytes_read"],
+      "properties": {
+        "source_kind": { "enum": ["io", "string"] },
+        "chunk_size_bytes": { "type": "integer", "minimum": 1 },
+        "peak_buffer_bytes": { "type": "integer", "minimum": 1 },
+        "source_bytes_read": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "runtimeObservations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["elapsed_seconds", "allocated_objects"],
+      "properties": {
+        "elapsed_seconds": { "$ref": "#/$defs/diagnosticObservation" },
+        "allocated_objects": { "$ref": "#/$defs/diagnosticObservation" }
+      }
+    },
+    "diagnosticObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "value", "release_gate"],
+      "properties": {
+        "status": { "const": "observation" },
+        "value": { "type": "number", "minimum": 0 },
+        "release_gate": { "const": false }
+      }
+    },
+    "incremental": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "edited_source_bytes", "bytes_scanned_from_zero", "share", "basis"],
+          "properties": {
+            "status": { "const": "measured" },
+            "edited_source_bytes": { "type": "integer", "minimum": 1 },
+            "bytes_scanned_from_zero": { "type": "integer", "minimum": 1 },
+            "share": { "type": "number", "minimum": 0 },
+            "basis": { "$ref": "#/$defs/nonemptyString" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "reason"],
+          "properties": {
+            "status": { "enum": ["not_requested", "not_measured"] },
+            "reason": { "$ref": "#/$defs/nonemptyString" }
+          }
+        }
+      ]
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["feature", "decision", "thresholds", "reason", "counterevidence_required"],
+      "properties": {
+        "feature": { "$ref": "#/$defs/nonemptyString" },
+        "decision": { "enum": ["GO", "NO-GO", "MORE DATA"] },
+        "thresholds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "target", "observed", "satisfied"],
+            "properties": {
+              "id": { "$ref": "#/$defs/nonemptyString" },
+              "target": { "$ref": "#/$defs/nonemptyString" },
+              "observed": { "$ref": "#/$defs/nonemptyString" },
+              "satisfied": { "type": "boolean" }
+            }
+          }
+        },
+        "reason": { "$ref": "#/$defs/nonemptyString" },
+        "counterevidence_required": { "$ref": "#/$defs/nonemptyStrings" }
+      }
+    }
+  }
+}

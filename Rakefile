@@ -80,6 +80,11 @@ namespace :quality do
          "Ibex::Quality::ConstructionProfile.new.verify!"
   end
 
+  desc "Verify generated lexer semantic profile evidence and automaton decision"
+  task :lexer_profile do
+    ruby "-Ilib", "-r./tool/quality/lexer_profile", "-e", "Ibex::Quality::LexerProfile.new.verify!"
+  end
+
   desc "Verify Preview and Experimental maturity decisions and evidence"
   task :maturity do
     ruby "-Ilib", "-r./tool/quality/maturity", "-e", "Ibex::Quality::Maturity.new.verify!"
