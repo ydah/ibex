@@ -40,6 +40,7 @@ module Ibex
         ast_data.rb
         resource_limits.rb
         event_sanitizer.rb
+        syntax_session.rb
         event.rb
         observation.rb
         repair.rb

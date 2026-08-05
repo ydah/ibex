@@ -4,6 +4,7 @@
 require_relative "location_span" unless defined?(Ibex::Runtime::LocationSpan)
 require_relative "observation" unless defined?(Ibex::Runtime::Observation)
 require_relative "resource_limits" unless defined?(Ibex::Runtime::ResourceLimits)
+require_relative "syntax_session" unless defined?(Ibex::Runtime::SyntaxSession)
 require_relative "repair" unless defined?(Ibex::Runtime::RepairPolicy)
 require_relative "repair_search" unless defined?(Ibex::Runtime::RepairSearch)
 require_relative "parser_sync_recovery" unless defined?(Ibex::Runtime::ParserSyncRecovery)
@@ -321,6 +322,39 @@ module Ibex
 
       attr_reader :syntax_parse_memo #: CST::ParseMemo?
       attr_reader :incremental_reused_descendants #: Integer
+
+      # Report the trust boundary of syntax-only operations for this loaded
+      # parser class. Current generated artifacts can contain user sections
+      # and Ruby lexer actions, so they are always trusted application code.
+      # @rbs () -> Symbol
+      def self.syntax_execution_profile
+        :trusted_application_code
+      end
+
+      # Open a generated-language syntax session backed by the existing
+      # incremental Red/Green CST engine. The execution profile must be passed
+      # explicitly because generated lexer actions execute in this path.
+      # @rbs (String | CST::SourceText source, ?execution_profile: Symbol?,
+      #   ?resource_limits: ResourceLimits?, ?limits: SyntaxSessionLimits?,
+      #   ?cancellation: CancellationToken?, ?blender: bool) -> SyntaxSession
+      def self.syntax_session(
+        source,
+        execution_profile: nil,
+        resource_limits: nil,
+        limits: nil,
+        cancellation: nil,
+        blender: true
+      )
+        SyntaxSession.new(
+          self,
+          source,
+          execution_profile: execution_profile,
+          resource_limits: resource_limits,
+          limits: limits,
+          cancellation: cancellation,
+          blender: blender
+        )
+      end
 
       # Start a syntax-only incremental session backed by a generated lexer.
       # Parser production actions are suppressed, but generated lexer actions

@@ -170,6 +170,12 @@ memo bytes; a bound failure deterministically falls back to the fresh token
 stream. Observe `cst_built`, `cst_reuse`, and `cst_fallback` runtime events for
 metrics.
 
+Applications that need an explicit generated-language service boundary can use
+the Experimental [`syntax_session` façade](syntax-sessions.md). It adds
+trust-profile acknowledgement, immutable operation snapshots, expected tokens,
+reuse/fallback metrics, cancellation, and service resource bounds while using
+this same incremental engine. It does not add LSP or workspace semantics.
+
 ## Serialization
 
 `ibex_cst` schema v1 is independent from Grammar IR:

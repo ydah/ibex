@@ -1,0 +1,175 @@
+# Generated from lib/ibex/runtime/syntax_session.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    # Raised when a caller has not acknowledged the generated artifact's
+    # execution profile.
+    class SyntaxSessionTrustError < ArgumentError
+    end
+
+    # Raised cooperatively at syntax-session operation boundaries and parser
+    # observation checkpoints after cancellation is requested.
+    class SyntaxSessionCancelled < StandardError
+    end
+
+    # Raised when a syntax-service-specific resource bound is exceeded.
+    class SyntaxSessionResourceLimitError < StandardError
+      attr_reader resource: Symbol
+
+      attr_reader limit: Integer
+
+      attr_reader observed: Integer
+
+      # @rbs (resource: Symbol, limit: Integer, observed: Integer) -> void
+      def initialize: (resource: Symbol, limit: Integer, observed: Integer) -> void
+    end
+
+    # Thread-safe cooperative cancellation state for one or more operations.
+    class CancellationToken
+      # @rbs () -> void
+      def initialize: () -> void
+
+      # @rbs () -> true
+      # rubocop:disable Naming/PredicateMethod -- command mutation convention.
+      def cancel!: () -> true
+
+      # @rbs () -> bool
+      def cancelled?: () -> bool
+    end
+
+    # Immutable syntax-service bounds layered over parser ResourceLimits.
+    class SyntaxSessionLimits
+      DEFAULT_MAX_SOURCE_BYTES: Integer
+
+      DEFAULT_MAX_EDITS_PER_OPERATION: Integer
+
+      DEFAULT_MAX_INSERTED_BYTES: Integer
+
+      attr_reader max_source_bytes: Integer
+
+      attr_reader max_edits_per_operation: Integer
+
+      attr_reader max_inserted_bytes: Integer
+
+      # @rbs (?max_source_bytes: Integer, ?max_edits_per_operation: Integer,
+      #   ?max_inserted_bytes: Integer) -> void
+      def initialize: (?max_source_bytes: Integer, ?max_edits_per_operation: Integer, ?max_inserted_bytes: Integer) -> void
+
+      private
+
+      # @rbs (untyped value, Symbol name) -> void
+      def validate_positive_integer: (untyped value, Symbol name) -> void
+
+      # @rbs (untyped value, Symbol name) -> void
+      def validate_nonnegative_integer: (untyped value, Symbol name) -> void
+    end
+
+    # Immutable evidence from one completed syntax-session operation.
+    class SyntaxSessionMetrics
+      attr_reader reused_ratio: Float
+
+      attr_reader reused_tokens: Integer
+
+      attr_reader token_count: Integer
+
+      attr_reader fallback_reasons: Array[Symbol]
+
+      # @rbs (reused_ratio: Float, reused_tokens: Integer, token_count: Integer,
+      #   fallback_reasons: Array[Symbol]) -> void
+      def initialize: (reused_ratio: Float, reused_tokens: Integer, token_count: Integer, fallback_reasons: Array[Symbol]) -> void
+
+      # @rbs () -> bool
+      def fallback?: () -> bool
+    end
+
+    # Immutable, data-only copy of one parser diagnostic. Application-owned
+    # values and locations are sanitized rather than retained by identity.
+    class SyntaxSessionDiagnostic
+      attr_reader kind: Symbol
+
+      attr_reader data: Hash[String, untyped]
+
+      # @rbs (kind: Symbol, data: Hash[untyped, untyped]) -> void
+      def initialize: (kind: Symbol, data: Hash[untyped, untyped]) -> void
+
+      # @rbs () -> Hash[String, untyped]
+      def to_h: () -> Hash[String, untyped]
+    end
+
+    # Immutable public snapshot of one completed syntax-session operation.
+    class SyntaxSessionResult
+      attr_reader revision: Integer
+
+      attr_reader syntax_root: CST::SyntaxNode
+
+      attr_reader diagnostics: Array[SyntaxSessionDiagnostic]
+
+      attr_reader expected_tokens: Array[String]
+
+      attr_reader metrics: SyntaxSessionMetrics
+
+      attr_reader status: Symbol
+
+      # @rbs (revision: Integer, syntax_root: CST::SyntaxNode, diagnostics: Array[SyntaxSessionDiagnostic],
+      #   expected_tokens: Array[String], metrics: SyntaxSessionMetrics, status: Symbol) -> void
+      def initialize: (revision: Integer, syntax_root: CST::SyntaxNode, diagnostics: Array[SyntaxSessionDiagnostic], expected_tokens: Array[String], metrics: SyntaxSessionMetrics, status: Symbol) -> void
+
+      # @rbs () -> bool
+      def success?: () -> bool
+    end
+
+    # Generated-language syntax boundary backed by the existing Red/Green CST
+    # incremental engine. It does not execute parser production actions.
+    class SyntaxSession
+      TRUSTED_PROFILE: Symbol
+
+      attr_reader execution_profile: Symbol
+
+      attr_reader limits: SyntaxSessionLimits
+
+      # @rbs (Class parser_class, String | CST::SourceText source,
+      #   execution_profile: Symbol?, ?resource_limits: ResourceLimits?,
+      #   ?limits: SyntaxSessionLimits?, ?cancellation: CancellationToken?, ?blender: bool) -> void
+      def initialize: (Class parser_class, String | CST::SourceText source, execution_profile: Symbol?, ?resource_limits: ResourceLimits?, ?limits: SyntaxSessionLimits?, ?cancellation: CancellationToken?, ?blender: bool) -> void
+
+      # @rbs () -> CST::SourceText
+      def source_text: () -> CST::SourceText
+
+      # @rbs () -> SyntaxSessionResult
+      def result: () -> SyntaxSessionResult
+
+      # Apply byte-oriented edits against the current source.
+      # @rbs (Array[CST::TextEdit] edits) -> SyntaxSessionResult
+      def apply_edits: (Array[CST::TextEdit] edits) -> SyntaxSessionResult
+
+      private
+
+      # @rbs (Array[CST::TextEdit] edits) -> SyntaxSessionResult
+      def apply_edits_locked: (Array[CST::TextEdit] edits) -> SyntaxSessionResult
+
+      # @rbs (Class parser_class, Symbol? acknowledged) -> Symbol
+      def validate_execution_profile: (Class parser_class, Symbol? acknowledged) -> Symbol
+
+      # @rbs (String | CST::SourceText source) -> CST::SourceText
+      def normalize_source: (String | CST::SourceText source) -> CST::SourceText
+
+      # @rbs (Symbol resource, Integer limit, Integer observed) -> void
+      def enforce_limit!: (Symbol resource, Integer limit, Integer observed) -> void
+
+      # @rbs () -> void
+      def cancellation_checkpoint!: () -> void
+
+      # @rbs (Event event, Parser parser) -> void
+      def handle_runtime_event: (Event event, Parser parser) -> void
+
+      # @rbs () -> void
+      def reset_operation_evidence: () -> void
+
+      # @rbs (CST::SyntaxResult parsed) -> SyntaxSessionResult
+      def snapshot: (CST::SyntaxResult parsed) -> SyntaxSessionResult
+
+      # @rbs (Array[untyped] diagnostics) -> Array[SyntaxSessionDiagnostic]
+      def immutable_diagnostics: (Array[untyped] diagnostics) -> Array[SyntaxSessionDiagnostic]
+    end
+  end
+end

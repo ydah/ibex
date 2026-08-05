@@ -113,6 +113,15 @@ conservative reuse proof. Token and parse memos remain preorder/occurrence
 state owned by one session; resource exhaustion falls back to the fresh token
 stream. See [ADR 0018](decisions/0018-conservative-incremental-syntax-reuse.md).
 
+`Runtime::SyntaxSession` is a thin generated-language service boundary over
+that same engine. Current generated classes expose only
+`:trusted_application_code`, and callers must explicitly acknowledge that
+profile because lexer actions still execute. Immutable operation snapshots add
+expected-token and reuse/fallback evidence plus cooperative cancellation and
+service bounds. The façade belongs to `ibex-runtime`; it defines neither LSP
+nor workspace semantics. See
+[ADR 0019](decisions/0019-runtime-syntax-session-boundary.md).
+
 Alternative-level `@node` declarations are preserved as Grammar IR v2
 production metadata. Runtime Ruby, static action-shadow Ruby, and generated
 RBS all derive Data node classes and Visitor/Listener hooks from that same

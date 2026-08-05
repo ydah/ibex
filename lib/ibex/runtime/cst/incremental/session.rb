@@ -22,8 +22,9 @@ module Ibex
         # @rbs @blender_enabled: bool
         # @rbs @mutex: Mutex
 
-        # @rbs (Class parser_class, SourceText source_text, ?resource_limits: ResourceLimits?, ?blender: bool) -> void
-        def initialize(parser_class, source_text, resource_limits: nil, blender: true)
+        # @rbs (Class parser_class, SourceText source_text, ?resource_limits: ResourceLimits?,
+        #   ?blender: bool, ?event_observer: Proc?) -> void
+        def initialize(parser_class, source_text, resource_limits: nil, blender: true, event_observer: nil)
           unless source_text.is_a?(SourceText)
             raise ArgumentError, "incremental_session requires an Ibex::Runtime::CST::SourceText"
           end
@@ -31,6 +32,7 @@ module Ibex
           @resource_limits = resource_limits || ResourceLimits.new #: ResourceLimits
           @parser = parser_class.__send__(:new, resource_limits: @resource_limits) #: Parser
           validate_parser!
+          @parser.observe { |event| event_observer.call(event, @parser) } if event_observer
           @cache = NodeCache.new #: NodeCache
           @source_text = source_text
           @last_relex_result = nil #: RelexResult?
@@ -64,9 +66,13 @@ module Ibex
         def edit_locked(edits)
           return @result if edits.empty?
 
+          previous_source = @source_text
           previous_memo = @token_memo
           previous_root = @result.syntax_root
           previous_parse_memo = @parse_memo
+          previous_result = @result
+          previous_relex_result = @last_relex_result
+          previous_blender = @last_blender
           @source_text = @source_text.apply(edits)
           lexed = scan_current
           return finish_full_fallback(previous_memo, edits, :lexical_error) unless lexed
@@ -74,6 +80,14 @@ module Ibex
           relexed = Relexer.reconcile(previous_memo, lexed.memo, edits)
           blender = build_blender(previous_root, previous_parse_memo, lexed.with_memo(relexed.memo), edits)
           finish_blended_edit(relexed, blender)
+        rescue StandardError
+          @source_text = previous_source
+          @token_memo = previous_memo
+          @parse_memo = previous_parse_memo
+          @result = previous_result
+          @last_relex_result = previous_relex_result
+          @last_blender = previous_blender
+          raise
         end
 
         # @rbs () -> LexedSyntax?
