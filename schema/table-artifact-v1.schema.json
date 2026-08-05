@@ -313,7 +313,7 @@
         "canonical_payload_bytes": { "type": "integer", "minimum": 1 },
         "action_cells": { "type": "integer", "minimum": 0 },
         "goto_cells": { "type": "integer", "minimum": 0 },
-        "lookup_cost": { "const": "constant-time indexed probe" },
+        "lookup_cost": { "enum": ["O(1) row-displacement probe", "O(log row width) binary search"] },
         "recognition_cost": { "type": "string", "minLength": 1 },
         "measurement": { "const": "not-measured" },
         "bounded_by_max_steps": { "const": true }

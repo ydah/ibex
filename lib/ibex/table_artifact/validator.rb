@@ -178,7 +178,10 @@ module Ibex
         )
         invalid("#{path}.goto_cells", "does not match gotos") unless goto_cells == occupied(tables.fetch("gotos"),
                                                                                             "values")
-        enum(data.fetch("lookup_cost"), "#{path}.lookup_cost", ["constant-time indexed probe"])
+        enum(
+          data.fetch("lookup_cost"), "#{path}.lookup_cost",
+          ["O(1) row-displacement probe", "O(log row width) binary search"]
+        )
         string(data.fetch("recognition_cost"), "#{path}.recognition_cost")
         enum(data.fetch("measurement"), "#{path}.measurement", ["not-measured"])
         invalid("#{path}.bounded_by_max_steps", "must be true") unless boolean(data.fetch("bounded_by_max_steps"),

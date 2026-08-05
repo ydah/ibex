@@ -54,8 +54,10 @@ and the Ruby loader additionally checks referential and canonical invariants
 that JSON Schema cannot express.
 
 `canonical_payload_bytes` is the exact byte count of compact canonical JSON for
-the payload only. `action_cells`, `goto_cells`, and the complexity strings are
-static descriptions. `measurement: not-measured` means none of them is a
+the payload only. Compact lookup is an O(1) row-displacement probe; plain sparse
+rows use O(log row width) binary search. These complexity strings and the
+occupied-cell counts are static descriptions. `measurement: not-measured`
+means none of them is a
 wall-clock, allocation, RSS, or end-to-end parser benchmark.
 
 ## Validation and trust boundary
