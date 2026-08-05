@@ -56,6 +56,16 @@ class RuntimeABIHardeningTest < Minitest::Test
     end
   end
 
+  def test_interaction_row_cannot_spoof_syntax_session_ownership
+    with_runtime_abi_root do |root|
+      original = "tests: [test/runtime/syntax_session_test.rb, test/packaging/runtime_gem_test.rb]"
+      replace_project_text(root, "docs/test-interactions.md", original, "tests: [test/runtime/parser_test.rb]")
+
+      error = assert_raises(RuntimeError) { verify_runtime_abi(root) }
+      assert_includes error.message, "interaction inventory, axes, coverage, or ownership is stale"
+    end
+  end
+
   def test_scheduled_commands_cannot_be_hidden_behind_false_condition
     with_runtime_abi_root do |root|
       condition = "if: github.event_name == 'schedule'"

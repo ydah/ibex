@@ -33,6 +33,11 @@ class SyntaxSessionTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     end
   GRAMMAR
 
+  LOCATED_SOURCE = SOURCE.sub(
+    'start: expression { raise "parser action executed" }',
+    'start: expression { result = @1; raise "parser action executed" }'
+  )
+
   PROFILE = :trusted_application_code
 
   def test_profile_is_truthful_and_must_be_acknowledged
@@ -74,6 +79,26 @@ class SyntaxSessionTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_equal %i[lexer lexer lexer lexer], runtime_parser.instance_variable_get(:@execution_sentinels)
     assert_equal "1 + 3", result.syntax_root.to_source
     refute_respond_to result, :value
+  end
+
+  def test_plain_compact_and_location_modes_share_the_session_contract
+    [
+      [:plain, SOURCE],
+      [:compact, SOURCE],
+      [:plain, LOCATED_SOURCE],
+      [:compact, LOCATED_SOURCE]
+    ].each do |table, source|
+      parser_class = generate(source, table: table)
+      assert parser_class::PARSER_TABLES.fetch(:uses_locations), "CST parsing must retain source locations"
+
+      session = parser_class.syntax_session("1 + 2", execution_profile: PROFILE)
+      result = session.apply_edits(
+        [Ibex::Runtime::CST::TextEdit.new(start: 4, delete_length: 1, insert_text: "7")]
+      )
+
+      assert_equal "1 + 7", result.syntax_root.to_source
+      assert_predicate result, :success?
+    end
   end
 
   def test_parser_failure_reports_diagnostics_and_existing_expected_tokens
@@ -399,11 +424,11 @@ class SyntaxSessionTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     true
   end
 
-  def generate(source = SOURCE)
+  def generate(source = SOURCE, table: :compact)
     ast = Ibex::Frontend::Parser.new(source, file: "syntax-session.y").parse
     grammar = Ibex::Normalizer.new(ast).normalize
     automaton = Ibex::LALR::Builder.new(grammar).build
-    generated = Ibex::Codegen::Ruby.new(automaton).generate
+    generated = Ibex::Codegen::Ruby.new(automaton, table: table).generate
     namespace = Module.new
     namespace.module_eval(generated, "generated_syntax_session.rb")
     namespace.const_get(grammar.class_name)
