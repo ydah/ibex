@@ -15,6 +15,7 @@ module Ibex
         cst
         ast_nodes
       ].freeze #: Array[String]
+      # @rbs skip
       UNAVAILABLE_V2_CONFIGURATION = %w[
         effective_parser_algorithm
         effective_parser_entries
@@ -48,7 +49,7 @@ module Ibex
       end
       module_function :to_v2
 
-      # @rbs (Grammar | Automaton value) -> (Grammar | Automaton)
+      # @rbs skip
       def to_v3(value)
         return value if value.schema_version == 3
         return to_v3(to_v2(value)) if value.schema_version == 1
@@ -134,9 +135,9 @@ module Ibex
       end
       module_function :migrate_automaton
 
-      # @rbs (Grammar grammar) -> Grammar
+      # @rbs skip
       def migrate_grammar_to_v3(grammar)
-        Grammar.new(
+        Grammar.v3(
           class_name: grammar.class_name, superclass: grammar.superclass, start: grammar.start,
           mode: grammar.mode, starts: grammar.starts,
           expect: grammar.expect, expect_rr: grammar.expect_rr, options: grammar.options,
@@ -144,24 +145,24 @@ module Ibex
           grammar_tests: grammar.grammar_tests, recovery: grammar.recovery, lexer: grammar.lexer,
           symbols: grammar.symbols, productions: grammar.productions,
           user_code: grammar.user_code, user_code_chunks: grammar.user_code_chunks,
-          conversions: grammar.conversions, warnings: grammar.warnings, schema_version: 3,
+          conversions: grammar.conversions, warnings: grammar.warnings,
           source_provenance: grammar.source_provenance, migration: migration_to_v3(grammar),
           parser_contract: ParserContract.new
         )
       end
       module_function :migrate_grammar_to_v3
 
-      # @rbs (Automaton automaton) -> Automaton
+      # @rbs skip
       def migrate_automaton_to_v3(automaton)
-        Automaton.new(
+        Automaton.v3(
           grammar: migrate_grammar_to_v3(automaton.grammar), states: automaton.states,
-          conflict_summary: automaton.conflict_summary, algorithm: automaton.algorithm, schema_version: 3,
+          conflict_summary: automaton.conflict_summary, algorithm: automaton.algorithm,
           entry_states: automaton.entry_states, entry_construction: "unknown"
         )
       end
       module_function :migrate_automaton_to_v3
 
-      # @rbs (Grammar grammar) -> migration_metadata
+      # @rbs skip
       def migration_to_v3(grammar)
         previous = grammar.migration
         unavailable = previous ? previous.fetch(:unavailable) : Array.new(0) #: Array[String]

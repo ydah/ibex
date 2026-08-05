@@ -46,4 +46,16 @@ class IRParserContractTest < Minitest::Test
 
     assert_equal "explicit entries requires a source location with a file", error.message
   end
+
+  def test_v3_factories_do_not_expand_the_frozen_constructors
+    grammar_constructor = Ibex::IR::Grammar.instance_method(:initialize).parameters.map(&:last)
+    automaton_constructor = Ibex::IR::Automaton.instance_method(:initialize).parameters.map(&:last)
+    grammar_factory = Ibex::IR::Grammar.method(:v3).parameters.map(&:last)
+    automaton_factory = Ibex::IR::Automaton.method(:v3).parameters.map(&:last)
+
+    refute_includes grammar_constructor, :parser_contract
+    refute_includes automaton_constructor, :entry_construction
+    assert_includes grammar_factory, :parser_contract
+    assert_includes automaton_factory, :entry_construction
+  end
 end

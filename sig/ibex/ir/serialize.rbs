@@ -49,10 +49,6 @@ module Ibex
 
       private def self.load_grammar_tests: (untyped tests) -> untyped
 
-      private def load_parser_contract: (untyped value) -> untyped
-
-      private def self.load_parser_contract: (untyped value) -> untyped
-
       private def symbol_source_position: (untyped symbol) -> String
 
       private def self.symbol_source_position: (untyped symbol) -> String

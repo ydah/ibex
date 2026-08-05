@@ -143,7 +143,7 @@ class GoldenFixtureTest < Minitest::Test
   # Constructor copying is deliberately local to this pre-syntax persistence
   # fixture. Source declarations will construct Grammar IR v3 directly.
   def copy_grammar(grammar, parser_contract)
-    Ibex::IR::Grammar.new(
+    Ibex::IR::Grammar.v3(
       class_name: grammar.class_name, superclass: grammar.superclass, start: grammar.start,
       mode: :extended, starts: grammar.starts,
       expect: grammar.expect, expect_rr: grammar.expect_rr,
@@ -152,7 +152,7 @@ class GoldenFixtureTest < Minitest::Test
       recovery: grammar.recovery, lexer: grammar.lexer, symbols: grammar.symbols,
       productions: grammar.productions, user_code: grammar.user_code,
       user_code_chunks: grammar.user_code_chunks, conversions: grammar.conversions,
-      warnings: grammar.warnings, schema_version: 3, source_provenance: grammar.source_provenance,
+      warnings: grammar.warnings, source_provenance: grammar.source_provenance,
       migration: nil, parser_contract: parser_contract
     )
   end

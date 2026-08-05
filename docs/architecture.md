@@ -308,7 +308,9 @@ normalization continues to write version 2 until declarative syntax is admitted,
 `IR::Migration.to_version` upgrades v1 to v2/v3 and v2 to v3. A v3 migration marks historical effective algorithm, entry
 construction, and CST trivia unavailable rather than copying current defaults into the contract. The CLI exposes the latest
 target as `ibex migrate-ir INPUT --to=3 [-o FILE]`; file output uses an atomic same-directory rename and refuses to alias the
-input. See [ADR 0020](decisions/0020-grammar-ir-parser-contract.md).
+input. The additive public `IR::Grammar.v3` factory constructs explicit v3 contracts while the frozen v0.2 `Grammar.new`
+signature remains unchanged; its typed additions are published in `sig/ibex/ir/v3.rbs`. See
+[ADR 0020](decisions/0020-grammar-ir-parser-contract.md).
 
 The v1 stabilization freeze covers required core fields, meanings, ordering,
 identity, and validation behavior. The future `x-` experimental namespace is
@@ -345,6 +347,8 @@ Automata built from Grammar IR v2 use version 2. Automaton IR v3 is selected whe
 Grammar IR, includes the parser contract in `grammar_digest`, and records `entry_construction` as `shared`, `isolated`, or the
 migration-only value `unknown`. Migration recalculates the digest from the upgraded canonical grammar and never presents
 `unknown` as the current `shared` built-in. Version-1 and version-2 automata remain loadable, validatable, and byte-stable.
+Typed callers construct v3 automata through `IR::Automaton.v3`, whose required `entry_construction` argument prevents a
+current build from silently using the migration-only `unknown` state. The frozen v0.2 `Automaton.new` signature is unchanged.
 
 `--from=grammar-ir` applies an explicit v3 contract through the typed configuration resolver before constructing tables;
 matching CLI values are allowed and conflicts are rejected with the contract location. `--from=automaton-ir` generates without

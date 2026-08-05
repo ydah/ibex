@@ -10,7 +10,8 @@ module Ibex
           ibex_ir schema_version algorithm grammar_digest grammar states conflict_summary
         ].freeze #: Array[String]
         V2_ROOT_OPTIONAL = %w[entry_states].freeze #: Array[String]
-        V3_ROOT_REQUIRED = %w[entry_construction].freeze #: Array[String]
+        # @rbs skip
+        V3_ROOT_REQUIRED = %w[entry_construction].freeze
         STATE_REQUIRED = %w[id items transitions actions gotos default_action conflicts].freeze #: Array[String]
         ACTION_TYPES = %w[shift reduce accept error].freeze #: Array[String]
         RESOLUTION_KINDS = %w[definition_order default_shift precedence associativity].freeze #: Array[String]
@@ -66,7 +67,7 @@ module Ibex
           end
         end
 
-        # @rbs (Hash[String, untyped] grammar) -> void
+        # @rbs skip
         def validate_construction_contract(grammar)
           entry_construction = enum(
             @data["entry_construction"], "$.entry_construction", %w[shared isolated unknown]
