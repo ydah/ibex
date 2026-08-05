@@ -178,14 +178,25 @@ module Ibex
         )
         invalid("#{path}.goto_cells", "does not match gotos") unless goto_cells == occupied(tables.fetch("gotos"),
                                                                                             "values")
-        enum(
-          data.fetch("lookup_cost"), "#{path}.lookup_cost",
-          ["O(1) row-displacement probe", "O(log row width) binary search"]
-        )
-        string(data.fetch("recognition_cost"), "#{path}.recognition_cost")
+        expected_lookup, expected_recognition = expected_costs(payload)
+        invalid("#{path}.lookup_cost", "does not match table representation") unless
+          data.fetch("lookup_cost") == expected_lookup
+        invalid("#{path}.recognition_cost", "does not match table representation") unless
+          data.fetch("recognition_cost") == expected_recognition
         enum(data.fetch("measurement"), "#{path}.measurement", ["not-measured"])
         invalid("#{path}.bounded_by_max_steps", "must be true") unless boolean(data.fetch("bounded_by_max_steps"),
                                                                                "#{path}.bounded_by_max_steps")
+      end
+
+      def expected_costs(payload)
+        compact = payload.fetch("table_format").fetch("representation") == "compact"
+        lookup = compact ? "O(1) row-displacement probe" : "O(log row width) binary search"
+        recognition = if compact
+                        "O(input tokens + reductions)"
+                      else
+                        "O((input tokens + reductions) * log maximum row width)"
+                      end
+        [lookup, "#{recognition}; lexer, recovery search, and semantic actions excluded"]
       end
 
       def occupied(table, values_key)
@@ -195,7 +206,7 @@ module Ibex
       end
 
       def symbol_ids(symbols, kind)
-        symbols.select { |symbol| symbol.fetch("kind") == kind }.map { |symbol| symbol.fetch("id") }
+        symbols.filter_map { |symbol| symbol.fetch("id") if symbol.fetch("kind") == kind }.to_set
       end
 
       def validate_named_digest(identity, payload, identity_name, payload_name)

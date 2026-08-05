@@ -4,7 +4,17 @@ module Ibex
   module TableArtifact
     # Recognition-only driver over internal token ids; it never loads wrapper code.
     class Executor
-      Result = Struct.new(:status, :steps, :consumed_tokens, :reason, keyword_init: true) do
+      class Result
+        attr_reader :status, :steps, :consumed_tokens, :reason
+
+        def initialize(status:, steps:, consumed_tokens:, reason:)
+          @status = status
+          @steps = steps
+          @consumed_tokens = consumed_tokens
+          @reason = reason
+          freeze
+        end
+
         def accepted? = status == :accepted
         def rejected? = status == :rejected
         def exhausted? = status == :exhausted
@@ -18,17 +28,26 @@ module Ibex
       end
 
       def recognize(token_ids, entry: nil, max_steps: 1_000_000)
-        raise ArgumentError, "max_steps must be positive" unless max_steps.positive?
+        raise ArgumentError, "max_steps must be positive" unless max_steps.is_a?(Integer) && max_steps.positive?
 
         input = validate_input(token_ids)
-        input << 0 unless input.last.zero?
+        input << 0 unless input.last&.zero?
         stack = [entry_state(entry)]
+        execute(input, stack, max_steps)
+      end
+
+      private
+
+      def execute(input, stack, max_steps)
         cursor = 0
         max_steps.times do |step|
-          code = action(stack.last, input.fetch(cursor))
-          return result(:rejected, step + 1, cursor, "no parser action") if code.nil? || code == -1
-          return result(:accepted, step + 1, cursor, nil) if code.zero?
+          return result(:rejected, step + 1, cursor, "parser shifted past end of input") if cursor >= input.length
 
+          code = action(stack.last, input.fetch(cursor))
+          immediate = immediate_result(code, input.fetch(cursor), step, cursor)
+          return immediate if immediate
+
+          code ||= -1
           if code.positive?
             stack << (code - 1)
             cursor += 1
@@ -41,7 +60,13 @@ module Ibex
         result(:exhausted, max_steps, cursor, "max_steps exceeded")
       end
 
-      private
+      def immediate_result(code, token_id, step, cursor)
+        return result(:rejected, step + 1, cursor, "no parser action") if code.nil? || code == -1
+        return unless code.zero?
+        return result(:rejected, step + 1, cursor, "accept action before end of input") unless token_id.zero?
+
+        result(:accepted, step + 1, cursor, nil)
+      end
 
       def validate_input(token_ids)
         raise ArgumentError, "token_ids must be an array" unless token_ids.is_a?(Array)
@@ -112,7 +137,7 @@ module Ibex
       end
 
       def result(status, steps, consumed, reason)
-        Result.new(status: status, steps: steps, consumed_tokens: consumed, reason: reason).freeze
+        Result.new(status: status, steps: steps, consumed_tokens: consumed, reason: reason)
       end
     end
   end

@@ -22,7 +22,7 @@ module Ibex
       private
 
       def ids_for_kind(symbols, kind)
-        symbols.filter_map { |symbol| symbol.fetch("id") if symbol.fetch("kind") == kind }
+        symbols.filter_map { |symbol| symbol.fetch("id") if symbol.fetch("kind") == kind }.to_set
       end
 
       def validate_semantic_actions(data)

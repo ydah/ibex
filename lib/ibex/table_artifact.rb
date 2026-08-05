@@ -2,6 +2,7 @@
 
 require "digest"
 require "json"
+require "set"
 require_relative "error"
 require_relative "ir"
 require_relative "tables"
@@ -23,37 +24,54 @@ module Ibex
 
     class ValidationError < Ibex::Error; end
 
-    module_function
-
-    def build(automaton, representation: :compact, cst_trivia: nil, omit_action_call: nil)
-      Builder.new(
-        automaton,
-        representation: representation,
-        cst_trivia: cst_trivia,
-        omit_action_call: omit_action_call
-      ).build
-    end
-
-    def load(source, max_bytes: DEFAULT_MAX_BYTES)
-      bytes = read_bounded(source, max_bytes)
-      unless bytes.dup.force_encoding(Encoding::UTF_8).valid_encoding?
-        raise ValidationError, "table artifact must be UTF-8 JSON"
+    class << self
+      def build(automaton, representation: :compact, cst_trivia: nil, omit_action_call: nil)
+        Builder.new(
+          automaton,
+          representation: representation,
+          cst_trivia: cst_trivia,
+          omit_action_call: omit_action_call
+        ).build
       end
 
-      Document.new(JSON.parse(bytes))
-    rescue JSON::ParserError => e
-      raise ValidationError, "invalid table artifact JSON: #{e.message}"
+      def load(source, max_bytes: DEFAULT_MAX_BYTES)
+        bytes = read_bounded(source, max_bytes)
+        unless bytes.dup.force_encoding(Encoding::UTF_8).valid_encoding?
+          raise ValidationError, "table artifact must be UTF-8 JSON"
+        end
+
+        Document.new(JSON.parse(bytes))
+      rescue JSON::ParserError => e
+        raise ValidationError, "invalid table artifact JSON: #{e.message}"
+      end
+
+      private
+
+      def read_bounded(source, max_bytes)
+        raise ArgumentError, "max_bytes must be positive" unless max_bytes.is_a?(Integer) && max_bytes.positive?
+
+        bytes = if source.respond_to?(:read)
+                  read_from(source, max_bytes)
+                else
+                  String(source)
+                end
+        raise ValidationError, "table artifact exceeds #{max_bytes} bytes" if bytes.bytesize > max_bytes
+
+        bytes
+      end
+
+      def read_from(source, max_bytes)
+        bytes = +"".b
+        loop do
+          chunk = source.read((max_bytes + 1) - bytes.bytesize)
+          break if chunk.nil? || chunk.empty?
+          raise ValidationError, "table artifact reader must return strings" unless chunk.is_a?(String)
+
+          bytes << chunk
+          break if bytes.bytesize > max_bytes
+        end
+        bytes
+      end
     end
-
-    def read_bounded(source, max_bytes)
-      raise ArgumentError, "max_bytes must be positive" unless max_bytes.positive?
-
-      bytes = source.respond_to?(:read) ? source.read(max_bytes + 1) : String(source)
-      bytes ||= ""
-      raise ValidationError, "table artifact exceeds #{max_bytes} bytes" if bytes.bytesize > max_bytes
-
-      bytes
-    end
-    private_class_method :read_bounded
   end
 end

@@ -69,6 +69,12 @@ loads generated classes or evaluates action strings. Semantic action slots are
 production-ID bindings with `verified: false`; action bodies are deliberately
 absent.
 
+Compact tables must use the unique minimal row-displacement layout produced by
+the v1 packer; unused padding is not canonical. Accept is valid only on `$eof`,
+`$eof` cannot be shifted, and default actions are limited to errors and
+reductions. The executor also converts any attempt to run beyond the bounded
+input into a rejected result rather than leaking an indexing exception.
+
 The grammar and automaton digests are provenance linkage claims copied from
 the builder input. An artifact alone cannot recompute either source object or
 establish its authenticity. A caller that has the source IR must recompute and
