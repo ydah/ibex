@@ -70,7 +70,7 @@
       "properties": {
         "logical_path": {
           "type": "string",
-          "pattern": "^input/[0-9]{4}/(?!(?:\\.|\\.\\.)$)[^/\\\\\\u0000-\\u001f\\u007f]+$"
+          "pattern": "^input/[0-9]{4}/(?!(?:\\.|\\.\\.)$)[^/\\\\\\u0000-\\u001f\\u007f]+$(?![\\s\\S])"
         },
         "sha256": { "$ref": "#/$defs/digest" },
         "bytesize": { "type": "integer", "minimum": 0 }
@@ -134,7 +134,7 @@
       "properties": {
         "logical_path": {
           "type": "string",
-          "pattern": "^table/(?!(?:\\.|\\.\\.)$)[^/\\\\\\u0000-\\u001f\\u007f]+$"
+          "pattern": "^table/(?!(?:\\.|\\.\\.)$)[^/\\\\\\u0000-\\u001f\\u007f]+$(?![\\s\\S])"
         },
         "artifact_type": { "const": "ibex.parser-table" },
         "schema_version": { "const": 1 },

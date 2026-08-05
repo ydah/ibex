@@ -137,36 +137,63 @@ class VerificationReportTest < Minitest::Test
     end
   end
 
-  def test_validator_rejects_noncanonical_nested_and_empty_logical_basenames
+  def test_validator_rejects_noncanonical_and_control_character_logical_paths
     Dir.mktmpdir("ibex-verification-report") do |directory|
       original = JSON.parse(render_report(automaton, input_for(directory, SOURCE)))
-      mutations = {
-        "input/0000/subdir/x" => ->(value) { value.dig("input", "files", 0)["logical_path"] = "input/0000/subdir/x" },
-        "input/0000/" => ->(value) { value.dig("input", "files", 0)["logical_path"] = "input/0000/" },
-        "table/subdir/x" => ->(value) { value.fetch("table")["logical_path"] = "table/subdir/x" },
-        "table/" => ->(value) { value.fetch("table")["logical_path"] = "table/" }
-      }
 
-      mutations.each do |path, mutate|
-        document = Marshal.load(Marshal.dump(original))
-        mutate.call(document)
-        error = assert_raises(Ibex::VerificationReport::ValidationError, path) do
-          Ibex::VerificationReport.validate(JSON.generate(document))
+      invalid_logical_paths.each do |kind, paths|
+        paths.each do |path|
+          document = Marshal.load(Marshal.dump(original))
+          set_logical_path(document, kind, path)
+          document.fetch("input")["digest"] =
+            Ibex::TableArtifact::Serializer.digest(document.dig("input", "files"))
+          resign_report!(document)
+          error = assert_raises(Ibex::VerificationReport::ValidationError, "#{kind}: #{path.inspect}") do
+            Ibex::VerificationReport.validate(JSON.generate(document))
+          end
+          assert_includes error.message, "logical_path", "#{kind}: #{path.inspect}"
         end
-        assert_includes error.message, "logical_path", path
       end
+    end
+  end
+
+  def test_validator_accepts_unicode_logical_basenames
+    Dir.mktmpdir("ibex-verification-report") do |directory|
+      input = input_for(directory, SOURCE, basename: "文法.y")
+      value = build_automaton(SOURCE, input.path)
+      document = Ibex::VerificationReport.validate(
+        render_report(value, input, table_path: "表.ibex.json")
+      )
+
+      assert_equal "input/0000/文法.y", document.dig("input", "files", 0, "logical_path")
+      assert_equal "table/表.ibex.json", document.dig("table", "logical_path")
     end
   end
 
   private
 
-  def render_report(value, input, strict: false, max_states: 100_000)
+  def render_report(value, input, strict: false, max_states: 100_000, table_path: "parser.tables.ibex.json")
     canonical = Ibex::VerificationReport.canonical_automaton(value, source_records: [input])
     table = Ibex::TableArtifact.build(canonical)
     Ibex::VerificationReport.render(
-      canonical, table: table, source_records: [input], table_path: "parser.tables.ibex.json",
+      canonical, table: table, source_records: [input], table_path: table_path,
                  strict: strict, max_states: max_states
     )
+  end
+
+  def invalid_logical_paths
+    {
+      input: ["input/0000/subdir/x", "input/0000/", "input/0000/x\n", "input/0000/x\r", "input/0000/x\u0001"],
+      table: ["table/subdir/x", "table/", "table/x\n", "table/x\r", "table/x\u0001"]
+    }
+  end
+
+  def set_logical_path(document, kind, path)
+    if kind == :input
+      document.dig("input", "files", 0)["logical_path"] = path
+    else
+      document.fetch("table")["logical_path"] = path
+    end
   end
 
   def input_for(directory, source, basename: "grammar.y")
