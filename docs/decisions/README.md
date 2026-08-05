@@ -70,3 +70,4 @@ Use [`0000-template.md`](0000-template.md) for a new implementation decision.
 - [0019: Keep generated-language syntax sessions in the runtime](0019-runtime-syntax-session-boundary.md)
 - [0020: Persist parser contracts in Grammar IR](0020-grammar-ir-parser-contract.md)
 - [0021: Persist executable parser tables as a data-only sidecar](0021-data-only-parser-table-sidecar.md)
+- [0022: Bind scoped verification evidence through the generation manifest](0022-manifest-bound-verification-report.md)
