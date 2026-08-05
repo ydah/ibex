@@ -21,6 +21,7 @@ module Ibex
     #     equiv_max_configurations: Integer,
     #     verify_max_states: Integer,
     #     verify_max_items: Integer,
+    #     configuration_explicit: Array[Symbol],
     #     ?state: Integer,
     #     ?conflict_index: Integer,
     #     ?messages: String,
@@ -31,6 +32,8 @@ module Ibex
     #   private def activate_cli_feature: (Symbol) -> void
     #   private def configuration_value: (String) -> untyped
     #   private def set_configuration_option: (Symbol, untyped) -> void
+    #   private def local_configuration_value: (Hash[Symbol, untyped], String) -> untyped
+    #   private def set_local_configuration_option: (Hash[Symbol, untyped], Symbol, untyped) -> void
 
     private
 
@@ -70,7 +73,7 @@ module Ibex
               "(fix):1:1: import Bison source to a canonical analysis file before requesting source repairs"
       end
       grammar = normalize_grammar_path(path)
-      algorithm = configuration_value("parser.algorithm")
+      algorithm = settings.fetch(:algorithm)
       automaton = LALR::Builder.new(grammar, algorithm: algorithm).build
       message_file = settings[:messages]
       messages = ErrorMessages.load(message_file) if message_file
@@ -97,18 +100,17 @@ module Ibex
         mode: Configuration::Registry.fetch("grammar.mode").default, format: "json",
         max_candidates: 32, max_builds: 32, equiv_samples: 100,
         equiv_max_tokens: 8, equiv_max_configurations: 50_000,
-        verify_max_states: 100_000, verify_max_items: 1_000_000
+        verify_max_states: 100_000, verify_max_items: 1_000_000, configuration_explicit: []
       } #: fix_options
       parser = OptionParser.new do |options|
         options.banner = "Usage: ibex fix [options] GRAMMAR"
         add_fix_target_options(options, settings)
         add_fix_budget_options(options, settings)
         options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "current construction algorithm") do |value|
-          settings[:algorithm] = value.to_sym
-          set_configuration_option(:algorithm, value.to_sym)
+          set_local_configuration_option(settings, :algorithm, value.to_sym)
         end
         options.on("--mode=MODE", %w[default extended], "grammar mode") do |value|
-          settings[:mode] = value.to_sym
+          set_local_configuration_option(settings, :mode, value.to_sym)
           set_configuration_option(:mode, value.to_sym)
         end
         options.on("--apply[=ID]", "atomically apply one safe source proposal") do |value|
@@ -121,6 +123,7 @@ module Ibex
         options.on("--help", "show help") { settings[:help] = options.to_s }
       end
       settings[:paths] = parser.parse(arguments)
+      settings[:algorithm] = local_configuration_value(settings, "parser.algorithm")
       settings
     end
 

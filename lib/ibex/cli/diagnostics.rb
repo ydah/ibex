@@ -15,12 +15,13 @@ module Ibex
     #     format: String,
     #     max_diagnostics: Integer,
     #     mode: Symbol,
+    #     configuration_explicit: Array[Symbol],
     #     ?help: bool
     #   }
     #
     #   private def input_path: (Array[String]) -> String
-    #   private def configuration_value: (String) -> untyped
-    #   private def select_configuration_mode: (String) -> void
+    #   private def local_configuration_value: (Hash[Symbol, untyped], String) -> untyped
+    #   private def set_local_configuration_option: (Hash[Symbol, untyped], Symbol, untyped) -> void
 
     private
 
@@ -28,11 +29,11 @@ module Ibex
     def run_diagnose_command(arguments)
       settings = {
         format: "text", max_diagnostics: DEFAULT_MAX_DIAGNOSTICS,
-        mode: Configuration::Registry.fetch("grammar.mode").default
+        mode: Configuration::Registry.fetch("grammar.mode").default, configuration_explicit: []
       } #: diagnostic_settings
       parser = diagnostics_option_parser(settings)
       remaining = parser.parse(arguments)
-      settings[:mode] = configuration_value("grammar.mode")
+      settings[:mode] = local_configuration_value(settings, "grammar.mode")
       if settings[:help]
         @stdout.puts(parser)
         return 0
@@ -82,7 +83,9 @@ module Ibex
         options.on("--max-diagnostics=N", "positive diagnostic limit") do |value|
           settings[:max_diagnostics] = positive_diagnostic_limit(value)
         end
-        options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| select_configuration_mode(value) }
+        options.on("--mode=MODE", %w[default extended], "grammar mode") do |value|
+          set_local_configuration_option(settings, :mode, value.to_sym)
+        end
         options.on("--help", "show help") { settings[:help] = true }
       end
     end

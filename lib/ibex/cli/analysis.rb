@@ -15,11 +15,13 @@ module Ibex
     #     algorithm: Symbol,
     #     mode: Symbol,
     #     format: String,
+    #     configuration_explicit: Array[Symbol],
     #     ?help: String
     #   }
     #   private def normalize_grammar_path: (String) -> IR::Grammar
-    #   private def configuration_value: (String) -> untyped
-    #   private def mark_configuration_option: (Symbol) -> void
+    #   private def set_configuration_option: (Symbol, untyped) -> void
+    #   private def local_configuration_value: (Hash[Symbol, untyped], String) -> untyped
+    #   private def set_local_configuration_option: (Hash[Symbol, untyped], Symbol, untyped) -> void
 
     private
 
@@ -33,7 +35,7 @@ module Ibex
       paths = settings.fetch(:paths)
       raise Ibex::Error, "(diff):1:1: diff requires exactly two grammar or IR files" unless paths.length == 2
 
-      algorithm = configuration_value("parser.algorithm")
+      algorithm = settings.fetch(:algorithm)
       before = load_analysis_automaton(paths.fetch(0), algorithm)
       after = load_analysis_automaton(paths.fetch(1), algorithm)
       report = Diff.new(before, after).to_h
@@ -51,7 +53,7 @@ module Ibex
       paths = settings.fetch(:paths)
       raise Ibex::Error, "(metrics):1:1: metrics requires exactly one grammar or IR file" unless paths.length == 1
 
-      automaton = load_analysis_automaton(paths.fetch(0), configuration_value("parser.algorithm"))
+      automaton = load_analysis_automaton(paths.fetch(0), settings.fetch(:algorithm))
       report = Metrics.new(automaton).to_h
       write_analysis_report(report, settings.fetch(:format))
       0
@@ -61,24 +63,22 @@ module Ibex
     def analysis_options(arguments, command, operands:)
       settings = {
         paths: [], algorithm: Configuration::Registry.fetch("parser.algorithm").default,
-        mode: Configuration::Registry.fetch("grammar.mode").default, format: "json"
+        mode: Configuration::Registry.fetch("grammar.mode").default, format: "json", configuration_explicit: []
       } #: analysis_options
       parser = OptionParser.new do |options|
         options.banner = "Usage: ibex #{command} [options] #{operands}"
         options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "algorithm for grammar inputs") do |value|
-          settings[:algorithm] = value.to_sym
-          mark_configuration_option(:algorithm)
+          set_local_configuration_option(settings, :algorithm, value.to_sym)
         end
         options.on("--mode=MODE", %w[default extended], "grammar mode") do |value|
-          settings[:mode] = value.to_sym
-          mark_configuration_option(:mode)
+          set_local_configuration_option(settings, :mode, value.to_sym)
+          set_configuration_option(:mode, value.to_sym)
         end
         options.on("--format=FORMAT", %w[json text], "json or text") { |value| settings[:format] = value }
         options.on("--help", "show help") { settings[:help] = options.to_s }
       end
       settings[:paths] = parser.parse(arguments)
-      @options[:algorithm] = settings.fetch(:algorithm)
-      @options[:mode] = settings.fetch(:mode)
+      settings[:algorithm] = local_configuration_value(settings, "parser.algorithm")
       settings
     end
 

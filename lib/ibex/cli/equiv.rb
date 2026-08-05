@@ -21,11 +21,14 @@ module Ibex
     #     mode: Symbol,
     #     format: String,
     #     rule_map: Hash[String, String],
+    #     configuration_explicit: Array[Symbol],
     #     ?help: String
     #   }
     #   private def normalize_grammar_path: (String) -> IR::Grammar
     #   private def configuration_value: (String) -> untyped
     #   private def set_configuration_option: (Symbol, untyped) -> void
+    #   private def local_configuration_value: (Hash[Symbol, untyped], String) -> untyped
+    #   private def set_local_configuration_option: (Hash[Symbol, untyped], Symbol, untyped) -> void
 
     private
 
@@ -39,7 +42,7 @@ module Ibex
       paths = settings.fetch(:paths)
       raise Ibex::Error, "(equiv):1:1: equiv requires exactly two grammar or IR files" unless paths.length == 2
 
-      algorithm = configuration_value("parser.algorithm")
+      algorithm = settings.fetch(:algorithm)
       left = load_equiv_automaton(paths.fetch(0), algorithm)
       right = load_equiv_automaton(paths.fetch(1), algorithm)
       comparison = Equiv.new(
@@ -67,11 +70,10 @@ module Ibex
         options.banner = "Usage: ibex equiv [options] LEFT RIGHT"
         add_equiv_search_options(options, settings)
         options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "algorithm for grammar inputs") do |value|
-          settings[:algorithm] = value.to_sym
-          set_configuration_option(:algorithm, value.to_sym)
+          set_local_configuration_option(settings, :algorithm, value.to_sym)
         end
         options.on("--mode=MODE", %w[default extended], "grammar mode") do |value|
-          settings[:mode] = value.to_sym
+          set_local_configuration_option(settings, :mode, value.to_sym)
           set_configuration_option(:mode, value.to_sym)
         end
         options.on("--map=OLD=NEW", "declare a nonterminal correspondence; repeatable") do |value|
@@ -86,6 +88,7 @@ module Ibex
         options.on("--help", "show help") { settings[:help] = options.to_s }
       end
       settings[:paths] = parser.parse(arguments)
+      settings[:algorithm] = local_configuration_value(settings, "parser.algorithm")
       settings
     end
 
@@ -95,7 +98,8 @@ module Ibex
         paths: [], sample_count: 100, seed: 0, max_tokens: 8, max_configurations: 50_000,
         max_actions: Equiv::DEFAULT_MAX_ACTIONS, max_stack: Equiv::DEFAULT_MAX_STACK,
         algorithm: Configuration::Registry.fetch("parser.algorithm").default,
-        mode: Configuration::Registry.fetch("grammar.mode").default, format: "json", rule_map: {}
+        mode: Configuration::Registry.fetch("grammar.mode").default, format: "json", rule_map: {},
+        configuration_explicit: []
       }
     end
 
