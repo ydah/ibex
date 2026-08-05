@@ -15,6 +15,8 @@ module Ibex
 
     private def warning_categories: (String) -> Array[Symbol]
 
+    private def select_configuration_mode: (String) -> void
+
     private
 
     # @rbs (Array[String] arguments) -> Integer

@@ -4,6 +4,7 @@ require "json"
 require "optparse"
 require_relative "version"
 require_relative "error"
+require_relative "configuration"
 require_relative "messages"
 require_relative "artifact_set"
 require_relative "generation_input"
@@ -179,6 +180,7 @@ module Ibex
     # @rbs @stderr: _CLIOutput
     # @rbs @options: cli_options
     # @rbs @language: String
+    # @rbs @configuration_explicit_options: Hash[Symbol, bool]
 
     # rubocop:disable Layout/LineLength
     # @rbs (Array[String] arguments, ?stdin: _CLIInput, ?stdout: _CLIOutput, ?stderr: _CLIOutput, ?watch_clock: (^() -> Float)?, ?watch_sleeper: (^(Float) -> void)?, ?watch_iteration_hook: (^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil))?) -> Integer
@@ -199,8 +201,12 @@ module Ibex
       @watch_sleeper = watch_sleeper || ->(seconds) { sleep(seconds) }
       @watch_iteration_hook = watch_iteration_hook || ->(_event, _iteration, _paths) {}
       @language = Messages.language(ENV.fetch("IBEX_LANG", nil))
-      @options = { emit: "ruby", mode: :default, table: :compact, line_convert: true }
+      @options = {
+        emit: "ruby", mode: Configuration::Registry.fetch("grammar.mode").default,
+        table: Configuration::Registry.fetch("table.representation").default, line_convert: true
+      }
                  .merge(CLICounterexampleOptions::DEFAULTS)
+      @configuration_explicit_options = {}
     end
     # rubocop:enable Layout/LineLength
 
@@ -231,6 +237,34 @@ module Ibex
     end
 
     private
+
+    # @rbs (Symbol name) -> void
+    def mark_configuration_option(name)
+      @configuration_explicit_options[name] = true
+    end
+
+    # @rbs (Symbol name, untyped value) -> void
+    def set_configuration_option(name, value)
+      @options[name] = value
+      mark_configuration_option(name)
+    end
+
+    # @rbs (String value) -> void
+    def select_configuration_mode(value)
+      set_configuration_option(:mode, value.to_sym)
+    end
+
+    # @rbs () -> Configuration::Resolver
+    def effective_configuration
+      Configuration::CLIAdapter.new(
+        @options, explicit_keys: @configuration_explicit_options.keys
+      ).resolve
+    end
+
+    # @rbs (String name) -> untyped
+    def configuration_value(name)
+      effective_configuration.value(name)
+    end
 
     # @rbs (Array[String] arguments) -> Array[String]
     def extract_language(arguments)
@@ -331,25 +365,25 @@ module Ibex
       options.on("--from=FORMAT", %w[grammar-ir automaton-ir], "resume from IR JSON") do |value|
         @options[:from] = value
       end
-      options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
+      options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| select_configuration_mode(value) }
       options.on("--table=FORMAT", %w[plain compact], "parser table format") do |value|
-        @options[:table] = value.to_sym
+        set_configuration_option(:table, value.to_sym)
       end
       options.on(
         "--cst-trivia=POLICY",
         %w[leading balanced drop attach],
         "leading, balanced, drop, or attach (alias for leading)"
       ) do |value|
-        @options[:cst_trivia] = value.to_sym
+        set_configuration_option(:cst_trivia, value.to_sym)
       end
       options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
-        @options[:algorithm] = value.to_sym
+        set_configuration_option(:algorithm, value.to_sym)
       end
       options.on("--suggest-ielr", "check whether IELR removes unexpected LALR conflicts") do
         @options[:suggest_ielr] = true
       end
       options.on("--entry-isolation", "build independent state sets for each start symbol") do
-        @options[:entry_isolation] = true
+        set_configuration_option(:entry_isolation, true)
       end
       options.on("--warnings=CATEGORIES", "all, error, all,error, or none") do |value|
         @options[:warnings] = warning_categories(value)
@@ -360,9 +394,15 @@ module Ibex
     # @rbs (OptionParser options) -> void
     def add_output_options(options)
       options.on("-o", "--output-file=FILE", "generated parser path") { |value| @options[:output] = value }
-      options.on("-E", "--embedded", "embed the Pure Ruby runtime") { @options[:embedded] = true }
-      options.on("-t", "--debug", "generate a debug-capable parser") { @options[:debug] = true }
-      options.on("-g", "obsolete alias for --debug") { @options[:debug] = true }
+      options.on("-E", "--embedded", "embed the Pure Ruby runtime") do
+        set_configuration_option(:embedded, true)
+      end
+      options.on("-t", "--debug", "generate a debug-capable parser") do
+        set_configuration_option(:debug, true)
+      end
+      options.on("-g", "obsolete alias for --debug") do
+        set_configuration_option(:debug, true)
+      end
       options.on("-v", "--verbose", "write an automaton report") { @options[:verbose] = true }
       add_counterexample_options(options)
       add_signature_output_options(options)
@@ -380,7 +420,7 @@ module Ibex
         @options[:log_file] = value
       end
       options.on("-e", "--executable [RUBY]", "add a shebang") do |value|
-        @options[:executable] = value || "/usr/bin/env ruby"
+        set_configuration_option(:executable, value || "/usr/bin/env ruby")
       end
     end
 
@@ -396,17 +436,23 @@ module Ibex
 
     # @rbs (OptionParser options) -> void
     def add_compatibility_options(options)
-      options.on("-F", "--frozen", "emit frozen string literals") { @options[:frozen] = true }
+      options.on("-F", "--frozen", "emit frozen string literals") do
+        set_configuration_option(:frozen, true)
+      end
       options.on("--line-convert-all", "convert all source lines") do
-        @options[:line_convert] = true
         @options[:line_convert_all] = true
+        set_configuration_option(:line_convert, true)
       end
       options.on("-l", "--no-line-convert", "use generated-file action lines") do
-        @options[:line_convert] = false
         @options[:line_convert_all] = false
+        set_configuration_option(:line_convert, false)
       end
-      options.on("-a", "--no-omit-actions", "generate implicit action methods") { @options[:omit_actions] = false }
-      options.on("--superclass=CLASS", "override parser superclass") { |value| @options[:superclass] = value }
+      options.on("-a", "--no-omit-actions", "generate implicit action methods") do
+        set_configuration_option(:omit_actions, false)
+      end
+      options.on("--superclass=CLASS", "override parser superclass") do |value|
+        set_configuration_option(:superclass, value)
+      end
       options.on("--check", "verify generated parser content without rewriting") { @options[:verify_output] = true }
       options.on("-C", "--check-only", "check grammar and exit") { @options[:check_only] = true }
       options.on("-S", "--output-status", "show pipeline status") { @options[:status] = true }
@@ -444,7 +490,7 @@ module Ibex
 
     # @rbs () -> void
     def validate_generation_options
-      if @options[:entry_isolation] && @options[:from] == "automaton-ir"
+      if configuration_value("parser.entries") == :isolated && @options[:from] == "automaton-ir"
         raise Ibex::Error, "(cli):1:1: --entry-isolation cannot be combined with --from=automaton-ir"
       end
 
@@ -596,14 +642,14 @@ module Ibex
       validate_generation_paths!(path, source_paths: resolution.files)
       return emit_ast(resolution.root) if @options[:emit] == "ast"
 
-      grammar = Normalizer.new(resolution, mode: @options[:mode]).normalize
+      grammar = Normalizer.new(resolution, mode: configuration_value("grammar.mode")).normalize
       dispatch_grammar(grammar, path)
     end
 
     # @rbs (String path) -> Frontend::Resolution
     def resolve_grammar_path(path)
       loader = Frontend::SourceLoader.new(record_reads: true)
-      @last_resolver = Frontend::Resolver.new(path, mode: @options[:mode], loader: loader)
+      @last_resolver = Frontend::Resolver.new(path, mode: configuration_value("grammar.mode"), loader: loader)
       @last_resolver.resolve
     end
 
@@ -617,7 +663,7 @@ module Ibex
         return Normalizer.new(ast, mode: :extended).normalize
       end
 
-      Normalizer.new(resolve_grammar_path(path), mode: @options[:mode]).normalize
+      Normalizer.new(resolve_grammar_path(path), mode: configuration_value("grammar.mode")).normalize
     end
 
     # @rbs (String source) -> bool
@@ -752,18 +798,23 @@ module Ibex
 
     # @rbs (IR::Automaton automaton, String input_path) -> Integer
     def generate_ruby(automaton, input_path)
+      configuration = effective_configuration
+      line_mapping = configuration.value("source.line_mapping")
+      executable = configuration.value("build.executable")
       source = Codegen::Ruby.new(
-        automaton, table: @options[:table], embedded: @options.fetch(:embedded, false),
-                   line_convert: @options.fetch(:line_convert), debug: @options.fetch(:debug, false),
-                   line_convert_all: @options.fetch(:line_convert_all, false),
-                   omit_action_call: @options[:omit_actions], superclass: @options[:superclass],
-                   executable: @options[:executable], cst_trivia: effective_cst_trivia,
+        automaton, table: configuration.value("table.representation"),
+                   embedded: configuration.value("runtime.embedded"),
+                   line_convert: line_mapping != :none, debug: configuration.value("build.debug"),
+                   line_convert_all: line_mapping == :all,
+                   omit_action_call: configuration.value("actions.omit_calls"),
+                   superclass: configuration.value("parser.superclass"),
+                   executable: executable, cst_trivia: configuration.value("cst.trivia"),
                    error_messages: configured_error_messages(automaton)
       ).generate
       output_path = @options[:output] || default_output_path(input_path, ".rb")
       action_source = action_source_source(automaton) if @options[:action_source]
       write_action_source(output_path, action_source) if action_source
-      register_artifact(:parser, output_path, source, mode: (0o755 if @options[:executable]), status: true)
+      register_artifact(:parser, output_path, source, mode: (0o755 if executable), status: true)
       write_rbs(automaton, output_path) if @options[:rbs]
       finish_artifact_generation(@generation_sources)
     end
@@ -804,8 +855,10 @@ module Ibex
     # @rbs (IR::Automaton automaton) -> String
     def rbs_source(automaton)
       require_relative "codegen/rbs"
+      configuration = effective_configuration
       Codegen::RBS.new(
-        automaton, superclass: @options[:superclass], omit_action_call: @options[:omit_actions]
+        automaton, superclass: configuration.value("parser.superclass"),
+                   omit_action_call: configuration.value("actions.omit_calls")
       ).generate
     end
 
@@ -827,7 +880,9 @@ module Ibex
     # @rbs (IR::Automaton automaton) -> String
     def action_source_source(automaton)
       require_relative "codegen/action_source"
-      Codegen::ActionSource.new(automaton, omit_action_call: @options[:omit_actions]).generate
+      Codegen::ActionSource.new(
+        automaton, omit_action_call: configuration_value("actions.omit_calls")
+      ).generate
     end
 
     # @rbs (IR::Automaton automaton, String input_path) -> Integer
@@ -840,10 +895,10 @@ module Ibex
 
     # @rbs (IR::Grammar grammar, String input_path) -> IR::Automaton
     def build_automaton(grammar, input_path)
-      algorithm = @options[:algorithm] || :lalr
+      algorithm = configuration_value("parser.algorithm")
       report_status("building #{algorithm} automaton")
       automaton = LALR::Builder.new(
-        grammar, algorithm: algorithm, entry_isolation: @options[:entry_isolation] == true
+        grammar, algorithm: algorithm, entry_isolation: configuration_value("parser.entries") == :isolated
       ).build
       report_conflicts(automaton, input_path)
       suggest_ielr(automaton, input_path)

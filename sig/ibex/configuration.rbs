@@ -1,0 +1,216 @@
+# Generated from lib/ibex/configuration.rb with RBS::Inline
+
+module Ibex
+  # Typed, provenance-preserving effective configuration.
+  module Configuration
+    OWNER_NAMES: Hash[Symbol, String]
+
+    POLICIES: Array[Symbol]
+
+    ORIGIN_KINDS: Array[Symbol]
+
+    BOOLEAN_VALUES: Array[bool]
+
+    OWNER_POLICIES: Hash[Symbol, Symbol]
+
+    # One closed definition of a configuration concept and its value domain.
+    class Key
+      attr_reader name: String
+
+      attr_reader type: Symbol
+
+      attr_reader default: untyped
+
+      attr_reader owner: Symbol
+
+      attr_reader policy: Symbol
+
+      attr_reader allowed_values: Array[untyped]?
+
+      attr_reader cli_option: Symbol?
+
+      # @rbs (String name, type: Symbol, default: untyped, owner: Symbol, policy: Symbol,
+      #   ?allowed_values: Array[untyped]?, ?cli_option: Symbol?) -> void
+      def initialize: (String name, type: Symbol, default: untyped, owner: Symbol, policy: Symbol, ?allowed_values: Array[untyped]?, ?cli_option: Symbol?) -> void
+
+      # Validate and defensively freeze a value from an adapter or declaration.
+      # @rbs (untyped value) -> untyped
+      def validate: (untyped value) -> untyped
+
+      # @rbs () -> String
+      def owner_name: () -> String
+
+      private
+
+      # @rbs (String name, Symbol owner, Symbol policy) -> void
+      def validate_identity!: (String name, Symbol owner, Symbol policy) -> void
+
+      # @rbs (Symbol type, Symbol policy, Symbol? cli_option) -> void
+      def validate_shape!: (Symbol type, Symbol policy, Symbol? cli_option) -> void
+
+      # @rbs (untyped value) -> untyped
+      def immutable: (untyped value) -> untyped
+
+      # @rbs (untyped value) -> bool
+      def valid_type?: (untyped value) -> bool
+    end
+
+    # Where a selected configuration value came from.
+    class Origin
+      attr_reader kind: Symbol
+
+      attr_reader location: Location?
+
+      # @rbs (Symbol kind, ?location: Location?) -> void
+      def initialize: (Symbol kind, ?location: Location?) -> void
+
+      # @rbs () -> Hash[String, untyped]
+      def to_h: () -> Hash[String, untyped]
+
+      # @rbs () -> String
+      def label: () -> String
+
+      private
+
+      # @rbs (Location location) -> Hash[String, untyped]
+      def stringify_location: (Location location) -> Hash[String, untyped]
+    end
+
+    # A typed effective value plus the evidence needed to explain it.
+    class Value
+      attr_reader key: Key
+
+      attr_reader value: untyped
+
+      attr_reader origin: Origin
+
+      attr_reader explicit: bool
+
+      attr_reader canonical: bool
+
+      attr_reader declared_value: untyped
+
+      # @rbs (Key key, untyped value, origin: Origin, explicit: bool, canonical: bool,
+      #   ?declared_value: untyped) -> void
+      def initialize: (Key key, untyped value, origin: Origin, explicit: bool, canonical: bool, ?declared_value: untyped) -> void
+
+      # @rbs () -> Hash[String, untyped]
+      def to_h: () -> Hash[String, untyped]
+
+      private
+
+      # @rbs (untyped value) -> untyped
+      def json_value: (untyped value) -> untyped
+    end
+
+    # A fixed/minimum request that contradicts the declared contract.
+    class Conflict < Ibex::Error
+      attr_reader key: Key
+
+      attr_reader declared: Value
+
+      attr_reader requested: Value
+
+      # @rbs (Key key, Value declared, Value requested) -> void
+      def initialize: (Key key, Value declared, Value requested) -> void
+    end
+
+    # Closed definitions shared by generation, grammar tests, and analyses.
+    module Registry
+      DEFINITIONS: Array[Key]
+
+      BY_NAME: Hash[String, Key]
+
+      # @rbs (String name) -> Key
+      def self.fetch: (String name) -> Key
+
+      # @rbs () -> Array[Key]
+      def self.keys: () -> Array[Key]
+    end
+
+    # Applies fixed/minimum override algebra and exposes deterministic evidence.
+    class Resolver
+      attr_reader values: Array[Value]
+
+      # @rbs (?keys: Array[Key], ?grammar: Hash[String, untyped], ?project: Hash[String, untyped],
+      #   ?cli: Hash[String, untyped], ?analysis_overrides: Hash[String, untyped],
+      #   ?locations: Hash[Symbol, Hash[String, Location]]) -> void
+      def initialize: (?keys: Array[Key], ?grammar: Hash[String, untyped], ?project: Hash[String, untyped], ?cli: Hash[String, untyped], ?analysis_overrides: Hash[String, untyped], ?locations: Hash[Symbol, Hash[String, Location]]) -> void
+
+      # @rbs (String name) -> Value
+      def fetch: (String name) -> Value
+
+      # @rbs (String name) -> untyped
+      def value: (String name) -> untyped
+
+      # @rbs () -> Hash[String, Array[Hash[String, untyped]]]
+      def to_h: () -> Hash[String, Array[Hash[String, untyped]]]
+
+      # Deterministic JSON independent of caller hash insertion order.
+      # @rbs () -> String
+      def dump: () -> String
+
+      private
+
+      # @rbs (Symbol kind, Hash[String, untyped] entries) -> void
+      def validate_source!: (Symbol kind, Hash[String, untyped] entries) -> void
+
+      # @rbs (Hash[Symbol, Hash[String, Location]] locations,
+      #   Hash[Symbol, Hash[String, untyped]] sources) -> void
+      def validate_locations!: (Hash[Symbol, Hash[String, Location]] locations, Hash[Symbol, Hash[String, untyped]] sources) -> void
+
+      # @rbs (Key key, Hash[Symbol, Hash[String, untyped]] sources,
+      #   Hash[Symbol, Hash[String, Location]] locations) -> Value
+      def resolve_key: (Key key, Hash[Symbol, Hash[String, untyped]] sources, Hash[Symbol, Hash[String, Location]] locations) -> Value
+
+      # @rbs (Key key, Value builtin, Hash[Symbol, Hash[String, untyped]] sources,
+      #   Hash[Symbol, Hash[String, Location]] locations) -> Value
+      def resolve_fixed: (Key key, Value builtin, Hash[Symbol, Hash[String, untyped]] sources, Hash[Symbol, Hash[String, Location]] locations) -> Value
+
+      # @rbs (Key key, Value? grammar, Value declared, Array[Value] requested) -> void
+      def reject_fixed_conflicts!: (Key key, Value? grammar, Value declared, Array[Value] requested) -> void
+
+      # @rbs (Key key, Value builtin, Hash[Symbol, Hash[String, untyped]] sources,
+      #   Hash[Symbol, Hash[String, Location]] locations) -> Value
+      def resolve_minimum: (Key key, Value builtin, Hash[Symbol, Hash[String, untyped]] sources, Hash[Symbol, Hash[String, Location]] locations) -> Value
+
+      # @rbs (Key key, Value builtin, Hash[Symbol, Hash[String, untyped]] sources,
+      #   Hash[Symbol, Hash[String, Location]] locations) -> Value
+      def resolve_override: (Key key, Value builtin, Hash[Symbol, Hash[String, untyped]] sources, Hash[Symbol, Hash[String, Location]] locations) -> Value
+
+      # @rbs (Key key, Symbol kind, Hash[Symbol, Hash[String, untyped]] sources,
+      #   Hash[Symbol, Hash[String, Location]] locations) -> Value?
+      def source_value: (Key key, Symbol kind, Hash[Symbol, Hash[String, untyped]] sources, Hash[Symbol, Hash[String, Location]] locations) -> Value?
+
+      # @rbs (Key key, untyped raw, Symbol kind, Hash[Symbol, Hash[String, Location]] locations,
+      #   explicit: bool) -> Value
+      def value_from: (Key key, untyped raw, Symbol kind, Hash[Symbol, Hash[String, Location]] locations, explicit: bool) -> Value
+
+      # @rbs (Symbol kind, String name, Hash[Symbol, Hash[String, Location]] locations) -> Origin
+      def origin: (Symbol kind, String name, Hash[Symbol, Hash[String, Location]] locations) -> Origin
+    end
+
+    # Converts the existing internal CLI option hash into canonical concepts.
+    class CLIAdapter
+      # @rbs (Hash[Symbol, untyped] options, ?explicit_keys: Array[Symbol]) -> void
+      def initialize: (Hash[Symbol, untyped] options, ?explicit_keys: Array[Symbol]) -> void
+
+      # @rbs () -> Resolver
+      def resolve: () -> Resolver
+
+      private
+
+      # @rbs () -> Hash[String, untyped]
+      def canonical_options: () -> Hash[String, untyped]
+
+      # @rbs (Symbol name, untyped value) -> untyped
+      def convert: (Symbol name, untyped value) -> untyped
+
+      # @rbs (untyped value) -> untyped
+      def convert_entry_isolation: (untyped value) -> untyped
+
+      # @rbs (untyped value) -> untyped
+      def convert_line_mapping: (untyped value) -> untyped
+    end
+  end
+end

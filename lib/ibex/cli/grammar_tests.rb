@@ -19,14 +19,14 @@ module Ibex
     #   private def resolve_grammar_path: (String) -> Frontend::Resolution
     #   private def handle_grammar_warnings: (IR::Grammar, String) -> void
     #   private def build_automaton: (IR::Grammar, String) -> IR::Automaton
+    #   private def configuration_value: (String) -> untyped
+    #   private def mark_configuration_option: (Symbol) -> void
 
     private
 
     # @rbs (Array[String] arguments) -> Integer
     def run_grammar_tests_command(arguments)
-      settings = {
-        mode: :default, algorithm: :lalr, entry_isolation: false, timeout: GrammarTests::DEFAULT_TIMEOUT, coverage: nil
-      } #: grammar_test_settings
+      settings = default_grammar_test_settings
       options = grammar_test_option_parser(settings)
       remaining = options.parse(arguments)
       return print_help(options) if settings[:help]
@@ -39,7 +39,7 @@ module Ibex
       @options[:algorithm] = settings[:algorithm]
       @options[:entry_isolation] = settings[:entry_isolation]
       resolution = resolve_grammar_path(path)
-      grammar = Normalizer.new(resolution, mode: settings[:mode]).normalize
+      grammar = Normalizer.new(resolution, mode: configuration_value("grammar.mode")).normalize
       handle_grammar_warnings(grammar, path)
       automaton = build_automaton(grammar, path)
       runner = GrammarTests::Runner.new(automaton, timeout: settings[:timeout])
@@ -51,16 +51,31 @@ module Ibex
       render_grammar_test_coverage(runner.production_coverage(results), coverage, failures)
     end
 
+    # @rbs () -> grammar_test_settings
+    def default_grammar_test_settings
+      {
+        mode: Configuration::Registry.fetch("grammar.mode").default,
+        algorithm: Configuration::Registry.fetch("parser.algorithm").default,
+        entry_isolation: Configuration::Registry.fetch("parser.entries").default == :isolated,
+        timeout: GrammarTests::DEFAULT_TIMEOUT, coverage: nil
+      }
+    end
+
     # @rbs (grammar_test_settings settings) -> OptionParser
     def grammar_test_option_parser(settings)
       OptionParser.new do |options|
         options.banner = "Usage: ibex test [options] grammarfile"
-        options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| settings[:mode] = value.to_sym }
+        options.on("--mode=MODE", %w[default extended], "grammar mode") do |value|
+          settings[:mode] = value.to_sym
+          mark_configuration_option(:mode)
+        end
         options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
           settings[:algorithm] = value.to_sym
+          mark_configuration_option(:algorithm)
         end
         options.on("--entry-isolation", "build independent state sets for each start symbol") do
           settings[:entry_isolation] = true
+          mark_configuration_option(:entry_isolation)
         end
         options.on("--timeout=SECONDS", Integer, "whole-suite timeout (default: 10)") do |value|
           raise OptionParser::InvalidArgument, "timeout must be positive" unless value.positive?

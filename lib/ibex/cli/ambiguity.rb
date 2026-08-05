@@ -12,6 +12,8 @@ module Ibex
     #   private def input_path: (Array[String]) -> String
     #   private def positive_counterexample_limit: (Integer, String) -> Integer
     #   private def normalize_grammar_path: (String) -> IR::Grammar
+    #   private def configuration_value: (String) -> untyped
+    #   private def set_configuration_option: (Symbol, untyped) -> void
 
     private
 
@@ -24,7 +26,8 @@ module Ibex
 
       grammar = normalize_grammar_path(input_path(remaining))
       automaton = LALR::Builder.new(
-        grammar, algorithm: @options[:algorithm] || :lalr, entry_isolation: @options[:entry_isolation] == true
+        grammar, algorithm: configuration_value("parser.algorithm"),
+                 entry_isolation: configuration_value("parser.entries") == :isolated
       ).build
       check = Codegen::Ambiguity.new(
         automaton,
@@ -53,12 +56,14 @@ module Ibex
           @options[:check_format] = value
         end
         options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
-          @options[:algorithm] = value.to_sym
+          set_configuration_option(:algorithm, value.to_sym)
         end
         options.on("--entry-isolation", "build independent state sets for each start symbol") do
-          @options[:entry_isolation] = true
+          set_configuration_option(:entry_isolation, true)
         end
-        options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
+        options.on("--mode=MODE", %w[default extended], "grammar mode") do |value|
+          set_configuration_option(:mode, value.to_sym)
+        end
         options.on("--help", "show help") { @options[:help] = true }
       end
     end

@@ -11,6 +11,10 @@ module Ibex
 
     private def normalize_grammar_path: (String) -> IR::Grammar
 
+    private def configuration_value: (String) -> untyped
+
+    private def set_configuration_option: (Symbol, untyped) -> void
+
     private
 
     # @rbs (Array[String] arguments) -> Integer

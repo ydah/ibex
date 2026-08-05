@@ -9,6 +9,10 @@ module Ibex
 
     private def activate_cli_feature: (Symbol) -> void
 
+    private def configuration_value: (String) -> untyped
+
+    private def set_configuration_option: (Symbol, untyped) -> void
+
     private
 
     # @rbs (Array[String] arguments) -> Integer

@@ -40,6 +40,8 @@ module Ibex
     #     errors: Array[String],
     #     remaining: Array[String]
     #   }
+    #   private def configuration_value: (String) -> untyped
+    #   private def select_configuration_mode: (String) -> void
 
     private
 
@@ -68,8 +70,11 @@ module Ibex
 
     # @rbs (Array[String] arguments) -> formatting_settings
     def formatting_options(arguments)
-      settings = { paths: [], mode: :default, check: false, write: false } #: formatting_settings
+      settings = {
+        paths: [], mode: Configuration::Registry.fetch("grammar.mode").default, check: false, write: false
+      } #: formatting_settings
       settings[:paths] = formatting_option_parser(settings).parse(arguments)
+      settings[:mode] = configuration_value("grammar.mode")
       settings
     end
 
@@ -79,7 +84,7 @@ module Ibex
         options.banner = "Usage: ibex fmt [--check | --write] [options] grammar.y [...]"
         options.on("--check", "report files that need formatting") { settings[:check] = true }
         options.on("--write", "atomically format files in place") { settings[:write] = true }
-        options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| settings[:mode] = value.to_sym }
+        options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| select_configuration_mode(value) }
         options.on("--stdin-filename=FILE", "diagnostic filename for standard input") do |value|
           settings[:stdin_filename] = value
         end

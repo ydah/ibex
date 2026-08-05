@@ -19,6 +19,8 @@ module Ibex
     #   private def same_file_target?: (String, String) -> bool
     #   private def normalize_grammar_path: (String) -> IR::Grammar
     #   private def record_generation_input: (String, String) -> GenerationInput
+    #   private def select_configuration_mode: (String) -> void
+    #   private def set_configuration_option: (Symbol, untyped) -> void
 
     private
 
@@ -61,9 +63,9 @@ module Ibex
         options.on("--from=FORMAT", %w[grammar-ir automaton-ir], "resume from IR JSON") do |value|
           @options[:from] = value
         end
-        options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| @options[:mode] = value.to_sym }
+        options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| select_configuration_mode(value) }
         options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
-          @options[:algorithm] = value.to_sym
+          set_configuration_option(:algorithm, value.to_sym)
           @options[:messages_algorithm_explicit] = true
         end
         options.on("--warnings=CATEGORIES", "all, error, all,error, or none") do |value|

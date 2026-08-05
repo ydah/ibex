@@ -12,6 +12,7 @@ module Ibex
     #   private def report_status: (String) -> void
     #   private def verify_file: (String, String, String) -> void
     #   private def default_output_path: (String, String) -> String
+    #   private def configuration_value: (String) -> untyped
 
     private
 
@@ -138,8 +139,7 @@ module Ibex
 
     # @rbs () -> Symbol
     def effective_cst_trivia
-      value = @options.fetch(:cst_trivia, :leading)
-      value == :attach ? :leading : value
+      configuration_value("cst.trivia")
     end
   end
 end

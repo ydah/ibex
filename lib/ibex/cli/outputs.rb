@@ -5,6 +5,7 @@ module Ibex
   module CLIOutputs
     # @rbs!
     #   private def register_artifact: (Symbol, String, String, ?mode: Integer?, ?status: bool) -> Artifact
+    #   private def configuration_value: (String) -> untyped
 
     WARNING_MESSAGE_IDS = {
       undeclared_terminal: "warning.undeclared_terminal",
@@ -113,13 +114,13 @@ module Ibex
     def suggest_ielr(automaton, input_path)
       return unless @options[:suggest_ielr]
       return unless automaton.algorithm == "lalr1"
-      return unless [nil, :lalr].include?(@options[:algorithm])
+      return unless configuration_value("parser.algorithm") == :lalr
 
       summary = automaton.conflict_summary
       return if summary[:expectation_met] && summary.fetch(:rr_expectation_met, summary[:rr].zero?)
 
       ielr = LALR::Builder.new(
-        automaton.grammar, algorithm: :ielr, entry_isolation: @options[:entry_isolation] == true
+        automaton.grammar, algorithm: :ielr, entry_isolation: configuration_value("parser.entries") == :isolated
       ).build
       removed_sr = [summary[:sr] - ielr.conflict_summary[:sr], 0].max
       removed_rr = [summary[:rr] - ielr.conflict_summary[:rr], 0].max

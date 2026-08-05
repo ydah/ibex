@@ -7,6 +7,10 @@ module Ibex
 
     private def normalize_grammar_path: (String) -> IR::Grammar
 
+    private def configuration_value: (String) -> untyped
+
+    private def set_configuration_option: (Symbol, untyped) -> void
+
     private
 
     # @rbs (Array[String] arguments) -> Integer
@@ -14,6 +18,9 @@ module Ibex
 
     # @rbs (Array[String] arguments) -> equiv_options
     def equiv_options: (Array[String] arguments) -> equiv_options
+
+    # @rbs () -> equiv_options
+    def default_equiv_options: () -> equiv_options
 
     # @rbs (OptionParser options, equiv_options settings) -> void
     def add_equiv_search_options: (OptionParser options, equiv_options settings) -> void
