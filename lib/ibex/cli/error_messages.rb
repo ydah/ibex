@@ -18,8 +18,6 @@ module Ibex
     #   private def default_output_path: (String, String) -> String
     #   private def same_file_target?: (String, String) -> bool
     #   private def normalize_grammar_path: (String) -> IR::Grammar
-    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped],
-    #     ?explicit_keys: Array[Symbol]) -> IR::Grammar
     #   private def record_generation_input: (String, String) -> GenerationInput
     #   private def select_configuration_mode: (String) -> void
     #   private def set_configuration_option: (Symbol, untyped) -> void
@@ -178,5 +176,9 @@ module Ibex
 
       0o666 & ~File.umask
     end
+
+    # @rbs!
+    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped],
+    #     ?explicit_keys: Array[Symbol]) -> IR::Grammar
   end
 end

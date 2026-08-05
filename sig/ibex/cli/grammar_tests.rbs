@@ -13,8 +13,6 @@ module Ibex
 
     private def build_automaton: (IR::Grammar, String) -> IR::Automaton
 
-    private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
-
     private def configuration_value: (String) -> untyped
 
     private def mark_configuration_option: (Symbol) -> void
@@ -32,6 +30,11 @@ module Ibex
 
     # @rbs (Array[String] remaining, OptionParser options) -> String
     def single_grammar_test_path: (Array[String] remaining, OptionParser options) -> String
+
+    # @rbs (Frontend::Resolution resolution) -> IR::Grammar
+    def normalize_analysis_grammar: (Frontend::Resolution resolution) -> IR::Grammar
+
+    private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
 
     # @rbs (Array[GrammarTests::Result] results) -> Integer
     def render_grammar_test_results: (Array[GrammarTests::Result] results) -> Integer

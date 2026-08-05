@@ -19,8 +19,6 @@ module Ibex
     #   private def resolve_grammar_path: (String) -> Frontend::Resolution
     #   private def handle_grammar_warnings: (IR::Grammar, String) -> void
     #   private def build_automaton: (IR::Grammar, String) -> IR::Automaton
-    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped],
-    #     ?explicit_keys: Array[Symbol]) -> IR::Grammar
     #   private def configuration_value: (String) -> untyped
     #   private def mark_configuration_option: (Symbol) -> void
 
@@ -41,8 +39,7 @@ module Ibex
       @options[:algorithm] = settings[:algorithm]
       @options[:entry_isolation] = settings[:entry_isolation]
       resolution = resolve_grammar_path(path)
-      grammar = Normalizer.new(resolution, mode: configuration_value("grammar.mode")).normalize
-      grammar = activate_analysis_grammar(grammar)
+      grammar = normalize_analysis_grammar(resolution)
       handle_grammar_warnings(grammar, path)
       automaton = build_automaton(grammar, path)
       runner = GrammarTests::Runner.new(automaton, timeout: settings[:timeout])
@@ -100,6 +97,16 @@ module Ibex
 
       raise OptionParser::InvalidArgument, "test accepts exactly one grammarfile"
     end
+
+    # @rbs (Frontend::Resolution resolution) -> IR::Grammar
+    def normalize_analysis_grammar(resolution)
+      grammar = Normalizer.new(resolution, mode: configuration_value("grammar.mode")).normalize
+      activate_analysis_grammar(grammar)
+    end
+
+    # @rbs!
+    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped],
+    #     ?explicit_keys: Array[Symbol]) -> IR::Grammar
 
     # @rbs (Array[GrammarTests::Result] results) -> Integer
     def render_grammar_test_results(results)
