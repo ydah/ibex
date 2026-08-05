@@ -23,6 +23,32 @@ class CLIGenerationTransactionTest < Minitest::Test
     end
   end
 
+  def test_manifest_records_the_canonical_effective_cst_trivia_policy
+    Dir.mktmpdir("ibex-cli-generation") do |directory|
+      grammar = File.join(directory, "parser.y")
+      File.binwrite(grammar, cst_grammar_source)
+      cases = {
+        "default" => [[], "leading"],
+        "leading" => [["--cst-trivia=leading"], "leading"],
+        "balanced" => [["--cst-trivia=balanced"], "balanced"],
+        "drop" => [["--cst-trivia=drop"], "drop"],
+        "attach" => [["--cst-trivia=attach"], "leading"]
+      }
+
+      documents = cases.to_h do |name, (arguments, expected)|
+        document = generate_manifest(directory, grammar, name, arguments)
+        assert_equal 1, document.fetch("schema_version")
+        assert_equal expected, document.fetch("options").fetch("cst_trivia")
+        [name, document]
+      end
+
+      assert_equal documents.fetch("default").fetch("options"), documents.fetch("leading").fetch("options")
+      assert_equal documents.fetch("default").fetch("options"), documents.fetch("attach").fetch("options")
+      refute_equal documents.fetch("leading").fetch("options"), documents.fetch("balanced").fetch("options")
+      refute_equal documents.fetch("leading").fetch("options"), documents.fetch("drop").fetch("options")
+    end
+  end
+
   def test_default_manifest_path_uses_lexical_parser_path_for_symlinked_root
     Dir.mktmpdir("ibex-cli-generation") do |directory|
       source_directory = File.join(directory, "source")
@@ -148,6 +174,17 @@ class CLIGenerationTransactionTest < Minitest::Test
 
   def grammar_source
     "class P\nrule\nstart: TOKEN\nend\n"
+  end
+
+  def cst_grammar_source
+    "class P\npragma cst\nrule\nstart: TOKEN\nend\n"
+  end
+
+  def generate_manifest(directory, grammar, name, arguments)
+    parser = File.join(directory, "#{name}.rb")
+    manifest = File.join(directory, "#{name}.json")
+    assert_equal 0, run_cli([*arguments, "--manifest=#{manifest}", "-o", parser, grammar])
+    Ibex::GenerationManifest.validate_file(manifest)
   end
 
   def run_cli(arguments, stderr: StringIO.new)

@@ -272,6 +272,11 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     assert_equal "deferred_a5_minimum_undefined", coverage.fetch("grammar_admission")
   end
 
+  def test_cst_trivia_manifest_gap_is_closed
+    entry = find_entry(document.fetch("registrations"), "generate", "--cst-trivia=POLICY")
+    assert_equal "current", entry.fetch("manifest_presence")
+  end
+
   def test_internal_compatibility_and_external_command_trust_are_explicit
     entries = document.fetch("registrations")
     assert_equal "compatibility.profiling", find_entry(entries, "generate", "-P").fetch("canonical_key")
