@@ -3,12 +3,13 @@
   "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/construction-profile-v1.schema.json",
   "title": "Ibex parser construction profile v1",
   "type": "object",
-  "required": ["ibex_report", "schema_version", "trust", "environment", "measurement_policy", "cohorts", "decisions", "limitations"],
+  "required": ["ibex_report", "schema_version", "trust", "environment", "provenance", "measurement_policy", "cohorts", "decisions", "limitations"],
   "properties": {
     "ibex_report": { "const": "construction_profile" },
     "schema_version": { "const": 1 },
     "trust": { "const": "internal_local_observation" },
     "environment": { "$ref": "#/$defs/environment" },
+    "provenance": { "$ref": "#/$defs/provenance" },
     "measurement_policy": { "$ref": "#/$defs/measurement_policy" },
     "cohorts": {
       "type": "array",
@@ -51,11 +52,9 @@
   "$defs": {
     "environment": {
       "type": "object",
-      "required": ["ibex_revision", "ibex_worktree_clean", "implementation_sha256", "ruby_engine", "ruby_version", "ruby_patchlevel", "ruby_description", "ruby_platform", "rubyopt", "yjit_enabled", "host_os", "host_cpu", "kernel_name", "kernel_release", "kernel_version", "kernel_machine", "logical_processors"],
+      "required": ["observation_role", "ruby_engine", "ruby_version", "ruby_patchlevel", "ruby_description", "ruby_platform", "rubyopt", "yjit_enabled", "host_os", "host_cpu", "kernel_name", "kernel_release", "kernel_version", "kernel_machine", "logical_processors"],
       "properties": {
-        "ibex_revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
-        "ibex_worktree_clean": { "type": "boolean" },
-        "implementation_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "observation_role": { "const": "host_bound_not_regression_golden" },
         "ruby_engine": { "type": "string", "minLength": 1 },
         "ruby_version": { "type": "string", "minLength": 1 },
         "ruby_patchlevel": { "type": "integer" },
@@ -70,6 +69,58 @@
         "kernel_version": { "type": "string", "minLength": 1 },
         "kernel_machine": { "type": "string", "minLength": 1 },
         "logical_processors": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "bound_path": {
+      "type": "object",
+      "required": ["path", "sha256", "git_state", "base_sha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "git_state": { "enum": ["base", "modified", "untracked"] },
+        "base_sha256": {
+          "oneOf": [
+            { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "git_state": { "const": "untracked" } } },
+          "then": { "properties": { "base_sha256": { "type": "null" } } },
+          "else": { "properties": { "base_sha256": { "type": "string" } } }
+        }
+      ]
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["base_revision", "base_revision_role", "capture_worktree_clean", "capture_worktree_status", "capture_worktree_status_sha256", "bound_paths", "bound_paths_sha256", "implementation_sha256", "environment_observation_sha256", "measurement_policy_sha256", "evidence_path", "evidence_exclusion_reason"],
+      "properties": {
+        "base_revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "base_revision_role": { "const": "Git base only; modified and untracked bound paths are identified separately" },
+        "capture_worktree_clean": { "type": "boolean" },
+        "capture_worktree_status": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 3 },
+          "uniqueItems": true
+        },
+        "capture_worktree_status_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "bound_paths": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/bound_path" },
+          "minItems": 1
+        },
+        "bound_paths_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "implementation_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "environment_observation_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "measurement_policy_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "evidence_path": { "const": "tool/profile/evidence/construction-profile-v1.json" },
+        "evidence_exclusion_reason": {
+          "const": "the evidence file is excluded from its own digest to avoid circularity"
+        }
       },
       "additionalProperties": false
     },
@@ -139,26 +190,38 @@
       },
       "additionalProperties": false
     },
+    "measured": {
+      "type": "object",
+      "required": ["status", "value"],
+      "properties": {
+        "status": { "const": "measured" },
+        "value": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "not_applicable": {
+      "type": "object",
+      "required": ["status", "reason"],
+      "properties": {
+        "status": { "const": "not_applicable" },
+        "reason": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "not_measured": {
+      "type": "object",
+      "required": ["status", "reason"],
+      "properties": {
+        "status": { "const": "not_measured" },
+        "reason": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
     "measurement": {
       "oneOf": [
-        {
-          "type": "object",
-          "required": ["status", "value"],
-          "properties": {
-            "status": { "const": "measured" },
-            "value": { "type": "integer", "minimum": 0 }
-          },
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "required": ["status", "reason"],
-          "properties": {
-            "status": { "const": "not_applicable" },
-            "reason": { "type": "string", "minLength": 1 }
-          },
-          "additionalProperties": false
-        }
+        { "$ref": "#/$defs/measured" },
+        { "$ref": "#/$defs/not_applicable" },
+        { "$ref": "#/$defs/not_measured" }
       ]
     },
     "structural": {
@@ -175,6 +238,74 @@
         "propagation_edges": { "$ref": "#/$defs/measurement" },
         "ielr_initial_partitions": { "$ref": "#/$defs/measurement" },
         "ielr_final_partitions": { "$ref": "#/$defs/measurement" }
+      },
+      "additionalProperties": false
+    },
+    "direct_lalr_structural": {
+      "type": "object",
+      "required": ["lr0_states", "lr0_items", "canonical_states", "canonical_items", "final_states", "final_items", "final_lookahead_items", "propagation_edges", "ielr_initial_partitions", "ielr_final_partitions"],
+      "properties": {
+        "lr0_states": { "$ref": "#/$defs/measured" },
+        "lr0_items": { "$ref": "#/$defs/measured" },
+        "canonical_states": { "$ref": "#/$defs/not_applicable" },
+        "canonical_items": { "$ref": "#/$defs/not_applicable" },
+        "final_states": { "$ref": "#/$defs/measured" },
+        "final_items": { "$ref": "#/$defs/measured" },
+        "final_lookahead_items": { "$ref": "#/$defs/measured" },
+        "propagation_edges": { "$ref": "#/$defs/measured" },
+        "ielr_initial_partitions": { "$ref": "#/$defs/not_applicable" },
+        "ielr_final_partitions": { "$ref": "#/$defs/not_applicable" }
+      },
+      "additionalProperties": false
+    },
+    "ielr_structural": {
+      "type": "object",
+      "required": ["lr0_states", "lr0_items", "canonical_states", "canonical_items", "final_states", "final_items", "final_lookahead_items", "propagation_edges", "ielr_initial_partitions", "ielr_final_partitions"],
+      "properties": {
+        "lr0_states": { "$ref": "#/$defs/measured" },
+        "lr0_items": { "$ref": "#/$defs/measured" },
+        "canonical_states": { "$ref": "#/$defs/measured" },
+        "canonical_items": { "$ref": "#/$defs/measured" },
+        "final_states": { "$ref": "#/$defs/measured" },
+        "final_items": { "$ref": "#/$defs/measured" },
+        "final_lookahead_items": { "$ref": "#/$defs/measured" },
+        "propagation_edges": { "$ref": "#/$defs/not_applicable" },
+        "ielr_initial_partitions": { "$ref": "#/$defs/measured" },
+        "ielr_final_partitions": { "$ref": "#/$defs/measured" }
+      },
+      "additionalProperties": false
+    },
+    "canonical_lalr_structural": {
+      "type": "object",
+      "required": ["lr0_states", "lr0_items", "canonical_states", "canonical_items", "final_states", "final_items", "final_lookahead_items", "propagation_edges", "ielr_initial_partitions", "ielr_final_partitions"],
+      "properties": {
+        "lr0_states": { "$ref": "#/$defs/measured" },
+        "lr0_items": { "$ref": "#/$defs/measured" },
+        "canonical_states": { "$ref": "#/$defs/measured" },
+        "canonical_items": { "$ref": "#/$defs/measured" },
+        "final_states": { "$ref": "#/$defs/measured" },
+        "final_items": { "$ref": "#/$defs/measured" },
+        "final_lookahead_items": { "$ref": "#/$defs/measured" },
+        "propagation_edges": { "$ref": "#/$defs/not_applicable" },
+        "ielr_initial_partitions": { "$ref": "#/$defs/not_applicable" },
+        "ielr_final_partitions": { "$ref": "#/$defs/not_applicable" }
+      },
+      "additionalProperties": false
+    },
+    "not_measured_structural": {
+      "type": "object",
+      "required": ["lr0_states", "lr0_items", "canonical_states", "canonical_items", "final_states", "final_items", "final_lookahead_items", "propagation_edges", "ielr_initial_partitions", "ielr_final_partitions"],
+      "properties": {
+        "lr0_states": { "$ref": "#/$defs/not_measured" },
+        "lr0_items": { "$ref": "#/$defs/not_measured" },
+        "canonical_states": { "$ref": "#/$defs/not_measured" },
+        "canonical_items": { "$ref": "#/$defs/not_measured" },
+        "final_states": { "$ref": "#/$defs/not_measured" },
+        "final_items": { "$ref": "#/$defs/not_measured" },
+        "final_lookahead_items": { "$ref": "#/$defs/not_measured" },
+        "propagation_edges": { "$ref": "#/$defs/not_measured" },
+        "ielr_initial_partitions": { "$ref": "#/$defs/not_measured" },
+        "ielr_final_partitions": { "$ref": "#/$defs/not_measured" }
       },
       "additionalProperties": false
     },
@@ -251,15 +382,117 @@
                 "status": { "const": "completed" },
                 "strategy": { "type": "string", "minLength": 1 },
                 "conflicts": { "$ref": "#/$defs/conflicts" },
+                "exhaustion": {
+                  "properties": {
+                    "status": { "const": "not_observed" },
+                    "resource": { "type": "null" },
+                    "limit": { "type": "null" }
+                  }
+                },
                 "failure": { "type": "null" }
+              },
+              "allOf": [
+                {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "algorithm": { "const": "lalr" },
+                        "strategy": { "const": "direct_lalr" },
+                        "structural": { "$ref": "#/$defs/direct_lalr_structural" }
+                      }
+                    },
+                    {
+                      "properties": {
+                        "algorithm": { "const": "lalr" },
+                        "strategy": { "enum": ["canonical_merge_multi_entry", "entry_isolation"] },
+                        "structural": { "$ref": "#/$defs/canonical_lalr_structural" }
+                      }
+                    },
+                    {
+                      "properties": {
+                        "algorithm": { "const": "ielr" },
+                        "strategy": { "enum": ["ielr_partition", "entry_isolation"] },
+                        "structural": { "$ref": "#/$defs/ielr_structural" }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "properties": {
+                "status": { "const": "limit_exceeded" },
+                "strategy": { "type": "null" },
+                "structural": { "$ref": "#/$defs/not_measured_structural" },
+                "conflicts": { "type": "null" },
+                "exhaustion": {
+                  "properties": {
+                    "status": { "const": "observed" },
+                    "resource": { "const": "wall_time" },
+                    "limit": { "type": "number", "exclusiveMinimum": 0 }
+                  }
+                },
+                "failure": {
+                  "allOf": [
+                    { "$ref": "#/$defs/failure" },
+                    { "properties": { "resource": { "const": "wall_time" } } }
+                  ]
+                }
               }
             },
             {
               "properties": {
-                "status": { "enum": ["limit_exceeded", "resource_exhausted", "failed"] },
+                "status": { "const": "resource_exhausted" },
                 "strategy": { "type": "null" },
+                "structural": { "$ref": "#/$defs/not_measured_structural" },
                 "conflicts": { "type": "null" },
+                "exhaustion": {
+                  "properties": {
+                    "status": { "const": "observed" },
+                    "resource": { "enum": ["memory", "stack"] },
+                    "limit": { "type": "null" }
+                  }
+                },
                 "failure": { "$ref": "#/$defs/failure" }
+              },
+              "allOf": [
+                {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "exhaustion": { "properties": { "resource": { "const": "memory" } } },
+                        "failure": { "properties": { "resource": { "const": "memory" } } }
+                      }
+                    },
+                    {
+                      "properties": {
+                        "exhaustion": { "properties": { "resource": { "const": "stack" } } },
+                        "failure": { "properties": { "resource": { "const": "stack" } } }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "properties": {
+                "status": { "const": "failed" },
+                "strategy": { "type": "null" },
+                "structural": { "$ref": "#/$defs/not_measured_structural" },
+                "conflicts": { "type": "null" },
+                "exhaustion": {
+                  "properties": {
+                    "status": { "const": "not_observed" },
+                    "resource": { "const": "construction" },
+                    "limit": { "type": "null" }
+                  }
+                },
+                "failure": {
+                  "allOf": [
+                    { "$ref": "#/$defs/failure" },
+                    { "properties": { "resource": { "const": "construction" } } }
+                  ]
+                }
               }
             }
           ]
@@ -313,13 +546,42 @@
     "synthetic_workload": {
       "allOf": [
         { "$ref": "#/$defs/workload" },
-        { "properties": { "classification": { "const": "repository_synthetic" } } }
+        {
+          "properties": {
+            "classification": { "const": "repository_synthetic" },
+            "availability": {
+              "properties": {
+                "status": { "enum": ["verified_repository_source", "verified_generated_fixture"] }
+              }
+            }
+          }
+        }
       ]
     },
-    "real_workload": {
+    "repository_real_workload": {
       "allOf": [
         { "$ref": "#/$defs/workload" },
-        { "properties": { "classification": { "enum": ["repository_real", "public_real"] } } }
+        {
+          "properties": {
+            "classification": { "const": "repository_real" },
+            "registry_status": { "const": "registered" },
+            "availability": { "properties": { "status": { "const": "verified_repository_source" } } }
+          }
+        }
+      ]
+    },
+    "public_real_workload": {
+      "allOf": [
+        { "$ref": "#/$defs/workload" },
+        {
+          "properties": {
+            "classification": { "const": "public_real" },
+            "registry_status": { "const": "registered" },
+            "availability": {
+              "properties": { "status": { "enum": ["verified_public_checkout", "not_run"] } }
+            }
+          }
+        }
       ]
     },
     "synthetic_cohort": {
@@ -336,7 +598,16 @@
       "required": ["kind", "workloads"],
       "properties": {
         "kind": { "const": "real" },
-        "workloads": { "type": "array", "items": { "$ref": "#/$defs/real_workload" }, "minItems": 1 }
+        "workloads": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "$ref": "#/$defs/repository_real_workload" },
+              { "$ref": "#/$defs/public_real_workload" }
+            ]
+          },
+          "minItems": 1
+        }
       },
       "additionalProperties": false
     },

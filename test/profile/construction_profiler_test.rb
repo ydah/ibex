@@ -44,9 +44,9 @@ class ConstructionProfilerTest < Minitest::Test
       end
     GRAMMAR
 
-    assert_equal([
-                   %w[shared lalr], %w[shared ielr], %w[isolated lalr], %w[isolated ielr]
-                 ], runs.map { |run| run.values_at("entry_mode", "algorithm") })
+    expected = [%w[shared lalr], %w[shared ielr], %w[isolated lalr], %w[isolated ielr]]
+    actual = runs.map { |run| run.values_at("entry_mode", "algorithm") }
+    assert_equal expected, actual
     assert(runs.all? { |run| run.fetch("entries") == 2 })
     assert(runs.all? { |run| run.fetch("entry_names") == %w[first second] })
   end
@@ -79,7 +79,7 @@ class ConstructionProfilerTest < Minitest::Test
     assert_equal({ "status" => "observed", "resource" => "stack", "limit" => nil },
                  failed.fetch("exhaustion"))
     assert_match(/SystemStackError/, failed.dig("failure", "message"))
-    assert_equal "not_applicable", failed.dig("structural", "lr0_states", "status")
+    assert_equal "not_measured", failed.dig("structural", "lr0_states", "status")
   end
 
   def test_matrix_profile_source_is_the_existing_representative_fixture
@@ -110,20 +110,6 @@ class ConstructionProfilerTest < Minitest::Test
     assert(public_workloads.all? { |workload| workload.fetch("runs").empty? })
 
     assert_decisions(document)
-  end
-
-  def assert_decisions(document)
-    decisions = document.fetch("decisions").to_h { |decision| [decision.fetch("feature"), decision] }
-    assert_equal "NO-GO", decisions.fetch("direct-ielr").fetch("decision")
-    assert_equal "MORE DATA", decisions.fetch("direct-multi-entry").fetch("decision")
-    verifier_threshold = decisions.fetch("direct-ielr").fetch("thresholds").find do |item|
-      item.fetch("id") == "verifier-tcb"
-    end
-    assert verifier_threshold.fetch("satisfied")
-    scale_threshold = decisions.fetch("direct-ielr").fetch("thresholds").find do |item|
-      item.fetch("id") == "scale-independent-verification"
-    end
-    refute scale_threshold.fetch("satisfied")
   end
 
   def test_explicit_invalid_public_checkout_fails_closed
@@ -167,6 +153,19 @@ class ConstructionProfilerTest < Minitest::Test
   end
 
   private
+
+  def assert_decisions(document)
+    decisions = document.fetch("decisions").to_h { |decision| [decision.fetch("feature"), decision] }
+    assert_equal "NO-GO", decisions.fetch("direct-ielr").fetch("decision")
+    assert_equal "MORE DATA", decisions.fetch("direct-multi-entry").fetch("decision")
+    verifier_threshold = threshold(decisions.fetch("direct-ielr"), "verifier-tcb")
+    assert verifier_threshold.fetch("satisfied")
+    refute threshold(decisions.fetch("direct-ielr"), "scale-independent-verification").fetch("satisfied")
+  end
+
+  def threshold(decision, id)
+    decision.fetch("thresholds").find { |item| item.fetch("id") == id }
+  end
 
   def profiler
     Ibex::Profile::ConstructionProfiler.new(wall_seconds: 1, clock: -> { 1.0 })

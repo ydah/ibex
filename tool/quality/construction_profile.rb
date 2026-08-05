@@ -4,6 +4,7 @@ require "json"
 require "json_schemer"
 require_relative "../../lib/ibex"
 require_relative "../profile/construction_profiler"
+require_relative "construction_profile_integrity"
 
 module Ibex
   module Quality
@@ -18,9 +19,12 @@ module Ibex
       def verify!
         document = JSON.parse(File.binread(@evidence))
         validate_schema!(document)
+        validate_integrity!(document)
         current = Profile::ConstructionReport.new(
           root: @root, wall_seconds: document.dig("measurement_policy", "wall_seconds_per_run")
         ).build
+        validate_schema!(current)
+        validate_integrity!(current)
         unless deterministic_projection(document) == deterministic_projection(current)
           raise "construction profile structural evidence drift; regenerate with tool/construction_profile.rb"
         end
@@ -40,8 +44,8 @@ module Ibex
 
       def deterministic_projection(document)
         copy = Marshal.load(Marshal.dump(document))
-        environment = copy.fetch("environment")
-        copy["environment"] = { "implementation_sha256" => environment.fetch("implementation_sha256") }
+        copy.delete("environment")
+        copy.delete("provenance")
         copy.fetch("cohorts").each do |cohort|
           cohort.fetch("workloads").each do |workload|
             workload.fetch("runs").each do |run|
@@ -50,6 +54,11 @@ module Ibex
           end
         end
         copy
+      end
+
+      def validate_integrity!(document)
+        ConstructionProfileProvenance.new(root: @root, document: document).verify!
+        ConstructionProfileSemantics.new(document).verify!
       end
     end
   end

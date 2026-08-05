@@ -32,6 +32,23 @@ bundle exec ruby tool/construction_profile.rb \
 Omitting a checkout records its exact registry metadata as `not_run`; it does
 not silently profile a cached file or substitute a synthetic grammar.
 
+The artifact separates reconstructible source provenance from host-bound
+observations. `provenance.base_revision` is only the Git base: when capture is
+dirty, every H005 contract path records its observed digest, base-object
+digest, and `base` / `modified` / `untracked` state. The clean flag is derived
+from the exact porcelain status; the status, bound-path set, implementation
+subset, host observation, and measurement policy each have an integrity
+digest. The evidence file is excluded from the source and implementation
+digests, so no digest refers to the bytes that contain itself.
+
+The quality gate reconstructs the base objects, requires the base to be an
+ancestor of the checked revision, verifies current contract bytes against the
+bound paths, and checks all derived digests and workload/run entry identities.
+Ruby version and options, kernel, CPU, and other host fields remain explicitly
+host-bound rather than cross-platform goldens, but their recorded values are
+validated against `environment_observation_sha256` before that observation is
+excluded from the deterministic structural comparison.
+
 Every construction has an explicit wall-time limit. Exceeding it records the
 resource and limit. `NoMemoryError` and `SystemStackError` are recorded as
 resource exhaustion. Those results establish only that a bound was observed;
@@ -51,6 +68,11 @@ already exists:
 | `final_lookahead_items` | Lookahead memberships across final core items. |
 | `propagation_edges` | Deduplicated direct-LALR lookahead propagation edges; canonical paths report `not_applicable`. |
 | `ielr_initial_partitions` / `ielr_final_partitions` | Compatible partitions before and after transition refinement. |
+
+`not_applicable` is reserved for metrics that the selected construction path
+does not perform, such as canonical-state counts in direct LALR. A metric that
+would apply but could not be collected because construction timed out or
+failed is `not_measured`; failure never masquerades as algorithmic absence.
 
 Elapsed seconds are retained only as host-bound observations. The schema fixes
 `release_gate` to `false`, and the quality gate deliberately removes elapsed

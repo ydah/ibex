@@ -86,7 +86,7 @@ module Ibex
           "status" => status,
           "strategy" => nil,
           "structural" => STRUCTURAL_FIELDS.to_h do |field|
-            [field.to_s, unavailable("construction did not complete")]
+            [field.to_s, not_measured("construction did not complete")]
           end,
           "conflicts" => nil,
           "observations" => elapsed_observation(elapsed(started)),
@@ -126,6 +126,10 @@ module Ibex
 
       def unavailable(reason)
         { "status" => "not_applicable", "reason" => reason }
+      end
+
+      def not_measured(reason)
+        { "status" => "not_measured", "reason" => reason }
       end
 
       def elapsed_observation(value)
@@ -245,28 +249,29 @@ module Ibex
       end
     end
 
-    # Captures the implementation and host identity attached to one observation.
-    class ConstructionEnvironment
-      IMPLEMENTATION_PATHS = %w[
-        lib/ibex/lalr/build_metrics.rb
-        lib/ibex/lalr/builder.rb
-        lib/ibex/lalr/direct_lookaheads.rb
-        lib/ibex/lalr/ielr_partition.rb
-        tool/profile/construction_profiler.rb
-      ].freeze
+    # Produces canonical integrity digests for nested JSON-compatible values.
+    module ConstructionDigest
+      module_function
 
-      def initialize(root)
-        @root = root
+      def sha256(value)
+        Digest::SHA256.hexdigest(JSON.generate(canonical(value)))
       end
 
+      def canonical(value)
+        case value
+        when Hash then value.keys.sort.to_h { |key| [key, canonical(value.fetch(key))] }
+        when Array then value.map { |item| canonical(item) }
+        else value
+        end
+      end
+    end
+
+    # Captures the implementation and host identity attached to one observation.
+    class ConstructionEnvironment
       def build
-        revision, = capture("git", "rev-parse", "HEAD")
-        status, = capture("git", "status", "--porcelain=v1", "--untracked-files=normal")
         uname = Etc.uname
         {
-          "ibex_revision" => revision,
-          "ibex_worktree_clean" => status.empty?,
-          "implementation_sha256" => implementation_digest,
+          "observation_role" => "host_bound_not_regression_golden",
           "ruby_engine" => RUBY_ENGINE,
           "ruby_version" => RUBY_VERSION,
           "ruby_patchlevel" => RUBY_PATCHLEVEL,
@@ -286,25 +291,107 @@ module Ibex
 
       private
 
-      def implementation_digest
-        digest = Digest::SHA256.new
-        IMPLEMENTATION_PATHS.sort.each do |path|
-          digest << path << "\0" << File.binread(File.join(@root, path)) << "\0"
-        end
-        digest.hexdigest
-      end
-
-      def capture(*command)
-        stdout, stderr, status = Open3.capture3(*command, chdir: @root)
-        raise "metadata command failed: #{stderr}#{stdout}" unless status.success?
-
-        [stdout.strip, stderr]
-      end
-
       def yjit_enabled?
         return false unless defined?(RubyVM::YJIT) && RubyVM::YJIT.respond_to?(:enabled?)
 
         RubyVM::YJIT.enabled?
+      end
+    end
+
+    # Binds the dirty capture to a Git base plus every H005 contract path.
+    class ConstructionProvenance
+      BOUND_PATHS = %w[
+        Rakefile
+        docs/construction-profiling.md
+        docs/maturity.md
+        docs/maturity.yml
+        docs/workloads.md
+        lib/ibex/lalr/build_metrics.rb
+        lib/ibex/lalr/builder.rb
+        lib/ibex/lalr/direct_lookaheads.rb
+        lib/ibex/lalr/ielr_partition.rb
+        schema/construction-profile-v1.schema.json
+        sig/ibex/lalr/build_metrics.rbs
+        sig/ibex/lalr/builder.rbs
+        sig/ibex/lalr/direct_lookaheads.rbs
+        sig/ibex/lalr/ielr_partition.rbs
+        test/ir/json_schema_test.rb
+        test/profile/construction_profile_schema_test.rb
+        test/profile/construction_profiler_test.rb
+        test/quality/construction_profile_test.rb
+        test/quality/maturity_test.rb
+        test/support/public_json_schemas.rb
+        tool/construction_profile.rb
+        tool/profile/construction_profiler.rb
+        tool/quality/construction_profile.rb
+        tool/quality/construction_profile_integrity.rb
+      ].freeze
+      IMPLEMENTATION_PATHS = %w[
+        lib/ibex/lalr/build_metrics.rb
+        lib/ibex/lalr/builder.rb
+        lib/ibex/lalr/direct_lookaheads.rb
+        lib/ibex/lalr/ielr_partition.rb
+        schema/construction-profile-v1.schema.json
+        tool/profile/construction_profiler.rb
+        tool/quality/construction_profile.rb
+        tool/quality/construction_profile_integrity.rb
+      ].freeze
+
+      def initialize(root)
+        @root = root
+      end
+
+      def build(environment, measurement_policy)
+        base = capture!("git", "rev-parse", "HEAD").strip
+        bindings = BOUND_PATHS.sort.map { |path| binding(base, path) }
+        status = capture!("git", "status", "--porcelain=v1", "--untracked-files=normal")
+        status_lines = status.lines(chomp: true)
+        {
+          "base_revision" => base,
+          "base_revision_role" => "Git base only; modified and untracked bound paths are identified separately",
+          "capture_worktree_clean" => status_lines.empty?,
+          "capture_worktree_status" => status_lines,
+          "capture_worktree_status_sha256" => ConstructionDigest.sha256(status_lines),
+          "bound_paths" => bindings,
+          "bound_paths_sha256" => ConstructionDigest.sha256(bindings),
+          "implementation_sha256" => implementation_digest(bindings),
+          "environment_observation_sha256" => ConstructionDigest.sha256(environment),
+          "measurement_policy_sha256" => ConstructionDigest.sha256(measurement_policy),
+          "evidence_path" => "tool/profile/evidence/construction-profile-v1.json",
+          "evidence_exclusion_reason" => "the evidence file is excluded from its own digest to avoid circularity"
+        }
+      end
+
+      private
+
+      def binding(base, path)
+        bytes = File.binread(File.join(@root, path))
+        base_bytes = git_object(base, path)
+        digest = Digest::SHA256.hexdigest(bytes)
+        base_digest = Digest::SHA256.hexdigest(base_bytes) if base_bytes
+        state = if base_bytes
+                  digest == base_digest ? "base" : "modified"
+                else
+                  "untracked"
+                end
+        { "path" => path, "sha256" => digest, "git_state" => state, "base_sha256" => base_digest }
+      end
+
+      def implementation_digest(bindings)
+        selected = bindings.select { |item| IMPLEMENTATION_PATHS.include?(item.fetch("path")) }
+        ConstructionDigest.sha256(selected.map { |item| item.slice("path", "sha256") })
+      end
+
+      def git_object(revision, path)
+        stdout, _stderr, status = Open3.capture3("git", "show", "#{revision}:#{path}", chdir: @root)
+        stdout.b if status.success?
+      end
+
+      def capture!(*command)
+        stdout, stderr, status = Open3.capture3(*command, chdir: @root)
+        raise "metadata command failed: #{stderr}#{stdout}" unless status.success?
+
+        stdout
       end
     end
 
@@ -323,12 +410,15 @@ module Ibex
       def build
         validate_checkout_ids!
         cohorts = [synthetic_cohort, real_cohort]
+        environment = ConstructionEnvironment.new.build
+        policy = measurement_policy
         {
           "ibex_report" => "construction_profile",
           "schema_version" => 1,
           "trust" => "internal_local_observation",
-          "environment" => ConstructionEnvironment.new(@root).build,
-          "measurement_policy" => measurement_policy,
+          "environment" => environment,
+          "provenance" => ConstructionProvenance.new(@root).build(environment, policy),
+          "measurement_policy" => policy,
           "cohorts" => cohorts,
           "decisions" => ConstructionDecisions.new(cohorts).build,
           "limitations" => limitations
