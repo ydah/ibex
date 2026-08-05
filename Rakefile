@@ -54,6 +54,11 @@ namespace :quality do
     sh "bundle", "exec", "ruby", "tool/error_ux_snapshot.rb"
   end
 
+  desc "Verify the H003 multi-shape error UX repository evidence"
+  task :error_ux_round2 do
+    ruby "-Ilib", "-r./tool/quality/error_ux_round2", "-e", "Ibex::Quality::ErrorUXRound2.new.verify!"
+  end
+
   desc "Verify the independent error UX review kit and truthful gate state"
   task :error_ux_review_kit do
     sh "bundle", "exec", "ruby", "tool/error_ux_review.rb", "check"
