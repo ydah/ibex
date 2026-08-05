@@ -31,7 +31,10 @@ module Ibex
         return false unless value.is_a?(String)
 
         match = INPUT.match(value)
-        !!(match && match[:index] == format("%04d", index) && usable_basename?(match[:basename]))
+        return false unless match
+
+        basename = match[:basename]
+        !!(basename && match[:index] == format("%04d", index) && usable_basename?(basename))
       end
 
       # @rbs (untyped value) -> bool
@@ -39,7 +42,10 @@ module Ibex
         return false unless value.is_a?(String)
 
         match = TABLE.match(value)
-        !!(match && usable_basename?(match[:basename]))
+        return false unless match
+
+        basename = match[:basename]
+        !!(basename && usable_basename?(basename))
       end
 
       # @rbs (String path) -> String
