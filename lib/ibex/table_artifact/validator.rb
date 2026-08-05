@@ -96,7 +96,7 @@ module Ibex
       def validate_symbols(data)
         symbols = array(data, "$.payload.symbols")
         invalid("$.payload.symbols", "must not be empty") if symbols.empty?
-        names = []
+        names = [] #: Array[String]
         symbols.each_with_index do |symbol, index|
           path = "$.payload.symbols[#{index}]"
           record(symbol, path, %w[id name kind display_name])
