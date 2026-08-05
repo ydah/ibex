@@ -25,7 +25,9 @@ Regeneration: `bundle exec ruby tool/quality/configuration_inventory.rb render`.
 ## Decision rules
 
 This D001 artifact is inventory-only and adds no grammar syntax. The D002 typed effective-configuration model
-consumes these canonical classifications without changing the inventory's admission decisions.
+consumes these canonical classifications without changing the inventory's admission decisions. D006 admits
+root-only extended syntax for parser algorithm and entry construction; it does not turn the inventory into
+a generic CLI key-value language.
 `grammar_contract` is reserved for parser meaning/public contract and requires A1-A8, fixed semantics,
 root-only composition, provenance, and IR persistence. `project_build_policy` covers representation and packaging.
 It also covers source mapping and companion artifacts rejected by X5.
@@ -37,14 +39,16 @@ with admission deferred until user-production coverage and monotone merge are de
 | First-wave concept | Owner | Algebra | Current persistence status |
 |---|---|---|---|
 | `grammar.mode`, `parser.superclass`, `actions.omit_calls` | Grammar Contract | staged fixed compatibility | Grammar IR v2; legacy CLI override needs D008 |
-| `parser.algorithm`, `parser.entries`, `cst.trivia` | Grammar Contract | fixed generation / explicit analysis override | Grammar IR v3 root parser contract; manifest records contract and construction facts |
+| `parser.algorithm`, `parser.entries` | Grammar Contract | fixed generation / explicit algorithm analysis override | root `parser` syntax writes Grammar IR v3; manifest records contract and construction facts |
+| `cst.trivia` | Grammar Contract | fixed generation / explicit analysis override | Grammar IR v3 persistence exists; source syntax remains pending D007 |
 | table/runtime/debug/source mapping/companions | Project Build Policy | project selection | manifest records current generation choices |
 | emit/path/watch/report/budget/locale/help/warnings | Invocation Request | invocation only | excluded from Grammar IR |
 
-Fixed means a future grammar declaration may be matched but not silently contradicted by generation CLI.
-Analysis commands may choose a different value only as an explicit noncanonical analysis override.
-Grammar IR v3 closes persistence for the first-wave construction and CST concepts without adding source syntax.
-The typed model still does not claim that declarative syntax or every conflict diagnostic is complete.
+Fixed means a grammar declaration may be matched but not silently contradicted by generation CLI.
+Analysis commands and grammar tests may choose a different algorithm only as an explicit, reported
+noncanonical override; parser entry construction remains fixed.
+Grammar IR v3 closes persistence for the first-wave construction and CST concepts. D006 exposes only
+`parser.algorithm` and `parser.entries` as source syntax; `cst.trivia` remains pending D007.
 
 ## Owner summary
 

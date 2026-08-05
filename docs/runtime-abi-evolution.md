@@ -108,9 +108,19 @@ IR v3 embeds Grammar IR v3, includes that contract in `grammar_digest`, and
 records `entry_construction` as `shared`, `isolated`, or migration-only
 `unknown`. Downgrades and unknown versions are rejected.
 
+An extended root `parser ... end` declaration now writes explicit
+`parser.algorithm` and `parser.entries` members into that v3 contract. The
+declaration is generator input only: it selects existing construction paths and
+does not add a runtime lookup, generated parser method, action ABI field, or
+parser-table datum. Parser-table format v6 therefore remains the sole writer,
+and declaration-free grammar, generated Ruby, and table golden bytes remain
+unchanged.
+
 Resuming from Grammar IR v3 resolves explicit contract values through the same
 typed configuration algebra as CLI values; a matching CLI value is accepted and
-a conflicting value fails. Resuming from a constructed Automaton IR rejects
+a conflicting canonical-generation value fails at the recorded declaration
+location. Explicit analysis or grammar-test algorithm selection is reported as
+noncanonical and never reclassified as canonical generation. Resuming from a constructed Automaton IR rejects
 construction flags because they cannot rebuild the embedded tables. Its manifest
 keeps the grammar contract, embedded construction facts, and effective codegen
 configuration separate. These schema additions do not change parser-table

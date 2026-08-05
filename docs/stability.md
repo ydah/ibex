@@ -59,8 +59,11 @@ investigation, an ADR, and an unmerged spike do not consume the budget. An
 existing Preview feature consumes a track only while its specification is being
 changed; promotion work that preserves its specification does not.
 
-There are currently no active new Preview development tracks. A pull request
-that starts or ends one must update this statement and the inventory below.
+There is currently one active Preview development track: root declarative
+parser construction. It consumes the one grammar-syntax slot while extending
+the existing Preview IELR and multiple-entry surfaces; it is not a Stable
+promotion. A pull request that starts or ends a track must update this
+statement and the inventory below.
 These limits do not relax the versioned core IR contracts described under
 [Core IR freeze](#core-ir-freeze).
 
@@ -85,7 +88,7 @@ current maturity. The canonical summary below is generated from that registry
 and checked against both public documents.
 
 <!-- maturity-summary:start -->
-Inventory: **18 Preview, 2 Experimental**. Active new Preview tracks: **0/3** (grammar syntax: **0/1**). Experimental product features: **2/5**.
+Inventory: **18 Preview, 2 Experimental**. Active new Preview tracks: **1/3** (grammar syntax: **1/1**). Experimental product features: **2/5**.
 Release dependency state: R001 **hold_external**; R002 **pending_exact_revision**; no feature is promoted by this audit.
 
 | Stable ID | Feature | Current maturity | Decision | External use | Release gate |

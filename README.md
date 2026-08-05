@@ -256,6 +256,31 @@ Preview and incremental CST sessions remain Experimental.
 
 ## Choose a construction algorithm
 
+Extended grammars can make parser construction part of the source-owned
+contract instead of repeating hidden build flags:
+
+```text
+class ExampleParser
+pragma extended
+parser
+  algorithm ielr
+  entries isolated
+end
+start program expression
+rule
+program: PROGRAM
+expression: EXPRESSION
+end
+```
+
+The root-only `parser` block accepts `slr`, `lalr`, `ielr`, or `lr1` for
+`algorithm`, and `shared` or `isolated` for `entries`. `isolated` requires at
+least two start symbols. Canonical generation accepts a matching CLI flag and
+rejects a conflicting one at the declaration location. Analysis and grammar
+tests may explicitly select another algorithm, but report that selection as
+noncanonical. Grammars without the block keep the existing defaults and CLI
+behavior.
+
 | Option | When to use it |
 | --- | --- |
 | `--algorithm=lalr` | Default direct LALR(1) construction |

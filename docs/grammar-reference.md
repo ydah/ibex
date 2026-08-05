@@ -156,6 +156,15 @@ no user-code sections; the current generated parser API is not that profile.
   retained in Automaton IR but are not counted.
 - Extended `%expect-rr N` records the expected reduce/reduce count. Under `--warnings=error`, generation succeeds only when
   both declared counts match.
+- Extended roots accept one `parser ... end` block before `rule`. `algorithm`
+  accepts exactly `slr`, `lalr`, `ielr`, or `lr1`; `entries` accepts exactly
+  `shared` or `isolated`. Keys may appear in either order, but duplicate blocks,
+  duplicate keys, unknown keys or values, and `algorithm auto` are positioned
+  errors. `entries isolated` requires at least two declared start symbols.
+  Fragments cannot own parser-wide construction. During canonical generation a
+  matching `--algorithm` or `--entry-isolation` is accepted and a conflicting
+  request is rejected. Analysis and `ibex test` may explicitly choose another
+  algorithm and report the declared and selected values as noncanonical.
 - `start name` overrides the first rule as the start symbol. Extended mode accepts an ordered list such as
   `start program expression`. The first name remains the primary entry for `do_parse`; generated parsers also expose
   `parse_program` and `parse_expression`. Shared construction attributes each conflict to its reachable entries and marks a

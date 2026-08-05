@@ -42,6 +42,14 @@ merging the first user-visible change for a feature, check the active-track
 limits in [`stability.md`](stability.md#feature-development-budget) and update
 that inventory in the same pull request.
 
+For the active declarative parser-construction track, change the canonical
+frontend grammar and shadow grammar together, run `bundle exec rake
+frontend:generate`, and review the generated parser diff. Then run
+`frontend:check`, the parser-configuration frontend/LSP/IR/CLI tests,
+`test:no_exec`, and `test:zero_cost`. A source `parser` declaration must promote
+normalization to Grammar IR v3 without changing parser-table format v6;
+declaration-free inputs must retain their existing v2 and golden bytes.
+
 ## Stage A safety net
 
 The pre-v1 safety suite keeps independent property tests and adds reviewable
