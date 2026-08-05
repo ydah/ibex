@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "digest"
+require "json"
 require "open3"
 
 module Ibex
@@ -13,12 +14,18 @@ module Ibex
         @provenance = document.fetch("provenance")
       end
 
-      def verify!
+      def verify!(committed: true)
         verify_base_revision!
         verify_observation_digests!
         bindings = verify_bound_paths!
         verify_capture_status!(bindings)
         verify_implementation_digest!(bindings)
+        verify_deterministic_report_input!
+        verify_capture_identity!
+        return unless committed
+
+        verify_committed_capture!
+        verify_clean_capture!(bindings)
       end
 
       private
@@ -90,6 +97,60 @@ module Ibex
         end
         selected = selected_bindings.map { |item| item.slice("path", "sha256") }
         verify_digest!("implementation", selected, @provenance.fetch("implementation_sha256"))
+      end
+
+      def verify_deterministic_report_input!
+        input = Profile::LexerProfileDigest.deterministic_report_input(@document)
+        verify_digest!(
+          "deterministic report input", input, @provenance.fetch("deterministic_report_input_sha256")
+        )
+      end
+
+      def verify_capture_identity!
+        expected = Profile::LexerProfileProvenance.capture_identity(@provenance)
+        return if @provenance.fetch("capture_identity_sha256") == expected
+
+        raise "lexer profile capture identity digest drift"
+      end
+
+      def verify_committed_capture!
+        parent = committed_capture_parent
+        return if parent == @provenance.fetch("base_revision")
+
+        raise "lexer profile base revision is not the exact committed capture parent"
+      end
+
+      def committed_capture_parent
+        path = @provenance.fetch("evidence_path")
+        output, status = capture("git", "log", "--format=%H", "--", path)
+        raise "lexer profile capture history is unavailable" unless status.success?
+
+        identity = @provenance.fetch("capture_identity_sha256")
+        output.lines(chomp: true).each do |revision|
+          bytes = git_object(revision, path)
+          next unless bytes && capture_identity(bytes) == identity
+
+          parent, parent_status = capture("git", "rev-parse", "#{revision}^1")
+          raise "lexer profile capture history is unavailable" unless parent_status.success?
+
+          return parent.strip
+        end
+        raise "lexer profile capture identity is not bound by committed evidence history"
+      end
+
+      def capture_identity(bytes)
+        JSON.parse(bytes).dig("provenance", "capture_identity_sha256")
+      rescue JSON::ParserError
+        nil
+      end
+
+      def verify_clean_capture!(bindings)
+        clean = @provenance.fetch("capture_worktree_clean")
+        lines = @provenance.fetch("capture_worktree_status")
+        states = bindings.map { |item| item.fetch("git_state") }.uniq
+        return if clean && lines.empty? && states == ["base"]
+
+        raise "lexer profile committed capture must use a clean exact revision"
       end
 
       def verify_digest!(label, value, expected)

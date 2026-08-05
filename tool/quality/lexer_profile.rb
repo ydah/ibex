@@ -2,7 +2,6 @@
 
 require "json"
 require "json_schemer"
-require_relative "../../lib/ibex"
 require_relative "../profile/lexer_profile_report"
 require_relative "lexer_profile_integrity"
 
@@ -18,9 +17,9 @@ module Ibex
 
       def verify!
         document = JSON.parse(File.binread(@evidence))
-        validate!(document)
+        validate!(document, committed: true)
         current = Profile::LexerProfileReport.new(root: @root).build
-        validate!(current)
+        validate!(current, committed: false)
         unless deterministic_projection(document) == deterministic_projection(current)
           raise "lexer profile deterministic evidence drift; regenerate with tool/lexer_profile.rb"
         end
@@ -31,9 +30,9 @@ module Ibex
 
       private
 
-      def validate!(document)
+      def validate!(document, committed:)
         validate_schema!(document)
-        LexerProfileProvenance.new(root: @root, document: document).verify!
+        LexerProfileProvenance.new(root: @root, document: document).verify!(committed: committed)
         LexerProfileSemantics.new(document).verify!
       end
 
@@ -44,14 +43,7 @@ module Ibex
       end
 
       def deterministic_projection(document)
-        copy = Marshal.load(Marshal.dump(document))
-        copy.delete("environment")
-        copy.delete("provenance")
-        copy.fetch("cohorts").fetch(0).fetch("workloads").each do |workload|
-          observations = workload.dig("result", "runtime_observations")
-          observations&.each_value { |item| item["value"] = 0 }
-        end
-        copy
+        Profile::LexerProfileDigest.deterministic_report_input(document)
       end
     end
   end

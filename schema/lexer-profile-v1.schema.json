@@ -100,12 +100,15 @@
       "required": [
         "base_revision", "base_revision_role", "capture_worktree_clean", "capture_worktree_status",
         "capture_worktree_status_sha256", "bound_paths", "bound_paths_sha256", "implementation_sha256",
+        "deterministic_report_input_sha256", "capture_identity_sha256",
         "environment_observation_sha256", "measurement_policy_sha256", "heuristic_analysis_sha256",
         "evidence_path", "evidence_exclusion_reason"
       ],
       "properties": {
         "base_revision": { "$ref": "#/$defs/revision" },
-        "base_revision_role": { "$ref": "#/$defs/nonemptyString" },
+        "base_revision_role": {
+          "const": "Exact clean capture revision and parent of the committed evidence revision"
+        },
         "capture_worktree_clean": { "type": "boolean" },
         "capture_worktree_status": { "type": "array", "items": { "type": "string" } },
         "capture_worktree_status_sha256": { "$ref": "#/$defs/sha256" },
@@ -116,6 +119,8 @@
         },
         "bound_paths_sha256": { "$ref": "#/$defs/sha256" },
         "implementation_sha256": { "$ref": "#/$defs/sha256" },
+        "deterministic_report_input_sha256": { "$ref": "#/$defs/sha256" },
+        "capture_identity_sha256": { "$ref": "#/$defs/sha256" },
         "environment_observation_sha256": { "$ref": "#/$defs/sha256" },
         "measurement_policy_sha256": { "$ref": "#/$defs/sha256" },
         "heuristic_analysis_sha256": { "$ref": "#/$defs/sha256" },

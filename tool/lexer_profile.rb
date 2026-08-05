@@ -4,7 +4,6 @@
 require "fileutils"
 require "json"
 require "optparse"
-require_relative "../lib/ibex"
 require_relative "profile/lexer_profile_report"
 
 options = {}
@@ -15,6 +14,7 @@ end.parse!(ARGV)
 
 root = File.expand_path("..", __dir__)
 report = Ibex::Profile::LexerProfileReport.new(root: root).build
+Ibex::Profile::LexerProfileDependencies.verify_loaded!(root: root)
 output = "#{JSON.pretty_generate(report)}\n"
 if options[:output]
   path = File.expand_path(options.fetch(:output), root)

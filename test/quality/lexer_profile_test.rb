@@ -2,6 +2,7 @@
 
 require_relative "../test_helper"
 require "json"
+require "open3"
 require "stringio"
 require "tmpdir"
 require_relative "../../tool/quality/lexer_profile"
@@ -51,6 +52,51 @@ class QualityLexerProfileTest < Minitest::Test
     assert_match(/implementation digest drift/, error.message)
   end
 
+  def test_base_revision_cannot_be_rewritten_to_an_ancestor
+    changed = evidence
+    provenance = changed.fetch("provenance")
+    ancestor = git!("rev-parse", "#{provenance.fetch('base_revision')}^1").strip
+    provenance["base_revision"] = ancestor
+    provenance.fetch("bound_paths").each do |binding|
+      bytes = git_object(ancestor, binding.fetch("path"))
+      base_sha = Digest::SHA256.hexdigest(bytes) if bytes
+      binding["base_sha256"] = base_sha
+      binding["git_state"] =
+        if base_sha.nil?
+          "untracked"
+        elsif base_sha == binding.fetch("sha256")
+          "base"
+        else
+          "modified"
+        end
+    end
+    resign_capture!(provenance, status_for(provenance.fetch("bound_paths")))
+
+    error = assert_raises(RuntimeError) { verify(changed) }
+    assert_match(/capture identity is not bound by committed evidence history/, error.message)
+  end
+
+  def test_capture_clean_status_cannot_be_rewritten
+    changed = evidence
+    provenance = changed.fetch("provenance")
+    resign_capture!(provenance, [" M README.md"])
+
+    error = assert_raises(RuntimeError) { verify(changed) }
+    assert_match(/capture identity is not bound by committed evidence history/, error.message)
+  end
+
+  def test_depth_one_checkout_fails_closed_without_capture_parent
+    Dir.mktmpdir("ibex-lexer-profile-shallow") do |directory|
+      checkout = File.join(directory, "checkout")
+      assert system("git", "clone", "--quiet", "--depth=1", "file://#{ROOT}", checkout)
+
+      error = assert_raises(RuntimeError) do
+        Ibex::Quality::LexerProfile.new(root: checkout, output: StringIO.new).verify!
+      end
+      assert_match(/capture history is unavailable/, error.message)
+    end
+  end
+
   def test_heuristic_policy_cannot_gain_false_authority
     changed = evidence
     changed.fetch("heuristic_analysis")["false_negative_possible"] = false
@@ -73,6 +119,35 @@ class QualityLexerProfileTest < Minitest::Test
     document.fetch("cohorts").fetch(0).fetch("workloads").find do |item|
       item.fetch("id") == identifier
     end
+  end
+
+  def resign_capture!(provenance, status)
+    provenance["capture_worktree_clean"] = status.empty?
+    provenance["capture_worktree_status"] = status
+    provenance["capture_worktree_status_sha256"] = Ibex::Profile::LexerProfileDigest.sha256(status)
+    provenance["bound_paths_sha256"] = Ibex::Profile::LexerProfileDigest.sha256(provenance.fetch("bound_paths"))
+    provenance["capture_identity_sha256"] = Ibex::Profile::LexerProfileProvenance.capture_identity(provenance)
+  end
+
+  def status_for(bindings)
+    bindings.filter_map do |binding|
+      case binding.fetch("git_state")
+      when "modified" then " M #{binding.fetch('path')}"
+      when "untracked" then "?? #{binding.fetch('path')}"
+      end
+    end
+  end
+
+  def git_object(revision, path)
+    output, _error, status = Open3.capture3("git", "show", "#{revision}:#{path}", chdir: ROOT)
+    output.b if status.success?
+  end
+
+  def git!(*arguments)
+    output, error, status = Open3.capture3("git", *arguments, chdir: ROOT)
+    raise "git #{arguments.join(' ')} failed: #{error}" unless status.success?
+
+    output
   end
 
   def verify(document)
