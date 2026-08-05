@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/direct-ielr-decision-v1.schema.json",
+  "title": "Ibex direct IELR decision dossier v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ibex_decision", "schema_version", "work_order", "decision", "follow_on",
+    "policy", "observations", "verification_gaps", "reconsideration_triggers",
+    "legal_provenance", "evidence_identity"
+  ],
+  "properties": {
+    "ibex_decision": { "const": "direct_ielr" },
+    "schema_version": { "const": 1 },
+    "work_order": { "const": "I001" },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "status", "basis", "review_state", "date", "revision", "revision_role"],
+      "properties": {
+        "value": { "const": "NO-GO" },
+        "status": { "const": "final_no_go" },
+        "basis": { "const": "repository_evidence" },
+        "review_state": { "const": "validated" },
+        "date": { "type": "string", "format": "date" },
+        "revision": { "$ref": "#/$defs/git_revision" },
+        "revision_role": {
+          "const": "reviewed repository evidence immediately before dossier publication"
+        }
+      }
+    },
+    "follow_on": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["direct_ielr_implementation_authorized", "i002_authorized"],
+      "properties": {
+        "direct_ielr_implementation_authorized": { "const": false },
+        "i002_authorized": { "const": false }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["go_rule", "go_conditions", "no_go_rule", "no_go_conditions"],
+      "properties": {
+        "go_rule": { "const": "all_conditions_required" },
+        "go_conditions": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": { "$ref": "#/$defs/condition" }
+        },
+        "no_go_rule": { "const": "any_condition_sufficient" },
+        "no_go_conditions": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": { "$ref": "#/$defs/condition" }
+        }
+      }
+    },
+    "observations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "measured_real_grammars", "verified_public_checkouts",
+        "real_ielr_required_workloads", "semantically_reviewed_conflict_removals",
+        "current_real_workload", "canonical_scale_cost"
+      ],
+      "properties": {
+        "measured_real_grammars": { "const": 1 },
+        "verified_public_checkouts": { "const": 0 },
+        "real_ielr_required_workloads": { "const": 0 },
+        "semantically_reviewed_conflict_removals": { "const": 0 },
+        "current_real_workload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id", "lr0_states", "lr0_items", "canonical_states",
+            "canonical_items", "final_states", "unresolved_ielr_conflicts"
+          ],
+          "properties": {
+            "id": { "const": "ibex-frontend" },
+            "lr0_states": { "const": 220 },
+            "lr0_items": { "const": 618 },
+            "canonical_states": { "const": 449 },
+            "canonical_items": { "const": 10103 },
+            "final_states": { "const": 220 },
+            "unresolved_ielr_conflicts": { "const": 0 }
+          }
+        },
+        "canonical_scale_cost": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "current_verified_workflow", "observed_exhaustions", "scope"],
+          "properties": {
+            "status": { "const": "unresolved" },
+            "current_verified_workflow": {
+              "const": "default_and_strict_ielr1_verification_enumerate_full_canonical_lr1"
+            },
+            "observed_exhaustions": { "const": 0 },
+            "scope": {
+              "const": "completion is established only for the one measured real grammar; no general scale bound is claimed"
+            }
+          }
+        }
+      }
+    },
+    "verification_gaps": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ielr_adequacy", "split_witnesses", "conflict_preservation"],
+      "properties": {
+        "ielr_adequacy": { "const": "not_verified" },
+        "split_witnesses": { "const": "not_verified" },
+        "conflict_preservation": { "const": "not_verified" }
+      }
+    },
+    "reconsideration_triggers": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": { "$ref": "#/$defs/trigger" }
+    },
+    "legal_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "design_lineage", "permitted_design_inputs", "gpl_implementation_source_used",
+        "gpl_implementation_source_translated", "rule"
+      ],
+      "properties": {
+        "design_lineage": { "const": "independent_design_from_papers_and_specifications" },
+        "permitted_design_inputs": {
+          "const": ["papers", "specifications"]
+        },
+        "gpl_implementation_source_used": { "const": false },
+        "gpl_implementation_source_translated": { "const": false },
+        "rule": {
+          "const": "future direct IELR design must remain independent; GPL implementation source must not be inspected or translated"
+        }
+      }
+    },
+    "evidence_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_capture_base_revision", "profile_bound_paths_sha256",
+        "profile_implementation_sha256", "v001_revision", "sources", "sources_sha256"
+      ],
+      "properties": {
+        "profile_capture_base_revision": { "$ref": "#/$defs/git_revision" },
+        "profile_bound_paths_sha256": { "$ref": "#/$defs/sha256" },
+        "profile_implementation_sha256": { "$ref": "#/$defs/sha256" },
+        "v001_revision": { "$ref": "#/$defs/git_revision" },
+        "sources": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": { "$ref": "#/$defs/source" }
+        },
+        "sources_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  },
+  "$defs": {
+    "git_revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "observed"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["satisfied", "not_satisfied", "not_assessable"] },
+        "observed": { "type": "string", "minLength": 1 }
+      }
+    },
+    "trigger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "required_evidence"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "required_evidence": { "type": "string", "minLength": 1 }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "path", "sha256", "role"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "path": { "type": "string", "pattern": "^[^/]([^\\0]*[^/])?$" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "role": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

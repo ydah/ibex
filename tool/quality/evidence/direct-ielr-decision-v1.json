@@ -1,0 +1,183 @@
+{
+  "ibex_decision": "direct_ielr",
+  "schema_version": 1,
+  "work_order": "I001",
+  "decision": {
+    "value": "NO-GO",
+    "status": "final_no_go",
+    "basis": "repository_evidence",
+    "review_state": "validated",
+    "date": "2026-08-05",
+    "revision": "58cc36cfdc38ff3169d9578fcbba307f6ea95dad",
+    "revision_role": "reviewed repository evidence immediately before dossier publication"
+  },
+  "follow_on": {
+    "direct_ielr_implementation_authorized": false,
+    "i002_authorized": false
+  },
+  "policy": {
+    "go_rule": "all_conditions_required",
+    "go_conditions": [
+      {
+        "id": "representative-practical-canonical-cost",
+        "status": "not_satisfied",
+        "observed": "one measured real grammar; at least two representative real grammars are required"
+      },
+      {
+        "id": "ielr-required-by-representative-grammars",
+        "status": "not_satisfied",
+        "observed": "zero real IELR-required workloads and zero semantically reviewed conflict removals"
+      },
+      {
+        "id": "algorithm-and-specification-owner",
+        "status": "not_satisfied",
+        "observed": "no accepted owner is recorded"
+      },
+      {
+        "id": "noncanonical-verification-plan",
+        "status": "not_satisfied",
+        "observed": "no accepted scale-independent verification plan; current verification requires full canonical LR(1)"
+      },
+      {
+        "id": "maintenance-budget-accepted",
+        "status": "not_satisfied",
+        "observed": "no accepted maintenance budget is recorded"
+      }
+    ],
+    "no_go_rule": "any_condition_sufficient",
+    "no_go_conditions": [
+      {
+        "id": "no-real-ielr-required-workload",
+        "status": "satisfied",
+        "observed": "zero real workloads currently require IELR"
+      },
+      {
+        "id": "canonical-lr1-completes-within-current-measured-budget",
+        "status": "satisfied",
+        "observed": "the one measured real grammar completes canonical LR(1) without observed exhaustion; no broader budget claim is made"
+      },
+      {
+        "id": "lr1-or-grammar-rewrite-is-simpler",
+        "status": "not_assessable",
+        "observed": "there is no concrete real conflict case on which to compare alternatives"
+      },
+      {
+        "id": "verifier-still-enumerates-full-canonical-collection",
+        "status": "satisfied",
+        "observed": "default and strict ielr1 verification both enumerate full canonical LR(1)"
+      },
+      {
+        "id": "only-state-count-benefit",
+        "status": "satisfied",
+        "observed": "no semantic conflict-removal benefit is established; structural state and item counts alone do not justify direct IELR"
+      }
+    ]
+  },
+  "observations": {
+    "measured_real_grammars": 1,
+    "verified_public_checkouts": 0,
+    "real_ielr_required_workloads": 0,
+    "semantically_reviewed_conflict_removals": 0,
+    "current_real_workload": {
+      "id": "ibex-frontend",
+      "lr0_states": 220,
+      "lr0_items": 618,
+      "canonical_states": 449,
+      "canonical_items": 10103,
+      "final_states": 220,
+      "unresolved_ielr_conflicts": 0
+    },
+    "canonical_scale_cost": {
+      "status": "unresolved",
+      "current_verified_workflow": "default_and_strict_ielr1_verification_enumerate_full_canonical_lr1",
+      "observed_exhaustions": 0,
+      "scope": "completion is established only for the one measured real grammar; no general scale bound is claimed"
+    }
+  },
+  "verification_gaps": {
+    "ielr_adequacy": "not_verified",
+    "split_witnesses": "not_verified",
+    "conflict_preservation": "not_verified"
+  },
+  "reconsideration_triggers": [
+    {
+      "id": "representative-real-grammars",
+      "required_evidence": "at least two verified representative real grammars"
+    },
+    {
+      "id": "material-canonical-cost",
+      "required_evidence": "material canonical state or item cost, or observed bounded exhaustion, on those grammars"
+    },
+    {
+      "id": "meaningful-ielr-need",
+      "required_evidence": "IELR removes semantically reviewed meaningful conflicts on those grammars"
+    },
+    {
+      "id": "scale-independent-verification",
+      "required_evidence": "a bounded verification plan does not make full canonical LR(1) enumeration mandatory"
+    },
+    {
+      "id": "algorithm-and-specification-owner",
+      "required_evidence": "an identified owner accepts the algorithm and specification"
+    },
+    {
+      "id": "maintenance-budget",
+      "required_evidence": "the ongoing implementation, verification, review, and maintenance budget is accepted"
+    }
+  ],
+  "legal_provenance": {
+    "design_lineage": "independent_design_from_papers_and_specifications",
+    "permitted_design_inputs": [
+      "papers",
+      "specifications"
+    ],
+    "gpl_implementation_source_used": false,
+    "gpl_implementation_source_translated": false,
+    "rule": "future direct IELR design must remain independent; GPL implementation source must not be inspected or translated"
+  },
+  "evidence_identity": {
+    "profile_capture_base_revision": "5adf2cce4fbeee753d9a0a25f30b5e25eb8653ed",
+    "profile_bound_paths_sha256": "60ff72c16cff122cae827dd00093757b040dd7bb5294791c4fe9dcca52983c99",
+    "profile_implementation_sha256": "19b94af36393303eecc4b895eaee02b2ca1ba75abcc769355cf3af98c518af39",
+    "v001_revision": "5cf20f6c9d5b82738965bd0aead8fa3a2ac14d8b",
+    "sources": [
+      {
+        "id": "h005-human-report",
+        "path": "docs/construction-profiling.md",
+        "sha256": "bffe0fa837efa5970719712e109c3b941d8a3807380322c812995fecc98a772f",
+        "role": "H005 thresholds, observations, NO-GO rationale, and reconsideration evidence"
+      },
+      {
+        "id": "h005-machine-evidence",
+        "path": "tool/profile/evidence/construction-profile-v1.json",
+        "sha256": "6910c2f9c226583f4fd69e5f0c6db31ef0b519b0de9895369b79e7e3867bf20b",
+        "role": "machine-readable workload measurements, thresholds, decision, and capture provenance"
+      },
+      {
+        "id": "h005-evidence-schema",
+        "path": "schema/construction-profile-v1.schema.json",
+        "sha256": "91d1ee63e323e0a9c01d28bc6e2a09387e3c55fd8314722d9eb0f18a04fb4901",
+        "role": "closed H005 evidence contract"
+      },
+      {
+        "id": "v001-trust-boundary",
+        "path": "docs/verifier-trust-boundary.md",
+        "sha256": "9ffc237e437ad08f81fbea15e48b1c2223df4dad95da0ddadb7927e98893a301",
+        "role": "verifier reference cost, assurance boundary, and explicit IELR non-goals"
+      },
+      {
+        "id": "v001-reference-collection",
+        "path": "lib/ibex/verify/reference_collection.rb",
+        "sha256": "d07e900652c61ddd942380d49edce0a3c811605cd82490c1e0e6db54010746fb",
+        "role": "independent reference collection implementation reviewed by V001"
+      },
+      {
+        "id": "v001-verifier",
+        "path": "lib/ibex/verify/verifier.rb",
+        "sha256": "66efb73edf90d5466e102ea756c5b36e645ea6f5a780250b0b056dbfe34a80a3",
+        "role": "current verifier checks reviewed by V001"
+      }
+    ],
+    "sources_sha256": "8320b23fa254b32643f1a0237e966ba96eb2094d029a4dced7bd5bc2af767194"
+  }
+}

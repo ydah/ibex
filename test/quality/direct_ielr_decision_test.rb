@@ -1,0 +1,136 @@
+# frozen_string_literal: true
+
+require_relative "../test_helper"
+require "fileutils"
+require "json"
+require "json_schemer"
+require "open3"
+require "stringio"
+require "tmpdir"
+require_relative "../../tool/quality/direct_ielr_decision"
+
+class DirectIELRDecisionTest < Minitest::Test
+  ROOT = File.expand_path("../..", __dir__)
+  DOSSIER = File.join(ROOT, "tool/quality/evidence/direct-ielr-decision-v1.json")
+  SCHEMA = File.join(ROOT, "schema/direct-ielr-decision-v1.schema.json")
+
+  def test_committed_no_go_matches_h005_and_v001
+    output = StringIO.new
+    result = Ibex::Quality::DirectIELRDecision.new(root: ROOT, output: output).verify!
+
+    assert_equal "NO-GO", result.dig("decision", "value")
+    assert_match(/matches H005 and V001 evidence/, output.string)
+  end
+
+  def test_schema_is_a_closed_json_schema_2020_12_document
+    schema = JSON.parse(File.binread(SCHEMA))
+
+    assert_equal "https://json-schema.org/draft/2020-12/schema", schema.fetch("$schema")
+    assert_equal false, schema.fetch("additionalProperties")
+    assert JSONSchemer.valid_schema?(schema), JSONSchemer.validate_schema(schema).to_a.inspect
+    assert_empty JSONSchemer.schema(schema).validate(dossier).to_a
+  end
+
+  def test_go_condition_or_i002_promotion_is_rejected
+    changed = dossier
+    changed.dig("policy", "go_conditions", 0)["status"] = "satisfied"
+    assert_verification_error(changed, /GO condition inventory drift/)
+
+    changed = dossier
+    changed.fetch("follow_on")["i002_authorized"] = true
+    assert_verification_error(changed, /violates schema|I002 must remain blocked/)
+  end
+
+  def test_scale_cost_and_verification_gaps_cannot_gain_false_assurance
+    changed = dossier
+    changed.dig("observations", "canonical_scale_cost")["status"] = "resolved"
+    assert_verification_error(changed, /violates schema|must remain unresolved/)
+
+    changed = dossier
+    changed.fetch("verification_gaps")["split_witnesses"] = "verified"
+    assert_verification_error(changed, /violates schema|unsupported IELR verification/)
+  end
+
+  def test_workload_counts_and_evidence_digests_are_bound
+    changed = dossier
+    changed.fetch("observations")["real_ielr_required_workloads"] = 1
+    assert_verification_error(changed, /violates schema|unsubstantiated real IELR need/)
+
+    changed = dossier
+    changed.dig("evidence_identity", "sources", 0)["sha256"] = "0" * 64
+    assert_verification_error(changed, /evidence source digest drift/)
+  end
+
+  def test_gpl_implementation_lineage_is_rejected
+    changed = dossier
+    changed.fetch("legal_provenance")["gpl_implementation_source_used"] = true
+
+    assert_verification_error(changed, /violates schema|legal provenance/)
+  end
+
+  def test_depth_one_checkout_after_dossier_commit_fails_closed
+    Dir.mktmpdir("ibex-direct-ielr-shallow") do |directory|
+      staging = File.join(directory, "staging")
+      checkout = File.join(directory, "checkout")
+      assert system("git", "clone", "--quiet", "--depth=1", "file://#{ROOT}", staging)
+      copy_dossier_contract(staging)
+      git!(staging, "add", "schema/direct-ielr-decision-v1.schema.json",
+           "tool/quality/evidence/direct-ielr-decision-v1.json")
+      git!(staging, "-c", "user.name=Ibex Test", "-c", "user.email=test@example.invalid",
+           "commit", "--quiet", "--allow-empty", "-m", "test: advance after decision dossier")
+      assert system("git", "clone", "--quiet", "--depth=1", "file://#{staging}", checkout)
+
+      error = assert_raises(RuntimeError) do
+        Ibex::Quality::DirectIELRDecision.new(root: checkout, output: StringIO.new).verify!
+      end
+      assert_match(/decision revision is unavailable/, error.message)
+    end
+  end
+
+  def test_public_document_is_indexed_and_points_to_machine_record
+    readme = File.binread(File.join(ROOT, "README.md"))
+    document = File.binread(File.join(ROOT, "docs/direct-ielr-decision.md"))
+
+    assert_includes readme, "docs/direct-ielr-decision.md"
+    assert_includes document, "direct-ielr-decision-v1.json"
+    assert_includes document, "direct-ielr-decision-v1.schema.json"
+    assert_includes document, "I002 remains\nblocked"
+  end
+
+  private
+
+  def dossier
+    JSON.parse(File.binread(DOSSIER))
+  end
+
+  def assert_verification_error(document, message)
+    error = assert_raises(RuntimeError) { verify(document) }
+    assert_match message, error.message
+  end
+
+  def verify(document)
+    Dir.mktmpdir("ibex-direct-ielr-decision") do |directory|
+      path = File.join(directory, "dossier.json")
+      File.binwrite(path, "#{JSON.pretty_generate(document)}\n")
+      Ibex::Quality::DirectIELRDecision.new(root: ROOT, dossier: path, output: StringIO.new).verify!
+    end
+  end
+
+  def copy_dossier_contract(destination)
+    [
+      "schema/direct-ielr-decision-v1.schema.json",
+      "tool/quality/evidence/direct-ielr-decision-v1.json"
+    ].each do |relative|
+      target = File.join(destination, relative)
+      FileUtils.mkdir_p(File.dirname(target))
+      FileUtils.cp(File.join(ROOT, relative), target)
+    end
+  end
+
+  def git!(root, *arguments)
+    output, error, status = Open3.capture3("git", *arguments, chdir: root)
+    raise "git #{arguments.join(' ')} failed: #{error}" unless status.success?
+
+    output
+  end
+end
