@@ -326,7 +326,7 @@ module Ibex
       # Report the trust boundary of syntax-only operations for this loaded
       # parser class. Current generated artifacts can contain user sections
       # and Ruby lexer actions, so they are always trusted application code.
-      # @rbs () -> Symbol
+      # @rbs skip
       def self.syntax_execution_profile
         :trusted_application_code
       end
@@ -334,9 +334,7 @@ module Ibex
       # Open a generated-language syntax session backed by the existing
       # incremental Red/Green CST engine. The execution profile must be passed
       # explicitly because generated lexer actions execute in this path.
-      # @rbs (String | CST::SourceText source, ?execution_profile: Symbol?,
-      #   ?resource_limits: ResourceLimits?, ?limits: SyntaxSessionLimits?,
-      #   ?cancellation: CancellationToken?, ?blender: bool) -> SyntaxSession
+      # @rbs skip
       def self.syntax_session(
         source,
         execution_profile: nil,

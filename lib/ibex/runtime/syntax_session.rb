@@ -5,6 +5,16 @@ require_relative "event_sanitizer" unless defined?(Ibex::Runtime::EventSanitizer
 
 module Ibex
   module Runtime
+    # Syntax-session additions to the frozen Parser signature surface.
+    # @rbs!
+    #   class Parser
+    #     def self.syntax_execution_profile: () -> Symbol
+    #
+    #     def self.syntax_session: (String | CST::SourceText source, ?execution_profile: Symbol?,
+    #       ?resource_limits: ResourceLimits?, ?limits: SyntaxSessionLimits?,
+    #       ?cancellation: CancellationToken?, ?blender: bool) -> SyntaxSession
+    #   end
+
     # Raised when a caller has not acknowledged the generated artifact's
     # execution profile.
     class SyntaxSessionTrustError < ArgumentError; end
