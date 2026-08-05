@@ -1,0 +1,35 @@
+# Generated from lib/ibex/cli/config.rb with RBS::Inline
+
+module Ibex
+  # Static effective-configuration reporting for source grammars and Grammar IR.
+  module CLIConfig
+    type config_options = { format: String, mode: Symbol, configuration_explicit: Array[Symbol], ?from: String, ?algorithm: Symbol, ?entry_isolation: bool, ?cst_trivia: Symbol, ?superclass: String, ?omit_actions: bool, ?help: String }
+
+    private def input_path: (Array[String]) -> String
+
+    private def set_local_configuration_option: (Hash[Symbol, untyped], Symbol, untyped) -> void
+
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_config_command: (Array[String] arguments) -> Integer
+
+    # @rbs (Array[String] arguments) -> [config_options, Array[String]]
+    def config_options: (Array[String] arguments) -> [ config_options, Array[String] ]
+
+    # @rbs (OptionParser options, config_options settings) -> void
+    def add_config_options: (OptionParser options, config_options settings) -> void
+
+    # @rbs (OptionParser options, config_options settings) -> void
+    def add_config_contract_options: (OptionParser options, config_options settings) -> void
+
+    # @rbs (String path, config_options settings) -> Configuration::Input
+    def load_configuration_input: (String path, config_options settings) -> Configuration::Input
+
+    # @rbs (String path) -> Configuration::Input
+    def load_grammar_ir_configuration: (String path) -> Configuration::Input
+
+    # @rbs (Configuration::Report report, String format) -> void
+    def write_configuration_report: (Configuration::Report report, String format) -> void
+  end
+end

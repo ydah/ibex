@@ -253,4 +253,6 @@ module Ibex
     # @rbs (String output_path) -> String
     def manifest_output_path_for: (String output_path) -> String
   end
+
+  CONFIG_SUBCOMMAND_HELP: String
 end
