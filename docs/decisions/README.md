@@ -69,3 +69,4 @@ Use [`0000-template.md`](0000-template.md) for a new implementation decision.
 - [0018: Reuse incremental syntax only with conservative proofs](0018-conservative-incremental-syntax-reuse.md)
 - [0019: Keep generated-language syntax sessions in the runtime](0019-runtime-syntax-session-boundary.md)
 - [0020: Persist parser contracts in Grammar IR](0020-grammar-ir-parser-contract.md)
+- [0021: Persist executable parser tables as a data-only sidecar](0021-data-only-parser-table-sidecar.md)
