@@ -21,8 +21,12 @@ The machine artifact records the fixed input identity, state/item context,
 conflict alternatives, shortest or bounded witness classification, and any
 machine-verified repair candidates. A separate review record asks a human to
 identify the cause and choose an edit before seeing the repository's expected
-classification. Reviewer answers remain subjective evidence; an empty review
-registry is `HOLD`, never an inferred pass.
+classification. The reviewer sees a digest-bound derived artifact with neutral
+case IDs; source IDs, shape labels, grammar paths, and maintainer hypotheses are
+withheld until the blind submission is sealed. After at least two independent
+submissions, per-case reveal comparisons bind the source study digest without
+rewriting the blind answers. Reviewer answers remain subjective evidence; an
+empty review registry is `HOLD`, never an inferred pass.
 
 The study changes no parser-construction, conflict-resolution, generated-table,
 or runtime contract. It does not claim that every conflict is ambiguous, that
@@ -81,6 +85,9 @@ collapsing it into a maintainer-authored label.
 - explicit search and repair exhaustion outcomes;
 - fresh rebuild and target-conflict removal for applicable edits;
 - empty and malformed external review registry handling;
+- deterministic blind-view derivation, digest binding, and answer-field
+  exclusion;
+- two-record reveal threshold and complete per-case comparison before `PASS`;
 - package inclusion and documentation links.
 
 ## Claims

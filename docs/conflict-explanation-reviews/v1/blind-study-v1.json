@@ -1,54 +1,26 @@
 {
-  "ibex_conflict_explanation_study": "h004",
+  "ibex_conflict_explanation_blind_review": "h004",
   "schema_version": 1,
-  "capture": {
-    "algorithm": "lalr",
-    "mode": "extended",
-    "search_bounds": {
-      "max_tokens": 16,
-      "max_configurations": 100000
-    },
-    "repair_bounds": {
-      "max_candidates": 32,
-      "max_builds": 32,
-      "equiv_max_tokens": 12,
-      "equiv_max_configurations": 50000,
-      "equiv_samples": 10,
-      "verify_max_states": 100000,
-      "verify_max_items": 1000000
-    },
-    "executes_grammar_actions": false
-  },
-  "coverage": {
-    "case_count": 4,
-    "conflict_count": 5,
-    "shapes": [
-      "ambiguous_expression",
-      "dangling_optional_clause",
-      "lr1_not_lalr_merge",
-      "reduce_reduce_choice"
+  "source_study_sha256": "13874dc73f43da3174677f608382edac11ca21d520baa0cf956ce71d1b37b112",
+  "protocol": {
+    "phase": "blind",
+    "required_tasks": [
+      "identify_cause",
+      "choose_edit"
     ],
-    "conflict_types": [
-      "reduce_reduce",
-      "shift_reduce"
-    ],
-    "witness_kinds": [
-      "nonunifying_witness",
-      "unifying_counterexample"
+    "hidden_until_submission": [
+      "case_id",
+      "shape",
+      "grammar_path",
+      "maintainer_hypothesis"
     ]
   },
   "cases": [
     {
-      "id": "H004-EXPR",
-      "shape": "ambiguous_expression",
+      "blind_case_id": "H004-BLIND-01",
       "grammar": {
-        "path": "test/fixtures/conflict_explanations/expression.y",
         "sha256": "20046e2f14f85da56f65e85981c0d29d26c0dfb6e57d139c9fe07ee4b8c98b9e",
         "bytes": 143
-      },
-      "maintainer_hypothesis": {
-        "cause": "missing operator associativity",
-        "repair_goal": "choose and declare the intended PLUS associativity"
       },
       "automaton": {
         "algorithm": "lalr1",
@@ -425,7 +397,7 @@
                 "category": "precedence_declaration",
                 "description": "declare right precedence for PLUS",
                 "applyable": true,
-                "unified_diff": "--- test/fixtures/conflict_explanations/expression.y\n+++ test/fixtures/conflict_explanations/expression.y\n@@ -1,9 +1,12 @@\n-class H004Expression\n-pragma extended\n-token NUM PLUS\n-expect 1\n-rule\n-start: expression\n-expression: expression PLUS expression\n-          | NUM\n-end\n+class H004Expression\n+pragma extended\n+token NUM PLUS\n+expect 0\n+preclow\n+  right PLUS\n+prechigh\n+rule\n+start: expression\n+expression: expression PLUS expression\n+          | NUM\n+end\n",
+                "unified_diff": "--- blind/H004-BLIND-01.y\n+++ blind/H004-BLIND-01.y\n@@ -1,9 +1,12 @@\n-class H004Expression\n-pragma extended\n-token NUM PLUS\n-expect 1\n-rule\n-start: expression\n-expression: expression PLUS expression\n-          | NUM\n-end\n+class H004Expression\n+pragma extended\n+token NUM PLUS\n+expect 0\n+preclow\n+  right PLUS\n+prechigh\n+rule\n+start: expression\n+expression: expression PLUS expression\n+          | NUM\n+end\n",
                 "verification": {
                   "equivalence_result": "no_difference_within_bounds",
                   "tree_result": "no_difference_within_bounds",
@@ -491,7 +463,7 @@
                 "category": "mechanical_rewrite",
                 "description": "inline nonterminal expression",
                 "reason": "candidate_build_failed",
-                "message": "test/fixtures/conflict_explanations/expression.y:7:21: inline expansion cycle: expression -> expression"
+                "message": "blind/H004-BLIND-01.y:7:21: inline expansion cycle: expression -> expression"
               }
             ],
             "advice": [
@@ -507,7 +479,7 @@
                 "description": "prefer expression during error recovery",
                 "statement": "Advice does not eliminate the selected conflict and is not a verified repair.",
                 "source_change": true,
-                "unified_diff": "--- test/fixtures/conflict_explanations/expression.y\n+++ test/fixtures/conflict_explanations/expression.y\n@@ -1,9 +1,10 @@\n-class H004Expression\n-pragma extended\n-token NUM PLUS\n-expect 1\n-rule\n-start: expression\n-expression: expression PLUS expression\n-          | NUM\n-end\n+class H004Expression\n+pragma extended\n+token NUM PLUS\n+expect 1\n+%on_error_reduce expression\n+rule\n+start: expression\n+expression: expression PLUS expression\n+          | NUM\n+end\n"
+                "unified_diff": "--- blind/H004-BLIND-01.y\n+++ blind/H004-BLIND-01.y\n@@ -1,9 +1,10 @@\n-class H004Expression\n-pragma extended\n-token NUM PLUS\n-expect 1\n-rule\n-start: expression\n-expression: expression PLUS expression\n-          | NUM\n-end\n+class H004Expression\n+pragma extended\n+token NUM PLUS\n+expect 1\n+%on_error_reduce expression\n+rule\n+start: expression\n+expression: expression PLUS expression\n+          | NUM\n+end\n"
               }
             ]
           }
@@ -515,16 +487,10 @@
       ]
     },
     {
-      "id": "H004-ELSE",
-      "shape": "dangling_optional_clause",
+      "blind_case_id": "H004-BLIND-02",
       "grammar": {
-        "path": "test/fixtures/conflict_explanations/dangling_else.y",
         "sha256": "4e66966d9bcdb4c313c11982a3b0ae4e73e31f05752b36de0900a9640986921e",
         "bytes": 203
-      },
-      "maintainer_hypothesis": {
-        "cause": "ELSE can attach to either unmatched IF",
-        "repair_goal": "make the intended ELSE attachment explicit"
       },
       "automaton": {
         "algorithm": "lalr1",
@@ -1073,7 +1039,7 @@
                 "description": "prefer statement during error recovery",
                 "statement": "Advice does not eliminate the selected conflict and is not a verified repair.",
                 "source_change": true,
-                "unified_diff": "--- test/fixtures/conflict_explanations/dangling_else.y\n+++ test/fixtures/conflict_explanations/dangling_else.y\n@@ -1,10 +1,11 @@\n-class H004DanglingElse\n-pragma extended\n-token IF THEN ELSE ID\n-expect 1\n-rule\n-statement: IF expression THEN statement\n-         | IF expression THEN statement ELSE statement\n-         | ID\n-expression: ID\n-end\n+class H004DanglingElse\n+pragma extended\n+token IF THEN ELSE ID\n+expect 1\n+%on_error_reduce statement\n+rule\n+statement: IF expression THEN statement\n+         | IF expression THEN statement ELSE statement\n+         | ID\n+expression: ID\n+end\n"
+                "unified_diff": "--- blind/H004-BLIND-02.y\n+++ blind/H004-BLIND-02.y\n@@ -1,10 +1,11 @@\n-class H004DanglingElse\n-pragma extended\n-token IF THEN ELSE ID\n-expect 1\n-rule\n-statement: IF expression THEN statement\n-         | IF expression THEN statement ELSE statement\n-         | ID\n-expression: ID\n-end\n+class H004DanglingElse\n+pragma extended\n+token IF THEN ELSE ID\n+expect 1\n+%on_error_reduce statement\n+rule\n+statement: IF expression THEN statement\n+         | IF expression THEN statement ELSE statement\n+         | ID\n+expression: ID\n+end\n"
               }
             ]
           }
@@ -1081,16 +1047,10 @@
       ]
     },
     {
-      "id": "H004-RR",
-      "shape": "reduce_reduce_choice",
+      "blind_case_id": "H004-BLIND-03",
       "grammar": {
-        "path": "test/fixtures/conflict_explanations/reduce_reduce.y",
         "sha256": "efe3ed72a7b388cd6447a3691ce0c4b549baca125db799fb6bb05a327f03eea9",
         "bytes": 120
-      },
-      "maintainer_hypothesis": {
-        "cause": "the same WORD can reduce through left or right",
-        "repair_goal": "remove or semantically distinguish one reduction"
       },
       "automaton": {
         "algorithm": "lalr1",
@@ -1295,7 +1255,7 @@
                 "description": "prefer left during error recovery",
                 "statement": "Advice does not eliminate the selected conflict and is not a verified repair.",
                 "source_change": true,
-                "unified_diff": "--- test/fixtures/conflict_explanations/reduce_reduce.y\n+++ test/fixtures/conflict_explanations/reduce_reduce.y\n@@ -1,10 +1,11 @@\n-class H004ReduceReduce\n-pragma extended\n-token WORD\n-%expect-rr 1\n-rule\n-start: left\n-     | right\n-left: WORD\n-right: WORD\n-end\n+class H004ReduceReduce\n+pragma extended\n+token WORD\n+%expect-rr 1\n+%on_error_reduce left\n+rule\n+start: left\n+     | right\n+left: WORD\n+right: WORD\n+end\n"
+                "unified_diff": "--- blind/H004-BLIND-03.y\n+++ blind/H004-BLIND-03.y\n@@ -1,10 +1,11 @@\n-class H004ReduceReduce\n-pragma extended\n-token WORD\n-%expect-rr 1\n-rule\n-start: left\n-     | right\n-left: WORD\n-right: WORD\n-end\n+class H004ReduceReduce\n+pragma extended\n+token WORD\n+%expect-rr 1\n+%on_error_reduce left\n+rule\n+start: left\n+     | right\n+left: WORD\n+right: WORD\n+end\n"
               }
             ]
           }
@@ -1303,16 +1263,10 @@
       ]
     },
     {
-      "id": "H004-MERGE",
-      "shape": "lr1_not_lalr_merge",
+      "blind_case_id": "H004-BLIND-04",
       "grammar": {
-        "path": "test/fixtures/conflict_explanations/lalr_merge.y",
         "sha256": "290aeb9a07f3ec0a0dc247eb4701ddf83dac7c7455035fe173ee393ac589e2e3",
         "bytes": 167
-      },
-      "maintainer_hypothesis": {
-        "cause": "LALR merges LR(1) contexts whose reductions require disjoint lookaheads",
-        "repair_goal": "use a compatible precise construction and update the expected RR count"
       },
       "automaton": {
         "algorithm": "lalr1",
@@ -1504,7 +1458,7 @@
                 "description": "prefer first during error recovery",
                 "statement": "Advice does not eliminate the selected conflict and is not a verified repair.",
                 "source_change": true,
-                "unified_diff": "--- test/fixtures/conflict_explanations/lalr_merge.y\n+++ test/fixtures/conflict_explanations/lalr_merge.y\n@@ -1,11 +1,12 @@\n-class H004LALRMerge\n-pragma extended\n-%expect-rr 2\n-rule\n-start: 'a' first 'd'\n-     | 'b' second 'd'\n-     | 'a' second 'e'\n-     | 'b' first 'e'\n-first: 'c'\n-second: 'c'\n-end\n+class H004LALRMerge\n+pragma extended\n+%expect-rr 2\n+%on_error_reduce first\n+rule\n+start: 'a' first 'd'\n+     | 'b' second 'd'\n+     | 'a' second 'e'\n+     | 'b' first 'e'\n+first: 'c'\n+second: 'c'\n+end\n"
+                "unified_diff": "--- blind/H004-BLIND-04.y\n+++ blind/H004-BLIND-04.y\n@@ -1,11 +1,12 @@\n-class H004LALRMerge\n-pragma extended\n-%expect-rr 2\n-rule\n-start: 'a' first 'd'\n-     | 'b' second 'd'\n-     | 'a' second 'e'\n-     | 'b' first 'e'\n-first: 'c'\n-second: 'c'\n-end\n+class H004LALRMerge\n+pragma extended\n+%expect-rr 2\n+%on_error_reduce first\n+rule\n+start: 'a' first 'd'\n+     | 'b' second 'd'\n+     | 'a' second 'e'\n+     | 'b' first 'e'\n+first: 'c'\n+second: 'c'\n+end\n"
               }
             ]
           }
@@ -1684,21 +1638,12 @@
                 "description": "prefer first during error recovery",
                 "statement": "Advice does not eliminate the selected conflict and is not a verified repair.",
                 "source_change": true,
-                "unified_diff": "--- test/fixtures/conflict_explanations/lalr_merge.y\n+++ test/fixtures/conflict_explanations/lalr_merge.y\n@@ -1,11 +1,12 @@\n-class H004LALRMerge\n-pragma extended\n-%expect-rr 2\n-rule\n-start: 'a' first 'd'\n-     | 'b' second 'd'\n-     | 'a' second 'e'\n-     | 'b' first 'e'\n-first: 'c'\n-second: 'c'\n-end\n+class H004LALRMerge\n+pragma extended\n+%expect-rr 2\n+%on_error_reduce first\n+rule\n+start: 'a' first 'd'\n+     | 'b' second 'd'\n+     | 'a' second 'e'\n+     | 'b' first 'e'\n+first: 'c'\n+second: 'c'\n+end\n"
+                "unified_diff": "--- blind/H004-BLIND-04.y\n+++ blind/H004-BLIND-04.y\n@@ -1,11 +1,12 @@\n-class H004LALRMerge\n-pragma extended\n-%expect-rr 2\n-rule\n-start: 'a' first 'd'\n-     | 'b' second 'd'\n-     | 'a' second 'e'\n-     | 'b' first 'e'\n-first: 'c'\n-second: 'c'\n-end\n+class H004LALRMerge\n+pragma extended\n+%expect-rr 2\n+%on_error_reduce first\n+rule\n+start: 'a' first 'd'\n+     | 'b' second 'd'\n+     | 'a' second 'e'\n+     | 'b' first 'e'\n+first: 'c'\n+second: 'c'\n+end\n"
               }
             ]
           }
         }
       ]
     }
-  ],
-  "subjective_review": {
-    "status": "external_pending",
-    "required_tasks": [
-      "identify_cause",
-      "choose_edit"
-    ],
-    "blind_artifact_path": "docs/conflict-explanation-reviews/v1/blind-study-v1.json",
-    "registry_path": "docs/conflict-explanation-review-status-v1.json"
-  }
+  ]
 }

@@ -448,13 +448,77 @@
       },
       "additionalProperties": false
     },
+    "blind_artifact": {
+      "type": "object",
+      "required": [
+        "ibex_conflict_explanation_blind_review",
+        "schema_version",
+        "source_study_sha256",
+        "protocol",
+        "cases"
+      ],
+      "properties": {
+        "ibex_conflict_explanation_blind_review": { "const": "h004" },
+        "schema_version": { "const": 1 },
+        "source_study_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "protocol": { "$ref": "#/$defs/blind_protocol" },
+        "cases": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": { "$ref": "#/$defs/blind_case" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "blind_protocol": {
+      "type": "object",
+      "required": ["phase", "required_tasks", "hidden_until_submission"],
+      "properties": {
+        "phase": { "const": "blind" },
+        "required_tasks": { "const": ["identify_cause", "choose_edit"] },
+        "hidden_until_submission": {
+          "const": ["case_id", "shape", "grammar_path", "maintainer_hypothesis"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "blind_case": {
+      "type": "object",
+      "required": ["blind_case_id", "grammar", "automaton", "conflicts"],
+      "properties": {
+        "blind_case_id": {
+          "enum": ["H004-BLIND-01", "H004-BLIND-02", "H004-BLIND-03", "H004-BLIND-04"]
+        },
+        "grammar": { "$ref": "#/$defs/blind_grammar_identity" },
+        "automaton": { "$ref": "#/$defs/automaton" },
+        "conflicts": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/conflict_record" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "blind_grammar_identity": {
+      "type": "object",
+      "required": ["sha256", "bytes"],
+      "properties": {
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "bytes": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
     "subjective_review": {
       "type": "object",
-      "required": ["status", "required_tasks", "registry_path"],
+      "required": ["status", "required_tasks", "blind_artifact_path", "registry_path"],
       "properties": {
         "status": { "const": "external_pending" },
         "required_tasks": {
           "const": ["identify_cause", "choose_edit"]
+        },
+        "blind_artifact_path": {
+          "const": "docs/conflict-explanation-reviews/v1/blind-study-v1.json"
         },
         "registry_path": { "const": "docs/conflict-explanation-review-status-v1.json" }
       },

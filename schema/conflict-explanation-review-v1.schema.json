@@ -7,9 +7,12 @@
     "schema_version",
     "gate_id",
     "status",
+    "review_phase",
     "reason",
     "study_path",
     "study_sha256",
+    "blind_artifact_path",
+    "blind_artifact_sha256",
     "records",
     "disagreement_summary"
   ],
@@ -17,9 +20,14 @@
     "schema_version": { "const": 1 },
     "gate_id": { "const": "H004-subjective-usefulness" },
     "status": { "enum": ["HOLD", "PASS"] },
+    "review_phase": { "enum": ["blind_collection", "reveal_comparison", "review_complete"] },
     "reason": { "type": "string", "minLength": 1 },
     "study_path": { "const": "test/fixtures/conflict_explanations/study-v1.json" },
     "study_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "blind_artifact_path": {
+      "const": "docs/conflict-explanation-reviews/v1/blind-study-v1.json"
+    },
+    "blind_artifact_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
     "records": {
       "type": "array",
       "items": { "$ref": "#/$defs/review_record" }
@@ -30,7 +38,54 @@
   "allOf": [
     {
       "if": { "properties": { "status": { "const": "PASS" } } },
-      "then": { "properties": { "records": { "minItems": 2 } } }
+      "then": {
+        "properties": {
+          "review_phase": { "const": "review_complete" },
+          "records": { "minItems": 2 }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "review_phase": { "const": "blind_collection" } } },
+      "then": {
+        "properties": {
+          "status": { "const": "HOLD" },
+          "records": {
+            "items": {
+              "properties": {
+                "reveal_comparison": {
+                  "properties": { "status": { "const": "pending" } }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "review_phase": { "const": "reveal_comparison" } } },
+      "then": {
+        "properties": {
+          "status": { "const": "HOLD" },
+          "records": { "minItems": 2 }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "review_phase": { "const": "review_complete" } } },
+      "then": {
+        "properties": {
+          "status": { "const": "PASS" },
+          "records": {
+            "minItems": 2,
+            "items": {
+              "properties": {
+                "reveal_comparison": { "$ref": "#/$defs/completed_reveal_comparison" }
+              }
+            }
+          }
+        }
+      }
     }
   ],
   "$defs": {
@@ -40,19 +95,25 @@
         "reviewer",
         "reviewed_at",
         "independent_of_implementation",
+        "blind_artifact_sha256",
+        "submitted_before_reveal",
         "case_reviews",
+        "reveal_comparison",
         "disagreement_summary"
       ],
       "properties": {
         "reviewer": { "type": "string", "minLength": 1 },
         "reviewed_at": { "type": "string", "format": "date" },
         "independent_of_implementation": { "const": true },
+        "blind_artifact_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "submitted_before_reveal": { "const": true },
         "case_reviews": {
           "type": "array",
           "minItems": 4,
           "maxItems": 4,
           "items": { "$ref": "#/$defs/case_review" }
         },
+        "reveal_comparison": { "$ref": "#/$defs/reveal_comparison" },
         "disagreement_summary": { "type": "string", "minLength": 1 }
       },
       "additionalProperties": false
@@ -68,12 +129,66 @@
         "rationale"
       ],
       "properties": {
-        "case_id": { "enum": ["H004-EXPR", "H004-ELSE", "H004-RR", "H004-MERGE"] },
+        "case_id": { "enum": ["H004-BLIND-01", "H004-BLIND-02", "H004-BLIND-03", "H004-BLIND-04"] },
         "identified_cause": { "type": "string", "minLength": 1 },
         "chosen_edit": { "type": "string", "minLength": 1 },
         "explanation_usefulness": { "enum": ["useful", "not_useful", "unclear"] },
         "repair_usefulness": { "enum": ["useful", "not_useful", "no_verified_repair", "unclear"] },
         "rationale": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "reveal_comparison": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["status"],
+          "properties": { "status": { "const": "pending" } },
+          "additionalProperties": false
+        },
+        { "$ref": "#/$defs/completed_reveal_comparison" }
+      ]
+    },
+    "completed_reveal_comparison": {
+      "type": "object",
+      "required": [
+        "status",
+        "revealed_at",
+        "revealed_after_submission",
+        "study_sha256",
+        "case_comparisons"
+      ],
+      "properties": {
+        "status": { "const": "compared" },
+        "revealed_at": { "type": "string", "format": "date" },
+        "revealed_after_submission": { "const": true },
+        "study_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "case_comparisons": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": { "$ref": "#/$defs/case_comparison" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "case_comparison": {
+      "type": "object",
+      "required": [
+        "blind_case_id",
+        "study_case_id",
+        "cause_alignment",
+        "edit_alignment",
+        "notes"
+      ],
+      "properties": {
+        "blind_case_id": {
+          "enum": ["H004-BLIND-01", "H004-BLIND-02", "H004-BLIND-03", "H004-BLIND-04"]
+        },
+        "study_case_id": { "enum": ["H004-EXPR", "H004-ELSE", "H004-RR", "H004-MERGE"] },
+        "cause_alignment": { "enum": ["match", "partial", "mismatch", "unclear"] },
+        "edit_alignment": { "enum": ["match", "partial", "mismatch", "unclear"] },
+        "notes": { "type": "string", "minLength": 1 }
       },
       "additionalProperties": false
     }

@@ -12,6 +12,7 @@ module Ibex
     class ConflictExplanationStudy
       ROOT = File.expand_path("../..", __dir__)
       FIXTURE_ROOT = File.join(ROOT, "test/fixtures/conflict_explanations")
+      BLIND_REVIEW_PATH = "docs/conflict-explanation-reviews/v1/blind-study-v1.json"
       SEARCH_BOUNDS = { max_tokens: 16, max_configurations: 100_000 }.freeze
       REPAIR_BOUNDS = {
         max_candidates: 32,
@@ -44,6 +45,7 @@ module Ibex
           repair_goal: "use a compatible precise construction and update the expected RR count"
         }
       ].freeze
+      BLIND_CASE_IDS = CASES.each_index.map { |index| format("H004-BLIND-%02d", index + 1) }.freeze
 
       # @rbs (root: String) -> void
       def initialize(root: ROOT)
@@ -76,6 +78,7 @@ module Ibex
           "subjective_review" => {
             "status" => "external_pending",
             "required_tasks" => %w[identify_cause choose_edit],
+            "blind_artifact_path" => BLIND_REVIEW_PATH,
             "registry_path" => "docs/conflict-explanation-review-status-v1.json"
           }
         }
@@ -84,9 +87,30 @@ module Ibex
       # @rbs () -> String
       def render = "#{JSON.pretty_generate(document)}\n"
 
+      # @rbs (?Hash[String, untyped] study) -> Hash[String, untyped]
+      def blind_document(study = document)
+        {
+          "ibex_conflict_explanation_blind_review" => "h004",
+          "schema_version" => 1,
+          "source_study_sha256" => Digest::SHA256.hexdigest(canonical_source(study)),
+          "protocol" => {
+            "phase" => "blind",
+            "required_tasks" => %w[identify_cause choose_edit],
+            "hidden_until_submission" => %w[case_id shape grammar_path maintainer_hypothesis]
+          },
+          "cases" => study.fetch("cases").each_with_index.map do |entry, index|
+            blind_case(entry, BLIND_CASE_IDS.fetch(index))
+          end
+        }
+      end
+
+      # @rbs (?Hash[String, untyped] study) -> String
+      def render_blind(study = document) = "#{JSON.pretty_generate(blind_document(study))}\n"
+
       # @rbs (?evidence_path: String, ?schema_path: String) -> Hash[String, untyped]
       def verify!(evidence_path: File.join(@fixture_root, "study-v1.json"),
                   schema_path: File.join(@root, "schema/conflict-explanation-study-v1.schema.json"),
+                  blind_path: File.join(@root, BLIND_REVIEW_PATH),
                   review_path: File.join(@root, "docs/conflict-explanation-review-status-v1.json"),
                   review_schema_path: File.join(@root, "schema/conflict-explanation-review-v1.schema.json"))
         source = File.binread(evidence_path)
@@ -97,11 +121,48 @@ module Ibex
         raise "H004 machine capture drift; run tool/conflict_explanation_study.rb --write" unless source == render
 
         validate_semantics!(committed)
-        validate_review_registry!(source, review_path, review_schema_path)
+        blind_source = File.binread(blind_path)
+        blind = JSON.parse(blind_source)
+        blind_errors = JSONSchemer.schema(blind_schema(schema)).validate(blind).to_a
+        raise "H004 blind artifact violates its schema: #{JSON.generate(blind_errors)}" unless blind_errors.empty?
+        raise "H004 blind artifact drift; run tool/conflict_explanation_study.rb --write" unless
+          blind_source == render_blind(committed)
+
+        validate_review_registry!(source, blind_source, review_path, review_schema_path)
         committed
       end
 
       private
+
+      # @rbs (Hash[String, untyped] study) -> String
+      def canonical_source(study) = "#{JSON.pretty_generate(study)}\n"
+
+      # @rbs (Hash[String, untyped] entry, String blind_case_id) -> Hash[String, untyped]
+      def blind_case(entry, blind_case_id)
+        source_path = entry.dig("grammar", "path")
+        blind_path = "blind/#{blind_case_id}.y"
+        {
+          "blind_case_id" => blind_case_id,
+          "grammar" => entry.fetch("grammar").slice("sha256", "bytes"),
+          "automaton" => entry.fetch("automaton"),
+          "conflicts" => redact_path(entry.fetch("conflicts"), source_path, blind_path)
+        }
+      end
+
+      # @rbs (untyped value, String source_path, String blind_path) -> untyped
+      def redact_path(value, source_path, blind_path)
+        case value
+        when Hash then value.to_h { |key, item| [key, redact_path(item, source_path, blind_path)] }
+        when Array then value.map { |item| redact_path(item, source_path, blind_path) }
+        when String then value.gsub(source_path, blind_path)
+        else value
+        end
+      end
+
+      # @rbs (Hash[String, untyped] study_schema) -> Hash[String, untyped]
+      def blind_schema(study_schema)
+        study_schema.fetch("$defs").fetch("blind_artifact").merge("$defs" => study_schema.fetch("$defs"))
+      end
 
       # @rbs (Hash[Symbol, String] entry) -> Hash[String, untyped]
       def capture_case(entry)
@@ -249,6 +310,7 @@ module Ibex
         expected = {
           "status" => "external_pending",
           "required_tasks" => %w[identify_cause choose_edit],
+          "blind_artifact_path" => BLIND_REVIEW_PATH,
           "registry_path" => "docs/conflict-explanation-review-status-v1.json"
         }
         return if review == expected
@@ -256,27 +318,38 @@ module Ibex
         raise "H004 subjective review boundary drift"
       end
 
-      # @rbs (String evidence_source, String review_path, String schema_path) -> void
-      def validate_review_registry!(evidence_source, review_path, schema_path)
+      # @rbs (String evidence_source, String blind_source, String review_path, String schema_path) -> void
+      def validate_review_registry!(evidence_source, blind_source, review_path, schema_path)
         review = JSON.parse(File.binread(review_path))
         schema = JSON.parse(File.binread(schema_path))
         errors = JSONSchemer.schema(schema).validate(review).to_a
         raise "H004 review registry violates its schema: #{JSON.generate(errors)}" unless errors.empty?
         raise "H004 review registry evidence digest drift" unless
           review.fetch("study_sha256") == Digest::SHA256.hexdigest(evidence_source)
+        raise "H004 review registry blind artifact digest drift" unless
+          review.fetch("blind_artifact_sha256") == Digest::SHA256.hexdigest(blind_source)
 
         records = review.fetch("records")
-        validate_review_records!(review, records)
+        validate_review_records!(review, records, evidence_source, blind_source)
       end
 
-      # @rbs (Hash[String, untyped] review, Array[Hash[String, untyped]] records) -> void
-      def validate_review_records!(review, records)
+      # @rbs (Hash[String, untyped] review, Array[Hash[String, untyped]] records,
+      #   String evidence_source, String blind_source) -> void
+      def validate_review_records!(review, records, evidence_source, blind_source)
         validate_reviewer_identities!(records)
-        validate_review_case_ids!(records)
-        return if review.fetch("status") == "HOLD"
-        return if records.length >= 2
+        validate_review_case_ids!(records, evidence_source, blind_source)
+        phase = review.fetch("review_phase")
+        if phase == "blind_collection"
+          raise "H004 blind collection cannot contain revealed comparisons" unless
+            records.all? { |record| record.dig("reveal_comparison", "status") == "pending" }
 
-        raise "H004 review PASS requires at least two independent records"
+          return
+        end
+        raise "H004 reveal requires at least two sealed blind records" if records.length < 2
+        return if phase == "reveal_comparison"
+        return if records.all? { |record| record.dig("reveal_comparison", "status") == "compared" }
+
+        raise "H004 review PASS requires completed reveal comparisons"
       end
 
       # @rbs (Array[Hash[String, untyped]] records) -> void
@@ -288,13 +361,33 @@ module Ibex
         raise "H004 reviewer identities must be unique"
       end
 
-      # @rbs (Array[Hash[String, untyped]] records) -> void
-      def validate_review_case_ids!(records)
-        expected_ids = CASES.map { |entry| entry.fetch(:id) }.sort
+      # @rbs (Array[Hash[String, untyped]] records, String evidence_source, String blind_source) -> void
+      def validate_review_case_ids!(records, evidence_source, blind_source)
+        expected_ids = BLIND_CASE_IDS.sort
         records.each do |record|
+          raise "H004 review record blind artifact digest drift" unless
+            record.fetch("blind_artifact_sha256") == Digest::SHA256.hexdigest(blind_source)
+
           ids = record.fetch("case_reviews").map { |entry| entry.fetch("case_id") }.sort
           raise "H004 review case inventory drift" unless ids == expected_ids
+
+          validate_reveal_comparison!(record.fetch("reveal_comparison"), evidence_source)
         end
+      end
+
+      # @rbs (Hash[String, untyped] comparison, String evidence_source) -> void
+      def validate_reveal_comparison!(comparison, evidence_source)
+        return if comparison.fetch("status") == "pending"
+        raise "H004 reveal comparison study digest drift" unless
+          comparison.fetch("study_sha256") == Digest::SHA256.hexdigest(evidence_source)
+
+        expected = BLIND_CASE_IDS.zip(CASES.map { |entry| entry.fetch(:id) }).sort
+        actual = comparison.fetch("case_comparisons").map do |entry|
+          [entry.fetch("blind_case_id"), entry.fetch("study_case_id")]
+        end.sort
+        return if actual == expected
+
+        raise "H004 reveal comparison mapping drift"
       end
 
       # @rbs (Hash[String, untyped] coverage, Array[Hash[String, untyped]] cases) -> void

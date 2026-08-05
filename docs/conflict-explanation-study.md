@@ -41,15 +41,22 @@ recorded in the [investigation](investigations/H004-conflict-explanation-study.m
 ## Independent human gate
 
 The machine capture proves reproducibility, not usefulness. Independent
-reviewers must use the state/items and witness to identify the cause, then
-choose an edit and explain whether the explanation and proposed repair helped.
+reviewers receive only the deterministic
+[`blind-study-v1.json`](conflict-explanation-reviews/v1/blind-study-v1.json)
+view. It uses neutral case IDs and omits the repository case ID, shape, grammar
+path, and `maintainer_hypothesis`. Reviewers use its state/items and witness to
+identify the cause, then choose an edit and explain whether the explanation and
+proposed repair helped. Each submission binds the blind artifact digest and is
+sealed before any expected answer is revealed.
 The [record instructions](conflict-explanation-reviews/v1/records/README.md)
 and [review schema](../schema/conflict-explanation-review-v1.schema.json)
 preserve per-case rationales and reviewer disagreement.
 
 The current subjective gate is **HOLD** with zero external records, as recorded
-in the [status registry](conflict-explanation-review-status-v1.json). PASS
-requires at least two distinct reviewers covering every case. A future PASS
-must retain disagreement; it cannot replace individual answers with a majority
-percentage. Until then no usefulness rate, comparative superiority, or general
-conflict-repair claim is publishable.
+in the [status registry](conflict-explanation-review-status-v1.json). Once at
+least two distinct blind submissions cover every neutral case, the repository
+case mapping and maintainer hypotheses may be revealed. Each reviewer record
+must then retain a per-case comparison against that revealed material. PASS is
+possible only after every comparison is complete; disagreement cannot be
+replaced with a majority percentage. Until then no usefulness rate,
+comparative superiority, or general conflict-repair claim is publishable.
