@@ -1,0 +1,25 @@
+# Generated from lib/ibex/table_artifact/document.rb with RBS::Inline
+
+module Ibex
+  module TableArtifact
+    # An immutable, validated table artifact document.
+    class Document
+      attr_reader data: Hash[String, untyped]
+
+      # @rbs (Hash[String, untyped] data) -> void
+      def initialize: (Hash[String, untyped] data) -> void
+
+      # @rbs () -> String
+      def dump: () -> String
+
+      # @rbs () -> Hash[String, untyped]
+      def payload: () -> Hash[String, untyped]
+
+      # @rbs () -> Hash[String, String]
+      def identity: () -> Hash[String, String]
+
+      # @rbs () -> Hash[String, untyped]
+      def cost: () -> Hash[String, untyped]
+    end
+  end
+end

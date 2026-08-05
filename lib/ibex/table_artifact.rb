@@ -18,13 +18,20 @@ require_relative "table_artifact/executor"
 module Ibex
   # Experimental data-only authority for executable parser tables.
   module TableArtifact
-    ARTIFACT_TYPE = "ibex.parser-table"
-    SCHEMA_VERSION = 1
-    DEFAULT_MAX_BYTES = 16 * 1024 * 1024
+    # @rbs!
+    #   interface _Reader
+    #     def read: (Integer length) -> String?
+    #   end
+
+    ARTIFACT_TYPE = "ibex.parser-table" #: String
+    SCHEMA_VERSION = 1 #: Integer
+    DEFAULT_MAX_BYTES = 16 * 1024 * 1024 #: Integer
 
     class ValidationError < Ibex::Error; end
 
     class << self
+      # @rbs (IR::Automaton automaton, ?representation: Symbol | String, ?cst_trivia: Symbol | String?,
+      #   ?omit_action_call: bool?) -> Document
       def build(automaton, representation: :compact, cst_trivia: nil, omit_action_call: nil)
         Builder.new(
           automaton,
@@ -34,6 +41,7 @@ module Ibex
         ).build
       end
 
+      # @rbs (String | _Reader source, ?max_bytes: Integer) -> Document
       def load(source, max_bytes: DEFAULT_MAX_BYTES)
         bytes = read_bounded(source, max_bytes)
         unless bytes.dup.force_encoding(Encoding::UTF_8).valid_encoding?
@@ -47,6 +55,7 @@ module Ibex
 
       private
 
+      # @rbs (untyped source, Integer max_bytes) -> String
       def read_bounded(source, max_bytes)
         raise ArgumentError, "max_bytes must be positive" unless max_bytes.is_a?(Integer) && max_bytes.positive?
 
@@ -60,6 +69,7 @@ module Ibex
         bytes
       end
 
+      # @rbs (untyped source, Integer max_bytes) -> String
       def read_from(source, max_bytes)
         bytes = +"".b
         loop do

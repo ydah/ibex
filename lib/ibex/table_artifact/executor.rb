@@ -5,8 +5,12 @@ module Ibex
     # Recognition-only driver over internal token ids; it never loads wrapper code.
     class Executor
       class Result
-        attr_reader :status, :steps, :consumed_tokens, :reason
+        attr_reader :status #: Symbol
+        attr_reader :steps #: Integer
+        attr_reader :consumed_tokens #: Integer
+        attr_reader :reason #: String?
 
+        # @rbs (status: Symbol, steps: Integer, consumed_tokens: Integer, reason: String?) -> void
         def initialize(status:, steps:, consumed_tokens:, reason:)
           @status = status
           @steps = steps
@@ -15,11 +19,15 @@ module Ibex
           freeze
         end
 
+        # @rbs () -> bool
         def accepted? = status == :accepted
+        # @rbs () -> bool
         def rejected? = status == :rejected
+        # @rbs () -> bool
         def exhausted? = status == :exhausted
       end
 
+      # @rbs (Document | Hash[String, untyped] document) -> void
       def initialize(document)
         @payload = document.is_a?(Document) ? document.payload : Document.new(document).payload
         @tables = @payload.fetch("tables")
@@ -27,6 +35,7 @@ module Ibex
         @terminal_ids = @payload.fetch("tokens").map { |token| token.fetch("id") }
       end
 
+      # @rbs (Array[Integer] token_ids, ?entry: String | Symbol?, ?max_steps: Integer) -> Result
       def recognize(token_ids, entry: nil, max_steps: 1_000_000)
         raise ArgumentError, "max_steps must be positive" unless max_steps.is_a?(Integer) && max_steps.positive?
 
@@ -38,6 +47,7 @@ module Ibex
 
       private
 
+      # @rbs (Array[Integer] input, Array[Integer] stack, Integer max_steps) -> Result
       def execute(input, stack, max_steps)
         cursor = 0
         max_steps.times do |step|
@@ -60,6 +70,7 @@ module Ibex
         result(:exhausted, max_steps, cursor, "max_steps exceeded")
       end
 
+      # @rbs (Integer? code, Integer token_id, Integer step, Integer cursor) -> Result?
       def immediate_result(code, token_id, step, cursor)
         return result(:rejected, step + 1, cursor, "no parser action") if code.nil? || code == -1
         return unless code.zero?
@@ -68,6 +79,7 @@ module Ibex
         result(:accepted, step + 1, cursor, nil)
       end
 
+      # @rbs (Array[Integer] token_ids) -> Array[Integer]
       def validate_input(token_ids)
         raise ArgumentError, "token_ids must be an array" unless token_ids.is_a?(Array)
 
@@ -80,6 +92,7 @@ module Ibex
         end
       end
 
+      # @rbs (String | Symbol? requested) -> Integer
       def entry_state(requested)
         entries = @payload.fetch("entry_states")
         return entries.first.fetch("state") unless requested
@@ -90,6 +103,7 @@ module Ibex
         entry.fetch("state")
       end
 
+      # @rbs (Integer row, Integer column) -> Integer?
       def action(row, column)
         table = @tables.fetch("actions")
         code = if table.fetch("encoding") == "signed-sparse-rows-v1"
@@ -103,6 +117,7 @@ module Ibex
         code.nil? ? @tables.fetch("default_actions").fetch(row) : code
       end
 
+      # @rbs (Integer row, Integer column) -> Integer?
       def goto_state(row, column)
         table = @tables.fetch("gotos")
         if table.fetch("encoding") == "sparse-rows-v1"
@@ -115,6 +130,7 @@ module Ibex
         end
       end
 
+      # @rbs (Hash[String, untyped] table, Integer row, Integer column, String value_key) -> Integer?
       def displacement_lookup(table, row, column, value_key)
         index = table.fetch("offsets").fetch(row) + column
         checks = table.fetch("checks")
@@ -123,6 +139,7 @@ module Ibex
         table.fetch(value_key).fetch(index)
       end
 
+      # @rbs (Array[Integer] stack, Integer code) -> String?
       def reduce_stack(stack, code)
         production = @productions.fetch(-2 - code)
         length = production.fetch("rhs_length")
@@ -136,6 +153,7 @@ module Ibex
         nil
       end
 
+      # @rbs (Symbol status, Integer steps, Integer consumed, String? reason) -> Result
       def result(status, steps, consumed, reason)
         Result.new(status: status, steps: steps, consumed_tokens: consumed, reason: reason)
       end

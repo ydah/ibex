@@ -5,6 +5,7 @@ module Ibex
     # Canonical JSON ordering and digest primitives shared by writer and loader.
     module Serializer
       class << self
+        # @rbs (untyped value) -> untyped
         def canonical(value)
           case value
           when Hash
@@ -16,18 +17,22 @@ module Ibex
           end
         end
 
+        # @rbs (untyped value) -> String
         def compact(value)
           JSON.generate(canonical(value))
         end
 
+        # @rbs (untyped value) -> String
         def dump(value)
           "#{JSON.pretty_generate(canonical(value))}\n"
         end
 
+        # @rbs (untyped value) -> String
         def digest(value)
           "sha256:#{Digest::SHA256.hexdigest(compact(value))}"
         end
 
+        # @rbs (untyped value) -> untyped
         def deep_freeze(value)
           case value
           when Hash

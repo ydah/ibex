@@ -1,0 +1,81 @@
+# Generated from lib/ibex/table_artifact/builder.rb with RBS::Inline
+
+module Ibex
+  module TableArtifact
+    # Projects validated Automaton IR into an action-free executable sidecar.
+    class Builder
+      include CSTProjection
+
+      REPRESENTATIONS: Array[Symbol]
+
+      # @rbs (IR::Automaton automaton, ?representation: Symbol | String, ?cst_trivia: Symbol | String?,
+      #   ?omit_action_call: bool?) -> void
+      def initialize: (IR::Automaton automaton, ?representation: Symbol | String, ?cst_trivia: Symbol | String?, ?omit_action_call: bool?) -> void
+
+      # @rbs () -> Document
+      def build: () -> Document
+
+      private
+
+      # @rbs (Hash[String, String] source_identity) -> Hash[String, untyped]
+      def build_payload: (Hash[String, String] source_identity) -> Hash[String, untyped]
+
+      # @rbs () -> String
+      def automaton_digest: () -> String
+
+      # @rbs () -> Hash[String, untyped]
+      def table_format: () -> Hash[String, untyped]
+
+      # @rbs () -> Array[Hash[String, untyped]]
+      def symbols: () -> Array[Hash[String, untyped]]
+
+      # @rbs () -> Array[Hash[String, untyped]]
+      def tokens: () -> Array[Hash[String, untyped]]
+
+      # @rbs () -> Array[Hash[String, untyped]]
+      def entry_states: () -> Array[Hash[String, untyped]]
+
+      # @rbs () -> Hash[String, untyped]
+      def tables: () -> Hash[String, untyped]
+
+      # @rbs (untyped table) -> Hash[String, untyped]
+      def action_table: (untyped table) -> Hash[String, untyped]
+
+      # @rbs (untyped table) -> Hash[String, untyped]
+      def compact_action_table: (untyped table) -> Hash[String, untyped]
+
+      # @rbs (untyped table) -> Hash[String, untyped]
+      def goto_table: (untyped table) -> Hash[String, untyped]
+
+      # @rbs (untyped table) -> Hash[String, untyped]
+      def compact_goto_table: (untyped table) -> Hash[String, untyped]
+
+      # @rbs () -> Array[Hash[String, untyped]]
+      def productions: () -> Array[Hash[String, untyped]]
+
+      # @rbs (untyped production) -> bool
+      def action_slot?: (untyped production) -> bool
+
+      # @rbs () -> Hash[String, untyped]
+      def semantic_actions: () -> Hash[String, untyped]
+
+      # @rbs () -> Hash[String, untyped]
+      def recovery: () -> Hash[String, untyped]
+
+      # @rbs (Hash[String, untyped] payload) -> Hash[String, untyped]
+      def build_cost: (Hash[String, untyped] payload) -> Hash[String, untyped]
+
+      # @rbs (Hash[String, untyped] table, String values_key) -> Integer
+      def occupied_cells: (Hash[String, untyped] table, String values_key) -> Integer
+
+      # @rbs () -> String
+      def lookup_cost: () -> String
+
+      # @rbs () -> String
+      def recognition_cost: () -> String
+
+      # @rbs (Symbol | String? requested) -> Symbol
+      def effective_cst_trivia: (Symbol | String? requested) -> Symbol
+    end
+  end
+end

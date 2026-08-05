@@ -1,0 +1,23 @@
+# Generated from lib/ibex/table_artifact/serializer.rb with RBS::Inline
+
+module Ibex
+  module TableArtifact
+    # Canonical JSON ordering and digest primitives shared by writer and loader.
+    module Serializer
+      # @rbs (untyped value) -> untyped
+      def self.canonical: (untyped value) -> untyped
+
+      # @rbs (untyped value) -> String
+      def self.compact: (untyped value) -> String
+
+      # @rbs (untyped value) -> String
+      def self.dump: (untyped value) -> String
+
+      # @rbs (untyped value) -> String
+      def self.digest: (untyped value) -> String
+
+      # @rbs (untyped value) -> untyped
+      def self.deep_freeze: (untyped value) -> untyped
+    end
+  end
+end

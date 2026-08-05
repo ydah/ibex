@@ -1,0 +1,63 @@
+# Generated from lib/ibex/table_artifact/validator.rb with RBS::Inline
+
+module Ibex
+  module TableArtifact
+    # Closed structural and referential validation for untrusted sidecars.
+    class Validator
+      include ValidationSupport
+
+      ROOT_KEYS: Array[String]
+
+      PAYLOAD_KEYS: Array[String]
+
+      # @rbs (Hash[String, untyped] data) -> true
+      def self.validate!: (Hash[String, untyped] data) -> true
+
+      # @rbs (Hash[String, untyped] data) -> void
+      def initialize: (Hash[String, untyped] data) -> void
+
+      # rubocop:disable Naming/PredicateMethod -- bang denotes fail-fast validation.
+      # @rbs () -> true
+      def validate!: () -> true
+
+      private
+
+      # @rbs () -> void
+      def validate_root_identity: () -> void
+
+      # @rbs (untyped data) -> String
+      def validate_table_format: (untyped data) -> String
+
+      # @rbs (untyped data) -> void
+      def validate_source: (untyped data) -> void
+
+      # @rbs (untyped data) -> Array[Hash[String, untyped]]
+      def validate_symbols: (untyped data) -> Array[Hash[String, untyped]]
+
+      # @rbs (untyped data, Array[Hash[String, untyped]] symbols) -> void
+      def validate_tokens: (untyped data, Array[Hash[String, untyped]] symbols) -> void
+
+      # @rbs (untyped data, Array[Hash[String, untyped]] symbols, Integer state_count) -> void
+      def validate_entries: (untyped data, Array[Hash[String, untyped]] symbols, Integer state_count) -> void
+
+      # @rbs (untyped data, Array[Hash[String, untyped]] symbols) -> Array[Hash[String, untyped]]
+      def validate_productions: (untyped data, Array[Hash[String, untyped]] symbols) -> Array[Hash[String, untyped]]
+
+      # @rbs (untyped data, Hash[String, untyped] payload) -> void
+      def validate_cost: (untyped data, Hash[String, untyped] payload) -> void
+
+      # @rbs (Hash[String, untyped] payload) -> [String, String]
+      def expected_costs: (Hash[String, untyped] payload) -> [ String, String ]
+
+      # @rbs (Hash[String, untyped] table, String values_key) -> Integer
+      def occupied: (Hash[String, untyped] table, String values_key) -> Integer
+
+      # @rbs (Array[Hash[String, untyped]] symbols, String kind) -> Set[Integer]
+      def symbol_ids: (Array[Hash[String, untyped]] symbols, String kind) -> Set[Integer]
+
+      # @rbs (Hash[String, untyped] identity, Hash[String, untyped] payload, String identity_name,
+      #   String payload_name) -> void
+      def validate_named_digest: (Hash[String, untyped] identity, Hash[String, untyped] payload, String identity_name, String payload_name) -> void
+    end
+  end
+end
