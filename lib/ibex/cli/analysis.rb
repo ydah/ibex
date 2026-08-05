@@ -19,6 +19,9 @@ module Ibex
     #     ?help: String
     #   }
     #   private def normalize_grammar_path: (String) -> IR::Grammar
+    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped],
+    #     ?explicit_keys: Array[Symbol]) -> IR::Grammar
+    #   private def configuration_value: (String) -> untyped
     #   private def set_configuration_option: (Symbol, untyped) -> void
     #   private def local_configuration_value: (Hash[Symbol, untyped], String) -> untyped
     #   private def set_local_configuration_option: (Hash[Symbol, untyped], Symbol, untyped) -> void
@@ -36,8 +39,9 @@ module Ibex
       raise Ibex::Error, "(diff):1:1: diff requires exactly two grammar or IR files" unless paths.length == 2
 
       algorithm = settings.fetch(:algorithm)
-      before = load_analysis_automaton(paths.fetch(0), algorithm)
-      after = load_analysis_automaton(paths.fetch(1), algorithm)
+      explicit = settings.fetch(:configuration_explicit).include?(:algorithm)
+      before = load_analysis_automaton(paths.fetch(0), algorithm, algorithm_explicit: explicit)
+      after = load_analysis_automaton(paths.fetch(1), algorithm, algorithm_explicit: explicit)
       report = Diff.new(before, after).to_h
       write_analysis_report(report, settings.fetch(:format))
       0
@@ -53,7 +57,10 @@ module Ibex
       paths = settings.fetch(:paths)
       raise Ibex::Error, "(metrics):1:1: metrics requires exactly one grammar or IR file" unless paths.length == 1
 
-      automaton = load_analysis_automaton(paths.fetch(0), settings.fetch(:algorithm))
+      explicit = settings.fetch(:configuration_explicit).include?(:algorithm)
+      automaton = load_analysis_automaton(
+        paths.fetch(0), settings.fetch(:algorithm), algorithm_explicit: explicit
+      )
       report = Metrics.new(automaton).to_h
       write_analysis_report(report, settings.fetch(:format))
       0
@@ -82,18 +89,36 @@ module Ibex
       settings
     end
 
-    # @rbs (String path, Symbol algorithm) -> IR::Automaton
-    def load_analysis_automaton(path, algorithm)
+    # @rbs (String path, Symbol algorithm, algorithm_explicit: bool) -> IR::Automaton
+    def load_analysis_automaton(path, algorithm, algorithm_explicit:)
       source = File.binread(path)
       if source.lstrip.start_with?("{")
         value = IR::Validator.validate(source)
-        return value if value.is_a?(IR::Automaton)
-        return LALR::Builder.new(value, algorithm: algorithm).build if value.is_a?(IR::Grammar)
+        if value.is_a?(IR::Automaton)
+          if algorithm_explicit
+            raise Ibex::Error, "(cli):1:1: --algorithm cannot be combined with Automaton IR analysis input"
+          end
+
+          return value
+        end
+        return build_analysis_automaton(value, algorithm, algorithm_explicit) if value.is_a?(IR::Grammar)
 
         raise Ibex::Error, "#{path}:1:1: analysis does not accept Lexer IR"
       end
 
-      LALR::Builder.new(normalize_grammar_path(path), algorithm: algorithm).build
+      build_analysis_automaton(normalize_grammar_path(path), algorithm, algorithm_explicit)
+    end
+
+    # @rbs (IR::Grammar grammar, Symbol algorithm, bool algorithm_explicit) -> IR::Automaton
+    def build_analysis_automaton(grammar, algorithm, algorithm_explicit)
+      explicit_keys = algorithm_explicit ? [:algorithm] : [] #: Array[Symbol]
+      active = activate_analysis_grammar(
+        grammar, options: { algorithm: algorithm }, explicit_keys: explicit_keys
+      )
+      LALR::Builder.new(
+        active, algorithm: configuration_value("parser.algorithm"),
+                entry_isolation: configuration_value("parser.entries") == :isolated
+      ).build
     end
 
     # @rbs (Hash[Symbol, untyped] report, String format) -> void

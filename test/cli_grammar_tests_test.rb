@@ -60,6 +60,33 @@ class CLIGrammarTestsTest < Minitest::Test
     assert_includes output.string, "Usage: ibex test"
   end
 
+  def test_explicit_alternate_algorithm_is_reported_as_noncanonical
+    with_grammar(<<~GRAMMAR) do |path|
+      class CLIAlternateTestParser
+      pragma extended
+      parser
+        algorithm ielr
+      end
+      %test accept "a"
+      rule
+      start: 'a'
+      end
+      ---- inner
+      def parse(source)
+        @tokens = source.each_char.map { |character| [character, nil] }
+        do_parse
+      end
+      def next_token = @tokens.shift || false
+    GRAMMAR
+      output = StringIO.new
+      error = StringIO.new
+
+      assert_equal 0, Ibex::CLI.start(["test", "--algorithm=lr1", path], stdout: output, stderr: error)
+      assert_includes error.string, "parser.algorithm declared=ielr selected=lr1"
+      assert_includes error.string, "canonical_generation=false"
+    end
+  end
+
   def test_checks_declared_tests_for_complete_production_coverage
     with_grammar(<<~GRAMMAR) do |path|
       class CLICoverageTestParser

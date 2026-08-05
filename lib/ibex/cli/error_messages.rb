@@ -18,6 +18,8 @@ module Ibex
     #   private def default_output_path: (String, String) -> String
     #   private def same_file_target?: (String, String) -> bool
     #   private def normalize_grammar_path: (String) -> IR::Grammar
+    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped],
+    #     ?explicit_keys: Array[Symbol]) -> IR::Grammar
     #   private def record_generation_input: (String, String) -> GenerationInput
     #   private def select_configuration_mode: (String) -> void
     #   private def set_configuration_option: (Symbol, untyped) -> void
@@ -82,6 +84,7 @@ module Ibex
 
       report_status("reading #{input_path}")
       grammar = normalize_grammar_path(input_path)
+      grammar = activate_analysis_grammar(grammar)
       handle_grammar_warnings(grammar, input_path)
       build_automaton(grammar, input_path)
     end
@@ -97,7 +100,7 @@ module Ibex
       end
 
       grammar = if value.is_a?(IR::Grammar)
-                  value
+                  activate_analysis_grammar(value)
                 elsif value.is_a?(IR::Automaton)
                   value.grammar
                 else

@@ -7,6 +7,8 @@ module Ibex
 
     private def normalize_grammar_path: (String) -> IR::Grammar
 
+    private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
+
     private def configuration_value: (String) -> untyped
 
     private def set_configuration_option: (Symbol, untyped) -> void
@@ -29,8 +31,11 @@ module Ibex
     # @rbs (OptionParser options, equiv_options settings) -> void
     def add_equiv_search_options: (OptionParser options, equiv_options settings) -> void
 
-    # @rbs (String path, Symbol algorithm) -> IR::Automaton
-    def load_equiv_automaton: (String path, Symbol algorithm) -> IR::Automaton
+    # @rbs (String path, Symbol algorithm, algorithm_explicit: bool) -> IR::Automaton
+    def load_equiv_automaton: (String path, Symbol algorithm, algorithm_explicit: bool) -> IR::Automaton
+
+    # @rbs (IR::Grammar grammar, Symbol algorithm, bool algorithm_explicit) -> IR::Automaton
+    def build_equiv_automaton: (IR::Grammar grammar, Symbol algorithm, bool algorithm_explicit) -> IR::Automaton
 
     # @rbs (Hash[Symbol, untyped] report, String format) -> void
     def write_equiv_report: (Hash[Symbol, untyped] report, String format) -> void

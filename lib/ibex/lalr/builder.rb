@@ -575,7 +575,7 @@ module Ibex
       def isolated_entry(name)
         builder = self.class.new(
           @grammar, algorithm: @algorithm, lalr_strategy: @lalr_strategy,
-                    starts: [name], attribute_entries: false, profile: @profile
+                    starts: [name], entry_isolation: true, attribute_entries: false, profile: @profile
         )
         automaton = builder.build
         metrics = builder.metrics

@@ -30,6 +30,7 @@ module Ibex
         superclass = accept(:<) ? parse_constant_path : nil
         parse_pragmas
         declarations = parse_declarations
+        validate_root_parser_configuration(declarations)
         expect_keyword("rule")
         rules = parse_rules
         expect_keyword("end") unless current.type == :user_code

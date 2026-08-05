@@ -27,6 +27,7 @@ module Ibex
         add_source_fact(values, locations, evidence, "grammar.mode", :extended, extended_loc) if extended_loc
         add_source_fact(values, locations, evidence, "parser.superclass", root.superclass, root.loc) if root.superclass
         add_source_options(root, values, locations, evidence)
+        add_source_parser_contract(root, values, locations, evidence)
         recordings = Registry.keys.to_h do |key|
           [key.name,
            Recording.new(:source, "the grammar source and contained import closure were inspected statically")]
@@ -101,6 +102,21 @@ module Ibex
       end
       module_function :add_source_options
       private_class_method :add_source_options
+
+      # @rbs (Frontend::AST::Root root, Hash[String, untyped] values, Hash[String, Location] locations,
+      #   Hash[String, Array[Evidence]] evidence) -> void
+      def add_source_parser_contract(root, values, locations, evidence)
+        declaration = root.declarations.grep(Frontend::AST::ParserConfiguration).first
+        return unless declaration.is_a?(Frontend::AST::ParserConfiguration)
+
+        declaration.settings.each do |setting|
+          add_source_fact(
+            values, locations, evidence, "parser.#{setting.key}", setting.value, setting.loc
+          )
+        end
+      end
+      module_function :add_source_parser_contract
+      private_class_method :add_source_parser_contract
 
       # @rbs (String name) -> bool?
       def option_value(name)

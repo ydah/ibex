@@ -111,6 +111,7 @@ module Ibex
     end
 
     # @rbs (IR::Automaton automaton, String input_path) -> void
+    # rubocop:disable Metrics/AbcSize -- the bounded comparison reports each conflict class independently.
     def suggest_ielr(automaton, input_path)
       return unless @options[:suggest_ielr]
       return unless automaton.algorithm == "lalr1"
@@ -120,7 +121,8 @@ module Ibex
       return if summary[:expectation_met] && summary.fetch(:rr_expectation_met, summary[:rr].zero?)
 
       ielr = LALR::Builder.new(
-        automaton.grammar, algorithm: :ielr, entry_isolation: configuration_value("parser.entries") == :isolated
+        Configuration::AnalysisGrammar.for_algorithm(automaton.grammar, :ielr),
+        algorithm: :ielr, entry_isolation: configuration_value("parser.entries") == :isolated
       ).build
       removed_sr = [summary[:sr] - ielr.conflict_summary[:sr], 0].max
       removed_rr = [summary[:rr] - ielr.conflict_summary[:rr], 0].max
@@ -133,6 +135,7 @@ module Ibex
       detail = Messages.translate("note.ielr", language: @language, avoided: avoided.join(conjunction))
       @stderr.puts("#{input_path}:1:1: #{detail}")
     end
+    # rubocop:enable Metrics/AbcSize
 
     # @rbs (Integer count, String kind) -> String
     def conflict_count(count, kind)

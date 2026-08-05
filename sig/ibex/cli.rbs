@@ -30,6 +30,8 @@ module Ibex
 
     include CLIOutputs
 
+    @analysis_configuration: Configuration::Resolver?
+
     @generation_automaton: IR::Automaton?
 
     @generation_grammar: IR::Grammar?
@@ -67,6 +69,13 @@ module Ibex
 
     # @rbs () -> Configuration::Resolver
     def effective_configuration: () -> Configuration::Resolver
+
+    # @rbs (IR::Grammar grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
+    def activate_analysis_grammar: (IR::Grammar grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
+
+    # @rbs (IR::Grammar grammar, Hash[Symbol, untyped] options, Array[Symbol] explicit_keys) ->
+    #   [IR::Grammar, Symbol, IR::Automaton]
+    def construct_analysis_automaton: (IR::Grammar grammar, Hash[Symbol, untyped] options, Array[Symbol] explicit_keys) -> [ IR::Grammar, Symbol, IR::Automaton ]
 
     # Resolve a command-local legacy option hash without promoting it into the
     # reusable CLI instance's generation settings.
@@ -180,6 +189,12 @@ module Ibex
 
     # @rbs (IR::Grammar grammar) -> void
     def activate_generation_grammar: (IR::Grammar grammar) -> void
+
+    # @rbs (IR::Grammar grammar, Configuration::Resolver configuration) -> IR::Grammar
+    def noncanonical_analysis_grammar: (IR::Grammar grammar, Configuration::Resolver configuration) -> IR::Grammar
+
+    # @rbs (Configuration::Resolver configuration) -> void
+    def report_noncanonical_analysis: (Configuration::Resolver configuration) -> void
 
     # @rbs () -> Integer
     def print_version: () -> Integer

@@ -30,6 +30,7 @@ module Ibex
     def conflict_messages: (IR::conflict_summary summary, String input_path) -> Array[String]
 
     # @rbs (IR::Automaton automaton, String input_path) -> void
+    # rubocop:disable Metrics/AbcSize -- the bounded comparison reports each conflict class independently.
     def suggest_ielr: (IR::Automaton automaton, String input_path) -> void
 
     # @rbs (Integer count, String kind) -> String

@@ -13,6 +13,8 @@ module Ibex
 
     private def build_automaton: (IR::Grammar, String) -> IR::Automaton
 
+    private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
+
     private def configuration_value: (String) -> untyped
 
     private def mark_configuration_option: (Symbol) -> void

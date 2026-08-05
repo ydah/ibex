@@ -5,6 +5,7 @@ require "optparse"
 require_relative "version"
 require_relative "error"
 require_relative "configuration"
+require_relative "configuration/analysis_grammar"
 require_relative "messages"
 require_relative "artifact_set"
 require_relative "generation_input"
@@ -183,6 +184,7 @@ module Ibex
     # @rbs @configuration_explicit_options: Hash[Symbol, bool]
     # @rbs @generation_grammar: IR::Grammar?
     # @rbs @generation_automaton: IR::Automaton?
+    # @rbs @analysis_configuration: Configuration::Resolver?
 
     # rubocop:disable Layout/LineLength
     # @rbs (Array[String] arguments, ?stdin: _CLIInput, ?stdout: _CLIOutput, ?stderr: _CLIOutput, ?watch_clock: (^() -> Float)?, ?watch_sleeper: (^(Float) -> void)?, ?watch_iteration_hook: (^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil))?) -> Integer
@@ -211,19 +213,21 @@ module Ibex
       @configuration_explicit_options = {}
       @generation_grammar = nil
       @generation_automaton = nil
+      @analysis_configuration = nil
     end
     # rubocop:enable Layout/LineLength
 
     # @rbs (Array[String] arguments) -> Integer
     def run(arguments)
       arguments = extract_language(arguments)
+      @generation_grammar = nil
+      @generation_automaton = nil
+      @analysis_configuration = nil
       subcommand = dispatch_subcommand(arguments)
       return subcommand unless subcommand.nil?
 
       parser = option_parser
       remaining = parser.parse(arguments)
-      @generation_grammar = nil
-      @generation_automaton = nil
       validate_watch_information_options
       information = informational_result(parser)
       return information unless information.nil?
@@ -262,6 +266,9 @@ module Ibex
 
     # @rbs () -> Configuration::Resolver
     def effective_configuration
+      analysis = @analysis_configuration
+      return analysis if analysis
+
       grammar = @generation_grammar
       contract = grammar&.parser_contract
       Configuration::CLIAdapter.new(
@@ -270,6 +277,42 @@ module Ibex
         grammar: contract&.configuration_values || {},
         locations: contract&.configuration_locations || {}
       )
+    end
+
+    # @rbs (IR::Grammar grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
+    def activate_analysis_grammar(grammar, options: @options, explicit_keys: @configuration_explicit_options.keys)
+      adapter = Configuration::CLIAdapter.new(options, explicit_keys: explicit_keys)
+      cli = adapter.configuration_values
+      contract = grammar.parser_contract
+      grammar_values = contract&.configuration_values || {}
+      locations = contract&.configuration_locations || {}
+      overrides = {} #: Hash[String, untyped]
+      algorithm = "parser.algorithm"
+      if grammar_values.key?(algorithm) && cli.key?(algorithm) &&
+         grammar_values.fetch(algorithm) != cli.fetch(algorithm)
+        overrides[algorithm] = cli.delete(algorithm)
+      end
+      source_locations = {} #: Hash[Symbol, Hash[String, Location]]
+      source_locations[:grammar] = locations unless locations.empty?
+      configuration = Configuration::Resolver.new(
+        grammar: grammar_values, cli: cli, analysis_overrides: overrides, locations: source_locations
+      )
+      @analysis_configuration = configuration
+      active = noncanonical_analysis_grammar(grammar, configuration)
+      @generation_grammar = active
+      report_noncanonical_analysis(configuration)
+      active
+    end
+
+    # @rbs (IR::Grammar grammar, Hash[Symbol, untyped] options, Array[Symbol] explicit_keys) ->
+    #   [IR::Grammar, Symbol, IR::Automaton]
+    def construct_analysis_automaton(grammar, options, explicit_keys)
+      active = activate_analysis_grammar(grammar, options: options, explicit_keys: explicit_keys)
+      algorithm = configuration_value("parser.algorithm") #: Symbol
+      automaton = LALR::Builder.new(
+        active, algorithm: algorithm, entry_isolation: configuration_value("parser.entries") == :isolated
+      ).build
+      [active, algorithm, automaton]
     end
 
     # Resolve a command-local legacy option hash without promoting it into the
@@ -771,8 +814,30 @@ module Ibex
 
     # @rbs (IR::Grammar grammar) -> void
     def activate_generation_grammar(grammar)
+      @analysis_configuration = nil
       @generation_grammar = grammar
       effective_configuration
+    end
+
+    # @rbs (IR::Grammar grammar, Configuration::Resolver configuration) -> IR::Grammar
+    def noncanonical_analysis_grammar(grammar, configuration)
+      selection = configuration.fetch("parser.algorithm")
+      return grammar if selection.canonical
+
+      Configuration::AnalysisGrammar.for_algorithm(grammar, selection.value)
+    end
+
+    # @rbs (Configuration::Resolver configuration) -> void
+    def report_noncanonical_analysis(configuration)
+      selection = configuration.fetch("parser.algorithm")
+      return if selection.canonical
+
+      analysis = selection.to_h.fetch("analysis")
+      @stderr.puts(
+        "noncanonical analysis configuration: parser.algorithm " \
+        "declared=#{analysis.fetch('declared')} selected=#{analysis.fetch('selected')} " \
+        "override=true canonical_generation=false"
+      )
     end
 
     # @rbs () -> Integer

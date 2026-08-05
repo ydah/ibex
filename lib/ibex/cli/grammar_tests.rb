@@ -19,6 +19,8 @@ module Ibex
     #   private def resolve_grammar_path: (String) -> Frontend::Resolution
     #   private def handle_grammar_warnings: (IR::Grammar, String) -> void
     #   private def build_automaton: (IR::Grammar, String) -> IR::Automaton
+    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped],
+    #     ?explicit_keys: Array[Symbol]) -> IR::Grammar
     #   private def configuration_value: (String) -> untyped
     #   private def mark_configuration_option: (Symbol) -> void
 
@@ -40,6 +42,7 @@ module Ibex
       @options[:entry_isolation] = settings[:entry_isolation]
       resolution = resolve_grammar_path(path)
       grammar = Normalizer.new(resolution, mode: configuration_value("grammar.mode")).normalize
+      grammar = activate_analysis_grammar(grammar)
       handle_grammar_warnings(grammar, path)
       automaton = build_automaton(grammar, path)
       runner = GrammarTests::Runner.new(automaton, timeout: settings[:timeout])
