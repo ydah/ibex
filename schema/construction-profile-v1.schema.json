@@ -1,0 +1,372 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/construction-profile-v1.schema.json",
+  "title": "Ibex parser construction profile v1",
+  "type": "object",
+  "required": ["ibex_report", "schema_version", "trust", "environment", "measurement_policy", "cohorts", "decisions", "limitations"],
+  "properties": {
+    "ibex_report": { "const": "construction_profile" },
+    "schema_version": { "const": 1 },
+    "trust": { "const": "internal_local_observation" },
+    "environment": { "$ref": "#/$defs/environment" },
+    "measurement_policy": { "$ref": "#/$defs/measurement_policy" },
+    "cohorts": {
+      "type": "array",
+      "prefixItems": [
+        { "$ref": "#/$defs/synthetic_cohort" },
+        { "$ref": "#/$defs/real_cohort" }
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "decisions": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "allOf": [
+            { "$ref": "#/$defs/decision" },
+            { "properties": { "feature": { "const": "direct-ielr" } } }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/decision" },
+            { "properties": { "feature": { "const": "direct-multi-entry" } } }
+          ]
+        }
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "environment": {
+      "type": "object",
+      "required": ["ibex_revision", "ibex_worktree_clean", "implementation_sha256", "ruby_engine", "ruby_version", "ruby_patchlevel", "ruby_description", "ruby_platform", "rubyopt", "yjit_enabled", "host_os", "host_cpu", "kernel_name", "kernel_release", "kernel_version", "kernel_machine", "logical_processors"],
+      "properties": {
+        "ibex_revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "ibex_worktree_clean": { "type": "boolean" },
+        "implementation_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "ruby_engine": { "type": "string", "minLength": 1 },
+        "ruby_version": { "type": "string", "minLength": 1 },
+        "ruby_patchlevel": { "type": "integer" },
+        "ruby_description": { "type": "string", "minLength": 1 },
+        "ruby_platform": { "type": "string", "minLength": 1 },
+        "rubyopt": { "type": ["string", "null"] },
+        "yjit_enabled": { "type": "boolean" },
+        "host_os": { "type": "string", "minLength": 1 },
+        "host_cpu": { "type": "string", "minLength": 1 },
+        "kernel_name": { "type": "string", "minLength": 1 },
+        "kernel_release": { "type": "string", "minLength": 1 },
+        "kernel_version": { "type": "string", "minLength": 1 },
+        "kernel_machine": { "type": "string", "minLength": 1 },
+        "logical_processors": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "unsupported_measurement": {
+      "type": "object",
+      "required": ["status", "reason"],
+      "properties": {
+        "status": { "enum": ["not_supported", "not_measured"] },
+        "reason": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "measurement_policy": {
+      "type": "object",
+      "required": ["wall_seconds_per_run", "wall_time_role", "state_limit", "memory_limit", "peak_retained_objects", "item_counting"],
+      "properties": {
+        "wall_seconds_per_run": { "type": "number", "exclusiveMinimum": 0 },
+        "wall_time_role": { "const": "observation_only" },
+        "state_limit": { "$ref": "#/$defs/unsupported_measurement" },
+        "memory_limit": { "$ref": "#/$defs/unsupported_measurement" },
+        "peak_retained_objects": { "$ref": "#/$defs/unsupported_measurement" },
+        "item_counting": {
+          "type": "object",
+          "required": ["lr0_items", "canonical_items", "final_items", "final_lookahead_items"],
+          "properties": {
+            "lr0_items": { "type": "string", "minLength": 1 },
+            "canonical_items": { "type": "string", "minLength": 1 },
+            "final_items": { "type": "string", "minLength": 1 },
+            "final_lookahead_items": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "grammar": {
+      "type": "object",
+      "required": ["identity", "path", "revision", "sha256"],
+      "properties": {
+        "identity": { "type": "string", "minLength": 1 },
+        "path": { "type": "string", "minLength": 1 },
+        "revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      },
+      "additionalProperties": false
+    },
+    "availability": {
+      "type": "object",
+      "required": ["status", "reason"],
+      "properties": {
+        "status": { "enum": ["verified_repository_source", "verified_generated_fixture", "verified_public_checkout", "not_run"] },
+        "reason": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "entries": {
+      "type": "object",
+      "required": ["count", "names"],
+      "properties": {
+        "count": { "type": "integer", "minimum": 1 },
+        "names": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "measurement": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["status", "value"],
+          "properties": {
+            "status": { "const": "measured" },
+            "value": { "type": "integer", "minimum": 0 }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["status", "reason"],
+          "properties": {
+            "status": { "const": "not_applicable" },
+            "reason": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "structural": {
+      "type": "object",
+      "required": ["lr0_states", "lr0_items", "canonical_states", "canonical_items", "final_states", "final_items", "final_lookahead_items", "propagation_edges", "ielr_initial_partitions", "ielr_final_partitions"],
+      "properties": {
+        "lr0_states": { "$ref": "#/$defs/measurement" },
+        "lr0_items": { "$ref": "#/$defs/measurement" },
+        "canonical_states": { "$ref": "#/$defs/measurement" },
+        "canonical_items": { "$ref": "#/$defs/measurement" },
+        "final_states": { "$ref": "#/$defs/measurement" },
+        "final_items": { "$ref": "#/$defs/measurement" },
+        "final_lookahead_items": { "$ref": "#/$defs/measurement" },
+        "propagation_edges": { "$ref": "#/$defs/measurement" },
+        "ielr_initial_partitions": { "$ref": "#/$defs/measurement" },
+        "ielr_final_partitions": { "$ref": "#/$defs/measurement" }
+      },
+      "additionalProperties": false
+    },
+    "conflicts": {
+      "type": "object",
+      "required": ["shift_reduce", "reduce_reduce"],
+      "properties": {
+        "shift_reduce": { "type": "integer", "minimum": 0 },
+        "reduce_reduce": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "elapsed": {
+      "type": "object",
+      "required": ["status", "value", "release_gate"],
+      "properties": {
+        "status": { "const": "observation" },
+        "value": { "type": "number", "minimum": 0 },
+        "release_gate": { "const": false }
+      },
+      "additionalProperties": false
+    },
+    "exhaustion": {
+      "type": "object",
+      "required": ["status", "resource", "limit"],
+      "properties": {
+        "status": { "enum": ["not_observed", "observed"] },
+        "resource": { "type": ["string", "null"] },
+        "limit": { "type": ["number", "null"], "exclusiveMinimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "failure": {
+      "type": "object",
+      "required": ["resource", "message"],
+      "properties": {
+        "resource": { "type": "string", "minLength": 1 },
+        "message": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "run": {
+      "type": "object",
+      "required": ["algorithm", "entry_mode", "entries", "entry_names", "status", "strategy", "structural", "conflicts", "observations", "exhaustion", "failure"],
+      "properties": {
+        "algorithm": { "enum": ["lalr", "ielr"] },
+        "entry_mode": { "enum": ["shared", "isolated"] },
+        "entries": { "type": "integer", "minimum": 1 },
+        "entry_names": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "status": { "enum": ["completed", "limit_exceeded", "resource_exhausted", "failed"] },
+        "strategy": { "type": ["string", "null"] },
+        "structural": { "$ref": "#/$defs/structural" },
+        "conflicts": { "oneOf": [{ "$ref": "#/$defs/conflicts" }, { "type": "null" }] },
+        "observations": {
+          "type": "object",
+          "required": ["elapsed_seconds"],
+          "properties": { "elapsed_seconds": { "$ref": "#/$defs/elapsed" } },
+          "additionalProperties": false
+        },
+        "exhaustion": { "$ref": "#/$defs/exhaustion" },
+        "failure": { "oneOf": [{ "$ref": "#/$defs/failure" }, { "type": "null" }] }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "status": { "const": "completed" },
+                "strategy": { "type": "string", "minLength": 1 },
+                "conflicts": { "$ref": "#/$defs/conflicts" },
+                "failure": { "type": "null" }
+              }
+            },
+            {
+              "properties": {
+                "status": { "enum": ["limit_exceeded", "resource_exhausted", "failed"] },
+                "strategy": { "type": "null" },
+                "conflicts": { "type": "null" },
+                "failure": { "$ref": "#/$defs/failure" }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "workload": {
+      "type": "object",
+      "required": ["id", "classification", "grammar", "registry_status", "availability", "entries", "runs"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "classification": { "enum": ["repository_synthetic", "repository_real", "public_real"] },
+        "grammar": { "$ref": "#/$defs/grammar" },
+        "registry_status": { "enum": ["registered", "unregistered_diagnostic"] },
+        "availability": { "$ref": "#/$defs/availability" },
+        "entries": { "oneOf": [{ "$ref": "#/$defs/entries" }, { "type": "null" }] },
+        "runs": { "type": "array", "items": { "$ref": "#/$defs/run" } }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "availability": {
+                  "properties": {
+                    "status": { "enum": ["verified_repository_source", "verified_generated_fixture", "verified_public_checkout"] },
+                    "reason": { "type": "null" }
+                  }
+                },
+                "entries": { "$ref": "#/$defs/entries" },
+                "runs": { "minItems": 2 }
+              }
+            },
+            {
+              "properties": {
+                "availability": {
+                  "properties": {
+                    "status": { "const": "not_run" },
+                    "reason": { "type": "string", "minLength": 1 }
+                  }
+                },
+                "entries": { "type": "null" },
+                "runs": { "maxItems": 0 }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "synthetic_workload": {
+      "allOf": [
+        { "$ref": "#/$defs/workload" },
+        { "properties": { "classification": { "const": "repository_synthetic" } } }
+      ]
+    },
+    "real_workload": {
+      "allOf": [
+        { "$ref": "#/$defs/workload" },
+        { "properties": { "classification": { "enum": ["repository_real", "public_real"] } } }
+      ]
+    },
+    "synthetic_cohort": {
+      "type": "object",
+      "required": ["kind", "workloads"],
+      "properties": {
+        "kind": { "const": "synthetic" },
+        "workloads": { "type": "array", "items": { "$ref": "#/$defs/synthetic_workload" }, "minItems": 1 }
+      },
+      "additionalProperties": false
+    },
+    "real_cohort": {
+      "type": "object",
+      "required": ["kind", "workloads"],
+      "properties": {
+        "kind": { "const": "real" },
+        "workloads": { "type": "array", "items": { "$ref": "#/$defs/real_workload" }, "minItems": 1 }
+      },
+      "additionalProperties": false
+    },
+    "threshold": {
+      "type": "object",
+      "required": ["id", "target", "observed", "satisfied"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "target": { "type": "string", "minLength": 1 },
+        "observed": { "type": "string", "minLength": 1 },
+        "satisfied": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "decision": {
+      "type": "object",
+      "required": ["feature", "decision", "thresholds", "reason", "counterevidence_required"],
+      "properties": {
+        "feature": { "enum": ["direct-ielr", "direct-multi-entry"] },
+        "decision": { "enum": ["GO", "NO-GO", "MORE DATA"] },
+        "thresholds": { "type": "array", "items": { "$ref": "#/$defs/threshold" }, "minItems": 1 },
+        "reason": { "type": "string", "minLength": 1 },
+        "counterevidence_required": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

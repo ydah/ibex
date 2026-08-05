@@ -14,18 +14,30 @@ module Ibex
       # @rbs @states: Array[item_set]
       # @rbs @transitions: transitions
       # @rbs @contributions: Array[Hash[Integer, Set[Array[untyped]]]]
+      # @rbs @initial_partition_count: Integer?
+      # @rbs @final_partition_count: Integer?
+      # @rbs @profile: bool
 
-      # @rbs (IR::Grammar grammar, Array[item_set] states, transitions transitions) -> void
-      def initialize(grammar, states, transitions)
+      attr_reader :initial_partition_count #: Integer?
+      attr_reader :final_partition_count #: Integer?
+
+      # @rbs (IR::Grammar grammar, Array[item_set] states, transitions transitions, ?profile: bool) -> void
+      def initialize(grammar, states, transitions, profile: false)
         @grammar = grammar
         @states = states
         @transitions = transitions
         @contributions = Array.new(states.length) { |state_id| action_contributions(state_id) }
+        @initial_partition_count = nil
+        @final_partition_count = nil
+        @profile = profile
       end
 
       # @rbs () -> [Array[packed_items], transitions]
       def build
-        partitions = refine_transitions(initial_partitions)
+        partitions = initial_partitions
+        @initial_partition_count = partitions.length if @profile
+        partitions = refine_transitions(partitions)
+        @final_partition_count = partitions.length if @profile
         indexes = partition_indexes(partitions)
         items = partitions.map { |members| merge_items(members) }
         transitions = partitions.map do |members|

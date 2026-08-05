@@ -13,8 +13,27 @@ module Ibex
 
       attr_reader strategy: Symbol
 
-      # @rbs (construction_states: Integer, canonical_states: Integer?, final_states: Integer, strategy: Symbol) -> void
-      def initialize: (construction_states: Integer, canonical_states: Integer?, final_states: Integer, strategy: Symbol) -> void
+      attr_reader lr0_states: Integer?
+
+      attr_reader lr0_items: Integer?
+
+      attr_reader canonical_items: Integer?
+
+      attr_reader final_items: Integer?
+
+      attr_reader final_lookahead_items: Integer?
+
+      attr_reader propagation_edges: Integer?
+
+      attr_reader ielr_initial_partitions: Integer?
+
+      attr_reader ielr_final_partitions: Integer?
+
+      # @rbs (construction_states: Integer, canonical_states: Integer?, final_states: Integer, strategy: Symbol,
+      #   ?lr0_states: Integer?, ?lr0_items: Integer?, ?canonical_items: Integer?, ?final_items: Integer?,
+      #   ?final_lookahead_items: Integer?, ?propagation_edges: Integer?, ?ielr_initial_partitions: Integer?,
+      #   ?ielr_final_partitions: Integer?) -> void
+      def initialize: (construction_states: Integer, canonical_states: Integer?, final_states: Integer, strategy: Symbol, ?lr0_states: Integer?, ?lr0_items: Integer?, ?canonical_items: Integer?, ?final_items: Integer?, ?final_lookahead_items: Integer?, ?propagation_edges: Integer?, ?ielr_initial_partitions: Integer?, ?ielr_final_partitions: Integer?) -> void
     end
   end
 end

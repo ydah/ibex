@@ -11,37 +11,39 @@ module Ibex
 
       LALR_STRATEGIES: Array[Symbol]
 
-      @canonical_key_radices: [ Integer, Integer, Integer ]?
-
-      @canonical_item_cache: Hash[Integer, Array[Array[lr_item?]?]]?
-
-      @canonical_suffix_lookahead_cache: Hash[Integer, Hash[Integer, Hash[Integer, Array[Integer]]]]
-
-      @attribute_entries: bool
-
-      @entry_isolation: bool
-
-      @start_names: Array[String]
-
-      @metrics: BuildMetrics?
-
-      @resolver: ConflictResolver
-
-      @productions_by_lhs: Hash[Integer, Array[IR::Production]]
-
-      @sets: Analysis::Sets
-
-      @lalr_strategy: Symbol
+      @grammar: IR::Grammar
 
       @algorithm: Symbol
 
-      @grammar: IR::Grammar
+      @lalr_strategy: Symbol
+
+      @sets: Analysis::Sets
+
+      @productions_by_lhs: Hash[Integer, Array[IR::Production]]
+
+      @resolver: ConflictResolver
+
+      @metrics: BuildMetrics?
+
+      @start_names: Array[String]
+
+      @entry_isolation: bool
+
+      @attribute_entries: bool
+
+      @profile: bool
+
+      @canonical_suffix_lookahead_cache: Hash[Integer, Hash[Integer, Hash[Integer, Array[Integer]]]]
+
+      @canonical_item_cache: Hash[Integer, Array[Array[lr_item?]?]]?
+
+      @canonical_key_radices: [ Integer, Integer, Integer ]?
 
       attr_reader metrics: BuildMetrics?
 
       # @rbs (IR::Grammar grammar, ?algorithm: Symbol | String, ?lalr_strategy: Symbol | String,
-      #   ?entry_isolation: bool, ?starts: Array[String]?, ?attribute_entries: bool) -> void
-      def initialize: (IR::Grammar grammar, ?algorithm: Symbol | String, ?lalr_strategy: Symbol | String, ?entry_isolation: bool, ?starts: Array[String]?, ?attribute_entries: bool) -> void
+      #   ?entry_isolation: bool, ?starts: Array[String]?, ?attribute_entries: bool, ?profile: bool) -> void
+      def initialize: (IR::Grammar grammar, ?algorithm: Symbol | String, ?lalr_strategy: Symbol | String, ?entry_isolation: bool, ?starts: Array[String]?, ?attribute_entries: bool, ?profile: bool) -> void
 
       # @rbs () -> IR::Automaton
       def build: () -> IR::Automaton
@@ -51,8 +53,30 @@ module Ibex
       # @rbs (Array[IR::AutomatonState] states) -> IR::conflict_summary
       def conflict_summary: (Array[IR::AutomatonState] states) -> IR::conflict_summary
 
-      # @rbs () -> [Array[packed_items], transitions, Integer, Integer?, Symbol]
-      def automaton_collection: () -> [ Array[packed_items], transitions, Integer, Integer?, Symbol ]
+      # @rbs () -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
+      def automaton_collection: () -> [ Array[packed_items], transitions, Hash[Symbol, untyped] ]
+
+      # @rbs () -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
+      def ielr_collection: () -> [ Array[packed_items], transitions, Hash[Symbol, untyped] ]
+
+      # @rbs () -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
+      def canonical_lr1_collection: () -> [ Array[packed_items], transitions, Hash[Symbol, untyped] ]
+
+      # @rbs (Symbol strategy) -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
+      def merged_canonical_collection: (Symbol strategy) -> [ Array[packed_items], transitions, Hash[Symbol, untyped] ]
+
+      # @rbs () -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
+      def direct_collection: () -> [ Array[packed_items], transitions, Hash[Symbol, untyped] ]
+
+      # @rbs (Array[item_set] states, strategy: Symbol) -> Hash[Symbol, untyped]
+      def canonical_profile: (Array[item_set] states, strategy: Symbol) -> Hash[Symbol, untyped]
+
+      # @rbs (Array[packed_items] items) -> [Integer?, Integer?]
+      def profiled_final_item_counts: (Array[packed_items] items) -> [ Integer?, Integer? ]
+
+      # @rbs (Hash[Symbol, untyped] collection, Integer final_states, Integer? final_items,
+      #   Integer? final_lookahead_items) -> BuildMetrics
+      def build_metrics: (Hash[Symbol, untyped] collection, Integer final_states, Integer? final_items, Integer? final_lookahead_items) -> BuildMetrics
 
       # @rbs () -> String
       def algorithm_name: () -> String
@@ -132,6 +156,13 @@ module Ibex
 
       # @rbs () -> IR::Automaton
       def build_isolated_automaton: () -> IR::Automaton
+
+      # @rbs (Array[[String, IR::Automaton, BuildMetrics]] entries, Integer construction_states,
+      #   Integer? canonical_states, Integer final_states) -> BuildMetrics
+      def isolated_metrics: (Array[[ String, IR::Automaton, BuildMetrics ]] entries, Integer construction_states, Integer? canonical_states, Integer final_states) -> BuildMetrics
+
+      # @rbs (Array[[String, IR::Automaton, BuildMetrics]] entries, Symbol method) -> Integer?
+      def sum_optional_metric: (Array[[ String, IR::Automaton, BuildMetrics ]] entries, Symbol method) -> Integer?
 
       # @rbs (String name) -> [String, IR::Automaton, BuildMetrics]
       def isolated_entry: (String name) -> [ String, IR::Automaton, BuildMetrics ]

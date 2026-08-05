@@ -100,6 +100,11 @@ application benefit. A runtime optimization can cite
 must publish a new environment-bound comparison artifact before making a
 current performance claim.
 
+The H005 [construction profile](construction-profiling.md) consumes these exact
+identities and keeps unavailable public checkouts as `not_run`. Synthetic and
+repository-real construction observations never stand in for third-party
+evidence.
+
 ## Updating the registry
 
 Run:

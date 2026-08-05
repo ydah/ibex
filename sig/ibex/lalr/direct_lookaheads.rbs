@@ -11,32 +11,46 @@ module Ibex
 
       EMPTY_NODES: Array[Integer]
 
-      @terminal_ids_by_bits: Hash[Integer, Array[Integer]]
-
-      @terminal_masks: Array[Integer]
-
-      @terminal_ids: Array[Integer]
-
-      @node_stride: Integer
-
-      @item_key_stride: Integer
-
-      @production_item_cores: Array[Array[item_core]]
-
-      @augmented_item_cores: Array[item_core]
-
-      @production_rhs: Array[Array[Integer]]
-
-      @augmented_rhs: Array[Integer]
-
-      @productions_by_lhs: Hash[Integer, Array[IR::Production]]
+      @grammar: IR::Grammar
 
       @sets: Analysis::Sets
 
-      @grammar: IR::Grammar
+      @productions_by_lhs: Hash[Integer, Array[IR::Production]]
 
-      # @rbs (IR::Grammar grammar, Analysis::Sets sets) -> void
-      def initialize: (IR::Grammar grammar, Analysis::Sets sets) -> void
+      @augmented_rhs: Array[Integer]
+
+      @production_rhs: Array[Array[Integer]]
+
+      @augmented_item_cores: Array[item_core]
+
+      @production_item_cores: Array[Array[item_core]]
+
+      @item_key_stride: Integer
+
+      @node_stride: Integer
+
+      @terminal_ids: Array[Integer]
+
+      @terminal_masks: Array[Integer]
+
+      @terminal_ids_by_bits: Hash[Integer, Array[Integer]]
+
+      @lr0_state_count: Integer?
+
+      @lr0_item_count: Integer?
+
+      @propagation_edge_count: Integer?
+
+      @profile: bool
+
+      attr_reader lr0_state_count: Integer?
+
+      attr_reader lr0_item_count: Integer?
+
+      attr_reader propagation_edge_count: Integer?
+
+      # @rbs (IR::Grammar grammar, Analysis::Sets sets, ?profile: bool) -> void
+      def initialize: (IR::Grammar grammar, Analysis::Sets sets, ?profile: bool) -> void
 
       # @rbs () -> [Array[packed_items], transitions]
       def build: () -> [ Array[packed_items], transitions ]

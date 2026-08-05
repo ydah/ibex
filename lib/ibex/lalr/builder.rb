@@ -22,6 +22,7 @@ module Ibex
       # @rbs @start_names: Array[String]
       # @rbs @entry_isolation: bool
       # @rbs @attribute_entries: bool
+      # @rbs @profile: bool
       # @rbs @canonical_suffix_lookahead_cache: Hash[Integer, Hash[Integer, Hash[Integer, Array[Integer]]]]
       # @rbs @canonical_item_cache: Hash[Integer, Array[Array[lr_item?]?]]?
       # @rbs @canonical_key_radices: [Integer, Integer, Integer]?
@@ -29,9 +30,9 @@ module Ibex
       attr_reader :metrics #: BuildMetrics?
 
       # @rbs (IR::Grammar grammar, ?algorithm: Symbol | String, ?lalr_strategy: Symbol | String,
-      #   ?entry_isolation: bool, ?starts: Array[String]?, ?attribute_entries: bool) -> void
+      #   ?entry_isolation: bool, ?starts: Array[String]?, ?attribute_entries: bool, ?profile: bool) -> void
       def initialize(grammar, algorithm: :lalr, lalr_strategy: :direct, entry_isolation: false,
-                     starts: nil, attribute_entries: true)
+                     starts: nil, attribute_entries: true, profile: false)
         unless ALGORITHMS.include?(algorithm.to_sym)
           raise ArgumentError, "unknown parser algorithm #{algorithm.inspect}"
         end
@@ -56,25 +57,22 @@ module Ibex
 
         @entry_isolation = entry_isolation
         @attribute_entries = attribute_entries
+        @profile = profile
       end
 
       # @rbs () -> IR::Automaton
       def build
         return build_isolated_automaton if @entry_isolation && @start_names.length > 1
 
-        merged_items, merged_transitions, construction_states, canonical_states, strategy = automaton_collection
+        merged_items, merged_transitions, collection = automaton_collection
         states = build_states(merged_items, merged_transitions)
         states = OnErrorReductions.apply(@grammar, states)
         states = DefaultReductions.apply(states, terminal_ids: @grammar.terminals.map(&:id))
         entry_states = entry_states_for(merged_items)
         states = attribute_entry_conflicts(states, entry_states) if @attribute_entries && @start_names.length > 1
         summary = conflict_summary(states)
-        @metrics = BuildMetrics.new(
-          construction_states: construction_states,
-          canonical_states: canonical_states,
-          final_states: states.length,
-          strategy: strategy
-        )
+        final_items, final_lookahead_items = profiled_final_item_counts(merged_items)
+        @metrics = build_metrics(collection, states.length, final_items, final_lookahead_items)
         IR::Automaton.new(grammar: @grammar, states: states, conflict_summary: summary,
                           algorithm: algorithm_name, entry_states: entry_states)
       end
@@ -99,39 +97,90 @@ module Ibex
         summary
       end
 
-      # @rbs () -> [Array[packed_items], transitions, Integer, Integer?, Symbol]
+      # @rbs () -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
       def automaton_collection
-        if @algorithm == :ielr
-          states, transitions = canonical_collection
-          items, merged_transitions = IELRPartition.new(@grammar, states, transitions).build
-          return [items, merged_transitions, states.length, states.length, :ielr_partition]
-        end
+        return ielr_collection if @algorithm == :ielr
+        return canonical_lr1_collection if @algorithm == :lr1
+        return merged_canonical_collection(:canonical_merge) if @lalr_strategy == :canonical_merge
+        return merged_canonical_collection(:canonical_merge_multi_entry) if @grammar.starts.length > 1
 
-        if @algorithm == :lr1
-          states, transitions = canonical_collection
-          return [pack_canonical_items(states), transitions, states.length, states.length, :canonical_lr1]
-        end
-
-        if @lalr_strategy == :canonical_merge
-          states, transitions = canonical_collection
-          items, merged_transitions = merge_lalr(states, transitions)
-          apply_slr_lookaheads(items) if @algorithm == :slr
-          return [items, merged_transitions, states.length, states.length, :canonical_merge]
-        end
-
-        if @grammar.starts.length > 1
-          states, transitions = canonical_collection
-          items, merged_transitions = merge_lalr(states, transitions)
-          apply_slr_lookaheads(items) if @algorithm == :slr
-          return [items, merged_transitions, states.length, states.length, :canonical_merge_multi_entry]
-        end
-
-        items, transitions = DirectLookaheads.new(@grammar, @sets).build
-        apply_slr_lookaheads(items) if @algorithm == :slr
-        collection = [items, transitions, items.length, nil, :direct_lalr]
-        collection #: [Array[packed_items], transitions, Integer, Integer?, Symbol]
+        direct_collection
       ensure
         @canonical_item_cache = nil
+      end
+
+      # @rbs () -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
+      def ielr_collection
+        states, transitions = canonical_collection
+        partition = IELRPartition.new(@grammar, states, transitions, profile: @profile)
+        items, merged_transitions = partition.build
+        profile = canonical_profile(states, strategy: :ielr_partition)
+        profile[:ielr_initial_partitions] = partition.initial_partition_count
+        profile[:ielr_final_partitions] = partition.final_partition_count
+        [items, merged_transitions, profile]
+      end
+
+      # @rbs () -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
+      def canonical_lr1_collection
+        states, transitions = canonical_collection
+        [pack_canonical_items(states), transitions, canonical_profile(states, strategy: :canonical_lr1)]
+      end
+
+      # @rbs (Symbol strategy) -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
+      def merged_canonical_collection(strategy)
+        states, transitions = canonical_collection
+        items, merged_transitions = merge_lalr(states, transitions)
+        apply_slr_lookaheads(items) if @algorithm == :slr
+        [items, merged_transitions, canonical_profile(states, strategy: strategy)]
+      end
+
+      # @rbs () -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
+      def direct_collection
+        direct = DirectLookaheads.new(@grammar, @sets, profile: @profile)
+        items, transitions = direct.build
+        apply_slr_lookaheads(items) if @algorithm == :slr
+        profile = {
+          construction_states: items.length, canonical_states: nil, strategy: :direct_lalr,
+          lr0_states: direct.lr0_state_count, lr0_items: direct.lr0_item_count, canonical_items: nil,
+          propagation_edges: direct.propagation_edge_count,
+          ielr_initial_partitions: nil, ielr_final_partitions: nil
+        }
+        [items, transitions, profile]
+      end
+
+      # @rbs (Array[item_set] states, strategy: Symbol) -> Hash[Symbol, untyped]
+      def canonical_profile(states, strategy:)
+        cores = states.to_h { |items| [core_key(items), true] }.keys if @profile
+        {
+          construction_states: states.length, canonical_states: states.length, strategy: strategy,
+          lr0_states: cores&.length, lr0_items: cores&.sum(&:length),
+          canonical_items: @profile ? states.sum(&:length) : nil,
+          propagation_edges: nil, ielr_initial_partitions: nil, ielr_final_partitions: nil
+        }
+      end
+
+      # @rbs (Array[packed_items] items) -> [Integer?, Integer?]
+      def profiled_final_item_counts(items)
+        return [nil, nil] unless @profile
+
+        [items.sum(&:length), items.sum { |state| state.values.sum(&:length) }]
+      end
+
+      # @rbs (Hash[Symbol, untyped] collection, Integer final_states, Integer? final_items,
+      #   Integer? final_lookahead_items) -> BuildMetrics
+      def build_metrics(collection, final_states, final_items, final_lookahead_items)
+        BuildMetrics.new(
+          construction_states: collection.fetch(:construction_states),
+          canonical_states: collection.fetch(:canonical_states),
+          strategy: collection.fetch(:strategy),
+          lr0_states: collection.fetch(:lr0_states),
+          lr0_items: collection.fetch(:lr0_items),
+          canonical_items: collection.fetch(:canonical_items),
+          propagation_edges: collection.fetch(:propagation_edges),
+          ielr_initial_partitions: collection.fetch(:ielr_initial_partitions),
+          ielr_final_partitions: collection.fetch(:ielr_final_partitions),
+          final_states: final_states, final_items: final_items, final_lookahead_items: final_lookahead_items
+        )
       end
 
       # @rbs () -> String
@@ -465,23 +514,41 @@ module Ibex
           canonical_counts << metrics.canonical_states
         end
         canonical_states = canonical_counts.compact.sum if canonical_counts.none?(&:nil?)
-        @metrics = BuildMetrics.new(
-          construction_states: construction_states,
-          canonical_states: canonical_states,
-          final_states: states.length,
-          strategy: :entry_isolation
-        )
+        @metrics = isolated_metrics(entries, construction_states, canonical_states, states.length)
         IR::Automaton.new(
           grammar: @grammar, states: states, conflict_summary: conflict_summary(states),
           algorithm: algorithm_name, entry_states: entry_states
         )
       end
 
+      # @rbs (Array[[String, IR::Automaton, BuildMetrics]] entries, Integer construction_states,
+      #   Integer? canonical_states, Integer final_states) -> BuildMetrics
+      def isolated_metrics(entries, construction_states, canonical_states, final_states)
+        BuildMetrics.new(
+          construction_states: construction_states, canonical_states: canonical_states,
+          final_states: final_states, strategy: :entry_isolation,
+          lr0_states: sum_optional_metric(entries, :lr0_states),
+          lr0_items: sum_optional_metric(entries, :lr0_items),
+          canonical_items: sum_optional_metric(entries, :canonical_items),
+          final_items: sum_optional_metric(entries, :final_items),
+          final_lookahead_items: sum_optional_metric(entries, :final_lookahead_items),
+          propagation_edges: sum_optional_metric(entries, :propagation_edges),
+          ielr_initial_partitions: sum_optional_metric(entries, :ielr_initial_partitions),
+          ielr_final_partitions: sum_optional_metric(entries, :ielr_final_partitions)
+        )
+      end
+
+      # @rbs (Array[[String, IR::Automaton, BuildMetrics]] entries, Symbol method) -> Integer?
+      def sum_optional_metric(entries, method)
+        values = entries.map { |_name, _automaton, metrics| metrics.public_send(method) }
+        values.compact.sum if values.none?(&:nil?)
+      end
+
       # @rbs (String name) -> [String, IR::Automaton, BuildMetrics]
       def isolated_entry(name)
         builder = self.class.new(
           @grammar, algorithm: @algorithm, lalr_strategy: @lalr_strategy,
-                    starts: [name], attribute_entries: false
+                    starts: [name], attribute_entries: false, profile: @profile
         )
         automaton = builder.build
         metrics = builder.metrics
