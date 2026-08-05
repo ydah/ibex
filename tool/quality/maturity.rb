@@ -179,6 +179,22 @@ module Ibex
           end
         end
 
+        # Interpret the ISO 8601 committer timestamp in its recorded offset.
+        # reviewed_at is a date-only claim, so a commit on the same local
+        # calendar date is reviewable and a later local date is not.
+        def commit_date(root, revision)
+          @commit_date_cache ||= {}
+          key = [root, revision]
+          @commit_date_cache.fetch(key) do
+            output, error, status = Open3.capture3("git", "-C", root, "show", "-s", "--format=%cI", revision)
+            raise "cannot read commit timestamp: #{error.strip}" unless status.success?
+
+            @commit_date_cache[key] = DateTime.iso8601(output.strip).to_date
+          rescue Date::Error => e
+            raise "cannot parse commit timestamp for #{revision}: #{e.message}"
+          end
+        end
+
         def commit_paths(root, revision)
           @commit_paths_cache ||= {}
           key = [root, revision]
@@ -246,14 +262,17 @@ module Ibex
 
         @reviewed_revision = audit.fetch("reviewed_repository_revision")
         revision!(@reviewed_revision, "audit reviewed_repository_revision")
-        raise "maturity audit must remain bound to the reviewed pre-H001 authority" unless
+        raise "maturity audit must remain bound to the exact reviewed revision authority" unless
           @reviewed_revision == REVIEWED_REVISION
+        if self.class.commit_date(@root, @reviewed_revision) > reviewed_at
+          raise "reviewed commit timestamp cannot be after maturity reviewed_at"
+        end
 
         load_reviewed_history
         verify_release_tags
         issue_audits = audit.fetch("issue_audits")
         record_array!(issue_audits, "issue audits")
-        issue_audits.each { |entry| verify_issue_audit(entry, audit.fetch("reviewed_at")) }
+        issue_audits.each { |entry| verify_issue_audit(entry, reviewed_at) }
         issue_audits.to_h { |entry| [entry.fetch("id"), entry] }
       end
 
@@ -275,9 +294,11 @@ module Ibex
 
         checked = date!(entry.fetch("checked_at"), "issue audit checked_at")
         fresh_until = date!(entry.fetch("fresh_until"), "issue audit fresh_until")
-        raise "issue audit predates the maturity review" if checked < Date.iso8601(reviewed_at)
         raise "issue audit checked_at cannot be in the future" if checked > @today
         raise "issue audit checked_at must not follow fresh_until" if checked > fresh_until
+
+        raise "issue audit checked_at cannot follow the maturity review" if checked > reviewed_at
+        raise "issue audit was already stale at the maturity review" if fresh_until < reviewed_at
         raise "issue audit freshness window must be 30 days or less" if (fresh_until - checked).to_i > 30
         raise "issue audit is stale; rerun the exact query and review every result" if fresh_until < @today
 

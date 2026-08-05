@@ -1,7 +1,7 @@
 schema_version: 1
 audit:
-  reviewed_at: "2026-08-04"
-  reviewed_repository_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+  reviewed_at: "2026-08-05"
+  reviewed_repository_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
   issue_audits:
     - id: github-open-issues-2026-08-04
       provider: github_search_api
@@ -81,7 +81,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 9fd614c09314c28fa4fe5a4d56d2425b46fc2b5905fa72a1ab58784c4505af2f
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -185,7 +185,7 @@ features:
           unresolved_uncertainty: No release-bound EBNF groups contract or behavior oracle isolates this surface from adjacent edits in the shared paths, so unchanged public semantics cannot be established.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -265,7 +265,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 737cc90a5cd158bba61a9984fc121fbc859f6bf91d633b31cc77d98eb5b340c1
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -331,7 +331,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream parameterized rules compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -411,7 +411,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 02919ea72da0a741bbac49d28cc5caffc5649895c3cf46dc6fcc207c06ef47c4
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -481,7 +481,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream inline rules compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -569,7 +569,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 14c3291260bae717d1ff850db06f73b748047d4686de72cbc85d3926903c73ce
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -696,7 +696,7 @@ features:
           unresolved_uncertainty: No release-bound middle actions contract or behavior oracle isolates this surface from adjacent edits in the shared paths, so unchanged public semantics cannot be established.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -779,7 +779,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: f4188d78228e88003c7f969f1bcb54ff57e243a79eb045634cb6b7522ccadeb5
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -929,7 +929,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream multiple entries compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments:
             - revision: c7d02d408e1778bb8018c1876f8728949bf7aa24
@@ -1025,7 +1025,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 2146bc5fe8a3e676508e4a34d966ced6f9845d7733917c701e6b27e1ea3c569f
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -1070,7 +1070,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream canonical imports compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -1149,7 +1149,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: f7f21704a0bd536f0c144a08dcd1f5df629385c6a2842fc74b81f548e33f4177
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -1202,7 +1202,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream generated lexers compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments:
             - revision: 7f248ebaa71bdf55ea8943aa75f9474e4c108831
@@ -1301,7 +1301,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 3f06fbb519913e0f96033da484dbeefc2490b4756aa8d450013c511720e89bde
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -1576,7 +1576,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream semantic locations/types compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments:
             - revision: 5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
@@ -1710,7 +1710,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 9d4f4758d4a277bfe13bc1ab29439bd16e6fbe1e6c91a8b501a3cc72b2d228cf
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -1743,7 +1743,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream AST generation compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -1822,7 +1822,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: f0d93af7ff066a056227c8e17ff986e6ceec8191942a74040c89f9942f64cf53
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -1851,7 +1851,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream grammar tests compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -1930,7 +1930,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 053062524dddaac323bcc886db766e68d4231697308b27409951bd49b3005d72
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -1955,7 +1955,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream documentation tooling compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -2034,7 +2034,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: ded44c69663f48c36cd15fda5b10cc1c8c2a0b19b0a763269d9db2bfa969ef5a
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -2095,7 +2095,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream IELR compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments:
             - revision: 7017c876dca4fa37525094b6a8b69c9071bec407
@@ -2178,7 +2178,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: bec58a0b4eaa7387561cd67b1d3aba981ab21898c55749e188f9bc85e6155963
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -2203,7 +2203,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream LSP compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -2282,7 +2282,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: cda7969bb4aee0e322fe7f2fb6cc510b42e9070f1b356c1f5430c8e391c98e1c
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -2307,7 +2307,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream watch compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -2386,7 +2386,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: d222492d82cf0d871cec9b7c187ebe45c839ce0dfe22e980dd66950cd7c0159d
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -2411,7 +2411,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream debug compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -2490,7 +2490,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 9b6bb2992c0d329800afe3d235b34419311c882f91ec0f196d7407ba63a24a02
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -2515,7 +2515,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream coverage compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -2594,7 +2594,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 4b8e347c3ce4bd539c1e2fec9807e33c7f268265ae6ec8a3abc01fe58e6c1daa
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -2619,7 +2619,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream browser playground compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -2698,7 +2698,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: a26d41b60b98d6d4b2e7e51d18c28a44242e08ec1922745be48c63ad58facff5
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -2743,7 +2743,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream action-shadow compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -2822,7 +2822,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 1246123e021816c3e0c04887e091f72e34235356de937f669cf8a2cd18a84cc7
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -2847,7 +2847,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream bounded repair compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -2930,7 +2930,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 4bcaa677fd049a44e92df235fb7b6adde0e70c3e6a8d9eb0d752ed6ff84ea8e5
         - id: reviewed
-          revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           feature_status: present
           canonical_presence:
             status: complete
@@ -2938,7 +2938,7 @@ features:
               - lib/ibex/runtime/cst/incremental/session.rb
             absent_paths: []
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
-          source_tree_sha256: 9f5ee842e2a80adf4dc5b0dc386723f9848fd8fb4f289915eac52ef03b02f77e
+          source_tree_sha256: 75b64f5577092699e5029aa8d7a56773bcffae3d5a06c85c51e9caf28661d684
       changes:
         - boundary: introduction..v0.2.0
           from_revision: 5da90340090232df0e4266cf6ddd835777ca00f7
@@ -2976,7 +2976,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream incremental CST compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+          to_revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
           classification: semantic_change
           commit_assessments:
             - revision: 5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
@@ -3015,10 +3015,14 @@ features:
               classification: semantic_change
               summary: "feat: add generated syntax sessions"
               contract_effect: "feat: add generated syntax sessions adds the public trust-labelled syntax session façade, immutable results and metrics, cancellation, resource bounds, and transactional abort behavior for incremental CST. Evidence: lib/ibex/runtime/cst/incremental/session.rb."
+            - revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
+              classification: semantic_change
+              summary: "fix: harden syntax sessions across error edits"
+              contract_effect: "fix: harden syntax sessions across error edits makes completed-operation metrics accurate and error-edit reuse bounds-safe; the audited diff changes the public incremental-CST runtime behavior. Evidence: lib/ibex/runtime/cst/incremental/session.rb."
           diff_paths:
             - lib/ibex/runtime/cst/incremental/session.rb
             - lib/ibex/runtime/parser.rb
-          rationale: Earlier cross-engine fixes preserve incremental behavior; the final reviewed commit intentionally extends the Experimental incremental-CST public surface with a generated-language syntax session façade and transactional cancellation behavior.
+          rationale: Earlier cross-engine fixes preserve incremental behavior; the reviewed syntax-session commits add the Experimental public API, then make its completed metrics and malformed-edit public behavior accurate and bounds-safe.
           unresolved_uncertainty: This path review does not establish downstream incremental CST compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git snapshots do not establish editor lifecycle correctness or external latency behavior.]
       evidence: [docs/decisions/0018-conservative-incremental-syntax-reuse.md, docs/decisions/0019-runtime-syntax-session-boundary.md, docs/stability.md]
@@ -3049,4 +3053,4 @@ features:
       triggers: [Two releases complete without incremental API changes., An external editor integration supplies correctness and latency evidence.]
       required_evidence: [External editor workload, external cancellation/lifecycle review, exact-release R002 results]
     release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
-    sources: [{ path: lib/ibex/runtime/cst/incremental/session.rb, sha256: 29e3ca712cc4065581728e42faedf62712cbda6b57d3f4980ec11784fe36a95e }]
+    sources: [{ path: lib/ibex/runtime/cst/incremental/session.rb, sha256: 8092f39b1a57d29d89188ec0189923a78063ec9d05cceff300b7158b87afe806 }]

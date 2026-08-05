@@ -11,7 +11,7 @@ class MaturityTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   REGISTRY = File.join(ROOT, "docs/maturity.yml")
   NARRATIVE = File.join(ROOT, "docs/maturity.md")
-  TODAY = Date.new(2026, 8, 4)
+  TODAY = Date.new(2026, 8, 5)
   KNOWN_NONSEMANTIC_MAPPINGS = {
     "semantic-locations-types" => {
       "v0.2.0..reviewed" => %w[
@@ -34,6 +34,16 @@ class MaturityTest < Minitest::Test
 
   def test_repository_inventory_evidence_and_public_summaries_are_valid
     assert Ibex::Quality::Maturity.new(today: TODAY).verify!
+  end
+
+  def test_review_date_covers_the_reviewed_commit_in_its_recorded_timezone
+    revision = document.dig("audit", "reviewed_repository_revision")
+
+    assert_equal Date.new(2026, 8, 5), Ibex::Quality::Maturity.commit_date(ROOT, revision)
+
+    changed = document
+    changed.fetch("audit")["reviewed_at"] = "2026-08-04"
+    assert_error(changed, "reviewed commit timestamp cannot be after maturity reviewed_at")
   end
 
   def test_rejects_a_missing_duplicate_or_reordered_feature
@@ -130,9 +140,15 @@ class MaturityTest < Minitest::Test
 
     changed = document
     audit = changed.dig("audit", "issue_audits", 0)
-    audit["checked_at"] = "2026-08-05"
-    audit["fresh_until"] = "2026-09-04"
+    audit["checked_at"] = "2026-08-06"
+    audit["fresh_until"] = "2026-09-05"
     assert_error(changed, "checked_at cannot be in the future")
+
+    changed = document
+    audit = changed.dig("audit", "issue_audits", 0)
+    audit["checked_at"] = "2026-08-06"
+    audit["fresh_until"] = "2026-09-05"
+    assert_error(changed, "checked_at cannot follow the maturity review", today: Date.new(2026, 8, 6))
 
     changed = document
     changed.dig("audit", "issue_audits", 0, "result")["status"] = "unknown"
@@ -211,7 +227,7 @@ class MaturityTest < Minitest::Test
 
     changed = document
     changed.fetch("audit")["reviewed_repository_revision"] = "24c6712db0a3da8f42f13d32b43392ba261adfed"
-    assert_error(changed, "reviewed pre-H001 authority")
+    assert_error(changed, "exact reviewed revision authority")
   end
   # rubocop:enable Metrics/AbcSize
 
@@ -504,12 +520,12 @@ class MaturityTest < Minitest::Test
     }
   end
 
-  def assert_error(value, message)
+  def assert_error(value, message, today: TODAY)
     Dir.mktmpdir("maturity-registry-test-") do |directory|
       registry = File.join(directory, "maturity.yml")
       File.write(registry, YAML.dump(value))
       error = assert_raises(RuntimeError) do
-        Ibex::Quality::Maturity.new(registry: registry, today: TODAY).verify!
+        Ibex::Quality::Maturity.new(registry: registry, today: today).verify!
       end
       assert_includes error.message, message
     end

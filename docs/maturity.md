@@ -75,7 +75,7 @@ reviewed.
 
 Each feature records its validator-owned first Git pickaxe introduction, first
 containing release, canonical-blob presence, and integrity snapshots at v0.1.0,
-v0.2.0, and the reviewed pre-H001 revision. Each release boundary separately
+v0.2.0, and the exact reviewed revision. Each release boundary separately
 records one assessment for every path-relevant commit. An assessment binds the
 full revision, exact Git subject, classification, and commit-specific public
 contract effect. The validator reconstructs the reviewed commits from Git,
