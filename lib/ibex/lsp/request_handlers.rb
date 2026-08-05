@@ -23,6 +23,7 @@ module Ibex
         "textDocument/prepareRename" => :prepare_rename,
         "textDocument/rename" => :rename,
         "textDocument/hover" => :hover,
+        "textDocument/completion" => :completion,
         "$/cancelRequest" => :cancel_request
       }.freeze #: Hash[String, Symbol]
 

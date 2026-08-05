@@ -37,7 +37,21 @@ module Ibex
 
       # @rbs (untyped raw_params) -> Hash[String, untyped]?
       def hover(raw_params)
-        with_index(raw_params) { |index, path, position| index.hover(path, position) }
+        with_index(raw_params) do |index, path, position|
+          index.hover(path, position) || ParserConfigurationAssistance.new(store, path).hover(position)
+        end
+      end
+
+      # @rbs (untyped raw_params) -> Hash[String, untyped]
+      def completion(raw_params)
+        require_running!
+        params = params_hash(raw_params)
+        document = hash_member(params, "textDocument")
+        path = workspace.path(string_member(document, "uri"))
+        position = hash_member(params, "position")
+        ParserConfigurationAssistance.new(store, path).completion(position)
+      rescue ArgumentError => e
+        raise ProtocolError.new(e.message, code: -32_602)
       end
 
       # @rbs (untyped raw_params) { (SymbolIndex, String, Hash[String, untyped]) -> untyped } -> untyped
