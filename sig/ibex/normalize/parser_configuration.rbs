@@ -1,0 +1,23 @@
+# Generated from lib/ibex/normalize/parser_configuration.rb with RBS::Inline
+
+module Ibex
+  # Converts a root parser declaration into the explicit Grammar IR v3 contract.
+  module NormalizeParserConfiguration
+    private
+
+    # @rbs (Frontend::AST::ParserConfiguration declaration) -> void
+    def read_parser_configuration: (Frontend::AST::ParserConfiguration declaration) -> void
+
+    # @rbs () -> IR::ParserContract?
+    def normalized_parser_contract: () -> IR::ParserContract?
+
+    # @rbs (Frontend::AST::ParserSetting setting) -> Hash[Symbol, untyped]
+    def validated_parser_setting_definition: (Frontend::AST::ParserSetting setting) -> Hash[Symbol, untyped]
+
+    # @rbs (Frontend::AST::ParserConfiguration declaration) -> void
+    def validate_isolated_entries: (Frontend::AST::ParserConfiguration declaration) -> void
+
+    # @rbs (Frontend::AST::ParserSetting setting) -> Location
+    def parser_setting_location: (Frontend::AST::ParserSetting setting) -> Location
+  end
+end

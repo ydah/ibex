@@ -5,6 +5,10 @@ module Ibex
   class Normalizer
     include NormalizeDeclarations
 
+    include NormalizeParserConfiguration
+
+    include NormalizeGrammarBuilder
+
     include NormalizeLexer
 
     include NormalizeRecoveryDeclarations
@@ -41,6 +45,8 @@ module Ibex
 
     @explicit_starts: Array[String]?
 
+    @parser_configuration: Frontend::AST::ParserConfiguration?
+
     @lexer_declaration: Frontend::AST::Lexer?
 
     @grammar_tests: Array[IR::grammar_test]
@@ -70,8 +76,6 @@ module Ibex
     @display_names: Hash[String, String]
 
     @precedence_locations: Hash[String, IR::location]
-
-    @precedence: Hash[String, IR::precedence]
 
     @node_shapes: Hash[String, Array[String]]
 
@@ -106,6 +110,8 @@ module Ibex
     @start_name: String
 
     @start_names: Array[String]
+
+    @precedence: Hash[String, IR::precedence]
 
     @declared_tokens: Hash[String, IR::location]
 

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative "normalize/declarations"
+require_relative "normalize/parser_configuration"
+require_relative "normalize/grammar_builder"
 require_relative "normalize/lexer"
 require_relative "normalize/recovery_declarations"
 require_relative "normalize/expression"
@@ -21,6 +23,8 @@ module Ibex
   # Converts a frontend AST into immutable Grammar IR.
   class Normalizer
     include NormalizeDeclarations
+    include NormalizeParserConfiguration
+    include NormalizeGrammarBuilder
     include NormalizeLexer
     include NormalizeRecoveryDeclarations
     include NormalizeParameterValidation
@@ -69,6 +73,7 @@ module Ibex
     # @rbs @on_error_reduce_groups: Array[Array[String]]
     # @rbs @grammar_tests: Array[IR::grammar_test]
     # @rbs @lexer_declaration: Frontend::AST::Lexer?
+    # @rbs @parser_configuration: Frontend::AST::ParserConfiguration?
     # @rbs @explicit_starts: Array[String]?
     # @rbs @start_names: Array[String]
     # @rbs @start_name: String
@@ -131,28 +136,13 @@ module Ibex
       intern_reserved_symbols
       intern_declared_terminals
       intern_user_nonterminals
+      parser_contract = normalized_parser_contract
       normalize_user_productions
       expand_inline_rules
       validate_value_printers
       validate_recovery_declarations
       validate_grammar
-      IR::Grammar.new(class_name: @ast.class_name, superclass: @ast.superclass, start: @start_name,
-                      expect: @expected_conflicts, options: @options, symbols: @symbols,
-                      mode: @mode, starts: @start_names,
-                      expect_rr: @expected_rr_conflicts,
-                      parser_parameters: @parser_parameters,
-                      value_printers: @value_printers.values,
-                      grammar_tests: @grammar_tests,
-                      lexer: normalize_lexer,
-                      recovery: {
-                        sync_tokens: @recovery_sync_tokens,
-                        on_error_reduce: @on_error_reduce_groups
-                      },
-                      productions: @productions, user_code: normalized_user_code,
-                      conversions: @conversions, warnings: @warnings, user_code_chunks: normalized_user_code_chunks,
-                      source_provenance: {
-                        file: @ast.loc.file, root: @resolution&.root_directory, byte_span: nil
-                      })
+      build_grammar(parser_contract)
     end
 
     private
