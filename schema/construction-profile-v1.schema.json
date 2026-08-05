@@ -30,12 +30,7 @@
             { "properties": { "feature": { "const": "direct-ielr" } } }
           ]
         },
-        {
-          "allOf": [
-            { "$ref": "#/$defs/decision" },
-            { "properties": { "feature": { "const": "direct-multi-entry" } } }
-          ]
-        }
+        { "$ref": "#/$defs/direct_multi_entry_decision" }
       ],
       "items": false,
       "minItems": 2,
@@ -638,6 +633,68 @@
         }
       },
       "additionalProperties": false
+    },
+    "direct_multi_entry_decision": {
+      "allOf": [
+        { "$ref": "#/$defs/decision" },
+        {
+          "properties": {
+            "feature": { "const": "direct-multi-entry" },
+            "thresholds": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "allOf": [
+                    { "$ref": "#/$defs/threshold" },
+                    {
+                      "properties": {
+                        "id": { "const": "representative-real-multi-entry" },
+                        "target": { "const": "at least 2 verified real grammars with multiple entries" }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    { "$ref": "#/$defs/threshold" },
+                    {
+                      "properties": {
+                        "id": { "const": "material-canonical-fallback-cost" },
+                        "target": { "const": "canonical fallback exhaustion or >=2x structural overhead on verified real inputs" }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    { "$ref": "#/$defs/threshold" },
+                    {
+                      "properties": {
+                        "id": { "const": "clear-shared-benefit-over-isolation" },
+                        "target": { "const": "shared construction materially improves over isolation on verified real inputs" }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    { "$ref": "#/$defs/threshold" },
+                    {
+                      "properties": {
+                        "id": { "const": "conflict-attribution-preservation" },
+                        "target": { "const": "adversarial conflicting fixtures preserve per-entry attribution against an independent semantic oracle" }
+                      }
+                    }
+                  ]
+                }
+              ],
+              "items": false,
+              "minItems": 4,
+              "maxItems": 4
+            }
+          }
+        }
+      ]
     }
   }
 }

@@ -3,6 +3,7 @@
 require_relative "../test_helper"
 require "json"
 require "json_schemer"
+require_relative "../../tool/profile/construction_profiler"
 
 class DirectMultiEntryDecisionTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
@@ -11,17 +12,25 @@ class DirectMultiEntryDecisionTest < Minitest::Test
   DOCUMENT = File.join(ROOT, "docs/direct-multi-entry-decision.md")
 
   def test_h005_machine_decision_classifies_m001_as_more_data
-    assert_empty schemer.validate(evidence).to_a
+    refute_empty schemer.validate(evidence).to_a
+    assert_empty schemer.validate(evidence_with_current_multi_entry_decision).to_a
 
-    decision = multi_entry_decision
+    decision = current_multi_entry_decision
     assert_equal "MORE DATA", decision.fetch("decision")
     assert_equal(
       {
-        "representative-real-multi-entry" => ["at least 2", "0", false],
-        "synthetic-shared-isolated-coverage" => ["at least 1", "1", true],
-        "practical-current-cost" =>
-          ["state/item exhaustion or >=2x structural overhead on real inputs",
-           "not observed on a real multi-entry workload", false]
+        "representative-real-multi-entry" =>
+          ["at least 2 verified real grammars with multiple entries",
+           "0 verified real multi-entry grammars", false],
+        "material-canonical-fallback-cost" =>
+          ["canonical fallback exhaustion or >=2x structural overhead on verified real inputs",
+           "not observed on a real multi-entry workload", false],
+        "clear-shared-benefit-over-isolation" =>
+          ["shared construction materially improves over isolation on verified real inputs",
+           "not observed on a real multi-entry workload", false],
+        "conflict-attribution-preservation" =>
+          ["adversarial conflicting fixtures preserve per-entry attribution against an independent semantic oracle",
+           "not established: the synthetic matrix has no conflicts and no direct mechanism", false]
       },
       decision.fetch("thresholds").to_h do |threshold|
         [threshold.fetch("id"), threshold.values_at("target", "observed", "satisfied")]
@@ -35,38 +44,42 @@ class DirectMultiEntryDecisionTest < Minitest::Test
     assert_equal "repository_synthetic", matrix.fetch("classification")
     assert_equal({ "count" => 2, "names" => %w[document atom] }, matrix.fetch("entries"))
 
-    expected_runs = [%w[lalr shared], %w[ielr shared], %w[lalr isolated], %w[ielr isolated]]
-    actual_runs = matrix.fetch("runs").map { |run| run.values_at("algorithm", "entry_mode") }
-    assert_equal expected_runs, actual_runs
-    matrix.fetch("runs").each do |run|
-      assert_equal "completed", run.fetch("status")
-      metrics = %w[final_states final_items final_lookahead_items].map do |field|
-        run.dig("structural", field, "value")
-      end
-      assert_equal [9, 14, 20], metrics
-      assert_equal({ "shift_reduce" => 0, "reduce_reduce" => 0 }, run.fetch("conflicts"))
-      refute run.dig("observations", "elapsed_seconds", "release_gate")
-    end
-    assert_equal "MORE DATA", multi_entry_decision.fetch("decision")
+    lalr_runs = matrix.fetch("runs").select { |run| run.fetch("algorithm") == "lalr" }
+    shared = lalr_runs.find { |run| run.fetch("entry_mode") == "shared" }
+    isolated = lalr_runs.find { |run| run.fetch("entry_mode") == "isolated" }
+    refute_nil shared
+    refute_nil isolated
+
+    lalr_runs.each { |run| assert_diagnostic_run(run) }
+    assert_equal lalr_structure(isolated), lalr_structure(shared)
+
+    decision = current_multi_entry_decision
+    assert_equal "MORE DATA", decision.fetch("decision")
+    refute threshold(decision, "conflict-attribution-preservation").fetch("satisfied")
   end
 
   def test_reconsideration_and_follow_on_boundaries_are_explicit
     assert_equal(
       [
-        "verified real multi-entry grammars show material shared construction cost",
-        "a direct construction preserves shared-entry conflict attribution",
+        "at least two verified real grammars with multiple entries",
+        "verified real multi-entry grammars show material canonical fallback cost",
+        "shared construction shows a clear structural benefit over isolation on those real grammars",
+        "adversarial conflicting fixtures preserve per-entry attribution against an independent semantic oracle",
         "an owner accepts the semantic and maintenance plan"
       ],
-      multi_entry_decision.fetch("counterevidence_required")
+      current_multi_entry_decision.fetch("counterevidence_required")
     )
 
     document = File.binread(DOCUMENT)
     assert_includes document, "M001 is **MORE DATA**"
     assert_includes document, "H005 records zero real multi-entry workloads"
-    assert_includes document, "All four M001 conditions require real-workload evidence"
+    assert_includes document, "The first three M001 conditions require verified real-workload evidence"
+    assert_match(/adversarial\s+synthetic conflicting fixtures checked by an independent semantic oracle/, document)
+    assert_includes document, "bounded design proof or\nreachability analysis"
+    assert_includes document, "fresh H005 capture at a fresh exact revision"
+    assert_includes document, "production direct\nconstructor, public experiment"
     assert_includes document, "it is a `repository_synthetic` workload"
     assert_includes document, "M001 is independent of the direct IELR decision"
-    assert_includes document, "no I002-I006-equivalent adequacy specification"
   end
 
   def test_public_index_and_package_include_the_decision_document
@@ -88,8 +101,34 @@ class DirectMultiEntryDecisionTest < Minitest::Test
     @schemer ||= JSONSchemer.schema(JSON.parse(File.binread(SCHEMA)))
   end
 
-  def multi_entry_decision
-    evidence.fetch("decisions").find { |decision| decision.fetch("feature") == "direct-multi-entry" }
+  def current_multi_entry_decision
+    @current_multi_entry_decision ||=
+      Ibex::Profile::ConstructionDecisions.new(evidence.fetch("cohorts")).build.find do |decision|
+        decision.fetch("feature") == "direct-multi-entry"
+      end
+  end
+
+  def evidence_with_current_multi_entry_decision
+    document = JSON.parse(JSON.generate(evidence))
+    index = document.fetch("decisions").index { |decision| decision.fetch("feature") == "direct-multi-entry" }
+    document.fetch("decisions")[index] = current_multi_entry_decision
+    document
+  end
+
+  def threshold(decision, id)
+    decision.fetch("thresholds").find { |item| item.fetch("id") == id }
+  end
+
+  def assert_diagnostic_run(run)
+    assert_equal "completed", run.fetch("status")
+    assert_equal({ "shift_reduce" => 0, "reduce_reduce" => 0 }, run.fetch("conflicts"))
+    refute run.dig("observations", "elapsed_seconds", "release_gate")
+  end
+
+  def lalr_structure(run)
+    %w[final_states final_items final_lookahead_items].to_h do |field|
+      [field, run.dig("structural", field)]
+    end
   end
 
   def real_workloads

@@ -1,9 +1,14 @@
 # Direct multi-entry construction decision
 
-M001 is **MORE DATA**. Direct shared multi-entry construction is not
-authorized, and the specification, spike, oracle, implementation, and public
-experiment tasks analogous to I002-I006 remain unauthorized. This is not a
+M001 is **MORE DATA**. Production direct shared multi-entry construction,
+public experiments, and default-path changes are not authorized. This is not a
 NO-GO claim: the current evidence is insufficient to make the feature a GO.
+
+Evidence acquisition before GO may include a bounded design proof or
+reachability analysis, an independent semantic oracle, and an adversarial
+synthetic conflicting fixture or prototype. These activities must remain
+bounded evidence work; they do not authorize a production implementation or a
+public experiment.
 
 The machine authority remains H005's closed
 [`construction-profile-v1.json`](../tool/profile/evidence/construction-profile-v1.json),
@@ -14,38 +19,40 @@ record or competing schema.
 
 ## GO conditions
 
-All four M001 conditions require real-workload evidence. None is currently
-satisfied.
+The first three M001 conditions require verified real-workload evidence. The
+conflict-attribution condition may instead be established with adversarial
+synthetic conflicting fixtures checked by an independent semantic oracle. None
+is currently satisfied.
 
 | GO condition | Status | Current evidence |
 | --- | --- | --- |
 | Actual verified grammars with multiple entries exist. | Not satisfied | H005 records zero real multi-entry workloads. Its decision threshold requires at least two representative real multi-entry grammars. |
-| Canonical or fallback construction cost is material. | Not satisfied | No real multi-entry run records state/item exhaustion or at least twofold structural overhead. Host timing is an observation, not a decision gate. |
-| Shared construction has a clear benefit over isolation. | Not satisfied | The synthetic matrix completes shared and isolated LALR/IELR with the same 9 states, 14 final core items, and 20 final lookahead memberships. This does not establish a real benefit. |
-| Shared-entry conflict attribution can be preserved. | Not satisfied | The synthetic matrix has no conflicts, and no direct constructor exists from which to obtain attribution evidence. |
+| Canonical fallback cost is material. | Not satisfied | No verified real multi-entry run records canonical fallback exhaustion or at least twofold structural overhead. Host timing is an observation, not a decision gate. |
+| Shared construction has a clear benefit over isolation. | Not satisfied | The synthetic matrix shows no structural advantage for shared LALR construction over isolation. This does not establish a benefit on a verified real workload. |
+| Shared-entry conflict attribution can be preserved. | Not satisfied | The synthetic matrix has zero conflicts and exercises no direct construction mechanism, so it supplies no attribution evidence. |
 
-One synthetic threshold is satisfied only as diagnostic coverage. The
-`matrix-multi-entry` fixture has two entries and exercises shared and isolated
-construction, but it is a `repository_synthetic` workload. It cannot satisfy a
-real-workload GO condition, establish material cost, demonstrate a shared
-benefit, or prove conflict attribution. Its elapsed measurements have
-`release_gate: false`.
+The `matrix-multi-entry` fixture remains diagnostic coverage, not a GO
+threshold. It has two entries and exercises shared and isolated construction,
+but it is a `repository_synthetic` workload. It cannot satisfy any of the first
+three real-workload GO conditions or prove conflict attribution. Its elapsed
+measurements have `release_gate: false`.
 
 ## Exact evidence required for reconsideration
 
-Reconsideration requires a new H005 capture, under its existing revision,
-source-digest, environment, and measurement-policy provenance, that records:
+Reconsideration requires a fresh H005 capture at a fresh exact revision under
+the existing source-digest, environment, and measurement-policy provenance
+contract, recording:
 
 1. At least two verified real grammars with exact identity, revision, grammar
    digest, entry count, and entry names, plus completed comparable shared and
    isolated runs.
-2. Material canonical or fallback cost on those grammars: observed bounded
-   exhaustion or the existing threshold of at least twofold structural
-   overhead on real inputs.
+2. Material canonical fallback cost on those grammars: observed canonical
+   fallback exhaustion or at least twofold structural overhead on verified real
+   inputs.
 3. A clear shared-over-isolated benefit from comparable structural evidence;
    host timing alone is insufficient.
-4. Per-entry conflict attribution and semantic review showing that direct
-   construction preserves the existing shared-entry conflict contract.
+4. Adversarial synthetic conflicting fixtures and an independent semantic
+   oracle showing that a direct mechanism preserves per-entry attribution.
 5. An identified owner who accepts the semantic specification and ongoing
    implementation, verification, review, and maintenance budget.
 
@@ -61,10 +68,12 @@ may share code with direct IELR only where independently specified invariants
 genuinely coincide; it must not inherit an algorithm or verification plan by
 coupling the two tracks.
 
-Until a recorded GO, no I002-I006-equivalent adequacy specification, bounded
-spike, independent oracle and fixture program, internal direct constructor, or
-public experiment is authorized. Existing shared multi-entry construction and
-the default generation path remain unchanged.
+Until a recorded GO, no production adequacy specification, production direct
+constructor, public experiment, or default-path change analogous to I002-I006
+is authorized. The bounded proof, reachability analysis, oracle, and adversarial
+synthetic prototype described above are permitted only to acquire the four GO
+conditions. Existing shared multi-entry construction and the default generation
+path remain unchanged.
 
 Run the focused policy test with:
 

@@ -203,17 +203,28 @@ module Ibex
       end
 
       def multi_entry_decision
-        real = @real.count { |item| item.dig("entries", "count").to_i > 1 }
-        synthetic = @synthetic.count { |item| item.dig("entries", "count").to_i > 1 }
+        real = @real.count do |item|
+          item.dig("availability", "status")&.start_with?("verified_") &&
+            item.dig("entries", "count").to_i > 1
+        end
         decision(
           "direct-multi-entry", "MORE DATA", [
-            threshold("representative-real-multi-entry", "at least 2", real.to_s, real >= 2),
-            threshold("synthetic-shared-isolated-coverage", "at least 1", synthetic.to_s, synthetic >= 1),
-            threshold("practical-current-cost", "state/item exhaustion or >=2x structural overhead on real inputs",
-                      "not observed on a real multi-entry workload", false)
+            threshold("representative-real-multi-entry", "at least 2 verified real grammars with multiple entries",
+                      "#{real} verified real multi-entry grammars", real >= 2),
+            threshold("material-canonical-fallback-cost",
+                      "canonical fallback exhaustion or >=2x structural overhead on verified real inputs",
+                      "not observed on a real multi-entry workload", false),
+            threshold("clear-shared-benefit-over-isolation",
+                      "shared construction materially improves over isolation on verified real inputs",
+                      "not observed on a real multi-entry workload", false),
+            threshold("conflict-attribution-preservation",
+                      "adversarial conflicting fixtures preserve per-entry attribution against an independent " \
+                      "semantic oracle",
+                      "not established: the synthetic matrix has no conflicts and no direct mechanism", false)
           ],
-          "The shared-versus-isolated path is measurable on a synthetic fixture, but the registry has no real " \
-          "multi-entry workload and timing observations are not decision gates."
+          "The registry has no verified real multi-entry workload, so neither material canonical fallback cost " \
+          "nor a clear shared benefit is established; the synthetic matrix has no conflicts and no direct " \
+          "mechanism with which to establish per-entry attribution."
         )
       end
 
@@ -242,8 +253,10 @@ module Ibex
         end
 
         [
-          "verified real multi-entry grammars show material shared construction cost",
-          "a direct construction preserves shared-entry conflict attribution",
+          "at least two verified real grammars with multiple entries",
+          "verified real multi-entry grammars show material canonical fallback cost",
+          "shared construction shows a clear structural benefit over isolation on those real grammars",
+          "adversarial conflicting fixtures preserve per-entry attribution against an independent semantic oracle",
           "an owner accepts the semantic and maintenance plan"
         ]
       end

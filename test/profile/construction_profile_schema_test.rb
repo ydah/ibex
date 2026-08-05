@@ -2,6 +2,7 @@
 
 require_relative "../test_helper"
 require "json_schemer"
+require_relative "../../tool/profile/construction_profiler"
 
 class ConstructionProfileSchemaTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
@@ -54,10 +55,44 @@ class ConstructionProfileSchemaTest < Minitest::Test
     assert_rejected(changed)
   end
 
+  def test_direct_multi_entry_threshold_inventory_is_exact_and_closed
+    changed = evidence
+    thresholds = multi_entry_decision(changed).fetch("thresholds")
+    thresholds.rotate!
+    assert_rejected(changed)
+
+    changed = evidence
+    multi_entry_decision(changed).fetch("thresholds").first["target"] = "at least 1 real grammar"
+    assert_rejected(changed)
+
+    changed = evidence
+    multi_entry_decision(changed).fetch("thresholds").pop
+    assert_rejected(changed)
+
+    changed = evidence
+    multi_entry_decision(changed).fetch("thresholds") << thresholds.first
+    assert_rejected(changed)
+  end
+
   private
 
   def evidence
-    JSON.parse(File.binread(EVIDENCE))
+    document = JSON.parse(File.binread(EVIDENCE))
+    index = document.fetch("decisions").index do |decision|
+      decision.fetch("feature") == "direct-multi-entry"
+    end
+    document.fetch("decisions")[index] = current_multi_entry_decision(document)
+    document
+  end
+
+  def current_multi_entry_decision(document)
+    Ibex::Profile::ConstructionDecisions.new(document.fetch("cohorts")).build.find do |decision|
+      decision.fetch("feature") == "direct-multi-entry"
+    end
+  end
+
+  def multi_entry_decision(document)
+    document.fetch("decisions").find { |decision| decision.fetch("feature") == "direct-multi-entry" }
   end
 
   def synthetic(document)
