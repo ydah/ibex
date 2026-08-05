@@ -61,6 +61,51 @@ class DirectIELRDecisionTest < Minitest::Test
     assert_verification_error(changed, /evidence source digest drift/)
   end
 
+  def test_evidence_source_paths_and_roles_are_closed
+    changed = dossier
+    revision = changed.dig("decision", "revision")
+    bytes = git!(ROOT, "show", "#{revision}:Gemfile")
+    digest = Digest::SHA256.hexdigest(bytes.b)
+    changed.dig("evidence_identity", "sources").each do |source|
+      source["path"] = "Gemfile"
+      source["sha256"] = digest
+      source["role"] = "substituted source"
+    end
+    sources = changed.dig("evidence_identity", "sources")
+    changed["evidence_identity"]["sources_sha256"] = Digest::SHA256.hexdigest(JSON.generate(sources))
+
+    assert_verification_error(changed, /evidence source identity drift/)
+  end
+
+  def test_decision_and_v001_revisions_and_role_are_exact
+    changed = dossier
+    changed.fetch("decision")["revision"] = "d8be60292cadb635bd4c4a8173d382bf0549d926"
+    assert_verification_error(changed, /decision revision identity drift/)
+
+    changed = dossier
+    changed.fetch("evidence_identity")["v001_revision"] =
+      git!(ROOT, "rev-list", "--max-parents=0", "HEAD").strip
+    assert_verification_error(changed, /V001 revision identity drift/)
+
+    changed = dossier
+    changed.fetch("decision")["revision_role"] = "dossier publication revision"
+    assert_verification_error(changed, /violates schema|decision revision role drift/)
+  end
+
+  def test_condition_observations_and_reconsideration_evidence_are_closed
+    changed = dossier
+    changed.dig("policy", "go_conditions", 0)["observed"] = "none"
+    assert_verification_error(changed, /GO condition inventory drift/)
+
+    changed = dossier
+    changed.dig("policy", "no_go_conditions", 0)["observed"] = "condition is not satisfied"
+    assert_verification_error(changed, /NO-GO condition inventory drift/)
+
+    changed = dossier
+    changed.dig("reconsideration_triggers", 0)["required_evidence"] = "none"
+    assert_verification_error(changed, /reconsideration trigger inventory drift/)
+  end
+
   def test_gpl_implementation_lineage_is_rejected
     changed = dossier
     changed.fetch("legal_provenance")["gpl_implementation_source_used"] = true
