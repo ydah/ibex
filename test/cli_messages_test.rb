@@ -54,6 +54,35 @@ class CLIMessagesTest < Minitest::Test
     end
   end
 
+  def test_errors_grammar_ir_accepts_each_explicit_noncanonical_algorithm
+    pairs = {
+      slr: :lalr,
+      lalr: :ielr,
+      ielr: :lr1,
+      lr1: :slr
+    }
+    Dir.mktmpdir("ibex-messages-algorithm-override") do |directory|
+      pairs.each do |declared, selected|
+        grammar = File.join(directory, "#{declared}.y")
+        grammar_ir = File.join(directory, "#{declared}.json")
+        File.write(grammar, grammar_with_algorithm(declared))
+        File.write(grammar_ir, capture_cli(["--emit=grammar-ir", grammar]))
+        output = StringIO.new
+        errors = StringIO.new
+
+        status = Ibex::CLI.start(
+          ["errors", "--list", "--from=grammar-ir", "--algorithm=#{selected}", grammar_ir],
+          stdout: output, stderr: errors
+        )
+
+        assert_equal 0, status, errors.string
+        assert_includes errors.string, "parser.algorithm declared=#{declared} selected=#{selected}"
+        assert_includes errors.string, "canonical_generation=false"
+        refute_empty output.string
+      end
+    end
+  end
+
   def test_messages_option_embeds_custom_message_and_rejects_unknown_state
     Dir.mktmpdir("ibex-messages-generate") do |directory|
       grammar = File.join(directory, "grammar.y")
@@ -205,6 +234,19 @@ class CLIMessagesTest < Minitest::Test
   end
 
   private
+
+  def grammar_with_algorithm(algorithm)
+    <<~GRAMMAR
+      class P
+      pragma extended
+      parser
+        algorithm #{algorithm}
+      end
+      rule
+      start: TOKEN
+      end
+    GRAMMAR
+  end
 
   def run_cli(arguments)
     errors = StringIO.new
