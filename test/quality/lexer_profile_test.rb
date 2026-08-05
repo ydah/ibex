@@ -32,7 +32,9 @@ class QualityLexerProfileTest < Minitest::Test
     alternation.dig("result", "token_lengths", "sample", 0)["bytes"] = 2
 
     error = assert_raises(RuntimeError) { verify(changed) }
-    assert_match(/token length|leftmost-first/, error.message)
+    assert_match(/deterministic report input digest drift/, error.message)
+    semantic_error = assert_raises(RuntimeError) { verify_semantics(changed) }
+    assert_match(/token length|leftmost-first/, semantic_error.message)
   end
 
   def test_chunk_boundary_claim_requires_a_token_crossing_the_boundary
@@ -41,7 +43,9 @@ class QualityLexerProfileTest < Minitest::Test
     chunk.dig("result", "streaming")["peak_buffer_bytes"] = 16_384
 
     error = assert_raises(RuntimeError) { verify(changed) }
-    assert_match(/streaming boundary/, error.message)
+    assert_match(/deterministic report input digest drift/, error.message)
+    semantic_error = assert_raises(RuntimeError) { verify_semantics(changed) }
+    assert_match(/streaming boundary/, semantic_error.message)
   end
 
   def test_fabricated_provenance_is_rejected
@@ -93,7 +97,7 @@ class QualityLexerProfileTest < Minitest::Test
       error = assert_raises(RuntimeError) do
         Ibex::Quality::LexerProfile.new(root: checkout, output: StringIO.new).verify!
       end
-      assert_match(/capture history is unavailable/, error.message)
+      assert_match(/base revision is unavailable|capture history is unavailable/, error.message)
     end
   end
 
@@ -156,5 +160,9 @@ class QualityLexerProfileTest < Minitest::Test
       File.binwrite(path, "#{JSON.pretty_generate(document)}\n")
       Ibex::Quality::LexerProfile.new(root: ROOT, evidence: path, output: StringIO.new).verify!
     end
+  end
+
+  def verify_semantics(document)
+    Ibex::Quality::LexerProfileSemantics.new(document).verify!
   end
 end
