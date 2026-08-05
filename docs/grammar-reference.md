@@ -517,6 +517,10 @@ the manifest without rewriting them. `Ibex::GenerationManifest.validate_file(pat
 artifact bytes. For coherent concurrent reads, read the manifest, verify every entry, and retry from a newly read manifest if
 anything is missing or mismatched.
 
+The version-1 `options` object is the existing open map for additive generation evidence. It now always records the effective
+`cst_trivia` value: an omitted option uses the built-in `leading` default, and the compatibility spelling `attach` is recorded
+canonically as `leading`. Adding this entry changes neither the manifest's required root shape nor its schema version.
+
 `--watch` repeatedly applies the same transaction to Ruby file generation. It observes the root, the latest successful include
 closure, unresolved include attempts, an optional messages file, and repairable output paths. Failed candidates leave the last
 successful generation intact; an unchanged failure is reported once. Source changes during render or publication retry after

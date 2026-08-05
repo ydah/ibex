@@ -90,7 +90,7 @@ module Ibex
         "actions.omit_calls" => %w[grammar_ir_v2_current current],
         "parser.algorithm" => %w[automaton_ir_v2_only_contract_gap current],
         "parser.entries" => %w[starts_current_strategy_gap current],
-        "cst.trivia" => %w[cst_contract_gap current_gap]
+        "cst.trivia" => %w[cst_contract_gap current]
       }.freeze
       OWNER_CLASSES = %w[grammar_contract grammar_minimum project_build_policy invocation_request].freeze
       ADMISSION_RESULTS = %w[
@@ -236,7 +236,7 @@ module Ibex
                         "Automaton IR only; grammar-contract persistence gap"]),
           markdown_row(["`parser.entries`", "Grammar Contract", "fixed generation / explicit analysis override",
                         "start symbols persist; isolation strategy gap"]),
-          markdown_row(["`cst.trivia`", "Grammar Contract", "fixed", "IR and generation-manifest gaps"]),
+          markdown_row(["`cst.trivia`", "Grammar Contract", "fixed", "IR gap; generation manifest current"]),
           markdown_row(["table/runtime/debug/source mapping/companions", "Project Build Policy", "project selection",
                         "manifest records current generation choices"]),
           markdown_row(["emit/path/watch/report/budget/locale/help/warnings", "Invocation Request", "invocation only",

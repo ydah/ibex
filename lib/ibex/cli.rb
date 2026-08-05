@@ -757,7 +757,7 @@ module Ibex
                    line_convert: @options.fetch(:line_convert), debug: @options.fetch(:debug, false),
                    line_convert_all: @options.fetch(:line_convert_all, false),
                    omit_action_call: @options[:omit_actions], superclass: @options[:superclass],
-                   executable: @options[:executable], cst_trivia: @options.fetch(:cst_trivia, :leading),
+                   executable: @options[:executable], cst_trivia: effective_cst_trivia,
                    error_messages: configured_error_messages(automaton)
       ).generate
       output_path = @options[:output] || default_output_path(input_path, ".rb")

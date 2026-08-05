@@ -880,7 +880,7 @@ registrations:
   grammar_admission: admitted_a1_a8
   override_algebra: fixed
   ir_presence: cst_contract_gap
-  manifest_presence: current_gap
+  manifest_presence: current
   trust_implications: Validate statically; do not execute grammar actions or user
     sections.
   compatibility_status: current

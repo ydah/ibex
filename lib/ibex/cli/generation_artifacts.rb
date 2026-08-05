@@ -132,7 +132,14 @@ module Ibex
         value = @options[key]
         options[key.to_s] = value unless value.nil?
       end
+      options["cst_trivia"] = effective_cst_trivia.to_s
       options
+    end
+
+    # @rbs () -> Symbol
+    def effective_cst_trivia
+      value = @options.fetch(:cst_trivia, :leading)
+      value == :attach ? :leading : value
     end
   end
 end
