@@ -2,9 +2,12 @@
   "schema_version": 1,
   "gate_id": "H004-subjective-usefulness",
   "status": "HOLD",
+  "review_phase": "blind_collection",
   "reason": "awaiting_at_least_two_independent_human_reviews",
   "study_path": "test/fixtures/conflict_explanations/study-v1.json",
-  "study_sha256": "95c5de38456d66e1f3f94c3012783a2e15c671475e85734e5055f89303d1ecbe",
+  "study_sha256": "13874dc73f43da3174677f608382edac11ca21d520baa0cf956ce71d1b37b112",
+  "blind_artifact_path": "docs/conflict-explanation-reviews/v1/blind-study-v1.json",
+  "blind_artifact_sha256": "dd642f5cc435538b53353efc51a2abee3bfb26ac35f8bd00a75d575ca740663a",
   "records": [],
   "disagreement_summary": "not_available_without_reviews"
 }
