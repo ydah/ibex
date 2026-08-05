@@ -148,7 +148,7 @@ module Ibex
       "check" => %i[CLIAmbiguity run_check_command],
       "diff" => %i[CLIAnalysis run_diff_command],
       "diagnose" => %i[CLIDiagnostics run_diagnose_command],
-      "coverage" => %i[CLICoverage run_coverage_command],
+      "coverage" => %i[CLICoverage run_coverage_command], "config" => %i[CLIConfig run_config_command],
       "debug" => %i[CLIDebug run_debug_command],
       "doc" => %i[CLIDocumentation run_documentation_command],
       "errors" => %i[CLIErrorMessages run_error_messages_command],
@@ -362,7 +362,7 @@ module Ibex
       options.separator("")
       options.separator("Subcommands:")
       options.separator("    check --ambiguity         search for ambiguity within explicit budgets")
-      options.separator("    coverage                  collect, merge, or check runtime coverage")
+      options.separator(CONFIG_SUBCOMMAND_HELP)
       options.separator("    debug AUTOMATON [TOKEN]  simulate validated Automaton IR tables")
       options.separator("    diagnose                  collect frontend diagnostics")
       options.separator("    diff OLD NEW              classify grammar and automaton changes")
@@ -1000,5 +1000,10 @@ module Ibex
       default_output_path(output_path, ".ibex.json")
     end
   end
+  CONFIG_SUBCOMMAND_HELP = [
+    "    coverage                  collect, merge, or check runtime coverage",
+    "    config                    explain effective configuration without running user code"
+  ].join("\n").freeze #: String
+  autoload :CLIConfig, File.join(CLI_FEATURE_ROOT, "config")
   # rubocop:enable Metrics/ClassLength
 end
