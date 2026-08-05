@@ -105,7 +105,7 @@ module Ibex
                   raise Ibex::Error, "#{input_path}:1:1: expected #{@options[:from]} input"
                 end
       handle_grammar_warnings(grammar, input_path)
-      return build_automaton(value, input_path) if value.is_a?(IR::Grammar)
+      return build_automaton(grammar, input_path) if value.is_a?(IR::Grammar)
 
       if value.is_a?(IR::Automaton)
         prepare_loaded_automaton(value, input_path)
