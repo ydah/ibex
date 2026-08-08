@@ -20,7 +20,7 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "f27a3d09ba4dc3db9518bfeda7e89d5273dbc347",
+    "base_revision": "380ad165ac533c8b44551ca39171b68261e96962",
     "base_revision_role": "Exact clean capture revision and parent of the committed evidence revision",
     "capture_worktree_clean": true,
     "capture_worktree_status": [],
@@ -40,9 +40,9 @@
       },
       {
         "path": "docs/workloads.yml",
-        "sha256": "38605aaf20a891d89b38e7b7b047d310481bc25dee76d5dd8473e87339bace9b",
+        "sha256": "036f900801af2e347fd601c12c7787b35d62c0647c87a445048b4644effadc3c",
         "git_state": "base",
-        "base_sha256": "38605aaf20a891d89b38e7b7b047d310481bc25dee76d5dd8473e87339bace9b"
+        "base_sha256": "036f900801af2e347fd601c12c7787b35d62c0647c87a445048b4644effadc3c"
       },
       {
         "path": "ibex.gemspec",
@@ -1113,7 +1113,7 @@
         "base_sha256": "9ecbc77e2544d25c230e5f05b1f9eaf9c9bb04924575cce8b5c8607e27695ef4"
       }
     ],
-    "bound_paths_sha256": "b3777de5fb79748b35a9eb7f950985570ee4016414c19be1b8a36f02f2d49373",
+    "bound_paths_sha256": "5fc2975df14156c20ffc5e29bfceceb18e0d6018ad802beb6a44264cc9e2b327",
     "implementation_sha256": "11d73b54e438802ea3b47959d1e2d4aed678d2c9e8c0434bb4156142e41ba5f3",
     "deterministic_report_input_sha256": "651cd473e14197e5496c1ff4143c428d91c47ecadaec770e5ec25672863b2a3b",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
@@ -1121,7 +1121,7 @@
     "heuristic_analysis_sha256": "1870a00b14aea7a46278e4b80e9bd60db4b499c343c7a7a90faf9c3923e27e76",
     "evidence_path": "tool/profile/evidence/lexer-profile-v1.json",
     "evidence_exclusion_reason": "the evidence file is excluded from its own digest to avoid circularity",
-    "capture_identity_sha256": "76e4a1f50a78df44383f43d1d962978f06533db9255878871fc581050acc92e0"
+    "capture_identity_sha256": "b76ae3028aeb835cfdd8c40210cf5c27ac7b3336ca008427bde5985d10bace3e"
   },
   "measurement_policy": {
     "runtime_role": "diagnostic_observation_only",
@@ -1244,7 +1244,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000175,
+                "value": 0.000338,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1346,7 +1346,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000575,
+                "value": 0.000154,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1436,7 +1436,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000129,
+                "value": 0.000123,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1532,7 +1532,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000135,
+                "value": 0.000222,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1622,7 +1622,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.003878,
+                "value": 0.003453,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1712,7 +1712,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000187,
+                "value": 0.000201,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1808,7 +1808,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000227,
+                "value": 0.000161,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1908,7 +1908,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000154,
+                "value": 0.000149,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2038,7 +2038,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000268,
+                "value": 0.000242,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2208,7 +2208,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000667,
+                "value": 0.000354,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2318,7 +2318,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000254,
+                "value": 0.000162,
                 "release_gate": false
               },
               "allocated_objects": {
