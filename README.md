@@ -438,7 +438,7 @@ bundle exec rake
 ```
 
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 26,951 typed calls and 3,544 untyped calls out of 30,495 (88.4% typed).
+The current whole-library `steep stats` result is 26,961 typed calls and 3,547 untyped calls out of 30,508 (88.4% typed).
 The generated signature tree contains 2,890 explicit `untyped` occurrences across 152 files.
 <!-- type-stats:end -->
 
