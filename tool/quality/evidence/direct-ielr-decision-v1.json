@@ -8,7 +8,7 @@
     "basis": "repository_evidence",
     "review_state": "validated",
     "date": "2026-08-05",
-    "revision": "9d197430ce5a267f8f6ff92893a90dcf9ab01082",
+      "revision": "15cf863bb9629ed5651c7d004469a732217bfad1",
     "revision_role": "reviewed repository evidence immediately before dossier publication"
   },
   "follow_on": {
@@ -178,6 +178,6 @@
         "role": "current verifier checks reviewed by V001"
       }
     ],
-    "sources_sha256": "fa82030bb2680d57ddf33e5725f31770e5c4f37798bd87c37cb6e2392906c2f7"
+    "sources_sha256": "7fa948986f0707845c6bcba6ab065b619e05f4230b88c7c37ff7e0014a90641d"
   }
 }
