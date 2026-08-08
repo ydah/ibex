@@ -8,7 +8,7 @@
     "basis": "repository_evidence",
     "review_state": "validated",
     "date": "2026-08-05",
-    "revision": "58cc36cfdc38ff3169d9578fcbba307f6ea95dad",
+    "revision": "9d197430ce5a267f8f6ff92893a90dcf9ab01082",
     "revision_role": "reviewed repository evidence immediately before dossier publication"
   },
   "follow_on": {
@@ -80,11 +80,11 @@
     "semantically_reviewed_conflict_removals": 0,
     "current_real_workload": {
       "id": "ibex-frontend",
-      "lr0_states": 220,
-      "lr0_items": 618,
-      "canonical_states": 449,
-      "canonical_items": 10103,
-      "final_states": 220,
+      "lr0_states": 227,
+      "lr0_items": 633,
+      "canonical_states": 456,
+      "canonical_items": 10482,
+      "final_states": 227,
       "unresolved_ielr_conflicts": 0
     },
     "canonical_scale_cost": {
@@ -136,27 +136,27 @@
     "rule": "future direct IELR design must remain independent; GPL implementation source must not be inspected or translated"
   },
   "evidence_identity": {
-    "profile_capture_base_revision": "5adf2cce4fbeee753d9a0a25f30b5e25eb8653ed",
-    "profile_bound_paths_sha256": "60ff72c16cff122cae827dd00093757b040dd7bb5294791c4fe9dcca52983c99",
-    "profile_implementation_sha256": "19b94af36393303eecc4b895eaee02b2ca1ba75abcc769355cf3af98c518af39",
+    "profile_capture_base_revision": "63163772de58829ad0e2d83f786fb4e0802077ce",
+    "profile_bound_paths_sha256": "b639168348a7b66fc684ed15a224a28118bb25524b127ae0d6d4ff143c1c4091",
+    "profile_implementation_sha256": "0300368144fd1804d31974c8abeb0162c1fcb3560fdd767edb266992bc7534a3",
     "v001_revision": "5cf20f6c9d5b82738965bd0aead8fa3a2ac14d8b",
     "sources": [
       {
         "id": "h005-human-report",
         "path": "docs/construction-profiling.md",
-        "sha256": "bffe0fa837efa5970719712e109c3b941d8a3807380322c812995fecc98a772f",
+        "sha256": "0af9ddf4682b9769b4b738a98e2ae67445a20c4a8c41269c95c87938ddf5bef7",
         "role": "H005 thresholds, observations, NO-GO rationale, and reconsideration evidence"
       },
       {
         "id": "h005-machine-evidence",
         "path": "tool/profile/evidence/construction-profile-v1.json",
-        "sha256": "6910c2f9c226583f4fd69e5f0c6db31ef0b519b0de9895369b79e7e3867bf20b",
+        "sha256": "53c5f427011e2d6f7f278caa7706184a2e8ebcbf050248105e735095014db135",
         "role": "machine-readable workload measurements, thresholds, decision, and capture provenance"
       },
       {
         "id": "h005-evidence-schema",
         "path": "schema/construction-profile-v1.schema.json",
-        "sha256": "91d1ee63e323e0a9c01d28bc6e2a09387e3c55fd8314722d9eb0f18a04fb4901",
+        "sha256": "e7daf5e6c94c92bbb0405ed188fd1454d7adab9da27fe99694a949fb88c0a49e",
         "role": "closed H005 evidence contract"
       },
       {
@@ -178,6 +178,6 @@
         "role": "current verifier checks reviewed by V001"
       }
     ],
-    "sources_sha256": "8320b23fa254b32643f1a0237e966ba96eb2094d029a4dced7bd5bc2af767194"
+    "sources_sha256": "fa82030bb2680d57ddf33e5725f31770e5c4f37798bd87c37cb6e2392906c2f7"
   }
 }
