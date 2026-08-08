@@ -97,9 +97,9 @@ and verifier implementations by path and SHA-256 at the reviewed revision. It
 also binds:
 
 - H005 capture base revision
-  `6cc3d2bcf98536058a23f47417f79bfd35051b1f`;
+  `52957d4684353d4f8eb787566d7f948c3c8daa92`;
 - H005 bound-path digest
-  `17bbebd0d2baa6a69e60c4495941412e6ac315dacc2816d2364cfb6102632f1f`;
+  `96c2f9639aca06de2235b43a8d32cddefa1a2df7e0a4fadf2e236b02a96b797b`;
 - H005 implementation digest
   `0300368144fd1804d31974c8abeb0162c1fcb3560fdd767edb266992bc7534a3`;
 - V001 revision `5cf20f6c9d5b82738965bd0aead8fa3a2ac14d8b`.
