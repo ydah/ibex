@@ -12,7 +12,7 @@ class DirectMultiEntryDecisionTest < Minitest::Test
   DOCUMENT = File.join(ROOT, "docs/direct-multi-entry-decision.md")
 
   def test_h005_machine_decision_classifies_m001_as_more_data
-    refute_empty schemer.validate(evidence).to_a
+    assert_empty schemer.validate(evidence).to_a
     assert_empty schemer.validate(evidence_with_current_multi_entry_decision).to_a
 
     decision = current_multi_entry_decision

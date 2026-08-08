@@ -70,7 +70,7 @@ Counts are production/state/token. `n/m` means `not_measured`, not zero.
 | `gallery-calc` | `repository_synthetic` | Calculator fixture | 7/15/9 | 0/0 | eligible: correctness/fuzzing/verification |
 | `gallery-json` | `repository_synthetic` | JSON fixture | 17/27/13 | 0/0 | eligible: correctness/fuzzing/verification |
 | `gallery-sql-lite` | `repository_synthetic` | SQL-subset fixture | 14/26/14 | 0/0 | eligible: correctness/fuzzing/verification |
-| `ibex-frontend` | `repository_real` | Production self-hosted grammar | 141/220/59 | 0/0 | eligible: self-host/regression |
+| `ibex-frontend` | `repository_real` | Production self-hosted grammar | 146/227/60 | 0/0 | eligible: self-host/regression |
 | `namae-parser` | `public_real` | Namae name parser | 51/78/12 | 0/0 | eligible: public generation/runtime |
 | `nokogiri-css-parser` | `public_real` | Nokogiri CSS parser | 81/117/32 | 0/1 | eligible: public generation/runtime |
 

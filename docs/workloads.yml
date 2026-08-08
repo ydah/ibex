@@ -784,13 +784,13 @@ workloads:
       method: ibex-normalized-lalr-v1
       productions:
         status: measured
-        value: 141
+        value: 146
       states:
         status: measured
-        value: 220
+        value: 227
       tokens:
         status: measured
-        value: 59
+        value: 60
     used_features:
       - empty_productions
       - opaque_ruby_actions
