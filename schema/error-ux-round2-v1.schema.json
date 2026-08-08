@@ -72,27 +72,15 @@
         },
         "implementation_sources": {
           "type": "array",
-          "minItems": 12,
-          "maxItems": 12,
+          "minItems": 1,
+          "uniqueItems": true,
           "items": {
             "type": "object",
             "required": ["path", "sha256"],
             "properties": {
               "path": {
-                "enum": [
-                  "lib/ibex/frontend/parser.rb",
-                  "lib/ibex/normalize.rb",
-                  "lib/ibex/codegen/ruby.rb",
-                  "lib/ibex/runtime/parser.rb",
-                  "lib/ibex/runtime/generated_lexer.rb",
-                  "lib/ibex/runtime/repair.rb",
-                  "lib/ibex/runtime/repair_search.rb",
-                  "tool/error_ux_round2.rb",
-                  "tool/error_ux_round2/capture.rb",
-                  "tool/error_ux_round2/case_runner.rb",
-                  "tool/error_ux_round2/policy.rb",
-                  "tool/error_ux_round2/source_edit.rb"
-                ]
+                "type": "string",
+                "pattern": "^(lib/ibex(?:/[a-z0-9_-]+)*|tool/error_ux_round2(?:/[a-z0-9_-]+)*)\\.rb$"
               },
               "sha256": { "$ref": "#/$defs/sha256" }
             },
@@ -156,8 +144,15 @@
     },
     "trust_boundary": {
       "type": "object",
-      "required": ["fixture_code", "generated_code_execution", "external_code_execution", "statement"],
+      "required": [
+        "execution_trust_label",
+        "fixture_code",
+        "generated_code_execution",
+        "external_code_execution",
+        "statement"
+      ],
       "properties": {
+        "execution_trust_label": { "const": "executes-application-code" },
         "fixture_code": { "const": "repository-owned-trusted" },
         "generated_code_execution": { "const": "enabled-for-listed-fixtures-only" },
         "external_code_execution": { "const": "forbidden" },

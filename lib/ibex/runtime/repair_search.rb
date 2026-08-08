@@ -35,8 +35,19 @@ module Ibex
         @candidate_ids = tables.fetch(:token_names).keys.reject { |id| reserved.include?(id) }.sort.freeze
       end
 
+      # Compatibility projection used by the semantic runtime path.
       # @rbs (Array[Integer] state_stack) -> (RepairPlan | Object | nil)
       def search(state_stack)
+        result = search_result(state_stack)
+        return result.plan if result.selected?
+        return NEED_INPUT if result.status == :need_input
+
+        nil
+      end
+
+      # Preserve the bounded outcome for syntax tooling and diagnostics.
+      # @rbs (Array[Integer] state_stack) -> RepairSearchResult
+      def search_result(state_stack)
         empty_edits = [] #: Array[RepairEdit]
         push(
           Configuration.new(
@@ -51,16 +62,16 @@ module Ibex
         needs_input = false
         until @heap.empty?
           configuration = pop
-          return nil if configuration.equal?(LIMIT)
+          return outcome(:exhausted) if configuration.equal?(LIMIT)
           next unless configuration.is_a?(Configuration)
 
           result = visit(configuration)
-          return nil if result.equal?(LIMIT)
-          return result if result.is_a?(RepairPlan)
+          return outcome(:exhausted) if result.equal?(LIMIT)
+          return outcome(:selected, plan: result) if result.is_a?(RepairPlan)
 
           needs_input = true if result.equal?(NEED_INPUT)
         end
-        needs_input ? NEED_INPUT : nil
+        outcome(needs_input ? :need_input : :not_found)
       end
 
       private
@@ -258,6 +269,11 @@ module Ibex
       # @rbs (Array[RepairEdit] edits) -> RepairPlan
       def plan(edits)
         RepairPlan.new(edits: edits, configurations: @configurations)
+      end
+
+      # @rbs (Symbol status, ?plan: RepairPlan?) -> RepairSearchResult
+      def outcome(status, plan: nil)
+        RepairSearchResult.new(status: status, plan: plan, configurations: @configurations)
       end
 
       # @rbs (Integer token_id) -> String

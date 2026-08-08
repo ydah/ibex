@@ -49,6 +49,30 @@ class RuntimeRepairCharacterizationTest < Minitest::Test
     assert_nil no_plan
   end
 
+  def test_typed_search_result_preserves_every_bounded_outcome
+    invalid = repair_input(3, "+")
+    incomplete = repair_search([invalid], complete: false).search_result([0])
+    exhausted = repair_search(
+      [invalid], complete: true,
+                 policy: Ibex::Runtime::RepairPolicy.new(max_configurations: 1)
+    ).search_result([0])
+    no_plan = repair_search(
+      [invalid], complete: true,
+                 policy: Ibex::Runtime::RepairPolicy.new(
+                   insert_cost: 2, delete_cost: 2, replace_cost: 2, max_cost: 1
+                 )
+    ).search_result([0])
+
+    assert_equal :need_input, incomplete.status
+    assert_equal :exhausted, exhausted.status
+    assert_equal :not_found, no_plan.status
+    [incomplete, exhausted, no_plan].each do |result|
+      assert_nil result.plan
+      assert_kind_of Integer, result.configurations
+      assert_predicate result, :frozen?
+    end
+  end
+
   private
 
   def parser_tables

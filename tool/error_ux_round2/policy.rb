@@ -39,6 +39,7 @@ module Ibex
 
       def trust_boundary
         {
+          "execution_trust_label" => "executes-application-code",
           "fixture_code" => "repository-owned-trusted",
           "generated_code_execution" => "enabled-for-listed-fixtures-only",
           "external_code_execution" => "forbidden",

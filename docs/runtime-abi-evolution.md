@@ -205,8 +205,8 @@ process is not a supported upgrade mechanism.
 
 ### Syntax-session ABI classification
 
-Adding `SyntaxSession` keeps parser-table format v6 unchanged and adds methods
-and immutable result types to the current Ruby runtime API. Existing
+Adding `SyntaxSession` and its syntax-only repair proposal keeps parser-table
+format v6 unchanged and adds methods and immutable result types to the current Ruby runtime API. Existing
 non-embedded generated source remains byte-identical and acquires the API from
 a compatible runtime-package upgrade. Embedded generated source copies runtime
 implementation bytes, so its bytes change and regeneration plus redeployment

@@ -4,6 +4,7 @@ require_relative "test_helper"
 require "stringio"
 require "tmpdir"
 
+# rubocop:disable Metrics/ClassLength -- CLI message coverage intentionally exercises every update mode.
 class CLIMessagesTest < Minitest::Test
   def test_errors_update_uses_default_path_preserves_messages_and_archives_disappeared_states
     Dir.mktmpdir("ibex-messages") do |directory|
@@ -262,3 +263,4 @@ class CLIMessagesTest < Minitest::Test
     output.string
   end
 end
+# rubocop:enable Metrics/ClassLength

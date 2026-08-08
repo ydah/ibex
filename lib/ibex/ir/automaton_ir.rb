@@ -112,15 +112,7 @@ module Ibex
           raise Ibex::Error, "unsupported automaton schema_version #{schema_version.inspect}"
         end
 
-        if schema_version >= 2 && grammar.schema_version < schema_version
-          grammar = Migration.to_version(grammar, to: schema_version)
-        end
-        raise Ibex::Error, "automaton migration did not produce a grammar" unless grammar.is_a?(Grammar)
-        unless grammar.schema_version == schema_version
-          raise Ibex::Error,
-                "automaton schema_version #{schema_version} requires Grammar IR v#{schema_version}, " \
-                "got v#{grammar.schema_version}"
-        end
+        grammar = normalize_grammar_version(grammar, schema_version)
 
         @algorithm = algorithm.freeze
         @grammar = grammar
@@ -175,6 +167,19 @@ module Ibex
       end
 
       # @rbs skip
+      def normalize_grammar_version(grammar, schema_version)
+        if schema_version >= 2 && grammar.schema_version < schema_version
+          grammar = Migration.to_version(grammar, to: schema_version)
+        end
+        raise Ibex::Error, "automaton migration did not produce a grammar" unless grammar.is_a?(Grammar)
+        return grammar if grammar.schema_version == schema_version
+
+        raise Ibex::Error,
+              "automaton schema_version #{schema_version} requires Grammar IR v#{schema_version}, " \
+              "got v#{grammar.schema_version}"
+      end
+
+      # @rbs skip
       def validate_entry_construction(schema_version, value)
         if schema_version >= 3
           unless %w[shared isolated unknown].include?(value)
@@ -193,13 +198,28 @@ module Ibex
         return unless @schema_version >= 3
 
         contract = @grammar.parser_contract || raise(Ibex::Error, "Grammar IR v3 parser contract is missing")
+        validate_parser_algorithm(contract)
+        validate_parser_entries(contract)
+        validate_unknown_entry_construction(contract)
+      end
+
+      # @rbs skip
+      def validate_parser_algorithm(contract)
         selected_algorithm = { "lalr1" => :lalr, "ielr1" => :ielr }.fetch(@algorithm, @algorithm.to_sym)
-        if contract.algorithm.explicit && contract.algorithm.value != selected_algorithm
-          raise Ibex::Error, "automaton algorithm conflicts with the embedded parser contract"
-        end
-        if contract.entries.explicit && contract.entries.value.to_s != @entry_construction
-          raise Ibex::Error, "automaton entry construction conflicts with the embedded parser contract"
-        end
+        return unless contract.algorithm.explicit && contract.algorithm.value != selected_algorithm
+
+        raise Ibex::Error, "automaton algorithm conflicts with the embedded parser contract"
+      end
+
+      # @rbs skip
+      def validate_parser_entries(contract)
+        return unless contract.entries.explicit && contract.entries.value.to_s != @entry_construction
+
+        raise Ibex::Error, "automaton entry construction conflicts with the embedded parser contract"
+      end
+
+      # @rbs skip
+      def validate_unknown_entry_construction(contract)
         return unless @entry_construction == "unknown"
 
         unavailable = @grammar.migration&.fetch(:unavailable, []) || []

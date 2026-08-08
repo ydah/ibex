@@ -4,6 +4,7 @@ require "digest"
 require "json"
 require_relative "../../lib/ibex"
 require_relative "case_runner"
+require_relative "implementation_closure"
 require_relative "policy"
 
 module Ibex
@@ -20,21 +21,6 @@ module Ibex
       "test/fixtures/error_ux_round2/unknown_token.y" => %i[ErrorUXRound2 UnknownTokenParser]
     }.freeze
     REQUIRED_DIMENSIONS = Policy::REQUIRED_DIMENSIONS
-    IMPLEMENTATION_SOURCES = %w[
-      lib/ibex/frontend/parser.rb
-      lib/ibex/normalize.rb
-      lib/ibex/codegen/ruby.rb
-      lib/ibex/runtime/parser.rb
-      lib/ibex/runtime/generated_lexer.rb
-      lib/ibex/runtime/repair.rb
-      lib/ibex/runtime/repair_search.rb
-      tool/error_ux_round2.rb
-      tool/error_ux_round2/capture.rb
-      tool/error_ux_round2/case_runner.rb
-      tool/error_ux_round2/policy.rb
-      tool/error_ux_round2/source_edit.rb
-    ].freeze
-
     # Builds the committed repository observation without changing R001.
     class Capture
       def initialize(root: ROOT)
@@ -62,6 +48,12 @@ module Ibex
         "#{JSON.pretty_generate(build)}\n"
       end
 
+      def implementation_sources
+        @implementation_sources ||= ImplementationClosure.new(root: @root).paths.map do |path|
+          { "path" => path, "sha256" => sha256(File.binread(File.join(@root, path))) }
+        end.freeze
+      end
+
       private
 
       def corpus
@@ -81,9 +73,7 @@ module Ibex
             "path" => "test/fixtures/error_ux_round2/corpus-v1.json",
             "sha256" => sha256(File.binread(File.join(@root, relative(CORPUS))))
           },
-          "implementation_sources" => IMPLEMENTATION_SOURCES.map do |path|
-            { "path" => path, "sha256" => sha256(File.binread(File.join(@root, path))) }
-          end,
+          "implementation_sources" => implementation_sources,
           "case_count" => definitions.length,
           "deterministic_regeneration" => true,
           "r001_normative_snapshot" => {

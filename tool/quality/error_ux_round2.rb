@@ -22,6 +22,7 @@ module Ibex
       def verify! # rubocop:disable Naming/PredicateMethod -- verifier convention raises on failure.
         document = JSON.parse(File.binread(@evidence))
         validate_schema!(document)
+        validate_implementation_closure!(document)
         validate_coverage!(document)
         validate_continuation!(document)
         validate_lexer_failure!(document)
@@ -41,6 +42,20 @@ module Ibex
         schema = JSONSchemer.schema(JSON.parse(File.binread(File.join(@root, SCHEMA))))
         errors = schema.validate(document).to_a
         raise "H003 evidence violates schema: #{errors.first.inspect}" unless errors.empty?
+      end
+
+      def validate_implementation_closure!(document)
+        expected = capture.implementation_sources
+        actual = document.dig("repository_capture", "implementation_sources")
+        expected_paths = expected.map { |entry| entry.fetch("path") }
+        actual_paths = actual.map { |entry| entry.fetch("path") }
+        raise "H003 implementation source inventory drift" unless actual_paths == expected_paths
+
+        expected.zip(actual).each do |expected_entry, actual_entry|
+          next if expected_entry.fetch("sha256") == actual_entry.fetch("sha256")
+
+          raise "H003 implementation source digest drift: #{expected_entry.fetch('path')}"
+        end
       end
 
       def validate_coverage!(document)
@@ -115,8 +130,12 @@ module Ibex
 
       def validate_regeneration!(document)
         actual = "#{JSON.pretty_generate(document)}\n"
-        expected = Ibex::ErrorUXRound2::Capture.new(root: @root).render
+        expected = capture.render
         raise "H003 deterministic evidence drift" unless actual == expected
+      end
+
+      def capture
+        @capture ||= Ibex::ErrorUXRound2::Capture.new(root: @root)
       end
 
       def validate_external_review_registry!(document)

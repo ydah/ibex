@@ -1,0 +1,173 @@
+# Generated from lib/ibex/runtime/syntax_repair.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    # One syntax-only projection of a runtime repair edit. It intentionally
+    # carries source bytes and token identity, never an application value.
+    class SyntaxRepairEdit
+      attr_reader kind: Symbol
+
+      attr_reader position: Integer
+
+      attr_reader token_id: Integer
+
+      attr_reader token_name: String
+
+      attr_reader cost: Integer
+
+      attr_reader start_byte: Integer
+
+      attr_reader end_byte: Integer
+
+      attr_reader original_text: String
+
+      attr_reader replacement_text: String?
+
+      # @rbs (kind: Symbol, position: Integer, token_id: Integer, token_name: String, cost: Integer,
+      #   start_byte: Integer, end_byte: Integer, original_text: String, replacement_text: String?) -> void
+      # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
+      def initialize: (kind: Symbol, position: Integer, token_id: Integer, token_name: String, cost: Integer, start_byte: Integer, end_byte: Integer, original_text: String, replacement_text: String?) -> void
+
+      # @rbs () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
+    end
+
+    # One selected runtime plan plus its source-oriented edit projection.
+    class SyntaxRepairPlan
+      attr_reader runtime_plan: RepairPlan
+
+      attr_reader edits: Array[SyntaxRepairEdit]
+
+      attr_reader cost: Integer
+
+      attr_reader configurations: Integer
+
+      # @rbs (runtime_plan: RepairPlan, edits: Array[SyntaxRepairEdit]) -> void
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      def initialize: (runtime_plan: RepairPlan, edits: Array[SyntaxRepairEdit]) -> void
+    end
+
+    # Immutable syntax-only repair attempt. There is deliberately no `value`.
+    class SyntaxRepairResult
+      STATUSES: Array[Symbol]
+
+      BOUNDED_STATUSES: Array[Symbol]
+
+      attr_reader status: Symbol
+
+      attr_reader bounded_status: Symbol
+
+      attr_reader reason: Symbol?
+
+      attr_reader plan: SyntaxRepairPlan?
+
+      attr_reader text_edits: Array[CST::TextEdit]
+
+      attr_reader syntax_root: CST::SyntaxNode
+
+      attr_reader diagnostics: Array[SyntaxSessionDiagnostic]
+
+      attr_reader updated_source: CST::SourceText?
+
+      attr_reader validation: SyntaxSessionResult?
+
+      # @rbs (status: Symbol, bounded_status: Symbol, reason: Symbol?, plan: SyntaxRepairPlan?,
+      #   text_edits: Array[CST::TextEdit], syntax_root: CST::SyntaxNode,
+      #   diagnostics: Array[SyntaxSessionDiagnostic], updated_source: CST::SourceText?,
+      #   validation: SyntaxSessionResult?) -> void
+      # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
+      def initialize: (status: Symbol, bounded_status: Symbol, reason: Symbol?, plan: SyntaxRepairPlan?, text_edits: Array[CST::TextEdit], syntax_root: CST::SyntaxNode, diagnostics: Array[SyntaxSessionDiagnostic], updated_source: CST::SourceText?, validation: SyntaxSessionResult?) -> void
+
+      # @rbs () -> bool
+      def accepted?: () -> bool
+
+      # @rbs () -> bool
+      def progress?: () -> bool
+
+      private
+
+      # @rbs (Symbol, Symbol, Symbol?, SyntaxRepairPlan?, Array[CST::TextEdit], CST::SourceText?,
+      #   SyntaxSessionResult?) -> void
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      def validate_result_shape!: (Symbol, Symbol, Symbol?, SyntaxRepairPlan?, Array[CST::TextEdit], CST::SourceText?, SyntaxSessionResult?) -> void
+    end
+
+    # Executes one fresh syntax-only repair attempt without mutating its source
+    # SyntaxSession. Generated lexer actions retain the acknowledged trust
+    # profile; parser production actions remain suppressed.
+    class SyntaxRepairer
+      # @rbs (Class parser_class, CST::SourceText source, SyntaxSessionResult baseline,
+      #   execution_profile: Symbol, resource_limits: ResourceLimits, limits: SyntaxSessionLimits,
+      #   cancellation: CancellationToken?, policy: RepairPolicy, token_text: Hash[String, String]) -> void
+      def initialize: (Class parser_class, CST::SourceText source, SyntaxSessionResult baseline, execution_profile: Symbol, resource_limits: ResourceLimits, limits: SyntaxSessionLimits, cancellation: CancellationToken?, policy: RepairPolicy, token_text: Hash[String, String]) -> void
+
+      # @rbs () -> SyntaxRepairResult
+      def call: () -> SyntaxRepairResult
+
+      private
+
+      # @rbs (Parser parser) -> Array[[RepairPlan, Array[RepairInput]]]
+      def install_capture: (Parser parser) -> Array[[ RepairPlan, Array[RepairInput] ]]
+
+      # @rbs ([RepairPlan, Array[RepairInput]] capture, CST::SyntaxResult parsed,
+      #   Array[SyntaxSessionDiagnostic] diagnostics) -> SyntaxRepairResult
+      def build_selected: ([ RepairPlan, Array[RepairInput] ] capture, CST::SyntaxResult parsed, Array[SyntaxSessionDiagnostic] diagnostics) -> SyntaxRepairResult
+
+      # @rbs (RepairPlan plan, Array[RepairInput] inputs) -> Array[SyntaxRepairEdit]
+      def project_edits: (RepairPlan plan, Array[RepairInput] inputs) -> Array[SyntaxRepairEdit]
+
+      # @rbs (RepairInput input) -> [Integer, Integer]
+      def input_range: (RepairInput input) -> [ Integer, Integer ]
+
+      # @rbs (RepairEdit edit) -> String?
+      def replacement_text: (RepairEdit edit) -> String?
+
+      # @rbs (String name) -> String?
+      def punctuation_literal: (String name) -> String?
+
+      # @rbs (Integer start_byte, Integer end_byte) -> String
+      def original_text: (Integer start_byte, Integer end_byte) -> String
+
+      # @rbs (Array[SyntaxRepairEdit] edits) -> Array[CST::TextEdit]
+      def normalize_text_edits: (Array[SyntaxRepairEdit] edits) -> Array[CST::TextEdit]
+
+      # @rbs (Array[CST::TextEdit] edits) -> void
+      def validate_edit_limits!: (Array[CST::TextEdit] edits) -> void
+
+      # @rbs (CST::SourceText source) -> SyntaxSessionResult
+      def fresh_validation: (CST::SourceText source) -> SyntaxSessionResult
+
+      # @rbs (SyntaxSessionResult validation, CST::SourceText source) -> Symbol
+      def validation_status: (SyntaxSessionResult validation, CST::SourceText source) -> Symbol
+
+      # @rbs (SyntaxSessionResult result) -> Integer?
+      def first_diagnostic_byte: (SyntaxSessionResult result) -> Integer?
+
+      # @rbs (Symbol status, Symbol reason, CST::SyntaxResult parsed,
+      #   Array[SyntaxSessionDiagnostic] diagnostics) -> SyntaxRepairResult
+      def bounded_failure: (Symbol status, Symbol reason, CST::SyntaxResult parsed, Array[SyntaxSessionDiagnostic] diagnostics) -> SyntaxRepairResult
+
+      # @rbs (Symbol reason, CST::SyntaxResult parsed, Array[SyntaxSessionDiagnostic] diagnostics,
+      #   ?plan: SyntaxRepairPlan?) -> SyntaxRepairResult
+      def unavailable: (Symbol reason, CST::SyntaxResult parsed, Array[SyntaxSessionDiagnostic] diagnostics, ?plan: SyntaxRepairPlan?) -> SyntaxRepairResult
+
+      # @rbs (Array[untyped] diagnostics) -> Array[SyntaxSessionDiagnostic]
+      def immutable_diagnostics: (Array[untyped] diagnostics) -> Array[SyntaxSessionDiagnostic]
+
+      # @rbs (untyped location, Symbol key) -> untyped
+      def location_value: (untyped location, Symbol key) -> untyped
+
+      # @rbs (RepairPolicy policy) -> RepairPolicy
+      def validate_policy: (RepairPolicy policy) -> RepairPolicy
+
+      # @rbs (Hash[String, String] value) -> Hash[String, String]
+      def validate_token_text: (Hash[String, String] value) -> Hash[String, String]
+
+      # @rbs (Symbol resource, Integer limit, Integer observed) -> void
+      def enforce_limit!: (Symbol resource, Integer limit, Integer observed) -> void
+
+      # @rbs () -> void
+      def cancellation_checkpoint!: () -> void
+    end
+  end
+end

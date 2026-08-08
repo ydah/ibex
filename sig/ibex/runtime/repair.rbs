@@ -62,6 +62,24 @@ module Ibex
       def to_h: () -> Hash[Symbol, untyped]
     end
 
+    # Closed internal outcome for callers that must distinguish bounded search
+    # exhaustion from a complete search with no repair.
+    class RepairSearchResult
+      STATUSES: Array[Symbol]
+
+      attr_reader status: Symbol
+
+      attr_reader plan: RepairPlan?
+
+      attr_reader configurations: Integer
+
+      # @rbs (status: Symbol, plan: RepairPlan?, configurations: Integer) -> void
+      def initialize: (status: Symbol, plan: RepairPlan?, configurations: Integer) -> void
+
+      # @rbs () -> bool
+      def selected?: () -> bool
+    end
+
     # Internal normalized input record retained while repair looks ahead.
     class RepairInput
       attr_reader token_id: Integer
