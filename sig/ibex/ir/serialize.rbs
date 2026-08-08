@@ -60,6 +60,9 @@ module Ibex
       # @rbs (Grammar | Automaton | Lexer value) -> String
       def self?.dump: (Grammar | Automaton | Lexer value) -> String
 
+      # @rbs (untyped value) -> untyped
+      def self?.normalize_encodings: (untyped value) -> untyped
+
       # @rbs (String source) -> (Grammar | Automaton | Lexer)
       def self?.load: (String source) -> (Grammar | Automaton | Lexer)
     end
