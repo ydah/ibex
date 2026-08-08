@@ -37,9 +37,27 @@ module Ibex
 
       # @rbs (Grammar | Automaton | Lexer value) -> String
       def dump(value)
-        "#{JSON.pretty_generate(value.to_h)}\n"
+        "#{JSON.pretty_generate(normalize_encodings(value.to_h))}\n"
       end
       module_function :dump
+
+      # @rbs (untyped value) -> untyped
+      def normalize_encodings(value)
+        case value
+        when String
+          normalized = value.dup.force_encoding(Encoding::UTF_8)
+          normalized.valid_encoding? ? normalized : value
+        when Array
+          value.map { |child| normalize_encodings(child) }
+        when Hash
+          value.to_h do |key, child|
+            [normalize_encodings(key), normalize_encodings(child)]
+          end
+        else
+          value
+        end
+      end
+      module_function :normalize_encodings
 
       # @rbs (String source) -> (Grammar | Automaton | Lexer)
       def load(source)
