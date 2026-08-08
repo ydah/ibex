@@ -107,8 +107,8 @@ module Ibex
       def action(row, column)
         table = @tables.fetch("actions")
         code = if table.fetch("encoding") == "signed-sparse-rows-v1"
-                 table.fetch("rows").fetch(row).bsearch { |cell| cell.fetch("token_id") >= column }
-                                               &.then do |cell|
+                 cells = table.fetch("rows").fetch(row)
+                 cells.bsearch { |cell| cell.fetch("token_id") >= column }&.then do |cell|
                    cell.fetch("code") if cell.fetch("token_id") == column
                  end
                else
@@ -121,8 +121,8 @@ module Ibex
       def goto_state(row, column)
         table = @tables.fetch("gotos")
         if table.fetch("encoding") == "sparse-rows-v1"
-          table.fetch("rows").fetch(row).bsearch { |cell| cell.fetch("symbol_id") >= column }
-                                        &.then do |cell|
+          cells = table.fetch("rows").fetch(row)
+          cells.bsearch { |cell| cell.fetch("symbol_id") >= column }&.then do |cell|
             cell.fetch("state") if cell.fetch("symbol_id") == column
           end
         else
