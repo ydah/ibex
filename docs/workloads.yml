@@ -554,7 +554,7 @@ workloads:
     owner: ydah
     project: ibex
     repository_url: https://github.com/ydah/ibex
-    revision: 2bb20ab24e26cae4ee7cd397fcc12938b7d24e59
+    revision: 229b8f4b8f3a5cb6aec5b08088579cfdfb4e6cec
     source_binding:
       kind: gallery
       id: calc
@@ -765,7 +765,7 @@ workloads:
     grammar:
       identity: Ibex production self-hosted grammar frontend
       path: lib/ibex/frontend/grammar.y
-      sha256: fb6dcea088aec1a09fa0d63dc5cfd529310635dd3c4568cd1d734fc9ac1bf64c
+      sha256: c615e4a180b21df377585a0804776a3f2af33c3753ef617f6798c9566848e403
       storage: repository
       source_url: repository
     license:
