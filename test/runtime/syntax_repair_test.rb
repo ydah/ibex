@@ -18,7 +18,9 @@ class SyntaxRepairTest < Minitest::Test
     expression: NUM PLUS NUM { raise "parser production action executed" }
     end
     ---- inner
-    def on_repair(_plan) = raise "application repair callback executed"
+    def on_repair(_plan)
+      raise("application repair callback executed")
+    end
   GRAMMAR
 
   PUNCTUATION_SOURCE = <<~GRAMMAR
