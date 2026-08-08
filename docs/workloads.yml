@@ -758,7 +758,7 @@ workloads:
     owner: ydah
     project: ibex
     repository_url: https://github.com/ydah/ibex
-    revision: 2bb20ab24e26cae4ee7cd397fcc12938b7d24e59
+    revision: 229b8f4b8f3a5cb6aec5b08088579cfdfb4e6cec
     source_binding:
       kind: repository
       id: ibex-frontend
