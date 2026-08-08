@@ -28,7 +28,7 @@ class RepairSemanticsDocumentationTest < Minitest::Test
   def test_public_characterization_names_the_current_result_and_value_boundaries
     source = File.binread(DOCUMENT)
 
-    assert_includes source, "typed outcome (`:selected`, `:need_input`, `:exhausted`, or\n`:not_found)"
+    assert_includes source, "typed outcome (`:selected`, `:need_input`, `:exhausted`, or\n`:not_found`)"
     assert_includes source, "internal `NEED_INPUT`"
     assert_includes source, "| insert | `nil`"
     assert_includes source, "replacement's retained value"
