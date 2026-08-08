@@ -5,7 +5,7 @@ module Ibex
     # rubocop:disable Metrics/ModuleLength -- one closed authority maps every audited feature.
     # Human-reviewed Git authorities used by the executable maturity audit.
     module MaturityAuthority
-      REVIEWED_REVISION = "7517b302c72fae926b6e0a81f1f89772971d82d4"
+      REVIEWED_REVISION = "7dbe2d59779f270cf532b690c998ff8d23c962d7"
       RELEASES = {
         "v0.1.0" => "65d41edf381afb9c18e01e55332a293332f340e6",
         "v0.2.0" => "bd88b1203706c37bf225e837a2fe46d334d4651d"
@@ -241,11 +241,11 @@ module Ibex
             af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
             d589970fa588fd6a0464e6396fe2da668431aec4
           ],
-          "v0.2.0..reviewed" => []
+          "v0.2.0..reviewed" => %w[df90eeb05cec248ec34005948226591a93412232]
         },
         "lsp" => {
           "introduction..v0.2.0" => %w[5b8151385c491366deb41c930a1132599edfb9e9],
-          "v0.2.0..reviewed" => []
+          "v0.2.0..reviewed" => %w[f352b4ab2b8f4e09479452f6b26deea7c8959b8f]
         },
         "watch" => {
           "introduction..v0.2.0" => %w[570d857f582cb61ac60840210b22a86db086cc51],
@@ -274,7 +274,7 @@ module Ibex
         },
         "bounded-repair" => {
           "introduction..v0.2.0" => %w[df8ac82c0ed0c8862190ac88671949f0d5e8a001],
-          "v0.2.0..reviewed" => []
+          "v0.2.0..reviewed" => %w[7dbe2d59779f270cf532b690c998ff8d23c962d7]
         },
         "incremental-cst" => {
           "introduction..v0.2.0" => %w[
@@ -286,6 +286,7 @@ module Ibex
             c7d02d408e1778bb8018c1876f8728949bf7aa24
             57d4d7a6e45603f3ea703121a6d45616b8c1929b
             87491f2c009fa98ffbc3a1a865c097926ef79864
+            7dbe2d59779f270cf532b690c998ff8d23c962d7
           ]
         }
       }.freeze
