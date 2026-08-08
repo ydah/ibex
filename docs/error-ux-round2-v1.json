@@ -275,7 +275,7 @@
       },
       {
         "path": "lib/ibex/frontend/parser_configuration_support.rb",
-        "sha256": "db62b0d5ad2d2773dc20e329002bafbac60e2c554066074ad1a9509d926cb851"
+        "sha256": "d742ac1908ccad9b3cfe610921fd698c3d8aca33ae611ad9e8572ef3993a3c2a"
       },
       {
         "path": "lib/ibex/frontend/resolution.rb",
@@ -531,7 +531,7 @@
       },
       {
         "path": "lib/ibex/normalize/parser_configuration.rb",
-        "sha256": "3e47b7314fd5b90ff8369c6d972971f125ca6fa02234af58dc21603cb7554854"
+        "sha256": "8036230cca8072dc6ecde088e0345ebcd24f141553df7248cacb86036b0879ff"
       },
       {
         "path": "lib/ibex/normalize/recovery_declarations.rb",
