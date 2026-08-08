@@ -8,7 +8,9 @@ module Ibex
       SETTING_DOCUMENTATION = {
         "algorithm" => "`parser.algorithm` selects parser-table construction. Values: `slr`, `lalr`, `ielr`, `lr1`.",
         "entries" => "`parser.entries` selects shared or isolated construction for multiple start symbols. " \
-                     "Values: `shared`, `isolated`."
+                     "Values: `shared`, `isolated`.",
+        "cst_trivia" => "`cst.trivia` selects CST trivia ownership. Values: `leading`, `balanced`, `drop`; " \
+                        "requires `pragma cst`."
       }.freeze #: Hash[String, String]
       VALUE_DOCUMENTATION = {
         "slr" => "`slr` — SLR parser-table construction.",
@@ -16,7 +18,10 @@ module Ibex
         "ielr" => "`ielr` — IELR parser-table construction with canonical LR(1) verification support.",
         "lr1" => "`lr1` — canonical LR(1) parser-table construction.",
         "shared" => "`shared` — construct multiple entries in one shared automaton.",
-        "isolated" => "`isolated` — construct each of multiple entries independently."
+        "isolated" => "`isolated` — construct each of multiple entries independently.",
+        "leading" => "`leading` — attach leading trivia to the following CST node.",
+        "balanced" => "`balanced` — attach trivia between the surrounding CST nodes.",
+        "drop" => "`drop` — omit CST trivia; location and incremental APIs are unavailable."
       }.freeze #: Hash[String, String]
 
       # @rbs (DocumentStore store, String path) -> void
@@ -34,7 +39,7 @@ module Ibex
         return completion_list([]) unless parser_block_open?(source.byteslice(0, line_start) || "")
 
         prefix = source.byteslice(line_start, offset - line_start) || ""
-        value_match = prefix.match(/\A\s*(algorithm|entries)\s+([A-Za-z_]*)\z/)
+        value_match = prefix.match(/\A\s*(algorithm|entries|cst_trivia)\s+([A-Za-z_]*)\z/)
         if value_match
           setting = value_match[1] || raise("parser setting capture is missing")
           return completion_list(value_items(setting))
@@ -54,7 +59,9 @@ module Ibex
 
         finish = source.index("\n", start) || source.bytesize
         line = source.byteslice(start, finish - start) || ""
-        match = line.match(/\A\s*(algorithm|entries)\s+(slr|lalr|ielr|lr1|shared|isolated)\s*(?:#.*)?\z/)
+        match = line.match(
+          /\A\s*(algorithm|entries|cst_trivia)\s+(slr|lalr|ielr|lr1|shared|isolated|leading|balanced|drop)\s*(?:#.*)?\z/
+        )
         return unless match
 
         token, token_start, token_end = hovered_token(match, line, start, offset)
