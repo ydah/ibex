@@ -13,7 +13,7 @@ class LSPParserConfigurationAssistanceTest < Minitest::Test
       assert_equal %w[slr lalr ielr lr1], values
 
       keys = assistance.completion("line" => 2, "character" => 2).fetch("items").map { |item| item["label"] }
-      assert_equal %w[algorithm entries], keys
+      assert_equal %w[algorithm entries cst_trivia], keys
 
       outside = assistance.completion("line" => 4, "character" => 0)
       assert_empty outside.fetch("items")

@@ -71,7 +71,7 @@ class CLIGenerationTransactionTest < Minitest::Test
       assert_equal "balanced", options.fetch("cst_trivia")
       assert_equal "balanced", entry.fetch("value")
       assert_equal "grammar", entry.dig("origin", "kind")
-      assert_equal "canonical", entry.fetch("conformance")
+      assert_equal true, entry.fetch("canonical")
     end
   end
 
