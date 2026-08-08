@@ -31,6 +31,26 @@ class IRDeclarativeParserContractTest < Minitest::Test
     assert_equal first.parser_contract.configuration_values, second.parser_contract.configuration_values
   end
 
+  def test_cst_trivia_declaration_is_persisted_in_the_v3_contract
+    grammar = normalize(<<~GRAMMAR)
+      class P
+      pragma cst
+      parser
+        cst_trivia balanced
+      end
+      rule
+      start: TOKEN
+      end
+    GRAMMAR
+    contract = grammar.parser_contract
+
+    assert_equal :balanced, contract.cst_trivia.value
+    assert contract.cst_trivia.explicit
+    assert_equal "normalize.y", contract.cst_trivia.location.file
+    round_tripped = Ibex::IR::Serialize.load(Ibex::IR::Serialize.dump(grammar))
+    assert_equal :balanced, round_tripped.parser_contract.cst_trivia.value
+  end
+
   def test_declaration_free_grammar_remains_v2_without_a_parser_contract
     source = "class P\nrule\nstart: TOKEN\nend\n"
     grammar = normalize(source)

@@ -40,15 +40,16 @@ with admission deferred until user-production coverage and monotone merge are de
 |---|---|---|---|
 | `grammar.mode`, `parser.superclass`, `actions.omit_calls` | Grammar Contract | staged fixed compatibility | Grammar IR v2; legacy CLI override needs D008 |
 | `parser.algorithm`, `parser.entries` | Grammar Contract | fixed generation / explicit algorithm analysis override | root `parser` syntax writes Grammar IR v3; manifest records contract and construction facts |
-| `cst.trivia` | Grammar Contract | fixed generation / explicit analysis override | Grammar IR v3 persistence exists; source syntax remains pending D007 |
+| `cst.trivia` | Grammar Contract | fixed generation / explicit analysis override | root `parser` syntax writes Grammar IR v3; manifest records contract and CST facts |
 | table/runtime/debug/source mapping/companions | Project Build Policy | project selection | manifest records current generation choices |
 | emit/path/watch/report/budget/locale/help/warnings | Invocation Request | invocation only | excluded from Grammar IR |
 
 Fixed means a grammar declaration may be matched but not silently contradicted by generation CLI.
 Analysis commands and grammar tests may choose a different algorithm only as an explicit, reported
 noncanonical override; parser entry construction remains fixed.
-Grammar IR v3 closes persistence for the first-wave construction and CST concepts. D006 exposes only
-`parser.algorithm` and `parser.entries` as source syntax; `cst.trivia` remains pending D007.
+Grammar IR v3 closes persistence for the first-wave construction and CST concepts. The root-only `parser`
+block exposes `parser.algorithm`, `parser.entries`, and `cst_trivia` as source syntax and requires the
+existing `pragma cst` compatibility declaration; declaration-free grammars retain the current default.
 
 ## Owner summary
 

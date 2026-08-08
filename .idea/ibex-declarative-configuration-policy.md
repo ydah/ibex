@@ -544,7 +544,7 @@ end
 - duplicate key は error
 - canonical formatter order を定義
 - `pragma cst` は Stable compatibility surface として残す
-- `cst_trivia` は CST enabled のときだけ許可
+- `cst_trivia` は CST enabled (`pragma cst`) のときだけ許可
 - `entries isolated` は multiple start でのみ意味を持つ
 - `algorithm auto` は初期版に入れない
 
