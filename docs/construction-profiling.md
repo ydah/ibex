@@ -99,7 +99,7 @@ recorded exact revision, not a new language fixture.
 | `gallery-json` | repository synthetic | 27 / 82 | 111 | 57 / 272 | 27 / 27 | 27 |
 | `gallery-sql-lite` | repository synthetic | 26 / 53 | 55 | 26 / 115 | 26 / 26 | 26 |
 | `matrix-multi-entry` | repository synthetic | 9 / 14 | n/a | 9 / 20 | 9 / 9 | 9 |
-| `ibex-frontend` | repository real | 220 / 618 | 734 | 449 / 10,103 | 220 / 220 | 220 |
+| `ibex-frontend` | repository real | 227 / 633 | 749 | 456 / 10,482 | 227 / 227 | 227 |
 
 The table pairs direct-LALR edge counts with the canonical collection used by
 current IELR. The multi-entry row reports the shared result; its committed run
@@ -113,7 +113,7 @@ recorded as `not_run` because no checkout satisfying the public manifest was
 supplied for this evidence capture. They contribute no state, item, edge,
 partition, failure, or timing observation. The only measured real workload is
 the repository's production frontend; it has no unresolved conflict requiring
-IELR, and current IELR partitions its 449 canonical states back to the same 220
+IELR, and current IELR partitions its 456 canonical states back to the same 227
 final states as direct LALR.
 
 ## Decisions

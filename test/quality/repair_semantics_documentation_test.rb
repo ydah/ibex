@@ -9,11 +9,13 @@ class RepairSemanticsDocumentationTest < Minitest::Test
   EXPECTED_COVERAGE = {
     "policy-and-default-off" => "test/runtime/repair_test.rb",
     "dijkstra-priority-and-outcomes" => "test/runtime/repair_characterization_test.rb",
+    "typed-search-outcomes" => "test/runtime/repair_characterization_test.rb",
     "values-locations-and-replay" => "test/runtime/repair_test.rb",
     "hooks-actions-and-observers" => "test/runtime/repair_test.rb",
     "pull-and-push-bounds" => "test/runtime/repair_test.rb",
     "cst-representation" => "test/codegen/cst_test.rb",
-    "cst-source-fidelity" => "test/runtime/cst_fidelity_property_test.rb"
+    "cst-source-fidelity" => "test/runtime/cst_fidelity_property_test.rb",
+    "syntax-only-repair-projection" => "test/runtime/syntax_repair_test.rb"
   }.freeze
 
   def test_characterization_maps_every_required_concept_to_executable_evidence
@@ -26,7 +28,7 @@ class RepairSemanticsDocumentationTest < Minitest::Test
   def test_public_characterization_names_the_current_result_and_value_boundaries
     source = File.binread(DOCUMENT)
 
-    assert_includes source, "both budget\nexhaustion and a complete search that found no plan return `nil`"
+    assert_includes source, "typed outcome (`:selected`, `:need_input`, `:exhausted`, or\n`:not_found)"
     assert_includes source, "internal `NEED_INPUT`"
     assert_includes source, "| insert | `nil`"
     assert_includes source, "replacement's retained value"
