@@ -1633,8 +1633,18 @@ module Ibex
       end
 
       def strip_positions(node)
+        return node.b if node.is_a?(String)
+        if node.is_a?(Hash)
+          return node.each_with_object({}) do |(key, value), copy|
+            copy[key] = if key == :method_node
+                          strip_positions(value)
+                        else
+                          value
+                        end
+          end
+        end
         return node unless node.is_a?(Array)
-        return node.take(2) if node.first.to_s.start_with?("@")
+        return node.take(2).map { |child| strip_positions(child) } if node.first.to_s.start_with?("@")
 
         node.map { |child| strip_positions(child) }
       end
