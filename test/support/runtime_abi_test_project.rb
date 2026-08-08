@@ -13,6 +13,11 @@ module RuntimeABITestProject
     Dir.mktmpdir("ibex-runtime-abi") do |root|
       COPY_PATHS.each { |path| FileUtils.cp_r(File.join(PROJECT_ROOT, path), File.join(root, path)) }
       yield root
+    ensure
+      # Git may leave transient object files behind while the temporary
+      # repository is being removed. Remove the repository first so
+      # Dir.mktmpdir does not race that cleanup.
+      FileUtils.rm_rf(File.join(root, ".git"))
     end
   end
 
@@ -39,6 +44,9 @@ module RuntimeABITestProject
     return git_runtime_abi!(root, "rev-parse", "HEAD").strip if File.directory?(File.join(root, ".git"))
 
     git_runtime_abi!(root, "init", "-q")
+    git_runtime_abi!(root, "config", "gc.auto", "0")
+    git_runtime_abi!(root, "config", "gc.writeCommitGraph", "false")
+    git_runtime_abi!(root, "config", "maintenance.auto", "false")
     git_runtime_abi!(root, "config", "user.email", "abi-test@example.invalid")
     git_runtime_abi!(root, "config", "user.name", "ABI Test")
     git_runtime_abi!(root, "add", "-A")
