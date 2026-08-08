@@ -387,7 +387,7 @@
       },
       {
         "path": "lib/ibex/ir/serialize.rb",
-        "sha256": "bbccff300380312eee35359fd13de0d0536b8917f246fe63406bb6b48a869832"
+        "sha256": "72a93be7280943b3ca5e84d1c3bc77576ccc45b5d677f9658f39b264f389b844"
       },
       {
         "path": "lib/ibex/ir/validator.rb",
