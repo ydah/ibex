@@ -4,7 +4,7 @@ I001 is **NO-GO**. Direct IELR construction is not authorized, and I002 remains
 blocked. This decision is a feature gate, not a claim that direct IELR has no
 future value.
 
-The final decision date is 2026-08-05. Revision
+The final decision date is 2026-08-08. Revision
 `58cc36cfdc38ff3169d9578fcbba307f6ea95dad` is the repository evidence snapshot
 reviewed immediately before this dossier was published; it is not a claim that
 the dossier itself existed in that revision. The machine record marks the
@@ -97,11 +97,11 @@ and verifier implementations by path and SHA-256 at the reviewed revision. It
 also binds:
 
 - H005 capture base revision
-  `5adf2cce4fbeee753d9a0a25f30b5e25eb8653ed`;
+  `6cc3d2bcf98536058a23f47417f79bfd35051b1f`;
 - H005 bound-path digest
-  `60ff72c16cff122cae827dd00093757b040dd7bb5294791c4fe9dcca52983c99`;
+  `17bbebd0d2baa6a69e60c4495941412e6ac315dacc2816d2364cfb6102632f1f`;
 - H005 implementation digest
-  `19b94af36393303eecc4b895eaee02b2ca1ba75abcc769355cf3af98c518af39`;
+  `0300368144fd1804d31974c8abeb0162c1fcb3560fdd767edb266992bc7534a3`;
 - V001 revision `5cf20f6c9d5b82738965bd0aead8fa3a2ac14d8b`.
 
 The quality gate verifies the schema, exact GO/NO-GO inventory, follow-on
