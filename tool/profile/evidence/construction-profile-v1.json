@@ -20,7 +20,7 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "5adf2cce4fbeee753d9a0a25f30b5e25eb8653ed",
+    "base_revision": "63163772de58829ad0e2d83f786fb4e0802077ce",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": true,
     "capture_worktree_status": [],
@@ -34,9 +34,9 @@
       },
       {
         "path": "Rakefile",
-        "sha256": "6e1a7981a594c7518b142ed052cc5e8c5e831a5f3060e8702350434df5358fcd",
+        "sha256": "64a96412e38580fb57883f82a8d5f862281dc631b955f834da3821600169596a",
         "git_state": "base",
-        "base_sha256": "6e1a7981a594c7518b142ed052cc5e8c5e831a5f3060e8702350434df5358fcd"
+        "base_sha256": "64a96412e38580fb57883f82a8d5f862281dc631b955f834da3821600169596a"
       },
       {
         "path": "docs/construction-profiling.md",
@@ -46,15 +46,15 @@
       },
       {
         "path": "docs/maturity.md",
-        "sha256": "88622a265f879358ddb22b6f5da4c26a9d55d2c9427d0a43103352d62fe1bcae",
+        "sha256": "7ac15be15ffa06f33ff6496e20781bf95f58c59cc406f759d9d420ee74af3edb",
         "git_state": "base",
-        "base_sha256": "88622a265f879358ddb22b6f5da4c26a9d55d2c9427d0a43103352d62fe1bcae"
+        "base_sha256": "7ac15be15ffa06f33ff6496e20781bf95f58c59cc406f759d9d420ee74af3edb"
       },
       {
         "path": "docs/maturity.yml",
-        "sha256": "f6884c75f2c7cb771c389d3750255c2506400c89b1fe10f0cbc53499a79ab9f0",
+        "sha256": "cedd4ca6cb4aefc0c56af0e8a348294ff7e4c0fc5a609c66362da278b7d4259d",
         "git_state": "base",
-        "base_sha256": "f6884c75f2c7cb771c389d3750255c2506400c89b1fe10f0cbc53499a79ab9f0"
+        "base_sha256": "cedd4ca6cb4aefc0c56af0e8a348294ff7e4c0fc5a609c66362da278b7d4259d"
       },
       {
         "path": "docs/workloads.md",
@@ -70,9 +70,9 @@
       },
       {
         "path": "lib/ibex/lalr/builder.rb",
-        "sha256": "45da3175df6988267918c9974e9067a8f59fee22532c7da5c32e7e998a049537",
+        "sha256": "6ea5026d1f1d1a734ad119c08e56a8ef02a84c3be97f0cf1ef20fb97a04d0b58",
         "git_state": "base",
-        "base_sha256": "45da3175df6988267918c9974e9067a8f59fee22532c7da5c32e7e998a049537"
+        "base_sha256": "6ea5026d1f1d1a734ad119c08e56a8ef02a84c3be97f0cf1ef20fb97a04d0b58"
       },
       {
         "path": "lib/ibex/lalr/direct_lookaheads.rb",
@@ -88,9 +88,9 @@
       },
       {
         "path": "schema/construction-profile-v1.schema.json",
-        "sha256": "91d1ee63e323e0a9c01d28bc6e2a09387e3c55fd8314722d9eb0f18a04fb4901",
+        "sha256": "e7daf5e6c94c92bbb0405ed188fd1454d7adab9da27fe99694a949fb88c0a49e",
         "git_state": "base",
-        "base_sha256": "91d1ee63e323e0a9c01d28bc6e2a09387e3c55fd8314722d9eb0f18a04fb4901"
+        "base_sha256": "e7daf5e6c94c92bbb0405ed188fd1454d7adab9da27fe99694a949fb88c0a49e"
       },
       {
         "path": "sig/ibex/lalr/build_metrics.rbs",
@@ -124,15 +124,15 @@
       },
       {
         "path": "test/profile/construction_profile_schema_test.rb",
-        "sha256": "da9ec7f87bb410e13d3e64de8f460070d2507f6021bdea7325c101cfc97197a4",
+        "sha256": "db953ff5414f75940c4db849e125da86bd1e32998ba58dc873b5be3fdc8cacb8",
         "git_state": "base",
-        "base_sha256": "da9ec7f87bb410e13d3e64de8f460070d2507f6021bdea7325c101cfc97197a4"
+        "base_sha256": "db953ff5414f75940c4db849e125da86bd1e32998ba58dc873b5be3fdc8cacb8"
       },
       {
         "path": "test/profile/construction_profiler_test.rb",
-        "sha256": "7cdb15d5911f8c55de5abb29f64135313083c5ff0499e93cde144786323e380f",
+        "sha256": "9b3641259fc0884a5978db41cd24e0afb2fb319a6b3659329d62819f21e763f7",
         "git_state": "base",
-        "base_sha256": "7cdb15d5911f8c55de5abb29f64135313083c5ff0499e93cde144786323e380f"
+        "base_sha256": "9b3641259fc0884a5978db41cd24e0afb2fb319a6b3659329d62819f21e763f7"
       },
       {
         "path": "test/quality/construction_profile_test.rb",
@@ -154,9 +154,9 @@
       },
       {
         "path": "test/support/public_json_schemas.rb",
-        "sha256": "6c72bf7a17f5aca4b4e9c425d272aee07f68fd343fddec011d32e06c242a9224",
+        "sha256": "d80617fdc1d1b0dcf24ec7ae852418459442d3a081122b47be0cd7e01ded45d5",
         "git_state": "base",
-        "base_sha256": "6c72bf7a17f5aca4b4e9c425d272aee07f68fd343fddec011d32e06c242a9224"
+        "base_sha256": "d80617fdc1d1b0dcf24ec7ae852418459442d3a081122b47be0cd7e01ded45d5"
       },
       {
         "path": "tool/construction_profile.rb",
@@ -166,9 +166,9 @@
       },
       {
         "path": "tool/profile/construction_profiler.rb",
-        "sha256": "8b368562e3cf9537331a4106cd7201abd9574fdbd28f06ca032cf0d32747d2d4",
+        "sha256": "4928ee611f2e6b54dc0da14b0f503618d9b87b2acb42231fc45a85628988f4ba",
         "git_state": "base",
-        "base_sha256": "8b368562e3cf9537331a4106cd7201abd9574fdbd28f06ca032cf0d32747d2d4"
+        "base_sha256": "4928ee611f2e6b54dc0da14b0f503618d9b87b2acb42231fc45a85628988f4ba"
       },
       {
         "path": "tool/quality/construction_profile.rb",
@@ -183,8 +183,8 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "60ff72c16cff122cae827dd00093757b040dd7bb5294791c4fe9dcca52983c99",
-    "implementation_sha256": "19b94af36393303eecc4b895eaee02b2ca1ba75abcc769355cf3af98c518af39",
+    "bound_paths_sha256": "b639168348a7b66fc684ed15a224a28118bb25524b127ae0d6d4ff143c1c4091",
+    "implementation_sha256": "0300368144fd1804d31974c8abeb0162c1fcb3560fdd767edb266992bc7534a3",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
     "evidence_path": "tool/profile/evidence/construction-profile-v1.json",
@@ -222,7 +222,7 @@
           "grammar": {
             "identity": "Self-authored calculator gallery grammar",
             "path": "gallery/calc/grammar.y",
-            "revision": "2bb20ab24e26cae4ee7cd397fcc12938b7d24e59",
+            "revision": "229b8f4b8f3a5cb6aec5b08088579cfdfb4e6cec",
             "sha256": "e9c25a35bd0351e58c3aefd9397097ac04701e052bad7fd234e72e357b5bac07"
           },
           "registry_status": "registered",
@@ -295,7 +295,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000989,
+                  "value": 0.000985,
                   "release_gate": false
                 }
               },
@@ -364,7 +364,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.003989,
+                  "value": 0.004134,
                   "release_gate": false
                 }
               },
@@ -456,7 +456,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000625,
+                  "value": 0.000607,
                   "release_gate": false
                 }
               },
@@ -525,7 +525,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001412,
+                  "value": 0.001362,
                   "release_gate": false
                 }
               },
@@ -617,7 +617,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000446,
+                  "value": 0.000543,
                   "release_gate": false
                 }
               },
@@ -686,7 +686,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.003298,
+                  "value": 0.000694,
                   "release_gate": false
                 }
               },
@@ -780,7 +780,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000333,
+                  "value": 0.000334,
                   "release_gate": false
                 }
               },
@@ -850,7 +850,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000416,
+                  "value": 0.000359,
                   "release_gate": false
                 }
               },
@@ -920,7 +920,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000228,
+                  "value": 0.000249,
                   "release_gate": false
                 }
               },
@@ -990,7 +990,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000264,
+                  "value": 0.00025,
                   "release_gate": false
                 }
               },
@@ -1032,7 +1032,7 @@
             "identity": "Ibex production self-hosted grammar frontend",
             "path": "lib/ibex/frontend/grammar.y",
             "revision": "2bb20ab24e26cae4ee7cd397fcc12938b7d24e59",
-            "sha256": "fb6dcea088aec1a09fa0d63dc5cfd529310635dd3c4568cd1d734fc9ac1bf64c"
+            "sha256": "c615e4a180b21df377585a0804776a3f2af33c3753ef617f6798c9566848e403"
           },
           "registry_status": "registered",
           "availability": {
@@ -1058,11 +1058,11 @@
               "structural": {
                 "lr0_states": {
                   "status": "measured",
-                  "value": 220
+                  "value": 227
                 },
                 "lr0_items": {
                   "status": "measured",
-                  "value": 618
+                  "value": 633
                 },
                 "canonical_states": {
                   "status": "not_applicable",
@@ -1074,19 +1074,19 @@
                 },
                 "final_states": {
                   "status": "measured",
-                  "value": 220
+                  "value": 227
                 },
                 "final_items": {
                   "status": "measured",
-                  "value": 618
+                  "value": 633
                 },
                 "final_lookahead_items": {
                   "status": "measured",
-                  "value": 6733
+                  "value": 7109
                 },
                 "propagation_edges": {
                   "status": "measured",
-                  "value": 734
+                  "value": 749
                 },
                 "ielr_initial_partitions": {
                   "status": "not_applicable",
@@ -1104,7 +1104,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.00661,
+                  "value": 0.009036,
                   "release_gate": false
                 }
               },
@@ -1127,31 +1127,31 @@
               "structural": {
                 "lr0_states": {
                   "status": "measured",
-                  "value": 220
+                  "value": 227
                 },
                 "lr0_items": {
                   "status": "measured",
-                  "value": 618
+                  "value": 633
                 },
                 "canonical_states": {
                   "status": "measured",
-                  "value": 449
+                  "value": 456
                 },
                 "canonical_items": {
                   "status": "measured",
-                  "value": 10103
+                  "value": 10482
                 },
                 "final_states": {
                   "status": "measured",
-                  "value": 220
+                  "value": 227
                 },
                 "final_items": {
                   "status": "measured",
-                  "value": 618
+                  "value": 633
                 },
                 "final_lookahead_items": {
                   "status": "measured",
-                  "value": 6733
+                  "value": 7109
                 },
                 "propagation_edges": {
                   "status": "not_applicable",
@@ -1159,11 +1159,11 @@
                 },
                 "ielr_initial_partitions": {
                   "status": "measured",
-                  "value": 220
+                  "value": 227
                 },
                 "ielr_final_partitions": {
                   "status": "measured",
-                  "value": 220
+                  "value": 227
                 }
               },
               "conflicts": {
@@ -1173,7 +1173,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.050421,
+                  "value": 0.056776,
                   "release_gate": false
                 }
               },
@@ -1267,27 +1267,35 @@
       "thresholds": [
         {
           "id": "representative-real-multi-entry",
-          "target": "at least 2",
-          "observed": "0",
+          "target": "at least 2 verified real grammars with multiple entries",
+          "observed": "0 verified real multi-entry grammars",
           "satisfied": false
         },
         {
-          "id": "synthetic-shared-isolated-coverage",
-          "target": "at least 1",
-          "observed": "1",
-          "satisfied": true
+          "id": "material-canonical-fallback-cost",
+          "target": "canonical fallback exhaustion or >=2x structural overhead on verified real inputs",
+          "observed": "not observed on a real multi-entry workload",
+          "satisfied": false
         },
         {
-          "id": "practical-current-cost",
-          "target": "state/item exhaustion or >=2x structural overhead on real inputs",
+          "id": "clear-shared-benefit-over-isolation",
+          "target": "shared construction materially improves over isolation on verified real inputs",
           "observed": "not observed on a real multi-entry workload",
+          "satisfied": false
+        },
+        {
+          "id": "conflict-attribution-preservation",
+          "target": "adversarial conflicting fixtures preserve per-entry attribution against an independent semantic oracle",
+          "observed": "not established: the synthetic matrix has no conflicts and no direct mechanism",
           "satisfied": false
         }
       ],
-      "reason": "The shared-versus-isolated path is measurable on a synthetic fixture, but the registry has no real multi-entry workload and timing observations are not decision gates.",
+      "reason": "The registry has no verified real multi-entry workload, so neither material canonical fallback cost nor a clear shared benefit is established; the synthetic matrix has no conflicts and no direct mechanism with which to establish per-entry attribution.",
       "counterevidence_required": [
-        "verified real multi-entry grammars show material shared construction cost",
-        "a direct construction preserves shared-entry conflict attribution",
+        "at least two verified real grammars with multiple entries",
+        "verified real multi-entry grammars show material canonical fallback cost",
+        "shared construction shows a clear structural benefit over isolation on those real grammars",
+        "adversarial conflicting fixtures preserve per-entry attribution against an independent semantic oracle",
         "an owner accepts the semantic and maintenance plan"
       ]
     }
