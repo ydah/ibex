@@ -291,7 +291,7 @@
       },
       {
         "path": "lib/ibex/frontend/source_cursor.rb",
-        "sha256": "98a17533f0b9dae6482e8f653fef387220b1d41b76e0e60a4db99e07c008221a"
+        "sha256": "0ca8c605a7968e136f47cf5d4744182a82f5990b2c9e7bbcee592294363c9a5c"
       },
       {
         "path": "lib/ibex/frontend/source_document.rb",
@@ -303,7 +303,7 @@
       },
       {
         "path": "lib/ibex/frontend/source_span.rb",
-        "sha256": "33fbb526be952a31e0843f7f50e4d696cbe2979c289d74243b021da3997c77c7"
+        "sha256": "2dafb54be2147297f0a55ad1d8a398065c01bec0e348405d6ec808981e480195"
       },
       {
         "path": "lib/ibex/frontend/token_adapter.rb",
