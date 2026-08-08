@@ -1,0 +1,1398 @@
+{
+  "artifact": "ibex_racc_public_performance_comparison",
+  "schema_version": 1,
+  "evidence_kind": "formal",
+  "recorded_at": "2026-08-08T09:12:27Z",
+  "third_party_code_warning": "This benchmark executes code from the supplied third-party checkouts. Verify each path and revision.",
+  "environment": {
+    "git_revision": "8c9cef999d094366012d9956538f319ac6a28b82",
+    "git_dirty": false,
+    "git_tracked_dirty": false,
+    "git_untracked_dirty": false,
+    "ruby_engine": "ruby",
+    "ruby_version": "4.0.0",
+    "ruby_platform": "arm64-darwin24",
+    "ruby_description": "ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin24]",
+    "ruby_executable": "/Users/yudai.takada/.rbenv/versions/4.0.0/bin/ruby",
+    "host_os": "darwin24",
+    "host_cpu": "arm64",
+    "kernel_release": "25.3.0",
+    "cpu_model": "Apple M4 Pro",
+    "processors": 12,
+    "yjit_available": true,
+    "yjit_enabled": false,
+    "ibex_version": "0.2.0",
+    "racc_version": "1.8.1",
+    "racc_executable": "/Users/yudai.takada/.rbenv/versions/4.0.0/lib/ruby/gems/4.0.0/gems/racc-1.8.1/bin/racc",
+    "rubyopt": {
+      "present": true,
+      "bytes": 101,
+      "sha256": "a18cb327f57825b0cfad11cd56cbed754165a222f569fb4f72c6478959be8de0",
+      "sanitized": [
+        "-r<redacted>"
+      ]
+    }
+  },
+  "configuration": {
+    "runs": 10,
+    "warmup_workloads": 50,
+    "measured_workloads": 250,
+    "probe_workloads": 5,
+    "bootstrap_samples": 10000,
+    "expected_racc_backend": "ruby",
+    "process_order": "alternating_per_run",
+    "runtime_scope": "end_to_end_lexer_inclusive",
+    "parser_lifecycles": [
+      "reuse",
+      "new_instance"
+    ],
+    "allow_dirty_checkouts": false
+  },
+  "manifest": {
+    "path": "benchmark/public_workloads.json",
+    "sha256": "0aba788de5cf93b9aaa4f597a9ea20324ee0b66b10dee922accf290543155179"
+  },
+  "projects": [
+    {
+      "id": "namae",
+      "repository": {
+        "origin": "https://github.com/berkmancenter/namae.git",
+        "revision": "d33875aaf1fc420a8dfe946a3b29cc3e19710061",
+        "dirty": false,
+        "tracked_dirty": false,
+        "untracked_dirty": false,
+        "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "grammar_sha256": "ac626034b016696bf5b8d4868005ff98cecadf74162294d2c6f9d6e128158198",
+        "dependency_definition_sha256": "89ce25a1c785ebe24a8e03ae6de9941554e3da6921c82b457a2d15c73c412653",
+        "library_tree_oid": "832161c6f2107c671263564d6564ab18f3ed6b0c",
+        "url": "https://github.com/berkmancenter/namae.git",
+        "expected_revision": "d33875aaf1fc420a8dfe946a3b29cc3e19710061",
+        "grammar_path": "lib/namae/parser.y",
+        "dependency_definition_path": "Gemfile"
+      },
+      "workload": {
+        "id": "representative-public-names-v1",
+        "driver": "namae",
+        "input_count": 5,
+        "inputs_sha256": "e4e4347a2f5323a790728b5fa80967ca76f494760da9e64ccfcf5c2bf54f9c24"
+      },
+      "commands": {
+        "generation": {
+          "ibex": [
+            "/Users/yudai.takada/.rbenv/versions/4.0.0/bin/ruby",
+            "--disable-yjit",
+            "-I<repository>/lib",
+            "<repository>/exe/ibex",
+            "--table=compact",
+            "--no-line-convert",
+            "--output-file=<generated-output>",
+            "<public-grammar>"
+          ],
+          "racc": [
+            "/Users/yudai.takada/.rbenv/versions/4.0.0/bin/ruby",
+            "--disable-yjit",
+            "/Users/yudai.takada/.rbenv/versions/4.0.0/lib/ruby/gems/4.0.0/gems/racc-1.8.1/bin/racc",
+            "--no-line-convert",
+            "--output-file=<generated-output>",
+            "<public-grammar>"
+          ]
+        },
+        "worker": [
+          "/Users/yudai.takada/.rbenv/versions/4.0.0/bin/ruby",
+          "--disable-yjit",
+          "<repository>/benchmark/public_comparison.rb",
+          "--worker",
+          "<implementation>",
+          "<scenario>",
+          "namae",
+          "<checkout>",
+          "50",
+          "250",
+          "5",
+          "ruby"
+        ]
+      },
+      "scenarios": {
+        "cold_generation": {
+          "implementations": {
+            "ibex": {
+              "observations": {
+                "elapsed_ms": [
+                  175.754,
+                  179.403,
+                  184.967,
+                  181.88,
+                  176.719,
+                  178.99,
+                  174.107,
+                  175.192,
+                  179.424,
+                  185.063
+                ]
+              },
+              "statistics": {
+                "elapsed_ms": {
+                  "median": 179.1965,
+                  "mad": 3.063,
+                  "minimum": 174.107,
+                  "maximum": 185.063
+                }
+              },
+              "generated_bytes": 12965
+            },
+            "racc": {
+              "observations": {
+                "elapsed_ms": [
+                  143.945,
+                  134.72,
+                  158.368,
+                  133.68,
+                  137.32,
+                  132.207,
+                  137.237,
+                  131.535,
+                  140.992,
+                  132.406
+                ]
+              },
+              "statistics": {
+                "elapsed_ms": {
+                  "median": 135.9785,
+                  "mad": 3.672,
+                  "minimum": 131.535,
+                  "maximum": 158.368
+                }
+              },
+              "generated_bytes": 15049
+            }
+          },
+          "comparison": {
+            "elapsed_ms": {
+              "ibex": {
+                "median": 179.1965,
+                "mad": 3.063,
+                "minimum": 174.107,
+                "maximum": 185.063
+              },
+              "racc": {
+                "median": 135.9785,
+                "mad": 3.672,
+                "minimum": 131.535,
+                "maximum": 158.368
+              },
+              "ibex_to_racc_ratio": 1.31783,
+              "bootstrap_95_percent": {
+                "lower": 1.259394,
+                "upper": 1.357768,
+                "samples": 10000,
+                "seed": 2253748496
+              },
+              "target_met": false
+            },
+            "generated_bytes": {
+              "ibex_bytes": 12965,
+              "racc_bytes": 15049,
+              "ibex_to_racc_ratio": 0.861519
+            }
+          }
+        },
+        "warm_runtime_reuse": {
+          "implementations": {
+            "ibex": {
+              "observations": {
+                "elapsed_ms_per_parse": [
+                  0.037539,
+                  0.038814,
+                  0.036946,
+                  0.037665,
+                  0.041024,
+                  0.037613,
+                  0.037982,
+                  0.038997,
+                  0.037874,
+                  0.037418
+                ],
+                "allocated_objects_per_parse": [
+                  145.61,
+                  145.61,
+                  145.611,
+                  145.611,
+                  145.61,
+                  145.611,
+                  145.611,
+                  145.61,
+                  145.611,
+                  145.61
+                ]
+              },
+              "statistics": {
+                "elapsed_ms_per_parse": {
+                  "median": 0.03777,
+                  "mad": 0.000291,
+                  "minimum": 0.036946,
+                  "maximum": 0.041024
+                },
+                "allocated_objects_per_parse": {
+                  "median": 145.6105,
+                  "mad": 0.0005,
+                  "minimum": 145.61,
+                  "maximum": 145.611
+                }
+              },
+              "generated_bytes": 12965,
+              "result_sha256": "7425e1122bb47704a6714ee84cb5d28e8e28d646d2504a769c5e191c02e55284",
+              "result_sequence_sha256": "c71a37a4e6b7836a52ff806153628ea60ed579a672ca9c5d4dcec73e4c978e30",
+              "result_sequence_length": 5,
+              "runtime_backend": "ruby"
+            },
+            "racc": {
+              "observations": {
+                "elapsed_ms_per_parse": [
+                  0.037954,
+                  0.037864,
+                  0.037403,
+                  0.037653,
+                  0.037577,
+                  0.037298,
+                  0.040045,
+                  0.038834,
+                  0.03988,
+                  0.037988
+                ],
+                "allocated_objects_per_parse": [
+                  170.412,
+                  170.412,
+                  170.412,
+                  170.414,
+                  170.412,
+                  170.412,
+                  170.413,
+                  170.413,
+                  170.413,
+                  170.412
+                ]
+              },
+              "statistics": {
+                "elapsed_ms_per_parse": {
+                  "median": 0.037909,
+                  "mad": 0.000419,
+                  "minimum": 0.037298,
+                  "maximum": 0.040045
+                },
+                "allocated_objects_per_parse": {
+                  "median": 170.412,
+                  "mad": 0.0,
+                  "minimum": 170.412,
+                  "maximum": 170.414
+                }
+              },
+              "generated_bytes": 15049,
+              "result_sha256": "7425e1122bb47704a6714ee84cb5d28e8e28d646d2504a769c5e191c02e55284",
+              "result_sequence_sha256": "c71a37a4e6b7836a52ff806153628ea60ed579a672ca9c5d4dcec73e4c978e30",
+              "result_sequence_length": 5,
+              "runtime_backend": "ruby"
+            }
+          },
+          "comparison": {
+            "elapsed_ms_per_parse": {
+              "ibex": {
+                "median": 0.03777,
+                "mad": 0.000291,
+                "minimum": 0.036946,
+                "maximum": 0.041024
+              },
+              "racc": {
+                "median": 0.037909,
+                "mad": 0.000419,
+                "minimum": 0.037298,
+                "maximum": 0.040045
+              },
+              "ibex_to_racc_ratio": 0.99632,
+              "bootstrap_95_percent": {
+                "lower": 0.968275,
+                "upper": 1.025158,
+                "samples": 10000,
+                "seed": 1617490310
+              },
+              "target_met": false
+            },
+            "allocated_objects_per_parse": {
+              "ibex": {
+                "median": 145.6105,
+                "mad": 0.0005,
+                "minimum": 145.61,
+                "maximum": 145.611
+              },
+              "racc": {
+                "median": 170.412,
+                "mad": 0.0,
+                "minimum": 170.412,
+                "maximum": 170.414
+              },
+              "ibex_to_racc_ratio": 0.854462,
+              "bootstrap_95_percent": {
+                "lower": 0.854454,
+                "upper": 0.854464,
+                "samples": 10000,
+                "seed": 839570090
+              },
+              "target_met": true
+            },
+            "generated_bytes": {
+              "ibex_bytes": 12965,
+              "racc_bytes": 15049,
+              "ibex_to_racc_ratio": 0.861519
+            },
+            "result_equivalent": true,
+            "result_sequence_equivalent": true
+          }
+        },
+        "warm_runtime_new_instance": {
+          "implementations": {
+            "ibex": {
+              "observations": {
+                "elapsed_ms_per_parse": [
+                  0.046612,
+                  0.046926,
+                  0.047237,
+                  0.046892,
+                  0.049199,
+                  0.047862,
+                  0.047222,
+                  0.048783,
+                  0.047773,
+                  0.049814
+                ],
+                "allocated_objects_per_parse": [
+                  210.614,
+                  210.614,
+                  210.614,
+                  210.614,
+                  210.614,
+                  210.614,
+                  210.613,
+                  210.614,
+                  210.614,
+                  210.614
+                ]
+              },
+              "statistics": {
+                "elapsed_ms_per_parse": {
+                  "median": 0.047505,
+                  "mad": 0.000596,
+                  "minimum": 0.046612,
+                  "maximum": 0.049814
+                },
+                "allocated_objects_per_parse": {
+                  "median": 210.614,
+                  "mad": 0.0,
+                  "minimum": 210.613,
+                  "maximum": 210.614
+                }
+              },
+              "generated_bytes": 12965,
+              "result_sha256": "7425e1122bb47704a6714ee84cb5d28e8e28d646d2504a769c5e191c02e55284",
+              "result_sequence_sha256": "c71a37a4e6b7836a52ff806153628ea60ed579a672ca9c5d4dcec73e4c978e30",
+              "result_sequence_length": 5,
+              "runtime_backend": "ruby"
+            },
+            "racc": {
+              "observations": {
+                "elapsed_ms_per_parse": [
+                  0.038632,
+                  0.0388,
+                  0.038402,
+                  0.040094,
+                  0.039249,
+                  0.039292,
+                  0.041245,
+                  0.039193,
+                  0.039919,
+                  0.040785
+                ],
+                "allocated_objects_per_parse": [
+                  174.414,
+                  174.414,
+                  174.413,
+                  174.412,
+                  174.413,
+                  174.414,
+                  174.414,
+                  174.412,
+                  174.412,
+                  174.413
+                ]
+              },
+              "statistics": {
+                "elapsed_ms_per_parse": {
+                  "median": 0.039271,
+                  "mad": 0.000644,
+                  "minimum": 0.038402,
+                  "maximum": 0.041245
+                },
+                "allocated_objects_per_parse": {
+                  "median": 174.413,
+                  "mad": 0.001,
+                  "minimum": 174.412,
+                  "maximum": 174.414
+                }
+              },
+              "generated_bytes": 15049,
+              "result_sha256": "7425e1122bb47704a6714ee84cb5d28e8e28d646d2504a769c5e191c02e55284",
+              "result_sequence_sha256": "c71a37a4e6b7836a52ff806153628ea60ed579a672ca9c5d4dcec73e4c978e30",
+              "result_sequence_length": 5,
+              "runtime_backend": "ruby"
+            }
+          },
+          "comparison": {
+            "elapsed_ms_per_parse": {
+              "ibex": {
+                "median": 0.047505,
+                "mad": 0.000596,
+                "minimum": 0.046612,
+                "maximum": 0.049814
+              },
+              "racc": {
+                "median": 0.039271,
+                "mad": 0.000644,
+                "minimum": 0.038402,
+                "maximum": 0.041245
+              },
+              "ibex_to_racc_ratio": 1.209687,
+              "bootstrap_95_percent": {
+                "lower": 1.175818,
+                "upper": 1.243798,
+                "samples": 10000,
+                "seed": 2900675744
+              },
+              "target_met": false
+            },
+            "allocated_objects_per_parse": {
+              "ibex": {
+                "median": 210.614,
+                "mad": 0.0,
+                "minimum": 210.613,
+                "maximum": 210.614
+              },
+              "racc": {
+                "median": 174.413,
+                "mad": 0.001,
+                "minimum": 174.412,
+                "maximum": 174.414
+              },
+              "ibex_to_racc_ratio": 1.207559,
+              "bootstrap_95_percent": {
+                "lower": 1.207552,
+                "upper": 1.207566,
+                "samples": 10000,
+                "seed": 1520081263
+              },
+              "target_met": false
+            },
+            "generated_bytes": {
+              "ibex_bytes": 12965,
+              "racc_bytes": 15049,
+              "ibex_to_racc_ratio": 0.861519
+            },
+            "result_equivalent": true,
+            "result_sequence_equivalent": true
+          }
+        }
+      }
+    },
+    {
+      "id": "bcdice_command",
+      "repository": {
+        "origin": "https://github.com/bcdice/BCDice.git",
+        "revision": "21b4a03789bf2080ad41aaf31299b609ee7bda86",
+        "dirty": false,
+        "tracked_dirty": false,
+        "untracked_dirty": false,
+        "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "grammar_sha256": "845f4fcd5dedfc276dd3529cc86015a1b806bb7912346a04ce5a78a1977bb4d8",
+        "dependency_definition_sha256": "6a6fe9de92d7d373f0ef11a129fedcea54e87870b314a1201701589f41a137b3",
+        "library_tree_oid": "a5b065ec267eb7d43c1cbb49b19793fed3693dd5",
+        "url": "https://github.com/bcdice/BCDice.git",
+        "expected_revision": "21b4a03789bf2080ad41aaf31299b609ee7bda86",
+        "grammar_path": "lib/bcdice/command/parser.y",
+        "dependency_definition_path": "Gemfile"
+      },
+      "workload": {
+        "id": "command-parser-options-v1",
+        "driver": "bcdice_command",
+        "input_count": 5,
+        "inputs_sha256": "18a6eff76ac373c87d3c21d4994ada70e061ef1de24685e9259dfca55102ed13"
+      },
+      "commands": {
+        "generation": {
+          "ibex": [
+            "/Users/yudai.takada/.rbenv/versions/4.0.0/bin/ruby",
+            "--disable-yjit",
+            "-I<repository>/lib",
+            "<repository>/exe/ibex",
+            "--table=compact",
+            "--no-line-convert",
+            "--output-file=<generated-output>",
+            "<public-grammar>"
+          ],
+          "racc": [
+            "/Users/yudai.takada/.rbenv/versions/4.0.0/bin/ruby",
+            "--disable-yjit",
+            "/Users/yudai.takada/.rbenv/versions/4.0.0/lib/ruby/gems/4.0.0/gems/racc-1.8.1/bin/racc",
+            "--no-line-convert",
+            "--output-file=<generated-output>",
+            "<public-grammar>"
+          ]
+        },
+        "worker": [
+          "/Users/yudai.takada/.rbenv/versions/4.0.0/bin/ruby",
+          "--disable-yjit",
+          "<repository>/benchmark/public_comparison.rb",
+          "--worker",
+          "<implementation>",
+          "<scenario>",
+          "bcdice_command",
+          "<checkout>",
+          "50",
+          "250",
+          "5",
+          "ruby"
+        ]
+      },
+      "scenarios": {
+        "cold_generation": {
+          "implementations": {
+            "ibex": {
+              "observations": {
+                "elapsed_ms": [
+                  216.956,
+                  185.758,
+                  187.376,
+                  187.918,
+                  191.144,
+                  180.596,
+                  198.861,
+                  196.905,
+                  197.812,
+                  188.057
+                ]
+              },
+              "statistics": {
+                "elapsed_ms": {
+                  "median": 189.6005,
+                  "mad": 5.5735,
+                  "minimum": 180.596,
+                  "maximum": 216.956
+                }
+              },
+              "generated_bytes": 14073
+            },
+            "racc": {
+              "observations": {
+                "elapsed_ms": [
+                  138.001,
+                  148.16,
+                  144.393,
+                  144.171,
+                  140.736,
+                  145.142,
+                  147.573,
+                  145.462,
+                  140.826,
+                  146.492
+                ]
+              },
+              "statistics": {
+                "elapsed_ms": {
+                  "median": 144.7675,
+                  "mad": 2.265,
+                  "minimum": 138.001,
+                  "maximum": 148.16
+                }
+              },
+              "generated_bytes": 14339
+            }
+          },
+          "comparison": {
+            "elapsed_ms": {
+              "ibex": {
+                "median": 189.6005,
+                "mad": 5.5735,
+                "minimum": 180.596,
+                "maximum": 216.956
+              },
+              "racc": {
+                "median": 144.7675,
+                "mad": 2.265,
+                "minimum": 138.001,
+                "maximum": 148.16
+              },
+              "ibex_to_racc_ratio": 1.30969,
+              "bootstrap_95_percent": {
+                "lower": 1.283736,
+                "upper": 1.380284,
+                "samples": 10000,
+                "seed": 3147571667
+              },
+              "target_met": false
+            },
+            "generated_bytes": {
+              "ibex_bytes": 14073,
+              "racc_bytes": 14339,
+              "ibex_to_racc_ratio": 0.981449
+            }
+          }
+        },
+        "warm_runtime_reuse": {
+          "implementations": {
+            "ibex": {
+              "observations": {
+                "elapsed_ms_per_parse": [
+                  0.019906,
+                  0.019392,
+                  0.020589,
+                  0.019766,
+                  0.019816,
+                  0.019596,
+                  0.020249,
+                  0.019766,
+                  0.019439,
+                  0.020918
+                ],
+                "allocated_objects_per_parse": [
+                  75.604,
+                  75.604,
+                  75.604,
+                  75.604,
+                  75.604,
+                  75.604,
+                  75.604,
+                  75.604,
+                  75.604,
+                  75.604
+                ]
+              },
+              "statistics": {
+                "elapsed_ms_per_parse": {
+                  "median": 0.019791,
+                  "mad": 0.000273,
+                  "minimum": 0.019392,
+                  "maximum": 0.020918
+                },
+                "allocated_objects_per_parse": {
+                  "median": 75.604,
+                  "mad": 0.0,
+                  "minimum": 75.604,
+                  "maximum": 75.604
+                }
+              },
+              "generated_bytes": 14073,
+              "result_sha256": "672bc4d9d3849b8b1b7383cb80f4b99201618b13e587a62d8dbcddd4a3a140be",
+              "result_sequence_sha256": "6b1f35146c3cb3c6a6b6b822000675275b33cd997f217cc2d23306195851cce4",
+              "result_sequence_length": 5,
+              "runtime_backend": "ruby"
+            },
+            "racc": {
+              "observations": {
+                "elapsed_ms_per_parse": [
+                  0.019715,
+                  0.018844,
+                  0.02149,
+                  0.019597,
+                  0.019531,
+                  0.019575,
+                  0.019676,
+                  0.019746,
+                  0.019398,
+                  0.019452
+                ],
+                "allocated_objects_per_parse": [
+                  112.004,
+                  112.004,
+                  112.004,
+                  112.004,
+                  112.004,
+                  112.004,
+                  112.004,
+                  112.004,
+                  112.004,
+                  112.004
+                ]
+              },
+              "statistics": {
+                "elapsed_ms_per_parse": {
+                  "median": 0.019586,
+                  "mad": 0.000131,
+                  "minimum": 0.018844,
+                  "maximum": 0.02149
+                },
+                "allocated_objects_per_parse": {
+                  "median": 112.004,
+                  "mad": 0.0,
+                  "minimum": 112.004,
+                  "maximum": 112.004
+                }
+              },
+              "generated_bytes": 14339,
+              "result_sha256": "672bc4d9d3849b8b1b7383cb80f4b99201618b13e587a62d8dbcddd4a3a140be",
+              "result_sequence_sha256": "6b1f35146c3cb3c6a6b6b822000675275b33cd997f217cc2d23306195851cce4",
+              "result_sequence_length": 5,
+              "runtime_backend": "ruby"
+            }
+          },
+          "comparison": {
+            "elapsed_ms_per_parse": {
+              "ibex": {
+                "median": 0.019791,
+                "mad": 0.000273,
+                "minimum": 0.019392,
+                "maximum": 0.020918
+              },
+              "racc": {
+                "median": 0.019586,
+                "mad": 0.000131,
+                "minimum": 0.018844,
+                "maximum": 0.02149
+              },
+              "ibex_to_racc_ratio": 1.010467,
+              "bootstrap_95_percent": {
+                "lower": 0.997491,
+                "upper": 1.036762,
+                "samples": 10000,
+                "seed": 724337828
+              },
+              "target_met": false
+            },
+            "allocated_objects_per_parse": {
+              "ibex": {
+                "median": 75.604,
+                "mad": 0.0,
+                "minimum": 75.604,
+                "maximum": 75.604
+              },
+              "racc": {
+                "median": 112.004,
+                "mad": 0.0,
+                "minimum": 112.004,
+                "maximum": 112.004
+              },
+              "ibex_to_racc_ratio": 0.675012,
+              "bootstrap_95_percent": {
+                "lower": 0.675012,
+                "upper": 0.675012,
+                "samples": 10000,
+                "seed": 922622931
+              },
+              "target_met": true
+            },
+            "generated_bytes": {
+              "ibex_bytes": 14073,
+              "racc_bytes": 14339,
+              "ibex_to_racc_ratio": 0.981449
+            },
+            "result_equivalent": true,
+            "result_sequence_equivalent": true
+          }
+        },
+        "warm_runtime_new_instance": {
+          "implementations": {
+            "ibex": {
+              "observations": {
+                "elapsed_ms_per_parse": [
+                  0.026522,
+                  0.027302,
+                  0.026717,
+                  0.026872,
+                  0.027455,
+                  0.027446,
+                  0.027145,
+                  0.027157,
+                  0.02691,
+                  0.027318
+                ],
+                "allocated_objects_per_parse": [
+                  131.006,
+                  131.005,
+                  131.006,
+                  131.006,
+                  131.005,
+                  131.005,
+                  131.006,
+                  131.005,
+                  131.006,
+                  131.005
+                ]
+              },
+              "statistics": {
+                "elapsed_ms_per_parse": {
+                  "median": 0.027151,
+                  "mad": 0.00026,
+                  "minimum": 0.026522,
+                  "maximum": 0.027455
+                },
+                "allocated_objects_per_parse": {
+                  "median": 131.0055,
+                  "mad": 0.0005,
+                  "minimum": 131.005,
+                  "maximum": 131.006
+                }
+              },
+              "generated_bytes": 14073,
+              "result_sha256": "672bc4d9d3849b8b1b7383cb80f4b99201618b13e587a62d8dbcddd4a3a140be",
+              "result_sequence_sha256": "6b1f35146c3cb3c6a6b6b822000675275b33cd997f217cc2d23306195851cce4",
+              "result_sequence_length": 5,
+              "runtime_backend": "ruby"
+            },
+            "racc": {
+              "observations": {
+                "elapsed_ms_per_parse": [
+                  0.021978,
+                  0.020071,
+                  0.019968,
+                  0.02031,
+                  0.020618,
+                  0.020464,
+                  0.020657,
+                  0.020089,
+                  0.020079,
+                  0.020607
+                ],
+                "allocated_objects_per_parse": [
+                  116.006,
+                  116.005,
+                  116.006,
+                  116.005,
+                  116.006,
+                  116.005,
+                  116.006,
+                  116.005,
+                  116.006,
+                  116.006
+                ]
+              },
+              "statistics": {
+                "elapsed_ms_per_parse": {
+                  "median": 0.020387,
+                  "mad": 0.000284,
+                  "minimum": 0.019968,
+                  "maximum": 0.021978
+                },
+                "allocated_objects_per_parse": {
+                  "median": 116.006,
+                  "mad": 0.0,
+                  "minimum": 116.005,
+                  "maximum": 116.006
+                }
+              },
+              "generated_bytes": 14339,
+              "result_sha256": "672bc4d9d3849b8b1b7383cb80f4b99201618b13e587a62d8dbcddd4a3a140be",
+              "result_sequence_sha256": "6b1f35146c3cb3c6a6b6b822000675275b33cd997f217cc2d23306195851cce4",
+              "result_sequence_length": 5,
+              "runtime_backend": "ruby"
+            }
+          },
+          "comparison": {
+            "elapsed_ms_per_parse": {
+              "ibex": {
+                "median": 0.027151,
+                "mad": 0.00026,
+                "minimum": 0.026522,
+                "maximum": 0.027455
+              },
+              "racc": {
+                "median": 0.020387,
+                "mad": 0.000284,
+                "minimum": 0.019968,
+                "maximum": 0.021978
+              },
+              "ibex_to_racc_ratio": 1.33178,
+              "bootstrap_95_percent": {
+                "lower": 1.30517,
+                "upper": 1.359391,
+                "samples": 10000,
+                "seed": 369209434
+              },
+              "target_met": false
+            },
+            "allocated_objects_per_parse": {
+              "ibex": {
+                "median": 131.0055,
+                "mad": 0.0005,
+                "minimum": 131.005,
+                "maximum": 131.006
+              },
+              "racc": {
+                "median": 116.006,
+                "mad": 0.0,
+                "minimum": 116.005,
+                "maximum": 116.006
+              },
+              "ibex_to_racc_ratio": 1.129299,
+              "bootstrap_95_percent": {
+                "lower": 1.129295,
+                "upper": 1.129313,
+                "samples": 10000,
+                "seed": 4197897589
+              },
+              "target_met": false
+            },
+            "generated_bytes": {
+              "ibex_bytes": 14073,
+              "racc_bytes": 14339,
+              "ibex_to_racc_ratio": 0.981449
+            },
+            "result_equivalent": true,
+            "result_sequence_equivalent": true
+          }
+        }
+      }
+    },
+    {
+      "id": "nokogiri_css",
+      "repository": {
+        "origin": "https://github.com/sparklemotion/nokogiri.git",
+        "revision": "04a4c29c6a605ad40a78f4ce343ced0832a1805c",
+        "dirty": false,
+        "tracked_dirty": false,
+        "untracked_dirty": false,
+        "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "grammar_sha256": "3ba8e2b573c099686c4186d0eef0a670dcaf93d2081f5678be45fb8600dc873a",
+        "dependency_definition_sha256": "779f502e6bb8ca38c5e665658e8473de3ff789864d3b530dc7656efb90bd059a",
+        "library_tree_oid": "cf5f9c20918662ef76685f1ee59b2d6c0dbf26d7",
+        "url": "https://github.com/sparklemotion/nokogiri.git",
+        "expected_revision": "04a4c29c6a605ad40a78f4ce343ced0832a1805c",
+        "grammar_path": "lib/nokogiri/css/parser.y",
+        "dependency_definition_path": "Gemfile"
+      },
+      "workload": {
+        "id": "css-selector-ast-v1",
+        "driver": "nokogiri_css",
+        "input_count": 5,
+        "inputs_sha256": "2a502318944eddbd5de7751147d11b22cf8038a95b851a4f9567f7636a669084"
+      },
+      "commands": {
+        "generation": {
+          "ibex": [
+            "/Users/yudai.takada/.rbenv/versions/4.0.0/bin/ruby",
+            "--disable-yjit",
+            "-I<repository>/lib",
+            "<repository>/exe/ibex",
+            "--table=compact",
+            "--no-line-convert",
+            "--output-file=<generated-output>",
+            "<public-grammar>"
+          ],
+          "racc": [
+            "/Users/yudai.takada/.rbenv/versions/4.0.0/bin/ruby",
+            "--disable-yjit",
+            "/Users/yudai.takada/.rbenv/versions/4.0.0/lib/ruby/gems/4.0.0/gems/racc-1.8.1/bin/racc",
+            "--no-line-convert",
+            "--output-file=<generated-output>",
+            "<public-grammar>"
+          ]
+        },
+        "worker": [
+          "/Users/yudai.takada/.rbenv/versions/4.0.0/bin/ruby",
+          "--disable-yjit",
+          "<repository>/benchmark/public_comparison.rb",
+          "--worker",
+          "<implementation>",
+          "<scenario>",
+          "nokogiri_css",
+          "<checkout>",
+          "50",
+          "250",
+          "5",
+          "ruby"
+        ]
+      },
+      "scenarios": {
+        "cold_generation": {
+          "implementations": {
+            "ibex": {
+              "observations": {
+                "elapsed_ms": [
+                  234.107,
+                  231.812,
+                  312.436,
+                  210.852,
+                  224.598,
+                  207.083,
+                  198.19,
+                  200.707,
+                  211.598,
+                  202.432
+                ]
+              },
+              "statistics": {
+                "elapsed_ms": {
+                  "median": 211.225,
+                  "mad": 11.7765,
+                  "minimum": 198.19,
+                  "maximum": 312.436
+                }
+              },
+              "generated_bytes": 17552
+            },
+            "racc": {
+              "observations": {
+                "elapsed_ms": [
+                  152.165,
+                  207.481,
+                  170.658,
+                  187.466,
+                  213.261,
+                  171.7,
+                  157.301,
+                  157.102,
+                  145.12,
+                  145.197
+                ]
+              },
+              "statistics": {
+                "elapsed_ms": {
+                  "median": 163.9795,
+                  "mad": 15.2985,
+                  "minimum": 145.12,
+                  "maximum": 213.261
+                }
+              },
+              "generated_bytes": 18736
+            }
+          },
+          "comparison": {
+            "elapsed_ms": {
+              "ibex": {
+                "median": 211.225,
+                "mad": 11.7765,
+                "minimum": 198.19,
+                "maximum": 312.436
+              },
+              "racc": {
+                "median": 163.9795,
+                "mad": 15.2985,
+                "minimum": 145.12,
+                "maximum": 213.261
+              },
+              "ibex_to_racc_ratio": 1.288118,
+              "bootstrap_95_percent": {
+                "lower": 1.104643,
+                "upper": 1.474831,
+                "samples": 10000,
+                "seed": 2753242156
+              },
+              "target_met": false
+            },
+            "generated_bytes": {
+              "ibex_bytes": 17552,
+              "racc_bytes": 18736,
+              "ibex_to_racc_ratio": 0.936806
+            }
+          }
+        },
+        "warm_runtime_reuse": {
+          "implementations": {
+            "ibex": {
+              "observations": {
+                "elapsed_ms_per_parse": [
+                  0.02433,
+                  0.024428,
+                  0.025159,
+                  0.025374,
+                  0.024343,
+                  0.025461,
+                  0.026518,
+                  0.023706,
+                  0.024597,
+                  0.026274
+                ],
+                "allocated_objects_per_parse": [
+                  82.204,
+                  82.204,
+                  82.204,
+                  82.204,
+                  82.204,
+                  82.204,
+                  82.204,
+                  82.204,
+                  82.204,
+                  82.204
+                ]
+              },
+              "statistics": {
+                "elapsed_ms_per_parse": {
+                  "median": 0.024878,
+                  "mad": 0.000542,
+                  "minimum": 0.023706,
+                  "maximum": 0.026518
+                },
+                "allocated_objects_per_parse": {
+                  "median": 82.204,
+                  "mad": 0.0,
+                  "minimum": 82.204,
+                  "maximum": 82.204
+                }
+              },
+              "generated_bytes": 17552,
+              "result_sha256": "5f9bc0fc79169ccb4b98328b55248bd9a99731a30dc310777d9fced223a6e87c",
+              "result_sequence_sha256": "08e8d92324ec6a72571c588d2de19a6573ccd5ab0a4ed7bddffc42a0f26d2df2",
+              "result_sequence_length": 5,
+              "runtime_backend": "ruby"
+            },
+            "racc": {
+              "observations": {
+                "elapsed_ms_per_parse": [
+                  0.040506,
+                  0.026021,
+                  0.024615,
+                  0.02497,
+                  0.025175,
+                  0.024914,
+                  0.024914,
+                  0.025555,
+                  0.025046,
+                  0.024634
+                ],
+                "allocated_objects_per_parse": [
+                  122.604,
+                  122.604,
+                  122.604,
+                  122.604,
+                  122.604,
+                  122.604,
+                  122.604,
+                  122.604,
+                  122.604,
+                  122.604
+                ]
+              },
+              "statistics": {
+                "elapsed_ms_per_parse": {
+                  "median": 0.025008,
+                  "mad": 0.00027,
+                  "minimum": 0.024615,
+                  "maximum": 0.040506
+                },
+                "allocated_objects_per_parse": {
+                  "median": 122.604,
+                  "mad": 0.0,
+                  "minimum": 122.604,
+                  "maximum": 122.604
+                }
+              },
+              "generated_bytes": 18736,
+              "result_sha256": "5f9bc0fc79169ccb4b98328b55248bd9a99731a30dc310777d9fced223a6e87c",
+              "result_sequence_sha256": "08e8d92324ec6a72571c588d2de19a6573ccd5ab0a4ed7bddffc42a0f26d2df2",
+              "result_sequence_length": 5,
+              "runtime_backend": "ruby"
+            }
+          },
+          "comparison": {
+            "elapsed_ms_per_parse": {
+              "ibex": {
+                "median": 0.024878,
+                "mad": 0.000542,
+                "minimum": 0.023706,
+                "maximum": 0.026518
+              },
+              "racc": {
+                "median": 0.025008,
+                "mad": 0.00027,
+                "minimum": 0.024615,
+                "maximum": 0.040506
+              },
+              "ibex_to_racc_ratio": 0.994802,
+              "bootstrap_95_percent": {
+                "lower": 0.959787,
+                "upper": 1.028331,
+                "samples": 10000,
+                "seed": 1614254067
+              },
+              "target_met": false
+            },
+            "allocated_objects_per_parse": {
+              "ibex": {
+                "median": 82.204,
+                "mad": 0.0,
+                "minimum": 82.204,
+                "maximum": 82.204
+              },
+              "racc": {
+                "median": 122.604,
+                "mad": 0.0,
+                "minimum": 122.604,
+                "maximum": 122.604
+              },
+              "ibex_to_racc_ratio": 0.670484,
+              "bootstrap_95_percent": {
+                "lower": 0.670484,
+                "upper": 0.670484,
+                "samples": 10000,
+                "seed": 1938325075
+              },
+              "target_met": true
+            },
+            "generated_bytes": {
+              "ibex_bytes": 17552,
+              "racc_bytes": 18736,
+              "ibex_to_racc_ratio": 0.936806
+            },
+            "result_equivalent": true,
+            "result_sequence_equivalent": true
+          }
+        },
+        "warm_runtime_new_instance": {
+          "implementations": {
+            "ibex": {
+              "observations": {
+                "elapsed_ms_per_parse": [
+                  0.030134,
+                  0.030317,
+                  0.032043,
+                  0.030234,
+                  0.030698,
+                  0.032963,
+                  0.030579,
+                  0.030692,
+                  0.031482,
+                  0.0314
+                ],
+                "allocated_objects_per_parse": [
+                  135.004,
+                  135.004,
+                  135.004,
+                  135.004,
+                  135.004,
+                  135.004,
+                  135.004,
+                  135.004,
+                  135.004,
+                  135.004
+                ]
+              },
+              "statistics": {
+                "elapsed_ms_per_parse": {
+                  "median": 0.030695,
+                  "mad": 0.000511,
+                  "minimum": 0.030134,
+                  "maximum": 0.032963
+                },
+                "allocated_objects_per_parse": {
+                  "median": 135.004,
+                  "mad": 0.0,
+                  "minimum": 135.004,
+                  "maximum": 135.004
+                }
+              },
+              "generated_bytes": 17552,
+              "result_sha256": "5f9bc0fc79169ccb4b98328b55248bd9a99731a30dc310777d9fced223a6e87c",
+              "result_sequence_sha256": "08e8d92324ec6a72571c588d2de19a6573ccd5ab0a4ed7bddffc42a0f26d2df2",
+              "result_sequence_length": 5,
+              "runtime_backend": "ruby"
+            },
+            "racc": {
+              "observations": {
+                "elapsed_ms_per_parse": [
+                  0.025898,
+                  0.025187,
+                  0.024958,
+                  0.025978,
+                  0.026186,
+                  0.025937,
+                  0.025778,
+                  0.025175,
+                  0.025658,
+                  0.02543
+                ],
+                "allocated_objects_per_parse": [
+                  125.604,
+                  125.604,
+                  125.604,
+                  125.604,
+                  125.604,
+                  125.604,
+                  125.604,
+                  125.604,
+                  125.604,
+                  125.604
+                ]
+              },
+              "statistics": {
+                "elapsed_ms_per_parse": {
+                  "median": 0.025718,
+                  "mad": 0.000274,
+                  "minimum": 0.024958,
+                  "maximum": 0.026186
+                },
+                "allocated_objects_per_parse": {
+                  "median": 125.604,
+                  "mad": 0.0,
+                  "minimum": 125.604,
+                  "maximum": 125.604
+                }
+              },
+              "generated_bytes": 18736,
+              "result_sha256": "5f9bc0fc79169ccb4b98328b55248bd9a99731a30dc310777d9fced223a6e87c",
+              "result_sequence_sha256": "08e8d92324ec6a72571c588d2de19a6573ccd5ab0a4ed7bddffc42a0f26d2df2",
+              "result_sequence_length": 5,
+              "runtime_backend": "ruby"
+            }
+          },
+          "comparison": {
+            "elapsed_ms_per_parse": {
+              "ibex": {
+                "median": 0.030695,
+                "mad": 0.000511,
+                "minimum": 0.030134,
+                "maximum": 0.032963
+              },
+              "racc": {
+                "median": 0.025718,
+                "mad": 0.000274,
+                "minimum": 0.024958,
+                "maximum": 0.026186
+              },
+              "ibex_to_racc_ratio": 1.193522,
+              "bootstrap_95_percent": {
+                "lower": 1.175191,
+                "upper": 1.240529,
+                "samples": 10000,
+                "seed": 2129935068
+              },
+              "target_met": false
+            },
+            "allocated_objects_per_parse": {
+              "ibex": {
+                "median": 135.004,
+                "mad": 0.0,
+                "minimum": 135.004,
+                "maximum": 135.004
+              },
+              "racc": {
+                "median": 125.604,
+                "mad": 0.0,
+                "minimum": 125.604,
+                "maximum": 125.604
+              },
+              "ibex_to_racc_ratio": 1.074838,
+              "bootstrap_95_percent": {
+                "lower": 1.074838,
+                "upper": 1.074838,
+                "samples": 10000,
+                "seed": 1032021845
+              },
+              "target_met": false
+            },
+            "generated_bytes": {
+              "ibex_bytes": 17552,
+              "racc_bytes": 18736,
+              "ibex_to_racc_ratio": 0.936806
+            },
+            "result_equivalent": true,
+            "result_sequence_equivalent": true
+          }
+        }
+      }
+    }
+  ]
+}
