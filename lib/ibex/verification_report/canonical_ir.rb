@@ -27,11 +27,11 @@ module Ibex
       def build
         document = JSON.parse(IR::Serialize.dump(@automaton))
         normalize_source_identity!(document)
-        grammar = IR::Validator.validate(JSON.generate(document.fetch("grammar")))
+        grammar = IR::Validator.validate(generate_json(document.fetch("grammar")))
         raise ArgumentError, "canonical bundle grammar did not validate" unless grammar.is_a?(IR::Grammar)
 
         document["grammar_digest"] = digest(grammar)
-        automaton = IR::Validator.validate(JSON.generate(document))
+        automaton = IR::Validator.validate(generate_json(document))
         raise ArgumentError, "canonical bundle automaton did not validate" unless automaton.is_a?(IR::Automaton)
 
         automaton
@@ -55,6 +55,28 @@ module Ibex
           end
         end
         value
+      end
+
+      # @rbs (untyped value) -> String
+      def generate_json(value)
+        JSON.generate(normalize_for_json(value))
+      end
+
+      # @rbs (untyped value) -> untyped
+      def normalize_for_json(value)
+        case value
+        when String
+          normalized = value.dup.force_encoding(Encoding::UTF_8)
+          normalized.valid_encoding? ? normalized : value
+        when Array
+          value.map { |child| normalize_for_json(child) }
+        when Hash
+          value.each_with_object({}) do |(key, child), normalized|
+            normalized[normalize_for_json(key)] = normalize_for_json(child)
+          end
+        else
+          value
+        end
       end
 
       # @rbs (String file) -> String
