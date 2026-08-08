@@ -50,7 +50,7 @@ module Ibex
       # @rbs (String source, String file) -> void
       def initialize(source, file)
         @source = SourceEncoding.validated_utf8(source, file)
-        @file = file.dup.freeze
+        @file = SourceEncoding.validated_file(file)
         @ascii_only = @source.ascii_only?
         @character_length = @ascii_only ? @source.bytesize : @source.length
         @index = 0

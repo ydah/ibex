@@ -42,7 +42,7 @@ module Ibex
     class LexerProfiler
       def initialize(clock: nil, allocation_counter: nil)
         @clock = clock || -> { Process.clock_gettime(Process::CLOCK_MONOTONIC) }
-        @allocation_counter = allocation_counter || -> { GC.stat(:total_allocated_objects) }
+        @allocation_counter = allocation_counter || method(:total_allocated_objects)
         install_buffer_probe
       end
 
@@ -70,6 +70,14 @@ module Ibex
       end
 
       private
+
+      # JRuby does not expose CRuby's total_allocated_objects statistic. The
+      # allocation observation is diagnostic-only, so an unavailable counter
+      # must degrade to a stable zero rather than aborting the profile run.
+      def total_allocated_objects
+        statistics = GC.stat
+        statistics[:total_allocated_objects] || statistics["total_allocated_objects"] || 0
+      end
 
       def install_buffer_probe
         input = Runtime::LexerInput

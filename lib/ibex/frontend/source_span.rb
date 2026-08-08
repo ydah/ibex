@@ -11,6 +11,14 @@ module Ibex
 
         validated.freeze
       end
+
+      # @rbs (String file) -> String
+      def self.validated_file(file)
+        validated = file.dup.force_encoding(Encoding::UTF_8)
+        raise Ibex::Error, "#{file}: file path must be valid UTF-8" unless validated.valid_encoding?
+
+        validated.freeze
+      end
     end
 
     # An immutable position in grammar source.
