@@ -25,6 +25,10 @@ module Ibex
         validated_parser_setting_definition(setting)
         fail_at(setting.loc, "duplicate parser setting #{setting.key}") if entries.key?(setting.key)
 
+        if setting.key == :cst_trivia && @options[:cst] != true
+          fail_at(setting.loc, "parser.cst_trivia requires pragma cst")
+        end
+
         entries[setting.key] = IR::ParserContract::Entry.new(
           setting.key, value: setting.value, location: parser_setting_location(setting), explicit: true
         )
@@ -37,7 +41,7 @@ module Ibex
     def validated_parser_setting_definition(setting)
       # @type self: Normalizer
       definition = IR::ParserContract::DEFINITIONS[setting.key]
-      unless %i[algorithm entries].include?(setting.key) && definition
+      unless %i[algorithm entries cst_trivia].include?(setting.key) && definition
         fail_at(setting.loc, "unknown parser setting #{setting.key}")
       end
       unless definition.fetch(:values).include?(setting.value)

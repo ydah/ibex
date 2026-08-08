@@ -11,7 +11,8 @@ module Ibex
 
       PARSER_SETTING_VALUES = {
         "algorithm" => %w[slr lalr ielr lr1].freeze,
-        "entries" => %w[shared isolated].freeze
+        "entries" => %w[shared isolated].freeze,
+        "cst_trivia" => %w[leading balanced drop].freeze
       }.freeze #: Hash[String, Array[String]]
 
       private

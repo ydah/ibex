@@ -110,8 +110,9 @@ module Ibex
         return unless declaration.is_a?(Frontend::AST::ParserConfiguration)
 
         declaration.settings.each do |setting|
+          key = setting.key == :cst_trivia ? "cst.trivia" : "parser.#{setting.key}"
           add_source_fact(
-            values, locations, evidence, "parser.#{setting.key}", setting.value, setting.loc
+            values, locations, evidence, key, setting.value, setting.loc
           )
         end
       end

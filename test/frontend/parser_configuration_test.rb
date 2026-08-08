@@ -24,6 +24,38 @@ class FrontendParserConfigurationTest < Minitest::Test
     assert_equal %i[entries algorithm], declaration.settings.map(&:key)
   end
 
+  def test_cst_trivia_is_a_parser_contract_setting
+    source = <<~GRAMMAR
+      class P
+      pragma extended
+      pragma cst
+      parser
+        cst_trivia balanced
+      end
+      rule
+      start: TOKEN
+      end
+    GRAMMAR
+    generated = parse(source)
+    bootstrap = Ibex::Frontend::BootstrapParser.new(source, file: "grammar.y", mode: :extended).parse
+    setting = generated.declarations.fetch(0).settings.fetch(0)
+
+    assert_equal bootstrap.to_h, generated.to_h
+    assert_equal :cst_trivia, setting.key
+    assert_equal :balanced, setting.value
+  end
+
+  def test_cst_trivia_requires_the_stable_cst_pragma
+    error = assert_raises(Ibex::Error) do
+      Ibex::Normalizer.new(
+        Ibex::Frontend::Parser.new(grammar("cst_trivia balanced"), file: "grammar.y", mode: :extended).parse,
+        mode: :extended
+      ).normalize
+    end
+
+    assert_equal "grammar.y:3:3: parser.cst_trivia requires pragma cst", error.message
+  end
+
   def test_parser_declaration_is_extended_only_and_root_only
     error = assert_raises(Ibex::Error) do
       Ibex::Frontend::Parser.new(grammar("algorithm lalr"), file: "grammar.y").parse

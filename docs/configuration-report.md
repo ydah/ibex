@@ -24,5 +24,6 @@ structured conflict report and exits nonzero. An unspecified v3 entry remains ex
 v1 and v2 report the parser contract as `unavailable`. In both cases a current builtin or CLI value is not presented
 as a historical fact.
 
-The source grammar syntax does not yet include the future declarative parser block. `ibex config` does not add or
-silently recognize that syntax; it reports currently supported source facts and validated Grammar IR contracts only.
+The source grammar syntax supports the root-only declarative parser block in extended mode. CST ownership is
+declared as `cst_trivia leading|balanced|drop` and requires `pragma cst`; `ibex config` reports the resulting
+value and source location without executing user code. It does not recognize generic or unknown settings.

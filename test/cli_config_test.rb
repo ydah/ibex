@@ -5,6 +5,7 @@ require "fileutils"
 require "stringio"
 require "tmpdir"
 
+# rubocop:disable Metrics/ClassLength -- configuration command cases cover the static trust boundary.
 class CLIConfigTest < Minitest::Test
   def test_default_only_source_explains_every_registry_key
     with_grammar("class P\nrule\nstart: TOKEN\nend\n") do |path|
@@ -38,6 +39,30 @@ class CLIConfigTest < Minitest::Test
     assert_equal(%w[grammar cli], algorithm.fetch("evidence").map { |entry| entry.fetch("source") })
     assert(algorithm.fetch("evidence").all? { |entry| entry.fetch("status") == "accepted" })
     assert_includes algorithm.fetch("evidence").last.fetch("reason"), "matches"
+  end
+
+  def test_source_cst_trivia_contract_is_explained_with_origin
+    source = <<~GRAMMAR
+      class P
+      pragma cst
+      parser
+        cst_trivia balanced
+      end
+      rule
+      start: TOKEN
+      end
+    GRAMMAR
+    with_grammar(source) do |path|
+      result = invoke(["config", "--format=json", path])
+      document = JSON.parse(result.fetch(:stdout))
+      trivia = configuration(document, "cst.trivia")
+
+      assert_equal 0, result.fetch(:status), result.fetch(:stderr)
+      assert_equal "balanced", trivia.fetch("value")
+      assert_equal "grammar", trivia.dig("origin", "kind")
+      assert_equal [4, 3], trivia.dig("origin", "location").values_at("line", "column")
+      assert_equal "canonical", trivia.fetch("conformance")
+    end
   end
 
   def test_v3_conflict_is_positioned_structured_and_nonzero_in_both_languages
@@ -218,3 +243,4 @@ class CLIConfigTest < Minitest::Test
     io.rewind
   end
 end
+# rubocop:enable Metrics/ClassLength

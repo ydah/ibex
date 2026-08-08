@@ -49,6 +49,32 @@ class CLIGenerationTransactionTest < Minitest::Test
     end
   end
 
+  def test_manifest_distinguishes_source_owned_cst_trivia
+    Dir.mktmpdir("ibex-cli-generation") do |directory|
+      grammar = File.join(directory, "parser.y")
+      File.binwrite(grammar, <<~GRAMMAR)
+        class P
+        pragma cst
+        parser
+          cst_trivia balanced
+        end
+        rule
+        start: TOKEN
+        end
+      GRAMMAR
+      document = generate_manifest(directory, grammar, "source-owned", [])
+      options = document.fetch("options")
+      entry = options.fetch("effective_configuration").find do |candidate|
+        candidate.fetch("key") == "cst.trivia"
+      end
+
+      assert_equal "balanced", options.fetch("cst_trivia")
+      assert_equal "balanced", entry.fetch("value")
+      assert_equal "grammar", entry.dig("origin", "kind")
+      assert_equal "canonical", entry.fetch("conformance")
+    end
+  end
+
   def test_default_manifest_path_uses_lexical_parser_path_for_symlinked_root
     Dir.mktmpdir("ibex-cli-generation") do |directory|
       source_directory = File.join(directory, "source")
