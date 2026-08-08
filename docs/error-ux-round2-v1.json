@@ -735,7 +735,7 @@
       },
       {
         "path": "lib/ibex/runtime/syntax_repair.rb",
-        "sha256": "bb2d0210ab7b5d2307f67192a58abfb58153d827b13873d00d2aa99cca83f8e9"
+        "sha256": "353a621ffad5cbad5aed2b45d9024ad2f3f720a6bdd6fd7cbf8f792305e2a29b"
       },
       {
         "path": "lib/ibex/runtime/syntax_session.rb",
@@ -835,7 +835,7 @@
       },
       {
         "path": "tool/error_ux_round2/implementation_closure.rb",
-        "sha256": "cce54a3ca50c8c35273f2e8abbe81df55c0dff7d5d56a63d68964e559ba61eda"
+        "sha256": "bbc4af872e7b9143904d867fbe1d025f15749a032a88e20d06937aca62647060"
       },
       {
         "path": "tool/error_ux_round2/policy.rb",
