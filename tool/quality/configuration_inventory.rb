@@ -594,7 +594,7 @@ module Ibex
           line: call.fetch(:line),
           registration_api: call.fetch(:api),
           declaration_sha256: digest_ast(call.fetch(:arguments)),
-          context_sha256: dynamic_context ? digest_ast(dynamic_context) : nil,
+          context_sha256: dynamic_context ? digest_dynamic_context(dynamic_context) : nil,
           surface: surface,
           declared_spellings: spellings,
           spellings: expand_boolean_spellings(effective_spellings),
@@ -1630,6 +1630,43 @@ module Ibex
 
       def digest_ast(node)
         Digest::SHA256.hexdigest(Marshal.dump(strip_positions(node)))
+      end
+
+      # Marshal is stable for the small declaration argument nodes, but its
+      # representation of the larger enclosing block AST differs between MRI,
+      # JRuby, and TruffleRuby.  Dynamic registrations need the same source
+      # binding on every supported runtime, so serialize their normalized AST
+      # with explicit type tags instead of relying on a VM's Marshal format.
+      def digest_dynamic_context(node)
+        Digest::SHA256.hexdigest(canonical_digest_value(strip_positions(node)))
+      end
+
+      def canonical_digest_value(node)
+        case node
+        when Array
+          values = node.map { |child| canonical_digest_value(child) }
+          values.pop while values.last == "nil"
+          "array#{values.length}[#{values.map { |value| "#{value.bytesize}:#{value}" }.join}]"
+        when Hash
+          values = node.map do |key, value|
+            [canonical_digest_value(key), canonical_digest_value(value)]
+          end.sort_by(&:first)
+          "hash#{values.length}{#{values.map { |key, value| "#{key.bytesize}:#{key}#{value.bytesize}:#{value}" }.join}}"
+        when Symbol
+          "symbol:#{node}"
+        when String
+          "string:#{node.b.unpack1('H*')}"
+        when NilClass
+          "nil"
+        when TrueClass
+          "true"
+        when FalseClass
+          "false"
+        when Integer
+          "integer:#{node}"
+        else
+          "object:#{node.class}:#{node.inspect}"
+        end
       end
 
       def strip_positions(node)
