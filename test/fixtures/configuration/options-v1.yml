@@ -1551,7 +1551,7 @@ registrations:
   method: add_bison_import_budgets
   line: 84
   declaration_sha256: a1f38cbe1da20f0656ecb9d8b7c66cac290856cf60f76faec62a82e1e7d8f9e9
-  context_sha256: d01c66e657f2bc4b82d01eff76028cab997caad3e9c16777703e8ab68e602d76
+  context_sha256: 66f8b278b093f074dd404a2937b3605b09ca0cceded8eae36a9193ad20ea5954
   surface: import-bison
   declared_spellings:
   - "--#{name}=N"
@@ -1581,7 +1581,7 @@ registrations:
   method: add_bison_import_budgets
   line: 84
   declaration_sha256: a1f38cbe1da20f0656ecb9d8b7c66cac290856cf60f76faec62a82e1e7d8f9e9
-  context_sha256: d01c66e657f2bc4b82d01eff76028cab997caad3e9c16777703e8ab68e602d76
+  context_sha256: 66f8b278b093f074dd404a2937b3605b09ca0cceded8eae36a9193ad20ea5954
   surface: import-bison
   declared_spellings:
   - "--#{name}=N"
@@ -1611,7 +1611,7 @@ registrations:
   method: add_bison_import_budgets
   line: 84
   declaration_sha256: a1f38cbe1da20f0656ecb9d8b7c66cac290856cf60f76faec62a82e1e7d8f9e9
-  context_sha256: d01c66e657f2bc4b82d01eff76028cab997caad3e9c16777703e8ab68e602d76
+  context_sha256: 66f8b278b093f074dd404a2937b3605b09ca0cceded8eae36a9193ad20ea5954
   surface: import-bison
   declared_spellings:
   - "--#{name}=N"
@@ -1641,7 +1641,7 @@ registrations:
   method: add_bison_import_budgets
   line: 84
   declaration_sha256: a1f38cbe1da20f0656ecb9d8b7c66cac290856cf60f76faec62a82e1e7d8f9e9
-  context_sha256: d01c66e657f2bc4b82d01eff76028cab997caad3e9c16777703e8ab68e602d76
+  context_sha256: 66f8b278b093f074dd404a2937b3605b09ca0cceded8eae36a9193ad20ea5954
   surface: import-bison
   declared_spellings:
   - "--#{name}=N"
@@ -3475,7 +3475,7 @@ registrations:
   method: add_fix_budget_options
   line: 155
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
+  context_sha256: 8f6f9566c6a02940bb0c86245f0c094e5b35c6f56084d46332304089fd9fb8c0
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3505,7 +3505,7 @@ registrations:
   method: add_fix_budget_options
   line: 155
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
+  context_sha256: 8f6f9566c6a02940bb0c86245f0c094e5b35c6f56084d46332304089fd9fb8c0
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3535,7 +3535,7 @@ registrations:
   method: add_fix_budget_options
   line: 155
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
+  context_sha256: 8f6f9566c6a02940bb0c86245f0c094e5b35c6f56084d46332304089fd9fb8c0
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3565,7 +3565,7 @@ registrations:
   method: add_fix_budget_options
   line: 155
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
+  context_sha256: 8f6f9566c6a02940bb0c86245f0c094e5b35c6f56084d46332304089fd9fb8c0
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3595,7 +3595,7 @@ registrations:
   method: add_fix_budget_options
   line: 155
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
+  context_sha256: 8f6f9566c6a02940bb0c86245f0c094e5b35c6f56084d46332304089fd9fb8c0
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3625,7 +3625,7 @@ registrations:
   method: add_fix_budget_options
   line: 155
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
+  context_sha256: 8f6f9566c6a02940bb0c86245f0c094e5b35c6f56084d46332304089fd9fb8c0
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3655,7 +3655,7 @@ registrations:
   method: add_fix_budget_options
   line: 155
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 52483b577afaae06bb2fcc91c22fac1bd71e19f9e47eec418f21f6c6cce49e28
+  context_sha256: 8f6f9566c6a02940bb0c86245f0c094e5b35c6f56084d46332304089fd9fb8c0
   surface: fix
   declared_spellings:
   - "--#{name}=N"
