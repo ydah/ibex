@@ -81,11 +81,11 @@
           ],
           "properties": {
             "id": { "const": "ibex-frontend" },
-            "lr0_states": { "const": 220 },
-            "lr0_items": { "const": 618 },
-            "canonical_states": { "const": 449 },
-            "canonical_items": { "const": 10103 },
-            "final_states": { "const": 220 },
+            "lr0_states": { "const": 227 },
+            "lr0_items": { "const": 633 },
+            "canonical_states": { "const": 456 },
+            "canonical_items": { "const": 10482 },
+            "final_states": { "const": 227 },
             "unresolved_ielr_conflicts": { "const": 0 }
           }
         },

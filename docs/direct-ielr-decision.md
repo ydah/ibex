@@ -51,8 +51,8 @@ canonical-collection cost in the verified workflow.
 
 ## Bound observations and verification gaps
 
-H005 records one measured real workload, `ibex-frontend`: 220 LR(0) states and
-618 LR(0) items, 449 canonical states and 10,103 canonical items, and 220 final
+H005 records one measured real workload, `ibex-frontend`: 227 LR(0) states and
+633 LR(0) items, 456 canonical states and 10,482 canonical items, and 227 final
 IELR states. It has no unresolved conflict requiring IELR. The three registered
 public-real workloads were not run, so there are zero verified public
 checkouts in this capture.
