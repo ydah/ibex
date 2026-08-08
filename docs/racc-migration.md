@@ -49,6 +49,12 @@ generated parsers in bounded child processes. This is not a sandbox; use a conta
 
 ## Compatibility baseline
 
+The repository probes and their exact reproduction commands are recorded in
+[`racc-migration-evidence.md`](racc-migration-evidence.md). That matrix is an
+internal evidence index: it distinguishes self-authored black-box coverage
+from the separately pinned public-gem migration suites and does not turn either
+set into a claim of third-party adoption or performance parity.
+
 The compatibility claims above were checked on 2026-07-22 against racc 1.8.1 using only its public documentation, `racc --help`,
 and black-box execution. Ibex does not inspect racc implementation files or generated source. Self-authored probes compare
 observable results for arithmetic precedence, empty rules, string tokens, `convert`, `no_result_var`, inline actions,
