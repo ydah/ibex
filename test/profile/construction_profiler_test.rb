@@ -93,8 +93,8 @@ class ConstructionProfilerTest < Minitest::Test
     assert_equal expected, report.send(:matrix_source)
   end
 
-  def test_committed_evidence_is_stale_until_final_recapture
-    refute_empty SCHEMA.validate(committed_evidence).to_a
+  def test_committed_evidence_is_schema_valid_after_final_recapture
+    assert_empty SCHEMA.validate(committed_evidence).to_a
 
     document = evidence_with_current_multi_entry_decision
     assert_empty SCHEMA.validate(document).to_a
