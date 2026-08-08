@@ -291,7 +291,6 @@ module Ibex
       # @rbs @repair_policy: RepairPolicy?
       # @rbs @repair_input_buffer: Array[RepairInput]?
       # @rbs @repair_selected: bool
-      # @rbs @repair_search_results: Array[RepairSearchResult]
       # @rbs @semantic_locations: Array[untyped]?
       # @rbs @semantic_location_names: Hash[Symbol, Integer]?
       # @rbs @semantic_result_location: untyped
@@ -772,7 +771,9 @@ module Ibex
         @repair_policy = nil unless preserve_existing && defined?(@repair_policy)
         @repair_input_buffer = nil unless preserve_existing && defined?(@repair_input_buffer)
         @repair_selected = false unless preserve_existing && defined?(@repair_selected)
-        @repair_search_results = [] unless preserve_existing && defined?(@repair_search_results)
+        unless preserve_existing && defined?(@repair_search_results)
+          @repair_search_results = [] #: Array[RepairSearchResult]
+        end
         @semantic_locations = nil unless preserve_existing && defined?(@semantic_locations)
         @semantic_location_names = nil unless preserve_existing && defined?(@semantic_location_names)
         @semantic_result_location = nil unless preserve_existing && defined?(@semantic_result_location)
@@ -1315,7 +1316,7 @@ module Ibex
         @semantic_error = false
         @repair_input_buffer = @repair_policy ? [] : nil
         @repair_selected = false
-        @repair_search_results = []
+        @repair_search_results = [] #: Array[RepairSearchResult]
         clear_sync_recovery
       end
 
@@ -2548,10 +2549,13 @@ module Ibex
         nil
       end
 
-      # @rbs () -> Array[RepairSearchResult]
+      # @rbs skip
+      # steep:ignore Ruby::UndeclaredMethodDefinition
+      # steep:ignore:start
       def syntax_repair_search_results
         @repair_search_results.dup.freeze
       end
+      # steep:ignore:end
 
       # @rbs (RepairPolicy policy) -> [Array[RepairInput], bool]
       def repair_search_tokens(policy)
@@ -2592,10 +2596,13 @@ module Ibex
 
       # Snapshot the original buffered prefix before a selected repair is
       # replayed. Syntax tooling consumes locations and token identities only.
-      # @rbs () -> Array[RepairInput]
+      # @rbs skip
+      # steep:ignore Ruby::UndeclaredMethodDefinition
+      # steep:ignore:start
       def syntax_repair_inputs
         ([current_repair_input] + (@repair_input_buffer || [])).freeze
       end
+      # steep:ignore:end
 
       # @rbs (Array[RepairInput] source, Array[RepairEdit] edits) -> Array[RepairInput]
       def replay_repair_edits(source, edits)
