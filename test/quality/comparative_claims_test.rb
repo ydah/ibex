@@ -14,6 +14,7 @@ class ComparativeClaimsTest < Minitest::Test
     README.md benchmark/README.md benchmark/public_workloads.json docs/claims.yml
     docs/comparison-policy.md docs/error-ux-review-rubric-v1.md
     docs/error-ux-review-status-v1.json docs/error-ux.md docs/release-readiness.md
+    benchmark/results/public/2026-08-08-8c9cef999d09-ruby-4.0.0-arm64-darwin24.json
     schema/error-ux-review-v1.schema.json
     test/fixtures/error_ux/json-errors-v1.json
   ].freeze
@@ -99,7 +100,7 @@ class ComparativeClaimsTest < Minitest::Test
 
   def test_performance_record_cannot_be_promoted_without_the_result_artifact
     changed = document
-    performance = changed.fetch("claims").last
+    performance = changed.fetch("claims").find { |claim| claim.fetch("id") == "racc-public-performance-2026-07-31" }
     performance["state"] = "measured"
     performance.fetch("binding")["kind"] = "claim"
     performance["missing_evidence"] = []

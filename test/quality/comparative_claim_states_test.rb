@@ -32,7 +32,8 @@ class ComparativeClaimStatesTest < Minitest::Test
     assert_equal ["racc-public-performance-2026-07-31"], derived.fetch("pending_claims")
     assert_includes derived.fetch("reason"), "Complete formal public-performance result artifact"
 
-    claims.last["state"] = "measured"
+    historical_performance = claims.find { |claim| claim.fetch("id") == "racc-public-performance-2026-07-31" }
+    historical_performance["state"] = "measured"
     derived = Ibex::Quality::ClaimStates.comparison_state("racc", claims)
     assert_equal "compared", derived.fetch("state")
     assert_empty derived.fetch("pending_claims")
