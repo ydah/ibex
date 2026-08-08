@@ -208,7 +208,7 @@ class FrontendFormatterTest < Minitest::Test
 
   def protected_segments(source)
     document = Ibex::Frontend::Lexer.new(source, file: "format.y").tokenize_document
-    document.cst.reject { |segment| %i[whitespace newline eof].include?(segment.kind) }
-                .map { |segment| [segment.kind, segment.text] }
+    segments = document.cst.reject { |segment| %i[whitespace newline eof].include?(segment.kind) }
+    segments.map { |segment| [segment.kind, segment.text] }
   end
 end

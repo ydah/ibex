@@ -160,8 +160,8 @@ module Ibex
       end
 
       def verify_unmarked_readme_strength!(source, blocks, path)
-        claimed = blocks.values.select { |block| block.fetch(:kind) == "claim" }
-                               .flat_map { |block| block.fetch(:range).to_a }
+        claims = blocks.values.select { |block| block.fetch(:kind) == "claim" }
+        claimed = claims.flat_map { |block| block.fetch(:range).to_a }
         visible = source.lines.each_with_index.reject { |_line, index| claimed.include?(index) }.map(&:first).join
         visible.split(/\n\s*\n/).each do |paragraph|
           next unless paragraph.match?(@tool_wording) && paragraph.match?(STRONG_WORDING)
