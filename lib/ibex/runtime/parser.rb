@@ -7,6 +7,7 @@ require_relative "resource_limits" unless defined?(Ibex::Runtime::ResourceLimits
 require_relative "syntax_session" unless defined?(Ibex::Runtime::SyntaxSession)
 require_relative "repair" unless defined?(Ibex::Runtime::RepairPolicy)
 require_relative "repair_search" unless defined?(Ibex::Runtime::RepairSearch)
+require_relative "syntax_repair" unless defined?(Ibex::Runtime::SyntaxRepairer)
 require_relative "parser_sync_recovery" unless defined?(Ibex::Runtime::ParserSyncRecovery)
 require_relative "table_format" unless defined?(Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION)
 
@@ -290,6 +291,7 @@ module Ibex
       # @rbs @repair_policy: RepairPolicy?
       # @rbs @repair_input_buffer: Array[RepairInput]?
       # @rbs @repair_selected: bool
+      # @rbs @repair_search_results: Array[RepairSearchResult]
       # @rbs @semantic_locations: Array[untyped]?
       # @rbs @semantic_location_names: Hash[Symbol, Integer]?
       # @rbs @semantic_result_location: untyped
@@ -770,6 +772,7 @@ module Ibex
         @repair_policy = nil unless preserve_existing && defined?(@repair_policy)
         @repair_input_buffer = nil unless preserve_existing && defined?(@repair_input_buffer)
         @repair_selected = false unless preserve_existing && defined?(@repair_selected)
+        @repair_search_results = [] unless preserve_existing && defined?(@repair_search_results)
         @semantic_locations = nil unless preserve_existing && defined?(@semantic_locations)
         @semantic_location_names = nil unless preserve_existing && defined?(@semantic_location_names)
         @semantic_result_location = nil unless preserve_existing && defined?(@semantic_result_location)
@@ -1312,6 +1315,7 @@ module Ibex
         @semantic_error = false
         @repair_input_buffer = @repair_policy ? [] : nil
         @repair_selected = false
+        @repair_search_results = []
         clear_sync_recovery
       end
 
@@ -2536,7 +2540,17 @@ module Ibex
         return unless policy
 
         tokens, complete = repair_search_tokens(policy)
-        RepairSearch.new(parser_tables, policy, tokens, complete: complete).search(@state_stack)
+        result = RepairSearch.new(parser_tables, policy, tokens, complete: complete).search_result(@state_stack)
+        @repair_search_results << result
+        return result.plan if result.selected?
+        return RepairSearch::NEED_INPUT if result.status == :need_input
+
+        nil
+      end
+
+      # @rbs () -> Array[RepairSearchResult]
+      def syntax_repair_search_results
+        @repair_search_results.dup.freeze
       end
 
       # @rbs (RepairPolicy policy) -> [Array[RepairInput], bool]
@@ -2574,6 +2588,13 @@ module Ibex
           value: @lookahead_value,
           location: @lookahead_location
         )
+      end
+
+      # Snapshot the original buffered prefix before a selected repair is
+      # replayed. Syntax tooling consumes locations and token identities only.
+      # @rbs () -> Array[RepairInput]
+      def syntax_repair_inputs
+        ([current_repair_input] + (@repair_input_buffer || [])).freeze
       end
 
       # @rbs (Array[RepairInput] source, Array[RepairEdit] edits) -> Array[RepairInput]

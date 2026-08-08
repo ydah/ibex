@@ -129,19 +129,34 @@ module Ibex
         value = @parser_class.new.parse(source)
         { "status" => "accepted", "diagnostic_count" => 0, "value_class" => value.class.name }
       rescue Runtime::ParseError => e
-        original_byte = first_error_byte(original)
         current_byte = location_value(e.location, :start_byte)
-        status = if current_byte.is_a?(Integer) && original_byte.is_a?(Integer) && current_byte > original_byte
-                   "progress"
-                 else
-                   "rejected"
-                 end
+        status = progress?(original, e, current_byte) ? "progress" : "rejected"
         {
           "status" => status,
           "diagnostic_count" => 1,
           "value_class" => nil,
           "diagnostic" => diagnostic(e, phase: lexer_failure?(e) ? "lexer" : "parser")
         }
+      end
+
+      def progress?(original, error, current_byte)
+        original_diagnostic = original.fetch("diagnostics").first
+        original_byte = original_diagnostic.dig("location", "start_byte")
+        return false unless current_byte.is_a?(Integer) && original_byte.is_a?(Integer)
+
+        operations = @definition.dig("proposed_edit", "operations")
+        mapped_byte = SourceEdit.original_offset(current_byte, operations)
+        return true if mapped_byte > original_byte
+        return false unless mapped_byte == original_byte
+
+        diagnostic_context_changed?(original_diagnostic, error)
+      end
+
+      def diagnostic_context_changed?(original, error)
+        current_token = error.token_name || error.token_id.to_s
+        original.fetch("token") != current_token &&
+          original.fetch("state") != error.state &&
+          original.dig("expected_tokens", "tokens") != error.expected_tokens
       end
 
       def diagnostic(error, phase:)
@@ -180,8 +195,6 @@ module Ibex
       def lexer_failure?(error)
         error.token_name == "lexer input" && error.state.nil?
       end
-
-      def first_error_byte(observation) = observation.fetch("diagnostics").first.dig("location", "start_byte")
 
       def location_value(location, key)
         return unless location

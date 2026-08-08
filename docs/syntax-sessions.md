@@ -84,6 +84,37 @@ Fresh syntax sessions are the reference semantics. Incremental results must
 match fresh results in source bytes, Green structure and flags, and diagnostic
 content.
 
+## Syntax-only repair proposals
+
+`SyntaxSession#repair` is an additive Experimental operation for editor-style
+syntax proposals. It runs the bounded repair search on a fresh private parser,
+captures token identity and byte ranges, applies the resulting
+`CST::TextEdit` values to a new `CST::SourceText`, and validates the edited
+source with another fresh syntax session. The originating session and source
+are unchanged.
+
+```ruby
+proposal = session.repair(token_text: { "PLUS" => "+" })
+proposal.status          # :accepted, :progress, :rejected, or a bounded failure
+proposal.text_edits      # immutable byte edits
+proposal.updated_source  # exact edited bytes, when validation ran
+proposal.validation      # fresh syntax-only result, when validation ran
+```
+
+The result is deliberately syntax-only: it has no semantic `value`, never
+replays production actions, and never invokes the application's `on_repair`
+callback. `token_text` supplies source bytes only. Named inserted or replaced
+tokens fail closed when no spelling is supplied; punctuation literals may be
+derived conservatively. `:exhausted` and `:not_found` remain distinct bounded
+outcomes, while overlapping edits and multiple selected repair segments are
+reported as unavailable.
+
+An accepted result requires zero diagnostics and complete source consumption.
+For progress or rejection, `updated_source` retains the exact edited bytes and
+the validation CST may expose only its consumed prefix, as permitted by the
+existing error/early-accept CST contract. Cancellation and service limits raise
+their existing exceptions and are never returned as successful proposals.
+
 ## Validation, cancellation, and limits
 
 A source passed directly as a String must have an ASCII-compatible Ruby

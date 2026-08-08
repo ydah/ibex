@@ -148,6 +148,11 @@ module Ibex
       # @rbs (Array[CST::TextEdit] edits) -> SyntaxSessionResult
       def apply_edits: (Array[CST::TextEdit] edits) -> SyntaxSessionResult
 
+      # Propose byte edits through the existing bounded repair search, then
+      # validate them with a fresh syntax-only parse. The session is unchanged.
+      # @rbs (?policy: RepairPolicy, ?token_text: Hash[String, String]) -> SyntaxRepairResult
+      def repair: (?policy: RepairPolicy, ?token_text: Hash[String, String]) -> SyntaxRepairResult
+
       private
 
       # @rbs (Array[CST::TextEdit] edits) -> SyntaxSessionResult

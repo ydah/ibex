@@ -119,7 +119,9 @@ that same engine. Current generated classes expose only
 profile because lexer actions still execute. Immutable operation snapshots add
 expected-token and reuse/fallback evidence plus cooperative cancellation and
 service bounds. The façade belongs to `ibex-runtime`; it defines neither LSP
-nor workspace semantics. See
+nor workspace semantics. Its additive `repair` operation projects bounded
+syntax repairs into byte edits and fresh syntax results without exposing
+semantic values or invoking application repair callbacks. See
 [ADR 0019](decisions/0019-runtime-syntax-session-boundary.md).
 
 Alternative-level `@node` declarations are preserved as Grammar IR v2

@@ -46,6 +46,7 @@ module Ibex
         repair.rb
         repair_priority_queue.rb
         repair_search.rb
+        syntax_repair.rb
         parser_sync_recovery.rb
         parser.rb
         lexer_input.rb

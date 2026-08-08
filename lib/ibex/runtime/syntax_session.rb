@@ -230,6 +230,8 @@ module Ibex
         end
 
         @cancellation = cancellation #: CancellationToken?
+        @parser_class = parser_class #: Class
+        @resource_limits = resource_limits || ResourceLimits.new #: ResourceLimits
         @mutex = Mutex.new #: Mutex
         @revision = 0 #: Integer
         @operation_expected_tokens = [] #: Array[String]
@@ -242,7 +244,7 @@ module Ibex
         @incremental = CST::IncrementalParseSession.new(
           parser_class,
           source_text,
-          resource_limits: resource_limits,
+          resource_limits: @resource_limits,
           blender: blender,
           event_observer: event_observer
         ) #: CST::IncrementalParseSession
@@ -265,6 +267,19 @@ module Ibex
       # @rbs (Array[CST::TextEdit] edits) -> SyntaxSessionResult
       def apply_edits(edits)
         @mutex.synchronize { apply_edits_locked(edits) }
+      end
+
+      # Propose byte edits through the existing bounded repair search, then
+      # validate them with a fresh syntax-only parse. The session is unchanged.
+      # @rbs (?policy: RepairPolicy, ?token_text: Hash[String, String]) -> SyntaxRepairResult
+      def repair(policy: RepairPolicy.new, token_text: {})
+        @mutex.synchronize do
+          SyntaxRepairer.new(
+            @parser_class, @incremental.source_text, @result,
+            execution_profile: @execution_profile, resource_limits: @resource_limits,
+            limits: @limits, cancellation: @cancellation, policy: policy, token_text: token_text
+          ).call
+        end
       end
 
       private

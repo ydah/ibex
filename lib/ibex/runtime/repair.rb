@@ -90,6 +90,35 @@ module Ibex
       end
     end
 
+    # Closed internal outcome for callers that must distinguish bounded search
+    # exhaustion from a complete search with no repair.
+    class RepairSearchResult
+      STATUSES = %i[selected need_input exhausted not_found].freeze #: Array[Symbol]
+
+      attr_reader :status #: Symbol
+      attr_reader :plan #: RepairPlan?
+      attr_reader :configurations #: Integer
+
+      # @rbs (status: Symbol, plan: RepairPlan?, configurations: Integer) -> void
+      def initialize(status:, plan:, configurations:)
+        raise ArgumentError, "unknown repair search status #{status.inspect}" unless STATUSES.include?(status)
+        unless configurations.is_a?(Integer) && configurations >= 0
+          raise ArgumentError, "repair search configurations must be nonnegative"
+        end
+        unless (status == :selected) == plan.is_a?(RepairPlan)
+          raise ArgumentError, "selected repair search status and plan must agree"
+        end
+
+        @status = status
+        @plan = plan
+        @configurations = configurations
+        freeze
+      end
+
+      # @rbs () -> bool
+      def selected? = @status == :selected
+    end
+
     # Internal normalized input record retained while repair looks ahead.
     class RepairInput
       attr_reader :token_id #: Integer

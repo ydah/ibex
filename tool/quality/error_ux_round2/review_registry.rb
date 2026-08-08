@@ -115,7 +115,7 @@ module Ibex
       end
 
       def normalize_reviewer(name)
-        name.unicode_normalize(:nfkc).strip.downcase(:fold).gsub(/[[:space:]]+/, " ")
+        name.unicode_normalize(:nfkc).downcase(:fold).gsub(/[[:space:]]+/, " ").strip
       end
     end
   end

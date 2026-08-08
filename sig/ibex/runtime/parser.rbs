@@ -179,9 +179,9 @@ module Ibex
 
       @repair_selected: bool
 
-      @semantic_locations: Array[untyped]?
+      @repair_search_results: Array[RepairSearchResult]
 
-      @incremental_reused_descendants: Integer
+      @semantic_locations: Array[untyped]?
 
       @accept_requested: bool
 
@@ -210,6 +210,8 @@ module Ibex
       @yydebug_output: IO
 
       @yydebug: bool
+
+      @incremental_reused_descendants: Integer
 
       @green_reused_right_edge: bool
 
@@ -783,6 +785,9 @@ module Ibex
       # @rbs () -> (RepairPlan | Object | nil)
       def selected_repair: () -> (RepairPlan | Object | nil)
 
+      # @rbs () -> Array[RepairSearchResult]
+      def syntax_repair_search_results: () -> Array[RepairSearchResult]
+
       # @rbs (RepairPolicy policy) -> [Array[RepairInput], bool]
       def repair_search_tokens: (RepairPolicy policy) -> [ Array[RepairInput], bool ]
 
@@ -791,6 +796,11 @@ module Ibex
 
       # @rbs () -> RepairInput
       def current_repair_input: () -> RepairInput
+
+      # Snapshot the original buffered prefix before a selected repair is
+      # replayed. Syntax tooling consumes locations and token identities only.
+      # @rbs () -> Array[RepairInput]
+      def syntax_repair_inputs: () -> Array[RepairInput]
 
       # @rbs (Array[RepairInput] source, Array[RepairEdit] edits) -> Array[RepairInput]
       def replay_repair_edits: (Array[RepairInput] source, Array[RepairEdit] edits) -> Array[RepairInput]

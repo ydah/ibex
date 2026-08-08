@@ -27,7 +27,15 @@ module Ibex
 
       def validate_entry_construction: (Integer schema_version, String? value) -> String?
 
+      def normalize_grammar_version: (Grammar grammar, Integer schema_version) -> Grammar
+
       def validate_parser_contract: () -> void
+
+      def validate_parser_algorithm: (ParserContract contract) -> void
+
+      def validate_parser_entries: (ParserContract contract) -> void
+
+      def validate_unknown_entry_construction: (ParserContract contract) -> void
     end
 
     module Migration

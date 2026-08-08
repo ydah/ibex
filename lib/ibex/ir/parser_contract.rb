@@ -9,13 +9,13 @@ module Ibex
     class ParserContract
       DEFINITIONS = {
         algorithm: {
-          configuration: "parser.algorithm".freeze, values: %i[slr lalr ielr lr1].freeze
+          configuration: "parser.algorithm", values: %i[slr lalr ielr lr1].freeze
         }.freeze,
         entries: {
-          configuration: "parser.entries".freeze, values: %i[shared isolated].freeze
+          configuration: "parser.entries", values: %i[shared isolated].freeze
         }.freeze,
         cst_trivia: {
-          configuration: "cst.trivia".freeze, values: %i[leading balanced drop].freeze
+          configuration: "cst.trivia", values: %i[leading balanced drop].freeze
         }.freeze
       }.freeze #: Hash[Symbol, Hash[Symbol, untyped]]
 

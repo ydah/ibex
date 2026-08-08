@@ -71,3 +71,4 @@ Use [`0000-template.md`](0000-template.md) for a new implementation decision.
 - [0020: Persist parser contracts in Grammar IR](0020-grammar-ir-parser-contract.md)
 - [0021: Persist executable parser tables as a data-only sidecar](0021-data-only-parser-table-sidecar.md)
 - [0022: Bind scoped verification evidence through the generation manifest](0022-manifest-bound-verification-report.md)
+- [0023: Keep editor repair proposals syntax-only](0023-syntax-only-repair-results.md)

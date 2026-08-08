@@ -48,6 +48,7 @@ class RuntimeGemPackagingTest < Minitest::Test # rubocop:disable Metrics/ClassLe
     assert_includes runtime.files, "lib/ibex/runtime.rb"
     assert_includes runtime.files, "lib/ibex/runtime/embedded_source.rb"
     assert_includes runtime.files, "lib/ibex/runtime/syntax_session.rb"
+    assert_includes runtime.files, "lib/ibex/runtime/syntax_repair.rb"
     assert_includes runtime.files, "lib/ibex/runtime/version.rb"
     assert_includes runtime.files, "lib/ibex/tables/compact.rb"
     assert_includes runtime.files, "lib/ibex/tables/compact_actions.rb"
@@ -70,6 +71,7 @@ class RuntimeGemPackagingTest < Minitest::Test # rubocop:disable Metrics/ClassLe
     assert_includes runtime.files, "sig/ibex/runtime/embedded_source.rbs"
     assert_includes runtime.files, "sig/ibex/runtime/parser.rbs"
     assert_includes runtime.files, "sig/ibex/runtime/syntax_session.rbs"
+    assert_includes runtime.files, "sig/ibex/runtime/syntax_repair.rbs"
     assert_includes runtime.files, "sig/ibex/tables/compact_actions.rbs"
     assert_includes runtime.files, "sig/ibex/tables/compact_productions.rbs"
   end
@@ -151,6 +153,11 @@ class RuntimeGemPackagingTest < Minitest::Test # rubocop:disable Metrics/ClassLe
         edit = Ibex::Runtime::CST::TextEdit.new(start: 4, delete_length: 1, insert_text: "8")
         result = session.apply_edits([edit])
         abort "syntax edit failed" unless result.success? && result.syntax_root.to_source == "1 + 8"
+        repair_source = EmbeddedSyntaxParser.syntax_session(
+          "1 2", execution_profile: :trusted_application_code
+        )
+        repair = repair_source.repair(token_text: { "PLUS" => "+" })
+        abort "syntax repair failed" unless repair.accepted? && repair.updated_source.text == "1 +2"
       RUBY
       _stdout, stderr, status = Open3.capture3(
         ISOLATED_ENV, RbConfig.ruby, "--disable-gems", "-e", script, chdir: directory

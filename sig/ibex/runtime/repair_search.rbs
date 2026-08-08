@@ -46,8 +46,13 @@ module Ibex
       #   complete: bool) -> void
       def initialize: (Hash[Symbol, untyped] tables, RepairPolicy policy, Array[RepairInput] tokens, complete: bool) -> void
 
+      # Compatibility projection used by the semantic runtime path.
       # @rbs (Array[Integer] state_stack) -> (RepairPlan | Object | nil)
       def search: (Array[Integer] state_stack) -> (RepairPlan | Object | nil)
+
+      # Preserve the bounded outcome for syntax tooling and diagnostics.
+      # @rbs (Array[Integer] state_stack) -> RepairSearchResult
+      def search_result: (Array[Integer] state_stack) -> RepairSearchResult
 
       private
 
@@ -91,6 +96,9 @@ module Ibex
 
       # @rbs (Array[RepairEdit] edits) -> RepairPlan
       def plan: (Array[RepairEdit] edits) -> RepairPlan
+
+      # @rbs (Symbol status, ?plan: RepairPlan?) -> RepairSearchResult
+      def outcome: (Symbol status, ?plan: RepairPlan?) -> RepairSearchResult
 
       # @rbs (Integer token_id) -> String
       def token_name: (Integer token_id) -> String
