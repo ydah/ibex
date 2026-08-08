@@ -6,6 +6,9 @@ module Ibex
     module SourceEncoding
       # @rbs (String source, String file) -> String
       def self.validated_utf8: (String source, String file) -> String
+
+      # @rbs (String file) -> String
+      def self.validated_file: (String file) -> String
     end
 
     # An immutable position in grammar source.
