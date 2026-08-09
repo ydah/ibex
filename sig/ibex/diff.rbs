@@ -6,25 +6,25 @@ module Ibex
     # @rbs (IR::Automaton before, IR::Automaton after) -> void
     def initialize: (IR::Automaton before, IR::Automaton after) -> void
 
-    # @rbs () -> Hash[Symbol, untyped]
-    def to_h: () -> Hash[Symbol, untyped]
+    # @rbs () -> Hash[Symbol, Object?]
+    def to_h: () -> Hash[Symbol, Object?]
 
     private
 
-    # @rbs (Hash[String, untyped] before, Hash[String, untyped] after) -> Hash[Symbol, untyped]
-    def classify: (Hash[String, untyped] before, Hash[String, untyped] after) -> Hash[Symbol, untyped]
+    # @rbs (Hash[String, Object?] before, Hash[String, Object?] after) -> Hash[Symbol, Object?]
+    def classify: (Hash[String, Object?] before, Hash[String, Object?] after) -> Hash[Symbol, Object?]
 
-    # @rbs (IR::Grammar grammar) -> Hash[String, untyped]
-    def symbol_records: (IR::Grammar grammar) -> Hash[String, untyped]
+    # @rbs (IR::Grammar grammar) -> Hash[String, Object?]
+    def symbol_records: (IR::Grammar grammar) -> Hash[String, Object?]
 
-    # @rbs (IR::Grammar grammar) -> Hash[String, untyped]
-    def rule_records: (IR::Grammar grammar) -> Hash[String, untyped]
+    # @rbs (IR::Grammar grammar) -> Hash[String, Object?]
+    def rule_records: (IR::Grammar grammar) -> Hash[String, Object?]
 
-    # @rbs (IR::Grammar grammar, IR::Production production) -> Hash[Symbol, untyped]
-    def production_record: (IR::Grammar grammar, IR::Production production) -> Hash[Symbol, untyped]
+    # @rbs (IR::Grammar grammar, IR::Production production) -> Hash[Symbol, Object?]
+    def production_record: (IR::Grammar grammar, IR::Production production) -> Hash[Symbol, Object?]
 
-    # @rbs (IR::Automaton automaton) -> Hash[String, untyped]
-    def conflict_records: (IR::Automaton automaton) -> Hash[String, untyped]
+    # @rbs (IR::Automaton automaton) -> Hash[String, Object?]
+    def conflict_records: (IR::Automaton automaton) -> Hash[String, Object?]
 
     # @rbs (IR::Grammar grammar, IR::conflict conflict) -> String
     def conflict_identity: (IR::Grammar grammar, IR::conflict conflict) -> String
@@ -35,8 +35,8 @@ module Ibex
     # @rbs (IR::Grammar grammar, Integer id) -> String
     def symbol_name: (IR::Grammar grammar, Integer id) -> String
 
-    # @rbs (IR::Grammar grammar) -> Hash[String, untyped]
-    def warning_records: (IR::Grammar grammar) -> Hash[String, untyped]
+    # @rbs (IR::Grammar grammar) -> Hash[String, Object?]
+    def warning_records: (IR::Grammar grammar) -> Hash[String, Object?]
 
     # @rbs () -> Hash[Symbol, Hash[Symbol, Integer]]
     def numeric_metrics: () -> Hash[Symbol, Hash[Symbol, Integer]]

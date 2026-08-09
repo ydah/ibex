@@ -10,7 +10,7 @@ module Ibex
       @after = after
     end
 
-    # @rbs () -> Hash[Symbol, untyped]
+    # @rbs () -> Hash[Symbol, Object?]
     def to_h
       {
         ibex_report: "diff", schema_version: 1,
@@ -24,7 +24,7 @@ module Ibex
 
     private
 
-    # @rbs (Hash[String, untyped] before, Hash[String, untyped] after) -> Hash[Symbol, untyped]
+    # @rbs (Hash[String, Object?] before, Hash[String, Object?] after) -> Hash[Symbol, Object?]
     def classify(before, after)
       common = before.keys & after.keys
       {
@@ -38,7 +38,7 @@ module Ibex
       }
     end
 
-    # @rbs (IR::Grammar grammar) -> Hash[String, untyped]
+    # @rbs (IR::Grammar grammar) -> Hash[String, Object?]
     def symbol_records(grammar)
       grammar.symbols.to_h do |symbol|
         [
@@ -51,7 +51,7 @@ module Ibex
       end
     end
 
-    # @rbs (IR::Grammar grammar) -> Hash[String, untyped]
+    # @rbs (IR::Grammar grammar) -> Hash[String, Object?]
     def rule_records(grammar)
       grammar.productions.group_by(&:lhs).to_h do |lhs, productions|
         name = grammar.symbol_by_id(lhs)&.name || lhs.to_s
@@ -60,7 +60,7 @@ module Ibex
       end
     end
 
-    # @rbs (IR::Grammar grammar, IR::Production production) -> Hash[Symbol, untyped]
+    # @rbs (IR::Grammar grammar, IR::Production production) -> Hash[Symbol, Object?]
     def production_record(grammar, production)
       precedence = production.precedence_override
       {
@@ -72,9 +72,9 @@ module Ibex
       }
     end
 
-    # @rbs (IR::Automaton automaton) -> Hash[String, untyped]
+    # @rbs (IR::Automaton automaton) -> Hash[String, Object?]
     def conflict_records(automaton)
-      grouped = Hash.new { |hash, key| hash[key] = [] } #: Hash[String, Array[untyped]]
+      grouped = Hash.new { |hash, key| hash[key] = [] } #: Hash[String, Array[Object?]]
       automaton.states.each do |state|
         state.conflicts.each do |conflict|
           identity = conflict_identity(automaton.grammar, conflict)
@@ -110,9 +110,9 @@ module Ibex
       grammar.symbol_by_id(id)&.name || id.to_s
     end
 
-    # @rbs (IR::Grammar grammar) -> Hash[String, untyped]
+    # @rbs (IR::Grammar grammar) -> Hash[String, Object?]
     def warning_records(grammar)
-      grouped = Hash.new { |hash, key| hash[key] = [] } #: Hash[String, Array[untyped]]
+      grouped = Hash.new { |hash, key| hash[key] = [] } #: Hash[String, Array[Object?]]
       grammar.warnings.each do |warning|
         value = warning.except(:loc)
         identity = [warning.fetch(:type), value.except(:message).inspect].join(":")
