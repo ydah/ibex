@@ -9,8 +9,8 @@ module Ibex
 
         RULE_REQUIRED: Array[String]
 
-        # @rbs (json_object data, ?path: String) -> void
-        def initialize: (json_object data, ?path: String) -> void
+        # @rbs (Hash[String, untyped] data, ?path: String) -> void
+        def initialize: (Hash[String, untyped] data, ?path: String) -> void
 
         # @rbs () -> self
         def validate: () -> self
@@ -23,8 +23,8 @@ module Ibex
         # @rbs () -> void
         def validate_rules: () -> void
 
-        # @rbs (json_object rule, String path, String options) -> void
-        def validate_pattern: (json_object rule, String path, String options) -> void
+        # @rbs (Hash[String, untyped] rule, String path, String options) -> void
+        def validate_pattern: (Hash[String, untyped] rule, String path, String options) -> void
 
         # @rbs () -> void
         def validate_warnings: () -> void
