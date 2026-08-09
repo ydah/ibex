@@ -50,7 +50,7 @@ module Ibex
 
         private
 
-        # @rbs (untyped migration, String path) -> migration_metadata
+        # @rbs (Object? migration, String path) -> migration_metadata
         def validate_record(migration, path)
           raise Ibex::Error, "(ir):1:1: #{path} must be an object" unless migration.is_a?(Hash)
 
@@ -78,7 +78,7 @@ module Ibex
           raise Ibex::Error, "(ir):1:1: #{path}.from_schema_version must be 1"
         end
 
-        # @rbs (untyped unavailable, Array[String] expected, String path) -> void
+        # @rbs (Object? unavailable, Array[String] expected, String path) -> void
         def validate_inventory(unavailable, expected, path)
           raise Ibex::Error, "(ir):1:1: #{path}.unavailable must be an array" unless unavailable.is_a?(Array)
           raise Ibex::Error, "(ir):1:1: #{path}.unavailable must not be empty" if unavailable.empty?
