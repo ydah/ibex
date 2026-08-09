@@ -67,7 +67,7 @@
       },
       {
         "path": "lib/ibex/codegen/explain.rb",
-        "sha256": "1a17175cba78da6b9c162462f6aaaf60d4c79c8924be7c50648ffaa930e81e70"
+        "sha256": "ceb081d4d13873db24f7bbc85539a8a0127de4ef10cb402d0404aaff6c922d95"
       },
       {
         "path": "lib/ibex/codegen/generated_action_abi.rb",
@@ -211,7 +211,7 @@
       },
       {
         "path": "lib/ibex/fix.rb",
-        "sha256": "3b6e76460a2690e9ea3ebe5d7c7b7ba65a0d1efca6c8609a1450b3736ea10ed2"
+        "sha256": "ba706969093bca0bafcc514324871c3de8d9cc9e54c8738dd1892dd0239508fc"
       },
       {
         "path": "lib/ibex/frontend.rb",
@@ -467,7 +467,7 @@
       },
       {
         "path": "lib/ibex/normalize.rb",
-        "sha256": "d0b147bf2bd936e723c22d2807a23927cc48117d6edf441c53ec52e7a03569de"
+        "sha256": "f21abb211db32700c2df4f7bee8830c0541dab3b2993beb8d618e48e0b560319"
       },
       {
         "path": "lib/ibex/normalize/declarations.rb",
@@ -515,7 +515,7 @@
       },
       {
         "path": "lib/ibex/normalize/parameter_lowering.rb",
-        "sha256": "644df78c66a0da4c4d3ad13679f0111be48d9b64ae74141b71ad05db75946711"
+        "sha256": "7f1e00414a748c688474b8ab399e62f24b9b67fb6fb9c22fdc8140411a6616d1"
       },
       {
         "path": "lib/ibex/normalize/parameter_substitution.rb",
