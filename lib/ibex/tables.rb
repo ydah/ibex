@@ -8,6 +8,8 @@ module Ibex
   # Parser table construction and row-displacement compression.
   module Tables
     # @rbs!
+    #   type action_table = Array[Hash[Integer, IR::runtime_action]] | CompactActions
+    #   type goto_table = Array[Hash[Integer, Integer]] | Compact
     #   private def runtime_action: (IR::parser_action action) -> IR::runtime_action
     #   private def self.runtime_action: (IR::parser_action action) -> IR::runtime_action
 

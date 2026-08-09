@@ -25,26 +25,26 @@ module Ibex
       # @rbs () -> void
       def validate_root_identity: () -> void
 
-      # @rbs (untyped data) -> String
-      def validate_table_format: (untyped data) -> String
+      # @rbs (json_value data) -> String
+      def validate_table_format: (ValidationSupport::json_value data) -> String
 
-      # @rbs (untyped data) -> void
-      def validate_source: (untyped data) -> void
+      # @rbs (json_value data) -> void
+      def validate_source: (ValidationSupport::json_value data) -> void
 
-      # @rbs (untyped data) -> Array[Hash[String, untyped]]
-      def validate_symbols: (untyped data) -> Array[Hash[String, untyped]]
+      # @rbs (json_value data) -> Array[Hash[String, untyped]]
+      def validate_symbols: (ValidationSupport::json_value data) -> Array[Hash[String, untyped]]
 
-      # @rbs (untyped data, Array[Hash[String, untyped]] symbols) -> void
-      def validate_tokens: (untyped data, Array[Hash[String, untyped]] symbols) -> void
+      # @rbs (json_value data, Array[Hash[String, untyped]] symbols) -> void
+      def validate_tokens: (ValidationSupport::json_value data, Array[Hash[String, untyped]] symbols) -> void
 
-      # @rbs (untyped data, Array[Hash[String, untyped]] symbols, Integer state_count) -> void
-      def validate_entries: (untyped data, Array[Hash[String, untyped]] symbols, Integer state_count) -> void
+      # @rbs (json_value data, Array[Hash[String, untyped]] symbols, Integer state_count) -> void
+      def validate_entries: (ValidationSupport::json_value data, Array[Hash[String, untyped]] symbols, Integer state_count) -> void
 
-      # @rbs (untyped data, Array[Hash[String, untyped]] symbols) -> Array[Hash[String, untyped]]
-      def validate_productions: (untyped data, Array[Hash[String, untyped]] symbols) -> Array[Hash[String, untyped]]
+      # @rbs (json_value data, Array[Hash[String, untyped]] symbols) -> Array[Hash[String, untyped]]
+      def validate_productions: (ValidationSupport::json_value data, Array[Hash[String, untyped]] symbols) -> Array[Hash[String, untyped]]
 
-      # @rbs (untyped data, Hash[String, untyped] payload) -> void
-      def validate_cost: (untyped data, Hash[String, untyped] payload) -> void
+      # @rbs (json_value data, Hash[String, untyped] payload) -> void
+      def validate_cost: (ValidationSupport::json_value data, Hash[String, untyped] payload) -> void
 
       # @rbs (Hash[String, untyped] payload) -> [String, String]
       def expected_costs: (Hash[String, untyped] payload) -> [ String, String ]

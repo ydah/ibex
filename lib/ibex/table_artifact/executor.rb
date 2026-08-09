@@ -30,9 +30,10 @@ module Ibex
       # @rbs (Document | Hash[String, untyped] document) -> void
       def initialize(document)
         @payload = document.is_a?(Document) ? document.payload : Document.new(document).payload
-        @tables = @payload.fetch("tables")
-        @productions = @payload.fetch("productions")
-        @terminal_ids = @payload.fetch("tokens").map { |token| token.fetch("id") }
+        @tables = @payload.fetch("tables") #: Hash[String, untyped]
+        @productions = @payload.fetch("productions") #: Array[Hash[String, untyped]]
+        tokens = @payload.fetch("tokens") #: Array[Hash[String, untyped]]
+        @terminal_ids = tokens.map { |token| token.fetch("id") }
       end
 
       # @rbs (Array[Integer] token_ids, ?entry: String | Symbol?, ?max_steps: Integer) -> Result
@@ -94,7 +95,7 @@ module Ibex
 
       # @rbs (String | Symbol? requested) -> Integer
       def entry_state(requested)
-        entries = @payload.fetch("entry_states")
+        entries = @payload.fetch("entry_states") #: Array[Hash[String, untyped]]
         return entries.first.fetch("state") unless requested
 
         entry = entries.find { |candidate| candidate.fetch("name") == requested.to_s }
@@ -105,9 +106,10 @@ module Ibex
 
       # @rbs (Integer row, Integer column) -> Integer?
       def action(row, column)
-        table = @tables.fetch("actions")
+        table = @tables.fetch("actions") #: Hash[String, untyped]
         code = if table.fetch("encoding") == "signed-sparse-rows-v1"
-                 cells = table.fetch("rows").fetch(row)
+                 rows = table.fetch("rows") #: Array[Array[Hash[String, untyped]]]
+                 cells = rows.fetch(row)
                  cells.bsearch { |cell| cell.fetch("token_id") >= column }&.then do |cell|
                    cell.fetch("code") if cell.fetch("token_id") == column
                  end
@@ -119,9 +121,10 @@ module Ibex
 
       # @rbs (Integer row, Integer column) -> Integer?
       def goto_state(row, column)
-        table = @tables.fetch("gotos")
+        table = @tables.fetch("gotos") #: Hash[String, untyped]
         if table.fetch("encoding") == "sparse-rows-v1"
-          cells = table.fetch("rows").fetch(row)
+          rows = table.fetch("rows") #: Array[Array[Hash[String, untyped]]]
+          cells = rows.fetch(row)
           cells.bsearch { |cell| cell.fetch("symbol_id") >= column }&.then do |cell|
             cell.fetch("state") if cell.fetch("symbol_id") == column
           end
@@ -132,11 +135,13 @@ module Ibex
 
       # @rbs (Hash[String, untyped] table, Integer row, Integer column, String value_key) -> Integer?
       def displacement_lookup(table, row, column, value_key)
-        index = table.fetch("offsets").fetch(row) + column
-        checks = table.fetch("checks")
+        offsets = table.fetch("offsets") #: Array[Integer]
+        index = offsets.fetch(row) + column
+        checks = table.fetch("checks") #: Array[Integer?]
         return if index.negative? || index >= checks.length || checks[index] != row
 
-        table.fetch(value_key).fetch(index)
+        values = table.fetch(value_key) #: Array[Integer?]
+        values.fetch(index)
       end
 
       # @rbs (Array[Integer] stack, Integer code) -> String?

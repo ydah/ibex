@@ -59,7 +59,7 @@ module Ibex
       def self?.lookup: (Integer row, Integer column) -> untyped
 
       # @rbs (Integer row) -> Hash[Integer, untyped]
-      def self?.row: (Integer row) -> Hash[Integer, untyped]
+      def row: (Integer row) -> Hash[Integer, untyped]
 
       private
 

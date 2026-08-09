@@ -4,6 +4,14 @@ module Ibex
   module TableArtifact
     # Projects validated Automaton IR into an action-free executable sidecar.
     class Builder
+      type action_rows = Array[Hash[Integer, IR::runtime_action]]
+
+      type action_table = action_rows | Tables::CompactActions
+
+      type goto_rows = Array[Hash[Integer, Integer]]
+
+      type goto_table = goto_rows | Tables::Compact
+
       include CSTProjection
 
       REPRESENTATIONS: Array[Symbol]
@@ -39,22 +47,22 @@ module Ibex
       def tables: () -> Hash[String, untyped]
 
       # @rbs (untyped table) -> Hash[String, untyped]
-      def action_table: (untyped table) -> Hash[String, untyped]
+      def action_table: (action_table table) -> Hash[String, untyped]
 
       # @rbs (untyped table) -> Hash[String, untyped]
-      def compact_action_table: (untyped table) -> Hash[String, untyped]
+      def compact_action_table: (Tables::CompactActions table) -> Hash[String, untyped]
 
       # @rbs (untyped table) -> Hash[String, untyped]
-      def goto_table: (untyped table) -> Hash[String, untyped]
+      def goto_table: (goto_table table) -> Hash[String, untyped]
 
       # @rbs (untyped table) -> Hash[String, untyped]
-      def compact_goto_table: (untyped table) -> Hash[String, untyped]
+      def compact_goto_table: (Tables::Compact table) -> Hash[String, untyped]
 
       # @rbs () -> Array[Hash[String, untyped]]
       def productions: () -> Array[Hash[String, untyped]]
 
       # @rbs (untyped production) -> bool
-      def action_slot?: (untyped production) -> bool
+      def action_slot?: (IR::Production production) -> bool
 
       # @rbs () -> Hash[String, untyped]
       def semantic_actions: () -> Hash[String, untyped]

@@ -3,36 +3,38 @@
 module Ibex
   module TableArtifact
     module ValidationSupport
+      type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+
       DIGEST: Regexp
 
       private
 
-      # @rbs (untyped value, String path, Array[String] keys) -> Hash[String, untyped]
-      def record: (untyped value, String path, Array[String] keys) -> Hash[String, untyped]
+      # @rbs (json_value value, String path, Array[String] keys) -> Hash[String, untyped]
+      def record: (json_value value, String path, Array[String] keys) -> Hash[String, untyped]
 
-      # @rbs (untyped value, String path) -> Array[untyped]
-      def array: (untyped value, String path) -> Array[untyped]
+      # @rbs (json_value value, String path) -> Array[untyped]
+      def array: (json_value value, String path) -> Array[untyped]
 
-      # @rbs (untyped value, String path, ?allow_empty: bool) -> String
-      def string: (untyped value, String path, ?allow_empty: bool) -> String
+      # @rbs (json_value value, String path, ?allow_empty: bool) -> String
+      def string: (json_value value, String path, ?allow_empty: bool) -> String
 
-      # @rbs (untyped value, String path, ?minimum: Integer?) -> Integer
-      def integer: (untyped value, String path, ?minimum: Integer?) -> Integer
+      # @rbs (json_value value, String path, ?minimum: Integer?) -> Integer
+      def integer: (json_value value, String path, ?minimum: Integer?) -> Integer
 
-      # @rbs (untyped value, String path) -> bool
-      def boolean: (untyped value, String path) -> bool
+      # @rbs (json_value value, String path) -> bool
+      def boolean: (json_value value, String path) -> bool
 
       # @rbs [T] (T value, String path, Array[T] values) -> T
       def enum: [T] (T value, String path, Array[T] values) -> T
 
-      # @rbs (untyped value, String path) -> String
-      def digest: (untyped value, String path) -> String
+      # @rbs (json_value value, String path) -> String
+      def digest: (json_value value, String path) -> String
 
-      # @rbs (untyped value, String path) -> String?
-      def nullable_string: (untyped value, String path) -> String?
+      # @rbs (json_value value, String path) -> String?
+      def nullable_string: (json_value value, String path) -> String?
 
-      # @rbs (untyped value, String path, ?minimum: Integer?) -> Integer?
-      def nullable_integer: (untyped value, String path, ?minimum: Integer?) -> Integer?
+      # @rbs (json_value value, String path, ?minimum: Integer?) -> Integer?
+      def nullable_integer: (json_value value, String path, ?minimum: Integer?) -> Integer?
 
       # @rbs (Array[untyped] values, String path) -> void
       def sorted_unique!: (Array[untyped] values, String path) -> void

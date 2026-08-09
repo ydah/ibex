@@ -5,6 +5,8 @@ module Ibex
     # Validates a report and its cross-artifact manifest/table bindings.
     # rubocop:disable Metrics/ClassLength -- closed report and cross-artifact invariants form one validator contract.
     class Validator
+      type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+
       ROOT_KEYS: Array[String]
 
       CHECKER_KEYS: Array[String]
@@ -44,29 +46,29 @@ module Ibex
 
       private
 
-      # @rbs (untyped document) -> void
-      def validate_document: (untyped document) -> void
+      # @rbs (json_value document) -> void
+      def validate_document: (json_value document) -> void
 
-      # @rbs (untyped value) -> void
-      def validate_checker: (untyped value) -> void
+      # @rbs (json_value value) -> void
+      def validate_checker: (json_value value) -> void
 
-      # @rbs (untyped value) -> void
-      def validate_bounds: (untyped value) -> void
+      # @rbs (json_value value) -> void
+      def validate_bounds: (json_value value) -> void
 
-      # @rbs (untyped value) -> void
-      def validate_input: (untyped value) -> void
+      # @rbs (json_value value) -> void
+      def validate_input: (json_value value) -> void
 
-      # @rbs (untyped value) -> void
-      def validate_ir: (untyped value) -> void
+      # @rbs (json_value value) -> void
+      def validate_ir: (json_value value) -> void
 
-      # @rbs (untyped value) -> void
-      def validate_table: (untyped value) -> void
+      # @rbs (json_value value) -> void
+      def validate_table: (json_value value) -> void
 
-      # @rbs (untyped value, String profile) -> void
-      def validate_outcome: (untyped value, String profile) -> void
+      # @rbs (json_value value, String profile) -> void
+      def validate_outcome: (json_value value, String profile) -> void
 
-      # @rbs (untyped value, Array[String] requested) -> Array[untyped]
-      def validate_violations: (untyped value, Array[String] requested) -> Array[untyped]
+      # @rbs (json_value value, Array[String] requested) -> Array[json_value]
+      def validate_violations: (json_value value, Array[String] requested) -> Array[json_value]
 
       # @rbs (Hash[String, untyped] manifest, String kind) -> Hash[String, untyped]
       def unique_artifact: (Hash[String, untyped] manifest, String kind) -> Hash[String, untyped]
@@ -81,32 +83,32 @@ module Ibex
       #   Hash[String, untyped] table_entry) -> void
       def validate_table_binding!: (Hash[String, untyped] report, TableArtifact::Document table, Hash[String, untyped] table_entry) -> void
 
-      # @rbs (untyped value, String path) -> Array[String]
-      def checks: (untyped value, String path) -> Array[String]
+      # @rbs (json_value value, String path) -> Array[String]
+      def checks: (json_value value, String path) -> Array[String]
 
-      # @rbs (untyped value, Array[String] keys, String path) -> Hash[String, untyped]
-      def object: (untyped value, Array[String] keys, String path) -> Hash[String, untyped]
+      # @rbs (json_value value, Array[String] keys, String path) -> Hash[String, json_value]
+      def object: (json_value value, Array[String] keys, String path) -> Hash[String, json_value]
 
-      # @rbs (untyped value, String path) -> Array[untyped]
-      def array: (untyped value, String path) -> Array[untyped]
+      # @rbs (json_value value, String path) -> Array[json_value]
+      def array: (json_value value, String path) -> Array[json_value]
 
-      # @rbs (untyped value, String path, ?allow_empty: bool) -> String
-      def string: (untyped value, String path, ?allow_empty: bool) -> String
+      # @rbs (json_value value, String path, ?allow_empty: bool) -> String
+      def string: (json_value value, String path, ?allow_empty: bool) -> String
 
-      # @rbs (untyped value, String path) -> String
-      def digest: (untyped value, String path) -> String
+      # @rbs (json_value value, String path) -> String
+      def digest: (json_value value, String path) -> String
 
-      # @rbs (untyped value, String path) -> Integer
-      def positive_integer: (untyped value, String path) -> Integer
+      # @rbs (json_value value, String path) -> Integer
+      def positive_integer: (json_value value, String path) -> Integer
 
-      # @rbs (untyped value, String path) -> Integer
-      def nonnegative_integer: (untyped value, String path) -> Integer
+      # @rbs (json_value value, String path) -> Integer
+      def nonnegative_integer: (json_value value, String path) -> Integer
 
       # @rbs [T] (T value, Array[T] values, String path) -> T
       def enum: [T] (T value, Array[T] values, String path) -> T
 
-      # @rbs (untyped actual, untyped expected, String path) -> void
-      def equal: (untyped actual, untyped expected, String path) -> void
+      # @rbs (json_value actual, json_value expected, String path) -> void
+      def equal: (json_value actual, json_value expected, String path) -> void
     end
   end
 end

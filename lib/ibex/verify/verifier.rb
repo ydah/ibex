@@ -266,10 +266,10 @@ module Ibex
         plain = Tables.build(@automaton, format: :plain)
         compact = Tables.build(@automaton, format: :compact)
         @automaton.states.each do |state|
-          unless plain.actions.fetch(state.id) == compact.actions.row(state.id)
+          unless action_row(plain.actions, state.id) == action_row(compact.actions, state.id)
             violation(@strict ? "V5" : "V4", state_path(state), "plain/compact ACTION rows differ")
           end
-          unless plain.gotos.fetch(state.id) == compact.gotos.row(state.id)
+          unless goto_row(plain.gotos, state.id) == goto_row(compact.gotos, state.id)
             violation(@strict ? "V5" : "V4", state_path(state), "plain/compact GOTO rows differ")
           end
           next if plain.default_actions.fetch(state.id) == compact.default_actions.fetch(state.id)
@@ -278,6 +278,16 @@ module Ibex
         end
       rescue StandardError => e
         violation(@strict ? "V5" : "V4", "$.states", "table transformation failed: #{e.message}")
+      end
+
+      # @rbs (Tables::action_table table, Integer row) -> Hash[Integer, IR::runtime_action]
+      def action_row(table, row)
+        table.is_a?(Array) ? table.fetch(row) : table.row(row)
+      end
+
+      # @rbs (Tables::goto_table table, Integer row) -> Hash[Integer, Integer]
+      def goto_row(table, row)
+        table.is_a?(Array) ? table.fetch(row) : table.row(row)
       end
 
       # @rbs () -> void

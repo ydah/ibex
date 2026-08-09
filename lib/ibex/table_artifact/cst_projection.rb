@@ -4,16 +4,23 @@ module Ibex
   module TableArtifact
     # Converts code-generation CST metadata into closed JSON records.
     module CSTProjection
+      # @rbs!
+      #   private def cst: () -> Hash[String, untyped]?
+      #   private def normalize_cst: (Codegen::CSTMetadata::metadata metadata) -> Hash[String, untyped]
+      #   private def normalize_cst_kinds: (Codegen::CSTMetadata::kinds kinds) -> Hash[String, untyped]
+      #   private def named_kinds: (Hash[String, Integer] values) -> Array[Hash[String, String | Integer]]
+      #   private def normalize_cst_slot: (Integer production_id, Codegen::CSTMetadata::slot slot) -> Hash[String, untyped]
+
       private
 
-      # @rbs () -> Hash[String, untyped]?
+      # @rbs skip
       def cst
         return unless @grammar.options[:cst]
 
         normalize_cst(Codegen::CSTMetadata.new(@grammar, trivia_policy: @cst_trivia).build)
       end
 
-      # @rbs (untyped metadata) -> Hash[String, untyped]
+      # @rbs skip
       def normalize_cst(metadata)
         kinds = metadata.fetch(:kinds)
         {
@@ -24,7 +31,7 @@ module Ibex
         }
       end
 
-      # @rbs (untyped kinds) -> Hash[String, untyped]
+      # @rbs skip
       def normalize_cst_kinds(kinds)
         {
           "names" => kinds.fetch(:names),
@@ -39,12 +46,12 @@ module Ibex
         }
       end
 
-      # @rbs (untyped values) -> Array[Hash[String, untyped]]
+      # @rbs skip
       def named_kinds(values)
         values.sort_by { |_name, id| id }.map { |name, id| { "name" => name, "id" => id } }
       end
 
-      # @rbs (Integer production_id, untyped slot) -> Hash[String, untyped]
+      # @rbs skip
       def normalize_cst_slot(production_id, slot)
         fields = slot.fetch(:fields).map do |name, value|
           value = { index: value, extraction: nil } if value.is_a?(Integer)

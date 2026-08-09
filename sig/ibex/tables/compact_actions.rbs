@@ -47,6 +47,9 @@ module Ibex
       #   row_count: Integer, ?encoding: Symbol, ?column_count: Integer?) -> void
       def initialize: (offsets: Array[Integer], codes: Array[Integer?], checks: Array[Integer?], row_count: Integer, ?encoding: Symbol, ?column_count: Integer?) -> void
 
+      # @rbs (Integer row) -> Hash[Integer, IR::runtime_action]
+      def row: (Integer row) -> Hash[Integer, IR::runtime_action]
+
       private
 
       # @rbs (Array[Integer] offsets, Array[Integer?] codes, Array[Integer?] checks,

@@ -4,6 +4,12 @@ module Ibex
   module TableArtifact
     # Projects validated Automaton IR into an action-free executable sidecar.
     class Builder
+      # @rbs!
+      #   type action_rows = Array[Hash[Integer, IR::runtime_action]]
+      #   type action_table = action_rows | Tables::CompactActions
+      #   type goto_rows = Array[Hash[Integer, Integer]]
+      #   type goto_table = goto_rows | Tables::Compact
+
       include CSTProjection
 
       REPRESENTATIONS = %i[plain compact].freeze #: Array[Symbol]
@@ -112,7 +118,7 @@ module Ibex
         }
       end
 
-      # @rbs (untyped table) -> Hash[String, untyped]
+      # @rbs (action_table table) -> Hash[String, untyped]
       def action_table(table)
         return compact_action_table(table) if table.is_a?(Tables::CompactActions)
 
@@ -124,7 +130,7 @@ module Ibex
         }
       end
 
-      # @rbs (untyped table) -> Hash[String, untyped]
+      # @rbs (Tables::CompactActions table) -> Hash[String, untyped]
       def compact_action_table(table)
         {
           "encoding" => "signed-row-displacement-v1",
@@ -136,7 +142,7 @@ module Ibex
         }
       end
 
-      # @rbs (untyped table) -> Hash[String, untyped]
+      # @rbs (goto_table table) -> Hash[String, untyped]
       def goto_table(table)
         return compact_goto_table(table) if table.is_a?(Tables::Compact)
 
@@ -148,7 +154,7 @@ module Ibex
         }
       end
 
-      # @rbs (untyped table) -> Hash[String, untyped]
+      # @rbs (Tables::Compact table) -> Hash[String, untyped]
       def compact_goto_table(table)
         {
           "encoding" => "row-displacement-v1",
@@ -173,7 +179,7 @@ module Ibex
         end
       end
 
-      # @rbs (untyped production) -> bool
+      # @rbs (IR::Production production) -> bool
       def action_slot?(production)
         !!(production.node || production.action || !@omit_action_call)
       end
@@ -199,7 +205,7 @@ module Ibex
 
       # @rbs (Hash[String, untyped] payload) -> Hash[String, untyped]
       def build_cost(payload)
-        tables = payload.fetch("tables")
+        tables = payload.fetch("tables") #: Hash[String, untyped]
         {
           "canonical_payload_bytes" => Serializer.compact(payload).bytesize,
           "action_cells" => occupied_cells(tables.fetch("actions"), "codes"),

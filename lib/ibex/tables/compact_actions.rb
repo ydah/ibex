@@ -107,6 +107,11 @@ module Ibex
         super(offsets: offsets, values: decoded, checks: checks, row_count: row_count)
       end
 
+      # @rbs (Integer row) -> Hash[Integer, IR::runtime_action]
+      def row(row)
+        super #: Hash[Integer, IR::runtime_action]
+      end
+
       private
 
       # @rbs (Array[Integer] offsets, Array[Integer?] codes, Array[Integer?] checks,

@@ -3,20 +3,22 @@
 module Ibex
   # Parser table construction and row-displacement compression.
   module Tables
-    private def runtime_action: (IR::parser_action action) -> IR::runtime_action
+    type action_table = Array[Hash[Integer, IR::runtime_action]] | CompactActions
 
-    private def self.runtime_action: (IR::parser_action action) -> IR::runtime_action
+    type goto_table = Array[Hash[Integer, Integer]] | Compact
 
     class TableSet < Struct[untyped]
-      attr_accessor actions(): untyped
-
-      attr_accessor gotos(): untyped
-
-      attr_accessor default_actions(): untyped
+      attr_accessor actions: action_table
+      attr_accessor gotos: goto_table
+      attr_accessor default_actions: Array[IR::runtime_action?]
 
       def self.new: (?actions: untyped, ?gotos: untyped, ?default_actions: untyped) -> instance
                   | ({ ?actions: untyped, ?gotos: untyped, ?default_actions: untyped }) -> instance
     end
+
+    private def runtime_action: (IR::parser_action action) -> IR::runtime_action
+
+    private def self.runtime_action: (IR::parser_action action) -> IR::runtime_action
 
     # @rbs (IR::Automaton automaton, ?format: Symbol | String) -> TableSet
     def self?.build: (IR::Automaton automaton, ?format: Symbol | String) -> TableSet

@@ -12,7 +12,7 @@ module Ibex
     #   class Grammar
     #     attr_reader parser_contract: ParserContract?
     #
-    #     def self.v3: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?expect_rr: Integer?, ?user_code_chunks: user_code_chunks?, ?source_provenance: source_provenance?, ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter], ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test], ?recovery: recovery_policy?, ?lexer: Lexer?, ?mode: grammar_mode, ?starts: Array[String]?, ?parser_contract: ParserContract) -> Grammar
+    #     def self.v3: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?expect_rr: Integer?, ?user_code_chunks: user_code_chunks?, ?source_provenance: source_provenance?, ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter], ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test], ?recovery: recovery_policy?, ?lexer: Lexer?, ?mode: grammar_mode, ?starts: Array[String]?, ?parser_contract: ParserContract?) -> Grammar
     #
     #     private
     #
@@ -62,17 +62,17 @@ module Ibex
     #   end
     #
     #   module Serialize
-    #     private def load_grammar_v3: (untyped data, untyped symbols, untyped productions, untyped empty_chunks, untyped empty_parameters, untyped empty_printers, untyped empty_tests, untyped empty_recovery) -> Grammar
+    #     private def load_grammar_v3: (Hash[String, untyped] data, Array[GrammarSymbol] symbols, Array[Production] productions, Hash[String, untyped] empty_chunks, Array[untyped] empty_parameters, Array[untyped] empty_printers, Array[untyped] empty_tests, Hash[String, untyped] empty_recovery) -> Grammar
     #
-    #     private def self.load_grammar_v3: (untyped data, untyped symbols, untyped productions, untyped empty_chunks, untyped empty_parameters, untyped empty_printers, untyped empty_tests, untyped empty_recovery) -> Grammar
+    #     private def self.load_grammar_v3: (Hash[String, untyped] data, Array[GrammarSymbol] symbols, Array[Production] productions, Hash[String, untyped] empty_chunks, Array[untyped] empty_parameters, Array[untyped] empty_printers, Array[untyped] empty_tests, Hash[String, untyped] empty_recovery) -> Grammar
     #
-    #     private def load_grammar_legacy: (untyped data, untyped symbols, untyped productions, untyped empty_chunks, untyped empty_parameters, untyped empty_printers, untyped empty_tests, untyped empty_recovery, Integer schema_version) -> Grammar
+    #     private def load_grammar_legacy: (Hash[String, untyped] data, Array[GrammarSymbol] symbols, Array[Production] productions, Hash[String, untyped] empty_chunks, Array[untyped] empty_parameters, Array[untyped] empty_printers, Array[untyped] empty_tests, Hash[String, untyped] empty_recovery, Integer schema_version) -> Grammar
     #
-    #     private def self.load_grammar_legacy: (untyped data, untyped symbols, untyped productions, untyped empty_chunks, untyped empty_parameters, untyped empty_printers, untyped empty_tests, untyped empty_recovery, Integer schema_version) -> Grammar
+    #     private def self.load_grammar_legacy: (Hash[String, untyped] data, Array[GrammarSymbol] symbols, Array[Production] productions, Hash[String, untyped] empty_chunks, Array[untyped] empty_parameters, Array[untyped] empty_printers, Array[untyped] empty_tests, Hash[String, untyped] empty_recovery, Integer schema_version) -> Grammar
     #
-    #     private def load_parser_contract: (untyped value) -> untyped
+    #     private def load_parser_contract: (Hash[String, Hash[String, untyped]] value) -> ParserContract?
     #
-    #     private def self.load_parser_contract: (untyped value) -> untyped
+    #     private def self.load_parser_contract: (Hash[String, Hash[String, untyped]] value) -> ParserContract?
     #   end
     #
     #   module Validator

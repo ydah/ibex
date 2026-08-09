@@ -8,6 +8,9 @@ module Ibex
     # Validates a report and its cross-artifact manifest/table bindings.
     # rubocop:disable Metrics/ClassLength -- closed report and cross-artifact invariants form one validator contract.
     class Validator
+      # @rbs!
+      #   type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+
       ROOT_KEYS = %w[
         ibex_report schema_version checker profile bounds input ir table outcome excluded_trust evidence_digest
       ].freeze #: Array[String]
@@ -29,9 +32,9 @@ module Ibex
 
       # @rbs (String source) -> Hash[String, untyped]
       def validate(source)
-        document = JSON.parse(source)
+        document = JSON.parse(source) #: json_value
         validate_document(document)
-        document
+        document #: Hash[String, untyped]
       rescue JSON::ParserError, KeyError, TypeError, ArgumentError => e
         raise ValidationError, "(verification-report):1:1: invalid report: #{e.message}"
       end
@@ -77,13 +80,13 @@ module Ibex
 
       private
 
-      # @rbs (untyped document) -> void
+      # @rbs (json_value document) -> void
       def validate_document(document)
-        object(document, ROOT_KEYS, "document")
+        document = object(document, ROOT_KEYS, "document")
         equal(document.fetch("ibex_report"), IDENTIFIER, "ibex_report")
         equal(document.fetch("schema_version"), SCHEMA_VERSION, "schema_version")
         validate_checker(document.fetch("checker"))
-        profile = enum(document.fetch("profile"), %w[default strict], "profile")
+        profile = enum(string(document.fetch("profile"), "profile"), %w[default strict], "profile")
         validate_bounds(document.fetch("bounds"))
         validate_input(document.fetch("input"))
         validate_ir(document.fetch("ir"))
@@ -95,20 +98,20 @@ module Ibex
         equal(document.fetch("evidence_digest"), TableArtifact::Serializer.digest(unsigned), "evidence_digest")
       end
 
-      # @rbs (untyped value) -> void
+      # @rbs (json_value value) -> void
       def validate_checker(value)
         checker = object(value, CHECKER_KEYS, "checker")
         equal(checker.fetch("name"), "ibex.verify", "checker.name")
         string(checker.fetch("version"), "checker.version")
       end
 
-      # @rbs (untyped value) -> void
+      # @rbs (json_value value) -> void
       def validate_bounds(value)
         bounds = object(value, BOUNDS_KEYS, "bounds")
         BOUNDS_KEYS.each { |key| positive_integer(bounds.fetch(key), "bounds.#{key}") }
       end
 
-      # @rbs (untyped value) -> void
+      # @rbs (json_value value) -> void
       def validate_input(value)
         input = object(value, INPUT_KEYS, "input")
         files = array(input.fetch("files"), "input.files")
@@ -128,7 +131,7 @@ module Ibex
         equal(input.fetch("digest"), TableArtifact::Serializer.digest(files), "input.digest")
       end
 
-      # @rbs (untyped value) -> void
+      # @rbs (json_value value) -> void
       def validate_ir(value)
         ir = object(value, IR_KEYS, "ir")
         equal(ir.fetch("identity_scope"), IR_IDENTITY_SCOPE, "ir.identity_scope")
@@ -141,7 +144,7 @@ module Ibex
         enum(automaton.fetch("algorithm"), ALGORITHMS, "ir.automaton.algorithm")
       end
 
-      # @rbs (untyped value) -> void
+      # @rbs (json_value value) -> void
       def validate_table(value)
         table = object(value, TABLE_KEYS, "table")
         unless LogicalPath.canonical_table?(table.fetch("logical_path"))
@@ -155,7 +158,7 @@ module Ibex
         digest(table.fetch("payload_digest"), "table.payload_digest")
       end
 
-      # @rbs (untyped value, String profile) -> void
+      # @rbs (json_value value, String profile) -> void
       def validate_outcome(value, profile)
         outcome = object(value, OUTCOME_KEYS, "outcome")
         status = enum(outcome.fetch("status"), %w[pass violations exhausted], "outcome.status")
@@ -184,12 +187,13 @@ module Ibex
         end
       end
 
-      # @rbs (untyped value, Array[String] requested) -> Array[untyped]
+      # @rbs (json_value value, Array[String] requested) -> Array[json_value]
       def validate_violations(value, requested)
         violations = array(value, "outcome.violations")
         violations.each_with_index do |entry, index|
           violation = object(entry, VIOLATION_KEYS, "outcome.violations[#{index}]")
-          enum(violation.fetch("id"), requested, "outcome.violations[#{index}].id")
+          id = string(violation.fetch("id"), "outcome.violations[#{index}].id")
+          enum(id, requested, "outcome.violations[#{index}].id")
           string(violation.fetch("location"), "outcome.violations[#{index}].location", allow_empty: true)
           string(violation.fetch("message"), "outcome.violations[#{index}].message")
         end
@@ -241,16 +245,19 @@ module Ibex
               "ir.automaton.digest")
       end
 
-      # @rbs (untyped value, String path) -> Array[String]
+      # @rbs (json_value value, String path) -> Array[String]
       def checks(value, path)
-        entries = array(value, path)
-        entries.each { |entry| enum(entry, Verify::Verifier::DEFAULT_CHECKS + Verify::Verifier::STRICT_CHECKS, path) }
+        entries = array(value, path).map do |entry|
+          check = string(entry, path)
+          enum(check, Verify::Verifier::DEFAULT_CHECKS + Verify::Verifier::STRICT_CHECKS, path)
+          check
+        end
         raise TypeError, "#{path} must contain unique checks" unless entries.uniq == entries
 
         entries
       end
 
-      # @rbs (untyped value, Array[String] keys, String path) -> Hash[String, untyped]
+      # @rbs (json_value value, Array[String] keys, String path) -> Hash[String, json_value]
       def object(value, keys, path)
         raise TypeError, "#{path} must be an object" unless value.is_a?(Hash)
         raise TypeError, "#{path} keys must be strings" unless value.keys.all?(String)
@@ -263,35 +270,35 @@ module Ibex
         value
       end
 
-      # @rbs (untyped value, String path) -> Array[untyped]
+      # @rbs (json_value value, String path) -> Array[json_value]
       def array(value, path)
         raise TypeError, "#{path} must be an array" unless value.is_a?(Array)
 
         value
       end
 
-      # @rbs (untyped value, String path, ?allow_empty: bool) -> String
+      # @rbs (json_value value, String path, ?allow_empty: bool) -> String
       def string(value, path, allow_empty: false)
         return value if value.is_a?(String) && (allow_empty || !value.empty?)
 
         raise TypeError, "#{path} must be #{allow_empty ? 'a string' : 'a non-empty string'}"
       end
 
-      # @rbs (untyped value, String path) -> String
+      # @rbs (json_value value, String path) -> String
       def digest(value, path)
         return value if value.is_a?(String) && value.match?(DIGEST)
 
         raise TypeError, "#{path} must be a SHA-256 identity"
       end
 
-      # @rbs (untyped value, String path) -> Integer
+      # @rbs (json_value value, String path) -> Integer
       def positive_integer(value, path)
         return value if value.is_a?(Integer) && value.positive?
 
         raise TypeError, "#{path} must be a positive integer"
       end
 
-      # @rbs (untyped value, String path) -> Integer
+      # @rbs (json_value value, String path) -> Integer
       def nonnegative_integer(value, path)
         return value if value.is_a?(Integer) && value >= 0
 
@@ -305,7 +312,7 @@ module Ibex
         raise TypeError, "#{path} has an unsupported value"
       end
 
-      # @rbs (untyped actual, untyped expected, String path) -> void
+      # @rbs (json_value actual, json_value expected, String path) -> void
       def equal(actual, expected, path)
         return if actual == expected
 

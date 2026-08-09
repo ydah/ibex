@@ -71,11 +71,11 @@ module Ibex
         validate_named_digest(identity, payload, "recovery_metadata", "recovery")
       end
 
-      # @rbs (untyped data) -> String
+      # @rbs (ValidationSupport::json_value data) -> String
       def validate_table_format(data)
         path = "$.payload.table_format"
         keys = %w[family version representation action_encoding goto_encoding]
-        record(data, path, keys)
+        data = record(data, path, keys)
         enum(data.fetch("family"), "#{path}.family", ["ibex-runtime-parser-table"])
         invalid("#{path}.version", "must be 6") unless integer(data.fetch("version"), "#{path}.version") == 6
         representation = enum(data.fetch("representation"), "#{path}.representation", %w[plain compact])
@@ -89,7 +89,7 @@ module Ibex
         representation
       end
 
-      # @rbs (untyped data) -> void
+      # @rbs (ValidationSupport::json_value data) -> void
       def validate_source(data)
         source = record(data, "$.payload.source", %w[grammar_digest automaton_digest])
         source.each { |key, value| digest(value, "$.payload.source.#{key}") }
@@ -99,9 +99,9 @@ module Ibex
           source.fetch("automaton_digest") == identity.fetch("automaton_digest")
       end
 
-      # @rbs (untyped data) -> Array[Hash[String, untyped]]
+      # @rbs (ValidationSupport::json_value data) -> Array[Hash[String, untyped]]
       def validate_symbols(data)
-        symbols = array(data, "$.payload.symbols")
+        symbols = array(data, "$.payload.symbols") #: Array[Hash[String, untyped]]
         invalid("$.payload.symbols", "must not be empty") if symbols.empty?
         names = [] #: Array[String]
         symbols.each_with_index do |symbol, index|
@@ -116,9 +116,9 @@ module Ibex
         symbols
       end
 
-      # @rbs (untyped data, Array[Hash[String, untyped]] symbols) -> void
+      # @rbs (ValidationSupport::json_value data, Array[Hash[String, untyped]] symbols) -> void
       def validate_tokens(data, symbols)
-        tokens = array(data, "$.payload.tokens")
+        tokens = array(data, "$.payload.tokens") #: Array[Hash[String, untyped]]
         expected = symbols.select { |symbol| symbol.fetch("kind") == "terminal" }.map do |symbol|
           symbol.slice("id", "name", "display_name")
         end
@@ -130,9 +130,9 @@ module Ibex
                                                                       tokens.first.fetch("name") == "$eof"
       end
 
-      # @rbs (untyped data, Array[Hash[String, untyped]] symbols, Integer state_count) -> void
+      # @rbs (ValidationSupport::json_value data, Array[Hash[String, untyped]] symbols, Integer state_count) -> void
       def validate_entries(data, symbols, state_count)
-        entries = array(data, "$.payload.entry_states")
+        entries = array(data, "$.payload.entry_states") #: Array[Hash[String, untyped]]
         invalid("$.payload.entry_states", "must not be empty") if entries.empty?
         names = entries.map.with_index do |entry, index|
           path = "$.payload.entry_states[#{index}]"
@@ -147,9 +147,9 @@ module Ibex
         invalid("$.payload.entry_states", "names must be unique") unless names.uniq.length == names.length
       end
 
-      # @rbs (untyped data, Array[Hash[String, untyped]] symbols) -> Array[Hash[String, untyped]]
+      # @rbs (ValidationSupport::json_value data, Array[Hash[String, untyped]] symbols) -> Array[Hash[String, untyped]]
       def validate_productions(data, symbols)
-        productions = array(data, "$.payload.productions")
+        productions = array(data, "$.payload.productions") #: Array[Hash[String, untyped]]
         nonterminals = symbol_ids(symbols, "nonterminal")
         productions.each_with_index do |production, index|
           path = "$.payload.productions[#{index}]"
@@ -169,13 +169,13 @@ module Ibex
         productions
       end
 
-      # @rbs (untyped data, Hash[String, untyped] payload) -> void
+      # @rbs (ValidationSupport::json_value data, Hash[String, untyped] payload) -> void
       def validate_cost(data, payload)
         path = "$.cost"
         keys = %w[
           canonical_payload_bytes action_cells goto_cells lookup_cost recognition_cost measurement bounded_by_max_steps
         ]
-        record(data, path, keys)
+        data = record(data, path, keys)
         bytes = integer(data.fetch("canonical_payload_bytes"), "#{path}.canonical_payload_bytes", minimum: 1)
         unless bytes == Serializer.compact(payload).bytesize
           invalid("#{path}.canonical_payload_bytes",

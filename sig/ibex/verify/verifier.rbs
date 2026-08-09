@@ -81,6 +81,12 @@ module Ibex
       # @rbs () -> void
       def verify_table_formats: () -> void
 
+      # @rbs (Tables::action_table table, Integer row) -> Hash[Integer, IR::runtime_action]
+      def action_row: (Tables::action_table table, Integer row) -> Hash[Integer, IR::runtime_action]
+
+      # @rbs (Tables::goto_table table, Integer row) -> Hash[Integer, Integer]
+      def goto_row: (Tables::goto_table table, Integer row) -> Hash[Integer, Integer]
+
       # @rbs () -> void
       def verify_reachability_and_productivity: () -> void
 

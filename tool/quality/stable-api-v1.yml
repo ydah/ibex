@@ -7,7 +7,7 @@ files:
   sig/ibex/ir/grammar_ir.rbs: 04a03bb0755502872d4a3cf9bd525ddef58dba22cc10ef4eaf5f468ac8d90503
   sig/ibex/ir/lexer_ir.rbs: fd41f3df2e90c6eb776da8ba87352d354e452790f127fb830a7f712125cd2778
   sig/ibex/ir/migration.rbs: 7dab2261fb28c438759ad3752634d44c1a808fa541be4facf6603439ff2ebc94
-  sig/ibex/ir/serialize.rbs: fa7d5c18d603cc9f4f8045b5153411af85bb21f5bb30382ad9994419f5a32dcf
+  sig/ibex/ir/serialize.rbs: 0a049fb361d6742e632b9110a05a34a7c30db01ac15b0200ff6407d16bc69ccc
   sig/ibex/ir/validator.rbs: 5de07834bc4d4f7bcc4f8d1eea414fbfd89f096ee03f7605a23c3ef8a869d1b8
   sig/ibex/ir/validator/automaton.rbs: 384dd5a364a16cf0c78fa6c3bf34ade75eb5e1f8756a18d36c7da6e143ab8bfc
   sig/ibex/ir/validator/base.rbs: f0e3d69646bd128f3d07b3518c68f621c95b441e8591ea4d258b6c61474c739f
@@ -46,7 +46,7 @@ files:
   sig/ibex/runtime/resource_limits.rbs: 7b74d816b3b0c953a9ca2a92e775ab6be774876812f791041602739bf04e5c97
   sig/ibex/runtime/table_format.rbs: 74b32eb9849e69eccd8552c8202ef9999ea8b069757703f50be99718640b4ba4
   sig/ibex/runtime/version.rbs: a6da338424d25712f9538b5be147699f38dd62a3d85d1d6e027620df041b9f04
-  sig/ibex/tables.rbs: b93ac9cd02ca9b5e0c59a174a7b91f9a6ff3dac527b9e22be51ade67779847da
-  sig/ibex/tables/compact.rbs: 15a8f8579baef49609b4b91904a5cf1b5a697757467b2933a396886641d13f5f
-  sig/ibex/tables/compact_actions.rbs: d194ef2115aef838658fed7aea3d9a167e775539de76e864d8717658448be9a1
+  sig/ibex/tables.rbs: 279b93a00efe195b0b3ea794332779194014e0d68483a6e90d0ae8f597e2b629
+  sig/ibex/tables/compact.rbs: 53a5bedea58036bc1684817de4edd4164e060812c50c16cd57e363ac68918bc0
+  sig/ibex/tables/compact_actions.rbs: 1babd68c0252096d6d3685da9775e4779af1e191dabea6a79f3c361010fb44d8
   sig/ibex/tables/compact_productions.rbs: 09598e04e215457080a95fe9a767c5b9d8aa65dfd60be0603773d9187fa56e41

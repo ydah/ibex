@@ -17,35 +17,35 @@ module Ibex
       # @rbs (Array[Hash[String, untyped]] symbols, String kind) -> Set[Integer]
       def ids_for_kind: (Array[Hash[String, untyped]] symbols, String kind) -> Set[Integer]
 
-      # @rbs (untyped data) -> void
-      def validate_semantic_actions: (untyped data) -> void
+      # @rbs (ValidationSupport::json_value data) -> void
+      def validate_semantic_actions: (ValidationSupport::json_value data) -> void
 
-      # @rbs (untyped data) -> void
-      def validate_recovery: (untyped data) -> void
+      # @rbs (ValidationSupport::json_value data) -> void
+      def validate_recovery: (ValidationSupport::json_value data) -> void
 
-      # @rbs (untyped data) -> void
-      def validate_cst: (untyped data) -> void
+      # @rbs (ValidationSupport::json_value data) -> void
+      def validate_cst: (ValidationSupport::json_value data) -> void
 
-      # @rbs (untyped data, String path) -> Integer
-      def validate_cst_kinds: (untyped data, String path) -> Integer
+      # @rbs (ValidationSupport::json_value data, String path) -> Integer
+      def validate_cst_kinds: (ValidationSupport::json_value data, String path) -> Integer
 
-      # @rbs (untyped data, String path, Integer limit) -> void
-      def validate_range: (untyped data, String path, Integer limit) -> void
+      # @rbs (ValidationSupport::json_value data, String path, Integer limit) -> void
+      def validate_range: (ValidationSupport::json_value data, String path, Integer limit) -> void
 
-      # @rbs (untyped data, String path, Array[untyped] names) -> void
-      def validate_named_kinds: (untyped data, String path, Array[untyped] names) -> void
+      # @rbs (ValidationSupport::json_value data, String path, Array[String] names) -> void
+      def validate_named_kinds: (ValidationSupport::json_value data, String path, Array[String] names) -> void
 
-      # @rbs (untyped data, String path, Integer kind_count) -> void
-      def validate_named_nonterminals: (untyped data, String path, Integer kind_count) -> void
+      # @rbs (ValidationSupport::json_value data, String path, Integer kind_count) -> void
+      def validate_named_nonterminals: (ValidationSupport::json_value data, String path, Integer kind_count) -> void
 
-      # @rbs (untyped data, String path, Integer kind_count) -> void
-      def validate_cst_slots: (untyped data, String path, Integer kind_count) -> void
+      # @rbs (ValidationSupport::json_value data, String path, Integer kind_count) -> void
+      def validate_cst_slots: (ValidationSupport::json_value data, String path, Integer kind_count) -> void
 
-      # @rbs (untyped data, String path, Hash[String, untyped] production) -> void
-      def validate_fields: (untyped data, String path, Hash[String, untyped] production) -> void
+      # @rbs (ValidationSupport::json_value data, String path, Hash[String, untyped] production) -> void
+      def validate_fields: (ValidationSupport::json_value data, String path, Hash[String, untyped] production) -> void
 
-      # @rbs (untyped data, String path, ?sorted: bool) -> Array[Integer]
-      def integer_ids: (untyped data, String path, ?sorted: bool) -> Array[Integer]
+      # @rbs (ValidationSupport::json_value data, String path, ?sorted: bool) -> Array[Integer]
+      def integer_ids: (ValidationSupport::json_value data, String path, ?sorted: bool) -> Array[Integer]
     end
   end
 end
