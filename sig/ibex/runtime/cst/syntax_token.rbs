@@ -40,8 +40,8 @@ module Ibex
         # @rbs () -> Array[GreenTrivia]
         def leading_trivia: () -> Array[GreenTrivia]
 
-        # @rbs () -> Array[untyped]
-        def children: () -> Array[untyped]
+        # @rbs () -> Array[Object?]
+        def children: () -> Array[Object?]
 
         # @rbs () -> String
         def full_text: () -> String
@@ -90,17 +90,17 @@ module Ibex
         # @rbs (SyntaxToken other) -> bool
         def same_node?: (SyntaxToken other) -> bool
 
-        # @rbs (untyped other) -> bool
-        def ==: (untyped other) -> bool
+        # @rbs (Object? other) -> bool
+        def ==: (Object? other) -> bool
 
-        # @rbs () -> Array[untyped]
-        def deconstruct: () -> Array[untyped]
+        # @rbs () -> Array[Object?]
+        def deconstruct: () -> Array[Object?]
 
-        # @rbs (Array[Symbol]?) -> Hash[Symbol, untyped]
-        def deconstruct_keys: (Array[Symbol]?) -> Hash[Symbol, untyped]
+        # @rbs (Array[Symbol]?) -> Hash[Symbol, Object?]
+        def deconstruct_keys: (Array[Symbol]?) -> Hash[Symbol, Object?]
 
-        # @rbs () -> Hash[Symbol, untyped]
-        def to_h: () -> Hash[Symbol, untyped]
+        # @rbs () -> Hash[Symbol, Object?]
+        def to_h: () -> Hash[Symbol, Object?]
 
         private
 

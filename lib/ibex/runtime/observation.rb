@@ -57,7 +57,7 @@ module Ibex
 
       private
 
-      # @rbs (Symbol type, Hash[untyped, untyped] data, ?observers: Array[Proc]?) -> void
+      # @rbs (Symbol type, Hash[Object?, Object?] data, ?observers: Array[Proc]?) -> void
       def emit_runtime_event(type, data, observers: runtime_observer_snapshot)
         return unless observers
 

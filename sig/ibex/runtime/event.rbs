@@ -4,6 +4,8 @@ module Ibex
   module Runtime
     # One immutable versioned parser observation.
     class Event
+      type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+
       SCHEMA_VERSION: Integer
 
       IDENTIFIER: String
@@ -14,13 +16,13 @@ module Ibex
 
       attr_reader sequence: Integer
 
-      attr_reader data: Hash[String, untyped]
+      attr_reader data: Hash[String, json_value]
 
-      # @rbs (type: Symbol, sequence: Integer, data: Hash[untyped, untyped]) -> void
-      def initialize: (type: Symbol, sequence: Integer, data: Hash[untyped, untyped]) -> void
+      # @rbs (type: Symbol, sequence: Integer, data: Hash[Object?, Object?]) -> void
+      def initialize: (type: Symbol, sequence: Integer, data: Hash[Object?, Object?]) -> void
 
-      # @rbs () -> Hash[String, untyped]
-      def to_h: () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
+      def to_h: () -> Hash[String, json_value]
     end
   end
 end

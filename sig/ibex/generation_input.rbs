@@ -22,8 +22,8 @@ module Ibex
     # @rbs (String path) -> void
     def add_access_path: (String path) -> void
 
-    # @rbs () -> Hash[String, untyped]
-    def to_h: () -> Hash[String, untyped]
+    # @rbs () -> Hash[String, String | Integer]
+    def to_h: () -> Hash[String, String | Integer]
 
     # Detect content changes even when size and timestamps are preserved.
     # @rbs () -> bool

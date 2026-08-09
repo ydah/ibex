@@ -2,6 +2,8 @@
 
 module Ibex
   module RaccMigration
+    type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+
     # One immutable migration compatibility observation.
     class Finding
       SEVERITIES: Array[Symbol]
@@ -20,8 +22,8 @@ module Ibex
       #   suggestion: String) -> void
       def initialize: (code: String, severity: Symbol, message: String, location: Frontend::Location?, suggestion: String) -> void
 
-      # @rbs () -> Hash[String, untyped]
-      def to_h: () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
+      def to_h: () -> Hash[String, json_value]
     end
 
     # Versioned result of checking one grammar without executing its code.
@@ -40,11 +42,11 @@ module Ibex
       # @rbs () -> bool
       def compatible?: () -> bool
 
-      # @rbs () -> Hash[String, untyped]
-      def to_h: () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
+      def to_h: () -> Hash[String, json_value]
 
-      # @rbs (*untyped) -> String
-      def to_json: (*untyped) -> String
+      # @rbs (*Object?) -> String
+      def to_json: (*Object?) -> String
 
       # @rbs () -> String
       def to_text: () -> String

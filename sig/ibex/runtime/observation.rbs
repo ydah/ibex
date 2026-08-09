@@ -22,8 +22,8 @@ module Ibex
 
       private
 
-      # @rbs (Symbol type, Hash[untyped, untyped] data, ?observers: Array[Proc]?) -> void
-      def emit_runtime_event: (Symbol type, Hash[untyped, untyped] data, ?observers: Array[Proc]?) -> void
+      # @rbs (Symbol type, Hash[Object?, Object?] data, ?observers: Array[Proc]?) -> void
+      def emit_runtime_event: (Symbol type, Hash[Object?, Object?] data, ?observers: Array[Proc]?) -> void
 
       # @rbs () -> Array[Proc]?
       def runtime_observer_snapshot: () -> Array[Proc]?

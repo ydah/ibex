@@ -348,7 +348,7 @@ module Ibex
           root.equal?(other.root) && @green.equal?(other.green) && @offset == other.offset
         end
 
-        # @rbs (untyped other) -> bool
+        # @rbs (Object? other) -> bool
         def ==(other)
           other.is_a?(SyntaxNode) && @green == other.green
         end
@@ -356,12 +356,12 @@ module Ibex
         # @rbs () -> Array[element]
         def deconstruct = children
 
-        # @rbs (Array[Symbol]?) -> Hash[Symbol, untyped]
+        # @rbs (Array[Symbol]?) -> Hash[Symbol, Object?]
         def deconstruct_keys(_keys)
           values = {
             kind: :node, symbol: symbol, production_id: production_id, children: children,
             location: location, trailing_trivia: trailing_trivia
-          } #: Hash[Symbol, untyped]
+          } #: Hash[Symbol, Object?]
           @kinds.fields(kind).each do |name, slot|
             index = slot.is_a?(Hash) ? slot.fetch(:index) : slot
             values[name.to_sym] = child_at(index)
@@ -369,7 +369,7 @@ module Ibex
           values.freeze
         end
 
-        # @rbs () -> Hash[Symbol, untyped]
+        # @rbs () -> Hash[Symbol, Object?]
         def to_h = deconstruct_keys(nil)
 
         protected

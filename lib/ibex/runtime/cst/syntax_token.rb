@@ -45,7 +45,7 @@ module Ibex
         # @rbs () -> Array[GreenTrivia]
         def leading_trivia = @green.leading
 
-        # @rbs () -> Array[untyped]
+        # @rbs () -> Array[Object?]
         def children = []
 
         # @rbs () -> String
@@ -127,15 +127,15 @@ module Ibex
           root.equal?(other.root) && @green.equal?(other.green) && @offset == other.offset
         end
 
-        # @rbs (untyped other) -> bool
+        # @rbs (Object? other) -> bool
         def ==(other)
           other.is_a?(SyntaxToken) && @green == other.green
         end
 
-        # @rbs () -> Array[untyped]
+        # @rbs () -> Array[Object?]
         def deconstruct = []
 
-        # @rbs (Array[Symbol]?) -> Hash[Symbol, untyped]
+        # @rbs (Array[Symbol]?) -> Hash[Symbol, Object?]
         def deconstruct_keys(_keys)
           {
             kind: :token, symbol: symbol, value: value, location: location,
@@ -143,7 +143,7 @@ module Ibex
           }.freeze
         end
 
-        # @rbs () -> Hash[Symbol, untyped]
+        # @rbs () -> Hash[Symbol, Object?]
         def to_h = deconstruct_keys(nil)
 
         private

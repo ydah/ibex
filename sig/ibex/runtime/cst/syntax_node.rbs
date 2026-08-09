@@ -155,17 +155,17 @@ module Ibex
         # @rbs (SyntaxNode other) -> bool
         def same_node?: (SyntaxNode other) -> bool
 
-        # @rbs (untyped other) -> bool
-        def ==: (untyped other) -> bool
+        # @rbs (Object? other) -> bool
+        def ==: (Object? other) -> bool
 
         # @rbs () -> Array[element]
         def deconstruct: () -> Array[element]
 
-        # @rbs (Array[Symbol]?) -> Hash[Symbol, untyped]
-        def deconstruct_keys: (Array[Symbol]?) -> Hash[Symbol, untyped]
+        # @rbs (Array[Symbol]?) -> Hash[Symbol, Object?]
+        def deconstruct_keys: (Array[Symbol]?) -> Hash[Symbol, Object?]
 
-        # @rbs () -> Hash[Symbol, untyped]
-        def to_h: () -> Hash[Symbol, untyped]
+        # @rbs () -> Hash[Symbol, Object?]
+        def to_h: () -> Hash[Symbol, Object?]
 
         # @rbs (Integer source_offset) -> element?
         def child_covering_offset: (Integer source_offset) -> element?

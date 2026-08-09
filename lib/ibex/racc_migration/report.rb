@@ -5,6 +5,9 @@ require "json"
 
 module Ibex
   module RaccMigration
+    # @rbs!
+    #   type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+
     # One immutable migration compatibility observation.
     class Finding
       SEVERITIES = %i[error warning info].freeze #: Array[Symbol]
@@ -30,7 +33,7 @@ module Ibex
         freeze
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
       def to_h
         {
           "code" => @code,
@@ -61,7 +64,7 @@ module Ibex
       # @rbs () -> bool
       def compatible? = @findings.none? { |finding| finding.severity == :error }
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
       def to_h
         {
           "ibex_migration_check" => "racc",
@@ -73,7 +76,7 @@ module Ibex
         }
       end
 
-      # @rbs (*untyped) -> String
+      # @rbs (*Object?) -> String
       def to_json(*) = JSON.pretty_generate(to_h)
 
       # @rbs () -> String

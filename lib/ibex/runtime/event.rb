@@ -7,6 +7,9 @@ module Ibex
   module Runtime
     # One immutable versioned parser observation.
     class Event
+      # @rbs!
+      #   type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+
       SCHEMA_VERSION = 1 #: Integer
       IDENTIFIER = "runtime-event" #: String
       TYPES = %i[
@@ -15,9 +18,9 @@ module Ibex
 
       attr_reader :type #: Symbol
       attr_reader :sequence #: Integer
-      attr_reader :data #: Hash[String, untyped]
+      attr_reader :data #: Hash[String, json_value]
 
-      # @rbs (type: Symbol, sequence: Integer, data: Hash[untyped, untyped]) -> void
+      # @rbs (type: Symbol, sequence: Integer, data: Hash[Object?, Object?]) -> void
       def initialize(type:, sequence:, data:)
         raise ArgumentError, "unknown runtime event type #{type.inspect}" unless TYPES.include?(type)
         raise ArgumentError, "runtime event sequence must be positive" unless sequence.positive?
@@ -31,11 +34,11 @@ module Ibex
           "sequence" => @sequence,
           "event" => @type.to_s.freeze,
           "data" => @data
-        }.freeze #: Hash[String, untyped]
+        }.freeze #: Hash[String, json_value]
         freeze
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
       def to_h
         @document
       end

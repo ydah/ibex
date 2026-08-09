@@ -38,16 +38,16 @@ module Ibex
     # @rbs () -> bool
     def empty?: () -> bool
 
-    # @rbs () -> Hash[Symbol, untyped]
-    def to_h: () -> Hash[Symbol, untyped]
+    # @rbs () -> Hash[Symbol, String | Integer]
+    def to_h: () -> Hash[Symbol, String | Integer]
 
     private
 
-    # @rbs (Symbol name, untyped value) -> Integer
-    def positive_coordinate: (Symbol name, untyped value) -> Integer
+    # @rbs (Symbol name, Object? value) -> Integer
+    def positive_coordinate: (Symbol name, Object? value) -> Integer
 
-    # @rbs (Symbol name, untyped value) -> Integer?
-    def optional_offset: (Symbol name, untyped value) -> Integer?
+    # @rbs (Symbol name, Object? value) -> Integer?
+    def optional_offset: (Symbol name, Object? value) -> Integer?
 
     # @rbs () -> void
     def validate_order!: () -> void

@@ -31,7 +31,7 @@ module Ibex
       @access_paths << expanded unless @access_paths.include?(expanded)
     end
 
-    # @rbs () -> Hash[String, untyped]
+    # @rbs () -> Hash[String, String | Integer]
     def to_h
       { "path" => @path, "sha256" => @sha256, "bytesize" => @bytesize }
     end

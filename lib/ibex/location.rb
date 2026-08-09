@@ -62,7 +62,7 @@ module Ibex
         (@start_byte.nil? || @end_byte.nil? || @start_byte == @end_byte)
     end
 
-    # @rbs () -> Hash[Symbol, untyped]
+    # @rbs () -> Hash[Symbol, String | Integer]
     def to_h
       {
         file: @file, line: @line, column: @column,
@@ -73,14 +73,14 @@ module Ibex
 
     private
 
-    # @rbs (Symbol name, untyped value) -> Integer
+    # @rbs (Symbol name, Object? value) -> Integer
     def positive_coordinate(name, value)
       return value if value.is_a?(Integer) && value.positive?
 
       raise ArgumentError, "#{name} must be a positive Integer"
     end
 
-    # @rbs (Symbol name, untyped value) -> Integer?
+    # @rbs (Symbol name, Object? value) -> Integer?
     def optional_offset(name, value)
       return if value.nil?
       return value if value.is_a?(Integer) && value >= 0
