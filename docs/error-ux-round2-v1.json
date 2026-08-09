@@ -387,7 +387,7 @@
       },
       {
         "path": "lib/ibex/ir/serialize.rb",
-        "sha256": "e7f2e98808f9f1fe32cea86a1a311f19551d6d58438353ec4a74eb140e7a9a2a"
+        "sha256": "19b55ba0b2903c454804b242d3db391382dda3f3dce0294adee6747513868ad8"
       },
       {
         "path": "lib/ibex/ir/validator.rb",
@@ -783,7 +783,7 @@
       },
       {
         "path": "lib/ibex/tables/compact_actions.rb",
-        "sha256": "70932c01e2b8642272df5c20b55472ffd8bd335960107ecc329113cb9a3d19d0"
+        "sha256": "033754e87c615c184cd9a645f3263e8a6bfc8661b72186fddaa8cbc8452725b5"
       },
       {
         "path": "lib/ibex/tables/compact_productions.rb",
