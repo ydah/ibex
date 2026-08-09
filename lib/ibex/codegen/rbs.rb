@@ -8,6 +8,9 @@ module Ibex
     # Generates an RBS declaration for the public surface of a generated parser.
     # rubocop:disable Metrics/ClassLength -- one generator owns the complete parser signature.
     class RBS
+      # @rbs!
+      #   type syntax_definition = { name: String, kind: Integer, fields: Hash[String, CSTMetadata::field_slot] }
+
       # @rbs @automaton: IR::Automaton
       # @rbs @grammar: IR::Grammar
       # @rbs @superclass: String
@@ -64,11 +67,11 @@ module Ibex
         lines.push("  end", "")
       end
 
-      # @rbs () -> Hash[String, Hash[Symbol, untyped]]
+      # @rbs () -> Hash[String, syntax_definition]
       def syntax_node_definitions
         metadata = CSTMetadata.new(@grammar).build
         slots = metadata.fetch(:slots)
-        definitions = {} #: Hash[String, Hash[Symbol, untyped]]
+        definitions = {} #: Hash[String, syntax_definition]
         @grammar.productions.each do |production|
           node = production.node
           next unless node
@@ -77,12 +80,13 @@ module Ibex
           name = node.fetch(:name)
           previous = definitions[name]
           fields = previous ? merge_syntax_fields(previous.fetch(:fields), slot.fetch(:fields)) : slot.fetch(:fields)
-          definitions[name] = { name: name, kind: slot.fetch(:node_kind), fields: fields }.freeze
+          definition = { name: name, kind: slot.fetch(:node_kind), fields: fields }.freeze #: syntax_definition
+          definitions[name] = definition
         end
         definitions
       end
 
-      # @rbs (Hash[String, untyped] left, Hash[String, untyped] right) -> Hash[String, untyped]
+      # @rbs (Hash[String, CSTMetadata::field_slot] left, Hash[String, CSTMetadata::field_slot] right) -> Hash[String, CSTMetadata::field_slot]
       def merge_syntax_fields(left, right)
         left.to_h do |name, left_slot|
           right_slot = right.fetch(name)
@@ -94,7 +98,7 @@ module Ibex
         end.freeze
       end
 
-      # @rbs (Array[String] lines, Hash[Symbol, untyped] definition) -> void
+      # @rbs (Array[String] lines, syntax_definition definition) -> void
       def append_syntax_node_contract(lines, definition)
         name = definition.fetch(:name)
         fields = definition.fetch(:fields)
@@ -122,17 +126,21 @@ module Ibex
         types.one? ? types.fetch(0) : "(#{types.join(' | ')})"
       end
 
-      # @rbs (Array[String] lines, Hash[String, untyped] fields) -> void
+      # @rbs (Array[String] lines, Hash[String, CSTMetadata::field_slot] fields) -> void
       def append_repetition_contracts(lines, fields)
         repeated = fields.select { |_field, slot| slot.is_a?(Hash) && slot[:extraction] }
         element = "Enumerator[Ibex::Runtime::CST::SyntaxNode | Ibex::Runtime::CST::SyntaxToken, void]"
         repeated.each do |field, slot|
+          next unless slot.is_a?(Hash)
+
           lines << "      def each_#{field}_element: () -> #{element}"
           lines << "      def each_#{field}_separator: () -> #{element}" if slot.fetch(:extraction) == :separated_list
         end
         return unless repeated.one?
 
         _field, slot = repeated.first
+        return unless slot.is_a?(Hash)
+
         lines << "      def each_element: () -> #{element}"
         lines << "      def each_separator: () -> #{element}" if slot.fetch(:extraction) == :separated_list
       end
@@ -320,7 +328,7 @@ module Ibex
         end
       end
 
-      # @rbs (IR::Production production, Hash[Symbol, untyped] plan, Integer slot, Integer step_index) -> String
+      # @rbs (IR::Production production, IR::action_composition_plan plan, Integer slot, Integer step_index) -> String
       def composition_slot_type(production, plan, slot, step_index)
         physical = plan.fetch(:physical)
         return semantic_type(production.rhs.fetch(slot)) if slot < physical

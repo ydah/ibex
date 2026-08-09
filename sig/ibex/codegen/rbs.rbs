@@ -5,6 +5,8 @@ module Ibex
     # Generates an RBS declaration for the public surface of a generated parser.
     # rubocop:disable Metrics/ClassLength -- one generator owns the complete parser signature.
     class RBS
+      type syntax_definition = { name: String, kind: Integer, fields: Hash[String, CSTMetadata::field_slot] }
+
       @generated_action_abi: GeneratedActionABI::Cache
 
       @omit_action_call: bool
@@ -29,20 +31,20 @@ module Ibex
       # @rbs (Array[String] lines) -> void
       def append_syntax_contract: (Array[String] lines) -> void
 
-      # @rbs () -> Hash[String, Hash[Symbol, untyped]]
-      def syntax_node_definitions: () -> Hash[String, Hash[Symbol, untyped]]
+      # @rbs () -> Hash[String, syntax_definition]
+      def syntax_node_definitions: () -> Hash[String, syntax_definition]
 
-      # @rbs (Hash[String, untyped] left, Hash[String, untyped] right) -> Hash[String, untyped]
-      def merge_syntax_fields: (Hash[String, untyped] left, Hash[String, untyped] right) -> Hash[String, untyped]
+      # @rbs (Hash[String, CSTMetadata::field_slot] left, Hash[String, CSTMetadata::field_slot] right) -> Hash[String, CSTMetadata::field_slot]
+      def merge_syntax_fields: (Hash[String, CSTMetadata::field_slot] left, Hash[String, CSTMetadata::field_slot] right) -> Hash[String, CSTMetadata::field_slot]
 
-      # @rbs (Array[String] lines, Hash[Symbol, untyped] definition) -> void
-      def append_syntax_node_contract: (Array[String] lines, Hash[Symbol, untyped] definition) -> void
+      # @rbs (Array[String] lines, syntax_definition definition) -> void
+      def append_syntax_node_contract: (Array[String] lines, syntax_definition definition) -> void
 
       # @rbs (String node_name, Integer index) -> String
       def syntax_field_type: (String node_name, Integer index) -> String
 
-      # @rbs (Array[String] lines, Hash[String, untyped] fields) -> void
-      def append_repetition_contracts: (Array[String] lines, Hash[String, untyped] fields) -> void
+      # @rbs (Array[String] lines, Hash[String, CSTMetadata::field_slot] fields) -> void
+      def append_repetition_contracts: (Array[String] lines, Hash[String, CSTMetadata::field_slot] fields) -> void
 
       # @rbs () -> Hash[String, IR::node_annotation]
       def ast_node_definitions: () -> Hash[String, IR::node_annotation]
@@ -86,8 +88,8 @@ module Ibex
       # @rbs (Array[String] lines, IR::Production production) -> void
       def append_composed_fragment_signatures: (Array[String] lines, IR::Production production) -> void
 
-      # @rbs (IR::Production production, Hash[Symbol, untyped] plan, Integer slot, Integer step_index) -> String
-      def composition_slot_type: (IR::Production production, Hash[Symbol, untyped] plan, Integer slot, Integer step_index) -> String
+      # @rbs (IR::Production production, IR::action_composition_plan plan, Integer slot, Integer step_index) -> String
+      def composition_slot_type: (IR::Production production, IR::action_composition_plan plan, Integer slot, Integer step_index) -> String
 
       # @rbs (IR::Production production) -> bool
       def action_method?: (IR::Production production) -> bool
