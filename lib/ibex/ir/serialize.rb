@@ -8,32 +8,32 @@ module Ibex
     # rubocop:disable Metrics/ModuleLength -- explicit versioned fields keep serialization changes auditable.
     module Serialize
       # @rbs!
-      #   private def validate_version: (Hash[String, untyped] data) -> void
-      #   private def self.validate_version: (Hash[String, untyped] data) -> void
-      #   private def load_grammar: (Hash[String, untyped] data) -> Grammar
-      #   private def self.load_grammar: (Hash[String, untyped] data) -> Grammar
-      #   private def load_automaton: (Hash[String, untyped] data) -> Automaton
-      #   private def self.load_automaton: (Hash[String, untyped] data) -> Automaton
-      #   private def load_lexer: (Hash[String, untyped] data) -> Lexer
-      #   private def self.load_lexer: (Hash[String, untyped] data) -> Lexer
-      #   private def load_state: (Hash[String, untyped] state, Grammar grammar) -> AutomatonState
-      #   private def self.load_state: (Hash[String, untyped] state, Grammar grammar) -> AutomatonState
-      #   private def symbol_keyed: (Hash[String, untyped] values, Grammar grammar, ?actions: untyped) -> untyped
-      #   private def self.symbol_keyed: (Hash[String, untyped] values, Grammar grammar, ?actions: untyped) -> untyped
-      #   private def normalize_action: (Hash[String, untyped] value) -> parser_action?
-      #   private def self.normalize_action: (Hash[String, untyped] value) -> parser_action?
-      #   private def load_production: (Hash[String, untyped] production, Integer schema_version) -> Production
-      #   private def self.load_production: (Hash[String, untyped] production, Integer schema_version) -> Production
+      #   private def validate_version: (Hash[String, Object?] data) -> void
+      #   private def self.validate_version: (Hash[String, Object?] data) -> void
+      #   private def load_grammar: (Hash[String, Object?] data) -> Grammar
+      #   private def self.load_grammar: (Hash[String, Object?] data) -> Grammar
+      #   private def load_automaton: (Hash[String, Object?] data) -> Automaton
+      #   private def self.load_automaton: (Hash[String, Object?] data) -> Automaton
+      #   private def load_lexer: (Hash[String, Object?] data) -> Lexer
+      #   private def self.load_lexer: (Hash[String, Object?] data) -> Lexer
+      #   private def load_state: (Hash[String, Object?] state, Grammar grammar) -> AutomatonState
+      #   private def self.load_state: (Hash[String, Object?] state, Grammar grammar) -> AutomatonState
+      #   private def symbol_keyed: (Hash[String, Object?] values, Grammar grammar, ?actions: bool) -> Hash[Integer, Object?]
+      #   private def self.symbol_keyed: (Hash[String, Object?] values, Grammar grammar, ?actions: bool) -> Hash[Integer, Object?]
+      #   private def normalize_action: (Hash[String, Object?] value) -> parser_action?
+      #   private def self.normalize_action: (Hash[String, Object?] value) -> parser_action?
+      #   private def load_production: (Hash[String, Object?] production, Integer schema_version) -> Production
+      #   private def self.load_production: (Hash[String, Object?] production, Integer schema_version) -> Production
       #   private def load_user_code_chunks: (Hash[String,
-      #     Array[Hash[String, untyped]]] chunks) -> user_code_chunks
+      #     Array[Hash[String, Object?]]] chunks) -> user_code_chunks
       #   private def self.load_user_code_chunks: (Hash[String,
-      #     Array[Hash[String, untyped]]] chunks) -> user_code_chunks
-      #   private def load_symbol_metadata: (Hash[String, untyped] symbol, String field) -> String?
-      #   private def self.load_symbol_metadata: (Hash[String, untyped] symbol, String field) -> String?
-      #   private def load_grammar_tests: (Array[Hash[String, untyped]] tests) -> Array[grammar_test]
-      #   private def self.load_grammar_tests: (Array[Hash[String, untyped]] tests) -> Array[grammar_test]
-      #   private def symbol_source_position: (Hash[String, untyped] symbol) -> String
-      #   private def self.symbol_source_position: (Hash[String, untyped] symbol) -> String
+      #     Array[Hash[String, Object?]]] chunks) -> user_code_chunks
+      #   private def load_symbol_metadata: (Hash[String, Object?] symbol, String field) -> String?
+      #   private def self.load_symbol_metadata: (Hash[String, Object?] symbol, String field) -> String?
+      #   private def load_grammar_tests: (Array[Hash[String, Object?]] tests) -> Array[grammar_test]
+      #   private def self.load_grammar_tests: (Array[Hash[String, Object?]] tests) -> Array[grammar_test]
+      #   private def symbol_source_position: (Hash[String, Object?] symbol) -> String
+      #   private def self.symbol_source_position: (Hash[String, Object?] symbol) -> String
       #   private def symbolize: (Object? value) -> Object?
       #   private def self.symbolize: (Object? value) -> Object?
 
@@ -58,7 +58,7 @@ module Ibex
 
       # @rbs (String source) -> (Grammar | Automaton | Lexer)
       def load(source)
-        data = JSON.parse(source) #: Hash[String, untyped]
+        data = JSON.parse(source) #: Hash[String, Object?]
         type = data.fetch("ibex_ir") #: String
         return load_lexer(data) if type == "lexer"
 
@@ -86,13 +86,13 @@ module Ibex
 
       # @rbs skip
       def load_grammar(data)
-        empty_chunks = {} #: Hash[String, untyped]
-        empty_parameters = [] #: Array[untyped]
-        empty_printers = [] #: Array[untyped]
-        empty_tests = [] #: Array[untyped]
-        empty_recovery = { "sync_tokens" => [], "on_error_reduce" => [] } #: Hash[String, untyped]
+        empty_chunks = {} #: Hash[String, Object?]
+        empty_parameters = [] #: Array[Object?]
+        empty_printers = [] #: Array[Object?]
+        empty_tests = [] #: Array[Object?]
+        empty_recovery = { "sync_tokens" => [], "on_error_reduce" => [] } #: Hash[String, Object?]
         schema_version = data.fetch("schema_version") #: Integer
-        symbols_data = data.fetch("symbols") #: Array[Hash[String, untyped]]
+        symbols_data = data.fetch("symbols") #: Array[Hash[String, Object?]]
         symbols = symbols_data.map do |symbol|
           GrammarSymbol.new(id: symbol.fetch("id"), name: symbol.fetch("name"), kind: symbol.fetch("kind"),
                             reserved: symbol.fetch("reserved"), precedence: symbolize(symbol["prec"]),
@@ -101,7 +101,7 @@ module Ibex
                             semantic_type: load_symbol_metadata(symbol, "semantic_type"),
                             documentation: symbol["doc"])
         end
-        productions_data = data.fetch("productions") #: Array[Hash[String, untyped]]
+        productions_data = data.fetch("productions") #: Array[Hash[String, Object?]]
         productions = productions_data.map { |production| load_production(production, schema_version) }
         if schema_version >= 3
           return load_grammar_v3(
@@ -157,9 +157,9 @@ module Ibex
 
       # @rbs skip
       def load_automaton(data)
-        grammar_data = data.fetch("grammar") #: Hash[String, untyped]
+        grammar_data = data.fetch("grammar") #: Hash[String, Object?]
         grammar = load_grammar(grammar_data)
-        states_data = data.fetch("states") #: Array[Hash[String, untyped]]
+        states_data = data.fetch("states") #: Array[Hash[String, Object?]]
         states = states_data.map { |state| load_state(state, grammar) }
         schema_version = data.fetch("schema_version") #: Integer
         if schema_version >= 3
@@ -185,7 +185,7 @@ module Ibex
           raise Ibex::Error,
                 "(ir):1:1: unsupported lexer schema_version #{version.inspect}; expected one of #{expected}"
         end
-        rules_data = data.fetch("rules") #: Array[Hash[String, untyped]]
+        rules_data = data.fetch("rules") #: Array[Hash[String, Object?]]
         rules = rules_data.map do |rule|
           LexerRule.new(
             id: rule.fetch("id"), state: rule.fetch("state"), kind: rule.fetch("kind").to_sym,
@@ -201,7 +201,7 @@ module Ibex
 
       # @rbs skip
       def load_state(state, grammar)
-        items_data = state.fetch("items") #: Array[Hash[String, untyped]]
+        items_data = state.fetch("items") #: Array[Hash[String, Object?]]
         items = items_data.map do |item|
           lookahead_names = item.fetch("lookaheads") #: Array[String]
           lookaheads = lookahead_names.map do |name|
@@ -219,6 +219,7 @@ module Ibex
       end
 
       # @rbs skip
+      # @rbs (Hash[String, Object?] values, Grammar grammar, ?actions: bool) -> Hash[Integer, Object?]
       def symbol_keyed(values, grammar, actions: false)
         values.to_h do |name, value|
           symbol = grammar.symbol(name) || raise(Ibex::Error, "(ir):1:1: unknown symbol #{name.inspect}")
