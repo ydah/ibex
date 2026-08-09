@@ -7,6 +7,11 @@ module Ibex
   module IR
     # Root-owned parser configuration persisted by Grammar IR version 3.
     class ParserContract
+      # @rbs!
+      #   type definition = { configuration: String, values: Array[Symbol] }
+      #   type entry_location = { file: String?, line: Integer, column: Integer }
+      #   type entry_value = String? | bool | entry_location?
+
       DEFINITIONS = {
         algorithm: {
           configuration: "parser.algorithm", values: %i[slr lalr ielr lr1].freeze
@@ -17,7 +22,7 @@ module Ibex
         cst_trivia: {
           configuration: "cst.trivia", values: %i[leading balanced drop].freeze
         }.freeze
-      }.freeze #: Hash[Symbol, Hash[Symbol, untyped]]
+      }.freeze #: Hash[Symbol, definition]
 
       # One specified or explicitly unspecified contract field.
       class Entry
@@ -38,7 +43,7 @@ module Ibex
           freeze
         end
 
-        # @rbs () -> Hash[Symbol, untyped]
+        # @rbs () -> Hash[Symbol, entry_value]
         def to_h
           { value: @value&.to_s, explicit: @explicit, loc: serialized_location }
         end
@@ -62,7 +67,7 @@ module Ibex
           raise ArgumentError, "unspecified #{key} cannot carry a source location" unless location.nil?
         end
 
-        # @rbs () -> Hash[Symbol, untyped]?
+        # @rbs () -> entry_location?
         def serialized_location
           location = @location
           return unless location
@@ -83,7 +88,7 @@ module Ibex
         freeze
       end
 
-      # @rbs () -> Hash[Symbol, Hash[Symbol, untyped]]
+      # @rbs () -> Hash[Symbol, Hash[Symbol, entry_value]]
       def to_h
         {
           algorithm: @algorithm.to_h,
@@ -93,10 +98,11 @@ module Ibex
       end
 
       # Values supplied to the typed resolver; unspecified fields are absent.
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, Symbol]
       def configuration_values
         specified_entries.to_h do |entry|
-          [DEFINITIONS.fetch(entry.key).fetch(:configuration), entry.value]
+          value = entry.value || raise("explicit parser contract entry is missing its value")
+          [DEFINITIONS.fetch(entry.key).fetch(:configuration), value]
         end
       end
 

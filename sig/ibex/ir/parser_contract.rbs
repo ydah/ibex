@@ -4,7 +4,13 @@ module Ibex
   module IR
     # Root-owned parser configuration persisted by Grammar IR version 3.
     class ParserContract
-      DEFINITIONS: Hash[Symbol, Hash[Symbol, untyped]]
+      type definition = { configuration: String, values: Array[Symbol] }
+
+      type entry_location = { file: String?, line: Integer, column: Integer }
+
+      type entry_value = String? | bool | entry_location?
+
+      DEFINITIONS: Hash[Symbol, definition]
 
       # One specified or explicitly unspecified contract field.
       class Entry
@@ -19,16 +25,16 @@ module Ibex
         # @rbs (Symbol key, ?value: Symbol?, ?location: Location?, ?explicit: bool) -> void
         def initialize: (Symbol key, ?value: Symbol?, ?location: Location?, ?explicit: bool) -> void
 
-        # @rbs () -> Hash[Symbol, untyped]
-        def to_h: () -> Hash[Symbol, untyped]
+        # @rbs () -> Hash[Symbol, entry_value]
+        def to_h: () -> Hash[Symbol, entry_value]
 
         private
 
         # @rbs (Symbol key, Array[Symbol] allowed, Symbol? value, Location? location, bool explicit) -> void
         def validate_state!: (Symbol key, Array[Symbol] allowed, Symbol? value, Location? location, bool explicit) -> void
 
-        # @rbs () -> Hash[Symbol, untyped]?
-        def serialized_location: () -> Hash[Symbol, untyped]?
+        # @rbs () -> entry_location?
+        def serialized_location: () -> entry_location?
       end
 
       attr_reader algorithm: Entry
@@ -40,12 +46,12 @@ module Ibex
       # @rbs (?algorithm: Entry?, ?entries: Entry?, ?cst_trivia: Entry?) -> void
       def initialize: (?algorithm: Entry?, ?entries: Entry?, ?cst_trivia: Entry?) -> void
 
-      # @rbs () -> Hash[Symbol, Hash[Symbol, untyped]]
-      def to_h: () -> Hash[Symbol, Hash[Symbol, untyped]]
+      # @rbs () -> Hash[Symbol, Hash[Symbol, entry_value]]
+      def to_h: () -> Hash[Symbol, Hash[Symbol, entry_value]]
 
       # Values supplied to the typed resolver; unspecified fields are absent.
-      # @rbs () -> Hash[String, untyped]
-      def configuration_values: () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, Symbol]
+      def configuration_values: () -> Hash[String, Symbol]
 
       # Source locations supplied to the typed resolver.
       # @rbs () -> Hash[String, Location]
