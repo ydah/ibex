@@ -9,7 +9,7 @@ module Ibex
     module JSONLTracer
       # @rbs!
       #   interface _TraceOutput
-      #     def puts: (String) -> untyped
+      #     def puts: (String) -> void
       #   end
 
       # Hook layer installed on an individual parser's singleton class.
@@ -19,21 +19,21 @@ module Ibex
 
         # @rbs @ibex_jsonl_trace_output: _TraceOutput?
 
-        # @rbs (Integer token_id, untyped value, Integer state) -> void
+        # @rbs (Integer token_id, Object? value, Integer state) -> void
         def on_shift(token_id, value, state)
           write_trace(event: "shift", token_id: token_id, token: token_to_str(token_id),
                       value: safe_inspect(value), state: state)
           super
         end
 
-        # @rbs (Integer production_id, Array[untyped] values, untyped result) -> void
+        # @rbs (Integer production_id, Array[Object?] values, Object? result) -> void
         def on_reduce(production_id, values, result)
           write_trace(event: "reduce", production_id: production_id, values: values.map { |value| safe_inspect(value) },
                       result: safe_inspect(result))
           super
         end
 
-        # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> void
+        # @rbs (Integer token_id, Object? value, Array[Object?] value_stack) -> void
         def on_error_recover(token_id, value, value_stack)
           write_trace(event: "error_recover", token_id: token_id, token: token_to_str(token_id),
                       value: safe_inspect(value), value_stack: value_stack.map { |item| safe_inspect(item) })
@@ -47,14 +47,14 @@ module Ibex
           @ibex_jsonl_trace_output = output
         end
 
-        # @rbs (**untyped event) -> void
+        # @rbs (**event: Object?) -> void
         def write_trace(**event)
           @ibex_jsonl_trace_output&.puts(JSON.generate(event))
         rescue StandardError
           nil
         end
 
-        # @rbs (untyped value) -> String
+        # @rbs (Object? value) -> String
         def safe_inspect(value)
           value.inspect.encode(Encoding::UTF_8, invalid: :replace, undef: :replace)
         rescue StandardError

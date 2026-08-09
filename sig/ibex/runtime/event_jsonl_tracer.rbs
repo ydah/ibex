@@ -5,7 +5,7 @@ module Ibex
     # Emits schema-v1 immutable runtime events as JSON Lines.
     class EventJSONLTracer
       interface _EventTraceOutput
-        def puts: (String) -> untyped
+        def puts: (String) -> void
       end
 
       attr_reader parser: Parser

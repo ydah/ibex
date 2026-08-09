@@ -5,7 +5,7 @@ module Ibex
     # Emits committed parser observer events as JSON Lines.
     module JSONLTracer
       interface _TraceOutput
-        def puts: (String) -> untyped
+        def puts: (String) -> void
       end
 
       # Hook layer installed on an individual parser's singleton class.
@@ -14,25 +14,25 @@ module Ibex
 
         @ibex_jsonl_trace_output: _TraceOutput?
 
-        # @rbs (Integer token_id, untyped value, Integer state) -> void
-        def on_shift: (Integer token_id, untyped value, Integer state) -> void
+        # @rbs (Integer token_id, Object? value, Integer state) -> void
+        def on_shift: (Integer token_id, Object? value, Integer state) -> void
 
-        # @rbs (Integer production_id, Array[untyped] values, untyped result) -> void
-        def on_reduce: (Integer production_id, Array[untyped] values, untyped result) -> void
+        # @rbs (Integer production_id, Array[Object?] values, Object? result) -> void
+        def on_reduce: (Integer production_id, Array[Object?] values, Object? result) -> void
 
-        # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> void
-        def on_error_recover: (Integer token_id, untyped value, Array[untyped] value_stack) -> void
+        # @rbs (Integer token_id, Object? value, Array[Object?] value_stack) -> void
+        def on_error_recover: (Integer token_id, Object? value, Array[Object?] value_stack) -> void
 
         private
 
         # @rbs (_TraceOutput output) -> void
         def ibex_jsonl_trace_output=: (_TraceOutput output) -> void
 
-        # @rbs (**untyped event) -> void
-        def write_trace: (**untyped event) -> void
+        # @rbs (**event: Object?) -> void
+        def write_trace:
 
-        # @rbs (untyped value) -> String
-        def safe_inspect: (untyped value) -> String
+        # @rbs (Object? value) -> String
+        def safe_inspect: (Object? value) -> String
       end
 
       # @rbs [P < Parser] (P parser, io: _TraceOutput) -> P

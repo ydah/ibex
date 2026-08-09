@@ -10,7 +10,7 @@ module Ibex
     class EventJSONLTracer
       # @rbs!
       #   interface _EventTraceOutput
-      #     def puts: (String) -> untyped
+      #     def puts: (String) -> void
       #   end
 
       attr_reader :parser #: Parser
