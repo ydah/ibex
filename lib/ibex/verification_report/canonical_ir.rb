@@ -8,6 +8,9 @@ module Ibex
   module VerificationReport
     # Rebuilds immutable IR with source locations expressed as report logical identities.
     class CanonicalIR
+      # @rbs!
+      #   type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[json_value, json_value]
+
       LOGICAL_ROOT = "input" #: String
 
       # @rbs (IR::Automaton automaton, source_records: Array[GenerationInput]) -> void
@@ -57,12 +60,12 @@ module Ibex
         value
       end
 
-      # @rbs (untyped value) -> String
+      # @rbs (json_value value) -> String
       def generate_json(value)
         JSON.generate(normalize_for_json(value))
       end
 
-      # @rbs (untyped value) -> untyped
+      # @rbs (json_value value) -> json_value
       def normalize_for_json(value)
         case value
         when String
@@ -71,7 +74,7 @@ module Ibex
         when Array
           value.map { |child| normalize_for_json(child) }
         when Hash
-          normalized = {} #: Hash[untyped, untyped]
+          normalized = {} #: Hash[json_value, json_value] # steep:ignore UnannotatedEmptyCollection
           value.each_with_object(normalized) do |(key, child), result|
             result[normalize_for_json(key)] = normalize_for_json(child)
           end
