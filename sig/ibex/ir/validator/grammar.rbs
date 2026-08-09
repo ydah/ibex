@@ -30,20 +30,20 @@ module Ibex
 
         RUBY_KEYWORDS: Array[String]
 
-        attr_reader symbols_by_id: Hash[Integer, Hash[String, untyped]]
+        attr_reader symbols_by_id: Hash[Integer, json_object]
 
-        attr_reader symbols_by_name: Hash[String, Hash[String, untyped]]
+        attr_reader symbols_by_name: Hash[String, json_object]
 
-        attr_reader productions_by_id: Hash[Integer, Hash[String, untyped]]
+        attr_reader productions_by_id: Hash[Integer, json_object]
 
         @version: Integer
 
         @path: String
 
-        @data: Hash[String, untyped]
+        @data: json_object
 
-        # @rbs (Hash[String, untyped] data, ?path: String, ?version: Integer) -> void
-        def initialize: (Hash[String, untyped] data, ?path: String, ?version: Integer) -> void
+        # @rbs (json_object data, ?path: String, ?version: Integer) -> void
+        def initialize: (json_object data, ?path: String, ?version: Integer) -> void
 
         # @rbs () -> self
         def validate: () -> self
@@ -71,11 +71,11 @@ module Ibex
         # @rbs () -> void
         def validate_symbols: () -> void
 
-        # @rbs (untyped value, Integer index) -> void
-        def validate_symbol: (untyped value, Integer index) -> void
+        # @rbs (json_value value, Integer index) -> void
+        def validate_symbol: (json_value value, Integer index) -> void
 
-        # @rbs (untyped value, String path) -> void
-        def validate_precedence: (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
+        def validate_precedence: (json_value value, String path) -> void
 
         # @rbs () -> void
         def validate_reserved_symbols: () -> void
@@ -92,53 +92,53 @@ module Ibex
         # @rbs () -> void
         def validate_recovery: () -> void
 
-        # @rbs (untyped values, String path, kind: String) -> void
-        def validate_recovery_symbols: (untyped values, String path, kind: String) -> void
+        # @rbs (json_value values, String path, kind: String) -> void
+        def validate_recovery_symbols: (json_value values, String path, kind: String) -> void
 
-        # @rbs (untyped value, String path, kind: String, seen: Hash[String, bool]) -> void
-        def validate_recovery_symbol: (untyped value, String path, kind: String, seen: Hash[String, bool]) -> void
+        # @rbs (json_value value, String path, kind: String, seen: Hash[String, bool]) -> void
+        def validate_recovery_symbol: (json_value value, String path, kind: String, seen: Hash[String, bool]) -> void
 
         # @rbs () -> void
         def validate_productions: () -> void
 
-        # @rbs (untyped value, Integer index) -> void
-        def validate_production: (untyped value, Integer index) -> void
+        # @rbs (json_value value, Integer index) -> void
+        def validate_production: (json_value value, Integer index) -> void
 
-        # @rbs (untyped value, String path, rhs_length: Integer) -> void
-        def validate_node_annotation: (untyped value, String path, rhs_length: Integer) -> void
+        # @rbs (json_value value, String path, rhs_length: Integer) -> void
+        def validate_node_annotation: (json_value value, String path, rhs_length: Integer) -> void
 
-        # @rbs (untyped value, String path) -> void
-        def validate_lhs: (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
+        def validate_lhs: (json_value value, String path) -> void
 
-        # @rbs (untyped value, String path) -> void
-        def validate_rhs: (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
+        def validate_rhs: (json_value value, String path) -> void
 
-        # @rbs (untyped value, String path, rhs_length: Integer) -> void
-        def validate_action: (untyped value, String path, rhs_length: Integer) -> void
+        # @rbs (json_value value, String path, rhs_length: Integer) -> void
+        def validate_action: (json_value value, String path, rhs_length: Integer) -> void
 
-        # @rbs (untyped value, String path, limit: Integer) -> void
-        def validate_named_refs: (untyped value, String path, limit: Integer) -> void
+        # @rbs (json_value value, String path, limit: Integer) -> void
+        def validate_named_refs: (json_value value, String path, limit: Integer) -> void
 
-        # @rbs (untyped value, String path) -> void
-        def validate_precedence_override: (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
+        def validate_precedence_override: (json_value value, String path) -> void
 
-        # @rbs (untyped value, String path) -> void
-        def validate_origin: (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
+        def validate_origin: (json_value value, String path) -> void
 
-        # @rbs (untyped value, String path) -> void
-        def validate_string_map: (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
+        def validate_string_map: (json_value value, String path) -> void
 
         # @rbs () -> void
         def validate_warnings: () -> void
 
-        # @rbs (untyped value, String path) -> void
-        def validate_warning: (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
+        def validate_warning: (json_value value, String path) -> void
 
-        # @rbs (Hash[String, untyped] warning, String path) -> void
-        def validate_warning_symbol: (Hash[String, untyped] warning, String path) -> void
+        # @rbs (json_object warning, String path) -> void
+        def validate_warning_symbol: (json_object warning, String path) -> void
 
-        # @rbs (Hash[String, untyped] warning, String field_name, String path) -> void
-        def validate_warning_production: (Hash[String, untyped] warning, String field_name, String path) -> void
+        # @rbs (json_object warning, String field_name, String path) -> void
+        def validate_warning_production: (json_object warning, String field_name, String path) -> void
 
         # @rbs () -> void
         def validate_lexer: () -> void
@@ -146,38 +146,38 @@ module Ibex
         # @rbs () -> void
         def validate_user_code_chunks: () -> void
 
-        # @rbs (untyped value, String path, ?nullable: bool) -> void
-        def validate_source_provenance: (untyped value, String path, ?nullable: bool) -> void
+        # @rbs (json_value value, String path, ?nullable: bool) -> void
+        def validate_source_provenance: (json_value value, String path, ?nullable: bool) -> void
 
-        # @rbs (untyped value, String path) -> void
-        def validate_byte_span: (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
+        def validate_byte_span: (json_value value, String path) -> void
 
         # @rbs () -> void
         def validate_migration: () -> void
 
-        # @rbs (untyped value, String path) -> void
-        def validate_expansion: (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
+        def validate_expansion: (json_value value, String path) -> void
 
-        # @rbs (untyped value, String path) -> void
-        def validate_parameter_expansion: (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
+        def validate_parameter_expansion: (json_value value, String path) -> void
 
-        # @rbs (untyped value, String path) -> void
-        def validate_inline_expansion: (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
+        def validate_inline_expansion: (json_value value, String path) -> void
 
-        # @rbs (untyped value, String path, rhs_length: Integer) -> void
-        def validate_action_composition: (untyped value, String path, rhs_length: Integer) -> void
+        # @rbs (json_value value, String path, rhs_length: Integer) -> void
+        def validate_action_composition: (json_value value, String path, rhs_length: Integer) -> void
 
-        # @rbs (untyped value, String path, Integer rhs_length, Array[untyped] fragments) -> void
-        def validate_action_composition_plan: (untyped value, String path, Integer rhs_length, Array[untyped] fragments) -> void
+        # @rbs (json_value value, String path, Integer rhs_length, Array[json_value] fragments) -> void
+        def validate_action_composition_plan: (json_value value, String path, Integer rhs_length, Array[json_value] fragments) -> void
 
-        # @rbs (untyped value, String path, Integer physical, Integer step_index) -> void
-        def validate_action_composition_step: (untyped value, String path, Integer physical, Integer step_index) -> void
+        # @rbs (json_value value, String path, Integer physical, Integer step_index) -> void
+        def validate_action_composition_step: (json_value value, String path, Integer physical, Integer step_index) -> void
 
-        # @rbs (Array[untyped] inputs, String path, Integer limit) -> void
-        def validate_action_slots: (Array[untyped] inputs, String path, Integer limit) -> void
+        # @rbs (Array[json_value] inputs, String path, Integer limit) -> void
+        def validate_action_slots: (Array[json_value] inputs, String path, Integer limit) -> void
 
-        # @rbs (untyped value, String path, Integer physical) -> void
-        def validate_action_lookahead: (untyped value, String path, Integer physical) -> void
+        # @rbs (json_value value, String path, Integer physical) -> void
+        def validate_action_lookahead: (json_value value, String path, Integer physical) -> void
       end
     end
   end

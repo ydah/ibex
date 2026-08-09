@@ -6,8 +6,6 @@ module Ibex
     # Encodes nonnegative integer arrays into compact generated-source
     # literals. Zero represents nil; positive values are offset by one.
     module PackedIntegers
-      module_function
-
       # @rbs (Array[Integer?] values) -> String
       def encode(values)
         encoded = values.map do |value|
@@ -58,6 +56,12 @@ module Ibex
           value.even? ? value / 2 : -((value + 1) / 2)
         end
       end
+
+      module_function :encode
+      module_function :decode
+      module_function :decode_required
+      module_function :encode_signed
+      module_function :decode_signed
     end
 
     # Sparse table represented by per-row offsets and ownership checks.

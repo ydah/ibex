@@ -7,18 +7,17 @@ module Ibex
 
     type goto_table = Array[Hash[Integer, Integer]] | Compact
 
+    private def runtime_action: (IR::parser_action action) -> IR::runtime_action
+
+    private def self.runtime_action: (IR::parser_action action) -> IR::runtime_action
+
     class TableSet < Struct[untyped]
       attr_accessor actions: action_table
       attr_accessor gotos: goto_table
       attr_accessor default_actions: Array[IR::runtime_action?]
-
-      def self.new: (?actions: untyped, ?gotos: untyped, ?default_actions: untyped) -> instance
-                  | ({ ?actions: untyped, ?gotos: untyped, ?default_actions: untyped }) -> instance
+      def self.new: (?actions: action_table, ?gotos: goto_table, ?default_actions: Array[IR::runtime_action?]) -> instance
+                  | ({ ?actions: action_table, ?gotos: goto_table, ?default_actions: Array[IR::runtime_action?] }) -> instance
     end
-
-    private def runtime_action: (IR::parser_action action) -> IR::runtime_action
-
-    private def self.runtime_action: (IR::parser_action action) -> IR::runtime_action
 
     # @rbs (IR::Automaton automaton, ?format: Symbol | String) -> TableSet
     def self?.build: (IR::Automaton automaton, ?format: Symbol | String) -> TableSet

@@ -13,7 +13,19 @@ module Ibex
     #   private def runtime_action: (IR::parser_action action) -> IR::runtime_action
     #   private def self.runtime_action: (IR::parser_action action) -> IR::runtime_action
 
+    # @rbs skip
     TableSet = Struct.new(:actions, :gotos, :default_actions, keyword_init: true)
+
+    # @rbs!
+    #   class TableSet < Struct[untyped]
+    #     attr_accessor actions: action_table
+    #     attr_accessor gotos: goto_table
+    #     attr_accessor default_actions: Array[IR::runtime_action?]
+    #     def self.new: (?actions: action_table, ?gotos: goto_table,
+    #       ?default_actions: Array[IR::runtime_action?]) -> instance
+    #                    | ({ ?actions: action_table, ?gotos: goto_table,
+    #       ?default_actions: Array[IR::runtime_action?] }) -> instance
+    #   end
 
     # @rbs (IR::Automaton automaton, ?format: Symbol | String) -> TableSet
     def build(automaton, format: :compact)

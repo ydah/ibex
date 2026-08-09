@@ -3,6 +3,31 @@
 module Ibex
   # Iterative, hygienic specialization of validated parameterized user rules.
   module NormalizeParameters
+    # @rbs!
+    #   type parameter_operation =
+    #     [:item | :finish_item, Frontend::AST::item] |
+    #     [:value, String] |
+    #     [:finish_suffix, Frontend::AST::Optional | Frontend::AST::Star | Frontend::AST::Plus] |
+    #     [:finish_separated, Frontend::AST::SeparatedList] |
+    #     [:group_alternative, String, Frontend::AST::Group, Array[Frontend::AST::item]] |
+    #     [:finish_group_alternative, String, Frontend::AST::Group, Integer]
+    #   type parameter_frame = {
+    #     reference: Frontend::AST::ParameterizedReference,
+    #     arguments: Array[Frontend::AST::item],
+    #     helper: String,
+    #     bindings: Hash[String, Frontend::AST::item],
+    #     rendered_arguments: Array[String],
+    #     templates: Array[Frontend::AST::Rule],
+    #     template_index: Integer,
+    #     alternative_index: Integer,
+    #     current: [Frontend::AST::Rule, Frontend::AST::Rule, Frontend::AST::Alternative]?,
+    #     item_index: Integer,
+    #     rhs: Array[String],
+    #     named_refs: Array[IR::named_ref],
+    #     operations: Array[parameter_operation],
+    #     values: Array[String]
+    #   }
+
     private
 
     # @rbs (Frontend::AST::ParameterizedReference reference) -> String
@@ -111,7 +136,7 @@ module Ibex
 
     # @rbs (Frontend::AST::ParameterizedReference reference, String helper,
     #   Array[Frontend::AST::item] arguments, Array[String] rendered_arguments) ->
-    #   Hash[Symbol, untyped]
+    #   NormalizeParameters::parameter_frame
     def parameter_frame(reference, helper, arguments, rendered_arguments)
       # @type self: Normalizer
       formals = @parameter_formals.fetch(reference.name)
@@ -150,7 +175,7 @@ module Ibex
       @parameter_worklist_active = false
     end
 
-    # @rbs (Hash[Symbol, untyped] frame) -> bool
+    # @rbs (NormalizeParameters::parameter_frame frame) -> bool
     def prepare_parameter_alternative?(frame)
       # @type self: Normalizer
       templates = frame.fetch(:templates)
@@ -167,7 +192,7 @@ module Ibex
       false
     end
 
-    # @rbs (Hash[Symbol, untyped] frame, Frontend::AST::Rule template, Integer index) -> void
+    # @rbs (NormalizeParameters::parameter_frame frame, Frontend::AST::Rule template, Integer index) -> void
     def prepare_parameter_alternative_entry(frame, template, index)
       # @type self: Normalizer
       alternative = substitute_parameter_alternative(
@@ -186,7 +211,7 @@ module Ibex
       frame[:values] = []
     end
 
-    # @rbs (Hash[Symbol, untyped] frame) -> void
+    # @rbs (NormalizeParameters::parameter_frame frame) -> void
     def clear_parameter_alternative(frame)
       frame[:current] = nil
       frame[:item_index] = 0

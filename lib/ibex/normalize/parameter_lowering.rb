@@ -60,7 +60,7 @@ module Ibex
       end
     end
 
-    # @rbs (NormalizeParameters::parameter_frame frame, Array[untyped] operation) -> void
+    # @rbs (NormalizeParameters::parameter_frame frame, NormalizeParameters::parameter_operation operation) -> void
     def process_parameter_operation(frame, operation)
       # @type self: Normalizer
       kind = operation.fetch(0) #: Symbol

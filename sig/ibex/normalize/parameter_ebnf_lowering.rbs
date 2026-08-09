@@ -26,7 +26,8 @@ module Ibex
     #   Array[Frontend::AST::item] alternative) -> void
     def start_parameter_group_alternative: (NormalizeParameters::parameter_frame frame, String helper, Frontend::AST::Group item, Array[Frontend::AST::item] alternative) -> void
 
-    # @rbs (NormalizeParameters::parameter_frame frame, String helper, Frontend::AST::Group item, Integer length) -> void
+    # @rbs (NormalizeParameters::parameter_frame frame, String helper,
+    #   Frontend::AST::Group item, Integer length) -> void
     def finish_parameter_group_alternative: (NormalizeParameters::parameter_frame frame, String helper, Frontend::AST::Group item, Integer length) -> void
   end
 end
