@@ -8,12 +8,14 @@ module Ibex
     # Deterministically merges compatible canonical LR(1) states and splits
     # partitions until their outgoing transitions are congruent.
     class IELRPartition
+      # @rbs! type contribution_action = [:shift] | [:reduce, Integer] | [:accept]
+
       AUGMENTED_PRODUCTION = -1 #: Integer
 
       # @rbs @grammar: IR::Grammar
       # @rbs @states: Array[item_set]
       # @rbs @transitions: transitions
-      # @rbs @contributions: Array[Hash[Integer, Set[Array[untyped]]]]
+      # @rbs @contributions: Array[Hash[Integer, Set[contribution_action]]]
       # @rbs @initial_partition_count: Integer?
       # @rbs @final_partition_count: Integer?
       # @rbs @profile: bool
@@ -74,7 +76,7 @@ module Ibex
       # action. Every nonempty member cell must equal the merged cell.
       # @rbs (state_partition members) -> bool
       def compatible?(members)
-        merged = Hash.new { |hash, key| hash[key] = Set.new } #: Hash[Integer, Set[Array[untyped]]]
+        merged = Hash.new { |hash, key| hash[key] = Set.new } #: Hash[Integer, Set[contribution_action]]
         members.each do |state_id|
           @contributions.fetch(state_id).each { |token_id, actions| merged[token_id].merge(actions) }
         end
@@ -126,9 +128,9 @@ module Ibex
         merged
       end
 
-      # @rbs (Integer state_id) -> Hash[Integer, Set[Array[untyped]]]
+      # @rbs (Integer state_id) -> Hash[Integer, Set[contribution_action]]
       def action_contributions(state_id)
-        actions = Hash.new { |hash, key| hash[key] = Set.new } #: Hash[Integer, Set[Array[untyped]]]
+        actions = Hash.new { |hash, key| hash[key] = Set.new } #: Hash[Integer, Set[contribution_action]]
         @transitions.fetch(state_id).each_key do |symbol_id|
           symbol = @grammar.symbol_by_id(symbol_id)
           actions[symbol_id] << [:shift] if symbol&.terminal?

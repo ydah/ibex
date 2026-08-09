@@ -5,6 +5,8 @@ module Ibex
     # Deterministically merges compatible canonical LR(1) states and splits
     # partitions until their outgoing transitions are congruent.
     class IELRPartition
+      type contribution_action = [:shift] | [:reduce, Integer] | [:accept]
+
       AUGMENTED_PRODUCTION: Integer
 
       @profile: bool
@@ -13,7 +15,7 @@ module Ibex
 
       @initial_partition_count: Integer?
 
-      @contributions: Array[Hash[Integer, Set[Array[untyped]]]]
+      @contributions: Array[Hash[Integer, Set[contribution_action]]]
 
       @transitions: transitions
 
@@ -56,8 +58,8 @@ module Ibex
       # @rbs (state_partition members) -> packed_items
       def merge_items: (state_partition members) -> packed_items
 
-      # @rbs (Integer state_id) -> Hash[Integer, Set[Array[untyped]]]
-      def action_contributions: (Integer state_id) -> Hash[Integer, Set[Array[untyped]]]
+      # @rbs (Integer state_id) -> Hash[Integer, Set[contribution_action]]
+      def action_contributions: (Integer state_id) -> Hash[Integer, Set[contribution_action]]
 
       # @rbs (Integer production_id) -> Array[Integer]
       def rhs_for: (Integer production_id) -> Array[Integer]
