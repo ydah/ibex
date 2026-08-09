@@ -113,10 +113,11 @@ module Ibex
         code = if table.fetch("encoding") == "signed-sparse-rows-v1"
                  rows = table.fetch("rows") #: Array[Array[Hash[String, ValidationSupport::json_value]]]
                  cells = rows.fetch(row)
-                 cells.bsearch do |cell|
-                   token_id = cell.fetch("token_id") #: Integer
+                 cell = cells.bsearch do |candidate|
+                   token_id = candidate.fetch("token_id") #: Integer
                    token_id >= column
-                 end&.then do |cell|
+                 end
+                 if cell
                    token_id = cell.fetch("token_id") #: Integer
                    if token_id == column
                      cell.fetch("code") #: Integer
@@ -135,10 +136,11 @@ module Ibex
         if table.fetch("encoding") == "sparse-rows-v1"
           rows = table.fetch("rows") #: Array[Array[Hash[String, ValidationSupport::json_value]]]
           cells = rows.fetch(row)
-          cells.bsearch do |cell|
-            symbol_id = cell.fetch("symbol_id") #: Integer
+          cell = cells.bsearch do |candidate|
+            symbol_id = candidate.fetch("symbol_id") #: Integer
             symbol_id >= column
-          end&.then do |cell|
+          end
+          if cell
             symbol_id = cell.fetch("symbol_id") #: Integer
             if symbol_id == column
               cell.fetch("state") #: Integer
@@ -149,7 +151,8 @@ module Ibex
         end
       end
 
-      # @rbs (Hash[String, ValidationSupport::json_value] table, Integer row, Integer column, String value_key) -> Integer?
+      # @rbs (Hash[String, ValidationSupport::json_value] table, Integer row, Integer column,
+      #   String value_key) -> Integer?
       def displacement_lookup(table, row, column, value_key)
         offsets = table.fetch("offsets") #: Array[Integer]
         index = offsets.fetch(row) + column

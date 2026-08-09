@@ -42,7 +42,8 @@ module Ibex
       #   { (Integer, ValidationSupport::json_value, String) -> void } -> Array[Hash[Integer, ValidationSupport::json_value]]
       def validate_displacement: (Hash[String, ValidationSupport::json_value] table, value_key: String, path: String) { (Integer, ValidationSupport::json_value, String) -> void } -> Array[Hash[Integer, ValidationSupport::json_value]]
 
-      # @rbs (Hash[String, ValidationSupport::json_value] table, Array[Hash[Integer, ValidationSupport::json_value]] rows, value_key: String,
+      # @rbs (Hash[String, ValidationSupport::json_value] table,
+      #   Array[Hash[Integer, ValidationSupport::json_value]] rows, value_key: String,
       #   width_key: String, width: Integer?, dense: bool, path: String) -> void
       def validate_canonical_displacement: (Hash[String, ValidationSupport::json_value] table, Array[Hash[Integer, ValidationSupport::json_value]] rows, value_key: String, width_key: String, width: Integer?, dense: bool, path: String) -> void
 

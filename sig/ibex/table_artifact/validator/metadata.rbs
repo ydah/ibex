@@ -41,7 +41,8 @@ module Ibex
       # @rbs (ValidationSupport::json_value data, String path, Integer kind_count) -> void
       def validate_cst_slots: (ValidationSupport::json_value data, String path, Integer kind_count) -> void
 
-      # @rbs (ValidationSupport::json_value data, String path, Hash[String, ValidationSupport::json_value] production) -> void
+      # @rbs (ValidationSupport::json_value data, String path,
+      #   Hash[String, ValidationSupport::json_value] production) -> void
       def validate_fields: (ValidationSupport::json_value data, String path, Hash[String, ValidationSupport::json_value] production) -> void
 
       # @rbs (ValidationSupport::json_value data, String path, ?sorted: bool) -> Array[Integer]

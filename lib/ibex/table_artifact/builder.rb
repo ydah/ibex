@@ -5,7 +5,7 @@ module Ibex
     # Projects validated Automaton IR into an action-free executable sidecar.
     class Builder
       # @rbs!
-      #   type json_value = String | Integer | bool | nil | Array[json_value] | Hash[String, json_value]
+      #   type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
       #   type json_hash = Hash[String, json_value]
       #   type action_rows = Array[Hash[Integer, IR::runtime_action]]
       #   type action_table = action_rows | Tables::CompactActions

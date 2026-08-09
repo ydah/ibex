@@ -6,8 +6,10 @@ module Ibex
       include ValidationSupport
 
       # @rbs!
-      #   private def integer_array: (ValidationSupport::json_value value, String path, allow_nil: false, minimum: Integer?) -> Array[Integer]
-      #                            | (ValidationSupport::json_value value, String path, allow_nil: true, minimum: Integer?) -> Array[Integer?]
+      #   private def integer_array: (ValidationSupport::json_value value, String path,
+      #     allow_nil: false, minimum: Integer?) -> Array[Integer]
+      #                            | (ValidationSupport::json_value value, String path,
+      #     allow_nil: true, minimum: Integer?) -> Array[Integer?]
 
       # @rbs (Hash[String, ValidationSupport::json_value] data, state_count: Integer, production_count: Integer,
       #   terminal_ids: Set[Integer], nonterminal_ids: Set[Integer], representation: String) -> void
@@ -32,13 +34,14 @@ module Ibex
 
       # @rbs (ValidationSupport::json_value table) -> void
       def validate_actions(table)
-        encoding = table.is_a?(Hash) && table["encoding"]
-        table = table #: Hash[String, ValidationSupport::json_value] if table.is_a?(Hash)
+        invalid("$.payload.tables.actions", "must be an object") unless table.is_a?(Hash)
+        table_data = table #: Hash[String, ValidationSupport::json_value]
+        encoding = table_data["encoding"]
         expected = @representation == "compact" ? "signed-row-displacement-v1" : "signed-sparse-rows-v1"
         invalid("$.payload.tables.actions.encoding", "does not match table representation") unless encoding == expected
         case encoding
-        when "signed-sparse-rows-v1" then validate_sparse_actions(table)
-        when "signed-row-displacement-v1" then validate_compact_actions(table)
+        when "signed-sparse-rows-v1" then validate_sparse_actions(table_data)
+        when "signed-row-displacement-v1" then validate_compact_actions(table_data)
         else invalid("$.payload.tables.actions.encoding", "is unsupported")
         end
       end
@@ -83,13 +86,14 @@ module Ibex
 
       # @rbs (ValidationSupport::json_value table) -> void
       def validate_gotos(table)
-        encoding = table.is_a?(Hash) && table["encoding"]
-        table = table #: Hash[String, ValidationSupport::json_value] if table.is_a?(Hash)
+        invalid("$.payload.tables.gotos", "must be an object") unless table.is_a?(Hash)
+        table_data = table #: Hash[String, ValidationSupport::json_value]
+        encoding = table_data["encoding"]
         expected = @representation == "compact" ? "row-displacement-v1" : "sparse-rows-v1"
         invalid("$.payload.tables.gotos.encoding", "does not match table representation") unless encoding == expected
         case encoding
-        when "sparse-rows-v1" then validate_sparse_gotos(table)
-        when "row-displacement-v1" then validate_compact_gotos(table)
+        when "sparse-rows-v1" then validate_sparse_gotos(table_data)
+        when "row-displacement-v1" then validate_compact_gotos(table_data)
         else invalid("$.payload.tables.gotos.encoding", "is unsupported")
         end
       end
@@ -163,7 +167,8 @@ module Ibex
         rows
       end
 
-      # @rbs (Hash[String, ValidationSupport::json_value] table, Array[Hash[Integer, ValidationSupport::json_value]] rows, value_key: String,
+      # @rbs (Hash[String, ValidationSupport::json_value] table,
+      #   Array[Hash[Integer, ValidationSupport::json_value]] rows, value_key: String,
       #   width_key: String, width: Integer?, dense: bool, path: String) -> void
       def validate_canonical_displacement(table, rows, value_key:, width_key:, width:, dense:, path:)
         canonical = Tables::Compact.build(rows, dense: dense)
@@ -207,7 +212,7 @@ module Ibex
 
       # @rbs (ValidationSupport::json_value code, Integer token_id, String path) -> void
       def validate_token_action(code, token_id, path)
-        validate_action_code(code, path)
+        code = integer(code, path)
         invalid(path, "accept is only valid for $eof") if code.zero? && !token_id.zero?
         invalid(path, "$eof cannot be shifted") if token_id.zero? && code.positive?
       end

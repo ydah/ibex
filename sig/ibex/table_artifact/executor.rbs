@@ -52,7 +52,8 @@ module Ibex
       # @rbs (Integer row, Integer column) -> Integer?
       def goto_state: (Integer row, Integer column) -> Integer?
 
-      # @rbs (Hash[String, ValidationSupport::json_value] table, Integer row, Integer column, String value_key) -> Integer?
+      # @rbs (Hash[String, ValidationSupport::json_value] table, Integer row, Integer column,
+      #   String value_key) -> Integer?
       def displacement_lookup: (Hash[String, ValidationSupport::json_value] table, Integer row, Integer column, String value_key) -> Integer?
 
       # @rbs (Array[Integer] stack, Integer code) -> String?

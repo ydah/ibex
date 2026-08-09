@@ -50,11 +50,11 @@ module Ibex
         unless event.is_a?(String) && data.is_a?(Hash) && data.keys.all?(String)
           invalid(source, line, "event document contains invalid session data")
         end
-        data = data #: Hash[String, json_value]
+        event_data = data #: Hash[String, json_value]
         if event == "start"
-          start_session(data, sequence, source, line)
+          start_session(event_data, sequence, source, line)
         else
-          consume_session_event(event, data, sequence, source, line)
+          consume_session_event(event, event_data, sequence, source, line)
         end
         @event_count += 1
       end

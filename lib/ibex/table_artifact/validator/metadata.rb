@@ -147,7 +147,8 @@ module Ibex
         sorted_unique!(production_ids, path)
       end
 
-      # @rbs (ValidationSupport::json_value data, String path, Hash[String, ValidationSupport::json_value] production) -> void
+      # @rbs (ValidationSupport::json_value data, String path,
+      #   Hash[String, ValidationSupport::json_value] production) -> void
       def validate_fields(data, path, production)
         names = array(data, path).map.with_index do |field, index|
           field_path = "#{path}[#{index}]"

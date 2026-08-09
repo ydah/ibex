@@ -26,13 +26,14 @@ module Ibex
         def valid?(document)
           data = document["data"]
           return false unless data.is_a?(Hash) && data.keys.all?(String)
-          data = data #: Hash[String, json_value]
+
+          event_data = data #: Hash[String, json_value]
 
           event = document["event"]
           return false unless event.is_a?(String)
 
           validator = VALIDATORS[event]
-          validator ? send(validator, data) : false
+          validator ? send(validator, event_data) : false
         end
 
         private

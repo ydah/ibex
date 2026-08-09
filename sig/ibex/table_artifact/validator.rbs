@@ -37,10 +37,12 @@ module Ibex
       # @rbs (ValidationSupport::json_value data, Array[Hash[String, ValidationSupport::json_value]] symbols) -> void
       def validate_tokens: (ValidationSupport::json_value data, Array[Hash[String, ValidationSupport::json_value]] symbols) -> void
 
-      # @rbs (ValidationSupport::json_value data, Array[Hash[String, ValidationSupport::json_value]] symbols, Integer state_count) -> void
+      # @rbs (ValidationSupport::json_value data,
+      #   Array[Hash[String, ValidationSupport::json_value]] symbols, Integer state_count) -> void
       def validate_entries: (ValidationSupport::json_value data, Array[Hash[String, ValidationSupport::json_value]] symbols, Integer state_count) -> void
 
-      # @rbs (ValidationSupport::json_value data, Array[Hash[String, ValidationSupport::json_value]] symbols) -> Array[Hash[String, ValidationSupport::json_value]]
+      # @rbs (ValidationSupport::json_value data,
+      #   Array[Hash[String, ValidationSupport::json_value]] symbols) -> Array[Hash[String, ValidationSupport::json_value]]
       def validate_productions: (ValidationSupport::json_value data, Array[Hash[String, ValidationSupport::json_value]] symbols) -> Array[Hash[String, ValidationSupport::json_value]]
 
       # @rbs (ValidationSupport::json_value data, Hash[String, ValidationSupport::json_value] payload) -> void
@@ -55,7 +57,8 @@ module Ibex
       # @rbs (Array[Hash[String, ValidationSupport::json_value]] symbols, String kind) -> Set[Integer]
       def symbol_ids: (Array[Hash[String, ValidationSupport::json_value]] symbols, String kind) -> Set[Integer]
 
-      # @rbs (Hash[String, ValidationSupport::json_value] identity, Hash[String, ValidationSupport::json_value] payload, String identity_name,
+      # @rbs (Hash[String, ValidationSupport::json_value] identity,
+      #   Hash[String, ValidationSupport::json_value] payload, String identity_name,
       #   String payload_name) -> void
       def validate_named_digest: (Hash[String, ValidationSupport::json_value] identity, Hash[String, ValidationSupport::json_value] payload, String identity_name, String payload_name) -> void
     end

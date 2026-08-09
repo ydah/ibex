@@ -142,9 +142,7 @@ module Ibex
 
       # @rbs (json_value input) -> String
       def validate_digest(input)
-        if input.is_a?(String) && input.match?(/\Asha256:[0-9a-f]{64}\z/)
-          return input.dup.freeze
-        end
+        return input.dup.freeze if input.is_a?(String) && input.match?(/\Asha256:[0-9a-f]{64}\z/)
 
         raise ArgumentError, "grammar_digest must be a full lowercase SHA-256 digest"
       end

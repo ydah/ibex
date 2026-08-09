@@ -42,10 +42,12 @@ module Ibex
         productions = validate_productions(payload.fetch("productions"), symbols)
         tables = payload.fetch("tables") #: Hash[String, ValidationSupport::json_value]
         TableValidator.new(
-          tables, state_count: state_count, production_count: productions.length,
-                                   terminal_ids: symbol_ids(symbols, "terminal"),
-                                   nonterminal_ids: symbol_ids(symbols, "nonterminal"),
-                                   representation: representation
+          tables,
+          state_count: state_count,
+          production_count: productions.length,
+          terminal_ids: symbol_ids(symbols, "terminal"),
+          nonterminal_ids: symbol_ids(symbols, "nonterminal"),
+          representation: representation
         ).validate!
         MetadataValidator.new(payload, symbols: symbols, productions: productions).validate!
         validate_cost(@data.fetch("cost"), payload)
@@ -132,7 +134,8 @@ module Ibex
                                                                       tokens.first.fetch("name") == "$eof"
       end
 
-      # @rbs (ValidationSupport::json_value data, Array[Hash[String, ValidationSupport::json_value]] symbols, Integer state_count) -> void
+      # @rbs (ValidationSupport::json_value data,
+      #   Array[Hash[String, ValidationSupport::json_value]] symbols, Integer state_count) -> void
       def validate_entries(data, symbols, state_count)
         entries = array(data, "$.payload.entry_states") #: Array[Hash[String, ValidationSupport::json_value]]
         invalid("$.payload.entry_states", "must not be empty") if entries.empty?
@@ -149,7 +152,8 @@ module Ibex
         invalid("$.payload.entry_states", "names must be unique") unless names.uniq.length == names.length
       end
 
-      # @rbs (ValidationSupport::json_value data, Array[Hash[String, ValidationSupport::json_value]] symbols) -> Array[Hash[String, ValidationSupport::json_value]]
+      # @rbs (ValidationSupport::json_value data,
+      #   Array[Hash[String, ValidationSupport::json_value]] symbols) -> Array[Hash[String, ValidationSupport::json_value]]
       def validate_productions(data, symbols)
         productions = array(data, "$.payload.productions") #: Array[Hash[String, ValidationSupport::json_value]]
         nonterminals = symbol_ids(symbols, "nonterminal")
@@ -233,7 +237,8 @@ module Ibex
         end.to_set
       end
 
-      # @rbs (Hash[String, ValidationSupport::json_value] identity, Hash[String, ValidationSupport::json_value] payload, String identity_name,
+      # @rbs (Hash[String, ValidationSupport::json_value] identity,
+      #   Hash[String, ValidationSupport::json_value] payload, String identity_name,
       #   String payload_name) -> void
       def validate_named_digest(identity, payload, identity_name, payload_name)
         expected = Serializer.digest(payload.fetch(payload_name))
