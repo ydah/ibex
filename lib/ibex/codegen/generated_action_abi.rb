@@ -9,6 +9,10 @@ module Ibex
     # action's declared inputs.
     # rubocop:disable Metrics/ModuleLength -- ABI proof and source rewriting must evolve together.
     module GeneratedActionABI
+      # @rbs!
+      #   type ripper_token = [[Integer, Integer], Symbol, String, Integer]
+      #   type sexp_value = Symbol | String | Integer | nil | Array[sexp_value]
+
       LEGACY_PARAMETERS = %w[
         _values
         _ibex_locations
@@ -189,7 +193,7 @@ module Ibex
       end
       private_class_method :simple_indexed_positional_action_source
 
-      # @rbs (Array[untyped] tokens, Array[String] parameters) -> String?
+      # @rbs (Array[ripper_token] tokens, Array[String] parameters) -> String?
       def rewrite_positional_values(tokens, parameters)
         result = [] #: Array[String]
         index = 0
@@ -220,7 +224,7 @@ module Ibex
       end
       private_class_method :rewrite_positional_values
 
-      # @rbs (Array[untyped] tokens, Integer index, Array[String] parameters) -> [String, Integer]?
+      # @rbs (Array[ripper_token] tokens, Integer index, Array[String] parameters) -> [String, Integer]?
       def positional_value_reference(tokens, index, parameters)
         return nil if receiver_before_value?(tokens, index)
 
@@ -235,7 +239,7 @@ module Ibex
       end
       private_class_method :positional_value_reference
 
-      # @rbs (Array[untyped] tokens, Integer index) -> bool
+      # @rbs (Array[ripper_token] tokens, Integer index) -> bool
       def receiver_before_value?(tokens, index)
         previous = tokens.first(index).reverse.find do |entry|
           !%i[on_sp on_nl on_ignored_nl on_comment].include?(entry[1])
@@ -258,7 +262,7 @@ module Ibex
       end
       private_class_method :references_legacy_parameter?
 
-      # @rbs (untyped node, ?untyped parent, ?Integer? child_index) -> bool
+      # @rbs (sexp_value node, ?sexp_value parent, ?Integer? child_index) -> bool
       def read_only_value_references?(node, parent = nil, child_index = nil)
         return true unless node.is_a?(Array)
         return safe_value_reference?(parent, child_index) if value_reference?(node)
@@ -269,13 +273,13 @@ module Ibex
       end
       private_class_method :read_only_value_references?
 
-      # @rbs (untyped node) -> bool
+      # @rbs (sexp_value node) -> bool
       def value_reference?(node)
         node[0] == :vcall && node.dig(1, 0) == :@ident && node.dig(1, 1) == "val"
       end
       private_class_method :value_reference?
 
-      # @rbs (untyped parent, Integer? child_index) -> bool
+      # @rbs (sexp_value? parent, Integer? child_index) -> bool
       def safe_value_reference?(parent, child_index)
         return false unless parent.is_a?(Array)
 

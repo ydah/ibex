@@ -6,6 +6,10 @@ module Ibex
     # action's declared inputs.
     # rubocop:disable Metrics/ModuleLength -- ABI proof and source rewriting must evolve together.
     module GeneratedActionABI
+      type ripper_token = [ [ Integer, Integer ], Symbol, String, Integer ]
+
+      type sexp_value = Symbol | String | Integer | nil | Array[sexp_value]
+
       LEGACY_PARAMETERS: Array[String]
 
       SIMPLE_POSITIONAL_READ: Regexp
@@ -76,26 +80,26 @@ module Ibex
       # @rbs (String source, Array[String] parameters) -> String?
       def self?.simple_indexed_positional_action_source: (String source, Array[String] parameters) -> String?
 
-      # @rbs (Array[untyped] tokens, Array[String] parameters) -> String?
-      def self?.rewrite_positional_values: (Array[untyped] tokens, Array[String] parameters) -> String?
+      # @rbs (Array[ripper_token] tokens, Array[String] parameters) -> String?
+      def self?.rewrite_positional_values: (Array[ripper_token] tokens, Array[String] parameters) -> String?
 
-      # @rbs (Array[untyped] tokens, Integer index, Array[String] parameters) -> [String, Integer]?
-      def self?.positional_value_reference: (Array[untyped] tokens, Integer index, Array[String] parameters) -> [ String, Integer ]?
+      # @rbs (Array[ripper_token] tokens, Integer index, Array[String] parameters) -> [String, Integer]?
+      def self?.positional_value_reference: (Array[ripper_token] tokens, Integer index, Array[String] parameters) -> [ String, Integer ]?
 
-      # @rbs (Array[untyped] tokens, Integer index) -> bool
-      def self?.receiver_before_value?: (Array[untyped] tokens, Integer index) -> bool
+      # @rbs (Array[ripper_token] tokens, Integer index) -> bool
+      def self?.receiver_before_value?: (Array[ripper_token] tokens, Integer index) -> bool
 
       # @rbs (String source) -> bool
       def self?.references_legacy_parameter?: (String source) -> bool
 
-      # @rbs (untyped node, ?untyped parent, ?Integer? child_index) -> bool
-      def self?.read_only_value_references?: (untyped node, ?untyped parent, ?Integer? child_index) -> bool
+      # @rbs (sexp_value node, ?sexp_value parent, ?Integer? child_index) -> bool
+      def self?.read_only_value_references?: (sexp_value node, ?sexp_value parent, ?Integer? child_index) -> bool
 
-      # @rbs (untyped node) -> bool
-      def self?.value_reference?: (untyped node) -> bool
+      # @rbs (sexp_value node) -> bool
+      def self?.value_reference?: (sexp_value node) -> bool
 
-      # @rbs (untyped parent, Integer? child_index) -> bool
-      def self?.safe_value_reference?: (untyped parent, Integer? child_index) -> bool
+      # @rbs (sexp_value? parent, Integer? child_index) -> bool
+      def self?.safe_value_reference?: (sexp_value? parent, Integer? child_index) -> bool
     end
   end
 end
