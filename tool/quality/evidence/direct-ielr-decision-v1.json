@@ -8,7 +8,7 @@
     "basis": "repository_evidence",
     "review_state": "validated",
     "date": "2026-08-08",
-    "revision": "f2925315f519f21362024bfc6f45293db8d2ba69",
+    "revision": "b1d7b95fa55b30b238880ff3e699c027d2835708",
     "revision_role": "reviewed repository evidence immediately before dossier publication"
   },
   "follow_on": {
@@ -174,10 +174,10 @@
       {
         "id": "v001-verifier",
         "path": "lib/ibex/verify/verifier.rb",
-        "sha256": "66efb73edf90d5466e102ea756c5b36e645ea6f5a780250b0b056dbfe34a80a3",
+        "sha256": "4a7fe3ecdb5c5ed0a65e3955957b50b28d05afe0b30b246ab6d26b46109bb7a5",
         "role": "current verifier checks reviewed by V001"
       }
     ],
-    "sources_sha256": "6e28751067ea4e3f4a8143e05beeaf11be6b0123c57a9bb30505219c7e5bff79"
+    "sources_sha256": "c09671cdc2e648a2493a78fcc3a952c843972e252e7f369dd758f7a7236a9387"
   }
 }
