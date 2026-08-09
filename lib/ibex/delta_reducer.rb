@@ -6,12 +6,12 @@ module Ibex
   class DeltaReducer
     # Immutable outcome of a bounded reduction.
     class Result
-      attr_reader :items #: Array[untyped]
+      attr_reader :items #: Array[Object?]
       attr_reader :trials #: Integer
       attr_reader :complete #: bool
       attr_reader :original_size #: Integer
 
-      # @rbs (items: Array[untyped], trials: Integer, complete: bool, original_size: Integer) -> void
+      # @rbs (items: Array[Object?], trials: Integer, complete: bool, original_size: Integer) -> void
       def initialize(items:, trials:, complete:, original_size:)
         @items = items.freeze
         @trials = trials
