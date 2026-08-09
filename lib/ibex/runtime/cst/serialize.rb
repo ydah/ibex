@@ -10,6 +10,9 @@ module Ibex
 
       # Stable JSON serialization for `ibex_cst` schema version 1.
       module Serialize
+        # @rbs!
+        #   type json_value = String | Integer | bool | nil | Array[json_value] | Hash[String, json_value]
+
         SCHEMA_VERSION = 1 #: Integer
 
         # @rbs (SyntaxNode | SerializedTree value, ?grammar_digest: String?, ?table_format: Integer?,
@@ -67,7 +70,7 @@ module Ibex
         module_function :serialization_tree
         private_class_method :serialization_tree
 
-        # @rbs (Kind kinds) -> Hash[String, untyped]
+        # @rbs (Kind kinds) -> Hash[String, json_value]
         def kinds_document(kinds)
           metadata = kinds.to_h
           {
@@ -83,7 +86,7 @@ module Ibex
         module_function :kinds_document
         private_class_method :kinds_document
 
-        # @rbs (GreenNode | GreenToken element) -> Hash[String, untyped]
+        # @rbs (GreenNode | GreenToken element) -> Hash[String, json_value]
         def element_document(element)
           if element.is_a?(GreenNode)
             raise SerializationError, "annotated Green nodes cannot be serialized" unless element.annotations.empty?
@@ -107,7 +110,7 @@ module Ibex
         module_function :element_document
         private_class_method :element_document
 
-        # @rbs (GreenTrivia trivia) -> Array[untyped]
+        # @rbs (GreenTrivia trivia) -> Array[json_value]
         def trivia_document(trivia) = [trivia.kind, encode_text(trivia.text)]
         module_function :trivia_document
         private_class_method :trivia_document
