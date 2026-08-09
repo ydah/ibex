@@ -8,6 +8,10 @@ require_relative "location"
 module Ibex
   # Typed, provenance-preserving effective configuration.
   module Configuration
+    # @rbs!
+    #   type config_value = Symbol | String | Integer | bool | nil
+    #   type json_value = String | Integer | bool | nil | Array[json_value] | Hash[String, json_value]
+
     OWNER_NAMES = {
       grammar_contract: "grammar-contract",
       grammar_minimum: "grammar-minimum",
@@ -27,14 +31,14 @@ module Ibex
     class Key
       attr_reader :name #: String
       attr_reader :type #: Symbol
-      attr_reader :default #: untyped
+      attr_reader :default #: config_value
       attr_reader :owner #: Symbol
       attr_reader :policy #: Symbol
-      attr_reader :allowed_values #: Array[untyped]?
+      attr_reader :allowed_values #: Array[config_value]?
       attr_reader :cli_option #: Symbol?
 
-      # @rbs (String name, type: Symbol, default: untyped, owner: Symbol, policy: Symbol,
-      #   ?allowed_values: Array[untyped]?, ?cli_option: Symbol?) -> void
+      # @rbs (String name, type: Symbol, default: config_value, owner: Symbol, policy: Symbol,
+      #   ?allowed_values: Array[config_value]?, ?cli_option: Symbol?) -> void
       def initialize(name, type:, default:, owner:, policy:, allowed_values: nil, cli_option: nil)
         validate_identity!(name, owner, policy)
         validate_shape!(type, policy, cli_option)
@@ -50,7 +54,7 @@ module Ibex
       end
 
       # Validate and defensively freeze a value from an adapter or declaration.
-      # @rbs (untyped value) -> untyped
+      # @rbs (config_value value) -> config_value
       def validate(value)
         raise ArgumentError, "#{@name} expects #{@type}, got #{value.inspect}" unless valid_type?(value)
 
@@ -88,12 +92,12 @@ module Ibex
         raise ArgumentError, "minimum configuration keys must have Integer values"
       end
 
-      # @rbs (untyped value) -> untyped
+      # @rbs (config_value value) -> config_value
       def immutable(value)
         value.is_a?(String) ? value.dup.freeze : value
       end
 
-      # @rbs (untyped value) -> bool
+      # @rbs (config_value value) -> bool
       def valid_type?(value)
         case @type
         when :symbol then value.is_a?(Symbol)
@@ -126,9 +130,9 @@ module Ibex
         freeze
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
       def to_h
-        result = { "kind" => @kind.to_s } #: Hash[String, untyped]
+        result = { "kind" => @kind.to_s } #: Hash[String, json_value]
         location = @location
         result["location"] = stringify_location(location) if location
         result
@@ -145,7 +149,7 @@ module Ibex
 
       private
 
-      # @rbs (Location location) -> Hash[String, untyped]
+      # @rbs (Location location) -> Hash[String, json_value]
       def stringify_location(location)
         location.to_h.transform_keys(&:to_s)
       end
@@ -154,14 +158,14 @@ module Ibex
     # A typed effective value plus the evidence needed to explain it.
     class Value
       attr_reader :key #: Key
-      attr_reader :value #: untyped
+      attr_reader :value #: config_value
       attr_reader :origin #: Origin
       attr_reader :explicit #: bool
       attr_reader :canonical #: bool
-      attr_reader :declared_value #: untyped
+      attr_reader :declared_value #: config_value
 
-      # @rbs (Key key, untyped value, origin: Origin, explicit: bool, canonical: bool,
-      #   ?declared_value: untyped) -> void
+      # @rbs (Key key, config_value value, origin: Origin, explicit: bool, canonical: bool,
+      #   ?declared_value: config_value | Object) -> void
       def initialize(key, value, origin:, explicit:, canonical:, declared_value: DECLARED_VALUE_UNSET)
         raise ArgumentError, "configuration value key must be a Configuration::Key" unless key.is_a?(Key)
         raise ArgumentError, "configuration value origin must be a Configuration::Origin" unless origin.is_a?(Origin)
@@ -175,12 +179,13 @@ module Ibex
         @origin = origin
         @explicit = explicit
         @canonical = canonical
-        @declared_value = declared_value.equal?(DECLARED_VALUE_UNSET) ? nil : key.validate(declared_value)
+        declared = declared_value #: config_value
+        @declared_value = declared.equal?(DECLARED_VALUE_UNSET) ? nil : key.validate(declared)
 
         freeze
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
       def to_h
         result = {
           "key" => @key.name,
@@ -190,7 +195,7 @@ module Ibex
           "origin" => @origin.to_h,
           "explicit" => @explicit,
           "canonical" => @canonical
-        } #: Hash[String, untyped]
+        } #: Hash[String, json_value]
         unless @canonical
           result["analysis"] = {
             "declared" => json_value(@declared_value),
@@ -204,7 +209,7 @@ module Ibex
 
       private
 
-      # @rbs (Key key, Origin origin, bool explicit, bool canonical, untyped declared_value) -> void
+      # @rbs (Key key, Origin origin, bool explicit, bool canonical, config_value | Object declared_value) -> void
       def validate_provenance!(key, origin, explicit, canonical, declared_value)
         validate_canonical_origin!(key, origin, canonical)
         validate_owner_source!(key, origin)
@@ -239,7 +244,7 @@ module Ibex
         raise ArgumentError, "non-builtin configuration must be explicit" if origin.kind != :builtin && !explicit
       end
 
-      # @rbs (bool canonical, untyped declared_value) -> void
+      # @rbs (bool canonical, config_value | Object declared_value) -> void
       def validate_declared_evidence!(canonical, declared_value)
         declared = !declared_value.equal?(DECLARED_VALUE_UNSET)
         raise ArgumentError, "canonical selections cannot carry declared evidence" if canonical && declared
@@ -248,7 +253,7 @@ module Ibex
         raise ArgumentError, "noncanonical selections require declared evidence"
       end
 
-      # @rbs (untyped value) -> untyped
+      # @rbs (config_value value) -> (String | Integer | bool | nil)
       def json_value(value)
         value.is_a?(Symbol) ? value.to_s : value
       end
@@ -320,8 +325,8 @@ module Ibex
     class Resolver
       attr_reader :values #: Array[Value]
 
-      # @rbs (?keys: Array[Key], ?grammar: Hash[String, untyped], ?project: Hash[String, untyped],
-      #   ?cli: Hash[String, untyped], ?analysis_overrides: Hash[String, untyped],
+      # @rbs (?keys: Array[Key], ?grammar: Hash[String, config_value], ?project: Hash[String, config_value],
+      #   ?cli: Hash[String, config_value], ?analysis_overrides: Hash[String, config_value],
       #   ?locations: Hash[Symbol, Hash[String, Location]]) -> void
       def initialize(keys: Registry.keys, grammar: {}, project: {}, cli: {}, analysis_overrides: {}, locations: {})
         @keys = keys.sort_by(&:name).freeze
@@ -343,12 +348,12 @@ module Ibex
         @value_index.fetch(name) { raise ArgumentError, "unknown configuration key: #{name.inspect}" }
       end
 
-      # @rbs (String name) -> untyped
+      # @rbs (String name) -> config_value
       def value(name)
         fetch(name).value
       end
 
-      # @rbs () -> Hash[String, Array[Hash[String, untyped]]]
+      # @rbs () -> Hash[String, Array[Hash[String, json_value]]]
       def to_h
         { "configuration" => @values.map(&:to_h) }
       end
@@ -361,7 +366,7 @@ module Ibex
 
       private
 
-      # @rbs (Symbol kind, Hash[String, untyped] entries) -> void
+      # @rbs (Symbol kind, Hash[String, config_value] entries) -> void
       def validate_source!(kind, entries)
         entries.each_key do |name|
           raise ArgumentError, "unknown #{kind} configuration key: #{name.inspect}" unless @key_index.key?(name)
@@ -369,7 +374,7 @@ module Ibex
       end
 
       # @rbs (Hash[Symbol, Hash[String, Location]] locations,
-      #   Hash[Symbol, Hash[String, untyped]] sources) -> void
+      #   Hash[Symbol, Hash[String, config_value]] sources) -> void
       def validate_locations!(locations, sources)
         locations.each do |kind, entries|
           unless %i[grammar project].include?(kind)
@@ -386,7 +391,7 @@ module Ibex
         end
       end
 
-      # @rbs (Key key, Hash[Symbol, Hash[String, untyped]] sources,
+      # @rbs (Key key, Hash[Symbol, Hash[String, config_value]] sources,
       #   Hash[Symbol, Hash[String, Location]] locations) -> Value
       def resolve_key(key, sources, locations)
         builtin = value_from(key, key.default, :builtin, locations, explicit: false)
@@ -410,7 +415,7 @@ module Ibex
         )
       end
 
-      # @rbs (Key key, Value builtin, Hash[Symbol, Hash[String, untyped]] sources,
+      # @rbs (Key key, Value builtin, Hash[Symbol, Hash[String, config_value]] sources,
       #   Hash[Symbol, Hash[String, Location]] locations) -> Value
       def resolve_fixed(key, builtin, sources, locations)
         grammar = source_value(key, :grammar, sources, locations)
@@ -431,7 +436,7 @@ module Ibex
         end
       end
 
-      # @rbs (Key key, Value builtin, Hash[Symbol, Hash[String, untyped]] sources,
+      # @rbs (Key key, Value builtin, Hash[Symbol, Hash[String, config_value]] sources,
       #   Hash[Symbol, Hash[String, Location]] locations) -> Value
       def resolve_minimum(key, builtin, sources, locations)
         grammar = source_value(key, :grammar, sources, locations)
@@ -440,14 +445,17 @@ module Ibex
         %i[project cli].each do |kind|
           request = source_value(key, kind, sources, locations)
           next unless request
-          raise Conflict.new(key, floor, request) if request.value < floor.value
+          request_value = request.value #: Integer
+          floor_value = floor.value #: Integer
+          raise Conflict.new(key, floor, request) if request_value < floor_value
 
-          selected = request if request.value > selected.value
+          selected_value = selected.value #: Integer
+          selected = request if request_value > selected_value
         end
         selected
       end
 
-      # @rbs (Key key, Value builtin, Hash[Symbol, Hash[String, untyped]] sources,
+      # @rbs (Key key, Value builtin, Hash[Symbol, Hash[String, config_value]] sources,
       #   Hash[Symbol, Hash[String, Location]] locations) -> Value
       def resolve_override(key, builtin, sources, locations)
         if sources.fetch(:grammar).key?(key.name)
@@ -461,7 +469,7 @@ module Ibex
           source_value(key, :project, sources, locations) || builtin
       end
 
-      # @rbs (Key key, Symbol kind, Hash[Symbol, Hash[String, untyped]] sources,
+      # @rbs (Key key, Symbol kind, Hash[Symbol, Hash[String, config_value]] sources,
       #   Hash[Symbol, Hash[String, Location]] locations) -> Value?
       def source_value(key, kind, sources, locations)
         entries = sources.fetch(kind)
@@ -470,7 +478,7 @@ module Ibex
         value_from(key, entries.fetch(key.name), kind, locations, explicit: true)
       end
 
-      # @rbs (Key key, untyped raw, Symbol kind, Hash[Symbol, Hash[String, Location]] locations,
+      # @rbs (Key key, config_value raw, Symbol kind, Hash[Symbol, Hash[String, Location]] locations,
       #   explicit: bool) -> Value
       def value_from(key, raw, kind, locations, explicit:)
         Value.new(
@@ -486,7 +494,7 @@ module Ibex
 
     # Converts the existing internal CLI option hash into canonical concepts.
     class CLIAdapter
-      # @rbs (Hash[Symbol, untyped] options, ?explicit_keys: Array[Symbol]) -> void
+      # @rbs (Hash[Symbol, config_value] options, ?explicit_keys: Array[Symbol]) -> void
       def initialize(options, explicit_keys: options.keys)
         @options = options.to_h do |name, value|
           [name, value.is_a?(String) ? value.dup.freeze : value]
@@ -494,7 +502,7 @@ module Ibex
         @explicit_keys = explicit_keys.dup.freeze
       end
 
-      # @rbs (?grammar: Hash[String, untyped], ?locations: Hash[String, Location]) -> Resolver
+      # @rbs (?grammar: Hash[String, config_value], ?locations: Hash[String, Location]) -> Resolver
       def resolve(grammar: {}, locations: {})
         source_locations = {} #: Hash[Symbol, Hash[String, Location]]
         source_locations[:grammar] = locations unless locations.empty?
@@ -503,9 +511,9 @@ module Ibex
 
       # Canonical configuration values selected by explicit legacy CLI options.
       # Raw option spellings stop at this adapter boundary.
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, config_value]
       def configuration_values
-        options = {} #: Hash[String, untyped]
+        options = {} #: Hash[String, config_value]
         Registry::DEFINITIONS.each do |key|
           raw_name = key.cli_option
           next unless raw_name && @explicit_keys.include?(raw_name) && @options.key?(raw_name)
@@ -526,7 +534,7 @@ module Ibex
 
       private
 
-      # @rbs (Symbol name, untyped value) -> untyped
+      # @rbs (Symbol name, config_value value) -> config_value
       def convert(name, value)
         case name
         when :entry_isolation then convert_entry_isolation(value)
@@ -535,7 +543,7 @@ module Ibex
         end
       end
 
-      # @rbs (untyped value) -> untyped
+      # @rbs (config_value value) -> config_value
       def convert_entry_isolation(value)
         return :isolated if value == true
         return :shared if value == false
