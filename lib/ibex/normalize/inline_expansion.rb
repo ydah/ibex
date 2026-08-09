@@ -1,9 +1,43 @@
 # frozen_string_literal: true
+# rbs_inline: enabled
 
 module Ibex
   # Deterministically substitutes inline-rule productions before LR construction.
   # rubocop:disable Metrics/ModuleLength -- expansion, action plans, and id remapping share one invariant.
   module NormalizeInlineExpansion
+    # @rbs!
+    #   type inline_reference = [:physical | :step, Integer]
+    #   type inline_step = {
+    #     kind: :inline | :rule,
+    #     rule: String?,
+    #     code: String?,
+    #     loc: IR::location,
+    #     named_refs: Array[IR::named_ref],
+    #     context_length: Integer,
+    #     inputs: Array[inline_reference],
+    #     stack_inputs: Array[inline_reference],
+    #     lookahead: Integer,
+    #     result_var: bool,
+    #     result_type: String?
+    #   }
+    #   type inline_variant = {
+    #     rhs: Array[Integer],
+    #     steps: Array[inline_step],
+    #     logical_refs: Array[inline_reference],
+    #     output_ref: inline_reference?,
+    #     inline_used: bool,
+    #     inline_rule: String?,
+    #     precedence_override: Integer?,
+    #     precedence_contributes: bool,
+    #     parameter: IR::parameter_expansion?
+    #   }
+    #   type inline_frame = {
+    #     production: IR::Production,
+    #     symbol_id: Integer?,
+    #     index: Integer,
+    #     variant: inline_variant
+    #   }
+
     private
 
     # @rbs () -> void
@@ -33,11 +67,11 @@ module Ibex
     # The single-definition path reuses its accumulated arrays, so a long
     # acyclic chain remains linear in the size of its final action plan.
     # @rbs (IR::Production production, Hash[Integer, Array[IR::Production]] definitions) ->
-    #   Array[Hash[Symbol, untyped]]
+    #   Array[inline_variant]
     def expand_inline_production(production, definitions)
       # @type self: Normalizer
-      variants = [] #: Array[Hash[Symbol, untyped]]
-      worklist = [[inline_expansion_frame(production, nil)]] #: Array[Array[Hash[Symbol, untyped]]]
+      variants = [] #: Array[inline_variant]
+      worklist = [[inline_expansion_frame(production, nil)]] #: Array[Array[inline_frame]]
       until worklist.empty?
         frames = worklist.pop || raise(Ibex::Error, "internal inline expansion worklist underflow")
         drain_inline_expansion_frames(frames, definitions, worklist, variants, production.origin[:loc])
@@ -45,8 +79,8 @@ module Ibex
       variants
     end
 
-    # @rbs (Array[Hash[Symbol, untyped]] frames, Hash[Integer, Array[IR::Production]] definitions,
-    #   Array[Array[Hash[Symbol, untyped]]] worklist, Array[Hash[Symbol, untyped]] variants,
+    # @rbs (Array[inline_frame] frames, Hash[Integer, Array[IR::Production]] definitions,
+    #   Array[Array[inline_frame]] worklist, Array[inline_variant] variants,
     #   IR::location? location) -> void
     def drain_inline_expansion_frames(frames, definitions, worklist, variants, location)
       loop do
@@ -60,8 +94,8 @@ module Ibex
       end
     end
 
-    # @rbs (Array[Hash[Symbol, untyped]] frames, Hash[Integer, Array[IR::Production]] definitions,
-    #   Array[Array[Hash[Symbol, untyped]]] worklist, Array[Hash[Symbol, untyped]] variants,
+    # @rbs (Array[inline_frame] frames, Hash[Integer, Array[IR::Production]] definitions,
+    #   Array[Array[inline_frame]] worklist, Array[inline_variant] variants,
     #   IR::location? location) -> bool
     def advance_inline_expansion_frame?(frames, definitions, worklist, variants, location)
       frame = frames.fetch(-1)
@@ -85,8 +119,8 @@ module Ibex
       true
     end
 
-    # @rbs (Array[Hash[Symbol, untyped]] frames, Array[IR::Production] choices, Integer symbol_id,
-    #   Array[Array[Hash[Symbol, untyped]]] worklist) -> void
+    # @rbs (Array[inline_frame] frames, Array[IR::Production] choices, Integer symbol_id,
+    #   Array[Array[inline_frame]] worklist) -> void
     def schedule_inline_choice_branches(frames, choices, symbol_id, worklist)
       choices.reverse_each do |choice|
         branch = clone_inline_expansion_frames(frames)
@@ -95,8 +129,8 @@ module Ibex
       end
     end
 
-    # @rbs (Array[Hash[Symbol, untyped]] frames, Array[Hash[Symbol, untyped]] variants,
-    #   Array[Array[Hash[Symbol, untyped]]] worklist, IR::location? location) -> bool
+    # @rbs (Array[inline_frame] frames, Array[inline_variant] variants,
+    #   Array[Array[inline_frame]] worklist, IR::location? location) -> bool
     def complete_inline_expansion_frame?(frames, variants, worklist, location)
       frame = frames.fetch(-1)
       current = frame.fetch(:production)
@@ -108,32 +142,34 @@ module Ibex
         return true
       end
 
-      choice = finish_inline_choice(completed, current, frame.fetch(:symbol_id))
+      symbol_id = frame.fetch(:symbol_id) || raise(Ibex::Error, "inline expansion frame is missing its symbol")
+      choice = finish_inline_choice(completed, current, symbol_id)
       parent = frames.fetch(-1)
       parent[:variant] = combine_inline_variant(parent.fetch(:variant), choice)
       false
     end
 
-    # @rbs (IR::Production production, Integer? symbol_id) -> Hash[Symbol, untyped]
+    # @rbs (IR::Production production, Integer? symbol_id) -> inline_frame
     def inline_expansion_frame(production, symbol_id)
       { production: production, symbol_id: symbol_id, index: 0, variant: empty_inline_variant(production) }
     end
 
-    # @rbs (Array[Hash[Symbol, untyped]] frames) -> Array[Hash[Symbol, untyped]]
+    # @rbs (Array[inline_frame] frames) -> Array[inline_frame]
     def clone_inline_expansion_frames(frames)
       frames.map do |frame|
         variant = frame.fetch(:variant)
-        frame.merge(
+        cloned = frame.merge(
           variant: variant.merge(
             rhs: variant.fetch(:rhs).dup,
             steps: variant.fetch(:steps).dup,
             logical_refs: variant.fetch(:logical_refs).dup
           )
         )
+        cloned #: inline_frame
       end
     end
 
-    # @rbs (IR::Production production) -> Hash[Symbol, untyped]
+    # @rbs (IR::Production production) -> inline_variant
     def empty_inline_variant(production)
       {
         rhs: [],
@@ -148,30 +184,37 @@ module Ibex
       }
     end
 
-    # @rbs (Hash[Symbol, untyped] variant, Integer symbol_id) -> Hash[Symbol, untyped]
+    # @rbs (inline_variant variant, Integer symbol_id) -> inline_variant
     def append_inline_symbol(variant, symbol_id)
       # @type self: Normalizer
       rhs = variant.fetch(:rhs)
       terminal = @symbols.fetch(symbol_id).terminal?
-      variant.merge(
+      reference = [:physical, rhs.length] #: inline_reference
+      logical_refs = variant.fetch(:logical_refs) + [reference] #: Array[inline_reference]
+      result = variant.merge(
         rhs: rhs + [symbol_id],
-        logical_refs: variant.fetch(:logical_refs) + [[:physical, rhs.length]],
+        logical_refs: logical_refs,
         precedence_override: terminal ? nil : variant[:precedence_override],
         precedence_contributes: terminal || variant.fetch(:precedence_contributes)
       )
+      result #: inline_variant
     end
 
-    # @rbs (Hash[Symbol, untyped] parent, Hash[Symbol, untyped] child) -> Hash[Symbol, untyped]
+    # @rbs (inline_variant parent, inline_variant child) -> inline_variant
     def combine_inline_variant(parent, child)
       physical_offset = parent.fetch(:rhs).length
       step_offset = parent.fetch(:steps).length
       steps = combined_inline_steps(parent, child, physical_offset, step_offset)
-      parent.merge(
-        rhs: append_inline_array(parent.fetch(:rhs), child.fetch(:rhs)),
-        steps: append_inline_array(parent.fetch(:steps), steps),
-        logical_refs: parent.fetch(:logical_refs) + [
-          remap_inline_reference(child.fetch(:output_ref), physical_offset, step_offset)
-        ],
+      output_ref = child.fetch(:output_ref) || raise(Ibex::Error, "inline choice has no output reference")
+      rhs = append_inline_array(parent.fetch(:rhs), child.fetch(:rhs)) #: Array[Integer]
+      combined_steps = append_inline_array(parent.fetch(:steps), steps) #: Array[inline_step]
+      logical_refs = parent.fetch(:logical_refs) + [
+        remap_inline_reference(output_ref, physical_offset, step_offset)
+      ] #: Array[inline_reference]
+      result = parent.merge(
+        rhs: rhs,
+        steps: combined_steps,
+        logical_refs: logical_refs,
         inline_used: true,
         inline_rule: parent[:inline_rule] || child[:inline_rule],
         precedence_override: combined_inline_precedence(parent, child),
@@ -179,30 +222,33 @@ module Ibex
           child.fetch(:precedence_contributes),
         parameter: parent[:parameter] || child[:parameter]
       )
+      result #: inline_variant
     end
 
-    # @rbs (Hash[Symbol, untyped] parent, Hash[Symbol, untyped] child,
-    #   Integer physical_offset, Integer step_offset) -> Array[Hash[Symbol, untyped]]
+    # @rbs (inline_variant parent, inline_variant child,
+    #   Integer physical_offset, Integer step_offset) -> Array[inline_step]
     def combined_inline_steps(parent, child, physical_offset, step_offset)
       return child.fetch(:steps) if physical_offset.zero? && step_offset.zero? && parent.fetch(:logical_refs).empty?
 
       remap_inline_steps(parent, child, physical_offset, step_offset)
     end
 
-    # @rbs (Array[untyped] left, Array[untyped] right) -> Array[untyped]
+    # The helper is shared by homogeneous integer and step arrays; callers
+    # assert the concrete element type at each use site.
+    # @rbs (Array[Object?] left, Array[Object?] right) -> Array[Object?]
     def append_inline_array(left, right)
       left.empty? ? right : left + right
     end
 
-    # @rbs (Hash[Symbol, untyped] parent, Hash[Symbol, untyped] child) -> Integer?
+    # @rbs (inline_variant parent, inline_variant child) -> Integer?
     def combined_inline_precedence(parent, child)
       return child[:precedence_override] if child.fetch(:precedence_contributes)
 
       parent[:precedence_override]
     end
 
-    # @rbs (Hash[Symbol, untyped] parent, Hash[Symbol, untyped] child,
-    #   Integer physical_offset, Integer step_offset) -> Array[Hash[Symbol, untyped]]
+    # @rbs (inline_variant parent, inline_variant child,
+    #   Integer physical_offset, Integer step_offset) -> Array[inline_step]
     def remap_inline_steps(parent, child, physical_offset, step_offset)
       child.fetch(:steps).map do |step|
         inputs = step.fetch(:inputs).map do |reference|
@@ -211,11 +257,12 @@ module Ibex
         stack_inputs = step.fetch(:stack_inputs).map do |reference|
           remap_inline_reference(reference, physical_offset, step_offset)
         end
-        step.merge(
+        remapped = step.merge(
           inputs: inputs,
           stack_inputs: parent.fetch(:logical_refs) + stack_inputs,
           lookahead: step.fetch(:lookahead) + physical_offset
         )
+        remapped #: inline_step
       end
     end
 
@@ -229,32 +276,32 @@ module Ibex
       [kind, index + (kind == :physical ? physical_offset : step_offset)]
     end
 
-    # @rbs (Hash[Symbol, untyped] variant, IR::Production production) -> Hash[Symbol, untyped]
+    # @rbs (inline_variant variant, IR::Production production) -> inline_variant
     def finish_inline_precedence(variant, production)
       explicit = production.precedence_override
       variant.merge(
         precedence_override: explicit || variant[:precedence_override],
         precedence_contributes: !explicit.nil? || variant.fetch(:precedence_contributes)
-      )
+      ) #: inline_variant
     end
 
-    # @rbs (Hash[Symbol, untyped] variant, IR::Production production, Integer symbol_id) ->
-    #   Hash[Symbol, untyped]
+    # @rbs (inline_variant variant, IR::Production production, Integer symbol_id) -> inline_variant
     def finish_inline_choice(variant, production, symbol_id)
       steps = variant.fetch(:steps)
       rule = @inline_rule_by_symbol.fetch(symbol_id)
       step = inline_action_step(production, variant.fetch(:logical_refs), variant.fetch(:rhs).length, :inline, rule)
       steps << step
-      variant.merge(
+      result = variant.merge(
         steps: steps,
         output_ref: [:step, steps.length - 1],
         inline_used: true,
         inline_rule: rule
       )
+      result #: inline_variant
     end
 
-    # @rbs (IR::Production production, Array[Array[Symbol | Integer]] inputs, Integer lookahead,
-    #   Symbol kind, String? rule) -> Hash[Symbol, untyped]
+    # @rbs (IR::Production production, Array[inline_reference] inputs, Integer lookahead,
+    #   :inline | :rule kind, String? rule) -> inline_step
     def inline_action_step(production, inputs, lookahead, kind, rule)
       action = production.action
       {
@@ -272,7 +319,7 @@ module Ibex
       }
     end
 
-    # @rbs (IR::Production production, Hash[Symbol, untyped] variant, Integer id) -> IR::Production
+    # @rbs (IR::Production production, inline_variant variant, Integer id) -> IR::Production
     def composed_inline_production(production, variant, id)
       steps = variant.fetch(:steps)
       caller = inline_action_step(
@@ -288,7 +335,7 @@ module Ibex
       )
     end
 
-    # @rbs (IR::Production production, Integer physical_length, Array[Hash[Symbol, untyped]]) -> IR::Action
+    # @rbs (IR::Production production, Integer physical_length, Array[inline_step]) -> IR::Action
     def composed_inline_action(production, physical_length, steps)
       action = production.action
       fragments = steps.map do |step|
@@ -307,7 +354,7 @@ module Ibex
       )
     end
 
-    # @rbs (Hash[Symbol, untyped] step, Integer physical_length) -> Hash[Symbol, untyped]
+    # @rbs (inline_step step, Integer physical_length) -> IR::action_composition_step
     def composition_plan_step(step, physical_length)
       {
         kind: step.fetch(:kind),
@@ -345,12 +392,13 @@ module Ibex
       { file: location[:file], root: @resolution&.root_directory, byte_span: nil }
     end
 
-    # @rbs (IR::Production production, Hash[Symbol, untyped] variant) -> IR::production_expansion
+    # @rbs (IR::Production production, inline_variant variant) -> IR::production_expansion
     def inline_production_expansion(production, variant)
       existing = production.expansion
+      inline_rule = variant.fetch(:inline_rule) || raise(Ibex::Error, "inline expansion has no rule")
       {
         parameter: existing&.dig(:parameter) || variant[:parameter],
-        inline: { rule: variant.fetch(:inline_rule) },
+        inline: { rule: inline_rule },
         include_chain: existing&.dig(:include_chain) || []
       }
     end
