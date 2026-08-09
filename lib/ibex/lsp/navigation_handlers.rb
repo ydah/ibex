@@ -8,41 +8,46 @@ module Ibex
 
       private
 
-      # @rbs (untyped raw_params) -> Array[Hash[String, untyped]]
+      # @rbs (lsp_object? raw_params) -> Array[lsp_object]
       def definition(raw_params)
-        with_index(raw_params) { |index, path, position| index.definition(path, position) }
+        result = with_index(raw_params) { |index, path, position| index.definition(path, position) } #: Array[lsp_object]
+        result
       end
 
-      # @rbs (untyped raw_params) -> Array[Hash[String, untyped]]
+      # @rbs (lsp_object? raw_params) -> Array[lsp_object]
       def references(raw_params)
         params = params_hash(raw_params)
         context = hash_member(params, "context")
         include_declaration = context["includeDeclaration"] == true
-        with_index(params) do |index, path, position|
+        result = with_index(params) do |index, path, position|
           index.references(path, position, include_declaration: include_declaration)
-        end
+        end #: Array[lsp_object]
+        result
       end
 
-      # @rbs (untyped raw_params) -> Hash[String, untyped]?
+      # @rbs (lsp_object? raw_params) -> lsp_object?
       def prepare_rename(raw_params)
-        with_index(raw_params) { |index, path, position| index.prepare_rename(path, position) }
+        result = with_index(raw_params) { |index, path, position| index.prepare_rename(path, position) } #: lsp_object?
+        result
       end
 
-      # @rbs (untyped raw_params) -> Hash[String, untyped]
+      # @rbs (lsp_object? raw_params) -> lsp_object
       def rename(raw_params)
         params = params_hash(raw_params)
         new_name = string_member(params, "newName")
-        with_index(params) { |index, path, position| index.rename(path, position, new_name) }
+        result = with_index(params) { |index, path, position| index.rename(path, position, new_name) } #: lsp_object
+        result
       end
 
-      # @rbs (untyped raw_params) -> Hash[String, untyped]?
+      # @rbs (lsp_object? raw_params) -> lsp_object?
       def hover(raw_params)
-        with_index(raw_params) do |index, path, position|
+        result = with_index(raw_params) do |index, path, position|
           index.hover(path, position) || ParserConfigurationAssistance.new(store, path).hover(position)
-        end
+        end #: lsp_object?
+        result
       end
 
-      # @rbs (untyped raw_params) -> Hash[String, untyped]
+      # @rbs (lsp_object? raw_params) -> lsp_object
       def completion(raw_params)
         require_running!
         params = params_hash(raw_params)
@@ -54,7 +59,7 @@ module Ibex
         raise ProtocolError.new(e.message, code: -32_602)
       end
 
-      # @rbs (untyped raw_params) { (SymbolIndex, String, Hash[String, untyped]) -> untyped } -> untyped
+      # @rbs (lsp_object? raw_params) { (SymbolIndex, String, lsp_object) -> Object? } -> Object?
       def with_index(raw_params)
         require_running!
         params = params_hash(raw_params)

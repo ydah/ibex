@@ -8,26 +8,26 @@ module Ibex
 
       private
 
-      # @rbs (untyped raw_params) -> Array[Hash[String, untyped]]
-      def definition: (untyped raw_params) -> Array[Hash[String, untyped]]
+      # @rbs (lsp_object? raw_params) -> Array[lsp_object]
+      def definition: (lsp_object? raw_params) -> Array[lsp_object]
 
-      # @rbs (untyped raw_params) -> Array[Hash[String, untyped]]
-      def references: (untyped raw_params) -> Array[Hash[String, untyped]]
+      # @rbs (lsp_object? raw_params) -> Array[lsp_object]
+      def references: (lsp_object? raw_params) -> Array[lsp_object]
 
-      # @rbs (untyped raw_params) -> Hash[String, untyped]?
-      def prepare_rename: (untyped raw_params) -> Hash[String, untyped]?
+      # @rbs (lsp_object? raw_params) -> lsp_object?
+      def prepare_rename: (lsp_object? raw_params) -> lsp_object?
 
-      # @rbs (untyped raw_params) -> Hash[String, untyped]
-      def rename: (untyped raw_params) -> Hash[String, untyped]
+      # @rbs (lsp_object? raw_params) -> lsp_object
+      def rename: (lsp_object? raw_params) -> lsp_object
 
-      # @rbs (untyped raw_params) -> Hash[String, untyped]?
-      def hover: (untyped raw_params) -> Hash[String, untyped]?
+      # @rbs (lsp_object? raw_params) -> lsp_object?
+      def hover: (lsp_object? raw_params) -> lsp_object?
 
-      # @rbs (untyped raw_params) -> Hash[String, untyped]
-      def completion: (untyped raw_params) -> Hash[String, untyped]
+      # @rbs (lsp_object? raw_params) -> lsp_object
+      def completion: (lsp_object? raw_params) -> lsp_object
 
-      # @rbs (untyped raw_params) { (SymbolIndex, String, Hash[String, untyped]) -> untyped } -> untyped
-      def with_index: (untyped raw_params) { (SymbolIndex, String, Hash[String, untyped]) -> untyped } -> untyped
+      # @rbs (lsp_object? raw_params) { (SymbolIndex, String, lsp_object) -> Object? } -> Object?
+      def with_index: (lsp_object? raw_params) { (SymbolIndex, String, lsp_object) -> Object? } -> Object?
     end
   end
 end
