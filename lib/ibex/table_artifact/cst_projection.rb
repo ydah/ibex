@@ -5,12 +5,13 @@ module Ibex
     # Converts code-generation CST metadata into closed JSON records.
     module CSTProjection
       # @rbs!
-      #   private def cst: () -> Hash[String, untyped]?
-      #   private def normalize_cst: (Codegen::CSTMetadata::metadata metadata) -> Hash[String, untyped]
-      #   private def normalize_cst_kinds: (Codegen::CSTMetadata::kinds kinds) -> Hash[String, untyped]
+      #   type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+      #   private def cst: () -> Hash[String, json_value]?
+      #   private def normalize_cst: (Codegen::CSTMetadata::metadata metadata) -> Hash[String, json_value]
+      #   private def normalize_cst_kinds: (Codegen::CSTMetadata::kinds kinds) -> Hash[String, json_value]
       #   private def named_kinds: (Hash[String, Integer] values) -> Array[Hash[String, String | Integer]]
       #   private def normalize_cst_slot: (Integer production_id,
-      #     Codegen::CSTMetadata::slot slot) -> Hash[String, untyped]
+      #     Codegen::CSTMetadata::slot slot) -> Hash[String, json_value]
 
       private
 
