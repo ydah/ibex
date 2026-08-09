@@ -30,18 +30,18 @@ module Ibex
       DIGEST = /\Asha256:[0-9a-f]{64}\z/ #: Regexp
       ALGORITHMS = %w[slr lalr1 ielr1 lr1].freeze #: Array[String]
 
-      # @rbs (String source) -> Hash[String, untyped]
+      # @rbs (String source) -> Hash[String, json_value]
       def validate(source)
         document = JSON.parse(source) #: json_value
         validate_document(document)
-        document #: Hash[String, untyped]
+        document #: Hash[String, json_value]
       rescue JSON::ParserError, KeyError, TypeError, ArgumentError => e
         raise ValidationError, "(verification-report):1:1: invalid report: #{e.message}"
       end
 
-      # @rbs (manifest_source: String, report_source: String, table_source: String) -> Hash[String, untyped]
+      # @rbs (manifest_source: String, report_source: String, table_source: String) -> Hash[String, json_value]
       def validate_bundle(manifest_source:, report_source:, table_source:)
-        manifest = GenerationManifest.validate(manifest_source, verify_artifacts: false)
+        manifest = GenerationManifest.validate(manifest_source, verify_artifacts: false) #: Hash[String, json_value]
         report = validate(report_source)
         table = TableArtifact.load(table_source)
         report_entry = unique_artifact(manifest, "verification_report")
@@ -61,14 +61,16 @@ module Ibex
         raise ValidationError, "(verification-bundle):1:1: invalid bundle: #{e.message}"
       end
 
-      # @rbs (String manifest_path) -> Hash[String, untyped]
+      # @rbs (String manifest_path) -> Hash[String, json_value]
       def validate_bundle_file(manifest_path)
         manifest_source = File.binread(manifest_path)
-        manifest = GenerationManifest.validate(manifest_source, verify_artifacts: false)
+        manifest = GenerationManifest.validate(manifest_source, verify_artifacts: false) #: Hash[String, json_value]
         report_entry = unique_artifact(manifest, "verification_report")
         table_entry = unique_artifact(manifest, "parser_table")
-        report_source = File.binread(report_entry.fetch("path"))
-        table_source = File.binread(table_entry.fetch("path"))
+        report_path = report_entry.fetch("path") #: String
+        table_path = table_entry.fetch("path") #: String
+        report_source = File.binread(report_path)
+        table_source = File.binread(table_path)
         result = validate_bundle(
           manifest_source: manifest_source, report_source: report_source, table_source: table_source
         )
@@ -200,22 +202,23 @@ module Ibex
         violations
       end
 
-      # @rbs (Hash[String, untyped] manifest, String kind) -> Hash[String, untyped]
+      # @rbs (Hash[String, json_value] manifest, String kind) -> Hash[String, json_value]
       def unique_artifact(manifest, kind)
-        entries = manifest.fetch("artifacts").select { |entry| entry.fetch("kind") == kind }
+        artifacts = manifest.fetch("artifacts") #: Array[Hash[String, json_value]]
+        entries = artifacts.select { |entry| entry.fetch("kind") == kind }
         raise TypeError, "manifest must list exactly one #{kind} artifact" unless entries.one?
 
         entries.fetch(0)
       end
 
-      # @rbs (Hash[String, untyped] entry, String source, String label) -> void
+      # @rbs (Hash[String, json_value] entry, String source, String label) -> void
       def validate_manifest_bytes!(entry, source, label)
         expected_digest = Digest::SHA256.hexdigest(source)
         raise TypeError, "#{label} manifest bytesize mismatch" unless entry.fetch("bytesize") == source.bytesize
         raise TypeError, "#{label} manifest digest mismatch" unless entry.fetch("sha256") == expected_digest
       end
 
-      # @rbs (Hash[String, untyped] manifest, Hash[String, untyped] report) -> void
+      # @rbs (Hash[String, json_value] manifest, Hash[String, json_value] report) -> void
       def validate_inputs!(manifest, report)
         manifest_files = manifest.dig("input", "files").map.with_index do |entry, index|
           [
@@ -229,13 +232,15 @@ module Ibex
         raise TypeError, "report input identity does not match manifest input" unless report_files == manifest_files
       end
 
-      # @rbs (Hash[String, untyped] report, TableArtifact::Document table,
-      #   Hash[String, untyped] table_entry) -> void
+      # @rbs (Hash[String, json_value] report, TableArtifact::Document table,
+      #   Hash[String, json_value] table_entry) -> void
       def validate_table_binding!(report, table, table_entry)
-        claim = report.fetch("table")
-        expected_logical_path = LogicalPath.table(table_entry.fetch("path"))
+        claim = report.fetch("table") #: Hash[String, json_value]
+        table_path = table_entry.fetch("path") #: String
+        table_sha256 = table_entry.fetch("sha256") #: String
+        expected_logical_path = LogicalPath.table(table_path)
         equal(claim.fetch("logical_path"), expected_logical_path, "table.logical_path")
-        equal(claim.fetch("artifact_digest"), "sha256:#{table_entry.fetch('sha256')}", "table.artifact_digest")
+        equal(claim.fetch("artifact_digest"), "sha256:#{table_sha256}", "table.artifact_digest")
         equal(claim.fetch("payload_digest"), table.identity.fetch("payload_digest"), "table.payload_digest")
         equal(claim.fetch("representation"), table.payload.dig("table_format", "representation"),
               "table.representation")

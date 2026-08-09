@@ -35,14 +35,14 @@ module Ibex
 
       ALGORITHMS: Array[String]
 
-      # @rbs (String source) -> Hash[String, untyped]
-      def validate: (String source) -> Hash[String, untyped]
+      # @rbs (String source) -> Hash[String, json_value]
+      def validate: (String source) -> Hash[String, json_value]
 
-      # @rbs (manifest_source: String, report_source: String, table_source: String) -> Hash[String, untyped]
-      def validate_bundle: (manifest_source: String, report_source: String, table_source: String) -> Hash[String, untyped]
+      # @rbs (manifest_source: String, report_source: String, table_source: String) -> Hash[String, json_value]
+      def validate_bundle: (manifest_source: String, report_source: String, table_source: String) -> Hash[String, json_value]
 
-      # @rbs (String manifest_path) -> Hash[String, untyped]
-      def validate_bundle_file: (String manifest_path) -> Hash[String, untyped]
+      # @rbs (String manifest_path) -> Hash[String, json_value]
+      def validate_bundle_file: (String manifest_path) -> Hash[String, json_value]
 
       private
 
@@ -70,18 +70,18 @@ module Ibex
       # @rbs (json_value value, Array[String] requested) -> Array[json_value]
       def validate_violations: (json_value value, Array[String] requested) -> Array[json_value]
 
-      # @rbs (Hash[String, untyped] manifest, String kind) -> Hash[String, untyped]
-      def unique_artifact: (Hash[String, untyped] manifest, String kind) -> Hash[String, untyped]
+      # @rbs (Hash[String, json_value] manifest, String kind) -> Hash[String, json_value]
+      def unique_artifact: (Hash[String, json_value] manifest, String kind) -> Hash[String, json_value]
 
-      # @rbs (Hash[String, untyped] entry, String source, String label) -> void
-      def validate_manifest_bytes!: (Hash[String, untyped] entry, String source, String label) -> void
+      # @rbs (Hash[String, json_value] entry, String source, String label) -> void
+      def validate_manifest_bytes!: (Hash[String, json_value] entry, String source, String label) -> void
 
-      # @rbs (Hash[String, untyped] manifest, Hash[String, untyped] report) -> void
-      def validate_inputs!: (Hash[String, untyped] manifest, Hash[String, untyped] report) -> void
+      # @rbs (Hash[String, json_value] manifest, Hash[String, json_value] report) -> void
+      def validate_inputs!: (Hash[String, json_value] manifest, Hash[String, json_value] report) -> void
 
-      # @rbs (Hash[String, untyped] report, TableArtifact::Document table,
-      #   Hash[String, untyped] table_entry) -> void
-      def validate_table_binding!: (Hash[String, untyped] report, TableArtifact::Document table, Hash[String, untyped] table_entry) -> void
+      # @rbs (Hash[String, json_value] report, TableArtifact::Document table,
+      #   Hash[String, json_value] table_entry) -> void
+      def validate_table_binding!: (Hash[String, json_value] report, TableArtifact::Document table, Hash[String, json_value] table_entry) -> void
 
       # @rbs (json_value value, String path) -> Array[String]
       def checks: (json_value value, String path) -> Array[String]

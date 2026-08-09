@@ -29,16 +29,16 @@ module Ibex
     def self?.render: (IR::Automaton automaton, table: TableArtifact::Document, source_records: Array[GenerationInput], table_path: String, ?strict: bool, ?max_states: Integer, ?max_items: Integer) -> String
 
     # Validate the closed report shape and its canonical evidence digest.
-    # @rbs (String source) -> Hash[String, untyped]
-    def self?.validate: (String source) -> Hash[String, untyped]
+    # @rbs (String source) -> Hash[String, VerificationReport::Validator::json_value]
+    def self?.validate: (String source) -> Hash[String, VerificationReport::Validator::json_value]
 
     # Validate report, table, and manifest bytes as one non-cyclic bundle.
-    # @rbs (manifest_source: String, report_source: String, table_source: String) -> Hash[String, untyped]
-    def self?.validate_bundle: (manifest_source: String, report_source: String, table_source: String) -> Hash[String, untyped]
+    # @rbs (manifest_source: String, report_source: String, table_source: String) -> Hash[String, VerificationReport::Validator::json_value]
+    def self?.validate_bundle: (manifest_source: String, report_source: String, table_source: String) -> Hash[String, VerificationReport::Validator::json_value]
 
     # Resolve the report and table through a manifest and validate every
     # published artifact before checking the cross-artifact identities.
-    # @rbs (String manifest_path) -> Hash[String, untyped]
-    def self?.validate_bundle_file: (String manifest_path) -> Hash[String, untyped]
+    # @rbs (String manifest_path) -> Hash[String, VerificationReport::Validator::json_value]
+    def self?.validate_bundle_file: (String manifest_path) -> Hash[String, VerificationReport::Validator::json_value]
   end
 end

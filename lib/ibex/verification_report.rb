@@ -46,13 +46,13 @@ module Ibex
     end
 
     # Validate the closed report shape and its canonical evidence digest.
-    # @rbs (String source) -> Hash[String, untyped]
+    # @rbs (String source) -> Hash[String, VerificationReport::Validator::json_value]
     def validate(source)
       Validator.new.validate(source)
     end
 
     # Validate report, table, and manifest bytes as one non-cyclic bundle.
-    # @rbs (manifest_source: String, report_source: String, table_source: String) -> Hash[String, untyped]
+    # @rbs (manifest_source: String, report_source: String, table_source: String) -> Hash[String, VerificationReport::Validator::json_value]
     def validate_bundle(manifest_source:, report_source:, table_source:)
       Validator.new.validate_bundle(
         manifest_source: manifest_source, report_source: report_source, table_source: table_source
@@ -61,7 +61,7 @@ module Ibex
 
     # Resolve the report and table through a manifest and validate every
     # published artifact before checking the cross-artifact identities.
-    # @rbs (String manifest_path) -> Hash[String, untyped]
+    # @rbs (String manifest_path) -> Hash[String, VerificationReport::Validator::json_value]
     def validate_bundle_file(manifest_path)
       Validator.new.validate_bundle_file(manifest_path)
     end

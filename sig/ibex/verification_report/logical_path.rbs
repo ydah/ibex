@@ -18,11 +18,11 @@ module Ibex
       # @rbs (String path) -> String
       def self?.table: (String path) -> String
 
-      # @rbs (Object value, Integer index) -> bool
-      def self?.canonical_input?: (Object value, Integer index) -> bool
+      # @rbs (Object? value, Integer index) -> bool
+      def self?.canonical_input?: (Object? value, Integer index) -> bool
 
-      # @rbs (Object value) -> bool
-      def self?.canonical_table?: (Object value) -> bool
+      # @rbs (Object? value) -> bool
+      def self?.canonical_table?: (Object? value) -> bool
 
       # @rbs (String path) -> String
       def self?.basename: (String path) -> String
