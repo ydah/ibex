@@ -4,6 +4,8 @@ module Ibex
   module VerificationReport
     # Builds deterministic evidence from an Automaton IR verification run.
     class Builder
+      type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+
       # @rbs (IR::Automaton automaton, table: TableArtifact::Document,
       #   source_records: Array[GenerationInput], table_path: String, strict: bool,
       #   max_states: Integer, max_items: Integer) -> void
@@ -20,17 +22,17 @@ module Ibex
       # @rbs () -> Array[String]
       def requested_checks: () -> Array[String]
 
-      # @rbs () -> Hash[String, untyped]
-      def verification_outcome: () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
+      def verification_outcome: () -> Hash[String, json_value]
 
-      # @rbs () -> Hash[String, untyped]
-      def input_identity: () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
+      def input_identity: () -> Hash[String, json_value]
 
-      # @rbs () -> Hash[String, untyped]
-      def ir_identity: () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
+      def ir_identity: () -> Hash[String, json_value]
 
-      # @rbs () -> Hash[String, untyped]
-      def table_identity: () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
+      def table_identity: () -> Hash[String, json_value]
 
       # @rbs () -> void
       def validate_table_identity!: () -> void

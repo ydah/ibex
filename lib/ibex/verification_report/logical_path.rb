@@ -26,7 +26,7 @@ module Ibex
         "table/#{basename(path)}"
       end
 
-      # @rbs (untyped value, Integer index) -> bool
+      # @rbs (Object value, Integer index) -> bool
       def canonical_input?(value, index)
         return false unless value.is_a?(String)
 
@@ -37,7 +37,7 @@ module Ibex
         !!(basename && match[:index] == format("%04d", index) && usable_basename?(basename))
       end
 
-      # @rbs (untyped value) -> bool
+      # @rbs (Object value) -> bool
       def canonical_table?(value)
         return false unless value.is_a?(String)
 

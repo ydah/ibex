@@ -10,6 +10,9 @@ module Ibex
   module VerificationReport
     # Builds deterministic evidence from an Automaton IR verification run.
     class Builder
+      # @rbs!
+      #   type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+
       # @rbs (IR::Automaton automaton, table: TableArtifact::Document,
       #   source_records: Array[GenerationInput], table_path: String, strict: bool,
       #   max_states: Integer, max_items: Integer) -> void
@@ -61,7 +64,7 @@ module Ibex
         Verify::Verifier::DEFAULT_CHECKS + (@strict ? Verify::Verifier::STRICT_CHECKS : [])
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
       def verification_outcome
         result = Verify::Verifier.new(
           @automaton, strict: @strict, max_states: @max_states, max_items: @max_items
@@ -83,7 +86,7 @@ module Ibex
         }
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
       def input_identity
         files = @source_records.map.with_index do |record, index|
           {
@@ -95,7 +98,7 @@ module Ibex
         { "digest" => TableArtifact::Serializer.digest(files), "files" => files }
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
       def ir_identity
         {
           "identity_scope" => IR_IDENTITY_SCOPE,
@@ -111,7 +114,7 @@ module Ibex
         }
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
       def table_identity
         {
           "logical_path" => @table_path,
