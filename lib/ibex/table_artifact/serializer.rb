@@ -38,7 +38,7 @@ module Ibex
           "sha256:#{Digest::SHA256.hexdigest(compact(value))}"
         end
 
-        # @rbs (untyped value) -> untyped
+        # @rbs (json_value value) -> json_value
         def deep_freeze(value)
           case value
           when Hash

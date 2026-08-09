@@ -9,11 +9,11 @@ module Ibex
 
       private
 
-      # @rbs (json_value value, String path, Array[String] keys) -> Hash[String, untyped]
-      def record: (json_value value, String path, Array[String] keys) -> Hash[String, untyped]
+      # @rbs (json_value value, String path, Array[String] keys) -> Hash[String, json_value]
+      def record: (json_value value, String path, Array[String] keys) -> Hash[String, json_value]
 
-      # @rbs (json_value value, String path) -> Array[untyped]
-      def array: (json_value value, String path) -> Array[untyped]
+      # @rbs (json_value value, String path) -> Array[json_value]
+      def array: (json_value value, String path) -> Array[json_value]
 
       # @rbs (json_value value, String path, ?allow_empty: bool) -> String
       def string: (json_value value, String path, ?allow_empty: bool) -> String
@@ -36,8 +36,8 @@ module Ibex
       # @rbs (json_value value, String path, ?minimum: Integer?) -> Integer?
       def nullable_integer: (json_value value, String path, ?minimum: Integer?) -> Integer?
 
-      # @rbs (Array[untyped] values, String path) -> void
-      def sorted_unique!: (Array[untyped] values, String path) -> void
+      # @rbs (Array[json_value] values, String path) -> void
+      def sorted_unique!: (Array[json_value] values, String path) -> void
 
       # @rbs (String path, String message) -> bot
       def invalid: (String path, String message) -> bot

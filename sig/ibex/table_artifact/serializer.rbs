@@ -18,8 +18,8 @@ module Ibex
       # @rbs (json_value value) -> String
       def self.digest: (json_value value) -> String
 
-      # @rbs (untyped value) -> untyped
-      def self.deep_freeze: (untyped value) -> untyped
+      # @rbs (json_value value) -> json_value
+      def self.deep_freeze: (json_value value) -> json_value
     end
   end
 end

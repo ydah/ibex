@@ -10,7 +10,7 @@ module Ibex
 
       private
 
-      # @rbs (json_value value, String path, Array[String] keys) -> Hash[String, untyped]
+      # @rbs (json_value value, String path, Array[String] keys) -> Hash[String, json_value]
       def record(value, path, keys)
         invalid(path, "must be an object") unless value.is_a?(Hash)
         invalid(path, "must use string keys") unless value.keys.all?(String)
@@ -19,13 +19,13 @@ module Ibex
         extra = value.keys - keys
         invalid(path, "is missing #{missing.join(', ')}") unless missing.empty?
         invalid(path, "contains unknown fields #{extra.join(', ')}") unless extra.empty?
-        value #: Hash[String, untyped]
+        value #: Hash[String, json_value]
       end
 
-      # @rbs (json_value value, String path) -> Array[untyped]
+      # @rbs (json_value value, String path) -> Array[json_value]
       def array(value, path)
         invalid(path, "must be an array") unless value.is_a?(Array)
-        value #: Array[untyped]
+        value #: Array[json_value]
       end
 
       # @rbs (json_value value, String path, ?allow_empty: bool) -> String
@@ -72,7 +72,7 @@ module Ibex
         value #: Integer?
       end
 
-      # @rbs (Array[untyped] values, String path) -> void
+      # @rbs (Array[json_value] values, String path) -> void
       def sorted_unique!(values, path)
         invalid(path, "must be sorted and unique") unless values == values.sort.uniq
       end

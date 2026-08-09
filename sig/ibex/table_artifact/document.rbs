@@ -4,22 +4,24 @@ module Ibex
   module TableArtifact
     # An immutable, validated table artifact document.
     class Document
-      attr_reader data: Hash[String, untyped]
+      type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
 
-      # @rbs (Hash[String, untyped] data) -> void
-      def initialize: (Hash[String, untyped] data) -> void
+      attr_reader data: Hash[String, json_value]
+
+      # @rbs (Hash[String, json_value] data) -> void
+      def initialize: (Hash[String, json_value] data) -> void
 
       # @rbs () -> String
       def dump: () -> String
 
-      # @rbs () -> Hash[String, untyped]
-      def payload: () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
+      def payload: () -> Hash[String, json_value]
 
       # @rbs () -> Hash[String, String]
       def identity: () -> Hash[String, String]
 
-      # @rbs () -> Hash[String, untyped]
-      def cost: () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
+      def cost: () -> Hash[String, json_value]
     end
   end
 end
