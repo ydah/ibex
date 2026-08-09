@@ -73,7 +73,7 @@ module Ibex
 
         # @rbs (json_value value, String path) -> bool
         def boolean(value, path)
-          if value == true || value == false
+          if [true, false].include?(value)
             result = value #: bool
             return result
           end

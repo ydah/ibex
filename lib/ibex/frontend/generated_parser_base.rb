@@ -31,8 +31,7 @@ module Ibex
 
       # @rbs () -> (AST::Root | AST::Fragment)
       def parse
-        result = do_parse
-        result #: AST::Root | AST::Fragment
+        do_parse #: AST::Root | AST::Fragment
       end
 
       # @rbs () -> ([external_token, Token] | false)

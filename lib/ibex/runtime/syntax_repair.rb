@@ -446,6 +446,7 @@ module Ibex
       # @rbs (Object location, Symbol key) -> Object?
       def location_value(location, key)
         return location.public_send(key) if location.respond_to?(key)
+
         if location.is_a?(Hash)
           hash = location #: Hash[Object, Object]
           return hash[key] || hash[key.to_s]

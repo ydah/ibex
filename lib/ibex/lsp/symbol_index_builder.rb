@@ -102,6 +102,7 @@ module Ibex
         token = token_at(document, rule.loc, rule.lhs)
         span = token&.span
         return unless span
+
         lhs_token = token #: Frontend::Token
 
         @global_kinds[rule.lhs] ||= :rule

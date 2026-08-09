@@ -59,7 +59,8 @@ module Ibex
       alternative.reverse_each { |child| operations << [:item, child] }
     end
 
-    # @rbs (NormalizeParameters::parameter_frame frame, String helper, Frontend::AST::Group item, Integer length) -> void
+    # @rbs (NormalizeParameters::parameter_frame frame, String helper,
+    #   Frontend::AST::Group item, Integer length) -> void
     def finish_parameter_group_alternative(frame, helper, item, length)
       # @type self: Normalizer
       rhs = frame.fetch(:values).pop(length)

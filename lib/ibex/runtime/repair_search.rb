@@ -10,7 +10,10 @@ module Ibex
     class RepairSearch
       # @rbs!
       #   type configuration_key = [Array[Integer], Integer, Integer, bool]
-      #   type priority = [Integer, Integer, Array[[Integer, Integer, Integer]], Integer, Integer, Integer, Array[Integer]]
+      #   type priority = [
+      #     Integer, Integer, Array[[Integer, Integer, Integer]], Integer,
+      #     Integer, Integer, Array[Integer]
+      #   ]
       #   type lookup_table = Tables::action_table | Tables::goto_table
       #   type lookup_value = IR::runtime_action | Integer?
 
@@ -322,7 +325,8 @@ module Ibex
       # @rbs (Configuration configuration) -> void
       def push(configuration)
         priority = priority_for(configuration)
-        key = [configuration.stack, configuration.input_index, configuration.shifts, configuration.goal] #: configuration_key
+        key = [configuration.stack, configuration.input_index, configuration.shifts,
+               configuration.goal] #: configuration_key
         previous = @best[key]
         comparison = previous <=> priority if previous
         return if comparison && comparison <= 0
@@ -340,7 +344,8 @@ module Ibex
           priority, configuration = entry
           return LIMIT unless configuration.is_a?(Configuration)
 
-          key = [configuration.stack, configuration.input_index, configuration.shifts, configuration.goal] #: configuration_key
+          key = [configuration.stack, configuration.input_index, configuration.shifts,
+                 configuration.goal] #: configuration_key
           return configuration if @best[key] == priority
         end
       end
@@ -353,11 +358,10 @@ module Ibex
         end
         goal_rank = configuration.goal ? 0 : 1
         risk = configuration.edits.sum { |edit| semantic_value_risk(edit) }
-        value = [
+        [
           configuration.cost, risk, edit_key, goal_rank, -configuration.shifts,
           configuration.input_index, configuration.stack
-        ]
-        value #: priority
+        ] #: priority
       end
 
       # Prefer punctuation edits when equal-cost repairs are otherwise

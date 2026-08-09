@@ -20,8 +20,12 @@ module Ibex
     #
     #   type explain_token = { name: String, display_name: String?, label: String, ?query: String }
     #   type explain_alternative = { kind: String, ?state: Integer, ?production: Integer }
-    #   type explain_search = { status: String, explored: Integer, exhausted: bool, bounds: Hash[Symbol, Integer] }
-    #   type explain_tree_node = { ?symbol: explain_token, ?token: explain_token, ?production: Integer, ?children: Array[explain_tree] }
+    #   type explain_search = {
+    #     status: String, explored: Integer, exhausted: bool, bounds: Hash[Symbol, Integer]
+    #   }
+    #   type explain_tree_node = {
+    #     ?symbol: explain_token, ?token: explain_token, ?production: Integer, ?children: Array[explain_tree]
+    #   }
     #   type explain_tree = String | Symbol | explain_token | explain_tree_node
     #   type explain_interpretation = { kind: String, tree: explain_tree, ?state: Integer, ?production: Integer }
     #   type string_value = String | Integer | Symbol
@@ -212,10 +216,9 @@ module Ibex
           [shift, reduce]
         when :reduce_reduce
           reduce_reduce = conflict #: IR::reduce_reduce_conflict
-          alternatives = reduce_reduce[:reductions].map do |production|
+          reduce_reduce[:reductions].map do |production|
             { kind: "reduce", production: production }
-          end # @type var alternatives: Array[explain_alternative]
-          alternatives
+          end #: Array[explain_alternative]
         else
           []
         end
