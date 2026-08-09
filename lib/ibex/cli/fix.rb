@@ -31,10 +31,10 @@ module Ibex
     #   }
     #   private def normalize_grammar_path: (String) -> IR::Grammar
     #   private def activate_cli_feature: (Symbol) -> void
-    #   private def configuration_value: (String) -> untyped
-    #   private def set_configuration_option: (Symbol, untyped) -> void
-    #   private def local_configuration_value: (Hash[Symbol, untyped], String) -> untyped
-    #   private def set_local_configuration_option: (Hash[Symbol, untyped], Symbol, untyped) -> void
+    #   private def configuration_value: (String) -> Object?
+    #   private def set_configuration_option: (Symbol, Object?) -> void
+    #   private def local_configuration_value: (Hash[Symbol, Object?], String) -> Object?
+    #   private def set_local_configuration_option: (Hash[Symbol, Object?], Symbol, Object?) -> void
 
     private
 
@@ -78,10 +78,11 @@ module Ibex
       grammar, algorithm, automaton = fixer_construction(grammar, settings)
       message_file = settings[:messages]
       messages = ErrorMessages.load(message_file) if message_file
+      mode = configuration_value("grammar.mode") #: Symbol
       fixer = Fix.new(
         source,
         file: path, grammar: grammar, automaton: automaton,
-        algorithm: algorithm, mode: configuration_value("grammar.mode"),
+        algorithm: algorithm, mode: mode,
         state: settings[:state], conflict_index: settings[:conflict_index],
         max_candidates: settings.fetch(:max_candidates), max_builds: settings.fetch(:max_builds),
         equiv_samples: settings.fetch(:equiv_samples),
@@ -169,10 +170,10 @@ module Ibex
     end
 
     # @rbs!
-    #   private def construct_analysis_automaton: (IR::Grammar, Hash[Symbol, untyped], Array[Symbol]) ->
+    #   private def construct_analysis_automaton: (IR::Grammar, Hash[Symbol, Object?], Array[Symbol]) ->
     #     [IR::Grammar, Symbol, IR::Automaton]
 
-    # @rbs (String path, String original, Hash[Symbol, untyped] report, Fix fixer, String | true selector) -> void
+    # @rbs (String path, String original, Hash[Symbol, Object?] report, Fix fixer, String | true selector) -> void
     def apply_fix!(path, original, report, fixer, selector)
       proposal = selected_fix_proposal(report.fetch(:proposals), selector)
       unless proposal.fetch(:applyable)
@@ -192,7 +193,7 @@ module Ibex
       report[:applied] = proposal.fetch(:id)
     end
 
-    # @rbs (Array[Hash[Symbol, untyped]] proposals, String | true selector) -> Hash[Symbol, untyped]
+    # @rbs (Array[Hash[Symbol, Object?]] proposals, String | true selector) -> Hash[Symbol, Object?]
     def selected_fix_proposal(proposals, selector)
       proposal = if selector == true
                    proposals.find { |entry| entry.fetch(:applyable) }
@@ -202,7 +203,7 @@ module Ibex
       proposal || raise(Ibex::Error, "(fix):1:1: no matching applyable safe proposal")
     end
 
-    # @rbs (Hash[Symbol, untyped] report, String format) -> void
+    # @rbs (Hash[Symbol, Object?] report, String format) -> void
     def write_fix_report(report, format)
       if format == "json"
         @stdout.puts(JSON.pretty_generate(report))

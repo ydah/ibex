@@ -10,13 +10,13 @@ module Ibex
 
     private def activate_cli_feature: (Symbol) -> void
 
-    private def configuration_value: (String) -> untyped
+    private def configuration_value: (String) -> Object?
 
-    private def set_configuration_option: (Symbol, untyped) -> void
+    private def set_configuration_option: (Symbol, Object?) -> void
 
-    private def local_configuration_value: (Hash[Symbol, untyped], String) -> untyped
+    private def local_configuration_value: (Hash[Symbol, Object?], String) -> Object?
 
-    private def set_local_configuration_option: (Hash[Symbol, untyped], Symbol, untyped) -> void
+    private def set_local_configuration_option: (Hash[Symbol, Object?], Symbol, Object?) -> void
 
     private
 
@@ -39,15 +39,15 @@ module Ibex
     # @rbs (IR::Grammar grammar, fix_options settings) -> [IR::Grammar, Symbol, IR::Automaton]
     def fixer_construction: (IR::Grammar grammar, fix_options settings) -> [ IR::Grammar, Symbol, IR::Automaton ]
 
-    private def construct_analysis_automaton: (IR::Grammar, Hash[Symbol, untyped], Array[Symbol]) -> [ IR::Grammar, Symbol, IR::Automaton ]
+    private def construct_analysis_automaton: (IR::Grammar, Hash[Symbol, Object?], Array[Symbol]) -> [ IR::Grammar, Symbol, IR::Automaton ]
 
-    # @rbs (String path, String original, Hash[Symbol, untyped] report, Fix fixer, String | true selector) -> void
-    def apply_fix!: (String path, String original, Hash[Symbol, untyped] report, Fix fixer, String | true selector) -> void
+    # @rbs (String path, String original, Hash[Symbol, Object?] report, Fix fixer, String | true selector) -> void
+    def apply_fix!: (String path, String original, Hash[Symbol, Object?] report, Fix fixer, String | true selector) -> void
 
-    # @rbs (Array[Hash[Symbol, untyped]] proposals, String | true selector) -> Hash[Symbol, untyped]
-    def selected_fix_proposal: (Array[Hash[Symbol, untyped]] proposals, String | true selector) -> Hash[Symbol, untyped]
+    # @rbs (Array[Hash[Symbol, Object?]] proposals, String | true selector) -> Hash[Symbol, Object?]
+    def selected_fix_proposal: (Array[Hash[Symbol, Object?]] proposals, String | true selector) -> Hash[Symbol, Object?]
 
-    # @rbs (Hash[Symbol, untyped] report, String format) -> void
-    def write_fix_report: (Hash[Symbol, untyped] report, String format) -> void
+    # @rbs (Hash[Symbol, Object?] report, String format) -> void
+    def write_fix_report: (Hash[Symbol, Object?] report, String format) -> void
   end
 end
