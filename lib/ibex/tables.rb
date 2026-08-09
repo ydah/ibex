@@ -17,7 +17,7 @@ module Ibex
     TableSet = Struct.new(:actions, :gotos, :default_actions, keyword_init: true)
 
     # @rbs!
-    #   class TableSet < Struct[untyped]
+    #   class TableSet < Struct[Object?]
     #     attr_accessor actions: action_table
     #     attr_accessor gotos: goto_table
     #     attr_accessor default_actions: Array[IR::runtime_action?]
