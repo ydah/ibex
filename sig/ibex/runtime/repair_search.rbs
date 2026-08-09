@@ -48,11 +48,11 @@ module Ibex
 
       @policy: RepairPolicy
 
-      @tables: Hash[Symbol, untyped]
+      @tables: Hash[Symbol, Object?]
 
-      # @rbs (Hash[Symbol, untyped] tables, RepairPolicy policy, Array[RepairInput] tokens,
+      # @rbs (Hash[Symbol, Object?] tables, RepairPolicy policy, Array[RepairInput] tokens,
       #   complete: bool) -> void
-      def initialize: (Hash[Symbol, untyped] tables, RepairPolicy policy, Array[RepairInput] tokens, complete: bool) -> void
+      def initialize: (Hash[Symbol, Object?] tables, RepairPolicy policy, Array[RepairInput] tokens, complete: bool) -> void
 
       # Compatibility projection used by the semantic runtime path.
       # @rbs (Array[Integer] state_stack) -> (RepairPlan | Object | nil)

@@ -29,7 +29,7 @@ module Ibex
         keyword_init: true
       )
 
-      # @rbs @tables: Parser::table_set
+      # @rbs @tables: Hash[Symbol, Object?]
       # @rbs @policy: RepairPolicy
       # @rbs @tokens: Array[RepairInput]
       # @rbs @complete: bool
@@ -38,7 +38,7 @@ module Ibex
       # @rbs @best: Hash[configuration_key, priority]
       # @rbs @candidate_ids: Array[Integer]
 
-      # @rbs (Parser::table_set tables, RepairPolicy policy, Array[RepairInput] tokens,
+      # @rbs (Hash[Symbol, Object?] tables, RepairPolicy policy, Array[RepairInput] tokens,
       #   complete: bool) -> void
       def initialize(tables, policy, tokens, complete:)
         @tables = tables
@@ -49,7 +49,8 @@ module Ibex
         @heap = RepairPriorityQueue.new
         @best = {}
         reserved = [Parser::EOF_TOKEN, Parser::ERROR_TOKEN]
-        @candidate_ids = tables.fetch(:token_names).keys.reject { |id| reserved.include?(id) }.sort.freeze
+        token_names = tables.fetch(:token_names) #: Hash[Integer, String]
+        @candidate_ids = token_names.keys.reject { |id| reserved.include?(id) }.sort.freeze
       end
 
       # Compatibility projection used by the semantic runtime path.
@@ -254,12 +255,15 @@ module Ibex
 
       # @rbs (Array[Integer] states, Integer production_id) -> Array[Integer]?
       def apply_reduction(states, production_id)
-        production = @tables.fetch(:productions).fetch(production_id) #: Parser::table_production
-        length = production.fetch(:length)
+        productions = @tables.fetch(:productions) #: Array[Hash[Symbol, Object?]]
+        production = productions.fetch(production_id)
+        length = production.fetch(:length) #: Integer
         return if length >= states.length
 
         states.pop(length)
-        goto = goto_table_lookup(@tables.fetch(:gotos), states.last, production.fetch(:lhs))
+        gotos = @tables.fetch(:gotos) #: Tables::goto_table
+        lhs = production.fetch(:lhs) #: Integer
+        goto = goto_table_lookup(gotos, states.last, lhs)
         return unless goto.is_a?(Integer)
 
         states << goto
@@ -268,10 +272,12 @@ module Ibex
 
       # @rbs (Integer state, Integer token_id) -> IR::runtime_action
       def action_for(state, token_id)
-        explicit = action_table_lookup(@tables.fetch(:actions), state, token_id)
+        actions = @tables.fetch(:actions) #: Tables::action_table
+        explicit = action_table_lookup(actions, state, token_id)
         return explicit if explicit
 
-        @tables.fetch(:default_actions, Parser::EMPTY_ROW)[state] || [:error]
+        defaults = @tables.fetch(:default_actions, Parser::EMPTY_ROW) #: Array[IR::runtime_action?]
+        defaults[state] || [:error]
       end
 
       # @rbs (Tables::action_table table, Integer row, Integer column) -> IR::runtime_action?
@@ -319,7 +325,8 @@ module Ibex
 
       # @rbs (Integer token_id) -> String
       def token_name(token_id)
-        @tables.fetch(:token_names).fetch(token_id, token_id.to_s)
+        token_names = @tables.fetch(:token_names) #: Hash[Integer, String]
+        token_names.fetch(token_id, token_id.to_s)
       end
 
       # @rbs (Configuration configuration) -> void
