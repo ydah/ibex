@@ -4,6 +4,8 @@ module Ibex
   module VerificationReport
     # Rebuilds immutable IR with source locations expressed as report logical identities.
     class CanonicalIR
+      type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[json_value, json_value]
+
       LOGICAL_ROOT: String
 
       # @rbs (IR::Automaton automaton, source_records: Array[GenerationInput]) -> void
@@ -17,11 +19,11 @@ module Ibex
       # @rbs (untyped value) -> untyped
       def normalize_source_identity!: (untyped value) -> untyped
 
-      # @rbs (untyped value) -> String
-      def generate_json: (untyped value) -> String
+      # @rbs (json_value value) -> String
+      def generate_json: (json_value value) -> String
 
-      # @rbs (untyped value) -> untyped
-      def normalize_for_json: (untyped value) -> untyped
+      # @rbs (json_value value) -> json_value
+      def normalize_for_json: (json_value value) -> json_value
 
       # @rbs (String file) -> String
       def logical_file: (String file) -> String
