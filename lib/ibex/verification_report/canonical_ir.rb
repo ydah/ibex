@@ -94,12 +94,14 @@ module Ibex
 
       # @rbs (GenerationInput record, String file) -> bool
       def record_matches?(record, file)
-        paths = [record.path, *record.access_paths]
-        return true if paths.include?(file)
-        return true if absolute_file?(file) && paths.include?(File.expand_path(file))
+        paths = [record.path, *record.access_paths].map(&:b)
+        file_bytes = file.b
+        return true if paths.include?(file_bytes)
+        return true if absolute_file?(file) && paths.include?(File.expand_path(file).b)
 
+        suffix = "/".b + file_bytes
         !absolute_file?(file) && paths.any? do |path|
-          path == file || path.end_with?("/#{file}")
+          path == file_bytes || path.end_with?(suffix)
         end
       end
 
