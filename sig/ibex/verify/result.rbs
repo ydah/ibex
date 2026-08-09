@@ -19,6 +19,8 @@ module Ibex
 
     # Immutable independent-verification report.
     class Result
+      type report_value = String | Integer | bool | Array[String] | Hash[Symbol, Integer] | Array[Hash[Symbol, String]]
+
       attr_reader algorithm: String
 
       attr_reader strict: bool
@@ -36,8 +38,8 @@ module Ibex
       # @rbs () -> bool
       def valid?: () -> bool
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, report_value]
+      def to_h: () -> Hash[Symbol, report_value]
     end
 
     class BudgetExceeded < Ibex::Error
