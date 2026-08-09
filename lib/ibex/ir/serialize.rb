@@ -24,8 +24,10 @@ module Ibex
       #   private def self.normalize_action: (Hash[String, untyped] value) -> parser_action?
       #   private def load_production: (Hash[String, untyped] production, Integer schema_version) -> Production
       #   private def self.load_production: (Hash[String, untyped] production, Integer schema_version) -> Production
-      #   private def load_user_code_chunks: (Hash[String, Array[Hash[String, untyped]]] chunks) -> user_code_chunks
-      #   private def self.load_user_code_chunks: (Hash[String, Array[Hash[String, untyped]]] chunks) -> user_code_chunks
+      #   private def load_user_code_chunks: (Hash[String,
+      #     Array[Hash[String, untyped]]] chunks) -> user_code_chunks
+      #   private def self.load_user_code_chunks: (Hash[String,
+      #     Array[Hash[String, untyped]]] chunks) -> user_code_chunks
       #   private def load_symbol_metadata: (Hash[String, untyped] symbol, String field) -> String?
       #   private def self.load_symbol_metadata: (Hash[String, untyped] symbol, String field) -> String?
       #   private def load_grammar_tests: (Array[Hash[String, untyped]] tests) -> Array[grammar_test]

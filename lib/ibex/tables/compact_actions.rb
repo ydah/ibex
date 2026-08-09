@@ -108,9 +108,11 @@ module Ibex
       end
 
       # @rbs (Integer row) -> Hash[Integer, IR::runtime_action]
+      # rubocop:disable Lint/UselessMethodDefinition -- narrows the inherited row contract for typed parser actions.
       def row(row)
         super #: Hash[Integer, IR::runtime_action]
       end
+      # rubocop:enable Lint/UselessMethodDefinition
 
       private
 
