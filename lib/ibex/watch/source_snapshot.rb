@@ -7,12 +7,16 @@ module Ibex
   module Watch
     # Stable metadata and content fingerprints for watched source paths.
     class SourceSnapshot
+      # @rbs!
+      #   type fingerprint_value = Symbol | String | Integer | nil | Hash[Symbol, fingerprint_value]
+      #   type fingerprint = Hash[Symbol, fingerprint_value]
+
       attr_reader :paths #: Array[String]
 
       # @rbs (Array[String] paths) -> void
       def initialize(paths)
         @paths = paths.map { |path| File.expand_path(path) }.uniq.sort.freeze
-        @entries = @paths.to_h { |path| [path, fingerprint(path)] }.freeze #: Hash[String, Hash[Symbol, untyped]]
+        @entries = @paths.to_h { |path| [path, fingerprint(path)] }.freeze #: Hash[String, fingerprint]
         freeze
       end
 
@@ -31,16 +35,16 @@ module Ibex
 
       protected
 
-      attr_reader :entries #: Hash[String, Hash[Symbol, untyped]]
+      attr_reader :entries #: Hash[String, fingerprint]
 
-      # @rbs (String path) -> Hash[Symbol, untyped]?
+      # @rbs (String path) -> fingerprint?
       def entry(path)
         @entries[path]
       end
 
       private
 
-      # @rbs (String path) -> Hash[Symbol, untyped]
+      # @rbs (String path) -> fingerprint
       def fingerprint(path)
         stat = File.lstat(path)
         value = stat_signature(stat)
@@ -56,7 +60,7 @@ module Ibex
         { kind: :error, error: e.class.name, errno: e.respond_to?(:errno) ? e.errno : nil }
       end
 
-      # @rbs (File::Stat stat) -> Hash[Symbol, untyped]
+      # @rbs (File::Stat stat) -> fingerprint
       def stat_signature(stat)
         {
           kind: file_kind(stat), dev: stat.dev, ino: stat.ino, size: stat.size,
@@ -78,13 +82,14 @@ module Ibex
         (time.to_i * 1_000_000_000) + time.nsec
       end
 
-      # @rbs (Hash[Symbol, untyped] value, String path) -> void
+      # @rbs (fingerprint value, String path) -> void
       def add_resolved_target(value, path)
         target = File.realpath(path)
         stat = File.stat(target)
         value[:resolved_path] = target
-        value[:resolved] = stat_signature(stat)
-        value[:resolved][:sha256] = Digest::SHA256.file(target).hexdigest if stat.file?
+        resolved = stat_signature(stat)
+        resolved[:sha256] = Digest::SHA256.file(target).hexdigest if stat.file?
+        value[:resolved] = resolved
       rescue SystemCallError => e
         value[:resolved] = { kind: :error, error: e.class.name, errno: e.respond_to?(:errno) ? e.errno : nil }
       end

@@ -4,6 +4,10 @@ module Ibex
   module Watch
     # Stable metadata and content fingerprints for watched source paths.
     class SourceSnapshot
+      type fingerprint_value = Symbol | String | Integer | nil | Hash[Symbol, fingerprint_value]
+
+      type fingerprint = Hash[Symbol, fingerprint_value]
+
       attr_reader paths: Array[String]
 
       # @rbs (Array[String] paths) -> void
@@ -16,18 +20,18 @@ module Ibex
       # @rbs (SourceSnapshot older) -> bool
       def unchanged_since?: (SourceSnapshot older) -> bool
 
-      attr_reader entries: Hash[String, Hash[Symbol, untyped]]
+      attr_reader entries: Hash[String, fingerprint]
 
-      # @rbs (String path) -> Hash[Symbol, untyped]?
-      def entry: (String path) -> Hash[Symbol, untyped]?
+      # @rbs (String path) -> fingerprint?
+      def entry: (String path) -> fingerprint?
 
       private
 
-      # @rbs (String path) -> Hash[Symbol, untyped]
-      def fingerprint: (String path) -> Hash[Symbol, untyped]
+      # @rbs (String path) -> fingerprint
+      def fingerprint: (String path) -> fingerprint
 
-      # @rbs (File::Stat stat) -> Hash[Symbol, untyped]
-      def stat_signature: (File::Stat stat) -> Hash[Symbol, untyped]
+      # @rbs (File::Stat stat) -> fingerprint
+      def stat_signature: (File::Stat stat) -> fingerprint
 
       # @rbs (File::Stat stat) -> Symbol
       def file_kind: (File::Stat stat) -> Symbol
@@ -35,8 +39,8 @@ module Ibex
       # @rbs (Time time) -> Integer
       def nanoseconds: (Time time) -> Integer
 
-      # @rbs (Hash[Symbol, untyped] value, String path) -> void
-      def add_resolved_target: (Hash[Symbol, untyped] value, String path) -> void
+      # @rbs (fingerprint value, String path) -> void
+      def add_resolved_target: (fingerprint value, String path) -> void
     end
   end
 end
