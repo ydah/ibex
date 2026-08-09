@@ -88,14 +88,14 @@ module Ibex
 
       private
 
-      # @rbs (untyped value, Symbol name) -> void
+      # @rbs (Object? value, Symbol name) -> void
       def validate_positive_integer(value, name)
         return if value.is_a?(Integer) && value.positive?
 
         raise ArgumentError, "#{name} must be a positive Integer"
       end
 
-      # @rbs (untyped value, Symbol name) -> void
+      # @rbs (Object? value, Symbol name) -> void
       def validate_nonnegative_integer(value, name)
         return if value.is_a?(Integer) && value >= 0
 
@@ -143,9 +143,9 @@ module Ibex
     # values and locations are sanitized rather than retained by identity.
     class SyntaxSessionDiagnostic
       attr_reader :kind #: Symbol
-      attr_reader :data #: Hash[String, untyped]
+      attr_reader :data #: Hash[String, EventSanitizer::json_value]
 
-      # @rbs (kind: Symbol, data: Hash[untyped, untyped]) -> void
+      # @rbs (kind: Symbol, data: Hash[Object?, Object?]) -> void
       def initialize(kind:, data:)
         raise ArgumentError, "diagnostic kind must be a Symbol" unless kind.is_a?(Symbol)
         raise ArgumentError, "diagnostic data must be a Hash" unless data.is_a?(Hash)
@@ -155,7 +155,7 @@ module Ibex
         freeze
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, EventSanitizer::json_value]
       def to_h
         @data
       end
@@ -391,7 +391,7 @@ module Ibex
         )
       end
 
-      # @rbs (Array[untyped] diagnostics) -> Array[SyntaxSessionDiagnostic]
+      # @rbs (Array[Object?] diagnostics) -> Array[SyntaxSessionDiagnostic]
       def immutable_diagnostics(diagnostics)
         diagnostics.map do |diagnostic|
           if diagnostic.is_a?(ParseError)

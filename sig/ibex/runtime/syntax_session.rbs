@@ -63,11 +63,11 @@ module Ibex
 
       private
 
-      # @rbs (untyped value, Symbol name) -> void
-      def validate_positive_integer: (untyped value, Symbol name) -> void
+      # @rbs (Object? value, Symbol name) -> void
+      def validate_positive_integer: (Object? value, Symbol name) -> void
 
-      # @rbs (untyped value, Symbol name) -> void
-      def validate_nonnegative_integer: (untyped value, Symbol name) -> void
+      # @rbs (Object? value, Symbol name) -> void
+      def validate_nonnegative_integer: (Object? value, Symbol name) -> void
     end
 
     # Immutable evidence from one completed syntax-session operation.
@@ -93,13 +93,13 @@ module Ibex
     class SyntaxSessionDiagnostic
       attr_reader kind: Symbol
 
-      attr_reader data: Hash[String, untyped]
+      attr_reader data: Hash[String, EventSanitizer::json_value]
 
-      # @rbs (kind: Symbol, data: Hash[untyped, untyped]) -> void
-      def initialize: (kind: Symbol, data: Hash[untyped, untyped]) -> void
+      # @rbs (kind: Symbol, data: Hash[Object?, Object?]) -> void
+      def initialize: (kind: Symbol, data: Hash[Object?, Object?]) -> void
 
-      # @rbs () -> Hash[String, untyped]
-      def to_h: () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, EventSanitizer::json_value]
+      def to_h: () -> Hash[String, EventSanitizer::json_value]
     end
 
     # Immutable public snapshot of one completed syntax-session operation.
@@ -179,8 +179,8 @@ module Ibex
       # @rbs (CST::SyntaxResult parsed) -> SyntaxSessionResult
       def snapshot: (CST::SyntaxResult parsed) -> SyntaxSessionResult
 
-      # @rbs (Array[untyped] diagnostics) -> Array[SyntaxSessionDiagnostic]
-      def immutable_diagnostics: (Array[untyped] diagnostics) -> Array[SyntaxSessionDiagnostic]
+      # @rbs (Array[Object?] diagnostics) -> Array[SyntaxSessionDiagnostic]
+      def immutable_diagnostics: (Array[Object?] diagnostics) -> Array[SyntaxSessionDiagnostic]
     end
   end
 end
