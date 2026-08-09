@@ -2,24 +2,30 @@
 
 module Ibex
   module LSP
+    type symbol_key = [ :symbol, String ] | [ :parameter, String, Integer, String ] | [ :include, String ]
+
+    type symbol_data_value = String | Symbol | Integer | bool | nil | Array[String] | Hash[Symbol, symbol_data_value]
+
+    type symbol_data = Hash[Symbol, symbol_data_value]
+
     # A source-backed grammar symbol definition or reference.
-    class SymbolOccurrence < Struct[String | Symbol | Array[untyped] | Frontend::SourceSpan | Hash[Symbol, untyped]]
+    class SymbolOccurrence < Struct[String | Symbol | symbol_key | Frontend::SourceSpan | symbol_data]
       attr_accessor name(): String
 
       attr_accessor kind(): Symbol
 
       attr_accessor role(): Symbol
 
-      attr_accessor key(): Array[untyped]
+      attr_accessor key(): symbol_key
 
       attr_accessor path(): String
 
       attr_accessor span(): Frontend::SourceSpan
 
-      attr_accessor data(): Hash[Symbol, untyped]
+      attr_accessor data(): symbol_data
 
-      def self.new: (?name: String, ?kind: Symbol, ?role: Symbol, ?key: Array[untyped], ?path: String, ?span: Frontend::SourceSpan, ?data: Hash[Symbol, untyped]) -> instance
-                  | ({ ?name: String, ?kind: Symbol, ?role: Symbol, ?key: Array[untyped], ?path: String, ?span: Frontend::SourceSpan, ?data: Hash[Symbol, untyped] }) -> instance
+      def self.new: (?name: String, ?kind: Symbol, ?role: Symbol, ?key: symbol_key, ?path: String, ?span: Frontend::SourceSpan, ?data: symbol_data) -> instance
+                  | ({ ?name: String, ?kind: Symbol, ?role: Symbol, ?key: symbol_key, ?path: String, ?span: Frontend::SourceSpan, ?data: symbol_data }) -> instance
     end
   end
 end

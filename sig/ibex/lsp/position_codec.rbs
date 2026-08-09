@@ -2,6 +2,10 @@
 
 module Ibex
   module LSP
+    type lsp_value = String | Integer | Float | bool | nil | Array[lsp_value] | Hash[String, lsp_value]
+
+    type lsp_object = Hash[String, lsp_value]
+
     # Converts between frontend byte offsets and zero-based LSP UTF-16 positions.
     class PositionCodec
       # @rbs (String source) -> void
@@ -10,8 +14,8 @@ module Ibex
       # @rbs (Integer byte_offset) -> Hash[String, Integer]
       def position: (Integer byte_offset) -> Hash[String, Integer]
 
-      # @rbs (Hash[String, untyped] position) -> Integer
-      def byte_offset: (Hash[String, untyped] position) -> Integer
+      # @rbs (lsp_object position) -> Integer
+      def byte_offset: (lsp_object position) -> Integer
 
       # @rbs (Frontend::SourceSpan span) -> Hash[String, Hash[String, Integer]]
       def range: (Frontend::SourceSpan span) -> Hash[String, Hash[String, Integer]]
@@ -30,8 +34,8 @@ module Ibex
       # @rbs (String text, Integer units) -> Integer
       def byte_length_at_utf16: (String text, Integer units) -> Integer
 
-      # @rbs (Hash[String, untyped] position, String name) -> Integer
-      def integer_member: (Hash[String, untyped] position, String name) -> Integer
+      # @rbs (lsp_object position, String name) -> Integer
+      def integer_member: (lsp_object position, String name) -> Integer
 
       # @rbs (Integer byte_offset) -> void
       def validate_byte_offset: (Integer byte_offset) -> void

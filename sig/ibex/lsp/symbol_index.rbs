@@ -11,41 +11,40 @@ module Ibex
       # @rbs (DocumentStore store, String path) -> void
       def initialize: (DocumentStore store, String path) -> void
 
-      # @rbs (String path, Hash[String, untyped] position) -> Array[Hash[String, untyped]]
-      def definition: (String path, Hash[String, untyped] position) -> Array[Hash[String, untyped]]
+      # @rbs (String path, lsp_object position) -> Array[lsp_object]
+      def definition: (String path, lsp_object position) -> Array[lsp_object]
 
-      # @rbs (String path, Hash[String, untyped] position, ?include_declaration: bool) ->
-      #   Array[Hash[String, untyped]]
-      def references: (String path, Hash[String, untyped] position, ?include_declaration: bool) -> Array[Hash[String, untyped]]
+      # @rbs (String path, lsp_object position, ?include_declaration: bool) -> Array[lsp_object]
+      def references: (String path, lsp_object position, ?include_declaration: bool) -> Array[lsp_object]
 
-      # @rbs (String path, Hash[String, untyped] position) -> Hash[String, untyped]?
-      def prepare_rename: (String path, Hash[String, untyped] position) -> Hash[String, untyped]?
+      # @rbs (String path, lsp_object position) -> lsp_object?
+      def prepare_rename: (String path, lsp_object position) -> lsp_object?
 
-      # @rbs (String path, Hash[String, untyped] position, String new_name) -> Hash[String, untyped]
-      def rename: (String path, Hash[String, untyped] position, String new_name) -> Hash[String, untyped]
+      # @rbs (String path, lsp_object position, String new_name) -> lsp_object
+      def rename: (String path, lsp_object position, String new_name) -> lsp_object
 
-      # @rbs (String path, Hash[String, untyped] position) -> Hash[String, untyped]?
-      def hover: (String path, Hash[String, untyped] position) -> Hash[String, untyped]?
+      # @rbs (String path, lsp_object position) -> lsp_object?
+      def hover: (String path, lsp_object position) -> lsp_object?
 
       private
 
-      # @rbs (String path, Hash[String, untyped] position) -> SymbolOccurrence?
-      def occurrence_at: (String path, Hash[String, untyped] position) -> SymbolOccurrence?
+      # @rbs (String path, lsp_object position) -> SymbolOccurrence?
+      def occurrence_at: (String path, lsp_object position) -> SymbolOccurrence?
 
-      # @rbs (Array[untyped] key, ?role: Symbol?) -> Array[SymbolOccurrence]
-      def matching: (Array[untyped] key, ?role: Symbol?) -> Array[SymbolOccurrence]
+      # @rbs (symbol_key key, ?role: Symbol?) -> Array[SymbolOccurrence]
+      def matching: (symbol_key key, ?role: Symbol?) -> Array[SymbolOccurrence]
 
-      # @rbs (SymbolOccurrence occurrence) -> Hash[String, untyped]
-      def location: (SymbolOccurrence occurrence) -> Hash[String, untyped]
+      # @rbs (SymbolOccurrence occurrence) -> lsp_object
+      def location: (SymbolOccurrence occurrence) -> lsp_object
 
-      # @rbs (SymbolOccurrence occurrence) -> Hash[String, untyped]
-      def include_target_location: (SymbolOccurrence occurrence) -> Hash[String, untyped]
+      # @rbs (SymbolOccurrence occurrence) -> lsp_object
+      def include_target_location: (SymbolOccurrence occurrence) -> lsp_object
 
       # @rbs (SymbolOccurrence occurrence) -> Hash[String, Hash[String, Integer]]
       def range: (SymbolOccurrence occurrence) -> Hash[String, Hash[String, Integer]]
 
-      # @rbs (String path, Hash[String, untyped] position) -> SymbolOccurrence
-      def renameable_occurrence: (String path, Hash[String, untyped] position) -> SymbolOccurrence
+      # @rbs (String path, lsp_object position) -> SymbolOccurrence
+      def renameable_occurrence: (String path, lsp_object position) -> SymbolOccurrence
 
       # @rbs (SymbolOccurrence occurrence, String new_name) -> void
       def validate_new_name: (SymbolOccurrence occurrence, String new_name) -> void

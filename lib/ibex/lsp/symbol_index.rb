@@ -20,10 +20,10 @@ module Ibex
         @snapshot_state = files.to_h do |file|
           snapshot = store.snapshot_for(file)
           [file, snapshot && [snapshot.fetch(:version), snapshot.fetch(:source)]]
-        end #: Hash[String, Array[untyped]?]
+        end #: Hash[String, [Integer?, String]?]
       end
 
-      # @rbs (String path, Hash[String, untyped] position) -> Array[Hash[String, untyped]]
+      # @rbs (String path, lsp_object position) -> Array[lsp_object]
       def definition(path, position)
         occurrence = occurrence_at(path, position)
         return [] unless occurrence
@@ -32,8 +32,7 @@ module Ibex
         matching(occurrence.key, role: :definition).map { |entry| location(entry) }
       end
 
-      # @rbs (String path, Hash[String, untyped] position, ?include_declaration: bool) ->
-      #   Array[Hash[String, untyped]]
+      # @rbs (String path, lsp_object position, ?include_declaration: bool) -> Array[lsp_object]
       def references(path, position, include_declaration: false)
         occurrence = occurrence_at(path, position)
         return [] unless occurrence
@@ -43,13 +42,13 @@ module Ibex
         entries.map { |entry| location(entry) }
       end
 
-      # @rbs (String path, Hash[String, untyped] position) -> Hash[String, untyped]?
+      # @rbs (String path, lsp_object position) -> lsp_object?
       def prepare_rename(path, position)
         occurrence = renameable_occurrence(path, position)
         { "range" => range(occurrence), "placeholder" => occurrence.name }
       end
 
-      # @rbs (String path, Hash[String, untyped] position, String new_name) -> Hash[String, untyped]
+      # @rbs (String path, lsp_object position, String new_name) -> lsp_object
       def rename(path, position, new_name)
         ensure_fresh!
         occurrence = renameable_occurrence(path, position)
@@ -78,7 +77,7 @@ module Ibex
         { "documentChanges" => document_changes }
       end
 
-      # @rbs (String path, Hash[String, untyped] position) -> Hash[String, untyped]?
+      # @rbs (String path, lsp_object position) -> lsp_object?
       def hover(path, position)
         occurrence = occurrence_at(path, position)
         return unless occurrence
@@ -94,7 +93,7 @@ module Ibex
 
       private
 
-      # @rbs (String path, Hash[String, untyped] position) -> SymbolOccurrence?
+      # @rbs (String path, lsp_object position) -> SymbolOccurrence?
       def occurrence_at(path, position)
         document = @documents[path]
         return unless document
@@ -106,17 +105,17 @@ module Ibex
         candidates.min_by { |entry| entry.span.length }
       end
 
-      # @rbs (Array[untyped] key, ?role: Symbol?) -> Array[SymbolOccurrence]
+      # @rbs (symbol_key key, ?role: Symbol?) -> Array[SymbolOccurrence]
       def matching(key, role: nil)
         @occurrences.select { |entry| entry.key == key && (!role || entry.role == role) }
       end
 
-      # @rbs (SymbolOccurrence occurrence) -> Hash[String, untyped]
+      # @rbs (SymbolOccurrence occurrence) -> lsp_object
       def location(occurrence)
         { "uri" => @store.uri_for(occurrence.path), "range" => range(occurrence) }
       end
 
-      # @rbs (SymbolOccurrence occurrence) -> Hash[String, untyped]
+      # @rbs (SymbolOccurrence occurrence) -> lsp_object
       def include_target_location(occurrence)
         target = occurrence.data.fetch(:target)
         point = { "line" => 0, "character" => 0 }
@@ -129,7 +128,7 @@ module Ibex
         PositionCodec.new(document.source).range(occurrence.span)
       end
 
-      # @rbs (String path, Hash[String, untyped] position) -> SymbolOccurrence
+      # @rbs (String path, lsp_object position) -> SymbolOccurrence
       def renameable_occurrence(path, position)
         occurrence = occurrence_at(path, position)
         unless occurrence && %i[rule terminal parameter].include?(occurrence.kind) &&
@@ -232,7 +231,8 @@ module Ibex
         lines << "Display: #{data[:display]}" if data[:display]
         lines << "Type: `#{data[:type]}`" if data[:type]
         if (precedence = data[:precedence])
-          lines << "Precedence: #{precedence[:associativity]} level #{precedence[:level]}"
+          precedence_data = precedence #: Hash[Symbol, symbol_data_value]
+          lines << "Precedence: #{precedence_data[:associativity]} level #{precedence_data[:level]}"
         end
         lines.join("\n\n")
       end

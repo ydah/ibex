@@ -2,6 +2,10 @@
 
 module Ibex
   module LSP
+    # @rbs!
+    #   type lsp_value = String | Integer | Float | bool | nil | Array[lsp_value] | Hash[String, lsp_value]
+    #   type lsp_object = Hash[String, lsp_value]
+
     # Converts between frontend byte offsets and zero-based LSP UTF-16 positions.
     class PositionCodec
       # @rbs (String source) -> void
@@ -25,7 +29,7 @@ module Ibex
         { "line" => line, "character" => utf16_length(text) }
       end
 
-      # @rbs (Hash[String, untyped] position) -> Integer
+      # @rbs (lsp_object position) -> Integer
       def byte_offset(position)
         line = integer_member(position, "line")
         character = integer_member(position, "character")
@@ -90,7 +94,7 @@ module Ibex
         raise ArgumentError, "character is outside the document line"
       end
 
-      # @rbs (Hash[String, untyped] position, String name) -> Integer
+      # @rbs (lsp_object position, String name) -> Integer
       def integer_member(position, name)
         value = position[name]
         raise ArgumentError, "#{name} must be an integer" unless value.is_a?(Integer)

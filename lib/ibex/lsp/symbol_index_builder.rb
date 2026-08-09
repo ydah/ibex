@@ -14,8 +14,8 @@ module Ibex
         @occurrences = [] #: Array[SymbolOccurrence]
         @documents = {} #: Hash[String, Frontend::SourceDocument]
         @global_kinds = {} #: Hash[String, Symbol]
-        @rule_data = {} #: Hash[String, Hash[Symbol, untyped]]
-        @terminal_data = Hash.new { |hash, key| hash[key] = {} } #: Hash[String, Hash[Symbol, untyped]]
+        @rule_data = {} #: Hash[String, symbol_data]
+        @terminal_data = Hash.new { |hash, key| hash[key] = {} } #: Hash[String, symbol_data]
       end
 
       # @rbs () -> [Array[SymbolOccurrence], Hash[String, Frontend::SourceDocument]]
@@ -85,21 +85,24 @@ module Ibex
       # @rbs (String path, Array[Frontend::Token] tokens, Frontend::AST::Include declaration) -> void
       def collect_include(path, tokens, declaration)
         token = tokens.find { |candidate| candidate.type == :literal }
-        return unless token&.span
+        span = token&.span
+        return unless span
 
         target = canonical_include_target(declaration)
         return unless target
 
         add_occurrence(
           name: declaration.path, kind: :include, role: :reference, key: [:include, target],
-          path: path, span: token.span, data: { target: target }
+          path: path, span: span, data: { target: target }
         )
       end
 
       # @rbs (String path, Frontend::SourceDocument document, Frontend::AST::Rule rule) -> void
       def collect_rule_definition(path, document, rule)
         token = token_at(document, rule.loc, rule.lhs)
-        return unless token&.span
+        span = token&.span
+        return unless span
+        lhs_token = token #: Frontend::Token
 
         @global_kinds[rule.lhs] ||= :rule
         signature = "#{rule.lhs}#{parameter_signature(rule.parameters)}"
@@ -113,9 +116,9 @@ module Ibex
         @rule_data[rule.lhs] ||= data
         add_occurrence(
           name: rule.lhs, kind: :rule, role: :definition, key: global_key(rule.lhs),
-          path: path, span: token.span, data: data
+          path: path, span: span, data: data
         )
-        collect_parameters(path, document, rule, token)
+        collect_parameters(path, document, rule, lhs_token)
       end
 
       # @rbs (String path, Frontend::SourceDocument document, Frontend::AST::Rule rule,
@@ -125,11 +128,12 @@ module Ibex
 
         rule_id = lhs_token.span&.start_byte || 0
         rule.parameters.zip(parameter_tokens(document, lhs_token)).each do |parameter, token|
-          next unless token&.span
+          span = token&.span
+          next unless span
 
           add_occurrence(
             name: parameter, kind: :parameter, role: :definition,
-            key: parameter_key(path, rule_id, parameter), path: path, span: token.span,
+            key: parameter_key(path, rule_id, parameter), path: path, span: span,
             data: { rule: rule.lhs }
           )
         end
@@ -205,18 +209,19 @@ module Ibex
 
       # @rbs (String path, Frontend::Token token, String name) -> void
       def add_global_reference(path, token, name)
-        return unless token.span
+        span = token.span
+        return unless span
 
         kind = @global_kinds[name] || :terminal
         data = symbol_data(kind, name)
         add_occurrence(name: name, kind: kind, role: :reference, key: global_key(name),
-                       path: path, span: token.span, data: data)
+                       path: path, span: span, data: data)
       end
 
-      # @rbs (Symbol kind, String name) -> Hash[Symbol, untyped]
+      # @rbs (Symbol kind, String name) -> symbol_data
       def symbol_data(kind, name)
         data = kind == :rule ? @rule_data[name] : @terminal_data[name]
-        empty = {} #: Hash[Symbol, untyped]
+        empty = {} #: symbol_data
         data || empty
       end
 
@@ -226,25 +231,29 @@ module Ibex
         names.each do |name|
           index = remaining.index { |token| token.value == name }
           token = index && remaining.delete_at(index)
-          next unless token&.span
+          span = token&.span
+          next unless span
 
           @global_kinds[name] ||= kind
           add_occurrence(name: name, kind: kind, role: role, key: global_key(name),
-                         path: path, span: token.span, data: @terminal_data[name])
+                         path: path, span: span, data: @terminal_data[name])
         end
       end
 
-      # @rbs (**untyped attributes) -> void
-      def add_occurrence(**attributes)
-        @occurrences << SymbolOccurrence.new(**attributes)
+      # @rbs (name: String, kind: Symbol, role: Symbol, key: symbol_key, path: String,
+      #   span: Frontend::SourceSpan, data: symbol_data) -> void
+      def add_occurrence(name:, kind:, role:, key:, path:, span:, data:)
+        @occurrences << SymbolOccurrence.new(
+          name: name, kind: kind, role: role, key: key, path: path, span: span, data: data
+        )
       end
 
-      # @rbs (String name) -> Array[untyped]
+      # @rbs (String name) -> symbol_key
       def global_key(name)
         [:symbol, name]
       end
 
-      # @rbs (String path, Integer rule_id, String name) -> Array[untyped]
+      # @rbs (String path, Integer rule_id, String name) -> symbol_key
       def parameter_key(path, rule_id, name)
         [:parameter, path, rule_id, name]
       end
