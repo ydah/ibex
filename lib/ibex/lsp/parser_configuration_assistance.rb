@@ -30,7 +30,7 @@ module Ibex
         @path = path
       end
 
-      # @rbs (Hash[String, untyped] position) -> Hash[String, untyped]
+      # @rbs (lsp_object position) -> lsp_object
       def completion(position)
         source = source!
         codec = PositionCodec.new(source)
@@ -49,7 +49,7 @@ module Ibex
         completion_list([])
       end
 
-      # @rbs (Hash[String, untyped] position) -> Hash[String, untyped]?
+      # @rbs (lsp_object position) -> lsp_object?
       def hover(position)
         source = source!
         codec = PositionCodec.new(source)
@@ -107,26 +107,26 @@ module Ibex
         root && open
       end
 
-      # @rbs () -> Array[Hash[String, untyped]]
+      # @rbs () -> Array[lsp_object]
       def setting_items
         SETTING_VALUES.keys.map do |name|
           completion_item(name, 10, SETTING_DOCUMENTATION.fetch(name))
         end
       end
 
-      # @rbs (String setting) -> Array[Hash[String, untyped]]
+      # @rbs (String setting) -> Array[lsp_object]
       def value_items(setting)
         SETTING_VALUES.fetch(setting).map do |name|
           completion_item(name, 12, VALUE_DOCUMENTATION.fetch(name))
         end
       end
 
-      # @rbs (String label, Integer kind, String documentation) -> Hash[String, untyped]
+      # @rbs (String label, Integer kind, String documentation) -> lsp_object
       def completion_item(label, kind, documentation)
         { "label" => label, "kind" => kind, "documentation" => { "kind" => "markdown", "value" => documentation } }
       end
 
-      # @rbs (Array[Hash[String, untyped]] items) -> Hash[String, untyped]
+      # @rbs (Array[lsp_object] items) -> lsp_object
       def completion_list(items)
         { "isIncomplete" => false, "items" => items }
       end
