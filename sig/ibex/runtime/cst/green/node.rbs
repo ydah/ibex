@@ -31,8 +31,8 @@ module Ibex
         # @rbs () -> String
         def to_source: () -> String
 
-        # @rbs (untyped other) -> bool
-        def ==: (untyped other) -> bool
+        # @rbs (Object? other) -> bool
+        def ==: (Object? other) -> bool
 
         alias eql? ==
 

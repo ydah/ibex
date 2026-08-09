@@ -66,7 +66,7 @@ module Ibex
           source
         end
 
-        # @rbs (untyped other) -> bool
+        # @rbs (Object? other) -> bool
         def ==(other)
           other.is_a?(GreenToken) &&
             @kind == other.kind &&

@@ -34,8 +34,8 @@ module Ibex
       # @rbs () -> void
       def read_chunk: () -> void
 
-      # @rbs (Fiber source) -> untyped
-      def resume_fiber: (Fiber source) -> untyped
+      # @rbs (Fiber source) -> Object?
+      def resume_fiber: (Fiber source) -> Object?
 
       # @rbs (String chunk) -> void
       def append: (String chunk) -> void

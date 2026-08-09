@@ -78,7 +78,7 @@ module Ibex
         append(text)
       end
 
-      # @rbs (Fiber source) -> untyped
+      # @rbs (Fiber source) -> Object?
       def resume_fiber(source)
         supports_alive = source.respond_to?(:alive?)
         if supports_alive && !source.alive?

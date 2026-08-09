@@ -53,7 +53,7 @@ module Ibex
           source
         end
 
-        # @rbs (untyped other) -> bool
+        # @rbs (Object? other) -> bool
         def ==(other)
           other.is_a?(GreenNode) && @kind == other.kind && @intrinsic_flags == other.intrinsic_flags &&
             @annotations == other.annotations && @children == other.children

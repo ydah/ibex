@@ -23,7 +23,7 @@ module Ibex
         # @rbs () -> String
         def to_source = @text
 
-        # @rbs (untyped other) -> bool
+        # @rbs (Object? other) -> bool
         def ==(other)
           other.is_a?(GreenTrivia) && @kind == other.kind && @text == other.text
         end

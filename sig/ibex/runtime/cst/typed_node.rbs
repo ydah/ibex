@@ -30,8 +30,8 @@ module Ibex
         # @rbs () -> Array[element]
         def deconstruct: () -> Array[element]
 
-        # @rbs (Array[Symbol]?) -> Hash[Symbol, untyped]
-        def deconstruct_keys: (Array[Symbol]?) -> Hash[Symbol, untyped]
+        # @rbs (Array[Symbol]?) -> Hash[Symbol, Object?]
+        def deconstruct_keys: (Array[Symbol]?) -> Hash[Symbol, Object?]
 
         # @rbs () -> String
         def to_source: () -> String

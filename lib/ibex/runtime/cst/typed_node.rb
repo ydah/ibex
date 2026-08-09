@@ -46,7 +46,7 @@ module Ibex
         # @rbs () -> Array[element]
         def deconstruct = @node.deconstruct
 
-        # @rbs (Array[Symbol]?) -> Hash[Symbol, untyped]
+        # @rbs (Array[Symbol]?) -> Hash[Symbol, Object?]
         def deconstruct_keys(keys) = @node.deconstruct_keys(keys)
 
         # @rbs () -> String
