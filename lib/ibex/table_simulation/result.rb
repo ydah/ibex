@@ -7,6 +7,10 @@ module Ibex
   module TableSimulation
     # Final immutable simulation document.
     class Result
+      # @rbs!
+      #   type step_document = Hash[String, Step::document_value]
+      #   type document_value = String | Integer | Array[String] | Array[step_document]
+
       IDENTIFIER = "table-simulation" #: String
       SCHEMA_VERSION = 1 #: Integer
 
@@ -29,7 +33,7 @@ module Ibex
         freeze
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, document_value]
       def to_h
         {
           "ibex_table_simulation" => IDENTIFIER,
@@ -42,7 +46,7 @@ module Ibex
         }
       end
 
-      # @rbs (*untyped) -> String
+      # @rbs (*Object?) -> String
       def to_json(*)
         "#{JSON.pretty_generate(to_h)}\n"
       end

@@ -4,6 +4,8 @@ module Ibex
   module TableSimulation
     # One immutable parser-table action.
     class Step
+      type document_value = String | Integer | nil
+
       attr_reader sequence: Integer
 
       attr_reader state: Integer
@@ -33,8 +35,8 @@ module Ibex
       #   target_state: Integer?, stack_depth_before: Integer, stack_depth_after: Integer) -> void
       def initialize: (sequence: Integer, state: Integer, token_id: Integer, token: String, action: String, action_source: String, production_id: Integer?, lhs: String?, rhs_length: Integer?, target_state: Integer?, stack_depth_before: Integer, stack_depth_after: Integer) -> void
 
-      # @rbs () -> Hash[String, untyped]
-      def to_h: () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, document_value]
+      def to_h: () -> Hash[String, document_value]
     end
   end
 end

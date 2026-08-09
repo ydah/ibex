@@ -4,6 +4,10 @@ module Ibex
   module TableSimulation
     # Final immutable simulation document.
     class Result
+      type step_document = Hash[String, Step::document_value]
+
+      type document_value = String | Integer | Array[String] | Array[step_document]
+
       IDENTIFIER: String
 
       SCHEMA_VERSION: Integer
@@ -22,11 +26,11 @@ module Ibex
       #   steps: Array[Step]) -> void
       def initialize: (grammar_digest: String, algorithm: String, tokens: Array[String], status: Symbol, steps: Array[Step]) -> void
 
-      # @rbs () -> Hash[String, untyped]
-      def to_h: () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, document_value]
+      def to_h: () -> Hash[String, document_value]
 
-      # @rbs (*untyped) -> String
-      def to_json: (*untyped) -> String
+      # @rbs (*Object?) -> String
+      def to_json: (*Object?) -> String
     end
   end
 end

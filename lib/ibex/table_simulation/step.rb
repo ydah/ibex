@@ -5,6 +5,8 @@ module Ibex
   module TableSimulation
     # One immutable parser-table action.
     class Step
+      # @rbs! type document_value = String | Integer | nil
+
       attr_reader :sequence #: Integer
       attr_reader :state #: Integer
       attr_reader :token_id #: Integer
@@ -38,7 +40,7 @@ module Ibex
         freeze
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, document_value]
       def to_h
         {
           "sequence" => @sequence,
