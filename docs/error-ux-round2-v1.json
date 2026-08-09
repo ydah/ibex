@@ -67,7 +67,7 @@
       },
       {
         "path": "lib/ibex/codegen/explain.rb",
-        "sha256": "a2f60fcc8382819597f9e94bdf4a85bd2310b806eeab6a6eb70ae3044519d6b7"
+        "sha256": "1a17175cba78da6b9c162462f6aaaf60d4c79c8924be7c50648ffaa930e81e70"
       },
       {
         "path": "lib/ibex/codegen/generated_action_abi.rb",
@@ -247,7 +247,7 @@
       },
       {
         "path": "lib/ibex/frontend/generated_parser_base.rb",
-        "sha256": "69a21326f01c9d5b72abf808aa6d37ee65a8364661ed63134de4023a57ee7dfa"
+        "sha256": "db3ef0f248753c5001378973d64dd4a73bf8bcd5704c4d27b519329a47e9ae4a"
       },
       {
         "path": "lib/ibex/frontend/generated_parser_includes.rb",
@@ -399,7 +399,7 @@
       },
       {
         "path": "lib/ibex/ir/validator/base.rb",
-        "sha256": "775864893218ce6886a36b3fc01f9ce3f19a9ae66d9d98c0c5dc9c5e6818b3fd"
+        "sha256": "988f51f78e65bdf5feefc466de5e9c24ac6747554a55b68ebf335bf768ff86ce"
       },
       {
         "path": "lib/ibex/ir/validator/grammar.rb",
@@ -511,7 +511,7 @@
       },
       {
         "path": "lib/ibex/normalize/parameter_ebnf_lowering.rb",
-        "sha256": "71a4e812079bc0bb465ae5121ded3ad331c9f70f0b5301c3a894499c4cc0527e"
+        "sha256": "9bf94cf4ebdba927b0043c7e844b390a58b60157d7e7e2aa42db53896ee53e6a"
       },
       {
         "path": "lib/ibex/normalize/parameter_lowering.rb",
@@ -727,7 +727,7 @@
       },
       {
         "path": "lib/ibex/runtime/repair_search.rb",
-        "sha256": "b696402f94b89ef36522c7fbafc1b8b5e10d5b6e744181fd52999b85c1137ac3"
+        "sha256": "87e131d356ab20537a2d959bf5797ac3cfc17ed6c0fc320bfe1481604442ce8a"
       },
       {
         "path": "lib/ibex/runtime/resource_limits.rb",
@@ -735,7 +735,7 @@
       },
       {
         "path": "lib/ibex/runtime/syntax_repair.rb",
-        "sha256": "1799a48544212159c2c300661fc5575bd49caf3f17d3c0230943c9cbf2b66b32"
+        "sha256": "e0406b5f4f97dcdf7a3c67eab995df8adc04e5d972719ad63c304ed743125da4"
       },
       {
         "path": "lib/ibex/runtime/syntax_session.rb",
