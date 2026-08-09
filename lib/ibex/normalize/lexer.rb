@@ -13,7 +13,7 @@ module Ibex
 
       states = ["INITIAL"] #: Array[String]
       rules = [] #: Array[IR::LexerRule]
-      warnings = [] #: Array[Hash[Symbol, untyped]]
+      warnings = [] #: Array[IR::lexer_warning]
       declaration.definitions.each do |definition|
         if definition.is_a?(Frontend::AST::LexerState)
           normalize_lexer_state(definition, states, rules, warnings)
@@ -29,7 +29,7 @@ module Ibex
     end
 
     # @rbs (Frontend::AST::LexerState definition, Array[String] states, Array[IR::LexerRule] rules,
-    #   Array[Hash[Symbol, untyped]] warnings) -> void
+    #   Array[IR::lexer_warning] warnings) -> void
     def normalize_lexer_state(definition, states, rules, warnings)
       # @type self: Normalizer
       fail_at(definition.loc, "lexer state INITIAL is reserved") if definition.name == "INITIAL"
@@ -43,7 +43,7 @@ module Ibex
     end
 
     # @rbs (Frontend::AST::LexerRule definition, String state, Integer id,
-    #   Array[Hash[Symbol, untyped]] warnings) -> IR::LexerRule
+    #   Array[IR::lexer_warning] warnings) -> IR::LexerRule
     def normalize_lexer_rule(definition, state, id, warnings)
       # @type self: Normalizer
       validate_lexer_token(definition)
