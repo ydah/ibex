@@ -6,6 +6,10 @@ module Ibex
     # source without parsing or executing C.
     # rubocop:disable Metrics/ClassLength -- declaration and rule recovery share one positioned directive report.
     class Importer
+      type alternative = { items: Array[String], precedence: String? }
+
+      type rule = { lhs: String, alternatives: Array[alternative] }
+
       DEFAULT_MAX_BYTES: Integer
 
       DEFAULT_MAX_TOKENS: Integer
@@ -44,8 +48,8 @@ module Ibex
       # @rbs (String detail) -> void
       def parse_start: (String detail) -> void
 
-      # @rbs (Array[Tokenizer::Token] tokens) -> Array[Hash[Symbol, untyped]]
-      def parse_rules: (Array[Tokenizer::Token] tokens) -> Array[Hash[Symbol, untyped]]
+      # @rbs (Array[Tokenizer::Token] tokens) -> Array[rule]
+      def parse_rules: (Array[Tokenizer::Token] tokens) -> Array[rule]
 
       # @rbs (Array[Tokenizer::Token] tokens) -> void
       def register_nonterminals: (Array[Tokenizer::Token] tokens) -> void
@@ -58,11 +62,11 @@ module Ibex
       # @rbs (Array[Tokenizer::Token] tokens, Integer cursor) -> [Integer, Integer]?
       def lhs_definition_at: (Array[Tokenizer::Token] tokens, Integer cursor) -> [ Integer, Integer ]?
 
-      # @rbs (Array[Tokenizer::Token] tokens, Integer cursor) -> [Array[Hash[Symbol, untyped]], Integer]
-      def parse_alternatives: (Array[Tokenizer::Token] tokens, Integer cursor) -> [ Array[Hash[Symbol, untyped]], Integer ]
+      # @rbs (Array[Tokenizer::Token] tokens, Integer cursor) -> [Array[alternative], Integer]
+      def parse_alternatives: (Array[Tokenizer::Token] tokens, Integer cursor) -> [ Array[alternative], Integer ]
 
-      # @rbs (Array[Tokenizer::Token] tokens, Integer cursor, Hash[Symbol, untyped] alternative) -> Integer
-      def consume_rule_directive: (Array[Tokenizer::Token] tokens, Integer cursor, Hash[Symbol, untyped] alternative) -> Integer
+      # @rbs (Array[Tokenizer::Token] tokens, Integer cursor, alternative alternative) -> Integer
+      def consume_rule_directive: (Array[Tokenizer::Token] tokens, Integer cursor, alternative alternative) -> Integer
 
       # @rbs (Tokenizer::Token token) -> String
       def render_symbol: (Tokenizer::Token token) -> String
@@ -73,8 +77,8 @@ module Ibex
       # @rbs (String code) -> String
       def transform_action: (String code) -> String
 
-      # @rbs (Array[Hash[Symbol, untyped]] rules) -> String
-      def render_source: (Array[Hash[Symbol, untyped]] rules) -> String
+      # @rbs (Array[rule] rules) -> String
+      def render_source: (Array[rule] rules) -> String
 
       # @rbs () -> String
       def structural_status: () -> String
@@ -82,8 +86,8 @@ module Ibex
       # @rbs (Array[String] lines) -> void
       def render_precedence: (Array[String] lines) -> void
 
-      # @rbs (Array[String] lines, Hash[Symbol, untyped] rule) -> void
-      def render_rule: (Array[String] lines, Hash[Symbol, untyped] rule) -> void
+      # @rbs (Array[String] lines, rule rule) -> void
+      def render_rule: (Array[String] lines, rule rule) -> void
 
       # @rbs (String name, Integer line, Integer column, String detail) -> void
       def record_directive: (String name, Integer line, Integer column, String detail) -> void

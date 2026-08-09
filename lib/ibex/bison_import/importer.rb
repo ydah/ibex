@@ -7,6 +7,10 @@ module Ibex
     # source without parsing or executing C.
     # rubocop:disable Metrics/ClassLength -- declaration and rule recovery share one positioned directive report.
     class Importer
+      # @rbs!
+      #   type alternative = { items: Array[String], precedence: String? }
+      #   type rule = { lhs: String, alternatives: Array[alternative] }
+
       DEFAULT_MAX_BYTES = 20 * 1024 * 1024 #: Integer
       DEFAULT_MAX_TOKENS = 1_000_000 #: Integer
       DEFAULT_MAX_RULES = 50_000 #: Integer
@@ -55,18 +59,20 @@ module Ibex
 
       # @rbs () -> void
       def validate_source
-        if @source.bytesize > @max_bytes
+        source = @source #: String
+        if source.bytesize > @max_bytes
           raise BudgetExceeded.new(
             result: "budget_exhausted", phase: "input_bytes",
-            observed_bytes: @source.bytesize, max_bytes: @max_bytes
+            observed_bytes: source.bytesize, max_bytes: @max_bytes
           )
         end
-        raise Ibex::Error, "#{@file}:1:1: Bison grammar must be valid UTF-8" unless @source.valid_encoding?
+        raise Ibex::Error, "#{@file}:1:1: Bison grammar must be valid UTF-8" unless source.valid_encoding?
       end
 
       # @rbs () -> [String, String, Integer]
       def split_sections
-        lines = @source.lines
+        source = @source #: String
+        lines = source.lines
         markers = [] #: Array[Integer]
         percent_code = false
         lines.each_with_index do |line, index|
@@ -79,7 +85,9 @@ module Ibex
 
         first = markers.fetch(0)
         second = markers.fetch(1)
-        [lines[0...first].join, lines[(first + 1)...second].join, first + 2]
+        header_lines = lines[0...first] #: Array[String]
+        grammar_lines = lines[(first + 1)...second] #: Array[String]
+        [header_lines.join, grammar_lines.join, first + 2]
       end
 
       # @rbs (String source) -> void
@@ -133,35 +141,38 @@ module Ibex
 
       # @rbs (String detail) -> void
       def parse_token_declaration(detail)
+        token_entries = @token_entries #: Array[[String, String?]]
         current = nil #: String?
         declaration_atoms(detail).each do |atom|
           if identifier_atom?(atom)
-            @token_entries << [current, nil] if current
+            token_entries << [current, nil] if current
             current = atom
             terminal_name(atom)
           elsif current && atom.start_with?('"')
-            @token_entries << [current, atom]
+            token_entries << [current, atom]
             current = nil
           end
         end
-        @token_entries << [current, nil] if current
+        token_entries << [current, nil] if current
       end
 
       # @rbs (String association, String detail) -> void
       def parse_precedence(association, detail)
         symbols = declaration_atoms(detail).select { |atom| identifier_atom?(atom) || literal_atom?(atom) }
-        @precedence_levels << [association == "precedence" ? "%precedence" : association, symbols] unless symbols.empty?
+        precedence_levels = @precedence_levels #: Array[[String, Array[String]]]
+        precedence_levels << [association == "precedence" ? "%precedence" : association, symbols] unless symbols.empty?
       end
 
       # @rbs (String detail) -> void
       def parse_start(detail)
         symbol = declaration_atoms(detail).find { |atom| identifier_atom?(atom) }
-        @starts << symbol if symbol
+        starts = @starts #: Array[String]
+        starts << symbol if symbol
       end
 
-      # @rbs (Array[Tokenizer::Token] tokens) -> Array[Hash[Symbol, untyped]]
+      # @rbs (Array[Tokenizer::Token] tokens) -> Array[rule]
       def parse_rules(tokens)
-        rules = [] #: Array[Hash[Symbol, untyped]]
+        rules = [] #: Array[rule]
         cursor = 0
         while cursor < tokens.length
           definition = next_lhs(tokens, cursor)
@@ -210,10 +221,10 @@ module Ibex
         [cursor, colon] if tokens[colon]&.type == :colon
       end
 
-      # @rbs (Array[Tokenizer::Token] tokens, Integer cursor) -> [Array[Hash[Symbol, untyped]], Integer]
+      # @rbs (Array[Tokenizer::Token] tokens, Integer cursor) -> [Array[alternative], Integer]
       def parse_alternatives(tokens, cursor)
-        alternatives = [] #: Array[Hash[Symbol, untyped]]
-        current = { items: [], precedence: nil } #: Hash[Symbol, untyped]
+        alternatives = [] #: Array[alternative]
+        current = { items: [], precedence: nil } #: alternative
         while cursor < tokens.length
           token = tokens.fetch(cursor)
           if lhs_definition_at(tokens, cursor)
@@ -241,7 +252,7 @@ module Ibex
         [alternatives, cursor]
       end
 
-      # @rbs (Array[Tokenizer::Token] tokens, Integer cursor, Hash[Symbol, untyped] alternative) -> Integer
+      # @rbs (Array[Tokenizer::Token] tokens, Integer cursor, alternative alternative) -> Integer
       def consume_rule_directive(tokens, cursor, alternative)
         token = tokens.fetch(cursor)
         name = token.value.delete_prefix("%")
@@ -267,19 +278,21 @@ module Ibex
       def render_symbol(token)
         return token.value if token.type == :literal
 
-        @nonterminal_names.fetch(token.value) { terminal_name(token.value) }
+        nonterminal_names = @nonterminal_names #: Hash[String, String]
+        nonterminal_names.fetch(token.value) { terminal_name(token.value) }
       end
 
       # @rbs (Tokenizer::Token token) -> String
       def render_action(token)
-        check_action_budget(@actions.length + 1, token)
+        actions = @actions #: Array[Action]
+        check_action_budget(actions.length + 1, token)
         transformed = transform_action(token.value)
         encoded = transformed.unpack1("H*").to_s
         action = Action.new(
-          id: @actions.length + 1, line: token.line, column: token.column,
+          id: actions.length + 1, line: token.line, column: token.column,
           original: token.value, transformed: transformed, encoded: encoded
         )
-        @actions << action
+        actions << action
         "{ #{FOREIGN_ACTION_SENTINEL}(#{encoded.inspect}) }"
       end
 
@@ -293,18 +306,21 @@ module Ibex
         transformed.gsub(/@\$/, "result_loc")
       end
 
-      # @rbs (Array[Hash[Symbol, untyped]] rules) -> String
+      # @rbs (Array[rule] rules) -> String
       def render_source(rules)
+        directives = @directives #: Array[Directive]
+        token_entries = @token_entries #: Array[[String, String?]]
+        starts = @starts #: Array[String]
         lines = [
           "# Imported from #{@file} for analysis only.",
           "# C actions are opaque; Ruby parser generation is intentionally refused.",
           "# #{STRUCTURAL_STATUS_MARKER}: #{structural_status}"
         ]
-        @directives.select { |directive| directive.status == :unsupported }.each do |directive|
+        directives.select { |directive| directive.status == :unsupported }.each do |directive|
           lines << "# unsupported %#{directive.name} at #{directive.line}:#{directive.column}"
         end
         lines.push("class #{resolved_class_name}", "pragma extended")
-        @token_entries.uniq.sort.each do |name, alias_name|
+        token_entries.uniq.sort.each do |name, alias_name|
           rendered = "token #{terminal_name(name)}"
           rendered = "#{rendered} #{alias_name}" if alias_name
           lines << rendered
@@ -312,7 +328,7 @@ module Ibex
         render_precedence(lines)
         lines << "expect #{@expected_sr}" if @expected_sr
         lines << "%expect-rr #{@expected_rr}" if @expected_rr
-        lines << "start #{@starts.uniq.map { |name| nonterminal_name(name) }.join(' ')}" unless @starts.empty?
+        lines << "start #{starts.uniq.map { |name| nonterminal_name(name) }.join(' ')}" unless starts.empty?
         lines << "rule"
         rules.each { |rule| render_rule(lines, rule) }
         lines << "end"
@@ -321,7 +337,8 @@ module Ibex
 
       # @rbs () -> String
       def structural_status
-        unsupported = @directives.select do |directive|
+        directives = @directives #: Array[Directive]
+        unsupported = directives.select do |directive|
           directive.status == :unsupported &&
             !STRUCTURE_NEUTRAL_UNSUPPORTED.include?(directive.name)
         end
@@ -330,17 +347,18 @@ module Ibex
 
       # @rbs (Array[String] lines) -> void
       def render_precedence(lines)
-        return if @precedence_levels.empty?
+        precedence_levels = @precedence_levels #: Array[[String, Array[String]]]
+        return if precedence_levels.empty?
 
         lines << "preclow"
-        @precedence_levels.each do |association, symbols|
+        precedence_levels.each do |association, symbols|
           rendered = symbols.map { |symbol| literal_atom?(symbol) ? symbol : terminal_name(symbol) }
           lines << "  #{association} #{rendered.join(' ')}"
         end
         lines << "prechigh"
       end
 
-      # @rbs (Array[String] lines, Hash[Symbol, untyped] rule) -> void
+      # @rbs (Array[String] lines, rule rule) -> void
       def render_rule(lines, rule)
         alternatives = rule.fetch(:alternatives)
         alternatives.each_with_index do |alternative, index|
@@ -354,7 +372,8 @@ module Ibex
       # @rbs (String name, Integer line, Integer column, String detail) -> void
       def record_directive(name, line, column, detail)
         status = DIRECTIVES.fetch(name, :unsupported)
-        @directives << Directive.new(
+        directives = @directives #: Array[Directive]
+        directives << Directive.new(
           name: name, status: status, line: line, column: column, detail: detail.strip
         )
       end
@@ -397,14 +416,15 @@ module Ibex
       def terminal_name(value)
         return "error" if value == "error"
 
-        @terminal_names[value] ||= begin
+        terminal_names = @terminal_names #: Hash[String, String]
+        terminal_names[value] ||= begin
           sanitized = sanitize_symbol(value)
           base = if sanitized.match?(/\A[A-Z][A-Z0-9_]*\z/)
                    sanitized
                  else
                    "BISON_T_#{sanitized.upcase}"
                  end
-          used = @terminal_names.values
+          used = terminal_names.values
           candidate = base
           suffix = 2
           while used.include?(candidate)
@@ -419,9 +439,10 @@ module Ibex
       # Ibex's terminal-by-case convention and declaration keyword collisions.
       # @rbs (String value) -> String
       def nonterminal_name(value)
-        @nonterminal_names[value] ||= begin
+        nonterminal_names = @nonterminal_names #: Hash[String, String]
+        nonterminal_names[value] ||= begin
           base = "bison_nt_#{sanitize_symbol(value).downcase}"
-          used = @nonterminal_names.values
+          used = nonterminal_names.values
           candidate = base
           suffix = 2
           while used.include?(candidate)

@@ -97,7 +97,7 @@ module Ibex
 
     @parameter_worklist_active: bool
 
-    @parameter_worklist: Array[Hash[Symbol, untyped]]
+    @parameter_worklist: Array[NormalizeParameters::parameter_frame]
 
     @parameter_specializations: Hash[[ String, Array[String] ], String]
 

@@ -9,6 +9,9 @@ module Ibex
   # Bounded conflict-repair candidate generation and safety evaluation.
   # rubocop:disable Metrics/ClassLength -- candidate generation and its three safety gates share one target identity.
   class Fix
+    # @rbs!
+    #   type candidate = { category: String, description: String, source: String?, algorithm: Symbol }
+
     SCHEMA_VERSION = 3 #: Integer
     CATEGORIES = %w[
       precedence_declaration precedence_override algorithm_change
@@ -90,11 +93,13 @@ module Ibex
       incomplete = false
       candidates.each do |candidate|
         outcome = evaluate_candidate(candidate, conflict)
-        if outcome.fetch(:status) == "safe"
+        outcome_status = outcome.fetch(:status) #: String
+        if outcome_status == "safe"
           proposals << proposal(candidate, outcome, conflict, proposals.length + 1)
         else
+          outcome_reason = outcome.fetch(:reason) #: String
           incomplete ||= %w[equivalence_budget_exhausted verification_budget_exhausted]
-                         .include?(outcome.fetch(:reason))
+                         .include?(outcome_reason)
           rejections << rejection(candidate, outcome)
         end
       end
@@ -108,7 +113,8 @@ module Ibex
 
     # @rbs () -> [IR::AutomatonState, Integer, IR::conflict]
     def select_target
-      states = @requested_state ? [@automaton.states.fetch(@requested_state)] : @automaton.states
+      automaton = @automaton #: IR::Automaton
+      states = @requested_state ? [automaton.states.fetch(@requested_state)] : automaton.states
       states.each do |state|
         state.conflicts.each_with_index do |conflict, index|
           next if @requested_conflict_index && index != @requested_conflict_index
@@ -122,7 +128,7 @@ module Ibex
       raise Ibex::Error, "(fix):1:1: requested state does not exist"
     end
 
-    # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
+    # @rbs (IR::conflict conflict) -> Array[candidate]
     def candidate_space(conflict)
       candidates = precedence_declaration_candidates(conflict)
       override = precedence_override_candidate(conflict)
@@ -146,7 +152,7 @@ module Ibex
       end
     end
 
-    # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
+    # @rbs (IR::conflict conflict) -> Array[candidate]
     def precedence_declaration_candidates(conflict)
       return [] unless conflict.fetch(:type).to_sym == :shift_reduce
 
@@ -161,12 +167,13 @@ module Ibex
       end
     end
 
-    # @rbs (IR::conflict conflict) -> Hash[Symbol, untyped]?
+    # @rbs (IR::conflict conflict) -> candidate?
     def precedence_override_candidate(conflict)
       return unless conflict.fetch(:type).to_sym == :shift_reduce
 
       value = conflict #: IR::shift_reduce_conflict
-      production = @grammar.productions.fetch(value.fetch(:reduce))
+      grammar = @grammar #: IR::Grammar
+      production = grammar.productions.fetch(value.fetch(:reduce))
       return if production.node
 
       line = production.origin.dig(:loc, :line)
@@ -180,14 +187,14 @@ module Ibex
       )
     end
 
-    # @rbs () -> Array[Hash[Symbol, untyped]]
+    # @rbs () -> Array[candidate]
     def algorithm_candidates
       %i[ielr lr1].reject { |algorithm| algorithm == @algorithm }.map do |algorithm|
         candidate("algorithm_change", "construct with #{algorithm}", algorithm: algorithm)
       end
     end
 
-    # @rbs (IR::conflict conflict) -> Hash[Symbol, untyped]?
+    # @rbs (IR::conflict conflict) -> candidate?
     def inline_candidate(conflict)
       production_id = if conflict.fetch(:type).to_sym == :shift_reduce
                         shift_reduce = conflict #: IR::shift_reduce_conflict
@@ -196,23 +203,26 @@ module Ibex
                         reduce_reduce = conflict #: IR::reduce_reduce_conflict
                         reduce_reduce.fetch(:reductions).first
                       end
-      production = @grammar.productions.fetch(production_id)
-      lhs = @grammar.symbol_by_id(production.lhs)&.name
-      return unless lhs && !@grammar.starts.include?(lhs)
+      grammar = @grammar #: IR::Grammar
+      source = @source #: String
+      production = grammar.productions.fetch(production_id)
+      lhs = grammar.symbol_by_id(production.lhs)&.name
+      return unless lhs && !grammar.starts.include?(lhs)
 
       pattern = /^(\s*)#{Regexp.escape(lhs)}\s*:/
-      return unless @source.match?(pattern)
+      return unless source.match?(pattern)
 
-      edited = update_expectation(@source.sub(pattern, "\\1%inline #{lhs}:"), conflict)
+      edited = update_expectation(source.sub(pattern, "\\1%inline #{lhs}:"), conflict)
       candidate("mechanical_rewrite", "inline nonterminal #{lhs}", source: edited)
     end
 
-    # @rbs (IR::conflict conflict) -> Hash[Symbol, untyped]
+    # @rbs (IR::conflict conflict) -> candidate
     def expectation_candidate(conflict)
+      automaton = @automaton #: IR::Automaton
       directive = if conflict.fetch(:type).to_sym == :reduce_reduce
-                    "%expect-rr #{@automaton.conflict_summary.fetch(:rr)}\n"
+                    "%expect-rr #{automaton.conflict_summary.fetch(:rr)}\n"
                   else
-                    "expect #{@automaton.conflict_summary.fetch(:sr)}\n"
+                    "expect #{automaton.conflict_summary.fetch(:sr)}\n"
                   end
       candidate(
         "expectation_declaration", "acknowledge the current conflict count",
@@ -220,7 +230,7 @@ module Ibex
       )
     end
 
-    # @rbs (IR::conflict conflict) -> Hash[Symbol, untyped]?
+    # @rbs (IR::conflict conflict) -> candidate?
     def recovery_candidate(conflict)
       production_id = if conflict.fetch(:type).to_sym == :shift_reduce
                         shift_reduce = conflict #: IR::shift_reduce_conflict
@@ -229,8 +239,9 @@ module Ibex
                         reduce_reduce = conflict #: IR::reduce_reduce_conflict
                         reduce_reduce.fetch(:reductions).first
                       end
-      production = @grammar.productions.fetch(production_id)
-      lhs = @grammar.symbol_by_id(production.lhs)&.name
+      grammar = @grammar #: IR::Grammar
+      production = grammar.productions.fetch(production_id)
+      lhs = grammar.symbol_by_id(production.lhs)&.name
       return unless lhs
 
       candidate(
@@ -239,12 +250,12 @@ module Ibex
       )
     end
 
-    # @rbs (String category, String description, ?source: String?, ?algorithm: Symbol?) -> Hash[Symbol, untyped]
+    # @rbs (String category, String description, ?source: String?, ?algorithm: Symbol?) -> candidate
     def candidate(category, description, source: nil, algorithm: nil)
       { category: category, description: description, source: source, algorithm: algorithm || @algorithm }
     end
 
-    # @rbs (Hash[Symbol, untyped] candidate, IR::conflict target) -> Hash[Symbol, untyped]
+    # @rbs (candidate candidate, IR::conflict target) -> Hash[Symbol, untyped]
     def evaluate_candidate(candidate, target)
       candidate_automaton = build_candidate(candidate)
       failure = conflict_safety_failure(candidate_automaton, target)
@@ -277,9 +288,11 @@ module Ibex
 
     # @rbs (IR::Automaton candidate, IR::conflict target) -> Hash[Symbol, String]?
     def conflict_safety_failure(candidate, target)
-      fingerprint = conflict_fingerprint(@grammar, target)
+      grammar = @grammar #: IR::Grammar
+      automaton = @automaton #: IR::Automaton
+      fingerprint = conflict_fingerprint(grammar, target)
       active = active_conflicts(candidate)
-      original_active = active_conflicts(@automaton)
+      original_active = active_conflicts(automaton)
       return { status: "rejected", reason: "target_conflict_remains" } if
         active.any? { |_state, conflict| conflict_fingerprint(candidate.grammar, conflict) == fingerprint }
       return { status: "rejected", reason: "conflict_count_did_not_decrease" } unless
@@ -303,13 +316,16 @@ module Ibex
       { status: "rejected", reason: "conflict_expectation_mismatch" }
     end
 
-    # @rbs (Hash[Symbol, untyped] candidate) -> IR::Automaton
+    # @rbs (candidate candidate) -> IR::Automaton
     def build_candidate(candidate)
-      raise BudgetExceeded, { result: "budget_exhausted", phase: "builds", bounds: bounds } if @builds >= @max_builds
+      builds = @builds #: Integer
+      max_builds = @max_builds #: Integer
+      raise BudgetExceeded, { result: "budget_exhausted", phase: "builds", bounds: bounds } if builds >= max_builds
 
-      @builds += 1
-      grammar = if candidate[:source]
-                  ast = Frontend::Parser.new(candidate.fetch(:source), file: @file, mode: @mode).parse
+      @builds = builds + 1
+      source = candidate[:source]
+      grammar = if source
+                  ast = Frontend::Parser.new(source, file: @file, mode: @mode).parse
                   Normalizer.new(ast, mode: @mode).normalize
                 else
                   @grammar
@@ -318,23 +334,25 @@ module Ibex
       LALR::Builder.new(grammar, algorithm: candidate.fetch(:algorithm)).build
     end
 
-    # @rbs (Hash[Symbol, untyped] candidate, Hash[Symbol, untyped] outcome, IR::conflict conflict, Integer number) ->
+    # @rbs (candidate candidate, Hash[Symbol, untyped] outcome, IR::conflict conflict, Integer number) ->
     #   Hash[Symbol, untyped]
     def proposal(candidate, outcome, conflict, number)
       id = format("FX%03d", number)
       source = candidate[:source]
       @sources[id] = source if source
-      candidate_automaton = outcome.fetch(:automaton)
+      candidate_automaton = outcome.fetch(:automaton) #: IR::Automaton
+      automaton = @automaton #: IR::Automaton
+      grammar = @grammar #: IR::Grammar
       {
         id: id, category: candidate.fetch(:category), description: candidate.fetch(:description),
         algorithm: candidate.fetch(:algorithm), applyable: !source.nil?,
         unified_diff: source ? unified_diff(@source, source) : nil,
-        eliminates: [conflict_fingerprint(@grammar, conflict)],
+        eliminates: [conflict_fingerprint(grammar, conflict)],
         equivalence: outcome.fetch(:equivalence),
         side_effects: {
           states: {
-            before: @automaton.states.length, after: candidate_automaton.states.length,
-            delta: candidate_automaton.states.length - @automaton.states.length
+            before: automaton.states.length, after: candidate_automaton.states.length,
+            delta: candidate_automaton.states.length - automaton.states.length
           },
           removed_conflicts: outcome.fetch(:removed_conflicts),
           message_catalog: message_catalog_impact(candidate_automaton)
@@ -350,7 +368,8 @@ module Ibex
       end
 
       file = @message_file || "(messages)"
-      baseline = ErrorMessages.update(@automaton, existing: @messages)
+      automaton = @automaton #: IR::Automaton
+      baseline = ErrorMessages.update(automaton, existing: @messages)
       changed = ErrorMessages.update(candidate, existing: @messages)
       {
         status: "evaluated", file: file,
@@ -360,7 +379,7 @@ module Ibex
       }
     end
 
-    # @rbs (Hash[Symbol, untyped] candidate, Hash[Symbol, untyped] outcome) -> Hash[Symbol, untyped]
+    # @rbs (candidate candidate, Hash[Symbol, untyped] outcome) -> Hash[Symbol, untyped]
     def rejection(candidate, outcome)
       {
         category: candidate.fetch(:category), description: candidate.fetch(:description),
@@ -368,15 +387,21 @@ module Ibex
       }
     end
 
-    # @rbs (IR::AutomatonState state, Integer index, IR::conflict conflict, Array[Hash[Symbol, untyped]] candidates,
+    # @rbs (IR::AutomatonState state, Integer index, IR::conflict conflict, Array[candidate] candidates,
     #   Array[Hash[Symbol, untyped]] proposals, Array[Hash[Symbol, untyped]] rejections,
     #   Array[Hash[Symbol, untyped]] advice) -> Hash[Symbol, untyped]
     def report_for(state, index, conflict, candidates, proposals, rejections, advice)
       inventory = CATEGORIES.to_h do |category|
         values = candidates.select { |candidate| candidate.fetch(:category) == category }
-        rejected = rejections.count { |entry| entry.fetch(:category) == category }
+        rejected = rejections.count do |entry|
+          record = entry #: { category: String }
+          record.fetch(:category) == category
+        end
         [category, { enumerated: values.length, rejected: rejected,
-                     safe: proposals.count { |entry| entry.fetch(:category) == category } }]
+                     safe: proposals.count do |entry|
+                       record = entry #: { category: String }
+                       record.fetch(:category) == category
+                     end }]
       end
       {
         ibex_report: "fix", schema_version: SCHEMA_VERSION,
@@ -446,7 +471,8 @@ module Ibex
 
     # @rbs (IR::Grammar candidate_grammar) -> Hash[String, String]
     def identity_rule_map(candidate_grammar)
-      left = @grammar.nonterminals.map(&:name)
+      grammar = @grammar #: IR::Grammar
+      left = grammar.nonterminals.map(&:name)
       right = candidate_grammar.nonterminals.map(&:name)
       (left & right).to_h { |name| [name, name] }
     end
@@ -469,7 +495,8 @@ module Ibex
 
     # @rbs (Integer line_number, String suffix) -> String
     def append_to_line(line_number, suffix)
-      lines = @source.lines
+      source = @source #: String
+      lines = source.lines
       line = lines.fetch(line_number - 1)
       ending = line.end_with?("\n") ? "\n" : ""
       lines[line_number - 1] = "#{line.delete_suffix("\n")}#{suffix}#{ending}"
@@ -481,19 +508,21 @@ module Ibex
     # @rbs (String directive) -> String
     def replace_or_insert_expectation(directive)
       pattern = directive.start_with?("%expect-rr") ? /^%expect-rr\s+\d+\s*$/ : /^expect\s+\d+\s*$/
-      return @source.sub(pattern, directive.chomp) if @source.match?(pattern)
+      source = @source #: String
+      return source.sub(pattern, directive.chomp) if source.match?(pattern)
 
       insert_before_rule(directive)
     end
 
     # @rbs (String source, IR::conflict conflict) -> String
     def update_expectation(source, conflict)
+      automaton = @automaton #: IR::Automaton
       if conflict.fetch(:type).to_sym == :reduce_reduce
-        current = @automaton.conflict_summary.fetch(:rr)
+        current = automaton.conflict_summary.fetch(:rr)
         directive = "%expect-rr #{[current - 1, 0].max}"
         pattern = /^%expect-rr\s+\d+\s*$/
       else
-        current = @automaton.conflict_summary.fetch(:sr)
+        current = automaton.conflict_summary.fetch(:sr)
         directive = "expect #{[current - 1, 0].max}"
         pattern = /^expect\s+\d+\s*$/
       end

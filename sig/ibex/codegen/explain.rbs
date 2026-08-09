@@ -6,6 +6,20 @@ module Ibex
 
     type explain_entry = { state: IR::AutomatonState, conflict: IR::conflict, example: LALR::search_counterexample }
 
+    type explain_token = { name: String, display_name: String?, label: String, ?query: String }
+
+    type explain_alternative = { kind: String, ?state: Integer, ?production: Integer }
+
+    type explain_search = { status: String, explored: Integer, exhausted: bool, bounds: Hash[Symbol, Integer] }
+
+    type explain_tree_node = { ?symbol: explain_token, ?token: explain_token, ?production: Integer, ?children: Array[explain_tree] }
+
+    type explain_tree = String | Symbol | explain_token | explain_tree_node
+
+    type explain_interpretation = { kind: String, tree: explain_tree, ?state: Integer, ?production: Integer }
+
+    type string_value = String | Integer | Symbol
+
     # Renders a selected conflict explanation from Automaton IR and counterexamples.
     # rubocop:disable Metrics/ClassLength -- inline contracts and two stable output formats stay near selection policy.
     class Explain
@@ -41,26 +55,26 @@ module Ibex
       # @rbs (LALR::search_counterexample example) -> String
       def witness_kind: (LALR::search_counterexample example) -> String
 
-      # @rbs (LALR::search_outcome outcome) -> Hash[Symbol, untyped]
-      def search_document: (LALR::search_outcome outcome) -> Hash[Symbol, untyped]
+      # @rbs (LALR::search_outcome outcome) -> explain_search
+      def search_document: (LALR::search_outcome outcome) -> explain_search
 
-      # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
-      def conflict_alternatives: (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
+      # @rbs (IR::conflict conflict) -> Array[explain_alternative]
+      def conflict_alternatives: (IR::conflict conflict) -> Array[explain_alternative]
 
-      # @rbs (IR::interpretation interpretation) -> Hash[Symbol, untyped]
-      def interpretation_document: (IR::interpretation interpretation) -> Hash[Symbol, untyped]
+      # @rbs (IR::interpretation interpretation) -> explain_interpretation
+      def interpretation_document: (IR::interpretation interpretation) -> explain_interpretation
 
-      # @rbs (untyped tree) -> untyped
-      def tree_document: (untyped tree) -> untyped
+      # @rbs (explain_tree tree) -> explain_tree
+      def tree_document: (explain_tree tree) -> explain_tree
 
-      # @rbs (Hash[Symbol, untyped] value) -> Hash[Symbol, untyped]
-      def string_values: (Hash[Symbol, untyped] value) -> Hash[Symbol, untyped]
+      # @rbs (Hash[Symbol, string_value] value) -> Hash[Symbol, string_value]
+      def string_values: (Hash[Symbol, string_value] value) -> Hash[Symbol, string_value]
 
-      # @rbs (String name) -> Hash[Symbol, untyped]
-      def symbol_reference: (String name) -> Hash[Symbol, untyped]
+      # @rbs (String name) -> explain_token
+      def symbol_reference: (String name) -> explain_token
 
-      # @rbs (IR::GrammarSymbol symbol, ?query: String?) -> Hash[Symbol, untyped]
-      def token_reference: (IR::GrammarSymbol symbol, ?query: String?) -> Hash[Symbol, untyped]
+      # @rbs (IR::GrammarSymbol symbol, ?query: String?) -> explain_token
+      def token_reference: (IR::GrammarSymbol symbol, ?query: String?) -> explain_token
 
       # @rbs (Array[String] lines, explain_entry entry, Integer number) -> void
       def append_conflict: (Array[String] lines, explain_entry entry, Integer number) -> void
@@ -75,11 +89,11 @@ module Ibex
       # @rbs (Array[String] lines, LALR::search_counterexample example) -> void
       def append_interpretations: (Array[String] lines, LALR::search_counterexample example) -> void
 
-      # @rbs (Hash[Symbol, untyped] alternative) -> String
-      def alternative_text: (Hash[Symbol, untyped] alternative) -> String
+      # @rbs (explain_alternative alternative) -> String
+      def alternative_text: (explain_alternative alternative) -> String
 
-      # @rbs (Array[String] lines, untyped tree, String prefix, String connector) -> void
-      def append_tree: (Array[String] lines, untyped tree, String prefix, String connector) -> void
+      # @rbs (Array[String] lines, explain_tree tree, String prefix, String connector) -> void
+      def append_tree: (Array[String] lines, explain_tree tree, String prefix, String connector) -> void
 
       # @rbs (IR::GrammarSymbol symbol, ?query: String?) -> String
       def token_label: (IR::GrammarSymbol symbol, ?query: String?) -> String

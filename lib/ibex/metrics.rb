@@ -6,13 +6,16 @@ require "set"
 module Ibex
   # Deterministic structural metrics over normalized Grammar and Automaton IR.
   class Metrics
+    # @rbs!
+    #   type report_value = String | Integer | Float | Array[report_value] | Hash[Symbol, report_value]
+
     # @rbs (IR::Automaton automaton) -> void
     def initialize(automaton)
       @automaton = automaton
       @grammar = automaton.grammar
     end
 
-    # @rbs () -> Hash[Symbol, untyped]
+    # @rbs () -> Hash[Symbol, report_value]
     def to_h
       {
         ibex_report: "metrics", schema_version: 1,
@@ -31,7 +34,7 @@ module Ibex
       { terminals: @grammar.terminals.length, nonterminals: @grammar.nonterminals.length }
     end
 
-    # @rbs () -> Hash[Symbol, untyped]
+    # @rbs () -> Hash[Symbol, report_value]
     def grammar_metrics
       rule_counts = @grammar.productions.group_by(&:lhs).transform_values(&:length)
       {
@@ -46,7 +49,7 @@ module Ibex
       }
     end
 
-    # @rbs () -> Hash[Symbol, untyped]
+    # @rbs () -> Hash[Symbol, report_value]
     def automaton_metrics
       {
         states: @automaton.states.length,

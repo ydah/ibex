@@ -5,6 +5,8 @@ module Ibex
     # Projects validated Automaton IR into an action-free executable sidecar.
     class Builder
       # @rbs!
+      #   type json_value = String | Integer | bool | nil | Array[json_value] | Hash[String, json_value]
+      #   type json_hash = Hash[String, json_value]
       #   type action_rows = Array[Hash[Integer, IR::runtime_action]]
       #   type action_table = action_rows | Tables::CompactActions
       #   type goto_rows = Array[Hash[Integer, Integer]]
@@ -51,7 +53,7 @@ module Ibex
 
       private
 
-      # @rbs (Hash[String, String] source_identity) -> Hash[String, untyped]
+      # @rbs (Hash[String, String] source_identity) -> json_hash
       def build_payload(source_identity)
         {
           "table_format" => table_format,
@@ -73,7 +75,7 @@ module Ibex
         "sha256:#{Digest::SHA256.hexdigest(IR::Serialize.dump(@automaton))}"
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> json_hash
       def table_format
         {
           "family" => "ibex-runtime-parser-table",
@@ -84,7 +86,7 @@ module Ibex
         }
       end
 
-      # @rbs () -> Array[Hash[String, untyped]]
+      # @rbs () -> Array[json_hash]
       def symbols
         @grammar.symbols.sort_by(&:id).map do |symbol|
           {
@@ -96,21 +98,21 @@ module Ibex
         end
       end
 
-      # @rbs () -> Array[Hash[String, untyped]]
+      # @rbs () -> Array[json_hash]
       def tokens
         @grammar.terminals.sort_by(&:id).map do |symbol|
           { "id" => symbol.id, "name" => symbol.name, "display_name" => symbol.display_name }
         end
       end
 
-      # @rbs () -> Array[Hash[String, untyped]]
+      # @rbs () -> Array[json_hash]
       def entry_states
         @automaton.entry_states.map { |name, state| { "name" => name, "state" => state } }
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> json_hash
       def tables
-        table_set = Tables.build(@automaton, format: @representation)
+        table_set = Tables.build(@automaton, format: @representation) #: Tables::TableSet
         {
           "actions" => action_table(table_set.actions),
           "gotos" => goto_table(table_set.gotos),
@@ -118,7 +120,7 @@ module Ibex
         }
       end
 
-      # @rbs (action_table table) -> Hash[String, untyped]
+      # @rbs (action_table table) -> json_hash
       def action_table(table)
         return compact_action_table(table) if table.is_a?(Tables::CompactActions)
 
@@ -130,7 +132,7 @@ module Ibex
         }
       end
 
-      # @rbs (Tables::CompactActions table) -> Hash[String, untyped]
+      # @rbs (Tables::CompactActions table) -> json_hash
       def compact_action_table(table)
         {
           "encoding" => "signed-row-displacement-v1",
@@ -142,7 +144,7 @@ module Ibex
         }
       end
 
-      # @rbs (goto_table table) -> Hash[String, untyped]
+      # @rbs (goto_table table) -> json_hash
       def goto_table(table)
         return compact_goto_table(table) if table.is_a?(Tables::Compact)
 
@@ -154,7 +156,7 @@ module Ibex
         }
       end
 
-      # @rbs (Tables::Compact table) -> Hash[String, untyped]
+      # @rbs (Tables::Compact table) -> json_hash
       def compact_goto_table(table)
         {
           "encoding" => "row-displacement-v1",
@@ -166,7 +168,7 @@ module Ibex
         }
       end
 
-      # @rbs () -> Array[Hash[String, untyped]]
+      # @rbs () -> Array[json_hash]
       def productions
         @grammar.productions.sort_by(&:id).map do |production|
           {
@@ -184,7 +186,7 @@ module Ibex
         !!(production.node || production.action || !@omit_action_call)
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> json_hash
       def semantic_actions
         {
           "binding" => "opaque-wrapper-production-id-v1",
@@ -193,23 +195,27 @@ module Ibex
         }
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> json_hash
       def recovery
+        sync_tokens = @grammar.recovery.fetch(:sync_tokens) #: Array[String]
+        on_error_reduce = @grammar.recovery.fetch(:on_error_reduce) #: Array[Array[String]]
         {
-          "sync_token_ids" => @grammar.recovery.fetch(:sync_tokens).map { |name| @grammar.symbol(name).id },
-          "on_error_reduce_symbol_ids" => @grammar.recovery.fetch(:on_error_reduce).map do |group|
+          "sync_token_ids" => sync_tokens.map { |name| @grammar.symbol(name).id },
+          "on_error_reduce_symbol_ids" => on_error_reduce.map do |group|
             group.map { |name| @grammar.symbol(name).id }
           end
         }
       end
 
-      # @rbs (Hash[String, untyped] payload) -> Hash[String, untyped]
+      # @rbs (json_hash payload) -> json_hash
       def build_cost(payload)
-        tables = payload.fetch("tables") #: Hash[String, untyped]
+        tables = payload.fetch("tables") #: json_hash
+        action_table = tables.fetch("actions") #: json_hash
+        goto_table = tables.fetch("gotos") #: json_hash
         {
           "canonical_payload_bytes" => Serializer.compact(payload).bytesize,
-          "action_cells" => occupied_cells(tables.fetch("actions"), "codes"),
-          "goto_cells" => occupied_cells(tables.fetch("gotos"), "values"),
+          "action_cells" => occupied_cells(action_table, "codes"),
+          "goto_cells" => occupied_cells(goto_table, "values"),
           "lookup_cost" => lookup_cost,
           "recognition_cost" => recognition_cost,
           "measurement" => "not-measured",
@@ -217,11 +223,13 @@ module Ibex
         }
       end
 
-      # @rbs (Hash[String, untyped] table, String values_key) -> Integer
+      # @rbs (json_hash table, String values_key) -> Integer
       def occupied_cells(table, values_key)
-        return table.fetch("rows").sum(&:length) if table.key?("rows")
+        rows = table.fetch("rows") #: Array[json_value]
+        return rows.sum { |row| row.is_a?(Array) ? row.length : 0 } if table.key?("rows")
 
-        table.fetch(values_key).compact.length
+        values = table.fetch(values_key) #: Array[json_value]
+        values.compact.length
       end
 
       # @rbs () -> String

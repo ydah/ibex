@@ -4,6 +4,8 @@ module Ibex
   # Bounded conflict-repair candidate generation and safety evaluation.
   # rubocop:disable Metrics/ClassLength -- candidate generation and its three safety gates share one target identity.
   class Fix
+    type candidate = { category: String, description: String, source: String?, algorithm: Symbol }
+
     SCHEMA_VERSION: Integer
 
     CATEGORIES: Array[String]
@@ -37,35 +39,35 @@ module Ibex
     # @rbs () -> [IR::AutomatonState, Integer, IR::conflict]
     def select_target: () -> [ IR::AutomatonState, Integer, IR::conflict ]
 
-    # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
-    def candidate_space: (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
+    # @rbs (IR::conflict conflict) -> Array[candidate]
+    def candidate_space: (IR::conflict conflict) -> Array[candidate]
 
     # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
     def advice_space: (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
 
-    # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
-    def precedence_declaration_candidates: (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
+    # @rbs (IR::conflict conflict) -> Array[candidate]
+    def precedence_declaration_candidates: (IR::conflict conflict) -> Array[candidate]
 
-    # @rbs (IR::conflict conflict) -> Hash[Symbol, untyped]?
-    def precedence_override_candidate: (IR::conflict conflict) -> Hash[Symbol, untyped]?
+    # @rbs (IR::conflict conflict) -> candidate?
+    def precedence_override_candidate: (IR::conflict conflict) -> candidate?
 
-    # @rbs () -> Array[Hash[Symbol, untyped]]
-    def algorithm_candidates: () -> Array[Hash[Symbol, untyped]]
+    # @rbs () -> Array[candidate]
+    def algorithm_candidates: () -> Array[candidate]
 
-    # @rbs (IR::conflict conflict) -> Hash[Symbol, untyped]?
-    def inline_candidate: (IR::conflict conflict) -> Hash[Symbol, untyped]?
+    # @rbs (IR::conflict conflict) -> candidate?
+    def inline_candidate: (IR::conflict conflict) -> candidate?
 
-    # @rbs (IR::conflict conflict) -> Hash[Symbol, untyped]
-    def expectation_candidate: (IR::conflict conflict) -> Hash[Symbol, untyped]
+    # @rbs (IR::conflict conflict) -> candidate
+    def expectation_candidate: (IR::conflict conflict) -> candidate
 
-    # @rbs (IR::conflict conflict) -> Hash[Symbol, untyped]?
-    def recovery_candidate: (IR::conflict conflict) -> Hash[Symbol, untyped]?
+    # @rbs (IR::conflict conflict) -> candidate?
+    def recovery_candidate: (IR::conflict conflict) -> candidate?
 
-    # @rbs (String category, String description, ?source: String?, ?algorithm: Symbol?) -> Hash[Symbol, untyped]
-    def candidate: (String category, String description, ?source: String?, ?algorithm: Symbol?) -> Hash[Symbol, untyped]
+    # @rbs (String category, String description, ?source: String?, ?algorithm: Symbol?) -> candidate
+    def candidate: (String category, String description, ?source: String?, ?algorithm: Symbol?) -> candidate
 
-    # @rbs (Hash[Symbol, untyped] candidate, IR::conflict target) -> Hash[Symbol, untyped]
-    def evaluate_candidate: (Hash[Symbol, untyped] candidate, IR::conflict target) -> Hash[Symbol, untyped]
+    # @rbs (candidate candidate, IR::conflict target) -> Hash[Symbol, untyped]
+    def evaluate_candidate: (candidate candidate, IR::conflict target) -> Hash[Symbol, untyped]
 
     # @rbs (IR::Automaton candidate, IR::conflict target) -> Hash[Symbol, String]?
     def conflict_safety_failure: (IR::Automaton candidate, IR::conflict target) -> Hash[Symbol, String]?
@@ -73,23 +75,23 @@ module Ibex
     # @rbs (IR::Automaton candidate) -> Hash[Symbol, String]?
     def verification_safety_failure: (IR::Automaton candidate) -> Hash[Symbol, String]?
 
-    # @rbs (Hash[Symbol, untyped] candidate) -> IR::Automaton
-    def build_candidate: (Hash[Symbol, untyped] candidate) -> IR::Automaton
+    # @rbs (candidate candidate) -> IR::Automaton
+    def build_candidate: (candidate candidate) -> IR::Automaton
 
-    # @rbs (Hash[Symbol, untyped] candidate, Hash[Symbol, untyped] outcome, IR::conflict conflict, Integer number) ->
+    # @rbs (candidate candidate, Hash[Symbol, untyped] outcome, IR::conflict conflict, Integer number) ->
     #   Hash[Symbol, untyped]
-    def proposal: (Hash[Symbol, untyped] candidate, Hash[Symbol, untyped] outcome, IR::conflict conflict, Integer number) -> Hash[Symbol, untyped]
+    def proposal: (candidate candidate, Hash[Symbol, untyped] outcome, IR::conflict conflict, Integer number) -> Hash[Symbol, untyped]
 
     # @rbs (IR::Automaton candidate) -> Hash[Symbol, untyped]
     def message_catalog_impact: (IR::Automaton candidate) -> Hash[Symbol, untyped]
 
-    # @rbs (Hash[Symbol, untyped] candidate, Hash[Symbol, untyped] outcome) -> Hash[Symbol, untyped]
-    def rejection: (Hash[Symbol, untyped] candidate, Hash[Symbol, untyped] outcome) -> Hash[Symbol, untyped]
+    # @rbs (candidate candidate, Hash[Symbol, untyped] outcome) -> Hash[Symbol, untyped]
+    def rejection: (candidate candidate, Hash[Symbol, untyped] outcome) -> Hash[Symbol, untyped]
 
-    # @rbs (IR::AutomatonState state, Integer index, IR::conflict conflict, Array[Hash[Symbol, untyped]] candidates,
+    # @rbs (IR::AutomatonState state, Integer index, IR::conflict conflict, Array[candidate] candidates,
     #   Array[Hash[Symbol, untyped]] proposals, Array[Hash[Symbol, untyped]] rejections,
     #   Array[Hash[Symbol, untyped]] advice) -> Hash[Symbol, untyped]
-    def report_for: (IR::AutomatonState state, Integer index, IR::conflict conflict, Array[Hash[Symbol, untyped]] candidates, Array[Hash[Symbol, untyped]] proposals, Array[Hash[Symbol, untyped]] rejections, Array[Hash[Symbol, untyped]] advice) -> Hash[Symbol, untyped]
+    def report_for: (IR::AutomatonState state, Integer index, IR::conflict conflict, Array[candidate] candidates, Array[Hash[Symbol, untyped]] proposals, Array[Hash[Symbol, untyped]] rejections, Array[Hash[Symbol, untyped]] advice) -> Hash[Symbol, untyped]
 
     # @rbs (IR::Automaton automaton) -> Array[[IR::AutomatonState, IR::conflict]]
     def active_conflicts: (IR::Automaton automaton) -> Array[[ IR::AutomatonState, IR::conflict ]]

@@ -17,6 +17,14 @@ module Ibex
     #     conflict: IR::conflict,
     #     example: LALR::search_counterexample
     #   }
+    #
+    #   type explain_token = { name: String, display_name: String?, label: String, ?query: String }
+    #   type explain_alternative = { kind: String, ?state: Integer, ?production: Integer }
+    #   type explain_search = { status: String, explored: Integer, exhausted: bool, bounds: Hash[Symbol, Integer] }
+    #   type explain_tree_node = { ?symbol: explain_token, ?token: explain_token, ?production: Integer, ?children: Array[explain_tree] }
+    #   type explain_tree = String | Symbol | explain_token | explain_tree_node
+    #   type explain_interpretation = { kind: String, tree: explain_tree, ?state: Integer, ?production: Integer }
+    #   type string_value = String | Integer | Symbol
 
     # Renders a selected conflict explanation from Automaton IR and counterexamples.
     # rubocop:disable Metrics/ClassLength -- inline contracts and two stable output formats stay near selection policy.
@@ -41,42 +49,48 @@ module Ibex
 
       # @rbs () -> Hash[Symbol, untyped]
       def to_h
-        unifying = @entries.count { |entry| entry.fetch(:example).fetch(:unifying) }
-        inconclusive = @entries.count { |entry| entry.fetch(:example).fetch(:inconclusive) }
+        entries = @entries #: Array[explain_entry]
+        automaton = @automaton #: IR::Automaton
+        unifying = entries.count { |entry| entry.fetch(:example).fetch(:unifying) }
+        inconclusive = entries.count { |entry| entry.fetch(:example).fetch(:inconclusive) }
         {
           ibex_explain: "conflicts",
           schema_version: SCHEMA_VERSION,
-          algorithm: @automaton.algorithm,
+          algorithm: automaton.algorithm,
           selectors: {
             state: @state_selector,
             token: @token_selector && token_reference(@token_selector, query: @token_query)
           },
           search: { max_tokens: @max_tokens, max_configurations: @max_configurations },
           summary: {
-            matched_conflicts: @entries.length,
+            matched_conflicts: entries.length,
             unifying_counterexamples: unifying,
-            nonunifying_witnesses: @entries.length - unifying - inconclusive,
+            nonunifying_witnesses: entries.length - unifying - inconclusive,
             inconclusive_searches: inconclusive
           },
-          conflicts: @entries.map { |entry| conflict_document(entry) }
+          conflicts: entries.map { |entry| conflict_document(entry) }
         }
       end
 
       # @rbs () -> String
       def render_text
+        automaton = @automaton #: IR::Automaton
+        entries = @entries #: Array[explain_entry]
+        state_selector = @state_selector #: Integer?
+        token_selector = @token_selector #: IR::GrammarSymbol?
         lines = [
           "Ibex conflict explanation v#{SCHEMA_VERSION}",
-          "Algorithm: #{@automaton.algorithm}",
-          "State selector: #{@state_selector || 'all'}",
-          "Token selector: #{@token_selector ? token_label(@token_selector, query: @token_query) : 'all'}",
+          "Algorithm: #{automaton.algorithm}",
+          "State selector: #{state_selector || 'all'}",
+          "Token selector: #{token_selector ? token_label(token_selector, query: @token_query) : 'all'}",
           "Search budget: #{@max_tokens} tokens, #{@max_configurations} configurations",
-          "Matched conflicts: #{@entries.length}",
+          "Matched conflicts: #{entries.length}",
           ""
         ]
-        if @entries.empty?
+        if entries.empty?
           lines << "No conflicts matched the selectors."
         else
-          @entries.each_with_index { |entry, index| append_conflict(lines, entry, index + 1) }
+          entries.each_with_index { |entry, index| append_conflict(lines, entry, index + 1) }
         end
         "#{lines.join("\n")}\n"
       end
@@ -87,10 +101,11 @@ module Ibex
       def resolve_token(query)
         return unless query
 
-        canonical = @grammar.terminals.find { |symbol| symbol.name == query }
+        grammar = @grammar #: IR::Grammar
+        canonical = grammar.terminals.find { |symbol| symbol.name == query }
         return canonical if canonical
 
-        displayed = @grammar.terminals.select { |symbol| symbol.display_name == query }
+        displayed = grammar.terminals.select { |symbol| symbol.display_name == query }
         return displayed.first if displayed.one?
 
         if displayed.length > 1
@@ -104,10 +119,12 @@ module Ibex
 
       # @rbs () -> void
       def validate_state!
-        return unless @state_selector
-        return if @state_selector >= 0 && @automaton.states.any? { |state| state.id == @state_selector }
+        state_selector = @state_selector #: Integer?
+        automaton = @automaton #: IR::Automaton
+        return unless state_selector
+        return if state_selector >= 0 && automaton.states.any? { |state| state.id == state_selector }
 
-        raise Ibex::Error, "(cli):1:1: unknown automaton state #{@state_selector}"
+        raise Ibex::Error, "(cli):1:1: unknown automaton state #{state_selector}"
       end
 
       # @rbs () -> Array[explain_entry]
@@ -115,8 +132,9 @@ module Ibex
         selections = selected_conflicts
         return [] if selections.empty?
 
+        automaton = @automaton #: IR::Automaton
         counterexamples = LALR::Counterexample.new(
-          @automaton, max_tokens: @max_tokens, max_configurations: @max_configurations
+          automaton, max_tokens: @max_tokens, max_configurations: @max_configurations
         )
         selections.map do |selection|
           state = selection.fetch(:state)
@@ -130,10 +148,13 @@ module Ibex
 
       # @rbs () -> Array[explain_selection]
       def selected_conflicts
-        @automaton.states.flat_map do |state|
+        automaton = @automaton #: IR::Automaton
+        state_selector = @state_selector #: Integer?
+        token_selector = @token_selector #: IR::GrammarSymbol?
+        automaton.states.flat_map do |state|
           state.conflicts.each_with_index.filter_map do |conflict, conflict_index|
-            next if @state_selector && state.id != @state_selector
-            next if @token_selector && conflict[:symbol] != @token_selector.name
+            next if state_selector && state.id != state_selector
+            next if token_selector && conflict[:symbol] != token_selector.name
 
             { state: state, conflict: conflict, conflict_index: conflict_index }
           end
@@ -172,7 +193,7 @@ module Ibex
         "nonunifying_witness"
       end
 
-      # @rbs (LALR::search_outcome outcome) -> Hash[Symbol, untyped]
+      # @rbs (LALR::search_outcome outcome) -> explain_search
       def search_document(outcome)
         {
           status: outcome.fetch(:status).to_s,
@@ -182,58 +203,68 @@ module Ibex
         }
       end
 
-      # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
+      # @rbs (IR::conflict conflict) -> Array[explain_alternative]
       def conflict_alternatives(conflict)
         case conflict[:type]
         when :shift_reduce
-          [{ kind: "shift", state: conflict.fetch(:shift_to) },
-           { kind: "reduce", production: conflict.fetch(:reduce) }]
+          shift = { kind: "shift", state: conflict.fetch(:shift_to) } # @type var shift: explain_alternative
+          reduce = { kind: "reduce", production: conflict.fetch(:reduce) } # @type var reduce: explain_alternative
+          [shift, reduce]
         when :reduce_reduce
           reduce_reduce = conflict #: IR::reduce_reduce_conflict
-          reduce_reduce[:reductions].map { |production| { kind: "reduce", production: production } }
+          alternatives = reduce_reduce[:reductions].map do |production|
+            { kind: "reduce", production: production }
+          end # @type var alternatives: Array[explain_alternative]
+          alternatives
         else
           []
         end
       end
 
-      # @rbs (IR::interpretation interpretation) -> Hash[Symbol, untyped]
+      # @rbs (IR::interpretation interpretation) -> explain_interpretation
       def interpretation_document(interpretation)
-        value = { kind: interpretation.fetch(:kind).to_s,
-                  tree: tree_document(interpretation.fetch(:tree)) } #: Hash[Symbol, untyped]
+        kind = interpretation.fetch(:kind) #: Symbol
+        tree = interpretation.fetch(:tree) #: explain_tree
+        value = { kind: kind.to_s,
+                  tree: tree_document(tree) } # @type var value: explain_interpretation
         value[:state] = interpretation[:state] if interpretation.key?(:state)
         value[:production] = interpretation[:production] if interpretation.key?(:production)
         value
       end
 
-      # @rbs (untyped tree) -> untyped
+      # @rbs (explain_tree tree) -> explain_tree
       def tree_document(tree)
         return symbol_reference(tree.to_s) unless tree.is_a?(Hash)
 
-        value = {} #: Hash[Symbol, untyped]
-        value[:symbol] = symbol_reference(tree[:symbol]) if tree[:symbol]
-        value[:token] = symbol_reference(tree[:token]) if tree[:token]
-        value[:production] = tree[:production] if tree[:production]
-        value[:children] = tree[:children].map { |child| tree_document(child) } if tree[:children]
+        node = tree #: explain_tree_node
+        value = {} # @type var value: explain_tree_node
+        value[:symbol] = symbol_reference(node[:symbol].to_s) if node[:symbol]
+        value[:token] = symbol_reference(node[:token].to_s) if node[:token]
+        value[:production] = node[:production] if node[:production]
+        value[:children] = node[:children].map { |child| tree_document(child) } if node[:children]
         value
       end
 
-      # @rbs (Hash[Symbol, untyped] value) -> Hash[Symbol, untyped]
+      # @rbs (Hash[Symbol, string_value] value) -> Hash[Symbol, string_value]
       def string_values(value)
-        value.transform_values { |item| item.is_a?(Symbol) ? item.to_s : item }
+        values = value #: Hash[Symbol, string_value]
+        values.transform_values { |item| item.is_a?(Symbol) ? item.to_s : item }
       end
 
-      # @rbs (String name) -> Hash[Symbol, untyped]
+      # @rbs (String name) -> explain_token
       def symbol_reference(name)
-        symbol = @grammar.symbol(name)
+        grammar = @grammar #: IR::Grammar
+        symbol = grammar.symbol(name)
         return { name: name, display_name: nil, label: name } unless symbol
 
         token_reference(symbol)
       end
 
-      # @rbs (IR::GrammarSymbol symbol, ?query: String?) -> Hash[Symbol, untyped]
+      # @rbs (IR::GrammarSymbol symbol, ?query: String?) -> explain_token
       def token_reference(symbol, query: nil)
+        labels = @labels #: Hash[Integer, String]
         value = { name: symbol.name, display_name: symbol.display_name,
-                  label: @labels.fetch(symbol.id, symbol.name) } #: Hash[Symbol, untyped]
+                  label: labels.fetch(symbol.id, symbol.name) } # @type var value: explain_token
         value[:query] = query if query
         value
       end
@@ -243,7 +274,8 @@ module Ibex
         state = entry.fetch(:state)
         conflict = entry.fetch(:conflict)
         example = entry.fetch(:example)
-        token = @grammar.symbol(conflict.fetch(:symbol))
+        grammar = @grammar #: IR::Grammar
+        token = grammar.symbol(conflict.fetch(:symbol))
         token_text = token ? token_label(token) : conflict.fetch(:symbol)
         type = conflict.fetch(:type).to_s.tr("_", "/")
         lines << "Conflict #{number}: state #{state.id}, #{type}, token #{token_text}"
@@ -296,24 +328,25 @@ module Ibex
         end
       end
 
-      # @rbs (Hash[Symbol, untyped] alternative) -> String
+      # @rbs (explain_alternative alternative) -> String
       def alternative_text(alternative)
         return "shift to state #{alternative.fetch(:state)}" if alternative.fetch(:kind) == "shift"
 
         "reduce by production #{alternative.fetch(:production)}"
       end
 
-      # @rbs (Array[String] lines, untyped tree, String prefix, String connector) -> void
+      # @rbs (Array[String] lines, explain_tree tree, String prefix, String connector) -> void
       def append_tree(lines, tree, prefix, connector)
         unless tree.is_a?(Hash)
           lines << "#{prefix}#{connector}#{display_name(tree.to_s)}"
           return
         end
 
-        name = tree[:symbol] || tree[:token]
-        production = tree[:production] ? " (production #{tree[:production]})" : ""
+        node = tree #: explain_tree_node
+        name = node[:symbol] || node[:token]
+        production = node[:production] ? " (production #{node[:production]})" : ""
         lines << "#{prefix}#{connector}#{display_name(name.to_s)}#{production}"
-        children = tree.fetch(:children, [])
+        children = node.fetch(:children, [])
         continuation = { "" => "", "|- " => "|  " }.fetch(connector, "   ")
         child_prefix = "#{prefix}#{continuation}"
         children.each_with_index do |child, index|
@@ -333,7 +366,11 @@ module Ibex
       end
 
       # @rbs (String name) -> String
-      def display_name(name) = @grammar.symbol(name)&.then { |symbol| @labels.fetch(symbol.id, symbol.name) } || name
+      def display_name(name)
+        grammar = @grammar #: IR::Grammar
+        labels = @labels #: Hash[Integer, String]
+        grammar.symbol(name)&.then { |symbol| labels.fetch(symbol.id, symbol.name) } || name
+      end
     end
     # rubocop:enable Metrics/ClassLength
   end

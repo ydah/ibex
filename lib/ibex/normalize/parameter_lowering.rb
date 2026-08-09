@@ -5,7 +5,7 @@ module Ibex
   module NormalizeParameterLowering
     private
 
-    # @rbs (Hash[Symbol, untyped] frame) -> void
+    # @rbs (NormalizeParameters::parameter_frame frame) -> void
     def advance_parameter_alternative(frame)
       # @type self: Normalizer
       with_parameter_frame_context(frame) do
@@ -20,10 +20,10 @@ module Ibex
       end
     end
 
-    # @rbs (Hash[Symbol, untyped] frame) { () -> void } -> void
+    # @rbs (NormalizeParameters::parameter_frame frame) { () -> void } -> void
     def with_parameter_frame_context(frame)
       # @type self: Normalizer
-      template, = frame.fetch(:current)
+      template, = frame.fetch(:current) || raise(Ibex::Error, "missing parameter alternative")
       previous_chain = @current_include_chain
       previous_expansion = @current_parameter_expansion
       reference = frame.fetch(:reference)
@@ -37,16 +37,16 @@ module Ibex
       @current_parameter_expansion = previous_expansion
     end
 
-    # @rbs (Hash[Symbol, untyped] frame) -> bool
+    # @rbs (NormalizeParameters::parameter_frame frame) -> bool
     def parameter_items_remaining?(frame)
-      _template, _rule, alternative = frame.fetch(:current)
+      _template, _rule, alternative = frame.fetch(:current) || raise(Ibex::Error, "missing parameter alternative")
       frame.fetch(:item_index) < alternative.items.length
     end
 
-    # @rbs (Hash[Symbol, untyped] frame) -> void
+    # @rbs (NormalizeParameters::parameter_frame frame) -> void
     def start_parameter_item(frame)
       # @type self: Normalizer
-      _template, _rule, alternative = frame.fetch(:current)
+      _template, _rule, alternative = frame.fetch(:current) || raise(Ibex::Error, "missing parameter alternative")
       index = frame.fetch(:item_index)
       item = alternative.items.fetch(index)
       frame[:item_index] = index + 1
@@ -59,7 +59,7 @@ module Ibex
       end
     end
 
-    # @rbs (Hash[Symbol, untyped] frame, Array[untyped] operation) -> void
+    # @rbs (NormalizeParameters::parameter_frame frame, Array[untyped] operation) -> void
     def process_parameter_operation(frame, operation)
       # @type self: Normalizer
       kind, *arguments = operation
@@ -77,7 +77,7 @@ module Ibex
       end
     end
 
-    # @rbs (Hash[Symbol, untyped] frame, Frontend::AST::item item) -> void
+    # @rbs (NormalizeParameters::parameter_frame frame, Frontend::AST::item item) -> void
     def lower_parameter_item(frame, item)
       # @type self: Normalizer
       case item
@@ -96,25 +96,25 @@ module Ibex
       end
     end
 
-    # @rbs (Hash[Symbol, untyped] frame, Frontend::AST::ParameterizedReference item) -> void
+    # @rbs (NormalizeParameters::parameter_frame frame, Frontend::AST::ParameterizedReference item) -> void
     def lower_parameter_call(frame, item)
       # @type self: Normalizer
       helper, = schedule_parameter_specialization(item)
       frame.fetch(:values) << helper
     end
 
-    # @rbs (Hash[Symbol, untyped] frame, Frontend::AST::item item) -> void
+    # @rbs (NormalizeParameters::parameter_frame frame, Frontend::AST::item item) -> void
     def finish_parameter_item(frame, item)
       # @type self: Normalizer
       rhs = frame.fetch(:rhs)
-      rhs << frame.fetch(:values).pop
+      rhs << (frame.fetch(:values).pop || raise(Ibex::Error, "missing parameter value"))
       add_named_reference(item, frame.fetch(:named_refs), rhs.length - 1)
     end
 
-    # @rbs (Hash[Symbol, untyped] frame) -> void
+    # @rbs (NormalizeParameters::parameter_frame frame) -> void
     def finish_parameter_alternative(frame)
       # @type self: Normalizer
-      _template, rule, alternative = frame.fetch(:current)
+      _template, rule, alternative = frame.fetch(:current) || raise(Ibex::Error, "missing parameter alternative")
       action = normalize_action(alternative.action, frame.fetch(:named_refs))
       add_production(
         rule.lhs, frame.fetch(:rhs), action, alternative.precedence,

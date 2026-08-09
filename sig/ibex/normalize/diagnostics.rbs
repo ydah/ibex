@@ -17,8 +17,8 @@ module Ibex
     # @rbs () -> void
     def warn_unreachable_nonterminals: () -> void
 
-    # @rbs () -> Set[Integer]
-    def reachable_symbol_ids: () -> Set[Integer]
+    # @rbs () -> Hash[Integer, true]
+    def reachable_symbol_ids: () -> Hash[Integer, true]
 
     # @rbs () -> void
     def warn_unused_terminals: () -> void
@@ -32,8 +32,8 @@ module Ibex
     # @rbs () -> void
     def warn_empty_language: () -> void
 
-    # @rbs () -> Set[Integer]
-    def productive_terminal_ids: () -> Set[Integer]
+    # @rbs () -> Hash[Integer, true]
+    def productive_terminal_ids: () -> Hash[Integer, true]
 
     # @rbs (IR::GrammarSymbol grammar_symbol) -> bool
     def productive_terminal?: (IR::GrammarSymbol grammar_symbol) -> bool

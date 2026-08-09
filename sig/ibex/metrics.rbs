@@ -3,22 +3,24 @@
 module Ibex
   # Deterministic structural metrics over normalized Grammar and Automaton IR.
   class Metrics
+    type report_value = String | Integer | Float | Array[report_value] | Hash[Symbol, report_value]
+
     # @rbs (IR::Automaton automaton) -> void
     def initialize: (IR::Automaton automaton) -> void
 
-    # @rbs () -> Hash[Symbol, untyped]
-    def to_h: () -> Hash[Symbol, untyped]
+    # @rbs () -> Hash[Symbol, report_value]
+    def to_h: () -> Hash[Symbol, report_value]
 
     private
 
     # @rbs () -> Hash[Symbol, Integer]
     def symbol_metrics: () -> Hash[Symbol, Integer]
 
-    # @rbs () -> Hash[Symbol, untyped]
-    def grammar_metrics: () -> Hash[Symbol, untyped]
+    # @rbs () -> Hash[Symbol, report_value]
+    def grammar_metrics: () -> Hash[Symbol, report_value]
 
-    # @rbs () -> Hash[Symbol, untyped]
-    def automaton_metrics: () -> Hash[Symbol, untyped]
+    # @rbs () -> Hash[Symbol, report_value]
+    def automaton_metrics: () -> Hash[Symbol, report_value]
 
     # @rbs (Array[Integer] values) -> Float
     def average: (Array[Integer] values) -> Float

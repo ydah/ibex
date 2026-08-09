@@ -81,7 +81,7 @@ module Ibex
     # @rbs @parameter_templates: Hash[String, Array[Frontend::AST::Rule]]
     # @rbs @parameter_formals: Hash[String, Array[String]]
     # @rbs @parameter_specializations: Hash[[String, Array[String]], String]
-    # @rbs @parameter_worklist: Array[Hash[Symbol, untyped]]
+    # @rbs @parameter_worklist: Array[NormalizeParameters::parameter_frame]
     # @rbs @parameter_worklist_active: bool
     # @rbs @max_parameter_specializations: Integer
     # @rbs @current_parameter_expansion: IR::parameter_expansion?
@@ -119,7 +119,7 @@ module Ibex
       @helper_sequence = 0
       @current_include_chain = [] #: Array[IR::source_provenance]
       @parameter_specializations = {} #: Hash[[String, Array[String]], String]
-      @parameter_worklist = [] #: Array[Hash[Symbol, untyped]]
+      @parameter_worklist = [] #: Array[NormalizeParameters::parameter_frame]
       @parameter_worklist_active = false
       @max_parameter_specializations = max_parameter_specializations
       @max_inline_expansions = max_inline_expansions

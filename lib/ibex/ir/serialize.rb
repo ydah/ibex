@@ -58,8 +58,8 @@ module Ibex
 
       # @rbs (String source) -> (Grammar | Automaton | Lexer)
       def load(source)
-        data = JSON.parse(source)
-        type = data.fetch("ibex_ir") { raise Ibex::Error, "(ir):1:1: missing ibex_ir discriminator" }
+        data = JSON.parse(source) #: Hash[String, untyped]
+        type = data.fetch("ibex_ir") #: String
         return load_lexer(data) if type == "lexer"
 
         validate_version(data)
@@ -91,8 +91,9 @@ module Ibex
         empty_printers = [] #: Array[untyped]
         empty_tests = [] #: Array[untyped]
         empty_recovery = { "sync_tokens" => [], "on_error_reduce" => [] } #: Hash[String, untyped]
-        schema_version = data.fetch("schema_version")
-        symbols = data.fetch("symbols").map do |symbol|
+        schema_version = data.fetch("schema_version") #: Integer
+        symbols_data = data.fetch("symbols") #: Array[Hash[String, untyped]]
+        symbols = symbols_data.map do |symbol|
           GrammarSymbol.new(id: symbol.fetch("id"), name: symbol.fetch("name"), kind: symbol.fetch("kind"),
                             reserved: symbol.fetch("reserved"), precedence: symbolize(symbol["prec"]),
                             location: symbolize(symbol["loc"]),
@@ -100,7 +101,8 @@ module Ibex
                             semantic_type: load_symbol_metadata(symbol, "semantic_type"),
                             documentation: symbol["doc"])
         end
-        productions = data.fetch("productions").map { |production| load_production(production, schema_version) }
+        productions_data = data.fetch("productions") #: Array[Hash[String, untyped]]
+        productions = productions_data.map { |production| load_production(production, schema_version) }
         if schema_version >= 3
           return load_grammar_v3(
             data, symbols, productions, empty_chunks, empty_parameters, empty_printers, empty_tests, empty_recovery
@@ -155,9 +157,12 @@ module Ibex
 
       # @rbs skip
       def load_automaton(data)
-        grammar = load_grammar(data.fetch("grammar"))
-        states = data.fetch("states").map { |state| load_state(state, grammar) }
-        if data.fetch("schema_version") >= 3
+        grammar_data = data.fetch("grammar") #: Hash[String, untyped]
+        grammar = load_grammar(grammar_data)
+        states_data = data.fetch("states") #: Array[Hash[String, untyped]]
+        states = states_data.map { |state| load_state(state, grammar) }
+        schema_version = data.fetch("schema_version") #: Integer
+        if schema_version >= 3
           return Automaton.v3(
             grammar: grammar, states: states, conflict_summary: symbolize(data.fetch("conflict_summary")),
             algorithm: data.fetch("algorithm"), grammar_digest: data.fetch("grammar_digest"),
@@ -168,19 +173,20 @@ module Ibex
         Automaton.new(
           grammar: grammar, states: states, conflict_summary: symbolize(data.fetch("conflict_summary")),
           algorithm: data.fetch("algorithm"), grammar_digest: data.fetch("grammar_digest"),
-          entry_states: data["entry_states"], schema_version: data.fetch("schema_version")
+          entry_states: data["entry_states"], schema_version: schema_version
         )
       end
 
       # @rbs skip
       def load_lexer(data)
-        version = data.fetch("schema_version")
+        version = data.fetch("schema_version") #: Integer
         unless SUPPORTED_LEXER_SCHEMA_VERSIONS.include?(version)
           expected = SUPPORTED_LEXER_SCHEMA_VERSIONS.join(", ")
           raise Ibex::Error,
                 "(ir):1:1: unsupported lexer schema_version #{version.inspect}; expected one of #{expected}"
         end
-        rules = data.fetch("rules").map do |rule|
+        rules_data = data.fetch("rules") #: Array[Hash[String, untyped]]
+        rules = rules_data.map do |rule|
           LexerRule.new(
             id: rule.fetch("id"), state: rule.fetch("state"), kind: rule.fetch("kind").to_sym,
             token: rule["token"], pattern: rule.fetch("pattern"), pattern_kind: rule.fetch("pattern_kind").to_sym,
@@ -195,8 +201,10 @@ module Ibex
 
       # @rbs skip
       def load_state(state, grammar)
-        items = state.fetch("items").map do |item|
-          lookaheads = item.fetch("lookaheads").map do |name|
+        items_data = state.fetch("items") #: Array[Hash[String, untyped]]
+        items = items_data.map do |item|
+          lookahead_names = item.fetch("lookaheads") #: Array[String]
+          lookaheads = lookahead_names.map do |name|
             symbol = grammar.symbol(name) || raise(Ibex::Error, "(ir):1:1: unknown symbol #{name.inspect}")
             symbol.id
           end

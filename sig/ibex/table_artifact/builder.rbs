@@ -4,6 +4,10 @@ module Ibex
   module TableArtifact
     # Projects validated Automaton IR into an action-free executable sidecar.
     class Builder
+      type json_value = String | Integer | bool | nil | Array[json_value] | Hash[String, json_value]
+
+      type json_hash = Hash[String, json_value]
+
       type action_rows = Array[Hash[Integer, IR::runtime_action]]
 
       type action_table = action_rows | Tables::CompactActions
@@ -25,56 +29,56 @@ module Ibex
 
       private
 
-      # @rbs (Hash[String, String] source_identity) -> Hash[String, untyped]
-      def build_payload: (Hash[String, String] source_identity) -> Hash[String, untyped]
+      # @rbs (Hash[String, String] source_identity) -> json_hash
+      def build_payload: (Hash[String, String] source_identity) -> json_hash
 
       # @rbs () -> String
       def automaton_digest: () -> String
 
-      # @rbs () -> Hash[String, untyped]
-      def table_format: () -> Hash[String, untyped]
+      # @rbs () -> json_hash
+      def table_format: () -> json_hash
 
-      # @rbs () -> Array[Hash[String, untyped]]
-      def symbols: () -> Array[Hash[String, untyped]]
+      # @rbs () -> Array[json_hash]
+      def symbols: () -> Array[json_hash]
 
-      # @rbs () -> Array[Hash[String, untyped]]
-      def tokens: () -> Array[Hash[String, untyped]]
+      # @rbs () -> Array[json_hash]
+      def tokens: () -> Array[json_hash]
 
-      # @rbs () -> Array[Hash[String, untyped]]
-      def entry_states: () -> Array[Hash[String, untyped]]
+      # @rbs () -> Array[json_hash]
+      def entry_states: () -> Array[json_hash]
 
-      # @rbs () -> Hash[String, untyped]
-      def tables: () -> Hash[String, untyped]
+      # @rbs () -> json_hash
+      def tables: () -> json_hash
 
-      # @rbs (untyped table) -> Hash[String, untyped]
-      def action_table: (action_table table) -> Hash[String, untyped]
+      # @rbs (action_table table) -> json_hash
+      def action_table: (action_table table) -> json_hash
 
-      # @rbs (untyped table) -> Hash[String, untyped]
-      def compact_action_table: (Tables::CompactActions table) -> Hash[String, untyped]
+      # @rbs (Tables::CompactActions table) -> json_hash
+      def compact_action_table: (Tables::CompactActions table) -> json_hash
 
-      # @rbs (untyped table) -> Hash[String, untyped]
-      def goto_table: (goto_table table) -> Hash[String, untyped]
+      # @rbs (goto_table table) -> json_hash
+      def goto_table: (goto_table table) -> json_hash
 
-      # @rbs (untyped table) -> Hash[String, untyped]
-      def compact_goto_table: (Tables::Compact table) -> Hash[String, untyped]
+      # @rbs (Tables::Compact table) -> json_hash
+      def compact_goto_table: (Tables::Compact table) -> json_hash
 
-      # @rbs () -> Array[Hash[String, untyped]]
-      def productions: () -> Array[Hash[String, untyped]]
+      # @rbs () -> Array[json_hash]
+      def productions: () -> Array[json_hash]
 
-      # @rbs (untyped production) -> bool
+      # @rbs (IR::Production production) -> bool
       def action_slot?: (IR::Production production) -> bool
 
-      # @rbs () -> Hash[String, untyped]
-      def semantic_actions: () -> Hash[String, untyped]
+      # @rbs () -> json_hash
+      def semantic_actions: () -> json_hash
 
-      # @rbs () -> Hash[String, untyped]
-      def recovery: () -> Hash[String, untyped]
+      # @rbs () -> json_hash
+      def recovery: () -> json_hash
 
-      # @rbs (Hash[String, untyped] payload) -> Hash[String, untyped]
-      def build_cost: (Hash[String, untyped] payload) -> Hash[String, untyped]
+      # @rbs (json_hash payload) -> json_hash
+      def build_cost: (json_hash payload) -> json_hash
 
-      # @rbs (Hash[String, untyped] table, String values_key) -> Integer
-      def occupied_cells: (Hash[String, untyped] table, String values_key) -> Integer
+      # @rbs (json_hash table, String values_key) -> Integer
+      def occupied_cells: (json_hash table, String values_key) -> Integer
 
       # @rbs () -> String
       def lookup_cost: () -> String

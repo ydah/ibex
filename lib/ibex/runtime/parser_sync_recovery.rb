@@ -10,7 +10,7 @@ module Ibex
       private_constant :ERROR_ACTION
 
       # @rbs!
-      #   private def parser_tables: () -> Hash[Symbol, untyped]
+      #   private def parser_tables: () -> Parser::table_set
       #   private def table_lookup: (untyped, Integer, Integer) -> untyped
       #   private def default_action: (Integer) -> untyped
       #   private def token_to_str: (untyped) -> String
