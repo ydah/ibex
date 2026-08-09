@@ -908,11 +908,7 @@ module Ibex
         return state_count if state_count.is_a?(Integer)
 
         actions = tables.fetch(:actions)
-        state_count = if actions.is_a?(Tables::CompactActions)
-                        actions.row_count
-                      else
-                        actions.length
-                      end
+        state_count = actions.respond_to?(:row_count) ? actions.row_count : actions.length
         return state_count if state_count.is_a?(Integer)
 
         raise ParseError, "(tables):1:1: parser table state count must be an Integer"

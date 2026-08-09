@@ -225,8 +225,10 @@ module Ibex
 
       # @rbs (json_hash table, String values_key) -> Integer
       def occupied_cells(table, values_key)
-        rows = table.fetch("rows") #: Array[json_value]
-        return rows.sum { |row| row.is_a?(Array) ? row.length : 0 } if table.key?("rows")
+        if table.key?("rows")
+          rows = table.fetch("rows") #: Array[json_value]
+          return rows.sum { |row| row.is_a?(Array) ? row.length : 0 }
+        end
 
         values = table.fetch(values_key) #: Array[json_value]
         values.compact.length
