@@ -23,10 +23,10 @@ module Ibex
     # @rbs (String | _Reader source, ?max_bytes: Integer) -> Document
     def self.load: (String | _Reader source, ?max_bytes: Integer) -> Document
 
-    # @rbs (untyped source, Integer max_bytes) -> String
-    private def self.read_bounded: (untyped source, Integer max_bytes) -> String
+    # @rbs (String | _Reader source, Integer max_bytes) -> String
+    private def self.read_bounded: (String | _Reader source, Integer max_bytes) -> String
 
-    # @rbs (untyped source, Integer max_bytes) -> String
-    private def self.read_from: (untyped source, Integer max_bytes) -> String
+    # @rbs (_Reader source, Integer max_bytes) -> String
+    private def self.read_from: (_Reader source, Integer max_bytes) -> String
   end
 end
