@@ -8,7 +8,7 @@ module Ibex
 
       private
 
-      # @rbs (untyped raw_params) -> nil
+      # @rbs (lsp_value? raw_params) -> nil
       def did_open(raw_params)
         require_running!
         params = params_hash(raw_params)
@@ -20,7 +20,7 @@ module Ibex
         nil
       end
 
-      # @rbs (untyped raw_params) -> nil
+      # @rbs (lsp_value? raw_params) -> nil
       def did_change(raw_params)
         require_running!
         params = params_hash(raw_params)
@@ -31,7 +31,8 @@ module Ibex
           raise ProtocolError.new("full sync requires exactly one range-free content change", code: -32_602)
         end
 
-        source = string_member(changes.fetch(0), "text")
+        change = changes.fetch(0) #: lsp_object
+        source = string_member(change, "text")
         publications = store.change(
           string_member(document, "uri"), integer_member(document, "version"), source
         )
@@ -39,7 +40,7 @@ module Ibex
         nil
       end
 
-      # @rbs (untyped raw_params) -> nil
+      # @rbs (lsp_value? raw_params) -> nil
       def did_save(raw_params)
         require_running!
         params = params_hash(raw_params)
@@ -53,7 +54,7 @@ module Ibex
         nil
       end
 
-      # @rbs (untyped raw_params) -> nil
+      # @rbs (lsp_value? raw_params) -> nil
       def did_close(raw_params)
         require_running!
         params = params_hash(raw_params)

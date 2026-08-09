@@ -8,17 +8,17 @@ module Ibex
 
       private
 
-      # @rbs (untyped raw_params) -> nil
-      def did_open: (untyped raw_params) -> nil
+      # @rbs (lsp_value? raw_params) -> nil
+      def did_open: (lsp_value? raw_params) -> nil
 
-      # @rbs (untyped raw_params) -> nil
-      def did_change: (untyped raw_params) -> nil
+      # @rbs (lsp_value? raw_params) -> nil
+      def did_change: (lsp_value? raw_params) -> nil
 
-      # @rbs (untyped raw_params) -> nil
-      def did_save: (untyped raw_params) -> nil
+      # @rbs (lsp_value? raw_params) -> nil
+      def did_save: (lsp_value? raw_params) -> nil
 
-      # @rbs (untyped raw_params) -> nil
-      def did_close: (untyped raw_params) -> nil
+      # @rbs (lsp_value? raw_params) -> nil
+      def did_close: (lsp_value? raw_params) -> nil
     end
   end
 end
