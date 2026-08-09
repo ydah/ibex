@@ -8,23 +8,23 @@ module Ibex
 
       private
 
-      # @rbs (untyped raw_params) -> Hash[String, untyped]
-      def initialize_workspace: (untyped raw_params) -> Hash[String, untyped]
+      # @rbs (lsp_value? raw_params) -> lsp_object
+      def initialize_workspace: (lsp_value? raw_params) -> lsp_object
 
-      # @rbs (untyped params) -> nil
-      def initialized_notification: (untyped params) -> nil
+      # @rbs (lsp_value? params) -> nil
+      def initialized_notification: (lsp_value? params) -> nil
 
-      # @rbs (untyped params) -> nil
-      def shutdown_request: (untyped params) -> nil
+      # @rbs (lsp_value? params) -> nil
+      def shutdown_request: (lsp_value? params) -> nil
 
-      # @rbs (untyped params) -> nil
-      def exit_notification: (untyped params) -> nil
+      # @rbs (lsp_value? params) -> nil
+      def exit_notification: (lsp_value? params) -> nil
 
-      # @rbs () -> Hash[String, untyped]
-      def capabilities: () -> Hash[String, untyped]
+      # @rbs () -> lsp_object
+      def capabilities: () -> lsp_object
 
-      # @rbs (Hash[String, untyped] params) -> Array[String]
-      def initialization_roots: (Hash[String, untyped] params) -> Array[String]
+      # @rbs (lsp_object params) -> Array[String]
+      def initialization_roots: (lsp_object params) -> Array[String]
     end
   end
 end

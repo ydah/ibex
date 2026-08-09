@@ -8,7 +8,7 @@ module Ibex
 
       private
 
-      # @rbs (untyped raw_params) -> Hash[String, untyped]
+      # @rbs (lsp_value? raw_params) -> lsp_object
       def initialize_workspace(raw_params)
         raise ProtocolError.new("server is already initialized", code: -32_600) unless @state == :uninitialized
 
@@ -23,28 +23,28 @@ module Ibex
         }
       end
 
-      # @rbs (untyped params) -> nil
+      # @rbs (lsp_value? params) -> nil
       def initialized_notification(_params)
         require_state!(:initialized)
         @state = :running
         nil
       end
 
-      # @rbs (untyped params) -> nil
+      # @rbs (lsp_value? params) -> nil
       def shutdown_request(_params)
         require_state!(:running)
         @state = :shutdown
         nil
       end
 
-      # @rbs (untyped params) -> nil
+      # @rbs (lsp_value? params) -> nil
       def exit_notification(_params)
         @exit_status = @state == :shutdown ? 0 : 1
         @exit_requested = true
         nil
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> lsp_object
       def capabilities
         {
           "positionEncoding" => "utf-16",
@@ -58,14 +58,15 @@ module Ibex
         }
       end
 
-      # @rbs (Hash[String, untyped] params) -> Array[String]
+      # @rbs (lsp_object params) -> Array[String]
       def initialization_roots(params)
         folders = params["workspaceFolders"]
         if folders.is_a?(Array) && !folders.empty?
           return folders.map do |folder|
             raise ProtocolError.new("workspaceFolders entries must be objects", code: -32_602) unless folder.is_a?(Hash)
 
-            string_member(folder, "uri")
+            folder_object = folder #: lsp_object
+            string_member(folder_object, "uri")
           end
         end
 
