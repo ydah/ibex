@@ -15,7 +15,7 @@ module Ibex
         $/cancelRequest
       ].freeze #: Array[String]
 
-      # @rbs (stdin: untyped, stdout: untyped, stderr: untyped) -> void
+      # @rbs (stdin: Object?, stdout: Object?, stderr: Object?) -> void
       def initialize(stdin:, stdout:, stderr:)
         @transport = Transport.new(stdin, stdout)
         @stderr = stderr
@@ -37,7 +37,7 @@ module Ibex
 
       private
 
-      # @rbs () -> Hash[String, untyped]?
+      # @rbs () -> lsp_object?
       def read_message
         @transport.read_message
       rescue ProtocolError => e
@@ -47,12 +47,12 @@ module Ibex
         nil
       end
 
-      # @rbs (Hash[String, untyped] message) -> void
+      # @rbs (lsp_object message) -> void
       def process_message(message)
         request_id = safe_request_id(message)
         notification = notification_envelope?(message)
         request_id = validate_envelope(message)
-        method = message.fetch("method")
+        method = message.fetch("method") #: String
         validate_message_kind!(method, message.key?("id"))
         return if request_id.nil? && method.start_with?("$/")
 
@@ -66,13 +66,15 @@ module Ibex
         notification ? log(error.message) : send_error(request_id, error)
       end
 
-      # @rbs (Hash[String, untyped] message) -> (String | Integer)?
+      # @rbs (lsp_object message) -> (String | Integer)?
       def safe_request_id(message)
         value = message["id"]
+        return unless value.is_a?(String) || value.is_a?(Integer)
+
         value if valid_request_id?(value)
       end
 
-      # @rbs (Hash[String, untyped] message) -> bool
+      # @rbs (lsp_object message) -> bool
       def notification_envelope?(message)
         !message.key?("id") && message["jsonrpc"] == "2.0" && message["method"].is_a?(String)
       end
@@ -87,7 +89,7 @@ module Ibex
         raise ProtocolError.new("#{method} must be a notification", code: -32_600)
       end
 
-      # @rbs (Hash[String, untyped] message) -> (String | Integer)?
+      # @rbs (lsp_object message) -> (String | Integer)?
       def validate_envelope(message)
         unless message["jsonrpc"] == "2.0" && message["method"].is_a?(String)
           raise ProtocolError.new("invalid JSON-RPC request", code: -32_600)
@@ -95,14 +97,14 @@ module Ibex
         return nil unless message.key?("id")
 
         request_id = message["id"]
-        unless valid_request_id?(request_id)
+        unless (request_id.is_a?(String) || request_id.is_a?(Integer)) && valid_request_id?(request_id)
           raise ProtocolError.new("request id must be a bounded string or integer", code: -32_600)
         end
 
         request_id
       end
 
-      # @rbs (untyped value) -> bool
+      # @rbs (Object? value) -> bool
       def valid_request_id?(value)
         return false unless value.is_a?(String) || value.is_a?(Integer)
 
@@ -120,7 +122,7 @@ module Ibex
         raise ProtocolError.new("request is invalid in #{@state} server state", code: code)
       end
 
-      # @rbs (String | Integer request_id, untyped result) -> void
+      # @rbs (String | Integer request_id, lsp_value result) -> void
       def send_result(request_id, result)
         @transport.write_message("jsonrpc" => "2.0", "id" => request_id, "result" => result)
       rescue ProtocolError => e

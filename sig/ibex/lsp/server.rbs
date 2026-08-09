@@ -10,40 +10,40 @@ module Ibex
 
       NOTIFICATION_METHODS: Array[String]
 
-      # @rbs (stdin: untyped, stdout: untyped, stderr: untyped) -> void
-      def initialize: (stdin: untyped, stdout: untyped, stderr: untyped) -> void
+      # @rbs (stdin: Object?, stdout: Object?, stderr: Object?) -> void
+      def initialize: (stdin: Object?, stdout: Object?, stderr: Object?) -> void
 
       # @rbs () -> Integer
       def run: () -> Integer
 
       private
 
-      # @rbs () -> Hash[String, untyped]?
-      def read_message: () -> Hash[String, untyped]?
+      # @rbs () -> lsp_object?
+      def read_message: () -> lsp_object?
 
-      # @rbs (Hash[String, untyped] message) -> void
-      def process_message: (Hash[String, untyped] message) -> void
+      # @rbs (lsp_object message) -> void
+      def process_message: (lsp_object message) -> void
 
-      # @rbs (Hash[String, untyped] message) -> (String | Integer)?
-      def safe_request_id: (Hash[String, untyped] message) -> (String | Integer)?
+      # @rbs (lsp_object message) -> (String | Integer)?
+      def safe_request_id: (lsp_object message) -> (String | Integer)?
 
-      # @rbs (Hash[String, untyped] message) -> bool
-      def notification_envelope?: (Hash[String, untyped] message) -> bool
+      # @rbs (lsp_object message) -> bool
+      def notification_envelope?: (lsp_object message) -> bool
 
       # @rbs (String method, bool request) -> void
       def validate_message_kind!: (String method, bool request) -> void
 
-      # @rbs (Hash[String, untyped] message) -> (String | Integer)?
-      def validate_envelope: (Hash[String, untyped] message) -> (String | Integer)?
+      # @rbs (lsp_object message) -> (String | Integer)?
+      def validate_envelope: (lsp_object message) -> (String | Integer)?
 
-      # @rbs (untyped value) -> bool
-      def valid_request_id?: (untyped value) -> bool
+      # @rbs (Object? value) -> bool
+      def valid_request_id?: (Object? value) -> bool
 
       # @rbs (String method) -> void
       def validate_lifecycle!: (String method) -> void
 
-      # @rbs (String | Integer request_id, untyped result) -> void
-      def send_result: (String | Integer request_id, untyped result) -> void
+      # @rbs (String | Integer request_id, lsp_value result) -> void
+      def send_result: (String | Integer request_id, lsp_value result) -> void
 
       # @rbs (String | Integer | nil request_id, ProtocolError error) -> void
       def send_error: (String | Integer | nil request_id, ProtocolError error) -> void
