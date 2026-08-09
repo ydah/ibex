@@ -4,22 +4,24 @@ module Ibex
   module Codegen
     # Generates typed Red syntax views from @node metadata.
     module RubySyntax
+      type syntax_definition = { name: String, kind: Integer, fields: Hash[String, CSTMetadata::field_slot] }
+
       private
 
       # @rbs (Array[String] lines) -> void
       def append_syntax: (Array[String] lines) -> void
 
-      # @rbs () -> Hash[String, Hash[Symbol, untyped]]
-      def syntax_node_definitions: () -> Hash[String, Hash[Symbol, untyped]]
+      # @rbs () -> Hash[String, syntax_definition]
+      def syntax_node_definitions: () -> Hash[String, syntax_definition]
 
-      # @rbs (Hash[String, untyped] left, Hash[String, untyped] right) -> Hash[String, untyped]
-      def merge_syntax_fields: (Hash[String, untyped] left, Hash[String, untyped] right) -> Hash[String, untyped]
+      # @rbs (Hash[String, CSTMetadata::field_slot] left, Hash[String, CSTMetadata::field_slot] right) -> Hash[String, CSTMetadata::field_slot]
+      def merge_syntax_fields: (Hash[String, CSTMetadata::field_slot] left, Hash[String, CSTMetadata::field_slot] right) -> Hash[String, CSTMetadata::field_slot]
 
-      # @rbs (Array[String] lines, Hash[Symbol, untyped] definition) -> void
-      def append_syntax_node: (Array[String] lines, Hash[Symbol, untyped] definition) -> void
+      # @rbs (Array[String] lines, syntax_definition definition) -> void
+      def append_syntax_node: (Array[String] lines, syntax_definition definition) -> void
 
-      # @rbs (Array[String] lines, Hash[String, untyped] fields) -> void
-      def append_repetition_accessors: (Array[String] lines, Hash[String, untyped] fields) -> void
+      # @rbs (Array[String] lines, Hash[String, CSTMetadata::field_slot] fields) -> void
+      def append_repetition_accessors: (Array[String] lines, Hash[String, CSTMetadata::field_slot] fields) -> void
     end
   end
 end

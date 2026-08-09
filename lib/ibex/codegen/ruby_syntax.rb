@@ -5,6 +5,9 @@ module Ibex
   module Codegen
     # Generates typed Red syntax views from @node metadata.
     module RubySyntax
+      # @rbs!
+      #   type syntax_definition = { name: String, kind: Integer, fields: Hash[String, CSTMetadata::field_slot] }
+
       private
 
       # @rbs (Array[String] lines) -> void
@@ -18,11 +21,12 @@ module Ibex
         lines.push("  end", "")
       end
 
-      # @rbs () -> Hash[String, Hash[Symbol, untyped]]
+      # @rbs () -> Hash[String, syntax_definition]
       def syntax_node_definitions
         # @type self: Ruby
-        slots = cst_metadata.fetch(:slots)
-        definitions = {} #: Hash[String, Hash[Symbol, untyped]]
+        metadata = cst_metadata #: CSTMetadata::metadata
+        slots = metadata.fetch(:slots)
+        definitions = {} #: Hash[String, syntax_definition]
         @grammar.productions.each do |production|
           node = production.node
           next unless node
@@ -36,7 +40,7 @@ module Ibex
         definitions
       end
 
-      # @rbs (Hash[String, untyped] left, Hash[String, untyped] right) -> Hash[String, untyped]
+      # @rbs (Hash[String, CSTMetadata::field_slot] left, Hash[String, CSTMetadata::field_slot] right) -> Hash[String, CSTMetadata::field_slot]
       def merge_syntax_fields(left, right)
         left.to_h do |name, left_slot|
           right_slot = right.fetch(name)
@@ -48,7 +52,7 @@ module Ibex
         end.freeze
       end
 
-      # @rbs (Array[String] lines, Hash[Symbol, untyped] definition) -> void
+      # @rbs (Array[String] lines, syntax_definition definition) -> void
       def append_syntax_node(lines, definition)
         name = definition.fetch(:name)
         fields = definition.fetch(:fields)
@@ -65,7 +69,7 @@ module Ibex
         lines.push("    end", "")
       end
 
-      # @rbs (Array[String] lines, Hash[String, untyped] fields) -> void
+      # @rbs (Array[String] lines, Hash[String, CSTMetadata::field_slot] fields) -> void
       def append_repetition_accessors(lines, fields)
         repeated = fields.select { |_field, slot| slot.is_a?(Hash) && slot[:extraction] }
         repeated.each do |field, slot|
