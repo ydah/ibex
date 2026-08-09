@@ -71,8 +71,9 @@ module Ibex
         when Array
           value.map { |child| normalize_for_json(child) }
         when Hash
-          value.each_with_object({}) do |(key, child), normalized|
-            normalized[normalize_for_json(key)] = normalize_for_json(child)
+          normalized = {} #: Hash[untyped, untyped]
+          value.each_with_object(normalized) do |(key, child), result|
+            result[normalize_for_json(key)] = normalize_for_json(child)
           end
         else
           value
