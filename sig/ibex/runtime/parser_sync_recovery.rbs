@@ -7,21 +7,21 @@ module Ibex
     module ParserSyncRecovery
       ERROR_ACTION: [ :error ]
 
-      private def parser_tables: () -> Parser::table_set
+      private def parser_tables: () -> Hash[Symbol, Object?]
 
-      private def table_lookup: (untyped, Integer, Integer) -> untyped
+      private def table_lookup: (Object?, Integer, Integer) -> IR::runtime_action?
 
-      private def default_action: (Integer) -> untyped
+      private def default_action: (Integer) -> IR::runtime_action?
 
-      private def token_to_str: (untyped) -> String
+      private def token_to_str: (Object?) -> String
 
       private def trace: (String) -> void
 
-      private def continue_recovery: () -> untyped
+      private def continue_recovery: () -> ([ :continue ] | [ :done, nil ])
 
       private def reject_recovery_eof: () -> [ :done, nil ]
 
-      private def finish_recovery: (untyped, untyped, untyped, untyped, Integer, Array[untyped], Hash[String, untyped]?, String, Array[Proc]?) -> [ :continue ]
+      private def finish_recovery: (Object?, Object?, Object?, Object?, Integer, Array[Object?], Hash[String, Object?]?, String, Array[Proc]?) -> [ :continue ]
 
       private
 
@@ -31,21 +31,21 @@ module Ibex
       # @rbs () -> bool
       def sync_recovery_active?: () -> bool
 
-      # @rbs (Hash[Symbol, untyped] context, Hash[String, untyped]? token_data,
-      #   Array[Proc]? observers) -> untyped
-      def begin_sync_recovery: (Hash[Symbol, untyped] context, Hash[String, untyped]? token_data, Array[Proc]? observers) -> untyped
+      # @rbs (Hash[Symbol, Object?] context, Hash[String, Object?]? token_data,
+      #   Array[Proc]? observers) -> ([ :continue ] | [ :done, nil ])
+      def begin_sync_recovery: (Hash[Symbol, Object?] context, Hash[String, Object?]? token_data, Array[Proc]? observers) -> ([ :continue ] | [ :done, nil ])
 
-      # @rbs () -> untyped
-      def continue_sync_recovery: () -> untyped
+      # @rbs () -> ([ :continue ] | [ :done, nil ])
+      def continue_sync_recovery: () -> ([ :continue ] | [ :done, nil ])
 
-      # @rbs (untyped token_id) -> bool
-      def sync_token?: (untyped token_id) -> bool
+      # @rbs (Integer token_id) -> bool
+      def sync_token?: (Integer token_id) -> bool
 
       # @rbs () -> bool
       def synchronize_for_current_token: () -> bool
 
-      # @rbs (Integer state, Integer token_id) -> untyped
-      def sync_action: (Integer state, Integer token_id) -> untyped
+      # @rbs (Integer state, Integer token_id) -> IR::runtime_action
+      def sync_action: (Integer state, Integer token_id) -> IR::runtime_action
 
       # @rbs () -> [:continue]
       def finish_sync_recovery: () -> [ :continue ]
