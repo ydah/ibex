@@ -12,17 +12,17 @@ module Ibex
       # @rbs (String uri, Integer version) -> bool
       def stale_publication?: (String uri, Integer version) -> bool
 
-      # @rbs (untyped value) -> Hash[String, untyped]
-      def params_hash: (untyped value) -> Hash[String, untyped]
+      # @rbs (lsp_value? value) -> lsp_object
+      def params_hash: (lsp_value? value) -> lsp_object
 
-      # @rbs (Hash[String, untyped] value, String name) -> Hash[String, untyped]
-      def hash_member: (Hash[String, untyped] value, String name) -> Hash[String, untyped]
+      # @rbs (lsp_object value, String name) -> lsp_object
+      def hash_member: (lsp_object value, String name) -> lsp_object
 
-      # @rbs (Hash[String, untyped] value, String name) -> String
-      def string_member: (Hash[String, untyped] value, String name) -> String
+      # @rbs (lsp_object value, String name) -> String
+      def string_member: (lsp_object value, String name) -> String
 
-      # @rbs (Hash[String, untyped] value, String name) -> Integer
-      def integer_member: (Hash[String, untyped] value, String name) -> Integer
+      # @rbs (lsp_object value, String name) -> Integer
+      def integer_member: (lsp_object value, String name) -> Integer
 
       # @rbs (Symbol state) -> void
       def require_state!: (Symbol state) -> void

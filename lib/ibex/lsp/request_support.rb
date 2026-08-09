@@ -15,7 +15,7 @@ module Ibex
           params = {
             "uri" => publication.fetch(:uri),
             "diagnostics" => publication.fetch(:diagnostics)
-          } #: Hash[String, untyped]
+          } #: lsp_object
           params["version"] = version if version
           @transport.write_message(
             "jsonrpc" => "2.0", "method" => "textDocument/publishDiagnostics", "params" => params
@@ -29,23 +29,29 @@ module Ibex
         store.snapshot_for(path)&.fetch(:version) != version
       end
 
-      # @rbs (untyped value) -> Hash[String, untyped]
+      # @rbs (lsp_value? value) -> lsp_object
       def params_hash(value)
         return {} if value.nil?
-        return value if value.is_a?(Hash)
+        if value.is_a?(Hash)
+          result = value #: lsp_object
+          return result
+        end
 
         raise ProtocolError.new("params must be an object", code: -32_602)
       end
 
-      # @rbs (Hash[String, untyped] value, String name) -> Hash[String, untyped]
+      # @rbs (lsp_object value, String name) -> lsp_object
       def hash_member(value, name)
         member = value[name]
-        return member if member.is_a?(Hash)
+        if member.is_a?(Hash)
+          result = member #: lsp_object
+          return result
+        end
 
         raise ProtocolError.new("#{name} must be an object", code: -32_602)
       end
 
-      # @rbs (Hash[String, untyped] value, String name) -> String
+      # @rbs (lsp_object value, String name) -> String
       def string_member(value, name)
         member = value[name]
         return member if member.is_a?(String)
@@ -53,7 +59,7 @@ module Ibex
         raise ProtocolError.new("#{name} must be a string", code: -32_602)
       end
 
-      # @rbs (Hash[String, untyped] value, String name) -> Integer
+      # @rbs (lsp_object value, String name) -> Integer
       def integer_member(value, name)
         member = value[name]
         return member if member.is_a?(Integer)
