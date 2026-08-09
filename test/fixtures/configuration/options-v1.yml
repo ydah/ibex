@@ -3473,9 +3473,9 @@ registrations:
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--equiv-max-configurations=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
-  line: 155
+  line: 157
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 1d6c3acb4c2e7745f9c31afdf5bb10186c76995296a9968c56db0566c82892a1
+  context_sha256: 5c6bf1de17e9c97e009751dfd224f3874ba442f11a59ac49e3fe60aa3a0495b7
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3503,9 +3503,9 @@ registrations:
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--equiv-max-tokens=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
-  line: 155
+  line: 157
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 1d6c3acb4c2e7745f9c31afdf5bb10186c76995296a9968c56db0566c82892a1
+  context_sha256: 5c6bf1de17e9c97e009751dfd224f3874ba442f11a59ac49e3fe60aa3a0495b7
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3533,9 +3533,9 @@ registrations:
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--equiv-samples=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
-  line: 155
+  line: 157
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 1d6c3acb4c2e7745f9c31afdf5bb10186c76995296a9968c56db0566c82892a1
+  context_sha256: 5c6bf1de17e9c97e009751dfd224f3874ba442f11a59ac49e3fe60aa3a0495b7
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3563,9 +3563,9 @@ registrations:
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--max-builds=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
-  line: 155
+  line: 157
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 1d6c3acb4c2e7745f9c31afdf5bb10186c76995296a9968c56db0566c82892a1
+  context_sha256: 5c6bf1de17e9c97e009751dfd224f3874ba442f11a59ac49e3fe60aa3a0495b7
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3593,9 +3593,9 @@ registrations:
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--max-candidates=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
-  line: 155
+  line: 157
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 1d6c3acb4c2e7745f9c31afdf5bb10186c76995296a9968c56db0566c82892a1
+  context_sha256: 5c6bf1de17e9c97e009751dfd224f3874ba442f11a59ac49e3fe60aa3a0495b7
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3623,9 +3623,9 @@ registrations:
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--verify-max-items=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
-  line: 155
+  line: 157
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 1d6c3acb4c2e7745f9c31afdf5bb10186c76995296a9968c56db0566c82892a1
+  context_sha256: 5c6bf1de17e9c97e009751dfd224f3874ba442f11a59ac49e3fe60aa3a0495b7
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3653,9 +3653,9 @@ registrations:
 - id: lib/ibex/cli/fix.rb#add_fix_budget_options#--verify-max-states=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_budget_options
-  line: 155
+  line: 157
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 1d6c3acb4c2e7745f9c31afdf5bb10186c76995296a9968c56db0566c82892a1
+  context_sha256: 5c6bf1de17e9c97e009751dfd224f3874ba442f11a59ac49e3fe60aa3a0495b7
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3683,7 +3683,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#add_fix_target_options#--conflict-index=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_target_options
-  line: 137
+  line: 139
   declaration_sha256: 33009e4b0258f57a8e91aaf96f312b60caa31c36d88e2e95d6ea04786f7ef99c
   context_sha256:
   surface: fix
@@ -3712,7 +3712,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#add_fix_target_options#--state=N
   source: lib/ibex/cli/fix.rb
   method: add_fix_target_options
-  line: 132
+  line: 134
   declaration_sha256: e23c24cf6bbfe0d8e1a0b60c1255389babb02fd4a71e230ab9324543dd6fa86d
   context_sha256:
   surface: fix
@@ -3742,7 +3742,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#fix_options#--algorithm=NAME
   source: lib/ibex/cli/fix.rb
   method: fix_options
-  line: 109
+  line: 111
   declaration_sha256: 89210154cacba47cd0d24cc749724dcb050285e50ecc4d4fe63181d5fabbfe98
   context_sha256:
   surface: fix
@@ -3773,7 +3773,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#fix_options#--apply[=ID]
   source: lib/ibex/cli/fix.rb
   method: fix_options
-  line: 116
+  line: 118
   declaration_sha256: 2b09175a47ab7c63c2ded8f0542a2a6af4b5d10ca3f6737ad464b8bb2a6e582e
   context_sha256:
   surface: fix
@@ -3802,7 +3802,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#fix_options#--format=FORMAT
   source: lib/ibex/cli/fix.rb
   method: fix_options
-  line: 122
+  line: 124
   declaration_sha256: 03d0ea46cc73dfd89e8e1d7db753efada82431442e23693be017d52738438776
   context_sha256:
   surface: fix
@@ -3832,7 +3832,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#fix_options#--help
   source: lib/ibex/cli/fix.rb
   method: fix_options
-  line: 123
+  line: 125
   declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
   context_sha256:
   surface: fix
@@ -3861,7 +3861,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#fix_options#--messages=FILE
   source: lib/ibex/cli/fix.rb
   method: fix_options
-  line: 119
+  line: 121
   declaration_sha256: 8e6fa2bc5179b5b2afaed58a71fce4f97cdf7aff69f6f6d3bfcd34af192ddcf5
   context_sha256:
   surface: fix
@@ -3890,7 +3890,7 @@ registrations:
 - id: lib/ibex/cli/fix.rb#fix_options#--mode=MODE
   source: lib/ibex/cli/fix.rb
   method: fix_options
-  line: 112
+  line: 114
   declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
   context_sha256:
   surface: fix
