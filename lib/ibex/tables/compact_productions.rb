@@ -5,7 +5,7 @@ module Ibex
   module Tables
     # Production metadata with parallel primitive arrays for the direct parser
     # and a compatible Array-of-Hash surface for generic runtime consumers.
-    class CompactProductions < Array #[Hash[Symbol, untyped]]
+    class CompactProductions < Array #[Hash[Symbol, Object?]]
       VALUES_ACTION = 1 #: Integer
       BORROWED_VALUES_ACTION = 2 #: Integer
       LOCATION_ACTION = 4 #: Integer
@@ -24,17 +24,20 @@ module Ibex
       attr_reader :flags #: Array[Integer]
 
       class << self
-        # @rbs (Array[Hash[Symbol, untyped]] productions) -> CompactProductions
+        # @rbs (Array[Hash[Symbol, Object?]] productions) -> CompactProductions
         def build(productions)
           lhs_ids = [] #: Array[Integer]
           lengths = [] #: Array[Integer]
           actions = [] #: Array[Symbol?]
           flags = [] #: Array[Integer]
-          metadata = {} #: Hash[Integer, Hash[Symbol, untyped]]
+          metadata = {} #: Hash[Integer, Hash[Symbol, Object?]]
           productions.each_with_index do |production, index|
-            lhs_ids << production.fetch(:lhs)
-            lengths << production.fetch(:length)
-            actions << production[:action]
+            lhs = production.fetch(:lhs) #: Integer
+            length = production.fetch(:length) #: Integer
+            action = production[:action] #: Symbol?
+            lhs_ids << lhs
+            lengths << length
+            actions << action
             flags << flags_for(production)
             extra = production.except(
               :lhs, :length, :action, :values_action, :borrowed_values_action, :location_action, :composition_action
@@ -45,7 +48,7 @@ module Ibex
         end
 
         # @rbs (String lhs_ids, String lengths, String flags,
-        #   ?metadata: Hash[Integer, Hash[Symbol, untyped]]) -> CompactProductions
+        #   ?metadata: Hash[Integer, Hash[Symbol, Object?]]) -> CompactProductions
         def packed(lhs_ids, lengths, flags, metadata: {})
           decoded_flags = PackedIntegers.decode_required(flags)
           actions = decoded_flags.each_index.map do |index|
@@ -62,7 +65,7 @@ module Ibex
 
         private
 
-        # @rbs (Hash[Symbol, untyped] production) -> Integer
+        # @rbs (Hash[Symbol, Object?] production) -> Integer
         def flags_for(production)
           value = 0
           value |= VALUES_ACTION if production[:values_action] == true
@@ -74,7 +77,7 @@ module Ibex
       end
 
       # @rbs (lhs_ids: Array[Integer], lengths: Array[Integer], actions: Array[Symbol?],
-      #   flags: Array[Integer], ?metadata: Hash[Integer, Hash[Symbol, untyped]]) -> void
+      #   flags: Array[Integer], ?metadata: Hash[Integer, Hash[Symbol, Object?]]) -> void
       def initialize(lhs_ids:, lengths:, actions:, flags:, metadata: {})
         size = lhs_ids.length
         unless lengths.length == size && actions.length == size && flags.length == size
@@ -98,21 +101,21 @@ module Ibex
 
       private
 
-      # @rbs (untyped value, String name) -> Integer
+      # @rbs (Object? value, String name) -> Integer
       def nonnegative_integer!(value, name)
         return value if value.is_a?(Integer) && !value.negative?
 
         raise ArgumentError, "compact production #{name} must be a nonnegative Integer"
       end
 
-      # @rbs (untyped value) -> Symbol?
+      # @rbs (Object? value) -> Symbol?
       def action!(value)
         return value if value.nil? || value.is_a?(Symbol)
 
         raise ArgumentError, "compact production action must be a Symbol or nil"
       end
 
-      # @rbs (untyped value) -> Integer
+      # @rbs (Object? value) -> Integer
       def flags!(value)
         return value if value.is_a?(Integer) && !value.negative? && value.nobits?(~VALID_FLAGS)
 
@@ -135,7 +138,7 @@ module Ibex
         end
       end
 
-      # @rbs (Hash[Integer, Hash[Symbol, untyped]] metadata, Integer size) -> void
+      # @rbs (Hash[Integer, Hash[Symbol, Object?]] metadata, Integer size) -> void
       def validate_metadata!(metadata, size)
         metadata.each do |index, entry|
           unless index.is_a?(Integer) && index.between?(0, size - 1) && entry.is_a?(Hash)
@@ -147,9 +150,9 @@ module Ibex
         end
       end
 
-      # @rbs (Integer index, Hash[Symbol, untyped]? metadata) -> Hash[Symbol, untyped]
+      # @rbs (Integer index, Hash[Symbol, Object?]? metadata) -> Hash[Symbol, Object?]
       def decode(index, metadata)
-        entry = {} #: Hash[Symbol, untyped]
+        entry = {} #: Hash[Symbol, Object?]
         entry[:lhs] = @lhs_ids[index]
         entry[:length] = @lengths[index]
         entry[:action] = @actions[index]

@@ -4,7 +4,7 @@ module Ibex
   module Tables
     # Production metadata with parallel primitive arrays for the direct parser
     # and a compatible Array-of-Hash surface for generic runtime consumers.
-    class CompactProductions < Array[Hash[Symbol, untyped]]
+    class CompactProductions < Array[Hash[Symbol, Object?]]
       VALUES_ACTION: Integer
 
       BORROWED_VALUES_ACTION: Integer
@@ -27,42 +27,42 @@ module Ibex
 
       attr_reader flags: Array[Integer]
 
-      # @rbs (Array[Hash[Symbol, untyped]] productions) -> CompactProductions
-      def self.build: (Array[Hash[Symbol, untyped]] productions) -> CompactProductions
+      # @rbs (Array[Hash[Symbol, Object?]] productions) -> CompactProductions
+      def self.build: (Array[Hash[Symbol, Object?]] productions) -> CompactProductions
 
       # @rbs (String lhs_ids, String lengths, String flags,
-      #   ?metadata: Hash[Integer, Hash[Symbol, untyped]]) -> CompactProductions
-      def self.packed: (String lhs_ids, String lengths, String flags, ?metadata: Hash[Integer, Hash[Symbol, untyped]]) -> CompactProductions
+      #   ?metadata: Hash[Integer, Hash[Symbol, Object?]]) -> CompactProductions
+      def self.packed: (String lhs_ids, String lengths, String flags, ?metadata: Hash[Integer, Hash[Symbol, Object?]]) -> CompactProductions
 
-      # @rbs (Hash[Symbol, untyped] production) -> Integer
-      private def self.flags_for: (Hash[Symbol, untyped] production) -> Integer
+      # @rbs (Hash[Symbol, Object?] production) -> Integer
+      private def self.flags_for: (Hash[Symbol, Object?] production) -> Integer
 
       # @rbs (lhs_ids: Array[Integer], lengths: Array[Integer], actions: Array[Symbol?],
-      #   flags: Array[Integer], ?metadata: Hash[Integer, Hash[Symbol, untyped]]) -> void
-      def initialize: (lhs_ids: Array[Integer], lengths: Array[Integer], actions: Array[Symbol?], flags: Array[Integer], ?metadata: Hash[Integer, Hash[Symbol, untyped]]) -> void
+      #   flags: Array[Integer], ?metadata: Hash[Integer, Hash[Symbol, Object?]]) -> void
+      def initialize: (lhs_ids: Array[Integer], lengths: Array[Integer], actions: Array[Symbol?], flags: Array[Integer], ?metadata: Hash[Integer, Hash[Symbol, Object?]]) -> void
 
       # @rbs () -> bool
       def direct_values?: () -> bool
 
       private
 
-      # @rbs (untyped value, String name) -> Integer
-      def nonnegative_integer!: (untyped value, String name) -> Integer
+      # @rbs (Object? value, String name) -> Integer
+      def nonnegative_integer!: (Object? value, String name) -> Integer
 
-      # @rbs (untyped value) -> Symbol?
-      def action!: (untyped value) -> Symbol?
+      # @rbs (Object? value) -> Symbol?
+      def action!: (Object? value) -> Symbol?
 
-      # @rbs (untyped value) -> Integer
-      def flags!: (untyped value) -> Integer
+      # @rbs (Object? value) -> Integer
+      def flags!: (Object? value) -> Integer
 
       # @rbs () -> void
       def validate_markers!: () -> void
 
-      # @rbs (Hash[Integer, Hash[Symbol, untyped]] metadata, Integer size) -> void
-      def validate_metadata!: (Hash[Integer, Hash[Symbol, untyped]] metadata, Integer size) -> void
+      # @rbs (Hash[Integer, Hash[Symbol, Object?]] metadata, Integer size) -> void
+      def validate_metadata!: (Hash[Integer, Hash[Symbol, Object?]] metadata, Integer size) -> void
 
-      # @rbs (Integer index, Hash[Symbol, untyped]? metadata) -> Hash[Symbol, untyped]
-      def decode: (Integer index, Hash[Symbol, untyped]? metadata) -> Hash[Symbol, untyped]
+      # @rbs (Integer index, Hash[Symbol, Object?]? metadata) -> Hash[Symbol, Object?]
+      def decode: (Integer index, Hash[Symbol, Object?]? metadata) -> Hash[Symbol, Object?]
     end
   end
 end
