@@ -19,7 +19,7 @@ module Ibex
           raise ArgumentError, "source configuration inspection requires a Frontend::Resolution"
         end
 
-        values = {} #: Hash[String, untyped]
+        values = {} #: Hash[String, config_value]
         locations = {} #: Hash[String, Location]
         evidence = {} #: Hash[String, Array[Evidence]]
         root = resolution.root
@@ -43,7 +43,7 @@ module Ibex
       def from_grammar_ir(grammar, path:)
         raise ArgumentError, "configuration inspection requires Grammar IR" unless grammar.is_a?(IR::Grammar)
 
-        values = {} #: Hash[String, untyped]
+        values = {} #: Hash[String, config_value]
         locations = {} #: Hash[String, Location]
         evidence = {} #: Hash[String, Array[Evidence]]
         recordings = Registry.keys.to_h do |key|
@@ -62,8 +62,8 @@ module Ibex
       end
       module_function :from_grammar_ir
 
-      # @rbs (Hash[String, untyped] values, Hash[String, Location] locations,
-      #   Hash[String, Array[Evidence]] evidence, String name, untyped value,
+      # @rbs (Hash[String, config_value] values, Hash[String, Location] locations,
+      #   Hash[String, Array[Evidence]] evidence, String name, config_value value,
       #   Frontend::Location | Location location) -> void
       def add_source_fact(values, locations, evidence, name, value, location)
         key = Registry.fetch(name)
@@ -80,7 +80,7 @@ module Ibex
       module_function :add_source_fact
       private_class_method :add_source_fact
 
-      # @rbs (Frontend::AST::Root root, Hash[String, untyped] values, Hash[String, Location] locations,
+      # @rbs (Frontend::AST::Root root, Hash[String, config_value] values, Hash[String, Location] locations,
       #   Hash[String, Array[Evidence]] evidence) -> void
       def add_source_options(root, values, locations, evidence)
         occurrences = root.declarations.filter_map do |declaration|
@@ -103,7 +103,7 @@ module Ibex
       module_function :add_source_options
       private_class_method :add_source_options
 
-      # @rbs (Frontend::AST::Root root, Hash[String, untyped] values, Hash[String, Location] locations,
+      # @rbs (Frontend::AST::Root root, Hash[String, config_value] values, Hash[String, Location] locations,
       #   Hash[String, Array[Evidence]] evidence) -> void
       def add_source_parser_contract(root, values, locations, evidence)
         declaration = root.declarations.grep(Frontend::AST::ParserConfiguration).first
@@ -160,8 +160,8 @@ module Ibex
       module_function :option_evidence
       private_class_method :option_evidence
 
-      # @rbs (Hash[String, untyped] values, Hash[String, Array[Evidence]] evidence,
-      #   Hash[String, Recording] recordings, String name, untyped value) -> void
+      # @rbs (Hash[String, config_value] values, Hash[String, Array[Evidence]] evidence,
+      #   Hash[String, Recording] recordings, String name, config_value value) -> void
       def add_ir_fact(values, evidence, recordings, name, value)
         key = Registry.fetch(name)
         values[name] = value
@@ -178,7 +178,7 @@ module Ibex
       module_function :add_ir_fact
       private_class_method :add_ir_fact
 
-      # @rbs (IR::Grammar grammar, Hash[String, untyped] values, Hash[String, Location] locations,
+      # @rbs (IR::Grammar grammar, Hash[String, config_value] values, Hash[String, Location] locations,
       #   Hash[String, Array[Evidence]] evidence, Hash[String, Recording] recordings) -> void
       def add_parser_contract(grammar, values, locations, evidence, recordings)
         contract = grammar.parser_contract
@@ -207,7 +207,7 @@ module Ibex
       module_function :record_unavailable_contract
       private_class_method :record_unavailable_contract
 
-      # @rbs (String name, IR::ParserContract::Entry entry, Hash[String, untyped] values,
+      # @rbs (String name, IR::ParserContract::Entry entry, Hash[String, config_value] values,
       #   Hash[String, Location] locations, Hash[String, Array[Evidence]] evidence,
       #   Hash[String, Recording] recordings) -> void
       def add_contract_entry(name, entry, values, locations, evidence, recordings)
