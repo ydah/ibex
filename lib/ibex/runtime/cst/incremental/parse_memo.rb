@@ -39,7 +39,7 @@ module Ibex
           raise IndexError, "parse memo subtree range is outside the preorder state array"
         end
 
-        # @rbs (Hash[Symbol, untyped] tables) -> bool
+        # @rbs (Hash[Symbol, String | Integer] tables) -> bool
         def compatible?(tables)
           @grammar_digest == tables[:grammar_digest] &&
             @state_count == tables[:state_count] &&
@@ -49,7 +49,7 @@ module Ibex
         # @rbs () -> Integer
         def estimated_bytes = @left_states.length * ENTRY_BYTES
 
-        # @rbs () -> Hash[String, untyped]
+        # @rbs () -> Hash[String, Integer | Array[Integer?]]
         def to_h
           { "version" => VERSION, "left_states" => @left_states }.freeze
         end

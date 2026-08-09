@@ -27,14 +27,14 @@ module Ibex
         # @rbs (Integer preorder_index, GreenNode | GreenToken element) -> Array[Integer?]
         def slice: (Integer preorder_index, GreenNode | GreenToken element) -> Array[Integer?]
 
-        # @rbs (Hash[Symbol, untyped] tables) -> bool
-        def compatible?: (Hash[Symbol, untyped] tables) -> bool
+        # @rbs (Hash[Symbol, String | Integer] tables) -> bool
+        def compatible?: (Hash[Symbol, String | Integer] tables) -> bool
 
         # @rbs () -> Integer
         def estimated_bytes: () -> Integer
 
-        # @rbs () -> Hash[String, untyped]
-        def to_h: () -> Hash[String, untyped]
+        # @rbs () -> Hash[String, Integer | Array[Integer?]]
+        def to_h: () -> Hash[String, Integer | Array[Integer?]]
 
         # Lightweight construction tree flattened once when a parse completes.
         class Entry
