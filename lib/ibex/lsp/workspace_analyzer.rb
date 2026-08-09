@@ -8,7 +8,7 @@ module Ibex
       WINDOWS_ABSOLUTE = %r{\A(?:[A-Za-z]:[\\/]|\\\\)} #: Regexp
 
       # @rbs!
-      #   type lsp_diagnostic = Hash[String, untyped]
+      #   type lsp_diagnostic = lsp_object
       #   type analyzed_document = {
       #     source: String,
       #     document: Frontend::SourceDocument?,
