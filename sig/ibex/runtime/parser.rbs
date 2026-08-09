@@ -70,28 +70,6 @@ module Ibex
     # contract. Markers are honored only for the generated `_ibex_action_N`
     # Symbol shape, never for callables.
     class Parser
-      type semantic_value = Object?
-
-      type location = Object?
-
-      type semantic_action = ^(*semantic_value) [self: Parser] -> semantic_value
-
-      type table_action = Symbol | semantic_action | nil
-
-      type parser_runtime_action = IR::runtime_action | [ :sync_recover ]
-
-      type parser_outcome = :need_more | [ :accepted, semantic_value ] | [ :rejected, semantic_value ]
-
-      type lexer_token = [ Object, semantic_value ] | [ Object, semantic_value, location ] | false | nil
-
-      type table_production = { lhs: Integer, length: Integer, ?action: table_action, ?location_action: bool, ?composition_action: bool, ?values_action: bool, ?borrowed_values_action: bool, ?positional_action: bool, ?location_context_length: Integer, ?location_names: Hash[Symbol, Integer] }
-
-      type cst_kinds = { trivia: Hash[String, Integer] }
-
-      type cst_config = { trivia_policy: Symbol, kinds: cst_kinds, slots: Hash[Integer, { node_kind: Integer }] }
-
-      type table_set = { tokens: Hash[Object, Integer], token_names: Hash[Integer, String], actions: Tables::action_table, gotos: Tables::goto_table, productions: Tables::CompactProductions | Array[table_production], ?format_version: Integer, ?grammar_digest: String, ?state_count: Integer, ?production_count: Integer, ?initial_state: Integer, ?default_actions: Array[IR::runtime_action?], ?eager_reductions: Hash[Integer, IR::runtime_action], ?error_messages: Hash[Integer, String | { id: String, message: String }], ?recovery_sync_tokens: Array[Integer], ?cst: cst_config | bool, ?compact_default_actions: Array[Integer?], ?value_printers: Hash[Integer, Symbol] }
-
       # Keep direct singleton-hook mutation visible even when an application
       # replaces Ruby's mutation callbacks without calling super.
       module FastPathMutationTracker
@@ -149,7 +127,7 @@ module Ibex
 
       GENERATED_ACTION_NAME: Regexp
 
-      NO_LOOKAHEAD: Integer
+      NO_LOOKAHEAD: Object
 
       RECOVERY_SHIFTS: Integer
 
@@ -177,115 +155,115 @@ module Ibex
 
       EMPTY_GREEN_TRIVIA: Array[CST::GreenTrivia]
 
-      @green_token_states: Array[Symbol]
-
       @unknown_token_id: Integer?
-
-      @green_pending_skipped: Array[CST::GreenTrivia]
-
-      @green_memo_stack: Array[CST::ParseMemo::Entry]
-
-      @green_kinds: CST::Kind?
-
-      @green_cache_override: CST::NodeCache?
-
-      @green_parse_memo_valid: bool
-
-      @green_initial_state: Integer
-
-      @runtime_observation_mutex: Mutex
-
-      @runtime_fast_path: bool
-
-      @syntax_parse_memo: CST::ParseMemo?
-
-      @runtime_parser_tables: table_set?
-
-      @recovery_attempts: Integer
-
-      @resource_limits: ResourceLimits
-
-      @accept_requested: bool
-
-      @syntax_diagnostics: Array[Object]
-
-      @syntax_root: CST::SyntaxNode?
-
-      @green_cache: CST::NodeCache?
-
-      @racc_vstack: Array[semantic_value]
-
-      @green_builder: CST::GreenBuilder?
-
-      @sync_recovery_observers: Array[Proc]?
-
-      @sync_recovery_token_data: Hash[String, Object]?
-
-      @runtime_fast_path_tracker_installed: bool
-
-      @semantic_locations: Array[location]?
-
-      @runtime_fast_path_hooks_mutated: bool
-
-      @green_reused_right_edge: bool
-
-      @semantic_location_names: Hash[Symbol, Integer]?
-
-      @repair_selected: bool
-
-      @repair_input_buffer: Array[RepairInput]?
-
-      @repair_policy: RepairPolicy?
-
-      @semantic_result_location: location
-
-      @runtime_lookahead_token_display: String?
-
-      @runtime_event_sequence: Integer
-
-      @runtime_observers: Hash[Observation::Subscription, Proc]?
-
-      @runtime_driver_thread: Thread?
-
-      @driver_status: :idle | :pull | :push
-
-      @push_status: :idle | :active | :finished
 
       @unknown_token_name: String?
 
-      @runtime_fast_path_singleton_ancestors: Array[Module]?
+      @push_status: :idle | :active | :finished
 
-      @trace_value_printer: (^(semantic_value) -> semantic_value)?
+      @driver_status: :idle | :pull | :push
+
+      @runtime_driver_thread: Thread?
+
+      @runtime_observers: Hash[Observation::Subscription, Proc]?
+
+      @runtime_event_sequence: Integer
+
+      @runtime_lookahead_token_display: untyped
+
+      @runtime_observation_mutex: Mutex
+
+      @repair_policy: RepairPolicy?
+
+      @repair_input_buffer: Array[RepairInput]?
+
+      @repair_selected: bool
+
+      @semantic_locations: Array[untyped]?
+
+      @incremental_reused_descendants: Integer
+
+      @accept_requested: bool
 
       @semantic_error: bool
 
       @recovery_shifts: Integer
 
-      @lookahead_location: location
+      @lookahead_location: untyped
 
-      @lookahead_value: semantic_value
+      @lookahead_value: untyped
 
-      @lookahead: Integer
+      @lookahead: untyped
 
-      @location_stack: Array[location]?
+      @location_stack: Array[untyped]?
 
-      @sync_recovery_context: Hash[Symbol, Object]?
+      @racc_vstack: Array[untyped]
 
-      @vstack: Array[semantic_value]
+      @vstack: Array[untyped]
 
-      @value_stack: Array[semantic_value]
+      @value_stack: Array[untyped]
 
       @state_stack: Array[Integer]
 
-      @source: Object?
+      @source: untyped
 
       @yydebug_output: IO
 
       @yydebug: bool
 
+      @green_reused_right_edge: bool
+
+      @syntax_parse_memo: CST::ParseMemo?
+
+      @green_initial_state: Integer
+
+      @green_parse_memo_valid: bool
+
+      @green_memo_stack: Array[CST::ParseMemo::Entry]
+
+      @green_token_states: Array[Symbol]
+
+      @green_cache_override: CST::NodeCache?
+
       @syntax_only: bool
 
-      @incremental_reused_descendants: Integer
+      @runtime_fast_path_singleton_ancestors: Array[Module]?
+
+      @runtime_fast_path_hooks_mutated: bool
+
+      @runtime_fast_path_tracker_installed: bool
+
+      @runtime_fast_path: bool
+
+      @runtime_parser_tables: Hash[Symbol, untyped]?
+
+      @recovery_attempts: Integer
+
+      @resource_limits: ResourceLimits
+
+      @green_pending_skipped: Array[CST::GreenTrivia]
+
+      @syntax_diagnostics: Array[untyped]
+
+      @syntax_root: CST::SyntaxNode?
+
+      @green_cache: CST::NodeCache?
+
+      @green_kinds: CST::Kind?
+
+      @green_builder: CST::GreenBuilder?
+
+      @sync_recovery_observers: Array[Proc]?
+
+      @sync_recovery_token_data: Hash[String, untyped]?
+
+      @sync_recovery_context: Hash[Symbol, untyped]?
+
+      @trace_value_printer: (^(untyped) -> untyped)?
+
+      @semantic_result_location: untyped
+
+      @semantic_location_names: Hash[Symbol, Integer]?
 
       attr_reader syntax_parse_memo: CST::ParseMemo?
 
@@ -329,8 +307,8 @@ module Ibex
       # Pull tokens from `next_token` and execute parser production actions.
       # A generated-lexer `next_token` executes lexer actions; a handwritten
       # implementation does not invoke the generated lexer.
-      # @rbs () -> semantic_value
-      def do_parse: () -> semantic_value
+      # @rbs () -> untyped
+      def do_parse: () -> untyped
 
       # Parse through `next_token` and return both the semantic value and Red root.
       # Parser production actions execute. Generated lexer actions execute only
@@ -345,8 +323,8 @@ module Ibex
       # Parse tokens yielded by `receiver.method_id` and execute parser
       # production actions. This caller-fed path does not invoke generated
       # lexer actions.
-      # @rbs (Object receiver, Symbol method_id) -> semantic_value
-      def yyparse: (Object receiver, Symbol method_id) -> semantic_value
+      # @rbs (untyped receiver, Symbol method_id) -> untyped
+      def yyparse: (untyped receiver, Symbol method_id) -> untyped
 
       # Supply one token to a caller-driven parser session.
       # Committed reductions execute parser production actions; this token-fed
@@ -354,15 +332,15 @@ module Ibex
       # Returns `:need_more` after consuming it, `[:accepted, result]` after
       # acceptance, or `[:rejected, result]` after recovery terminates.
       # rubocop:disable Layout/LineLength
-      # @rbs (Object token, ?semantic_value value, ?location location) -> parser_outcome
+      # @rbs (untyped token, ?untyped value, ?untyped location) -> (:need_more | [:accepted, untyped] | [:rejected, untyped])
       # rubocop:enable Layout/LineLength
-      def push: (Object token, ?semantic_value value, ?location location) -> parser_outcome
+      def push: (untyped token, ?untyped value, ?untyped location) -> (:need_more | [ :accepted, untyped ] | [ :rejected, untyped ])
 
       # Supply EOF to a caller-driven parser session and return its result.
       # Committed reductions execute parser production actions; this token-fed
       # path does not invoke generated lexer actions.
-      # @rbs (?location: location) -> semantic_value
-      def finish: (?location: location) -> semantic_value
+      # @rbs (?location: untyped) -> untyped
+      def finish: (?location: untyped) -> untyped
 
       # Discard a caller-driven session so this parser can accept a new one.
       # @rbs () -> nil
@@ -370,51 +348,51 @@ module Ibex
 
       # Override in pull parsers. Return `[token, value]`,
       # `[token, value, location]`, `false`, or `nil`.
-      # @rbs () -> lexer_token
-      def next_token: () -> lexer_token
+      # @rbs () -> ([untyped, untyped] | [untyped, untyped, untyped] | false | nil)
+      def next_token: () -> ([ untyped, untyped ] | [ untyped, untyped, untyped ] | false | nil)
 
       # Override to recover from syntax errors. The default raises unless a
       # bounded automatic repair has already been selected.
-      # @rbs (Integer token_id, semantic_value value, Array[semantic_value] value_stack) -> semantic_value
-      def on_error: (Integer token_id, semantic_value value, Array[semantic_value] value_stack) -> semantic_value
+      # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> untyped
+      def on_error: (Integer token_id, untyped value, Array[untyped] value_stack) -> untyped
 
       # Called after an ordinary input token is shifted. Override to observe
       # the internal token id, semantic value, and destination state.
-      # @rbs (Integer token_id, semantic_value value, Integer state) -> void
-      def on_shift: (Integer token_id, semantic_value value, Integer state) -> void
+      # @rbs (Integer token_id, untyped value, Integer state) -> void
+      def on_shift: (Integer token_id, untyped value, Integer state) -> void
 
       # Location-aware shift observer. The compatible hook above retains its
       # original signature and runs first.
-      # @rbs (Integer token_id, semantic_value value, Integer state, location location) -> void
-      def on_shift_location: (Integer token_id, semantic_value value, Integer state, location location) -> void
+      # @rbs (Integer token_id, untyped value, Integer state, untyped location) -> void
+      def on_shift_location: (Integer token_id, untyped value, Integer state, untyped location) -> void
 
       # Called after a production's semantic action and goto are committed.
       # Override to observe its id, RHS values, and semantic result.
-      # @rbs (Integer production_id, Array[semantic_value] values, semantic_value result) -> void
-      def on_reduce: (Integer production_id, Array[semantic_value] values, semantic_value result) -> void
+      # @rbs (Integer production_id, Array[untyped] values, untyped result) -> void
+      def on_reduce: (Integer production_id, Array[untyped] values, untyped result) -> void
 
       # Location-aware reduction observer.
-      # @rbs (Integer production_id, Array[semantic_value] values, semantic_value result,
-      #   Array[location] locations, location result_location) -> void
-      def on_reduce_location: (Integer production_id, Array[semantic_value] values, semantic_value result, Array[location] locations, location result_location) -> void
+      # @rbs (Integer production_id, Array[untyped] values, untyped result,
+      #   Array[untyped] locations, untyped result_location) -> void
+      def on_reduce_location: (Integer production_id, Array[untyped] values, untyped result, Array[untyped] locations, untyped result_location) -> void
 
       # Called after the synthetic error token enters a recovery state.
       # The payload describes the original error before recovery popped stacks.
-      # @rbs (Integer token_id, semantic_value value, Array[semantic_value] value_stack) -> void
-      def on_error_recover: (Integer token_id, semantic_value value, Array[semantic_value] value_stack) -> void
+      # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> void
+      def on_error_recover: (Integer token_id, untyped value, Array[untyped] value_stack) -> void
 
       # Location-aware recovery observer.
-      # @rbs (Integer token_id, semantic_value value, Array[semantic_value] value_stack,
-      #   location location, Integer state) -> void
-      def on_error_recover_location: (Integer token_id, semantic_value value, Array[semantic_value] value_stack, location location, Integer state) -> void
+      # @rbs (Integer token_id, untyped value, Array[untyped] value_stack,
+      #   untyped location, Integer state) -> void
+      def on_error_recover_location: (Integer token_id, untyped value, Array[untyped] value_stack, untyped location, Integer state) -> void
 
       # Called when yacc recovery discards an application token.
-      # @rbs (Integer token_id, semantic_value value, location location, Symbol reason) -> void
-      def on_discard: (Integer token_id, semantic_value value, location location, Symbol reason) -> void
+      # @rbs (Integer token_id, untyped value, untyped location, Symbol reason) -> void
+      def on_discard: (Integer token_id, untyped value, untyped location, Symbol reason) -> void
 
       # Install an opt-in value formatter for human-readable yydebug traces.
-      # @rbs ((^(semantic_value) -> semantic_value)? printer) -> (^(semantic_value) -> semantic_value)?
-      def trace_value_printer=: ((^(semantic_value) -> semantic_value)? printer) -> (^(semantic_value) -> semantic_value)?
+      # @rbs ((^(untyped) -> untyped)? printer) -> (^(untyped) -> untyped)?
+      def trace_value_printer=: ((^(untyped) -> untyped)? printer) -> (^(untyped) -> untyped)?
 
       # Called once after a repair is selected and before its edited token
       # prefix is replayed through normal parser actions.
@@ -448,12 +426,12 @@ module Ibex
 
       # Return the location of a one-based RHS position or named reference
       # while a semantic action is running.
-      # @rbs (Integer | Symbol | String reference) -> location
-      def loc: (Integer | Symbol | String reference) -> location
+      # @rbs (Integer | Symbol | String reference) -> untyped
+      def loc: (Integer | Symbol | String reference) -> untyped
 
       # Return the synthesized span of the reduction being evaluated.
-      # @rbs () -> location
-      def result_loc: () -> location
+      # @rbs () -> untyped
+      def result_loc: () -> untyped
 
       private
 
@@ -483,8 +461,8 @@ module Ibex
 
       # Keep the two historical value-stack names as read-compatible aliases.
       # Applications must not mutate or replace these internal arrays.
-      # @rbs (Array[semantic_value] values) -> void
-      def install_value_stack: (Array[semantic_value] values) -> void
+      # @rbs (Array[untyped] values) -> void
+      def install_value_stack: (Array[untyped] values) -> void
 
       # @rbs (Integer token_id) -> bool
       def exact_lookahead_accepted?: (Integer token_id) -> bool
@@ -492,14 +470,14 @@ module Ibex
       # @rbs (Integer stack_depth) -> Integer
       def exact_lookahead_step_budget: (Integer stack_depth) -> Integer
 
-      # @rbs (table_set tables) -> Integer
-      def parser_state_count: (table_set tables) -> Integer
+      # @rbs (Hash[Symbol, untyped] tables) -> Integer
+      def parser_state_count: (Hash[Symbol, untyped] tables) -> Integer
 
       # @rbs (Array[Integer] stack, Integer production_id) -> bool
       def exact_reduction_applied?: (Array[Integer] stack, Integer production_id) -> bool
 
-      # @rbs (Object? source, ?initial_state: Integer?) -> semantic_value
-      def drive_parser: (Object? source, ?initial_state: Integer?) -> semantic_value
+      # @rbs (untyped source, ?initial_state: Integer?) -> untyped
+      def drive_parser: (untyped source, ?initial_state: Integer?) -> untyped
 
       # Generated compact tables can keep the unobserved, location-free pull
       # loop on their frozen displacement arrays. Any extension boundary or
@@ -509,20 +487,20 @@ module Ibex
       # rubocop:disable Metrics/MethodLength, Metrics/PerceivedComplexity
       # Direct comparisons avoid predicate-method dispatch inside the parser loop.
       # rubocop:disable Style/BitwisePredicate, Style/NumericPredicate
-      # @rbs (table_set tables) -> (Object | [:accepted, semantic_value] | [:done, semantic_value])?
-      def drive_compact_fast_parser: (table_set tables) -> (Object | [ :accepted, semantic_value ] | [ :done, semantic_value ])?
+      # @rbs (Hash[Symbol, untyped] tables) -> (Object | [:accepted, untyped] | [:done, untyped])?
+      def drive_compact_fast_parser: (Hash[Symbol, untyped] tables) -> (Object | [ :accepted, untyped ] | [ :done, untyped ])?
 
-      # @rbs (table_set? tables) -> bool
-      def compact_fast_driver_eligible?: (table_set? tables) -> bool
+      # @rbs (Hash[Symbol, untyped]? tables) -> bool
+      def compact_fast_driver_eligible?: (Hash[Symbol, untyped]? tables) -> bool
 
       # @rbs () -> void
       def start_push_session: () -> void
 
-      # @rbs () -> parser_outcome
-      def run_push_lookahead: () -> parser_outcome
+      # @rbs () -> (:need_more | [:accepted, untyped] | [:rejected, untyped])
+      def run_push_lookahead: () -> (:need_more | [ :accepted, untyped ] | [ :rejected, untyped ])
 
-      # @rbs () { () -> semantic_value } -> semantic_value
-      def run_push_driver: () { () -> semantic_value } -> semantic_value
+      # @rbs () { () -> untyped } -> untyped
+      def run_push_driver: () { () -> untyped } -> untyped
 
       # @rbs () -> void
       def ensure_driver_available_without_lock!: () -> void
@@ -533,30 +511,30 @@ module Ibex
       # @rbs () -> void
       def finish_push_session: () -> void
 
-      # @rbs (Object? source, ?initial_state: Integer?) -> void
-      def prepare_parse: (Object? source, ?initial_state: Integer?) -> void
+      # @rbs ((^() -> untyped)? source, ?initial_state: Integer?) -> void
+      def prepare_parse: ((^() -> untyped)? source, ?initial_state: Integer?) -> void
 
       # @rbs () -> void
       def reset_parse_recovery_state: () -> void
 
-      # @rbs (table_set tables, Integer? requested) -> Integer
-      def resolve_initial_state: (table_set tables, Integer? requested) -> Integer
+      # @rbs (Hash[Symbol, untyped] tables, Integer? requested) -> Integer
+      def resolve_initial_state: (Hash[Symbol, untyped] tables, Integer? requested) -> Integer
 
-      # @rbs () -> table_set
-      def validate_parser_table_format!: () -> table_set
+      # @rbs () -> Hash[Symbol, untyped]
+      def validate_parser_table_format!: () -> Hash[Symbol, untyped]
 
-      # @rbs (table_set tables, Integer actual) -> void
-      def validate_current_cst_tables!: (table_set tables, Integer actual) -> void
+      # @rbs (Hash[Symbol, untyped] tables, Integer actual) -> void
+      def validate_current_cst_tables!: (Hash[Symbol, untyped] tables, Integer actual) -> void
 
       # Generated parser tables are deeply frozen before they can cross a
       # Ractor boundary. Their action-marker contract only needs one scan per
       # parser class and exact table object, including across parser instances.
       # Mutable application tables remain intentionally uncached.
-      # @rbs (table_set tables) -> bool
-      def generated_action_contracts_validated?: (table_set tables) -> bool
+      # @rbs (Hash[Symbol, untyped] tables) -> bool
+      def generated_action_contracts_validated?: (Hash[Symbol, untyped] tables) -> bool
 
-      # @rbs (table_set tables) -> void
-      def cache_generated_action_contracts!: (table_set tables) -> void
+      # @rbs (Hash[Symbol, untyped] tables) -> void
+      def cache_generated_action_contracts!: (Hash[Symbol, untyped] tables) -> void
 
       # Ruby 3.0-3.3 expose the main Ractor as an object instead of exposing
       # Ractor.main?. Class instance variables cannot be read or written from
@@ -564,46 +542,44 @@ module Ibex
       # @rbs () -> bool
       def generated_action_contract_cache_accessible?: () -> bool
 
-      # @rbs (table_set tables, Integer version) -> void
-      def validate_generated_action_contracts!: (table_set tables, Integer version) -> void
+      # @rbs (Hash[Symbol, untyped] tables, Integer version) -> void
+      def validate_generated_action_contracts!: (Hash[Symbol, untyped] tables, Integer version) -> void
 
-      # @rbs (table_production production, Integer index, Integer version) -> void
-      def validate_composition_action_contract!: (table_production production, Integer index, Integer version) -> void
+      # @rbs (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
+      def validate_composition_action_contract!: (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
 
-      # @rbs (table_production production, Integer index, Integer version) -> void
-      def validate_values_action_contract!: (table_production production, Integer index, Integer version) -> void
+      # @rbs (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
+      def validate_values_action_contract!: (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
 
-      # @rbs (table_production production, Integer index, Integer version) -> void
-      def validate_positional_action_contract!: (table_production production, Integer index, Integer version) -> void
+      # @rbs (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
+      def validate_positional_action_contract!: (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
 
-      # @rbs (table_production production) -> bool
-      def positional_action_contract?: (table_production production) -> bool
+      # @rbs (Hash[Symbol, untyped] production) -> bool
+      def positional_action_contract?: (Hash[Symbol, untyped] production) -> bool
 
-      # @rbs () -> parser_runtime_action
-      def action_for_current_state: () -> parser_runtime_action
+      # @rbs () -> untyped
+      def action_for_current_state: () -> untyped
 
-      # @rbs (parser_runtime_action action) -> ([:continue] | [:accepted, semantic_value] | [:done, semantic_value])
-      def perform: (parser_runtime_action action) -> ([ :continue ] | [ :accepted, semantic_value ] | [ :done, semantic_value ])
+      # @rbs (untyped action) -> untyped
+      def perform: (untyped action) -> untyped
 
       # @rbs (Integer next_state) -> [:continue]
       def fast_shift: (Integer next_state) -> [ :continue ]
 
-      # @rbs (table_production production, Integer length) -> bool
-      def fast_reduction_eligible?: (table_production production, Integer length) -> bool
+      # @rbs (Hash[Symbol, untyped] production, untyped length) -> bool
+      def fast_reduction_eligible?: (Hash[Symbol, untyped] production, untyped length) -> bool
 
-      # @rbs (Integer production_id, table_production production, Integer length) ->
-      #   ([:continue] | [:accepted, semantic_value])
-      def fast_reduce: (Integer production_id, table_production production, Integer length) -> ([ :continue ] | [ :accepted, semantic_value ])
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> [:continue]
+      def fast_reduce: (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> [ :continue ]
 
-      # @rbs (Integer production_id, table_production production, Integer length, Symbol action) ->
-      #   ([:continue] | [:accepted, semantic_value])
-      def fast_values_reduce: (Integer production_id, table_production production, Integer length, Symbol action) -> ([ :continue ] | [ :accepted, semantic_value ])
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length, Symbol action) -> untyped
+      def fast_values_reduce: (Integer production_id, Hash[Symbol, untyped] production, Integer length, Symbol action) -> untyped
 
       # @rbs (Integer next_state) -> untyped
       def shift: (Integer next_state) -> untyped
 
-      # @rbs (Integer production_id, ?table_production? prefetched_production) -> untyped
-      def reduce: (Integer production_id, ?table_production? prefetched_production) -> untyped
+      # @rbs (Integer production_id, ?Hash[Symbol, untyped]? prefetched_production) -> untyped
+      def reduce: (Integer production_id, ?Hash[Symbol, untyped]? prefetched_production) -> untyped
 
       # @rbs (Integer next_state, untyped result, untyped location) -> void
       def push_reduction_result: (Integer next_state, untyped result, untyped location) -> void
@@ -611,42 +587,42 @@ module Ibex
       # @rbs (Integer production_id, Integer length, Integer lhs, untyped result, Integer next_state) -> void
       def trace_reduction: (Integer production_id, Integer length, Integer lhs, untyped result, Integer next_state) -> void
 
-      # @rbs (Array[Proc]? observers, Integer production_id, table_production production, Integer length,
+      # @rbs (Array[Proc]? observers, Integer production_id, Hash[Symbol, untyped] production, Integer length,
       #   Integer? pre_state, Integer? post_state, Integer next_state, untyped result,
       #   LocationSpan? location) -> Hash[String, untyped]?
-      def build_reduce_event_data: (Array[Proc]? observers, Integer production_id, table_production production, Integer length, Integer? pre_state, Integer? post_state, Integer next_state, untyped result, LocationSpan? location) -> Hash[String, untyped]?
+      def build_reduce_event_data: (Array[Proc]? observers, Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer? pre_state, Integer? post_state, Integer next_state, untyped result, LocationSpan? location) -> Hash[String, untyped]?
 
-      # @rbs (Integer production_id, table_production production, Integer length,
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length,
       #   Integer? pre_state, Integer? post_state, Integer next_state, untyped result,
       #   LocationSpan? location) -> Hash[String, untyped]
-      def runtime_reduce_data: (Integer production_id, table_production production, Integer length, Integer? pre_state, Integer? post_state, Integer next_state, untyped result, LocationSpan? location) -> Hash[String, untyped]
+      def runtime_reduce_data: (Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer? pre_state, Integer? post_state, Integer next_state, untyped result, LocationSpan? location) -> Hash[String, untyped]
 
       # @rbs (untyped result) -> [:accepted, untyped]
       def accept_reduction: (untyped result) -> [ :accepted, untyped ]
 
-      # @rbs (Integer production_id, table_production production, Array[untyped] values,
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
       #   Array[untyped] locations, LocationSpan? location) -> untyped
-      def reduction_value: (Integer production_id, table_production production, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> untyped
+      def reduction_value: (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> untyped
 
-      # @rbs (table_production production, Symbol action, Array[untyped] values,
+      # @rbs (Hash[Symbol, untyped] production, Symbol action, Array[untyped] values,
       #   Array[untyped] locations, LocationSpan? location) -> untyped
-      def values_reduction_value: (table_production production, Symbol action, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> untyped
+      def values_reduction_value: (Hash[Symbol, untyped] production, Symbol action, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> untyped
 
-      # @rbs (Integer production_id, table_production production, Array[untyped] values,
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
       #   Array[untyped] locations, LocationSpan? location) -> untyped
-      def actionless_reduction_value: (Integer production_id, table_production production, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> untyped
+      def actionless_reduction_value: (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> untyped
 
-      # @rbs (table_production production, untyped action) -> bool
-      def generated_location_action?: (table_production production, untyped action) -> bool
+      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
+      def generated_location_action?: (Hash[Symbol, untyped] production, untyped action) -> bool
 
-      # @rbs (table_production production, untyped action) -> bool
-      def generated_values_action?: (table_production production, untyped action) -> bool
+      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
+      def generated_values_action?: (Hash[Symbol, untyped] production, untyped action) -> bool
 
-      # @rbs (table_production production, untyped action) -> bool
-      def generated_positional_action?: (table_production production, untyped action) -> bool
+      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
+      def generated_positional_action?: (Hash[Symbol, untyped] production, untyped action) -> bool
 
-      # @rbs (table_production production, untyped action) -> bool
-      def generated_composition_action?: (table_production production, untyped action) -> bool
+      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
+      def generated_composition_action?: (Hash[Symbol, untyped] production, untyped action) -> bool
 
       # @rbs (untyped action) -> bool
       def generated_action_symbol?: (untyped action) -> bool
@@ -684,8 +660,8 @@ module Ibex
       #   String token_text, Symbol lexer_state) -> void
       def commit_green_token_shift: (CST::GreenBuilder builder, CST::Kind kinds, Integer token_id, Integer from_state, Array[CST::GreenTrivia] trailing, Array[CST::GreenTrivia] location_leading, untyped repair, String token_text, Symbol lexer_state) -> void
 
-      # @rbs (Integer production_id, table_production production, Integer length, Integer left_state) -> void
-      def reduce_green: (Integer production_id, table_production production, Integer length, Integer left_state) -> void
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer left_state) -> void
+      def reduce_green: (Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer left_state) -> void
 
       # @rbs (untyped value, untyped location) -> String
       def green_token_text: (untyped value, untyped location) -> String
@@ -866,17 +842,17 @@ module Ibex
       # @rbs (RepairInput input) -> void
       def assign_repair_input: (RepairInput input) -> void
 
-      # @rbs () -> lexer_token
-      def read_external_token: () -> lexer_token
+      # @rbs () -> untyped
+      def read_external_token: () -> untyped
 
       # @rbs (untyped external_token) -> Integer
       def internal_token_id: (untyped external_token) -> Integer
 
-      # @rbs () -> table_set
-      def parser_tables: () -> table_set
+      # @rbs () -> Hash[Symbol, untyped]
+      def parser_tables: () -> Hash[Symbol, untyped]
 
-      # @rbs () -> table_set
-      def load_parser_tables: () -> table_set
+      # @rbs () -> Hash[Symbol, untyped]
+      def load_parser_tables: () -> Hash[Symbol, untyped]
 
       # @rbs (untyped action) -> bool
       def error_action?: (untyped action) -> bool

@@ -3,60 +3,56 @@
 module Ibex
   module IR
     module Validator
-      type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
-
-      type json_object = Hash[String, json_value]
-
       # Shared JSON-shape checks for the two version-1 IR documents.
       class Base
         POSITION: ::String
 
         private
 
-        # @rbs (json_value value, String path, Array[String] required, ?Array[String] optional) -> json_object
-        def record: (json_value value, String path, Array[String] required, ?Array[String] optional) -> json_object
+        # @rbs (untyped value, String path, Array[String] required, ?Array[String] optional) -> Hash[String, untyped]
+        def record: (untyped value, String path, Array[String] required, ?Array[String] optional) -> Hash[String, untyped]
 
-        # @rbs (json_value value, String path) -> json_object
-        def object: (json_value value, String path) -> json_object
+        # @rbs (untyped value, String path) -> Hash[String, untyped]
+        def object: (untyped value, String path) -> Hash[String, untyped]
 
-        # @rbs (json_value value, String path) -> Array[json_value]
-        def array: (json_value value, String path) -> Array[json_value]
+        # @rbs (untyped value, String path) -> Array[untyped]
+        def array: (untyped value, String path) -> Array[untyped]
 
-        # @rbs (json_value value, String path) -> String
-        def string: (json_value value, String path) -> String
+        # @rbs (untyped value, String path) -> String
+        def string: (untyped value, String path) -> String
 
-        # @rbs (json_value value, String path) -> String
-        def nonempty_string: (json_value value, String path) -> String
+        # @rbs (untyped value, String path) -> String
+        def nonempty_string: (untyped value, String path) -> String
 
-        # @rbs (json_value value, String path) -> Integer
-        def integer: (json_value value, String path) -> Integer
+        # @rbs (untyped value, String path) -> Integer
+        def integer: (untyped value, String path) -> Integer
 
-        # @rbs (json_value value, String path) -> Integer
-        def nonnegative_integer: (json_value value, String path) -> Integer
+        # @rbs (untyped value, String path) -> Integer
+        def nonnegative_integer: (untyped value, String path) -> Integer
 
-        # @rbs (json_value value, String path) -> bool
-        def boolean: (json_value value, String path) -> bool
+        # @rbs (untyped value, String path) -> bool
+        def boolean: (untyped value, String path) -> bool
 
-        # @rbs (json_value value, String path, json_value expected) -> void
-        def literal: (json_value value, String path, json_value expected) -> void
+        # @rbs (untyped value, String path, untyped expected) -> void
+        def literal: (untyped value, String path, untyped expected) -> void
 
-        # @rbs (json_value value, String path, Array[String] values) -> String
-        def enum: (json_value value, String path, Array[String] values) -> String
+        # @rbs (untyped value, String path, Array[String] values) -> String
+        def enum: (untyped value, String path, Array[String] values) -> String
 
-        # @rbs (json_value value, String path, ?nullable: bool) -> void
-        def location: (json_value value, String path, ?nullable: bool) -> void
+        # @rbs (untyped value, String path, ?nullable: bool) -> void
+        def location: (untyped value, String path, ?nullable: bool) -> void
 
-        # @rbs (json_value value, String path) -> Integer
-        def positive_integer: (json_value value, String path) -> Integer
+        # @rbs (untyped value, String path) -> Integer
+        def positive_integer: (untyped value, String path) -> Integer
 
-        # @rbs (json_value value, String path) -> String?
-        def nullable_string: (json_value value, String path) -> String?
+        # @rbs (untyped value, String path) -> String?
+        def nullable_string: (untyped value, String path) -> String?
 
-        # @rbs (json_value value, String path) -> void
-        def metadata: (json_value value, String path) -> void
+        # @rbs (untyped value, String path) -> void
+        def metadata: (untyped value, String path) -> void
 
-        # @rbs (json_object value, String key, String path) -> json_value
-        def field: (json_object value, String key, String path) -> json_value
+        # @rbs (Hash[String, untyped] value, String key, String path) -> untyped
+        def field: (Hash[String, untyped] value, String key, String path) -> untyped
 
         # @rbs (String path, String key) -> String
         def child_path: (String path, String key) -> String

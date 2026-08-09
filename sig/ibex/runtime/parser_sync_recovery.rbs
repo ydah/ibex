@@ -7,7 +7,7 @@ module Ibex
     module ParserSyncRecovery
       ERROR_ACTION: [ :error ]
 
-      private def parser_tables: () -> Parser::table_set
+      private def parser_tables: () -> Hash[Symbol, untyped]
 
       private def table_lookup: (untyped, Integer, Integer) -> untyped
 

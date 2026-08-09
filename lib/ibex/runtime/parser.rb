@@ -130,48 +130,6 @@ module Ibex
     # contract. Markers are honored only for the generated `_ibex_action_N`
     # Symbol shape, never for callables.
     class Parser
-      # @rbs!
-      #   type semantic_value = Object?
-      #   type location = Object?
-      #   type semantic_action = ^(*semantic_value) [self: Parser] -> semantic_value
-      #   type table_action = Symbol | semantic_action | nil
-      #   type parser_runtime_action = IR::runtime_action | [:sync_recover]
-      #   type parser_outcome = :need_more | [:accepted, semantic_value] | [:rejected, semantic_value]
-      #   type lexer_token = [Object, semantic_value] | [Object, semantic_value, location] | false | nil
-      #   type table_production = {
-      #     lhs: Integer,
-      #     length: Integer,
-      #     ?action: table_action,
-      #     ?location_action: bool,
-      #     ?composition_action: bool,
-      #     ?values_action: bool,
-      #     ?borrowed_values_action: bool,
-      #     ?positional_action: bool,
-      #     ?location_context_length: Integer,
-      #     ?location_names: Hash[Symbol, Integer]
-      #   }
-      #   type cst_kinds = { trivia: Hash[String, Integer] }
-      #   type cst_config = { trivia_policy: Symbol, kinds: cst_kinds, slots: Hash[Integer, { node_kind: Integer }] }
-      #   type table_set = {
-      #     tokens: Hash[Object, Integer],
-      #     token_names: Hash[Integer, String],
-      #     actions: Tables::action_table,
-      #     gotos: Tables::goto_table,
-      #     productions: Tables::CompactProductions | Array[table_production],
-      #     ?format_version: Integer,
-      #     ?grammar_digest: String,
-      #     ?state_count: Integer,
-      #     ?production_count: Integer,
-      #     ?initial_state: Integer,
-      #     ?default_actions: Array[IR::runtime_action?],
-      #     ?eager_reductions: Hash[Integer, IR::runtime_action],
-      #     ?error_messages: Hash[Integer, String | { id: String, message: String }],
-      #     ?recovery_sync_tokens: Array[Integer],
-      #     ?cst: cst_config | bool,
-      #     ?compact_default_actions: Array[Integer?],
-      #     ?value_printers: Hash[Integer, Symbol]
-      #   }
-
       # Keep direct singleton-hook mutation visible even when an application
       # replaces Ruby's mutation callbacks without calling super.
       module FastPathMutationTracker
@@ -276,7 +234,7 @@ module Ibex
       EOF_TOKEN = 0 #: Integer
       ERROR_TOKEN = 1 #: Integer
       GENERATED_ACTION_NAME = /\A_ibex_action_\d+\z/ #: Regexp
-      NO_LOOKAHEAD = -1 #: Integer
+      NO_LOOKAHEAD = Object.new.freeze #: Object
       RECOVERY_SHIFTS = 3 #: Integer
       FAST_PATH_HOOK_NAMES = %i[
         on_shift on_shift_location on_reduce on_reduce_location token_to_str
@@ -309,15 +267,15 @@ module Ibex
 
       # @rbs @yydebug: bool
       # @rbs @yydebug_output: IO
-      # @rbs @source: Object?
+      # @rbs @source: untyped
       # @rbs @state_stack: Array[Integer]
-      # @rbs @value_stack: Array[semantic_value]
-      # @rbs @vstack: Array[semantic_value]
-      # @rbs @racc_vstack: Array[semantic_value]
-      # @rbs @location_stack: Array[location]?
-      # @rbs @lookahead: Integer
-      # @rbs @lookahead_value: semantic_value
-      # @rbs @lookahead_location: location
+      # @rbs @value_stack: Array[untyped]
+      # @rbs @vstack: Array[untyped]
+      # @rbs @racc_vstack: Array[untyped]
+      # @rbs @location_stack: Array[untyped]?
+      # @rbs @lookahead: untyped
+      # @rbs @lookahead_value: untyped
+      # @rbs @lookahead_location: untyped
       # @rbs @recovery_shifts: Integer
       # @rbs @semantic_error: bool
       # @rbs @accept_requested: bool
@@ -328,27 +286,27 @@ module Ibex
       # @rbs @runtime_driver_thread: Thread?
       # @rbs @runtime_observers: Hash[Observation::Subscription, Proc]?
       # @rbs @runtime_event_sequence: Integer
-      # @rbs @runtime_lookahead_token_display: String?
+      # @rbs @runtime_lookahead_token_display: untyped
       # @rbs @runtime_observation_mutex: Mutex
       # @rbs @repair_policy: RepairPolicy?
       # @rbs @repair_input_buffer: Array[RepairInput]?
       # @rbs @repair_selected: bool
-      # @rbs @semantic_locations: Array[location]?
+      # @rbs @semantic_locations: Array[untyped]?
       # @rbs @semantic_location_names: Hash[Symbol, Integer]?
-      # @rbs @semantic_result_location: location
-      # @rbs @trace_value_printer: (^(semantic_value) -> semantic_value)?
-      # @rbs @sync_recovery_context: Hash[Symbol, Object]?
-      # @rbs @sync_recovery_token_data: Hash[String, Object]?
+      # @rbs @semantic_result_location: untyped
+      # @rbs @trace_value_printer: (^(untyped) -> untyped)?
+      # @rbs @sync_recovery_context: Hash[Symbol, untyped]?
+      # @rbs @sync_recovery_token_data: Hash[String, untyped]?
       # @rbs @sync_recovery_observers: Array[Proc]?
       # @rbs @green_builder: CST::GreenBuilder?
       # @rbs @green_kinds: CST::Kind?
       # @rbs @green_cache: CST::NodeCache?
       # @rbs @syntax_root: CST::SyntaxNode?
-      # @rbs @syntax_diagnostics: Array[Object]
+      # @rbs @syntax_diagnostics: Array[untyped]
       # @rbs @green_pending_skipped: Array[CST::GreenTrivia]
       # @rbs @resource_limits: ResourceLimits
       # @rbs @recovery_attempts: Integer
-      # @rbs @runtime_parser_tables: table_set?
+      # @rbs @runtime_parser_tables: Hash[Symbol, untyped]?
       # @rbs @runtime_fast_path: bool
       # @rbs @runtime_fast_path_tracker_installed: bool
       # @rbs @runtime_fast_path_hooks_mutated: bool
@@ -484,7 +442,7 @@ module Ibex
       # Pull tokens from `next_token` and execute parser production actions.
       # A generated-lexer `next_token` executes lexer actions; a handwritten
       # implementation does not invoke the generated lexer.
-      # @rbs () -> semantic_value
+      # @rbs () -> untyped
       def do_parse
         drive_parser(nil)
       end
@@ -507,13 +465,12 @@ module Ibex
       # Parse tokens yielded by `receiver.method_id` and execute parser
       # production actions. This caller-fed path does not invoke generated
       # lexer actions.
-      # @rbs (Object receiver, Symbol method_id) -> semantic_value
+      # @rbs (untyped receiver, Symbol method_id) -> untyped
       def yyparse(receiver, method_id)
         stream = Enumerator.new do |tokens|
           receiver.__send__(method_id) { |token| tokens << token }
         end
-        source = -> { stream.next } # @type var source: Object
-        drive_parser(source)
+        drive_parser(-> { stream.next })
       end
 
       # Supply one token to a caller-driven parser session.
@@ -522,12 +479,12 @@ module Ibex
       # Returns `:need_more` after consuming it, `[:accepted, result]` after
       # acceptance, or `[:rejected, result]` after recovery terminates.
       # rubocop:disable Layout/LineLength
-      # @rbs (Object token, ?semantic_value value, ?location location) -> parser_outcome
+      # @rbs (untyped token, ?untyped value, ?untyped location) -> (:need_more | [:accepted, untyped] | [:rejected, untyped])
       # rubocop:enable Layout/LineLength
       def push(token, value = nil, location = nil)
         raise ParseError, "(input):1:1: push requires a token; call finish for EOF" if token.nil? || token == false
 
-        outcome = run_push_driver do
+        run_push_driver do
           start_push_session
           refresh_runtime_fast_path_after_user_code!
           if @repair_policy
@@ -541,13 +498,12 @@ module Ibex
           end
           run_push_lookahead
         end
-        outcome #: parser_outcome
       end
 
       # Supply EOF to a caller-driven parser session and return its result.
       # Committed reductions execute parser production actions; this token-fed
       # path does not invoke generated lexer actions.
-      # @rbs (?location: location) -> semantic_value
+      # @rbs (?location: untyped) -> untyped
       def finish(location: nil)
         run_push_driver do
           start_push_session
@@ -595,14 +551,14 @@ module Ibex
 
       # Override in pull parsers. Return `[token, value]`,
       # `[token, value, location]`, `false`, or `nil`.
-      # @rbs () -> lexer_token
+      # @rbs () -> ([untyped, untyped] | [untyped, untyped, untyped] | false | nil)
       def next_token
         raise NotImplementedError, "(input):1:1: next_token must be implemented"
       end
 
       # Override to recover from syntax errors. The default raises unless a
       # bounded automatic repair has already been selected.
-      # @rbs (Integer token_id, semantic_value value, Array[semantic_value] value_stack) -> semantic_value
+      # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> untyped
       def on_error(token_id, value, _value_stack)
         return if @repair_selected
         return if cst_enabled?
@@ -627,40 +583,40 @@ module Ibex
 
       # Called after an ordinary input token is shifted. Override to observe
       # the internal token id, semantic value, and destination state.
-      # @rbs (Integer token_id, semantic_value value, Integer state) -> void
+      # @rbs (Integer token_id, untyped value, Integer state) -> void
       def on_shift(_token_id, _value, _state); end
 
       # Location-aware shift observer. The compatible hook above retains its
       # original signature and runs first.
-      # @rbs (Integer token_id, semantic_value value, Integer state, location location) -> void
+      # @rbs (Integer token_id, untyped value, Integer state, untyped location) -> void
       def on_shift_location(_token_id, _value, _state, _location); end
 
       # Called after a production's semantic action and goto are committed.
       # Override to observe its id, RHS values, and semantic result.
-      # @rbs (Integer production_id, Array[semantic_value] values, semantic_value result) -> void
+      # @rbs (Integer production_id, Array[untyped] values, untyped result) -> void
       def on_reduce(_production_id, _values, _result); end
 
       # Location-aware reduction observer.
-      # @rbs (Integer production_id, Array[semantic_value] values, semantic_value result,
-      #   Array[location] locations, location result_location) -> void
+      # @rbs (Integer production_id, Array[untyped] values, untyped result,
+      #   Array[untyped] locations, untyped result_location) -> void
       def on_reduce_location(_production_id, _values, _result, _locations, _result_location); end
 
       # Called after the synthetic error token enters a recovery state.
       # The payload describes the original error before recovery popped stacks.
-      # @rbs (Integer token_id, semantic_value value, Array[semantic_value] value_stack) -> void
+      # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> void
       def on_error_recover(_token_id, _value, _value_stack); end
 
       # Location-aware recovery observer.
-      # @rbs (Integer token_id, semantic_value value, Array[semantic_value] value_stack,
-      #   location location, Integer state) -> void
+      # @rbs (Integer token_id, untyped value, Array[untyped] value_stack,
+      #   untyped location, Integer state) -> void
       def on_error_recover_location(_token_id, _value, _value_stack, _location, _state); end
 
       # Called when yacc recovery discards an application token.
-      # @rbs (Integer token_id, semantic_value value, location location, Symbol reason) -> void
+      # @rbs (Integer token_id, untyped value, untyped location, Symbol reason) -> void
       def on_discard(_token_id, _value, _location, _reason); end
 
       # Install an opt-in value formatter for human-readable yydebug traces.
-      # @rbs ((^(semantic_value) -> semantic_value)? printer) -> (^(semantic_value) -> semantic_value)?
+      # @rbs ((^(untyped) -> untyped)? printer) -> (^(untyped) -> untyped)?
       def trace_value_printer=(printer)
         ensure_runtime_initialized!
         unless printer.nil? || printer.respond_to?(:call)
@@ -736,7 +692,7 @@ module Ibex
 
       # Return the location of a one-based RHS position or named reference
       # while a semantic action is running.
-      # @rbs (Integer | Symbol | String reference) -> location
+      # @rbs (Integer | Symbol | String reference) -> untyped
       def loc(reference)
         locations = @semantic_locations
         raise ParseError, "(runtime):1:1: loc is only available inside a semantic action" unless locations
@@ -755,7 +711,7 @@ module Ibex
       end
 
       # Return the synthesized span of the reduction being evaluated.
-      # @rbs () -> location
+      # @rbs () -> untyped
       def result_loc
         unless @semantic_locations
           raise ParseError, "(runtime):1:1: result_loc is only available inside a semantic action"
@@ -862,7 +818,7 @@ module Ibex
 
       # Keep the two historical value-stack names as read-compatible aliases.
       # Applications must not mutate or replace these internal arrays.
-      # @rbs (Array[semantic_value] values) -> void
+      # @rbs (Array[untyped] values) -> void
       def install_value_stack(values)
         @value_stack = values
         @vstack = values
@@ -902,7 +858,7 @@ module Ibex
         (stack_depth + parser_state_count(tables) + 1) * (production_count + 1)
       end
 
-      # @rbs (table_set tables) -> Integer
+      # @rbs (Hash[Symbol, untyped] tables) -> Integer
       def parser_state_count(tables)
         state_count = tables[:state_count]
         return state_count if state_count.is_a?(Integer)
@@ -941,7 +897,7 @@ module Ibex
         true
       end
 
-      # @rbs (Object? source, ?initial_state: Integer?) -> semantic_value
+      # @rbs (untyped source, ?initial_state: Integer?) -> untyped
       def drive_parser(source, initial_state: nil)
         ensure_runtime_initialized!
         @runtime_observation_mutex.synchronize do
@@ -985,14 +941,13 @@ module Ibex
       # rubocop:disable Metrics/MethodLength, Metrics/PerceivedComplexity
       # Direct comparisons avoid predicate-method dispatch inside the parser loop.
       # rubocop:disable Style/BitwisePredicate, Style/NumericPredicate
-      # @rbs (table_set tables) -> (Object | [:accepted, semantic_value] | [:done, semantic_value])?
+      # @rbs (Hash[Symbol, untyped] tables) -> (Object | [:accepted, untyped] | [:done, untyped])?
       def drive_compact_fast_parser(tables)
         actions = tables.fetch(:actions)
         gotos = tables.fetch(:gotos)
         productions = tables.fetch(:productions)
         default_codes = tables.fetch(:compact_default_actions)
         token_ids = tables.fetch(:tokens)
-        return unless actions.is_a?(Tables::CompactActions) && gotos.is_a?(Tables::Compact)
         dense_action_codes = actions.dense_codes
         action_column_count = actions.column_count
         dense_goto_values = gotos.dense_values
@@ -1000,8 +955,6 @@ module Ibex
         return unless dense_action_codes && action_column_count &&
                       dense_goto_values && goto_dense_width &&
                       (tables[:compact_action_encoding] == :signed || default_codes.empty?)
-
-        return unless productions.is_a?(Tables::CompactProductions)
 
         production_lhs_ids = productions.lhs_ids
         production_lengths = productions.lengths
@@ -1022,7 +975,7 @@ module Ibex
             source = @source
 
             token = begin
-              source ? source.__send__(:call) : next_token
+              source ? source.call : next_token
             rescue StopIteration
               false
             end
@@ -1228,7 +1181,7 @@ module Ibex
       # rubocop:enable Metrics/MethodLength, Metrics/PerceivedComplexity
       # rubocop:enable Style/BitwisePredicate, Style/NumericPredicate
 
-      # @rbs (table_set? tables) -> bool
+      # @rbs (Hash[Symbol, untyped]? tables) -> bool
       def compact_fast_driver_eligible?(tables)
         return false unless @runtime_fast_path && tables
         return false unless tables[:compact_fast_driver] == true
@@ -1248,12 +1201,11 @@ module Ibex
         end
         return if @push_status == :active
 
-        source = -> { raise ParseError, "(input):1:1: push session needs another token" } # @type var source: Object
-        prepare_parse(source)
+        prepare_parse(-> { raise ParseError, "(input):1:1: push session needs another token" })
         @push_status = :active
       end
 
-      # @rbs () -> parser_outcome
+      # @rbs () -> (:need_more | [:accepted, untyped] | [:rejected, untyped])
       def run_push_lookahead
         loop do
           outcome = perform(action_for_current_state)
@@ -1276,7 +1228,7 @@ module Ibex
         end
       end
 
-      # @rbs () { () -> semantic_value } -> semantic_value
+      # @rbs () { () -> untyped } -> untyped
       def run_push_driver
         ensure_runtime_initialized!
         @runtime_observation_mutex.synchronize do
@@ -1322,7 +1274,7 @@ module Ibex
         clear_sync_recovery
       end
 
-      # @rbs (Object? source, ?initial_state: Integer?) -> void
+      # @rbs ((^() -> untyped)? source, ?initial_state: Integer?) -> void
       def prepare_parse(source, initial_state: nil)
         @runtime_parser_tables = load_parser_tables
         tables = validate_parser_table_format!
@@ -1368,7 +1320,7 @@ module Ibex
         clear_sync_recovery
       end
 
-      # @rbs (table_set tables, Integer? requested) -> Integer
+      # @rbs (Hash[Symbol, untyped] tables, Integer? requested) -> Integer
       def resolve_initial_state(tables, requested)
         initial_state = requested || tables[:initial_state] || 0
         return initial_state if initial_state.is_a?(Integer) &&
@@ -1377,7 +1329,7 @@ module Ibex
         raise ParseError, "(tables):1:1: parser initial state #{initial_state.inspect} is invalid"
       end
 
-      # @rbs () -> table_set
+      # @rbs () -> Hash[Symbol, untyped]
       def validate_parser_table_format!
         tables = parser_tables
         unless tables.key?(:format_version)
@@ -1402,7 +1354,7 @@ module Ibex
         tables
       end
 
-      # @rbs (table_set tables, Integer actual) -> void
+      # @rbs (Hash[Symbol, untyped] tables, Integer actual) -> void
       def validate_current_cst_tables!(tables, actual)
         cst = tables[:cst]
         return if cst.nil? || cst == false
@@ -1417,7 +1369,7 @@ module Ibex
       # Ractor boundary. Their action-marker contract only needs one scan per
       # parser class and exact table object, including across parser instances.
       # Mutable application tables remain intentionally uncached.
-      # @rbs (table_set tables) -> bool
+      # @rbs (Hash[Symbol, untyped] tables) -> bool
       def generated_action_contracts_validated?(tables)
         return false unless generated_action_contract_cache_accessible?
 
@@ -1425,7 +1377,7 @@ module Ibex
         cached.equal?(tables)
       end
 
-      # @rbs (table_set tables) -> void
+      # @rbs (Hash[Symbol, untyped] tables) -> void
       def cache_generated_action_contracts!(tables)
         shareable = defined?(Ractor) && Ractor.respond_to?(:shareable?) && Ractor.shareable?(tables)
         return unless shareable
@@ -1451,17 +1403,16 @@ module Ibex
         true
       end
 
-      # @rbs (table_set tables, Integer version) -> void
+      # @rbs (Hash[Symbol, untyped] tables, Integer version) -> void
       def validate_generated_action_contracts!(tables, version)
         tables.fetch(:productions).each_with_index do |production, index|
-          production = production #: table_production
           validate_composition_action_contract!(production, index, version)
           validate_values_action_contract!(production, index, version)
           validate_positional_action_contract!(production, index, version)
         end
       end
 
-      # @rbs (table_production production, Integer index, Integer version) -> void
+      # @rbs (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
       def validate_composition_action_contract!(production, index, version)
         return unless production[:composition_action] == true
         return if production[:location_action] == true && generated_action_symbol?(production[:action])
@@ -1471,7 +1422,7 @@ module Ibex
               ":composition_action marker; a generated action Symbol with :location_action is required"
       end
 
-      # @rbs (table_production production, Integer index, Integer version) -> void
+      # @rbs (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
       def validate_values_action_contract!(production, index, version)
         borrowed = production[:borrowed_values_action] == true
         if borrowed && production[:values_action] != true
@@ -1491,7 +1442,7 @@ module Ibex
               "markers is required"
       end
 
-      # @rbs (table_production production, Integer index, Integer version) -> void
+      # @rbs (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
       def validate_positional_action_contract!(production, index, version)
         return if version < 5 || production[:positional_action] != true
 
@@ -1503,7 +1454,7 @@ module Ibex
               "action ABI markers is required"
       end
 
-      # @rbs (table_production production) -> bool
+      # @rbs (Hash[Symbol, untyped] production) -> bool
       def positional_action_contract?(production)
         production[:length].is_a?(Integer) &&
           production[:length].between?(0, 4) &&
@@ -1515,7 +1466,7 @@ module Ibex
           production.fetch(:location_context_length, 0).zero?
       end
 
-      # @rbs () -> parser_runtime_action
+      # @rbs () -> untyped
       def action_for_current_state
         loop do
           if @lookahead.equal?(NO_LOOKAHEAD)
@@ -1538,16 +1489,16 @@ module Ibex
         end
       end
 
-      # @rbs (parser_runtime_action action) -> ([:continue] | [:accepted, semantic_value] | [:done, semantic_value])
+      # @rbs (untyped action) -> untyped
       def perform(action)
         case action.first
         when :shift
-          next_state = action.fetch(1) #: Integer
+          next_state = action.fetch(1)
           @runtime_fast_path ? fast_shift(next_state) : shift(next_state)
         when :reduce
-          production_id = action.fetch(1) #: Integer
+          production_id = action.fetch(1)
           if @runtime_fast_path
-            production = parser_tables.fetch(:productions).fetch(production_id) #: table_production
+            production = parser_tables.fetch(:productions).fetch(production_id)
             length = production.fetch(:length)
             return fast_reduce(production_id, production, length) if fast_reduction_eligible?(production, length)
           end
@@ -1580,7 +1531,7 @@ module Ibex
         CONTINUE_OUTCOME
       end
 
-      # @rbs (table_production production, Integer length) -> bool
+      # @rbs (Hash[Symbol, untyped] production, untyped length) -> bool
       def fast_reduction_eligible?(production, length)
         action = production[:action]
         return false if action && !generated_values_action?(production, action)
@@ -1589,14 +1540,10 @@ module Ibex
           length <= @value_stack.length && length < @state_stack.length
       end
 
-      # @rbs (Integer production_id, table_production production, Integer length) ->
-      #   ([:continue] | [:accepted, semantic_value])
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> [:continue]
       def fast_reduce(production_id, production, length)
         action = production[:action]
-        if action
-          action_name = action #: Symbol
-          return fast_values_reduce(production_id, production, length, action_name)
-        end
+        return fast_values_reduce(production_id, production, length, action) if action
 
         result = length.zero? ? nil : @value_stack.fetch(@value_stack.length - length)
         remaining = length
@@ -1614,8 +1561,7 @@ module Ibex
         CONTINUE_OUTCOME
       end
 
-      # @rbs (Integer production_id, table_production production, Integer length, Symbol action) ->
-      #   ([:continue] | [:accepted, semantic_value])
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length, Symbol action) -> untyped
       def fast_values_reduce(production_id, production, length, action)
         hook_values = @value_stack.last(length)
         values = hook_values.dup
@@ -1681,9 +1627,9 @@ module Ibex
         CONTINUE_OUTCOME
       end
 
-      # @rbs (Integer production_id, ?table_production? prefetched_production) -> untyped
+      # @rbs (Integer production_id, ?Hash[Symbol, untyped]? prefetched_production) -> untyped
       def reduce(production_id, prefetched_production = nil) # rubocop:disable Metrics -- allocation-free hot path.
-        production = prefetched_production || parser_tables.fetch(:productions).fetch(production_id) #: table_production
+        production = prefetched_production || parser_tables.fetch(:productions).fetch(production_id)
         length = production.fetch(:length)
         event_observers = runtime_observer_snapshot if @runtime_observers
         pre_state = @state_stack.last if event_observers
@@ -1740,7 +1686,7 @@ module Ibex
         trace("reduce #{production_id} (#{length})#{trace_value_suffix(result, lhs)} -> state #{next_state}")
       end
 
-      # @rbs (Array[Proc]? observers, Integer production_id, table_production production, Integer length,
+      # @rbs (Array[Proc]? observers, Integer production_id, Hash[Symbol, untyped] production, Integer length,
       #   Integer? pre_state, Integer? post_state, Integer next_state, untyped result,
       #   LocationSpan? location) -> Hash[String, untyped]?
       def build_reduce_event_data(
@@ -1753,7 +1699,7 @@ module Ibex
         )
       end
 
-      # @rbs (Integer production_id, table_production production, Integer length,
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length,
       #   Integer? pre_state, Integer? post_state, Integer next_state, untyped result,
       #   LocationSpan? location) -> Hash[String, untyped]
       def runtime_reduce_data(production_id, production, length, pre_state, post_state, next_state, result, location)
@@ -1776,7 +1722,7 @@ module Ibex
         [:accepted, result]
       end
 
-      # @rbs (Integer production_id, table_production production, Array[untyped] values,
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
       #   Array[untyped] locations, LocationSpan? location) -> untyped
       def reduction_value(production_id, production, values, locations, location) # rubocop:disable Metrics -- explicit hot path.
         previous_locations = @semantic_locations
@@ -1796,14 +1742,8 @@ module Ibex
         @semantic_locations = action_locations
         @semantic_location_names = production.fetch(:location_names, EMPTY_LOCATION_NAMES)
         @semantic_result_location = location
-        if generated_positional_action?(production, action)
-          action_name = action #: Symbol
-          return __send__(action_name, *values)
-        end
-        if generated_values_action?(production, action)
-          action_name = action #: Symbol
-          return __send__(action_name, values)
-        end
+        return __send__(action, *values) if generated_positional_action?(production, action)
+        return __send__(action, values) if generated_values_action?(production, action)
 
         value_stack = @value_stack.dup
         callable = action.respond_to?(:call)
@@ -1811,39 +1751,27 @@ module Ibex
           location_stack = (@location_stack || []).dup
           if generated_composition_action?(production, action)
             if callable
-              callable_action = action #: semantic_action
               return instance_exec(
-                values, value_stack, locations, location_stack, location, @lookahead_location, &callable_action
+                values, value_stack, locations, location_stack, location, @lookahead_location, &action
               )
             end
 
-            action_name = action #: Symbol
-            return __send__(action_name, values, value_stack, locations, location_stack, location, @lookahead_location)
+            return __send__(action, values, value_stack, locations, location_stack, location, @lookahead_location)
           end
 
-          if callable
-            callable_action = action #: semantic_action
-            return instance_exec(values, value_stack, locations, location_stack, location, &callable_action)
-          end
+          return instance_exec(values, value_stack, locations, location_stack, location, &action) if callable
 
-          action_name = action #: Symbol
-          return __send__(action_name, values, value_stack, locations, location_stack, location)
+          return __send__(action, values, value_stack, locations, location_stack, location)
         end
 
-        if callable
-          callable_action = action #: semantic_action
-          instance_exec(values, value_stack, &callable_action)
-        else
-          action_name = action #: Symbol
-          __send__(action_name, values, value_stack)
-        end
+        callable ? instance_exec(values, value_stack, &action) : __send__(action, values, value_stack)
       ensure
         @semantic_locations = previous_locations
         @semantic_location_names = previous_names
         @semantic_result_location = previous_result_location
       end
 
-      # @rbs (table_production production, Symbol action, Array[untyped] values,
+      # @rbs (Hash[Symbol, untyped] production, Symbol action, Array[untyped] values,
       #   Array[untyped] locations, LocationSpan? location) -> untyped
       def values_reduction_value(production, action, values, locations, location)
         previous_locations = @semantic_locations
@@ -1859,34 +1787,34 @@ module Ibex
         @semantic_result_location = previous_result_location
       end
 
-      # @rbs (Integer production_id, table_production production, Array[untyped] values,
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
       #   Array[untyped] locations, LocationSpan? location) -> untyped
       def actionless_reduction_value(_production_id, _production, values, _locations, _location)
         values.first
       end
 
-      # @rbs (table_production production, untyped action) -> bool
+      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
       def generated_location_action?(production, action)
         parser_tables.fetch(:format_version) >= 2 &&
           production[:location_action] == true &&
           generated_action_symbol?(action)
       end
 
-      # @rbs (table_production production, untyped action) -> bool
+      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
       def generated_values_action?(production, action)
         parser_tables.fetch(:format_version) >= 4 &&
           production[:values_action] == true &&
           generated_action_symbol?(action)
       end
 
-      # @rbs (table_production production, untyped action) -> bool
+      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
       def generated_positional_action?(production, action)
         parser_tables.fetch(:format_version) >= 5 &&
           production[:positional_action] == true &&
           generated_action_symbol?(action)
       end
 
-      # @rbs (table_production production, untyped action) -> bool
+      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
       def generated_composition_action?(production, action)
         parser_tables.fetch(:format_version) >= 3 &&
           production[:composition_action] == true &&
@@ -2048,14 +1976,12 @@ module Ibex
         @green_reused_right_edge = false
       end
 
-      # @rbs (Integer production_id, table_production production, Integer length, Integer left_state) -> void
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer left_state) -> void
       def reduce_green(production_id, production, length, left_state)
         builder = @green_builder
         return unless builder
 
         config = parser_tables.fetch(:cst)
-        return unless config.is_a?(Hash)
-        config = config #: cst_config
         slot = config.fetch(:slots).fetch(production_id, nil)
         kind = slot ? slot.fetch(:node_kind) : production.fetch(:lhs)
         flags = length.zero? ? CST::Flags::SYNTHETIC : 0
@@ -2180,8 +2106,6 @@ module Ibex
       # @rbs (CST::GreenNode green, CST::Kind kinds, ?file: String?) -> void
       def install_syntax_root(green, kinds, file: nil)
         config = parser_tables.fetch(:cst)
-        return unless config.is_a?(Hash)
-        config = config #: cst_config
         policy = config.fetch(:trivia_policy)
         location_file = cst_location_value(@lookahead_location, :file)
         source_file = file || (location_file if location_file.is_a?(String))
@@ -2883,13 +2807,13 @@ module Ibex
         trace("read #{input.token_name}") if @yydebug
       end
 
-      # @rbs () -> lexer_token
+      # @rbs () -> untyped
       def read_external_token
         source = @source
         return next_token unless source
-        return source.__send__(:next_for_state, @state_stack.last) if source.respond_to?(:next_for_state)
+        return source.next_for_state(@state_stack.last) if source.respond_to?(:next_for_state)
 
-        source.__send__(:call)
+        source.call
       rescue StopIteration
         false
       end
@@ -2903,7 +2827,7 @@ module Ibex
         @unknown_token_id = -external_token.object_id.abs
       end
 
-      # @rbs () -> table_set
+      # @rbs () -> Hash[Symbol, untyped]
       def parser_tables
         tables = @runtime_parser_tables
         return tables if tables
@@ -2911,10 +2835,9 @@ module Ibex
         load_parser_tables
       end
 
-      # @rbs () -> table_set
+      # @rbs () -> Hash[Symbol, untyped]
       def load_parser_tables
-        tables = self.class.__send__(:parser_tables) # @type var tables: table_set
-        tables
+        self.class.__send__(:parser_tables)
       rescue NoMethodError
         raise ParseError, "(tables):1:1: #{self.class} must define .parser_tables"
       end

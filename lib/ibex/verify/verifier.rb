@@ -6,11 +6,6 @@ module Ibex
     # Checks Automaton IR semantics against an independently derived collection.
     # rubocop:disable Metrics/ClassLength -- V1-V8 share one violation and item-identity model.
     class Verifier
-      # @type ivar @automaton: IR::Automaton
-      # @type ivar @grammar: IR::Grammar
-      # @type ivar @strict: bool
-      # @type ivar @max_states: Integer
-      # @type ivar @max_items: Integer
       DEFAULT_CHECKS = %w[V1 V3 V4 V6 V7 V8].freeze #: Array[String]
       STRICT_CHECKS = %w[V2 V5].freeze #: Array[String]
       ERROR_ACTION = { type: :error }.freeze #: IR::error_action
@@ -23,12 +18,12 @@ module Ibex
         @max_states = max_states
         @max_items = max_items
         @violations = [] #: Array[Violation]
-        @sets = Analysis::Sets.new(grammar) #: Analysis::Sets
+        @sets = Analysis::Sets.new(@grammar)
       end
 
       # @rbs () -> Result
       def verify
-        @violations = [] #: Array[Violation]
+        @violations.clear
         verify_grammar_digest
         verify_item_collection
         verify_transitions_and_actions
@@ -37,7 +32,7 @@ module Ibex
         verify_epsilon_termination
         verify_conflict_determinism
         Result.new(
-          algorithm: automaton.algorithm, strict: @strict,
+          algorithm: @automaton.algorithm, strict: @strict,
           checks: DEFAULT_CHECKS + (@strict ? STRICT_CHECKS : []),
           violations: @violations,
           bounds: { max_states: @max_states, max_items: @max_items }
@@ -49,20 +44,20 @@ module Ibex
       # @rbs () -> void
       def verify_grammar_digest
         require "digest"
-        actual = "sha256:#{Digest::SHA256.hexdigest(IR::Serialize.dump(grammar))}"
-        return if actual == automaton.grammar_digest
+        actual = "sha256:#{Digest::SHA256.hexdigest(IR::Serialize.dump(@grammar))}"
+        return if actual == @automaton.grammar_digest
 
         violation("V1", "$.grammar_digest", "digest does not match the embedded Grammar IR")
       end
 
       # @rbs () -> void
       def verify_item_collection
-        case automaton.algorithm
+        case @automaton.algorithm
         when "slr" then compare_slr_states(reference.build(:lr0).states.map { |state| visible_state(state) })
         when "lalr1" then compare_expected_states(lalr_states)
         when "lr1" then compare_expected_states(lr1_states)
         when "ielr1" then compare_ielr_states(lalr_states)
-        else violation("V1", "$.algorithm", "unsupported algorithm #{automaton.algorithm.inspect}")
+        else violation("V1", "$.algorithm", "unsupported algorithm #{@automaton.algorithm.inspect}")
         end
       end
 
@@ -73,7 +68,7 @@ module Ibex
       def compare_slr_states(expected_states)
         expected_by_core = expected_states.group_by { |state| state.to_a.sort }
         matched_cores = [] #: Array[Array[Array[Integer]]]
-        automaton.states.each do |state|
+        @automaton.states.each do |state|
           core = verify_slr_state(state, expected_by_core)
           matched_cores << core if core
         end
@@ -118,9 +113,7 @@ module Ibex
       def lalr_states
         groups = canonical_lr1_states.group_by { |state| core_key(state) }
         groups.values.map do |states|
-          merged = states.each_with_object(Set[]) do |state, result|
-            state.each { |item| result << item }
-          end #: Set[Array[Integer]]
+          merged = states.each_with_object(Set.new) { |state, result| state.each { |item| result << item } }
           visible_state(merged)
         end
       end
@@ -134,7 +127,7 @@ module Ibex
       def compare_expected_states(expected_states)
         expected_by_core = expected_states.group_by { |state| core_key(state) }
         matched = [] #: Array[Set[Array[Integer]]]
-        automaton.states.each do |state|
+        @automaton.states.each do |state|
           actual = expanded_items(state)
           candidates = expected_by_core.fetch(core_key(actual), [])
           expected = candidates.find { |candidate| actual.subset?(candidate) }
@@ -144,8 +137,7 @@ module Ibex
           end
 
           matched << expected
-          expected_state = expected #: Set[Array[Integer]]
-          missing = expected_state - actual
+          missing = expected - actual
           violation("V2", state_path(state), "item set is missing #{missing.length} derived items") if
             @strict && !missing.empty?
         end
@@ -162,7 +154,7 @@ module Ibex
       def compare_ielr_states(expected_states)
         expected_by_core = expected_states.to_h { |state| [core_key(state), state] }
         actual_by_core = {} #: Hash[Array[Array[Integer]], Set[Array[Integer]]]
-        automaton.states.each do |state|
+        @automaton.states.each do |state|
           actual = expanded_items(state)
           core = core_key(actual)
           expected = expected_by_core[core]
@@ -170,14 +162,13 @@ module Ibex
             violation("V1", state_path(state), "IELR state contains an item outside its canonical-core union")
             next
           end
-          merged = actual_by_core[core] ||= Set[] #: Set[Array[Integer]]
+          merged = actual_by_core[core] ||= Set.new
           actual.each { |item| merged << item }
         end
         return unless @strict
 
-        empty = Set[] #: Set[Array[Integer]]
         expected_by_core.each do |core, expected|
-          next if actual_by_core.fetch(core, empty) == expected
+          next if actual_by_core.fetch(core, Set.new) == expected
 
           violation("V2", "$.states", "IELR partitions do not cover canonical lookaheads for core #{core.inspect}")
         end
@@ -185,7 +176,7 @@ module Ibex
 
       # @rbs () -> void
       def verify_transitions_and_actions
-        automaton.states.each do |state|
+        @automaton.states.each do |state|
           verify_transition_items(state)
           verify_state_actions(state)
         end
@@ -194,8 +185,8 @@ module Ibex
       # @rbs (IR::AutomatonState state) -> void
       def verify_transition_items(state)
         state.transitions.each do |symbol_id, target_id|
-          symbol = grammar.symbol_by_id(symbol_id)
-          target = automaton.states[target_id]
+          symbol = @grammar.symbol_by_id(symbol_id)
+          target = @automaton.states[target_id]
           unless symbol && target
             violation("V1", state_path(state), "transition references a missing symbol or state")
             next
@@ -218,13 +209,13 @@ module Ibex
       def verify_state_actions(state)
         candidates = action_candidates(state)
         conflict_tokens = state.conflicts.filter_map do |conflict|
-          grammar.symbol(conflict.fetch(:symbol))&.id
+          @grammar.symbol(conflict.fetch(:symbol))&.id
         end
         if state.default_action && state.default_action[:type] != :reduce
           violation("V4", state_path(state), "default action must be a reduction")
         end
 
-        grammar.terminals.each do |terminal|
+        @grammar.terminals.each do |terminal|
           expected = candidates.fetch(terminal.id, []).uniq
           actual = effective_action(state, terminal.id)
           verify_terminal_action(state, terminal, expected, actual, conflict_tokens)
@@ -272,9 +263,9 @@ module Ibex
 
       # @rbs () -> void
       def verify_table_formats
-        plain = Tables.build(automaton, format: :plain)
-        compact = Tables.build(automaton, format: :compact)
-        automaton.states.each do |state|
+        plain = Tables.build(@automaton, format: :plain)
+        compact = Tables.build(@automaton, format: :compact)
+        @automaton.states.each do |state|
           unless action_row(plain.actions, state.id) == action_row(compact.actions, state.id)
             violation(@strict ? "V5" : "V4", state_path(state), "plain/compact ACTION rows differ")
           end
@@ -302,7 +293,7 @@ module Ibex
       # @rbs () -> void
       def verify_reachability_and_productivity
         reachable = reachable_states
-        automaton.states.each do |state|
+        @automaton.states.each do |state|
           unless reachable.include?(state.id)
             violation("V6", state_path(state),
                       "state is unreachable from every entry")
@@ -310,7 +301,7 @@ module Ibex
         end
 
         productive = productive_nonterminals
-        grammar.nonterminals.each do |symbol|
+        @grammar.nonterminals.each do |symbol|
           unless productive.include?(symbol.id)
             violation("V6", "$.grammar.symbols[#{symbol.id}]",
                       "nonterminal #{symbol.name} derives no terminal sentence")
@@ -320,14 +311,13 @@ module Ibex
 
       # @rbs () -> void
       def verify_epsilon_termination
-        grammar.terminals.each do |terminal|
+        @grammar.terminals.each do |terminal|
           edges = {} #: Hash[Integer, Integer]
-          automaton.states.each do |state|
+          @automaton.states.each do |state|
             action = effective_action(state, terminal.id)
             next unless action[:type] == :reduce
 
-            production_id = action.fetch(:production) #: Integer
-            production = grammar.productions[production_id]
+            production = @grammar.productions[action.fetch(:production)]
             next unless production&.rhs&.empty?
 
             target = state.gotos[production.lhs]
@@ -341,7 +331,7 @@ module Ibex
 
       # @rbs () -> void
       def verify_conflict_determinism
-        automaton.states.each do |state|
+        @automaton.states.each do |state|
           grouped = state.conflicts.group_by { |conflict| conflict.fetch(:symbol) }
           grouped.each do |symbol, conflicts|
             violation("V8", state_path(state), "#{symbol} has more than one declared resolver") if conflicts.length > 1
@@ -358,7 +348,7 @@ module Ibex
 
       # @rbs (IR::AutomatonState state, IR::conflict conflict) -> void
       def verify_conflict_resolution(state, conflict)
-        terminal = grammar.symbol(conflict.fetch(:symbol))
+        terminal = @grammar.symbol(conflict.fetch(:symbol))
         unless terminal&.terminal?
           violation("V8", state_path(state), "resolver references a missing terminal")
           return
@@ -405,7 +395,7 @@ module Ibex
       def action_candidates(state)
         candidates = Hash.new { |hash, key| hash[key] = [] } #: Hash[Integer, Array[IR::parser_action]]
         state.transitions.each do |symbol_id, target|
-          symbol = grammar.symbol_by_id(symbol_id)
+          symbol = @grammar.symbol_by_id(symbol_id)
           candidates[symbol_id] << { type: :shift, state: target } if symbol&.terminal?
         end
         state.items.each do |item|
@@ -444,37 +434,32 @@ module Ibex
 
       # @rbs () -> Set[Integer]
       def reachable_states
-        found = Set[] #: Set[Integer]
-        queue = automaton.entry_states.values.dup
+        found = Set.new
+        queue = @automaton.entry_states.values.dup
         until queue.empty?
           id = queue.shift
           next if found.include?(id)
 
           found << id
-          state = automaton.states[id]
+          state = @automaton.states[id]
           next unless state
 
           queue.concat(state.transitions.values)
           queue.concat(state.gotos.values)
-          state.actions.each_value do |action|
-            next unless action[:type] == :shift
-
-            shift = action #: IR::shift_action
-            queue << shift.fetch(:state)
-          end
+          state.actions.each_value { |action| queue << action[:state] if action[:type] == :shift }
         end
         found
       end
 
       # @rbs () -> Set[Integer]
       def productive_nonterminals
-        productive = Set[] #: Set[Integer]
-        pending = grammar.productions.dup
+        productive = Set.new
+        pending = @grammar.productions.dup
         loop do
           changed = false
           pending.delete_if do |production|
             ready = production.rhs.all? do |id|
-              symbol = grammar.symbol_by_id(id)
+              symbol = @grammar.symbol_by_id(id)
               symbol&.terminal? || productive.include?(id)
             end
             productive << production.lhs if ready
@@ -489,7 +474,7 @@ module Ibex
       # @rbs (Hash[Integer, Integer] edges) -> bool
       def directed_cycle?(edges)
         edges.each_key do |start|
-          seen = Set[] #: Set[Integer]
+          seen = Set.new
           cursor = start
           while cursor && edges.key?(cursor)
             return true if seen.include?(cursor)
@@ -503,21 +488,21 @@ module Ibex
 
       # @rbs (IR::AutomatonState state) -> Set[Array[Integer]]
       def expanded_items(state)
-        state.items.each_with_object(Set[]) do |item, result|
+        state.items.each_with_object(Set.new) do |item, result|
           item.lookaheads.each { |lookahead| result << [item.production, item.dot, lookahead] }
-        end #: Set[Array[Integer]]
+        end
       end
 
       # Automaton IR intentionally exposes every augmented production as -1,
       # even when construction internally assigned one per start symbol.
       # @rbs (Set[Array[Integer]] state) -> Set[Array[Integer]]
       def visible_state(state)
-        state.each_with_object(Set[]) do |item, result|
+        state.each_with_object(Set.new) do |item, result|
           production = item.fetch(0)
           dot = item.fetch(1)
           lookahead = item[2]
           result << [production.negative? ? -1 : production, dot, lookahead].compact
-        end #: Set[Array[Integer]]
+        end
       end
 
       # @rbs (Set[Array[Integer]] state) -> Array[Array[Integer]]
@@ -532,57 +517,45 @@ module Ibex
 
       # @rbs (Integer production_id) -> Array[Integer]
       def follow_ids(production_id)
-        production = grammar.productions.fetch(production_id)
-        sets = @sets #: Analysis::Sets
-        names = sets.follow(production.lhs)
-        names.map { |name| grammar.symbol(name)&.id }.compact
+        production = @grammar.productions.fetch(production_id)
+        names = @sets.follow(production.lhs)
+        names.map { |name| @grammar.symbol(name)&.id }.compact
       end
 
       # @rbs (Integer production_id) -> Array[Integer]
       def rhs_for(production_id)
         return [start_symbol(production_id).id] if production_id.negative?
 
-        production = grammar.productions[production_id]
+        production = @grammar.productions[production_id]
         production&.rhs || []
       end
 
       # @rbs (Integer production_id) -> IR::GrammarSymbol
       def start_symbol(production_id)
-        name = grammar.starts.fetch(-production_id - 1)
-        grammar.symbol(name) || raise(Ibex::Error, "(verify):1:1: missing start symbol #{name}")
+        name = @grammar.starts.fetch(-production_id - 1)
+        @grammar.symbol(name) || raise(Ibex::Error, "(verify):1:1: missing start symbol #{name}")
       end
 
       # @rbs () -> Integer
       def eof_id
-        grammar.symbol("$eof")&.id || raise(Ibex::Error, "(verify):1:1: grammar has no $eof terminal")
+        @grammar.symbol("$eof")&.id || raise(Ibex::Error, "(verify):1:1: grammar has no $eof terminal")
       end
 
       # @rbs () -> Array[Integer]
       def start_symbol_ids
-        @start_symbol_ids ||= grammar.starts.map do |name|
-          grammar.symbol(name)&.id || raise(Ibex::Error, "(verify):1:1: missing start symbol #{name}")
+        @start_symbol_ids ||= @grammar.starts.map do |name|
+          @grammar.symbol(name)&.id || raise(Ibex::Error, "(verify):1:1: missing start symbol #{name}")
         end
       end
 
       # @rbs () -> ReferenceCollection
       def reference
-        @reference ||= ReferenceCollection.new(grammar, max_states: @max_states, max_items: @max_items)
+        @reference ||= ReferenceCollection.new(@grammar, max_states: @max_states, max_items: @max_items)
       end
 
       # @rbs (String id, String location, String message) -> void
       def violation(id, location, message)
-        violations = @violations #: Array[Violation]
-        @violations = violations + [Violation.new(id: id, location: location, message: message).freeze]
-      end
-
-      # @rbs () -> IR::Automaton
-      def automaton
-        @automaton
-      end
-
-      # @rbs () -> IR::Grammar
-      def grammar
-        @grammar
+        @violations << Violation.new(id: id, location: location, message: message).freeze
       end
 
       # @rbs (IR::AutomatonState state) -> String

@@ -5,11 +5,6 @@ module Ibex
     # Checks Automaton IR semantics against an independently derived collection.
     # rubocop:disable Metrics/ClassLength -- V1-V8 share one violation and item-identity model.
     class Verifier
-      # @type ivar @automaton: IR::Automaton
-      # @type ivar @grammar: IR::Grammar
-      # @type ivar @strict: bool
-      # @type ivar @max_states: Integer
-      # @type ivar @max_items: Integer
       DEFAULT_CHECKS: Array[String]
 
       STRICT_CHECKS: Array[String]
@@ -162,12 +157,6 @@ module Ibex
 
       # @rbs (String id, String location, String message) -> void
       def violation: (String id, String location, String message) -> void
-
-      # @rbs () -> IR::Automaton
-      def automaton: () -> IR::Automaton
-
-      # @rbs () -> IR::Grammar
-      def grammar: () -> IR::Grammar
 
       # @rbs (IR::AutomatonState state) -> String
       def state_path: (IR::AutomatonState state) -> String

@@ -491,7 +491,7 @@
       },
       {
         "path": "lib/ibex/normalize/inline_expansion.rb",
-        "sha256": "a7ad876046dc0482cef522e0aa701c933cecb2c5bacfb2f8e2dd974b4411d687"
+        "sha256": "e8d9c2f26c0804905c09ba4f489d56f873715a10eb72e8c1a3064fd0d424217f"
       },
       {
         "path": "lib/ibex/normalize/inline_validation.rb",
@@ -527,7 +527,7 @@
       },
       {
         "path": "lib/ibex/normalize/parameters.rb",
-        "sha256": "371b5e32dc6a3c3c04266b63cb58a7f01d4836dfab01e8bc6e7dfb2d3905db07"
+        "sha256": "d0d76a1d16dc198d5bd5cf9cd8a1cc7f2b9a4a5e1c0cffcf9b24c8ac1e59cf37"
       },
       {
         "path": "lib/ibex/normalize/parser_configuration.rb",
@@ -691,7 +691,7 @@
       },
       {
         "path": "lib/ibex/runtime/generated_lexer.rb",
-        "sha256": "aa6012674c77c4c196b6c110372b6ab9606160b9845064e2b719a3b251ddb9ed"
+        "sha256": "1a5e14efae5441aedcaafe843e52aa0d6b69f86ca67fc710487ea66dad180d5d"
       },
       {
         "path": "lib/ibex/runtime/jsonl_tracer.rb",
@@ -711,7 +711,7 @@
       },
       {
         "path": "lib/ibex/runtime/parser.rb",
-        "sha256": "f8f4ca1de0f6c7c7e96a3b1d86098644072d8b22927c02b32fd0dd6378ebbaa8"
+        "sha256": "bbe483b0bc2ed3f1102e10c1cee37889a9440a1eb2251ae5ec520989020f8a59"
       },
       {
         "path": "lib/ibex/runtime/parser_sync_recovery.rb",

@@ -397,7 +397,6 @@ module Ibex
         tables = parser_tables
         config = tables[:cst]
         if config.is_a?(Hash)
-          config = config #: Runtime::Parser::cst_config
           @lexer_cst_trivia_policy = config.fetch(:trivia_policy)
           @lexer_cst_trivia_kinds = config.fetch(:kinds).fetch(:trivia)
           return
