@@ -16,17 +16,17 @@ module Ibex
         ACTION_TYPES = %w[shift reduce accept error].freeze #: Array[String]
         RESOLUTION_KINDS = %w[definition_order default_shift precedence associativity].freeze #: Array[String]
 
-        # @rbs @data: Hash[String, untyped]
-        # @rbs @states_by_id: Hash[Integer, Hash[String, untyped]]
+        # @rbs @data: json_object
+        # @rbs @states_by_id: Hash[Integer, json_object]
         # @rbs @grammar: GrammarDocument
         # @rbs @version: Integer
 
-        # @rbs (Hash[String, untyped] data, ?version: Integer) -> void
+        # @rbs (json_object data, ?version: Integer) -> void
         def initialize(data, version: data.fetch("schema_version"))
           super()
           @data = data
           @version = version
-          @states_by_id = {} #: Hash[Integer, Hash[String, untyped]]
+          @states_by_id = {} #: Hash[Integer, json_object]
         end
 
         # @rbs () -> self
@@ -62,8 +62,8 @@ module Ibex
           expected = @data.dig("grammar", "starts") || [@data.dig("grammar", "start")]
           invalid("$.entry_states", "keys must equal grammar starts in order") unless entries.keys == expected
           entries.each do |name, state|
-            nonnegative_integer(state, "$.entry_states.#{name}")
-            invalid("$.entry_states.#{name}", "references missing state #{state}") unless @states_by_id[state]
+            state_id = nonnegative_integer(state, "$.entry_states.#{name}")
+            invalid("$.entry_states.#{name}", "references missing state #{state_id}") unless @states_by_id[state_id]
           end
         end
 
@@ -125,7 +125,7 @@ module Ibex
           end
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_items(value, path)
           array(value, path).each_with_index do |item, index|
             item_path = "#{path}[#{index}]"
@@ -136,7 +136,7 @@ module Ibex
           end
         end
 
-        # @rbs (Integer production_id, untyped dot_value, String path) -> void
+        # @rbs (Integer production_id, json_value dot_value, String path) -> void
         def validate_item_production(production_id, dot_value, path)
           dot = nonnegative_integer(dot_value, "#{path}.dot")
           if production_id == -1
@@ -145,10 +145,11 @@ module Ibex
           end
           production = @grammar.productions_by_id[production_id]
           invalid("#{path}.production", "references missing production id #{production_id}") unless production
-          invalid("#{path}.dot", "exceeds production #{production_id} length") if dot > production["rhs"].length
+          rhs = array(production["rhs"], "#{path}.production.rhs")
+          invalid("#{path}.dot", "exceeds production #{production_id} length") if dot > rhs.length
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_lookaheads(value, path)
           array(value, path).each_with_index do |name, index|
             name = string(name, "#{path}[#{index}]")
@@ -158,28 +159,28 @@ module Ibex
           end
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_transitions(value, path)
           symbol_map(value, path) do |target, target_path, _symbol|
             validate_state_reference(target, target_path)
           end
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_actions(value, path)
           symbol_map(value, path, kind: "terminal") do |action, action_path, _symbol|
             validate_parser_action(action, action_path)
           end
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_gotos(value, path)
           symbol_map(value, path, kind: "nonterminal") do |target, target_path, _symbol|
             validate_state_reference(target, target_path)
           end
         end
 
-        # @rbs (untyped value, String path, ?kind: String?) { (untyped, String, Hash[String, untyped]) -> void } -> void
+        # @rbs (json_value value, String path, ?kind: String?) { (json_value, String, json_object) -> void } -> void
         def symbol_map(value, path, kind: nil, &block)
           object(value, path).each do |name, item|
             item_path = child_path(path, name)
@@ -190,13 +191,13 @@ module Ibex
           end
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_state_reference(value, path)
           id = nonnegative_integer(value, path)
           invalid(path, "references missing state id #{id}") unless @states_by_id.key?(id)
         end
 
-        # @rbs (untyped value, String path, ?nullable: bool) -> void
+        # @rbs (json_value value, String path, ?nullable: bool) -> void
         def validate_parser_action(value, path, nullable: false)
           return if nullable && value.nil?
 
@@ -212,13 +213,13 @@ module Ibex
           validate_production_reference(action["production"], "#{path}.production") if type == "reduce"
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_production_reference(value, path)
           id = nonnegative_integer(value, path)
           invalid(path, "references missing production id #{id}") unless @grammar.productions_by_id.key?(id)
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_conflicts(value, path)
           array(value, path).each_with_index do |conflict, index|
             conflict_path = "#{path}[#{index}]"
@@ -233,7 +234,7 @@ module Ibex
           end
         end
 
-        # @rbs (Hash[String, untyped] conflict, String path) -> void
+        # @rbs (json_object conflict, String path) -> void
         def validate_shift_reduce(conflict, path)
           record(conflict, path, %w[type symbol shift_to reduce resolution], %w[midrule_origins entries composite])
           validate_conflict_symbol(conflict["symbol"], "#{path}.symbol")
@@ -245,11 +246,13 @@ module Ibex
           validate_conflict_entries(conflict, path)
         end
 
-        # @rbs (Hash[String, untyped] conflict, String path) -> void
+        # @rbs (json_object conflict, String path) -> void
         def validate_reduce_reduce(conflict, path)
           record(conflict, path, %w[type symbol reductions resolution], %w[midrule_origins entries composite])
           validate_conflict_symbol(conflict["symbol"], "#{path}.symbol")
-          reductions = array(conflict["reductions"], "#{path}.reductions")
+          reductions = array(conflict["reductions"], "#{path}.reductions").map.with_index do |id, index|
+            nonnegative_integer(id, "#{path}.reductions[#{index}]")
+          end
           invalid("#{path}.reductions", "must contain at least two productions") if reductions.length < 2
           reductions.each_with_index do |id, index|
             validate_production_reference(id, "#{path}.reductions[#{index}]")
@@ -263,7 +266,7 @@ module Ibex
           validate_conflict_entries(conflict, path)
         end
 
-        # @rbs (Hash[String, untyped] conflict, String path) -> void
+        # @rbs (json_object conflict, String path) -> void
         def validate_conflict_entries(conflict, path)
           if conflict.key?("entries")
             starts = @data.dig("grammar", "starts") || [@data.dig("grammar", "start")]
@@ -278,14 +281,14 @@ module Ibex
           boolean(conflict["composite"], "#{path}.composite") if conflict.key?("composite")
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_midrule_origins(value, path)
           origins = array(value, path)
           invalid(path, "must not be empty") if origins.empty?
           origins.each_with_index { |origin, index| location(origin, "#{path}[#{index}]") }
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_conflict_symbol(value, path)
           name = string(value, path)
           symbol = @grammar.symbols_by_name[name]
@@ -293,7 +296,7 @@ module Ibex
           invalid(path, "must reference a terminal") unless symbol["kind"] == "terminal"
         end
 
-        # @rbs (untyped value, String path, ?reductions: Array[Integer]?) -> void
+        # @rbs (json_value value, String path, ?reductions: Array[Integer]?) -> void
         def validate_resolution(value, path, reductions: nil)
           resolution = record(value, path, %w[by chose], %w[associativity])
           enum(resolution["by"], "#{path}.by", RESOLUTION_KINDS)
@@ -328,9 +331,14 @@ module Ibex
           validate_expectation(summary, path)
         end
 
-        # @rbs (Hash[String, untyped] summary, String path) -> void
+        # @rbs (json_object summary, String path) -> void
         def validate_conflict_counts(summary, path)
-          conflicts = @states_by_id.values.flat_map { |state| state["conflicts"] }
+          conflicts = @states_by_id.values.flat_map do |state|
+            array(state["conflicts"], "$.states.conflicts").map do |conflict|
+              record = conflict #: json_object
+              record
+            end
+          end
           shift_reduce = conflicts.select { |conflict| conflict["type"] == "shift_reduce" }
           counts = {
             "sr" => shift_reduce.count { |conflict| conflict.dig("resolution", "by") == "default_shift" },
@@ -345,9 +353,10 @@ module Ibex
           end
         end
 
-        # @rbs (Hash[String, untyped] summary, String path) -> void
+        # @rbs (json_object summary, String path) -> void
         def validate_expectation(summary, path)
-          grammar_expect = @data.fetch("grammar").fetch("expect")
+          grammar = @data.fetch("grammar") #: json_object
+          grammar_expect = grammar.fetch("expect")
           unless summary["expected_sr"] == grammar_expect
             invalid("#{path}.expected_sr", "must equal embedded grammar expect #{grammar_expect}")
           end
@@ -356,7 +365,7 @@ module Ibex
             invalid("#{path}.expectation_met", "must be #{expected_met} for the recorded shift/reduce count")
           end
 
-          grammar_expect_rr = @data.fetch("grammar")["expect_rr"]
+          grammar_expect_rr = grammar["expect_rr"]
           return if grammar_expect_rr.nil?
 
           unless summary["expected_rr"] == grammar_expect_rr

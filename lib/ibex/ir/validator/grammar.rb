@@ -29,15 +29,15 @@ module Ibex
           if in module next nil not or redo rescue retry return self super then true undef unless until when while yield
         ].freeze #: Array[String]
 
-        attr_reader :symbols_by_id #: Hash[Integer, Hash[String, untyped]]
-        attr_reader :symbols_by_name #: Hash[String, Hash[String, untyped]]
-        attr_reader :productions_by_id #: Hash[Integer, Hash[String, untyped]]
+        attr_reader :symbols_by_id #: Hash[Integer, json_object]
+        attr_reader :symbols_by_name #: Hash[String, json_object]
+        attr_reader :productions_by_id #: Hash[Integer, json_object]
 
-        # @rbs @data: Hash[String, untyped]
+        # @rbs @data: json_object
         # @rbs @path: String
         # @rbs @version: Integer
 
-        # @rbs (Hash[String, untyped] data, ?path: String, ?version: Integer) -> void
+        # @rbs (json_object data, ?path: String, ?version: Integer) -> void
         def initialize(data, path: "$", version: data.fetch("schema_version"))
           super()
           @data = data
@@ -183,7 +183,7 @@ module Ibex
           end
         end
 
-        # @rbs (untyped value, Integer index) -> void
+        # @rbs (json_value value, Integer index) -> void
         def validate_symbol(value, index)
           path = "#{@path}.symbols[#{index}]"
           required = SYMBOL_REQUIRED + (@version >= 2 ? V2_SYMBOL_REQUIRED : [])
@@ -202,7 +202,7 @@ module Ibex
           nullable_string(symbol["doc"], "#{path}.doc") if @version >= 2
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_precedence(value, path)
           return if value.nil?
 
@@ -227,7 +227,7 @@ module Ibex
 
         # @rbs () -> void
         def validate_start
-          start = @data["start"]
+          start = nonempty_string(@data["start"], "#{@path}.start")
           symbol = @symbols_by_name[start]
           invalid("#{@path}.start", "references missing symbol #{start.inspect}") unless symbol
           invalid("#{@path}.start", "must reference a nonterminal") unless symbol["kind"] == "nonterminal"
@@ -277,7 +277,7 @@ module Ibex
           invalid(path, "must declare at least one recovery policy")
         end
 
-        # @rbs (untyped values, String path, kind: String) -> void
+        # @rbs (json_value values, String path, kind: String) -> void
         def validate_recovery_symbols(values, path, kind:)
           seen = {} #: Hash[String, bool]
           array(values, path).each_with_index do |name, index|
@@ -285,7 +285,7 @@ module Ibex
           end
         end
 
-        # @rbs (untyped value, String path, kind: String, seen: Hash[String, bool]) -> void
+        # @rbs (json_value value, String path, kind: String, seen: Hash[String, bool]) -> void
         def validate_recovery_symbol(value, path, kind:, seen:)
           name = nonempty_string(value, path)
           invalid(path, "duplicates symbol #{name.inspect}") if seen[name]
@@ -303,7 +303,7 @@ module Ibex
           end
         end
 
-        # @rbs (untyped value, Integer index) -> void
+        # @rbs (json_value value, Integer index) -> void
         def validate_production(value, index)
           path = "#{@path}.productions[#{index}]"
           required = PRODUCTION_REQUIRED + (@version >= 2 ? V2_PRODUCTION_REQUIRED : [])
@@ -313,18 +313,19 @@ module Ibex
           invalid("#{path}.id", "must equal its array index #{index}") unless id == index
           @productions_by_id[id] = production
           validate_lhs(production["lhs"], "#{path}.lhs")
-          validate_rhs(production["rhs"], "#{path}.rhs")
-          validate_action(production["action"], "#{path}.action", rhs_length: production["rhs"].length)
+          rhs = array(production["rhs"], "#{path}.rhs")
+          validate_rhs(rhs, "#{path}.rhs")
+          validate_action(production["action"], "#{path}.action", rhs_length: rhs.length)
           validate_precedence_override(production["prec_override"], "#{path}.prec_override")
           validate_origin(production["origin"], "#{path}.origin")
           return unless @version >= 2
 
           nullable_string(production["doc"], "#{path}.doc")
           validate_expansion(production["expansion"], "#{path}.expansion")
-          validate_node_annotation(production["node"], "#{path}.node", rhs_length: production["rhs"].length)
+          validate_node_annotation(production["node"], "#{path}.node", rhs_length: rhs.length)
         end
 
-        # @rbs (untyped value, String path, rhs_length: Integer) -> void
+        # @rbs (json_value value, String path, rhs_length: Integer) -> void
         def validate_node_annotation(value, path, rhs_length:)
           return if value.nil?
 
@@ -344,7 +345,7 @@ module Ibex
           location(node["loc"], "#{path}.loc", nullable: false)
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_lhs(value, path)
           id = nonnegative_integer(value, path)
           symbol = @symbols_by_id[id]
@@ -352,7 +353,7 @@ module Ibex
           invalid(path, "must reference a nonterminal") unless symbol["kind"] == "nonterminal"
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_rhs(value, path)
           array(value, path).each_with_index do |id, index|
             id = nonnegative_integer(id, "#{path}[#{index}]")
@@ -360,7 +361,7 @@ module Ibex
           end
         end
 
-        # @rbs (untyped value, String path, rhs_length: Integer) -> void
+        # @rbs (json_value value, String path, rhs_length: Integer) -> void
         def validate_action(value, path, rhs_length:)
           return if value.nil?
 
@@ -377,7 +378,7 @@ module Ibex
           )
         end
 
-        # @rbs (untyped value, String path, limit: Integer) -> void
+        # @rbs (json_value value, String path, limit: Integer) -> void
         def validate_named_refs(value, path, limit:)
           names = {} #: Hash[String, bool]
           array(value, path).each_with_index do |entry, index|
@@ -393,7 +394,7 @@ module Ibex
           end
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_precedence_override(value, path)
           return if value.nil?
 
@@ -403,7 +404,7 @@ module Ibex
           invalid(path, "must reference a terminal") unless symbol["kind"] == "terminal"
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_origin(value, path)
           origin = object(value, path)
           kind = string(field(origin, "kind", path), "#{path}.kind")
@@ -414,7 +415,7 @@ module Ibex
           location(origin["loc"], "#{path}.loc", nullable: false)
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_string_map(value, path)
           object(value, path).each do |key, item|
             string(key, path)
@@ -429,7 +430,7 @@ module Ibex
           end
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_warning(value, path)
           warning = record(value, path, %w[type loc], %w[symbol production original])
           nonempty_string(warning["type"], "#{path}.type")
@@ -439,13 +440,13 @@ module Ibex
           validate_warning_production(warning, "original", path) if warning.key?("original")
         end
 
-        # @rbs (Hash[String, untyped] warning, String path) -> void
+        # @rbs (json_object warning, String path) -> void
         def validate_warning_symbol(warning, path)
           name = nonempty_string(warning["symbol"], "#{path}.symbol")
           invalid("#{path}.symbol", "references missing symbol #{name.inspect}") unless @symbols_by_name.key?(name)
         end
 
-        # @rbs (Hash[String, untyped] warning, String field_name, String path) -> void
+        # @rbs (json_object warning, String field_name, String path) -> void
         def validate_warning_production(warning, field_name, path)
           id = nonnegative_integer(warning[field_name], "#{path}.#{field_name}")
           invalid("#{path}.#{field_name}", "references missing production id #{id}") unless @productions_by_id.key?(id)
@@ -454,11 +455,14 @@ module Ibex
         # @rbs () -> void
         def validate_lexer
           value = @data.fetch("lexer")
-          LexerDocument.new(value, path: "#{@path}.lexer").validate
-          value.fetch("rules").each_with_index do |rule, index|
-            next unless rule["kind"] == "token"
+          lexer = value #: json_object
+          LexerDocument.new(lexer, path: "#{@path}.lexer").validate
+          rules = array(lexer.fetch("rules"), "#{@path}.lexer.rules")
+          rules.each_with_index do |rule, index|
+            rule_record = rule #: json_object
+            next unless rule_record["kind"] == "token"
 
-            name = rule["token"]
+            name = nonempty_string(rule_record["token"], "#{@path}.lexer.rules[#{index}].token")
             symbol = @symbols_by_name[name]
             invalid("#{@path}.lexer.rules[#{index}].token", "references missing terminal #{name.inspect}") unless
               symbol&.fetch("kind") == "terminal"
@@ -479,7 +483,7 @@ module Ibex
           end
         end
 
-        # @rbs (untyped value, String path, ?nullable: bool) -> void
+        # @rbs (json_value value, String path, ?nullable: bool) -> void
         def validate_source_provenance(value, path, nullable: true)
           return if nullable && value.nil?
 
@@ -489,7 +493,7 @@ module Ibex
           validate_byte_span(source["byte_span"], "#{path}.byte_span")
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_byte_span(value, path)
           return if value.nil?
 
@@ -555,7 +559,7 @@ module Ibex
           entry
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_expansion(value, path)
           return if value.nil?
 
@@ -567,7 +571,7 @@ module Ibex
           end
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_parameter_expansion(value, path)
           return if value.nil?
 
@@ -578,7 +582,7 @@ module Ibex
           end
         end
 
-        # @rbs (untyped value, String path) -> void
+        # @rbs (json_value value, String path) -> void
         def validate_inline_expansion(value, path)
           return if value.nil?
 
@@ -586,7 +590,7 @@ module Ibex
           nonempty_string(inline["rule"], "#{path}.rule")
         end
 
-        # @rbs (untyped value, String path, rhs_length: Integer) -> void
+        # @rbs (json_value value, String path, rhs_length: Integer) -> void
         def validate_action_composition(value, path, rhs_length:)
           return if value.nil?
 
@@ -604,7 +608,7 @@ module Ibex
             composition.key?("plan")
         end
 
-        # @rbs (untyped value, String path, Integer rhs_length, Array[untyped] fragments) -> void
+        # @rbs (json_value value, String path, Integer rhs_length, Array[json_value] fragments) -> void
         def validate_action_composition_plan(value, path, rhs_length, fragments)
           plan = record(value, path, %w[version physical steps])
           literal(plan["version"], "#{path}.version", 1)
@@ -615,13 +619,15 @@ module Ibex
           invalid("#{path}.steps", "must align one-to-one with fragments") unless steps.length == fragments.length
           steps.each_with_index do |step, index|
             validate_action_composition_step(step, "#{path}.steps[#{index}]", physical, index)
-            next if step["kind"] == fragments.fetch(index)["kind"]
+            step_record = step #: json_object
+            fragment_record = fragments.fetch(index) #: json_object
+            next if step_record["kind"] == fragment_record["kind"]
 
             invalid("#{path}.steps[#{index}].kind", "must match the corresponding fragment")
           end
         end
 
-        # @rbs (untyped value, String path, Integer physical, Integer step_index) -> void
+        # @rbs (json_value value, String path, Integer physical, Integer step_index) -> void
         def validate_action_composition_step(value, path, physical, step_index)
           step = record(
             value, path,
@@ -645,7 +651,7 @@ module Ibex
           nullable_string(step["result_type"], "#{path}.result_type")
         end
 
-        # @rbs (Array[untyped] inputs, String path, Integer limit) -> void
+        # @rbs (Array[json_value] inputs, String path, Integer limit) -> void
         def validate_action_slots(inputs, path, limit)
           inputs.each_with_index do |input, index|
             slot_path = "#{path}[#{index}]"
@@ -654,7 +660,7 @@ module Ibex
           end
         end
 
-        # @rbs (untyped value, String path, Integer physical) -> void
+        # @rbs (json_value value, String path, Integer physical) -> void
         def validate_action_lookahead(value, path, physical)
           return if value.nil?
 

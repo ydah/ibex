@@ -2,6 +2,8 @@
 
 module Ibex
   module Runtime
+    type syntax_edit_document = { kind: Symbol, position: Integer, token_id: Integer, token_name: String, cost: Integer, start_byte: Integer, end_byte: Integer, original_text: String, replacement_text: String? }
+
     # One syntax-only projection of a runtime repair edit. It intentionally
     # carries source bytes and token identity, never an application value.
     class SyntaxRepairEdit
@@ -28,8 +30,8 @@ module Ibex
       # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
       def initialize: (kind: Symbol, position: Integer, token_id: Integer, token_name: String, cost: Integer, start_byte: Integer, end_byte: Integer, original_text: String, replacement_text: String?) -> void
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      # @rbs () -> syntax_edit_document
+      def to_h: () -> syntax_edit_document
     end
 
     # One selected runtime plan plus its source-oriented edit projection.
@@ -151,11 +153,11 @@ module Ibex
       #   ?plan: SyntaxRepairPlan?) -> SyntaxRepairResult
       def unavailable: (Symbol reason, CST::SyntaxResult parsed, Array[SyntaxSessionDiagnostic] diagnostics, ?plan: SyntaxRepairPlan?) -> SyntaxRepairResult
 
-      # @rbs (Array[untyped] diagnostics) -> Array[SyntaxSessionDiagnostic]
-      def immutable_diagnostics: (Array[untyped] diagnostics) -> Array[SyntaxSessionDiagnostic]
+      # @rbs (Array[Object] diagnostics) -> Array[SyntaxSessionDiagnostic]
+      def immutable_diagnostics: (Array[Object] diagnostics) -> Array[SyntaxSessionDiagnostic]
 
-      # @rbs (untyped location, Symbol key) -> untyped
-      def location_value: (untyped location, Symbol key) -> untyped
+      # @rbs (Object location, Symbol key) -> Object?
+      def location_value: (Object location, Symbol key) -> Object?
 
       # @rbs (RepairPolicy policy) -> RepairPolicy
       def validate_policy: (RepairPolicy policy) -> RepairPolicy

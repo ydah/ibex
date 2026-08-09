@@ -3,18 +3,22 @@
 module Ibex
   module Runtime
     module CST
+      type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+
+      type json_object = Hash[String, json_value]
+
       # Structured failure raised for an invalid or incompatible CST document.
       class ValidationError < StandardError
         attr_reader code: Symbol
 
         attr_reader path: String
 
-        attr_reader expected: untyped
+        attr_reader expected: json_value
 
-        attr_reader actual: untyped
+        attr_reader actual: json_value
 
-        # @rbs (code: Symbol, path: String, message: String, ?expected: untyped, ?actual: untyped) -> void
-        def initialize: (code: Symbol, path: String, message: String, ?expected: untyped, ?actual: untyped) -> void
+        # @rbs (code: Symbol, path: String, message: String, ?expected: json_value, ?actual: json_value) -> void
+        def initialize: (code: Symbol, path: String, message: String, ?expected: json_value, ?actual: json_value) -> void
       end
 
       # Validates schema-v1 CST documents while rebuilding all derived Green data.
@@ -30,27 +34,27 @@ module Ibex
         #   ?production_count: Integer?) -> SerializedTree
         def self?.validate: (String source, ?grammar_digest: String?, ?state_count: Integer?, ?production_count: Integer?) -> SerializedTree
 
-        # @rbs (untyped value) -> Kind
-        def self?.load_kinds: (untyped value) -> Kind
+        # @rbs (json_value value) -> Kind
+        def self?.load_kinds: (json_value value) -> Kind
 
-        # @rbs (untyped value, GreenNode root, String digest, Integer state_count, Integer production_count,
+        # @rbs (json_value value, GreenNode root, String digest, Integer state_count, Integer production_count,
         #   expected_state_count: Integer?, expected_production_count: Integer?) -> ParseMemo?
-        def self?.load_memo: (untyped value, GreenNode root, String digest, Integer state_count, Integer production_count, expected_state_count: Integer?, expected_production_count: Integer?) -> ParseMemo?
+        def self?.load_memo: (json_value value, GreenNode root, String digest, Integer state_count, Integer production_count, expected_state_count: Integer?, expected_production_count: Integer?) -> ParseMemo?
 
-        # @rbs (untyped value, Integer state_count) -> Array[Integer?]
-        def self?.load_memo_states: (untyped value, Integer state_count) -> Array[Integer?]
+        # @rbs (json_value value, Integer state_count) -> Array[Integer?]
+        def self?.load_memo_states: (json_value value, Integer state_count) -> Array[Integer?]
 
         # @rbs (Array[Integer?] states, GreenNode root) -> void
         def self?.validate_memo_length!: (Array[Integer?] states, GreenNode root) -> void
 
-        # @rbs (untyped value, Kind kinds, String path) -> (GreenNode | GreenToken)
-        def self?.load_element: (untyped value, Kind kinds, String path) -> (GreenNode | GreenToken)
+        # @rbs (json_value value, Kind kinds, String path) -> (GreenNode | GreenToken)
+        def self?.load_element: (json_value value, Kind kinds, String path) -> (GreenNode | GreenToken)
 
-        # @rbs (untyped value, Kind kinds, String path) -> Array[GreenTrivia]
-        def self?.load_trivia: (untyped value, Kind kinds, String path) -> Array[GreenTrivia]
+        # @rbs (json_value value, Kind kinds, String path) -> Array[GreenTrivia]
+        def self?.load_trivia: (json_value value, Kind kinds, String path) -> Array[GreenTrivia]
 
-        # @rbs (untyped value, String path) -> String
-        def self?.decode_text: (untyped value, String path) -> String
+        # @rbs (json_value value, String path) -> String
+        def self?.decode_text: (json_value value, String path) -> String
 
         # @rbs (GreenNode | GreenToken element, String path) -> void
         def self?.validate_derived!: (GreenNode | GreenToken element, String path) -> void
@@ -58,35 +62,35 @@ module Ibex
         # @rbs (Integer kind, Kind kinds, String path) -> void
         def self?.validate_kind!: (Integer kind, Kind kinds, String path) -> void
 
-        # @rbs (untyped value, String path) -> Hash[String, untyped]
-        def self?.object!: (untyped value, String path) -> Hash[String, untyped]
+        # @rbs (json_value value, String path) -> json_object
+        def self?.object!: (json_value value, String path) -> json_object
 
-        # @rbs (untyped value, String path) -> Array[untyped]
-        def self?.array!: (untyped value, String path) -> Array[untyped]
+        # @rbs (json_value value, String path) -> Array[json_value]
+        def self?.array!: (json_value value, String path) -> Array[json_value]
 
-        # @rbs (untyped value, String path) -> String
-        def self?.string!: (untyped value, String path) -> String
+        # @rbs (json_value value, String path) -> String
+        def self?.string!: (json_value value, String path) -> String
 
-        # @rbs (untyped value, String path) -> Integer
-        def self?.nonnegative_integer!: (untyped value, String path) -> Integer
+        # @rbs (json_value value, String path) -> Integer
+        def self?.nonnegative_integer!: (json_value value, String path) -> Integer
 
-        # @rbs (untyped value, String path) -> Integer
-        def self?.positive_integer!: (untyped value, String path) -> Integer
+        # @rbs (json_value value, String path) -> Integer
+        def self?.positive_integer!: (json_value value, String path) -> Integer
 
-        # @rbs (untyped value, String path) -> Symbol
-        def self?.trivia_policy!: (untyped value, String path) -> Symbol
+        # @rbs (json_value value, String path) -> Symbol
+        def self?.trivia_policy!: (json_value value, String path) -> Symbol
 
-        # @rbs (untyped value, String path) -> Integer
-        def self?.flags!: (untyped value, String path) -> Integer
+        # @rbs (json_value value, String path) -> Integer
+        def self?.flags!: (json_value value, String path) -> Integer
 
-        # @rbs (untyped value, String path) -> Array[Integer]
-        def self?.integer_pair!: (untyped value, String path) -> Array[Integer]
+        # @rbs (json_value value, String path) -> Array[Integer]
+        def self?.integer_pair!: (json_value value, String path) -> Array[Integer]
 
-        # @rbs (untyped value, String path) -> Hash[String, Integer]
-        def self?.string_integer_map!: (untyped value, String path) -> Hash[String, Integer]
+        # @rbs (json_value value, String path) -> Hash[String, Integer]
+        def self?.string_integer_map!: (json_value value, String path) -> Hash[String, Integer]
 
-        # @rbs (untyped value, String path) -> Hash[Integer, Integer]
-        def self?.integer_integer_map!: (untyped value, String path) -> Hash[Integer, Integer]
+        # @rbs (json_value value, String path) -> Hash[Integer, Integer]
+        def self?.integer_integer_map!: (json_value value, String path) -> Hash[Integer, Integer]
 
         # @rbs (Kind::metadata metadata) -> void
         def self?.validate_kind_metadata!: (Kind::metadata metadata) -> void
@@ -94,14 +98,14 @@ module Ibex
         # @rbs (Array[Integer] range, Integer limit, String path) -> void
         def self?.validate_kind_range!: (Array[Integer] range, Integer limit, String path) -> void
 
-        # @rbs (Hash[String, untyped] value, Array[String] expected, String path) -> void
-        def self?.exact_keys!: (Hash[String, untyped] value, Array[String] expected, String path) -> void
+        # @rbs (json_object value, Array[String] expected, String path) -> void
+        def self?.exact_keys!: (json_object value, Array[String] expected, String path) -> void
 
-        # @rbs (Hash[String, untyped] value, String key, untyped expected, String path) -> void
-        def self?.value!: (Hash[String, untyped] value, String key, untyped expected, String path) -> void
+        # @rbs (json_object value, String key, json_value expected, String path) -> void
+        def self?.value!: (json_object value, String key, json_value expected, String path) -> void
 
-        # @rbs (Symbol code, String path, String message, ?expected: untyped, ?actual: untyped) -> bot
-        def self?.fail_validation: (Symbol code, String path, String message, ?expected: untyped, ?actual: untyped) -> bot
+        # @rbs (Symbol code, String path, String message, ?expected: json_value, ?actual: json_value) -> bot
+        def self?.fail_validation: (Symbol code, String path, String message, ?expected: json_value, ?actual: json_value) -> bot
       end
     end
   end

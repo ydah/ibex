@@ -3,6 +3,19 @@
 
 module Ibex
   module Runtime
+    # @rbs!
+    #   type syntax_edit_document = {
+    #     kind: Symbol,
+    #     position: Integer,
+    #     token_id: Integer,
+    #     token_name: String,
+    #     cost: Integer,
+    #     start_byte: Integer,
+    #     end_byte: Integer,
+    #     original_text: String,
+    #     replacement_text: String?
+    #   }
+
     # One syntax-only projection of a runtime repair edit. It intentionally
     # carries source bytes and token identity, never an application value.
     class SyntaxRepairEdit
@@ -61,13 +74,14 @@ module Ibex
       end
       # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> syntax_edit_document
       def to_h
-        {
+        value = {
           kind: @kind, position: @position, token_id: @token_id, token_name: @token_name, cost: @cost,
           start_byte: @start_byte, end_byte: @end_byte, original_text: @original_text,
           replacement_text: @replacement_text
-        }.freeze
+        } # @type var value: syntax_edit_document
+        value.freeze
       end
     end
 
@@ -411,7 +425,7 @@ module Ibex
         )
       end
 
-      # @rbs (Array[untyped] diagnostics) -> Array[SyntaxSessionDiagnostic]
+      # @rbs (Array[Object] diagnostics) -> Array[SyntaxSessionDiagnostic]
       def immutable_diagnostics(diagnostics)
         diagnostics.map do |diagnostic|
           if diagnostic.is_a?(ParseError)
@@ -423,15 +437,19 @@ module Ibex
               }
             )
           else
-            SyntaxSessionDiagnostic.new(kind: :syntax_error, data: diagnostic)
+            data = diagnostic #: Hash[untyped, untyped]
+            SyntaxSessionDiagnostic.new(kind: :syntax_error, data: data)
           end
         end.freeze
       end
 
-      # @rbs (untyped location, Symbol key) -> untyped
+      # @rbs (Object location, Symbol key) -> Object?
       def location_value(location, key)
         return location.public_send(key) if location.respond_to?(key)
-        return location[key] || location[key.to_s] if location.is_a?(Hash)
+        if location.is_a?(Hash)
+          hash = location #: Hash[Object, Object]
+          return hash[key] || hash[key.to_s]
+        end
 
         nil
       end

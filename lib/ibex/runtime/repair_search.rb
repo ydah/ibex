@@ -8,20 +8,34 @@ module Ibex
     # Bounded Dijkstra search over LR state stacks. Semantic actions never run.
     # rubocop:disable Metrics/ClassLength -- queue policy and LR transitions form one bounded search invariant.
     class RepairSearch
+      # @rbs!
+      #   type configuration_key = [Array[Integer], Integer, Integer, bool]
+      #   type priority = [Integer, Integer, Array[[Integer, Integer, Integer]], Integer, Integer, Integer, Array[Integer]]
+      #   type lookup_table = Tables::action_table | Tables::goto_table
+      #   type lookup_value = IR::runtime_action | Integer?
+
       NEED_INPUT = Object.new.freeze #: Object
       LIMIT = Object.new.freeze #: Object
-      Configuration = Struct.new(:stack, :input_index, :shifts, :cost, :edits, :goal, keyword_init: true)
+      Configuration = Struct.new(
+        :stack, #: Array[Integer]
+        :input_index, #: Integer
+        :shifts, #: Integer
+        :cost, #: Integer
+        :edits, #: Array[RepairEdit]
+        :goal, #: bool
+        keyword_init: true
+      )
 
-      # @rbs @tables: Hash[Symbol, untyped]
+      # @rbs @tables: Parser::table_set
       # @rbs @policy: RepairPolicy
       # @rbs @tokens: Array[RepairInput]
       # @rbs @complete: bool
       # @rbs @configurations: Integer
       # @rbs @heap: RepairPriorityQueue
-      # @rbs @best: Hash[Array[untyped], Array[untyped]]
+      # @rbs @best: Hash[configuration_key, priority]
       # @rbs @candidate_ids: Array[Integer]
 
-      # @rbs (Hash[Symbol, untyped] tables, RepairPolicy policy, Array[RepairInput] tokens,
+      # @rbs (Parser::table_set tables, RepairPolicy policy, Array[RepairInput] tokens,
       #   complete: bool) -> void
       def initialize(tables, policy, tokens, complete:)
         @tables = tables
@@ -217,11 +231,18 @@ module Ibex
           action = action_for(states.last, token_id)
           case action.first
           when :shift
-            states << action.fetch(1)
+            target = action.fetch(1)
+            return nil unless target.is_a?(Integer)
+
+            states << target
             return nil if states.length > @policy.max_stack
 
             return RepairAdvance.new(status: :shift, stack: states.freeze)
-          when :reduce then return nil unless apply_reduction(states, action.fetch(1))
+          when :reduce
+            production_id = action.fetch(1)
+            return nil unless production_id.is_a?(Integer)
+
+            return nil unless apply_reduction(states, production_id)
           when :accept then return RepairAdvance.new(status: :accept, stack: states.freeze)
           else return nil
           end
@@ -230,31 +251,48 @@ module Ibex
 
       # @rbs (Array[Integer] states, Integer production_id) -> Array[Integer]?
       def apply_reduction(states, production_id)
-        production = @tables.fetch(:productions).fetch(production_id)
+        production = @tables.fetch(:productions).fetch(production_id) #: Parser::table_production
         length = production.fetch(:length)
         return if length >= states.length
 
         states.pop(length)
-        goto = table_lookup(@tables.fetch(:gotos), states.last, production.fetch(:lhs))
-        return unless goto
+        goto = goto_table_lookup(@tables.fetch(:gotos), states.last, production.fetch(:lhs))
+        return unless goto.is_a?(Integer)
 
         states << goto
         states if states.length <= @policy.max_stack
       end
 
-      # @rbs (Integer state, Integer token_id) -> untyped
+      # @rbs (Integer state, Integer token_id) -> IR::runtime_action
       def action_for(state, token_id)
-        explicit = table_lookup(@tables.fetch(:actions), state, token_id)
+        explicit = action_table_lookup(@tables.fetch(:actions), state, token_id)
         return explicit if explicit
 
         @tables.fetch(:default_actions, Parser::EMPTY_ROW)[state] || [:error]
       end
 
-      # @rbs (untyped table, Integer row, Integer column) -> untyped
-      def table_lookup(table, row, column)
-        return table.lookup(row, column) if table.respond_to?(:lookup)
+      # @rbs (Tables::action_table table, Integer row, Integer column) -> IR::runtime_action?
+      def action_table_lookup(table, row, column)
+        if table.is_a?(Tables::CompactActions)
+          value = table.__send__(:lookup, row, column)
+          return value #: IR::runtime_action?
+        end
 
-        table.fetch(row, Parser::EMPTY_ROW)[column]
+        rows = table #: Array[Hash[Integer, IR::runtime_action]]
+        empty_row = Parser::EMPTY_ROW #: Hash[Integer, IR::runtime_action]
+        rows.fetch(row, empty_row)[column]
+      end
+
+      # @rbs (Tables::goto_table table, Integer row, Integer column) -> Integer?
+      def goto_table_lookup(table, row, column)
+        if table.is_a?(Tables::Compact)
+          value = table.__send__(:lookup, row, column)
+          return value #: Integer?
+        end
+
+        rows = table #: Array[Hash[Integer, Integer]]
+        empty_row = Parser::EMPTY_ROW #: Hash[Integer, Integer]
+        rows.fetch(row, empty_row)[column]
       end
 
       # @rbs (Configuration source, ?stack: Array[Integer], ?input_index: Integer, ?shifts: Integer,
@@ -284,7 +322,7 @@ module Ibex
       # @rbs (Configuration configuration) -> void
       def push(configuration)
         priority = priority_for(configuration)
-        key = [configuration.stack, configuration.input_index, configuration.shifts, configuration.goal]
+        key = [configuration.stack, configuration.input_index, configuration.shifts, configuration.goal] #: configuration_key
         previous = @best[key]
         comparison = previous <=> priority if previous
         return if comparison && comparison <= 0
@@ -302,23 +340,24 @@ module Ibex
           priority, configuration = entry
           return LIMIT unless configuration.is_a?(Configuration)
 
-          key = [configuration.stack, configuration.input_index, configuration.shifts, configuration.goal]
+          key = [configuration.stack, configuration.input_index, configuration.shifts, configuration.goal] #: configuration_key
           return configuration if @best[key] == priority
         end
       end
 
-      # @rbs (Configuration configuration) -> Array[untyped]
+      # @rbs (Configuration configuration) -> priority
       def priority_for(configuration)
         edit_key = configuration.edits.map do |edit|
           rank = { delete: 0, insert: 1, replace: 2 }.fetch(edit.kind)
-          [edit.position, rank, edit.token_id]
+          [edit.position, rank, edit.token_id] #: [Integer, Integer, Integer]
         end
         goal_rank = configuration.goal ? 0 : 1
         risk = configuration.edits.sum { |edit| semantic_value_risk(edit) }
-        [
+        value = [
           configuration.cost, risk, edit_key, goal_rank, -configuration.shifts,
           configuration.input_index, configuration.stack
         ]
+        value #: priority
       end
 
       # Prefer punctuation edits when equal-cost repairs are otherwise

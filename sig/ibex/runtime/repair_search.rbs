@@ -5,30 +5,38 @@ module Ibex
     # Bounded Dijkstra search over LR state stacks. Semantic actions never run.
     # rubocop:disable Metrics/ClassLength -- queue policy and LR transitions form one bounded search invariant.
     class RepairSearch
+      type configuration_key = [ Array[Integer], Integer, Integer, bool ]
+
+      type priority = [ Integer, Integer, Array[[ Integer, Integer, Integer ]], Integer, Integer, Integer, Array[Integer] ]
+
+      type lookup_table = Tables::action_table | Tables::goto_table
+
+      type lookup_value = IR::runtime_action | Integer?
+
       NEED_INPUT: Object
 
       LIMIT: Object
 
-      class Configuration < Struct[untyped]
-        attr_accessor stack(): untyped
+      class Configuration < Struct[Array[Integer] | Integer | Array[RepairEdit] | bool]
+        attr_accessor stack(): Array[Integer]
 
-        attr_accessor input_index(): untyped
+        attr_accessor input_index(): Integer
 
-        attr_accessor shifts(): untyped
+        attr_accessor shifts(): Integer
 
-        attr_accessor cost(): untyped
+        attr_accessor cost(): Integer
 
-        attr_accessor edits(): untyped
+        attr_accessor edits(): Array[RepairEdit]
 
-        attr_accessor goal(): untyped
+        attr_accessor goal(): bool
 
-        def self.new: (?stack: untyped, ?input_index: untyped, ?shifts: untyped, ?cost: untyped, ?edits: untyped, ?goal: untyped) -> instance
-                    | ({ ?stack: untyped, ?input_index: untyped, ?shifts: untyped, ?cost: untyped, ?edits: untyped, ?goal: untyped }) -> instance
+        def self.new: (?stack: Array[Integer], ?input_index: Integer, ?shifts: Integer, ?cost: Integer, ?edits: Array[RepairEdit], ?goal: bool) -> instance
+                    | ({ ?stack: Array[Integer], ?input_index: Integer, ?shifts: Integer, ?cost: Integer, ?edits: Array[RepairEdit], ?goal: bool }) -> instance
       end
 
       @candidate_ids: Array[Integer]
 
-      @best: Hash[Array[untyped], Array[untyped]]
+      @best: Hash[configuration_key, priority]
 
       @heap: RepairPriorityQueue
 
@@ -40,11 +48,11 @@ module Ibex
 
       @policy: RepairPolicy
 
-      @tables: Hash[Symbol, untyped]
+      @tables: Parser::table_set
 
-      # @rbs (Hash[Symbol, untyped] tables, RepairPolicy policy, Array[RepairInput] tokens,
+      # @rbs (Parser::table_set tables, RepairPolicy policy, Array[RepairInput] tokens,
       #   complete: bool) -> void
-      def initialize: (Hash[Symbol, untyped] tables, RepairPolicy policy, Array[RepairInput] tokens, complete: bool) -> void
+      def initialize: (Parser::table_set tables, RepairPolicy policy, Array[RepairInput] tokens, complete: bool) -> void
 
       # Compatibility projection used by the semantic runtime path.
       # @rbs (Array[Integer] state_stack) -> (RepairPlan | Object | nil)
@@ -84,11 +92,14 @@ module Ibex
       # @rbs (Array[Integer] states, Integer production_id) -> Array[Integer]?
       def apply_reduction: (Array[Integer] states, Integer production_id) -> Array[Integer]?
 
-      # @rbs (Integer state, Integer token_id) -> untyped
-      def action_for: (Integer state, Integer token_id) -> untyped
+      # @rbs (Integer state, Integer token_id) -> IR::runtime_action
+      def action_for: (Integer state, Integer token_id) -> IR::runtime_action
 
-      # @rbs (untyped table, Integer row, Integer column) -> untyped
-      def table_lookup: (untyped table, Integer row, Integer column) -> untyped
+      # @rbs (Tables::action_table table, Integer row, Integer column) -> IR::runtime_action?
+      def action_table_lookup: (Tables::action_table table, Integer row, Integer column) -> IR::runtime_action?
+
+      # @rbs (Tables::goto_table table, Integer row, Integer column) -> Integer?
+      def goto_table_lookup: (Tables::goto_table table, Integer row, Integer column) -> Integer?
 
       # @rbs (Configuration source, ?stack: Array[Integer], ?input_index: Integer, ?shifts: Integer,
       #   ?cost: Integer, ?edits: Array[RepairEdit], ?goal: bool) -> Configuration
@@ -109,8 +120,8 @@ module Ibex
       # @rbs () -> (Configuration | Object)
       def pop: () -> (Configuration | Object)
 
-      # @rbs (Configuration configuration) -> Array[untyped]
-      def priority_for: (Configuration configuration) -> Array[untyped]
+      # @rbs (Configuration configuration) -> priority
+      def priority_for: (Configuration configuration) -> priority
 
       # Prefer punctuation edits when equal-cost repairs are otherwise
       # ambiguous; inventing or discarding a word-like token is more likely to

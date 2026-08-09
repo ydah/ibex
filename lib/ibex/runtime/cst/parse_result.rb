@@ -6,11 +6,11 @@ module Ibex
     module CST
       # Immutable result returned by syntax-aware parser entry points.
       class ParseResult
-        attr_reader :value #: untyped
+        attr_reader :value #: Object
         attr_reader :syntax_root #: SyntaxNode
-        attr_reader :diagnostics #: Array[untyped]
+        attr_reader :diagnostics #: Array[Object]
 
-        # @rbs (value: untyped, syntax_root: SyntaxNode, diagnostics: Array[untyped]) -> void
+        # @rbs (value: Object, syntax_root: SyntaxNode, diagnostics: Array[Object]) -> void
         def initialize(value:, syntax_root:, diagnostics:)
           @value = value
           @syntax_root = syntax_root
@@ -22,10 +22,10 @@ module Ibex
       # Syntax-only result used by incremental sessions.
       class SyntaxResult
         attr_reader :syntax_root #: SyntaxNode
-        attr_reader :diagnostics #: Array[untyped]
+        attr_reader :diagnostics #: Array[Object]
         attr_reader :reused_ratio #: Float
 
-        # @rbs (syntax_root: SyntaxNode, diagnostics: Array[untyped], reused_ratio: Float) -> void
+        # @rbs (syntax_root: SyntaxNode, diagnostics: Array[Object], reused_ratio: Float) -> void
         def initialize(syntax_root:, diagnostics:, reused_ratio:)
           @syntax_root = syntax_root
           @diagnostics = diagnostics.dup.freeze
@@ -35,7 +35,7 @@ module Ibex
       end
     end
 
-    ParseResult = CST::ParseResult
-    SyntaxResult = CST::SyntaxResult
+    ParseResult = CST::ParseResult #: singleton(CST::ParseResult)
+    SyntaxResult = CST::SyntaxResult #: singleton(CST::SyntaxResult)
   end
 end

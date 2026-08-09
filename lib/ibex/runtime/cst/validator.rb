@@ -6,14 +6,18 @@ require "json"
 module Ibex
   module Runtime
     module CST
+      # @rbs!
+      #   type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+      #   type json_object = Hash[String, json_value]
+
       # Structured failure raised for an invalid or incompatible CST document.
       class ValidationError < StandardError
         attr_reader :code #: Symbol
         attr_reader :path #: String
-        attr_reader :expected #: untyped
-        attr_reader :actual #: untyped
+        attr_reader :expected #: json_value
+        attr_reader :actual #: json_value
 
-        # @rbs (code: Symbol, path: String, message: String, ?expected: untyped, ?actual: untyped) -> void
+        # @rbs (code: Symbol, path: String, message: String, ?expected: json_value, ?actual: json_value) -> void
         def initialize(code:, path:, message:, expected: nil, actual: nil)
           @code = code
           @path = path.dup.freeze
@@ -39,8 +43,8 @@ module Ibex
         # @rbs (String source, ?grammar_digest: String?, ?state_count: Integer?,
         #   ?production_count: Integer?) -> SerializedTree
         def validate(source, grammar_digest: nil, state_count: nil, production_count: nil) # rubocop:disable Metrics/MethodLength
-          document = JSON.parse(source)
-          object!(document, "$")
+          document = JSON.parse(source) #: json_value
+          document = object!(document, "$")
           exact_keys!(document, TOP_KEYS, "$")
           value!(document, "ibex_ir", "cst", "$.ibex_ir")
           value!(document, "schema_version", 1, "$.schema_version")
@@ -88,9 +92,9 @@ module Ibex
         end
         module_function :validate
 
-        # @rbs (untyped value) -> Kind
+        # @rbs (json_value value) -> Kind
         def load_kinds(value)
-          object!(value, "$.kinds")
+          value = object!(value, "$.kinds")
           exact_keys!(value, KIND_KEYS, "$.kinds")
           names = array!(value.fetch("names"), "$.kinds.names").map.with_index do |name, index|
             string!(name, "$.kinds.names[#{index}]")
@@ -112,13 +116,13 @@ module Ibex
         module_function :load_kinds
         private_class_method :load_kinds
 
-        # @rbs (untyped value, GreenNode root, String digest, Integer state_count, Integer production_count,
+        # @rbs (json_value value, GreenNode root, String digest, Integer state_count, Integer production_count,
         #   expected_state_count: Integer?, expected_production_count: Integer?) -> ParseMemo?
         def load_memo(value, root, digest, state_count, production_count,
                       expected_state_count:, expected_production_count:)
           return if value.nil?
 
-          object!(value, "$.memo")
+          value = object!(value, "$.memo")
           exact_keys!(value, %w[version left_states], "$.memo")
           value!(value, "version", ParseMemo::VERSION, "$.memo.version")
           states = load_memo_states(value.fetch("left_states"), state_count)
@@ -136,7 +140,7 @@ module Ibex
         module_function :load_memo
         private_class_method :load_memo
 
-        # @rbs (untyped value, Integer state_count) -> Array[Integer?]
+        # @rbs (json_value value, Integer state_count) -> Array[Integer?]
         def load_memo_states(value, state_count)
           array!(value, "$.memo.left_states").map.with_index do |state, index|
             next if state.nil?
@@ -171,9 +175,9 @@ module Ibex
         module_function :validate_memo_length!
         private_class_method :validate_memo_length!
 
-        # @rbs (untyped value, Kind kinds, String path) -> (GreenNode | GreenToken)
+        # @rbs (json_value value, Kind kinds, String path) -> (GreenNode | GreenToken)
         def load_element(value, kinds, path)
-          object!(value, path)
+          value = object!(value, path)
           kind = nonnegative_integer!(value.fetch("k"), "#{path}.k")
           validate_kind!(kind, kinds, "#{path}.k")
           flags = flags!(value.fetch("f"), "#{path}.f")
@@ -199,7 +203,7 @@ module Ibex
         module_function :load_element
         private_class_method :load_element
 
-        # @rbs (untyped value, Kind kinds, String path) -> Array[GreenTrivia]
+        # @rbs (json_value value, Kind kinds, String path) -> Array[GreenTrivia]
         def load_trivia(value, kinds, path)
           array!(value, path).map.with_index do |item, index|
             pair = array!(item, "#{path}[#{index}]")
@@ -218,11 +222,11 @@ module Ibex
         module_function :load_trivia
         private_class_method :load_trivia
 
-        # @rbs (untyped value, String path) -> String
+        # @rbs (json_value value, String path) -> String
         def decode_text(value, path)
           return value.b if value.is_a?(String)
 
-          object!(value, path)
+          value = object!(value, path)
           exact_keys!(value, ["b64"], path)
           encoded = string!(value.fetch("b64"), "#{path}.b64")
           decoded = encoded.unpack1("m0")
@@ -266,25 +270,31 @@ module Ibex
         module_function :validate_kind!
         private_class_method :validate_kind!
 
-        # @rbs (untyped value, String path) -> Hash[String, untyped]
+        # @rbs (json_value value, String path) -> json_object
         def object!(value, path)
-          return value if value.is_a?(Hash)
+          if value.is_a?(Hash)
+            object = value #: json_object
+            return object
+          end
 
           fail_validation(:invalid_type, path, "expected object", actual: value.class.name)
         end
         module_function :object!
         private_class_method :object!
 
-        # @rbs (untyped value, String path) -> Array[untyped]
+        # @rbs (json_value value, String path) -> Array[json_value]
         def array!(value, path)
-          return value if value.is_a?(Array)
+          if value.is_a?(Array)
+            array = value #: Array[json_value]
+            return array
+          end
 
           fail_validation(:invalid_type, path, "expected array", actual: value.class.name)
         end
         module_function :array!
         private_class_method :array!
 
-        # @rbs (untyped value, String path) -> String
+        # @rbs (json_value value, String path) -> String
         def string!(value, path)
           return value if value.is_a?(String)
 
@@ -293,7 +303,7 @@ module Ibex
         module_function :string!
         private_class_method :string!
 
-        # @rbs (untyped value, String path) -> Integer
+        # @rbs (json_value value, String path) -> Integer
         def nonnegative_integer!(value, path)
           return value if value.is_a?(Integer) && !value.negative?
 
@@ -302,7 +312,7 @@ module Ibex
         module_function :nonnegative_integer!
         private_class_method :nonnegative_integer!
 
-        # @rbs (untyped value, String path) -> Integer
+        # @rbs (json_value value, String path) -> Integer
         def positive_integer!(value, path)
           integer = nonnegative_integer!(value, path)
           return integer if integer.positive?
@@ -312,7 +322,7 @@ module Ibex
         module_function :positive_integer!
         private_class_method :positive_integer!
 
-        # @rbs (untyped value, String path) -> Symbol
+        # @rbs (json_value value, String path) -> Symbol
         def trivia_policy!(value, path)
           policy = string!(value, path).to_sym
           return policy if %i[leading balanced drop].include?(policy)
@@ -322,7 +332,7 @@ module Ibex
         module_function :trivia_policy!
         private_class_method :trivia_policy!
 
-        # @rbs (untyped value, String path) -> Integer
+        # @rbs (json_value value, String path) -> Integer
         def flags!(value, path)
           flags = nonnegative_integer!(value, path)
           fail_validation(:invalid_flags, path, "flags contain unknown bits", actual: flags) unless
@@ -334,7 +344,7 @@ module Ibex
         module_function :flags!
         private_class_method :flags!
 
-        # @rbs (untyped value, String path) -> Array[Integer]
+        # @rbs (json_value value, String path) -> Array[Integer]
         def integer_pair!(value, path)
           pair = array!(value, path)
           fail_validation(:invalid_type, path, "expected two integers") unless pair.length == 2
@@ -343,7 +353,7 @@ module Ibex
         module_function :integer_pair!
         private_class_method :integer_pair!
 
-        # @rbs (untyped value, String path) -> Hash[String, Integer]
+        # @rbs (json_value value, String path) -> Hash[String, Integer]
         def string_integer_map!(value, path)
           object!(value, path).to_h do |key, item|
             [
@@ -355,7 +365,7 @@ module Ibex
         module_function :string_integer_map!
         private_class_method :string_integer_map!
 
-        # @rbs (untyped value, String path) -> Hash[Integer, Integer]
+        # @rbs (json_value value, String path) -> Hash[Integer, Integer]
         def integer_integer_map!(value, path)
           object!(value, path).to_h do |key, item|
             integer_key = Integer(string!(key, "#{path}.<key>"), 10)
@@ -394,7 +404,7 @@ module Ibex
         module_function :validate_kind_range!
         private_class_method :validate_kind_range!
 
-        # @rbs (Hash[String, untyped] value, Array[String] expected, String path) -> void
+        # @rbs (json_object value, Array[String] expected, String path) -> void
         def exact_keys!(value, expected, path)
           actual = value.keys.sort
           return if actual == expected.sort
@@ -404,7 +414,7 @@ module Ibex
         module_function :exact_keys!
         private_class_method :exact_keys!
 
-        # @rbs (Hash[String, untyped] value, String key, untyped expected, String path) -> void
+        # @rbs (json_object value, String key, json_value expected, String path) -> void
         def value!(value, key, expected, path)
           actual = value.fetch(key)
           return if actual == expected
@@ -414,7 +424,7 @@ module Ibex
         module_function :value!
         private_class_method :value!
 
-        # @rbs (Symbol code, String path, String message, ?expected: untyped, ?actual: untyped) -> bot
+        # @rbs (Symbol code, String path, String message, ?expected: json_value, ?actual: json_value) -> bot
         def fail_validation(code, path, message, expected: nil, actual: nil)
           raise ValidationError.new(
             code: code, path: path, message: message, expected: expected, actual: actual

@@ -12,7 +12,7 @@ module Ibex
           id state kind token pattern pattern_kind options action loc
         ].freeze #: Array[String]
 
-        # @rbs (Hash[String, untyped] data, ?path: String) -> void
+        # @rbs (json_object data, ?path: String) -> void
         def initialize(data, path: "$")
           super()
           @data = data
@@ -70,7 +70,7 @@ module Ibex
           end
         end
 
-        # @rbs (Hash[String, untyped] rule, String path, String options) -> void
+        # @rbs (json_object rule, String path, String options) -> void
         def validate_pattern(rule, path, options)
           flags = 0
           flags |= Regexp::IGNORECASE if options.include?("i")
