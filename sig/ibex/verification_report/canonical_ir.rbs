@@ -17,6 +17,12 @@ module Ibex
       # @rbs (untyped value) -> untyped
       def normalize_source_identity!: (untyped value) -> untyped
 
+      # @rbs (untyped value) -> String
+      def generate_json: (untyped value) -> String
+
+      # @rbs (untyped value) -> untyped
+      def normalize_for_json: (untyped value) -> untyped
+
       # @rbs (String file) -> String
       def logical_file: (String file) -> String
 
