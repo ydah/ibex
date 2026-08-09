@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# rbs_inline: enabled
 
 module Ibex
   module Frontend
@@ -21,6 +22,16 @@ module Ibex
       #     external: external_token?,
       #     role: Symbol?,
       #     gap: Array[Segment]
+      #   }
+      #   type formatter_state = {
+      #     section: :declarations | :rules,
+      #     precedence_closer: external_token?,
+      #     conversion: bool,
+      #     conversion_name: bool,
+      #     parser: bool,
+      #     parser_key: bool,
+      #     depth: Integer,
+      #     rule_colon: bool
       #   }
 
       # @rbs (String source, ?file: String, ?mode: Symbol) -> String
@@ -106,7 +117,7 @@ module Ibex
         state = {
           section: :declarations, precedence_closer: nil, conversion: false,
           conversion_name: true, parser: false, parser_key: true, depth: 0, rule_colon: false
-        } #: Hash[Symbol, untyped]
+        } #: formatter_state
         elements.each do |element|
           external = element.fetch(:external)
           next unless external
@@ -131,7 +142,7 @@ module Ibex
         end
       end
 
-      # @rbs (external_token external, Hash[Symbol, untyped] state) -> Symbol?
+      # @rbs (external_token external, formatter_state state) -> Symbol?
       def token_role(external, state)
         document_role = document_token_role(external, state)
         return document_role if document_role
@@ -139,7 +150,7 @@ module Ibex
         rule_token_role(external, state)
       end
 
-      # @rbs (external_token external, Hash[Symbol, untyped] state) -> Symbol?
+      # @rbs (external_token external, formatter_state state) -> Symbol?
       def document_token_role(external, state)
         return :user_code if external == :USER_CODE
 
@@ -152,7 +163,7 @@ module Ibex
         nil
       end
 
-      # @rbs (external_token external, Hash[Symbol, untyped] state) -> Symbol?
+      # @rbs (external_token external, formatter_state state) -> Symbol?
       def nested_declaration_role(external, state)
         return precedence_role(external, state) if %i[PRECHIGH PRECLOW].include?(external)
         return :precedence_level if ASSOCIATIONS.include?(external) && state[:precedence_closer]
@@ -163,7 +174,7 @@ module Ibex
         nil
       end
 
-      # @rbs (Hash[Symbol, untyped] state) -> Symbol?
+      # @rbs (formatter_state state) -> Symbol?
       def section_end_role(state)
         return :conversion_end if state.fetch(:conversion)
         return :grammar_end if state.fetch(:section) == :rules
@@ -171,7 +182,7 @@ module Ibex
         nil
       end
 
-      # @rbs (external_token external, Hash[Symbol, untyped] state) -> Symbol?
+      # @rbs (external_token external, formatter_state state) -> Symbol?
       def rule_token_role(external, state)
         return :rule_start if external == :INLINE && state.fetch(:section) == :rules
         return :rule_start if external == :LHS
@@ -186,14 +197,14 @@ module Ibex
         nil
       end
 
-      # @rbs (external_token external, Hash[Symbol, untyped] state) -> Symbol
+      # @rbs (external_token external, formatter_state state) -> Symbol
       def precedence_role(external, state)
         return :precedence_end if state[:precedence_closer] == external
 
         :declaration
       end
 
-      # @rbs (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
+      # @rbs (external_token external, Symbol? role, formatter_state state) -> void
       def advance_role_state(external, role, state)
         advance_precedence_state(external, role, state)
         advance_conversion_state(external, role, state)
@@ -201,7 +212,7 @@ module Ibex
         advance_rule_state(external, role, state)
       end
 
-      # @rbs (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
+      # @rbs (external_token external, Symbol? role, formatter_state state) -> void
       def advance_parser_state(external, role, state)
         if external == :PARSER
           state[:parser] = true
@@ -213,7 +224,7 @@ module Ibex
         end
       end
 
-      # @rbs (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
+      # @rbs (external_token external, Symbol? role, formatter_state state) -> void
       def advance_precedence_state(external, role, state)
         if role == :declaration && %i[PRECHIGH PRECLOW].include?(external)
           state[:precedence_closer] = external == :PRECHIGH ? :PRECLOW : :PRECHIGH
@@ -222,7 +233,7 @@ module Ibex
         end
       end
 
-      # @rbs (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
+      # @rbs (external_token external, Symbol? role, formatter_state state) -> void
       def advance_conversion_state(external, role, state)
         if external == :CONVERT
           state[:conversion] = true
@@ -236,7 +247,7 @@ module Ibex
         end
       end
 
-      # @rbs (external_token external, Symbol? role, Hash[Symbol, untyped] state) -> void
+      # @rbs (external_token external, Symbol? role, formatter_state state) -> void
       def advance_rule_state(external, role, state)
         state[:section] = :rules if external == :RULE
         state[:rule_colon] = true if external == :LHS
@@ -371,9 +382,9 @@ module Ibex
         text.end_with?("\n")
       end
 
-      # @rbs (untyped left, untyped right) -> bool
+      # @rbs (Object? left, Object? right) -> bool
       def same_semantic_projection?(left, right)
-        pending = [[left, right]] #: Array[[untyped, untyped]]
+        pending = [[left, right]] #: Array[[Object?, Object?]]
         until pending.empty?
           pair = pending.pop
           next unless pair
@@ -387,16 +398,20 @@ module Ibex
         true
       end
 
-      # @rbs (untyped left, untyped right) -> bool
+      # @rbs (Object? left, Object? right) -> bool
       def comparable_semantic_values?(left, right)
-        return left.instance_of?(right.class) && left.members == right.members if left.is_a?(Struct)
+        if left.is_a?(Struct)
+          return false unless right.is_a?(Struct) && left.instance_of?(right.class)
+
+          return left.members == right.members
+        end
         return right.is_a?(Array) && left.length == right.length if left.is_a?(Array)
         return comparable_semantic_hashes?(left, right) if left.is_a?(Hash)
 
         left == right
       end
 
-      # @rbs (Hash[untyped, untyped] left, untyped right) -> bool
+      # @rbs (Hash[Object?, Object?] left, Object? right) -> bool
       def comparable_semantic_hashes?(left, right)
         return false unless right.is_a?(Hash)
 
@@ -405,24 +420,30 @@ module Ibex
         left_keys.length == right_keys.length && left_keys.all? { |key| right_keys.include?(key) }
       end
 
-      # @rbs (Array[[untyped, untyped]] pending, untyped left, untyped right) -> void
+      # @rbs (Array[[Object?, Object?]] pending, Object? left, Object? right) -> void
       def append_semantic_children(pending, left, right)
         case left
         when Struct
+          return unless right.is_a?(Struct)
+
           semantic_members(left).reverse_each { |member| pending << [left[member], right[member]] }
         when Array
+          return unless right.is_a?(Array)
+
           left.each_index.reverse_each { |index| pending << [left[index], right[index]] }
         when Hash
+          return unless right.is_a?(Hash)
+
           semantic_keys(left).reverse_each { |key| pending << [left[key], right[key]] }
         end
       end
 
-      # @rbs (Struct[untyped] value) -> Array[Symbol]
+      # @rbs (Struct[Object?] value) -> Array[Symbol]
       def semantic_members(value)
         value.members.reject { |member| %i[loc span extended_loc].include?(member) }
       end
 
-      # @rbs (Hash[untyped, untyped] value) -> Array[untyped]
+      # @rbs (Hash[Object?, Object?] value) -> Array[Object?]
       def semantic_keys(value)
         value.keys.reject { |key| %i[loc span].include?(key) }
       end
