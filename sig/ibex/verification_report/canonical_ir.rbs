@@ -16,8 +16,8 @@ module Ibex
 
       private
 
-      # @rbs (untyped value) -> untyped
-      def normalize_source_identity!: (untyped value) -> untyped
+      # @rbs (json_value value) -> json_value
+      def normalize_source_identity!: (json_value value) -> json_value
 
       # @rbs (json_value value) -> String
       def generate_json: (json_value value) -> String

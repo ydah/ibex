@@ -13,7 +13,7 @@ module Ibex
     # rubocop:disable Metrics/ParameterLists -- persisted artifact paths and verification bounds are explicit inputs.
     # @rbs (IR::Automaton automaton, wrapper_path: String, wrapper_source: String,
     #   table_path: String, report_path: String, manifest_path: String,
-    #   source_records: Array[GenerationInput], ?manifest_options: Hash[String, untyped],
+    #   source_records: Array[GenerationInput], ?manifest_options: Hash[String, Object?],
     #   ?wrapper_mode: Integer?, ?representation: Symbol | String, ?cst_trivia: Symbol | String?,
     #   ?omit_action_call: bool?, ?strict: bool, ?max_states: Integer, ?max_items: Integer) -> void
     def initialize(automaton, wrapper_path:, wrapper_source:, table_path:, report_path:, manifest_path:,
@@ -78,7 +78,7 @@ module Ibex
       artifacts
     end
 
-    # @rbs (String manifest_path) -> Hash[String, untyped]
+    # @rbs (String manifest_path) -> Hash[String, VerificationReport::Validator::json_value]
     def self.validate_file(manifest_path)
       VerificationReport.validate_bundle_file(manifest_path)
     end

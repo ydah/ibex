@@ -42,7 +42,7 @@ module Ibex
 
       private
 
-      # @rbs (untyped value) -> untyped
+      # @rbs (json_value value) -> json_value
       def normalize_source_identity!(value)
         case value
         when Array then value.each { |child| normalize_source_identity!(child) }
