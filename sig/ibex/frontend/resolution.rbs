@@ -23,8 +23,9 @@ module Ibex
 
       private
 
-      # @rbs (untyped value) -> untyped
-      def deep_freeze_ast: (untyped value) -> untyped
+      # AST payloads are recursively heterogeneous and are only traversed to freeze them.
+      # @rbs (Object? value) -> Object?
+      def deep_freeze_ast: (Object? value) -> Object?
 
       # @rbs (IR::source_provenance entry) -> IR::source_provenance
       def copy_provenance: (IR::source_provenance entry) -> IR::source_provenance

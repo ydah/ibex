@@ -36,7 +36,8 @@ module Ibex
 
       private
 
-      # @rbs (untyped value) -> untyped
+      # AST payloads are recursively heterogeneous and are only traversed to freeze them.
+      # @rbs (Object? value) -> Object?
       def deep_freeze_ast(value)
         case value
         when Struct
