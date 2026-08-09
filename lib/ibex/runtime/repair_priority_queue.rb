@@ -5,7 +5,12 @@ module Ibex
   module Runtime
     # Minimal binary heap ordered by an immutable Array priority.
     class RepairPriorityQueue
-      # @rbs @entries: Array[[Array[untyped], untyped]]
+      # @rbs!
+      #   type priority = [
+      #     Integer, Integer, Array[[Integer, Integer, Integer]], Integer,
+      #     Integer, Array[Integer]
+      #   ]
+      # @rbs @entries: Array[[priority, Object?]]
 
       # @rbs () -> void
       def initialize
@@ -15,9 +20,9 @@ module Ibex
       # @rbs () -> bool
       def empty? = @entries.empty?
 
-      # @rbs (Array[untyped] priority, untyped value) -> void
+      # @rbs (priority priority, Object? value) -> void
       def push(priority, value)
-        entry = [priority, value] #: [Array[untyped], untyped]
+        entry = [priority, value] #: [priority, Object?]
         @entries << entry
         index = @entries.length - 1
         while index.positive?
@@ -30,7 +35,7 @@ module Ibex
         @entries[index] = entry
       end
 
-      # @rbs () -> [Array[untyped], untyped]?
+      # @rbs () -> [priority, Object?]?
       def pop
         first = @entries.first
         tail = @entries.pop
@@ -51,9 +56,11 @@ module Ibex
 
       private
 
-      # @rbs ([Array[untyped], untyped] left, [Array[untyped], untyped] right) -> Integer
+      # @rbs ([priority, Object?] left, [priority, Object?] right) -> Integer
       def compare(left, right)
-        (left.fetch(0) <=> right.fetch(0)) || 0
+        left_priority = left.fetch(0) #: priority
+        right_priority = right.fetch(0) #: priority
+        (left_priority <=> right_priority) || 0
       end
     end
   end

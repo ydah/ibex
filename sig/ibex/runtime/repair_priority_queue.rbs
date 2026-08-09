@@ -4,7 +4,9 @@ module Ibex
   module Runtime
     # Minimal binary heap ordered by an immutable Array priority.
     class RepairPriorityQueue
-      @entries: Array[[ Array[untyped], untyped ]]
+      type priority = [ Integer, Integer, Array[[ Integer, Integer, Integer ]], Integer, Integer, Array[Integer] ]
+
+      @entries: Array[[ priority, Object? ]]
 
       # @rbs () -> void
       def initialize: () -> void
@@ -12,16 +14,16 @@ module Ibex
       # @rbs () -> bool
       def empty?: () -> bool
 
-      # @rbs (Array[untyped] priority, untyped value) -> void
-      def push: (Array[untyped] priority, untyped value) -> void
+      # @rbs (priority priority, Object? value) -> void
+      def push: (priority priority, Object? value) -> void
 
-      # @rbs () -> [Array[untyped], untyped]?
-      def pop: () -> [ Array[untyped], untyped ]?
+      # @rbs () -> [priority, Object?]?
+      def pop: () -> [ priority, Object? ]?
 
       private
 
-      # @rbs ([Array[untyped], untyped] left, [Array[untyped], untyped] right) -> Integer
-      def compare: ([ Array[untyped], untyped ] left, [ Array[untyped], untyped ] right) -> Integer
+      # @rbs ([priority, Object?] left, [priority, Object?] right) -> Integer
+      def compare: ([ priority, Object? ] left, [ priority, Object? ] right) -> Integer
     end
   end
 end
