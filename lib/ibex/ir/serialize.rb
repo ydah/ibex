@@ -34,8 +34,8 @@ module Ibex
       #   private def self.load_grammar_tests: (Array[Hash[String, untyped]] tests) -> Array[grammar_test]
       #   private def symbol_source_position: (Hash[String, untyped] symbol) -> String
       #   private def self.symbol_source_position: (Hash[String, untyped] symbol) -> String
-      #   private def symbolize: (untyped value) -> untyped
-      #   private def self.symbolize: (untyped value) -> untyped
+      #   private def symbolize: (Object? value) -> Object?
+      #   private def self.symbolize: (Object? value) -> Object?
 
       # @rbs (Grammar | Automaton | Lexer value) -> String
       def dump(value)
@@ -318,6 +318,8 @@ module Ibex
       end
 
       # @rbs skip
+      # Parsed IR values are recursively heterogeneous until schema validation narrows them.
+      # @rbs (Object? value) -> Object?
       def symbolize(value)
         case value
         when Array then value.map { |item| symbolize(item) }

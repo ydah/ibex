@@ -53,9 +53,9 @@ module Ibex
 
       private def self.symbol_source_position: (Hash[String, untyped] symbol) -> String
 
-      private def symbolize: (untyped value) -> untyped
+      private def symbolize: (Object? value) -> Object?
 
-      private def self.symbolize: (untyped value) -> untyped
+      private def self.symbolize: (Object? value) -> Object?
 
       # @rbs (Grammar | Automaton | Lexer value) -> String
       def self?.dump: (Grammar | Automaton | Lexer value) -> String
