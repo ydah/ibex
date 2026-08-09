@@ -25,18 +25,18 @@ module Ibex
 
       attr_reader column_count: Integer?
 
-      # @rbs (Array[Hash[Integer, untyped]] rows) -> CompactActions
-      def self.build: (Array[Hash[Integer, untyped]] rows) -> CompactActions
+      # @rbs (Array[Hash[Integer, IR::runtime_action]] rows) -> CompactActions
+      def self.build: (Array[Hash[Integer, IR::runtime_action]] rows) -> CompactActions
 
       # @rbs (String offsets, String codes, String checks, row_count: Integer,
       #   ?encoding: Symbol, ?column_count: Integer?) -> CompactActions
       def self.packed: (String offsets, String codes, String checks, row_count: Integer, ?encoding: Symbol, ?column_count: Integer?) -> CompactActions
 
-      # @rbs (untyped action) -> Integer?
-      def self.pack: (untyped action) -> Integer?
+      # @rbs (IR::runtime_action? action) -> Integer?
+      def self.pack: (IR::runtime_action? action) -> Integer?
 
-      # @rbs (Integer? code) -> untyped
-      def self.unpack: (Integer? code) -> untyped
+      # @rbs (Integer? code) -> IR::runtime_action?
+      def self.unpack: (Integer? code) -> IR::runtime_action?
 
       # Convert codes emitted before signed compact actions without changing
       # their generated table literals.

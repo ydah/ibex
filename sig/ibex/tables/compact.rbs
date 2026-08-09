@@ -28,18 +28,18 @@ module Ibex
 
       attr_reader offsets: Array[Integer]
 
-      attr_reader values: Array[untyped]
+      attr_reader values: Array[Object?]
 
       attr_reader checks: Array[Integer?]
 
       attr_reader row_count: Integer
 
-      attr_reader dense_values: Array[untyped]?
+      attr_reader dense_values: Array[Object?]?
 
       attr_reader dense_width: Integer?
 
-      # @rbs (Array[Hash[Integer, untyped]] rows, ?dense: bool) -> Compact
-      def self.build: (Array[Hash[Integer, untyped]] rows, ?dense: bool) -> Compact
+      # @rbs (Array[Hash[Integer, Object?]] rows, ?dense: bool) -> Compact
+      def self.build: (Array[Hash[Integer, Object?]] rows, ?dense: bool) -> Compact
 
       # @rbs (String offsets, String values, String checks, row_count: Integer,
       #   ?dense_width: Integer?) -> Compact
@@ -48,23 +48,23 @@ module Ibex
       # @rbs (Array[Integer] columns, Array[Integer?] checks, Hash[Array[Integer], Integer] next_offsets) -> Integer
       private def self.find_offset: (Array[Integer] columns, Array[Integer?] checks, Hash[Array[Integer], Integer] next_offsets) -> Integer
 
-      # @rbs (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?],
+      # @rbs (offsets: Array[Integer], values: Array[Object?], checks: Array[Integer?],
       #   row_count: Integer, ?dense_width: Integer?) -> void
-      def initialize: (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?], row_count: Integer, ?dense_width: Integer?) -> void
+      def initialize: (offsets: Array[Integer], values: Array[Object?], checks: Array[Integer?], row_count: Integer, ?dense_width: Integer?) -> void
 
       # Keep predicate dispatch out of this lookup because every parser action
       # and goto crosses it.
       # rubocop:disable Style/NumericPredicate
-      # @rbs (Integer row, Integer column) -> untyped
-      def lookup: (Integer row, Integer column) -> untyped
+      # @rbs (Integer row, Integer column) -> Object?
+      def lookup: (Integer row, Integer column) -> Object?
 
-      # @rbs (Integer row) -> Hash[Integer, untyped]
-      def row: (Integer row) -> Hash[Integer, untyped]
+      # @rbs (Integer row) -> Hash[Integer, Object?]
+      def row: (Integer row) -> Hash[Integer, Object?]
 
       private
 
-      # @rbs (Integer? dense_width) -> Array[untyped]?
-      def dense_layout: (Integer? dense_width) -> Array[untyped]?
+      # @rbs (Integer? dense_width) -> Array[Object?]?
+      def dense_layout: (Integer? dense_width) -> Array[Object?]?
     end
   end
 end

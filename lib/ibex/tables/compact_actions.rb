@@ -22,17 +22,18 @@ module Ibex
       attr_reader :column_count #: Integer?
 
       class << self
-        # @rbs (Array[Hash[Integer, untyped]] rows) -> CompactActions
+        # @rbs (Array[Hash[Integer, IR::runtime_action]] rows) -> CompactActions
         def build(rows)
           packed_rows = rows.map do |row|
             row.transform_values { |action| pack(action) }
           end
           layout = Compact.build(packed_rows, dense: false)
+          codes = layout.values #: Array[Integer?]
           column_count = rows.flat_map(&:keys).max.to_i + 1
           column_count = nil if (rows.length * column_count) > Compact::DENSE_CELL_LIMIT
           new(
             offsets: layout.offsets,
-            codes: layout.values,
+            codes: codes,
             checks: layout.checks,
             row_count: layout.row_count,
             encoding: :signed,
@@ -53,27 +54,40 @@ module Ibex
           )
         end
 
-        # @rbs (untyped action) -> Integer?
+        # @rbs (IR::runtime_action? action) -> Integer?
         def pack(action)
           return unless action
 
           case action.fetch(0)
           when :accept then ACCEPT_CODE
           when :error then ERROR_CODE
-          when :shift then SHIFT_BASE + action.fetch(1)
-          when :reduce then REDUCE_BASE - action.fetch(1)
+          when :shift
+            state = action.fetch(1) #: Integer
+            SHIFT_BASE + state
+          when :reduce
+            production = action.fetch(1) #: Integer
+            REDUCE_BASE - production
           else raise ArgumentError, "unknown compact parser action #{action.inspect}"
           end
         end
 
-        # @rbs (Integer? code) -> untyped
+        # @rbs (Integer? code) -> IR::runtime_action?
         def unpack(code)
           return unless code
-          return [:accept].freeze if code == ACCEPT_CODE
-          return [:error].freeze if code == ERROR_CODE
-          return [:shift, code - SHIFT_BASE].freeze if code.positive?
+          if code == ACCEPT_CODE
+            accept = [:accept].freeze #: [:accept]
+            return accept
+          end
+          if code == ERROR_CODE
+            error = [:error].freeze #: [:error]
+            return error
+          end
+          if code.positive?
+            shift = [:shift, code - SHIFT_BASE].freeze #: [:shift, Integer]
+            return shift
+          end
 
-          [:reduce, REDUCE_BASE - code].freeze
+          [:reduce, REDUCE_BASE - code].freeze #: [:reduce, Integer]
         end
 
         # Convert codes emitted before signed compact actions without changing
@@ -100,9 +114,12 @@ module Ibex
         @codes = codes.freeze
         @column_count = column_count
         @dense_codes = dense_action_layout(offsets, codes, checks, row_count, column_count)
-        decoded_cache = {} #: Hash[Integer, untyped]
+        decoded_cache = {} #: Hash[Integer, IR::runtime_action]
         decoded = codes.map do |code|
-          code.nil? ? nil : decoded_cache[code] ||= self.class.unpack(code)
+          next unless code
+
+          unpacked = self.class.unpack(code) #: IR::runtime_action
+          decoded_cache[code] ||= unpacked
         end
         super(offsets: offsets, values: decoded, checks: checks, row_count: row_count)
       end

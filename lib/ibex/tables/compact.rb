@@ -69,17 +69,17 @@ module Ibex
       DENSE_CELL_LIMIT = 1_000_000 #: Integer
 
       attr_reader :offsets #: Array[Integer]
-      attr_reader :values #: Array[untyped]
+      attr_reader :values #: Array[Object?]
       attr_reader :checks #: Array[Integer?]
       attr_reader :row_count #: Integer
-      attr_reader :dense_values #: Array[untyped]?
+      attr_reader :dense_values #: Array[Object?]?
       attr_reader :dense_width #: Integer?
 
       class << self
-        # @rbs (Array[Hash[Integer, untyped]] rows, ?dense: bool) -> Compact
+        # @rbs (Array[Hash[Integer, Object?]] rows, ?dense: bool) -> Compact
         def build(rows, dense: true)
           offsets = Array.new(rows.length, 0)
-          values = [] #: Array[untyped]
+          values = [] #: Array[Object?]
           checks = [] #: Array[Integer?]
           next_offsets = {} #: Hash[Array[Integer], Integer]
           rows.each_index.sort_by { |row| [-rows[row].length, row] }.each do |row|
@@ -125,7 +125,7 @@ module Ibex
         end
       end
 
-      # @rbs (offsets: Array[Integer], values: Array[untyped], checks: Array[Integer?],
+      # @rbs (offsets: Array[Integer], values: Array[Object?], checks: Array[Integer?],
       #   row_count: Integer, ?dense_width: Integer?) -> void
       def initialize(offsets:, values:, checks:, row_count:, dense_width: nil)
         @offsets = offsets.freeze
@@ -140,7 +140,7 @@ module Ibex
       # Keep predicate dispatch out of this lookup because every parser action
       # and goto crosses it.
       # rubocop:disable Style/NumericPredicate
-      # @rbs (Integer row, Integer column) -> untyped
+      # @rbs (Integer row, Integer column) -> Object?
       def lookup(row, column)
         return nil if row < 0 || row >= @row_count || column < 0
 
@@ -151,11 +151,11 @@ module Ibex
       end
       # rubocop:enable Style/NumericPredicate
 
-      # @rbs (Integer row) -> Hash[Integer, untyped]
+      # @rbs (Integer row) -> Hash[Integer, Object?]
       def row(row)
         return {} unless row.between?(0, @row_count - 1)
 
-        result = {} #: Hash[Integer, untyped]
+        result = {} #: Hash[Integer, Object?]
         @checks.each_index do |index|
           next unless @checks[index] == row
 
@@ -166,13 +166,13 @@ module Ibex
 
       private
 
-      # @rbs (Integer? dense_width) -> Array[untyped]?
+      # @rbs (Integer? dense_width) -> Array[Object?]?
       def dense_layout(dense_width)
         return nil unless dense_width
         raise ArgumentError, "compact dense width must be positive" unless dense_width.positive?
         return nil if (@row_count * dense_width) > DENSE_CELL_LIMIT
 
-        dense = Array.new(@row_count * dense_width) #: Array[untyped]
+        dense = Array.new(@row_count * dense_width) #: Array[Object?]
         @checks.each_index do |index|
           row = @checks[index]
           next unless row
