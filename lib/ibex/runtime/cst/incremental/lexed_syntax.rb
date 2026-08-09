@@ -6,10 +6,10 @@ module Ibex
     module CST
       # One complete generated-lexer pass, including the explicit EOF token.
       class LexedSyntax
-        attr_reader :raw_tokens #: Array[Array[untyped]]
+        attr_reader :raw_tokens #: Array[Array[Object?]]
         attr_reader :memo #: TokenMemo
 
-        # @rbs (raw_tokens: Array[Array[untyped]], memo: TokenMemo) -> void
+        # @rbs (raw_tokens: Array[Array[Object?]], memo: TokenMemo) -> void
         def initialize(raw_tokens:, memo:)
           raise ArgumentError, "raw and Green token counts differ" unless raw_tokens.length == memo.tokens.length
 

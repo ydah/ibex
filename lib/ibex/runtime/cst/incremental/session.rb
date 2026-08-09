@@ -164,7 +164,7 @@ module Ibex
             raise IncrementalUnsupportedError, "incremental parsing requires a generated lexer"
           end
 
-          tables = @parser.__send__(:parser_tables) #: Hash[Symbol, untyped]
+          tables = @parser.__send__(:parser_tables) #: Hash[Symbol, Object?]
           config = tables[:cst]
           unless tables.fetch(:format_version) >= 6 && config.is_a?(Hash)
             raise IncrementalUnsupportedError, "incremental parsing requires a format-v6 Red/Green CST parser"
@@ -191,7 +191,7 @@ module Ibex
         # Error trees cannot be reused, but retain position-aligned disposable memo storage.
         # @rbs (GreenNode root) -> ParseMemo
         def empty_parse_memo(root)
-          tables = @parser.__send__(:parser_tables) #: Hash[Symbol, untyped]
+          tables = @parser.__send__(:parser_tables) #: Hash[Symbol, Object?]
           ParseMemo.new(
             left_states: Array.new(root.descendant_count),
             grammar_digest: tables.fetch(:grammar_digest),

@@ -75,7 +75,7 @@ module Ibex
         end
 
         # Return the next token or a whole nonterminal valid in the current LR state.
-        # @rbs (Integer state) -> (Array[untyped] | ReusableSubtree | false)
+        # @rbs (Integer state) -> (Array[Object?] | ReusableSubtree | false)
         def next_for_state(state)
           candidates = @candidates[@token_index]
           candidate = candidates&.find { |item| item.entry.left_state == state }

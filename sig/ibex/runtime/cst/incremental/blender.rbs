@@ -64,8 +64,8 @@ module Ibex
         def initialize: (old_root: SyntaxNode, parse_memo: ParseMemo, lexed: LexedSyntax, edits: Array[TextEdit], max_decomposed_nodes: Integer, ?enabled: bool) -> void
 
         # Return the next token or a whole nonterminal valid in the current LR state.
-        # @rbs (Integer state) -> (Array[untyped] | ReusableSubtree | false)
-        def next_for_state: (Integer state) -> (Array[untyped] | ReusableSubtree | false)
+        # @rbs (Integer state) -> (Array[Object?] | ReusableSubtree | false)
+        def next_for_state: (Integer state) -> (Array[Object?] | ReusableSubtree | false)
 
         # @rbs () -> Integer
         def token_count: () -> Integer
