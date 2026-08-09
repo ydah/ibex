@@ -5,8 +5,8 @@ module Ibex
     class MetadataValidator
       include ValidationSupport
 
-      # @rbs (Hash[String, untyped] payload, symbols: Array[Hash[String, untyped]],
-      #   productions: Array[Hash[String, untyped]]) -> void
+      # @rbs (Hash[String, ValidationSupport::json_value] payload, symbols: Array[Hash[String, ValidationSupport::json_value]],
+      #   productions: Array[Hash[String, ValidationSupport::json_value]]) -> void
       def initialize(payload, symbols:, productions:)
         @payload = payload
         @symbols = symbols
@@ -24,9 +24,13 @@ module Ibex
 
       private
 
-      # @rbs (Array[Hash[String, untyped]] symbols, String kind) -> Set[Integer]
+      # @rbs (Array[Hash[String, ValidationSupport::json_value]] symbols, String kind) -> Set[Integer]
       def ids_for_kind(symbols, kind)
-        symbols.filter_map { |symbol| symbol.fetch("id") if symbol.fetch("kind") == kind }.to_set
+        symbols.filter_map do |symbol|
+          next unless symbol.fetch("kind") == kind
+
+          symbol.fetch("id") #: Integer
+        end.to_set
       end
 
       # @rbs (ValidationSupport::json_value data) -> void
@@ -143,14 +147,15 @@ module Ibex
         sorted_unique!(production_ids, path)
       end
 
-      # @rbs (ValidationSupport::json_value data, String path, Hash[String, untyped] production) -> void
+      # @rbs (ValidationSupport::json_value data, String path, Hash[String, ValidationSupport::json_value] production) -> void
       def validate_fields(data, path, production)
         names = array(data, path).map.with_index do |field, index|
           field_path = "#{path}[#{index}]"
           field = record(field, field_path, %w[name index extraction])
           name = string(field.fetch("name"), "#{field_path}.name")
           field_index = integer(field.fetch("index"), "#{field_path}.index", minimum: 0)
-          invalid("#{field_path}.index", "exceeds production rhs") unless field_index < production.fetch("rhs_length")
+          rhs_length = production.fetch("rhs_length") #: Integer
+          invalid("#{field_path}.index", "exceeds production rhs") unless field_index < rhs_length
           extraction = field.fetch("extraction")
           enum(extraction, "#{field_path}.extraction", %w[repetition separated_list]) unless extraction.nil?
           name

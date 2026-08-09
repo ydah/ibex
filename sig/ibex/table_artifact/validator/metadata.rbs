@@ -5,17 +5,17 @@ module Ibex
     class MetadataValidator
       include ValidationSupport
 
-      # @rbs (Hash[String, untyped] payload, symbols: Array[Hash[String, untyped]],
-      #   productions: Array[Hash[String, untyped]]) -> void
-      def initialize: (Hash[String, untyped] payload, symbols: Array[Hash[String, untyped]], productions: Array[Hash[String, untyped]]) -> void
+      # @rbs (Hash[String, ValidationSupport::json_value] payload, symbols: Array[Hash[String, ValidationSupport::json_value]],
+      #   productions: Array[Hash[String, ValidationSupport::json_value]]) -> void
+      def initialize: (Hash[String, ValidationSupport::json_value] payload, symbols: Array[Hash[String, ValidationSupport::json_value]], productions: Array[Hash[String, ValidationSupport::json_value]]) -> void
 
       # @rbs () -> void
       def validate!: () -> void
 
       private
 
-      # @rbs (Array[Hash[String, untyped]] symbols, String kind) -> Set[Integer]
-      def ids_for_kind: (Array[Hash[String, untyped]] symbols, String kind) -> Set[Integer]
+      # @rbs (Array[Hash[String, ValidationSupport::json_value]] symbols, String kind) -> Set[Integer]
+      def ids_for_kind: (Array[Hash[String, ValidationSupport::json_value]] symbols, String kind) -> Set[Integer]
 
       # @rbs (ValidationSupport::json_value data) -> void
       def validate_semantic_actions: (ValidationSupport::json_value data) -> void
@@ -41,8 +41,8 @@ module Ibex
       # @rbs (ValidationSupport::json_value data, String path, Integer kind_count) -> void
       def validate_cst_slots: (ValidationSupport::json_value data, String path, Integer kind_count) -> void
 
-      # @rbs (ValidationSupport::json_value data, String path, Hash[String, untyped] production) -> void
-      def validate_fields: (ValidationSupport::json_value data, String path, Hash[String, untyped] production) -> void
+      # @rbs (ValidationSupport::json_value data, String path, Hash[String, ValidationSupport::json_value] production) -> void
+      def validate_fields: (ValidationSupport::json_value data, String path, Hash[String, ValidationSupport::json_value] production) -> void
 
       # @rbs (ValidationSupport::json_value data, String path, ?sorted: bool) -> Array[Integer]
       def integer_ids: (ValidationSupport::json_value data, String path, ?sorted: bool) -> Array[Integer]
