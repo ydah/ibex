@@ -32,7 +32,7 @@ module Ibex
         freeze
       end
 
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, lexer_rule_document_value]
       def to_h
         {
           id: @id, state: @state, kind: @kind, token: @token, pattern: @pattern,
@@ -45,11 +45,11 @@ module Ibex
     class Lexer
       attr_reader :states #: Array[String]
       attr_reader :rules #: Array[LexerRule]
-      attr_reader :warnings #: Array[Hash[Symbol, untyped]]
+      attr_reader :warnings #: Array[lexer_warning]
       attr_reader :schema_version #: Integer
       attr_reader :source_provenance #: source_provenance?
 
-      # @rbs (states: Array[String], rules: Array[LexerRule], warnings: Array[Hash[Symbol, untyped]],
+      # @rbs (states: Array[String], rules: Array[LexerRule], warnings: Array[lexer_warning],
       #   ?schema_version: Integer, ?source_provenance: source_provenance?) -> void
       def initialize(states:, rules:, warnings:, schema_version: LEXER_SCHEMA_VERSION, source_provenance: nil)
         raise ArgumentError, "lexer states must start with INITIAL" unless states.first == "INITIAL"
@@ -63,7 +63,7 @@ module Ibex
         freeze
       end
 
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, lexer_document_value]
       def to_h
         {
           ibex_ir: "lexer", schema_version: @schema_version, initial_state: "INITIAL",

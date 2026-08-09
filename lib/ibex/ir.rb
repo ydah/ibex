@@ -25,6 +25,9 @@ module Ibex
     #   type grammar_test = { expectation: :accept | :reject, source: String, loc: location }
     #   type node_annotation = { name: String, fields: Array[String], loc: location }
     #   type lexer_warning = { type: :redos, rule: Integer, loc: location }
+    #   type lexer_rule_document_value = Integer | String | Symbol | nil | location
+    #   type lexer_document_value = String | Integer | Array[String] |
+    #     Array[Hash[Symbol, lexer_rule_document_value]] | Array[lexer_warning] | source_provenance?
     #   type parameter_expansion = { rule: String, arguments: Array[String] }
     #   type inline_expansion = { rule: String }
     #   type production_expansion = {
