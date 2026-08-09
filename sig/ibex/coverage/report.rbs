@@ -4,6 +4,8 @@ module Ibex
   module Coverage
     # Versioned, mergeable runtime coverage result.
     class Report
+      type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+
       IDENTIFIER: String
 
       SCHEMA_VERSION: Integer
@@ -40,31 +42,31 @@ module Ibex
       # @rbs (grammar_digest: String, table_format_version: Integer, state_count: Integer, production_count: Integer, sessions: Integer, event_count: Integer, state_hits: Hash[Integer, Integer], production_hits: Hash[Integer, Integer]) -> void
       def initialize: (grammar_digest: String, table_format_version: Integer, state_count: Integer, production_count: Integer, sessions: Integer, event_count: Integer, state_hits: Hash[Integer, Integer], production_hits: Hash[Integer, Integer]) -> void
 
-      # @rbs () -> Hash[String, untyped]
-      def to_h: () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
+      def to_h: () -> Hash[String, json_value]
 
-      # @rbs (*untyped) -> String
-      def to_json: (*untyped) -> String
+      # @rbs (*Object) -> String
+      def to_json: (*Object) -> String
 
       # @rbs (String path) -> Report
       def self.load_file: (String path) -> Report
 
-      # @rbs (untyped value, source: String) -> Report
-      def self.from_h: (untyped value, source: String) -> Report
+      # @rbs (json_value value, source: String) -> Report
+      def self.from_h: (json_value value, source: String) -> Report
 
       # @rbs (Array[Report] reports) -> Report
       def self.merge: (Array[Report] reports) -> Report
 
       private
 
-      # @rbs (untyped input) -> String
-      def validate_digest: (untyped input) -> String
+      # @rbs (json_value input) -> String
+      def validate_digest: (json_value input) -> String
 
-      # @rbs (untyped input, String name) -> Integer
-      def positive_integer: (untyped input, String name) -> Integer
+      # @rbs (json_value input, String name) -> Integer
+      def positive_integer: (json_value input, String name) -> Integer
 
-      # @rbs (untyped input, String name, minimum: Integer) -> Integer
-      def total_integer: (untyped input, String name, minimum: Integer) -> Integer
+      # @rbs (json_value input, String name, minimum: Integer) -> Integer
+      def total_integer: (json_value input, String name, minimum: Integer) -> Integer
 
       # @rbs (Hash[Integer, Integer] input, Integer total, String kind) -> Hash[Integer, Integer]
       def validate_hits: (Hash[Integer, Integer] input, Integer total, String kind) -> Hash[Integer, Integer]
@@ -75,14 +77,14 @@ module Ibex
       # @rbs () -> void
       def validate_event_bounds: () -> void
 
-      # @rbs (untyped value, String source, String name) -> Hash[String, untyped]
-      private def self.string_hash: (untyped value, String source, String name) -> Hash[String, untyped]
+      # @rbs (json_value value, String source, String name) -> Hash[String, json_value]
+      private def self.string_hash: (json_value value, String source, String name) -> Hash[String, json_value]
 
-      # @rbs (untyped value, untyped total, String source, String kind) -> Hash[Integer, Integer]
-      private def self.parse_hits: (untyped value, untyped total, String source, String kind) -> Hash[Integer, Integer]
+      # @rbs (json_value value, json_value total, String source, String kind) -> Hash[Integer, Integer]
+      private def self.parse_hits: (json_value value, json_value total, String source, String kind) -> Hash[Integer, Integer]
 
-      # @rbs (untyped entry, untyped total, Integer previous, String source, String kind) -> [Integer, Integer]
-      private def self.parse_hit: (untyped entry, untyped total, Integer previous, String source, String kind) -> [ Integer, Integer ]
+      # @rbs (json_value entry, json_value total, Integer previous, String source, String kind) -> [Integer, Integer]
+      private def self.parse_hit: (json_value entry, json_value total, Integer previous, String source, String kind) -> [ Integer, Integer ]
 
       # @rbs (Report expected, Report actual) -> void
       private def self.ensure_compatible: (Report expected, Report actual) -> void

@@ -8,6 +8,9 @@ module Ibex
   module Coverage
     # Versioned, mergeable runtime coverage result.
     class Report
+      # @rbs!
+      #   type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+
       IDENTIFIER = "runtime-coverage" #: String
       SCHEMA_VERSION = 1 #: Integer
       MAX_DOCUMENT_BYTES = 16_777_216 #: Integer
@@ -46,7 +49,7 @@ module Ibex
       end
       # rubocop:enable Layout/LineLength
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
       def to_h
         {
           "ibex_coverage" => IDENTIFIER,
@@ -61,7 +64,7 @@ module Ibex
         }
       end
 
-      # @rbs (*untyped) -> String
+      # @rbs (*Object) -> String
       def to_json(*)
         "#{JSON.pretty_generate(to_h)}\n"
       end
@@ -87,7 +90,7 @@ module Ibex
         raise Ibex::Error, "#{path}:1:1: invalid coverage JSON: #{e.message}"
       end
 
-      # @rbs (untyped value, source: String) -> Report
+      # @rbs (json_value value, source: String) -> Report
       def self.from_h(value, source:)
         document = string_hash(value, source, "coverage document")
         invalid(source, "coverage object has unknown or missing fields") unless document.keys.sort == ROOT_KEYS
@@ -97,15 +100,19 @@ module Ibex
         totals = string_hash(document["totals"], source, "coverage totals")
         invalid(source, "coverage totals have unknown or missing fields") unless totals.keys.sort == TOTAL_KEYS
 
-        state_count = totals["states"]
-        production_count = totals["productions"]
+        grammar_digest = document["grammar_digest"] #: String
+        table_format_version = document["table_format_version"] #: Integer
+        state_count = totals["states"] #: Integer
+        production_count = totals["productions"] #: Integer
+        sessions = document["sessions"] #: Integer
+        event_count = document["events"] #: Integer
         new(
-          grammar_digest: document["grammar_digest"],
-          table_format_version: document["table_format_version"],
+          grammar_digest: grammar_digest,
+          table_format_version: table_format_version,
           state_count: state_count,
           production_count: production_count,
-          sessions: document["sessions"],
-          event_count: document["events"],
+          sessions: sessions,
+          event_count: event_count,
           state_hits: parse_hits(document["state_hits"], state_count, source, "state"),
           production_hits: parse_hits(document["production_hits"], production_count, source, "production")
         )
@@ -133,22 +140,23 @@ module Ibex
 
       private
 
-      # @rbs (untyped input) -> String
+      # @rbs (json_value input) -> String
       def validate_digest(input)
-        valid = input.is_a?(String) && input.match?(/\Asha256:[0-9a-f]{64}\z/)
-        return input.dup.freeze if valid
+        if input.is_a?(String) && input.match?(/\Asha256:[0-9a-f]{64}\z/)
+          return input.dup.freeze
+        end
 
         raise ArgumentError, "grammar_digest must be a full lowercase SHA-256 digest"
       end
 
-      # @rbs (untyped input, String name) -> Integer
+      # @rbs (json_value input, String name) -> Integer
       def positive_integer(input, name)
         return input if input.is_a?(Integer) && input.positive? && input <= MAX_COUNT
 
         raise ArgumentError, "#{name} must be a bounded positive integer"
       end
 
-      # @rbs (untyped input, String name, minimum: Integer) -> Integer
+      # @rbs (json_value input, String name, minimum: Integer) -> Integer
       def total_integer(input, name, minimum:)
         return input if input.is_a?(Integer) && input >= minimum && input <= MAX_TOTAL
 
@@ -182,14 +190,16 @@ module Ibex
       class << self
         private
 
-        # @rbs (untyped value, String source, String name) -> Hash[String, untyped]
+        # @rbs (json_value value, String source, String name) -> Hash[String, json_value]
         def string_hash(value, source, name)
-          return value if value.is_a?(Hash) && value.keys.all?(String)
+          if value.is_a?(Hash) && value.keys.all?(String)
+            return value #: Hash[String, json_value]
+          end
 
           invalid(source, "#{name} must be an object")
         end
 
-        # @rbs (untyped value, untyped total, String source, String kind) -> Hash[Integer, Integer]
+        # @rbs (json_value value, json_value total, String source, String kind) -> Hash[Integer, Integer]
         def parse_hits(value, total, source, kind)
           invalid(source, "#{kind}_hits must be an array") unless value.is_a?(Array)
           hits = {} #: Hash[Integer, Integer]
@@ -202,7 +212,7 @@ module Ibex
           hits
         end
 
-        # @rbs (untyped entry, untyped total, Integer previous, String source, String kind) -> [Integer, Integer]
+        # @rbs (json_value entry, json_value total, Integer previous, String source, String kind) -> [Integer, Integer]
         def parse_hit(entry, total, previous, source, kind)
           hit = string_hash(entry, source, "#{kind} hit")
           invalid(source, "#{kind} hit has unknown or missing fields") unless hit.keys.sort == HIT_KEYS

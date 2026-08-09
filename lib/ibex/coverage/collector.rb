@@ -5,6 +5,9 @@ module Ibex
   module Coverage
     # Strictly turns one or more complete parse sessions into a coverage report.
     class Collector
+      # @rbs!
+      #   type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+
       # @rbs @grammar_digest: String?
       # @rbs @table_format_version: Integer?
       # @rbs @state_count: Integer?
@@ -39,14 +42,19 @@ module Ibex
         collector.finish(source: path)
       end
 
-      # @rbs (Hash[String, untyped] document, source: String, line: Integer) -> void
+      # @rbs (Hash[String, json_value] document, source: String, line: Integer) -> void
       def consume(document, source:, line:)
         event = document.fetch("event")
         sequence = document.fetch("sequence")
+        data = document.fetch("data")
+        unless event.is_a?(String) && data.is_a?(Hash) && data.keys.all?(String)
+          invalid(source, line, "event document contains invalid session data")
+        end
+        data = data #: Hash[String, json_value]
         if event == "start"
-          start_session(document.fetch("data"), sequence, source, line)
+          start_session(data, sequence, source, line)
         else
-          consume_session_event(event, document.fetch("data"), sequence, source, line)
+          consume_session_event(event, data, sequence, source, line)
         end
         @event_count += 1
       end
@@ -71,7 +79,7 @@ module Ibex
 
       private
 
-      # @rbs (Hash[untyped, untyped] data, untyped sequence, String source, Integer line) -> void
+      # @rbs (Hash[String, json_value] data, json_value sequence, String source, Integer line) -> void
       def start_session(data, sequence, source, line)
         invalid(source, line, "new start event before prior session ended") if @in_session
         invalid(source, line, "start event sequence must be 1") unless sequence == 1
@@ -85,7 +93,7 @@ module Ibex
         @expected_sequence = 2
       end
 
-      # @rbs (String event, Hash[untyped, untyped] data, untyped sequence, String source, Integer line) -> void
+      # @rbs (String event, Hash[String, json_value] data, json_value sequence, String source, Integer line) -> void
       def consume_session_event(event, data, sequence, source, line)
         invalid(source, line, "event appears outside a parse session") unless @in_session
         unless sequence == @expected_sequence
@@ -106,7 +114,7 @@ module Ibex
         end
       end
 
-      # @rbs (Hash[untyped, untyped] data, String source, Integer line)
+      # @rbs (Hash[String, json_value] data, String source, Integer line)
       #   -> [[String, Integer, Integer, Integer], Integer]
       def session_metadata(data, source, line)
         digest = data["grammar_digest"]
@@ -148,21 +156,23 @@ module Ibex
         invalid(source, line, e.message)
       end
 
-      # @rbs (untyped id, String source, Integer line) -> void
+      # @rbs (json_value id, String source, Integer line) -> void
       def hit_state(id, source, line)
         total = required_metadata(@state_count)
         invalid(source, line, "state id #{id.inspect} is outside 0...#{total}") unless valid_id?(id, total)
-        increment(@state_hits, id, "state", source, line)
+        state_id = id #: Integer
+        increment(@state_hits, state_id, "state", source, line)
       end
 
-      # @rbs (untyped id, String source, Integer line) -> void
+      # @rbs (json_value id, String source, Integer line) -> void
       def hit_production(id, source, line)
         total = required_metadata(@production_count)
         invalid(source, line, "production id #{id.inspect} is outside 0...#{total}") unless valid_id?(id, total)
-        increment(@production_hits, id, "production", source, line)
+        production_id = id #: Integer
+        increment(@production_hits, production_id, "production", source, line)
       end
 
-      # @rbs (untyped id, Integer total) -> bool
+      # @rbs (json_value id, Integer total) -> bool
       def valid_id?(id, total)
         id.is_a?(Integer) && id >= 0 && id < total
       end

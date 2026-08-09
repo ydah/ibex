@@ -4,6 +4,8 @@ module Ibex
   module Coverage
     # Strictly turns one or more complete parse sessions into a coverage report.
     class Collector
+      type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+
       @expected_sequence: Integer
 
       @in_session: bool
@@ -30,23 +32,23 @@ module Ibex
       # @rbs (String path) -> Report
       def self.collect_file: (String path) -> Report
 
-      # @rbs (Hash[String, untyped] document, source: String, line: Integer) -> void
-      def consume: (Hash[String, untyped] document, source: String, line: Integer) -> void
+      # @rbs (Hash[String, json_value] document, source: String, line: Integer) -> void
+      def consume: (Hash[String, json_value] document, source: String, line: Integer) -> void
 
       # @rbs (source: String) -> Report
       def finish: (source: String) -> Report
 
       private
 
-      # @rbs (Hash[untyped, untyped] data, untyped sequence, String source, Integer line) -> void
-      def start_session: (Hash[untyped, untyped] data, untyped sequence, String source, Integer line) -> void
+      # @rbs (Hash[String, json_value] data, json_value sequence, String source, Integer line) -> void
+      def start_session: (Hash[String, json_value] data, json_value sequence, String source, Integer line) -> void
 
-      # @rbs (String event, Hash[untyped, untyped] data, untyped sequence, String source, Integer line) -> void
-      def consume_session_event: (String event, Hash[untyped, untyped] data, untyped sequence, String source, Integer line) -> void
+      # @rbs (String event, Hash[String, json_value] data, json_value sequence, String source, Integer line) -> void
+      def consume_session_event: (String event, Hash[String, json_value] data, json_value sequence, String source, Integer line) -> void
 
-      # @rbs (Hash[untyped, untyped] data, String source, Integer line)
+      # @rbs (Hash[String, json_value] data, String source, Integer line)
       #   -> [[String, Integer, Integer, Integer], Integer]
-      def session_metadata: (Hash[untyped, untyped] data, String source, Integer line) -> [ [ String, Integer, Integer, Integer ], Integer ]
+      def session_metadata: (Hash[String, json_value] data, String source, Integer line) -> [ [ String, Integer, Integer, Integer ], Integer ]
 
       # @rbs ([String, Integer, Integer, Integer] metadata, String source, Integer line) -> void
       def establish_metadata: ([ String, Integer, Integer, Integer ] metadata, String source, Integer line) -> void
@@ -54,14 +56,14 @@ module Ibex
       # @rbs (String source, Integer line) -> void
       def validate_metadata!: (String source, Integer line) -> void
 
-      # @rbs (untyped id, String source, Integer line) -> void
-      def hit_state: (untyped id, String source, Integer line) -> void
+      # @rbs (json_value id, String source, Integer line) -> void
+      def hit_state: (json_value id, String source, Integer line) -> void
 
-      # @rbs (untyped id, String source, Integer line) -> void
-      def hit_production: (untyped id, String source, Integer line) -> void
+      # @rbs (json_value id, String source, Integer line) -> void
+      def hit_production: (json_value id, String source, Integer line) -> void
 
-      # @rbs (untyped id, Integer total) -> bool
-      def valid_id?: (untyped id, Integer total) -> bool
+      # @rbs (json_value id, Integer total) -> bool
+      def valid_id?: (json_value id, Integer total) -> bool
 
       # @rbs (Hash[Integer, Integer] hits, Integer id, String kind, String source, Integer line) -> void
       def increment: (Hash[Integer, Integer] hits, Integer id, String kind, String source, Integer line) -> void

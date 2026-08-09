@@ -4,6 +4,8 @@ module Ibex
   module Coverage
     # Bounded reader for the public runtime-event JSON Lines protocol.
     module EventStream
+      type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+
       interface _CoverageEventInput
         def gets: (Integer) -> String?
       end
@@ -16,24 +18,24 @@ module Ibex
 
       EVENT_TYPES: Array[String]
 
-      # @rbs (String path) { (Hash[String, untyped], Integer) -> void } -> void
-      def self.each_file: (String path) { (Hash[String, untyped], Integer) -> void } -> void
+      # @rbs (String path) { (Hash[String, json_value], Integer) -> void } -> void
+      def self.each_file: (String path) { (Hash[String, json_value], Integer) -> void } -> void
 
       # @rbs (_CoverageEventInput input, source: String)
-      #   { (Hash[String, untyped], Integer) -> void } -> void
-      def self.each_io: (_CoverageEventInput input, source: String) { (Hash[String, untyped], Integer) -> void } -> void
+      #   { (Hash[String, json_value], Integer) -> void } -> void
+      def self.each_io: (_CoverageEventInput input, source: String) { (Hash[String, json_value], Integer) -> void } -> void
 
       # @rbs (String line, String source, Integer line_number) -> void
       private def self.reject_oversized_line: (String line, String source, Integer line_number) -> void
 
-      # @rbs (String line, String source, Integer line_number) -> Hash[String, untyped]
-      private def self.parse_line: (String line, String source, Integer line_number) -> Hash[String, untyped]
+      # @rbs (String line, String source, Integer line_number) -> Hash[String, json_value]
+      private def self.parse_line: (String line, String source, Integer line_number) -> Hash[String, json_value]
 
-      # @rbs (Hash[String, untyped] document, String source, Integer line_number) -> void
-      private def self.validate_envelope: (Hash[String, untyped] document, String source, Integer line_number) -> void
+      # @rbs (Hash[String, json_value] document, String source, Integer line_number) -> void
+      private def self.validate_envelope: (Hash[String, json_value] document, String source, Integer line_number) -> void
 
-      # @rbs (untyped value) -> bool
-      private def self.positive_integer?: (untyped value) -> bool
+      # @rbs (json_value value) -> bool
+      private def self.positive_integer?: (json_value value) -> bool
 
       # @rbs (String source, Integer line_number, String message) -> bot
       private def self.raise_invalid: (String source, Integer line_number, String message) -> bot
