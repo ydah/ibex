@@ -10,12 +10,12 @@ module Ibex
 
       attr_reader :key #: Key
       attr_reader :source #: Symbol
-      attr_reader :value #: untyped
+      attr_reader :value #: config_value
       attr_reader :status #: Symbol
       attr_reader :location #: Location?
       attr_reader :reason #: String
 
-      # @rbs (Key key, source: Symbol, value: untyped, status: Symbol, reason: String, ?location: Location?) -> void
+      # @rbs (Key key, source: Symbol, value: config_value, status: Symbol, reason: String, ?location: Location?) -> void
       def initialize(key, source:, value:, status:, reason:, location: nil)
         raise ArgumentError, "configuration evidence key must be a Configuration::Key" unless key.is_a?(Key)
         raise ArgumentError, "unknown configuration evidence source: #{source.inspect}" unless SOURCES.include?(source)
@@ -34,14 +34,14 @@ module Ibex
         freeze
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
       def to_h
         result = {
           "source" => @source.to_s,
           "value" => json_value(@value),
           "status" => @status.to_s,
           "reason" => @reason
-        } #: Hash[String, untyped]
+        } #: Hash[String, json_value]
         location = @location
         result["location"] = location.to_h.transform_keys(&:to_s) if location
         result
@@ -49,7 +49,7 @@ module Ibex
 
       private
 
-      # @rbs (untyped value) -> untyped
+      # @rbs (config_value value) -> (String | Integer | bool | nil)
       def json_value(value)
         value.is_a?(Symbol) ? value.to_s : value
       end
@@ -86,13 +86,13 @@ module Ibex
       attr_reader :path #: String
       attr_reader :files #: Array[String]
       attr_reader :schema_version #: Integer?
-      attr_reader :grammar_values #: Hash[String, untyped]
+      attr_reader :grammar_values #: Hash[String, config_value]
       attr_reader :grammar_locations #: Hash[String, Location]
       attr_reader :evidence #: Hash[String, Array[Evidence]]
       attr_reader :recordings #: Hash[String, Recording]
 
       # @rbs (kind: Symbol, path: String, ?files: Array[String], ?schema_version: Integer?,
-      #   ?grammar_values: Hash[String, untyped], ?grammar_locations: Hash[String, Location],
+      #   ?grammar_values: Hash[String, config_value], ?grammar_locations: Hash[String, Location],
       #   ?evidence: Hash[String, Array[Evidence]], ?recordings: Hash[String, Recording]) -> void
       def initialize(kind:, path:, files: [path], schema_version: nil, grammar_values: {}, grammar_locations: {},
                      evidence: {}, recordings: {})
@@ -110,13 +110,13 @@ module Ibex
         freeze
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
       def to_h
         result = {
           "kind" => @kind.to_s.tr("_", "-"),
           "path" => @path,
           "files" => @files
-        } #: Hash[String, untyped]
+        } #: Hash[String, json_value]
         result["schema_version"] = @schema_version if @schema_version
         result
       end
@@ -124,7 +124,7 @@ module Ibex
       private
 
       # @rbs (Symbol kind, String path, Array[String] files, Integer? schema_version,
-      #   Hash[String, untyped] grammar_values, Hash[String, Location] grammar_locations,
+      #   Hash[String, config_value] grammar_values, Hash[String, Location] grammar_locations,
       #   Hash[String, Array[Evidence]] evidence, Hash[String, Recording] recordings) -> void
       def assign_input(kind, path, files, schema_version, grammar_values, grammar_locations, evidence, recordings)
         @kind = kind
@@ -155,7 +155,7 @@ module Ibex
         end
       end
 
-      # @rbs (Hash[String, untyped] values, Hash[String, Location] locations,
+      # @rbs (Hash[String, config_value] values, Hash[String, Location] locations,
       #   Hash[String, Array[Evidence]] evidence, Hash[String, Recording] recordings) -> void
       def validate_entries!(values, locations, evidence, recordings)
         validate_fact_hashes!(values, locations, evidence, recordings)
@@ -170,14 +170,14 @@ module Ibex
         validate_recordings!(recordings)
       end
 
-      # @rbs (*untyped values) -> void
+      # @rbs (*Hash[Object?, Object?] values) -> void
       def validate_fact_hashes!(*values)
         return if values.all?(Hash)
 
         raise ArgumentError, "configuration input facts must be Hash values"
       end
 
-      # @rbs (Hash[String, untyped] values, Hash[String, Location] locations) -> void
+      # @rbs (Hash[String, config_value] values, Hash[String, Location] locations) -> void
       def validate_locations!(values, locations)
         locations.each do |name, location|
           raise ArgumentError, "configuration location for #{name} has no grammar value" unless values.key?(name)
@@ -204,7 +204,7 @@ module Ibex
         end
       end
 
-      # @rbs (Hash[String, untyped] values) -> Hash[String, untyped]
+      # @rbs (Hash[String, config_value] values) -> Hash[String, config_value]
       def immutable_values(values)
         values.to_h do |name, value|
           [name.dup.freeze, Registry.fetch(name).validate(value)]
@@ -228,7 +228,7 @@ module Ibex
         freeze
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
       def to_h
         {
           "key" => @key.name,
@@ -249,7 +249,7 @@ module Ibex
 
       private
 
-      # @rbs (Value value) -> Hash[String, untyped]
+      # @rbs (Value value) -> Hash[String, json_value]
       def selection(value)
         serialized = value.to_h
         { "value" => serialized.fetch("value"), "origin" => serialized.fetch("origin") }
@@ -279,7 +279,7 @@ module Ibex
         freeze
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
       def to_h
         @value.to_h.merge(
           "selection" => @value.explicit ? "explicit" : "implicit",
@@ -296,7 +296,7 @@ module Ibex
       attr_reader :explanations #: Array[Explanation]
       attr_reader :conflicts #: Array[ConflictRecord]
 
-      # @rbs (Input input, ?cli: Hash[String, untyped]) -> void
+      # @rbs (Input input, ?cli: Hash[String, config_value]) -> void
       def initialize(input, cli: {})
         raise ArgumentError, "configuration report input must be a Configuration::Input" unless input.is_a?(Input)
 
@@ -321,7 +321,7 @@ module Ibex
         @conflicts.empty?
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, json_value]
       def to_h
         {
           "ibex_report" => "configuration",
@@ -350,12 +350,12 @@ module Ibex
 
       private
 
-      # @rbs (Key key, Hash[String, untyped] cli) -> Value
+      # @rbs (Key key, Hash[String, config_value] cli) -> Value
       def resolve_key(key, cli)
         name = key.name
-        grammar = {} #: Hash[String, untyped]
+        grammar = {} #: Hash[String, config_value]
         grammar[name] = @input.grammar_values.fetch(name) if @input.grammar_values.key?(name)
-        request = {} #: Hash[String, untyped]
+        request = {} #: Hash[String, config_value]
         request[name] = cli.fetch(name) if cli.key?(name)
         locations = {} #: Hash[Symbol, Hash[String, Location]]
         locations[:grammar] = { name => @input.grammar_locations.fetch(name) } \
@@ -363,7 +363,7 @@ module Ibex
         Resolver.new(keys: [key], grammar: grammar, cli: request, locations: locations).values.fetch(0)
       end
 
-      # @rbs (Value value, Hash[String, untyped] cli, ?conflict: ConflictRecord?) -> Explanation
+      # @rbs (Value value, Hash[String, config_value] cli, ?conflict: ConflictRecord?) -> Explanation
       def explanation(value, cli, conflict: nil)
         key = value.key
         evidence = @input.evidence.fetch(key.name, []).dup
@@ -375,7 +375,7 @@ module Ibex
         Explanation.new(value, evidence: evidence, recording: recording)
       end
 
-      # @rbs (Key key, untyped raw, conflicting: bool) -> Evidence
+      # @rbs (Key key, config_value raw, conflicting: bool) -> Evidence
       def cli_evidence(key, raw, conflicting:)
         value = key.validate(raw)
         grammar = @input.grammar_values
@@ -390,7 +390,7 @@ module Ibex
         Evidence.new(key, source: :cli, value: value, status: status, reason: reason)
       end
 
-      # @rbs (untyped value) -> String
+      # @rbs (config_value value) -> String
       def display(value)
         value.nil? ? "null" : value.to_s
       end
