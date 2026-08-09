@@ -437,7 +437,7 @@ module Ibex
               }
             )
           else
-            data = diagnostic #: Hash[untyped, untyped]
+            data = diagnostic #: Hash[Object?, Object?]
             SyntaxSessionDiagnostic.new(kind: :syntax_error, data: data)
           end
         end.freeze
