@@ -26,8 +26,8 @@ module Ibex
         def exhausted?: () -> bool
       end
 
-      # @rbs (Document | Hash[String, untyped] document) -> void
-      def initialize: (Document | Hash[String, untyped] document) -> void
+      # @rbs (Document | Hash[String, ValidationSupport::json_value] document) -> void
+      def initialize: (Document | Hash[String, ValidationSupport::json_value] document) -> void
 
       # @rbs (Array[Integer] token_ids, ?entry: String | Symbol?, ?max_steps: Integer) -> Result
       def recognize: (Array[Integer] token_ids, ?entry: String | Symbol?, ?max_steps: Integer) -> Result
@@ -52,8 +52,8 @@ module Ibex
       # @rbs (Integer row, Integer column) -> Integer?
       def goto_state: (Integer row, Integer column) -> Integer?
 
-      # @rbs (Hash[String, untyped] table, Integer row, Integer column, String value_key) -> Integer?
-      def displacement_lookup: (Hash[String, untyped] table, Integer row, Integer column, String value_key) -> Integer?
+      # @rbs (Hash[String, ValidationSupport::json_value] table, Integer row, Integer column, String value_key) -> Integer?
+      def displacement_lookup: (Hash[String, ValidationSupport::json_value] table, Integer row, Integer column, String value_key) -> Integer?
 
       # @rbs (Array[Integer] stack, Integer code) -> String?
       def reduce_stack: (Array[Integer] stack, Integer code) -> String?

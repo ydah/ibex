@@ -27,13 +27,15 @@ module Ibex
         def exhausted? = status == :exhausted
       end
 
-      # @rbs (Document | Hash[String, untyped] document) -> void
+      # @rbs (Document | Hash[String, ValidationSupport::json_value] document) -> void
       def initialize(document)
         @payload = document.is_a?(Document) ? document.payload : Document.new(document).payload
-        @tables = @payload.fetch("tables") #: Hash[String, untyped]
-        @productions = @payload.fetch("productions") #: Array[Hash[String, untyped]]
-        tokens = @payload.fetch("tokens") #: Array[Hash[String, untyped]]
-        @terminal_ids = tokens.map { |token| token.fetch("id") }
+        @tables = @payload.fetch("tables") #: Hash[String, ValidationSupport::json_value]
+        @productions = @payload.fetch("productions") #: Array[Hash[String, ValidationSupport::json_value]]
+        tokens = @payload.fetch("tokens") #: Array[Hash[String, ValidationSupport::json_value]]
+        @terminal_ids = tokens.map do |token|
+          token.fetch("id") #: Integer
+        end
       end
 
       # @rbs (Array[Integer] token_ids, ?entry: String | Symbol?, ?max_steps: Integer) -> Result
@@ -95,45 +97,59 @@ module Ibex
 
       # @rbs (String | Symbol? requested) -> Integer
       def entry_state(requested)
-        entries = @payload.fetch("entry_states") #: Array[Hash[String, untyped]]
-        return entries.first.fetch("state") unless requested
+        entries = @payload.fetch("entry_states") #: Array[Hash[String, ValidationSupport::json_value]]
+        default_state = entries.first.fetch("state") #: Integer
+        return default_state unless requested
 
         entry = entries.find { |candidate| candidate.fetch("name") == requested.to_s }
         raise ArgumentError, "unknown parser entry #{requested.inspect}" unless entry
 
-        entry.fetch("state")
+        entry.fetch("state") #: Integer
       end
 
       # @rbs (Integer row, Integer column) -> Integer?
       def action(row, column)
-        table = @tables.fetch("actions") #: Hash[String, untyped]
+        table = @tables.fetch("actions") #: Hash[String, ValidationSupport::json_value]
         code = if table.fetch("encoding") == "signed-sparse-rows-v1"
-                 rows = table.fetch("rows") #: Array[Array[Hash[String, untyped]]]
+                 rows = table.fetch("rows") #: Array[Array[Hash[String, ValidationSupport::json_value]]]
                  cells = rows.fetch(row)
-                 cells.bsearch { |cell| cell.fetch("token_id") >= column }&.then do |cell|
-                   cell.fetch("code") if cell.fetch("token_id") == column
+                 cells.bsearch do |cell|
+                   token_id = cell.fetch("token_id") #: Integer
+                   token_id >= column
+                 end&.then do |cell|
+                   token_id = cell.fetch("token_id") #: Integer
+                   if token_id == column
+                     cell.fetch("code") #: Integer
+                   end
                  end
                else
                  displacement_lookup(table, row, column, "codes")
                end
-        code.nil? ? @tables.fetch("default_actions").fetch(row) : code
+        defaults = @tables.fetch("default_actions") #: Array[Integer?]
+        code.nil? ? defaults.fetch(row) : code
       end
 
       # @rbs (Integer row, Integer column) -> Integer?
       def goto_state(row, column)
-        table = @tables.fetch("gotos") #: Hash[String, untyped]
+        table = @tables.fetch("gotos") #: Hash[String, ValidationSupport::json_value]
         if table.fetch("encoding") == "sparse-rows-v1"
-          rows = table.fetch("rows") #: Array[Array[Hash[String, untyped]]]
+          rows = table.fetch("rows") #: Array[Array[Hash[String, ValidationSupport::json_value]]]
           cells = rows.fetch(row)
-          cells.bsearch { |cell| cell.fetch("symbol_id") >= column }&.then do |cell|
-            cell.fetch("state") if cell.fetch("symbol_id") == column
+          cells.bsearch do |cell|
+            symbol_id = cell.fetch("symbol_id") #: Integer
+            symbol_id >= column
+          end&.then do |cell|
+            symbol_id = cell.fetch("symbol_id") #: Integer
+            if symbol_id == column
+              cell.fetch("state") #: Integer
+            end
           end
         else
           displacement_lookup(table, row, column, "values")
         end
       end
 
-      # @rbs (Hash[String, untyped] table, Integer row, Integer column, String value_key) -> Integer?
+      # @rbs (Hash[String, ValidationSupport::json_value] table, Integer row, Integer column, String value_key) -> Integer?
       def displacement_lookup(table, row, column, value_key)
         offsets = table.fetch("offsets") #: Array[Integer]
         index = offsets.fetch(row) + column
@@ -147,11 +163,12 @@ module Ibex
       # @rbs (Array[Integer] stack, Integer code) -> String?
       def reduce_stack(stack, code)
         production = @productions.fetch(-2 - code)
-        length = production.fetch("rhs_length")
+        length = production.fetch("rhs_length") #: Integer
         return "reduction underflow" if length >= stack.length
 
         stack.pop(length)
-        state = goto_state(stack.last, production.fetch("lhs"))
+        lhs = production.fetch("lhs") #: Integer
+        state = goto_state(stack.last, lhs)
         return "missing goto after reduction" unless state
 
         stack << state
