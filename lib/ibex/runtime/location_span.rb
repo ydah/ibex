@@ -9,10 +9,10 @@ module Ibex
     # supplied by the lexer. A reduction wraps the outer boundaries in this
     # immutable value so actions can distinguish synthesized spans.
     class LocationSpan
-      attr_reader :start #: untyped
-      attr_reader :finish #: untyped
+      attr_reader :start #: Object?
+      attr_reader :finish #: Object?
 
-      # @rbs (start: untyped, finish: untyped, ?empty: bool) -> void
+      # @rbs (start: Object?, finish: Object?, ?empty: bool) -> void
       def initialize(start:, finish:, empty: false)
         @start = start
         @finish = finish
@@ -23,7 +23,7 @@ module Ibex
       # Build a span for an LR reduction. Nonempty reductions cover the first
       # through last located RHS entry. Empty reductions are zero-width at the
       # current lookahead location.
-      # @rbs (Array[untyped] locations, lookahead: untyped) -> LocationSpan?
+      # @rbs (Array[Object?] locations, lookahead: Object?) -> LocationSpan?
       def self.for_reduction(locations, lookahead:)
         if locations.empty?
           return unless lookahead
@@ -44,40 +44,40 @@ module Ibex
         @empty
       end
 
-      # @rbs () -> untyped
+      # @rbs () -> Object?
       def file = location_value(@start, :file)
 
-      # @rbs () -> untyped
+      # @rbs () -> Object?
       def line = location_value(@start, :line)
 
-      # @rbs () -> untyped
+      # @rbs () -> Object?
       def column = location_value(@start, :column)
 
-      # @rbs () -> untyped
+      # @rbs () -> Object?
       def source_line = location_value(@start, :source_line)
 
-      # @rbs () -> untyped
+      # @rbs () -> Object?
       def end_file
         return file if empty?
 
         location_value(@finish, :end_file) || location_value(@finish, :file)
       end
 
-      # @rbs () -> untyped
+      # @rbs () -> Object?
       def end_line
         return line if empty?
 
         location_value(@finish, :end_line) || location_value(@finish, :line)
       end
 
-      # @rbs () -> untyped
+      # @rbs () -> Object?
       def end_column
         return column if empty?
 
         location_value(@finish, :end_column) || location_value(@finish, :column)
       end
 
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
       def to_h
         {
           file: file, line: line, column: column,
@@ -89,12 +89,12 @@ module Ibex
       class << self
         private
 
-        # @rbs (untyped location) -> untyped
+        # @rbs (Object? location) -> Object?
         def boundary_start(location)
           location.is_a?(LocationSpan) ? location.start : location
         end
 
-        # @rbs (untyped location) -> untyped
+        # @rbs (Object? location) -> Object?
         def boundary_finish(location)
           location.is_a?(LocationSpan) ? location.finish : location
         end
@@ -102,7 +102,7 @@ module Ibex
 
       private
 
-      # @rbs (untyped location, Symbol key) -> untyped
+      # @rbs (Object? location, Symbol key) -> Object?
       def location_value(location, key)
         return location.public_send(key) if location.respond_to?(key)
         return location[key] || location[key.to_s] if location.is_a?(Hash)

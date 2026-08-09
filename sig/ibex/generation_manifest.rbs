@@ -3,6 +3,8 @@
 module Ibex
   # Deterministic description of one published parser generation.
   module GenerationManifest
+    type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+
     SCHEMA_VERSION: Integer
 
     IDENTIFIER: String
@@ -15,53 +17,53 @@ module Ibex
 
     ARTIFACT_KEYS: Array[String]
 
-    # @rbs (ArtifactSet artifacts, source_records: Array[GenerationInput], options: Hash[String, untyped]) -> String
-    def self?.render: (ArtifactSet artifacts, source_records: Array[GenerationInput], options: Hash[String, untyped]) -> String
+    # @rbs (ArtifactSet artifacts, source_records: Array[GenerationInput], options: Hash[String, Object?]) -> String
+    def self?.render: (ArtifactSet artifacts, source_records: Array[GenerationInput], options: Hash[String, Object?]) -> String
 
     # Validate the manifest shape and, by default, every published artifact digest.
-    # @rbs (String source, ?verify_artifacts: bool) -> Hash[String, untyped]
-    def self?.validate: (String source, ?verify_artifacts: bool) -> Hash[String, untyped]
+    # @rbs (String source, ?verify_artifacts: bool) -> Hash[String, json_value]
+    def self?.validate: (String source, ?verify_artifacts: bool) -> Hash[String, json_value]
 
-    # @rbs (String path, ?verify_artifacts: bool) -> Hash[String, untyped]
-    def self?.validate_file: (String path, ?verify_artifacts: bool) -> Hash[String, untyped]
+    # @rbs (String path, ?verify_artifacts: bool) -> Hash[String, json_value]
+    def self?.validate_file: (String path, ?verify_artifacts: bool) -> Hash[String, json_value]
 
-    # @rbs (Artifact artifact) -> Hash[String, untyped]
-    def self?.artifact_entry: (Artifact artifact) -> Hash[String, untyped]
+    # @rbs (Artifact artifact) -> Hash[String, json_value]
+    def self?.artifact_entry: (Artifact artifact) -> Hash[String, json_value]
 
-    # @rbs (Array[Hash[String, untyped]] files) -> String
-    def self?.input_digest: (Array[Hash[String, untyped]] files) -> String
+    # @rbs (Array[Hash[String, json_value]] files) -> String
+    def self?.input_digest: (Array[Hash[String, json_value]] files) -> String
 
-    # @rbs (Hash[String, untyped] value) -> Hash[String, untyped]
-    def self?.sorted_hash: (Hash[String, untyped] value) -> Hash[String, untyped]
+    # @rbs (Hash[String, Object?] value) -> Hash[String, Object?]
+    def self?.sorted_hash: (Hash[String, Object?] value) -> Hash[String, Object?]
 
-    # @rbs (untyped document) -> void
-    def self?.validate_document: (untyped document) -> void
+    # @rbs (Object? document) -> void
+    def self?.validate_document: (Object? document) -> void
 
-    # @rbs (Hash[untyped, untyped] document) -> void
-    def self?.validate_identity: (Hash[untyped, untyped] document) -> void
+    # @rbs (Hash[Object?, Object?] document) -> void
+    def self?.validate_identity: (Hash[Object?, Object?] document) -> void
 
-    # @rbs (untyped input) -> void
-    def self?.validate_input: (untyped input) -> void
+    # @rbs (Object? input) -> void
+    def self?.validate_input: (Object? input) -> void
 
-    # @rbs (Array[untyped] entries, String label, ?require_kind: bool) -> void
-    def self?.validate_entries: (Array[untyped] entries, String label, ?require_kind: bool) -> void
+    # @rbs (Array[Object?] entries, String label, ?require_kind: bool) -> void
+    def self?.validate_entries: (Array[Object?] entries, String label, ?require_kind: bool) -> void
 
-    # @rbs (untyped entry, String label, bool require_kind) -> void
-    def self?.validate_entry: (untyped entry, String label, bool require_kind) -> void
+    # @rbs (Object? entry, String label, bool require_kind) -> void
+    def self?.validate_entry: (Object? entry, String label, bool require_kind) -> void
 
-    # @rbs (untyped path, String label) -> void
-    def self?.validate_path: (untyped path, String label) -> void
+    # @rbs (Object? path, String label) -> void
+    def self?.validate_path: (Object? path, String label) -> void
 
-    # @rbs (untyped kind, String label) -> void
-    def self?.validate_kind: (untyped kind, String label) -> void
+    # @rbs (Object? kind, String label) -> void
+    def self?.validate_kind: (Object? kind, String label) -> void
 
-    # @rbs (untyped digest, String label) -> void
-    def self?.validate_digest: (untyped digest, String label) -> void
+    # @rbs (Object? digest, String label) -> void
+    def self?.validate_digest: (Object? digest, String label) -> void
 
-    # @rbs (Hash[untyped, untyped] value, Array[String] expected, String label) -> void
-    def self?.exact_keys!: (Hash[untyped, untyped] value, Array[String] expected, String label) -> void
+    # @rbs (Hash[Object?, Object?] value, Array[String] expected, String label) -> void
+    def self?.exact_keys!: (Hash[Object?, Object?] value, Array[String] expected, String label) -> void
 
-    # @rbs (Array[untyped] entries) -> void
-    def self?.verify_entries: (Array[untyped] entries) -> void
+    # @rbs (Array[Object?] entries) -> void
+    def self?.verify_entries: (Array[Object?] entries) -> void
   end
 end

@@ -8,57 +8,57 @@ module Ibex
     # supplied by the lexer. A reduction wraps the outer boundaries in this
     # immutable value so actions can distinguish synthesized spans.
     class LocationSpan
-      attr_reader start: untyped
+      attr_reader start: Object?
 
-      attr_reader finish: untyped
+      attr_reader finish: Object?
 
-      # @rbs (start: untyped, finish: untyped, ?empty: bool) -> void
-      def initialize: (start: untyped, finish: untyped, ?empty: bool) -> void
+      # @rbs (start: Object?, finish: Object?, ?empty: bool) -> void
+      def initialize: (start: Object?, finish: Object?, ?empty: bool) -> void
 
       # Build a span for an LR reduction. Nonempty reductions cover the first
       # through last located RHS entry. Empty reductions are zero-width at the
       # current lookahead location.
-      # @rbs (Array[untyped] locations, lookahead: untyped) -> LocationSpan?
-      def self.for_reduction: (Array[untyped] locations, lookahead: untyped) -> LocationSpan?
+      # @rbs (Array[Object?] locations, lookahead: Object?) -> LocationSpan?
+      def self.for_reduction: (Array[Object?] locations, lookahead: Object?) -> LocationSpan?
 
       # Whether this is the zero-width span of an empty production.
       # @rbs () -> bool
       def empty?: () -> bool
 
-      # @rbs () -> untyped
-      def file: () -> untyped
+      # @rbs () -> Object?
+      def file: () -> Object?
 
-      # @rbs () -> untyped
-      def line: () -> untyped
+      # @rbs () -> Object?
+      def line: () -> Object?
 
-      # @rbs () -> untyped
-      def column: () -> untyped
+      # @rbs () -> Object?
+      def column: () -> Object?
 
-      # @rbs () -> untyped
-      def source_line: () -> untyped
+      # @rbs () -> Object?
+      def source_line: () -> Object?
 
-      # @rbs () -> untyped
-      def end_file: () -> untyped
+      # @rbs () -> Object?
+      def end_file: () -> Object?
 
-      # @rbs () -> untyped
-      def end_line: () -> untyped
+      # @rbs () -> Object?
+      def end_line: () -> Object?
 
-      # @rbs () -> untyped
-      def end_column: () -> untyped
+      # @rbs () -> Object?
+      def end_column: () -> Object?
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h: () -> Hash[Symbol, Object?]
 
-      # @rbs (untyped location) -> untyped
-      private def self.boundary_start: (untyped location) -> untyped
+      # @rbs (Object? location) -> Object?
+      private def self.boundary_start: (Object? location) -> Object?
 
-      # @rbs (untyped location) -> untyped
-      private def self.boundary_finish: (untyped location) -> untyped
+      # @rbs (Object? location) -> Object?
+      private def self.boundary_finish: (Object? location) -> Object?
 
       private
 
-      # @rbs (untyped location, Symbol key) -> untyped
-      def location_value: (untyped location, Symbol key) -> untyped
+      # @rbs (Object? location, Symbol key) -> Object?
+      def location_value: (Object? location, Symbol key) -> Object?
     end
   end
 end

@@ -5,6 +5,8 @@ module Ibex
     # Converts application-owned values into bounded, data-only event summaries.
     # rubocop:disable Metrics/ModuleLength
     module EventSanitizer
+      type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+
       MAX_DEPTH: Integer
 
       MAX_COLLECTION_ENTRIES: Integer
@@ -20,69 +22,69 @@ module Ibex
       # Copy a runtime payload into deeply frozen JSON data. Unknown objects are
       # summarized instead of being retained, so callers cannot smuggle mutable
       # application identities into an Event.
-      # @rbs (Hash[untyped, untyped] input) -> Hash[String, untyped]
-      def self.data: (Hash[untyped, untyped] input) -> Hash[String, untyped]
+      # @rbs (Hash[Object?, Object?] input) -> Hash[String, json_value]
+      def self.data: (Hash[Object?, Object?] input) -> Hash[String, json_value]
 
-      # @rbs (untyped input) -> untyped
-      def self.value: (untyped input) -> untyped
+      # @rbs (Object? input) -> json_value
+      def self.value: (Object? input) -> json_value
 
-      # @rbs (untyped location) -> Hash[String, untyped]?
-      def self.location: (untyped location) -> Hash[String, untyped]?
+      # @rbs (Object? location) -> Hash[String, json_value]?
+      def self.location: (Object? location) -> Hash[String, json_value]?
 
-      # @rbs (untyped input) -> String
-      def self.string: (untyped input) -> String
+      # @rbs (Object? input) -> String
+      def self.string: (Object? input) -> String
 
-      # @rbs (untyped input) -> String
-      def self.class_name: (untyped input) -> String
+      # @rbs (Object? input) -> String
+      def self.class_name: (Object? input) -> String
 
-      # @rbs (untyped input, depth: Integer, seen: Hash[Integer, bool]) -> untyped
-      private def self.summarize: (untyped input, depth: Integer, seen: Hash[Integer, bool]) -> untyped
+      # @rbs (Object? input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+      private def self.summarize: (Object? input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
 
-      # @rbs (untyped input, depth: Integer, seen: Hash[Integer, bool]) -> untyped
-      private def self.json_data: (untyped input, depth: Integer, seen: Hash[Integer, bool]) -> untyped
+      # @rbs (Object? input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+      private def self.json_data: (Object? input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
 
-      # @rbs (Array[untyped] input, depth: Integer, seen: Hash[Integer, bool]) -> untyped
-      private def self.summarize_array: (Array[untyped] input, depth: Integer, seen: Hash[Integer, bool]) -> untyped
+      # @rbs (Array[Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+      private def self.summarize_array: (Array[Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
 
-      # @rbs (Hash[untyped, untyped] input, depth: Integer, seen: Hash[Integer, bool]) -> untyped
-      private def self.summarize_hash: (Hash[untyped, untyped] input, depth: Integer, seen: Hash[Integer, bool]) -> untyped
+      # @rbs (Hash[Object?, Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+      private def self.summarize_hash: (Hash[Object?, Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
 
-      # @rbs (Array[untyped] input, depth: Integer, seen: Hash[Integer, bool]) -> untyped
-      private def self.json_array: (Array[untyped] input, depth: Integer, seen: Hash[Integer, bool]) -> untyped
+      # @rbs (Array[Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+      private def self.json_array: (Array[Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
 
-      # @rbs (Hash[untyped, untyped] input, depth: Integer, seen: Hash[Integer, bool]) -> untyped
-      private def self.json_hash: (Hash[untyped, untyped] input, depth: Integer, seen: Hash[Integer, bool]) -> untyped
+      # @rbs (Hash[Object?, Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+      private def self.json_hash: (Hash[Object?, Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
 
-      # @rbs (Array[untyped] input, seen: Hash[Integer, bool])
-      #   { (untyped, Hash[Integer, bool]) -> untyped } -> untyped
-      private def self.copy_array: (Array[untyped] input, seen: Hash[Integer, bool]) { (untyped, Hash[Integer, bool]) -> untyped } -> untyped
+      # @rbs (Array[Object?] input, seen: Hash[Integer, bool])
+      #   { (Object?, Hash[Integer, bool]) -> json_value } -> json_value
+      private def self.copy_array: (Array[Object?] input, seen: Hash[Integer, bool]) { (Object?, Hash[Integer, bool]) -> json_value } -> json_value
 
-      # @rbs (untyped input) -> bool
-      private def self.primitive?: (untyped input) -> bool
+      # @rbs (Object? input) -> bool
+      private def self.primitive?: (Object? input) -> bool
 
-      # @rbs (Integer input) -> untyped
-      private def self.bounded_integer: (Integer input) -> untyped
+      # @rbs (Integer input) -> json_value
+      private def self.bounded_integer: (Integer input) -> json_value
 
-      # @rbs (Float input) -> untyped
-      private def self.finite_float: (Float input) -> untyped
+      # @rbs (Float input) -> json_value
+      private def self.finite_float: (Float input) -> json_value
 
-      # @rbs (untyped input, Module type) -> bool
-      private def self.core_type?: (untyped input, Module type) -> bool
+      # @rbs (Object? input, Module type) -> bool
+      private def self.core_type?: (Object? input, Module type) -> bool
 
-      # @rbs (untyped key) -> String
-      private def self.data_key: (untyped key) -> String
+      # @rbs (Object? key) -> String
+      private def self.data_key: (Object? key) -> String
 
       # @rbs (String input) -> String
       private def self.truncate_utf8: (String input) -> String
 
-      # @rbs (untyped input) -> Integer
-      private def self.object_identity: (untyped input) -> Integer
+      # @rbs (Object? input) -> Integer
+      private def self.object_identity: (Object? input) -> Integer
 
-      # @rbs (untyped location, Symbol field) -> untyped
-      private def self.location_field: (untyped location, Symbol field) -> untyped
+      # @rbs (Object? location, Symbol field) -> Object?
+      private def self.location_field: (Object? location, Symbol field) -> Object?
 
-      # @rbs (String reason) -> Hash[String, untyped]
-      private def self.unavailable: (String reason) -> Hash[String, untyped]
+      # @rbs (String reason) -> Hash[String, json_value]
+      private def self.unavailable: (String reason) -> Hash[String, json_value]
 
       # @rbs (Module owner, Symbol method_name, untyped receiver, *untyped args, **untyped keywords)
       #   ?{ (*untyped) -> untyped } -> untyped
