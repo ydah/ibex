@@ -85,7 +85,8 @@ module Ibex
 
       # @rbs (String file) -> String
       def logical_file(file)
-        logical = @logical_files.find { |_record, path| path == file }
+        file_bytes = file.b
+        logical = @logical_files.find { |_record, path| path.b == file_bytes }
         return logical.fetch(1) if logical
 
         candidates = @logical_files.select { |record, _path| record_matches?(record, file) }
