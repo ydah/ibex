@@ -6,10 +6,10 @@ module Ibex
       include ValidationSupport
 
       # @rbs!
-      #   private def integer_array: (untyped value, String path, allow_nil: false, minimum: Integer?) -> Array[Integer]
-      #                            | (untyped value, String path, allow_nil: true, minimum: Integer?) -> Array[Integer?]
+      #   private def integer_array: (ValidationSupport::json_value value, String path, allow_nil: false, minimum: Integer?) -> Array[Integer]
+      #                            | (ValidationSupport::json_value value, String path, allow_nil: true, minimum: Integer?) -> Array[Integer?]
 
-      # @rbs (Hash[String, untyped] data, state_count: Integer, production_count: Integer,
+      # @rbs (Hash[String, ValidationSupport::json_value] data, state_count: Integer, production_count: Integer,
       #   terminal_ids: Set[Integer], nonterminal_ids: Set[Integer], representation: String) -> void
       def initialize(data, state_count:, production_count:, terminal_ids:, nonterminal_ids:, representation:)
         @data = data
@@ -30,9 +30,10 @@ module Ibex
 
       private
 
-      # @rbs (untyped table) -> void
+      # @rbs (ValidationSupport::json_value table) -> void
       def validate_actions(table)
         encoding = table.is_a?(Hash) && table["encoding"]
+        table = table #: Hash[String, ValidationSupport::json_value] if table.is_a?(Hash)
         expected = @representation == "compact" ? "signed-row-displacement-v1" : "signed-sparse-rows-v1"
         invalid("$.payload.tables.actions.encoding", "does not match table representation") unless encoding == expected
         case encoding
@@ -42,7 +43,7 @@ module Ibex
         end
       end
 
-      # @rbs (Hash[String, untyped] table) -> void
+      # @rbs (Hash[String, ValidationSupport::json_value] table) -> void
       def validate_sparse_actions(table)
         record(table, "$.payload.tables.actions", %w[encoding rows])
         rows = array(table.fetch("rows"), "$.payload.tables.actions.rows")
@@ -50,7 +51,7 @@ module Ibex
         rows.each_with_index do |row, state|
           token_ids = array(row, "$.payload.tables.actions.rows[#{state}]").map.with_index do |cell, index|
             path = "$.payload.tables.actions.rows[#{state}][#{index}]"
-            record(cell, path, %w[token_id code])
+            cell = record(cell, path, %w[token_id code])
             token_id = integer(cell.fetch("token_id"), "#{path}.token_id", minimum: 0)
             invalid("#{path}.token_id", "must reference a terminal") unless @terminal_ids.include?(token_id)
             validate_token_action(cell.fetch("code"), token_id, "#{path}.code")
@@ -60,7 +61,7 @@ module Ibex
         end
       end
 
-      # @rbs (Hash[String, untyped] table) -> void
+      # @rbs (Hash[String, ValidationSupport::json_value] table) -> void
       def validate_compact_actions(table)
         keys = %w[encoding row_count column_count offsets codes checks]
         record(table, "$.payload.tables.actions", keys)
@@ -80,9 +81,10 @@ module Ibex
         )
       end
 
-      # @rbs (untyped table) -> void
+      # @rbs (ValidationSupport::json_value table) -> void
       def validate_gotos(table)
         encoding = table.is_a?(Hash) && table["encoding"]
+        table = table #: Hash[String, ValidationSupport::json_value] if table.is_a?(Hash)
         expected = @representation == "compact" ? "row-displacement-v1" : "sparse-rows-v1"
         invalid("$.payload.tables.gotos.encoding", "does not match table representation") unless encoding == expected
         case encoding
@@ -92,7 +94,7 @@ module Ibex
         end
       end
 
-      # @rbs (Hash[String, untyped] table) -> void
+      # @rbs (Hash[String, ValidationSupport::json_value] table) -> void
       def validate_sparse_gotos(table)
         record(table, "$.payload.tables.gotos", %w[encoding rows])
         rows = array(table.fetch("rows"), "$.payload.tables.gotos.rows")
@@ -100,7 +102,7 @@ module Ibex
         rows.each_with_index do |row, state|
           symbol_ids = array(row, "$.payload.tables.gotos.rows[#{state}]").map.with_index do |cell, index|
             path = "$.payload.tables.gotos.rows[#{state}][#{index}]"
-            record(cell, path, %w[symbol_id state])
+            cell = record(cell, path, %w[symbol_id state])
             symbol_id = integer(cell.fetch("symbol_id"), "#{path}.symbol_id", minimum: 0)
             invalid("#{path}.symbol_id", "must reference a nonterminal") unless @nonterminal_ids.include?(symbol_id)
             validate_state(cell.fetch("state"), "#{path}.state")
@@ -110,7 +112,7 @@ module Ibex
         end
       end
 
-      # @rbs (Hash[String, untyped] table) -> void
+      # @rbs (Hash[String, ValidationSupport::json_value] table) -> void
       def validate_compact_gotos(table)
         keys = %w[encoding row_count dense_width offsets values checks]
         record(table, "$.payload.tables.gotos", keys)
@@ -129,14 +131,14 @@ module Ibex
         )
       end
 
-      # @rbs (Hash[String, untyped] table, String path) -> void
+      # @rbs (Hash[String, ValidationSupport::json_value] table, String path) -> void
       def validate_row_count(table, path)
         count = integer(table.fetch("row_count"), "#{path}.row_count", minimum: 1)
         invalid("#{path}.row_count", "must equal state_count") unless count == @state_count
       end
 
-      # @rbs (Hash[String, untyped] table, value_key: String, path: String)
-      #   { (Integer, untyped, String) -> void } -> Array[Hash[Integer, untyped]]
+      # @rbs (Hash[String, ValidationSupport::json_value] table, value_key: String, path: String)
+      #   { (Integer, ValidationSupport::json_value, String) -> void } -> Array[Hash[Integer, ValidationSupport::json_value]]
       def validate_displacement(table, value_key:, path:)
         offsets = integer_array(table.fetch("offsets"), "#{path}.offsets", allow_nil: false, minimum: 0)
         invalid("#{path}.offsets", "must contain one offset per state") unless offsets.length == @state_count
@@ -145,7 +147,7 @@ module Ibex
         checks = integer_array(table.fetch("checks"), "#{path}.checks", allow_nil: true, minimum: 0)
         invalid(path, "#{value_key} and checks must have equal length") unless values.length == checks.length
 
-        rows = Array.new(@state_count) { {} } #: Array[Hash[Integer, untyped]]
+        rows = Array.new(@state_count) { {} } #: Array[Hash[Integer, ValidationSupport::json_value]]
         checks.each_index do |index|
           row = checks[index]
           value = values[index]
@@ -161,7 +163,7 @@ module Ibex
         rows
       end
 
-      # @rbs (Hash[String, untyped] table, Array[Hash[Integer, untyped]] rows, value_key: String,
+      # @rbs (Hash[String, ValidationSupport::json_value] table, Array[Hash[Integer, ValidationSupport::json_value]] rows, value_key: String,
       #   width_key: String, width: Integer?, dense: bool, path: String) -> void
       def validate_canonical_displacement(table, rows, value_key:, width_key:, width:, dense:, path:)
         canonical = Tables::Compact.build(rows, dense: dense)
@@ -187,7 +189,7 @@ module Ibex
         end
       end
 
-      # @rbs (untyped defaults) -> void
+      # @rbs (ValidationSupport::json_value defaults) -> void
       def validate_defaults(defaults)
         values = array(defaults, "$.payload.tables.default_actions")
         unless values.length == @state_count
@@ -198,21 +200,21 @@ module Ibex
           next if code.nil?
 
           path = "$.payload.tables.default_actions[#{state}]"
-          validate_action_code(code, path)
+          code = integer(code, path)
           invalid(path, "must be an error or reduction") if code >= 0
         end
       end
 
-      # @rbs (untyped code, Integer token_id, String path) -> void
+      # @rbs (ValidationSupport::json_value code, Integer token_id, String path) -> void
       def validate_token_action(code, token_id, path)
         validate_action_code(code, path)
         invalid(path, "accept is only valid for $eof") if code.zero? && !token_id.zero?
         invalid(path, "$eof cannot be shifted") if token_id.zero? && code.positive?
       end
 
-      # @rbs (untyped code, String path) -> void
+      # @rbs (ValidationSupport::json_value code, String path) -> void
       def validate_action_code(code, path)
-        integer(code, path)
+        code = integer(code, path)
         return if [0, -1].include?(code)
         return validate_state(code - 1, path) if code.positive?
 
@@ -220,9 +222,9 @@ module Ibex
         invalid(path, "references a missing production") unless production.between?(0, @production_count - 1)
       end
 
-      # @rbs (untyped state, String path) -> void
+      # @rbs (ValidationSupport::json_value state, String path) -> void
       def validate_state(state, path)
-        integer(state, path, minimum: 0)
+        state = integer(state, path, minimum: 0)
         invalid(path, "references a missing state") unless state.between?(0, @state_count - 1)
       end
     end

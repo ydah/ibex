@@ -5,58 +5,58 @@ module Ibex
     class TableValidator
       include ValidationSupport
 
-      private def integer_array: (untyped value, String path, allow_nil: false, minimum: Integer?) -> Array[Integer]
-                               | (untyped value, String path, allow_nil: true, minimum: Integer?) -> Array[Integer?]
+      private def integer_array: (ValidationSupport::json_value value, String path, allow_nil: false, minimum: Integer?) -> Array[Integer]
+                               | (ValidationSupport::json_value value, String path, allow_nil: true, minimum: Integer?) -> Array[Integer?]
 
-      # @rbs (Hash[String, untyped] data, state_count: Integer, production_count: Integer,
+      # @rbs (Hash[String, ValidationSupport::json_value] data, state_count: Integer, production_count: Integer,
       #   terminal_ids: Set[Integer], nonterminal_ids: Set[Integer], representation: String) -> void
-      def initialize: (Hash[String, untyped] data, state_count: Integer, production_count: Integer, terminal_ids: Set[Integer], nonterminal_ids: Set[Integer], representation: String) -> void
+      def initialize: (Hash[String, ValidationSupport::json_value] data, state_count: Integer, production_count: Integer, terminal_ids: Set[Integer], nonterminal_ids: Set[Integer], representation: String) -> void
 
       # @rbs () -> void
       def validate!: () -> void
 
       private
 
-      # @rbs (untyped table) -> void
-      def validate_actions: (untyped table) -> void
+      # @rbs (ValidationSupport::json_value table) -> void
+      def validate_actions: (ValidationSupport::json_value table) -> void
 
-      # @rbs (Hash[String, untyped] table) -> void
-      def validate_sparse_actions: (Hash[String, untyped] table) -> void
+      # @rbs (Hash[String, ValidationSupport::json_value] table) -> void
+      def validate_sparse_actions: (Hash[String, ValidationSupport::json_value] table) -> void
 
-      # @rbs (Hash[String, untyped] table) -> void
-      def validate_compact_actions: (Hash[String, untyped] table) -> void
+      # @rbs (Hash[String, ValidationSupport::json_value] table) -> void
+      def validate_compact_actions: (Hash[String, ValidationSupport::json_value] table) -> void
 
-      # @rbs (untyped table) -> void
-      def validate_gotos: (untyped table) -> void
+      # @rbs (ValidationSupport::json_value table) -> void
+      def validate_gotos: (ValidationSupport::json_value table) -> void
 
-      # @rbs (Hash[String, untyped] table) -> void
-      def validate_sparse_gotos: (Hash[String, untyped] table) -> void
+      # @rbs (Hash[String, ValidationSupport::json_value] table) -> void
+      def validate_sparse_gotos: (Hash[String, ValidationSupport::json_value] table) -> void
 
-      # @rbs (Hash[String, untyped] table) -> void
-      def validate_compact_gotos: (Hash[String, untyped] table) -> void
+      # @rbs (Hash[String, ValidationSupport::json_value] table) -> void
+      def validate_compact_gotos: (Hash[String, ValidationSupport::json_value] table) -> void
 
-      # @rbs (Hash[String, untyped] table, String path) -> void
-      def validate_row_count: (Hash[String, untyped] table, String path) -> void
+      # @rbs (Hash[String, ValidationSupport::json_value] table, String path) -> void
+      def validate_row_count: (Hash[String, ValidationSupport::json_value] table, String path) -> void
 
-      # @rbs (Hash[String, untyped] table, value_key: String, path: String)
-      #   { (Integer, untyped, String) -> void } -> Array[Hash[Integer, untyped]]
-      def validate_displacement: (Hash[String, untyped] table, value_key: String, path: String) { (Integer, untyped, String) -> void } -> Array[Hash[Integer, untyped]]
+      # @rbs (Hash[String, ValidationSupport::json_value] table, value_key: String, path: String)
+      #   { (Integer, ValidationSupport::json_value, String) -> void } -> Array[Hash[Integer, ValidationSupport::json_value]]
+      def validate_displacement: (Hash[String, ValidationSupport::json_value] table, value_key: String, path: String) { (Integer, ValidationSupport::json_value, String) -> void } -> Array[Hash[Integer, ValidationSupport::json_value]]
 
-      # @rbs (Hash[String, untyped] table, Array[Hash[Integer, untyped]] rows, value_key: String,
+      # @rbs (Hash[String, ValidationSupport::json_value] table, Array[Hash[Integer, ValidationSupport::json_value]] rows, value_key: String,
       #   width_key: String, width: Integer?, dense: bool, path: String) -> void
-      def validate_canonical_displacement: (Hash[String, untyped] table, Array[Hash[Integer, untyped]] rows, value_key: String, width_key: String, width: Integer?, dense: bool, path: String) -> void
+      def validate_canonical_displacement: (Hash[String, ValidationSupport::json_value] table, Array[Hash[Integer, ValidationSupport::json_value]] rows, value_key: String, width_key: String, width: Integer?, dense: bool, path: String) -> void
 
-      # @rbs (untyped defaults) -> void
-      def validate_defaults: (untyped defaults) -> void
+      # @rbs (ValidationSupport::json_value defaults) -> void
+      def validate_defaults: (ValidationSupport::json_value defaults) -> void
 
-      # @rbs (untyped code, Integer token_id, String path) -> void
-      def validate_token_action: (untyped code, Integer token_id, String path) -> void
+      # @rbs (ValidationSupport::json_value code, Integer token_id, String path) -> void
+      def validate_token_action: (ValidationSupport::json_value code, Integer token_id, String path) -> void
 
-      # @rbs (untyped code, String path) -> void
-      def validate_action_code: (untyped code, String path) -> void
+      # @rbs (ValidationSupport::json_value code, String path) -> void
+      def validate_action_code: (ValidationSupport::json_value code, String path) -> void
 
-      # @rbs (untyped state, String path) -> void
-      def validate_state: (untyped state, String path) -> void
+      # @rbs (ValidationSupport::json_value state, String path) -> void
+      def validate_state: (ValidationSupport::json_value state, String path) -> void
     end
   end
 end
