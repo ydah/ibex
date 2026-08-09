@@ -11,7 +11,8 @@ module Ibex
       with_parameter_frame_context(frame) do
         operations = frame.fetch(:operations)
         if operations.any?
-          process_parameter_operation(frame, operations.pop)
+          operation = operations.pop #: NormalizeParameters::parameter_operation
+          process_parameter_operation(frame, operation)
         elsif parameter_items_remaining?(frame)
           start_parameter_item(frame)
         else
@@ -62,17 +63,33 @@ module Ibex
     # @rbs (NormalizeParameters::parameter_frame frame, Array[untyped] operation) -> void
     def process_parameter_operation(frame, operation)
       # @type self: Normalizer
-      kind, *arguments = operation
+      kind = operation.fetch(0) #: Symbol
       case kind
-      when :item then lower_parameter_item(frame, arguments.fetch(0))
-      when :finish_item then finish_parameter_item(frame, arguments.fetch(0))
-      when :value then frame.fetch(:values) << arguments.fetch(0)
-      when :finish_suffix then finish_parameter_suffix(frame, arguments.fetch(0))
-      when :finish_separated then finish_parameter_separated_list(frame, arguments.fetch(0))
+      when :item
+        item = operation.fetch(1) #: Frontend::AST::item
+        lower_parameter_item(frame, item)
+      when :finish_item
+        item = operation.fetch(1) #: Frontend::AST::item
+        finish_parameter_item(frame, item)
+      when :value
+        value = operation.fetch(1) #: String
+        frame.fetch(:values) << value
+      when :finish_suffix
+        item = operation.fetch(1) #: Frontend::AST::Optional | Frontend::AST::Star | Frontend::AST::Plus
+        finish_parameter_suffix(frame, item)
+      when :finish_separated
+        item = operation.fetch(1) #: Frontend::AST::SeparatedList
+        finish_parameter_separated_list(frame, item)
       when :group_alternative
-        start_parameter_group_alternative(frame, arguments.fetch(0), arguments.fetch(1), arguments.fetch(2))
+        helper = operation.fetch(1) #: String
+        item = operation.fetch(2) #: Frontend::AST::Group
+        alternative = operation.fetch(3) #: Array[Frontend::AST::item]
+        start_parameter_group_alternative(frame, helper, item, alternative)
       when :finish_group_alternative
-        finish_parameter_group_alternative(frame, arguments.fetch(0), arguments.fetch(1), arguments.fetch(2))
+        helper = operation.fetch(1) #: String
+        item = operation.fetch(2) #: Frontend::AST::Group
+        length = operation.fetch(3) #: Integer
+        finish_parameter_group_alternative(frame, helper, item, length)
       else raise Ibex::Error, "internal parameter lowering operation #{kind.inspect}"
       end
     end

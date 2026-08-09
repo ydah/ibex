@@ -51,7 +51,7 @@ module Ibex
         @entries = select_entries
       end
 
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
       def to_h
         entries = @entries #: Array[explain_entry]
         automaton = @automaton #: IR::Automaton
@@ -165,7 +165,7 @@ module Ibex
         end
       end
 
-      # @rbs (explain_entry entry) -> Hash[Symbol, untyped]
+      # @rbs (explain_entry entry) -> Hash[Symbol, Object?]
       def conflict_document(entry)
         state = entry.fetch(:state)
         conflict = entry.fetch(:conflict)

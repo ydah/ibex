@@ -7,6 +7,7 @@ require_relative "../fix"
 
 module Ibex
   # CLI entry point for bounded conflict-repair proposals.
+  # rubocop:disable Metrics/ModuleLength -- CLI option wiring and output projections share one closed contract.
   module CLIFix
     # @rbs!
     #   type fix_options = {
@@ -52,7 +53,8 @@ module Ibex
       report = fixer.run
       apply_fix!(path, source, report, fixer, settings.fetch(:apply)) if settings[:apply]
       write_fix_report(report, settings.fetch(:format))
-      report.fetch(:proposals).empty? ? 1 : 0
+      proposals = report.fetch(:proposals) #: Array[Object?]
+      proposals.empty? ? 1 : 0
     rescue Fix::BudgetExceeded => e
       report = { ibex_report: "fix", schema_version: Fix::SCHEMA_VERSION }.merge(e.details)
       write_fix_report(report, settings&.fetch(:format) || "json")
@@ -214,4 +216,5 @@ module Ibex
       @stdout.puts(report.fetch(:statement, Equiv::CAVEAT))
     end
   end
+  # rubocop:enable Metrics/ModuleLength
 end

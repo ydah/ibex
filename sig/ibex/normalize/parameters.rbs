@@ -3,7 +3,15 @@
 module Ibex
   # Iterative, hygienic specialization of validated parameterized user rules.
   module NormalizeParameters
-    type parameter_frame = { reference: Frontend::AST::ParameterizedReference, arguments: Array[Frontend::AST::item], helper: String, bindings: Hash[String, Frontend::AST::item], rendered_arguments: Array[String], templates: Array[Frontend::AST::Rule], template_index: Integer, alternative_index: Integer, current: [ Frontend::AST::Rule, Frontend::AST::Rule, Frontend::AST::Alternative ]?, item_index: Integer, rhs: Array[String], named_refs: Array[IR::named_ref], operations: Array[untyped], values: Array[String] }
+    type parameter_operation =
+      [:item | :finish_item, Frontend::AST::item] |
+      [:value, String] |
+      [:finish_suffix, Frontend::AST::Optional | Frontend::AST::Star | Frontend::AST::Plus] |
+      [:finish_separated, Frontend::AST::SeparatedList] |
+      [:group_alternative, String, Frontend::AST::Group, Array[Frontend::AST::item]] |
+      [:finish_group_alternative, String, Frontend::AST::Group, Integer]
+
+    type parameter_frame = { reference: Frontend::AST::ParameterizedReference, arguments: Array[Frontend::AST::item], helper: String, bindings: Hash[String, Frontend::AST::item], rendered_arguments: Array[String], templates: Array[Frontend::AST::Rule], template_index: Integer, alternative_index: Integer, current: [ Frontend::AST::Rule, Frontend::AST::Rule, Frontend::AST::Alternative ]?, item_index: Integer, rhs: Array[String], named_refs: Array[IR::named_ref], operations: Array[parameter_operation], values: Array[String] }
 
     private
 

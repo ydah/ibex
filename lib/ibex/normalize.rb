@@ -147,7 +147,7 @@ module Ibex
 
     private
 
-    # @rbs (Symbol name, untyped value) -> void
+    # @rbs (Symbol name, Object value) -> void
     def validate_positive_limit!(name, value)
       return if value.is_a?(Integer) && value.positive?
 

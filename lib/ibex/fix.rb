@@ -21,9 +21,9 @@ module Ibex
     ADVICE_STATEMENT = "Advice does not eliminate the selected conflict and is not a verified repair." #: String
 
     class BudgetExceeded < Ibex::Error
-      attr_reader :details #: Hash[Symbol, untyped]
+      attr_reader :details #: Hash[Symbol, Object?]
 
-      # @rbs (Hash[Symbol, untyped] details) -> void
+      # @rbs (Hash[Symbol, Object?] details) -> void
       def initialize(details)
         @details = IR.deep_freeze(details)
         super("(fix):1:1: candidate or build budget was exhausted")
@@ -75,7 +75,7 @@ module Ibex
     end
     # rubocop:enable Metrics/ParameterLists
 
-    # @rbs () -> Hash[Symbol, untyped]
+    # @rbs () -> Hash[Symbol, Object?]
     def run
       state, index, conflict = select_target
       candidates = candidate_space(conflict)
@@ -88,8 +88,8 @@ module Ibex
         raise BudgetExceeded, details
       end
 
-      proposals = [] #: Array[Hash[Symbol, untyped]]
-      rejections = [] #: Array[Hash[Symbol, untyped]]
+      proposals = [] #: Array[Hash[Symbol, Object?]]
+      rejections = [] #: Array[Hash[Symbol, Object?]]
       incomplete = false
       candidates.each do |candidate|
         outcome = evaluate_candidate(candidate, conflict)
@@ -139,7 +139,7 @@ module Ibex
       candidates
     end
 
-    # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
+    # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, Object?]]
     def advice_space(conflict)
       [expectation_candidate(conflict), recovery_candidate(conflict)].compact.map do |candidate|
         source = candidate[:source]
@@ -255,7 +255,7 @@ module Ibex
       { category: category, description: description, source: source, algorithm: algorithm || @algorithm }
     end
 
-    # @rbs (candidate candidate, IR::conflict target) -> Hash[Symbol, untyped]
+    # @rbs (candidate candidate, IR::conflict target) -> Hash[Symbol, Object?]
     def evaluate_candidate(candidate, target)
       candidate_automaton = build_candidate(candidate)
       failure = conflict_safety_failure(candidate_automaton, target)
@@ -334,8 +334,8 @@ module Ibex
       LALR::Builder.new(grammar, algorithm: candidate.fetch(:algorithm)).build
     end
 
-    # @rbs (candidate candidate, Hash[Symbol, untyped] outcome, IR::conflict conflict, Integer number) ->
-    #   Hash[Symbol, untyped]
+    # @rbs (candidate candidate, Hash[Symbol, Object?] outcome, IR::conflict conflict, Integer number) ->
+    #   Hash[Symbol, Object?]
     def proposal(candidate, outcome, conflict, number)
       id = format("FX%03d", number)
       source = candidate[:source]
@@ -360,7 +360,7 @@ module Ibex
       }
     end
 
-    # @rbs (IR::Automaton candidate) -> Hash[Symbol, untyped]
+    # @rbs (IR::Automaton candidate) -> Hash[Symbol, Object?]
     def message_catalog_impact(candidate)
       unless @messages
         empty = [] #: Array[String]
@@ -379,7 +379,7 @@ module Ibex
       }
     end
 
-    # @rbs (candidate candidate, Hash[Symbol, untyped] outcome) -> Hash[Symbol, untyped]
+    # @rbs (candidate candidate, Hash[Symbol, Object?] outcome) -> Hash[Symbol, Object?]
     def rejection(candidate, outcome)
       {
         category: candidate.fetch(:category), description: candidate.fetch(:description),
@@ -388,8 +388,8 @@ module Ibex
     end
 
     # @rbs (IR::AutomatonState state, Integer index, IR::conflict conflict, Array[candidate] candidates,
-    #   Array[Hash[Symbol, untyped]] proposals, Array[Hash[Symbol, untyped]] rejections,
-    #   Array[Hash[Symbol, untyped]] advice) -> Hash[Symbol, untyped]
+    #   Array[Hash[Symbol, Object?]] proposals, Array[Hash[Symbol, Object?]] rejections,
+    #   Array[Hash[Symbol, Object?]] advice) -> Hash[Symbol, Object?]
     def report_for(state, index, conflict, candidates, proposals, rejections, advice)
       inventory = CATEGORIES.to_h do |category|
         values = candidates.select { |candidate| candidate.fetch(:category) == category }

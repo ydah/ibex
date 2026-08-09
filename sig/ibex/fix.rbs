@@ -15,10 +15,10 @@ module Ibex
     ADVICE_STATEMENT: String
 
     class BudgetExceeded < Ibex::Error
-      attr_reader details: Hash[Symbol, untyped]
+      attr_reader details: Hash[Symbol, Object?]
 
-      # @rbs (Hash[Symbol, untyped] details) -> void
-      def initialize: (Hash[Symbol, untyped] details) -> void
+      # @rbs (Hash[Symbol, Object?] details) -> void
+      def initialize: (Hash[Symbol, Object?] details) -> void
     end
 
     attr_reader sources: Hash[String, String]
@@ -31,8 +31,8 @@ module Ibex
     # rubocop:disable Metrics/ParameterLists
     def initialize: (String source, file: String, grammar: IR::Grammar, automaton: IR::Automaton, algorithm: Symbol, mode: Symbol, ?state: Integer?, ?conflict_index: Integer?, ?max_candidates: Integer, ?max_builds: Integer, ?equiv_max_tokens: Integer, ?equiv_max_configurations: Integer, ?equiv_samples: Integer, ?verify_max_states: Integer, ?verify_max_items: Integer, ?messages: ErrorMessages::Document?, ?message_file: String?) -> void
 
-    # @rbs () -> Hash[Symbol, untyped]
-    def run: () -> Hash[Symbol, untyped]
+    # @rbs () -> Hash[Symbol, Object?]
+    def run: () -> Hash[Symbol, Object?]
 
     private
 
@@ -42,8 +42,8 @@ module Ibex
     # @rbs (IR::conflict conflict) -> Array[candidate]
     def candidate_space: (IR::conflict conflict) -> Array[candidate]
 
-    # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
-    def advice_space: (IR::conflict conflict) -> Array[Hash[Symbol, untyped]]
+    # @rbs (IR::conflict conflict) -> Array[Hash[Symbol, Object?]]
+    def advice_space: (IR::conflict conflict) -> Array[Hash[Symbol, Object?]]
 
     # @rbs (IR::conflict conflict) -> Array[candidate]
     def precedence_declaration_candidates: (IR::conflict conflict) -> Array[candidate]
@@ -66,8 +66,8 @@ module Ibex
     # @rbs (String category, String description, ?source: String?, ?algorithm: Symbol?) -> candidate
     def candidate: (String category, String description, ?source: String?, ?algorithm: Symbol?) -> candidate
 
-    # @rbs (candidate candidate, IR::conflict target) -> Hash[Symbol, untyped]
-    def evaluate_candidate: (candidate candidate, IR::conflict target) -> Hash[Symbol, untyped]
+    # @rbs (candidate candidate, IR::conflict target) -> Hash[Symbol, Object?]
+    def evaluate_candidate: (candidate candidate, IR::conflict target) -> Hash[Symbol, Object?]
 
     # @rbs (IR::Automaton candidate, IR::conflict target) -> Hash[Symbol, String]?
     def conflict_safety_failure: (IR::Automaton candidate, IR::conflict target) -> Hash[Symbol, String]?
@@ -78,20 +78,20 @@ module Ibex
     # @rbs (candidate candidate) -> IR::Automaton
     def build_candidate: (candidate candidate) -> IR::Automaton
 
-    # @rbs (candidate candidate, Hash[Symbol, untyped] outcome, IR::conflict conflict, Integer number) ->
-    #   Hash[Symbol, untyped]
-    def proposal: (candidate candidate, Hash[Symbol, untyped] outcome, IR::conflict conflict, Integer number) -> Hash[Symbol, untyped]
+    # @rbs (candidate candidate, Hash[Symbol, Object?] outcome, IR::conflict conflict, Integer number) ->
+    #   Hash[Symbol, Object?]
+    def proposal: (candidate candidate, Hash[Symbol, Object?] outcome, IR::conflict conflict, Integer number) -> Hash[Symbol, Object?]
 
-    # @rbs (IR::Automaton candidate) -> Hash[Symbol, untyped]
-    def message_catalog_impact: (IR::Automaton candidate) -> Hash[Symbol, untyped]
+    # @rbs (IR::Automaton candidate) -> Hash[Symbol, Object?]
+    def message_catalog_impact: (IR::Automaton candidate) -> Hash[Symbol, Object?]
 
-    # @rbs (candidate candidate, Hash[Symbol, untyped] outcome) -> Hash[Symbol, untyped]
-    def rejection: (candidate candidate, Hash[Symbol, untyped] outcome) -> Hash[Symbol, untyped]
+    # @rbs (candidate candidate, Hash[Symbol, Object?] outcome) -> Hash[Symbol, Object?]
+    def rejection: (candidate candidate, Hash[Symbol, Object?] outcome) -> Hash[Symbol, Object?]
 
     # @rbs (IR::AutomatonState state, Integer index, IR::conflict conflict, Array[candidate] candidates,
-    #   Array[Hash[Symbol, untyped]] proposals, Array[Hash[Symbol, untyped]] rejections,
-    #   Array[Hash[Symbol, untyped]] advice) -> Hash[Symbol, untyped]
-    def report_for: (IR::AutomatonState state, Integer index, IR::conflict conflict, Array[candidate] candidates, Array[Hash[Symbol, untyped]] proposals, Array[Hash[Symbol, untyped]] rejections, Array[Hash[Symbol, untyped]] advice) -> Hash[Symbol, untyped]
+    #   Array[Hash[Symbol, Object?]] proposals, Array[Hash[Symbol, Object?]] rejections,
+    #   Array[Hash[Symbol, Object?]] advice) -> Hash[Symbol, Object?]
+    def report_for: (IR::AutomatonState state, Integer index, IR::conflict conflict, Array[candidate] candidates, Array[Hash[Symbol, Object?]] proposals, Array[Hash[Symbol, Object?]] rejections, Array[Hash[Symbol, Object?]] advice) -> Hash[Symbol, Object?]
 
     # @rbs (IR::Automaton automaton) -> Array[[IR::AutomatonState, IR::conflict]]
     def active_conflicts: (IR::Automaton automaton) -> Array[[ IR::AutomatonState, IR::conflict ]]

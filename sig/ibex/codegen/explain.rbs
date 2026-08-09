@@ -29,8 +29,8 @@ module Ibex
       #   ?max_configurations: Integer) -> void
       def initialize: (IR::Automaton automaton, ?state: Integer?, ?token: String?, ?max_tokens: Integer, ?max_configurations: Integer) -> void
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h: () -> Hash[Symbol, Object?]
 
       # @rbs () -> String
       def render_text: () -> String
@@ -49,8 +49,8 @@ module Ibex
       # @rbs () -> Array[explain_selection]
       def selected_conflicts: () -> Array[explain_selection]
 
-      # @rbs (explain_entry entry) -> Hash[Symbol, untyped]
-      def conflict_document: (explain_entry entry) -> Hash[Symbol, untyped]
+      # @rbs (explain_entry entry) -> Hash[Symbol, Object?]
+      def conflict_document: (explain_entry entry) -> Hash[Symbol, Object?]
 
       # @rbs (LALR::search_counterexample example) -> String
       def witness_kind: (LALR::search_counterexample example) -> String

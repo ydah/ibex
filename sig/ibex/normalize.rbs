@@ -143,8 +143,8 @@ module Ibex
 
     private
 
-    # @rbs (Symbol name, untyped value) -> void
-    def validate_positive_limit!: (Symbol name, untyped value) -> void
+    # @rbs (Symbol name, Object value) -> void
+    def validate_positive_limit!: (Symbol name, Object value) -> void
 
     # @rbs () -> void
     def intern_reserved_symbols: () -> void
