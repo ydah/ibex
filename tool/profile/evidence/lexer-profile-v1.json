@@ -9,7 +9,7 @@
     "ruby_patchlevel": 0,
     "ruby_description": "ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin24]",
     "ruby_platform": "arm64-darwin24",
-    "rubyopt": null,
+    "rubyopt": "-r/Users/yudai.takada/.rbenv/versions/4.0.0/lib/ruby/gems/4.0.0/gems/bundler-4.0.13/lib/bundler/setup",
     "yjit_enabled": false,
     "host_os": "darwin24",
     "host_cpu": "arm64",
@@ -20,7 +20,7 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "a6918ec211eba23ada9aba5d58474f54340c4daf",
+    "base_revision": "242671c8da4670351273b820fad245e5e793681d",
     "base_revision_role": "Exact clean capture revision and parent of the committed evidence revision",
     "capture_worktree_clean": true,
     "capture_worktree_status": [],
@@ -196,9 +196,9 @@
       },
       {
         "path": "lib/ibex/frontend/generated_parser_base.rb",
-        "sha256": "1f007a569ca04e2025cbf000f3d0a505ff389de01f75760690f9d79693bf6fd1",
+        "sha256": "69a21326f01c9d5b72abf808aa6d37ee65a8364661ed63134de4023a57ee7dfa",
         "git_state": "base",
-        "base_sha256": "1f007a569ca04e2025cbf000f3d0a505ff389de01f75760690f9d79693bf6fd1"
+        "base_sha256": "69a21326f01c9d5b72abf808aa6d37ee65a8364661ed63134de4023a57ee7dfa"
       },
       {
         "path": "lib/ibex/frontend/generated_parser_includes.rb",
@@ -400,9 +400,9 @@
       },
       {
         "path": "lib/ibex/ir/serialize.rb",
-        "sha256": "19b55ba0b2903c454804b242d3db391382dda3f3dce0294adee6747513868ad8",
+        "sha256": "75feff0e194981df39284cf7f93a212c43e25658140b30d78dd7cb91cb8ce2d0",
         "git_state": "base",
-        "base_sha256": "19b55ba0b2903c454804b242d3db391382dda3f3dce0294adee6747513868ad8"
+        "base_sha256": "75feff0e194981df39284cf7f93a212c43e25658140b30d78dd7cb91cb8ce2d0"
       },
       {
         "path": "lib/ibex/ir/v3.rb",
@@ -418,27 +418,27 @@
       },
       {
         "path": "lib/ibex/ir/validator/automaton.rb",
-        "sha256": "c1c40e6a3733a70d53dfce56c917eb491ee393685ca6479beb169d18edc897cb",
+        "sha256": "5bd5d258c9211ffaf1cb937ec9d560e580a42ef2549d26c840f210cde64e0fae",
         "git_state": "base",
-        "base_sha256": "c1c40e6a3733a70d53dfce56c917eb491ee393685ca6479beb169d18edc897cb"
+        "base_sha256": "5bd5d258c9211ffaf1cb937ec9d560e580a42ef2549d26c840f210cde64e0fae"
       },
       {
         "path": "lib/ibex/ir/validator/base.rb",
-        "sha256": "d678423a237553a3146ea69675fba3d9e50522014c0e8249dce3afe27610a647",
+        "sha256": "775864893218ce6886a36b3fc01f9ce3f19a9ae66d9d98c0c5dc9c5e6818b3fd",
         "git_state": "base",
-        "base_sha256": "d678423a237553a3146ea69675fba3d9e50522014c0e8249dce3afe27610a647"
+        "base_sha256": "775864893218ce6886a36b3fc01f9ce3f19a9ae66d9d98c0c5dc9c5e6818b3fd"
       },
       {
         "path": "lib/ibex/ir/validator/grammar.rb",
-        "sha256": "160dc69efa2fac2ed4750d9d59eb8b9a93dd10e2287627ab2f93056a188aae66",
+        "sha256": "466f2d454c8c34584495e02f535b3297b753539db5e5ed10f75d857324567fb8",
         "git_state": "base",
-        "base_sha256": "160dc69efa2fac2ed4750d9d59eb8b9a93dd10e2287627ab2f93056a188aae66"
+        "base_sha256": "466f2d454c8c34584495e02f535b3297b753539db5e5ed10f75d857324567fb8"
       },
       {
         "path": "lib/ibex/ir/validator/lexer.rb",
-        "sha256": "01596994b788e6cf46fa377c396b949c61d0d2255a174800d6de7c765f2c7ae0",
+        "sha256": "ffcc66abdfc770fffca59ac22cbf67eff9003274168810c66c63ad4a71c6bc79",
         "git_state": "base",
-        "base_sha256": "01596994b788e6cf46fa377c396b949c61d0d2255a174800d6de7c765f2c7ae0"
+        "base_sha256": "ffcc66abdfc770fffca59ac22cbf67eff9003274168810c66c63ad4a71c6bc79"
       },
       {
         "path": "lib/ibex/lalr.rb",
@@ -514,9 +514,9 @@
       },
       {
         "path": "lib/ibex/normalize.rb",
-        "sha256": "1997abdffa061c541a3824a7185b1e33caecef1fc4eb23456cedb2136d611b82",
+        "sha256": "d0b147bf2bd936e723c22d2807a23927cc48117d6edf441c53ec52e7a03569de",
         "git_state": "base",
-        "base_sha256": "1997abdffa061c541a3824a7185b1e33caecef1fc4eb23456cedb2136d611b82"
+        "base_sha256": "d0b147bf2bd936e723c22d2807a23927cc48117d6edf441c53ec52e7a03569de"
       },
       {
         "path": "lib/ibex/normalize/declarations.rb",
@@ -526,9 +526,9 @@
       },
       {
         "path": "lib/ibex/normalize/diagnostics.rb",
-        "sha256": "24a8d13b0092de805ec13d95c75d8a4366d0138d215d09f01e319a6893f41390",
+        "sha256": "a636f72def5113c929bc5acbf607f1ecd5f4099e8d2a0e7d0d88e490797600ac",
         "git_state": "base",
-        "base_sha256": "24a8d13b0092de805ec13d95c75d8a4366d0138d215d09f01e319a6893f41390"
+        "base_sha256": "a636f72def5113c929bc5acbf607f1ecd5f4099e8d2a0e7d0d88e490797600ac"
       },
       {
         "path": "lib/ibex/normalize/expander.rb",
@@ -550,9 +550,9 @@
       },
       {
         "path": "lib/ibex/normalize/inline_expansion.rb",
-        "sha256": "e8d9c2f26c0804905c09ba4f489d56f873715a10eb72e8c1a3064fd0d424217f",
+        "sha256": "a7ad876046dc0482cef522e0aa701c933cecb2c5bacfb2f8e2dd974b4411d687",
         "git_state": "base",
-        "base_sha256": "e8d9c2f26c0804905c09ba4f489d56f873715a10eb72e8c1a3064fd0d424217f"
+        "base_sha256": "a7ad876046dc0482cef522e0aa701c933cecb2c5bacfb2f8e2dd974b4411d687"
       },
       {
         "path": "lib/ibex/normalize/inline_validation.rb",
@@ -580,15 +580,15 @@
       },
       {
         "path": "lib/ibex/normalize/parameter_ebnf_lowering.rb",
-        "sha256": "4d2f9318b2ad3f59116c285e0ec6361f6e4feb8bd091cf6ee4b177880cfa0cb9",
+        "sha256": "71a4e812079bc0bb465ae5121ded3ad331c9f70f0b5301c3a894499c4cc0527e",
         "git_state": "base",
-        "base_sha256": "4d2f9318b2ad3f59116c285e0ec6361f6e4feb8bd091cf6ee4b177880cfa0cb9"
+        "base_sha256": "71a4e812079bc0bb465ae5121ded3ad331c9f70f0b5301c3a894499c4cc0527e"
       },
       {
         "path": "lib/ibex/normalize/parameter_lowering.rb",
-        "sha256": "4d5b710e0d4faf3d1117279ce226d04af2fa723c9b1551cd19176831cdf90011",
+        "sha256": "644df78c66a0da4c4d3ad13679f0111be48d9b64ae74141b71ad05db75946711",
         "git_state": "base",
-        "base_sha256": "4d5b710e0d4faf3d1117279ce226d04af2fa723c9b1551cd19176831cdf90011"
+        "base_sha256": "644df78c66a0da4c4d3ad13679f0111be48d9b64ae74141b71ad05db75946711"
       },
       {
         "path": "lib/ibex/normalize/parameter_substitution.rb",
@@ -604,9 +604,9 @@
       },
       {
         "path": "lib/ibex/normalize/parameters.rb",
-        "sha256": "d0d76a1d16dc198d5bd5cf9cd8a1cc7f2b9a4a5e1c0cffcf9b24c8ac1e59cf37",
+        "sha256": "371b5e32dc6a3c3c04266b63cb58a7f01d4836dfab01e8bc6e7dfb2d3905db07",
         "git_state": "base",
-        "base_sha256": "d0d76a1d16dc198d5bd5cf9cd8a1cc7f2b9a4a5e1c0cffcf9b24c8ac1e59cf37"
+        "base_sha256": "371b5e32dc6a3c3c04266b63cb58a7f01d4836dfab01e8bc6e7dfb2d3905db07"
       },
       {
         "path": "lib/ibex/normalize/parser_configuration.rb",
@@ -742,9 +742,9 @@
       },
       {
         "path": "lib/ibex/runtime/cst/parse_result.rb",
-        "sha256": "2a6db850023e0b430bae9acebcb4203c262564088d5cacb9ec7924578cd48528",
+        "sha256": "1343782fc10b6597b21f22aebd1abfdf08c77d79c234e3947dd4df6d156e767f",
         "git_state": "base",
-        "base_sha256": "2a6db850023e0b430bae9acebcb4203c262564088d5cacb9ec7924578cd48528"
+        "base_sha256": "1343782fc10b6597b21f22aebd1abfdf08c77d79c234e3947dd4df6d156e767f"
       },
       {
         "path": "lib/ibex/runtime/cst/rewriter.rb",
@@ -796,9 +796,9 @@
       },
       {
         "path": "lib/ibex/runtime/cst/validator.rb",
-        "sha256": "fb125878acc4e1f909a572c54dc0c1b4ac460bc60b05a3702a2ee77879b62200",
+        "sha256": "236ab49d36d7d32bb425aa21564f958d342929c811a9a0ea286a47590ef00795",
         "git_state": "base",
-        "base_sha256": "fb125878acc4e1f909a572c54dc0c1b4ac460bc60b05a3702a2ee77879b62200"
+        "base_sha256": "236ab49d36d7d32bb425aa21564f958d342929c811a9a0ea286a47590ef00795"
       },
       {
         "path": "lib/ibex/runtime/embedded_source.rb",
@@ -826,9 +826,9 @@
       },
       {
         "path": "lib/ibex/runtime/generated_lexer.rb",
-        "sha256": "1a5e14efae5441aedcaafe843e52aa0d6b69f86ca67fc710487ea66dad180d5d",
+        "sha256": "aa6012674c77c4c196b6c110372b6ab9606160b9845064e2b719a3b251ddb9ed",
         "git_state": "base",
-        "base_sha256": "1a5e14efae5441aedcaafe843e52aa0d6b69f86ca67fc710487ea66dad180d5d"
+        "base_sha256": "aa6012674c77c4c196b6c110372b6ab9606160b9845064e2b719a3b251ddb9ed"
       },
       {
         "path": "lib/ibex/runtime/jsonl_tracer.rb",
@@ -856,15 +856,15 @@
       },
       {
         "path": "lib/ibex/runtime/parser.rb",
-        "sha256": "bbe483b0bc2ed3f1102e10c1cee37889a9440a1eb2251ae5ec520989020f8a59",
+        "sha256": "f8f4ca1de0f6c7c7e96a3b1d86098644072d8b22927c02b32fd0dd6378ebbaa8",
         "git_state": "base",
-        "base_sha256": "bbe483b0bc2ed3f1102e10c1cee37889a9440a1eb2251ae5ec520989020f8a59"
+        "base_sha256": "f8f4ca1de0f6c7c7e96a3b1d86098644072d8b22927c02b32fd0dd6378ebbaa8"
       },
       {
         "path": "lib/ibex/runtime/parser_sync_recovery.rb",
-        "sha256": "940b86c0aa8dcbc0b699b35ab5f6a263e30e185850def5fd00b8ba3f079a9ad2",
+        "sha256": "4129064f4872e65bacca2eaa8dbe423557aa18e15e4e8f4fb0ea440576cda839",
         "git_state": "base",
-        "base_sha256": "940b86c0aa8dcbc0b699b35ab5f6a263e30e185850def5fd00b8ba3f079a9ad2"
+        "base_sha256": "4129064f4872e65bacca2eaa8dbe423557aa18e15e4e8f4fb0ea440576cda839"
       },
       {
         "path": "lib/ibex/runtime/repair.rb",
@@ -880,9 +880,9 @@
       },
       {
         "path": "lib/ibex/runtime/repair_search.rb",
-        "sha256": "14b22052e70bf73ea44f8edd8edc10461d42d6b9c08f97df13e5f1117f33d75e",
+        "sha256": "b696402f94b89ef36522c7fbafc1b8b5e10d5b6e744181fd52999b85c1137ac3",
         "git_state": "base",
-        "base_sha256": "14b22052e70bf73ea44f8edd8edc10461d42d6b9c08f97df13e5f1117f33d75e"
+        "base_sha256": "b696402f94b89ef36522c7fbafc1b8b5e10d5b6e744181fd52999b85c1137ac3"
       },
       {
         "path": "lib/ibex/runtime/resource_limits.rb",
@@ -892,9 +892,9 @@
       },
       {
         "path": "lib/ibex/runtime/syntax_repair.rb",
-        "sha256": "353a621ffad5cbad5aed2b45d9024ad2f3f720a6bdd6fd7cbf8f792305e2a29b",
+        "sha256": "1799a48544212159c2c300661fc5575bd49caf3f17d3c0230943c9cbf2b66b32",
         "git_state": "base",
-        "base_sha256": "353a621ffad5cbad5aed2b45d9024ad2f3f720a6bdd6fd7cbf8f792305e2a29b"
+        "base_sha256": "1799a48544212159c2c300661fc5575bd49caf3f17d3c0230943c9cbf2b66b32"
       },
       {
         "path": "lib/ibex/runtime/syntax_session.rb",
@@ -1113,15 +1113,15 @@
         "base_sha256": "9ecbc77e2544d25c230e5f05b1f9eaf9c9bb04924575cce8b5c8607e27695ef4"
       }
     ],
-    "bound_paths_sha256": "4d79ed87531061d58d0739df23eae138aebea6a319e2038e8cec4a28bee82e22",
-    "implementation_sha256": "9d646616cf881824eb57eeaf910d404aace0e86888a9b8dff0043e78997ce732",
+    "bound_paths_sha256": "d27b1b1173163ff497f5c2e99715fcf2751739ad1a2fd3aefb55b419026afeb6",
+    "implementation_sha256": "030022e0fffe6d976a07e17497d63969e0d7b69a67b178e3412a1d976c123046",
     "deterministic_report_input_sha256": "651cd473e14197e5496c1ff4143c428d91c47ecadaec770e5ec25672863b2a3b",
-    "environment_observation_sha256": "57f7425707abbc64d0a167ca40946b3907d727c9ed9d0dbdcfa529f373cb00f2",
+    "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "a3541bc86aa89a1e973407149ee6e0302a5de51e3e4d4d7d0b34be18599b1b78",
     "heuristic_analysis_sha256": "1870a00b14aea7a46278e4b80e9bd60db4b499c343c7a7a90faf9c3923e27e76",
     "evidence_path": "tool/profile/evidence/lexer-profile-v1.json",
     "evidence_exclusion_reason": "the evidence file is excluded from its own digest to avoid circularity",
-    "capture_identity_sha256": "05414b778fb204623908af8b6fd1216b75214496fe3555fed68a6e476870fe08"
+    "capture_identity_sha256": "5dc4871b60fd4755068ec23a8bc19e38209d635d8e083da4b1aa297868516b78"
   },
   "measurement_policy": {
     "runtime_role": "diagnostic_observation_only",
@@ -1244,12 +1244,12 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000142,
+                "value": 0.000212,
                 "release_gate": false
               },
               "allocated_objects": {
                 "status": "observation",
-                "value": 482,
+                "value": 480,
                 "release_gate": false
               }
             },
@@ -1346,7 +1346,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000135,
+                "value": 0.000141,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1436,7 +1436,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000132,
+                "value": 0.000151,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1532,7 +1532,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000138,
+                "value": 0.000143,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1622,7 +1622,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.006042,
+                "value": 0.003712,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1712,7 +1712,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000203,
+                "value": 0.000245,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1808,7 +1808,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000171,
+                "value": 0.000181,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1908,7 +1908,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000262,
+                "value": 0.000176,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2038,7 +2038,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000231,
+                "value": 0.000271,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2208,12 +2208,12 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.00063,
+                "value": 0.000619,
                 "release_gate": false
               },
               "allocated_objects": {
                 "status": "observation",
-                "value": 1264,
+                "value": 1263,
                 "release_gate": false
               }
             },
@@ -2318,7 +2318,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000159,
+                "value": 0.000166,
                 "release_gate": false
               },
               "allocated_objects": {
