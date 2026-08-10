@@ -363,7 +363,7 @@
       },
       {
         "path": "lib/ibex/ir/automaton_ir.rb",
-        "sha256": "4e45ea610005023d7bdbf5bb9f3579eebbfd21e241305d9cb93da2cc7a046451"
+        "sha256": "eb36c3e9f4dd2c28072f899894515054dedea4510b6b436953fa364587205dbe"
       },
       {
         "path": "lib/ibex/ir/grammar_ir.rb",
@@ -379,7 +379,7 @@
       },
       {
         "path": "lib/ibex/ir/serialize.rb",
-        "sha256": "454299005c3681c81d7748a827a755ecdad1205f8a2c73b0c48afaf0af3c17da"
+        "sha256": "95fa5a97e57640c7aec935b02e87b00da269871060ad7023e3b83a9ca4a52a1a"
       },
       {
         "path": "lib/ibex/ir/validator.rb",

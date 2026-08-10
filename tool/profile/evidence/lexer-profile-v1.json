@@ -20,7 +20,7 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "183a19cbdaabbcd08f3b26c9430c8534633e9953",
+    "base_revision": "7f335beddeaf56d3e774c838279935c6571c2311",
     "base_revision_role": "Exact clean capture revision and parent of the committed evidence revision",
     "capture_worktree_clean": true,
     "capture_worktree_status": [],
@@ -364,9 +364,9 @@
       },
       {
         "path": "lib/ibex/ir/automaton_ir.rb",
-        "sha256": "4e45ea610005023d7bdbf5bb9f3579eebbfd21e241305d9cb93da2cc7a046451",
+        "sha256": "eb36c3e9f4dd2c28072f899894515054dedea4510b6b436953fa364587205dbe",
         "git_state": "base",
-        "base_sha256": "4e45ea610005023d7bdbf5bb9f3579eebbfd21e241305d9cb93da2cc7a046451"
+        "base_sha256": "eb36c3e9f4dd2c28072f899894515054dedea4510b6b436953fa364587205dbe"
       },
       {
         "path": "lib/ibex/ir/grammar_ir.rb",
@@ -388,9 +388,9 @@
       },
       {
         "path": "lib/ibex/ir/serialize.rb",
-        "sha256": "454299005c3681c81d7748a827a755ecdad1205f8a2c73b0c48afaf0af3c17da",
+        "sha256": "95fa5a97e57640c7aec935b02e87b00da269871060ad7023e3b83a9ca4a52a1a",
         "git_state": "base",
-        "base_sha256": "454299005c3681c81d7748a827a755ecdad1205f8a2c73b0c48afaf0af3c17da"
+        "base_sha256": "95fa5a97e57640c7aec935b02e87b00da269871060ad7023e3b83a9ca4a52a1a"
       },
       {
         "path": "lib/ibex/ir/validator.rb",
@@ -1089,15 +1089,15 @@
         "base_sha256": "9ecbc77e2544d25c230e5f05b1f9eaf9c9bb04924575cce8b5c8607e27695ef4"
       }
     ],
-    "bound_paths_sha256": "582acf2c5cdcb729ea3b5c967f1a1baf0107ddc0ab50f2d6246c13d9a327f020",
-    "implementation_sha256": "832e76f93c13ae87e847dfb06e50a0f9f715adc1235f5babcc2f36506e379dec",
+    "bound_paths_sha256": "c1a53dac8b870b7fbec3f42b5946919d02b4b2836589c49403920626e69eef98",
+    "implementation_sha256": "583ca3906c481cae1a76a430ab9ee7b779d401a149f65f477edac64f3a5646ba",
     "deterministic_report_input_sha256": "d6b853e9bec0687b2e811fa55adfad173c7f7de788cc53e73e77797321b9014d",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "a3541bc86aa89a1e973407149ee6e0302a5de51e3e4d4d7d0b34be18599b1b78",
     "heuristic_analysis_sha256": "1870a00b14aea7a46278e4b80e9bd60db4b499c343c7a7a90faf9c3923e27e76",
     "evidence_path": "tool/profile/evidence/lexer-profile-v1.json",
     "evidence_exclusion_reason": "the evidence file is excluded from its own digest to avoid circularity",
-    "capture_identity_sha256": "94edade024c8ca4849a8c4ecff419f554126f7d93346880d888aec34fc74805c"
+    "capture_identity_sha256": "ce8d515ef98514b4e294d9a5da8919af456242a83fd9875c13000df2baf3b4f1"
   },
   "measurement_policy": {
     "runtime_role": "diagnostic_observation_only",
@@ -1220,7 +1220,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000201,
+                "value": 0.000363,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1322,7 +1322,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000138,
+                "value": 0.000246,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1412,7 +1412,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000139,
+                "value": 0.000248,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1508,7 +1508,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.00013,
+                "value": 0.000247,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1598,7 +1598,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.003925,
+                "value": 0.004928,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1688,7 +1688,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000208,
+                "value": 0.000501,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1784,7 +1784,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000207,
+                "value": 0.000283,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1884,7 +1884,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000157,
+                "value": 0.000324,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2014,7 +2014,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.00024,
+                "value": 0.000344,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2184,7 +2184,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000334,
+                "value": 0.000483,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2294,7 +2294,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000187,
+                "value": 0.000319,
                 "release_gate": false
               },
               "allocated_objects": {
