@@ -19,9 +19,9 @@ module Ibex
     #     ?help: String
     #   }
     #   private def normalize_grammar_path: (String) -> IR::Grammar
-    #   private def set_configuration_option: (Symbol, untyped) -> void
-    #   private def local_configuration_value: (Hash[Symbol, untyped], String) -> untyped
-    #   private def set_local_configuration_option: (Hash[Symbol, untyped], Symbol, untyped) -> void
+    #   private def set_configuration_option: (Symbol, Object?) -> void
+    #   private def local_configuration_value: (Hash[Symbol, Object?], String) -> Object?
+    #   private def set_local_configuration_option: (Hash[Symbol, Object?], Symbol, Object?) -> void
 
     private
 
@@ -112,7 +112,7 @@ module Ibex
       ).build
     end
 
-    # @rbs (Hash[Symbol, untyped] report, String format) -> void
+    # @rbs (Hash[Symbol, Object?] report, String format) -> void
     def write_analysis_report(report, format)
       if format == "json"
         @stdout.puts(JSON.pretty_generate(report))
@@ -134,8 +134,8 @@ module Ibex
     end
 
     # @rbs!
-    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped],
+    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, Object?],
     #     ?explicit_keys: Array[Symbol]) -> IR::Grammar
-    #   private def configuration_value: (String) -> untyped
+    #   private def configuration_value: (String) -> Object?
   end
 end
