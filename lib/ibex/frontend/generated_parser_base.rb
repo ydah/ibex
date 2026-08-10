@@ -44,7 +44,7 @@ module Ibex
         raise
       end
 
-      # @rbs (Integer? _token_id, Token? value, Array[untyped] _value_stack) -> bot
+      # @rbs (Integer? _token_id, Token? value, Array[Object?] _value_stack) -> bot
       def on_error(_token_id, value, _value_stack)
         token = value || @adapter.eof_token
         @diagnostic_token = token

@@ -95,7 +95,18 @@ module Ibex
     #     ?expected_rr: Integer,
     #     ?rr_expectation_met: bool
     #   }
-    #   type interpretation = Hash[Symbol, untyped]
+    #   type derivation_node = {
+    #     symbol: String,
+    #     ?token: String,
+    #     ?production: Integer,
+    #     ?children: Array[derivation_node]
+    #   }
+    #   type interpretation = {
+    #     kind: Symbol,
+    #     tree: derivation_node?,
+    #     ?state: Integer,
+    #     ?production: Integer
+    #   }
     #   type counterexample = {
     #     state: Integer,
     #     type: Symbol,

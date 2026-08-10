@@ -57,7 +57,7 @@ module Ibex
       failures
     end
 
-    # @rbs (Hash[Symbol, untyped] record) -> void
+    # @rbs (Hash[Symbol, Object?] record) -> void
     def rollback_record(record)
       target = record.fetch(:target)
       if record.fetch(:backed_up)

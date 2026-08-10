@@ -4,13 +4,13 @@ module Ibex
   module LSP
     # Resource bounds shared by transport and open-document validation.
     module Limits
-      MAX_HEADER_BYTES: untyped
+      MAX_HEADER_BYTES: Integer
 
-      MAX_MESSAGE_BYTES: untyped
+      MAX_MESSAGE_BYTES: Integer
 
-      MAX_DOCUMENT_BYTES: untyped
+      MAX_DOCUMENT_BYTES: Integer
 
-      MAX_OUTPUT_BYTES: untyped
+      MAX_OUTPUT_BYTES: Integer
 
       MAX_ERROR_MESSAGE_CHARACTERS: ::Integer
 

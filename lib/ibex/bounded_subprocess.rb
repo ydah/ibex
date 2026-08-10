@@ -75,7 +75,7 @@ module Ibex
 
     # @rbs (Array[String] command, File stdin, File stdout, File stderr) -> Integer
     def spawn_child(command, stdin, stdout, stderr)
-      options = { in: stdin, out: stdout, err: stderr } #: Hash[Symbol, untyped]
+      options = { in: stdin, out: stdout, err: stderr } #: Hash[Symbol, Object?]
       options[:pgroup] = true if process_groups?
       spawn(*command, **options)
     end

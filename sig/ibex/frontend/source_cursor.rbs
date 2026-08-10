@@ -37,8 +37,8 @@ module Ibex
     end
 
     class Token
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h: () -> Hash[Symbol, Object?]
     end
 
     # Advances through source text while maintaining one-based coordinates.

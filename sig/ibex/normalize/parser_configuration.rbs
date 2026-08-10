@@ -11,8 +11,8 @@ module Ibex
     # @rbs () -> IR::ParserContract?
     def normalized_parser_contract: () -> IR::ParserContract?
 
-    # @rbs (Frontend::AST::ParserSetting setting) -> Hash[Symbol, untyped]
-    def validated_parser_setting_definition: (Frontend::AST::ParserSetting setting) -> Hash[Symbol, untyped]
+    # @rbs (Frontend::AST::ParserSetting setting) -> Hash[Symbol, Object?]
+    def validated_parser_setting_definition: (Frontend::AST::ParserSetting setting) -> Hash[Symbol, Object?]
 
     # @rbs (Frontend::AST::ParserConfiguration declaration) -> void
     def validate_isolated_entries: (Frontend::AST::ParserConfiguration declaration) -> void

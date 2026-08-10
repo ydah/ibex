@@ -184,7 +184,7 @@ module Ibex
             search: search_document(example.fetch(:search)),
             interpretations: example.fetch(:interpretations).map { |item| interpretation_document(item) }
           }
-        } #: Hash[Symbol, untyped]
+        } #: Hash[Symbol, Object?]
         document[:midrule_origins] = conflict[:midrule_origins] if conflict[:midrule_origins]
         document
       end

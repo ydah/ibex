@@ -59,14 +59,14 @@ module Ibex
     # @rbs (String expression, Frontend::Location location) -> IR::Action
     def synthetic_action: (String expression, Frontend::Location location) -> IR::Action
 
-    # @rbs (Symbol kind, Frontend::AST::item item) -> Hash[Symbol, untyped]
-    def synthetic_origin: (Symbol kind, Frontend::AST::item item) -> Hash[Symbol, untyped]
+    # @rbs (Symbol kind, Frontend::AST::item item) -> Hash[Symbol, Object?]
+    def synthetic_origin: (Symbol kind, Frontend::AST::item item) -> Hash[Symbol, Object?]
 
     # @rbs (Frontend::AST::InlineAction? action, Array[IR::named_ref] named_refs) -> IR::Action?
     def normalize_action: (Frontend::AST::InlineAction? action, Array[IR::named_ref] named_refs) -> IR::Action?
 
     # @rbs (String lhs_name, Array[String] rhs_names, IR::Action? action, String? precedence_name,
-    #   Hash[Symbol, untyped] origin, ?String? documentation, ?IR::node_annotation? node) -> void
-    def add_production: (String lhs_name, Array[String] rhs_names, IR::Action? action, String? precedence_name, Hash[Symbol, untyped] origin, ?String? documentation, ?IR::node_annotation? node) -> void
+    #   Hash[Symbol, Object?] origin, ?String? documentation, ?IR::node_annotation? node) -> void
+    def add_production: (String lhs_name, Array[String] rhs_names, IR::Action? action, String? precedence_name, Hash[Symbol, Object?] origin, ?String? documentation, ?IR::node_annotation? node) -> void
   end
 end

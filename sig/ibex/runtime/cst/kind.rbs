@@ -80,7 +80,7 @@ module Ibex
         private
 
         # : Hash[String, field_slot]
-        EMPTY_FIELDS: untyped
+        EMPTY_FIELDS: Hash[String, field_slot]
 
         # @rbs (Hash[Integer, slot] slots) -> Hash[Integer, Hash[String, field_slot]]
         def build_field_slots: (Hash[Integer, slot] slots) -> Hash[Integer, Hash[String, field_slot]]

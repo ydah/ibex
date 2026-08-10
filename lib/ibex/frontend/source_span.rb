@@ -80,7 +80,7 @@ module Ibex
         length.zero?
       end
 
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
       def to_h
         { file: file, start: start.to_h, end: finish.to_h }
       end

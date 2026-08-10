@@ -43,7 +43,7 @@ module Rake
 
   class Task
     def self.define_task: (Hash[String | Symbol, String | Array[String]]) -> Task
-                        | (Hash[String | Symbol, String | Array[String]]) { (untyped, untyped) -> void } -> Task
+                        | (Hash[String | Symbol, String | Array[String]]) { (Object?, Object?) -> void } -> Task
   end
 
   class FileTask < Task

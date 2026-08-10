@@ -182,7 +182,7 @@ module Ibex
         raise Ibex::Error, "(test):1:1: invalid grammar test process result: #{e.message}"
       end
 
-      # @rbs (IR::grammar_test test, untyped document) -> Result
+      # @rbs (IR::grammar_test test, Object? document) -> Result
       def build_result(test, document)
         unless document.is_a?(Hash) && %w[accept reject error].include?(document["actual"])
           raise Ibex::Error, "(test):1:1: grammar test process returned an invalid case result"

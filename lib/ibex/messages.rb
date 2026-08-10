@@ -17,7 +17,7 @@ module Ibex
     end
     module_function :language
 
-    # @rbs (String id, ?language: String, **untyped values) -> String
+    # @rbs (String id, ?language: String, **Object? values) -> String
     def translate(id, language: "en", **values)
       selected = catalog(self.language(language))
       template = selected[id] || catalog("en").fetch(id) do

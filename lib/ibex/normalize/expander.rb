@@ -192,7 +192,7 @@ module Ibex
       IR::Action.new(code: code, location: location.to_h)
     end
 
-    # @rbs (Symbol kind, Frontend::AST::item item) -> Hash[Symbol, untyped]
+    # @rbs (Symbol kind, Frontend::AST::item item) -> Hash[Symbol, Object?]
     def synthetic_origin(kind, item)
       # @type self: Normalizer
       { kind: :"#{kind}_expansion", expression: NormalizeExpression.render(item), loc: item.loc.to_h }
@@ -207,7 +207,7 @@ module Ibex
     end
 
     # @rbs (String lhs_name, Array[String] rhs_names, IR::Action? action, String? precedence_name,
-    #   Hash[Symbol, untyped] origin, ?String? documentation, ?IR::node_annotation? node) -> void
+    #   Hash[Symbol, Object?] origin, ?String? documentation, ?IR::node_annotation? node) -> void
     def add_production(lhs_name, rhs_names, action, precedence_name, origin, documentation = nil, node = nil)
       # @type self: Normalizer
       lhs = symbol(lhs_name) || intern(lhs_name, :nonterminal, location: origin[:loc])

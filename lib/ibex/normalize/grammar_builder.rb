@@ -24,7 +24,7 @@ module Ibex
       build_v3_grammar(keywords, parser_contract)
     end
 
-    # @rbs (Hash[Symbol, untyped] keywords) -> IR::Grammar
+    # @rbs (Hash[Symbol, Object?] keywords) -> IR::Grammar
     def build_v2_grammar(keywords)
       IR::Grammar.new(
         class_name: keywords.fetch(:class_name), superclass: keywords.fetch(:superclass),
@@ -39,7 +39,7 @@ module Ibex
       )
     end
 
-    # @rbs (Hash[Symbol, untyped] keywords, IR::ParserContract parser_contract) -> IR::Grammar
+    # @rbs (Hash[Symbol, Object?] keywords, IR::ParserContract parser_contract) -> IR::Grammar
     def build_v3_grammar(keywords, parser_contract)
       IR::Grammar.v3(
         class_name: keywords.fetch(:class_name), superclass: keywords.fetch(:superclass),

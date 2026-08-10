@@ -86,8 +86,8 @@ module Ibex
       # @rbs (String output) -> Array[Result]
       def decode_results: (String output) -> Array[Result]
 
-      # @rbs (IR::grammar_test test, untyped document) -> Result
-      def build_result: (IR::grammar_test test, untyped document) -> Result
+      # @rbs (IR::grammar_test test, Object? document) -> Result
+      def build_result: (IR::grammar_test test, Object? document) -> Result
     end
   end
 end

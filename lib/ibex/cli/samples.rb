@@ -13,7 +13,7 @@ module Ibex
     #   private def handle_grammar_warnings: (IR::Grammar, String) -> void
     #   private def warning_categories: (String) -> Array[Symbol]
     #   private def normalize_grammar_path: (String) -> IR::Grammar
-    #   private def set_configuration_option: (Symbol, untyped) -> void
+    #   private def set_configuration_option: (Symbol, Object?) -> void
 
     private
 

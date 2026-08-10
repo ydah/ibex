@@ -13,7 +13,7 @@ require_relative "cli"
 #     class Task
 #       def self.define_task: (Hash[String | Symbol, String | Array[String]]) -> Task
 #                           | (Hash[String | Symbol, String | Array[String]]) {
-#                               (untyped, untyped) -> void
+#                               (Object?, Object?) -> void
 #                             } -> Task
 #     end
 #

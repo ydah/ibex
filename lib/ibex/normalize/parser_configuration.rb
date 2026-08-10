@@ -37,7 +37,7 @@ module Ibex
       IR::ParserContract.new(**entries)
     end
 
-    # @rbs (Frontend::AST::ParserSetting setting) -> Hash[Symbol, untyped]
+    # @rbs (Frontend::AST::ParserSetting setting) -> Hash[Symbol, Object?]
     def validated_parser_setting_definition(setting)
       # @type self: Normalizer
       definition = IR::ParserContract::DEFINITIONS[setting.key]

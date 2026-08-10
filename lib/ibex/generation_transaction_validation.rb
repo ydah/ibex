@@ -170,7 +170,7 @@ module Ibex
             "(generation):1:1: cannot revalidate artifact target #{phase}: #{e.message}"
     end
 
-    # @rbs (Hash[Symbol, untyped] record, Array[String] sources, String phase) -> void
+    # @rbs (Hash[Symbol, Object?] record, Array[String] sources, String phase) -> void
     def validate_current_target!(record, sources, phase)
       artifact = record.fetch(:artifact)
       current = resolved_target(artifact.path, validate_links: false)

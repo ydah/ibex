@@ -57,7 +57,7 @@ module Ibex
 
         offsets = line_offsets
         tokens = Object.const_get(:Ripper).__send__(:lex, lexable_source)
-        # @type var tokens: Array[[[Integer, Integer], Symbol, String, untyped]]
+        # @type var tokens: Array[[[Integer, Integer], Symbol, String, Object?]]
         tokens.filter_map do |position, type, _token, _state|
           next unless type == :on_ident
 

@@ -38,7 +38,7 @@ module Ibex
         @rendered
       end
 
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
       def to_h
         {
           code: code,

@@ -21,8 +21,8 @@ module Ibex
     # @rbs () -> Array[String]
     def rollback: () -> Array[String]
 
-    # @rbs (Hash[Symbol, untyped] record) -> void
-    def rollback_record: (Hash[Symbol, untyped] record) -> void
+    # @rbs (Hash[Symbol, Object?] record) -> void
+    def rollback_record: (Hash[Symbol, Object?] record) -> void
 
     # @rbs (preserve_backups: bool) -> Array[String]
     def cleanup_artifacts: (preserve_backups: bool) -> Array[String]

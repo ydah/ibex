@@ -10,8 +10,8 @@ module Ibex
     # @rbs (OptionParser options) -> void
     def add_error_messages_generation_option: (OptionParser options) -> void
 
-    # @rbs (IR::Automaton automaton) -> Hash[Integer, untyped]
-    def configured_error_messages: (IR::Automaton automaton) -> Hash[Integer, untyped]
+    # @rbs (IR::Automaton automaton) -> Hash[Integer, Object?]
+    def configured_error_messages: (IR::Automaton automaton) -> Hash[Integer, Object?]
 
     # @rbs () -> void
     def validate_messages_options: () -> void

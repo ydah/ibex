@@ -37,7 +37,7 @@ module Ibex
       @lock_sleeper = lock_sleeper
       @locks = [] #: Array[File]
       @locked_paths = [] #: Array[String]
-      @records = [] #: Array[Hash[Symbol, untyped]]
+      @records = [] #: Array[Hash[Symbol, Object?]]
       @committed = false
       @temporary_sequence = 0
     end

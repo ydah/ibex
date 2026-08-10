@@ -56,8 +56,8 @@ module Ibex
     # @rbs (String phase) -> void
     def validate_current_targets!: (String phase) -> void
 
-    # @rbs (Hash[Symbol, untyped] record, Array[String] sources, String phase) -> void
-    def validate_current_target!: (Hash[Symbol, untyped] record, Array[String] sources, String phase) -> void
+    # @rbs (Hash[Symbol, Object?] record, Array[String] sources, String phase) -> void
+    def validate_current_target!: (Hash[Symbol, Object?] record, Array[String] sources, String phase) -> void
 
     # @rbs () -> void
     def validate_locked_targets!: () -> void

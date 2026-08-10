@@ -32,7 +32,7 @@ module Ibex
     )
 
     class Token
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
       def to_h
         { type: type, value: value, location: location.to_h }
       end

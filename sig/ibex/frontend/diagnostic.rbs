@@ -28,8 +28,8 @@ module Ibex
       # @rbs () -> String
       def to_s: () -> String
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h: () -> Hash[Symbol, Object?]
     end
 
     # Immutable output from a diagnostic parse.

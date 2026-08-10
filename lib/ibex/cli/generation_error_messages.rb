@@ -16,7 +16,7 @@ module Ibex
       end
     end
 
-    # @rbs (IR::Automaton automaton) -> Hash[Integer, untyped]
+      # @rbs (IR::Automaton automaton) -> Hash[Integer, Object?]
     def configured_error_messages(automaton)
       path = @options[:messages]
       return {} unless path

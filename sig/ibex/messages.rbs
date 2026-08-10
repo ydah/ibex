@@ -11,8 +11,8 @@ module Ibex
     # @rbs (String? requested) -> String
     def self?.language: (String? requested) -> String
 
-    # @rbs (String id, ?language: String, **untyped values) -> String
-    def self?.translate: (String id, ?language: String, **untyped values) -> String
+    # @rbs (String id, ?language: String, **Object? values) -> String
+    def self?.translate: (String id, ?language: String, **Object? values) -> String
 
     # @rbs (String id) -> bool
     def self?.known?: (String id) -> bool

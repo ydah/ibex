@@ -49,8 +49,8 @@ module Ibex
       # @rbs () -> bool
       def empty?: () -> bool
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h: () -> Hash[Symbol, Object?]
     end
   end
 end

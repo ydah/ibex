@@ -28,8 +28,8 @@ module Ibex
       # @rbs () -> ([external_token, Token] | false)
       def next_token: () -> ([ external_token, Token ] | false)
 
-      # @rbs (Integer? _token_id, Token? value, Array[untyped] _value_stack) -> bot
-      def on_error: (Integer? _token_id, Token? value, Array[untyped] _value_stack) -> bot
+      # @rbs (Integer? _token_id, Token? value, Array[Object?] _value_stack) -> bot
+      def on_error: (Integer? _token_id, Token? value, Array[Object?] _value_stack) -> bot
 
       private
 

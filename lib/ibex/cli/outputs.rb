@@ -5,7 +5,7 @@ module Ibex
   module CLIOutputs
     # @rbs!
     #   private def register_artifact: (Symbol, String, String, ?mode: Integer?, ?status: bool) -> Artifact
-    #   private def configuration_value: (String) -> untyped
+    #   private def configuration_value: (String) -> Object?
 
     WARNING_MESSAGE_IDS = {
       undeclared_terminal: "warning.undeclared_terminal",

@@ -8,10 +8,10 @@ module Ibex
     # @rbs (IR::ParserContract? parser_contract) -> IR::Grammar
     def build_grammar: (IR::ParserContract? parser_contract) -> IR::Grammar
 
-    # @rbs (Hash[Symbol, untyped] keywords) -> IR::Grammar
-    def build_v2_grammar: (Hash[Symbol, untyped] keywords) -> IR::Grammar
+    # @rbs (Hash[Symbol, Object?] keywords) -> IR::Grammar
+    def build_v2_grammar: (Hash[Symbol, Object?] keywords) -> IR::Grammar
 
-    # @rbs (Hash[Symbol, untyped] keywords, IR::ParserContract parser_contract) -> IR::Grammar
-    def build_v3_grammar: (Hash[Symbol, untyped] keywords, IR::ParserContract parser_contract) -> IR::Grammar
+    # @rbs (Hash[Symbol, Object?] keywords, IR::ParserContract parser_contract) -> IR::Grammar
+    def build_v3_grammar: (Hash[Symbol, Object?] keywords, IR::ParserContract parser_contract) -> IR::Grammar
   end
 end
