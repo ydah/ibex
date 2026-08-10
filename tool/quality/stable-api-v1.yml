@@ -48,5 +48,5 @@ files:
   sig/ibex/runtime/version.rbs: a6da338424d25712f9538b5be147699f38dd62a3d85d1d6e027620df041b9f04
   sig/ibex/tables.rbs: 28c4f83b40aca336fb19079b9e79e3c256c4f65b373ace8b74aa6f7879f62eee
   sig/ibex/tables/compact.rbs: 60c4309c1f13bc1beb3fdba04fe7d88b214fa73d87fe86e3f7043192b7a89616
-  sig/ibex/tables/compact_actions.rbs: 1495b21fe4a226eab192a576db9d9e623d5f85f08422ae9744a1da46ccffe9e0
+  sig/ibex/tables/compact_actions.rbs: 109082dcaba11ac2b9b78dcd601df6b427e69c225dbaf73d650b18c6fe95e513
   sig/ibex/tables/compact_productions.rbs: 49c53008585ffad0755fa282b9d76b67d3ad1b1cb3ac6a27ca0461c98b417503

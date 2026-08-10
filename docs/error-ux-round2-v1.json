@@ -743,7 +743,7 @@
       },
       {
         "path": "lib/ibex/runtime/table_format.rb",
-        "sha256": "c1fb7f867e4db7ab6b4e1d86f0ad1c5ccac33b8f53267df2a39b5ec43c0cacaa"
+        "sha256": "7a792b78f825759d6ff11dbce5a33be679445bdfbb24875cea801c9df70951dd"
       },
       {
         "path": "lib/ibex/runtime/version.rb",
@@ -783,7 +783,7 @@
       },
       {
         "path": "lib/ibex/tables/compact_actions.rb",
-        "sha256": "c6a01bb748b4527bffc497d8814766d36489cc6d31ac8fe15eb5567c4944b968"
+        "sha256": "6f341f467827ac0976734be03219df903834397cf667015a30b097f9bb5a83bc"
       },
       {
         "path": "lib/ibex/tables/compact_productions.rb",
