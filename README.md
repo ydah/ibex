@@ -7,20 +7,6 @@ Ibex is a Pure Ruby LR parser generator. It reads racc-compatible grammar
 files, generates parsers with the familiar `do_parse` / `yyparse` API, and
 requires no C or Java extension.
 
-> [!IMPORTANT]
-> Ibex is pre-1.0. The current v1.0 decision is
-> [**HOLD**](docs/release-readiness.md) because the published error UX evidence
-> still needs independent review; the machine-readable
-> [R001 status and review kit](docs/error-ux-review-status-v1.json) remain
-> `awaiting_independent_review`. Compatibility, scale, and a historical public
-> performance projection is recorded in the readiness report. Its direct
-> formal result artifact is absent, so the registry marks it
-> `evidence_pending` and this README makes no comparative performance claim.
-> Feature development is not frozen, but the v1.0 release hold
-> and versioned core IR contracts remain in force. Compatible mode is the
-> stable baseline; opt-in features have the maturity levels documented in the
-> [stability policy](docs/stability.md).
-
 <!-- r001-review-status:start -->
 R001: `HOLD` — [`awaiting_independent_review`](docs/error-ux-review-status-v1.json).
 <!-- r001-review-status:end -->
@@ -368,10 +354,10 @@ partially translated locales fall back to English without emitting another
 warning. These built-in message IDs are separate from the user-owned `E00xx`
 syntax-error catalog.
 
-Grammar IR, Automaton IR, generated table formats, diagnostic JSON, runtime
-events, coverage, and manifests are versioned contracts. Reports can also be
-rendered as text, DOT, Mermaid, HTML, railroad SVG, samples, or conflict
-counterexamples.
+Grammar IR and Automaton IR have explicit current contracts. Generated table
+formats, diagnostic JSON, runtime events, coverage, and manifests are
+independently versioned contracts. Reports can also be rendered as text, DOT,
+Mermaid, HTML, railroad SVG, samples, or conflict counterexamples.
 
 ## Safety boundaries and non-goals
 
@@ -438,8 +424,8 @@ bundle exec rake
 ```
 
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 28,162 typed calls and 2,405 untyped calls out of 30,567 (92.1% typed).
-The generated signature tree contains 519 explicit `untyped` occurrences across 40 files.
+The current whole-library `steep stats` result is 27,701 typed calls and 2,390 untyped calls out of 30,091 (92.1% typed).
+The generated signature tree contains 494 explicit `untyped` occurrences across 39 files.
 <!-- type-stats:end -->
 
 Performance measurements are evidence, not portable scores or CI timing
