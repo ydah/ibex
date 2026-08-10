@@ -903,14 +903,14 @@ class RuntimeFastPathTest < Minitest::Test
     assert_operator assigned_false.generic_reductions, :>, 0
   end
 
-  def test_push_jsonl_attachment_disables_the_active_session
+  def test_push_event_jsonl_attachment_disables_the_active_session
     traced = ActionlessProbe.new
     assert_equal :need_more, traced.push(:ITEM, "traced")
     traced.define_singleton_method(:disable_runtime_fast_path!) do
       raise "application singleton helper must not run"
     end
     output = StringIO.new
-    Ibex::Runtime::JSONLTracer.attach(traced, io: output)
+    Ibex::Runtime::EventJSONLTracer.attach(traced, io: output)
     assert_equal "traced", traced.finish
     assert_operator traced.generic_reductions, :>, 0
     assert_equal ["reduce"], trace_event_names(output)
@@ -959,12 +959,12 @@ class RuntimeFastPathTest < Minitest::Test
     end
   end
 
-  def test_jsonl_tracer_installed_by_next_token_is_honored_before_shift
+  def test_event_jsonl_tracer_installed_by_next_token_is_honored_before_shift
     traced = CompactActionlessProbe.new([[:ITEM, "trace"], false])
     trace_output = StringIO.new
     original_trace_lexer = traced.method(:next_token)
     traced.define_singleton_method(:next_token) do
-      Ibex::Runtime::JSONLTracer.attach(self, io: trace_output) if trace_output.string.empty?
+      Ibex::Runtime::EventJSONLTracer.attach(self, io: trace_output) if trace_output.string.empty?
       original_trace_lexer.call
     end
     assert_equal "trace", traced.do_parse

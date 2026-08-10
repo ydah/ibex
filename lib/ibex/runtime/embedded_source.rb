@@ -51,7 +51,6 @@ module Ibex
         parser.rb
         lexer_input.rb
         generated_lexer.rb
-        jsonl_tracer.rb
         event_jsonl_tracer.rb
         ../tables/compact.rb
         ../tables/compact_actions.rb

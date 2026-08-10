@@ -56,19 +56,6 @@ class RuntimeEventJSONLTracerTest < Minitest::Test
     documents.each { |event| assert_empty SCHEMA.validate(event).to_a }
   end
 
-  def test_legacy_tracer_then_application_hook_then_new_event_order_is_stable
-    timeline = []
-    legacy_output = Object.new
-    legacy_output.define_singleton_method(:puts) { |_line| timeline << :legacy }
-    parser = RuntimeParserTest::Calculator.new([[:INT, 2]])
-    parser.define_singleton_method(:on_shift) { |*| timeline << :hook }
-    Ibex::Runtime::JSONLTracer.attach(parser, io: legacy_output)
-    parser.observe { |event| timeline << :event if event.type == :shift }
-
-    assert_equal 2, parser.do_parse
-    assert_equal %i[legacy hook event], timeline.first(3)
-  end
-
   def test_schema_rejects_values_beyond_the_published_collection_and_string_caps
     document = {
       "ibex_runtime_event" => "runtime-event",

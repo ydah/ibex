@@ -36,7 +36,6 @@ class CLILoadingTest < Minitest::Test
     ibex/runtime/embedded_source.rb
     ibex/runtime/event_jsonl_tracer.rb
     ibex/runtime/generated_lexer.rb
-    ibex/runtime/jsonl_tracer.rb
   ].freeze
   LOADED_FEATURES_SCRIPT = <<~'RUBY'
     require "json"

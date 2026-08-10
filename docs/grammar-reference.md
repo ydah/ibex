@@ -431,8 +431,8 @@ For external tooling, `observe { |event| ... }` registers an ordered observer an
 `unobserve`. Events are immutable, sequence-numbered per parse session, and cover `start`, `shift`, `reduce`, `error`, `recover`,
 `discard`, `accept`, and `reject`. Semantic values and locations are bounded JSON summaries rather than live objects.
 `Ibex::Runtime::EventJSONLTracer.attach(parser, io:)` writes the versioned schema at
-`schema/runtime-event-v1.schema.json`; write and serialization failures propagate. This API is separate from the legacy
-hook-shaped `Runtime::JSONLTracer`. See [ADR 0010](decisions/0010-committed-runtime-observation.md).
+`schema/runtime-event-v1.schema.json`; write and serialization failures propagate. See
+[ADR 0010](decisions/0010-committed-runtime-observation.md).
 
 Every parser instance owns immutable `Runtime::ResourceLimits`. The defaults allow a 10,000-entry LR state stack and 100
 recovery entries per parse. Pass `resource_limits:` to the generated parser constructor or replace it while the instance is

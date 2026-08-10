@@ -503,7 +503,7 @@ The separate `Runtime::Parser#observe` API publishes ordered, immutable schema-v
 copies only JSON data and never retains application identities or private stacks. With no observer, parse transitions construct
 no Event, payload summary, or dispatch snapshot; parser initialization still creates its ownership mutex. Generated tables
 contribute grammar digest, table format, state count, and production count to the `start` event. `Runtime::EventJSONLTracer`
-exposes the versioned stream; the original hook-based `Runtime::JSONLTracer` remains byte-compatible. The protocol and
+exposes the versioned stream. The protocol and
 exception/threading behavior are fixed by
 [ADR 0010](decisions/0010-committed-runtime-observation.md).
 

@@ -98,28 +98,22 @@ class RuntimeObservationEdgeTest < Minitest::Test
     assert_empty reject_events
   end
 
-  def test_reduce_hook_exception_keeps_legacy_line_but_suppresses_new_reduce
+  def test_reduce_hook_exception_suppresses_new_reduce
     parser = RuntimeParserTest::Calculator.new([[:INT, 1]])
-    legacy = StringIO.new
-    Ibex::Runtime::JSONLTracer.attach(parser, io: legacy)
     events = observe(parser)
     parser.define_singleton_method(:on_reduce) { |*| raise "reduce failed" }
 
     assert_raises(RuntimeError) { parser.do_parse }
-    assert_includes legacy.string, '"event":"reduce"'
     refute_includes events.map(&:type), :reduce
     refute_includes events.map(&:type), :reject
   end
 
-  def test_recovery_hook_exception_keeps_legacy_line_but_suppresses_new_recover
+  def test_recovery_hook_exception_suppresses_new_recover
     parser = RuntimeParserTest::RecoveringStatements.new([[:BAD, nil], [";", nil]])
-    legacy = StringIO.new
-    Ibex::Runtime::JSONLTracer.attach(parser, io: legacy)
     events = observe(parser)
     parser.define_singleton_method(:on_error_recover) { |*| raise "recover failed" }
 
     assert_raises(RuntimeError) { parser.do_parse }
-    assert_includes legacy.string, '"event":"error_recover"'
     refute_includes events.map(&:type), :recover
     refute_includes events.map(&:type), :reject
   end
