@@ -5,7 +5,7 @@
   "recorded_at": "2026-08-08T09:12:27Z",
   "third_party_code_warning": "This benchmark executes code from the supplied third-party checkouts. Verify each path and revision.",
   "environment": {
-    "git_revision": "8c9cef999d094366012d9956538f319ac6a28b82",
+    "git_revision": "26e94ce631bf5c075ecbca0205a34a8c231c31d9",
     "git_dirty": false,
     "git_tracked_dirty": false,
     "git_untracked_dirty": false,

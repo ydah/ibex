@@ -46,6 +46,8 @@ Stable 契約には含まれません。API 例は [`cst.md`](../cst.md) を参�
 
 Stable API は semantic versioning に従います。v1.0 以降の削除や意味変更は、
 少なくとも2回の minor release にわたって移行警告、代替手段、最短削除版を
-文書化します。Preview は少なくとも1回の minor release で予告し、
-Experimental は予告なく変わる可能性があります。正確な在庫と昇格条件は
+文書化します。v1.0 前の Preview は固定された後方互換性契約ではなく、変更時に
+release note、移行メモ、回帰テスト、maturity evidence を同じ変更で更新します。
+v1.0 以降の Preview は少なくとも1回の minor release で予告し、Experimental は
+予告なく変わる可能性があります。正確な在庫と昇格条件は
 [`stability.md`](../stability.md) にあります。

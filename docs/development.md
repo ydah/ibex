@@ -123,6 +123,8 @@ snapshot.
 in the [maturity audit](maturity.md), including activation, evidence gaps,
 external-use classification, issue-audit freshness, decisions, source digests,
 feature budgets, release blockers, and the synchronized public summary.
+This is an audit-integrity gate, not a promise that every Preview implementation
+or historical evidence capture remains runtime-compatible before v1.0.
 
 `quality:runtime_abi` is contract-only: it cross-checks the published [runtime ABI evolution
 policy](runtime-abi-evolution.md) and [test-interaction

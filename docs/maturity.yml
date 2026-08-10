@@ -1,7 +1,7 @@
 schema_version: 1
 audit:
   reviewed_at: "2026-08-10"
-  reviewed_repository_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+  reviewed_repository_revision: 962292965894cbd1b284680886ea6d7ccc176d88
   issue_audits:
     - id: github-open-issues-2026-08-04
       provider: github_search_api
@@ -81,7 +81,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 9fd614c09314c28fa4fe5a4d56d2425b46fc2b5905fa72a1ab58784c4505af2f
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -185,26 +185,26 @@ features:
           unresolved_uncertainty: No release-bound EBNF groups contract or behavior oracle isolates this surface from adjacent edits in the shared paths, so unchanged public semantics cannot be established.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: no_semantic_change
           commit_assessments:
-            - revision: 182ec56448cea9bdc1116058966d6bbdb463cedc
+            - revision: f63742a4e7296b45d9ae071bb7bcd55c06edd414
               classification: no_semantic_change
               summary: "fix: preserve grammar mode provenance"
               contract_effect: "fix: preserve grammar mode provenance adds root pragma-location metadata without changing group nodes, EBNF parsing, or expansion; the EBNF groups public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
-            - revision: 229b8f4b8f3a5cb6aec5b08088579cfdfb4e6cec
+            - revision: 8dae6f7cede1d262cb9211a07b72b8c903e96126
               classification: no_semantic_change
               summary: "feat: parse declarative parser settings"
               contract_effect: "feat: parse declarative parser settings adds declarative parser settings to shared grammar parsing without changing group nodes, EBNF parsing, or expansion; the EBNF groups public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
-            - revision: 208a8c1e2b3ecd1399de8f71299be30d1cf360a3
+            - revision: 911b8502fde8ce80ca047f0aa43afd4607cdcfdb
               classification: no_semantic_change
               summary: "Type frontend AST serialization"
               contract_effect: "Type frontend AST serialization updates type annotations and checked boundaries without changing the ebnf-groups public contract; the public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
-            - revision: d9fffee4fa362100a823fe817561961061a5255d
+            - revision: 3ce117eeaa7147dc31aa40d88baf3e6866f36b7c
               classification: no_semantic_change
               summary: "Type auxiliary boundaries"
               contract_effect: "Type auxiliary boundaries updates type annotations and checked boundaries without changing the ebnf-groups public contract; the public contract remains unchanged. Evidence: lib/ibex/normalize/expander.rb."
-            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+            - revision: 4ae4d9ef6cca589c2a0ca354e5482cfdb05fefb2
               classification: no_semantic_change
               summary: "Strengthen type boundaries and refresh inventory"
               contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the ebnf-groups public contract; the public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
@@ -285,7 +285,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 737cc90a5cd158bba61a9984fc121fbc859f6bf91d633b31cc77d98eb5b340c1
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -351,38 +351,38 @@ features:
           unresolved_uncertainty: This path review does not establish downstream parameterized rules compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: no_semantic_change
           commit_assessments:
-            - revision: 182ec56448cea9bdc1116058966d6bbdb463cedc
+            - revision: f63742a4e7296b45d9ae071bb7bcd55c06edd414
               classification: no_semantic_change
               summary: "fix: preserve grammar mode provenance"
               contract_effect: "fix: preserve grammar mode provenance adds root pragma-location metadata without changing parameter references, arguments, or expansion; the parameterized rules public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
-            - revision: 229b8f4b8f3a5cb6aec5b08088579cfdfb4e6cec
+            - revision: 8dae6f7cede1d262cb9211a07b72b8c903e96126
               classification: no_semantic_change
               summary: "feat: parse declarative parser settings"
               contract_effect: "feat: parse declarative parser settings adds declarative parser settings to shared grammar parsing without changing parameter references, arguments, or expansion; the parameterized rules public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
-            - revision: b0c663703129463ab84f2afea5e8d95465fd5de6
+            - revision: 86dad0e7f7795440cd66fdedb4fbcadd702d92ff
               classification: no_semantic_change
               summary: "Strengthen runtime type contracts"
               contract_effect: "Strengthen runtime type contracts updates type annotations and checked boundaries without changing the parameterized-rules public contract; the public contract remains unchanged. Evidence: lib/ibex/normalize/parameters.rb."
-            - revision: d616f407b8902f4a74f5ddde59a3066cc2d1451e
+            - revision: 858d8f7a3232dc609ceda3685bb7ded85691479f
               classification: no_semantic_change
               summary: "Preserve audited source contracts"
               contract_effect: "Preserve audited source contracts updates type annotations and checked boundaries without changing the parameterized-rules public contract; the public contract remains unchanged. Evidence: lib/ibex/normalize/parameters.rb."
-            - revision: b22328337357a31495e062ebd7577f2eb9c78e2e
+            - revision: 5c4539de3401f4d4d725d46775bb966a3f77c842
               classification: no_semantic_change
               summary: "Align generated signatures with typed sources"
               contract_effect: "Align generated signatures with typed sources updates type annotations and checked boundaries without changing the parameterized-rules public contract; the public contract remains unchanged. Evidence: lib/ibex/normalize/parameters.rb."
-            - revision: 208a8c1e2b3ecd1399de8f71299be30d1cf360a3
+            - revision: 911b8502fde8ce80ca047f0aa43afd4607cdcfdb
               classification: no_semantic_change
               summary: "Type frontend AST serialization"
               contract_effect: "Type frontend AST serialization updates type annotations and checked boundaries without changing the parameterized-rules public contract; the public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
-            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+            - revision: 4ae4d9ef6cca589c2a0ca354e5482cfdb05fefb2
               classification: no_semantic_change
               summary: "Strengthen type boundaries and refresh inventory"
               contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the parameterized-rules public contract; the public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
-            - revision: 19b1e06fe9a3d0b3fa797bce68d345d20cfac052
+            - revision: ec18c6e64731eb2997756a5a585dc74e2356b8fe
               classification: no_semantic_change
               summary: "Clarify typed boundary annotations"
               contract_effect: "Clarify typed boundary annotations updates type annotations and checked boundaries without changing the parameterized-rules public contract; the public contract remains unchanged. Evidence: lib/ibex/normalize/parameters.rb."
@@ -463,7 +463,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 02919ea72da0a741bbac49d28cc5caffc5649895c3cf46dc6fcc207c06ef47c4
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -533,34 +533,34 @@ features:
           unresolved_uncertainty: This path review does not establish downstream inline rules compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: no_semantic_change
           commit_assessments:
-            - revision: cbb14a3db79312077f7239741e6da1e8177f3b44
+            - revision: 34aff77cecb6c9edf3aaef04d1dd63e0766db4b1
               classification: no_semantic_change
               summary: "feat: persist parser settings in grammar IR"
               contract_effect: "feat: persist parser settings in grammar IR carries declarative settings through normalization without changing inline expansion syntax, ordering, or action behavior; the inline rules public contract remains unchanged. Evidence: lib/ibex/normalize.rb."
-            - revision: b0c663703129463ab84f2afea5e8d95465fd5de6
+            - revision: 86dad0e7f7795440cd66fdedb4fbcadd702d92ff
               classification: no_semantic_change
               summary: "Strengthen runtime type contracts"
               contract_effect: "Strengthen runtime type contracts updates type annotations and checked boundaries without changing the inline-rules public contract; the public contract remains unchanged. Evidence: lib/ibex/normalize.rb."
-            - revision: d616f407b8902f4a74f5ddde59a3066cc2d1451e
+            - revision: 858d8f7a3232dc609ceda3685bb7ded85691479f
               classification: no_semantic_change
               summary: "Preserve audited source contracts"
               contract_effect: "Preserve audited source contracts updates type annotations and checked boundaries without changing the inline-rules public contract; the public contract remains unchanged. Evidence: lib/ibex/normalize/inline_expansion.rb."
-            - revision: 458647fd468349043c44794c9a2436636fda204f
+            - revision: 30147de023c91bb761b951f38ecd4d126b9fc39b
               classification: no_semantic_change
               summary: "Tighten repair and normalization value types"
               contract_effect: "Tighten repair and normalization value types updates type annotations and checked boundaries without changing the inline-rules public contract; the public contract remains unchanged. Evidence: lib/ibex/normalize.rb."
-            - revision: ef08cb9cd0cf3105ac56a4b2b372a012eb1b45d6
+            - revision: e86d01b51d046e061b9adc25df5a8eb572bb2a8d
               classification: no_semantic_change
               summary: "Type inline expansion frames and plans"
               contract_effect: "Type inline expansion frames and plans updates type annotations and checked boundaries without changing the inline-rules public contract; the public contract remains unchanged. Evidence: lib/ibex/normalize/inline_expansion.rb."
-            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+            - revision: 4ae4d9ef6cca589c2a0ca354e5482cfdb05fefb2
               classification: no_semantic_change
               summary: "Strengthen type boundaries and refresh inventory"
               contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the inline-rules public contract; the public contract remains unchanged. Evidence: lib/ibex/normalize/inline_expansion.rb."
-            - revision: 19b1e06fe9a3d0b3fa797bce68d345d20cfac052
+            - revision: ec18c6e64731eb2997756a5a585dc74e2356b8fe
               classification: no_semantic_change
               summary: "Clarify typed boundary annotations"
               contract_effect: "Clarify typed boundary annotations updates type annotations and checked boundaries without changing the inline-rules public contract; the public contract remains unchanged. Evidence: lib/ibex/normalize/inline_expansion.rb."
@@ -649,7 +649,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 14c3291260bae717d1ff850db06f73b748047d4686de72cbc85d3926903c73ce
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -776,26 +776,26 @@ features:
           unresolved_uncertainty: No release-bound middle actions contract or behavior oracle isolates this surface from adjacent edits in the shared paths, so unchanged public semantics cannot be established.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: no_semantic_change
           commit_assessments:
-            - revision: 182ec56448cea9bdc1116058966d6bbdb463cedc
+            - revision: f63742a4e7296b45d9ae071bb7bcd55c06edd414
               classification: no_semantic_change
               summary: "fix: preserve grammar mode provenance"
               contract_effect: "fix: preserve grammar mode provenance adds root pragma-location metadata without changing inline-action representation, ordering, or execution; the middle actions public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
-            - revision: 229b8f4b8f3a5cb6aec5b08088579cfdfb4e6cec
+            - revision: 8dae6f7cede1d262cb9211a07b72b8c903e96126
               classification: no_semantic_change
               summary: "feat: parse declarative parser settings"
               contract_effect: "feat: parse declarative parser settings adds declarative parser settings to shared grammar parsing without changing inline-action representation, ordering, or execution; the middle actions public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
-            - revision: 208a8c1e2b3ecd1399de8f71299be30d1cf360a3
+            - revision: 911b8502fde8ce80ca047f0aa43afd4607cdcfdb
               classification: no_semantic_change
               summary: "Type frontend AST serialization"
               contract_effect: "Type frontend AST serialization updates type annotations and checked boundaries without changing the middle-actions public contract; the public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
-            - revision: d9fffee4fa362100a823fe817561961061a5255d
+            - revision: 3ce117eeaa7147dc31aa40d88baf3e6866f36b7c
               classification: no_semantic_change
               summary: "Type auxiliary boundaries"
               contract_effect: "Type auxiliary boundaries updates type annotations and checked boundaries without changing the middle-actions public contract; the public contract remains unchanged. Evidence: lib/ibex/normalize/expander.rb."
-            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+            - revision: 4ae4d9ef6cca589c2a0ca354e5482cfdb05fefb2
               classification: no_semantic_change
               summary: "Strengthen type boundaries and refresh inventory"
               contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the middle-actions public contract; the public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
@@ -879,7 +879,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: f4188d78228e88003c7f969f1bcb54ff57e243a79eb045634cb6b7522ccadeb5
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -1029,46 +1029,46 @@ features:
           unresolved_uncertainty: This path review does not establish downstream multiple entries compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: no_semantic_change
           commit_assessments:
-            - revision: c7d02d408e1778bb8018c1876f8728949bf7aa24
+            - revision: 789d1ea5eece0fb2e4461a89398acc84ded93885
               classification: no_semantic_change
               summary: "Fix embedded generation from installed gems"
               contract_effect: "Fix embedded generation from installed gems fixes generic embedded runtime loading from installed gems without changing multi-entry generation or dispatch; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
-            - revision: b111353d29475a471b564e74ec1b033109cf6025
+            - revision: 06aad493f98b47126d61c92e7274765b7e6e7622
               classification: no_semantic_change
               summary: "Add analysis-only Bison grammar import"
               contract_effect: "Add analysis-only Bison grammar import adds analysis-only Bison grammar import for an adjacent capability in shared audited paths; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
-            - revision: 3e2bf2e0dcfc321f1602317b0b0e2b2e6b603912
+            - revision: 9c583e6fdd61a9c3e106f17231a32647360aa9be
               classification: no_semantic_change
               summary: "Close v1 safety and release gaps"
               contract_effect: "Close v1 safety and release gaps closes v1 safety and release gaps for an adjacent capability in shared audited paths; the multiple entries public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
-            - revision: 7017c876dca4fa37525094b6a8b69c9071bec407
+            - revision: 354fd62c44a6ba3519376842cd4bbad1c910da80
               classification: no_semantic_change
               summary: "feat: profile parser construction costs"
               contract_effect: "feat: profile parser construction costs adds bounded construction measurements without changing multi-entry declarations, isolation, or generated dispatch; the multiple entries public contract remains unchanged. Evidence: lib/ibex/lalr/builder.rb."
-            - revision: a82acc6ae555327c73544f1835ba6c737bbd1096
+            - revision: 32c6b2bb94f5ce4879136bf17d97bf1599be403f
               classification: no_semantic_change
               summary: "feat: add Grammar IR v3 parser contracts"
               contract_effect: "feat: add Grammar IR v3 parser contracts records the selected shared or isolated construction in versioned IR without changing entry states, generated entry methods, or dispatch; the multiple entries public contract remains unchanged. Evidence: lib/ibex/lalr/builder.rb."
-            - revision: 4a66802cd6f718e224911316a11d999b493e9fcb
+            - revision: c5fd7f6b49ea8a645e43b802587178dbea94447d
               classification: no_semantic_change
               summary: "fix: preserve stable IR constructor signatures"
               contract_effect: "fix: preserve stable IR constructor signatures routes version-3 construction through explicit factories without changing entry states, generated entry methods, or dispatch; the multiple entries public contract remains unchanged. Evidence: lib/ibex/lalr/builder.rb."
-            - revision: df90eeb05cec248ec34005948226591a93412232
+            - revision: 9cdd1a97e1ee5f6a6fb8da83295a1d42bd3e6c51
               classification: no_semantic_change
               summary: "feat: honor declared parser construction"
               contract_effect: "feat: honor declared parser construction applies declarative construction settings without changing multi-entry declarations, isolation, or generated dispatch; the multiple entries public contract remains unchanged. Evidence: lib/ibex/lalr/builder.rb."
-            - revision: ed53f00a17a7282b51010c837abda11f45758642
+            - revision: 4fbe791ceb10d89aff42b1344cf65906714c2b55
               classification: no_semantic_change
               summary: "Type code generation composition inputs"
               contract_effect: "Type code generation composition inputs updates type annotations and checked boundaries without changing the multiple-entries public contract; the public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
-            - revision: d323764858d1acbd176c35468e843edb7063f280
+            - revision: c025c452e6409fed91cd6ef0136d673f777acc44
               classification: no_semantic_change
               summary: "Type LALR build collections"
               contract_effect: "Type LALR build collections updates type annotations and checked boundaries without changing the multiple-entries public contract; the public contract remains unchanged. Evidence: lib/ibex/lalr/builder.rb."
-            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+            - revision: 4ae4d9ef6cca589c2a0ca354e5482cfdb05fefb2
               classification: no_semantic_change
               summary: "Strengthen type boundaries and refresh inventory"
               contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the multiple-entries public contract; the public contract remains unchanged. Evidence: lib/ibex/lalr/builder.rb."
@@ -1149,7 +1149,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 2146bc5fe8a3e676508e4a34d966ced6f9845d7733917c701e6b27e1ea3c569f
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -1194,10 +1194,10 @@ features:
           unresolved_uncertainty: This path review does not establish downstream canonical imports compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: no_semantic_change
           commit_assessments:
-            - revision: 182ec56448cea9bdc1116058966d6bbdb463cedc
+            - revision: f63742a4e7296b45d9ae071bb7bcd55c06edd414
               classification: no_semantic_change
               summary: "fix: preserve grammar mode provenance"
               contract_effect: "fix: preserve grammar mode provenance carries the root pragma location through resolution for configuration reporting without changing import graph traversal, containment, or composition semantics; the canonical imports public contract remains unchanged. Evidence: lib/ibex/frontend/resolver.rb."
@@ -1277,7 +1277,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: f7f21704a0bd536f0c144a08dcd1f5df629385c6a2842fc74b81f548e33f4177
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -1330,30 +1330,30 @@ features:
           unresolved_uncertainty: This path review does not establish downstream generated lexers compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: no_semantic_change
           commit_assessments:
-            - revision: 7f248ebaa71bdf55ea8943aa75f9474e4c108831
+            - revision: 55d19ab8e6b182b970e080a27073d8f4de2d4287
               classification: docs_test_only
               summary: "docs: define generated parser trust boundaries"
               contract_effect: "docs: define generated parser trust boundaries records documentation or test guidance in shared audited paths for generated lexers; executable behavior remains unchanged. Evidence: lib/ibex/runtime/generated_lexer.rb."
-            - revision: b0c663703129463ab84f2afea5e8d95465fd5de6
+            - revision: 86dad0e7f7795440cd66fdedb4fbcadd702d92ff
               classification: no_semantic_change
               summary: "Strengthen runtime type contracts"
               contract_effect: "Strengthen runtime type contracts updates type annotations and checked boundaries without changing the generated-lexers public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/generated_lexer.rb."
-            - revision: d616f407b8902f4a74f5ddde59a3066cc2d1451e
+            - revision: 858d8f7a3232dc609ceda3685bb7ded85691479f
               classification: no_semantic_change
               summary: "Preserve audited source contracts"
               contract_effect: "Preserve audited source contracts updates type annotations and checked boundaries without changing the generated-lexers public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/generated_lexer.rb."
-            - revision: 164ed65ed6937b03356869f219339b1714620015
+            - revision: c89008a546f95f7c30a5ded4684288b179599d94
               classification: no_semantic_change
               summary: "Type generated lexer values"
               contract_effect: "Type generated lexer values updates type annotations and checked boundaries without changing the generated-lexers public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/generated_lexer.rb."
-            - revision: 98fe06e49d8fcbb46b9b4c2c5f74262d21c04403
+            - revision: d9a7d1f4fb7718409a0fc40f65a27608718099b1
               classification: no_semantic_change
               summary: "Type parser and lexer value boundaries"
               contract_effect: "Type parser and lexer value boundaries updates type annotations and checked boundaries without changing the generated-lexers public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/generated_lexer.rb."
-            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+            - revision: 4ae4d9ef6cca589c2a0ca354e5482cfdb05fefb2
               classification: no_semantic_change
               summary: "Strengthen type boundaries and refresh inventory"
               contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the generated-lexers public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/generated_lexer.rb."
@@ -1449,7 +1449,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 3f06fbb519913e0f96033da484dbeefc2490b4756aa8d450013c511720e89bde
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -1460,7 +1460,7 @@ features:
               - lib/ibex/runtime/parser.rb
             absent_paths: []
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
-          source_tree_sha256: 55eb6352895e9c634ddb259c268e0f9280446aa758ce4e4b4e03469c5e0df2a9
+          source_tree_sha256: aab4e81352f282d363aff35f988ee9f8b9f32416b6376478235d846b128bf07a
       changes:
         - boundary: introduction..v0.2.0
           from_revision: 3b763cc9f7a79618816db029de4e5d14339796f0
@@ -1724,113 +1724,117 @@ features:
           unresolved_uncertainty: This path review does not establish downstream semantic locations/types compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: no_semantic_change
           commit_assessments:
-            - revision: 5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
+            - revision: 021994f6342c2795d19ee90e58fbf7386ef5fa95
               classification: internal_refactor
               summary: "Fix TruffleRuby fast-path tracker recursion"
               contract_effect: "Fix TruffleRuby fast-path tracker recursion fixes recursion in fast-path mutation tracking, while location tables fail the !uses_locations guard and incremental CST fails the !cst guard, preserving the public contract. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: c7d02d408e1778bb8018c1876f8728949bf7aa24
+            - revision: 789d1ea5eece0fb2e4461a89398acc84ded93885
               classification: no_semantic_change
               summary: "Fix embedded generation from installed gems"
               contract_effect: "Fix embedded generation from installed gems fixes embedded generation from installed gems for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
-            - revision: b111353d29475a471b564e74ec1b033109cf6025
+            - revision: 06aad493f98b47126d61c92e7274765b7e6e7622
               classification: no_semantic_change
               summary: "Add analysis-only Bison grammar import"
               contract_effect: "Add analysis-only Bison grammar import adds analysis-only Bison grammar import for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
-            - revision: 3e2bf2e0dcfc321f1602317b0b0e2b2e6b603912
+            - revision: 9c583e6fdd61a9c3e106f17231a32647360aa9be
               classification: no_semantic_change
               summary: "Close v1 safety and release gaps"
               contract_effect: "Close v1 safety and release gaps closes v1 safety and release gaps for an adjacent capability in shared audited paths; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
-            - revision: cf170cad3383bf567c87e4904bd10f445315b994
+            - revision: c03e842b7147ef9b19e38b95ac127d6e87c1a9b6
               classification: internal_refactor
               summary: "Avoid dormant CST parser state"
               contract_effect: "Avoid dormant CST parser state avoids dormant CST parser state in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: f2a1421c8f02ffb4d50726452be6eae73cf7f510
+            - revision: 74645fc16e2606b120dee313be714a9be5b8acef
               classification: internal_refactor
               summary: "Keep dormant CST state signature-neutral"
               contract_effect: "Keep dormant CST state signature-neutral keeps dormant CST state signature-neutral in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 08c7dc5d939a1f47b0132ae3986818cdbaec1f34
+            - revision: 984d4ae7a1c96db4c71e3077669842b7bbc3b4ea
               classification: internal_refactor
               summary: "Reuse shareable runtime hook lookups"
               contract_effect: "Reuse shareable runtime hook lookups reuses shareable runtime hook lookups in shared implementation paths for semantic locations/types, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: edac11e91221b1c7b81883a5cb98e8bdcab82297
+            - revision: 1e332a694abbc0b520af97d8a205dc8b8d311360
               classification: internal_refactor
               summary: "Fix runtime caches across Ruby engines"
               contract_effect: "Fix runtime caches across Ruby engines adjusts fast-path caches across Ruby engines, while uses_locations disables that path, preserving the public contract. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: d85b83bbfc05d99e19e9429e4bc2bd0104fd1168
+            - revision: 643365686f7a04578b5794a73b8e64028e497f7e
               classification: internal_refactor
               summary: "Limit runtime lookup caches to MRI"
               contract_effect: "Limit runtime lookup caches to MRI limits fast-path lookup caches to MRI, while uses_locations disables that path, preserving the public contract. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 7f248ebaa71bdf55ea8943aa75f9474e4c108831
+            - revision: 55d19ab8e6b182b970e080a27073d8f4de2d4287
               classification: docs_test_only
               summary: "docs: define generated parser trust boundaries"
               contract_effect: "docs: define generated parser trust boundaries records documentation or test guidance in shared audited paths for semantic locations/types; executable behavior remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: d2e7ce9ec93463ac8c7c957224ed76ab31c83d54
+            - revision: a9808e0cc848b3f337c6ca57ed0b6852f30379fc
               classification: docs_test_only
               summary: "docs: distinguish semantic input trust paths"
               contract_effect: "docs: distinguish semantic input trust paths records documentation or test guidance in shared audited paths for semantic locations/types; executable behavior remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+            - revision: c05888c71781ecd20a938e8d135248450467f8db
               classification: no_semantic_change
               summary: "feat: add generated syntax sessions"
               contract_effect: "feat: add generated syntax sessions adds an adjacent syntax-only service entry point without changing semantic location values, type declarations, or action signatures; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 52ec7e2da661e8d4f1e07f0419427f97084ce453
+            - revision: fde47e3a1c2f66b42f419e4e9f58438dff4c2269
               classification: no_semantic_change
               summary: "fix: preserve stable parser signatures"
               contract_effect: "fix: preserve stable parser signatures moves syntax-session RBS declarations to an additive overlay without changing semantic location values, type declarations, generated callable types, or parser behavior; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 7dbe2d59779f270cf532b690c998ff8d23c962d7
+            - revision: 5d3895e7b9d7cf88760063fee3afc9b56a9ad66f
               classification: no_semantic_change
               summary: "feat: add syntax-only repair results and contract validation"
               contract_effect: "feat: add syntax-only repair results and contract validation adds syntax-only repair result validation and bounded recovery plumbing without changing semantic location values, type declarations, generated callable types, or parser behavior; the semantic locations/types public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 020cc1acdceacc27c5e88d3724491a84375df0c1
+            - revision: a3d1331fd54698eb111200299f573ec1d3d25cfa
               classification: internal_refactor
               summary: "quality: isolate repair helpers from stable signatures"
               contract_effect: "quality: isolate repair helpers from stable signatures relocates private repair helper signature ownership while preserving the public contract and without changing semantic location values, type declarations, generated callable types, or parser behavior. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: b0c663703129463ab84f2afea5e8d95465fd5de6
+            - revision: 86dad0e7f7795440cd66fdedb4fbcadd702d92ff
               classification: no_semantic_change
               summary: "Strengthen runtime type contracts"
               contract_effect: "Strengthen runtime type contracts updates type annotations and checked boundaries without changing the semantic-locations-types public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 242671c8da4670351273b820fad245e5e793681d
+            - revision: 856f78d4d97d97af2b503c394d6ec65444617a5f
               classification: no_semantic_change
               summary: "Fix typed runtime table boundaries"
               contract_effect: "Fix typed runtime table boundaries updates type annotations and checked boundaries without changing the semantic-locations-types public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: d616f407b8902f4a74f5ddde59a3066cc2d1451e
+            - revision: 858d8f7a3232dc609ceda3685bb7ded85691479f
               classification: no_semantic_change
               summary: "Preserve audited source contracts"
               contract_effect: "Preserve audited source contracts updates type annotations and checked boundaries without changing the semantic-locations-types public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: fed72b42921027b80081bd77e21a830fec516df5
+            - revision: 468e49a38f9ef0897c98ea9f498c5020e38a47e4
               classification: no_semantic_change
               summary: "Type generated parser signature metadata"
               contract_effect: "Type generated parser signature metadata updates type annotations and checked boundaries without changing the semantic-locations-types public contract; the public contract remains unchanged. Evidence: lib/ibex/codegen/rbs.rb."
-            - revision: ed53f00a17a7282b51010c837abda11f45758642
+            - revision: 4fbe791ceb10d89aff42b1344cf65906714c2b55
               classification: no_semantic_change
               summary: "Type code generation composition inputs"
               contract_effect: "Type code generation composition inputs updates type annotations and checked boundaries without changing the semantic-locations-types public contract; the public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
-            - revision: c031ceffce0e488bff2041e50019eb76832f7c66
+            - revision: 9f4b94c276563fe0e1adfae5ff7d10c773080937
               classification: no_semantic_change
               summary: "Type parser runtime state"
               contract_effect: "Type parser runtime state updates type annotations and checked boundaries without changing the semantic-locations-types public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 91b055dd266b03c024ab9cdadb19fdd65deabbe3
+            - revision: 5f833b5cedbf2005c840fb642d3857aa1a5d6fb9
               classification: no_semantic_change
               summary: "Type parser semantic callbacks"
               contract_effect: "Type parser semantic callbacks updates type annotations and checked boundaries without changing the semantic-locations-types public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 98fe06e49d8fcbb46b9b4c2c5f74262d21c04403
+            - revision: d9a7d1f4fb7718409a0fc40f65a27608718099b1
               classification: no_semantic_change
               summary: "Type parser and lexer value boundaries"
               contract_effect: "Type parser and lexer value boundaries updates type annotations and checked boundaries without changing the semantic-locations-types public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 80726f9f0f2308e272b49f51e0ca1bc4f5e80767
+            - revision: 906d9b602953432b47bdb2557daa4b9c1f43460f
               classification: no_semantic_change
               summary: "Type parser recovery value boundaries"
               contract_effect: "Type parser recovery value boundaries updates type annotations and checked boundaries without changing the semantic-locations-types public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+            - revision: 4ae4d9ef6cca589c2a0ca354e5482cfdb05fefb2
               classification: no_semantic_change
               summary: "Strengthen type boundaries and refresh inventory"
               contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the semantic-locations-types public contract; the public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
-            - revision: 19b1e06fe9a3d0b3fa797bce68d345d20cfac052
+            - revision: ec18c6e64731eb2997756a5a585dc74e2356b8fe
               classification: no_semantic_change
               summary: "Clarify typed boundary annotations"
               contract_effect: "Clarify typed boundary annotations updates type annotations and checked boundaries without changing the semantic-locations-types public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: 962292965894cbd1b284680886ea6d7ccc176d88
+              classification: internal_refactor
+              summary: "Retire pre-v1 parser table compatibility"
+              contract_effect: "Retire pre-v1 parser table compatibility removes dormant pre-v1 parser table and action-encoding branches while preserving the public contract for semantic locations/types. Evidence: lib/ibex/runtime/parser.rb."
           diff_paths:
             - lib/ibex/codegen/rbs.rb
             - lib/ibex/codegen/ruby.rb
@@ -1871,7 +1875,7 @@ features:
       - { path: lib/ibex/codegen/rbs.rb, sha256: 80dead575a27ed8c4d78d57e7d47bbab815864c474b170ffd3da4411e7c74c4a }
       - { path: lib/ibex/codegen/ruby.rb, sha256: 933a156a39aa4dcbfe3396da0262054378ca3c73c7f651561b24347997fdd3dc }
       - { path: lib/ibex/frontend/generated_parser_metadata.rb, sha256: 27fdc65dd639fe8c7766bcaaa6c8e495948405e1e37b49edf042cf9cd34664b7 }
-      - { path: lib/ibex/runtime/parser.rb, sha256: 43a1fa73cf4b2ba53687a7afff6f548ce6c2cff62c6db064959c49bde996791e }
+      - { path: lib/ibex/runtime/parser.rb, sha256: 2be437ee7a96f3623798dbb4fd8f1e3d57a6b1cc47573c6915365d712b36ec06 }
 
   - id: ast-generation
     name: AST generation
@@ -1914,7 +1918,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 9d4f4758d4a277bfe13bc1ab29439bd16e6fbe1e6c91a8b501a3cc72b2d228cf
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -1947,7 +1951,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream AST generation compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -2026,7 +2030,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: f0d93af7ff066a056227c8e17ff986e6ceec8191942a74040c89f9942f64cf53
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -2055,10 +2059,10 @@ features:
           unresolved_uncertainty: This path review does not establish downstream grammar tests compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: no_semantic_change
           commit_assessments:
-            - revision: d9fffee4fa362100a823fe817561961061a5255d
+            - revision: 3ce117eeaa7147dc31aa40d88baf3e6866f36b7c
               classification: no_semantic_change
               summary: "Type auxiliary boundaries"
               contract_effect: "Type auxiliary boundaries updates type annotations and checked boundaries without changing the grammar-tests public contract; the public contract remains unchanged. Evidence: lib/ibex/grammar_tests.rb."
@@ -2138,7 +2142,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 053062524dddaac323bcc886db766e68d4231697308b27409951bd49b3005d72
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -2163,7 +2167,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream documentation tooling compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -2242,7 +2246,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: ded44c69663f48c36cd15fda5b10cc1c8c2a0b19b0a763269d9db2bfa969ef5a
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -2303,30 +2307,30 @@ features:
           unresolved_uncertainty: This path review does not establish downstream IELR compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: semantic_change
           commit_assessments:
-            - revision: 7017c876dca4fa37525094b6a8b69c9071bec407
+            - revision: 354fd62c44a6ba3519376842cd4bbad1c910da80
               classification: no_semantic_change
               summary: "feat: profile parser construction costs"
               contract_effect: "feat: profile parser construction costs observes construction phases without changing IELR state splitting, conflict behavior, or selected tables; the IELR public contract remains unchanged. Evidence: lib/ibex/lalr/builder.rb."
-            - revision: a82acc6ae555327c73544f1835ba6c737bbd1096
+            - revision: 32c6b2bb94f5ce4879136bf17d97bf1599be403f
               classification: no_semantic_change
               summary: "feat: add Grammar IR v3 parser contracts"
               contract_effect: "feat: add Grammar IR v3 parser contracts carries the selected algorithm into versioned Automaton IR without changing IELR state splitting, conflict resolution, or selected tables; the IELR public contract remains unchanged. Evidence: lib/ibex/lalr/builder.rb."
-            - revision: 4a66802cd6f718e224911316a11d999b493e9fcb
+            - revision: c5fd7f6b49ea8a645e43b802587178dbea94447d
               classification: no_semantic_change
               summary: "fix: preserve stable IR constructor signatures"
               contract_effect: "fix: preserve stable IR constructor signatures routes version-3 automata through an explicit typed factory without changing IELR state splitting, conflict resolution, or selected tables; the IELR public contract remains unchanged. Evidence: lib/ibex/lalr/builder.rb."
-            - revision: df90eeb05cec248ec34005948226591a93412232
+            - revision: 9cdd1a97e1ee5f6a6fb8da83295a1d42bd3e6c51
               classification: semantic_change
               summary: "feat: honor declared parser construction"
               contract_effect: "feat: honor declared parser construction exposes declarative parser construction and algorithm selection, changing the public IELR configuration behavior. Evidence: lib/ibex/lalr/builder.rb."
-            - revision: d323764858d1acbd176c35468e843edb7063f280
+            - revision: c025c452e6409fed91cd6ef0136d673f777acc44
               classification: no_semantic_change
               summary: "Type LALR build collections"
               contract_effect: "Type LALR build collections updates type annotations and checked boundaries without changing the ielr public contract; the public contract remains unchanged. Evidence: lib/ibex/lalr/builder.rb."
-            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+            - revision: 4ae4d9ef6cca589c2a0ca354e5482cfdb05fefb2
               classification: no_semantic_change
               summary: "Strengthen type boundaries and refresh inventory"
               contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the ielr public contract; the public contract remains unchanged. Evidence: lib/ibex/lalr/builder.rb."
@@ -2406,7 +2410,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: bec58a0b4eaa7387561cd67b1d3aba981ab21898c55749e188f9bc85e6155963
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -2431,18 +2435,18 @@ features:
           unresolved_uncertainty: This path review does not establish downstream LSP compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: semantic_change
           commit_assessments:
-            - revision: f352b4ab2b8f4e09479452f6b26deea7c8959b8f
+            - revision: c2648ee2dca3fc8df86d4a5213b5a8e8bf688063
               classification: semantic_change
               summary: "feat: guide parser settings in the language server"
               contract_effect: "feat: guide parser settings in the language server adds parser-configuration assistance and notifications, changing the public language-server protocol behavior. Evidence: lib/ibex/lsp/server.rb."
-            - revision: f89aaa4b01753de24ada9cf88b13ccb99423fa8b
+            - revision: c4ae1b254089723692142ade26305036b5bbe9d3
               classification: no_semantic_change
               summary: "Type LSP server protocol values"
               contract_effect: "Type LSP server protocol values updates type annotations and checked boundaries without changing the lsp public contract; the public contract remains unchanged. Evidence: lib/ibex/lsp/server.rb."
-            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+            - revision: 4ae4d9ef6cca589c2a0ca354e5482cfdb05fefb2
               classification: no_semantic_change
               summary: "Strengthen type boundaries and refresh inventory"
               contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the lsp public contract; the public contract remains unchanged. Evidence: lib/ibex/lsp/server.rb."
@@ -2522,7 +2526,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: cda7969bb4aee0e322fe7f2fb6cc510b42e9070f1b356c1f5430c8e391c98e1c
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -2547,14 +2551,14 @@ features:
           unresolved_uncertainty: This path review does not establish downstream watch compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: no_semantic_change
           commit_assessments:
-            - revision: 750d6514c825b0c805724b2f7ff430a6b95cdfe6
+            - revision: 4edacea73c2b5c3d880162bf80497f7cb2b0062e
               classification: no_semantic_change
               summary: "Type watch runner callbacks"
               contract_effect: "Type watch runner callbacks updates type annotations and checked boundaries without changing the watch public contract; the public contract remains unchanged. Evidence: lib/ibex/watch/runner.rb."
-            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+            - revision: 4ae4d9ef6cca589c2a0ca354e5482cfdb05fefb2
               classification: no_semantic_change
               summary: "Strengthen type boundaries and refresh inventory"
               contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the watch public contract; the public contract remains unchanged. Evidence: lib/ibex/watch/runner.rb."
@@ -2634,7 +2638,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: d222492d82cf0d871cec9b7c187ebe45c839ce0dfe22e980dd66950cd7c0159d
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -2659,7 +2663,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream debug compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -2738,7 +2742,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 9b6bb2992c0d329800afe3d235b34419311c882f91ec0f196d7407ba63a24a02
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -2763,14 +2767,14 @@ features:
           unresolved_uncertainty: This path review does not establish downstream coverage compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: no_semantic_change
           commit_assessments:
-            - revision: 1fcc2ef4eca64bbabd3bc8a8902cfe72c8349983
+            - revision: e001e6390b18ae907fe72c80742fbc01e31e6570
               classification: no_semantic_change
               summary: "Type coverage JSON boundaries"
               contract_effect: "Type coverage JSON boundaries updates type annotations and checked boundaries without changing the coverage public contract; the public contract remains unchanged. Evidence: lib/ibex/coverage/collector.rb."
-            - revision: 71a66c4c55b2a2a1a42331ccbdf30ae6c5d5f548
+            - revision: 411e850c625dd8ba920b5e28d3804b11c631fe66
               classification: no_semantic_change
               summary: "Polish typed artifact boundaries"
               contract_effect: "Polish typed artifact boundaries updates type annotations and checked boundaries without changing the coverage public contract; the public contract remains unchanged. Evidence: lib/ibex/coverage/collector.rb."
@@ -2850,7 +2854,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 4b8e347c3ce4bd539c1e2fec9807e33c7f268265ae6ec8a3abc01fe58e6c1daa
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -2875,7 +2879,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream browser playground compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -2954,7 +2958,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: a26d41b60b98d6d4b2e7e51d18c28a44242e08ec1922745be48c63ad58facff5
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -2999,14 +3003,14 @@ features:
           unresolved_uncertainty: This path review does not establish downstream action-shadow compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: no_semantic_change
           commit_assessments:
-            - revision: ed53f00a17a7282b51010c837abda11f45758642
+            - revision: 4fbe791ceb10d89aff42b1344cf65906714c2b55
               classification: no_semantic_change
               summary: "Type code generation composition inputs"
               contract_effect: "Type code generation composition inputs updates type annotations and checked boundaries without changing the action-shadow public contract; the public contract remains unchanged. Evidence: lib/ibex/codegen/action_method_source.rb."
-            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+            - revision: 4ae4d9ef6cca589c2a0ca354e5482cfdb05fefb2
               classification: no_semantic_change
               summary: "Strengthen type boundaries and refresh inventory"
               contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the action-shadow public contract; the public contract remains unchanged. Evidence: lib/ibex/codegen/action_method_source.rb."
@@ -3086,7 +3090,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 1246123e021816c3e0c04887e091f72e34235356de937f669cf8a2cd18a84cc7
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -3111,14 +3115,14 @@ features:
           unresolved_uncertainty: This path review does not establish downstream bounded repair compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: semantic_change
           commit_assessments:
-            - revision: 7dbe2d59779f270cf532b690c998ff8d23c962d7
+            - revision: 5d3895e7b9d7cf88760063fee3afc9b56a9ad66f
               classification: semantic_change
               summary: "feat: add syntax-only repair results and contract validation"
               contract_effect: "feat: add syntax-only repair results and contract validation adds a typed repair-search result and bounded syntax repair behavior for bounded repair; the audited diff changes the public repair API and runtime behavior. Evidence: lib/ibex/runtime/repair.rb."
-            - revision: 83da8b634037fd7f7ea4e4b5de65a02ca655be74
+            - revision: eb9998a7955b37f509b395a241218c288c4b6e9b
               classification: no_semantic_change
               summary: "Type repair value boundaries"
               contract_effect: "Type repair value boundaries updates type annotations and checked boundaries without changing the bounded-repair public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/repair.rb."
@@ -3212,7 +3216,7 @@ features:
             rationale: Incremental CST was present, while the later embedded manifest and public SyntaxSession façade were not yet available.
           source_tree_sha256: 2d60905f328e3ac5f4307964a07d910a25009991f47e42895044e23662046d5d
         - id: reviewed
-          revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          revision: 962292965894cbd1b284680886ea6d7ccc176d88
           feature_status: present
           canonical_presence:
             status: complete
@@ -3225,7 +3229,7 @@ features:
               - lib/ibex/runtime/cst/incremental/session.rb
             absent_paths: []
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
-          source_tree_sha256: f154eba4279bb7eb900783436889ebecd0a9db76cbb8ab95e633d379412f44fb
+          source_tree_sha256: e4347dfb23b86e2cc9ca417446cfdc23c6c9bb7c62f55f4f52762f00885057fe
       changes:
         - boundary: introduction..v0.2.0
           from_revision: 5da90340090232df0e4266cf6ddd835777ca00f7
@@ -3267,109 +3271,113 @@ features:
           unresolved_uncertainty: This path review does not establish downstream incremental CST compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: bb5bd0ad43a9f7afbf4e44c8d4354f6bcade7423
+          to_revision: 962292965894cbd1b284680886ea6d7ccc176d88
           classification: semantic_change
           commit_assessments:
-            - revision: 5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
+            - revision: 021994f6342c2795d19ee90e58fbf7386ef5fa95
               classification: internal_refactor
               summary: "Fix TruffleRuby fast-path tracker recursion"
               contract_effect: "Fix TruffleRuby fast-path tracker recursion fixes fast-path mutation tracking, but incremental tables set cst and fail the !cst eligibility guard, preserving the public contract. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: c7d02d408e1778bb8018c1876f8728949bf7aa24
+            - revision: 789d1ea5eece0fb2e4461a89398acc84ded93885
               classification: semantic_change
               summary: "Fix embedded generation from installed gems"
               contract_effect: "Fix embedded generation from installed gems makes the installed runtime the public source for dependency-free embedded output, changing the incremental-CST packaging contract. Evidence: lib/ibex/runtime/embedded_source.rb."
-            - revision: cf170cad3383bf567c87e4904bd10f445315b994
+            - revision: c03e842b7147ef9b19e38b95ac127d6e87c1a9b6
               classification: internal_refactor
               summary: "Avoid dormant CST parser state"
               contract_effect: "Avoid dormant CST parser state avoids dormant CST parser state in shared implementation paths for incremental CST, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: f2a1421c8f02ffb4d50726452be6eae73cf7f510
+            - revision: 74645fc16e2606b120dee313be714a9be5b8acef
               classification: internal_refactor
               summary: "Keep dormant CST state signature-neutral"
               contract_effect: "Keep dormant CST state signature-neutral keeps dormant CST state signature-neutral in shared implementation paths for incremental CST, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 08c7dc5d939a1f47b0132ae3986818cdbaec1f34
+            - revision: 984d4ae7a1c96db4c71e3077669842b7bbc3b4ea
               classification: internal_refactor
               summary: "Reuse shareable runtime hook lookups"
               contract_effect: "Reuse shareable runtime hook lookups reuses shareable runtime hook lookups in shared implementation paths for incremental CST, preserving the public contract while changing internal mechanics. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: edac11e91221b1c7b81883a5cb98e8bdcab82297
+            - revision: 1e332a694abbc0b520af97d8a205dc8b8d311360
               classification: internal_refactor
               summary: "Fix runtime caches across Ruby engines"
               contract_effect: "Fix runtime caches across Ruby engines adjusts fast-path caches across Ruby engines, but incremental tables fail the !cst guard, preserving the public contract. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: d85b83bbfc05d99e19e9429e4bc2bd0104fd1168
+            - revision: 643365686f7a04578b5794a73b8e64028e497f7e
               classification: internal_refactor
               summary: "Limit runtime lookup caches to MRI"
               contract_effect: "Limit runtime lookup caches to MRI limits fast-path caches to MRI, but incremental tables fail the !cst guard, preserving the public contract. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 7f248ebaa71bdf55ea8943aa75f9474e4c108831
+            - revision: 55d19ab8e6b182b970e080a27073d8f4de2d4287
               classification: docs_test_only
               summary: "docs: define generated parser trust boundaries"
               contract_effect: "docs: define generated parser trust boundaries records documentation or test guidance in shared audited paths for incremental CST; executable behavior remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: d2e7ce9ec93463ac8c7c957224ed76ab31c83d54
+            - revision: a9808e0cc848b3f337c6ca57ed0b6852f30379fc
               classification: docs_test_only
               summary: "docs: distinguish semantic input trust paths"
               contract_effect: "docs: distinguish semantic input trust paths records documentation or test guidance in shared audited paths for incremental CST; executable behavior remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 57d4d7a6e45603f3ea703121a6d45616b8c1929b
+            - revision: c05888c71781ecd20a938e8d135248450467f8db
               classification: semantic_change
               summary: "feat: add generated syntax sessions"
               contract_effect: "feat: add generated syntax sessions adds the public trust-labelled syntax session façade, immutable results and metrics, cancellation, resource bounds, and transactional abort behavior for incremental CST. Evidence: lib/ibex/runtime/cst/incremental/session.rb."
-            - revision: 87491f2c009fa98ffbc3a1a865c097926ef79864
+            - revision: 2d2ba95466ead0a4079c5826f28ef4d8549726a1
               classification: semantic_change
               summary: "fix: harden syntax sessions across error edits"
               contract_effect: "fix: harden syntax sessions across error edits makes completed-operation metrics accurate and error-edit reuse bounds-safe; the audited diff changes the public incremental-CST runtime behavior. Evidence: lib/ibex/runtime/cst/incremental/session.rb."
-            - revision: 52ec7e2da661e8d4f1e07f0419427f97084ce453
+            - revision: fde47e3a1c2f66b42f419e4e9f58438dff4c2269
               classification: no_semantic_change
               summary: "fix: preserve stable parser signatures"
               contract_effect: "fix: preserve stable parser signatures relocates existing syntax-session RBS declarations to the syntax-session overlay without changing session creation, edits, cancellation, metrics, or reuse; the incremental CST public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 7dbe2d59779f270cf532b690c998ff8d23c962d7
+            - revision: 5d3895e7b9d7cf88760063fee3afc9b56a9ad66f
               classification: semantic_change
               summary: "feat: add syntax-only repair results and contract validation"
               contract_effect: "feat: add syntax-only repair results and contract validation adds the explicit SyntaxSession repair operation, typed results, and bounded resource-aware recovery behavior; the audited diff changes the public incremental-CST runtime API. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 020cc1acdceacc27c5e88d3724491a84375df0c1
+            - revision: a3d1331fd54698eb111200299f573ec1d3d25cfa
               classification: internal_refactor
               summary: "quality: isolate repair helpers from stable signatures"
               contract_effect: "quality: isolate repair helpers from stable signatures relocates private repair helper signature ownership while preserving the public contract and without changing session creation, edits, cancellation, metrics, or reuse. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: b0c663703129463ab84f2afea5e8d95465fd5de6
+            - revision: 86dad0e7f7795440cd66fdedb4fbcadd702d92ff
               classification: no_semantic_change
               summary: "Strengthen runtime type contracts"
               contract_effect: "Strengthen runtime type contracts updates type annotations and checked boundaries without changing the incremental-cst public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 242671c8da4670351273b820fad245e5e793681d
+            - revision: 856f78d4d97d97af2b503c394d6ec65444617a5f
               classification: no_semantic_change
               summary: "Fix typed runtime table boundaries"
               contract_effect: "Fix typed runtime table boundaries updates type annotations and checked boundaries without changing the incremental-cst public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: d616f407b8902f4a74f5ddde59a3066cc2d1451e
+            - revision: 858d8f7a3232dc609ceda3685bb7ded85691479f
               classification: no_semantic_change
               summary: "Preserve audited source contracts"
               contract_effect: "Preserve audited source contracts updates type annotations and checked boundaries without changing the incremental-cst public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: e9aa5666954bd41fdaa2c6067e663599a3f7bd33
+            - revision: f2bbf7303ce5b917bb832d35b0a47f979e705b46
               classification: no_semantic_change
               summary: "Type syntax session diagnostics"
               contract_effect: "Type syntax session diagnostics updates type annotations and checked boundaries without changing the incremental-cst public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/syntax_session.rb."
-            - revision: c3a446216dca5d023716c46fd48ce7359074b499
+            - revision: 37291dd74f2ffb1dd70808a2b49d2bac277cf4bc
               classification: no_semantic_change
               summary: "Type incremental CST token boundaries"
               contract_effect: "Type incremental CST token boundaries updates type annotations and checked boundaries without changing the incremental-cst public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/cst/incremental/session.rb."
-            - revision: c031ceffce0e488bff2041e50019eb76832f7c66
+            - revision: 9f4b94c276563fe0e1adfae5ff7d10c773080937
               classification: no_semantic_change
               summary: "Type parser runtime state"
               contract_effect: "Type parser runtime state updates type annotations and checked boundaries without changing the incremental-cst public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 91b055dd266b03c024ab9cdadb19fdd65deabbe3
+            - revision: 5f833b5cedbf2005c840fb642d3857aa1a5d6fb9
               classification: no_semantic_change
               summary: "Type parser semantic callbacks"
               contract_effect: "Type parser semantic callbacks updates type annotations and checked boundaries without changing the incremental-cst public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 98fe06e49d8fcbb46b9b4c2c5f74262d21c04403
+            - revision: d9a7d1f4fb7718409a0fc40f65a27608718099b1
               classification: no_semantic_change
               summary: "Type parser and lexer value boundaries"
               contract_effect: "Type parser and lexer value boundaries updates type annotations and checked boundaries without changing the incremental-cst public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 80726f9f0f2308e272b49f51e0ca1bc4f5e80767
+            - revision: 906d9b602953432b47bdb2557daa4b9c1f43460f
               classification: no_semantic_change
               summary: "Type parser recovery value boundaries"
               contract_effect: "Type parser recovery value boundaries updates type annotations and checked boundaries without changing the incremental-cst public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+            - revision: 4ae4d9ef6cca589c2a0ca354e5482cfdb05fefb2
               classification: no_semantic_change
               summary: "Strengthen type boundaries and refresh inventory"
               contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the incremental-cst public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
-            - revision: 19b1e06fe9a3d0b3fa797bce68d345d20cfac052
+            - revision: ec18c6e64731eb2997756a5a585dc74e2356b8fe
               classification: no_semantic_change
               summary: "Clarify typed boundary annotations"
               contract_effect: "Clarify typed boundary annotations updates type annotations and checked boundaries without changing the incremental-cst public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: 962292965894cbd1b284680886ea6d7ccc176d88
+              classification: internal_refactor
+              summary: "Retire pre-v1 parser table compatibility"
+              contract_effect: "Retire pre-v1 parser table compatibility removes dormant pre-v1 parser table and action-encoding branches while preserving the public contract for incremental CST. Evidence: lib/ibex/runtime/parser.rb."
           diff_paths:
             - lib/ibex/runtime.rb
             - lib/ibex/runtime/cst/incremental/relexer.rb
@@ -3411,7 +3419,7 @@ features:
     sources:
       - { path: lib/ibex/runtime.rb, sha256: 8f4c111839a8865cb2955cc6af65456f3e8f68bad16714f8d8ff7e3a79cc2474 }
       - { path: lib/ibex/runtime/embedded_source.rb, sha256: 9900125ad218130b2fa1b777f288c39e7f58e13991e17f6355bdf04fb8e1f23f }
-      - { path: lib/ibex/runtime/parser.rb, sha256: 43a1fa73cf4b2ba53687a7afff6f548ce6c2cff62c6db064959c49bde996791e }
+      - { path: lib/ibex/runtime/parser.rb, sha256: 2be437ee7a96f3623798dbb4fd8f1e3d57a6b1cc47573c6915365d712b36ec06 }
       - { path: lib/ibex/runtime/syntax_session.rb, sha256: 75c35d1cfcc68258b1981e7543942597348936e25427c7b4615be89d18cea12e }
       - { path: lib/ibex/runtime/cst/incremental/relexer.rb, sha256: 14157088f33f4517cfe91af7de5fc428bd0f114222b31d3c3ea7ff7ce257dfb3 }
       - { path: lib/ibex/runtime/cst/incremental/session.rb, sha256: 8092f39b1a57d29d89188ec0189923a78063ec9d05cceff300b7158b87afe806 }

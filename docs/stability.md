@@ -8,7 +8,7 @@ maturity: a documented opt-in API can be Stable, Preview, or Experimental.
 | Level | Activation | Guarantee |
 |---|---|---|
 | Stable | Default compatible mode or a documented stable API | Semantic versioning; compatible-mode behavior remains unchanged |
-| Preview | Feature-specific; compatible/default or explicit as recorded in the maturity audit | Breaking changes require notice one minor release in advance |
+| Preview | Feature-specific; compatible/default or explicit as recorded in the maturity audit | Before v1.0: changeable with a migration note; after v1.0: one-minor notice |
 | Experimental | Explicit policy/object or research entry point | May change without notice; budgets and failure modes are part of the experiment |
 
 After v1.0, promotion requires representative use in a shadow or gallery
@@ -20,12 +20,19 @@ support where applicable, and complete public documentation replace the
 impossible two-prior-release requirement. Only Stable features may be adopted
 by the production self-hosted grammar.
 
-Preview is a compatibility promise, not an opt-in synonym. Middle actions are
-accepted in compatible/default grammar productions and therefore remain under
-the Stable compatibility lock; their Preview row is retained only for
-traceability while its redundant classification is redesigned. Most other
-Preview surfaces require an extended declaration, command, or option. The
-[maturity audit](maturity.md) records activation and Stable overlap separately.
+Before v1.0, Preview is an evolving product boundary rather than a general
+backward-compatibility promise. A pre-v1 Preview change is allowed when the
+same change includes a release-note or migration note, updated black-box
+regressions, and a refreshed maturity record. Consumers of a Preview feature
+must therefore pin a pre-release or be prepared to migrate. After v1.0,
+Preview receives the one-minor notice described in the deprecation policy.
+
+Middle actions are accepted in compatible/default grammar productions and
+therefore remain under the Stable compatibility lock; their Preview row is
+retained only for traceability while its redundant classification is
+redesigned. Most other Preview surfaces require an extended declaration,
+command, or option. The [maturity audit](maturity.md) records activation and
+Stable overlap separately.
 
 ## Execution trust is independent of maturity
 
@@ -65,7 +72,8 @@ the existing Preview IELR and multiple-entry surfaces; it is not a Stable
 promotion. A pull request that starts or ends a track must update this
 statement and the inventory below.
 These limits do not relax the versioned core IR contracts described under
-[Core IR freeze](#core-ir-freeze).
+[Core IR freeze](#core-ir-freeze), but they do permit retiring an unpromoted
+Preview implementation when its maintenance cost exceeds its evidence.
 
 ## v1 inventory
 
@@ -154,9 +162,12 @@ bounded ambiguity/counterexample analysis for ambiguous grammars, and
 ## Core IR freeze
 
 The required fields, meanings, identity rules, ordering, and validation
-semantics of the published core Grammar IR and Automaton IR versions are
-frozen. Existing version-1, version-2, and version-3 documents retain byte-stable
-round-trips and one-generation read compatibility.
+semantics of a published core Grammar IR or Automaton IR version are frozen
+for the lifetime of that published version. Before v1.0, retaining an older
+unpublished or migration-only reader is an implementation choice, not a
+promise that every generated artifact remains executable forever. The explicit
+`migrate-ir` path may continue to read historical fixtures so that users can
+upgrade data without keeping the runtime compatibility surface open.
 
 Additive optional core fields require a minor release. Meaning changes,
 required-field changes, or removals require a new major schema version and
@@ -183,14 +194,23 @@ An undeclared invalid token intentionally calls `on_error` before ordinary yacc
 recovery. This is the documented recommended behavior and is not changed by
 the freeze.
 
-Parser-table formats v1 through v6 remain readable for non-CST parsers. CST
-tables must use the current format v6 structured metadata; older CST tables
-and the boolean `cst: true` shape fail before token consumption with a
-regeneration instruction. Format v6 is the only table writer. Grammar IR v3
-adds generator-owned parser configuration without changing that runtime table
-contract. The closed `ibex_cst` schema v1 is a versioned interchange
-contract. Additive meaning requires a new schema version; readers do not
-accept unknown fields.
+Parser-table format v6 is the only runtime table contract and the only table
+writer. Older generated tables fail before token consumption with a
+regeneration instruction; they are not a pre-v1 compatibility obligation.
+Grammar IR v3 adds generator-owned parser configuration without changing that
+runtime table contract. The closed `ibex_cst` schema v1 is a versioned
+interchange contract. Additive meaning requires a new schema version; readers
+do not accept unknown fields.
+
+## Evidence is not compatibility
+
+Exact source digests and clean-revision bindings establish what an evidence
+record measured. They are audit-integrity requirements, not promises that a
+consumer can execute an old generated artifact or reuse an old working-tree
+capture. Historical evidence remains immutable for auditability; current
+evidence must be regenerated and rebound after a relevant source or policy
+change. A stale-evidence failure therefore means “refresh the measurement,”
+not “preserve the old implementation forever.”
 
 ## Deprecation policy
 
@@ -199,8 +219,9 @@ two minor releases. The release notes and documentation must name the first
 warning release, replacement, migration command or procedure, and earliest
 removal release. Automated migration is supplied when practical; policy does
 not promise a command that the product does not provide. Preview features
-receive at least one minor release of notice, and Experimental features may
-change without notice.
+receive at least one minor release of notice only after v1.0; before v1.0 the
+release-note and maturity-evidence rule above applies. Experimental features
+may change without notice.
 
 The pre-v1 mixed semantic/syntax CST was a Preview contract and is removed
 while selecting the initial stable API. Its parser tables are rejected with a

@@ -13,8 +13,8 @@ class DirectIELRDecisionTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   DOSSIER = File.join(ROOT, "tool/quality/evidence/direct-ielr-decision-v1.json")
   SCHEMA = File.join(ROOT, "schema/direct-ielr-decision-v1.schema.json")
-  SHALLOW_BOUNDARY_BASE = "7e55e86190a5ec96fc2f5749e3a84e32e32764b8"
-  V001_REVISION = "5cf20f6c9d5b82738965bd0aead8fa3a2ac14d8b"
+  SHALLOW_BOUNDARY_BASE = "6e80d6e13556a118ecc34d8038fe428821c40187"
+  V001_REVISION = "c7e5cad89ccd00591f3127fdb76a789bbeb202ab"
 
   def test_committed_no_go_matches_h005_and_v001
     output = StringIO.new
@@ -81,7 +81,7 @@ class DirectIELRDecisionTest < Minitest::Test
 
   def test_decision_and_v001_revisions_and_role_are_exact
     changed = dossier
-    changed.fetch("decision")["revision"] = "d8be60292cadb635bd4c4a8173d382bf0549d926"
+    changed.fetch("decision")["revision"] = "edcd30485aeebe56ddc460750ce70a572b6f4ff4"
     assert_verification_error(changed, /decision revision identity drift/)
 
     changed = dossier

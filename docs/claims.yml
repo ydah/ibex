@@ -151,7 +151,7 @@ claims:
     state: evidence_pending
     title: Fixed-revision public Ruby-backend performance projection against Racc 1.8.1
     wording: >-
-      At clean Ibex revision 08c7dc5d939a1f47b0132ae3986818cdbaec1f34, the readiness
+      At clean Ibex revision 984d4ae7a1c96db4c71e3077669842b7bbc3b4ea, the readiness
       projection for three pinned workloads on Ruby 4.0.0, arm64-darwin24, with YJIT disabled
       records slower cold generation and new-instance runtime than Racc 1.8.1's Ruby backend;
       the direct formal result artifact is absent, so this is evidence-pending and non-publishable
@@ -175,7 +175,7 @@ claims:
       - tool: ibex
         identity_kind: repository
         version: 0.2.0
-        revision: 08c7dc5d939a1f47b0132ae3986818cdbaec1f34
+        revision: 984d4ae7a1c96db4c71e3077669842b7bbc3b4ea
       - tool: racc
         identity_kind: release
         version: 1.8.1
@@ -263,7 +263,7 @@ claims:
     state: measured
     title: Exact-revision public Ruby-backend performance comparison against Racc 1.8.1
     wording: >-
-      At clean Ibex revision 8c9cef999d094366012d9956538f319ac6a28b82, on Ruby 4.0.0,
+      At clean Ibex revision 26e94ce631bf5c075ecbca0205a34a8c231c31d9, on Ruby 4.0.0,
       arm64-darwin24, with YJIT disabled, the direct formal comparison of the pinned
       Namae, BCDice command, and Nokogiri CSS workloads against Racc 1.8.1 produced
       equivalent result sequences; Ibex recorded slower cold generation and new-instance
@@ -282,7 +282,7 @@ claims:
       - tool: ibex
         identity_kind: repository
         version: 0.2.0
-        revision: 8c9cef999d094366012d9956538f319ac6a28b82
+        revision: 26e94ce631bf5c075ecbca0205a34a8c231c31d9
       - tool: racc
         identity_kind: release
         version: 1.8.1

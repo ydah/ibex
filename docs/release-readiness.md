@@ -28,8 +28,12 @@ documented by the project. The versioned core Grammar IR and Automaton IR
 contracts remain frozen.
 
 The format-v6 batch Red/Green CST has been selected as part of the initial
-Stable v1 API. Its syntax-only incremental layer remains Experimental. Other Preview and
-Experimental features may continue to ship in prereleases without promotion.
+Stable v1 API. Its syntax-only incremental layer remains Experimental. Other
+Preview and Experimental features may continue to ship in prereleases without
+promotion; before v1.0, those surfaces can change between prereleases when the
+release notes, migration note, regressions, and maturity evidence are updated.
+The release lock applies to Stable declarations and versioned persisted
+contracts, not to every Preview implementation detail or evidence capture.
 
 ## KPI result
 
@@ -76,7 +80,7 @@ that omits `super` plus historical value-stack reads, and an unqualified
 ## Formal Pure Ruby performance comparison
 
 <!-- comparative-evidence:racc-public-performance-2026-07-31:start -->
-At clean Ibex revision 08c7dc5d939a1f47b0132ae3986818cdbaec1f34, the readiness
+At clean Ibex revision 984d4ae7a1c96db4c71e3077669842b7bbc3b4ea, the readiness
 projection for three pinned workloads on Ruby 4.0.0, arm64-darwin24, with YJIT disabled
 records slower cold generation and new-instance runtime than Racc 1.8.1's Ruby backend;
 the direct formal result artifact is absent, so this is evidence-pending and non-publishable
@@ -91,7 +95,7 @@ fields. The measurements below do not describe the current checkout.
 
 The historical readiness projection says the measurement was collected on
 2026-07-31 from clean revision
-`08c7dc5d939a1f47b0132ae3986818cdbaec1f34` with ten
+`984d4ae7a1c96db4c71e3077669842b7bbc3b4ea` with ten
 alternating isolated runs per implementation, 50 warm-up workloads, 250
 measured workloads, and 10,000 bootstrap samples. Each workload parses the
 five fixed public inputs. Ruby 4.0.0 ran with YJIT disabled; Racc 1.8.1 was
@@ -127,7 +131,7 @@ are a release baseline, not portable scores or an assertion of parity.
 ## Exact-revision formal rerun
 
 <!-- comparative-claim:racc-public-performance-2026-08-08:start -->
-At clean Ibex revision 8c9cef999d094366012d9956538f319ac6a28b82, on Ruby 4.0.0,
+At clean Ibex revision 26e94ce631bf5c075ecbca0205a34a8c231c31d9, on Ruby 4.0.0,
 arm64-darwin24, with YJIT disabled, the direct formal comparison of the pinned
 Namae, BCDice command, and Nokogiri CSS workloads against Racc 1.8.1 produced
 equivalent result sequences; Ibex recorded slower cold generation and new-instance

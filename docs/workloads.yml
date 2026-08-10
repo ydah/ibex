@@ -7,7 +7,7 @@ counting_method:
     count user productions and all normalized terminals including $eof and error, then build Ibex's
     direct LALR automaton and count states and unresolved conflicts. Bison inputs are first processed
     by the pinned Ibex importer; structurally incomplete imports are not reported as complete counts.
-  source_revision: 2bb20ab24e26cae4ee7cd397fcc12938b7d24e59
+  source_revision: d901b787c7e10c1ab3344ac0156f802ab29ad207
 problems:
   - id: problem-bison-dialect-coverage
     status: observed
@@ -554,7 +554,7 @@ workloads:
     owner: ydah
     project: ibex
     repository_url: https://github.com/ydah/ibex
-    revision: 229b8f4b8f3a5cb6aec5b08088579cfdfb4e6cec
+    revision: 8dae6f7cede1d262cb9211a07b72b8c903e96126
     source_binding:
       kind: gallery
       id: calc
@@ -622,7 +622,7 @@ workloads:
     owner: ydah
     project: ibex
     repository_url: https://github.com/ydah/ibex
-    revision: 2bb20ab24e26cae4ee7cd397fcc12938b7d24e59
+    revision: d901b787c7e10c1ab3344ac0156f802ab29ad207
     source_binding:
       kind: gallery
       id: json
@@ -690,7 +690,7 @@ workloads:
     owner: ydah
     project: ibex
     repository_url: https://github.com/ydah/ibex
-    revision: 2bb20ab24e26cae4ee7cd397fcc12938b7d24e59
+    revision: d901b787c7e10c1ab3344ac0156f802ab29ad207
     source_binding:
       kind: gallery
       id: sql-lite
@@ -758,7 +758,7 @@ workloads:
     owner: ydah
     project: ibex
     repository_url: https://github.com/ydah/ibex
-    revision: 229b8f4b8f3a5cb6aec5b08088579cfdfb4e6cec
+    revision: 8dae6f7cede1d262cb9211a07b72b8c903e96126
     source_binding:
       kind: repository
       id: ibex-frontend

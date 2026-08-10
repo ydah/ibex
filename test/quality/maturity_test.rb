@@ -16,9 +16,9 @@ class MaturityTest < Minitest::Test
   KNOWN_NONSEMANTIC_MAPPINGS = {
     "semantic-locations-types" => {
       "v0.2.0..reviewed" => %w[
-        5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
-        edac11e91221b1c7b81883a5cb98e8bdcab82297
-        d85b83bbfc05d99e19e9429e4bc2bd0104fd1168
+        021994f6342c2795d19ee90e58fbf7386ef5fa95
+        1e332a694abbc0b520af97d8a205dc8b8d311360
+        643365686f7a04578b5794a73b8e64028e497f7e
       ]
     },
     "action-shadow" => {
@@ -26,9 +26,9 @@ class MaturityTest < Minitest::Test
     },
     "incremental-cst" => {
       "v0.2.0..reviewed" => %w[
-        5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
-        edac11e91221b1c7b81883a5cb98e8bdcab82297
-        d85b83bbfc05d99e19e9429e4bc2bd0104fd1168
+        021994f6342c2795d19ee90e58fbf7386ef5fa95
+        1e332a694abbc0b520af97d8a205dc8b8d311360
+        643365686f7a04578b5794a73b8e64028e497f7e
       ]
     }
   }.freeze
@@ -202,7 +202,7 @@ class MaturityTest < Minitest::Test
 
     changed = document
     feature(changed, "watch").dig("specification_history", "introduction")["revision"] =
-      "96db239bb6b40723cce94f42d8d4262ba3477fec"
+      "dcdd015ae2a8ca48e9ab9c64af4baa6264c39705"
     assert_error(changed, "introduction authority drift")
 
     changed = document
