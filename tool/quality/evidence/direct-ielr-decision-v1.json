@@ -8,7 +8,7 @@
     "basis": "repository_evidence",
     "review_state": "validated",
     "date": "2026-08-08",
-    "revision": "176bdd5e1f39228337178b731e2e59182666e429",
+    "revision": "79db665e711b535c4d5e4df04485d4378fe8aac4",
     "revision_role": "reviewed repository evidence immediately before dossier publication"
   },
   "follow_on": {
@@ -136,9 +136,9 @@
     "rule": "future direct IELR design must remain independent; GPL implementation source must not be inspected or translated"
   },
   "evidence_identity": {
-    "profile_capture_base_revision": "13496f2ecf4d3df7fec3d00f3416051d29f5dbc9",
-    "profile_bound_paths_sha256": "27b5abf3e1ec20b9b904e46c9f7283ebb6b9a710bb3f0d05a6cad067d9627ac3",
-    "profile_implementation_sha256": "6c62c6c1ca7f9ad078405019502d1e7bed8364d1786a4f45755480d372122aac",
+    "profile_capture_base_revision": "79db665e711b535c4d5e4df04485d4378fe8aac4",
+    "profile_bound_paths_sha256": "95d0ecf6e30de30e806837d61d2dddca179cbeb74f45b8ec8fe214fd0f460fcb",
+    "profile_implementation_sha256": "91893512b36c4f17df5be9710e6b57953fb26e00479e575c6408929649310cea",
     "v001_revision": "5cf20f6c9d5b82738965bd0aead8fa3a2ac14d8b",
     "sources": [
       {
@@ -150,7 +150,7 @@
       {
         "id": "h005-machine-evidence",
         "path": "tool/profile/evidence/construction-profile-v1.json",
-        "sha256": "17502796002d40512500f78dd4e1d1fff23766308c9568ee41dbc24ee7c3b6df",
+        "sha256": "f4ec1a69ba5f79bb933a8487529869f492e63d4bc6d355b7136b189831d62778",
         "role": "machine-readable workload measurements, thresholds, decision, and capture provenance"
       },
       {
@@ -174,10 +174,10 @@
       {
         "id": "v001-verifier",
         "path": "lib/ibex/verify/verifier.rb",
-        "sha256": "4a7fe3ecdb5c5ed0a65e3955957b50b28d05afe0b30b246ab6d26b46109bb7a5",
+        "sha256": "e532160c98e22c9431012121a19d47ef7303c5b5e135fc3c00a166c1eb7e533c",
         "role": "current verifier checks reviewed by V001"
       }
     ],
-    "sources_sha256": "627cbac9f1173be40f27be3d58b1d3a80895729bc2be9af2ef637791878a307f"
+    "sources_sha256": "907e98655cbfd23790bf7aa3309c46408cddfd7f88ea1b78baa021492a412698"
   }
 }
