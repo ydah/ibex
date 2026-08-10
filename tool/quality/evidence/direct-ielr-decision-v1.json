@@ -136,9 +136,9 @@
     "rule": "future direct IELR design must remain independent; GPL implementation source must not be inspected or translated"
   },
   "evidence_identity": {
-    "profile_capture_base_revision": "b25ba0dcf6936fa25fd55b37a6c6871bf597b939",
-    "profile_bound_paths_sha256": "92fdfb673d9fb95ef59d50a96c7934c702f515d8d08a8e4f0b8454e742a3f724",
-    "profile_implementation_sha256": "b4ff3ec4406bae04fc55ad13949b8f5babd6efdfeb4ad5751aac6cce2b466354",
+    "profile_capture_base_revision": "900186194673bf3b92026baa31bee60659f1a291",
+    "profile_bound_paths_sha256": "271fa81fb173e1ec61550e6cb1c7e33283a87c50c7c24b7e9fe60e7dd82e3c45",
+    "profile_implementation_sha256": "8dab9ee6d5396451f28c279f60e13354f968419fb97891ab23e5d5c361b8106f",
     "v001_revision": "c7e5cad89ccd00591f3127fdb76a789bbeb202ab",
     "sources": [
       {
@@ -150,7 +150,7 @@
       {
         "id": "h005-machine-evidence",
         "path": "tool/profile/evidence/construction-profile-v1.json",
-      "sha256": "d92130e5c42e2d9135e93030f1471403df03e9ed5bbb987581a9e9db1a5a5ed1",
+        "sha256": "3889102222e20674a164d88fa2839261f01839d214ca649c48e6c8e700447049",
         "role": "machine-readable workload measurements, thresholds, decision, and capture provenance"
       },
       {
@@ -178,6 +178,6 @@
         "role": "current verifier checks reviewed by V001"
       }
     ],
-  "sources_sha256": "4f2415580722b88f4980746d351f3ee1b9b276528bf6f44d464c66d99cd0390c"
+    "sources_sha256": "3fe7e23cf48de61b21500aa12769fefd585769166b0a6b7b9437a13572de3b44"
   }
 }
