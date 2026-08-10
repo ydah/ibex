@@ -8,6 +8,50 @@ module Ibex
     # rubocop:disable Metrics/ModuleLength -- explicit fields keep serialization changes auditable.
     # rubocop:disable Lint/SelfAssignment -- RBS inline assertions narrow schema-decoded values in place.
     module Serialize
+      # @rbs!
+      #   private def validate_version: (Hash[String, IR::serialized_value] data) -> void
+      #   private def self.validate_version: (Hash[String, IR::serialized_value] data) -> void
+      #   private def load_grammar: (Hash[String, IR::serialized_value] data) -> Grammar
+      #   private def self.load_grammar: (Hash[String, IR::serialized_value] data) -> Grammar
+      #   private def load_symbols: (Hash[String, IR::serialized_value] data) -> Array[GrammarSymbol]
+      #   private def self.load_symbols: (Hash[String, IR::serialized_value] data) -> Array[GrammarSymbol]
+      #   private def load_productions: (Hash[String, IR::serialized_value] data) -> Array[Production]
+      #   private def self.load_productions: (Hash[String, IR::serialized_value] data) -> Array[Production]
+      #   private def empty_chunks: () -> Hash[String, IR::serialized_value]
+      #   private def self.empty_chunks: () -> Hash[String, IR::serialized_value]
+      #   private def empty_parameters: () -> Array[IR::serialized_value]
+      #   private def self.empty_parameters: () -> Array[IR::serialized_value]
+      #   private def empty_printers: () -> Array[IR::serialized_value]
+      #   private def self.empty_printers: () -> Array[IR::serialized_value]
+      #   private def empty_tests: () -> Array[IR::serialized_value]
+      #   private def self.empty_tests: () -> Array[IR::serialized_value]
+      #   private def empty_recovery: () -> Hash[String, IR::serialized_value]
+      #   private def self.empty_recovery: () -> Hash[String, IR::serialized_value]
+      #   private def load_automaton: (Hash[String, IR::serialized_value] data) -> Automaton
+      #   private def self.load_automaton: (Hash[String, IR::serialized_value] data) -> Automaton
+      #   private def load_lexer: (Hash[String, IR::serialized_value] data) -> Lexer
+      #   private def self.load_lexer: (Hash[String, IR::serialized_value] data) -> Lexer
+      #   private def load_state: (Hash[String, IR::serialized_value] state, Grammar grammar) -> AutomatonState
+      #   private def self.load_state: (Hash[String, IR::serialized_value] state, Grammar grammar) -> AutomatonState
+      #   private def symbol_keyed: (Hash[String, IR::serialized_value] values, Grammar grammar, ?actions: bool) -> Hash[Integer, IR::serialized_value]
+      #   private def self.symbol_keyed: (Hash[String, IR::serialized_value] values, Grammar grammar, ?actions: bool) -> Hash[Integer, IR::serialized_value]
+      #   private def normalize_action: (Hash[String, IR::serialized_value] value) -> parser_action?
+      #   private def self.normalize_action: (Hash[String, IR::serialized_value] value) -> parser_action?
+      #   private def load_production: (Hash[String, IR::serialized_value] production) -> Production
+      #   private def self.load_production: (Hash[String, IR::serialized_value] production) -> Production
+      #   private def load_user_code_chunks: (Hash[String, Array[Hash[String, IR::serialized_value]]] chunks) -> user_code_chunks
+      #   private def self.load_user_code_chunks: (Hash[String, Array[Hash[String, IR::serialized_value]]] chunks) -> user_code_chunks
+      #   private def load_symbol_metadata: (Hash[String, IR::serialized_value] symbol, String field) -> String?
+      #   private def self.load_symbol_metadata: (Hash[String, IR::serialized_value] symbol, String field) -> String?
+      #   private def load_grammar_tests: (Array[Hash[String, IR::serialized_value]] tests) -> Array[grammar_test]
+      #   private def self.load_grammar_tests: (Array[Hash[String, IR::serialized_value]] tests) -> Array[grammar_test]
+      #   private def symbol_source_position: (Hash[String, IR::serialized_value] symbol) -> String
+      #   private def self.symbol_source_position: (Hash[String, IR::serialized_value] symbol) -> String
+      #   private def load_parser_contract: (IR::serialized_value value) -> IR::serialized_value
+      #   private def self.load_parser_contract: (IR::serialized_value value) -> IR::serialized_value
+      #   private def symbolize: (IR::serialized_value value) -> IR::serialized_value
+      #   private def self.symbolize: (IR::serialized_value value) -> IR::serialized_value
+
       # @rbs (Grammar | Automaton | Lexer value) -> String
       def dump(value)
         normalize = lambda do |entry|
@@ -45,7 +89,7 @@ module Ibex
 
       private
 
-      # @rbs (Hash[String, IR::serialized_value] data) -> void
+      # @rbs skip
       def validate_version(data)
         version = data["schema_version"]
         return if SUPPORTED_SCHEMA_VERSIONS.include?(version)
@@ -56,7 +100,7 @@ module Ibex
       end
 
       # rubocop:disable Metrics/AbcSize -- explicit current Grammar IR field mapping is the loader contract.
-      # @rbs (Hash[String, IR::serialized_value] data) -> Grammar
+      # @rbs skip
       def load_grammar(data)
         data = data #: Hash[String, IR::serialized_value]
         data.fetch("schema_version") #: Integer
@@ -79,7 +123,7 @@ module Ibex
       end
       # rubocop:enable Metrics/AbcSize
 
-      # @rbs (Hash[String, IR::serialized_value] data) -> Array[GrammarSymbol]
+      # @rbs skip
       def load_symbols(data)
         symbols_data = data.fetch("symbols") #: Array[Hash[String, IR::serialized_value]]
         symbols_data.map do |symbol|
@@ -92,43 +136,43 @@ module Ibex
         end
       end
 
-      # @rbs (Hash[String, IR::serialized_value] data) -> Array[Production]
+      # @rbs skip
       def load_productions(data)
         productions_data = data.fetch("productions") #: Array[Hash[String, IR::serialized_value]]
         productions_data.map { |production| load_production(production) }
       end
 
-      # @rbs () -> Hash[String, IR::serialized_value]
+      # @rbs skip
       def empty_chunks
         value = {} #: Hash[String, IR::serialized_value]
         value.freeze
       end
 
-      # @rbs () -> Array[IR::serialized_value]
+      # @rbs skip
       def empty_parameters
         value = [] #: Array[IR::serialized_value]
         value.freeze
       end
 
-      # @rbs () -> Array[IR::serialized_value]
+      # @rbs skip
       def empty_printers
         value = [] #: Array[IR::serialized_value]
         value.freeze
       end
 
-      # @rbs () -> Array[IR::serialized_value]
+      # @rbs skip
       def empty_tests
         value = [] #: Array[IR::serialized_value]
         value.freeze
       end
 
-      # @rbs () -> Hash[String, IR::serialized_value]
+      # @rbs skip
       def empty_recovery
         value = { "sync_tokens" => [], "on_error_reduce" => [] } #: Hash[String, IR::serialized_value]
         value.freeze
       end
 
-      # @rbs (Hash[String, IR::serialized_value] data) -> Automaton
+      # @rbs skip
       def load_automaton(data)
         data = data #: Hash[String, IR::serialized_value]
         grammar_data = data.fetch("grammar") #: Hash[String, IR::serialized_value]
@@ -143,7 +187,7 @@ module Ibex
         )
       end
 
-      # @rbs (Hash[String, IR::serialized_value] data) -> Lexer
+      # @rbs skip
       def load_lexer(data)
         data = data #: Hash[String, IR::serialized_value]
         version = data.fetch("schema_version") #: Integer
@@ -167,7 +211,7 @@ module Ibex
         )
       end
 
-      # @rbs (Hash[String, IR::serialized_value] state, Grammar grammar) -> AutomatonState
+      # @rbs skip
       def load_state(state, grammar)
         state = state #: Hash[String, IR::serialized_value]
         items_data = state.fetch("items") #: Array[Hash[String, IR::serialized_value]]
@@ -187,7 +231,7 @@ module Ibex
                            conflicts: symbolize(state.fetch("conflicts")))
       end
 
-      # @rbs (Hash[String, IR::serialized_value] values, Grammar grammar, ?actions: bool) -> Hash[Integer, IR::serialized_value]
+      # @rbs skip
       def symbol_keyed(values, grammar, actions: false)
         values = values #: Hash[String, IR::serialized_value]
         values.to_h do |name, value|
@@ -196,7 +240,7 @@ module Ibex
         end
       end
 
-      # @rbs (Hash[String, IR::serialized_value] value) -> parser_action?
+      # @rbs skip
       def normalize_action(value)
         value = value #: IR::serialized_value
         return nil unless value
@@ -206,7 +250,7 @@ module Ibex
         action
       end
 
-      # @rbs (Hash[String, IR::serialized_value] production) -> Production
+      # @rbs skip
       def load_production(production)
         production = production #: Hash[String, IR::serialized_value]
         action_data = production["action"]
@@ -223,7 +267,7 @@ module Ibex
                        expansion: symbolize(production["expansion"]), node: symbolize(production["node"]))
       end
 
-      # @rbs (Hash[String, Array[Hash[String, IR::serialized_value]]] chunks) -> user_code_chunks
+      # @rbs skip
       def load_user_code_chunks(chunks)
         chunks = chunks #: Hash[String, Array[Hash[String, IR::serialized_value]]]
         chunks.to_h do |name, values|
@@ -234,7 +278,7 @@ module Ibex
         end
       end
 
-      # @rbs (Hash[String, IR::serialized_value] symbol, String field) -> String?
+      # @rbs skip
       def load_symbol_metadata(symbol, field)
         symbol = symbol #: Hash[String, IR::serialized_value]
         value = symbol[field]
@@ -250,7 +294,7 @@ module Ibex
         value
       end
 
-      # @rbs (Hash[String, IR::serialized_value] symbol) -> String
+      # @rbs skip
       def symbol_source_position(symbol)
         location = symbol["loc"]
         return "(ir):1:1" unless location.is_a?(Hash)
@@ -263,13 +307,13 @@ module Ibex
         "#{file}:#{line}:#{column}"
       end
 
-      # @rbs (Array[Hash[String, IR::serialized_value]] tests) -> Array[grammar_test]
+      # @rbs skip
       def load_grammar_tests(tests)
         tests = tests #: Array[IR::serialized_value]
         symbolize(tests).map { |test| test.merge(expectation: test.fetch(:expectation).to_sym) }
       end
 
-      # @rbs (IR::serialized_value value) -> IR::serialized_value
+      # @rbs skip
       def load_parser_contract(value)
         value = value #: Hash[String, IR::serialized_value]
 
@@ -293,7 +337,7 @@ module Ibex
       end
 
       # Parsed IR values are recursively heterogeneous until schema validation narrows them.
-      # @rbs (IR::serialized_value value) -> IR::serialized_value
+      # @rbs skip
       def symbolize(value)
         value = value #: IR::serialized_value
         case value
