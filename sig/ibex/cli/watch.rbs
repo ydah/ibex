@@ -34,8 +34,8 @@ module Ibex
     # @rbs (String path) -> Build
     def prepare_watch_generation: (String path) -> Build
 
-    # @rbs (Build build, Watch::SourceSnapshot snapshot, ^() -> bool continue) -> void
-    def publish_watch_generation: (Build build, Watch::SourceSnapshot snapshot, ^() -> bool continue) -> void
+    # @rbs (Watch::_BuildResult build, Watch::SourceSnapshot snapshot, ^() -> bool continue) -> void
+    def publish_watch_generation: (Watch::_BuildResult build, Watch::SourceSnapshot snapshot, ^() -> bool continue) -> void
 
     # @rbs (String path) -> Array[String]
     def watch_failure_paths: (String path) -> Array[String]

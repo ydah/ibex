@@ -494,7 +494,10 @@ module Ibex
 
     # Converts the existing internal CLI option hash into canonical concepts.
     class CLIAdapter
-      # @rbs (Hash[Symbol, config_value] options, ?explicit_keys: Array[Symbol]) -> void
+      # The adapter receives the legacy CLI option map, which also contains
+      # operation flags and list values outside the closed configuration domain.
+      # It validates and converts only declared configuration options.
+      # @rbs (Hash[Symbol, untyped] options, ?explicit_keys: Array[Symbol]) -> void
       def initialize(options, explicit_keys: options.keys)
         @options = options.to_h do |name, value|
           [name, value.is_a?(String) ? value.dup.freeze : value]
@@ -534,7 +537,7 @@ module Ibex
 
       private
 
-      # @rbs (Symbol name, config_value value) -> config_value
+      # @rbs (Symbol name, untyped value) -> config_value
       def convert(name, value)
         case name
         when :entry_isolation then convert_entry_isolation(value)
@@ -543,7 +546,7 @@ module Ibex
         end
       end
 
-      # @rbs (config_value value) -> config_value
+      # @rbs (untyped value) -> config_value
       def convert_entry_isolation(value)
         return :isolated if value == true
         return :shared if value == false

@@ -285,7 +285,7 @@ module Ibex
         table.is_a?(Array) ? table.fetch(row) : table.row(row)
       end
 
-      # @rbs (Tables::goto_table table, Integer row) -> Hash[Integer, Integer]
+      # @rbs (Tables::goto_table table, Integer row) -> Hash[Integer, untyped]
       def goto_row(table, row)
         table.is_a?(Array) ? table.fetch(row) : table.row(row)
       end

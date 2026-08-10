@@ -2,17 +2,19 @@
 
 module Ibex
   module Runtime
+    type runtime_value = untyped
+
     # Raised by the default parser error handler.
     class ParseError < StandardError
       attr_reader token_id: Integer?
 
       attr_reader token_name: String?
 
-      attr_reader token_value: Object?
+      attr_reader token_value: runtime_value
 
       attr_reader expected_tokens: Array[String]
 
-      attr_reader location: Object?
+      attr_reader location: runtime_value
 
       attr_reader state: Integer?
 
@@ -21,9 +23,9 @@ module Ibex
       attr_reader error_id: String?
 
       # rubocop:disable Layout/LineLength
-      # @rbs (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: Object?, ?expected_tokens: Array[String], ?location: Object?, ?state: Integer?, ?suggestions: Array[String], ?error_id: String?, ?detail: String?) -> void
+      # @rbs (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: runtime_value, ?expected_tokens: Array[String], ?location: runtime_value, ?state: Integer?, ?suggestions: Array[String], ?error_id: String?, ?detail: String?) -> void
       # rubocop:enable Layout/LineLength
-      def initialize: (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: Object?, ?expected_tokens: Array[String], ?location: Object?, ?state: Integer?, ?suggestions: Array[String], ?error_id: String?, ?detail: String?) -> void
+      def initialize: (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: runtime_value, ?expected_tokens: Array[String], ?location: runtime_value, ?state: Integer?, ?suggestions: Array[String], ?error_id: String?, ?detail: String?) -> void
 
       # @rbs () -> String
       def location_label: () -> String
@@ -33,8 +35,8 @@ module Ibex
       # @rbs () -> String
       def diagnostic_message: () -> String
 
-      # @rbs (Symbol key) -> Object?
-      def location_value: (Symbol key) -> Object?
+      # @rbs (Symbol key) -> runtime_value
+      def location_value: (Symbol key) -> runtime_value
     end
 
     # Raised when a configured parser-session resource budget is exhausted.
@@ -45,11 +47,11 @@ module Ibex
 
       attr_reader observed: Integer
 
-      # @rbs (resource: Symbol, limit: Integer, observed: Integer, state: Integer?, location: Object?) -> void
-      def initialize: (resource: Symbol, limit: Integer, observed: Integer, state: Integer?, location: Object?) -> void
+      # @rbs (resource: Symbol, limit: Integer, observed: Integer, state: Integer?, location: runtime_value) -> void
+      def initialize: (resource: Symbol, limit: Integer, observed: Integer, state: Integer?, location: runtime_value) -> void
 
-      # @rbs () -> Hash[Symbol, Object?]
-      def to_h: () -> Hash[Symbol, Object?]
+      # @rbs () -> Hash[Symbol, runtime_value]
+      def to_h: () -> Hash[Symbol, runtime_value]
     end
 
     # Drives a table-defined LR parser without native extensions.
@@ -147,11 +149,11 @@ module Ibex
 
       COMPACT_ACCEPTED: Object
 
-      EMPTY_ROW: Hash[Integer, Object?]
+      EMPTY_ROW: Hash[Integer, runtime_value]
 
       EMPTY_LOCATION_NAMES: Hash[Symbol, Integer]
 
-      EMPTY_LOCATIONS: Array[Object?]
+      EMPTY_LOCATIONS: Array[runtime_value]
 
       EMPTY_GREEN_TRIVIA: Array[CST::GreenTrivia]
 
@@ -179,7 +181,7 @@ module Ibex
 
       @repair_selected: bool
 
-      @semantic_locations: Array[Object?]?
+      @semantic_locations: Array[runtime_value]?
 
       @incremental_reused_descendants: Integer
 
@@ -189,23 +191,23 @@ module Ibex
 
       @recovery_shifts: Integer
 
-      @lookahead_location: Object?
+      @lookahead_location: runtime_value
 
-      @lookahead_value: Object?
+      @lookahead_value: runtime_value
 
-      @lookahead: Object
+      @lookahead: runtime_value
 
-      @location_stack: Array[Object?]?
+      @location_stack: Array[runtime_value]?
 
-      @racc_vstack: Array[Object?]
+      @racc_vstack: Array[runtime_value]
 
-      @vstack: Array[Object?]
+      @vstack: Array[runtime_value]
 
-      @value_stack: Array[Object?]
+      @value_stack: Array[runtime_value]
 
       @state_stack: Array[Integer]
 
-      @source: untyped
+      @source: runtime_value
 
       @yydebug_output: IO
 
@@ -235,7 +237,7 @@ module Ibex
 
       @runtime_fast_path: bool
 
-      @runtime_parser_tables: Hash[Symbol, Object?]?
+      @runtime_parser_tables: Hash[Symbol, runtime_value]?
 
       @recovery_attempts: Integer
 
@@ -243,7 +245,7 @@ module Ibex
 
       @green_pending_skipped: Array[CST::GreenTrivia]
 
-      @syntax_diagnostics: Array[Object?]
+      @syntax_diagnostics: Array[runtime_value]
 
       @syntax_root: CST::SyntaxNode?
 
@@ -255,13 +257,13 @@ module Ibex
 
       @sync_recovery_observers: Array[Proc]?
 
-      @sync_recovery_token_data: Hash[String, Object?]?
+      @sync_recovery_token_data: Hash[String, runtime_value]?
 
-      @sync_recovery_context: Hash[Symbol, Object?]?
+      @sync_recovery_context: Hash[Symbol, runtime_value]?
 
-      @trace_value_printer: (^(Object?) -> Object?)?
+      @trace_value_printer: (^(runtime_value) -> runtime_value)?
 
-      @semantic_result_location: Object?
+      @semantic_result_location: runtime_value
 
       @semantic_location_names: Hash[Symbol, Integer]?
 
@@ -307,8 +309,8 @@ module Ibex
       # Pull tokens from `next_token` and execute parser production actions.
       # A generated-lexer `next_token` executes lexer actions; a handwritten
       # implementation does not invoke the generated lexer.
-      # @rbs () -> Object?
-      def do_parse: () -> Object?
+      # @rbs () -> runtime_value
+      def do_parse: () -> runtime_value
 
       # Parse through `next_token` and return both the semantic value and Red root.
       # Parser production actions execute. Generated lexer actions execute only
@@ -323,8 +325,8 @@ module Ibex
       # Parse tokens yielded by `receiver.method_id` and execute parser
       # production actions. This caller-fed path does not invoke generated
       # lexer actions.
-      # @rbs (Object receiver, Symbol method_id) -> Object?
-      def yyparse: (Object receiver, Symbol method_id) -> Object?
+      # @rbs (runtime_value receiver, Symbol method_id) -> runtime_value
+      def yyparse: (runtime_value receiver, Symbol method_id) -> runtime_value
 
       # Supply one token to a caller-driven parser session.
       # Committed reductions execute parser production actions; this token-fed
@@ -332,15 +334,15 @@ module Ibex
       # Returns `:need_more` after consuming it, `[:accepted, result]` after
       # acceptance, or `[:rejected, result]` after recovery terminates.
       # rubocop:disable Layout/LineLength
-      # @rbs (Object? token, ?Object? value, ?Object? location) -> (:need_more | [:accepted, Object?] | [:rejected, Object?])
+      # @rbs (runtime_value token, ?runtime_value value, ?runtime_value location) -> runtime_value
       # rubocop:enable Layout/LineLength
-      def push: (Object? token, ?Object? value, ?Object? location) -> (:need_more | [ :accepted, Object? ] | [ :rejected, Object? ])
+      def push: (runtime_value token, ?runtime_value value, ?runtime_value location) -> runtime_value
 
       # Supply EOF to a caller-driven parser session and return its result.
       # Committed reductions execute parser production actions; this token-fed
       # path does not invoke generated lexer actions.
-      # @rbs (?location: Object?) -> Object?
-      def finish: (?location: Object?) -> Object?
+      # @rbs (?location: runtime_value) -> runtime_value
+      def finish: (?location: runtime_value) -> runtime_value
 
       # Discard a caller-driven session so this parser can accept a new one.
       # @rbs () -> nil
@@ -348,51 +350,51 @@ module Ibex
 
       # Override in pull parsers. Return `[token, value]`,
       # `[token, value, location]`, `false`, or `nil`.
-      # @rbs () -> ([Object?, Object?] | [Object?, Object?, Object?] | false | nil)
-      def next_token: () -> ([ Object?, Object? ] | [ Object?, Object?, Object? ] | false | nil)
+      # @rbs () -> ([runtime_value, runtime_value] | [runtime_value, runtime_value, runtime_value] | false | nil)
+      def next_token: () -> ([ runtime_value, runtime_value ] | [ runtime_value, runtime_value, runtime_value ] | false | nil)
 
       # Override to recover from syntax errors. The default raises unless a
       # bounded automatic repair has already been selected.
-      # @rbs (Integer token_id, Object? value, Array[Object?] value_stack) -> Object?
-      def on_error: (Integer token_id, Object? value, Array[Object?] value_stack) -> Object?
+      # @rbs (Integer token_id, runtime_value value, Array[runtime_value] value_stack) -> runtime_value
+      def on_error: (Integer token_id, runtime_value value, Array[runtime_value] value_stack) -> runtime_value
 
       # Called after an ordinary input token is shifted. Override to observe
       # the internal token id, semantic value, and destination state.
-      # @rbs (Integer token_id, Object? value, Integer state) -> void
-      def on_shift: (Integer token_id, Object? value, Integer state) -> void
+      # @rbs (Integer token_id, runtime_value value, Integer state) -> void
+      def on_shift: (Integer token_id, runtime_value value, Integer state) -> void
 
       # Location-aware shift observer. The compatible hook above retains its
       # original signature and runs first.
-      # @rbs (Integer token_id, Object? value, Integer state, Object? location) -> void
-      def on_shift_location: (Integer token_id, Object? value, Integer state, Object? location) -> void
+      # @rbs (Integer token_id, runtime_value value, Integer state, runtime_value location) -> void
+      def on_shift_location: (Integer token_id, runtime_value value, Integer state, runtime_value location) -> void
 
       # Called after a production's semantic action and goto are committed.
       # Override to observe its id, RHS values, and semantic result.
-      # @rbs (Integer production_id, Array[Object?] values, Object? result) -> void
-      def on_reduce: (Integer production_id, Array[Object?] values, Object? result) -> void
+      # @rbs (Integer production_id, Array[runtime_value] values, runtime_value result) -> void
+      def on_reduce: (Integer production_id, Array[runtime_value] values, runtime_value result) -> void
 
       # Location-aware reduction observer.
-      # @rbs (Integer production_id, Array[Object?] values, Object? result,
-      #   Array[Object?] locations, Object? result_location) -> void
-      def on_reduce_location: (Integer production_id, Array[Object?] values, Object? result, Array[Object?] locations, Object? result_location) -> void
+      # @rbs (Integer production_id, Array[runtime_value] values, runtime_value result,
+      #   Array[runtime_value] locations, runtime_value result_location) -> void
+      def on_reduce_location: (Integer production_id, Array[runtime_value] values, runtime_value result, Array[runtime_value] locations, runtime_value result_location) -> void
 
       # Called after the synthetic error token enters a recovery state.
       # The payload describes the original error before recovery popped stacks.
-      # @rbs (Integer token_id, Object? value, Array[Object?] value_stack) -> void
-      def on_error_recover: (Integer token_id, Object? value, Array[Object?] value_stack) -> void
+      # @rbs (Integer token_id, runtime_value value, Array[runtime_value] value_stack) -> void
+      def on_error_recover: (Integer token_id, runtime_value value, Array[runtime_value] value_stack) -> void
 
       # Location-aware recovery observer.
-      # @rbs (Integer token_id, Object? value, Array[Object?] value_stack,
-      #   Object? location, Integer state) -> void
-      def on_error_recover_location: (Integer token_id, Object? value, Array[Object?] value_stack, Object? location, Integer state) -> void
+      # @rbs (Integer token_id, runtime_value value, Array[runtime_value] value_stack,
+      #   runtime_value location, Integer state) -> void
+      def on_error_recover_location: (Integer token_id, runtime_value value, Array[runtime_value] value_stack, runtime_value location, Integer state) -> void
 
       # Called when yacc recovery discards an application token.
-      # @rbs (Integer token_id, Object? value, Object? location, Symbol reason) -> void
-      def on_discard: (Integer token_id, Object? value, Object? location, Symbol reason) -> void
+      # @rbs (Integer token_id, runtime_value value, runtime_value location, Symbol reason) -> void
+      def on_discard: (Integer token_id, runtime_value value, runtime_value location, Symbol reason) -> void
 
       # Install an opt-in value formatter for human-readable yydebug traces.
-      # @rbs ((^(Object?) -> Object?)? printer) -> (^(Object?) -> Object?)?
-      def trace_value_printer=: ((^(Object?) -> Object?)? printer) -> (^(Object?) -> Object?)?
+      # @rbs ((^(runtime_value) -> runtime_value)? printer) -> (^(runtime_value) -> runtime_value)?
+      def trace_value_printer=: ((^(runtime_value) -> runtime_value)? printer) -> (^(runtime_value) -> runtime_value)?
 
       # Called once after a repair is selected and before its edited token
       # prefix is replayed through normal parser actions.
@@ -426,12 +428,12 @@ module Ibex
 
       # Return the location of a one-based RHS position or named reference
       # while a semantic action is running.
-      # @rbs (Integer | Symbol | String reference) -> Object?
-      def loc: (Integer | Symbol | String reference) -> Object?
+      # @rbs (Integer | Symbol | String reference) -> runtime_value
+      def loc: (Integer | Symbol | String reference) -> runtime_value
 
       # Return the synthesized span of the reduction being evaluated.
-      # @rbs () -> Object?
-      def result_loc: () -> Object?
+      # @rbs () -> runtime_value
+      def result_loc: () -> runtime_value
 
       private
 
@@ -461,8 +463,8 @@ module Ibex
 
       # Keep the two historical value-stack names as read-compatible aliases.
       # Applications must not mutate or replace these internal arrays.
-      # @rbs (Array[Object?] values) -> void
-      def install_value_stack: (Array[Object?] values) -> void
+      # @rbs (Array[runtime_value] values) -> void
+      def install_value_stack: (Array[runtime_value] values) -> void
 
       # @rbs (Integer token_id) -> bool
       def exact_lookahead_accepted?: (Integer token_id) -> bool
@@ -470,14 +472,14 @@ module Ibex
       # @rbs (Integer stack_depth) -> Integer
       def exact_lookahead_step_budget: (Integer stack_depth) -> Integer
 
-      # @rbs (Hash[Symbol, untyped] tables) -> Integer
-      def parser_state_count: (Hash[Symbol, untyped] tables) -> Integer
+      # @rbs (Hash[Symbol, runtime_value] tables) -> Integer
+      def parser_state_count: (Hash[Symbol, runtime_value] tables) -> Integer
 
       # @rbs (Array[Integer] stack, Integer production_id) -> bool
       def exact_reduction_applied?: (Array[Integer] stack, Integer production_id) -> bool
 
-      # @rbs (untyped source, ?initial_state: Integer?) -> Object?
-      def drive_parser: (untyped source, ?initial_state: Integer?) -> Object?
+      # @rbs (runtime_value source, ?initial_state: Integer?) -> runtime_value
+      def drive_parser: (runtime_value source, ?initial_state: Integer?) -> runtime_value
 
       # Generated compact tables can keep the unobserved, location-free pull
       # loop on their frozen displacement arrays. Any extension boundary or
@@ -487,20 +489,20 @@ module Ibex
       # rubocop:disable Metrics/MethodLength, Metrics/PerceivedComplexity
       # Direct comparisons avoid predicate-method dispatch inside the parser loop.
       # rubocop:disable Style/BitwisePredicate, Style/NumericPredicate
-      # @rbs (Hash[Symbol, untyped] tables) -> (Object | [:accepted, Object?] | [:done, Object?])?
-      def drive_compact_fast_parser: (Hash[Symbol, untyped] tables) -> (Object | [ :accepted, Object? ] | [ :done, Object? ])?
+      # @rbs (Hash[Symbol, runtime_value] tables) -> runtime_value
+      def drive_compact_fast_parser: (Hash[Symbol, runtime_value] tables) -> runtime_value
 
-      # @rbs (Hash[Symbol, untyped]? tables) -> bool
-      def compact_fast_driver_eligible?: (Hash[Symbol, untyped]? tables) -> bool
+      # @rbs (Hash[Symbol, runtime_value]? tables) -> bool
+      def compact_fast_driver_eligible?: (Hash[Symbol, runtime_value]? tables) -> bool
 
       # @rbs () -> void
       def start_push_session: () -> void
 
-      # @rbs () -> (:need_more | [:accepted, Object?] | [:rejected, Object?])
-      def run_push_lookahead: () -> (:need_more | [ :accepted, Object? ] | [ :rejected, Object? ])
+      # @rbs () -> runtime_value
+      def run_push_lookahead: () -> runtime_value
 
-      # @rbs () { () -> Object? } -> Object?
-      def run_push_driver: () { () -> Object? } -> Object?
+      # @rbs () { () -> runtime_value } -> runtime_value
+      def run_push_driver: () { () -> runtime_value } -> runtime_value
 
       # @rbs () -> void
       def ensure_driver_available_without_lock!: () -> void
@@ -511,30 +513,30 @@ module Ibex
       # @rbs () -> void
       def finish_push_session: () -> void
 
-      # @rbs ((^() -> Object?)? source, ?initial_state: Integer?) -> void
-      def prepare_parse: ((^() -> Object?)? source, ?initial_state: Integer?) -> void
+      # @rbs ((^() -> runtime_value)? source, ?initial_state: Integer?) -> void
+      def prepare_parse: ((^() -> runtime_value)? source, ?initial_state: Integer?) -> void
 
       # @rbs () -> void
       def reset_parse_recovery_state: () -> void
 
-      # @rbs (Hash[Symbol, untyped] tables, Integer? requested) -> Integer
-      def resolve_initial_state: (Hash[Symbol, untyped] tables, Integer? requested) -> Integer
+      # @rbs (Hash[Symbol, runtime_value] tables, Integer? requested) -> Integer
+      def resolve_initial_state: (Hash[Symbol, runtime_value] tables, Integer? requested) -> Integer
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def validate_parser_table_format!: () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, runtime_value]
+      def validate_parser_table_format!: () -> Hash[Symbol, runtime_value]
 
-      # @rbs (Hash[Symbol, untyped] tables, Integer actual) -> void
-      def validate_current_cst_tables!: (Hash[Symbol, untyped] tables, Integer actual) -> void
+      # @rbs (Hash[Symbol, runtime_value] tables, Integer actual) -> void
+      def validate_current_cst_tables!: (Hash[Symbol, runtime_value] tables, Integer actual) -> void
 
       # Generated parser tables are deeply frozen before they can cross a
       # Ractor boundary. Their action-marker contract only needs one scan per
       # parser class and exact table object, including across parser instances.
       # Mutable application tables remain intentionally uncached.
-      # @rbs (Hash[Symbol, untyped] tables) -> bool
-      def generated_action_contracts_validated?: (Hash[Symbol, untyped] tables) -> bool
+      # @rbs (Hash[Symbol, runtime_value] tables) -> bool
+      def generated_action_contracts_validated?: (Hash[Symbol, runtime_value] tables) -> bool
 
-      # @rbs (Hash[Symbol, untyped] tables) -> void
-      def cache_generated_action_contracts!: (Hash[Symbol, untyped] tables) -> void
+      # @rbs (Hash[Symbol, runtime_value] tables) -> void
+      def cache_generated_action_contracts!: (Hash[Symbol, runtime_value] tables) -> void
 
       # Ruby 3.0-3.3 expose the main Ractor as an object instead of exposing
       # Ractor.main?. Class instance variables cannot be read or written from
@@ -542,99 +544,99 @@ module Ibex
       # @rbs () -> bool
       def generated_action_contract_cache_accessible?: () -> bool
 
-      # @rbs (Hash[Symbol, untyped] tables, Integer version) -> void
-      def validate_generated_action_contracts!: (Hash[Symbol, untyped] tables, Integer version) -> void
+      # @rbs (Hash[Symbol, runtime_value] tables, Integer version) -> void
+      def validate_generated_action_contracts!: (Hash[Symbol, runtime_value] tables, Integer version) -> void
 
-      # @rbs (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
-      def validate_composition_action_contract!: (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
+      # @rbs (Hash[Symbol, runtime_value] production, Integer index, Integer version) -> void
+      def validate_composition_action_contract!: (Hash[Symbol, runtime_value] production, Integer index, Integer version) -> void
 
-      # @rbs (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
-      def validate_values_action_contract!: (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
+      # @rbs (Hash[Symbol, runtime_value] production, Integer index, Integer version) -> void
+      def validate_values_action_contract!: (Hash[Symbol, runtime_value] production, Integer index, Integer version) -> void
 
-      # @rbs (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
-      def validate_positional_action_contract!: (Hash[Symbol, untyped] production, Integer index, Integer version) -> void
+      # @rbs (Hash[Symbol, runtime_value] production, Integer index, Integer version) -> void
+      def validate_positional_action_contract!: (Hash[Symbol, runtime_value] production, Integer index, Integer version) -> void
 
-      # @rbs (Hash[Symbol, untyped] production) -> bool
-      def positional_action_contract?: (Hash[Symbol, untyped] production) -> bool
+      # @rbs (Hash[Symbol, runtime_value] production) -> bool
+      def positional_action_contract?: (Hash[Symbol, runtime_value] production) -> bool
 
-      # @rbs () -> Object?
-      def action_for_current_state: () -> Object?
+      # @rbs () -> runtime_value
+      def action_for_current_state: () -> runtime_value
 
-      # @rbs (untyped action) -> Object?
-      def perform: (untyped action) -> Object?
+      # @rbs (runtime_value action) -> runtime_value
+      def perform: (runtime_value action) -> runtime_value
 
       # @rbs (Integer next_state) -> [:continue]
       def fast_shift: (Integer next_state) -> [ :continue ]
 
-      # @rbs (Hash[Symbol, untyped] production, Object? length) -> bool
-      def fast_reduction_eligible?: (Hash[Symbol, untyped] production, Object? length) -> bool
+      # @rbs (Hash[Symbol, runtime_value] production, runtime_value length) -> bool
+      def fast_reduction_eligible?: (Hash[Symbol, runtime_value] production, runtime_value length) -> bool
 
-      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> [:continue]
-      def fast_reduce: (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> [ :continue ]
+      # @rbs (Integer production_id, Hash[Symbol, runtime_value] production, Integer length) -> [:continue]
+      def fast_reduce: (Integer production_id, Hash[Symbol, runtime_value] production, Integer length) -> [ :continue ]
 
-      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length, Symbol action) -> Object?
-      def fast_values_reduce: (Integer production_id, Hash[Symbol, untyped] production, Integer length, Symbol action) -> Object?
+      # @rbs (Integer production_id, Hash[Symbol, runtime_value] production, Integer length, Symbol action) -> runtime_value
+      def fast_values_reduce: (Integer production_id, Hash[Symbol, runtime_value] production, Integer length, Symbol action) -> runtime_value
 
-      # @rbs (Integer next_state) -> Object?
-      def shift: (Integer next_state) -> Object?
+      # @rbs (Integer next_state) -> runtime_value
+      def shift: (Integer next_state) -> runtime_value
 
-      # @rbs (Integer production_id, ?Hash[Symbol, untyped]? prefetched_production) -> Object?
-      def reduce: (Integer production_id, ?Hash[Symbol, untyped]? prefetched_production) -> Object?
+      # @rbs (Integer production_id, ?Hash[Symbol, runtime_value]? prefetched_production) -> runtime_value
+      def reduce: (Integer production_id, ?Hash[Symbol, runtime_value]? prefetched_production) -> runtime_value
 
-      # @rbs (Integer next_state, Object? result, Object? location) -> void
-      def push_reduction_result: (Integer next_state, Object? result, Object? location) -> void
+      # @rbs (Integer next_state, runtime_value result, runtime_value location) -> void
+      def push_reduction_result: (Integer next_state, runtime_value result, runtime_value location) -> void
 
-      # @rbs (Integer production_id, Integer length, Integer lhs, Object? result, Integer next_state) -> void
-      def trace_reduction: (Integer production_id, Integer length, Integer lhs, Object? result, Integer next_state) -> void
+      # @rbs (Integer production_id, Integer length, Integer lhs, runtime_value result, Integer next_state) -> void
+      def trace_reduction: (Integer production_id, Integer length, Integer lhs, runtime_value result, Integer next_state) -> void
 
-      # @rbs (Array[Proc]? observers, Integer production_id, Hash[Symbol, untyped] production, Integer length,
-      #   Integer? pre_state, Integer? post_state, Integer next_state, Object? result,
-      #   LocationSpan? location) -> Hash[String, Object?]?
-      def build_reduce_event_data: (Array[Proc]? observers, Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer? pre_state, Integer? post_state, Integer next_state, Object? result, LocationSpan? location) -> Hash[String, Object?]?
+      # @rbs (Array[Proc]? observers, Integer production_id, Hash[Symbol, runtime_value] production, Integer length,
+      #   Integer? pre_state, Integer? post_state, Integer next_state, runtime_value result,
+      #   LocationSpan? location) -> Hash[String, runtime_value]?
+      def build_reduce_event_data: (Array[Proc]? observers, Integer production_id, Hash[Symbol, runtime_value] production, Integer length, Integer? pre_state, Integer? post_state, Integer next_state, runtime_value result, LocationSpan? location) -> Hash[String, runtime_value]?
 
-      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length,
-      #   Integer? pre_state, Integer? post_state, Integer next_state, Object? result,
-      #   LocationSpan? location) -> Hash[String, Object?]
-      def runtime_reduce_data: (Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer? pre_state, Integer? post_state, Integer next_state, Object? result, LocationSpan? location) -> Hash[String, Object?]
+      # @rbs (Integer production_id, Hash[Symbol, runtime_value] production, Integer length,
+      #   Integer? pre_state, Integer? post_state, Integer next_state, runtime_value result,
+      #   LocationSpan? location) -> Hash[String, runtime_value]
+      def runtime_reduce_data: (Integer production_id, Hash[Symbol, runtime_value] production, Integer length, Integer? pre_state, Integer? post_state, Integer next_state, runtime_value result, LocationSpan? location) -> Hash[String, runtime_value]
 
-      # @rbs (Object? result) -> [:accepted, Object?]
-      def accept_reduction: (Object? result) -> [ :accepted, Object? ]
+      # @rbs (runtime_value result) -> [:accepted, runtime_value]
+      def accept_reduction: (runtime_value result) -> [ :accepted, runtime_value ]
 
-      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[Object?] values,
-      #   Array[Object?] locations, LocationSpan? location) -> Object?
-      def reduction_value: (Integer production_id, Hash[Symbol, untyped] production, Array[Object?] values, Array[Object?] locations, LocationSpan? location) -> Object?
+      # @rbs (Integer production_id, Hash[Symbol, runtime_value] production, Array[runtime_value] values,
+      #   Array[runtime_value] locations, LocationSpan? location) -> runtime_value
+      def reduction_value: (Integer production_id, Hash[Symbol, runtime_value] production, Array[runtime_value] values, Array[runtime_value] locations, LocationSpan? location) -> runtime_value
 
-      # @rbs (Hash[Symbol, untyped] production, Symbol action, Array[Object?] values,
-      #   Array[Object?] locations, LocationSpan? location) -> Object?
-      def values_reduction_value: (Hash[Symbol, untyped] production, Symbol action, Array[Object?] values, Array[Object?] locations, LocationSpan? location) -> Object?
+      # @rbs (Hash[Symbol, runtime_value] production, Symbol action, Array[runtime_value] values,
+      #   Array[runtime_value] locations, LocationSpan? location) -> runtime_value
+      def values_reduction_value: (Hash[Symbol, runtime_value] production, Symbol action, Array[runtime_value] values, Array[runtime_value] locations, LocationSpan? location) -> runtime_value
 
-      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[Object?] values,
-      #   Array[Object?] locations, LocationSpan? location) -> Object?
-      def actionless_reduction_value: (Integer production_id, Hash[Symbol, untyped] production, Array[Object?] values, Array[Object?] locations, LocationSpan? location) -> Object?
+      # @rbs (Integer production_id, Hash[Symbol, runtime_value] production, Array[runtime_value] values,
+      #   Array[runtime_value] locations, LocationSpan? location) -> runtime_value
+      def actionless_reduction_value: (Integer production_id, Hash[Symbol, runtime_value] production, Array[runtime_value] values, Array[runtime_value] locations, LocationSpan? location) -> runtime_value
 
-      # @rbs (Hash[Symbol, untyped] production, Object? action) -> bool
-      def generated_location_action?: (Hash[Symbol, untyped] production, Object? action) -> bool
+      # @rbs (Hash[Symbol, runtime_value] production, runtime_value action) -> bool
+      def generated_location_action?: (Hash[Symbol, runtime_value] production, runtime_value action) -> bool
 
-      # @rbs (Hash[Symbol, untyped] production, Object? action) -> bool
-      def generated_values_action?: (Hash[Symbol, untyped] production, Object? action) -> bool
+      # @rbs (Hash[Symbol, runtime_value] production, runtime_value action) -> bool
+      def generated_values_action?: (Hash[Symbol, runtime_value] production, runtime_value action) -> bool
 
-      # @rbs (Hash[Symbol, untyped] production, Object? action) -> bool
-      def generated_positional_action?: (Hash[Symbol, untyped] production, Object? action) -> bool
+      # @rbs (Hash[Symbol, runtime_value] production, runtime_value action) -> bool
+      def generated_positional_action?: (Hash[Symbol, runtime_value] production, runtime_value action) -> bool
 
-      # @rbs (Hash[Symbol, untyped] production, Object? action) -> bool
-      def generated_composition_action?: (Hash[Symbol, untyped] production, Object? action) -> bool
+      # @rbs (Hash[Symbol, runtime_value] production, runtime_value action) -> bool
+      def generated_composition_action?: (Hash[Symbol, runtime_value] production, runtime_value action) -> bool
 
-      # @rbs (Object? action) -> bool
-      def generated_action_symbol?: (Object? action) -> bool
+      # @rbs (runtime_value action) -> bool
+      def generated_action_symbol?: (runtime_value action) -> bool
 
       # @rbs () -> bool
       def cst_enabled?: () -> bool
 
-      # @rbs (Integer token_id, Object? value, Object? location, Symbol reason) -> void
-      def capture_cst_error: (Integer token_id, Object? value, Object? location, Symbol reason) -> void
+      # @rbs (Integer token_id, runtime_value value, runtime_value location, Symbol reason) -> void
+      def capture_cst_error: (Integer token_id, runtime_value value, runtime_value location, Symbol reason) -> void
 
-      # @rbs (Object? value) -> Object?
-      def finalize_cst: (Object? value) -> Object?
+      # @rbs (runtime_value value) -> runtime_value
+      def finalize_cst: (runtime_value value) -> runtime_value
 
       # @rbs () -> nil
       def failed_cst: () -> nil
@@ -642,35 +644,35 @@ module Ibex
       # @rbs (ParseError error) -> nil
       def cst_lexical_failure: (ParseError error) -> nil
 
-      # @rbs (Object? location, Symbol key) -> Object?
-      def cst_location_value: (Object? location, Symbol key) -> Object?
+      # @rbs (runtime_value location, Symbol key) -> runtime_value
+      def cst_location_value: (runtime_value location, Symbol key) -> runtime_value
 
-      # @rbs (Hash[Symbol, untyped] tables) -> void
-      def prepare_green_cst: (Hash[Symbol, untyped] tables) -> void
+      # @rbs (Hash[Symbol, runtime_value] tables) -> void
+      def prepare_green_cst: (Hash[Symbol, runtime_value] tables) -> void
 
-      # @rbs (Hash[Symbol, untyped] tables) -> void
-      def reset_cst_results: (Hash[Symbol, untyped] tables) -> void
+      # @rbs (Hash[Symbol, runtime_value] tables) -> void
+      def reset_cst_results: (Hash[Symbol, runtime_value] tables) -> void
 
       # rubocop:disable Metrics/PerceivedComplexity -- generated locations have a deliberate allocation-free path.
-      # @rbs (Integer token_id, Object? value, Object? location, Integer from_state) -> void
-      def shift_green_token: (Integer token_id, Object? value, Object? location, Integer from_state) -> void
+      # @rbs (Integer token_id, runtime_value value, runtime_value location, Integer from_state) -> void
+      def shift_green_token: (Integer token_id, runtime_value value, runtime_value location, Integer from_state) -> void
 
       # @rbs (CST::GreenBuilder builder, CST::Kind kinds, Integer token_id, Integer from_state,
-      #   Array[CST::GreenTrivia] trailing, Array[CST::GreenTrivia] location_leading, Object? repair,
+      #   Array[CST::GreenTrivia] trailing, Array[CST::GreenTrivia] location_leading, runtime_value repair,
       #   String token_text, Symbol lexer_state) -> void
-      def commit_green_token_shift: (CST::GreenBuilder builder, CST::Kind kinds, Integer token_id, Integer from_state, Array[CST::GreenTrivia] trailing, Array[CST::GreenTrivia] location_leading, Object? repair, String token_text, Symbol lexer_state) -> void
+      def commit_green_token_shift: (CST::GreenBuilder builder, CST::Kind kinds, Integer token_id, Integer from_state, Array[CST::GreenTrivia] trailing, Array[CST::GreenTrivia] location_leading, runtime_value repair, String token_text, Symbol lexer_state) -> void
 
-      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer left_state) -> void
-      def reduce_green: (Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer left_state) -> void
+      # @rbs (Integer production_id, Hash[Symbol, runtime_value] production, Integer length, Integer left_state) -> void
+      def reduce_green: (Integer production_id, Hash[Symbol, runtime_value] production, Integer length, Integer left_state) -> void
 
-      # @rbs (Object? value, Object? location) -> String
-      def green_token_text: (Object? value, Object? location) -> String
+      # @rbs (runtime_value value, runtime_value location) -> String
+      def green_token_text: (runtime_value value, runtime_value location) -> String
 
-      # @rbs (Object? location, Symbol key) -> Array[CST::GreenTrivia]
-      def green_location_trivia: (Object? location, Symbol key) -> Array[CST::GreenTrivia]
+      # @rbs (runtime_value location, Symbol key) -> Array[CST::GreenTrivia]
+      def green_location_trivia: (runtime_value location, Symbol key) -> Array[CST::GreenTrivia]
 
-      # @rbs (Object? value) -> Object?
-      def finalize_red_green_cst: (Object? value) -> Object?
+      # @rbs (runtime_value value) -> runtime_value
+      def finalize_red_green_cst: (runtime_value value) -> runtime_value
 
       # @rbs () -> void
       def finalize_failed_green_cst: () -> void
@@ -684,8 +686,8 @@ module Ibex
       # @rbs (CST::GreenNode green, CST::Kind kinds, ?file: String?) -> void
       def install_syntax_root: (CST::GreenNode green, CST::Kind kinds, ?file: String?) -> void
 
-      # @rbs (Object? value) -> CST::ParseResult
-      def syntax_parse_result: (Object? value) -> CST::ParseResult
+      # @rbs (runtime_value value) -> CST::ParseResult
+      def syntax_parse_result: (runtime_value value) -> CST::ParseResult
 
       # @rbs () -> Array[Symbol]
       def syntax_token_states: () -> Array[Symbol]
@@ -693,83 +695,83 @@ module Ibex
       # @rbs (CST::GreenNode green) -> void
       def install_parse_memo: (CST::GreenNode green) -> void
 
-      # @rbs (Object? location) -> Symbol
-      def green_lexer_state: (Object? location) -> Symbol
+      # @rbs (runtime_value location) -> Symbol
+      def green_lexer_state: (runtime_value location) -> Symbol
 
-      # @rbs (CST::NodeCache cache) { () -> Object? } -> Object?
-      def with_syntax_only: (CST::NodeCache cache) { () -> Object? } -> Object?
+      # @rbs (CST::NodeCache cache) { () -> runtime_value } -> runtime_value
+      def with_syntax_only: (CST::NodeCache cache) { () -> runtime_value } -> runtime_value
 
-      # @rbs (Object? source, CST::NodeCache cache) -> CST::SyntaxResult
-      def parse_syntax_token_source: (Object? source, CST::NodeCache cache) -> CST::SyntaxResult
+      # @rbs (runtime_value source, CST::NodeCache cache) -> CST::SyntaxResult
+      def parse_syntax_token_source: (runtime_value source, CST::NodeCache cache) -> CST::SyntaxResult
 
       # @rbs (CST::ReusableSubtree subtree) -> void
       def push_reusable_green_subtree: (CST::ReusableSubtree subtree) -> void
 
-      # @rbs (Symbol type, Hash[Object?, Object?] data) -> void
-      def emit_incremental_event: (Symbol type, Hash[Object?, Object?] data) -> void
+      # @rbs (Symbol type, Hash[runtime_value, runtime_value] data) -> void
+      def emit_incremental_event: (Symbol type, Hash[runtime_value, runtime_value] data) -> void
 
       # @rbs () -> void
       def discard_green_lookahead: () -> void
 
-      # @rbs (?report: bool) -> Object?
-      def recover: (?report: bool) -> Object?
+      # @rbs (?report: bool) -> runtime_value
+      def recover: (?report: bool) -> runtime_value
 
-      # @rbs () -> Object?
-      def continue_recovery: () -> Object?
+      # @rbs () -> runtime_value
+      def continue_recovery: () -> runtime_value
 
       # @rbs () -> [:done, nil]
       def reject_recovery_eof: () -> [ :done, nil ]
 
-      # @rbs (String token_display) -> Hash[String, Object?]
-      def runtime_discard_data: (String token_display) -> Hash[String, Object?]
+      # @rbs (String token_display) -> Hash[String, runtime_value]
+      def runtime_discard_data: (String token_display) -> Hash[String, runtime_value]
 
-      # @rbs (bool report) -> Object?
-      def begin_recovery: (bool report) -> Object?
+      # @rbs (bool report) -> runtime_value
+      def begin_recovery: (bool report) -> runtime_value
 
-      # @rbs (bool report) -> Hash[Symbol, untyped]
-      def recovery_context: (bool report) -> Hash[Symbol, untyped]
+      # @rbs (bool report) -> Hash[Symbol, runtime_value]
+      def recovery_context: (bool report) -> Hash[Symbol, runtime_value]
 
-      # @rbs (Hash[Symbol, untyped] context) -> [Hash[String, untyped]?, Array[Proc]?]
-      def publish_error_context: (Hash[Symbol, untyped] context) -> [ Hash[String, untyped]?, Array[Proc]? ]
+      # @rbs (Hash[Symbol, runtime_value] context) -> [Hash[String, runtime_value]?, Array[Proc]?]
+      def publish_error_context: (Hash[Symbol, runtime_value] context) -> [ Hash[String, runtime_value]?, Array[Proc]? ]
 
-      # @rbs (Hash[Symbol, untyped] context, Object? repair) -> void
-      def notify_error_handler: (Hash[Symbol, untyped] context, Object? repair) -> void
+      # @rbs (Hash[Symbol, runtime_value] context, runtime_value repair) -> void
+      def notify_error_handler: (Hash[Symbol, runtime_value] context, runtime_value repair) -> void
 
       # @rbs (RepairPlan repair) -> [:continue]
       def commit_repair: (RepairPlan repair) -> [ :continue ]
 
-      # @rbs (Hash[Symbol, untyped] context, Hash[String, untyped]? token_data,
-      #   Array[Proc]? recovery_observers) -> Object?
+      # @rbs (Hash[Symbol, runtime_value] context, Hash[String, runtime_value]? token_data,
+      #   Array[Proc]? recovery_observers) -> runtime_value
       # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       # Green restoration mirrors the existing state/value/location transactional fallback.
-      def fallback_recovery: (Hash[Symbol, untyped] context, Hash[String, Object?]? token_data, Array[Proc]? recovery_observers) -> Object?
+      def fallback_recovery: (Hash[Symbol, runtime_value] context, Hash[String, runtime_value]? token_data, Array[Proc]? recovery_observers) -> runtime_value
 
-      # @rbs (Object? token_id, Object? token_display, Object? value, Object? location,
-      #   Integer state) -> Hash[String, Object?]
-      def runtime_original_token_data: (Object? token_id, Object? token_display, Object? value, Object? location, Integer state) -> Hash[String, Object?]
+      # @rbs (runtime_value token_id, runtime_value token_display, runtime_value value, runtime_value location,
+      #   Integer state) -> Hash[String, runtime_value]
+      def runtime_original_token_data: (runtime_value token_id, runtime_value token_display, runtime_value value, runtime_value location, Integer state) -> Hash[String, runtime_value]
 
-      # @rbs (Object? token_id, Object? token_display, Object? value, Object? location,
-      #   Integer original_state, Hash[String, Object?]? token_data,
+      # @rbs (runtime_value token_id, runtime_value token_display, runtime_value value, runtime_value location,
+      #   Integer original_state, Hash[String, runtime_value]? token_data,
       #   Array[Proc]? observers) -> [:done, nil]
-      def reject_without_recovery: (Object? token_id, Object? token_display, Object? value, Object? location, Integer original_state, Hash[String, Object?]? token_data, Array[Proc]? observers) -> [ :done, nil ]
+      def reject_without_recovery: (runtime_value token_id, runtime_value token_display, runtime_value value, runtime_value location, Integer original_state, Hash[String, runtime_value]? token_data, Array[Proc]? observers) -> [ :done, nil ]
 
-      # @rbs (Object? token_id, Object? token_display, Object? value, Object? location,
-      #   Integer original_state, Array[Object?] value_stack, Hash[String, Object?]? token_data,
+      # @rbs (runtime_value token_id, runtime_value token_display, runtime_value value, runtime_value location,
+      #   Integer original_state, Array[runtime_value] value_stack, Hash[String, runtime_value]? token_data,
       #   String reason, Array[Proc]? observers) -> [:continue]
-      def finish_recovery: (Object? token_id, Object? token_display, Object? value, Object? location, Integer original_state, Array[Object?] value_stack, Hash[String, Object?]? token_data, String reason, Array[Proc]? observers) -> [ :continue ]
+      def finish_recovery: (runtime_value token_id, runtime_value token_display, runtime_value value, runtime_value location, Integer original_state, Array[runtime_value] value_stack, Hash[String, runtime_value]? token_data, String reason, Array[Proc]? observers) -> [ :continue ]
 
-      # @rbs (token_id: Object?, token_display: Object?, value: Object?,
-      #   location: Object?, state: Integer) -> Hash[String, Object?]
-      def runtime_token_data: (token_id: Object?, token_display: Object?, value: Object?, location: Object?, state: Integer) -> Hash[String, Object?]
+      # @rbs (token_id: runtime_value, token_display: runtime_value, value: runtime_value,
+      #   location: runtime_value, state: Integer) -> Hash[String, runtime_value]
+      def runtime_token_data: (token_id: runtime_value, token_display: runtime_value, value: runtime_value, location: runtime_value, state: Integer) -> Hash[String, runtime_value]
 
-      # @rbs () -> Hash[String, Object?]
-      def runtime_current_token_data: () -> Hash[String, Object?]
+      # @rbs () -> Hash[String, runtime_value]
+      def runtime_current_token_data: () -> Hash[String, runtime_value]
 
-      # @rbs (Object? result_summary, String reason) -> void
-      def emit_accept_event: (Object? result_summary, String reason) -> void
+      # @rbs (runtime_value result_summary, String reason) -> void
+      def emit_accept_event: (runtime_value result_summary, String reason) -> void
 
-      # @rbs (String reason, Hash[String, Object?] token_data, ?observers: Array[Proc]?) -> void
-      def emit_reject_event: (String reason, Hash[String, Object?] token_data, ?observers: Array[Proc]?) -> void
+      # @rbs (String reason, Hash[String, runtime_value] token_data, ?observers: Array[Proc]?) -> void
+      def emit_reject_event: (String reason, Hash[String, runtime_value] token_data, ?observers: Array[Proc]?) -> void
 
       # @rbs () -> bool
       def shift_error_token: () -> bool
@@ -806,11 +808,11 @@ module Ibex
       # @rbs () -> void
       def clear_repair_lookahead: () -> void
 
-      # @rbs (RepairEdit edit, value: Object?, location: Object?) -> RepairInput
-      def synthetic_repair_input: (RepairEdit edit, value: Object?, location: Object?) -> RepairInput
+      # @rbs (RepairEdit edit, value: runtime_value, location: runtime_value) -> RepairInput
+      def synthetic_repair_input: (RepairEdit edit, value: runtime_value, location: runtime_value) -> RepairInput
 
-      # @rbs (Object? location, Symbol kind) -> Hash[Symbol, Object?]
-      def cst_repair_location: (Object? location, Symbol kind) -> Hash[Symbol, Object?]
+      # @rbs (runtime_value location, Symbol kind) -> Hash[Symbol, runtime_value]
+      def cst_repair_location: (runtime_value location, Symbol kind) -> Hash[Symbol, runtime_value]
 
       # @rbs (RepairPlan plan) -> String
       def repair_trace: (RepairPlan plan) -> String
@@ -830,11 +832,11 @@ module Ibex
       # @rbs () -> String
       def materialize_lookahead_token_display!: () -> String
 
-      # @rbs (Object? external_token, Object? value, Object? location) -> RepairInput
-      def repair_input: (Object? external_token, Object? value, Object? location) -> RepairInput
+      # @rbs (runtime_value external_token, runtime_value value, runtime_value location) -> RepairInput
+      def repair_input: (runtime_value external_token, runtime_value value, runtime_value location) -> RepairInput
 
-      # @rbs (Object? token) -> RepairInput
-      def repair_input_from_external: (Object? token) -> RepairInput
+      # @rbs (runtime_value token) -> RepairInput
+      def repair_input_from_external: (runtime_value token) -> RepairInput
 
       # @rbs (RepairInput input) -> void
       def enqueue_or_assign_repair_input: (RepairInput input) -> void
@@ -842,23 +844,23 @@ module Ibex
       # @rbs (RepairInput input) -> void
       def assign_repair_input: (RepairInput input) -> void
 
-      # @rbs () -> Object?
-      def read_external_token: () -> Object?
+      # @rbs () -> runtime_value
+      def read_external_token: () -> runtime_value
 
-      # @rbs (Object? external_token) -> Integer
-      def internal_token_id: (Object? external_token) -> Integer
+      # @rbs (runtime_value external_token) -> Integer
+      def internal_token_id: (runtime_value external_token) -> Integer
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def parser_tables: () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, runtime_value]
+      def parser_tables: () -> Hash[Symbol, runtime_value]
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def load_parser_tables: () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, runtime_value]
+      def load_parser_tables: () -> Hash[Symbol, runtime_value]
 
-      # @rbs (Object? action) -> bool
-      def error_action?: (Object? action) -> bool
+      # @rbs (runtime_value action) -> bool
+      def error_action?: (runtime_value action) -> bool
 
-      # @rbs (Object? configured) -> [String?, String?]
-      def configured_error_message: (Object? configured) -> [ String?, String? ]
+      # @rbs (runtime_value configured) -> [String?, String?]
+      def configured_error_message: (runtime_value configured) -> [ String?, String? ]
 
       # @rbs (String actual, Array[String] expected) -> Array[String]
       def token_suggestions: (String actual, Array[String] expected) -> Array[String]
@@ -869,14 +871,14 @@ module Ibex
       # @rbs (String left, String right) -> Integer
       def edit_distance: (String left, String right) -> Integer
 
-      # @rbs (Integer state) -> Object?
-      def default_action: (Integer state) -> Object?
+      # @rbs (Integer state) -> runtime_value
+      def default_action: (Integer state) -> runtime_value
 
-      # @rbs (Hash[Symbol, untyped] tables) -> bool
-      def track_locations?: (Hash[Symbol, untyped] tables) -> bool
+      # @rbs (Hash[Symbol, runtime_value] tables) -> bool
+      def track_locations?: (Hash[Symbol, runtime_value] tables) -> bool
 
-      # @rbs (Hash[Symbol, untyped] tables) -> void
-      def initialize_runtime_fast_path: (Hash[Symbol, untyped] tables) -> void
+      # @rbs (Hash[Symbol, runtime_value] tables) -> void
+      def initialize_runtime_fast_path: (Hash[Symbol, runtime_value] tables) -> void
 
       # @rbs (?Class? singleton) -> void
       def install_runtime_fast_path_tracker!: (?Class? singleton) -> void
@@ -886,8 +888,8 @@ module Ibex
 
       # The generic driver remains authoritative whenever a public runtime
       # extension can observe a committed shift or reduction.
-      # @rbs (Hash[Symbol, untyped] tables) -> bool
-      def runtime_fast_path_eligible?: (Hash[Symbol, untyped] tables) -> bool
+      # @rbs (Hash[Symbol, runtime_value] tables) -> bool
+      def runtime_fast_path_eligible?: (Hash[Symbol, runtime_value] tables) -> bool
 
       # @rbs () -> bool
       def runtime_fast_path_hooks_eligible?: () -> bool
@@ -920,20 +922,20 @@ module Ibex
       # Keep allocation out of the ordinary two-element lexer path. If a
       # location first appears after values have already shifted, backfill the
       # parallel prefix with nil exactly once.
-      # @rbs (Object? location) -> void
-      def push_location: (Object? location) -> void
+      # @rbs (runtime_value location) -> void
+      def push_location: (runtime_value location) -> void
 
-      # @rbs (Integer length) -> Array[Object?]
-      def pop_reduction_locations: (Integer length) -> Array[Object?]
+      # @rbs (Integer length) -> Array[runtime_value]
+      def pop_reduction_locations: (Integer length) -> Array[runtime_value]
 
-      # @rbs (untyped table, Integer row, Integer column) -> untyped
-      def table_lookup: (untyped table, Integer row, Integer column) -> untyped
+      # @rbs (runtime_value table, Integer row, Integer column) -> runtime_value
+      def table_lookup: (runtime_value table, Integer row, Integer column) -> runtime_value
 
       # @rbs (String message) -> void
       def trace: (String message) -> void
 
-      # @rbs (Object? value, Integer symbol_id) -> String
-      def trace_value_suffix: (Object? value, Integer symbol_id) -> String
+      # @rbs (runtime_value value, Integer symbol_id) -> String
+      def trace_value_suffix: (runtime_value value, Integer symbol_id) -> String
     end
   end
 end

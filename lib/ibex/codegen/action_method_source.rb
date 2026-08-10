@@ -152,9 +152,8 @@ module Ibex
       # @rbs (IR::action_composition_step step) -> String
       def composed_semantic_code(step)
         maximum = [step.fetch(:inputs).length, step.fetch(:context_length)].max
-        ActionLocations.new(
-          step.fetch(:code), maximum: maximum, location: step.fetch(:loc)
-        ).rewrite
+        code = step.fetch(:code) #: String
+        ActionLocations.new(code, maximum: maximum, location: step.fetch(:loc)).rewrite
       end
 
       # @rbs (String source, Array[IR::named_ref] named_refs) -> void

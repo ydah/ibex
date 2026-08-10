@@ -167,7 +167,7 @@ module Ibex
 
       # @rbs () { () -> Integer } -> Integer
       def with_signal_handlers
-        previous = {} #: Hash[String, Object?]
+        previous = {} #: Hash[String, untyped]
         if Thread.current == Thread.main
           previous["INT"] = Signal.trap("INT") { @signal_status = 130 }
           previous["TERM"] = Signal.trap("TERM") { @signal_status = 143 }

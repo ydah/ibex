@@ -10,8 +10,8 @@ module Ibex
 
       NOTIFICATION_METHODS: Array[String]
 
-      # @rbs (stdin: Object?, stdout: Object?, stderr: Object?) -> void
-      def initialize: (stdin: Object?, stdout: Object?, stderr: Object?) -> void
+      # @rbs (stdin: Transport::_Input, stdout: Transport::_Output, stderr: Object?) -> void
+      def initialize: (stdin: Transport::_Input, stdout: Transport::_Output, stderr: Object?) -> void
 
       # @rbs () -> Integer
       def run: () -> Integer

@@ -55,7 +55,7 @@ module Ibex
 
       private
 
-      # @rbs (String | _Reader source, Integer max_bytes) -> String
+      # @rbs (untyped source, Integer max_bytes) -> String
       def read_bounded(source, max_bytes)
         raise ArgumentError, "max_bytes must be positive" unless max_bytes.is_a?(Integer) && max_bytes.positive?
 

@@ -54,10 +54,13 @@ module Ibex
         if @line_convert
           location = step.fetch(:loc)
           lines << "  class_eval(#{source.dump}, #{location[:file].inspect}, #{location[:line]})"
-        elsif action_method_source.column_sensitive?(step.fetch(:code))
-          lines << source
         else
-          source.lines.each { |line| lines << "  #{line.rstrip}" }
+          code = step.fetch(:code) #: String
+          if action_method_source.column_sensitive?(code)
+            lines << source
+          else
+            source.lines.each { |line| lines << "  #{line.rstrip}" }
+          end
         end
         lines << ""
       end

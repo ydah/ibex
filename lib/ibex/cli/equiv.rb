@@ -9,23 +9,9 @@ module Ibex
   # CLI entry point for bounded language comparison.
   module CLIEquiv
     # @rbs!
-    #   type equiv_options = {
-    #     paths: Array[String],
-    #     sample_count: Integer,
-    #     seed: Integer,
-    #     max_tokens: Integer,
-    #     max_configurations: Integer,
-    #     max_actions: Integer,
-    #     max_stack: Integer,
-    #     algorithm: Symbol,
-    #     mode: Symbol,
-    #     format: String,
-    #     rule_map: Hash[String, String],
-    #     configuration_explicit: Array[Symbol],
-    #     ?help: String
-    #   }
+    #   type equiv_options = Hash[Symbol, untyped]
     #   private def normalize_grammar_path: (String) -> IR::Grammar
-    #   private def configuration_value: (String) -> Object?
+    #   private def configuration_value: (String) -> untyped
     #   private def set_configuration_option: (Symbol, Object?) -> void
     #   private def local_configuration_value: (Hash[Symbol, Object?], String) -> Object?
     #   private def set_local_configuration_option: (Hash[Symbol, Object?], Symbol, Object?) -> void

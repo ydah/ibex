@@ -4,8 +4,8 @@ module Ibex
   module Frontend
     # Keeps the public Rule constructor compatible with ASTs built before parameters and inline rules existed.
     module ASTRuleDefaults
-      # @rbs (*Object? arguments, **Object? keywords) -> void
-      def initialize: (*Object? arguments, **Object? keywords) -> void
+      # @rbs (*untyped arguments, **untyped keywords) -> void
+      def initialize: (*untyped arguments, **untyped keywords) -> void
     end
 
     # Grammar frontend node types.
@@ -35,11 +35,13 @@ module Ibex
       # Adds deterministic, recursively serializable hashes to Struct nodes.
       # @rbs module-self Struct[Object?]
       module Node : Struct[Object?]
-        def to_h: () -> Hash[Symbol, Object?]
+        # @rbs () -> Hash[Symbol, untyped]
+        def to_h: () -> Hash[Symbol, untyped]
 
         private
 
-        def serialize: (Object? value) -> Object?
+        # @rbs (untyped value) -> untyped
+        def serialize: (untyped value) -> untyped
       end
 
       class Root < Struct[String | String? | Array[declaration] | Array[Rule] | user_code | Location | bool? | Location?]

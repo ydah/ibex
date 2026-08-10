@@ -204,7 +204,7 @@ module Ibex
 
     # @rbs (IR::Grammar grammar) -> Array[tree_node_signature]
     def tree_grammar_signature(grammar)
-      grammar.productions.map { |production| node_signature(production.node) }
+      grammar.productions.filter_map { |production| node_signature(production.node) }
     end
 
     # @rbs (IR::node_annotation? node) -> tree_node_signature?
@@ -332,7 +332,7 @@ module Ibex
       left.status == :error && right.status == :error
     end
 
-    # @rbs (structural: bool, samples: Integer, configurations: Integer) -> Hash[Symbol, Object?]
+    # @rbs (structural: bool, samples: Integer, configurations: Integer) -> untyped
     def successful_report(structural:, samples:, configurations:)
       methods = if structural
                   ["structural_comparison"]

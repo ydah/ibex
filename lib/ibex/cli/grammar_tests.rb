@@ -7,19 +7,12 @@ module Ibex
   # `%test` command parsing and human-readable result reporting.
   module CLIGrammarTests
     # @rbs!
-    #   type grammar_test_settings = {
-    #     mode: Symbol,
-    #     algorithm: Symbol,
-    #     entry_isolation: bool,
-    #     timeout: Integer,
-    #     coverage: Integer?,
-    #     ?help: bool
-    #   }
+    #   type grammar_test_settings = Hash[Symbol, untyped]
     #   private def print_help: (OptionParser) -> Integer
     #   private def resolve_grammar_path: (String) -> Frontend::Resolution
     #   private def handle_grammar_warnings: (IR::Grammar, String) -> void
     #   private def build_automaton: (IR::Grammar, String) -> IR::Automaton
-    #   private def configuration_value: (String) -> Object?
+    #   private def configuration_value: (String) -> untyped
     #   private def mark_configuration_option: (Symbol) -> void
 
     private
@@ -51,7 +44,7 @@ module Ibex
       render_grammar_test_coverage(runner.production_coverage(results), coverage, failures)
     end
 
-    # @rbs () -> grammar_test_settings
+    # @rbs () -> Hash[Symbol, untyped]
     def default_grammar_test_settings
       {
         mode: Configuration::Registry.fetch("grammar.mode").default,
@@ -61,7 +54,7 @@ module Ibex
       }
     end
 
-    # @rbs (grammar_test_settings settings) -> OptionParser
+    # @rbs (Hash[Symbol, untyped] settings) -> OptionParser
     def grammar_test_option_parser(settings)
       OptionParser.new do |options|
         options.banner = "Usage: ibex test [options] grammarfile"

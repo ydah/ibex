@@ -59,8 +59,10 @@ module Ibex
     # @rbs (Symbol name) -> void
     def mark_configuration_option: (Symbol name) -> void
 
-    # @rbs (Symbol name, Object? value) -> void
-    def set_configuration_option: (Symbol name, Object? value) -> void
+    # OptionParser accepts a heterogeneous set of operation and configuration
+    # values.  The CLIAdapter is the validation boundary for this dynamic map.
+    # @rbs (Symbol name, untyped value) -> void
+    def set_configuration_option: (Symbol name, untyped value) -> void
 
     # @rbs (String value) -> void
     def select_configuration_mode: (String value) -> void
@@ -70,17 +72,19 @@ module Ibex
 
     # Resolve a command-local legacy option hash without promoting it into the
     # reusable CLI instance's generation settings.
-    # @rbs (Hash[Symbol, Object?] options, explicit_keys: Array[Symbol]) -> Configuration::Resolver
-    def resolve_configuration_options: (Hash[Symbol, Object?] options, explicit_keys: Array[Symbol]) -> Configuration::Resolver
+    # @rbs (Hash[Symbol, untyped] options, explicit_keys: Array[Symbol]) -> Configuration::Resolver
+    def resolve_configuration_options: (Hash[Symbol, untyped] options, explicit_keys: Array[Symbol]) -> Configuration::Resolver
 
-    # @rbs (Hash[Symbol, Object?] options, String name) -> Object?
-    def local_configuration_value: (Hash[Symbol, Object?] options, String name) -> Object?
+    # @rbs (Hash[Symbol, untyped] options, String name) -> untyped
+    def local_configuration_value: (Hash[Symbol, untyped] options, String name) -> untyped
 
-    # @rbs (Hash[Symbol, Object?] options, Symbol name, Object? value) -> void
-    def set_local_configuration_option: (Hash[Symbol, Object?] options, Symbol name, Object? value) -> void
+    # @rbs (Hash[Symbol, untyped] options, Symbol name, untyped value) -> void
+    def set_local_configuration_option: (Hash[Symbol, untyped] options, Symbol name, untyped value) -> void
 
-    # @rbs (String name) -> Object?
-    def configuration_value: (String name) -> Object?
+    # Configuration values have already been validated by Configuration::Resolver;
+    # callers narrow the value according to the option they are consuming.
+    # @rbs (String name) -> untyped
+    def configuration_value: (String name) -> untyped
 
     # @rbs (Array[String] arguments) -> Array[String]
     def extract_language: (Array[String] arguments) -> Array[String]
@@ -117,12 +121,12 @@ module Ibex
 
     @analysis_configuration: Configuration::Resolver?
 
-    # @rbs (IR::Grammar grammar, ?options: Hash[Symbol, Object?], ?explicit_keys: Array[Symbol]) -> IR::Grammar
-    def activate_analysis_grammar: (IR::Grammar grammar, ?options: Hash[Symbol, Object?], ?explicit_keys: Array[Symbol]) -> IR::Grammar
+    # @rbs (IR::Grammar grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
+    def activate_analysis_grammar: (IR::Grammar grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
 
-    # @rbs (IR::Grammar grammar, Hash[Symbol, Object?] options, Array[Symbol] explicit_keys) ->
+    # @rbs (IR::Grammar grammar, Hash[Symbol, untyped] options, Array[Symbol] explicit_keys) ->
     #   [IR::Grammar, Symbol, IR::Automaton]
-    def construct_analysis_automaton: (IR::Grammar grammar, Hash[Symbol, Object?] options, Array[Symbol] explicit_keys) -> [ IR::Grammar, Symbol, IR::Automaton ]
+    def construct_analysis_automaton: (IR::Grammar grammar, Hash[Symbol, untyped] options, Array[Symbol] explicit_keys) -> [ IR::Grammar, Symbol, IR::Automaton ]
 
     # @rbs (OptionParser parser) -> Integer?
     def informational_result: (OptionParser parser) -> Integer?

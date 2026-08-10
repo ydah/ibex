@@ -6,7 +6,7 @@ module Ibex
     class Parser
       include ParserV2
 
-      ESCAPES: Hash[String, String]
+      ESCAPES: untyped
 
       @lines: Array[String]
 

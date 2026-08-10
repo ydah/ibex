@@ -59,7 +59,7 @@ class TypeStatsTest < Minitest::Test
       end
       assert_match(/no library rows/, error.message)
 
-      inconsistent = STATS.sub(",12,83", ",13,83")
+      inconsistent = STATS.sub(",12,83", ",11,83")
       error = assert_raises(ArgumentError) do
         Ibex::Tooling::TypeStats.new(stats_output: inconsistent, signature_root: directory).markdown
       end

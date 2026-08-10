@@ -4,13 +4,13 @@ module Ibex
   # Bounded language comparison over two immutable parser automata.
   # rubocop:disable Metrics/ClassLength -- the three comparison strategies share one report and budget contract.
   class Equiv
-    type tree_node_signature = [String, Array[String]]
+    type tree_node_signature = [ String, Array[String] ]
 
-    type tree_trace_entry = [String, Array[String], tree_node_signature?]
+    type tree_trace_entry = [ String, Array[String], tree_node_signature? ]
 
-    type terminal_signature = [String, [Symbol, Integer]?]
+    type terminal_signature = [ String, [ Symbol, Integer ]? ]
 
-    type production_signature = [String, Array[String], String?]
+    type production_signature = [ String, Array[String], String? ]
 
     CAVEAT: String
 
@@ -114,8 +114,8 @@ module Ibex
     # @rbs (Machine::Configuration left, Machine::Configuration right) -> bool
     def both_rejected?: (Machine::Configuration left, Machine::Configuration right) -> bool
 
-    # @rbs (structural: bool, samples: Integer, configurations: Integer) -> Hash[Symbol, Object?]
-    def successful_report: (structural: bool, samples: Integer, configurations: Integer) -> Hash[Symbol, Object?]
+    # @rbs (structural: bool, samples: Integer, configurations: Integer) -> untyped
+    def successful_report: (structural: bool, samples: Integer, configurations: Integer) -> untyped
 
     # @rbs () -> bool
     def tree_requested?: () -> bool

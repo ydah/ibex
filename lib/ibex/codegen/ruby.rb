@@ -250,12 +250,12 @@ module Ibex
           "row_count: #{table.row_count}, dense_width: #{table.dense_width})"
       end
 
-      # @rbs (Array[Integer?] values) -> String
+      # @rbs (Array[untyped] values) -> String
       def packed_integers_literal(values)
         Tables::PackedIntegers.encode(values).inspect
       end
 
-      # @rbs (Array[Integer?] values) -> String
+      # @rbs (Array[untyped] values) -> String
       def packed_signed_integers_literal(values)
         Tables::PackedIntegers.encode_signed(values).inspect
       end

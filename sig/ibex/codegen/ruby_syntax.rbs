@@ -4,7 +4,7 @@ module Ibex
   module Codegen
     # Generates typed Red syntax views from @node metadata.
     module RubySyntax
-      type syntax_definition = { name: String, kind: Integer, fields: Hash[String, CSTMetadata::field_slot] }
+      type syntax_definition = Hash[Symbol, untyped]
 
       private
 

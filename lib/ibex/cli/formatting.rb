@@ -9,15 +9,7 @@ module Ibex
   # rubocop:disable Metrics/ModuleLength -- transaction lifecycle stays cohesive and auditable.
   module CLIFormatting
     # @rbs!
-    #   type formatting_settings = {
-    #     paths: Array[String],
-    #     mode: Symbol,
-    #     check: bool,
-    #     write: bool,
-    #     configuration_explicit: Array[Symbol],
-    #     ?stdin_filename: String,
-    #     ?help: bool
-    #   }
+    #   type formatting_settings = Hash[Symbol, untyped]
     #   type formatting_result = {
     #     path: String,
     #     label: String,

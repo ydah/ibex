@@ -62,17 +62,6 @@ module Ibex
     #   end
     #
     #   module Serialize
-    #     private def load_grammar_v3: (Hash[String, Object?] data, Array[GrammarSymbol] symbols, Array[Production] productions, Hash[String, Object?] empty_chunks, Array[Object?] empty_parameters, Array[Object?] empty_printers, Array[Object?] empty_tests, Hash[String, Object?] empty_recovery) -> Grammar
-    #
-    #     private def self.load_grammar_v3: (Hash[String, Object?] data, Array[GrammarSymbol] symbols, Array[Production] productions, Hash[String, Object?] empty_chunks, Array[Object?] empty_parameters, Array[Object?] empty_printers, Array[Object?] empty_tests, Hash[String, Object?] empty_recovery) -> Grammar
-    #
-    #     private def load_grammar_legacy: (Hash[String, Object?] data, Array[GrammarSymbol] symbols, Array[Production] productions, Hash[String, Object?] empty_chunks, Array[Object?] empty_parameters, Array[Object?] empty_printers, Array[Object?] empty_tests, Hash[String, Object?] empty_recovery, Integer schema_version) -> Grammar
-    #
-    #     private def self.load_grammar_legacy: (Hash[String, Object?] data, Array[GrammarSymbol] symbols, Array[Production] productions, Hash[String, Object?] empty_chunks, Array[Object?] empty_parameters, Array[Object?] empty_printers, Array[Object?] empty_tests, Hash[String, Object?] empty_recovery, Integer schema_version) -> Grammar
-    #
-    #     private def load_parser_contract: (Hash[String, Hash[String, Object?]] value) -> ParserContract?
-    #
-    #     private def self.load_parser_contract: (Hash[String, Hash[String, Object?]] value) -> ParserContract?
     #   end
     #
     #   module Validator
@@ -81,7 +70,6 @@ module Ibex
     #
     #       private
     #
-    #       def validate_construction_contract: (Hash[String, Object?] grammar) -> void
     #     end
     #
     #     class GrammarDocument
@@ -97,11 +85,9 @@ module Ibex
     #
     #       def validate_optional_source_metadata: () -> void
     #
-    #       def migration_loss_inventory: (Object? from) -> Array[String]
     #
     #       def validate_parser_contract: () -> void
     #
-    #       def validate_contract_entry: (Object? value, String path, Array[String] allowed) -> Hash[String, Object?]
     #     end
     #   end
     # rubocop:enable Layout/LineLength

@@ -69,8 +69,8 @@ module Ibex
       # @rbs (Symbol strategy) -> [Array[packed_items], transitions, build_collection]
       def merged_canonical_collection: (Symbol strategy) -> [ Array[packed_items], transitions, build_collection ]
 
-      # @rbs () -> [Array[packed_items], transitions, build_collection]
-      def direct_collection: () -> [ Array[packed_items], transitions, build_collection ]
+      # @rbs () -> untyped
+      def direct_collection: () -> untyped
 
       # @rbs (Array[item_set] states, strategy: Symbol) -> build_collection
       def canonical_profile: (Array[item_set] states, strategy: Symbol) -> build_collection
@@ -124,6 +124,7 @@ module Ibex
       # @rbs (Integer state_id, Array[IR::AutomatonItem] items, Hash[Integer, Integer] transitions) -> IR::AutomatonState
       def build_state: (Integer state_id, Array[IR::AutomatonItem] items, Hash[Integer, Integer] transitions) -> IR::AutomatonState
 
+      # Conflict hashes are produced locally immediately before this boundary.
       # Both conflict variants carry the same optional midrule provenance field.
       # @rbs (IR::conflict conflict) -> IR::conflict
       def attribute_midrule_conflict: (IR::conflict conflict) -> IR::conflict

@@ -124,7 +124,7 @@ module Ibex
       ).generate(count: @count)
     end
 
-    # @rbs (Integer sentence_count, Integer mutation_count) -> Hash[Symbol, Object?]
+    # @rbs (Integer sentence_count, Integer mutation_count) -> untyped
     def successful_report(sentence_count, mutation_count)
       report = {
         ibex_report: "fuzz", schema_version: 1, seed: @seed,

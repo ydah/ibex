@@ -11,13 +11,7 @@ module Ibex
     DEFAULT_MAX_DIAGNOSTICS = 20 #: Integer
 
     # @rbs!
-    #   type diagnostic_settings = {
-    #     format: String,
-    #     max_diagnostics: Integer,
-    #     mode: Symbol,
-    #     configuration_explicit: Array[Symbol],
-    #     ?help: bool
-    #   }
+    #   type diagnostic_settings = Hash[Symbol, untyped]
     #
     #   private def input_path: (Array[String]) -> String
     #   private def local_configuration_value: (Hash[Symbol, Object?], String) -> Object?

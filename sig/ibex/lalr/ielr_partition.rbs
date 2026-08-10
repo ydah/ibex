@@ -5,7 +5,7 @@ module Ibex
     # Deterministically merges compatible canonical LR(1) states and splits
     # partitions until their outgoing transitions are congruent.
     class IELRPartition
-      type contribution_action = [:shift] | [:reduce, Integer] | [:accept]
+      type contribution_action = [ :shift ] | [ :reduce, Integer ] | [ :accept ]
 
       AUGMENTED_PRODUCTION: Integer
 

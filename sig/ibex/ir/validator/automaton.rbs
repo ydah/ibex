@@ -35,6 +35,9 @@ module Ibex
         # @rbs () -> void
         def validate_entry_states: () -> void
 
+        # @rbs (Hash[String, untyped] grammar) -> void
+        def validate_construction_contract: (Hash[String, untyped] grammar) -> void
+
         # @rbs () -> void
         def validate_digest: () -> void
 

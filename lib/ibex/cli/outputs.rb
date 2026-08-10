@@ -65,7 +65,8 @@ module Ibex
     def grammar_warning_message(warning)
       id = WARNING_MESSAGE_IDS.fetch(warning[:type])
       id = "warning.lexer_redos_symbol" if warning[:type] == :lexer_redos && warning[:symbol]
-      Messages.translate(id, language: @language, **warning)
+      values = warning.to_h.transform_values(&:to_s) #: Hash[Symbol, String]
+      Messages.translate(id, language: @language, **values)
     end
 
     # @rbs (IR::Automaton automaton, String input_path) -> void

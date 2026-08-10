@@ -207,13 +207,14 @@ module Ibex
     end
 
     # @rbs (String lhs_name, Array[String] rhs_names, IR::Action? action, String? precedence_name,
-    #   Hash[Symbol, Object?] origin, ?String? documentation, ?IR::node_annotation? node) -> void
+    #   Hash[Symbol, untyped] origin, ?String? documentation, ?IR::node_annotation? node) -> void
     def add_production(lhs_name, rhs_names, action, precedence_name, origin, documentation = nil, node = nil)
       # @type self: Normalizer
-      lhs = symbol(lhs_name) || intern(lhs_name, :nonterminal, location: origin[:loc])
-      rhs = rhs_names.map { |name| symbol(name)&.id || fail_hash(origin[:loc], "undefined symbol #{name}") }
+      location = origin[:loc] #: IR::location
+      lhs = symbol(lhs_name) || intern(lhs_name, :nonterminal, location: location)
+      rhs = rhs_names.map { |name| symbol(name)&.id || fail_hash(location, "undefined symbol #{name}") }
       precedence = precedence_name && symbol(precedence_name)
-      fail_hash(origin[:loc], "undefined precedence symbol #{precedence_name}") if precedence_name && !precedence
+      fail_hash(location, "undefined precedence symbol #{precedence_name}") if precedence_name && !precedence
       @productions << IR::Production.new(id: @productions.length, lhs: lhs.id, rhs: rhs, action: action,
                                          precedence_override: precedence&.id, origin: origin,
                                          documentation: documentation, expansion: resolved_expansion, node: node)

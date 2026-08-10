@@ -26,8 +26,9 @@ module Ibex
         params = params_hash(raw_params)
         document = hash_member(params, "textDocument")
         changes = params["contentChanges"]
-        unless changes.is_a?(Array) && changes.one? && changes.first.is_a?(Hash) &&
-               !changes.first.key?("range") && !changes.first.key?("rangeLength")
+        first_change = changes.is_a?(Array) ? changes.first : nil
+        unless changes.is_a?(Array) && changes.one? && first_change.is_a?(Hash) &&
+               !first_change.key?("range") && !first_change.key?("rangeLength")
           raise ProtocolError.new("full sync requires exactly one range-free content change", code: -32_602)
         end
 

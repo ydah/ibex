@@ -4,7 +4,7 @@ module Ibex
   module Frontend
     # Keeps the public Rule constructor compatible with ASTs built before parameters and inline rules existed.
     module ASTRuleDefaults
-      # @rbs (*Object? arguments, **Object? keywords) -> void
+      # @rbs (*untyped arguments, **untyped keywords) -> void
       def initialize(*arguments, **keywords)
         if arguments.empty?
           keywords = keywords.merge(parameters: keywords[:parameters] || [], inline: keywords[:inline] || false)
@@ -45,7 +45,7 @@ module Ibex
       # Adds deterministic, recursively serializable hashes to Struct nodes.
       # @rbs module-self Struct[Object?]
       module Node
-        # @rbs () -> Hash[Symbol, Object?]
+        # @rbs () -> Hash[Symbol, untyped]
         def to_h
           fields = each_pair.to_h { |name, value| [name, serialize(value)] }
           fields.delete(:aliases) if self.class.name.end_with?("::Tokens") && !fields[:aliases]
@@ -60,7 +60,7 @@ module Ibex
 
         private
 
-        # @rbs (Object? value) -> Object?
+        # @rbs (untyped value) -> untyped
         def serialize(value)
           return value if value.nil?
 

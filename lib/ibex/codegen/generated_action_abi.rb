@@ -273,7 +273,7 @@ module Ibex
       end
       private_class_method :read_only_value_references?
 
-      # @rbs (sexp_value node) -> bool
+      # @rbs (untyped node) -> bool
       def value_reference?(node)
         node[0] == :vcall && node.dig(1, 0) == :@ident && node.dig(1, 1) == "val"
       end

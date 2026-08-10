@@ -166,7 +166,7 @@ module Ibex
           raw_tokens << [external, value, location]
           green_tokens << green
           state = location[:ibex_lexer_start_state] if location.is_a?(Hash)
-          states << (state ? state.to_sym : :INITIAL)
+          states << (state ? state.to_s.to_sym : :INITIAL)
           break if token_id == Parser::EOF_TOKEN
         end
         offsets = [] #: Array[Integer]

@@ -157,7 +157,9 @@ module Ibex
       def immutable_diagnostics: (Array[Object] diagnostics) -> Array[SyntaxSessionDiagnostic]
 
       # @rbs (Object location, Symbol key) -> Object?
+      # @rbs (untyped location, Symbol key) -> untyped
       def location_value: (Object location, Symbol key) -> Object?
+                        | (untyped location, Symbol key) -> untyped
 
       # @rbs (RepairPolicy policy) -> RepairPolicy
       def validate_policy: (RepairPolicy policy) -> RepairPolicy

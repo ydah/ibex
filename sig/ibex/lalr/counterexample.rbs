@@ -41,11 +41,13 @@ module Ibex
       # @rbs (IR::conflict conflict) -> Array[IR::interpretation]
       def interpretations: (IR::conflict conflict) -> Array[IR::interpretation]
 
-      # @rbs (IR::shift_reduce_conflict conflict) -> IR::interpretation
-      def shift_interpretation: (IR::shift_reduce_conflict conflict) -> IR::interpretation
+      # The compact counterexample tree intentionally uses a lightweight shape
+      # whose children are symbol names rather than recursively expanded nodes.
+      # @rbs (IR::shift_reduce_conflict conflict) -> untyped
+      def shift_interpretation: (IR::shift_reduce_conflict conflict) -> untyped
 
-      # @rbs (Integer production_id) -> IR::interpretation
-      def reduce_interpretation: (Integer production_id) -> IR::interpretation
+      # @rbs (Integer production_id) -> untyped
+      def reduce_interpretation: (Integer production_id) -> untyped
 
       # @rbs (Array[Integer] symbol_ids) -> Array[String]
       def names: (Array[Integer] symbol_ids) -> Array[String]

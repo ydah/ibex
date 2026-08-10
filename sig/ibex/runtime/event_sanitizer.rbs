@@ -7,6 +7,8 @@ module Ibex
     module EventSanitizer
       type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
 
+      type sanitized_value = untyped
+
       MAX_DEPTH: Integer
 
       MAX_COLLECTION_ENTRIES: Integer
@@ -22,45 +24,45 @@ module Ibex
       # Copy a runtime payload into deeply frozen JSON data. Unknown objects are
       # summarized instead of being retained, so callers cannot smuggle mutable
       # application identities into an Event.
-      # @rbs (Hash[Object?, Object?] input) -> Hash[String, json_value]
-      def self.data: (Hash[Object?, Object?] input) -> Hash[String, json_value]
+      # @rbs (Hash[sanitized_value, sanitized_value] input) -> Hash[String, json_value]
+      def self.data: (Hash[sanitized_value, sanitized_value] input) -> Hash[String, json_value]
 
-      # @rbs (Object? input) -> json_value
-      def self.value: (Object? input) -> json_value
+      # @rbs (sanitized_value input) -> json_value
+      def self.value: (sanitized_value input) -> json_value
 
-      # @rbs (Object? location) -> Hash[String, json_value]?
-      def self.location: (Object? location) -> Hash[String, json_value]?
+      # @rbs (sanitized_value location) -> Hash[String, json_value]?
+      def self.location: (sanitized_value location) -> Hash[String, json_value]?
 
-      # @rbs (Object? input) -> String
-      def self.string: (Object? input) -> String
+      # @rbs (sanitized_value input) -> String
+      def self.string: (sanitized_value input) -> String
 
-      # @rbs (Object? input) -> String
-      def self.class_name: (Object? input) -> String
+      # @rbs (sanitized_value input) -> String
+      def self.class_name: (sanitized_value input) -> String
 
-      # @rbs (Object? input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
-      private def self.summarize: (Object? input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+      # @rbs (sanitized_value input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+      private def self.summarize: (sanitized_value input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
 
-      # @rbs (Object? input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
-      private def self.json_data: (Object? input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+      # @rbs (sanitized_value input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+      private def self.json_data: (sanitized_value input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
 
-      # @rbs (Array[Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
-      private def self.summarize_array: (Array[Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+      # @rbs (Array[sanitized_value] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+      private def self.summarize_array: (Array[sanitized_value] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
 
-      # @rbs (Hash[Object?, Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
-      private def self.summarize_hash: (Hash[Object?, Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+      # @rbs (Hash[sanitized_value, sanitized_value] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+      private def self.summarize_hash: (Hash[sanitized_value, sanitized_value] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
 
-      # @rbs (Array[Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
-      private def self.json_array: (Array[Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+      # @rbs (Array[sanitized_value] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+      private def self.json_array: (Array[sanitized_value] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
 
-      # @rbs (Hash[Object?, Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
-      private def self.json_hash: (Hash[Object?, Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+      # @rbs (Hash[sanitized_value, sanitized_value] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+      private def self.json_hash: (Hash[sanitized_value, sanitized_value] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
 
-      # @rbs (Array[Object?] input, seen: Hash[Integer, bool])
-      #   { (Object?, Hash[Integer, bool]) -> json_value } -> json_value
-      private def self.copy_array: (Array[Object?] input, seen: Hash[Integer, bool]) { (Object?, Hash[Integer, bool]) -> json_value } -> json_value
+      # @rbs (Array[sanitized_value] input, seen: Hash[Integer, bool])
+      #   { (sanitized_value, Hash[Integer, bool]) -> json_value } -> json_value
+      private def self.copy_array: (Array[sanitized_value] input, seen: Hash[Integer, bool]) { (sanitized_value, Hash[Integer, bool]) -> json_value } -> json_value
 
-      # @rbs (Object? input) -> bool
-      private def self.primitive?: (Object? input) -> bool
+      # @rbs (sanitized_value input) -> bool
+      private def self.primitive?: (sanitized_value input) -> bool
 
       # @rbs (Integer input) -> json_value
       private def self.bounded_integer: (Integer input) -> json_value
@@ -68,29 +70,29 @@ module Ibex
       # @rbs (Float input) -> json_value
       private def self.finite_float: (Float input) -> json_value
 
-      # @rbs (Object? input, Module type) -> bool
-      private def self.core_type?: (Object? input, Module type) -> bool
+      # @rbs (sanitized_value input, Module type) -> bool
+      private def self.core_type?: (sanitized_value input, Module type) -> bool
 
-      # @rbs (Object? key) -> String
-      private def self.data_key: (Object? key) -> String
+      # @rbs (sanitized_value key) -> String
+      private def self.data_key: (sanitized_value key) -> String
 
       # @rbs (String input) -> String
       private def self.truncate_utf8: (String input) -> String
 
-      # @rbs (Object? input) -> Integer
-      private def self.object_identity: (Object? input) -> Integer
+      # @rbs (sanitized_value input) -> Integer
+      private def self.object_identity: (sanitized_value input) -> Integer
 
-      # @rbs (Object? location, Symbol field) -> Object?
-      private def self.location_field: (Object? location, Symbol field) -> Object?
+      # @rbs (sanitized_value location, Symbol field) -> sanitized_value
+      private def self.location_field: (sanitized_value location, Symbol field) -> sanitized_value
 
       # @rbs (String reason) -> Hash[String, json_value]
       private def self.unavailable: (String reason) -> Hash[String, json_value]
 
       # Reflection deliberately erases the receiver's method signature; callers validate
       # returned values at each sanitization boundary.
-      # @rbs (Module owner, Symbol method_name, Object? receiver, *Object?, **Object?)
-      #   ?{ (*Object?) -> Object? } -> Object?
-      private def self.core_call: (Module owner, Symbol method_name, Object? receiver, *Object?, **Object?) ?{ (*Object?) -> Object? } -> Object?
+      # @rbs (Module owner, Symbol method_name, sanitized_value receiver, *sanitized_value, **sanitized_value)
+      #   ?{ (*sanitized_value) -> sanitized_value } -> sanitized_value
+      private def self.core_call: (Module owner, Symbol method_name, sanitized_value receiver, *sanitized_value, **sanitized_value) ?{ (*sanitized_value) -> sanitized_value } -> sanitized_value
     end
   end
 end

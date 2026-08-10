@@ -6,11 +6,13 @@ module Ibex
     class Transport
       interface _Input
         def read: (Integer length) -> String?
+
         def readpartial: (Integer length) -> String
       end
 
       interface _Output
         def write: (String value) -> Object?
+
         def flush: () -> Object?
       end
 

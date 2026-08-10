@@ -59,12 +59,12 @@ module Ibex
 
     # @rbs (Hash[Symbol, Object?] record) -> void
     def rollback_record(record)
-      target = record.fetch(:target)
+      target = record.fetch(:target) #: String
       if record.fetch(:backed_up)
         if record.fetch(:installed)
-          File.rename(record.fetch(:backup), target)
+          File.rename(record.fetch(:backup).to_s, target)
         else
-          File.unlink(record.fetch(:backup))
+          File.unlink(record.fetch(:backup).to_s)
         end
         record[:backup] = nil
         record[:backed_up] = false

@@ -47,7 +47,7 @@ module Ibex
           @ibex_jsonl_trace_output = output
         end
 
-        # @rbs (**event: Object?) -> void
+        # @rbs (**Object? event) -> void
         def write_trace(**event)
           @ibex_jsonl_trace_output&.puts(JSON.generate(event))
         rescue StandardError

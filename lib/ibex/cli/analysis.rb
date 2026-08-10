@@ -10,18 +10,11 @@ module Ibex
   # CLI entry points for deterministic grammar diff and metrics reports.
   module CLIAnalysis
     # @rbs!
-    #   type analysis_options = {
-    #     paths: Array[String],
-    #     algorithm: Symbol,
-    #     mode: Symbol,
-    #     format: String,
-    #     configuration_explicit: Array[Symbol],
-    #     ?help: String
-    #   }
+    #   type analysis_options = Hash[Symbol, untyped]
     #   private def normalize_grammar_path: (String) -> IR::Grammar
     #   private def set_configuration_option: (Symbol, Object?) -> void
-    #   private def local_configuration_value: (Hash[Symbol, Object?], String) -> Object?
-    #   private def set_local_configuration_option: (Hash[Symbol, Object?], Symbol, Object?) -> void
+    #   private def local_configuration_value: (Hash[Symbol, untyped], String) -> untyped
+    #   private def set_local_configuration_option: (Hash[Symbol, untyped], Symbol, untyped) -> void
 
     private
 
@@ -59,12 +52,12 @@ module Ibex
       0
     end
 
-    # @rbs (Array[String] arguments, String command, operands: String) -> analysis_options
+    # @rbs (Array[String] arguments, String command, operands: String) -> Hash[Symbol, untyped]
     def analysis_options(arguments, command, operands:)
       settings = {
         paths: [], algorithm: Configuration::Registry.fetch("parser.algorithm").default,
         mode: Configuration::Registry.fetch("grammar.mode").default, format: "json", configuration_explicit: []
-      } #: analysis_options
+      } #: Hash[Symbol, untyped]
       parser = OptionParser.new do |options|
         options.banner = "Usage: ibex #{command} [options] #{operands}"
         options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "algorithm for grammar inputs") do |value|
@@ -112,7 +105,7 @@ module Ibex
       ).build
     end
 
-    # @rbs (Hash[Symbol, Object?] report, String format) -> void
+    # @rbs (Hash[Symbol, untyped] report, String format) -> void
     def write_analysis_report(report, format)
       if format == "json"
         @stdout.puts(JSON.pretty_generate(report))
@@ -128,14 +121,14 @@ module Ibex
       end
     end
 
-    # @rbs (analysis_options settings) -> bool
+    # @rbs (Hash[Symbol, untyped] settings) -> bool
     def algo_set?(settings)
       settings.fetch(:configuration_explicit).include?(:algorithm)
     end
 
     # @rbs!
-    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, Object?],
+    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped],
     #     ?explicit_keys: Array[Symbol]) -> IR::Grammar
-    #   private def configuration_value: (String) -> Object?
+    #   private def configuration_value: (String) -> untyped
   end
 end

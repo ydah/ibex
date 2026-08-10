@@ -155,6 +155,12 @@ module Ibex
         # @rbs () -> void
         def validate_migration: () -> void
 
+        # @rbs (untyped) -> Array[String]
+        def migration_loss_inventory: (untyped) -> Array[String]
+
+        # @rbs (untyped value, String, Array[String]) -> Hash[String, untyped]
+        def validate_contract_entry: (untyped value, String, Array[String]) -> Hash[String, untyped]
+
         # @rbs (json_value value, String path) -> void
         def validate_expansion: (json_value value, String path) -> void
 

@@ -357,7 +357,7 @@ module Ibex
             @operation_expected_tokens << token unless @operation_expected_tokens.include?(token)
           end
         when :cst_fallback
-          @operation_fallback_reasons << event.data.fetch("reason").to_sym
+          @operation_fallback_reasons << event.data.fetch("reason").to_s.to_sym
         end
       end
 
@@ -406,7 +406,8 @@ module Ibex
               }
             )
           else
-            SyntaxSessionDiagnostic.new(kind: :syntax_error, data: diagnostic)
+            data = diagnostic.is_a?(Hash) ? diagnostic : { message: diagnostic.to_s }
+            SyntaxSessionDiagnostic.new(kind: :syntax_error, data: data)
           end
         end.freeze
       end

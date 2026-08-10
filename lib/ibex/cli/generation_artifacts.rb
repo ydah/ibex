@@ -183,7 +183,7 @@ module Ibex
 
     # @rbs () -> Symbol
     def effective_cst_trivia
-      configuration_value("cst.trivia")
+      configuration_value("cst.trivia") #: Symbol
     end
   end
 end

@@ -444,6 +444,7 @@ module Ibex
       end
 
       # @rbs (Object location, Symbol key) -> Object?
+      # @rbs (untyped location, Symbol key) -> untyped
       def location_value(location, key)
         return location.public_send(key) if location.respond_to?(key)
 

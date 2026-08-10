@@ -172,7 +172,7 @@ module Ibex
 
     # @rbs (Hash[Symbol, Object?] record, Array[String] sources, String phase) -> void
     def validate_current_target!(record, sources, phase)
-      artifact = record.fetch(:artifact)
+      artifact = record.fetch(:artifact) #: Artifact
       current = resolved_target(artifact.path, validate_links: false)
       unless current == record.fetch(:target)
         raise GenerationTransaction::SourceChanged,

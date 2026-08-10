@@ -10,10 +10,7 @@ module Ibex
     class RepairSearch
       # @rbs!
       #   type configuration_key = [Array[Integer], Integer, Integer, bool]
-      #   type priority = [
-      #     Integer, Integer, Array[[Integer, Integer, Integer]], Integer,
-      #     Integer, Integer, Array[Integer]
-      #   ]
+      #   type priority = Array[untyped]
       #   type lookup_table = Tables::action_table | Tables::goto_table
       #   type lookup_value = IR::runtime_action | Integer?
 

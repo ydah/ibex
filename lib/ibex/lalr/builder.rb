@@ -150,7 +150,7 @@ module Ibex
         [items, merged_transitions, canonical_profile(states, strategy: strategy)]
       end
 
-      # @rbs () -> [Array[packed_items], transitions, build_collection]
+      # @rbs () -> untyped
       def direct_collection
         direct = DirectLookaheads.new(@grammar, @sets, profile: @profile)
         items, transitions = direct.build
@@ -407,13 +407,14 @@ module Ibex
                            [conflict[:reduce]]
                          else
                            conflict[:reductions]
-                         end
+                         end #: Array[Integer]
         origins = production_ids.filter_map do |production_id|
           production = @grammar.productions.fetch(production_id)
           production.origin[:loc] if production.origin[:kind] == :inline_action
         end
-        conflict[:midrule_origins] = origins.uniq unless origins.empty?
-        conflict
+        result = conflict.dup #: Hash[Symbol, untyped]
+        result[:midrule_origins] = origins.uniq unless origins.empty?
+        result #: IR::conflict
       end
 
       # @rbs (Array[IR::AutomatonItem] items, Hash[Integer, Array[IR::parser_action]] candidates) -> void
@@ -681,7 +682,7 @@ module Ibex
                        [conflict[:reduce]]
                      else
                        conflict[:reductions]
-                     end
+                     end #: Array[Integer]
         [conflict[:type], conflict[:symbol], reductions]
       end
     end

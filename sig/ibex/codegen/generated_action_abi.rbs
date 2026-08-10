@@ -95,8 +95,8 @@ module Ibex
       # @rbs (sexp_value node, ?sexp_value parent, ?Integer? child_index) -> bool
       def self?.read_only_value_references?: (sexp_value node, ?sexp_value parent, ?Integer? child_index) -> bool
 
-      # @rbs (sexp_value node) -> bool
-      def self?.value_reference?: (sexp_value node) -> bool
+      # @rbs (untyped node) -> bool
+      def self?.value_reference?: (untyped node) -> bool
 
       # @rbs (sexp_value? parent, Integer? child_index) -> bool
       def self?.safe_value_reference?: (sexp_value? parent, Integer? child_index) -> bool

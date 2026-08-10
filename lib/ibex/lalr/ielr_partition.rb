@@ -138,7 +138,7 @@ module Ibex
         @states.fetch(state_id).each do |production_id, dot, lookahead|
           next unless dot == rhs_for(production_id).length
 
-          action = production_id.negative? ? [:accept] : [:reduce, production_id]
+          action = production_id.negative? ? [:accept] : [:reduce, production_id] #: contribution_action
           actions[lookahead] << action
         end
         actions

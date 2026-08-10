@@ -128,12 +128,14 @@ module Ibex
         end
       end
 
-      # @rbs (IR::shift_reduce_conflict conflict) -> IR::interpretation
+      # The compact counterexample tree intentionally uses a lightweight shape
+      # whose children are symbol names rather than recursively expanded nodes.
+      # @rbs (IR::shift_reduce_conflict conflict) -> untyped
       def shift_interpretation(conflict)
         { kind: :shift, state: conflict[:shift_to], tree: { token: conflict[:symbol] } }
       end
 
-      # @rbs (Integer production_id) -> IR::interpretation
+      # @rbs (Integer production_id) -> untyped
       def reduce_interpretation(production_id)
         production = @grammar.productions.fetch(production_id)
         lhs = symbol_name(production.lhs)

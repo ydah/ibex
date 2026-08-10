@@ -9,13 +9,7 @@ module Ibex
   # Generates standalone grammar documentation from the canonical include closure.
   module CLIDocumentation
     # @rbs!
-    #   type documentation_settings = {
-    #     format: String,
-    #     mode: Symbol,
-    #     configuration_explicit: Array[Symbol],
-    #     ?output: String,
-    #     ?help: bool
-    #   }
+    #   type documentation_settings = Hash[Symbol, untyped]
     #
     #   private def input_path: (Array[String]) -> String
     #   private def same_file_target?: (String left, String right) -> bool

@@ -49,8 +49,8 @@ module Ibex
     # @rbs () -> Array[Array[String]]
     def generate_sentences: () -> Array[Array[String]]
 
-    # @rbs (Integer sentence_count, Integer mutation_count) -> Hash[Symbol, Object?]
-    def successful_report: (Integer sentence_count, Integer mutation_count) -> Hash[Symbol, Object?]
+    # @rbs (Integer sentence_count, Integer mutation_count) -> untyped
+    def successful_report: (Integer sentence_count, Integer mutation_count) -> untyped
 
     # @rbs () -> Hash[Symbol, IR::Automaton]
     def build_automata: () -> Hash[Symbol, IR::Automaton]

@@ -49,7 +49,8 @@ module Ibex
       def append_value_printers(lines)
         @grammar.value_printers.each do |printer|
           symbol = @grammar.symbol(printer[:symbol]) || raise(Ibex::Error, "missing printer symbol #{printer[:symbol]}")
-          append_method(lines, printer[:loc], @method_source.value_printer_method_source(symbol.id, printer))
+          location = printer.fetch(:loc) #: IR::location
+          append_method(lines, location, @method_source.value_printer_method_source(symbol.id, printer))
         end
       end
 
@@ -83,7 +84,7 @@ module Ibex
 
       # @rbs (Array[String] lines, IR::Production production) -> void
       def append_action(lines, production)
-        location = production.action&.location || production.origin.fetch(:loc)
+        location = (production.action&.location || production.origin.fetch(:loc)) #: IR::location
         append_method(lines, location, @method_source.compiled_action_method_source(production))
       end
 

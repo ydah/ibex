@@ -6,10 +6,7 @@ module Ibex
     # Minimal binary heap ordered by an immutable Array priority.
     class RepairPriorityQueue
       # @rbs!
-      #   type priority = [
-      #     Integer, Integer, Array[[Integer, Integer, Integer]], Integer,
-      #     Integer, Array[Integer]
-      #   ]
+      #   type priority = Array[untyped]
       # @rbs @entries: Array[[priority, Object?]]
 
       # @rbs () -> void

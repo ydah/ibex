@@ -40,8 +40,9 @@ module Ibex
       productions.each do |production|
         signature = [production.lhs, production.rhs] #: [Integer, Array[Integer]]
         if seen.key?(signature)
+          location = production.origin[:loc] #: IR::location?
           warnings << { type: :duplicate_production, production: production.id, original: seen[signature],
-                        loc: production.origin[:loc] }
+                        loc: location }
         else
           seen[signature] = production.id
         end

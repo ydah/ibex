@@ -12,7 +12,7 @@ module Ibex
     #   private def input_path: (Array[String]) -> String
     #   private def positive_counterexample_limit: (Integer, String) -> Integer
     #   private def normalize_grammar_path: (String) -> IR::Grammar
-    #   private def configuration_value: (String) -> Object?
+    #   private def configuration_value: (String) -> untyped
     #   private def set_configuration_option: (Symbol, Object?) -> void
 
     private

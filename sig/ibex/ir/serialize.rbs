@@ -5,63 +5,73 @@ module Ibex
     # Stable JSON serialization for versioned pipeline IR.
     # rubocop:disable Metrics/ModuleLength -- explicit versioned fields keep serialization changes auditable.
     module Serialize
-      private def validate_version: (Hash[String, Object?] data) -> void
+      type serialized_value = untyped
 
-      private def self.validate_version: (Hash[String, Object?] data) -> void
+      private def validate_version: (Hash[String, serialized_value] data) -> void
 
-      private def load_grammar: (Hash[String, Object?] data) -> Grammar
+      private def self.validate_version: (Hash[String, serialized_value] data) -> void
 
-      private def self.load_grammar: (Hash[String, Object?] data) -> Grammar
+      private def load_grammar: (Hash[String, serialized_value] data) -> Grammar
 
-      private def load_automaton: (Hash[String, Object?] data) -> Automaton
+      private def self.load_grammar: (Hash[String, serialized_value] data) -> Grammar
 
-      private def self.load_automaton: (Hash[String, Object?] data) -> Automaton
+      private def load_automaton: (Hash[String, serialized_value] data) -> Automaton
 
-      private def load_lexer: (Hash[String, Object?] data) -> Lexer
+      private def self.load_automaton: (Hash[String, serialized_value] data) -> Automaton
 
-      private def self.load_lexer: (Hash[String, Object?] data) -> Lexer
+      private def load_lexer: (Hash[String, serialized_value] data) -> Lexer
 
-      private def load_state: (Hash[String, Object?] state, Grammar grammar) -> AutomatonState
+      private def self.load_lexer: (Hash[String, serialized_value] data) -> Lexer
 
-      private def self.load_state: (Hash[String, Object?] state, Grammar grammar) -> AutomatonState
+      private def load_state: (Hash[String, serialized_value] state, Grammar grammar) -> AutomatonState
 
-      private def symbol_keyed: (Hash[String, Object?] values, Grammar grammar, ?actions: bool) -> Hash[Integer, Object?]
+      private def self.load_state: (Hash[String, serialized_value] state, Grammar grammar) -> AutomatonState
 
-      private def self.symbol_keyed: (Hash[String, Object?] values, Grammar grammar, ?actions: bool) -> Hash[Integer, Object?]
+      private def symbol_keyed: (Hash[String, serialized_value] values, Grammar grammar, ?actions: bool) -> Hash[Integer, serialized_value]
 
-      private def normalize_action: (Hash[String, Object?] value) -> parser_action?
+      private def self.symbol_keyed: (Hash[String, serialized_value] values, Grammar grammar, ?actions: bool) -> Hash[Integer, serialized_value]
 
-      private def self.normalize_action: (Hash[String, Object?] value) -> parser_action?
+      private def normalize_action: (Hash[String, serialized_value] value) -> parser_action?
 
-      private def load_production: (Hash[String, Object?] production, Integer schema_version) -> Production
+      private def self.normalize_action: (Hash[String, serialized_value] value) -> parser_action?
 
-      private def self.load_production: (Hash[String, Object?] production, Integer schema_version) -> Production
+      private def load_production: (Hash[String, serialized_value] production, Integer schema_version) -> Production
 
-      private def load_user_code_chunks: (Hash[String, Array[Hash[String, Object?]]] chunks) -> user_code_chunks
+      private def self.load_production: (Hash[String, serialized_value] production, Integer schema_version) -> Production
 
-      private def self.load_user_code_chunks: (Hash[String, Array[Hash[String, Object?]]] chunks) -> user_code_chunks
+      private def load_user_code_chunks: (Hash[String, Array[Hash[String, serialized_value]]] chunks) -> user_code_chunks
 
-      private def load_symbol_metadata: (Hash[String, Object?] symbol, String field) -> String?
+      private def self.load_user_code_chunks: (Hash[String, Array[Hash[String, serialized_value]]] chunks) -> user_code_chunks
 
-      private def self.load_symbol_metadata: (Hash[String, Object?] symbol, String field) -> String?
+      private def load_symbol_metadata: (Hash[String, serialized_value] symbol, String field) -> String?
 
-      private def load_grammar_tests: (Array[Hash[String, Object?]] tests) -> Array[grammar_test]
+      private def self.load_symbol_metadata: (Hash[String, serialized_value] symbol, String field) -> String?
 
-      private def self.load_grammar_tests: (Array[Hash[String, Object?]] tests) -> Array[grammar_test]
+      private def load_grammar_tests: (Array[Hash[String, serialized_value]] tests) -> Array[grammar_test]
 
-      private def symbol_source_position: (Hash[String, Object?] symbol) -> String
+      private def self.load_grammar_tests: (Array[Hash[String, serialized_value]] tests) -> Array[grammar_test]
 
-      private def self.symbol_source_position: (Hash[String, Object?] symbol) -> String
+      private def symbol_source_position: (Hash[String, serialized_value] symbol) -> String
 
-      private def symbolize: (Object? value) -> Object?
+      private def self.symbol_source_position: (Hash[String, serialized_value] symbol) -> String
 
-      private def self.symbolize: (Object? value) -> Object?
+      private def symbolize: (serialized_value value) -> serialized_value
+
+      private def self.symbolize: (serialized_value value) -> serialized_value
 
       # @rbs (Grammar | Automaton | Lexer value) -> String
       def self?.dump: (Grammar | Automaton | Lexer value) -> String
 
       # @rbs (String source) -> (Grammar | Automaton | Lexer)
       def self?.load: (String source) -> (Grammar | Automaton | Lexer)
+
+      private
+
+      def self?.load_grammar_v3: (untyped data, untyped symbols, untyped productions, untyped empty_chunks, untyped empty_parameters, untyped empty_printers, untyped empty_tests, untyped empty_recovery) -> untyped
+
+      def load_grammar_legacy: (untyped data, untyped symbols, untyped productions, untyped empty_chunks, untyped empty_parameters, untyped empty_printers, untyped empty_tests, untyped empty_recovery, untyped schema_version) -> untyped
+
+      def load_parser_contract: (untyped value) -> untyped
     end
   end
 end

@@ -213,8 +213,11 @@ module Ibex
 
     # Converts the existing internal CLI option hash into canonical concepts.
     class CLIAdapter
-      # @rbs (Hash[Symbol, config_value] options, ?explicit_keys: Array[Symbol]) -> void
-      def initialize: (Hash[Symbol, config_value] options, ?explicit_keys: Array[Symbol]) -> void
+      # The adapter receives the legacy CLI option map, which also contains
+      # operation flags and list values outside the closed configuration domain.
+      # It validates and converts only declared configuration options.
+      # @rbs (Hash[Symbol, untyped] options, ?explicit_keys: Array[Symbol]) -> void
+      def initialize: (Hash[Symbol, untyped] options, ?explicit_keys: Array[Symbol]) -> void
 
       # @rbs (?grammar: Hash[String, config_value], ?locations: Hash[String, Location]) -> Resolver
       def resolve: (?grammar: Hash[String, config_value], ?locations: Hash[String, Location]) -> Resolver
@@ -226,11 +229,11 @@ module Ibex
 
       private
 
-      # @rbs (Symbol name, config_value value) -> config_value
-      def convert: (Symbol name, config_value value) -> config_value
+      # @rbs (Symbol name, untyped value) -> config_value
+      def convert: (Symbol name, untyped value) -> config_value
 
-      # @rbs (config_value value) -> config_value
-      def convert_entry_isolation: (config_value value) -> config_value
+      # @rbs (untyped value) -> config_value
+      def convert_entry_isolation: (untyped value) -> config_value
 
       # @rbs () -> Symbol
       def convert_line_mapping: () -> Symbol

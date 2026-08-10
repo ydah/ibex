@@ -249,7 +249,9 @@ module Ibex
       @configuration_explicit_options[name] = true
     end
 
-    # @rbs (Symbol name, Object? value) -> void
+    # OptionParser accepts a heterogeneous set of operation and configuration
+    # values.  The CLIAdapter is the validation boundary for this dynamic map.
+    # @rbs (Symbol name, untyped value) -> void
     def set_configuration_option(name, value)
       @options[name] = value
       mark_configuration_option(name)
@@ -274,24 +276,26 @@ module Ibex
 
     # Resolve a command-local legacy option hash without promoting it into the
     # reusable CLI instance's generation settings.
-    # @rbs (Hash[Symbol, Object?] options, explicit_keys: Array[Symbol]) -> Configuration::Resolver
+    # @rbs (Hash[Symbol, untyped] options, explicit_keys: Array[Symbol]) -> Configuration::Resolver
     def resolve_configuration_options(options, explicit_keys:)
       Configuration::CLIAdapter.new(options, explicit_keys: explicit_keys).resolve
     end
 
-    # @rbs (Hash[Symbol, Object?] options, String name) -> Object?
+    # @rbs (Hash[Symbol, untyped] options, String name) -> untyped
     def local_configuration_value(options, name)
       explicit_keys = options.fetch(:configuration_explicit)
       resolve_configuration_options(options, explicit_keys: explicit_keys).value(name)
     end
 
-    # @rbs (Hash[Symbol, Object?] options, Symbol name, Object? value) -> void
+    # @rbs (Hash[Symbol, untyped] options, Symbol name, untyped value) -> void
     def set_local_configuration_option(options, name, value)
       options[name] = value
       options.fetch(:configuration_explicit) << name
     end
 
-    # @rbs (String name) -> Object?
+    # Configuration values have already been validated by Configuration::Resolver;
+    # callers narrow the value according to the option they are consuming.
+    # @rbs (String name) -> untyped
     def configuration_value(name)
       effective_configuration.value(name)
     end
@@ -503,14 +507,14 @@ module Ibex
 
     # @rbs @analysis_configuration: Configuration::Resolver?
 
-    # @rbs (IR::Grammar grammar, ?options: Hash[Symbol, Object?], ?explicit_keys: Array[Symbol]) -> IR::Grammar
+    # @rbs (IR::Grammar grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
     def activate_analysis_grammar(grammar, options: @options, explicit_keys: @configuration_explicit_options.keys)
       adapter = Configuration::CLIAdapter.new(options, explicit_keys: explicit_keys)
       cli = adapter.configuration_values
       contract = grammar.parser_contract
       grammar_values = contract&.configuration_values || {}
       locations = contract&.configuration_locations || {}
-      overrides = {} #: Hash[String, Object?]
+      overrides = {} #: Hash[String, Configuration::config_value]
       algorithm = "parser.algorithm"
       if grammar_values.key?(algorithm) && cli.key?(algorithm) &&
          grammar_values.fetch(algorithm) != cli.fetch(algorithm)
@@ -528,7 +532,7 @@ module Ibex
       active
     end
 
-    # @rbs (IR::Grammar grammar, Hash[Symbol, Object?] options, Array[Symbol] explicit_keys) ->
+    # @rbs (IR::Grammar grammar, Hash[Symbol, untyped] options, Array[Symbol] explicit_keys) ->
     #   [IR::Grammar, Symbol, IR::Automaton]
     def construct_analysis_automaton(grammar, options, explicit_keys)
       active = activate_analysis_grammar(grammar, options: options, explicit_keys: explicit_keys)
@@ -820,7 +824,8 @@ module Ibex
       return grammar if selection.canonical
 
       require_relative "configuration/analysis_grammar"
-      Configuration::AnalysisGrammar.for_algorithm(grammar, selection.value)
+      algorithm = selection.value #: Symbol
+      Configuration::AnalysisGrammar.for_algorithm(grammar, algorithm)
     end
 
     # @rbs (Configuration::Resolver configuration) -> void
@@ -828,7 +833,7 @@ module Ibex
       selection = configuration.fetch("parser.algorithm")
       return if selection.canonical
 
-      analysis = selection.to_h.fetch("analysis")
+      analysis = selection.to_h.fetch("analysis") #: Hash[String, Configuration::json_value]
       @stderr.puts(
         "noncanonical analysis configuration: parser.algorithm " \
         "declared=#{analysis.fetch('declared')} selected=#{analysis.fetch('selected')} " \
@@ -908,17 +913,20 @@ module Ibex
     # @rbs (IR::Automaton automaton, String input_path) -> Integer
     def generate_ruby(automaton, input_path)
       @generation_automaton = automaton
-      configuration = effective_configuration
-      line_mapping = configuration.value("source.line_mapping")
-      executable = configuration.value("build.executable")
+      line_mapping = configuration_value("source.line_mapping") #: Symbol
+      executable = configuration_value("build.executable") #: String?
+      table = configuration_value("table.representation") #: Symbol | String
+      embedded = configuration_value("runtime.embedded") #: bool
+      debug = configuration_value("build.debug") #: bool
+      omit_action_call = configuration_value("actions.omit_calls") #: bool?
+      superclass = configuration_value("parser.superclass") #: String?
+      cst_trivia = configuration_value("cst.trivia") #: Symbol | String
       source = Codegen::Ruby.new(
-        automaton, table: configuration.value("table.representation"),
-                   embedded: configuration.value("runtime.embedded"),
-                   line_convert: line_mapping != :none, debug: configuration.value("build.debug"),
+        automaton, table: table, embedded: embedded,
+                   line_convert: line_mapping != :none, debug: debug,
                    line_convert_all: line_mapping == :all,
-                   omit_action_call: configuration.value("actions.omit_calls"),
-                   superclass: configuration.value("parser.superclass"),
-                   executable: executable, cst_trivia: configuration.value("cst.trivia"),
+                   omit_action_call: omit_action_call, superclass: superclass,
+                   executable: executable, cst_trivia: cst_trivia,
                    error_messages: configured_error_messages(automaton)
       ).generate
       output_path = @options[:output] || default_output_path(input_path, ".rb")
@@ -965,10 +973,10 @@ module Ibex
     # @rbs (IR::Automaton automaton) -> String
     def rbs_source(automaton)
       require_relative "codegen/rbs"
-      configuration = effective_configuration
+      superclass = configuration_value("parser.superclass") #: String?
+      omit_action_call = configuration_value("actions.omit_calls") #: bool?
       Codegen::RBS.new(
-        automaton, superclass: configuration.value("parser.superclass"),
-                   omit_action_call: configuration.value("actions.omit_calls")
+        automaton, superclass: superclass, omit_action_call: omit_action_call
       ).generate
     end
 

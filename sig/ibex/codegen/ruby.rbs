@@ -96,11 +96,11 @@ module Ibex
       # @rbs (Object? table) -> String
       def table_literal: (Object? table) -> String
 
-      # @rbs (Array[Integer?] values) -> String
-      def packed_integers_literal: (Array[Integer?] values) -> String
+      # @rbs (Array[untyped] values) -> String
+      def packed_integers_literal: (Array[untyped] values) -> String
 
-      # @rbs (Array[Integer?] values) -> String
-      def packed_signed_integers_literal: (Array[Integer?] values) -> String
+      # @rbs (Array[untyped] values) -> String
+      def packed_signed_integers_literal: (Array[untyped] values) -> String
 
       # @rbs () -> String
       def token_ids_literal: () -> String

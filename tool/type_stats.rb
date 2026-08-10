@@ -49,7 +49,11 @@ module Ibex
         typed = sum(library_rows, "Typed calls")
         untyped = sum(library_rows, "Untyped calls")
         total = sum(library_rows, "All calls")
-        raise ArgumentError, "steep stats call totals are inconsistent" unless typed + untyped == total
+        # Steep 2.0 includes calls that produced a type error in `All calls`.
+        # Those calls are intentionally excluded from both typed/untyped columns,
+        # so the two classified counts may be smaller than the total.  Reject
+        # only impossible rows where the classified counts exceed the total.
+        raise ArgumentError, "steep stats call totals are inconsistent" if typed + untyped > total
 
         [typed, untyped, total]
       end

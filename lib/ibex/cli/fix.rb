@@ -10,28 +10,10 @@ module Ibex
   # rubocop:disable Metrics/ModuleLength -- CLI option wiring and output projections share one closed contract.
   module CLIFix
     # @rbs!
-    #   type fix_options = {
-    #     paths: Array[String],
-    #     algorithm: Symbol,
-    #     mode: Symbol,
-    #     format: String,
-    #     max_candidates: Integer,
-    #     max_builds: Integer,
-    #     equiv_samples: Integer,
-    #     equiv_max_tokens: Integer,
-    #     equiv_max_configurations: Integer,
-    #     verify_max_states: Integer,
-    #     verify_max_items: Integer,
-    #     configuration_explicit: Array[Symbol],
-    #     ?state: Integer,
-    #     ?conflict_index: Integer,
-    #     ?messages: String,
-    #     ?apply: String | true,
-    #     ?help: String
-    #   }
+    #   type fix_options = Hash[Symbol, untyped]
     #   private def normalize_grammar_path: (String) -> IR::Grammar
     #   private def activate_cli_feature: (Symbol) -> void
-    #   private def configuration_value: (String) -> Object?
+    #   private def configuration_value: (String) -> untyped
     #   private def set_configuration_option: (Symbol, Object?) -> void
     #   private def local_configuration_value: (Hash[Symbol, Object?], String) -> Object?
     #   private def set_local_configuration_option: (Hash[Symbol, Object?], Symbol, Object?) -> void
@@ -53,7 +35,7 @@ module Ibex
       report = fixer.run
       apply_fix!(path, source, report, fixer, settings.fetch(:apply)) if settings[:apply]
       write_fix_report(report, settings.fetch(:format))
-      proposals = report.fetch(:proposals) #: Array[Object?]
+      proposals = report.fetch(:proposals) #: Array[Hash[Symbol, untyped]]
       proposals.empty? ? 1 : 0
     rescue Fix::BudgetExceeded => e
       report = { ibex_report: "fix", schema_version: Fix::SCHEMA_VERSION }.merge(e.details)
@@ -61,7 +43,7 @@ module Ibex
       2
     end
 
-    # @rbs (String path, fix_options settings) -> [String, Fix]
+    # @rbs (String path, Hash[Symbol, untyped] settings) -> [String, Fix]
     def prepare_fixer(path, settings)
       source = File.binread(path)
       if BisonImport.bison_source?(source)
@@ -96,7 +78,7 @@ module Ibex
     end
 
     # Keep command-local construction settings separate from reusable CLI state.
-    # @rbs (Array[String] arguments) -> fix_options
+    # @rbs (Array[String] arguments) -> Hash[Symbol, untyped]
     def fix_options(arguments)
       settings = {
         paths: [], algorithm: Configuration::Registry.fetch("parser.algorithm").default,
@@ -104,7 +86,7 @@ module Ibex
         max_candidates: 32, max_builds: 32, equiv_samples: 100,
         equiv_max_tokens: 8, equiv_max_configurations: 50_000,
         verify_max_states: 100_000, verify_max_items: 1_000_000, configuration_explicit: []
-      } #: fix_options
+      } #: Hash[Symbol, untyped]
       parser = OptionParser.new do |options|
         options.banner = "Usage: ibex fix [options] GRAMMAR"
         add_fix_target_options(options, settings)
@@ -130,7 +112,7 @@ module Ibex
       settings
     end
 
-    # @rbs (OptionParser options, fix_options settings) -> void
+    # @rbs (OptionParser options, Hash[Symbol, untyped] settings) -> void
     def add_fix_target_options(options, settings)
       options.on("--state=N", Integer, "target state (default first unresolved conflict)") do |value|
         raise OptionParser::InvalidArgument, "--state must be nonnegative" if value.negative?
@@ -144,7 +126,7 @@ module Ibex
       end
     end
 
-    # @rbs (OptionParser options, fix_options settings) -> void
+    # @rbs (OptionParser options, Hash[Symbol, untyped] settings) -> void
     def add_fix_budget_options(options, settings)
       {
         "max-candidates" => :max_candidates,
@@ -163,7 +145,7 @@ module Ibex
       end
     end
 
-    # @rbs (IR::Grammar grammar, fix_options settings) -> [IR::Grammar, Symbol, IR::Automaton]
+    # @rbs (IR::Grammar grammar, Hash[Symbol, untyped] settings) -> [IR::Grammar, Symbol, IR::Automaton]
     def fixer_construction(grammar, settings)
       explicit_keys = settings.fetch(:configuration_explicit) & [:algorithm]
       construct_analysis_automaton(grammar, { algorithm: settings.fetch(:algorithm) }, explicit_keys)
@@ -173,7 +155,7 @@ module Ibex
     #   private def construct_analysis_automaton: (IR::Grammar, Hash[Symbol, Object?], Array[Symbol]) ->
     #     [IR::Grammar, Symbol, IR::Automaton]
 
-    # @rbs (String path, String original, Hash[Symbol, Object?] report, Fix fixer, String | true selector) -> void
+    # @rbs (String path, String original, Hash[Symbol, untyped] report, Fix fixer, String | true selector) -> void
     def apply_fix!(path, original, report, fixer, selector)
       proposal = selected_fix_proposal(report.fetch(:proposals), selector)
       unless proposal.fetch(:applyable)
@@ -193,7 +175,7 @@ module Ibex
       report[:applied] = proposal.fetch(:id)
     end
 
-    # @rbs (Array[Hash[Symbol, Object?]] proposals, String | true selector) -> Hash[Symbol, Object?]
+    # @rbs (Array[Hash[Symbol, untyped]] proposals, String | true selector) -> Hash[Symbol, untyped]
     def selected_fix_proposal(proposals, selector)
       proposal = if selector == true
                    proposals.find { |entry| entry.fetch(:applyable) }
@@ -203,7 +185,7 @@ module Ibex
       proposal || raise(Ibex::Error, "(fix):1:1: no matching applyable safe proposal")
     end
 
-    # @rbs (Hash[Symbol, Object?] report, String format) -> void
+    # @rbs (Hash[Symbol, untyped] report, String format) -> void
     def write_fix_report(report, format)
       if format == "json"
         @stdout.puts(JSON.pretty_generate(report))

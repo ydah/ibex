@@ -525,7 +525,7 @@ module Ibex
             values == expected
         end
 
-        # @rbs skip
+        # @rbs (untyped) -> Array[String]
         def migration_loss_inventory(from)
           MigrationMetadata.loss_inventory(@version, from)
         end
@@ -544,7 +544,7 @@ module Ibex
           invalid("#{path}.cst_trivia", "requires options.cst") unless @data.dig("options", "cst") == true
         end
 
-        # @rbs skip
+        # @rbs (untyped value, String, Array[String]) -> Hash[String, untyped]
         def validate_contract_entry(value, path, allowed)
           entry = record(value, path, %w[value explicit loc])
           explicit = boolean(entry["explicit"], "#{path}.explicit")

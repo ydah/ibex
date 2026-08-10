@@ -74,7 +74,8 @@ module Ibex
       worklist = [[inline_expansion_frame(production, nil)]] #: Array[Array[inline_frame]]
       until worklist.empty?
         frames = worklist.pop || raise(Ibex::Error, "internal inline expansion worklist underflow")
-        drain_inline_expansion_frames(frames, definitions, worklist, variants, production.origin[:loc])
+        location = production.origin[:loc] #: IR::location?
+        drain_inline_expansion_frames(frames, definitions, worklist, variants, location)
       end
       variants
     end
@@ -304,11 +305,13 @@ module Ibex
     #   :inline | :rule kind, String? rule) -> inline_step
     def inline_action_step(production, inputs, lookahead, kind, rule)
       action = production.action
+      location = action&.location || production.origin.fetch(:loc)
+      location = location #: IR::location
       {
         kind: kind,
         rule: rule,
         code: action&.code,
-        loc: action&.location || production.origin.fetch(:loc),
+        loc: location,
         named_refs: action&.named_refs || [],
         context_length: action&.context_length || 0,
         inputs: inputs,
@@ -338,6 +341,8 @@ module Ibex
     # @rbs (IR::Production production, Integer physical_length, Array[inline_step]) -> IR::Action
     def composed_inline_action(production, physical_length, steps)
       action = production.action
+      location = action&.location || production.origin.fetch(:loc)
+      location = location #: IR::location
       fragments = steps.map do |step|
         { kind: step.fetch(:kind), source: inline_source_provenance(step.fetch(:loc)) }
       end
@@ -349,7 +354,7 @@ module Ibex
       } #: IR::action_composition
       IR::Action.new(
         code: action&.code || inline_implicit_code(production.rhs.length),
-        location: action&.location || production.origin.fetch(:loc),
+        location: location,
         composition: composition
       )
     end
@@ -415,7 +420,8 @@ module Ibex
     # @rbs (IR::Production production) -> void
     def charge_inline_expansion!(production)
       @inline_expansion_count += 1
-      enforce_inline_choice_limit!(@inline_expansion_count, production.origin[:loc])
+      location = production.origin[:loc] #: IR::location?
+      enforce_inline_choice_limit!(@inline_expansion_count, location)
     end
 
     # @rbs (Integer count, IR::location? location) -> void

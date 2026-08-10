@@ -67,7 +67,7 @@ module Ibex
           end
         end
 
-        # @rbs skip
+        # @rbs (Hash[String, untyped] grammar) -> void
         def validate_construction_contract(grammar)
           entry_construction = enum(
             @data["entry_construction"], "$.entry_construction", %w[shared isolated unknown]

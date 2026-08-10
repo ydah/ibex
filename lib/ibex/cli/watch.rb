@@ -70,8 +70,9 @@ module Ibex
       @defer_generation_publication = false
     end
 
-    # @rbs (Build build, Watch::SourceSnapshot snapshot, ^() -> bool continue) -> void
+    # @rbs (Watch::_BuildResult build, Watch::SourceSnapshot snapshot, ^() -> bool continue) -> void
     def publish_watch_generation(build, snapshot, continue)
+      build = build #: Build
       stable = lambda do
         continue.call && build.source_records.all?(&:current?) &&
           Watch::SourceSnapshot.new(snapshot.paths) == snapshot

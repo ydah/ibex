@@ -17,7 +17,7 @@ module Ibex
       # @rbs (String uri, ?allow_missing: bool) -> String
       def path(uri, allow_missing: true)
         parsed = parse_file_uri(uri)
-        decoded = decode_path(parsed.path)
+        decoded = decode_path(parsed.path || raise(ArgumentError, "file URI must contain an absolute path"))
 
         canonical = @loader.canonical_path(decoded, allow_missing: allow_missing)
         return canonical if root_for(canonical)
@@ -53,7 +53,7 @@ module Ibex
       def parse_file_uri(uri)
         validate_raw_authority!(uri)
         parsed = URI.parse(uri)
-        path = parsed.path
+        path = parsed.path || raise(ArgumentError, "file URI must contain an absolute path")
         local_host = parsed.host.nil? || parsed.host.empty? || parsed.host.casecmp?("localhost")
         unless parsed.scheme == "file" && local_host &&
                parsed.query.nil? && parsed.fragment.nil? && path&.start_with?("/")
@@ -78,7 +78,7 @@ module Ibex
       # @rbs (String uri) -> String
       def canonical_root(uri)
         parsed = parse_file_uri(uri)
-        decoded = decode_path(parsed.path)
+        decoded = decode_path(parsed.path || raise(ArgumentError, "file URI must contain an absolute path"))
         canonical = File.realpath(decoded)
         unless File.directory?(canonical)
           raise ProtocolError.new("workspace root is not a directory: #{uri}", code: -32_602)

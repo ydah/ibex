@@ -8,6 +8,7 @@ module Ibex
     module EventSanitizer
       # @rbs!
       #   type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
+      #   type sanitized_value = untyped
 
       MAX_DEPTH = 3 #: Integer
       MAX_COLLECTION_ENTRIES = 16 #: Integer
@@ -20,7 +21,7 @@ module Ibex
         # Copy a runtime payload into deeply frozen JSON data. Unknown objects are
         # summarized instead of being retained, so callers cannot smuggle mutable
         # application identities into an Event.
-        # @rbs (Hash[Object?, Object?] input) -> Hash[String, json_value]
+        # @rbs (Hash[sanitized_value, sanitized_value] input) -> Hash[String, json_value]
         def data(input)
           result = {} # @type var result: Hash[String, json_value]
           consumed = 0
@@ -35,14 +36,14 @@ module Ibex
           { "unavailable" => "event_data" }.freeze
         end
 
-        # @rbs (Object? input) -> json_value
+        # @rbs (sanitized_value input) -> json_value
         def value(input)
           summarize(input, depth: 0, seen: {})
         rescue StandardError
           unavailable("sanitization")
         end
 
-        # @rbs (Object? location) -> Hash[String, json_value]?
+        # @rbs (sanitized_value location) -> Hash[String, json_value]?
         def location(location)
           return nil unless location
 
@@ -58,7 +59,7 @@ module Ibex
           unavailable("location")
         end
 
-        # @rbs (Object? input) -> String
+        # @rbs (sanitized_value input) -> String
         def string(input)
           return "<unavailable>" unless core_type?(input, String)
 
@@ -81,7 +82,7 @@ module Ibex
           "<unavailable>"
         end
 
-        # @rbs (Object? input) -> String
+        # @rbs (sanitized_value input) -> String
         def class_name(input)
           klass = core_call(Object, :class, input)
           name = core_call(Module, :name, klass)
@@ -92,7 +93,7 @@ module Ibex
 
         private
 
-        # @rbs (Object? input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+        # @rbs (sanitized_value input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
         def summarize(input, depth:, seen:)
           return input if primitive?(input)
           return bounded_integer(input) if core_type?(input, Integer)
@@ -105,7 +106,7 @@ module Ibex
           { "type" => "object", "class" => class_name(input) }.freeze
         end
 
-        # @rbs (Object? input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+        # @rbs (sanitized_value input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
         def json_data(input, depth:, seen:)
           return unavailable("depth") if depth >= DATA_MAX_DEPTH
           return input if primitive?(input)
@@ -119,7 +120,7 @@ module Ibex
           { "type" => "object", "class" => class_name(input) }.freeze
         end
 
-        # @rbs (Array[Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+        # @rbs (Array[sanitized_value] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
         def summarize_array(input, depth:, seen:)
           return unavailable("depth") if depth >= MAX_DEPTH
 
@@ -128,7 +129,7 @@ module Ibex
           end
         end
 
-        # @rbs (Hash[Object?, Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+        # @rbs (Hash[sanitized_value, sanitized_value] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
         def summarize_hash(input, depth:, seen:)
           return unavailable("depth") if depth >= MAX_DEPTH
 
@@ -151,14 +152,14 @@ module Ibex
           summary.freeze
         end
 
-        # @rbs (Array[Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+        # @rbs (Array[sanitized_value] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
         def json_array(input, depth:, seen:)
           copy_array(input, seen: seen) do |child, nested|
             json_data(child, depth: depth + 1, seen: nested)
           end
         end
 
-        # @rbs (Hash[Object?, Object?] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
+        # @rbs (Hash[sanitized_value, sanitized_value] input, depth: Integer, seen: Hash[Integer, bool]) -> json_value
         def json_hash(input, depth:, seen:)
           identity = object_identity(input)
           return { "cycle" => true }.freeze if seen[identity]
@@ -177,8 +178,8 @@ module Ibex
           result.freeze
         end
 
-        # @rbs (Array[Object?] input, seen: Hash[Integer, bool])
-        #   { (Object?, Hash[Integer, bool]) -> json_value } -> json_value
+        # @rbs (Array[sanitized_value] input, seen: Hash[Integer, bool])
+        #   { (sanitized_value, Hash[Integer, bool]) -> json_value } -> json_value
         def copy_array(input, seen:)
           identity = object_identity(input)
           return { "cycle" => true }.freeze if seen[identity]
@@ -194,7 +195,7 @@ module Ibex
           result.freeze
         end
 
-        # @rbs (Object? input) -> bool
+        # @rbs (sanitized_value input) -> bool
         def primitive?(input)
           core_type?(input, NilClass) ||
             core_type?(input, TrueClass) ||
@@ -218,12 +219,12 @@ module Ibex
           core_call(Float, :finite?, input) ? input : string(core_call(Float, :to_s, input))
         end
 
-        # @rbs (Object? input, Module type) -> bool
+        # @rbs (sanitized_value input, Module type) -> bool
         def core_type?(input, type)
           core_call(Module, :===, type, input)
         end
 
-        # @rbs (Object? key) -> String
+        # @rbs (sanitized_value key) -> String
         def data_key(key)
           return string(key) if core_type?(key, String)
           return string(core_call(Symbol, :name, key)) if core_type?(key, Symbol)
@@ -240,12 +241,12 @@ module Ibex
           "#{prefix}\u2026".freeze
         end
 
-        # @rbs (Object? input) -> Integer
+        # @rbs (sanitized_value input) -> Integer
         def object_identity(input)
           core_call(BasicObject, :__id__, input)
         end
 
-        # @rbs (Object? location, Symbol field) -> Object?
+        # @rbs (sanitized_value location, Symbol field) -> sanitized_value
         def location_field(location, field)
           if core_type?(location, Hash)
             return core_call(Hash, :fetch, location, field) do
@@ -266,8 +267,8 @@ module Ibex
 
         # Reflection deliberately erases the receiver's method signature; callers validate
         # returned values at each sanitization boundary.
-        # @rbs (Module owner, Symbol method_name, Object? receiver, *Object?, **Object?)
-        #   ?{ (*Object?) -> Object? } -> Object?
+        # @rbs (Module owner, Symbol method_name, sanitized_value receiver, *sanitized_value, **sanitized_value)
+        #   ?{ (*sanitized_value) -> sanitized_value } -> sanitized_value
         def core_call(owner, method_name, receiver, ...)
           owner.instance_method(method_name).bind(receiver).call(...)
         end

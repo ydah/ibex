@@ -28,8 +28,8 @@ module Ibex
         # @rbs (_TraceOutput output) -> void
         def ibex_jsonl_trace_output=: (_TraceOutput output) -> void
 
-        # @rbs (**event: Object?) -> void
-        def write_trace:
+        # @rbs (**Object? event) -> void
+        def write_trace: (**Object? event) -> void
 
         # @rbs (Object? value) -> String
         def safe_inspect: (Object? value) -> String

@@ -4,13 +4,13 @@ module Ibex
   # CLI entry point for bounded conflict-repair proposals.
   # rubocop:disable Metrics/ModuleLength -- CLI option wiring and output projections share one closed contract.
   module CLIFix
-    type fix_options = { paths: Array[String], algorithm: Symbol, mode: Symbol, format: String, max_candidates: Integer, max_builds: Integer, equiv_samples: Integer, equiv_max_tokens: Integer, equiv_max_configurations: Integer, verify_max_states: Integer, verify_max_items: Integer, configuration_explicit: Array[Symbol], ?state: Integer, ?conflict_index: Integer, ?messages: String, ?apply: String | true, ?help: String }
+    type fix_options = Hash[Symbol, untyped]
 
     private def normalize_grammar_path: (String) -> IR::Grammar
 
     private def activate_cli_feature: (Symbol) -> void
 
-    private def configuration_value: (String) -> Object?
+    private def configuration_value: (String) -> untyped
 
     private def set_configuration_option: (Symbol, Object?) -> void
 
@@ -23,31 +23,31 @@ module Ibex
     # @rbs (Array[String] arguments) -> Integer
     def run_fix_command: (Array[String] arguments) -> Integer
 
-    # @rbs (String path, fix_options settings) -> [String, Fix]
-    def prepare_fixer: (String path, fix_options settings) -> [ String, Fix ]
+    # @rbs (String path, Hash[Symbol, untyped] settings) -> [String, Fix]
+    def prepare_fixer: (String path, Hash[Symbol, untyped] settings) -> [ String, Fix ]
 
     # Keep command-local construction settings separate from reusable CLI state.
-    # @rbs (Array[String] arguments) -> fix_options
-    def fix_options: (Array[String] arguments) -> fix_options
+    # @rbs (Array[String] arguments) -> Hash[Symbol, untyped]
+    def fix_options: (Array[String] arguments) -> Hash[Symbol, untyped]
 
-    # @rbs (OptionParser options, fix_options settings) -> void
-    def add_fix_target_options: (OptionParser options, fix_options settings) -> void
+    # @rbs (OptionParser options, Hash[Symbol, untyped] settings) -> void
+    def add_fix_target_options: (OptionParser options, Hash[Symbol, untyped] settings) -> void
 
-    # @rbs (OptionParser options, fix_options settings) -> void
-    def add_fix_budget_options: (OptionParser options, fix_options settings) -> void
+    # @rbs (OptionParser options, Hash[Symbol, untyped] settings) -> void
+    def add_fix_budget_options: (OptionParser options, Hash[Symbol, untyped] settings) -> void
 
-    # @rbs (IR::Grammar grammar, fix_options settings) -> [IR::Grammar, Symbol, IR::Automaton]
-    def fixer_construction: (IR::Grammar grammar, fix_options settings) -> [ IR::Grammar, Symbol, IR::Automaton ]
+    # @rbs (IR::Grammar grammar, Hash[Symbol, untyped] settings) -> [IR::Grammar, Symbol, IR::Automaton]
+    def fixer_construction: (IR::Grammar grammar, Hash[Symbol, untyped] settings) -> [ IR::Grammar, Symbol, IR::Automaton ]
 
     private def construct_analysis_automaton: (IR::Grammar, Hash[Symbol, Object?], Array[Symbol]) -> [ IR::Grammar, Symbol, IR::Automaton ]
 
-    # @rbs (String path, String original, Hash[Symbol, Object?] report, Fix fixer, String | true selector) -> void
-    def apply_fix!: (String path, String original, Hash[Symbol, Object?] report, Fix fixer, String | true selector) -> void
+    # @rbs (String path, String original, Hash[Symbol, untyped] report, Fix fixer, String | true selector) -> void
+    def apply_fix!: (String path, String original, Hash[Symbol, untyped] report, Fix fixer, String | true selector) -> void
 
-    # @rbs (Array[Hash[Symbol, Object?]] proposals, String | true selector) -> Hash[Symbol, Object?]
-    def selected_fix_proposal: (Array[Hash[Symbol, Object?]] proposals, String | true selector) -> Hash[Symbol, Object?]
+    # @rbs (Array[Hash[Symbol, untyped]] proposals, String | true selector) -> Hash[Symbol, untyped]
+    def selected_fix_proposal: (Array[Hash[Symbol, untyped]] proposals, String | true selector) -> Hash[Symbol, untyped]
 
-    # @rbs (Hash[Symbol, Object?] report, String format) -> void
-    def write_fix_report: (Hash[Symbol, Object?] report, String format) -> void
+    # @rbs (Hash[Symbol, untyped] report, String format) -> void
+    def write_fix_report: (Hash[Symbol, untyped] report, String format) -> void
   end
 end

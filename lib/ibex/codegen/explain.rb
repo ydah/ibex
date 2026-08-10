@@ -26,8 +26,8 @@ module Ibex
     #   type explain_tree_node = {
     #     ?symbol: explain_token, ?token: explain_token, ?production: Integer, ?children: Array[explain_tree]
     #   }
-    #   type explain_tree = String | Symbol | explain_token | explain_tree_node
-    #   type explain_interpretation = { kind: String, tree: explain_tree, ?state: Integer, ?production: Integer }
+    #   type explain_tree = untyped
+    #   type explain_interpretation = Hash[Symbol, untyped]
     #   type string_value = String | Integer | Symbol
 
     # Renders a selected conflict explanation from Automaton IR and counterexamples.

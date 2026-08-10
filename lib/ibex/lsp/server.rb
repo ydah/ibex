@@ -15,7 +15,7 @@ module Ibex
         $/cancelRequest
       ].freeze #: Array[String]
 
-      # @rbs (stdin: Object?, stdout: Object?, stderr: Object?) -> void
+      # @rbs (stdin: Transport::_Input, stdout: Transport::_Output, stderr: Object?) -> void
       def initialize(stdin:, stdout:, stderr:)
         @transport = Transport.new(stdin, stdout)
         @stderr = stderr

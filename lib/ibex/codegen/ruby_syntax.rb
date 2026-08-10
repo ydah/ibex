@@ -6,7 +6,7 @@ module Ibex
     # Generates typed Red syntax views from @node metadata.
     module RubySyntax
       # @rbs!
-      #   type syntax_definition = { name: String, kind: Integer, fields: Hash[String, CSTMetadata::field_slot] }
+      #   type syntax_definition = Hash[Symbol, untyped]
 
       private
 
@@ -73,7 +73,8 @@ module Ibex
       def append_repetition_accessors(lines, fields)
         repeated = fields.select { |_field, slot| slot.is_a?(Hash) && slot[:extraction] }
         repeated.each do |field, slot|
-          index = slot.fetch(:index)
+          slot = slot #: Hash[Symbol, untyped]
+          index = slot.fetch(:index) #: Integer
           separated = slot.fetch(:extraction) == :separated_list
           lines << "      def each_#{field}_element = list_items(#{index}, separated: #{separated})"
           next unless separated
@@ -84,6 +85,7 @@ module Ibex
         return unless repeated.one?
 
         field, slot = repeated.first
+        slot = slot #: Hash[Symbol, untyped]
         lines << "      alias each_element each_#{field}_element"
         return unless slot.fetch(:extraction) == :separated_list
 

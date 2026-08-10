@@ -84,8 +84,8 @@ module Ibex
       # @rbs (Tables::action_table table, Integer row) -> Hash[Integer, IR::runtime_action]
       def action_row: (Tables::action_table table, Integer row) -> Hash[Integer, IR::runtime_action]
 
-      # @rbs (Tables::goto_table table, Integer row) -> Hash[Integer, Integer]
-      def goto_row: (Tables::goto_table table, Integer row) -> Hash[Integer, Integer]
+      # @rbs (Tables::goto_table table, Integer row) -> Hash[Integer, untyped]
+      def goto_row: (Tables::goto_table table, Integer row) -> Hash[Integer, untyped]
 
       # @rbs () -> void
       def verify_reachability_and_productivity: () -> void

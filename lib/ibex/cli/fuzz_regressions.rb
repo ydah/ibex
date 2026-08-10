@@ -34,13 +34,13 @@ module Ibex
       details = minimized_fuzz_mismatch(fuzzer, mismatch, grammar_path, external)
       report = {
         ibex_report: "fuzz", schema_version: 1, result: "difference", mismatch: details
-      } #: Hash[Symbol, Object?]
+      } #: Hash[Symbol, untyped]
       report[:external] = external[1] if external
       write_fuzz_report(report)
       1
     end
 
-    # @rbs (Hash[Symbol, Object?] report) -> void
+    # @rbs (Hash[Symbol, untyped] report) -> void
     def write_fuzz_report(report)
       if @options.fetch(:fuzz_format, "json") == "json"
         @stdout.puts JSON.pretty_generate(report)
@@ -53,7 +53,7 @@ module Ibex
         @stdout.puts("seed=#{report.fetch(:seed)} bounds=#{report.fetch(:bounds).inspect}")
         @stdout.puts("no difference found within the declared bounds; this is not a proof of equivalence")
       when "difference"
-        mismatch = report.fetch(:mismatch)
+        mismatch = report.fetch(:mismatch) #: Hash[Symbol, untyped]
         @stdout.puts("kind=#{mismatch.fetch(:kind)} tokens=#{mismatch.fetch(:tokens).inspect}")
         @stdout.puts("minimized=#{mismatch.fetch(:minimized_tokens).inspect} " \
                      "reduction_complete=#{mismatch.dig(:reduction, :complete)}")
@@ -74,19 +74,19 @@ module Ibex
       report = {
         ibex_report: "fuzz", schema_version: 1, result: "budget_exhausted",
         budget: error.details.merge(phase: phase)
-      } #: Hash[Symbol, Object?]
+      } #: Hash[Symbol, untyped]
       report[:external] = external[1] if external
       write_fuzz_report(report)
       2
     end
 
     # @rbs (Fuzz fuzzer, Fuzz::Mismatch mismatch, String grammar_path,
-    #   fuzz_external_target? external) -> Hash[Symbol, Object?]
+    #   fuzz_external_target? external) -> Hash[Symbol, untyped]
     def minimized_fuzz_mismatch(fuzzer, mismatch, grammar_path, external)
       result = fuzzer.minimize(
         mismatch, max_trials: @options.fetch(:fuzz_max_reduction_trials, 1_000)
       )
-      details = mismatch.details.dup #: Hash[Symbol, Object?]
+      details = mismatch.details.dup #: Hash[Symbol, untyped]
       details[:minimized_tokens] = result.items
       details[:reduction] = {
         original_size: result.original_size, minimized_size: result.items.length,

@@ -11,7 +11,7 @@ module Ibex
         pending = [item] #: Array[pending_item]
         output = [] #: Array[String]
         until pending.empty?
-          current = pending.pop
+          current = pending.pop || raise(ArgumentError, "expression stack unexpectedly empty")
           if current.is_a?(String)
             output << current
             next
