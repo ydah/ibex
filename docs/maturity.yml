@@ -1,7 +1,7 @@
 schema_version: 1
 audit:
   reviewed_at: "2026-08-10"
-  reviewed_repository_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+  reviewed_repository_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
   issue_audits:
     - id: github-open-issues-2026-08-04
       provider: github_search_api
@@ -81,7 +81,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 9fd614c09314c28fa4fe5a4d56d2425b46fc2b5905fa72a1ab58784c4505af2f
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -89,7 +89,7 @@ features:
               - lib/ibex/normalize/expander.rb
             absent_paths: []
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
-          source_tree_sha256: 425df2a7de5f852973b6a106177f0062f44391a9df153db94b52081e9f0adf97
+          source_tree_sha256: 96f1fa5683395b561bfaf24671ea1f25fee14adde44110f38874ed69aff7b3d0
       changes:
         - boundary: introduction..v0.1.0
           from_revision: 346aabfd867a4eb13ebbe4a372084f129fb7401f
@@ -185,7 +185,7 @@ features:
           unresolved_uncertainty: No release-bound EBNF groups contract or behavior oracle isolates this surface from adjacent edits in the shared paths, so unchanged public semantics cannot be established.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: no_semantic_change
           commit_assessments:
             - revision: 182ec56448cea9bdc1116058966d6bbdb463cedc
@@ -204,6 +204,10 @@ features:
               classification: no_semantic_change
               summary: "Type auxiliary boundaries"
               contract_effect: "Type auxiliary boundaries updates type annotations and checked boundaries without changing the ebnf-groups public contract; the public contract remains unchanged. Evidence: lib/ibex/normalize/expander.rb."
+            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+              classification: no_semantic_change
+              summary: "Strengthen type boundaries and refresh inventory"
+              contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the ebnf-groups public contract; the public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
           diff_paths:
             - lib/ibex/frontend/ast.rb
             - lib/ibex/normalize/expander.rb
@@ -238,7 +242,7 @@ features:
       triggers: [Two released versions complete without an EBNF specification change., A public_real workload adopts EBNF groups.]
       required_evidence: [Exact-release R002 results, external-use evidence, specification-change ledger]
     release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
-    sources: [{ path: lib/ibex/normalize/expander.rb, sha256: 0b4a947cdd0aaa2659061cb8a819d445fc29e1338cdb4ced2d0bc114dd93b372 }]
+    sources: [{ path: lib/ibex/normalize/expander.rb, sha256: 980501cbc4e119d69d9d9a7d68fe9557346f06a65d70b5595d003e24f21009ad }]
 
   - id: parameterized-rules
     name: parameterized rules
@@ -281,7 +285,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 737cc90a5cd158bba61a9984fc121fbc859f6bf91d633b31cc77d98eb5b340c1
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -347,7 +351,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream parameterized rules compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: no_semantic_change
           commit_assessments:
             - revision: 182ec56448cea9bdc1116058966d6bbdb463cedc
@@ -374,6 +378,10 @@ features:
               classification: no_semantic_change
               summary: "Type frontend AST serialization"
               contract_effect: "Type frontend AST serialization updates type annotations and checked boundaries without changing the parameterized-rules public contract; the public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
+            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+              classification: no_semantic_change
+              summary: "Strengthen type boundaries and refresh inventory"
+              contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the parameterized-rules public contract; the public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
           diff_paths:
             - lib/ibex/frontend/ast.rb
             - lib/ibex/normalize/parameters.rb
@@ -451,7 +459,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 02919ea72da0a741bbac49d28cc5caffc5649895c3cf46dc6fcc207c06ef47c4
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -459,7 +467,7 @@ features:
               - lib/ibex/normalize/inline_expansion.rb
             absent_paths: []
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
-          source_tree_sha256: f3139329918873083a9565e3447d55adf7f202270c2297229a3b4bae0b27b929
+          source_tree_sha256: 180a6d8748f4a3af8b17cffb664920174cff312722c38bcb72bcdc2dda0253f9
       changes:
         - boundary: introduction..v0.2.0
           from_revision: 18f618c490c91837b97e628c178c6dd4e50abb4d
@@ -521,7 +529,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream inline rules compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: no_semantic_change
           commit_assessments:
             - revision: cbb14a3db79312077f7239741e6da1e8177f3b44
@@ -544,6 +552,10 @@ features:
               classification: no_semantic_change
               summary: "Type inline expansion frames and plans"
               contract_effect: "Type inline expansion frames and plans updates type annotations and checked boundaries without changing the inline-rules public contract; the public contract remains unchanged. Evidence: lib/ibex/normalize/inline_expansion.rb."
+            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+              classification: no_semantic_change
+              summary: "Strengthen type boundaries and refresh inventory"
+              contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the inline-rules public contract; the public contract remains unchanged. Evidence: lib/ibex/normalize/inline_expansion.rb."
           diff_paths:
             - lib/ibex/normalize.rb
             - lib/ibex/normalize/inline_expansion.rb
@@ -578,7 +590,7 @@ features:
       triggers: [Two releases complete without inline-rule specification changes., A public catalog records inline expansion impact.]
       required_evidence: [External workload record, catalog measurements, exact-release R002 results]
     release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
-    sources: [{ path: lib/ibex/normalize/inline_expansion.rb, sha256: d45ad7ec0cd60890d1ede65ca6741ca753c251d1800a26d0b38dfd779c4bb5f9 }]
+    sources: [{ path: lib/ibex/normalize/inline_expansion.rb, sha256: f2c6d4fbc44f199dc72071f07d0fff514706e7d724196f32137928b01a385676 }]
 
   - id: middle-actions
     name: middle actions
@@ -629,7 +641,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 14c3291260bae717d1ff850db06f73b748047d4686de72cbc85d3926903c73ce
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -638,7 +650,7 @@ features:
               - lib/ibex/normalize/expander.rb
             absent_paths: []
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
-          source_tree_sha256: e732f445af7bb73a3c3314ab5d0bb747e359103171312080ecea734469122492
+          source_tree_sha256: e6dbde03b3332e30b02579deefeab84939c1b3206e355abb80b6ef7f1d869471
       changes:
         - boundary: introduction..v0.1.0
           from_revision: 7a7a33b0743e80bf5a93e34259eec98318558ee5
@@ -756,7 +768,7 @@ features:
           unresolved_uncertainty: No release-bound middle actions contract or behavior oracle isolates this surface from adjacent edits in the shared paths, so unchanged public semantics cannot be established.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: no_semantic_change
           commit_assessments:
             - revision: 182ec56448cea9bdc1116058966d6bbdb463cedc
@@ -775,6 +787,10 @@ features:
               classification: no_semantic_change
               summary: "Type auxiliary boundaries"
               contract_effect: "Type auxiliary boundaries updates type annotations and checked boundaries without changing the middle-actions public contract; the public contract remains unchanged. Evidence: lib/ibex/normalize/expander.rb."
+            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+              classification: no_semantic_change
+              summary: "Strengthen type boundaries and refresh inventory"
+              contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the middle-actions public contract; the public contract remains unchanged. Evidence: lib/ibex/frontend/ast.rb."
           diff_paths:
             - lib/ibex/frontend/ast.rb
             - lib/ibex/frontend/parser/rules.rb
@@ -812,7 +828,7 @@ features:
     release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
     sources:
       - { path: lib/ibex/frontend/parser/rules.rb, sha256: 3e94ab8f08275e9cfdc6cc5a2db905498102648c4a9117939e2c7a7f062c46ca }
-      - { path: lib/ibex/normalize/expander.rb, sha256: 0b4a947cdd0aaa2659061cb8a819d445fc29e1338cdb4ced2d0bc114dd93b372 }
+      - { path: lib/ibex/normalize/expander.rb, sha256: 980501cbc4e119d69d9d9a7d68fe9557346f06a65d70b5595d003e24f21009ad }
 
   - id: multiple-entries
     name: multiple entries
@@ -855,7 +871,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: f4188d78228e88003c7f969f1bcb54ff57e243a79eb045634cb6b7522ccadeb5
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -863,7 +879,7 @@ features:
               - lib/ibex/codegen/ruby.rb
             absent_paths: []
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
-          source_tree_sha256: 9c6507a95011f7cb6b0c1d7f7d29d9227976f0eea393e75f123045a3083e8a8e
+          source_tree_sha256: b40844327d15c778a95f24c43e4a126592594791d63b16af1f4e2af520d8ecea
       changes:
         - boundary: introduction..v0.2.0
           from_revision: 24c7d97c2dc9f6fc9e90cef618cec56f1e5a6a9a
@@ -1005,7 +1021,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream multiple entries compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: no_semantic_change
           commit_assessments:
             - revision: c7d02d408e1778bb8018c1876f8728949bf7aa24
@@ -1044,6 +1060,10 @@ features:
               classification: no_semantic_change
               summary: "Type LALR build collections"
               contract_effect: "Type LALR build collections updates type annotations and checked boundaries without changing the multiple-entries public contract; the public contract remains unchanged. Evidence: lib/ibex/lalr/builder.rb."
+            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+              classification: no_semantic_change
+              summary: "Strengthen type boundaries and refresh inventory"
+              contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the multiple-entries public contract; the public contract remains unchanged. Evidence: lib/ibex/lalr/builder.rb."
           diff_paths:
             - lib/ibex/codegen/ruby.rb
             - lib/ibex/lalr/builder.rb
@@ -1078,7 +1098,7 @@ features:
       triggers: [Two releases complete without entry-semantics changes., A public_real multi-entry grammar is registered.]
       required_evidence: [Multi-entry external workload, full promotion matrix, exact-release R002 results]
     release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
-    sources: [{ path: lib/ibex/codegen/ruby.rb, sha256: 59742bef419c030fd027a32d4f4b555dc1cfe25ed9920fb25c5ce58e5eb73c86 }]
+    sources: [{ path: lib/ibex/codegen/ruby.rb, sha256: 933a156a39aa4dcbfe3396da0262054378ca3c73c7f651561b24347997fdd3dc }]
 
   - id: canonical-imports
     name: canonical imports
@@ -1121,7 +1141,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 2146bc5fe8a3e676508e4a34d966ced6f9845d7733917c701e6b27e1ea3c569f
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -1166,7 +1186,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream canonical imports compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: no_semantic_change
           commit_assessments:
             - revision: 182ec56448cea9bdc1116058966d6bbdb463cedc
@@ -1249,7 +1269,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: f7f21704a0bd536f0c144a08dcd1f5df629385c6a2842fc74b81f548e33f4177
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -1257,7 +1277,7 @@ features:
               - lib/ibex/runtime/generated_lexer.rb
             absent_paths: []
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
-          source_tree_sha256: e40f5e160409df96873b39d29126ed6ea9a2408f3aa6b9c258680fa449c2a1ca
+          source_tree_sha256: 482f7ba6b11471f1707bca53a2accf2e253518202794cd2a8df4639342778488
       changes:
         - boundary: introduction..v0.2.0
           from_revision: 04dd9773f522cd76bbf3c6678b66f0ee3e9142f1
@@ -1302,7 +1322,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream generated lexers compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: no_semantic_change
           commit_assessments:
             - revision: 7f248ebaa71bdf55ea8943aa75f9474e4c108831
@@ -1325,6 +1345,10 @@ features:
               classification: no_semantic_change
               summary: "Type parser and lexer value boundaries"
               contract_effect: "Type parser and lexer value boundaries updates type annotations and checked boundaries without changing the generated-lexers public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/generated_lexer.rb."
+            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+              classification: no_semantic_change
+              summary: "Strengthen type boundaries and refresh inventory"
+              contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the generated-lexers public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/generated_lexer.rb."
           diff_paths:
             - lib/ibex/runtime/generated_lexer.rb
           rationale: The exact path-limited Git review inspected 1 commits; their changes do not alter the public generated lexers syntax, API, or behavior represented by this inventory row.
@@ -1358,7 +1382,7 @@ features:
       triggers: [Two releases complete without lexer specification changes., A public_real stateful lexer is registered.]
       required_evidence: [External lexer workload, safety review, exact-release R002 results]
     release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
-    sources: [{ path: lib/ibex/runtime/generated_lexer.rb, sha256: 639539da0a5bb9cb8f39f5a5968711f67b44c3cd230bf0071395aa61550cbed9 }]
+    sources: [{ path: lib/ibex/runtime/generated_lexer.rb, sha256: f2a798d9f45ced3a6dba12a9473b40fb0b904e2f8f3e0875ee88b49a4daf0f55 }]
 
   - id: semantic-locations-types
     name: semantic locations/types
@@ -1417,7 +1441,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 3f06fbb519913e0f96033da484dbeefc2490b4756aa8d450013c511720e89bde
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -1428,7 +1452,7 @@ features:
               - lib/ibex/runtime/parser.rb
             absent_paths: []
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
-          source_tree_sha256: 9ea0e5b3c905f58f19a37594f71221d46910c20bfdcb08cbcd97b67029863b39
+          source_tree_sha256: 29e1bd96aa4aa99d739f67c5ef1953cc22f9c67df190008569863899b6fb6297
       changes:
         - boundary: introduction..v0.2.0
           from_revision: 3b763cc9f7a79618816db029de4e5d14339796f0
@@ -1692,7 +1716,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream semantic locations/types compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: no_semantic_change
           commit_assessments:
             - revision: 5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
@@ -1791,6 +1815,10 @@ features:
               classification: no_semantic_change
               summary: "Type parser recovery value boundaries"
               contract_effect: "Type parser recovery value boundaries updates type annotations and checked boundaries without changing the semantic-locations-types public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+              classification: no_semantic_change
+              summary: "Strengthen type boundaries and refresh inventory"
+              contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the semantic-locations-types public contract; the public contract remains unchanged. Evidence: lib/ibex/codegen/ruby.rb."
           diff_paths:
             - lib/ibex/codegen/rbs.rb
             - lib/ibex/codegen/ruby.rb
@@ -1829,9 +1857,9 @@ features:
     release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
     sources:
       - { path: lib/ibex/codegen/rbs.rb, sha256: 80dead575a27ed8c4d78d57e7d47bbab815864c474b170ffd3da4411e7c74c4a }
-      - { path: lib/ibex/codegen/ruby.rb, sha256: 59742bef419c030fd027a32d4f4b555dc1cfe25ed9920fb25c5ce58e5eb73c86 }
+      - { path: lib/ibex/codegen/ruby.rb, sha256: 933a156a39aa4dcbfe3396da0262054378ca3c73c7f651561b24347997fdd3dc }
       - { path: lib/ibex/frontend/generated_parser_metadata.rb, sha256: 27fdc65dd639fe8c7766bcaaa6c8e495948405e1e37b49edf042cf9cd34664b7 }
-      - { path: lib/ibex/runtime/parser.rb, sha256: 836ba832444141860b6adb57950844dccd5f8d5502eeb13f6a3da41f1a112619 }
+      - { path: lib/ibex/runtime/parser.rb, sha256: ee54d0deea59d24bb5f710d1037441429c8242d5583e709065cb54cc356506d0 }
 
   - id: ast-generation
     name: AST generation
@@ -1874,7 +1902,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 9d4f4758d4a277bfe13bc1ab29439bd16e6fbe1e6c91a8b501a3cc72b2d228cf
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -1907,7 +1935,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream AST generation compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -1986,7 +2014,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: f0d93af7ff066a056227c8e17ff986e6ceec8191942a74040c89f9942f64cf53
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -2015,7 +2043,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream grammar tests compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: no_semantic_change
           commit_assessments:
             - revision: d9fffee4fa362100a823fe817561961061a5255d
@@ -2098,7 +2126,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 053062524dddaac323bcc886db766e68d4231697308b27409951bd49b3005d72
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -2123,7 +2151,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream documentation tooling compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -2202,7 +2230,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: ded44c69663f48c36cd15fda5b10cc1c8c2a0b19b0a763269d9db2bfa969ef5a
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -2210,7 +2238,7 @@ features:
               - lib/ibex/lalr/builder.rb
             absent_paths: []
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
-          source_tree_sha256: 9c9d281d11c669db67a83382263a0b7bd7fae03036b3f57933c09a3c08c52592
+          source_tree_sha256: e146d3445d9275dc1ff9ea755fb5fd428d95c116a9690fc15ed4d58729dd90b3
       changes:
         - boundary: introduction..v0.2.0
           from_revision: bd09dc7ddff179923a0d629b619f86908db8183c
@@ -2263,7 +2291,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream IELR compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: semantic_change
           commit_assessments:
             - revision: 7017c876dca4fa37525094b6a8b69c9071bec407
@@ -2286,6 +2314,10 @@ features:
               classification: no_semantic_change
               summary: "Type LALR build collections"
               contract_effect: "Type LALR build collections updates type annotations and checked boundaries without changing the ielr public contract; the public contract remains unchanged. Evidence: lib/ibex/lalr/builder.rb."
+            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+              classification: no_semantic_change
+              summary: "Strengthen type boundaries and refresh inventory"
+              contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the ielr public contract; the public contract remains unchanged. Evidence: lib/ibex/lalr/builder.rb."
           diff_paths:
             - lib/ibex/lalr/builder.rb
           rationale: The path-limited review found bounded construction profiling, additive IR persistence, and a typed construction factory refactor; all preserve the public IELR syntax, API, behavior, and construction contract.
@@ -2319,7 +2351,7 @@ features:
       triggers: [Two releases complete without IELR semantics changes., A public_real LALR-inadequacy user publishes a verified benefit.]
       required_evidence: [V001/direct-comparison evidence, external workload benefit, exact-release R002 results]
     release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
-    sources: [{ path: lib/ibex/lalr/builder.rb, sha256: 9849e28d62e88402a998e547191edfa21259c68b54911a10c1aa88505cb7974c }]
+    sources: [{ path: lib/ibex/lalr/builder.rb, sha256: 7eb44da23f446d8ea7cd658bb249dcba72cf1c557d17fd84a407e9efc818d211 }]
 
   - id: lsp
     name: LSP
@@ -2362,7 +2394,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: bec58a0b4eaa7387561cd67b1d3aba981ab21898c55749e188f9bc85e6155963
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -2370,7 +2402,7 @@ features:
               - lib/ibex/lsp/server.rb
             absent_paths: []
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
-          source_tree_sha256: 89d9657facdd26bbb7a7b9181c373edf5efa54d23ae60c9b6b7e26daa6350e45
+          source_tree_sha256: 65fd657a4cfc1a24f9bd4e0aee986d45693a0b0c293f65af146035f0768600a5
       changes:
         - boundary: introduction..v0.2.0
           from_revision: 0210f4b2be2099599ff6406e18509bee5c6e6cf8
@@ -2387,7 +2419,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream LSP compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: semantic_change
           commit_assessments:
             - revision: f352b4ab2b8f4e09479452f6b26deea7c8959b8f
@@ -2398,6 +2430,10 @@ features:
               classification: no_semantic_change
               summary: "Type LSP server protocol values"
               contract_effect: "Type LSP server protocol values updates type annotations and checked boundaries without changing the lsp public contract; the public contract remains unchanged. Evidence: lib/ibex/lsp/server.rb."
+            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+              classification: no_semantic_change
+              summary: "Strengthen type boundaries and refresh inventory"
+              contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the lsp public contract; the public contract remains unchanged. Evidence: lib/ibex/lsp/server.rb."
           diff_paths:
             - lib/ibex/lsp/server.rb
           rationale: The reviewed parser-settings assistance commit changes the public LSP API behavior; no broader editor compatibility claim is made from repository evidence.
@@ -2431,7 +2467,7 @@ features:
       triggers: [Two releases complete without LSP contract changes., Two independently maintained editor integrations report field use.]
       required_evidence: [Editor integration records, workspace profile, exact-release R002 results]
     release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
-    sources: [{ path: lib/ibex/lsp/server.rb, sha256: fb2dadaf3abd3044e0f1fa4593ce33c0b79d01185553a23613c3836766a3fa3b }]
+    sources: [{ path: lib/ibex/lsp/server.rb, sha256: f60bff6bade17057a37c75a30f311303217f7ff48f3d4c4b7ffaf72fea945a94 }]
 
   - id: watch
     name: watch
@@ -2474,7 +2510,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: cda7969bb4aee0e322fe7f2fb6cc510b42e9070f1b356c1f5430c8e391c98e1c
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -2482,7 +2518,7 @@ features:
               - lib/ibex/watch/runner.rb
             absent_paths: []
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
-          source_tree_sha256: 42322ccf54db2e20c16d6fdfe66aafb19cfa27ec7c4da5427cea711544588eec
+          source_tree_sha256: 799b547ef892841aa9df2e6a29ca24d73ef37aaa8076857e757dc19b8110c8fd
       changes:
         - boundary: introduction..v0.2.0
           from_revision: 5b8151385c491366deb41c930a1132599edfb9e9
@@ -2499,13 +2535,17 @@ features:
           unresolved_uncertainty: This path review does not establish downstream watch compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: no_semantic_change
           commit_assessments:
             - revision: 750d6514c825b0c805724b2f7ff430a6b95cdfe6
               classification: no_semantic_change
               summary: "Type watch runner callbacks"
               contract_effect: "Type watch runner callbacks updates type annotations and checked boundaries without changing the watch public contract; the public contract remains unchanged. Evidence: lib/ibex/watch/runner.rb."
+            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+              classification: no_semantic_change
+              summary: "Strengthen type boundaries and refresh inventory"
+              contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the watch public contract; the public contract remains unchanged. Evidence: lib/ibex/watch/runner.rb."
           diff_paths:
             - lib/ibex/watch/runner.rb
           rationale: The exact path-limited Git review found no commits in this boundary, so no public watch syntax, API, or behavior change appears in the reviewed scope.
@@ -2539,7 +2579,7 @@ features:
       triggers: [Two releases complete without watch-contract changes., A public project reports sustained watch operation.]
       required_evidence: [Long-running external record, host matrix, exact-release R002 results]
     release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
-    sources: [{ path: lib/ibex/watch/runner.rb, sha256: c3daa75b5dc1281195ccbd14bd0256f3400c96d7a89849cb6d5addbc781c3ea9 }]
+    sources: [{ path: lib/ibex/watch/runner.rb, sha256: 0011eab3c3d059e4f89048e12b934984ecbe031aa1c9d023821cf8807af418e9 }]
 
   - id: debug
     name: debug
@@ -2582,7 +2622,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: d222492d82cf0d871cec9b7c187ebe45c839ce0dfe22e980dd66950cd7c0159d
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -2607,7 +2647,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream debug compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -2686,7 +2726,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 9b6bb2992c0d329800afe3d235b34419311c882f91ec0f196d7407ba63a24a02
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -2711,7 +2751,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream coverage compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: no_semantic_change
           commit_assessments:
             - revision: 1fcc2ef4eca64bbabd3bc8a8902cfe72c8349983
@@ -2798,7 +2838,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 4b8e347c3ce4bd539c1e2fec9807e33c7f268265ae6ec8a3abc01fe58e6c1daa
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -2823,7 +2863,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream browser playground compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: no_semantic_change
           commit_assessments: []
           diff_paths:
@@ -2902,7 +2942,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: a26d41b60b98d6d4b2e7e51d18c28a44242e08ec1922745be48c63ad58facff5
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -2910,7 +2950,7 @@ features:
               - lib/ibex/codegen/action_method_source.rb
             absent_paths: []
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
-          source_tree_sha256: 028a0eeb36fe329bb8ade4183c5d1c2c3dda64b490d3b637b70969e9831c9abe
+          source_tree_sha256: 62f980d82c3a756e4bb6eb1267db867676b0781e85ededc733e65caca1064353
       changes:
         - boundary: introduction..v0.2.0
           from_revision: 51234f2acc5080981c399f3821fe61d07f4b38af
@@ -2947,13 +2987,17 @@ features:
           unresolved_uncertainty: This path review does not establish downstream action-shadow compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: no_semantic_change
           commit_assessments:
             - revision: ed53f00a17a7282b51010c837abda11f45758642
               classification: no_semantic_change
               summary: "Type code generation composition inputs"
               contract_effect: "Type code generation composition inputs updates type annotations and checked boundaries without changing the action-shadow public contract; the public contract remains unchanged. Evidence: lib/ibex/codegen/action_method_source.rb."
+            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+              classification: no_semantic_change
+              summary: "Strengthen type boundaries and refresh inventory"
+              contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the action-shadow public contract; the public contract remains unchanged. Evidence: lib/ibex/codegen/action_method_source.rb."
           diff_paths:
             - lib/ibex/codegen/action_method_source.rb
           rationale: The exact path-limited Git review found no commits in this boundary, so no public action-shadow syntax, API, or behavior change appears in the reviewed scope.
@@ -2987,7 +3031,7 @@ features:
       triggers: [Two releases complete without action-shadow contract changes., A public project adopts the output in type checking.]
       required_evidence: [External type-checker record, source-size profile, exact-release R002 results]
     release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
-    sources: [{ path: lib/ibex/codegen/action_method_source.rb, sha256: 045fe6e0b96e595ea2a60f1bc7c325f62603d421320abe583f2331cfac17ec4a }]
+    sources: [{ path: lib/ibex/codegen/action_method_source.rb, sha256: 4331c52fd0e478e864f4fa52c1c66212529fb17597f2e6b543a8d88dd4682291 }]
 
   - id: bounded-repair
     name: bounded repair
@@ -3030,7 +3074,7 @@ features:
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
           source_tree_sha256: 1246123e021816c3e0c04887e091f72e34235356de937f669cf8a2cd18a84cc7
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -3055,7 +3099,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream bounded repair compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: semantic_change
           commit_assessments:
             - revision: 7dbe2d59779f270cf532b690c998ff8d23c962d7
@@ -3156,7 +3200,7 @@ features:
             rationale: Incremental CST was present, while the later embedded manifest and public SyntaxSession façade were not yet available.
           source_tree_sha256: 2d60905f328e3ac5f4307964a07d910a25009991f47e42895044e23662046d5d
         - id: reviewed
-          revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           feature_status: present
           canonical_presence:
             status: complete
@@ -3169,7 +3213,7 @@ features:
               - lib/ibex/runtime/cst/incremental/session.rb
             absent_paths: []
             rationale: All validator-owned canonical blobs exist at this reviewed tree.
-          source_tree_sha256: caafd36e2992ba578dec7fa65171938d2326fe9fe1dddcaa27bb241ff421f955
+          source_tree_sha256: 86c03d25a30431bb0d5f10d8d64d522a81f1be8e3a998859f6efff3770e60346
       changes:
         - boundary: introduction..v0.2.0
           from_revision: 5da90340090232df0e4266cf6ddd835777ca00f7
@@ -3211,7 +3255,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream incremental CST compatibility or behavior outside the validator-owned introduction and canonical source scope.
         - boundary: v0.2.0..reviewed
           from_revision: bd88b1203706c37bf225e837a2fe46d334d4651d
-          to_revision: 12f924526d7d4e9abed8b3d1410b5f4c5be90e22
+          to_revision: a4b24e02065efb515a23087a90fb7d681c2101b2
           classification: semantic_change
           commit_assessments:
             - revision: 5a154fe8ad3e332ef96443d0e3f2661111aa6bfd
@@ -3306,6 +3350,10 @@ features:
               classification: no_semantic_change
               summary: "Type parser recovery value boundaries"
               contract_effect: "Type parser recovery value boundaries updates type annotations and checked boundaries without changing the incremental-cst public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
+            - revision: a4b24e02065efb515a23087a90fb7d681c2101b2
+              classification: no_semantic_change
+              summary: "Strengthen type boundaries and refresh inventory"
+              contract_effect: "Strengthen type boundaries and refresh inventory updates type annotations and checked boundaries without changing the incremental-cst public contract; the public contract remains unchanged. Evidence: lib/ibex/runtime/parser.rb."
           diff_paths:
             - lib/ibex/runtime.rb
             - lib/ibex/runtime/cst/incremental/relexer.rb
@@ -3347,7 +3395,7 @@ features:
     sources:
       - { path: lib/ibex/runtime.rb, sha256: 8f4c111839a8865cb2955cc6af65456f3e8f68bad16714f8d8ff7e3a79cc2474 }
       - { path: lib/ibex/runtime/embedded_source.rb, sha256: 9900125ad218130b2fa1b777f288c39e7f58e13991e17f6355bdf04fb8e1f23f }
-      - { path: lib/ibex/runtime/parser.rb, sha256: 836ba832444141860b6adb57950844dccd5f8d5502eeb13f6a3da41f1a112619 }
-      - { path: lib/ibex/runtime/syntax_session.rb, sha256: 50ca06b9d499c4c3ea42541ed968f19ed84b9a47ae8fee068bbee365dfff17af }
+      - { path: lib/ibex/runtime/parser.rb, sha256: ee54d0deea59d24bb5f710d1037441429c8242d5583e709065cb54cc356506d0 }
+      - { path: lib/ibex/runtime/syntax_session.rb, sha256: 75c35d1cfcc68258b1981e7543942597348936e25427c7b4615be89d18cea12e }
       - { path: lib/ibex/runtime/cst/incremental/relexer.rb, sha256: 14157088f33f4517cfe91af7de5fc428bd0f114222b31d3c3ea7ff7ce257dfb3 }
-      - { path: lib/ibex/runtime/cst/incremental/session.rb, sha256: 407c460729b5e11019c2987c8de60e2b10076cd862b4a14dc45b2a744f9cfafb }
+      - { path: lib/ibex/runtime/cst/incremental/session.rb, sha256: 8092f39b1a57d29d89188ec0189923a78063ec9d05cceff300b7158b87afe806 }
