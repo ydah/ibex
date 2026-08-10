@@ -5,9 +5,9 @@
   "review_phase": "blind_collection",
   "reason": "awaiting_at_least_two_independent_human_reviews",
   "study_path": "test/fixtures/conflict_explanations/study-v1.json",
-  "study_sha256": "13874dc73f43da3174677f608382edac11ca21d520baa0cf956ce71d1b37b112",
+  "study_sha256": "0587a6b9371df45b8e7f04e9d1fbfee218fcd15955faefca8c91404ec294b5e1",
   "blind_artifact_path": "docs/conflict-explanation-reviews/v1/blind-study-v1.json",
-  "blind_artifact_sha256": "dd642f5cc435538b53353efc51a2abee3bfb26ac35f8bd00a75d575ca740663a",
+  "blind_artifact_sha256": "15a1af694e2447d2c74329e86fd591a24ce7742cbf043c6acf9c740efebe15b6",
   "records": [],
   "disagreement_summary": "not_available_without_reviews"
 }

@@ -11,7 +11,7 @@ ibex config --from=grammar-ir --format=json grammar.json
 The command has a `static-no-user-code` trust boundary. For grammar source it uses the contained source resolver, so
 the root grammar and its import closure are parsed as data while parent traversal, absolute imports, glob imports,
 and symlink escapes are rejected. Parser actions, lexer actions, user-code sections, and generated parser classes are
-never executed or required. Grammar IR input is accepted only through the normal versioned IR validator.
+never executed or required. Grammar IR input is accepted only through the normal current-format validator.
 
 Each setting reports its effective value, owner, override policy, origin and source location when recorded,
 explicit or implicit selection, canonical or noncanonical conformance, recording status, and source evidence.

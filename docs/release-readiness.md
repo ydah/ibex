@@ -24,8 +24,9 @@ R001: `HOLD` — [`awaiting_independent_review`](error-ux-review-status-v1.json)
 Feature development is not frozen. The open release gate blocks publication of
 v1.0, not feature development. New work remains subject to the feature budgets,
 maturity rules, compatibility checks, and exact-revision release gates
-documented by the project. The versioned core Grammar IR and Automaton IR
-contracts remain frozen.
+documented by the project. The current Grammar IR and Automaton IR contracts
+remain closed and validated; before v1.0, incompatible changes are coordinated
+with their writers, readers, schemas, fixtures, and downstream consumers.
 
 The format-v6 batch Red/Green CST has been selected as part of the initial
 Stable v1 API. Its syntax-only incremental layer remains Experimental. Other

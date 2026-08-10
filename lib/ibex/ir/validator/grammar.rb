@@ -3,7 +3,7 @@
 module Ibex
   module IR
     module Validator
-      # Structural and referential validation for a versioned Grammar IR JSON object.
+      # Structural and referential validation for a current Grammar IR JSON object.
       # rubocop:disable Metrics/ClassLength -- inline type contracts accompany one cohesive document validator.
       class GrammarDocument < Base
         ROOT_REQUIRED = %w[
@@ -13,10 +13,10 @@ module Ibex
         ROOT_OPTIONAL = %w[user_code_chunks expect_rr params printers tests recovery lexer mode starts].freeze #: Array[String]
         SYMBOL_REQUIRED = %w[id name kind reserved prec loc].freeze #: Array[String]
         SYMBOL_OPTIONAL = %w[display_name semantic_type].freeze #: Array[String]
-        V2_SYMBOL_REQUIRED = %w[doc].freeze #: Array[String]
+        SYMBOL_METADATA_REQUIRED = %w[doc].freeze #: Array[String]
         PRODUCTION_REQUIRED = %w[id lhs rhs action prec_override origin].freeze #: Array[String]
-        V2_PRODUCTION_REQUIRED = %w[doc expansion].freeze #: Array[String]
-        V2_ACTION_REQUIRED = %w[composition].freeze #: Array[String]
+        PRODUCTION_METADATA_REQUIRED = %w[doc expansion].freeze #: Array[String]
+        ACTION_COMPOSITION_REQUIRED = %w[composition].freeze #: Array[String]
         ORIGIN_KINDS = %w[
           optional_expansion star_expansion plus_expansion separated_list_expansion group_expansion
         ].freeze #: Array[String]
@@ -175,7 +175,7 @@ module Ibex
         # @rbs (json_value value, Integer index) -> void
         def validate_symbol(value, index)
           path = "#{@path}.symbols[#{index}]"
-          required = SYMBOL_REQUIRED + V2_SYMBOL_REQUIRED
+          required = SYMBOL_REQUIRED + SYMBOL_METADATA_REQUIRED
           symbol = record(value, path, required, SYMBOL_OPTIONAL)
           id = nonnegative_integer(symbol["id"], "#{path}.id")
           invalid("#{path}.id", "must equal its array index #{index}") unless id == index
@@ -295,7 +295,7 @@ module Ibex
         # @rbs (json_value value, Integer index) -> void
         def validate_production(value, index)
           path = "#{@path}.productions[#{index}]"
-          required = PRODUCTION_REQUIRED + V2_PRODUCTION_REQUIRED
+          required = PRODUCTION_REQUIRED + PRODUCTION_METADATA_REQUIRED
           optional = %w[node] #: Array[String]
           production = record(value, path, required, optional)
           id = nonnegative_integer(production["id"], "#{path}.id")
@@ -352,7 +352,7 @@ module Ibex
         def validate_action(value, path, rhs_length:)
           return if value.nil?
 
-          required = %w[code loc named_refs context_length] + V2_ACTION_REQUIRED
+          required = %w[code loc named_refs context_length] + ACTION_COMPOSITION_REQUIRED
           action = record(value, path, required)
           string(action["code"], "#{path}.code")
           location(action["loc"], "#{path}.loc", nullable: false)

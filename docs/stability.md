@@ -71,7 +71,7 @@ parser construction. It consumes the one grammar-syntax slot while extending
 the existing Preview IELR and multiple-entry surfaces; it is not a Stable
 promotion. A pull request that starts or ends a track must update this
 statement and the inventory below.
-These limits do not relax the versioned core IR contracts described under
+These limits do not relax the core IR contracts described under
 [Core IR freeze](#core-ir-freeze), but they do permit retiring an unpromoted
 Preview implementation when its maintenance cost exceeds its evidence.
 
@@ -83,7 +83,7 @@ Stable:
 - default direct LALR construction, parser tables, recovery callbacks,
   observation events, resource limits, migration checks, and bounded
   counterexample/ambiguity analysis;
-- versioned core Grammar IR, Automaton IR, Lexer IR, table formats, report
+- current core Grammar IR and Automaton IR, independently versioned Lexer IR, table formats, report
   schemas, and their validators;
 - format-v6 Red/Green batch CST parsing, typed syntax views, persistent editing
   and diffing, and the closed `ibex_cst` schema v1 serialization contract.
@@ -159,19 +159,20 @@ The supported alternatives are canonical LR(1) or IELR for LALR inadequacy,
 bounded ambiguity/counterexample analysis for ambiguous grammars, and
 `--watch` with full deterministic reparsing for editing workflows.
 
-## Core IR freeze
+## Core IR contract
 
-The required fields, meanings, identity rules, ordering, and validation
-semantics of a published core Grammar IR or Automaton IR version are frozen
-for the lifetime of that published version. Before v1.0, an unpublished or
- migration-only reader may be retired when its maintenance cost exceeds its
- value. Grammar and Automaton IR have one current closed format. Older
- documents are rejected at the load boundary; there is no compatibility
- reader or migration command for them.
+Grammar IR and Automaton IR each have one current closed format. Their required
+fields, meanings, identity rules, ordering, and validation semantics are
+reviewed as one contract. Older documents are rejected at the load boundary;
+there is no compatibility reader or migration command for either document.
 
-Additive optional core fields require a minor release. Meaning changes,
-required-field changes, or removals require a new major schema version and
-continued reading of the immediately preceding major version.
+Before v1.0, an incompatible change to either current IR is a coordinated
+contract change: update the writer, reader, schemas, fixtures, and downstream
+consumers together. No legacy format is retained only to avoid a pre-release
+breaking change.
+
+Additive fields and meaning changes are deliberate schema changes with updated
+evidence. Current schemas remain closed and reject unknown fields.
 
 The `x-` namespace is reserved for future experimental data and is not frozen.
 Current closed schemas intentionally reject unknown fields and do not emit

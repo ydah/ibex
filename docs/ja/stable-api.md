@@ -20,14 +20,14 @@ plain/compact 表、yacc `error` 回復、コールバック、観測イベン�
 除去しないため、修復や `--apply` 対象ではなく未検証の助言として分離して
 表示します。
 
-## バージョン付き IR と表
+## Current IR と表
 
-<!-- stable:versioned-ir:v1 -->
+<!-- stable:current-ir:v1 -->
 
-Grammar IR、Automaton IR、Lexer IR、パーサ表、JSON レポートには版があり、
-closed schema の検証器は未知フィールド、不正な参照、版の不一致を拒否します。
-dump → load → dump は決定的です。既存の版の意味は書き換えず、互換性のない
-変更は新しい major schema として導入します。詳しい段階境界は
+Grammar IR と Automaton IR は一つの current closed schema を使い、Lexer IR は
+独立した schema を持ちます。検証器は未知フィールド、不正な参照、schema の
+不一致を拒否します。dump → load → dump は決定的です。v1.0 前の互換性のない
+変更は writer、reader、schema、fixture、利用側を同じ変更で更新します。詳しい境界は
 [`architecture.md`](../architecture.md) にあります。
 
 ## バッチ Red/Green CST

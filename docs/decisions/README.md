@@ -49,7 +49,7 @@ Use [`0000-template.md`](0000-template.md) for a new implementation decision.
 
 ## Current decisions
 
-- [0001: Separate pipeline stages with versioned IR](0001-versioned-ir-pipeline.md)
+- [0001: Separate pipeline stages with current IR](0001-separate-ir-pipeline.md)
 - [0002: Keep grammar-embedded Ruby opaque until code generation](0002-opaque-user-code-boundary.md)
 - [0003: Self-host the grammar parser behind an explicit bootstrap](0003-self-hosted-grammar-frontend.md)
 - [0004: Derive semantic and lossless source views from one lexing pass](0004-shared-semantic-and-lossless-source-model.md)

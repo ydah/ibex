@@ -3,7 +3,7 @@
 module Ibex
   type migrate_ir_options = { paths: Array[String], ?to: Integer, ?output: String }
 
-  # CLI validation and structural comparison for versioned IR documents.
+  # CLI validation and structural comparison for current IR documents.
   module CLIIRTools
     private def same_file_target?: (String left, String right) -> bool
 

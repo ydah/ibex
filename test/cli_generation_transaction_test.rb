@@ -42,8 +42,21 @@ class CLIGenerationTransactionTest < Minitest::Test
         [name, document]
       end
 
-      assert_equal documents.fetch("default").fetch("options"), documents.fetch("leading").fetch("options")
-      assert_equal documents.fetch("default").fetch("options"), documents.fetch("attach").fetch("options")
+      default_cst = documents.fetch("default").fetch("options").fetch("effective_configuration").find do |entry|
+        entry.fetch("key") == "cst.trivia"
+      end
+      leading_cst = documents.fetch("leading").fetch("options").fetch("effective_configuration").find do |entry|
+        entry.fetch("key") == "cst.trivia"
+      end
+      attach_cst = documents.fetch("attach").fetch("options").fetch("effective_configuration").find do |entry|
+        entry.fetch("key") == "cst.trivia"
+      end
+      assert_equal({ "kind" => "builtin" }, default_cst.fetch("origin"))
+      assert_equal false, default_cst.fetch("explicit")
+      assert_equal({ "kind" => "cli" }, leading_cst.fetch("origin"))
+      assert_equal true, leading_cst.fetch("explicit")
+      assert_equal({ "kind" => "cli" }, attach_cst.fetch("origin"))
+      assert_equal true, attach_cst.fetch("explicit")
       refute_equal documents.fetch("leading").fetch("options"), documents.fetch("balanced").fetch("options")
       refute_equal documents.fetch("leading").fetch("options"), documents.fetch("drop").fetch("options")
     end

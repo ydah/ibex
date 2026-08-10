@@ -4,8 +4,8 @@ require "json"
 
 module Ibex
   module IR
-    # Stable JSON serialization for versioned pipeline IR.
-    # rubocop:disable Metrics/ModuleLength -- explicit versioned fields keep serialization changes auditable.
+    # Stable JSON serialization for the current pipeline IR.
+    # rubocop:disable Metrics/ModuleLength -- explicit fields keep serialization changes auditable.
     # rubocop:disable Lint/SelfAssignment -- RBS inline assertions narrow schema-decoded values in place.
     module Serialize
       # @rbs!
@@ -96,7 +96,7 @@ module Ibex
         empty_printers = [] #: Array[serialized_value]
         empty_tests = [] #: Array[serialized_value]
         empty_recovery = { "sync_tokens" => [], "on_error_reduce" => [] } #: Hash[String, serialized_value]
-        schema_version = data.fetch("schema_version") #: Integer
+        data.fetch("schema_version") #: Integer
         symbols_data = data.fetch("symbols") #: Array[Hash[String, serialized_value]]
         symbols = symbols_data.map do |symbol|
           GrammarSymbol.new(id: symbol.fetch("id"), name: symbol.fetch("name"), kind: symbol.fetch("kind"),
@@ -132,7 +132,7 @@ module Ibex
         grammar = load_grammar(grammar_data)
         states_data = data.fetch("states") #: Array[Hash[String, serialized_value]]
         states = states_data.map { |state| load_state(state, grammar) }
-        schema_version = data.fetch("schema_version") #: Integer
+        data.fetch("schema_version") #: Integer
         Automaton.new(
           grammar: grammar, states: states, conflict_summary: symbolize(data.fetch("conflict_summary")),
           algorithm: data.fetch("algorithm"), grammar_digest: data.fetch("grammar_digest"),

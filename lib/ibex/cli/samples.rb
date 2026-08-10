@@ -83,7 +83,7 @@ module Ibex
 
     # @rbs (OptionParser options) -> void
     def add_sample_input_options(options)
-      options.on("--from=FORMAT", %w[grammar-ir automaton-ir], "read versioned IR JSON") do |value|
+      options.on("--from=FORMAT", %w[grammar-ir automaton-ir], "read current IR JSON") do |value|
         @options[:from] = value
       end
       options.on("--mode=MODE", %w[default extended], "grammar mode") do |value|

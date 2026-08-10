@@ -3,7 +3,7 @@
 module Ibex
   module IR
     module Validator
-      # Structural and referential validation for a versioned Automaton IR JSON object.
+      # Structural and referential validation for a current Automaton IR JSON object.
       # rubocop:disable Metrics/ClassLength -- inline type contracts accompany one cohesive document validator.
       class AutomatonDocument < Base
         ROOT_REQUIRED = %w[

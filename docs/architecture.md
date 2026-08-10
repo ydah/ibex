@@ -1,6 +1,6 @@
 # Architecture and IR schemas
 
-Ibex keeps syntax, grammar meaning, automaton construction, and output concerns behind two versioned immutable contracts.
+Ibex keeps syntax, grammar meaning, automaton construction, and output concerns behind two immutable current contracts.
 
 ```text
 .y root/fragments -> Frontend Lexer/CST -> self-hosted LR Parser -> canonical Resolver ─┐
@@ -60,8 +60,8 @@ actions, no arbitrary conversions, and no `header`, `inner`, or `footer`
 sections. The current generated parser API must not be described as that
 profile.
 
-An optional root-only `lexer` declaration normalizes to independently versioned
-The independently versioned Lexer IR and its flat rule list are embedded unchanged in the current Grammar IR.
+An optional root-only `lexer` declaration normalizes to the independently versioned
+Lexer IR and its flat rule list, which are embedded unchanged in the current Grammar IR.
 records state, declaration id, pattern source/options, action, and provenance;
 `--emit=lexer-ir` exposes the same document. Code generation compiles every
 pattern with an internal current-position anchor and emits immutable,
@@ -213,7 +213,7 @@ precedence, metadata, documentation, locations, and definition include chains fl
 
 Inline definitions are lowered temporarily, then a bounded deterministic post-pass substitutes marked alternatives through
 ordinary, parameterized, and EBNF productions before diagnostics and LR construction. It removes every marked symbol and
-production, remaps the dense symbol/production ids, and retains eliminated semantic reductions as a versioned post-order
+production, remaps the dense symbol/production ids, and retains eliminated semantic reductions as a stable post-order
 action plan. The plan addresses flattened physical values followed by earlier logical results, records a nullable semantic
 `result_type` on every newly emitted step, reconstructs surrounding stack
 prefixes and semantic spans, and remains executable after IR serialization. Cycle validation covers paths through ordinary
@@ -249,9 +249,9 @@ Ruby DSL, IR records, and automaton actions use concrete domain types. Generated
 cells, decoded JSON values, and user methods embedded as opaque Ruby source remain `untyped`; applications can reopen the generated
 class in their own RBS files to declare embedded methods.
 
-## Grammar IR versions 2 and 3
+## Current Grammar IR
 
-<!-- stable:versioned-ir:v1 -->
+<!-- stable:current-ir:v1 -->
 
 Top-level fields:
 
@@ -261,7 +261,7 @@ Top-level fields:
 | `class_name`, `superclass` | Generated Ruby class contract |
 | `start`, optional `starts`, `expect`, `options` | Primary/ordered start names, unresolved S/R expectation, result/action flags |
 | optional `params`, `printers` | Generated-constructor keywords and symbol-specific debug value formatters |
-| optional `lexer` | Embedded independently versioned Lexer IR v1 |
+| optional `lexer` | Embedded independently versioned Lexer IR |
 | `symbols` | Interned terminals and nonterminals; `$eof` id 0 and `error` id 1 |
 | `productions` | Numeric LHS/RHS ids, action, precedence override, source origin |
 | `user_code`, `conversions`, `warnings` | Concatenated code, external token expressions, structured diagnostics |
@@ -285,7 +285,7 @@ Normalized grammars use the current format for declaration-free source and carry
 
 | Record | Current-format metadata |
 |---|---|
-| grammar | `source_provenance {file, root, byte_span {start,end}}` and optional `migration` loss record |
+| grammar | `source_provenance {file, root, byte_span {start,end}}` |
 | symbol | `doc` |
 | production | `doc` and `expansion {parameter, inline, include_chain}` |
 | action | `composition {strategy, fragments, plan {version, physical, steps}}`; new steps include nullable `result_type` |
@@ -357,8 +357,8 @@ matching CLI values are allowed and conflicts are rejected with the contract loc
 the original source and rejects algorithm/entry construction flags because its tables are already built. A generation
 manifest records the grammar digest and contract separately from the embedded automaton's algorithm/entry facts and codegen-only
 effective configuration. Static IR views validate opaque action strings but never execute them. Published Draft 2020-12
-contracts for both versions live under `schema/`; see
-[ADR 0001](decisions/0001-versioned-ir-pipeline.md).
+contracts for both current IR documents live under `schema/`; see
+[ADR 0001](decisions/0001-separate-ir-pipeline.md).
 
 `--emit=sets` is a deterministic analysis view rather than another IR: it emits lexically sorted nullable nonterminals and
 FIRST/FOLLOW maps for nonterminals. DOT, Mermaid, and the self-contained searchable HTML report are deterministic presentation

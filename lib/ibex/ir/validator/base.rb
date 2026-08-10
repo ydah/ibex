@@ -7,7 +7,7 @@ module Ibex
       #   type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
       #   type json_object = Hash[String, json_value]
 
-      # Shared JSON-shape checks for the versioned IR documents.
+      # Shared JSON-shape checks for current IR documents.
       class Base
         POSITION = "(ir):1:1"
 

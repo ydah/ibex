@@ -186,7 +186,7 @@ bundle exec rake release:reproducible
 The gate normalizes the RBS declarations named in
 `tool/quality/stable-api-v1.yml` and requires zero differences from the
 v0.2.0 baseline. Comments and blank lines do not affect the fingerprint. The
-lock covers the Stable runtime, batch CST, versioned IR, and table surfaces;
+lock covers the Stable runtime, batch CST, current IR, and table surfaces;
 Preview- and Experimental-only signature files are not promoted by appearing
 elsewhere in the generated RBS tree.
 

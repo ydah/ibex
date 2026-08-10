@@ -11,19 +11,19 @@
 Parser construction algorithm, multiple-entry construction, and CST trivia
 ownership are durable grammar-owned contracts. They must survive normalization,
 IR-only generation, Automaton IR embedding, and static inspection before a
-source declaration can be released. Older Grammar IR documents did not contain
-these declarations or the effective CLI selections used when they were
-produced; migration must not turn a current default into a historical fact.
+source declaration can be released. The current Grammar IR stores these
+contracts at the root so a resumed pipeline sees the same explicit and
+unspecified states as the source pipeline.
 
 Three persistence boundaries were credible:
 
-1. add one root `parser_contract` to the current Grammar IR;
+1. add one root `parser_contract` to Grammar IR;
 2. publish a separately versioned Parser Contract IR; or
 3. wrap grammar and contract documents in a grammar-bundle envelope.
 
 The choice crosses persisted schemas, grammar digests, resumed generation, and
-the Automaton IR boundary. Reversing it would invalidate stored artifacts and
-require coordinated readers, writers, and migration.
+the Automaton IR boundary. Reversing it requires coordinated changes to the
+writer, reader, schemas, fixtures, and downstream consumers.
 
 ## Decision
 
@@ -34,21 +34,19 @@ unspecified state. Unspecified contract state contains no built-in default;
 defaults and invocation requests remain inputs to the typed configuration
 resolver.
 
-Automaton IR embeds the exact current Grammar IR document. Its
-grammar digest therefore binds the parser contract. It also records whether
-entry construction was shared, isolated, or unavailable during migration;
-the existing algorithm field remains the selected automaton fact.
+Automaton IR embeds the exact current Grammar IR document. Its grammar digest
+therefore binds the parser contract. It also records whether entry construction
+was shared or isolated; the existing algorithm field remains the selected
+automaton fact.
 
-There is one reader and one writer for the current format. Older documents are
-rejected at validation and load boundaries; no migration command or factory
-exists for them. `Grammar.new` and `Automaton.new` both construct the current
-format directly.
+There is one reader and one writer for the current format. `Grammar.new` and
+`Automaton.new` both construct the current format directly.
 
 A separate Parser Contract IR is rejected because it would create two
 authorities that must be joined atomically and included independently in every
 digest. A bundle envelope is rejected because Grammar IR already contains the
 normalized root and resolved fragment result; an additional container would
-add identity and migration rules without an independently lifecycled artifact.
+add identity rules without an independently lifecycled artifact.
 
 The contract remains generator-side data. It does not change parser-table
 format, generated runtime constants, or the `ibex-runtime` ABI. Static readers

@@ -3,7 +3,7 @@
 module Ibex
   module IR
     module Validator
-      # Structural and referential validation for a versioned Grammar IR JSON object.
+      # Structural and referential validation for a current Grammar IR JSON object.
       # rubocop:disable Metrics/ClassLength -- inline type contracts accompany one cohesive document validator.
       class GrammarDocument < Base
         ROOT_REQUIRED: Array[String]
@@ -14,11 +14,11 @@ module Ibex
 
         SYMBOL_OPTIONAL: Array[String]
 
-        V2_SYMBOL_REQUIRED: Array[String]
+        SYMBOL_METADATA_REQUIRED: Array[String]
 
-        V2_PRODUCTION_REQUIRED: Array[String]
+        PRODUCTION_METADATA_REQUIRED: Array[String]
 
-        V2_ACTION_REQUIRED: Array[String]
+        ACTION_COMPOSITION_REQUIRED: Array[String]
 
         PRODUCTION_REQUIRED: Array[String]
 
