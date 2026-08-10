@@ -20,7 +20,7 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "445e2b43d5e21f29fc7a26c87dac117e873e033d",
+    "base_revision": "189e6b9f6a7fb91c0d92cecc09e3679140fdf6e1",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": true,
     "capture_worktree_status": [],
@@ -52,9 +52,9 @@
       },
       {
         "path": "docs/maturity.yml",
-        "sha256": "bd8a496d9312563954aecfe8fa318434efb65ebe812be586a240211d5fc29394",
+        "sha256": "764bb6bf013a7f024a01edac0f14f376043a8c31e471681109a3f4fec8de8123",
         "git_state": "base",
-        "base_sha256": "bd8a496d9312563954aecfe8fa318434efb65ebe812be586a240211d5fc29394"
+        "base_sha256": "764bb6bf013a7f024a01edac0f14f376043a8c31e471681109a3f4fec8de8123"
       },
       {
         "path": "docs/workloads.md",
@@ -196,9 +196,9 @@
       },
       {
         "path": "sig/ibex/lalr/direct_lookaheads.rbs",
-        "sha256": "a3c737c74a3110a41ce2c08c461c9bd802fc0c08cccfc9ece354fc729edac46b",
+        "sha256": "3a1aea6f833327156547a55f1b1d6e43d2dc466fec7149c6b84334a866e79f83",
         "git_state": "base",
-        "base_sha256": "a3c737c74a3110a41ce2c08c461c9bd802fc0c08cccfc9ece354fc729edac46b"
+        "base_sha256": "3a1aea6f833327156547a55f1b1d6e43d2dc466fec7149c6b84334a866e79f83"
       },
       {
         "path": "sig/ibex/lalr/ielr_partition.rbs",
@@ -273,7 +273,7 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "170d8dd35708b7d8037b08cbe5053e4d29f15959ff8ee159d3cee1a0a9f33784",
+    "bound_paths_sha256": "c8e6ae85b3dcda9a71e90947633990ae98aa4551d61c228ad3497d01ecff58d6",
     "implementation_sha256": "43069426a179b8a843301f38ed8126f53c1719023ef3704e60b2cf35a5eef168",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
@@ -417,7 +417,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001729,
+                  "value": 0.001537,
                   "release_gate": false
                 }
               },
@@ -518,7 +518,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.005836,
+                  "value": 0.00536,
                   "release_gate": false
                 }
               },
@@ -642,7 +642,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001691,
+                  "value": 0.001698,
                   "release_gate": false
                 }
               },
@@ -743,7 +743,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.002306,
+                  "value": 0.002161,
                   "release_gate": false
                 }
               },
@@ -867,7 +867,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000867,
+                  "value": 0.000874,
                   "release_gate": false
                 }
               },
@@ -968,7 +968,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001093,
+                  "value": 0.001033,
                   "release_gate": false
                 }
               },
@@ -1094,7 +1094,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.004719,
+                  "value": 0.00522,
                   "release_gate": false
                 }
               },
@@ -1196,7 +1196,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000987,
+                  "value": 0.001032,
                   "release_gate": false
                 }
               },
@@ -1298,7 +1298,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000627,
+                  "value": 0.000597,
                   "release_gate": false
                 }
               },
@@ -1400,7 +1400,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000572,
+                  "value": 0.000525,
                   "release_gate": false
                 }
               },
@@ -1546,7 +1546,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.011855,
+                  "value": 0.011122,
                   "release_gate": false
                 }
               },
@@ -1647,7 +1647,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.069535,
+                  "value": 0.06684,
                   "release_gate": false
                 }
               },
