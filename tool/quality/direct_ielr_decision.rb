@@ -92,14 +92,14 @@ module Ibex
           "path" => "lib/ibex/verify/verifier.rb", "role" => "current verifier checks reviewed by V001"
         }.freeze
       }.freeze
-      DECISION_REVISION = "5b04c1a1b6a8d8aa977142f8582f7a77cf525108"
+      DECISION_REVISION = "82d89a3db09053e4cc852e4d21b4231bac47fceb"
       DECISION_REVISION_ROLE = "reviewed repository evidence immediately before dossier publication"
       DECISION_DATE = "2026-08-08"
-      DOSSIER_REVISION = "6f57f30bb84c6780d763fa8016f266151e56234d"
+      DOSSIER_REVISION = "99f98b6470fab72cde10cf83f111f0f602974bf0"
       DOSSIER_PATH = "tool/quality/evidence/direct-ielr-decision-v1.json"
-      DOSSIER_DIGEST = "bfcafe1a107fc8a190bfda2b8c66b76d18cc3d1e099ed975209b8d034e13a8e8"
-      V001_REVISION = "5cf20f6c9d5b82738965bd0aead8fa3a2ac14d8b"
-      V001_PARENT_REVISION = "e892ffad7d7178028dcf1c074d2db90af068d866"
+      DOSSIER_DIGEST = "b455c39aaa27003c941f52df37e130c9a62bb292a2bf71aa7e0a60b9677519aa"
+      V001_REVISION = "c7e5cad89ccd00591f3127fdb76a789bbeb202ab"
+      V001_PARENT_REVISION = "2d86d52ef92c2b07046c05f4fd55c32a1d6400a9"
       V001_SOURCE_DIGESTS = {
         "docs/verifier-trust-boundary.md" => "12568cd0e22a291a3d1466e537c32062fc490fd4bcb6bc886971b78f1aefbe46",
         "lib/ibex/verify/reference_collection.rb" => "d07e900652c61ddd942380d49edce0a3c811605cd82490c1e0e6db54010746fb",
