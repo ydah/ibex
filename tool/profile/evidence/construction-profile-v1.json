@@ -20,7 +20,7 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "c6ce52528465a1b46a97ac5a1b5d22c9b2f5f880",
+    "base_revision": "13496f2ecf4d3df7fec3d00f3416051d29f5dbc9",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": true,
     "capture_worktree_status": [],
@@ -52,9 +52,9 @@
       },
       {
         "path": "docs/maturity.yml",
-        "sha256": "2bb166f452577c28f271cde022438749cbd823ba04c052223f63fff1c8e24cef",
+        "sha256": "c2cb80c526c10b9d1d4b59f79d1d45a6d9a85ec287101e3f8915f79822f5b5db",
         "git_state": "base",
-        "base_sha256": "2bb166f452577c28f271cde022438749cbd823ba04c052223f63fff1c8e24cef"
+        "base_sha256": "c2cb80c526c10b9d1d4b59f79d1d45a6d9a85ec287101e3f8915f79822f5b5db"
       },
       {
         "path": "docs/workloads.md",
@@ -148,9 +148,9 @@
       },
       {
         "path": "test/quality/maturity_test.rb",
-        "sha256": "a8d1557b507374c0fc122cae68126bdf2bb2986fc9c45eabe212cdcadd9927b9",
+        "sha256": "0f74a4768d2ef76f09455769787d383f29ed5f6a60f06ac29e0d3c7ab370b92a",
         "git_state": "base",
-        "base_sha256": "a8d1557b507374c0fc122cae68126bdf2bb2986fc9c45eabe212cdcadd9927b9"
+        "base_sha256": "0f74a4768d2ef76f09455769787d383f29ed5f6a60f06ac29e0d3c7ab370b92a"
       },
       {
         "path": "test/support/public_json_schemas.rb",
@@ -183,7 +183,7 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "e79579a65010ce7cd86f6e8757bfcb90100684365287d300b3de435bb8dbd83f",
+    "bound_paths_sha256": "27b5abf3e1ec20b9b904e46c9f7283ebb6b9a710bb3f0d05a6cad067d9627ac3",
     "implementation_sha256": "6c62c6c1ca7f9ad078405019502d1e7bed8364d1786a4f45755480d372122aac",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
@@ -295,7 +295,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001151,
+                  "value": 0.002803,
                   "release_gate": false
                 }
               },
@@ -364,7 +364,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.004439,
+                  "value": 0.004556,
                   "release_gate": false
                 }
               },
@@ -456,7 +456,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000931,
+                  "value": 0.000853,
                   "release_gate": false
                 }
               },
@@ -525,7 +525,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001672,
+                  "value": 0.001649,
                   "release_gate": false
                 }
               },
@@ -617,7 +617,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000569,
+                  "value": 0.000703,
                   "release_gate": false
                 }
               },
@@ -686,7 +686,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000778,
+                  "value": 0.000826,
                   "release_gate": false
                 }
               },
@@ -780,7 +780,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.00044,
+                  "value": 0.000494,
                   "release_gate": false
                 }
               },
@@ -850,7 +850,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000491,
+                  "value": 0.000725,
                   "release_gate": false
                 }
               },
@@ -920,7 +920,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000361,
+                  "value": 0.00043,
                   "release_gate": false
                 }
               },
@@ -990,7 +990,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001909,
+                  "value": 0.00044,
                   "release_gate": false
                 }
               },
@@ -1104,7 +1104,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.012435,
+                  "value": 0.012186,
                   "release_gate": false
                 }
               },
@@ -1173,7 +1173,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.055877,
+                  "value": 0.062942,
                   "release_gate": false
                 }
               },
