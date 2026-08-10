@@ -7,12 +7,12 @@ class SchemaFilesPackagingTest < Minitest::Test
     specification = Gem::Specification.load(File.expand_path("../../ibex.gemspec", __dir__))
 
     expected = %w[
-      schema/grammar-ir-v1.schema.json
-      schema/automaton-ir-v1.schema.json
-      schema/grammar-ir-v2.schema.json
-      schema/automaton-ir-v2.schema.json
-      schema/grammar-ir-v3.schema.json
-      schema/automaton-ir-v3.schema.json
+      schema/grammar-ir-foundation.schema.json
+      schema/automaton-ir-definitions.schema.json
+      schema/grammar-ir-extensions.schema.json
+      schema/automaton-ir-definitions.schema.json
+      schema/grammar-ir.schema.json
+      schema/automaton-ir.schema.json
       schema/lexer-ir-v1.schema.json
       schema/cst-v1.json
       schema/explain-v1.schema.json

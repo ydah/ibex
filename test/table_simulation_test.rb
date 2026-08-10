@@ -87,7 +87,7 @@ class TableSimulationTest < Minitest::Test
 
   def fixture_automaton
     @fixture_automaton ||= Ibex::IR::Validator.validate(
-      File.read(File.expand_path("fixtures/ir/automaton-v2.json", __dir__))
+      File.read(File.expand_path("fixtures/ir/automaton.json", __dir__))
     )
   end
 
@@ -111,7 +111,7 @@ class TableSimulationTest < Minitest::Test
       conflict_summary: fixture_automaton.conflict_summary,
       algorithm: fixture_automaton.algorithm,
       grammar_digest: fixture_automaton.grammar_digest,
-      schema_version: fixture_automaton.schema_version
+      entry_construction: fixture_automaton.entry_construction
     )
   end
 

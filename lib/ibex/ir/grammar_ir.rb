@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 require_relative "parser_contract"
-require_relative "migration_metadata"
 
 module Ibex
   module IR
-    SCHEMA_VERSION = 2
-    # @rbs skip
-    LATEST_SCHEMA_VERSION = 3
-    SUPPORTED_SCHEMA_VERSIONS = [2, 3].freeze #: Array[Integer]
+    # Grammar IR has one active wire format.  A future incompatible format
+    # change may advance this number, but the runtime never treats old
+    # formats as an alternate compatibility surface.
+    SCHEMA_VERSION = 1
+    SUPPORTED_SCHEMA_VERSIONS = [SCHEMA_VERSION].freeze #: Array[Integer]
 
     # @rbs (Object? value) -> Object?
     def deep_freeze(value)
@@ -57,9 +57,8 @@ module Ibex
       # @rbs () -> bool
       def nonterminal? = @kind == :nonterminal
 
-      # @rbs (?schema_version: Integer) -> Hash[Symbol, Object?]
-      def to_h(schema_version: SCHEMA_VERSION)
-        validate_schema_version!(schema_version)
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h
         value = { id: @id, name: @name, kind: @kind, reserved: @reserved,
                   prec: @precedence, loc: @location } #: Hash[Symbol, Object?]
         value[:display_name] = @display_name if @display_name
@@ -68,14 +67,6 @@ module Ibex
         value
       end
 
-      # @rbs (Integer schema_version) -> void
-      # @rbs skip
-      def validate_schema_version!(schema_version)
-        return if SUPPORTED_SCHEMA_VERSIONS.include?(schema_version)
-
-        raise ArgumentError, "unsupported grammar schema_version #{schema_version.inspect}"
-      end
-      private :validate_schema_version!
     end
 
     # Opaque Ruby semantic action metadata.
@@ -97,11 +88,8 @@ module Ibex
         freeze
       end
 
-      # @rbs (?schema_version: Integer) -> Hash[Symbol, Object?]
-      def to_h(schema_version: SCHEMA_VERSION)
-        raise ArgumentError, "unsupported grammar schema_version #{schema_version.inspect}" unless
-          SUPPORTED_SCHEMA_VERSIONS.include?(schema_version)
-
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h
         value = { code: @code, loc: @location, named_refs: @named_refs,
                   context_length: @context_length } #: Hash[Symbol, Object?]
         value[:composition] = @composition
@@ -138,12 +126,9 @@ module Ibex
         freeze
       end
 
-      # @rbs (?schema_version: Integer) -> Hash[Symbol, Object?]
-      def to_h(schema_version: SCHEMA_VERSION)
-        raise ArgumentError, "unsupported grammar schema_version #{schema_version.inspect}" unless
-          SUPPORTED_SCHEMA_VERSIONS.include?(schema_version)
-
-        value = { id: @id, lhs: @lhs, rhs: @rhs, action: @action&.to_h(schema_version: schema_version),
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h
+        value = { id: @id, lhs: @lhs, rhs: @rhs, action: @action&.to_h,
                   prec_override: @precedence_override, origin: @origin } #: Hash[Symbol, Object?]
         value[:doc] = @documentation
         value[:expansion] = @expansion
@@ -193,62 +178,40 @@ module Ibex
       attr_reader :warnings #: Array[grammar_warning]
       attr_reader :schema_version #: Integer
       attr_reader :source_provenance #: source_provenance?
-      attr_reader :migration #: migration_metadata?
-      # @rbs skip
-      attr_reader :parser_contract #: ParserContract?
+      attr_reader :parser_contract #: ParserContract
 
       # @rbs (class_name: String, superclass: String?, start: String, expect: Integer, ?expect_rr: Integer?,
       #   options: grammar_options,
       #   symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String],
       #   conversions: Hash[String, String], warnings: Array[grammar_warning], ?user_code_chunks: user_code_chunks?,
-      #   ?schema_version: Integer, ?source_provenance: source_provenance?,
-      #   ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter],
+      #   ?parser_parameters: Array[parser_parameter],
       #   ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test],
       #   ?recovery: recovery_policy?, ?lexer: Lexer?,
       #   ?mode: grammar_mode, ?starts: Array[String]?) -> void
       # rubocop:disable Metrics/AbcSize, Metrics/ParameterLists
-      # Immutable versioned IR is constructed from explicit public fields.
+      # Immutable current IR is constructed from explicit public fields.
       def initialize(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
-                     conversions:, warnings:, user_code_chunks: nil, schema_version: SCHEMA_VERSION,
-                     source_provenance: nil, migration: nil, expect_rr: nil, parser_parameters: [], value_printers: [],
-                     grammar_tests: [], recovery: nil, lexer: nil, mode: :default, starts: nil)
-        initialize_versioned(
+                     conversions:, warnings:, user_code_chunks: nil,
+                     source_provenance: nil, expect_rr: nil, parser_parameters: [], value_printers: [],
+                     grammar_tests: [], recovery: nil, lexer: nil, mode: :default, starts: nil,
+                     parser_contract: ParserContract.new)
+        initialize_current(
           class_name: class_name, superclass: superclass, start: start, expect: expect, options: options,
           symbols: symbols, productions: productions, user_code: user_code, conversions: conversions,
-          warnings: warnings, user_code_chunks: user_code_chunks, schema_version: schema_version,
-          source_provenance: source_provenance, migration: migration, expect_rr: expect_rr,
-          parser_parameters: parser_parameters, value_printers: value_printers, grammar_tests: grammar_tests,
-          recovery: recovery, lexer: lexer, mode: mode, starts: starts, parser_contract: nil
-        )
-      end
-
-      # @rbs skip
-      def self.v3(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
-                  conversions:, warnings:, user_code_chunks: nil, source_provenance: nil, migration: nil,
-                  expect_rr: nil, parser_parameters: [], value_printers: [], grammar_tests: [], recovery: nil,
-                  lexer: nil, mode: :default, starts: nil, parser_contract: ParserContract.new)
-        grammar = allocate
-        grammar.send(
-          :initialize_versioned,
-          class_name: class_name, superclass: superclass, start: start, expect: expect, options: options,
-          symbols: symbols, productions: productions, user_code: user_code, conversions: conversions,
-          warnings: warnings, user_code_chunks: user_code_chunks, schema_version: LATEST_SCHEMA_VERSION,
-          source_provenance: source_provenance, migration: migration, expect_rr: expect_rr,
+          warnings: warnings, user_code_chunks: user_code_chunks,
+          source_provenance: source_provenance, expect_rr: expect_rr,
           parser_parameters: parser_parameters, value_printers: value_printers, grammar_tests: grammar_tests,
           recovery: recovery, lexer: lexer, mode: mode, starts: starts, parser_contract: parser_contract
         )
-        grammar
       end
-
       # @rbs skip
-      # Immutable v3 IR is constructed through the explicit versioned factory.
-      def initialize_versioned(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
-                               conversions:, warnings:, user_code_chunks:, schema_version:, source_provenance:,
-                               migration:, expect_rr:, parser_parameters:, value_printers:, grammar_tests:, recovery:,
-                               lexer:, mode:, starts:, parser_contract:)
+      def initialize_current(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
+                             conversions:, warnings:, user_code_chunks:, source_provenance:, expect_rr:,
+                             parser_parameters:, value_printers:, grammar_tests:, recovery:, lexer:, mode:, starts:,
+                             parser_contract:)
         validate_mode(mode)
         normalized_starts = validate_starts(start, starts, mode)
-        validate_versioned_metadata(schema_version, parser_contract, migration)
+        validate_current_metadata(parser_contract)
 
         @class_name = class_name.freeze
         @superclass = superclass&.freeze
@@ -270,16 +233,15 @@ module Ibex
         validate_user_code_chunks
         @conversions = IR.deep_freeze(conversions)
         @warnings = IR.deep_freeze(warnings)
-        @schema_version = schema_version
+        @schema_version = SCHEMA_VERSION
         @source_provenance = IR.deep_freeze(source_provenance)
-        @migration = IR.deep_freeze(migration)
-        @parser_contract = parser_contract || (ParserContract.new if schema_version >= 3)
+        @parser_contract = IR.deep_freeze(parser_contract)
         @symbols_by_name = @symbols.to_h { |symbol| [symbol.name, symbol] }.freeze
         @symbols_by_id = @symbols.to_h { |symbol| [symbol.id, symbol] }.freeze
         freeze
       end
       # rubocop:enable Metrics/AbcSize, Metrics/ParameterLists
-      private :initialize_versioned
+      private :initialize_current
 
       # @rbs (String name) -> GrammarSymbol?
       def symbol(name) = @symbols_by_name[name]
@@ -294,8 +256,8 @@ module Ibex
       def to_h
         value = { ibex_ir: "grammar", schema_version: @schema_version, class_name: @class_name, superclass: @superclass,
                   start: @start, expect: @expect, options: @options,
-                  symbols: @symbols.map { |symbol| symbol.to_h(schema_version: @schema_version) },
-                  productions: @productions.map { |production| production.to_h(schema_version: @schema_version) },
+                  symbols: @symbols.map(&:to_h),
+                  productions: @productions.map(&:to_h),
                   user_code: @user_code, conversions: @conversions,
                   warnings: @warnings } #: Hash[Symbol, Object?]
         append_optional_metadata(value)
@@ -327,8 +289,7 @@ module Ibex
         value[:user_code_chunks] = @user_code_chunks.transform_values { |chunks| chunks.map(&:to_h) } \
           unless @user_code_chunks.empty?
         value[:source_provenance] = @source_provenance
-        value[:migration] = @migration
-        value[:parser_contract] = @parser_contract.to_h if @schema_version >= 3
+        value[:parser_contract] = @parser_contract.to_h
       end
 
       # @rbs (Hash[Symbol, Object?] value) -> void
@@ -359,18 +320,10 @@ module Ibex
       end
 
       # @rbs skip
-      def validate_versioned_metadata(schema_version, parser_contract, migration)
-        unless SUPPORTED_SCHEMA_VERSIONS.include?(schema_version)
-          raise ArgumentError, "unsupported grammar schema_version #{schema_version.inspect}"
-        end
-        if schema_version < 3 && parser_contract
-          raise ArgumentError, "parser_contract requires Grammar IR schema_version 3"
-        end
-        unless parser_contract.nil? || parser_contract.is_a?(ParserContract)
+      def validate_current_metadata(parser_contract)
+        unless parser_contract.is_a?(ParserContract)
           raise ArgumentError, "parser_contract must be a ParserContract"
         end
-
-        MigrationMetadata.validate!(schema_version, migration)
       end
     end
   end

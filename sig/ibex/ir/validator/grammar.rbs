@@ -10,21 +10,17 @@ module Ibex
 
         ROOT_OPTIONAL: Array[String]
 
-        V2_ROOT_REQUIRED: Array[String]
-
-        V2_ROOT_OPTIONAL: Array[String]
-
         SYMBOL_REQUIRED: Array[String]
 
         SYMBOL_OPTIONAL: Array[String]
 
         V2_SYMBOL_REQUIRED: Array[String]
 
-        PRODUCTION_REQUIRED: Array[String]
-
         V2_PRODUCTION_REQUIRED: Array[String]
 
         V2_ACTION_REQUIRED: Array[String]
+
+        PRODUCTION_REQUIRED: Array[String]
 
         ORIGIN_KINDS: Array[String]
 
@@ -49,6 +45,18 @@ module Ibex
         def validate: () -> self
 
         private
+
+        # @rbs () -> void
+        def validate_root_record: () -> void
+
+        # @rbs () -> void
+        def validate_optional_parser_metadata: () -> void
+
+        # @rbs () -> void
+        def validate_parser_parameters_if_present: () -> void
+
+        # @rbs () -> void
+        def validate_optional_source_metadata: () -> void
 
         # @rbs () -> void
         def validate_envelope: () -> void
@@ -153,7 +161,7 @@ module Ibex
         def validate_byte_span: (json_value value, String path) -> void
 
         # @rbs () -> void
-        def validate_migration: () -> void
+        def validate_parser_contract: () -> void
 
         # @rbs (untyped value, String, Array[String]) -> Hash[String, untyped]
         def validate_contract_entry: (untyped value, String, Array[String]) -> Hash[String, untyped]

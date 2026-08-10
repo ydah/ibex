@@ -20,7 +20,7 @@ class CLIDeclarativeParserConfigurationTest < Minitest::Test
           assert_equal 0, result.fetch(:status), result.fetch(:stderr)
           assert_equal persisted, automaton.algorithm
           assert_equal entries, automaton.entry_construction
-          assert_equal 3, automaton.schema_version
+          assert_equal 1, automaton.schema_version
           assert_equal declared.to_sym, automaton.grammar.parser_contract.algorithm.value
           assert_equal entries.to_sym, automaton.grammar.parser_contract.entries.value
         end

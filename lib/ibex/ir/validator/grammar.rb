@@ -8,13 +8,9 @@ module Ibex
       class GrammarDocument < Base
         ROOT_REQUIRED = %w[
           ibex_ir schema_version class_name superclass start expect options symbols productions user_code
-          conversions warnings
+          conversions warnings source_provenance parser_contract
         ].freeze #: Array[String]
-        ROOT_OPTIONAL = %w[user_code_chunks expect_rr].freeze #: Array[String]
-        V2_ROOT_REQUIRED = %w[source_provenance migration].freeze #: Array[String]
-        V2_ROOT_OPTIONAL = %w[params printers tests recovery lexer mode starts].freeze #: Array[String]
-        # @rbs skip
-        V3_ROOT_REQUIRED = %w[parser_contract].freeze
+        ROOT_OPTIONAL = %w[user_code_chunks expect_rr params printers tests recovery lexer mode starts].freeze #: Array[String]
         SYMBOL_REQUIRED = %w[id name kind reserved prec loc].freeze #: Array[String]
         SYMBOL_OPTIONAL = %w[display_name semantic_type].freeze #: Array[String]
         V2_SYMBOL_REQUIRED = %w[doc].freeze #: Array[String]
@@ -71,9 +67,7 @@ module Ibex
 
         # @rbs skip
         def validate_root_record
-          required = ROOT_REQUIRED + V2_ROOT_REQUIRED + (@version >= 3 ? V3_ROOT_REQUIRED : [])
-          optional = ROOT_OPTIONAL + V2_ROOT_OPTIONAL
-          record(@data, @path, required, optional)
+          record(@data, @path, ROOT_REQUIRED, ROOT_OPTIONAL)
         end
 
         # @rbs skip
@@ -82,7 +76,7 @@ module Ibex
           validate_grammar_tests if @data.key?("tests")
           validate_lexer if @data.key?("lexer")
           validate_recovery if @data.key?("recovery")
-          validate_parser_contract if @version >= 3
+          validate_parser_contract
         end
 
         # @rbs skip
@@ -94,7 +88,6 @@ module Ibex
         def validate_optional_source_metadata
           validate_user_code_chunks if @data.key?("user_code_chunks")
           validate_source_provenance(@data["source_provenance"], "#{@path}.source_provenance")
-          validate_migration
         end
 
         # @rbs () -> void
@@ -493,24 +486,6 @@ module Ibex
           start_byte = nonnegative_integer(span["start"], "#{path}.start")
           end_byte = nonnegative_integer(span["end"], "#{path}.end")
           invalid("#{path}.end", "must be greater than or equal to start") if end_byte < start_byte
-        end
-
-        # @rbs () -> void
-        def validate_migration
-          path = "#{@path}.migration"
-          value = @data["migration"]
-          return if value.nil?
-
-          migration = record(value, path, %w[from_schema_version unavailable])
-          from = migration["from_schema_version"]
-          literal(from, "#{path}.from_schema_version", 2)
-          values = array(migration["unavailable"], "#{path}.unavailable")
-          invalid("#{path}.unavailable", "must not be empty") if values.empty?
-          expected = %w[effective_parser_algorithm effective_parser_entries effective_cst_trivia]
-          values.each_with_index { |name, index| enum(name, "#{path}.unavailable[#{index}]", expected) }
-          invalid("#{path}.unavailable", "must contain unique names") unless values.uniq.length == values.length
-          invalid("#{path}.unavailable", "must equal the deterministic migration loss inventory") unless
-            values == expected
         end
 
         # @rbs skip

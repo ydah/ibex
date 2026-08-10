@@ -13,19 +13,14 @@ module Ibex
 
       def verify!
         require_fragments(
-          "lib/ibex/ir/migration.rb",
-          "return to_v3(value) if value.schema_version == 2 && to == 3",
-          "return value if value.schema_version == to"
-        )
-        require_fragments(
           "test/ir/golden_fixture_test.rb",
-          "test_schema_v2_to_v3_migration_golden_fixtures",
-          "test_automaton_constructor_rejects_mismatched_and_unknown_versions"
+          "test_current_ir_rejects_explicitly_old_versions",
+          "test_current_automaton_ir_golden_fixture"
         )
         require_fragments(
           "test/ir/lexer_ir_test.rb",
           "test_normalizes_and_round_trips_an_independently_versioned_lexer",
-          "test_embeds_the_lexer_without_changing_its_schema_version"
+          "test_embeds_the_lexer_without_changing_the_grammar_format"
         )
         verify_runtime_evidence
         verify_pull_request_template

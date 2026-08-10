@@ -217,15 +217,14 @@ class LALRBuilderTest < Minitest::Test
     assert_includes report, "Conflicts: 0 shift/reduce"
   end
 
-  def test_building_from_a_v2_grammar_emits_a_v2_automaton
-    path = File.expand_path("../fixtures/ir/grammar-v2.json", __dir__)
+  def test_building_from_the_current_grammar_emits_the_current_automaton
+    path = File.expand_path("../fixtures/ir/grammar.json", __dir__)
     grammar = Ibex::IR::Validator.validate(File.read(path))
 
-    automaton = Ibex::LALR::Builder.new(grammar).build
+    automaton = Ibex::LALR::Builder.new(grammar, algorithm: :ielr).build
 
-    assert_equal 2, automaton.schema_version
-    assert_equal 2, automaton.grammar.schema_version
-    assert_nil automaton.grammar.migration
+    assert_equal Ibex::IR::SCHEMA_VERSION, automaton.schema_version
+    assert_equal Ibex::IR::SCHEMA_VERSION, automaton.grammar.schema_version
     Ibex::IR::Validator.validate(Ibex::IR::Serialize.dump(automaton))
   end
 

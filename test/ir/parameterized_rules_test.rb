@@ -173,9 +173,13 @@ class IRParameterizedRulesTest < Minitest::Test
   end
 
   def assert_schema_valid(document)
-    v1 = JSON.parse(File.read(File.join(SCHEMA_ROOT, "grammar-ir-v1.schema.json")))
-    v2 = JSON.parse(File.read(File.join(SCHEMA_ROOT, "grammar-ir-v2.schema.json")))
-    schemer = JSONSchemer.schema(v2, ref_resolver: ->(uri) { v1 if uri.to_s == v1.fetch("$id") })
+    foundation = JSON.parse(File.read(File.join(SCHEMA_ROOT, "grammar-ir-foundation.schema.json")))
+    extensions = JSON.parse(File.read(File.join(SCHEMA_ROOT, "grammar-ir-extensions.schema.json")))
+    current = JSON.parse(File.read(File.join(SCHEMA_ROOT, "grammar-ir.schema.json")))
+    schemer = JSONSchemer.schema(
+      current,
+      ref_resolver: ->(uri) { { foundation.fetch("$id") => foundation, extensions.fetch("$id") => extensions, current.fetch("$id") => current }[uri.to_s] }
+    )
     assert_empty schemer.validate(document).to_a
   end
 

@@ -47,8 +47,8 @@ frontend grammar and shadow grammar together, run `bundle exec rake
 frontend:generate`, and review the generated parser diff. Then run
 `frontend:check`, the parser-configuration frontend/LSP/IR/CLI tests,
 `test:no_exec`, and `test:zero_cost`. A source `parser` declaration must promote
-normalization to Grammar IR v3 without changing parser-table format v6;
-declaration-free inputs must retain their existing v2 and golden bytes.
+normalization to the current Grammar IR without changing parser-table format v6;
+declaration-free inputs must retain their existing current-format golden bytes.
 
 ## Stage A safety net
 

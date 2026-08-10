@@ -66,10 +66,6 @@ module Ibex
       # @rbs (String source) -> (Grammar | Automaton | Lexer)
       def self?.load: (String source) -> (Grammar | Automaton | Lexer)
 
-      private
-
-      def self?.load_grammar_v3: (untyped data, untyped symbols, untyped productions, untyped empty_chunks, untyped empty_parameters, untyped empty_printers, untyped empty_tests, untyped empty_recovery) -> untyped
-
       def load_parser_contract: (untyped value) -> untyped
     end
   end

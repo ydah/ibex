@@ -1,7 +1,7 @@
 # Generated from lib/ibex/normalize/parser_configuration.rb with RBS::Inline
 
 module Ibex
-  # Converts a root parser declaration into the explicit Grammar IR v3 contract.
+  # Converts a root parser declaration into the current Grammar IR contract.
   module NormalizeParserConfiguration
     private
 

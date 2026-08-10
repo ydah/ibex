@@ -41,7 +41,7 @@ module Ibex
       end
     end
 
-    # Independently versioned lexer contract embedded by Grammar IR v2.
+    # Independently versioned lexer contract embedded by the current Grammar IR.
     class Lexer
       attr_reader :states #: Array[String]
       attr_reader :rules #: Array[LexerRule]

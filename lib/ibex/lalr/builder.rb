@@ -81,17 +81,10 @@ module Ibex
       # @rbs (states: Array[IR::AutomatonState], conflict_summary: IR::conflict_summary,
       #   entry_states: Hash[String, Integer]) -> IR::Automaton
       def build_output_automaton(states:, conflict_summary:, entry_states:)
-        if output_schema_version >= 3
-          entry_construction = output_entry_construction || raise(Ibex::Error, "missing v3 entry construction")
-          return IR::Automaton.v3(
-            grammar: @grammar, states: states, conflict_summary: conflict_summary,
-            algorithm: algorithm_name, entry_states: entry_states, entry_construction: entry_construction
-          )
-        end
-
         IR::Automaton.new(
           grammar: @grammar, states: states, conflict_summary: conflict_summary,
-          algorithm: algorithm_name, entry_states: entry_states, schema_version: output_schema_version
+          algorithm: algorithm_name, entry_states: entry_states,
+          entry_construction: output_entry_construction || raise(Ibex::Error, "missing entry construction")
         )
       end
 
@@ -561,13 +554,11 @@ module Ibex
 
       # @rbs () -> Integer
       def output_schema_version
-        [@grammar.schema_version, IR::SCHEMA_VERSION].max
+        IR::SCHEMA_VERSION
       end
 
       # @rbs () -> String?
       def output_entry_construction
-        return unless output_schema_version >= 3
-
         @entry_isolation ? "isolated" : "shared"
       end
 

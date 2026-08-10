@@ -18,11 +18,10 @@ explicit or implicit selection, canonical or noncanonical conformance, recording
 Evidence is classified as `accepted`, `ignored`, `duplicate`, or `conflicting`. The JSON projection is deterministic,
 uses schema version 1, and always lists canonical keys in lexical order.
 
-Grammar IR v3 `parser_contract` entries are authoritative for `parser.algorithm`, `parser.entries`, and `cst.trivia`.
+The current Grammar IR `parser_contract` entries are authoritative for `parser.algorithm`, `parser.entries`, and `cst.trivia`.
 A matching command-line request is retained as accepted evidence. A contradictory request produces a positioned,
-structured conflict report and exits nonzero. An unspecified v3 entry remains explicitly `unspecified`; Grammar IR
-v1 and v2 report the parser contract as `unavailable`. In both cases a current builtin or CLI value is not presented
-as a historical fact.
+structured conflict report and exits nonzero. An unspecified entry remains explicitly `unspecified`; a document without
+the current contract is rejected. A current builtin or CLI value is never presented as a historical fact.
 
 The source grammar syntax supports the root-only declarative parser block in extended mode. CST ownership is
 declared as `cst_trivia leading|balanced|drop` and requires `pragma cst`; `ibex config` reports the resulting

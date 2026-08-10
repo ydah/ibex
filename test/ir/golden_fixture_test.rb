@@ -23,62 +23,31 @@ class GoldenFixtureTest < Minitest::Test
     def fixture_helper = true
   GRAMMAR
 
-  def test_grammar_ir_schema_v2_golden_fixture
+  def test_current_grammar_ir_golden_fixture
     grammar, = build_pipeline
-    assert_golden("grammar-v2.json", grammar, version: 2)
+    assert_golden("grammar.json", grammar)
   end
 
-  def test_automaton_ir_schema_v2_golden_fixture
+  def test_current_automaton_ir_golden_fixture
     _, automaton = build_pipeline
-    assert_golden("automaton-v2.json", automaton, version: 2)
+    assert_golden("automaton.json", automaton)
   end
 
-  def test_grammar_ir_schema_v3_parser_contract_golden_fixture
-    grammar, = build_v3_pipeline
-    assert_golden("grammar-v3.json", grammar, version: 3)
-  end
-
-  def test_automaton_ir_schema_v3_parser_contract_golden_fixture
-    _, automaton = build_v3_pipeline
-    assert_golden("automaton-v3.json", automaton, version: 3)
-  end
-
-  def test_schema_v2_to_v3_migration_golden_fixtures
-    %w[grammar automaton].each do |kind|
-      source = File.read(File.join(FIXTURE_ROOT, "#{kind}-v2.json"))
-      migrated = Ibex::IR::Migration.to_v3(Ibex::IR::Validator.validate(source))
-
-      assert_golden("#{kind}-v2-migrated-v3.json", migrated, version: 3)
-      assert_same migrated, Ibex::IR::Migration.to_v3(migrated)
+  def test_current_ir_rejects_explicitly_old_versions
+    [2, 3, 99].each do |version|
+      error = assert_raises(Ibex::Error) do
+        Ibex::IR::Validator.validate(JSON.generate(ibex_ir: "grammar", schema_version: version))
+      end
+      assert_includes error.message, "unsupported schema_version #{version.inspect}"
     end
-  end
-
-  def test_automaton_constructor_rejects_mismatched_and_unknown_versions
-    source = File.read(File.join(FIXTURE_ROOT, "automaton-v2.json"))
-    automaton = Ibex::IR::Validator.validate(source)
-    arguments = {
-      grammar: automaton.grammar, states: automaton.states, conflict_summary: automaton.conflict_summary,
-      algorithm: automaton.algorithm
-    }
-
-    mismatch = assert_raises(Ibex::Error) { Ibex::IR::Automaton.new(**arguments, schema_version: 1) }
-    assert_includes mismatch.message, "unsupported automaton schema_version 1"
-
-    unknown = assert_raises(Ibex::Error) { Ibex::IR::Automaton.new(**arguments, schema_version: 99) }
-    assert_includes unknown.message, "unsupported automaton schema_version 99"
   end
 
   private
 
   def build_pipeline
-    ast = Ibex::Frontend::Parser.new(SOURCE, file: "golden-v1.y").parse
+    ast = Ibex::Frontend::Parser.new(SOURCE, file: "golden.y").parse
     grammar = Ibex::Normalizer.new(ast).normalize
-    [grammar, Ibex::LALR::Builder.new(grammar).build]
-  end
-
-  def build_v3_pipeline
-    grammar, = build_pipeline
-    location = Ibex::Location.new(file: "golden-v3.y", line: 2, column: 1)
+    location = Ibex::Location.new(file: "golden.y", line: 2, column: 1)
     contract = Ibex::IR::ParserContract.new(
       algorithm: Ibex::IR::ParserContract::Entry.new(
         :algorithm, value: :ielr, location: location, explicit: true
@@ -90,38 +59,29 @@ class GoldenFixtureTest < Minitest::Test
         :cst_trivia, value: :balanced, location: location, explicit: true
       )
     )
-    versioned = copy_grammar(grammar, contract)
-    [versioned, Ibex::LALR::Builder.new(versioned, algorithm: :ielr).build]
-  end
-
-  # Constructor copying is deliberately local to this pre-syntax persistence
-  # fixture. Source declarations will construct Grammar IR v3 directly.
-  def copy_grammar(grammar, parser_contract)
-    Ibex::IR::Grammar.v3(
+    grammar = Ibex::IR::Grammar.new(
       class_name: grammar.class_name, superclass: grammar.superclass, start: grammar.start,
-      mode: :extended, starts: grammar.starts,
-      expect: grammar.expect, expect_rr: grammar.expect_rr,
-      options: grammar.options.merge(cst: true), parser_parameters: grammar.parser_parameters,
-      value_printers: grammar.value_printers, grammar_tests: grammar.grammar_tests,
-      recovery: grammar.recovery, lexer: grammar.lexer, symbols: grammar.symbols,
-      productions: grammar.productions, user_code: grammar.user_code,
-      user_code_chunks: grammar.user_code_chunks, conversions: grammar.conversions,
-      warnings: grammar.warnings, source_provenance: grammar.source_provenance,
-      migration: nil, parser_contract: parser_contract
+      expect: grammar.expect, options: grammar.options.merge(cst: true), symbols: grammar.symbols,
+      productions: grammar.productions, user_code: grammar.user_code, conversions: grammar.conversions,
+      warnings: grammar.warnings, user_code_chunks: grammar.user_code_chunks,
+      source_provenance: { file: "golden.y", root: nil, byte_span: nil }, expect_rr: grammar.expect_rr,
+      parser_parameters: grammar.parser_parameters, value_printers: grammar.value_printers,
+      grammar_tests: grammar.grammar_tests, recovery: grammar.recovery, lexer: grammar.lexer,
+      mode: :extended, starts: grammar.starts, parser_contract: contract
     )
+    [grammar, Ibex::LALR::Builder.new(grammar, algorithm: :ielr).build]
   end
 
-  def assert_golden(name, value, version:)
+  def assert_golden(name, value)
     path = File.join(FIXTURE_ROOT, name)
     actual = Ibex::IR::Serialize.dump(value)
     File.write(path, actual) if ENV[REFRESH_VARIABLE] == "1"
     assert File.file?(path), "missing #{name}; run #{REFRESH_VARIABLE}=1 ruby -Itest test/ir/golden_fixture_test.rb"
     expected = File.read(path)
-    message = "#{name} changed; review schema-v#{version} compatibility, then refresh with #{REFRESH_VARIABLE}=1"
-    assert_equal expected, actual, message
+    assert_equal expected, actual, "#{name} changed; review the current IR contract before refreshing"
 
-    loaded = Ibex::IR::Serialize.load(expected)
-    assert_equal version, loaded.schema_version
+    loaded = Ibex::IR::Validator.validate(expected)
+    assert_equal Ibex::IR::SCHEMA_VERSION, loaded.schema_version
     assert_equal expected, Ibex::IR::Serialize.dump(loaded), "#{name} must round-trip byte-for-byte"
   end
 end

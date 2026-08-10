@@ -2,7 +2,6 @@
 
 require_relative "ir/grammar_ir"
 require_relative "ir/lexer_ir"
-require_relative "ir/migration"
 require_relative "ir/automaton_ir"
 require_relative "ir/serialize"
 require_relative "ir/validator"
@@ -59,7 +58,6 @@ module Ibex
     #     fragments: Array[action_fragment],
     #     ?plan: action_composition_plan
     #   }
-    #   type migration_metadata = { from_schema_version: Integer, unavailable: Array[String] }
     #   type user_code_chunks = Hash[String, Array[UserCodeChunk]]
     #   type grammar_options = { result_var: bool, omit_action_call: bool, ?cst: bool }
     #   type grammar_mode = :default | :extended

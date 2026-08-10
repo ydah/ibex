@@ -143,10 +143,10 @@ module Ibex
     # @rbs (Hash[String, Object?] options) -> void
     def append_ir_manifest_options(options)
       automaton = @generation_automaton
-      return unless automaton && automaton.schema_version >= 3
+      return unless automaton
 
       grammar = automaton.grammar
-      contract = grammar.parser_contract || raise("Grammar IR v3 parser contract is missing")
+      contract = grammar.parser_contract
       options["grammar_ir"] = {
         "schema_version" => grammar.schema_version,
         "digest" => automaton.grammar_digest,

@@ -39,8 +39,8 @@ module Ibex
       # @rbs () -> bool
       def nonterminal?: () -> bool
 
-      # @rbs (?schema_version: Integer) -> Hash[Symbol, Object?]
-      def to_h: (?schema_version: Integer) -> Hash[Symbol, Object?]
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h: () -> Hash[Symbol, Object?]
     end
 
     # Opaque Ruby semantic action metadata.
@@ -59,8 +59,8 @@ module Ibex
       #   ?composition: action_composition?) -> void
       def initialize: (code: String, location: location, ?named_refs: Array[named_ref], ?context_length: Integer, ?composition: action_composition?) -> void
 
-      # @rbs (?schema_version: Integer) -> Hash[Symbol, Object?]
-      def to_h: (?schema_version: Integer) -> Hash[Symbol, Object?]
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h: () -> Hash[Symbol, Object?]
     end
 
     # A normalized BNF production using symbol ids.
@@ -88,8 +88,8 @@ module Ibex
       #   ?node: node_annotation?) -> void
       def initialize: (id: Integer, lhs: Integer, rhs: Array[Integer], action: Action?, precedence_override: Integer?, origin: Hash[Symbol, Object?], ?documentation: String?, ?expansion: production_expansion?, ?node: node_annotation?) -> void
 
-      # @rbs (?schema_version: Integer) -> Hash[Symbol, Object?]
-      def to_h: (?schema_version: Integer) -> Hash[Symbol, Object?]
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h: () -> Hash[Symbol, Object?]
     end
 
     # One opaque user-code block and the location of its first code line.
@@ -149,26 +149,31 @@ module Ibex
 
       attr_reader source_provenance: source_provenance?
 
-      attr_reader migration: migration_metadata?
+      attr_reader parser_contract: ParserContract
 
       # @rbs (class_name: String, superclass: String?, start: String, expect: Integer, ?expect_rr: Integer?,
       #   options: grammar_options,
       #   symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String],
       #   conversions: Hash[String, String], warnings: Array[grammar_warning], ?user_code_chunks: user_code_chunks?,
-      #   ?schema_version: Integer, ?source_provenance: source_provenance?,
-      #   ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter],
+      #   ?source_provenance: source_provenance?,
       #   ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test],
       #   ?recovery: recovery_policy?, ?lexer: Lexer?,
       #   ?mode: grammar_mode, ?starts: Array[String]?) -> void
       # rubocop:disable Metrics/AbcSize, Metrics/ParameterLists
-      # Immutable versioned IR is constructed from explicit public fields.
-      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?expect_rr: Integer?, ?user_code_chunks: user_code_chunks?, ?schema_version: Integer, ?source_provenance: source_provenance?, ?migration: migration_metadata?, ?parser_parameters: Array[parser_parameter], ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test], ?recovery: recovery_policy?, ?lexer: Lexer?, ?mode: grammar_mode, ?starts: Array[String]?) -> void
+      # Immutable current IR is constructed from explicit public fields.
+      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?expect_rr: Integer?, ?user_code_chunks: user_code_chunks?, ?source_provenance: source_provenance?, ?parser_parameters: Array[parser_parameter], ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test], ?recovery: recovery_policy?, ?lexer: Lexer?, ?mode: grammar_mode, ?starts: Array[String]?, ?parser_contract: ParserContract) -> void
+
+      # @rbs (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], user_code_chunks: user_code_chunks?, source_provenance: source_provenance?, expect_rr: Integer?, parser_parameters: Array[parser_parameter], value_printers: Array[value_printer], grammar_tests: Array[grammar_test], recovery: recovery_policy?, lexer: Lexer?, mode: grammar_mode, starts: Array[String]?, parser_contract: ParserContract) -> void
+      def initialize_current: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], user_code_chunks: user_code_chunks?, source_provenance: source_provenance?, expect_rr: Integer?, parser_parameters: Array[parser_parameter], value_printers: Array[value_printer], grammar_tests: Array[grammar_test], recovery: recovery_policy?, lexer: Lexer?, mode: grammar_mode, starts: Array[String]?, parser_contract: ParserContract) -> void
 
       # @rbs (String name) -> GrammarSymbol?
       def symbol: (String name) -> GrammarSymbol?
 
       # @rbs (Integer? id) -> GrammarSymbol?
       def symbol_by_id: (Integer? id) -> GrammarSymbol?
+
+      # @rbs (ParserContract parser_contract) -> void
+      def validate_current_metadata: (ParserContract parser_contract) -> void
 
       # @rbs () -> Array[GrammarSymbol]
       def terminals: () -> Array[GrammarSymbol]

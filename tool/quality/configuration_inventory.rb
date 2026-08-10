@@ -54,7 +54,6 @@ module Ibex
         ["lib/ibex/cli/fuzz.rb", "fuzz_option_parser"] => "fuzz",
         ["lib/ibex/cli/generation_error_messages.rb", "add_error_messages_generation_option"] => "generate",
         ["lib/ibex/cli/grammar_tests.rb", "grammar_test_option_parser"] => "test",
-        ["lib/ibex/cli/ir_tools.rb", "migrate_ir_options"] => "migrate-ir",
         ["lib/ibex/cli/lsp.rb", "lsp_option_parser"] => "lsp",
         ["lib/ibex/cli/racc_migration.rb", "migrate_check_options"] => "migrate-check",
         ["lib/ibex/cli/racc_migration.rb", "migrate_harness_options"] => "migrate-harness",
@@ -89,12 +88,12 @@ module Ibex
         "lib/ibex/cli.rb#add_information_options#--lang=LANG" => "global"
       }.freeze
       GRAMMAR_CONTRACT_PERSISTENCE = {
-        "grammar.mode" => %w[grammar_ir_v2_current current],
-        "parser.superclass" => %w[grammar_ir_v2_current current],
-        "actions.omit_calls" => %w[grammar_ir_v2_current current],
-        "parser.algorithm" => %w[grammar_ir_v3_parser_contract current],
-        "parser.entries" => %w[grammar_ir_v3_parser_contract current],
-        "cst.trivia" => %w[grammar_ir_v3_parser_contract current]
+        "grammar.mode" => %w[grammar_ir_current current],
+        "parser.superclass" => %w[grammar_ir_current current],
+        "actions.omit_calls" => %w[grammar_ir_current current],
+        "parser.algorithm" => %w[grammar_ir_current current],
+        "parser.entries" => %w[grammar_ir_current current],
+        "cst.trivia" => %w[grammar_ir_current current]
       }.freeze
       OWNER_CLASSES = %w[grammar_contract grammar_minimum project_build_policy invocation_request].freeze
       ADMISSION_RESULTS = %w[
@@ -112,8 +111,7 @@ module Ibex
         fixed staged_fixed_compatibility minimum analysis_override project_selection invocation_only
       ].freeze
       IR_PRESENCE = %w[
-        grammar_ir_v2_current
-        grammar_ir_v3_parser_contract
+        grammar_ir_current
         not_persisted
       ].freeze
       MANIFEST_PRESENCE = %w[current current_gap not_applicable].freeze
@@ -236,12 +234,12 @@ module Ibex
           "| First-wave concept | Owner | Algebra | Current persistence status |",
           "|---|---|---|---|",
           markdown_row(["`grammar.mode`, `parser.superclass`, `actions.omit_calls`", "Grammar Contract",
-                        "staged fixed compatibility", "Grammar IR v2; legacy CLI override needs D008"]),
+                        "staged fixed compatibility", "current Grammar IR; legacy CLI override needs D008"]),
           markdown_row(["`parser.algorithm`, `parser.entries`", "Grammar Contract",
                         "fixed generation / explicit algorithm analysis override",
-                        "root `parser` syntax writes Grammar IR v3; manifest records contract and construction facts"]),
+                        "root `parser` syntax writes the current Grammar IR; manifest records contract and construction facts"]),
           markdown_row(["`cst.trivia`", "Grammar Contract", "fixed generation / explicit analysis override",
-                        "root `parser` syntax writes Grammar IR v3; manifest records contract and CST facts"]),
+                        "root `parser` syntax writes the current Grammar IR; manifest records contract and CST facts"]),
           markdown_row(["table/runtime/debug/source mapping/companions", "Project Build Policy", "project selection",
                         "manifest records current generation choices"]),
           markdown_row(["emit/path/watch/report/budget/locale/help/warnings", "Invocation Request", "invocation only",
@@ -250,7 +248,7 @@ module Ibex
           "Fixed means a grammar declaration may be matched but not silently contradicted by generation CLI.",
           "Analysis commands and grammar tests may choose a different algorithm only as an explicit, reported",
           "noncanonical override; parser entry construction remains fixed.",
-          "Grammar IR v3 closes persistence for the first-wave construction and CST concepts. The root-only `parser`",
+          "The current Grammar IR closes persistence for the first-wave construction and CST concepts. The root-only `parser`",
           "block exposes `parser.algorithm`, `parser.entries`, and `cst_trivia` as source syntax and requires the",
           "existing `pragma cst` compatibility declaration; declaration-free grammars retain the current default.",
           "",

@@ -63,10 +63,15 @@ module Ibex
 
       attr_reader schema_version: Integer
 
+      attr_reader entry_construction: String
+
       # @rbs (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary,
-      #   ?algorithm: String, ?grammar_digest: String?, ?schema_version: Integer,
-      #   ?entry_states: Hash[String, Integer]?) -> void
-      def initialize: (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary, ?algorithm: String, ?grammar_digest: String?, ?schema_version: Integer, ?entry_states: Hash[String, Integer]?) -> void
+      #   ?algorithm: String, ?grammar_digest: String?, ?entry_states: Hash[String, Integer]?,
+      #   ?entry_construction: String) -> void
+      def initialize: (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary, ?algorithm: String, ?grammar_digest: String?, ?entry_states: Hash[String, Integer]?, ?entry_construction: String) -> void
+
+      # @rbs (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary, algorithm: String, grammar_digest: String?, entry_states: Hash[String, Integer]?, entry_construction: String) -> void
+      def initialize_current: (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary, algorithm: String, grammar_digest: String?, entry_states: Hash[String, Integer]?, entry_construction: String) -> void
 
       # @rbs () -> Hash[Symbol, Object?]
       def to_h: () -> Hash[Symbol, Object?]
@@ -78,6 +83,18 @@ module Ibex
 
       # @rbs (Grammar grammar) -> String
       def digest_for: (Grammar grammar) -> String
+
+      # @rbs (String value) -> String
+      def validate_entry_construction: (String value) -> String
+
+      # @rbs () -> void
+      def validate_parser_contract: () -> void
+
+      # @rbs (ParserContract contract) -> void
+      def validate_parser_algorithm: (ParserContract contract) -> void
+
+      # @rbs (ParserContract contract) -> void
+      def validate_parser_entries: (ParserContract contract) -> void
     end
   end
 end

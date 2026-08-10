@@ -111,7 +111,7 @@ class IRInlineRulesTest < Minitest::Test
     assert_equal 0, inline_automaton.conflict_summary.fetch(:sr)
   end
 
-  def test_v2_round_trip_retains_executable_plan
+  def test_current_round_trip_retains_executable_plan
     grammar = normalize(<<~GRAMMAR)
       class P
       pragma extended
@@ -135,7 +135,7 @@ class IRInlineRulesTest < Minitest::Test
 
   end
 
-  def test_v2_validator_rejects_composition_slots_that_are_not_yet_available
+  def test_current_validator_rejects_composition_slots_that_are_not_yet_available
     grammar = normalize(<<~GRAMMAR)
       class P
       pragma extended
@@ -153,7 +153,7 @@ class IRInlineRulesTest < Minitest::Test
     assert_includes error.message, "must reference an available slot"
   end
 
-  def test_v2_validator_accepts_missing_result_type_as_legacy_untyped
+  def test_current_validator_accepts_missing_result_type_as_optional
     grammar = normalize(<<~GRAMMAR)
       class P
       pragma extended
@@ -217,9 +217,15 @@ class IRInlineRulesTest < Minitest::Test
   end
 
   def assert_schema_valid(document)
-    v1 = JSON.parse(File.read(File.join(SCHEMA_ROOT, "grammar-ir-v1.schema.json")))
-    v2 = JSON.parse(File.read(File.join(SCHEMA_ROOT, "grammar-ir-v2.schema.json")))
-    schemer = JSONSchemer.schema(v2, ref_resolver: ->(uri) { v1 if uri.to_s == v1.fetch("$id") })
+    foundation = JSON.parse(File.read(File.join(SCHEMA_ROOT, "grammar-ir-foundation.schema.json")))
+    extensions = JSON.parse(File.read(File.join(SCHEMA_ROOT, "grammar-ir-extensions.schema.json")))
+    current = JSON.parse(File.read(File.join(SCHEMA_ROOT, "grammar-ir.schema.json")))
+    schemer = JSONSchemer.schema(
+      current,
+      ref_resolver: lambda do |uri|
+        { foundation.fetch("$id") => foundation, extensions.fetch("$id") => extensions, current.fetch("$id") => current }[uri.to_s]
+      end
+    )
     assert_empty schemer.validate(document).to_a
   end
 end

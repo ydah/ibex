@@ -66,8 +66,8 @@ lossless segment spans rather than rescanning raw text. Documentation works in r
 `AST::Rule`.
 
 For repeated definitions, every normalized user production keeps its definition's documentation. The nonterminal symbol uses
-the first nonnil text; a different later nonnil text is a positioned error, while the same text is accepted. Grammar IR v2
-serializes `doc` on symbols and productions. Version 1 omits those fields.
+the first nonnil text; a different later nonnil text is a positioned error, while the same text is accepted. The current
+Grammar IR serializes `doc` on symbols and productions.
 
 `ibex doc [--format=markdown|html|railroad] [-o FILE] [--mode=MODE] grammar.y` renders the canonical resolved grammar. Output
 defaults to Markdown on stdout. HTML is accessible and self-contained, railroad output includes visible wrapped descriptions,
@@ -133,12 +133,12 @@ no user-code sections; the current generated parser API is not that profile.
 
 - `pragma extended` enables extended syntax for this grammar even when the CLI uses its default or explicit `--mode=default`.
   It must immediately follow the class header, before every ordinary declaration. Unknown, duplicate, and misplaced pragmas
-  are positioned errors. The frontend records the effective mode on the root AST, and Grammar IR v2 records extended mode
+  are positioned errors. The frontend records the effective mode on the root AST, and the current Grammar IR records extended mode
   additively so downstream generators preserve its runtime behavior.
 - `pragma cst` enables extended syntax and builds a pure-syntax Red/Green tree
   in parallel with the ordinary semantic value stack. Distinct pragmas may be
   combined in the class header; repeating either one is an error. Grammar IR
-  v2 stores the optional `cst: true` setting.
+  The current Grammar IR stores the optional `cst: true` setting.
 - `import "relative/path.y"` inserts one explicit fragment through the canonical resolver. `include` is an accepted
   compatibility spelling. Imports are available only in extended mode. Parsing source text alone performs no filesystem
   access; path-based callers use `Frontend::Resolver` to resolve the import graph.
@@ -187,8 +187,8 @@ no user-code sections; the current generated parser API is not that profile.
   each later declaration has higher priority. A uniquely highest-priority completed production fills only table cells that
   would otherwise be errors, so explicit shifts, reductions, accepts, and conflict decisions remain authoritative.
 - Extended roots accept ordered `%test accept "source"` and `%test reject "source"` declarations. Sources must use
-  double-quoted Ruby literals and exact duplicate expectation/source pairs are rejected. Grammar IR v2 retains their decoded
-  source and location; ordinary generated parser tables do not.
+  double-quoted Ruby literals and exact duplicate expectation/source pairs are rejected. The current Grammar IR retains their
+  decoded source and location; ordinary generated parser tables do not.
 
 ## Generated lexer (extended mode)
 
@@ -365,8 +365,8 @@ helper and production order while avoiding dependence on the Ruby stack. The def
 1,000 distinct specializations; programmatic callers can configure the positive-Integer
 `max_parameter_specializations:`. Argument-changing recursive instantiation is rejected by structural cycle detection rather
 than an arbitrary depth boundary. Specialized productions retain template actions,
-precedence, types, documentation, locations, and include chains. Grammar IR v2 records
-`expansion.parameter {rule, arguments}`; v1 output omits the expansion record.
+precedence, types, documentation, locations, and include chains. The current Grammar IR records
+`expansion.parameter {rule, arguments}`.
 
 ### Inline rules (extended mode)
 
@@ -394,10 +394,9 @@ grammar nesting is independent of the Ruby call stack.
 
 Eliminated reductions still run their explicit or implicit actions in logical post-order. Named references, `val`, `_values`,
 `@N`, `@$`, empty spans, middle actions, `result`/`no_result_var`, and parser instance methods retain their logical rule view.
-Grammar IR v2 serializes the executable sequence in `action.composition.plan` and records
+The current Grammar IR serializes the executable sequence in `action.composition.plan` and records
 `expansion.inline {rule}`; dump/load followed by code generation preserves it. `yyaccept` and `yyerror` stop the remaining
-logical fragments and caller after the current fragment completes, and `yyerrok` does not erase that `yyerror`. Version 1 omits
-both metadata families.
+logical fragments and caller after the current fragment completes, and `yyerrok` does not erase that `yyerror`.
 
 The action scanner handles nested braces, quoted/backtick strings and interpolation, `%q/%Q/%w/%W/%i/%I/%x/%r/%s`, regular
 expressions, comments, character literals, and unquoted, single-quoted, double-quoted, or backtick heredocs. Indented, squiggly,

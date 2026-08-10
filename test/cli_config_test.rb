@@ -25,9 +25,9 @@ class CLIConfigTest < Minitest::Test
     end
   end
 
-  def test_v3_parser_contract_and_matching_cli_keep_source_evidence
+  def test_current_parser_contract_and_matching_cli_keep_source_evidence
     result = invoke([
-                      "config", "--from=grammar-ir", "--algorithm=ielr", "--format=json", fixture("grammar-v3.json")
+                      "config", "--from=grammar-ir", "--algorithm=ielr", "--format=json", fixture("grammar.json")
                     ])
     document = JSON.parse(result.fetch(:stdout))
     algorithm = configuration(document, "parser.algorithm")
@@ -35,7 +35,7 @@ class CLIConfigTest < Minitest::Test
     assert_equal 0, result.fetch(:status)
     assert_equal "ielr", algorithm.fetch("value")
     assert_equal "grammar", algorithm.dig("origin", "kind")
-    assert_equal "golden-v3.y", algorithm.dig("origin", "location", "file")
+    assert_equal "golden.y", algorithm.dig("origin", "location", "file")
     assert_equal(%w[grammar cli], algorithm.fetch("evidence").map { |entry| entry.fetch("source") })
     assert(algorithm.fetch("evidence").all? { |entry| entry.fetch("status") == "accepted" })
     assert_includes algorithm.fetch("evidence").last.fetch("reason"), "matches"
@@ -65,11 +65,11 @@ class CLIConfigTest < Minitest::Test
     end
   end
 
-  def test_v3_conflict_is_positioned_structured_and_nonzero_in_both_languages
+  def test_current_conflict_is_positioned_structured_and_nonzero_in_both_languages
     results = %w[en ja].to_h do |language|
       [language, invoke([
                           "--lang=#{language}", "config", "--from=grammar-ir", "--algorithm=lalr", "--format=json",
-                          fixture("grammar-v3.json")
+                          fixture("grammar.json")
                         ])]
     end
     english = JSON.parse(results.fetch("en").fetch(:stdout))
@@ -81,27 +81,22 @@ class CLIConfigTest < Minitest::Test
     assert_equal english, japanese
     assert_equal "conflict", english.fetch("status")
     assert_equal "ielr", conflict.dig("declared", "value")
-    assert_equal "golden-v3.y", conflict.dig("declared", "origin", "location", "file")
+    assert_equal "golden.y", conflict.dig("declared", "origin", "location", "file")
     assert_equal "lalr", conflict.dig("requested", "value")
     assert_equal "conflicting", algorithm.fetch("evidence").last.fetch("status")
-    assert_match(/golden-v3\.y:2:1: configuration conflict/, results.fetch("en").fetch(:stderr))
-    assert_match(/エラー: golden-v3\.y:2:1: configuration conflict/, results.fetch("ja").fetch(:stderr))
+    assert_match(/golden\.y:2:1: configuration conflict/, results.fetch("en").fetch(:stderr))
+    assert_match(/エラー: golden\.y:2:1: configuration conflict/, results.fetch("ja").fetch(:stderr))
   end
 
-  def test_unspecified_grammar_ir_does_not_claim_historical_parser_facts
-    {
-      "grammar-v2.json" => "unavailable",
-      "grammar-v2-migrated-v3.json" => "unspecified"
-    }.each do |name, state|
-      result = invoke(["config", "--from=grammar-ir", "--format=json", fixture(name)])
-      document = JSON.parse(result.fetch(:stdout))
+  def test_current_grammar_ir_records_parser_contract_facts
+    result = invoke(["config", "--from=grammar-ir", "--format=json", fixture("grammar.json")])
+    document = JSON.parse(result.fetch(:stdout))
 
-      assert_equal 0, result.fetch(:status), name
-      %w[parser.algorithm parser.entries cst.trivia].each do |key|
-        entry = configuration(document, key)
-        assert_equal state, entry.dig("recording", "state"), "#{name}: #{key}"
-        assert_match(/not a historical fact/, entry.dig("recording", "reason"), "#{name}: #{key}")
-      end
+    assert_equal 0, result.fetch(:status)
+    %w[parser.algorithm parser.entries cst.trivia].each do |key|
+      entry = configuration(document, key)
+      assert_equal "recorded", entry.dig("recording", "state"), key
+      assert_match(/current Grammar IR records an explicit parser contract/, entry.dig("recording", "reason"), key)
     end
   end
 

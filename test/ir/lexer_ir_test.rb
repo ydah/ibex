@@ -21,12 +21,12 @@ class LexerIRTest < Minitest::Test
     assert_empty lexer_schema.validate(JSON.parse(dumped)).to_a
   end
 
-  def test_embeds_the_lexer_without_changing_its_schema_version
+  def test_embeds_the_lexer_without_changing_the_grammar_format
     dumped = Ibex::IR::Serialize.dump(grammar)
     document = JSON.parse(dumped)
     loaded = Ibex::IR::Validator.validate(dumped)
 
-    assert_equal 2, document.fetch("schema_version")
+    assert_equal Ibex::IR::SCHEMA_VERSION, document.fetch("schema_version")
     assert_equal 1, document.fetch("lexer").fetch("schema_version")
     assert_equal grammar.lexer.to_h, loaded.lexer.to_h
   end

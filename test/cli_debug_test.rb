@@ -5,8 +5,8 @@ require "json_schemer"
 require "stringio"
 
 class CLIDebugTest < Minitest::Test
-  AUTOMATON = File.expand_path("fixtures/ir/automaton-v2.json", __dir__)
-  GRAMMAR = File.expand_path("fixtures/ir/grammar-v2.json", __dir__)
+  AUTOMATON = File.expand_path("fixtures/ir/automaton.json", __dir__)
+  GRAMMAR = File.expand_path("fixtures/ir/grammar.json", __dir__)
   SCHEMA = JSONSchemer.schema(
     JSON.parse(File.read(File.expand_path("../schema/table-simulation-v1.schema.json", __dir__)))
   )

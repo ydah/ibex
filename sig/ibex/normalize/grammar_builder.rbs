@@ -1,17 +1,11 @@
 # Generated from lib/ibex/normalize/grammar_builder.rb with RBS::Inline
 
 module Ibex
-  # Selects Grammar IR v2 or v3 without changing declaration-free serialization.
+  # Builds the current Grammar IR without a compatibility branch.
   module NormalizeGrammarBuilder
     private
 
     # @rbs (IR::ParserContract? parser_contract) -> IR::Grammar
     def build_grammar: (IR::ParserContract? parser_contract) -> IR::Grammar
-
-    # @rbs (Hash[Symbol, untyped] keywords) -> IR::Grammar
-    def build_v2_grammar: (Hash[Symbol, untyped] keywords) -> IR::Grammar
-
-    # @rbs (Hash[Symbol, untyped] keywords, IR::ParserContract parser_contract) -> IR::Grammar
-    def build_v3_grammar: (Hash[Symbol, untyped] keywords, IR::ParserContract parser_contract) -> IR::Grammar
   end
 end

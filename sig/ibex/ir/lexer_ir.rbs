@@ -34,7 +34,7 @@ module Ibex
       def to_h: () -> Hash[Symbol, lexer_rule_document_value]
     end
 
-    # Independently versioned lexer contract embedded by Grammar IR v2.
+    # Independently versioned lexer contract embedded by the current Grammar IR.
     class Lexer
       attr_reader states: Array[String]
 

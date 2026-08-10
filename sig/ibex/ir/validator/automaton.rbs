@@ -8,7 +8,7 @@ module Ibex
       class AutomatonDocument < Base
         ROOT_REQUIRED: Array[String]
 
-        V2_ROOT_OPTIONAL: Array[String]
+        ROOT_OPTIONAL: Array[String]
 
         STATE_REQUIRED: Array[String]
 

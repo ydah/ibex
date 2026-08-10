@@ -77,47 +77,30 @@ module Ibex
       attr_reader :entry_states #: Hash[String, Integer]
       attr_reader :conflict_summary #: conflict_summary
       attr_reader :schema_version #: Integer
-      # @rbs skip
-      attr_reader :entry_construction #: String?
+      attr_reader :entry_construction #: String
 
       # @rbs (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary,
-      #   ?algorithm: String, ?grammar_digest: String?, ?schema_version: Integer,
-      #   ?entry_states: Hash[String, Integer]?) -> void
+      #   ?algorithm: String, ?grammar_digest: String?, ?entry_states: Hash[String, Integer]?,
+      #   ?entry_construction: String) -> void
       def initialize(grammar:, states:, conflict_summary:, algorithm: "lalr1", grammar_digest: nil,
-                     schema_version: SCHEMA_VERSION, entry_states: nil)
-        initialize_versioned(
+                     entry_states: nil, entry_construction: "shared")
+        initialize_current(
           grammar: grammar, states: states, conflict_summary: conflict_summary, algorithm: algorithm,
-          grammar_digest: grammar_digest, schema_version: schema_version, entry_states: entry_states,
-          entry_construction: nil
+          grammar_digest: grammar_digest, entry_states: entry_states, entry_construction: entry_construction
         )
       end
 
       # @rbs skip
-      def self.v3(grammar:, states:, conflict_summary:, entry_construction:, algorithm: "lalr1", grammar_digest: nil,
-                  entry_states: nil)
-        automaton = allocate
-        automaton.send(
-          :initialize_versioned,
-          grammar: grammar, states: states, conflict_summary: conflict_summary, algorithm: algorithm,
-          grammar_digest: grammar_digest, schema_version: LATEST_SCHEMA_VERSION, entry_states: entry_states,
-          entry_construction: entry_construction
-        )
-        automaton
-      end
-
-      # @rbs skip
-      def initialize_versioned(grammar:, states:, conflict_summary:, algorithm:, grammar_digest:, schema_version:,
-                               entry_states:, entry_construction:)
-        unless SUPPORTED_SCHEMA_VERSIONS.include?(schema_version)
-          raise Ibex::Error, "unsupported automaton schema_version #{schema_version.inspect}"
+      def initialize_current(grammar:, states:, conflict_summary:, algorithm:, grammar_digest:, entry_states:,
+                             entry_construction:)
+        unless grammar.schema_version == SCHEMA_VERSION
+          raise Ibex::Error, "automaton requires the current Grammar IR format"
         end
-
-        grammar = normalize_grammar_version(grammar, schema_version)
 
         @algorithm = algorithm.freeze
         @grammar = grammar
         expected_digest = digest_for(grammar)
-        if schema_version >= 3 && grammar_digest && grammar_digest != expected_digest
+        if grammar_digest && grammar_digest != expected_digest
           raise Ibex::Error,
                 "(ir):1:1: $.grammar_digest does not match the embedded grammar; expected #{expected_digest.inspect}"
         end
@@ -126,12 +109,12 @@ module Ibex
         @entry_states = IR.deep_freeze(entry_states || { grammar.start => 0 })
         validate_entry_states
         @conflict_summary = IR.deep_freeze(conflict_summary)
-        @schema_version = schema_version
-        @entry_construction = validate_entry_construction(schema_version, entry_construction)
+        @schema_version = SCHEMA_VERSION
+        @entry_construction = validate_entry_construction(entry_construction)
         validate_parser_contract
         freeze
       end
-      private :initialize_versioned
+      private :initialize_current
 
       # @rbs () -> Hash[Symbol, Object?]
       def to_h
@@ -140,7 +123,7 @@ module Ibex
                   states: @states.map { |state| state.to_h(@grammar) },
                   conflict_summary: @conflict_summary } #: Hash[Symbol, Object?]
         value[:entry_states] = @entry_states unless @entry_states == { @grammar.start => 0 }
-        value[:entry_construction] = @entry_construction if @schema_version >= 3
+        value[:entry_construction] = @entry_construction
         value
       end
 
@@ -166,41 +149,20 @@ module Ibex
         "sha256:#{Digest::SHA256.hexdigest(IR::Serialize.dump(grammar))}"
       end
 
-      # @rbs skip
-      def normalize_grammar_version(grammar, schema_version)
-        if schema_version >= 2 && grammar.schema_version < schema_version
-          grammar = Migration.to_version(grammar, to: schema_version)
+      # @rbs (String value) -> String
+      def validate_entry_construction(value)
+        unless %w[shared isolated].include?(value)
+          raise Ibex::Error, "entry construction must be shared or isolated"
         end
-        raise Ibex::Error, "automaton migration did not produce a grammar" unless grammar.is_a?(Grammar)
-        return grammar if grammar.schema_version == schema_version
 
-        raise Ibex::Error,
-              "automaton schema_version #{schema_version} requires Grammar IR v#{schema_version}, " \
-              "got v#{grammar.schema_version}"
-      end
-
-      # @rbs skip
-      def validate_entry_construction(schema_version, value)
-        if schema_version >= 3
-          unless %w[shared isolated unknown].include?(value)
-            raise Ibex::Error, "Automaton IR v3 requires shared, isolated, or unknown entry construction"
-          end
-
-          return value&.dup&.freeze
-        end
-        raise Ibex::Error, "entry construction requires Automaton IR schema_version 3" if value
-
-        nil
+        value.dup.freeze
       end
 
       # @rbs skip
       def validate_parser_contract
-        return unless @schema_version >= 3
-
-        contract = @grammar.parser_contract || raise(Ibex::Error, "Grammar IR v3 parser contract is missing")
+        contract = @grammar.parser_contract
         validate_parser_algorithm(contract)
         validate_parser_entries(contract)
-        validate_unknown_entry_construction(contract)
       end
 
       # @rbs skip
@@ -218,16 +180,6 @@ module Ibex
         raise Ibex::Error, "automaton entry construction conflicts with the embedded parser contract"
       end
 
-      # @rbs skip
-      def validate_unknown_entry_construction(contract)
-        return unless @entry_construction == "unknown"
-
-        unavailable = @grammar.migration&.fetch(:unavailable, []) || []
-        return if unavailable.include?("effective_parser_entries") && !contract.entries.explicit
-
-        raise Ibex::Error,
-              "(ir):1:1: $.entry_construction may be unknown only for migrated unavailable history"
-      end
     end
   end
 end

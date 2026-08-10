@@ -10,10 +10,10 @@
     "recognition_cost": "O(input tokens + reductions); lexer, recovery search, and semantic actions excluded"
   },
   "identity": {
-    "automaton_digest": "sha256:841f5e7948435204e9feb245d8018d5d743d39407b473a29623d1ca6ea1ca3e7",
+    "automaton_digest": "sha256:46f2151ac2945e13e6b277004f1750dcce0df154966dc1eb1a3ae5fef51abf27",
     "cst_metadata_digest": "sha256:c73094eb0350dde0a798104931d6f3fd042b8f4d1a793adad6ba02729d323643",
-    "grammar_digest": "sha256:4580f3d15f1ca70191bf30518b2ee80d590e394fca159d4154b28db383c7af71",
-    "payload_digest": "sha256:480bf6fe7230eadd234961b1354f06de8d2d7cc5ce62f9afce342df853bcfb94",
+    "grammar_digest": "sha256:a08054ceec2a6a5af38c955f3712897eb680fa642d46a0416cb7a6a3da76a942",
+    "payload_digest": "sha256:fb1ae86d87269bae052696f63a98f917c0cdfc64dcf54139d58da583eb25ca40",
     "recovery_metadata_digest": "sha256:608714c717302ceb7e65a38fb7fc90a9105fe68f8883d3c9d727efc182af26ad"
   },
   "payload": {
@@ -202,8 +202,8 @@
       "verified": false
     },
     "source": {
-      "automaton_digest": "sha256:841f5e7948435204e9feb245d8018d5d743d39407b473a29623d1ca6ea1ca3e7",
-      "grammar_digest": "sha256:4580f3d15f1ca70191bf30518b2ee80d590e394fca159d4154b28db383c7af71"
+      "automaton_digest": "sha256:46f2151ac2945e13e6b277004f1750dcce0df154966dc1eb1a3ae5fef51abf27",
+      "grammar_digest": "sha256:a08054ceec2a6a5af38c955f3712897eb680fa642d46a0416cb7a6a3da76a942"
     },
     "state_count": 5,
     "symbols": [

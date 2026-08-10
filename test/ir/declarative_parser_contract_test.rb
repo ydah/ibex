@@ -4,7 +4,7 @@ require_relative "../test_helper"
 require "tmpdir"
 
 class IRDeclarativeParserContractTest < Minitest::Test
-  def test_parser_declaration_writes_a_native_v3_contract_and_round_trips
+  def test_parser_declaration_writes_the_current_contract_and_round_trips
     grammar = normalize(<<~GRAMMAR)
       class P
       parser
@@ -19,7 +19,7 @@ class IRDeclarativeParserContractTest < Minitest::Test
     GRAMMAR
     contract = grammar.parser_contract
 
-    assert_equal 3, grammar.schema_version
+    assert_equal Ibex::IR::SCHEMA_VERSION, grammar.schema_version
     assert_explicit_contract(contract)
     assert_contract_round_trip(grammar, contract)
   end
@@ -31,7 +31,7 @@ class IRDeclarativeParserContractTest < Minitest::Test
     assert_equal first.parser_contract.configuration_values, second.parser_contract.configuration_values
   end
 
-  def test_cst_trivia_declaration_is_persisted_in_the_v3_contract
+  def test_cst_trivia_declaration_is_persisted_in_the_current_contract
     grammar = normalize(<<~GRAMMAR)
       class P
       pragma cst
@@ -51,14 +51,14 @@ class IRDeclarativeParserContractTest < Minitest::Test
     assert_equal :balanced, round_tripped.parser_contract.cst_trivia.value
   end
 
-  def test_declaration_free_grammar_remains_v2_without_a_parser_contract
+  def test_declaration_free_grammar_still_persists_an_unspecified_contract
     source = "class P\nrule\nstart: TOKEN\nend\n"
     grammar = normalize(source)
     dumped = Ibex::IR::Serialize.dump(grammar)
 
-    assert_equal 2, grammar.schema_version
-    assert_nil grammar.parser_contract
-    refute_includes dumped, "parser_contract"
+    assert_equal Ibex::IR::SCHEMA_VERSION, grammar.schema_version
+    refute_nil grammar.parser_contract
+    assert_includes dumped, "parser_contract"
   end
 
   def test_isolated_entries_require_multiple_meaningful_start_symbols

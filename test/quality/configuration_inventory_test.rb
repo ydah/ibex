@@ -233,8 +233,8 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     inventory = document
     entries = inventory.fetch("registrations")
 
-    assert_equal 186, inventory.dig("scope", "call_site_count")
-    assert_equal 195, inventory.dig("scope", "runtime_registration_count")
+    assert_equal 184, inventory.dig("scope", "call_site_count")
+    assert_equal 193, inventory.dig("scope", "runtime_registration_count")
     assert_equal ["exe/*", "lib/**/*.rb"], inventory.dig("scope", "source_globs")
     assert_equal(214, entries.sum { |entry| entry.fetch("effective_spellings").length })
 
@@ -279,9 +279,9 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     assert_contract(entries, "config", "--cst-trivia=POLICY", "cst.trivia", "fixed")
   end
 
-  def test_cst_trivia_contract_is_persisted_in_grammar_ir_v3_and_manifest
+  def test_cst_trivia_contract_is_persisted_in_current_grammar_ir_and_manifest
     entry = find_entry(document.fetch("registrations"), "generate", "--cst-trivia=POLICY")
-    assert_equal "grammar_ir_v3_parser_contract", entry.fetch("ir_presence")
+    assert_equal "grammar_ir_current", entry.fetch("ir_presence")
     assert_equal "current", entry.fetch("manifest_presence")
   end
 
@@ -1948,14 +1948,14 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
   def test_closed_owner_and_compatibility_policy_rejects_cross_field_contradictions
     mutate_entry("generate", "--watch", "grammar_admission", "admitted_a1_a8", "invocation request fields")
     mutate_entry("generate", "--watch", "manifest_presence", "current", "invocation request fields")
-    mutate_entry("generate", "--table=FORMAT", "ir_presence", "grammar_ir_v2_current", "project build policy")
+    mutate_entry("generate", "--table=FORMAT", "ir_presence", "grammar_ir_current", "project build policy")
     mutate_entry("generate", "--table=FORMAT", "grammar_admission", "excluded_x1_operation", "project build policy")
     mutate_entry("generate", "--algorithm=NAME", "manifest_presence", "not_applicable", "manifest state")
     mutate_entry(
       "generate",
       "--mode=MODE",
       "ir_presence",
-      "grammar_ir_v3_parser_contract",
+      "not_persisted",
       "persistence is inconsistent"
     )
     mutate_entry("generate", "--manifest[=FILE]", "manifest_presence", "current", "project build policy")

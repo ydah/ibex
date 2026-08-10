@@ -85,7 +85,7 @@ module Ibex
         return if SUPPORTED_SCHEMA_VERSIONS.include?(version)
 
         expected = SUPPORTED_SCHEMA_VERSIONS.join(", ")
-        raise Ibex::Error, "(ir):1:1: unsupported schema_version #{version.inspect}; expected one of #{expected}"
+        raise Ibex::Error, "(ir):1:1: unsupported schema_version #{version.inspect}; expected the current format (#{expected})"
       end
 
       # @rbs skip
@@ -108,10 +108,6 @@ module Ibex
         end
         productions_data = data.fetch("productions") #: Array[Hash[String, serialized_value]]
         productions = productions_data.map { |production| load_production(production) }
-        return load_grammar_v3(
-          data, symbols, productions, empty_chunks, empty_parameters, empty_printers, empty_tests, empty_recovery
-        ) if schema_version >= 3
-
         Grammar.new(
           class_name: data.fetch("class_name"), superclass: data["superclass"], start: data.fetch("start"),
           expect: data.fetch("expect"), options: symbolize(data.fetch("options")), symbols: symbols,
@@ -124,31 +120,10 @@ module Ibex
           user_code: data.fetch("user_code"), conversions: data.fetch("conversions"),
           warnings: symbolize(data.fetch("warnings")),
           user_code_chunks: load_user_code_chunks(data.fetch("user_code_chunks", empty_chunks)),
-          source_provenance: symbolize(data["source_provenance"]), migration: symbolize(data["migration"])
+          source_provenance: symbolize(data["source_provenance"]),
+          parser_contract: load_parser_contract(data.fetch("parser_contract"))
         )
       end # rubocop:enable Metrics/AbcSize
-
-      def load_grammar_v3(data, symbols, productions, empty_chunks, empty_parameters, empty_printers, empty_tests,
-                          empty_recovery)
-        data = data #: Hash[String, untyped]
-        symbols = symbols #: Array[GrammarSymbol]
-        productions = productions #: Array[Production]
-        Grammar.v3(
-          class_name: data.fetch("class_name"), superclass: data["superclass"], start: data.fetch("start"),
-          expect: data.fetch("expect"), options: symbolize(data.fetch("options")), symbols: symbols,
-          mode: (data["mode"] || "default").to_sym, starts: data["starts"], expect_rr: data["expect_rr"],
-          parser_parameters: symbolize(data.fetch("params", empty_parameters)),
-          value_printers: symbolize(data.fetch("printers", empty_printers)),
-          grammar_tests: load_grammar_tests(data.fetch("tests", empty_tests)),
-          lexer: data["lexer"] && load_lexer(data.fetch("lexer")),
-          recovery: symbolize(data.fetch("recovery", empty_recovery)), productions: productions,
-          user_code: data.fetch("user_code"), conversions: data.fetch("conversions"),
-          warnings: symbolize(data.fetch("warnings")),
-          user_code_chunks: load_user_code_chunks(data.fetch("user_code_chunks", empty_chunks)),
-          source_provenance: symbolize(data["source_provenance"]), migration: symbolize(data["migration"]),
-          parser_contract: load_parser_contract(data["parser_contract"])
-        )
-      end
 
       # @rbs skip
       def load_automaton(data)
@@ -158,18 +133,10 @@ module Ibex
         states_data = data.fetch("states") #: Array[Hash[String, serialized_value]]
         states = states_data.map { |state| load_state(state, grammar) }
         schema_version = data.fetch("schema_version") #: Integer
-        if schema_version >= 3
-          return Automaton.v3(
-            grammar: grammar, states: states, conflict_summary: symbolize(data.fetch("conflict_summary")),
-            algorithm: data.fetch("algorithm"), grammar_digest: data.fetch("grammar_digest"),
-            entry_states: data["entry_states"], entry_construction: data.fetch("entry_construction")
-          )
-        end
-
         Automaton.new(
           grammar: grammar, states: states, conflict_summary: symbolize(data.fetch("conflict_summary")),
           algorithm: data.fetch("algorithm"), grammar_digest: data.fetch("grammar_digest"),
-          entry_states: data["entry_states"], schema_version: schema_version
+          entry_states: data["entry_states"], entry_construction: data.fetch("entry_construction")
         )
       end
 
@@ -180,7 +147,7 @@ module Ibex
         unless SUPPORTED_LEXER_SCHEMA_VERSIONS.include?(version)
           expected = SUPPORTED_LEXER_SCHEMA_VERSIONS.join(", ")
           raise Ibex::Error,
-                "(ir):1:1: unsupported lexer schema_version #{version.inspect}; expected one of #{expected}"
+                "(ir):1:1: unsupported lexer schema_version #{version.inspect}; expected the current lexer format (#{expected})"
         end
         rules_data = data.fetch("rules") #: Array[Hash[String, serialized_value]]
         rules = rules_data.map do |rule|
@@ -300,8 +267,7 @@ module Ibex
       end
 
       def load_parser_contract(value)
-        value = value #: Hash[String, untyped] if value
-        return unless value
+        value = value #: Hash[String, untyped]
 
         entries = ParserContract::DEFINITIONS.keys.to_h do |key|
           entry = value.fetch(key.to_s)
@@ -335,13 +301,13 @@ module Ibex
       end
       module_function :validate_version, :load_grammar, :load_automaton, :load_lexer, :load_state, :symbol_keyed,
                       :normalize_action, :load_production, :load_user_code_chunks, :load_symbol_metadata,
-                      :symbol_source_position, :load_grammar_tests, :load_grammar_v3,
+                      :symbol_source_position, :load_grammar_tests,
                       :load_parser_contract, :symbolize
 
       class << self
         private :validate_version, :load_grammar, :load_automaton, :load_lexer, :load_state, :symbol_keyed,
                 :normalize_action, :load_production, :load_user_code_chunks, :load_symbol_metadata,
-                :symbol_source_position, :load_grammar_tests, :load_grammar_v3,
+                :symbol_source_position, :load_grammar_tests,
                 :load_parser_contract, :symbolize
       end
     end

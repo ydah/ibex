@@ -18,7 +18,9 @@ module Ibex
         lib/ibex/codegen.rb lib/ibex/codegen/**/* sig/ibex/codegen.rbs sig/ibex/codegen/**/*
         lib/ibex/frontend/generated_parser.rb
         lib/ibex/ir.rb lib/ibex/ir/**/* sig/ibex/ir.rbs sig/ibex/ir/**/*
-        schema/grammar-ir-v*.schema.json schema/automaton-ir-v*.schema.json
+        schema/grammar-ir.schema.json schema/grammar-ir-foundation.schema.json
+        schema/grammar-ir-extensions.schema.json schema/automaton-ir.schema.json
+        schema/automaton-ir-definitions.schema.json
         schema/lexer-ir-v*.schema.json schema/cst-v*.json
         test/matrix.yml test/support/matrix_contract.rb test/support/matrix_runner.rb
         test/tooling/matrix_runner_test.rb

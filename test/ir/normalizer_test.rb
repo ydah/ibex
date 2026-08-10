@@ -11,7 +11,7 @@ class NormalizerTest < Minitest::Test
 
   def test_reserves_symbols_and_round_trips_stably
     grammar = normalize("class P\ntoken INT\nrule\nstart: INT\nend\n")
-    assert_equal 2, grammar.schema_version
+    assert_equal Ibex::IR::SCHEMA_VERSION, grammar.schema_version
     assert_equal :default, grammar.mode
     assert_equal({ file: "normalize.y", root: nil, byte_span: nil }, grammar.source_provenance)
     assert_equal ["$eof", "error"], grammar.symbols.first(2).map(&:name)
@@ -23,7 +23,7 @@ class NormalizerTest < Minitest::Test
     assert_nil grammar.symbol_by_id(10_000)
   end
 
-  def test_extended_mode_round_trips_as_optional_v2_metadata
+  def test_extended_mode_round_trips_as_optional_current_metadata
     grammar = normalize("class P\nrule\nstart: TOKEN\nend\n", mode: :extended)
     dumped = Ibex::IR::Serialize.dump(grammar)
 
@@ -41,7 +41,7 @@ class NormalizerTest < Minitest::Test
     assert_equal :extended, grammar.mode
   end
 
-  def test_cst_pragma_round_trips_as_optional_v2_metadata
+  def test_cst_pragma_round_trips_as_optional_current_metadata
     grammar = normalize("class P\npragma cst\nrule\nstart: TOKEN\nend\n")
     dumped = Ibex::IR::Serialize.dump(grammar)
     loaded = Ibex::IR::Validator.validate(dumped)
@@ -53,7 +53,7 @@ class NormalizerTest < Minitest::Test
     refute_includes Ibex::IR::Serialize.dump(normalize("class P\nrule\nstart: TOKEN\nend\n")), '"cst"'
   end
 
-  def test_multiple_start_symbols_round_trip_as_optional_v2_metadata
+  def test_multiple_start_symbols_round_trip_as_optional_current_metadata
     grammar = normalize(<<~GRAMMAR, mode: :extended)
       class P
       pragma extended
@@ -154,7 +154,7 @@ class NormalizerTest < Minitest::Test
     assert_equal "HEADER\nMORE\n", grammar.user_code["header"]
   end
 
-  def test_constructor_parameters_round_trip_as_optional_v2_metadata
+  def test_constructor_parameters_round_trip_as_optional_current_metadata
     grammar = normalize(<<~GRAMMAR, mode: :extended)
       class P
       pragma extended
@@ -178,7 +178,7 @@ class NormalizerTest < Minitest::Test
     refute_includes Ibex::IR::Serialize.dump(plain), '"params"'
   end
 
-  def test_value_printers_round_trip_as_optional_v2_metadata
+  def test_value_printers_round_trip_as_optional_current_metadata
     grammar = normalize(<<~'GRAMMAR', mode: :extended)
       class P
       pragma extended
@@ -201,7 +201,7 @@ class NormalizerTest < Minitest::Test
     refute_includes Ibex::IR::Serialize.dump(plain), '"printers"'
   end
 
-  def test_recovery_policy_round_trips_as_optional_v2_metadata
+  def test_recovery_policy_round_trips_as_optional_current_metadata
     grammar = normalize(<<~GRAMMAR, mode: :extended)
       class P
       pragma extended
@@ -228,7 +228,7 @@ class NormalizerTest < Minitest::Test
     refute_includes Ibex::IR::Serialize.dump(plain), '"recovery"'
   end
 
-  def test_grammar_tests_round_trip_as_optional_v2_metadata
+  def test_grammar_tests_round_trip_as_optional_current_metadata
     grammar = normalize(<<~GRAMMAR)
       class P
       pragma extended
@@ -372,7 +372,7 @@ class NormalizerTest < Minitest::Test
     assert_equal [6, 8], loaded_lines
   end
 
-  def test_loads_schema_v2_grammar_without_user_code_chunks
+  def test_loads_current_grammar_without_user_code_chunks
     grammar = normalize("class P\nrule\nstart: TOKEN\nend\n")
     data = JSON.parse(Ibex::IR::Serialize.dump(grammar))
     data.delete("user_code_chunks")
@@ -437,7 +437,7 @@ class NormalizerTest < Minitest::Test
     error = assert_raises(Ibex::Error) do
       Ibex::IR::Serialize.load('{"ibex_ir":"grammar","schema_version":99}')
     end
-    assert_equal "(ir):1:1: unsupported schema_version 99; expected one of 2, 3", error.message
+    assert_equal "(ir):1:1: unsupported schema_version 99; expected the current format (1)", error.message
   end
 end
 # rubocop:enable Metrics/ClassLength

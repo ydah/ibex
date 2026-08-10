@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/grammar-ir-v1.schema.json",
-  "title": "Ibex Grammar IR version 1",
-  "description": "The normalized grammar exchanged between Ibex frontend and analysis stages.",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/grammar-ir-foundation.schema.json",
+  "title": "Ibex Grammar IR shared definitions",
+  "description": "Shared definitions used by the current Grammar IR schema.",
   "type": "object",
   "required": [
     "ibex_ir",

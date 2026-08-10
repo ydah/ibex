@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/automaton-ir-v1.schema.json",
-  "title": "Ibex Automaton IR version 1",
-  "description": "The self-contained parser automaton exchanged between Ibex analysis and code generation stages.",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/automaton-ir-definitions.schema.json",
+  "title": "Ibex Automaton IR shared definitions",
+  "description": "Shared definitions used by the current Automaton IR schema.",
   "type": "object",
   "required": [
     "ibex_ir",
@@ -33,7 +33,7 @@
       "pattern": "^sha256:[0-9a-f]{64}$"
     },
     "grammar": {
-      "$ref": "grammar-ir-v1.schema.json"
+      "$ref": "grammar-ir-foundation.schema.json"
     },
     "states": {
       "type": "array",
@@ -230,7 +230,7 @@
           "type": "array",
           "minItems": 1,
           "items": {
-            "$ref": "grammar-ir-v1.schema.json#/$defs/location"
+            "$ref": "grammar-ir-foundation.schema.json#/$defs/location"
           }
         },
         "entries": {
@@ -280,7 +280,7 @@
           "type": "array",
           "minItems": 1,
           "items": {
-            "$ref": "grammar-ir-v1.schema.json#/$defs/location"
+            "$ref": "grammar-ir-foundation.schema.json#/$defs/location"
           }
         },
         "entries": {

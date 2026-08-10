@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ibex
-  # Converts a root parser declaration into the explicit Grammar IR v3 contract.
+  # Converts a root parser declaration into the explicit current Grammar IR contract.
   module NormalizeParserConfiguration
     private
 

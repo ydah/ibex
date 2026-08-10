@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/grammar-ir-v2.schema.json",
-  "title": "Ibex Grammar IR version 2",
-  "description": "The normalized grammar plus nullable provenance, documentation, expansion, and action-composition metadata.",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/grammar-ir-extensions.schema.json",
+  "title": "Ibex Grammar IR shared metadata definitions",
+  "description": "Shared metadata definitions used by the current Grammar IR schema.",
   "type": "object",
   "required": [
     "ibex_ir",
@@ -17,8 +17,7 @@
     "user_code",
     "conversions",
     "warnings",
-    "source_provenance",
-    "migration"
+    "source_provenance"
   ],
   "properties": {
     "ibex_ir": {
@@ -105,15 +104,15 @@
       }
     },
     "user_code": {
-      "$ref": "grammar-ir-v1.schema.json#/$defs/string_map"
+      "$ref": "grammar-ir-foundation.schema.json#/$defs/string_map"
     },
     "conversions": {
-      "$ref": "grammar-ir-v1.schema.json#/$defs/string_map"
+      "$ref": "grammar-ir-foundation.schema.json#/$defs/string_map"
     },
     "warnings": {
       "type": "array",
       "items": {
-        "$ref": "grammar-ir-v1.schema.json#/$defs/warning"
+        "$ref": "grammar-ir-foundation.schema.json#/$defs/warning"
       }
     },
     "user_code_chunks": {
@@ -121,15 +120,12 @@
       "additionalProperties": {
         "type": "array",
         "items": {
-          "$ref": "grammar-ir-v1.schema.json#/$defs/user_code_chunk"
+          "$ref": "grammar-ir-foundation.schema.json#/$defs/user_code_chunk"
         }
       }
     },
     "source_provenance": {
       "$ref": "#/$defs/nullable_source_provenance"
-    },
-    "migration": {
-      "$ref": "#/$defs/nullable_migration"
     }
   },
   "additionalProperties": false,
@@ -174,7 +170,7 @@
           }
         },
         "loc": {
-          "$ref": "grammar-ir-v1.schema.json#/$defs/location"
+          "$ref": "grammar-ir-foundation.schema.json#/$defs/location"
         }
       },
       "additionalProperties": false
@@ -197,7 +193,7 @@
           "type": "string"
         },
         "loc": {
-          "$ref": "grammar-ir-v1.schema.json#/$defs/location"
+          "$ref": "grammar-ir-foundation.schema.json#/$defs/location"
         }
       },
       "additionalProperties": false
@@ -269,7 +265,7 @@
           "type": "string"
         },
         "loc": {
-          "$ref": "grammar-ir-v1.schema.json#/$defs/location"
+          "$ref": "grammar-ir-foundation.schema.json#/$defs/location"
         }
       },
       "additionalProperties": false
@@ -344,47 +340,6 @@
         }
       ]
     },
-    "migration": {
-      "type": "object",
-      "required": [
-        "from_schema_version",
-        "unavailable"
-      ],
-      "properties": {
-        "from_schema_version": {
-          "const": 1
-        },
-        "unavailable": {
-          "type": "array",
-          "minItems": 1,
-          "uniqueItems": true,
-          "items": {
-            "enum": [
-              "source_provenance",
-              "symbol_docs",
-              "production_docs",
-                "production_expansion",
-                "action_composition",
-                "grammar_tests",
-                "lexer",
-                "cst",
-                "ast_nodes"
-            ]
-          }
-        }
-      },
-      "additionalProperties": false
-    },
-    "nullable_migration": {
-      "oneOf": [
-        {
-          "$ref": "#/$defs/migration"
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
     "symbol": {
       "type": "object",
       "required": [
@@ -417,7 +372,7 @@
         "prec": {
           "oneOf": [
             {
-              "$ref": "grammar-ir-v1.schema.json#/$defs/precedence"
+              "$ref": "grammar-ir-foundation.schema.json#/$defs/precedence"
             },
             {
               "type": "null"
@@ -425,13 +380,13 @@
           ]
         },
         "loc": {
-          "$ref": "grammar-ir-v1.schema.json#/$defs/nullable_location"
+          "$ref": "grammar-ir-foundation.schema.json#/$defs/nullable_location"
         },
         "display_name": {
-          "$ref": "grammar-ir-v1.schema.json#/$defs/metadata"
+          "$ref": "grammar-ir-foundation.schema.json#/$defs/metadata"
         },
         "semantic_type": {
-          "$ref": "grammar-ir-v1.schema.json#/$defs/metadata"
+          "$ref": "grammar-ir-foundation.schema.json#/$defs/metadata"
         },
         "doc": {
           "$ref": "#/$defs/nullable_documentation"
@@ -596,12 +551,12 @@
           ]
         },
         "loc": {
-          "$ref": "grammar-ir-v1.schema.json#/$defs/location"
+          "$ref": "grammar-ir-foundation.schema.json#/$defs/location"
         },
         "named_refs": {
           "type": "array",
           "items": {
-            "$ref": "grammar-ir-v1.schema.json#/$defs/named_ref"
+            "$ref": "grammar-ir-foundation.schema.json#/$defs/named_ref"
           }
         },
         "context_length": {
@@ -690,12 +645,12 @@
           "type": "string"
         },
         "loc": {
-          "$ref": "grammar-ir-v1.schema.json#/$defs/location"
+          "$ref": "grammar-ir-foundation.schema.json#/$defs/location"
         },
         "named_refs": {
           "type": "array",
           "items": {
-            "$ref": "grammar-ir-v1.schema.json#/$defs/named_ref"
+            "$ref": "grammar-ir-foundation.schema.json#/$defs/named_ref"
           }
         },
         "context_length": {
@@ -754,7 +709,7 @@
           "minimum": 0
         },
         "origin": {
-          "$ref": "grammar-ir-v1.schema.json#/$defs/origin"
+          "$ref": "grammar-ir-foundation.schema.json#/$defs/origin"
         },
         "doc": {
           "$ref": "#/$defs/nullable_documentation"

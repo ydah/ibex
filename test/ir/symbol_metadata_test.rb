@@ -3,7 +3,7 @@
 require_relative "../test_helper"
 
 class IRSymbolMetadataTest < Minitest::Test
-  def test_preserves_optional_metadata_through_schema_v2
+  def test_preserves_optional_metadata_through_current_ir
     grammar = normalize(<<~GRAMMAR)
       class P
       pragma extended

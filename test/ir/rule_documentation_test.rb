@@ -5,7 +5,7 @@ require "json"
 require "tmpdir"
 
 class IRRuleDocumentationTest < Minitest::Test
-  def test_rule_documentation_populates_v2_symbols_and_each_user_production
+  def test_rule_documentation_populates_symbols_and_each_user_production
     grammar = documented_value_grammar
     symbol = grammar.symbol("value")
     productions = grammar.productions.select { |production| production.lhs == symbol.id }
@@ -14,7 +14,7 @@ class IRRuleDocumentationTest < Minitest::Test
     assert_predicate symbol.documentation, :frozen?
   end
 
-  def test_rule_documentation_serializes_in_v2
+  def test_rule_documentation_serializes_in_current_ir
     grammar = documented_value_grammar
     symbol = grammar.symbol("value")
     productions = grammar.productions.select { |production| production.lhs == symbol.id }

@@ -11,7 +11,6 @@ module Ibex
     # Converts parsed source or validated Grammar IR into static configuration facts.
     # rubocop:disable Metrics/ModuleLength -- source and IR adapters share one closed evidence vocabulary.
     module Inspector
-      PARSER_CONTRACT_KEYS = %w[parser.algorithm parser.entries cst.trivia].freeze #: Array[String]
 
       # @rbs (Frontend::Resolution resolution) -> Input
       def from_source(resolution)
@@ -182,30 +181,12 @@ module Ibex
       #   Hash[String, Array[Evidence]] evidence, Hash[String, Recording] recordings) -> void
       def add_parser_contract(grammar, values, locations, evidence, recordings)
         contract = grammar.parser_contract
-        if grammar.schema_version < 3 || contract.nil?
-          record_unavailable_contract(grammar.schema_version, recordings)
-          return
-        end
-
         contract_entries(contract).each do |name, entry|
           add_contract_entry(name, entry, values, locations, evidence, recordings)
         end
       end
       module_function :add_parser_contract
       private_class_method :add_parser_contract
-
-      # @rbs (Integer schema_version, Hash[String, Recording] recordings) -> void
-      def record_unavailable_contract(schema_version, recordings)
-        PARSER_CONTRACT_KEYS.each do |name|
-          recordings[name] = Recording.new(
-            :unavailable,
-            "Grammar IR v#{schema_version} has no parser contract; " \
-            "the current builtin or CLI value is not a historical fact"
-          )
-        end
-      end
-      module_function :record_unavailable_contract
-      private_class_method :record_unavailable_contract
 
       # @rbs (String name, IR::ParserContract::Entry entry, Hash[String, config_value] values,
       #   Hash[String, Location] locations, Hash[String, Array[Evidence]] evidence,
@@ -214,7 +195,7 @@ module Ibex
         unless entry.explicit
           recordings[name] = Recording.new(
             :unspecified,
-            "Grammar IR v3 marks this parser contract field unspecified; " \
+            "The current Grammar IR marks this parser contract field unspecified; " \
             "the current builtin or CLI value is not a historical fact"
           )
           return
@@ -228,10 +209,10 @@ module Ibex
         evidence[name] = [
           Evidence.new(
             key, source: :grammar, value: value, status: :accepted, location: location,
-                 reason: "selected by the Grammar IR v3 parser contract"
+                 reason: "selected by the current Grammar IR parser contract"
           )
         ]
-        recordings[name] = Recording.new(:recorded, "Grammar IR v3 records an explicit parser contract")
+        recordings[name] = Recording.new(:recorded, "The current Grammar IR records an explicit parser contract")
       end
       module_function :add_contract_entry
       private_class_method :add_contract_entry

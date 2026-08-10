@@ -24,14 +24,11 @@ class VerifierTrustBoundaryDocumentationTest < Minitest::Test
   end
 
   def test_supported_algorithms_match_both_automaton_schemas
-    schemas = %w[v1 v2].map do |version|
-      path = File.join(ROOT, "schema/automaton-ir-#{version}.schema.json")
-      JSON.parse(File.binread(path)).fetch("properties").fetch("algorithm").fetch("enum")
-    end
-    assert_equal schemas.fetch(0), schemas.fetch(1)
+    schema = JSON.parse(File.binread(File.join(ROOT, "schema/automaton-ir.schema.json")))
+    algorithms = schema.fetch("properties").fetch("algorithm").fetch("enum")
 
     documented = rows("verifier-algorithms").map { |row| row.fetch(0).delete("`") }
-    assert_equal schemas.fetch(0), documented
+    assert_equal algorithms, documented
   end
 
   def test_documented_limits_match_default_verifier_result

@@ -65,10 +65,11 @@ adds a focused gallery rather than duplicating every example.
 
 ## 5. Schema inventory
 
-The repository contains closed, versioned schemas for Grammar, Automaton, and
-Lexer IR plus generation, diagnostics, coverage, simulation, benchmark, CST,
-and error-UX reports. Grammar and Automaton IR have v1/v2 migration fixtures
-and validators that reject unknown fields.
+The repository contains closed, versioned schemas for the current Grammar and
+Automaton IR plus the independently versioned Lexer IR and generation,
+diagnostics, coverage, simulation, benchmark, CST, and error-UX reports. The
+current Grammar and Automaton validators reject old documents and unknown
+fields.
 
 No schema exists yet for `verify`, `equiv`, `diff`, `metrics`, `fuzz`, or
 `reduce`. The T0 tools must read existing IR and publish separate report
@@ -90,7 +91,7 @@ post-v1 inventory item; it is not required by Stages A--C.
 3. Property and reference coverage already exists, so the matrix and verifier
    generalize it instead of replacing it.
 4. Existing examples are gallery inputs, not a completed gallery contract.
-5. Core IR v2 and table format v6 are already frozen; T0 remains read-only
+5. The current core IR and table format v6 are already frozen; T0 remains read-only
    with respect to those schemas.
 6. Red/Green CST batch parsing is already selected Stable; incremental CST
    remains Experimental.

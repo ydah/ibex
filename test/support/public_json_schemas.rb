@@ -4,9 +4,9 @@ module Ibex
   module TestSupport
     module PublicJSONSchemas
       NAMES = %w[
-        grammar-ir-v1.schema.json automaton-ir-v1.schema.json
-        grammar-ir-v2.schema.json automaton-ir-v2.schema.json
-        grammar-ir-v3.schema.json automaton-ir-v3.schema.json
+        grammar-ir-foundation.schema.json automaton-ir-definitions.schema.json
+        grammar-ir-extensions.schema.json automaton-ir-definitions.schema.json
+        grammar-ir.schema.json automaton-ir.schema.json
         lexer-ir-v1.schema.json explain-v1.schema.json
         benchmark-v1.schema.json benchmark-v2.schema.json
         generation-manifest-v1.schema.json error-ux-v1.schema.json

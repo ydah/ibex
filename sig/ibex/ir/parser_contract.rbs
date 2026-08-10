@@ -2,7 +2,7 @@
 
 module Ibex
   module IR
-    # Root-owned parser configuration persisted by Grammar IR version 3.
+    # Root-owned parser configuration persisted by the current Grammar IR.
     class ParserContract
       type definition = { configuration: String, values: Array[Symbol] }
 

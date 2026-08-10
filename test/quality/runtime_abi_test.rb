@@ -25,7 +25,7 @@ class RuntimeABITest < Minitest::Test
 
   def test_rejects_stale_documented_ir_version
     with_root do |root|
-      replace(root, "docs/runtime-abi-evolution.md", "current_writer: 2", "current_writer: 3")
+      replace(root, "docs/runtime-abi-evolution.md", "current_writer: 1", "current_writer: 2")
 
       error = assert_raises(RuntimeError) { verify(root) }
       assert_includes error.message, "Grammar IR policy is stale"

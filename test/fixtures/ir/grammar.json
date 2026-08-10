@@ -1,13 +1,14 @@
 {
   "ibex_ir": "grammar",
-  "schema_version": 3,
+  "schema_version": 1,
   "class_name": "GoldenFixtureParser",
   "superclass": null,
   "start": "start",
   "expect": 0,
   "options": {
     "result_var": true,
-    "omit_action_call": true
+    "omit_action_call": true,
+    "cst": true
   },
   "symbols": [
     {
@@ -35,7 +36,7 @@
       "reserved": false,
       "prec": null,
       "loc": {
-        "file": "golden-v1.y",
+        "file": "golden.y",
         "line": 2,
         "column": 1
       },
@@ -51,7 +52,7 @@
         "level": 1
       },
       "loc": {
-        "file": "golden-v1.y",
+        "file": "golden.y",
         "line": 2,
         "column": 1
       },
@@ -64,7 +65,7 @@
       "reserved": false,
       "prec": null,
       "loc": {
-        "file": "golden-v1.y",
+        "file": "golden.y",
         "line": 10,
         "column": 1
       },
@@ -77,7 +78,7 @@
       "reserved": false,
       "prec": null,
       "loc": {
-        "file": "golden-v1.y",
+        "file": "golden.y",
         "line": 11,
         "column": 1
       },
@@ -96,7 +97,7 @@
       "origin": {
         "kind": "user",
         "loc": {
-          "file": "golden-v1.y",
+          "file": "golden.y",
           "line": 10,
           "column": 8
         }
@@ -115,7 +116,7 @@
       "action": {
         "code": " result = val[0] + val[2] ",
         "loc": {
-          "file": "golden-v1.y",
+          "file": "golden.y",
           "line": 11,
           "column": 36
         },
@@ -127,7 +128,7 @@
       "origin": {
         "kind": "user",
         "loc": {
-          "file": "golden-v1.y",
+          "file": "golden.y",
           "line": 11,
           "column": 13
         }
@@ -146,7 +147,7 @@
       "origin": {
         "kind": "user",
         "loc": {
-          "file": "golden-v1.y",
+          "file": "golden.y",
           "line": 12,
           "column": 13
         }
@@ -164,12 +165,13 @@
     "NUMBER": "Integer"
   },
   "warnings": [],
+  "mode": "extended",
   "user_code_chunks": {
     "inner": [
       {
         "code": "def fixture_helper = true\n",
         "loc": {
-          "file": "golden-v1.y",
+          "file": "golden.y",
           "line": 15,
           "column": 1
         }
@@ -177,33 +179,37 @@
     ]
   },
   "source_provenance": {
-    "file": "golden-v1.y",
+    "file": "golden.y",
     "root": null,
     "byte_span": null
   },
-  "migration": {
-    "from_schema_version": 2,
-    "unavailable": [
-      "effective_parser_algorithm",
-      "effective_parser_entries",
-      "effective_cst_trivia"
-    ]
-  },
   "parser_contract": {
     "algorithm": {
-      "value": null,
-      "explicit": false,
-      "loc": null
+      "value": "ielr",
+      "explicit": true,
+      "loc": {
+        "file": "golden.y",
+        "line": 2,
+        "column": 1
+      }
     },
     "entries": {
-      "value": null,
-      "explicit": false,
-      "loc": null
+      "value": "shared",
+      "explicit": true,
+      "loc": {
+        "file": "golden.y",
+        "line": 2,
+        "column": 1
+      }
     },
     "cst_trivia": {
-      "value": null,
-      "explicit": false,
-      "loc": null
+      "value": "balanced",
+      "explicit": true,
+      "loc": {
+        "file": "golden.y",
+        "line": 2,
+        "column": 1
+      }
     }
   }
 }

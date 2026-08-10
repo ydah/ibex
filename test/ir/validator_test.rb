@@ -2,56 +2,39 @@
 
 require_relative "../test_helper"
 
-# rubocop:disable Metrics/ClassLength -- cases cover one versioned validation boundary.
 class IRValidatorTest < Minitest::Test
   FIXTURE_ROOT = File.expand_path("../fixtures/ir", __dir__)
 
-  def test_validates_and_loads_grammar_fixture
-    value = Ibex::IR::Validator.validate(fixture("grammar-v2.json"))
+  def test_validates_and_loads_current_grammar
+    value = Ibex::IR::Validator.validate(fixture("grammar.json"))
 
     assert_instance_of Ibex::IR::Grammar, value
+    assert_equal Ibex::IR::SCHEMA_VERSION, value.schema_version
     assert_equal "GoldenFixtureParser", value.class_name
+    refute_nil value.parser_contract
   end
 
-  def test_validates_and_loads_automaton_fixture
-    value = Ibex::IR::Validator.validate(fixture("automaton-v2.json"))
+  def test_validates_and_loads_current_automaton
+    value = Ibex::IR::Validator.validate(fixture("automaton.json"))
 
     assert_instance_of Ibex::IR::Automaton, value
-    assert_equal "lalr1", value.algorithm
+    assert_equal Ibex::IR::SCHEMA_VERSION, value.schema_version
+    assert_equal Ibex::IR::SCHEMA_VERSION, value.grammar.schema_version
+    assert_equal "ielr1", value.algorithm
+    assert_equal "shared", value.entry_construction
   end
 
-  def test_validates_and_loads_v2_fixtures
-    grammar = Ibex::IR::Validator.validate(fixture("grammar-v2.json"))
-    automaton = Ibex::IR::Validator.validate(fixture("automaton-v2.json"))
-
-    assert_equal 2, grammar.schema_version
-    assert_equal 2, automaton.schema_version
-    assert_equal 2, automaton.grammar.schema_version
-  end
-
-  def test_validates_and_loads_native_and_migrated_v3_fixtures
-    native_grammar = Ibex::IR::Validator.validate(fixture("grammar-v3.json"))
-    native_automaton = Ibex::IR::Validator.validate(fixture("automaton-v3.json"))
-    migrated_grammar = Ibex::IR::Validator.validate(fixture("grammar-v2-migrated-v3.json"))
-    migrated_automaton = Ibex::IR::Validator.validate(fixture("automaton-v2-migrated-v3.json"))
-
-    assert_equal :ielr, native_grammar.parser_contract.algorithm.value
-    assert_equal "shared", native_automaton.entry_construction
-    refute migrated_grammar.parser_contract.algorithm.explicit
-    assert_equal "unknown", migrated_automaton.entry_construction
-  end
-
-  def test_v3_unspecified_contract_cannot_smuggle_builtin_defaults
-    document = parsed_fixture("grammar-v2-migrated-v3.json")
-    document.dig("parser_contract", "algorithm")["value"] = "lalr"
+  def test_current_contract_distinguishes_unspecified_from_builtin_defaults
+    document = parsed_fixture("grammar.json")
+    document.dig("parser_contract", "algorithm").update("value" => "lalr", "explicit" => false, "loc" => nil)
 
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
 
     assert_equal "(ir):1:1: $.parser_contract.algorithm.value must be nil", error.message
   end
 
-  def test_v3_explicit_contract_requires_a_source_location
-    document = parsed_fixture("grammar-v3.json")
+  def test_current_contract_requires_a_source_location_for_explicit_values
+    document = parsed_fixture("grammar.json")
     document.dig("parser_contract", "algorithm")["loc"] = nil
 
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
@@ -59,50 +42,33 @@ class IRValidatorTest < Minitest::Test
     assert_equal "(ir):1:1: $.parser_contract.algorithm.loc must be an object", error.message
   end
 
-  def test_v3_parser_contract_is_closed_and_cst_aware
-    document = parsed_fixture("grammar-v3.json")
+  def test_current_contract_is_closed_and_cst_aware
+    document = parsed_fixture("grammar.json")
     document.fetch("parser_contract")["future"] = {}
 
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
     assert_equal "(ir):1:1: $.parser_contract has unsupported field \"future\"", error.message
 
-    document = parsed_fixture("grammar-v3.json")
+    document = parsed_fixture("grammar.json")
     document.fetch("options").delete("cst")
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
     assert_equal "(ir):1:1: $.parser_contract.cst_trivia requires options.cst", error.message
   end
 
-  def test_v3_automaton_must_match_embedded_parser_contract
-    algorithm = parsed_fixture("automaton-v3.json")
-    algorithm["algorithm"] = "lalr1"
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(algorithm)) }
+  def test_automaton_must_match_the_embedded_parser_contract
+    document = parsed_fixture("automaton.json")
+    document["algorithm"] = "lalr1"
+    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
     assert_equal "(ir):1:1: $.algorithm must match the embedded parser contract", error.message
 
-    entries = parsed_fixture("automaton-v3.json")
-    entries["entry_construction"] = "isolated"
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(entries)) }
+    document = parsed_fixture("automaton.json")
+    document["entry_construction"] = "isolated"
+    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
     assert_equal "(ir):1:1: $.entry_construction must match the embedded parser contract", error.message
   end
 
-  def test_v3_unknown_entry_construction_is_migration_only
-    document = parsed_fixture("automaton-v3.json")
-    document.dig("grammar", "parser_contract")["entries"] = {
-      "value" => nil, "explicit" => false, "loc" => nil
-    }
-    grammar = Ibex::IR::Serialize.load(JSON.generate(document.fetch("grammar")))
-    document["grammar_digest"] = "sha256:#{Digest::SHA256.hexdigest(Ibex::IR::Serialize.dump(grammar))}"
-    document["entry_construction"] = "unknown"
-
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
-
-    assert_equal(
-      "(ir):1:1: $.entry_construction may be unknown only for migrated unavailable history",
-      error.message
-    )
-  end
-
-  def test_v3_grammar_digest_covers_the_parser_contract
-    document = parsed_fixture("automaton-v3.json")
+  def test_grammar_digest_covers_the_parser_contract
+    document = parsed_fixture("automaton.json")
     document.dig("grammar", "parser_contract", "cst_trivia")["value"] = "leading"
 
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
@@ -110,273 +76,41 @@ class IRValidatorTest < Minitest::Test
     assert_match(/\$\.grammar_digest does not match the embedded grammar/, error.message)
   end
 
-  def test_preserves_populated_v2_metadata
-    document = grammar_with_populated_v2_metadata
+  def test_rejects_old_and_unknown_schema_versions
+    [2, 3, 99].each do |version|
+      error = assert_raises(Ibex::Error) do
+        Ibex::IR::Validator.validate(JSON.generate(ibex_ir: "grammar", schema_version: version))
+      end
 
-    grammar = Ibex::IR::Validator.validate(JSON.generate(document))
-
-    assert_equal "Numeric token", grammar.symbol("NUMBER").documentation
-    assert_equal "Adds a number", grammar.productions.fetch(1).documentation
-    assert_equal "list", grammar.productions.fetch(1).expansion.dig(:parameter, :rule)
-    assert_equal "sequence", grammar.productions.fetch(1).action.composition.fetch(:strategy)
-    dumped = Ibex::IR::Serialize.dump(grammar)
-    assert_equal dumped, Ibex::IR::Serialize.dump(Ibex::IR::Serialize.load(dumped))
-  end
-
-  def test_rejects_an_invalid_v2_byte_span
-    document = parsed_fixture("grammar-v2.json")
-    document["source_provenance"] = {
-      "file" => "grammar.y", "root" => nil, "byte_span" => { "start" => 9, "end" => 3 }
-    }
-
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
-
-    assert_equal(
-      "(ir):1:1: $.source_provenance.byte_span.end must be greater than or equal to start",
-      error.message
-    )
-  end
-
-  def test_rejects_removed_schema_v1_documents
-    error = assert_raises(Ibex::Error) do
-      Ibex::IR::Validator.validate('{"ibex_ir":"grammar","schema_version":1}')
+      assert_equal "(ir):1:1: unsupported schema_version #{version}; expected the current format (1)", error.message
     end
-
-    assert_equal "(ir):1:1: unsupported schema_version 1; expected one of 2, 3", error.message
   end
 
-  def test_accepts_optional_symbol_metadata
-    document = parsed_fixture("grammar-v2.json")
-    document.fetch("symbols").fetch(2)["display_name"] = "number"
-    document.fetch("symbols").fetch(2)["semantic_type"] = "Integer"
-    document.fetch("symbols").fetch(3)["display_name"] = nil
-
-    value = Ibex::IR::Validator.validate(JSON.generate(document))
-
-    assert_equal "number", value.symbol("NUMBER").display_name
-    assert_equal "Integer", value.symbol("NUMBER").semantic_type
-    assert_nil value.symbol("PLUS").display_name
-  end
-
-  def test_validates_optional_v2_constructor_parameters
-    document = parsed_fixture("grammar-v2.json")
-    document["params"] = [
-      { "name" => "context", "semantic_type" => "Hash[Symbol, Integer]" },
-      { "name" => "lexer", "semantic_type" => nil }
-    ]
-
-    grammar = Ibex::IR::Validator.validate(JSON.generate(document))
-    assert_equal(
-      [{ name: "context", semantic_type: "Hash[Symbol, Integer]" }, { name: "lexer", semantic_type: nil }],
-      grammar.parser_parameters
-    )
-
-    document["params"] << { "name" => "class", "semantic_type" => nil }
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
-    assert_equal "(ir):1:1: $.params[2].name must not be a Ruby keyword", error.message
-  end
-
-  def test_validates_optional_v2_grammar_mode
-    document = parsed_fixture("grammar-v2.json")
-    document["mode"] = "extended"
-
-    grammar = Ibex::IR::Validator.validate(JSON.generate(document))
-    assert_equal :extended, grammar.mode
-
-    document["mode"] = "future"
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
-    assert_equal "(ir):1:1: $.mode must be one of default, extended", error.message
-  end
-
-  def test_validates_v2_multiple_starts_and_automaton_entry_states
-    document = parsed_fixture("automaton-v2.json")
-    document.fetch("grammar")["mode"] = "extended"
-    document.fetch("grammar")["starts"] = %w[start expression]
-    document["entry_states"] = { "start" => 0, "expression" => 1 }
-    grammar = Ibex::IR::Serialize.load(JSON.generate(document.fetch("grammar")))
-    document["grammar_digest"] = "sha256:#{Digest::SHA256.hexdigest(Ibex::IR::Serialize.dump(grammar))}"
-
-    automaton = Ibex::IR::Validator.validate(JSON.generate(document))
-    assert_equal %w[start expression], automaton.grammar.starts
-    assert_equal({ "start" => 0, "expression" => 1 }, automaton.entry_states)
-
-    document["entry_states"].delete("expression")
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
-    assert_equal "(ir):1:1: $.entry_states keys must equal grammar starts in order", error.message
-  end
-
-  def test_validates_optional_v2_value_printers
-    document = parsed_fixture("grammar-v2.json")
-    document["printers"] = [
-      {
-        "symbol" => "NUMBER",
-        "code" => "value.to_s",
-        "loc" => { "file" => "grammar.y", "line" => 2, "column" => 1 }
-      }
-    ]
-
-    grammar = Ibex::IR::Validator.validate(JSON.generate(document))
-    assert_equal "NUMBER", grammar.value_printers.fetch(0).fetch(:symbol)
-
-    document["printers"][0]["symbol"] = "MISSING"
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
-    assert_equal '(ir):1:1: $.printers[0].symbol references missing symbol "MISSING"', error.message
-  end
-
-  def test_validates_optional_v2_recovery_policy
-    document = parsed_fixture("grammar-v2.json")
-    document["mode"] = "extended"
-    document["recovery"] = {
-      "sync_tokens" => ["PLUS"],
-      "on_error_reduce" => [["expression"]]
-    }
-
-    grammar = Ibex::IR::Validator.validate(JSON.generate(document))
-    assert_equal(
-      { sync_tokens: ["PLUS"], on_error_reduce: [["expression"]] },
-      grammar.recovery
-    )
-
-    document["recovery"]["sync_tokens"] = ["expression"]
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
-    assert_equal "(ir):1:1: $.recovery.sync_tokens[0] must reference a terminal", error.message
-  end
-
-  def test_validates_optional_v2_grammar_tests
-    document = parsed_fixture("grammar-v2.json")
-    document["mode"] = "extended"
-    document["tests"] = [
-      {
-        "expectation" => "accept",
-        "source" => "ok",
-        "loc" => { "file" => "grammar.y", "line" => 3, "column" => 1 }
-      }
-    ]
-
-    grammar = Ibex::IR::Validator.validate(JSON.generate(document))
-    assert_equal :accept, grammar.grammar_tests.fetch(0).fetch(:expectation)
-
-    document["tests"] << document["tests"].first
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
-    assert_equal "(ir):1:1: $.tests[1] duplicates grammar test", error.message
-  end
-
-  def test_rejects_invalid_json_with_a_position
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate("{") }
-
-    assert_match(/\A\(ir\):1:1: invalid JSON:/, error.message)
-  end
-
-  def test_rejects_non_object_root_without_leaking_type_errors
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate("[]") }
-
-    assert_equal "(ir):1:1: $ must be an object", error.message
-  end
-
-  def test_rejects_invalid_field_types_with_a_position
-    document = parsed_fixture("grammar-v2.json")
-    document["symbols"] = "not an array"
-
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
-
-    assert_equal "(ir):1:1: $.symbols must be an array", error.message
-  end
-
-  def test_rejects_missing_symbol_reference
-    document = parsed_fixture("grammar-v2.json")
-    document.fetch("productions").fetch(0).fetch("rhs")[0] = 99
-
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
-
-    assert_equal "(ir):1:1: $.productions[0].rhs[0] references missing symbol id 99", error.message
-  end
-
-  def test_rejects_missing_state_reference
-    document = parsed_fixture("automaton-v2.json")
-    document.fetch("states").fetch(0).fetch("transitions")["NUMBER"] = 99
+  def test_rejects_missing_state_references
+    document = parsed_fixture("automaton.json")
+    document.fetch("states").first.fetch("transitions")["NUMBER"] = 99
 
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
 
     assert_equal "(ir):1:1: $.states[0].transitions.NUMBER references missing state id 99", error.message
   end
 
-  def test_rejects_missing_lookahead_symbol_reference
-    document = parsed_fixture("automaton-v2.json")
-    document.fetch("states").fetch(0).fetch("items").fetch(0).fetch("lookaheads")[0] = "MISSING"
+  def test_rejects_unknown_entry_construction
+    document = parsed_fixture("automaton.json")
+    document["entry_construction"] = "unknown"
 
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
 
-    assert_equal(
-      "(ir):1:1: $.states[0].items[0].lookaheads[0] references missing symbol \"MISSING\"",
-      error.message
-    )
+    assert_match(/\$\.entry_construction must be one of shared, isolated/, error.message)
   end
 
-  def test_rejects_an_automaton_without_states
-    document = parsed_fixture("automaton-v2.json")
-    document["states"] = []
+  def test_rejects_removed_grammar_fields
+    document = parsed_fixture("grammar.json")
+    document["migration"] = nil
 
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
 
-    assert_equal "(ir):1:1: $.states must contain at least one state", error.message
-  end
-
-  def test_rejects_a_digest_that_does_not_match_the_embedded_grammar
-    document = parsed_fixture("automaton-v2.json")
-    document.fetch("grammar")["class_name"] = "ChangedParser"
-
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
-
-    assert_match(
-      /\A\(ir\):1:1: \$\.grammar_digest does not match the embedded grammar; expected "sha256:[0-9a-f]{64}"\z/,
-      error.message
-    )
-  end
-
-  def test_rejects_invalid_reduce_reduce_conflict_reductions
-    too_short = automaton_with_reduce_reduce_conflict(reductions: [0], chose: 0)
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(too_short)) }
-    assert_equal "(ir):1:1: $.states[0].conflicts[0].reductions must contain at least two productions", error.message
-
-    duplicate = automaton_with_reduce_reduce_conflict(reductions: [0, 0], chose: 0)
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(duplicate)) }
-    assert_equal "(ir):1:1: $.states[0].conflicts[0].reductions must contain unique production ids", error.message
-
-    missing_choice = automaton_with_reduce_reduce_conflict(reductions: [0, 1], chose: 2)
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(missing_choice)) }
-    assert_equal "(ir):1:1: $.states[0].conflicts[0].resolution.chose must be one of the reductions", error.message
-  end
-
-  def test_rejects_inconsistent_conflict_summary
-    document = parsed_fixture("automaton-v2.json")
-    document.fetch("conflict_summary")["rr"] = 1
-
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
-
-    assert_equal "(ir):1:1: $.conflict_summary.rr must equal the 0 recorded reduce/reduce conflicts", error.message
-  end
-
-  def test_rejects_named_reference_outside_the_action_context
-    document = parsed_fixture("grammar-v2.json")
-    action = document.fetch("productions").fetch(1).fetch("action")
-    action.fetch("named_refs") << { "name" => "outside", "index" => 99 }
-
-    error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
-
-    assert_equal(
-      "(ir):1:1: $.productions[1].action.named_refs[0].index must be less than the action context length 3",
-      error.message
-    )
-  end
-
-  def test_rejects_missing_discriminator_and_unsupported_version
-    missing = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate("{}") }
-    assert_equal "(ir):1:1: missing ibex_ir discriminator", missing.message
-
-    document = parsed_fixture("grammar-v2.json")
-    document["schema_version"] = 99
-    unsupported = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
-    assert_equal "(ir):1:1: unsupported schema_version 99; expected one of 2, 3", unsupported.message
+    assert_equal "(ir):1:1: $ has unsupported field \"migration\"", error.message
   end
 
   private
@@ -388,46 +122,4 @@ class IRValidatorTest < Minitest::Test
   def parsed_fixture(name)
     JSON.parse(fixture(name))
   end
-
-  def grammar_with_populated_v2_metadata
-    document = parsed_fixture("grammar-v2.json")
-    document["source_provenance"] = source_provenance("grammar.y", start_byte: 4, end_byte: 120)
-    document.fetch("symbols").fetch(2)["doc"] = "Numeric token"
-    populate_production_metadata(document.fetch("productions").fetch(1))
-    document
-  end
-
-  def populate_production_metadata(production)
-    production["doc"] = "Adds a number"
-    production["expansion"] = {
-      "parameter" => { "rule" => "list", "arguments" => ["NUMBER"] },
-      "inline" => { "rule" => "atom" },
-      "include_chain" => [source_provenance("shared.y", start_byte: 0, end_byte: 8)]
-    }
-    production.fetch("action")["composition"] = {
-      "strategy" => "sequence",
-      "fragments" => [
-        { "kind" => "rule", "source" => source_provenance("grammar.y") },
-        { "kind" => "inline", "source" => nil }
-      ]
-    }
-  end
-
-  def source_provenance(file, start_byte: nil, end_byte: nil)
-    span = { "start" => start_byte, "end" => end_byte } if start_byte && end_byte
-    { "file" => file, "root" => "/workspace", "byte_span" => span }
-  end
-
-  def automaton_with_reduce_reduce_conflict(reductions:, chose:)
-    document = parsed_fixture("automaton-v2.json")
-    document.fetch("states").fetch(0).fetch("conflicts") << {
-      "type" => "reduce_reduce",
-      "symbol" => "NUMBER",
-      "reductions" => reductions,
-      "resolution" => { "by" => "definition_order", "chose" => chose }
-    }
-    document.fetch("conflict_summary")["rr"] = 1
-    document
-  end
 end
-# rubocop:enable Metrics/ClassLength

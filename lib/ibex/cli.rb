@@ -167,8 +167,7 @@ module Ibex
       "samples" => %i[CLISamples run_samples_command],
       "verify" => %i[CLIVerify run_verify_command],
       "validate-ir" => %i[CLIIRTools run_validate_ir_command],
-      "compare" => %i[CLIIRTools run_compare_command],
-      "migrate-ir" => %i[CLIIRTools run_migrate_ir_command]
+      "compare" => %i[CLIIRTools run_compare_command]
     }.freeze #: Hash[String, [Symbol, Symbol]]
 
     include CLICounterexampleOptions
@@ -386,9 +385,8 @@ module Ibex
       options.separator("    reduce                    delta-debug a failing token, line, or byte sequence")
       options.separator("    samples                   generate bounded terminal sentences")
       options.separator("    verify AUTOMATON         independently verify Automaton IR semantics")
-      options.separator("    validate-ir FILE          validate a versioned IR document")
-      options.separator("    compare BEFORE AFTER      compare two versioned IR documents")
-      options.separator("    migrate-ir INPUT --to=3   migrate a versioned IR document")
+      options.separator("    validate-ir FILE          validate the current IR document")
+      options.separator("    compare BEFORE AFTER      compare current IR documents")
     end
 
     # @rbs (OptionParser options) -> void

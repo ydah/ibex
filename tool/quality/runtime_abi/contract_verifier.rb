@@ -78,7 +78,7 @@ module Ibex
         exact_keys!(value, VERSION_FIELDS, "#{label} IR")
         expected = {
           "current_writer" => current, "readable" => readable,
-          "migrations" => ["2->3"], "preserve_loaded_version" => true
+          "migrations" => [], "preserve_loaded_version" => false
         }
         raise "#{label} IR policy is stale" unless value == expected
       end
@@ -121,7 +121,8 @@ module Ibex
 
       def verify_schemas(kind, versions)
         versions.each do |version|
-          schema = path("schema/#{kind}-ir-v#{version}.schema.json")
+          schema_name = %w[grammar automaton].include?(kind) ? "#{kind}-ir.schema.json" : "#{kind}-ir-v#{version}.schema.json"
+          schema = path("schema/#{schema_name}")
           raise "missing #{relative(schema)}" unless File.file?(schema)
         end
       end

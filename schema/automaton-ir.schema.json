@@ -1,13 +1,14 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/automaton-ir-v2.schema.json",
-  "title": "Ibex Automaton IR version 2",
-  "description": "A self-contained parser automaton embedding Grammar IR version 2.",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/automaton-ir.schema.json",
+  "title": "Ibex current Automaton IR",
+  "description": "A self-contained parser automaton embedding the current Grammar IR and its parser contract.",
   "type": "object",
   "required": [
     "ibex_ir",
     "schema_version",
     "algorithm",
+    "entry_construction",
     "grammar_digest",
     "grammar",
     "states",
@@ -18,7 +19,7 @@
       "const": "automaton"
     },
     "schema_version": {
-      "const": 2
+      "const": 1
     },
     "algorithm": {
       "enum": [
@@ -28,12 +29,18 @@
         "lr1"
       ]
     },
+    "entry_construction": {
+      "enum": [
+        "shared",
+        "isolated"
+      ]
+    },
     "grammar_digest": {
       "type": "string",
       "pattern": "^sha256:[0-9a-f]{64}$"
     },
     "grammar": {
-      "$ref": "grammar-ir-v2.schema.json"
+      "$ref": "grammar-ir.schema.json"
     },
     "entry_states": {
       "type": "object",
@@ -47,11 +54,11 @@
       "type": "array",
       "minItems": 1,
       "items": {
-        "$ref": "automaton-ir-v1.schema.json#/$defs/state"
+        "$ref": "automaton-ir-definitions.schema.json#/$defs/state"
       }
     },
     "conflict_summary": {
-      "$ref": "automaton-ir-v1.schema.json#/$defs/conflict_summary"
+      "$ref": "automaton-ir-definitions.schema.json#/$defs/conflict_summary"
     }
   },
   "additionalProperties": false
