@@ -7,7 +7,7 @@ blocked. This decision is a feature gate, not a claim that direct IELR has no
 future value.
 
 The final decision date is 2026-08-08. Revision
-`9b5404b81133d80536c63fa38e5143a20fc2ee3f` is the repository evidence snapshot
+`23835fb2468a05477a68b546768d424c25433865` is the repository evidence snapshot
 reviewed immediately before this dossier was published; it is not a claim that
 the dossier itself existed in that revision. The machine record marks the
 decision `final_no_go`, its basis `repository_evidence`, and its review state
