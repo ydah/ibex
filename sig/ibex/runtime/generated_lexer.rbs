@@ -21,7 +21,7 @@ module Ibex
 
       @lexer_skip_requested: bool
 
-      @lexer_emission: Object | Array[untyped]
+      @lexer_emission: Object | Array[Object?]
 
       @lexer_lexeme: String?
 
@@ -47,8 +47,8 @@ module Ibex
       # Parser and generated lexer actions execute. Loading the generated file
       # may also execute user sections; this trusted application path is not a
       # sandbox.
-      # @rbs (String | IO | Fiber source, ?file: String) -> untyped
-      def parse: (String | IO | Fiber source, ?file: String) -> untyped
+      # @rbs (String | IO | Fiber source, ?file: String) -> Object?
+      def parse: (String | IO | Fiber source, ?file: String) -> Object?
 
       # Parse one generated-lexer source and return its semantic and syntax results.
       # Parser and generated lexer actions execute. This trusted application
@@ -72,8 +72,8 @@ module Ibex
       def lexer_state=: (Symbol | String state) -> Symbol
 
       # Pull one token using longest match and declaration-order tie breaking.
-      # @rbs () -> [untyped, untyped, Hash[Symbol, untyped]]
-      def next_token: () -> [ untyped, untyped, Hash[Symbol, untyped] ]
+      # @rbs () -> [Object?, Object?, Hash[Symbol, Object?]]
+      def next_token: () -> [ Object?, Object?, Hash[Symbol, Object?] ]
 
       private
 

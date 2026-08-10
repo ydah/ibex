@@ -21,7 +21,7 @@ module Ibex
       # @rbs @lexer_byte_column: Integer
       # @rbs @lexer_byte_offset: Integer
       # @rbs @lexer_lexeme: String?
-      # @rbs @lexer_emission: Object | Array[untyped]
+      # @rbs @lexer_emission: Object | Array[Object?]
       # @rbs @lexer_skip_requested: bool
       # @rbs @lexer_pending_green_trivia: Array[CST::GreenTrivia]
       # @rbs @lexer_cst_trivia_policy: Symbol
@@ -51,7 +51,7 @@ module Ibex
       # Parser and generated lexer actions execute. Loading the generated file
       # may also execute user sections; this trusted application path is not a
       # sandbox.
-      # @rbs (String | IO | Fiber source, ?file: String) -> untyped
+      # @rbs (String | IO | Fiber source, ?file: String) -> Object?
       def parse(source, file: "(input)")
         lex(source, file: file)
         parser = self #: Parser
@@ -105,7 +105,7 @@ module Ibex
       end
 
       # Pull one token using longest match and declaration-order tie breaking.
-      # @rbs () -> [untyped, untyped, Hash[Symbol, untyped]]
+      # @rbs () -> [Object?, Object?, Hash[Symbol, Object?]]
       def next_token
         input = @lexer_input
         raise ParseError, "(lexer):1:1: call parse or lex before next_token" unless input
