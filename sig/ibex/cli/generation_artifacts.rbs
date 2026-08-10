@@ -9,7 +9,7 @@ module Ibex
 
     private def default_output_path: (String, String) -> String
 
-    private def configuration_value: (String) -> untyped
+    private def configuration_value: (String) -> Object?
 
     private def effective_configuration: () -> Configuration::Resolver
 
@@ -48,20 +48,20 @@ module Ibex
     # @rbs () -> String
     def manifest_output_path: () -> String
 
-    # @rbs () -> Hash[String, untyped]
-    def generation_manifest_options: () -> Hash[String, untyped]
+    # @rbs () -> Hash[String, Object?]
+    def generation_manifest_options: () -> Hash[String, Object?]
 
-    # @rbs (Hash[String, untyped] options) -> void
-    def append_ir_manifest_options: (Hash[String, untyped] options) -> void
+    # @rbs (Hash[String, Object?] options) -> void
+    def append_ir_manifest_options: (Hash[String, Object?] options) -> void
 
     # @rbs () -> String
     def construction_authority: () -> String
 
-    # @rbs () -> Array[Hash[String, untyped]]
-    def manifest_effective_configuration: () -> Array[Hash[String, untyped]]
+    # @rbs () -> Array[Hash[String, Object?]]
+    def manifest_effective_configuration: () -> Array[Hash[String, Object?]]
 
-    # @rbs (IR::ParserContract contract) -> Hash[String, untyped]
-    def stringify_contract: (IR::ParserContract contract) -> Hash[String, untyped]
+    # @rbs (IR::ParserContract contract) -> Hash[String, Object?]
+    def stringify_contract: (IR::ParserContract contract) -> Hash[String, Object?]
 
     # @rbs () -> Symbol
     def effective_cst_trivia: () -> Symbol

@@ -12,7 +12,7 @@ module Ibex
     #   private def report_status: (String) -> void
     #   private def verify_file: (String, String, String) -> void
     #   private def default_output_path: (String, String) -> String
-    #   private def configuration_value: (String) -> untyped
+    #   private def configuration_value: (String) -> Object?
     #   private def effective_configuration: () -> Configuration::Resolver
 
     private
@@ -123,14 +123,14 @@ module Ibex
       default_output_path(parser.path, ".ibex.json")
     end
 
-    # @rbs () -> Hash[String, untyped]
+    # @rbs () -> Hash[String, Object?]
     def generation_manifest_options
       keys = %i[
         action_source algorithm counterexample_max_configurations counterexample_max_tokens debug
         embedded emit entry_isolation executable frozen line_convert line_convert_all messages mode omit_actions rbs
         superclass table
       ]
-      options = {} #: Hash[String, untyped]
+      options = {} #: Hash[String, Object?]
       keys.each do |key|
         value = @options[key]
         options[key.to_s] = value unless value.nil?
@@ -140,7 +140,7 @@ module Ibex
       options
     end
 
-    # @rbs (Hash[String, untyped] options) -> void
+    # @rbs (Hash[String, Object?] options) -> void
     def append_ir_manifest_options(options)
       automaton = @generation_automaton
       return unless automaton && automaton.schema_version >= 3
@@ -166,7 +166,7 @@ module Ibex
       @options[:from] == "automaton-ir" ? "embedded_automaton" : "grammar_contract"
     end
 
-    # @rbs () -> Array[Hash[String, untyped]]
+    # @rbs () -> Array[Hash[String, Object?]]
     def manifest_effective_configuration
       values = effective_configuration.to_h.fetch("configuration")
       return values unless @options[:from] == "automaton-ir"
@@ -174,7 +174,7 @@ module Ibex
       values.reject { |entry| %w[parser.algorithm parser.entries].include?(entry.fetch("key")) }
     end
 
-    # @rbs (IR::ParserContract contract) -> Hash[String, untyped]
+    # @rbs (IR::ParserContract contract) -> Hash[String, Object?]
     def stringify_contract(contract)
       contract.to_h.to_h do |name, entry|
         [name.to_s, entry.to_h { |key, value| [key.to_s, value] }]
