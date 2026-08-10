@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/ielr-benchmark-v1.schema.json",
+  "title": "Ibex direct IELR construction benchmark v1",
+  "type": "object",
+  "required": ["ibex_report", "schema_version", "trust", "environment", "configuration", "workloads", "limitations"],
+  "properties": {
+    "ibex_report": { "const": "ielr_benchmark" },
+    "schema_version": { "const": 1 },
+    "trust": { "const": "internal_local_observation" },
+    "environment": { "$ref": "#/$defs/environment" },
+    "configuration": {
+      "type": "object",
+      "required": ["wall_seconds_per_run", "workload_count", "workload_selection"],
+      "properties": {
+        "wall_seconds_per_run": { "type": "number", "exclusiveMinimum": 0 },
+        "workload_count": { "type": "integer", "minimum": 1 },
+        "workload_selection": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 }
+      },
+      "additionalProperties": false
+    },
+    "workloads": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/workload" },
+      "minItems": 2
+    },
+    "limitations": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1, "uniqueItems": true }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "environment": {
+      "type": "object",
+      "required": ["ruby_engine", "ruby_version", "ruby_platform", "host_os", "host_cpu"],
+      "properties": {
+        "ruby_engine": { "type": "string", "minLength": 1 },
+        "ruby_version": { "type": "string", "minLength": 1 },
+        "ruby_platform": { "type": "string", "minLength": 1 },
+        "host_os": { "type": "string", "minLength": 1 },
+        "host_cpu": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "status_value": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": { "type": "string", "minLength": 1 },
+        "value": {},
+        "reason": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "workload": {
+      "type": "object",
+      "required": ["id", "path", "source_sha256", "strategy", "status", "structural", "conflicts", "observations"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "path": { "type": "string", "minLength": 1 },
+        "source_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "strategy": { "enum": ["direct", "partition"] },
+        "status": { "enum": ["completed", "limit_exceeded", "resource_exhausted", "failed"] },
+        "structural": { "type": "object", "additionalProperties": { "$ref": "#/$defs/status_value" } },
+        "conflicts": { "type": ["object", "null"], "additionalProperties": { "type": "integer", "minimum": 0 } },
+        "observations": {
+          "type": "object",
+          "required": ["elapsed_seconds"],
+          "properties": {
+            "elapsed_seconds": {
+              "type": "object",
+              "required": ["status", "value", "release_gate"],
+              "properties": {
+                "status": { "const": "observation" },
+                "value": { "type": "number", "minimum": 0 },
+                "release_gate": { "const": false }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -22,6 +22,29 @@ class FuzzTest < Minitest::Test
     assert_equal %w[slr lalr ielr lr1], report.fetch(:algorithms)
   end
 
+  def test_generated_and_mutated_sentences_can_target_direct_ielr
+    grammar = normalize(<<~GRAMMAR)
+      class Lists
+      rule
+      start: items
+      items: ITEM | ITEM ',' items
+      end
+    GRAMMAR
+
+    report = Ibex::Fuzz.new(
+      grammar,
+      seed: 73,
+      count: 20,
+      max_tokens: 9,
+      coverage_guided: true,
+      ielr_strategy: :direct
+    ).run
+
+    assert_equal "no_difference_within_bounds", report.fetch(:result)
+    assert_equal "direct", report.fetch(:ielr_strategy)
+    assert_equal %w[slr lalr ielr lr1], report.fetch(:algorithms)
+  end
+
   def test_ten_distinct_reachable_table_faults_are_all_detected
     grammar = normalize("class Pair\nrule\nstart: A B\nend\n")
     automata = Ibex::Fuzz::ALGORITHMS.to_h do |algorithm|

@@ -51,15 +51,19 @@ module Ibex
     # @rbs (IR::Grammar grammar, ?seed: Integer, ?count: Integer, ?max_tokens: Integer,
     #   ?max_depth: Integer, ?max_expansions: Integer, ?max_actions: Integer, ?max_stack: Integer,
     #   ?coverage_guided: bool, ?path_length: Integer, ?algorithms: Array[Symbol],
-    #   ?automata: Hash[Symbol, IR::Automaton]?, ?against: (^(Array[String]) -> Symbol)?,
+    #   ?ielr_strategy: Symbol, ?automata: Hash[Symbol, IR::Automaton]?, ?against: (^(Array[String]) -> Symbol)?,
     #   ?against_description: Hash[Symbol, Object?]?) -> void
     # rubocop:disable Metrics/ParameterLists
     def initialize(grammar, seed: 0, count: 100, max_tokens: 32, max_depth: 16,
                    max_expansions: Samples::DEFAULT_MAX_EXPANSIONS, max_actions: DEFAULT_MAX_ACTIONS,
                    max_stack: DEFAULT_MAX_STACK, coverage_guided: false, path_length: 2,
-                   algorithms: ALGORITHMS, automata: nil, against: nil, against_description: nil)
+                   algorithms: ALGORITHMS, ielr_strategy: :partition, automata: nil,
+                   against: nil, against_description: nil)
       raise ArgumentError, "count must be positive" unless count.positive?
       raise ArgumentError, "algorithms must not be empty" if algorithms.empty?
+      unless LALR::Builder::IELR_STRATEGIES.include?(ielr_strategy.to_sym)
+        raise ArgumentError, "unknown IELR construction strategy #{ielr_strategy.inspect}"
+      end
 
       @grammar = grammar
       @seed = seed
@@ -73,6 +77,7 @@ module Ibex
       @coverage_guided = coverage_guided
       @path_length = path_length
       @algorithms = algorithms.map(&:to_sym).freeze
+      @ielr_strategy = ielr_strategy.to_sym
       @automata = automata || build_automata
       @against = against
       @against_description = against_description
@@ -134,6 +139,7 @@ module Ibex
         },
         strategy: @coverage_guided ? "coverage" : "random",
         path_length: @path_length,
+        ielr_strategy: @ielr_strategy.to_s,
         algorithms: @algorithms.map(&:to_s),
         generated_sentences: sentence_count,
         mutated_sentences: mutation_count,
@@ -146,7 +152,12 @@ module Ibex
     # @rbs () -> Hash[Symbol, IR::Automaton]
     def build_automata
       @algorithms.to_h do |algorithm|
-        [algorithm, LALR::Builder.new(@grammar, algorithm: algorithm).build]
+        builder = LALR::Builder.new(
+          @grammar,
+          algorithm: algorithm,
+          ielr_strategy: @ielr_strategy
+        )
+        [algorithm, builder.build]
       end
     end
 

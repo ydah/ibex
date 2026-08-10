@@ -11,6 +11,7 @@
     "bounds": { "type": "object" },
     "strategy": { "enum": ["random", "coverage"] },
     "path_length": { "enum": [1, 2] },
+    "ielr_strategy": { "enum": ["partition", "direct"] },
     "algorithms": { "type": "array", "items": { "type": "string" } },
     "generated_sentences": { "type": "integer", "minimum": 0 },
     "mutated_sentences": { "type": "integer", "minimum": 0 },

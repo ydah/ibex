@@ -126,6 +126,7 @@ jobs:
           bundle exec rake gallery:build
           bundle exec rake gallery:conflicts
           bundle exec rake fuzz:short
+          bundle exec rake fuzz:direct
           bundle exec rake fuzz:injection
           bundle exec rake deps:zero
           bundle exec rake network:zero
@@ -184,6 +185,7 @@ jobs:
           bundle exec rake quality:comparative_claims
           bundle exec rake quality:error_ux_review_kit
           bundle exec rake quality:workloads
+          bundle exec rake quality:direct_ielr_decision
           bundle exec rake quality:maturity
           bundle exec rake quality:configuration_inventory
           bundle exec rake i18n:coverage

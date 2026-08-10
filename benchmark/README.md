@@ -67,6 +67,26 @@ time range, compact generated size, conflicts, environment, and reproducibility
 digests. It is a deliberately synthetic breadth/depth stress case; the
 representative benchmark below remains the realistic control-flow workload.
 
+The opt-in direct IELR construction probe compares the experimental direct and
+canonical-partition strategies over the paper fixtures and gallery grammars:
+
+```sh
+bundle exec ruby benchmark/ielr.rb --wall-seconds=30 --output=tmp/ielr-benchmark.json
+```
+
+The report follows `schema/ielr-benchmark-v1.schema.json`. Structural metrics,
+conflicts, and source digests are deterministic; elapsed time is host-bound
+observation only. The corresponding CI-friendly quality gate is:
+
+```sh
+bundle exec rake quality:direct_ielr_decision
+```
+
+It runs the bounded direct-IELR fuzz probe, checks both strategies are present
+for every benchmark workload, and verifies the existing I001 NO-GO dossier. A
+passing probe is bounded evidence, not a semantic adequacy proof or a release
+promotion.
+
 Run the reproducible parse-to-codegen and runtime benchmark from the repository root:
 
 ```sh

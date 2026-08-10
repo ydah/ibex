@@ -85,6 +85,14 @@ namespace :quality do
          "Ibex::Quality::ConstructionProfile.new.verify!"
   end
 
+  desc "Verify the direct IELR NO-GO dossier and run bounded direct probes"
+  task :direct_ielr_decision do
+    ruby "-Ilib", "-r./tool/quality/direct_ielr_decision", "-e",
+         "Ibex::Quality::DirectIELRDecision.new.verify!"
+    ruby "-Ilib", "-r./tool/quality/direct_ielr_regression", "-e",
+         "Ibex::Quality::DirectIELRRegression.new.verify!"
+  end
+
   desc "Verify generated lexer semantic profile evidence and automaton decision"
   task :lexer_profile do
     ruby "-Ilib", "-r./tool/quality/lexer_profile", "-e", "Ibex::Quality::LexerProfile.new.verify!"
@@ -204,6 +212,12 @@ namespace :fuzz do
   desc "Run 100,000 fixed-seed generated sentences per gallery grammar"
   task :long do
     ruby "-Ilib", "-r./tool/quality/fuzz", "-e", "Ibex::Quality::Fuzz.new(count: 100_000).run"
+  end
+
+  desc "Run the fixed-seed short gallery differential suite against direct IELR"
+  task :direct do
+    ruby "-Ilib", "-r./tool/quality/fuzz", "-e",
+         "Ibex::Quality::Fuzz.new(count: 100, ielr_strategy: :direct).run"
   end
 
   desc "Verify ten reachable parser-table faults are detected"

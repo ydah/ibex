@@ -27,6 +27,7 @@ bundle exec rake grammar:test
 bundle exec rake quality:error_ux
 bundle exec rake quality:error_ux_round2
 bundle exec rake quality:workloads
+bundle exec rake quality:direct_ielr_decision
 bundle exec rake quality:maturity
 bundle exec rake quality:runtime_abi
 npm ci
@@ -72,6 +73,7 @@ bundle exec rake test:adversarial
 bundle exec rake gallery:build
 bundle exec rake gallery:conflicts
 bundle exec rake fuzz:short
+bundle exec rake fuzz:direct
 bundle exec rake fuzz:injection
 bundle exec rake verify
 bundle exec rake verify:injection

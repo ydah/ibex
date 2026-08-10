@@ -17,7 +17,7 @@ module Ibex
         migration-check-v1.schema.json fuzz-v1.schema.json
         fuzz-regression-v1.schema.json reduce-v1.schema.json
         reduce-v2.schema.json verify-v1.schema.json equiv-v1.schema.json
-        metrics-v1.schema.json construction-profile-v1.schema.json
+        metrics-v1.schema.json construction-profile-v1.schema.json ielr-benchmark-v1.schema.json
         lexer-profile-v1.schema.json
         table-artifact-v1.schema.json verification-report-v1.schema.json
         diff-v1.schema.json fix-v1.schema.json fix-v2.schema.json

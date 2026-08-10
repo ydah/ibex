@@ -7,9 +7,10 @@ module Ibex
   module Quality
     # Runs the bounded differential fuzzer over every committed gallery grammar.
     class Fuzz
-      def initialize(root: File.expand_path("../..", __dir__), count: 100, output: $stdout)
+      def initialize(root: File.expand_path("../..", __dir__), count: 100, ielr_strategy: :partition, output: $stdout)
         @root = root
         @count = count
+        @ielr_strategy = ielr_strategy.to_sym
         @output = output
       end
 
@@ -23,7 +24,8 @@ module Ibex
             max_tokens: 64,
             max_expansions: [@count * 128, Ibex::Samples::DEFAULT_MAX_EXPANSIONS].max,
             coverage_guided: true,
-            path_length: 2
+            path_length: 2,
+            ielr_strategy: @ielr_strategy
           ).run
           @output.puts "fuzz: #{path.delete_prefix("#{@root}/")} (#{@count} generated sentences)"
           report
