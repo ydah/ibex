@@ -5,7 +5,7 @@ module Ibex
     # rubocop:disable Metrics/ModuleLength -- one closed authority maps every audited feature.
     # Human-reviewed Git authorities used by the executable maturity audit.
     module MaturityAuthority
-      REVIEWED_REVISION = "d4bb36a8157dd9d02eefe8e458d9686ea34bade0"
+      REVIEWED_REVISION = "b25ba0dcf6936fa25fd55b37a6c6871bf597b939"
       RELEASES = {
         "v0.1.0" => "65d41edf381afb9c18e01e55332a293332f340e6",
         "v0.2.0" => "bd88b1203706c37bf225e837a2fe46d334d4651d"
@@ -241,7 +241,10 @@ module Ibex
             af3f23e6c3fd6d9a19ce9a84c5a4655f6761a49d
             d589970fa588fd6a0464e6396fe2da668431aec4
           ],
-          "v0.2.0..reviewed" => %w[9cdd1a97e1ee5f6a6fb8da83295a1d42bd3e6c51]
+          "v0.2.0..reviewed" => %w[
+            9cdd1a97e1ee5f6a6fb8da83295a1d42bd3e6c51
+            b25ba0dcf6936fa25fd55b37a6c6871bf597b939
+          ]
         },
         "lsp" => {
           "introduction..v0.2.0" => %w[5b8151385c491366deb41c930a1132599edfb9e9],
