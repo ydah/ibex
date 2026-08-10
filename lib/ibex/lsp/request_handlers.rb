@@ -29,7 +29,7 @@ module Ibex
 
       private
 
-      # @rbs (String method, untyped params) -> untyped
+      # @rbs (String method, lsp_value? params) -> lsp_value?
       def dispatch(method, params)
         handler = HANDLERS[method]
         raise ProtocolError.new("method not found: #{method}", code: -32_601) unless handler
@@ -37,7 +37,7 @@ module Ibex
         send(handler, params)
       end
 
-      # @rbs (untyped params) -> nil
+      # @rbs (lsp_value? params) -> nil
       def cancel_request(_params)
         nil
       end

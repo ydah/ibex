@@ -16,11 +16,11 @@ module Ibex
 
       private
 
-      # @rbs (String method, untyped params) -> untyped
-      def dispatch: (String method, untyped params) -> untyped
+      # @rbs (String method, lsp_value? params) -> lsp_value?
+      def dispatch: (String method, lsp_value? params) -> lsp_value?
 
-      # @rbs (untyped params) -> nil
-      def cancel_request: (untyped params) -> nil
+      # @rbs (lsp_value? params) -> nil
+      def cancel_request: (lsp_value? params) -> nil
     end
   end
 end
