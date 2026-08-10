@@ -20,13 +20,11 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "0c8f379f6682edc637302bc17b9a81c6b7dc2a90",
+    "base_revision": "a1ec2ebef0d669c0e918333fae583c6a217e266c",
     "base_revision_role": "Exact clean capture revision and parent of the committed evidence revision",
-    "capture_worktree_clean": false,
-    "capture_worktree_status": [
-      " M docs/error-ux-round2-v1.json"
-    ],
-    "capture_worktree_status_sha256": "dfb1530b86c7a20a38090d9a96d5ebfee87c12192533b021d3f12fa87dcdd304",
+    "capture_worktree_clean": true,
+    "capture_worktree_status": [],
+    "capture_worktree_status_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
     "bound_paths": [
       {
         "path": "Rakefile",
@@ -1099,7 +1097,7 @@
     "heuristic_analysis_sha256": "1870a00b14aea7a46278e4b80e9bd60db4b499c343c7a7a90faf9c3923e27e76",
     "evidence_path": "tool/profile/evidence/lexer-profile-v1.json",
     "evidence_exclusion_reason": "the evidence file is excluded from its own digest to avoid circularity",
-    "capture_identity_sha256": "2dc9cddde1190324d757641dc99873894cafbf4f1de565c2a9deb0b074ffb6fe"
+    "capture_identity_sha256": "5768d55c5258cd1a29807bcf524a334fcd4159af8a59c4f970c02597e5fc4f3f"
   },
   "measurement_policy": {
     "runtime_role": "diagnostic_observation_only",
@@ -1222,7 +1220,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000182,
+                "value": 0.000234,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1324,7 +1322,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000147,
+                "value": 0.000152,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1414,7 +1412,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000124,
+                "value": 0.000144,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1510,7 +1508,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000132,
+                "value": 0.00014,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1600,7 +1598,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.004115,
+                "value": 0.003668,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1690,7 +1688,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.00023,
+                "value": 0.000222,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1786,7 +1784,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.00019,
+                "value": 0.000162,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1886,7 +1884,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000179,
+                "value": 0.000224,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2016,7 +2014,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000238,
+                "value": 0.000216,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2186,7 +2184,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.00038,
+                "value": 0.000347,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2296,7 +2294,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000187,
+                "value": 0.000186,
                 "release_gate": false
               },
               "allocated_objects": {
