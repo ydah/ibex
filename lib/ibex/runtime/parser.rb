@@ -465,7 +465,7 @@ module Ibex
       # Parse tokens yielded by `receiver.method_id` and execute parser
       # production actions. This caller-fed path does not invoke generated
       # lexer actions.
-      # @rbs (untyped receiver, Symbol method_id) -> Object?
+      # @rbs (Object receiver, Symbol method_id) -> Object?
       def yyparse(receiver, method_id)
         stream = Enumerator.new do |tokens|
           receiver.__send__(method_id) { |token| tokens << token }
@@ -1722,7 +1722,7 @@ module Ibex
         [:accepted, result]
       end
 
-      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[Object?] values,
       #   Array[Object?] locations, LocationSpan? location) -> Object?
       def reduction_value(production_id, production, values, locations, location) # rubocop:disable Metrics -- explicit hot path.
         previous_locations = @semantic_locations
@@ -1771,7 +1771,7 @@ module Ibex
         @semantic_result_location = previous_result_location
       end
 
-      # @rbs (Hash[Symbol, untyped] production, Symbol action, Array[untyped] values,
+      # @rbs (Hash[Symbol, untyped] production, Symbol action, Array[Object?] values,
       #   Array[Object?] locations, LocationSpan? location) -> Object?
       def values_reduction_value(production, action, values, locations, location)
         previous_locations = @semantic_locations
@@ -1787,7 +1787,7 @@ module Ibex
         @semantic_result_location = previous_result_location
       end
 
-      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[Object?] values,
       #   Array[Object?] locations, LocationSpan? location) -> Object?
       def actionless_reduction_value(_production_id, _production, values, _locations, _location)
         values.first
@@ -1917,7 +1917,7 @@ module Ibex
       end
 
       # rubocop:disable Metrics/PerceivedComplexity -- generated locations have a deliberate allocation-free path.
-      # @rbs (Integer token_id, untyped value, untyped location, Integer from_state) -> void
+      # @rbs (Integer token_id, Object? value, Object? location, Integer from_state) -> void
       def shift_green_token(token_id, value, location, from_state)
         builder = @green_builder
         kinds = @green_kinds
@@ -1947,7 +1947,7 @@ module Ibex
       # rubocop:enable Metrics/PerceivedComplexity
 
       # @rbs (CST::GreenBuilder builder, CST::Kind kinds, Integer token_id, Integer from_state,
-      #   Array[CST::GreenTrivia] trailing, Array[CST::GreenTrivia] location_leading, untyped repair,
+      #   Array[CST::GreenTrivia] trailing, Array[CST::GreenTrivia] location_leading, Object? repair,
       #   String token_text, Symbol lexer_state) -> void
       def commit_green_token_shift(
         builder, kinds, token_id, from_state, trailing, location_leading, repair, token_text, lexer_state
@@ -2123,7 +2123,7 @@ module Ibex
         )
       end
 
-      # @rbs (untyped value) -> CST::ParseResult
+      # @rbs (Object? value) -> CST::ParseResult
       def syntax_parse_result(value)
         root = @syntax_root
         raise ParseError, "(cst):1:1: parse_with_syntax requires a format-v6 CST parser" unless root
@@ -2153,7 +2153,7 @@ module Ibex
         )
       end
 
-      # @rbs (untyped location) -> Symbol
+      # @rbs (Object? location) -> Symbol
       def green_lexer_state(location)
         state = if location.is_a?(Hash) && location.key?(:ibex_lexer_start_state)
                   location[:ibex_lexer_start_state]
@@ -2163,7 +2163,7 @@ module Ibex
         state ? state.to_sym : :INITIAL
       end
 
-      # @rbs (CST::NodeCache cache) { () -> untyped } -> untyped
+      # @rbs (CST::NodeCache cache) { () -> Object? } -> Object?
       def with_syntax_only(cache)
         previous_mode = @syntax_only
         previous_cache = @green_cache_override
@@ -2176,7 +2176,7 @@ module Ibex
         @green_cache_override = previous_cache
       end
 
-      # @rbs (untyped source, CST::NodeCache cache) -> CST::SyntaxResult
+      # @rbs (Object? source, CST::NodeCache cache) -> CST::SyntaxResult
       def parse_syntax_token_source(source, cache)
         with_syntax_only(cache) do
           value = drive_parser(source)
@@ -2210,7 +2210,7 @@ module Ibex
         @incremental_reused_descendants += subtree.green.descendant_count
       end
 
-      # @rbs (Symbol type, Hash[untyped, untyped] data) -> void
+      # @rbs (Symbol type, Hash[Object?, Object?] data) -> void
       def emit_incremental_event(type, data)
         emit_runtime_event(type, data) if @runtime_observers
       end
@@ -2235,7 +2235,7 @@ module Ibex
         )
       end
 
-      # @rbs (?report: bool) -> untyped
+      # @rbs (?report: bool) -> Object?
       def recover(report: true)
         @runtime_fast_path = false
         materialize_lookahead_token_display! unless @lookahead.equal?(NO_LOOKAHEAD)
@@ -2245,7 +2245,7 @@ module Ibex
         begin_recovery(report)
       end
 
-      # @rbs () -> untyped
+      # @rbs () -> Object?
       def continue_recovery
         return reject_recovery_eof if @lookahead == EOF_TOKEN
 
@@ -2272,7 +2272,7 @@ module Ibex
         [:done, cst_enabled? ? failed_cst : nil]
       end
 
-      # @rbs (String token_display) -> Hash[String, untyped]
+      # @rbs (String token_display) -> Hash[String, Object?]
       def runtime_discard_data(token_display)
         runtime_token_data(
           token_id: @lookahead,
@@ -2283,7 +2283,7 @@ module Ibex
         ).merge("reason" => "recovery").freeze
       end
 
-      # @rbs (bool report) -> untyped
+      # @rbs (bool report) -> Object?
       def begin_recovery(report)
         consume_recovery_attempt!
         repair = report ? selected_repair : nil
@@ -2298,7 +2298,7 @@ module Ibex
         fallback_recovery(context, token_data, recovery_observers)
       end
 
-      # @rbs (bool report) -> Hash[Symbol, untyped]
+      # @rbs (bool report) -> Hash[Symbol, Object?]
       def recovery_context(report)
         {
           token_id: @lookahead,
@@ -2311,7 +2311,7 @@ module Ibex
         }
       end
 
-      # @rbs (Hash[Symbol, untyped] context) -> [Hash[String, untyped]?, Array[Proc]?]
+      # @rbs (Hash[Symbol, untyped] context) -> [Hash[String, Object?]?, Array[Proc]?]
       def publish_error_context(context)
         error_observers = runtime_observer_snapshot if @runtime_observers
         if error_observers
@@ -2325,7 +2325,7 @@ module Ibex
         [token_data, (runtime_observer_snapshot if @runtime_observers)]
       end
 
-      # @rbs (Hash[Symbol, untyped] context, untyped repair) -> void
+      # @rbs (Hash[Symbol, untyped] context, Object? repair) -> void
       def notify_error_handler(context, repair)
         @repair_selected = repair.is_a?(RepairPlan)
         begin
@@ -2342,8 +2342,8 @@ module Ibex
         CONTINUE_OUTCOME
       end
 
-      # @rbs (Hash[Symbol, untyped] context, Hash[String, untyped]? token_data,
-      #   Array[Proc]? recovery_observers) -> untyped
+      # @rbs (Hash[Symbol, untyped] context, Hash[String, Object?]? token_data,
+      #   Array[Proc]? recovery_observers) -> Object?
       # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       # Green restoration mirrors the existing state/value/location transactional fallback.
       def fallback_recovery(context, token_data, recovery_observers)
@@ -2374,8 +2374,8 @@ module Ibex
       end
       # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
-      # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,
-      #   Integer state) -> Hash[String, untyped]
+      # @rbs (Object? token_id, Object? token_display, Object? value, Object? location,
+      #   Integer state) -> Hash[String, Object?]
       def runtime_original_token_data(token_id, token_display, value, location, state)
         runtime_token_data(
           token_id: token_id,
@@ -2386,8 +2386,8 @@ module Ibex
         )
       end
 
-      # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,
-      #   Integer original_state, Hash[String, untyped]? token_data,
+      # @rbs (Object? token_id, Object? token_display, Object? value, Object? location,
+      #   Integer original_state, Hash[String, Object?]? token_data,
       #   Array[Proc]? observers) -> [:done, nil]
       def reject_without_recovery(token_id, token_display, value, location, original_state, token_data, observers)
         if observers
@@ -2403,8 +2403,8 @@ module Ibex
         [:done, cst_enabled? ? failed_cst : nil]
       end
 
-      # @rbs (untyped token_id, untyped token_display, untyped value, untyped location,
-      #   Integer original_state, Array[untyped] value_stack, Hash[String, untyped]? token_data,
+      # @rbs (Object? token_id, Object? token_display, Object? value, Object? location,
+      #   Integer original_state, Array[Object?] value_stack, Hash[String, Object?]? token_data,
       #   String reason, Array[Proc]? observers) -> [:continue]
       def finish_recovery(
         token_id, token_display, value, location, original_state, value_stack, token_data, reason, observers
@@ -2430,8 +2430,8 @@ module Ibex
         CONTINUE_OUTCOME
       end
 
-      # @rbs (token_id: untyped, token_display: untyped, value: untyped,
-      #   location: untyped, state: Integer) -> Hash[String, untyped]
+      # @rbs (token_id: Object?, token_display: Object?, value: Object?,
+      #   location: Object?, state: Integer) -> Hash[String, Object?]
       def runtime_token_data(token_id:, token_display:, value:, location:, state:)
         if token_id.equal?(NO_LOOKAHEAD)
           return {
@@ -2452,7 +2452,7 @@ module Ibex
         }.freeze
       end
 
-      # @rbs () -> Hash[String, untyped]
+      # @rbs () -> Hash[String, Object?]
       def runtime_current_token_data
         runtime_token_data(
           token_id: @lookahead,
@@ -2463,7 +2463,7 @@ module Ibex
         )
       end
 
-      # @rbs (untyped result_summary, String reason) -> void
+      # @rbs (Object? result_summary, String reason) -> void
       def emit_accept_event(result_summary, reason)
         emit_runtime_event(
           :accept,
@@ -2471,7 +2471,7 @@ module Ibex
         )
       end
 
-      # @rbs (String reason, Hash[String, untyped] token_data, ?observers: Array[Proc]?) -> void
+      # @rbs (String reason, Hash[String, Object?] token_data, ?observers: Array[Proc]?) -> void
       def emit_reject_event(reason, token_data, observers: runtime_observer_snapshot)
         emit_runtime_event(
           :reject,
@@ -2662,13 +2662,13 @@ module Ibex
         @runtime_lookahead_token_display = nil
       end
 
-      # @rbs (RepairEdit edit, value: untyped, location: untyped) -> RepairInput
+      # @rbs (RepairEdit edit, value: Object?, location: Object?) -> RepairInput
       def synthetic_repair_input(edit, value:, location:)
         location = cst_repair_location(location, edit.kind) if cst_enabled?
         RepairInput.new(token_id: edit.token_id, token_name: edit.token_name, value: value, location: location)
       end
 
-      # @rbs (untyped location, Symbol kind) -> Hash[Symbol, untyped]
+      # @rbs (Object? location, Symbol kind) -> Hash[Symbol, Object?]
       def cst_repair_location(location, kind)
         return location.merge(ibex_repair: kind).freeze if location.is_a?(Hash)
 
@@ -2749,7 +2749,7 @@ module Ibex
         @runtime_lookahead_token_display = token_to_str(@lookahead)
       end
 
-      # @rbs (untyped external_token, untyped value, untyped location) -> RepairInput
+      # @rbs (Object? external_token, Object? value, Object? location) -> RepairInput
       def repair_input(external_token, value, location)
         token_id = parser_tables.fetch(:tokens)[external_token]
         if token_id
@@ -2766,7 +2766,7 @@ module Ibex
         )
       end
 
-      # @rbs (untyped token) -> RepairInput
+      # @rbs (Object? token) -> RepairInput
       def repair_input_from_external(token)
         if token.nil? || token == false
           return RepairInput.new(token_id: EOF_TOKEN, token_name: token_to_str(EOF_TOKEN), value: nil, location: nil)
@@ -2807,7 +2807,7 @@ module Ibex
         trace("read #{input.token_name}") if @yydebug
       end
 
-      # @rbs () -> untyped
+      # @rbs () -> Object?
       def read_external_token
         source = @source
         return next_token unless source
@@ -2818,7 +2818,7 @@ module Ibex
         false
       end
 
-      # @rbs (untyped external_token) -> Integer
+      # @rbs (Object? external_token) -> Integer
       def internal_token_id(external_token)
         token_id = parser_tables.fetch(:tokens)[external_token]
         return token_id if token_id
@@ -2842,12 +2842,12 @@ module Ibex
         raise ParseError, "(tables):1:1: #{self.class} must define .parser_tables"
       end
 
-      # @rbs (untyped action) -> bool
+      # @rbs (Object? action) -> bool
       def error_action?(action)
         action.nil? || action.first == :error
       end
 
-      # @rbs (untyped configured) -> [String?, String?]
+      # @rbs (Object? configured) -> [String?, String?]
       def configured_error_message(configured)
         return [nil, configured] unless configured.is_a?(Hash)
 
@@ -3083,7 +3083,7 @@ module Ibex
       # Keep allocation out of the ordinary two-element lexer path. If a
       # location first appears after values have already shifted, backfill the
       # parallel prefix with nil exactly once.
-      # @rbs (untyped location) -> void
+      # @rbs (Object? location) -> void
       def push_location(location)
         stack = @location_stack
         if stack
