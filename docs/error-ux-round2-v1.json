@@ -15,7 +15,11 @@
       },
       {
         "path": "lib/ibex/analysis.rb",
-        "sha256": "3a2e6c3c0c907468d9c9a220e7a3c13790e092339bfb3327d1c63b26c2e4d783"
+        "sha256": "66a7ce62e3e877d084deb3de720055e9e9a1f3081f9903a3c5f948bb496394b5"
+      },
+      {
+        "path": "lib/ibex/analysis/digraph.rb",
+        "sha256": "470aa4ed7af53c60993044667ed74813e15c19d3f0450a3404f12c10a88f9b98"
       },
       {
         "path": "lib/ibex/analysis/sets.rb",
@@ -403,15 +407,15 @@
       },
       {
         "path": "lib/ibex/lalr.rb",
-        "sha256": "2bf2fa25ca3fc8d71bd65ce18e562953b1df6b4912cef36eab03a55765723eb6"
+        "sha256": "14853c544442c7f88f8166255787b55ca7a470f30a6047f54771986cc712a4a1"
       },
       {
         "path": "lib/ibex/lalr/build_metrics.rb",
-        "sha256": "dfca69a5d16cc32ce7fc89ad3a53aa1ce6bb0b12d6e8ae0dd2cf5e2f6e9df3c4"
+        "sha256": "eadf2b10f366c110a4110592b6cfe3e221b69577cb1b7993c6ebc5d4d8c31717"
       },
       {
         "path": "lib/ibex/lalr/builder.rb",
-        "sha256": "cf27b5ade80e8a88738570916dbe2429504605f9c35da83552425d04b348c69a"
+        "sha256": "69a4b832abf5c1d6332049fc584b9c46f8b43609fad65dc0682e618e84ea52ad"
       },
       {
         "path": "lib/ibex/lalr/conflict.rb",
@@ -435,15 +439,63 @@
       },
       {
         "path": "lib/ibex/lalr/direct_lookaheads.rb",
-        "sha256": "4bcfe4cbdd03ee8824a38660007a6b061408a2433505be6d5bf19a23d78dc5e0"
+        "sha256": "b3fe129a688994c14105653ecf74c3e4ed37d3a3bd3ba9fbd7410dc06684f254"
+      },
+      {
+        "path": "lib/ibex/lalr/goto_follows.rb",
+        "sha256": "45afbbbc0242b5129e832c3078e77542e42cb7707792d653f582bf8fe4d6f22f"
+      },
+      {
+        "path": "lib/ibex/lalr/ielr/annotator.rb",
+        "sha256": "0e9ff819d170f00fec6cf9e6a7db5663ca68c0b92957617e829b14bbb7c5240f"
+      },
+      {
+        "path": "lib/ibex/lalr/ielr/bits.rb",
+        "sha256": "dc04aa752f6eae4f88bbbaabe0435f8367b8866c88fda89785065d2578d3544e"
+      },
+      {
+        "path": "lib/ibex/lalr/ielr/inadequacy.rb",
+        "sha256": "6c3ac93e2c08793425886c3786fcaea6d422e0b86372b2aa256fea0854709962"
+      },
+      {
+        "path": "lib/ibex/lalr/ielr/item_lookaheads.rb",
+        "sha256": "359d3448117447909143c815ef0c53b081893100982aa608ae50f32aa48cdd80"
+      },
+      {
+        "path": "lib/ibex/lalr/ielr/pipeline.rb",
+        "sha256": "c5dd215e3ab13482d11fb4ef7b5aa49d170dbb5456e396b57b74fe8baa1aea0b"
+      },
+      {
+        "path": "lib/ibex/lalr/ielr/split_stability.rb",
+        "sha256": "08402d91c0fe4e39d449cbf55617cee04fc73dd3aae2be8207e62b4590ccbcd3"
+      },
+      {
+        "path": "lib/ibex/lalr/ielr/split_state.rb",
+        "sha256": "f37dc70b338be92ee6f8a91f179834f7c00a6b9b868e3b4778b80fe0fcbc179d"
+      },
+      {
+        "path": "lib/ibex/lalr/ielr/state_splitter.rb",
+        "sha256": "75c3cef68be399e893a1a160027fb9abc6410e0f12adaed8acbad09c8093568c"
       },
       {
         "path": "lib/ibex/lalr/ielr_partition.rb",
         "sha256": "842610d6ce3e2ae0850807e340a38864c85c27f513e42c26a6759cd865d9a506"
       },
       {
+        "path": "lib/ibex/lalr/lookahead_propagation.rb",
+        "sha256": "08ebf8de10e734242f719d6d0dcd7ce658d2d222c74049d33f580b124eb0c189"
+      },
+      {
+        "path": "lib/ibex/lalr/lr0_collection.rb",
+        "sha256": "abfcca1bd7da9006be889a092af35083a8211cce4655a7c893bee91109ddd1d8"
+      },
+      {
         "path": "lib/ibex/lalr/on_error_reductions.rb",
         "sha256": "a906e648908960f83d0a6ba52fd26607b0b87dcd5ecf9e0d448d15ef1cb92df7"
+      },
+      {
+        "path": "lib/ibex/lalr/unreachable_states.rb",
+        "sha256": "d2abb577b11337a36ab729e705bbfc145ebc3405a6ab07a12f969a6622d5cf75"
       },
       {
         "path": "lib/ibex/location.rb",
@@ -779,7 +831,11 @@
       },
       {
         "path": "lib/ibex/verify.rb",
-        "sha256": "fe97f0d0acee69ca076abe9d46f7d6e91b3697597d3607af35cedd40ed5d691f"
+        "sha256": "7a5ee1a8ccc78d790291478164354ae84484d588adddeaec2354a7a0f4739355"
+      },
+      {
+        "path": "lib/ibex/verify/action_correspondence.rb",
+        "sha256": "8d0d4370925adf5b15d68ca4eff638be4375ea07ccbc39109c4695424038199a"
       },
       {
         "path": "lib/ibex/verify/reference_collection.rb",
