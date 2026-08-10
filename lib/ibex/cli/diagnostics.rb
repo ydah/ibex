@@ -20,8 +20,8 @@ module Ibex
     #   }
     #
     #   private def input_path: (Array[String]) -> String
-    #   private def local_configuration_value: (Hash[Symbol, untyped], String) -> untyped
-    #   private def set_local_configuration_option: (Hash[Symbol, untyped], Symbol, untyped) -> void
+    #   private def local_configuration_value: (Hash[Symbol, Object?], String) -> Object?
+    #   private def set_local_configuration_option: (Hash[Symbol, Object?], Symbol, Object?) -> void
 
     private
 
@@ -109,7 +109,7 @@ module Ibex
       end
     end
 
-    # @rbs (Frontend::ParseResult result) -> Hash[String, untyped]
+    # @rbs (Frontend::ParseResult result) -> Hash[String, Object?]
     def diagnostics_document(result)
       {
         "ibex_diagnostics" => "frontend",
@@ -127,7 +127,7 @@ module Ibex
       "#{diagnostic.location}: #{localized_diagnostic_message(diagnostic)}"
     end
 
-    # @rbs (Frontend::Diagnostic diagnostic) -> Hash[Symbol, untyped]
+    # @rbs (Frontend::Diagnostic diagnostic) -> Hash[Symbol, Object?]
     def localized_diagnostic_hash(diagnostic)
       diagnostic.to_h.merge(message: localized_diagnostic_message(diagnostic))
     end
