@@ -177,7 +177,7 @@ module Ibex
             threshold("representative-real-profiles", "at least 2", profiled.to_s, profiled >= 2),
             threshold("real-ielr-need", "at least 2 grammars with meaningful conflicts removed",
                       "#{candidates} structural candidates; 0 semantically reviewed", false),
-            threshold("verifier-tcb", "V001 complete and reviewed", "complete at 5cf20f6", true),
+            threshold("verifier-tcb", "V001 complete and reviewed", "complete at c7e5cad", true),
             threshold("scale-independent-verification", "verification avoids canonical LR(1) enumeration",
                       "not satisfied: default and strict IELR verification enumerate canonical LR(1)", false)
           ],
@@ -412,7 +412,7 @@ module Ibex
 
     # Builds the repository/public workload report and keeps source classes separate.
     class ConstructionReport
-      MATRIX_REVISION = "e892ffad7d7178028dcf1c074d2db90af068d866"
+      MATRIX_REVISION = "2d86d52ef92c2b07046c05f4fd55c32a1d6400a9"
 
       def initialize(root:, wall_seconds:, checkouts: {})
         @root = File.expand_path(root)

@@ -20,7 +20,7 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "3ada57c8ebbe4cc4f303d2ebc87a10d8271c1439",
+    "base_revision": "a3024b8ca0591e6bd1ec5decc0a3c51a03a25610",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": true,
     "capture_worktree_status": [],
@@ -222,7 +222,7 @@
           "grammar": {
             "identity": "Self-authored calculator gallery grammar",
             "path": "gallery/calc/grammar.y",
-            "revision": "229b8f4b8f3a5cb6aec5b08088579cfdfb4e6cec",
+            "revision": "8dae6f7cede1d262cb9211a07b72b8c903e96126",
             "sha256": "e9c25a35bd0351e58c3aefd9397097ac04701e052bad7fd234e72e357b5bac07"
           },
           "registry_status": "registered",
@@ -383,7 +383,7 @@
           "grammar": {
             "identity": "Self-authored JSON gallery grammar",
             "path": "gallery/json/grammar.y",
-            "revision": "2bb20ab24e26cae4ee7cd397fcc12938b7d24e59",
+            "revision": "d901b787c7e10c1ab3344ac0156f802ab29ad207",
             "sha256": "162484428a798541dfced3a12e6e38eb6f1231aec03157c273b25493fa6f9f66"
           },
           "registry_status": "registered",
@@ -544,7 +544,7 @@
           "grammar": {
             "identity": "Self-authored SQL subset gallery grammar",
             "path": "gallery/sql-lite/grammar.y",
-            "revision": "2bb20ab24e26cae4ee7cd397fcc12938b7d24e59",
+            "revision": "d901b787c7e10c1ab3344ac0156f802ab29ad207",
             "sha256": "1369ba9384456fc02d0ccb9cef81dd0e96fcdd387f00266b28df0ac5be1b5f2a"
           },
           "registry_status": "registered",
@@ -705,7 +705,7 @@
           "grammar": {
             "identity": "Representative matrix multi-entry diagnostic",
             "path": "test/support/matrix_runner.rb#grammar_source(entries=multi,cst=off,locations=off)",
-            "revision": "e892ffad7d7178028dcf1c074d2db90af068d866",
+            "revision": "2d86d52ef92c2b07046c05f4fd55c32a1d6400a9",
             "sha256": "af2a9c3b46c31b80e7f9dc983f70b33979d46e6a519b681d7d8a403b4b0f6d8d"
           },
           "registry_status": "unregistered_diagnostic",
@@ -1031,7 +1031,7 @@
           "grammar": {
             "identity": "Ibex production self-hosted grammar frontend",
             "path": "lib/ibex/frontend/grammar.y",
-            "revision": "229b8f4b8f3a5cb6aec5b08088579cfdfb4e6cec",
+            "revision": "8dae6f7cede1d262cb9211a07b72b8c903e96126",
             "sha256": "c615e4a180b21df377585a0804776a3f2af33c3753ef617f6798c9566848e403"
           },
           "registry_status": "registered",
@@ -1243,7 +1243,7 @@
         {
           "id": "verifier-tcb",
           "target": "V001 complete and reviewed",
-          "observed": "complete at 5cf20f6",
+          "observed": "complete at c7e5cad",
           "satisfied": true
         },
         {
