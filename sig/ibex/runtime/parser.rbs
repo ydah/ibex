@@ -307,8 +307,8 @@ module Ibex
       # Pull tokens from `next_token` and execute parser production actions.
       # A generated-lexer `next_token` executes lexer actions; a handwritten
       # implementation does not invoke the generated lexer.
-      # @rbs () -> untyped
-      def do_parse: () -> untyped
+      # @rbs () -> Object?
+      def do_parse: () -> Object?
 
       # Parse through `next_token` and return both the semantic value and Red root.
       # Parser production actions execute. Generated lexer actions execute only
@@ -323,8 +323,8 @@ module Ibex
       # Parse tokens yielded by `receiver.method_id` and execute parser
       # production actions. This caller-fed path does not invoke generated
       # lexer actions.
-      # @rbs (untyped receiver, Symbol method_id) -> untyped
-      def yyparse: (untyped receiver, Symbol method_id) -> untyped
+      # @rbs (Object receiver, Symbol method_id) -> Object?
+      def yyparse: (Object receiver, Symbol method_id) -> Object?
 
       # Supply one token to a caller-driven parser session.
       # Committed reductions execute parser production actions; this token-fed
@@ -332,15 +332,15 @@ module Ibex
       # Returns `:need_more` after consuming it, `[:accepted, result]` after
       # acceptance, or `[:rejected, result]` after recovery terminates.
       # rubocop:disable Layout/LineLength
-      # @rbs (untyped token, ?untyped value, ?untyped location) -> (:need_more | [:accepted, untyped] | [:rejected, untyped])
+      # @rbs (Object? token, ?Object? value, ?Object? location) -> (:need_more | [:accepted, Object?] | [:rejected, Object?])
       # rubocop:enable Layout/LineLength
-      def push: (untyped token, ?untyped value, ?untyped location) -> (:need_more | [ :accepted, untyped ] | [ :rejected, untyped ])
+      def push: (Object? token, ?Object? value, ?Object? location) -> (:need_more | [ :accepted, Object? ] | [ :rejected, Object? ])
 
       # Supply EOF to a caller-driven parser session and return its result.
       # Committed reductions execute parser production actions; this token-fed
       # path does not invoke generated lexer actions.
-      # @rbs (?location: untyped) -> untyped
-      def finish: (?location: untyped) -> untyped
+      # @rbs (?location: Object?) -> Object?
+      def finish: (?location: Object?) -> Object?
 
       # Discard a caller-driven session so this parser can accept a new one.
       # @rbs () -> nil
@@ -348,51 +348,51 @@ module Ibex
 
       # Override in pull parsers. Return `[token, value]`,
       # `[token, value, location]`, `false`, or `nil`.
-      # @rbs () -> ([untyped, untyped] | [untyped, untyped, untyped] | false | nil)
-      def next_token: () -> ([ untyped, untyped ] | [ untyped, untyped, untyped ] | false | nil)
+      # @rbs () -> ([Object?, Object?] | [Object?, Object?, Object?] | false | nil)
+      def next_token: () -> ([ Object?, Object? ] | [ Object?, Object?, Object? ] | false | nil)
 
       # Override to recover from syntax errors. The default raises unless a
       # bounded automatic repair has already been selected.
-      # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> untyped
-      def on_error: (Integer token_id, untyped value, Array[untyped] value_stack) -> untyped
+      # @rbs (Integer token_id, Object? value, Array[Object?] value_stack) -> Object?
+      def on_error: (Integer token_id, Object? value, Array[Object?] value_stack) -> Object?
 
       # Called after an ordinary input token is shifted. Override to observe
       # the internal token id, semantic value, and destination state.
-      # @rbs (Integer token_id, untyped value, Integer state) -> void
-      def on_shift: (Integer token_id, untyped value, Integer state) -> void
+      # @rbs (Integer token_id, Object? value, Integer state) -> void
+      def on_shift: (Integer token_id, Object? value, Integer state) -> void
 
       # Location-aware shift observer. The compatible hook above retains its
       # original signature and runs first.
-      # @rbs (Integer token_id, untyped value, Integer state, untyped location) -> void
-      def on_shift_location: (Integer token_id, untyped value, Integer state, untyped location) -> void
+      # @rbs (Integer token_id, Object? value, Integer state, Object? location) -> void
+      def on_shift_location: (Integer token_id, Object? value, Integer state, Object? location) -> void
 
       # Called after a production's semantic action and goto are committed.
       # Override to observe its id, RHS values, and semantic result.
-      # @rbs (Integer production_id, Array[untyped] values, untyped result) -> void
-      def on_reduce: (Integer production_id, Array[untyped] values, untyped result) -> void
+      # @rbs (Integer production_id, Array[Object?] values, Object? result) -> void
+      def on_reduce: (Integer production_id, Array[Object?] values, Object? result) -> void
 
       # Location-aware reduction observer.
-      # @rbs (Integer production_id, Array[untyped] values, untyped result,
-      #   Array[untyped] locations, untyped result_location) -> void
-      def on_reduce_location: (Integer production_id, Array[untyped] values, untyped result, Array[untyped] locations, untyped result_location) -> void
+      # @rbs (Integer production_id, Array[Object?] values, Object? result,
+      #   Array[Object?] locations, Object? result_location) -> void
+      def on_reduce_location: (Integer production_id, Array[Object?] values, Object? result, Array[Object?] locations, Object? result_location) -> void
 
       # Called after the synthetic error token enters a recovery state.
       # The payload describes the original error before recovery popped stacks.
-      # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> void
-      def on_error_recover: (Integer token_id, untyped value, Array[untyped] value_stack) -> void
+      # @rbs (Integer token_id, Object? value, Array[Object?] value_stack) -> void
+      def on_error_recover: (Integer token_id, Object? value, Array[Object?] value_stack) -> void
 
       # Location-aware recovery observer.
-      # @rbs (Integer token_id, untyped value, Array[untyped] value_stack,
-      #   untyped location, Integer state) -> void
-      def on_error_recover_location: (Integer token_id, untyped value, Array[untyped] value_stack, untyped location, Integer state) -> void
+      # @rbs (Integer token_id, Object? value, Array[Object?] value_stack,
+      #   Object? location, Integer state) -> void
+      def on_error_recover_location: (Integer token_id, Object? value, Array[Object?] value_stack, Object? location, Integer state) -> void
 
       # Called when yacc recovery discards an application token.
-      # @rbs (Integer token_id, untyped value, untyped location, Symbol reason) -> void
-      def on_discard: (Integer token_id, untyped value, untyped location, Symbol reason) -> void
+      # @rbs (Integer token_id, Object? value, Object? location, Symbol reason) -> void
+      def on_discard: (Integer token_id, Object? value, Object? location, Symbol reason) -> void
 
       # Install an opt-in value formatter for human-readable yydebug traces.
-      # @rbs ((^(untyped) -> untyped)? printer) -> (^(untyped) -> untyped)?
-      def trace_value_printer=: ((^(untyped) -> untyped)? printer) -> (^(untyped) -> untyped)?
+      # @rbs ((^(Object?) -> Object?)? printer) -> (^(Object?) -> Object?)?
+      def trace_value_printer=: ((^(Object?) -> Object?)? printer) -> (^(Object?) -> Object?)?
 
       # Called once after a repair is selected and before its edited token
       # prefix is replayed through normal parser actions.
@@ -426,12 +426,12 @@ module Ibex
 
       # Return the location of a one-based RHS position or named reference
       # while a semantic action is running.
-      # @rbs (Integer | Symbol | String reference) -> untyped
-      def loc: (Integer | Symbol | String reference) -> untyped
+      # @rbs (Integer | Symbol | String reference) -> Object?
+      def loc: (Integer | Symbol | String reference) -> Object?
 
       # Return the synthesized span of the reduction being evaluated.
-      # @rbs () -> untyped
-      def result_loc: () -> untyped
+      # @rbs () -> Object?
+      def result_loc: () -> Object?
 
       private
 
@@ -461,8 +461,8 @@ module Ibex
 
       # Keep the two historical value-stack names as read-compatible aliases.
       # Applications must not mutate or replace these internal arrays.
-      # @rbs (Array[untyped] values) -> void
-      def install_value_stack: (Array[untyped] values) -> void
+      # @rbs (Array[Object?] values) -> void
+      def install_value_stack: (Array[Object?] values) -> void
 
       # @rbs (Integer token_id) -> bool
       def exact_lookahead_accepted?: (Integer token_id) -> bool
@@ -476,8 +476,8 @@ module Ibex
       # @rbs (Array[Integer] stack, Integer production_id) -> bool
       def exact_reduction_applied?: (Array[Integer] stack, Integer production_id) -> bool
 
-      # @rbs (untyped source, ?initial_state: Integer?) -> untyped
-      def drive_parser: (untyped source, ?initial_state: Integer?) -> untyped
+      # @rbs (untyped source, ?initial_state: Integer?) -> Object?
+      def drive_parser: (untyped source, ?initial_state: Integer?) -> Object?
 
       # Generated compact tables can keep the unobserved, location-free pull
       # loop on their frozen displacement arrays. Any extension boundary or
@@ -487,8 +487,8 @@ module Ibex
       # rubocop:disable Metrics/MethodLength, Metrics/PerceivedComplexity
       # Direct comparisons avoid predicate-method dispatch inside the parser loop.
       # rubocop:disable Style/BitwisePredicate, Style/NumericPredicate
-      # @rbs (Hash[Symbol, untyped] tables) -> (Object | [:accepted, untyped] | [:done, untyped])?
-      def drive_compact_fast_parser: (Hash[Symbol, untyped] tables) -> (Object | [ :accepted, untyped ] | [ :done, untyped ])?
+      # @rbs (Hash[Symbol, untyped] tables) -> (Object | [:accepted, Object?] | [:done, Object?])?
+      def drive_compact_fast_parser: (Hash[Symbol, untyped] tables) -> (Object | [ :accepted, Object? ] | [ :done, Object? ])?
 
       # @rbs (Hash[Symbol, untyped]? tables) -> bool
       def compact_fast_driver_eligible?: (Hash[Symbol, untyped]? tables) -> bool
@@ -496,11 +496,11 @@ module Ibex
       # @rbs () -> void
       def start_push_session: () -> void
 
-      # @rbs () -> (:need_more | [:accepted, untyped] | [:rejected, untyped])
-      def run_push_lookahead: () -> (:need_more | [ :accepted, untyped ] | [ :rejected, untyped ])
+      # @rbs () -> (:need_more | [:accepted, Object?] | [:rejected, Object?])
+      def run_push_lookahead: () -> (:need_more | [ :accepted, Object? ] | [ :rejected, Object? ])
 
-      # @rbs () { () -> untyped } -> untyped
-      def run_push_driver: () { () -> untyped } -> untyped
+      # @rbs () { () -> Object? } -> Object?
+      def run_push_driver: () { () -> Object? } -> Object?
 
       # @rbs () -> void
       def ensure_driver_available_without_lock!: () -> void
@@ -511,8 +511,8 @@ module Ibex
       # @rbs () -> void
       def finish_push_session: () -> void
 
-      # @rbs ((^() -> untyped)? source, ?initial_state: Integer?) -> void
-      def prepare_parse: ((^() -> untyped)? source, ?initial_state: Integer?) -> void
+      # @rbs ((^() -> Object?)? source, ?initial_state: Integer?) -> void
+      def prepare_parse: ((^() -> Object?)? source, ?initial_state: Integer?) -> void
 
       # @rbs () -> void
       def reset_parse_recovery_state: () -> void
@@ -557,84 +557,84 @@ module Ibex
       # @rbs (Hash[Symbol, untyped] production) -> bool
       def positional_action_contract?: (Hash[Symbol, untyped] production) -> bool
 
-      # @rbs () -> untyped
-      def action_for_current_state: () -> untyped
+      # @rbs () -> Object?
+      def action_for_current_state: () -> Object?
 
-      # @rbs (untyped action) -> untyped
-      def perform: (untyped action) -> untyped
+      # @rbs (untyped action) -> Object?
+      def perform: (untyped action) -> Object?
 
       # @rbs (Integer next_state) -> [:continue]
       def fast_shift: (Integer next_state) -> [ :continue ]
 
-      # @rbs (Hash[Symbol, untyped] production, untyped length) -> bool
-      def fast_reduction_eligible?: (Hash[Symbol, untyped] production, untyped length) -> bool
+      # @rbs (Hash[Symbol, untyped] production, Object? length) -> bool
+      def fast_reduction_eligible?: (Hash[Symbol, untyped] production, Object? length) -> bool
 
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> [:continue]
       def fast_reduce: (Integer production_id, Hash[Symbol, untyped] production, Integer length) -> [ :continue ]
 
-      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length, Symbol action) -> untyped
-      def fast_values_reduce: (Integer production_id, Hash[Symbol, untyped] production, Integer length, Symbol action) -> untyped
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length, Symbol action) -> Object?
+      def fast_values_reduce: (Integer production_id, Hash[Symbol, untyped] production, Integer length, Symbol action) -> Object?
 
-      # @rbs (Integer next_state) -> untyped
-      def shift: (Integer next_state) -> untyped
+      # @rbs (Integer next_state) -> Object?
+      def shift: (Integer next_state) -> Object?
 
-      # @rbs (Integer production_id, ?Hash[Symbol, untyped]? prefetched_production) -> untyped
-      def reduce: (Integer production_id, ?Hash[Symbol, untyped]? prefetched_production) -> untyped
+      # @rbs (Integer production_id, ?Hash[Symbol, untyped]? prefetched_production) -> Object?
+      def reduce: (Integer production_id, ?Hash[Symbol, untyped]? prefetched_production) -> Object?
 
-      # @rbs (Integer next_state, untyped result, untyped location) -> void
-      def push_reduction_result: (Integer next_state, untyped result, untyped location) -> void
+      # @rbs (Integer next_state, Object? result, Object? location) -> void
+      def push_reduction_result: (Integer next_state, Object? result, Object? location) -> void
 
-      # @rbs (Integer production_id, Integer length, Integer lhs, untyped result, Integer next_state) -> void
-      def trace_reduction: (Integer production_id, Integer length, Integer lhs, untyped result, Integer next_state) -> void
+      # @rbs (Integer production_id, Integer length, Integer lhs, Object? result, Integer next_state) -> void
+      def trace_reduction: (Integer production_id, Integer length, Integer lhs, Object? result, Integer next_state) -> void
 
       # @rbs (Array[Proc]? observers, Integer production_id, Hash[Symbol, untyped] production, Integer length,
-      #   Integer? pre_state, Integer? post_state, Integer next_state, untyped result,
-      #   LocationSpan? location) -> Hash[String, untyped]?
-      def build_reduce_event_data: (Array[Proc]? observers, Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer? pre_state, Integer? post_state, Integer next_state, untyped result, LocationSpan? location) -> Hash[String, untyped]?
+      #   Integer? pre_state, Integer? post_state, Integer next_state, Object? result,
+      #   LocationSpan? location) -> Hash[String, Object?]?
+      def build_reduce_event_data: (Array[Proc]? observers, Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer? pre_state, Integer? post_state, Integer next_state, Object? result, LocationSpan? location) -> Hash[String, Object?]?
 
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length,
-      #   Integer? pre_state, Integer? post_state, Integer next_state, untyped result,
-      #   LocationSpan? location) -> Hash[String, untyped]
-      def runtime_reduce_data: (Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer? pre_state, Integer? post_state, Integer next_state, untyped result, LocationSpan? location) -> Hash[String, untyped]
+      #   Integer? pre_state, Integer? post_state, Integer next_state, Object? result,
+      #   LocationSpan? location) -> Hash[String, Object?]
+      def runtime_reduce_data: (Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer? pre_state, Integer? post_state, Integer next_state, Object? result, LocationSpan? location) -> Hash[String, Object?]
 
-      # @rbs (untyped result) -> [:accepted, untyped]
-      def accept_reduction: (untyped result) -> [ :accepted, untyped ]
+      # @rbs (Object? result) -> [:accepted, Object?]
+      def accept_reduction: (Object? result) -> [ :accepted, Object? ]
 
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
-      #   Array[untyped] locations, LocationSpan? location) -> untyped
-      def reduction_value: (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> untyped
+      #   Array[Object?] locations, LocationSpan? location) -> Object?
+      def reduction_value: (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values, Array[Object?] locations, LocationSpan? location) -> Object?
 
       # @rbs (Hash[Symbol, untyped] production, Symbol action, Array[untyped] values,
-      #   Array[untyped] locations, LocationSpan? location) -> untyped
-      def values_reduction_value: (Hash[Symbol, untyped] production, Symbol action, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> untyped
+      #   Array[Object?] locations, LocationSpan? location) -> Object?
+      def values_reduction_value: (Hash[Symbol, untyped] production, Symbol action, Array[untyped] values, Array[Object?] locations, LocationSpan? location) -> Object?
 
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
-      #   Array[untyped] locations, LocationSpan? location) -> untyped
-      def actionless_reduction_value: (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values, Array[untyped] locations, LocationSpan? location) -> untyped
+      #   Array[Object?] locations, LocationSpan? location) -> Object?
+      def actionless_reduction_value: (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values, Array[Object?] locations, LocationSpan? location) -> Object?
 
-      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
-      def generated_location_action?: (Hash[Symbol, untyped] production, untyped action) -> bool
+      # @rbs (Hash[Symbol, untyped] production, Object? action) -> bool
+      def generated_location_action?: (Hash[Symbol, untyped] production, Object? action) -> bool
 
-      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
-      def generated_values_action?: (Hash[Symbol, untyped] production, untyped action) -> bool
+      # @rbs (Hash[Symbol, untyped] production, Object? action) -> bool
+      def generated_values_action?: (Hash[Symbol, untyped] production, Object? action) -> bool
 
-      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
-      def generated_positional_action?: (Hash[Symbol, untyped] production, untyped action) -> bool
+      # @rbs (Hash[Symbol, untyped] production, Object? action) -> bool
+      def generated_positional_action?: (Hash[Symbol, untyped] production, Object? action) -> bool
 
-      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
-      def generated_composition_action?: (Hash[Symbol, untyped] production, untyped action) -> bool
+      # @rbs (Hash[Symbol, untyped] production, Object? action) -> bool
+      def generated_composition_action?: (Hash[Symbol, untyped] production, Object? action) -> bool
 
-      # @rbs (untyped action) -> bool
-      def generated_action_symbol?: (untyped action) -> bool
+      # @rbs (Object? action) -> bool
+      def generated_action_symbol?: (Object? action) -> bool
 
       # @rbs () -> bool
       def cst_enabled?: () -> bool
 
-      # @rbs (Integer token_id, untyped value, untyped location, Symbol reason) -> void
-      def capture_cst_error: (Integer token_id, untyped value, untyped location, Symbol reason) -> void
+      # @rbs (Integer token_id, Object? value, Object? location, Symbol reason) -> void
+      def capture_cst_error: (Integer token_id, Object? value, Object? location, Symbol reason) -> void
 
-      # @rbs (untyped value) -> untyped
-      def finalize_cst: (untyped value) -> untyped
+      # @rbs (Object? value) -> Object?
+      def finalize_cst: (Object? value) -> Object?
 
       # @rbs () -> nil
       def failed_cst: () -> nil
@@ -642,8 +642,8 @@ module Ibex
       # @rbs (ParseError error) -> nil
       def cst_lexical_failure: (ParseError error) -> nil
 
-      # @rbs (untyped location, Symbol key) -> untyped
-      def cst_location_value: (untyped location, Symbol key) -> untyped
+      # @rbs (Object? location, Symbol key) -> Object?
+      def cst_location_value: (Object? location, Symbol key) -> Object?
 
       # @rbs (Hash[Symbol, untyped] tables) -> void
       def prepare_green_cst: (Hash[Symbol, untyped] tables) -> void
@@ -663,14 +663,14 @@ module Ibex
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer left_state) -> void
       def reduce_green: (Integer production_id, Hash[Symbol, untyped] production, Integer length, Integer left_state) -> void
 
-      # @rbs (untyped value, untyped location) -> String
-      def green_token_text: (untyped value, untyped location) -> String
+      # @rbs (Object? value, Object? location) -> String
+      def green_token_text: (Object? value, Object? location) -> String
 
-      # @rbs (untyped location, Symbol key) -> Array[CST::GreenTrivia]
-      def green_location_trivia: (untyped location, Symbol key) -> Array[CST::GreenTrivia]
+      # @rbs (Object? location, Symbol key) -> Array[CST::GreenTrivia]
+      def green_location_trivia: (Object? location, Symbol key) -> Array[CST::GreenTrivia]
 
-      # @rbs (untyped value) -> untyped
-      def finalize_red_green_cst: (untyped value) -> untyped
+      # @rbs (Object? value) -> Object?
+      def finalize_red_green_cst: (Object? value) -> Object?
 
       # @rbs () -> void
       def finalize_failed_green_cst: () -> void
@@ -869,8 +869,8 @@ module Ibex
       # @rbs (String left, String right) -> Integer
       def edit_distance: (String left, String right) -> Integer
 
-      # @rbs (Integer state) -> untyped
-      def default_action: (Integer state) -> untyped
+      # @rbs (Integer state) -> Object?
+      def default_action: (Integer state) -> Object?
 
       # @rbs (Hash[Symbol, untyped] tables) -> bool
       def track_locations?: (Hash[Symbol, untyped] tables) -> bool
@@ -923,8 +923,8 @@ module Ibex
       # @rbs (untyped location) -> void
       def push_location: (untyped location) -> void
 
-      # @rbs (Integer length) -> Array[untyped]
-      def pop_reduction_locations: (Integer length) -> Array[untyped]
+      # @rbs (Integer length) -> Array[Object?]
+      def pop_reduction_locations: (Integer length) -> Array[Object?]
 
       # @rbs (untyped table, Integer row, Integer column) -> untyped
       def table_lookup: (untyped table, Integer row, Integer column) -> untyped
@@ -932,8 +932,8 @@ module Ibex
       # @rbs (String message) -> void
       def trace: (String message) -> void
 
-      # @rbs (untyped value, Integer symbol_id) -> String
-      def trace_value_suffix: (untyped value, Integer symbol_id) -> String
+      # @rbs (Object? value, Integer symbol_id) -> String
+      def trace_value_suffix: (Object? value, Integer symbol_id) -> String
     end
   end
 end

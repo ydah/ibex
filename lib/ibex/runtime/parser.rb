@@ -479,7 +479,7 @@ module Ibex
       # Returns `:need_more` after consuming it, `[:accepted, result]` after
       # acceptance, or `[:rejected, result]` after recovery terminates.
       # rubocop:disable Layout/LineLength
-      # @rbs (untyped token, ?untyped value, ?untyped location) -> (:need_more | [:accepted, untyped] | [:rejected, untyped])
+      # @rbs (Object? token, ?Object? value, ?Object? location) -> (:need_more | [:accepted, Object?] | [:rejected, Object?])
       # rubocop:enable Layout/LineLength
       def push(token, value = nil, location = nil)
         raise ParseError, "(input):1:1: push requires a token; call finish for EOF" if token.nil? || token == false
@@ -897,7 +897,7 @@ module Ibex
         true
       end
 
-      # @rbs (untyped source, ?initial_state: Integer?) -> untyped
+      # @rbs (untyped source, ?initial_state: Integer?) -> Object?
       def drive_parser(source, initial_state: nil)
         ensure_runtime_initialized!
         @runtime_observation_mutex.synchronize do
@@ -941,7 +941,7 @@ module Ibex
       # rubocop:disable Metrics/MethodLength, Metrics/PerceivedComplexity
       # Direct comparisons avoid predicate-method dispatch inside the parser loop.
       # rubocop:disable Style/BitwisePredicate, Style/NumericPredicate
-      # @rbs (Hash[Symbol, untyped] tables) -> (Object | [:accepted, untyped] | [:done, untyped])?
+      # @rbs (Hash[Symbol, untyped] tables) -> (Object | [:accepted, Object?] | [:done, Object?])?
       def drive_compact_fast_parser(tables)
         actions = tables.fetch(:actions)
         gotos = tables.fetch(:gotos)
@@ -1205,7 +1205,7 @@ module Ibex
         @push_status = :active
       end
 
-      # @rbs () -> (:need_more | [:accepted, untyped] | [:rejected, untyped])
+      # @rbs () -> (:need_more | [:accepted, Object?] | [:rejected, Object?])
       def run_push_lookahead
         loop do
           outcome = perform(action_for_current_state)
@@ -1228,7 +1228,7 @@ module Ibex
         end
       end
 
-      # @rbs () { () -> untyped } -> untyped
+      # @rbs () { () -> Object? } -> Object?
       def run_push_driver
         ensure_runtime_initialized!
         @runtime_observation_mutex.synchronize do
@@ -1274,7 +1274,7 @@ module Ibex
         clear_sync_recovery
       end
 
-      # @rbs ((^() -> untyped)? source, ?initial_state: Integer?) -> void
+      # @rbs ((^() -> Object?)? source, ?initial_state: Integer?) -> void
       def prepare_parse(source, initial_state: nil)
         @runtime_parser_tables = load_parser_tables
         tables = validate_parser_table_format!
@@ -1466,7 +1466,7 @@ module Ibex
           production.fetch(:location_context_length, 0).zero?
       end
 
-      # @rbs () -> untyped
+      # @rbs () -> Object?
       def action_for_current_state
         loop do
           if @lookahead.equal?(NO_LOOKAHEAD)
@@ -1489,7 +1489,7 @@ module Ibex
         end
       end
 
-      # @rbs (untyped action) -> untyped
+      # @rbs (untyped action) -> Object?
       def perform(action)
         case action.first
         when :shift
@@ -1531,7 +1531,7 @@ module Ibex
         CONTINUE_OUTCOME
       end
 
-      # @rbs (Hash[Symbol, untyped] production, untyped length) -> bool
+      # @rbs (Hash[Symbol, untyped] production, Object? length) -> bool
       def fast_reduction_eligible?(production, length)
         action = production[:action]
         return false if action && !generated_values_action?(production, action)
@@ -1561,7 +1561,7 @@ module Ibex
         CONTINUE_OUTCOME
       end
 
-      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length, Symbol action) -> untyped
+      # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length, Symbol action) -> Object?
       def fast_values_reduce(production_id, production, length, action)
         hook_values = @value_stack.last(length)
         values = hook_values.dup
@@ -1594,7 +1594,7 @@ module Ibex
         CONTINUE_OUTCOME
       end
 
-      # @rbs (Integer next_state) -> untyped
+      # @rbs (Integer next_state) -> Object?
       def shift(next_state)
         token_id = @lookahead
         value = @lookahead_value
@@ -1627,7 +1627,7 @@ module Ibex
         CONTINUE_OUTCOME
       end
 
-      # @rbs (Integer production_id, ?Hash[Symbol, untyped]? prefetched_production) -> untyped
+      # @rbs (Integer production_id, ?Hash[Symbol, untyped]? prefetched_production) -> Object?
       def reduce(production_id, prefetched_production = nil) # rubocop:disable Metrics -- allocation-free hot path.
         production = prefetched_production || parser_tables.fetch(:productions).fetch(production_id)
         length = production.fetch(:length)
@@ -1672,14 +1672,14 @@ module Ibex
         CONTINUE_OUTCOME
       end
 
-      # @rbs (Integer next_state, untyped result, untyped location) -> void
+      # @rbs (Integer next_state, Object? result, Object? location) -> void
       def push_reduction_result(next_state, result, location)
         @state_stack << next_state
         push_location(location)
         @value_stack << result
       end
 
-      # @rbs (Integer production_id, Integer length, Integer lhs, untyped result, Integer next_state) -> void
+      # @rbs (Integer production_id, Integer length, Integer lhs, Object? result, Integer next_state) -> void
       def trace_reduction(production_id, length, lhs, result, next_state)
         return unless @yydebug
 
@@ -1687,8 +1687,8 @@ module Ibex
       end
 
       # @rbs (Array[Proc]? observers, Integer production_id, Hash[Symbol, untyped] production, Integer length,
-      #   Integer? pre_state, Integer? post_state, Integer next_state, untyped result,
-      #   LocationSpan? location) -> Hash[String, untyped]?
+      #   Integer? pre_state, Integer? post_state, Integer next_state, Object? result,
+      #   LocationSpan? location) -> Hash[String, Object?]?
       def build_reduce_event_data(
         observers, production_id, production, length, pre_state, post_state, next_state, result, location
       )
@@ -1700,8 +1700,8 @@ module Ibex
       end
 
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Integer length,
-      #   Integer? pre_state, Integer? post_state, Integer next_state, untyped result,
-      #   LocationSpan? location) -> Hash[String, untyped]
+      #   Integer? pre_state, Integer? post_state, Integer next_state, Object? result,
+      #   LocationSpan? location) -> Hash[String, Object?]
       def runtime_reduce_data(production_id, production, length, pre_state, post_state, next_state, result, location)
         {
           "production_id" => production_id,
@@ -1715,7 +1715,7 @@ module Ibex
         }.freeze
       end
 
-      # @rbs (untyped result) -> [:accepted, untyped]
+      # @rbs (Object? result) -> [:accepted, Object?]
       def accept_reduction(result)
         result = finalize_cst(result)
         emit_accept_event(EventSanitizer.value(result), "semantic") if @runtime_observers
@@ -1723,7 +1723,7 @@ module Ibex
       end
 
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
-      #   Array[untyped] locations, LocationSpan? location) -> untyped
+      #   Array[Object?] locations, LocationSpan? location) -> Object?
       def reduction_value(production_id, production, values, locations, location) # rubocop:disable Metrics -- explicit hot path.
         previous_locations = @semantic_locations
         previous_names = @semantic_location_names
@@ -1772,7 +1772,7 @@ module Ibex
       end
 
       # @rbs (Hash[Symbol, untyped] production, Symbol action, Array[untyped] values,
-      #   Array[untyped] locations, LocationSpan? location) -> untyped
+      #   Array[Object?] locations, LocationSpan? location) -> Object?
       def values_reduction_value(production, action, values, locations, location)
         previous_locations = @semantic_locations
         previous_names = @semantic_location_names
@@ -1788,40 +1788,40 @@ module Ibex
       end
 
       # @rbs (Integer production_id, Hash[Symbol, untyped] production, Array[untyped] values,
-      #   Array[untyped] locations, LocationSpan? location) -> untyped
+      #   Array[Object?] locations, LocationSpan? location) -> Object?
       def actionless_reduction_value(_production_id, _production, values, _locations, _location)
         values.first
       end
 
-      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
+      # @rbs (Hash[Symbol, untyped] production, Object? action) -> bool
       def generated_location_action?(production, action)
         parser_tables.fetch(:format_version) >= 2 &&
           production[:location_action] == true &&
           generated_action_symbol?(action)
       end
 
-      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
+      # @rbs (Hash[Symbol, untyped] production, Object? action) -> bool
       def generated_values_action?(production, action)
         parser_tables.fetch(:format_version) >= 4 &&
           production[:values_action] == true &&
           generated_action_symbol?(action)
       end
 
-      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
+      # @rbs (Hash[Symbol, untyped] production, Object? action) -> bool
       def generated_positional_action?(production, action)
         parser_tables.fetch(:format_version) >= 5 &&
           production[:positional_action] == true &&
           generated_action_symbol?(action)
       end
 
-      # @rbs (Hash[Symbol, untyped] production, untyped action) -> bool
+      # @rbs (Hash[Symbol, untyped] production, Object? action) -> bool
       def generated_composition_action?(production, action)
         parser_tables.fetch(:format_version) >= 3 &&
           production[:composition_action] == true &&
           generated_location_action?(production, action)
       end
 
-      # @rbs (untyped action) -> bool
+      # @rbs (Object? action) -> bool
       def generated_action_symbol?(action)
         action.is_a?(Symbol) && action.name.match?(GENERATED_ACTION_NAME)
       end
@@ -1831,7 +1831,7 @@ module Ibex
         parser_tables[:cst].is_a?(Hash)
       end
 
-      # @rbs (Integer token_id, untyped value, untyped location, Symbol reason) -> void
+      # @rbs (Integer token_id, Object? value, Object? location, Symbol reason) -> void
       def capture_cst_error(token_id, value, location, reason)
         return unless cst_enabled?
         return if token_id == EOF_TOKEN
@@ -1841,7 +1841,7 @@ module Ibex
         }.freeze
       end
 
-      # @rbs (untyped value) -> untyped
+      # @rbs (Object? value) -> Object?
       def finalize_cst(value)
         return value unless cst_enabled?
 
@@ -1861,7 +1861,7 @@ module Ibex
         nil
       end
 
-      # @rbs (untyped location, Symbol key) -> untyped
+      # @rbs (Object? location, Symbol key) -> Object?
       def cst_location_value(location, key)
         if location.is_a?(Hash)
           value = location[key]
@@ -1994,7 +1994,7 @@ module Ibex
         @green_memo_stack << entry
       end
 
-      # @rbs (untyped value, untyped location) -> String
+      # @rbs (Object? value, Object? location) -> String
       def green_token_text(value, location)
         text = if location.is_a?(Hash) && location.key?(:ibex_lexer_start_state)
                  location[:ibex_cst_text]
@@ -2007,7 +2007,7 @@ module Ibex
         ""
       end
 
-      # @rbs (untyped location, Symbol key) -> Array[CST::GreenTrivia]
+      # @rbs (Object? location, Symbol key) -> Array[CST::GreenTrivia]
       def green_location_trivia(location, key)
         trivia = if location.is_a?(Hash) && location.key?(:ibex_lexer_start_state)
                    location[key]
@@ -2021,7 +2021,7 @@ module Ibex
         trivia.grep(CST::GreenTrivia)
       end
 
-      # @rbs (untyped value) -> untyped
+      # @rbs (Object? value) -> Object?
       def finalize_red_green_cst(value)
         builder = @green_builder || raise(ParseError, "(cst):1:1: Green builder is unavailable")
         kinds = @green_kinds || raise(ParseError, "(cst):1:1: kind metadata is unavailable")
@@ -2891,7 +2891,7 @@ module Ibex
         previous.last
       end
 
-      # @rbs (Integer state) -> untyped
+      # @rbs (Integer state) -> Object?
       def default_action(state)
         parser_tables.fetch(:default_actions, EMPTY_ROW)[state]
       end
@@ -3095,7 +3095,7 @@ module Ibex
         end
       end
 
-      # @rbs (Integer length) -> Array[untyped]
+      # @rbs (Integer length) -> Array[Object?]
       def pop_reduction_locations(length)
         stack = @location_stack
         return Array.new(length) unless stack
@@ -3117,7 +3117,7 @@ module Ibex
         @yydebug_output.puts("ibex: #{message}") if @yydebug
       end
 
-      # @rbs (untyped value, Integer symbol_id) -> String
+      # @rbs (Object? value, Integer symbol_id) -> String
       def trace_value_suffix(value, symbol_id)
         return "" unless @yydebug
 

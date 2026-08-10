@@ -155,7 +155,7 @@ module Ibex
       # @rbs (CST::SourceText source_text, CST::NodeCache cache) -> CST::LexedSyntax
       def scan_syntax_with_cache(source_text, cache)
         lex(source_text.text, file: source_text.file || "(input)")
-        raw_tokens = [] #: Array[Array[untyped]]
+        raw_tokens = [] #: Array[Array[Object?]]
         green_tokens = [] #: Array[CST::GreenToken]
         states = [] #: Array[Symbol]
         loop do
@@ -179,7 +179,7 @@ module Ibex
         CST::LexedSyntax.new(raw_tokens: raw_tokens, memo: memo)
       end
 
-      # @rbs (Integer token_id, untyped value, untyped location, CST::NodeCache cache) -> CST::GreenToken
+      # @rbs (Integer token_id, Object? value, Object? location, CST::NodeCache cache) -> CST::GreenToken
       def scanned_green_token(token_id, value, location, cache)
         leading = scanned_green_trivia(location, :leading_trivia)
         text = if location.is_a?(Hash) && location[:ibex_cst_text].is_a?(String)
@@ -193,7 +193,7 @@ module Ibex
         cache.intern_token_fields(kind: token_id, text: text, leading: leading)
       end
 
-      # @rbs (Array[CST::GreenToken] tokens, untyped location, CST::NodeCache cache) -> void
+      # @rbs (Array[CST::GreenToken] tokens, Object? location, CST::NodeCache cache) -> void
       def replace_previous_scanned_trailing(tokens, location, cache)
         trailing = scanned_green_trivia(location, :cst_previous_trailing)
         previous = tokens.last
@@ -209,7 +209,7 @@ module Ibex
         )
       end
 
-      # @rbs (untyped location, Symbol key) -> Array[CST::GreenTrivia]
+      # @rbs (Object? location, Symbol key) -> Array[CST::GreenTrivia]
       def scanned_green_trivia(location, key)
         return [] unless location.is_a?(Hash)
 
@@ -282,8 +282,8 @@ module Ibex
         }
       end
 
-      # @rbs (Hash[Symbol, untyped] rule, String lexeme, Hash[Symbol, untyped] location) ->
-      #   [untyped, untyped, Hash[Symbol, untyped]]?
+      # @rbs (Hash[Symbol, untyped] rule, String lexeme, Hash[Symbol, Object?] location) ->
+      #   [Object?, Object?, Hash[Symbol, Object?]]?
       def apply_lexer_rule(rule, lexeme, location)
         @lexer_lexeme = lexeme
         @lexer_emission = NO_EMISSION
@@ -317,7 +317,7 @@ module Ibex
       end
 
       # Emit a token from a lexer action.
-      # @rbs (untyped token, ?untyped value) -> untyped
+      # @rbs (Object? token, ?Object? value) -> Object?
       def emit(token, value = NO_EMISSION)
         actual = value.equal?(NO_EMISSION) ? @lexer_lexeme : value
         @lexer_emission = [token, actual]
@@ -337,7 +337,7 @@ module Ibex
         @lexer_lexeme
       end
 
-      # @rbs (String text, Hash[Symbol, untyped] location) -> void
+      # @rbs (String text, Hash[Symbol, Object?] location) -> void
       def retain_cst_trivia(text, _location)
         return if cst_trivia_policy == :drop
 
@@ -351,7 +351,7 @@ module Ibex
         @lexer_pending_green_trivia << value
       end
 
-      # @rbs (Hash[Symbol, untyped] location) -> Hash[Symbol, untyped]
+      # @rbs (Hash[Symbol, Object?] location) -> Hash[Symbol, Object?]
       def attach_cst_trivia(location)
         policy = cst_trivia_policy
         trivia = @lexer_pending_green_trivia
@@ -488,7 +488,7 @@ module Ibex
         }
       end
 
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
       def lexer_zero_width_location
         position = lexer_position
         {
