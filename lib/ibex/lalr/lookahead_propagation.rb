@@ -10,10 +10,10 @@ module Ibex
     # Recomputes item lookaheads on an already-built LR(0) automaton.  This is
     # Phase 4 of direct IELR and is also useful as an independent cross-check
     # for DirectLookaheads.
-      class LookaheadPropagation
-        EMPTY = Array.new(0).freeze #: Array[Integer]
+    class LookaheadPropagation
+      EMPTY = Array.new(0).freeze #: Array[Integer]
 
-        attr_reader :propagation_edge_count #: Integer
+      attr_reader :propagation_edge_count #: Integer
 
       # @rbs (IR::Grammar grammar, Analysis::Sets sets, Array[core_set] states, transitions transitions,
       #   seeds: Array[[Integer, item_core, Integer]]) -> Array[packed_items]
@@ -27,7 +27,7 @@ module Ibex
       end
 
       # @rbs () -> Array[packed_items]
-        def build
+      def build
         lookaheads = @states.map { |items| items.to_h { |item| [item, Set.new] } }
         edges = Hash.new { |hash, key| hash[key] = [] }
         @states.each_with_index do |items, state_id|
@@ -36,9 +36,9 @@ module Ibex
             add_closure(edges, lookaheads, state_id, production_id, dot)
           end
         end
-          @seeds.each { |state_id, item, token| lookaheads.fetch(state_id).fetch(item) << token }
-          @propagation_edge_count = edges.values.sum(&:length)
-          propagate(lookaheads, edges)
+        @seeds.each { |state_id, item, token| lookaheads.fetch(state_id).fetch(item) << token }
+        @propagation_edge_count = edges.values.sum(&:length)
+        propagate(lookaheads, edges)
         lookaheads
       end
 
