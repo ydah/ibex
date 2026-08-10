@@ -48,7 +48,8 @@ module Ibex
       private
 
       # URI is a stdlib boundary whose implementation class varies by scheme.
-      # @rbs (String uri) -> untyped
+      # URI parsing returns a scheme-specific URI::Generic subclass.
+      # @rbs (String uri) -> URI::Generic
       def parse_file_uri(uri)
         validate_raw_authority!(uri)
         parsed = URI.parse(uri)
