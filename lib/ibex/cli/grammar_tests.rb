@@ -19,7 +19,7 @@ module Ibex
     #   private def resolve_grammar_path: (String) -> Frontend::Resolution
     #   private def handle_grammar_warnings: (IR::Grammar, String) -> void
     #   private def build_automaton: (IR::Grammar, String) -> IR::Automaton
-    #   private def configuration_value: (String) -> untyped
+    #   private def configuration_value: (String) -> Object?
     #   private def mark_configuration_option: (Symbol) -> void
 
     private
@@ -105,7 +105,7 @@ module Ibex
     end
 
     # @rbs!
-    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped],
+    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, Object?],
     #     ?explicit_keys: Array[Symbol]) -> IR::Grammar
 
     # @rbs (Array[GrammarTests::Result] results) -> Integer

@@ -20,7 +20,7 @@ module Ibex
     #   private def normalize_grammar_path: (String) -> IR::Grammar
     #   private def record_generation_input: (String, String) -> GenerationInput
     #   private def select_configuration_mode: (String) -> void
-    #   private def set_configuration_option: (Symbol, untyped) -> void
+    #   private def set_configuration_option: (Symbol, Object?) -> void
 
     private
 
@@ -178,7 +178,7 @@ module Ibex
     end
 
     # @rbs!
-    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped],
+    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, Object?],
     #     ?explicit_keys: Array[Symbol]) -> IR::Grammar
   end
 end

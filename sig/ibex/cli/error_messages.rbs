@@ -27,7 +27,7 @@ module Ibex
 
     private def select_configuration_mode: (String) -> void
 
-    private def set_configuration_option: (Symbol, untyped) -> void
+    private def set_configuration_option: (Symbol, Object?) -> void
 
     private
 
@@ -58,6 +58,6 @@ module Ibex
     # @rbs (String path) -> Integer
     def messages_file_mode: (String path) -> Integer
 
-    private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
+    private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, Object?], ?explicit_keys: Array[Symbol]) -> IR::Grammar
   end
 end

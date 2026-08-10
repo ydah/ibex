@@ -12,8 +12,8 @@ module Ibex
     #   private def input_path: (Array[String]) -> String
     #   private def positive_counterexample_limit: (Integer, String) -> Integer
     #   private def normalize_grammar_path: (String) -> IR::Grammar
-    #   private def configuration_value: (String) -> untyped
-    #   private def set_configuration_option: (Symbol, untyped) -> void
+    #   private def configuration_value: (String) -> Object?
+    #   private def set_configuration_option: (Symbol, Object?) -> void
 
     private
 
@@ -79,7 +79,7 @@ module Ibex
     end
 
     # @rbs!
-    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, untyped],
+    #   private def activate_analysis_grammar: (IR::Grammar, ?options: Hash[Symbol, Object?],
     #     ?explicit_keys: Array[Symbol]) -> IR::Grammar
   end
 end
