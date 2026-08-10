@@ -28,9 +28,9 @@ module Ibex
       #   private def self.append_counterexample: (Array[String] lines, LALR::search_counterexample example,
       #     IR::Grammar grammar,
       #     Hash[Integer, String] labels) -> void
-      #   private def append_tree: (Array[String] lines, untyped tree, String indentation, IR::Grammar grammar,
+      #   private def append_tree: (Array[String] lines, Object? tree, String indentation, IR::Grammar grammar,
       #     Hash[Integer, String] labels) -> void
-      #   private def self.append_tree: (Array[String] lines, untyped tree, String indentation, IR::Grammar grammar,
+      #   private def self.append_tree: (Array[String] lines, Object? tree, String indentation, IR::Grammar grammar,
       #     Hash[Integer, String] labels) -> void
       #   private def format_item: (IR::AutomatonItem item, IR::Grammar grammar, Hash[Integer, String] labels) -> String
       #   private def self.format_item: (IR::AutomatonItem item, IR::Grammar grammar,
@@ -39,14 +39,14 @@ module Ibex
       #   private def self.format_action: (IR::parser_action action) -> String
       #   private def symbol_name: (Hash[Integer, String] labels, Integer id) -> String
       #   private def self.symbol_name: (Hash[Integer, String] labels, Integer id) -> String
-      #   private def tree_label: (IR::Grammar grammar, Hash[Integer, String] labels, untyped value) -> untyped
-      #   private def self.tree_label: (IR::Grammar grammar, Hash[Integer, String] labels, untyped value) -> untyped
+      #   private def tree_label: (IR::Grammar grammar, Hash[Integer, String] labels, Object? value) -> Object?
+      #   private def self.tree_label: (IR::Grammar grammar, Hash[Integer, String] labels, Object? value) -> Object?
       #   private def display_conflict: (IR::conflict conflict, IR::Grammar grammar,
-      #     Hash[Integer, String] labels) -> Hash[Symbol, untyped]
+      #     Hash[Integer, String] labels) -> Hash[Symbol, Object?]
       #   private def self.display_conflict: (IR::conflict conflict, IR::Grammar grammar,
-      #     Hash[Integer, String] labels) -> Hash[Symbol, untyped]
-      #   private def format_value: (untyped value) -> String
-      #   private def self.format_value: (untyped value) -> String
+      #     Hash[Integer, String] labels) -> Hash[Symbol, Object?]
+      #   private def format_value: (Object? value) -> String
+      #   private def self.format_value: (Object? value) -> String
 
       # @rbs (IR::Automaton automaton, ?max_tokens: Integer, ?max_configurations: Integer) -> String
       def render(automaton, max_tokens: LALR::Counterexample::DEFAULT_MAX_TOKENS,
