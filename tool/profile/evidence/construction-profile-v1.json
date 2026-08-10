@@ -20,7 +20,7 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "a3024b8ca0591e6bd1ec5decc0a3c51a03a25610",
+    "base_revision": "27e1edb977d189e5f3797e1438fa33cb87767adc",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": true,
     "capture_worktree_status": [],
@@ -52,15 +52,15 @@
       },
       {
         "path": "docs/maturity.yml",
-        "sha256": "2c22eb557fa8c219b09b46276b648decd59be990702e7ee1bacdccc24ed9d553",
+        "sha256": "d10982eacd4112cb2dae049ecfd6d0b42e54b9b88b8900147c854da711ecc4d1",
         "git_state": "base",
-        "base_sha256": "2c22eb557fa8c219b09b46276b648decd59be990702e7ee1bacdccc24ed9d553"
+        "base_sha256": "d10982eacd4112cb2dae049ecfd6d0b42e54b9b88b8900147c854da711ecc4d1"
       },
       {
         "path": "docs/workloads.md",
-        "sha256": "e4d75ec016c730e1e8fad5b275ed23c150176f58652ab05467ab1e97a9dbb3fd",
+        "sha256": "752aedf08615715b83f68ac08e4cea9b5f8abbee29e28879a0562730edd8e168",
         "git_state": "base",
-        "base_sha256": "e4d75ec016c730e1e8fad5b275ed23c150176f58652ab05467ab1e97a9dbb3fd"
+        "base_sha256": "752aedf08615715b83f68ac08e4cea9b5f8abbee29e28879a0562730edd8e168"
       },
       {
         "path": "lib/ibex/lalr/build_metrics.rb",
@@ -148,9 +148,9 @@
       },
       {
         "path": "test/quality/maturity_test.rb",
-        "sha256": "0f74a4768d2ef76f09455769787d383f29ed5f6a60f06ac29e0d3c7ab370b92a",
+        "sha256": "b789c4883ab152c9b26124e82d4cf70b2a9ebcf9dfe375420d30e6808028003c",
         "git_state": "base",
-        "base_sha256": "0f74a4768d2ef76f09455769787d383f29ed5f6a60f06ac29e0d3c7ab370b92a"
+        "base_sha256": "b789c4883ab152c9b26124e82d4cf70b2a9ebcf9dfe375420d30e6808028003c"
       },
       {
         "path": "test/support/public_json_schemas.rb",
@@ -166,9 +166,9 @@
       },
       {
         "path": "tool/profile/construction_profiler.rb",
-        "sha256": "4928ee611f2e6b54dc0da14b0f503618d9b87b2acb42231fc45a85628988f4ba",
+        "sha256": "6c32c2184e105f3797549ab33975243220a0b3dec1811d48e334e8e725c65d2f",
         "git_state": "base",
-        "base_sha256": "4928ee611f2e6b54dc0da14b0f503618d9b87b2acb42231fc45a85628988f4ba"
+        "base_sha256": "6c32c2184e105f3797549ab33975243220a0b3dec1811d48e334e8e725c65d2f"
       },
       {
         "path": "tool/quality/construction_profile.rb",
@@ -183,8 +183,8 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "31131001274d2b1f57cb496ab1b9bebd3951d5c5304a190fad24fe5c185e94fc",
-    "implementation_sha256": "91893512b36c4f17df5be9710e6b57953fb26e00479e575c6408929649310cea",
+    "bound_paths_sha256": "b5fa7fafd2e1dea3733f27b86e770a5598fe669602bab6cbabd9eefb7fe32c09",
+    "implementation_sha256": "64181868ef6fc060524497ef271fe8a949310c824938071c231befd6b31249ce",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
     "evidence_path": "tool/profile/evidence/construction-profile-v1.json",
