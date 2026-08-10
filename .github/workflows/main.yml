@@ -309,7 +309,7 @@ jobs:
           ruby-version: '3.4'
           bundler-cache: true
       - name: Validate schema and reproduce deterministic structure
-        run: bundle exec ruby benchmark/verify.rb benchmark/results/v2/2026-07-28-4a740768d06b-ruby-4.0.0-arm64-darwin24.json
+        run: bundle exec ruby benchmark/verify.rb benchmark/results/v2/2026-08-10-cbb20aa9897a-ruby-4.0.0-arm64-darwin24.json
       - name: Record full observational benchmark
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         env:
