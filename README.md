@@ -26,6 +26,11 @@ and [stability policy](docs/stability.md) for the human-readable boundaries.
 R001: `HOLD` — [`awaiting_independent_review`](docs/error-ux-review-status-v1.json).
 <!-- r001-review-status:end -->
 
+<!-- type-stats:start -->
+The current whole-library `steep stats` result is 27,706 typed calls and 2,390 untyped calls out of 30,096 (92.1% typed).
+The generated signature tree contains 492 explicit `untyped` occurrences across 39 files.
+<!-- type-stats:end -->
+
 ## Install
 
 Add the generator to an application or tool project:

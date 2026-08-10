@@ -51,6 +51,7 @@ module Ibex
       # @rbs (String path) -> String
       def basename(path)
         value = File.basename(path)
+        value = value.dup.force_encoding(Encoding::UTF_8) unless value.encoding == Encoding::UTF_8
         return value if usable_basename?(value)
 
         raise ArgumentError, "artifact path has no usable logical basename"
@@ -59,7 +60,7 @@ module Ibex
 
       # @rbs (String value) -> bool
       def usable_basename?(value)
-        value.match?(BASENAME)
+        value.valid_encoding? && value.match?(BASENAME)
       end
       private_class_method :usable_basename?
     end
