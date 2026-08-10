@@ -1771,7 +1771,6 @@ module Ibex
           unless %w[current current_gap].include?(manifest)
             raise "registration #{id} grammar contract must record its manifest state"
           end
-
           expected_persistence = GRAMMAR_CONTRACT_PERSISTENCE[entry.fetch("canonical_key")]
           unless expected_persistence == [ir, manifest]
             raise "registration #{id} grammar contract IR/manifest persistence is inconsistent"

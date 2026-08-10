@@ -236,7 +236,7 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     assert_equal 184, inventory.dig("scope", "call_site_count")
     assert_equal 193, inventory.dig("scope", "runtime_registration_count")
     assert_equal ["exe/*", "lib/**/*.rb"], inventory.dig("scope", "source_globs")
-    assert_equal(214, entries.sum { |entry| entry.fetch("effective_spellings").length })
+    assert_equal(211, entries.sum { |entry| entry.fetch("effective_spellings").length })
 
     fix = entries.select { |entry| entry.fetch("method") == "add_fix_budget_options" }
     imports = entries.select { |entry| entry.fetch("method") == "add_bison_import_budgets" }
@@ -1956,7 +1956,7 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
       "--mode=MODE",
       "ir_presence",
       "not_persisted",
-      "persistence is inconsistent"
+      "must record its IR state"
     )
     mutate_entry("generate", "--manifest[=FILE]", "manifest_presence", "current", "project build policy")
     mutate_entry("generate", "--mode=MODE", "compatibility_status", "current", "staged fixed override")

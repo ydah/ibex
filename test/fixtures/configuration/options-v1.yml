@@ -5495,7 +5495,7 @@ registrations:
   source: lib/ibex/cli/samples.rb
   method: add_sample_input_options
   line: 86
-  declaration_sha256: ab1883d76fd83f641283da87e4ae6613bb64785c70c33587121dad748910fb75
+  declaration_sha256: 9eab458dd6a7230ef0843639104fc4296ded90ddc33ad0b05bde81747a182da5
   context_sha256:
   surface: samples
   declared_spellings:
