@@ -64,7 +64,7 @@ class CLIIRContractTest < Minitest::Test
   end
 
   def test_constructed_automaton_inputs_reject_construction_flags_for_every_readable_version
-    %w[automaton-v1.json automaton-v2.json automaton-v2-migrated-v3.json].each do |name|
+    %w[automaton-v2.json automaton-v2-migrated-v3.json].each do |name|
       { "--algorithm=lalr" => "--algorithm", "--entry-isolation" => "--entry-isolation" }.each do |flag, label|
         errors = StringIO.new
         status = run_cli(["--from=automaton-ir", flag, fixture(name)], stderr: errors)
@@ -75,9 +75,9 @@ class CLIIRContractTest < Minitest::Test
     end
   end
 
-  def test_v1_v2_and_migrated_v3_automata_generate_identical_source
+  def test_v2_and_migrated_v3_automata_generate_identical_source
     Dir.mktmpdir("ibex-automaton-readers") do |directory|
-      outputs = %w[automaton-v1.json automaton-v2.json automaton-v2-migrated-v3.json].map do |name|
+      outputs = %w[automaton-v2.json automaton-v2-migrated-v3.json].map do |name|
         output = File.join(directory, "#{name}.rb")
         assert_equal 0, run_cli(["--from=automaton-ir", "-o", output, fixture(name)])
         File.binread(output)
@@ -85,7 +85,6 @@ class CLIIRContractTest < Minitest::Test
 
       normalized = outputs.map { |source| without_embedded_grammar_identity(source) }
       assert_equal normalized.fetch(0), normalized.fetch(1)
-      assert_equal normalized.fetch(0), normalized.fetch(2)
     end
   end
 

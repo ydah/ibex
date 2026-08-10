@@ -8,7 +8,7 @@ module Ibex
     SCHEMA_VERSION = 2
     # @rbs skip
     LATEST_SCHEMA_VERSION = 3
-    SUPPORTED_SCHEMA_VERSIONS = [1, 2, 3].freeze #: Array[Integer]
+    SUPPORTED_SCHEMA_VERSIONS = [2, 3].freeze #: Array[Integer]
 
     # @rbs (Object? value) -> Object?
     def deep_freeze(value)
@@ -59,13 +59,23 @@ module Ibex
 
       # @rbs (?schema_version: Integer) -> Hash[Symbol, Object?]
       def to_h(schema_version: SCHEMA_VERSION)
+        validate_schema_version!(schema_version)
         value = { id: @id, name: @name, kind: @kind, reserved: @reserved,
                   prec: @precedence, loc: @location } #: Hash[Symbol, Object?]
         value[:display_name] = @display_name if @display_name
         value[:semantic_type] = @semantic_type if @semantic_type
-        value[:doc] = @documentation if schema_version >= 2
+        value[:doc] = @documentation
         value
       end
+
+      # @rbs (Integer schema_version) -> void
+      # @rbs skip
+      def validate_schema_version!(schema_version)
+        return if SUPPORTED_SCHEMA_VERSIONS.include?(schema_version)
+
+        raise ArgumentError, "unsupported grammar schema_version #{schema_version.inspect}"
+      end
+      private :validate_schema_version!
     end
 
     # Opaque Ruby semantic action metadata.
@@ -89,9 +99,12 @@ module Ibex
 
       # @rbs (?schema_version: Integer) -> Hash[Symbol, Object?]
       def to_h(schema_version: SCHEMA_VERSION)
+        raise ArgumentError, "unsupported grammar schema_version #{schema_version.inspect}" unless
+          SUPPORTED_SCHEMA_VERSIONS.include?(schema_version)
+
         value = { code: @code, loc: @location, named_refs: @named_refs,
                   context_length: @context_length } #: Hash[Symbol, Object?]
-        value[:composition] = @composition if schema_version >= 2
+        value[:composition] = @composition
         value
       end
     end
@@ -127,13 +140,14 @@ module Ibex
 
       # @rbs (?schema_version: Integer) -> Hash[Symbol, Object?]
       def to_h(schema_version: SCHEMA_VERSION)
+        raise ArgumentError, "unsupported grammar schema_version #{schema_version.inspect}" unless
+          SUPPORTED_SCHEMA_VERSIONS.include?(schema_version)
+
         value = { id: @id, lhs: @lhs, rhs: @rhs, action: @action&.to_h(schema_version: schema_version),
                   prec_override: @precedence_override, origin: @origin } #: Hash[Symbol, Object?]
-        if schema_version >= 2
-          value[:doc] = @documentation
-          value[:expansion] = @expansion
-          value[:node] = @node if @node
-        end
+        value[:doc] = @documentation
+        value[:expansion] = @expansion
+        value[:node] = @node if @node
         value
       end
     end
@@ -312,8 +326,6 @@ module Ibex
         append_recovery_metadata(value)
         value[:user_code_chunks] = @user_code_chunks.transform_values { |chunks| chunks.map(&:to_h) } \
           unless @user_code_chunks.empty?
-        return unless @schema_version >= 2
-
         value[:source_provenance] = @source_provenance
         value[:migration] = @migration
         value[:parser_contract] = @parser_contract.to_h if @schema_version >= 3
@@ -326,8 +338,8 @@ module Ibex
         value[:starts] = @starts if @starts.length > 1
         value[:params] = @parser_parameters unless @parser_parameters.empty?
         value[:printers] = @value_printers unless @value_printers.empty?
-        value[:tests] = @grammar_tests unless @grammar_tests.empty? || @schema_version < 2
-        value[:lexer] = @lexer.to_h if @lexer && @schema_version >= 2
+        value[:tests] = @grammar_tests unless @grammar_tests.empty?
+        value[:lexer] = @lexer.to_h if @lexer
       end
 
       # @rbs (Hash[Symbol, Object?] value) -> void

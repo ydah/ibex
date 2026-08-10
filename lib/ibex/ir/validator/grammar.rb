@@ -71,9 +71,8 @@ module Ibex
 
         # @rbs skip
         def validate_root_record
-          required = ROOT_REQUIRED + (@version >= 2 ? V2_ROOT_REQUIRED : []) +
-                     (@version >= 3 ? V3_ROOT_REQUIRED : [])
-          optional = ROOT_OPTIONAL + (@version >= 2 ? V2_ROOT_OPTIONAL : [])
+          required = ROOT_REQUIRED + V2_ROOT_REQUIRED + (@version >= 3 ? V3_ROOT_REQUIRED : [])
+          optional = ROOT_OPTIONAL + V2_ROOT_OPTIONAL
           record(@data, @path, required, optional)
         end
 
@@ -94,8 +93,6 @@ module Ibex
         # @rbs skip
         def validate_optional_source_metadata
           validate_user_code_chunks if @data.key?("user_code_chunks")
-          return unless @version >= 2
-
           validate_source_provenance(@data["source_provenance"], "#{@path}.source_provenance")
           validate_migration
         end
@@ -124,7 +121,6 @@ module Ibex
           boolean(options["omit_action_call"], "#{path}.omit_action_call")
           return unless options.key?("cst")
 
-          invalid("#{path}.cst", "requires schema_version 2") unless @version >= 2
           literal(options["cst"], "#{path}.cst", true)
           invalid("#{@path}.mode", "must be extended when CST construction is enabled") unless
             @data["mode"] == "extended"
@@ -186,7 +182,7 @@ module Ibex
         # @rbs (json_value value, Integer index) -> void
         def validate_symbol(value, index)
           path = "#{@path}.symbols[#{index}]"
-          required = SYMBOL_REQUIRED + (@version >= 2 ? V2_SYMBOL_REQUIRED : [])
+          required = SYMBOL_REQUIRED + V2_SYMBOL_REQUIRED
           symbol = record(value, path, required, SYMBOL_OPTIONAL)
           id = nonnegative_integer(symbol["id"], "#{path}.id")
           invalid("#{path}.id", "must equal its array index #{index}") unless id == index
@@ -199,7 +195,7 @@ module Ibex
           validate_precedence(symbol["prec"], "#{path}.prec")
           location(symbol["loc"], "#{path}.loc")
           SYMBOL_OPTIONAL.each { |key| metadata(symbol[key], "#{path}.#{key}") if symbol.key?(key) }
-          nullable_string(symbol["doc"], "#{path}.doc") if @version >= 2
+          nullable_string(symbol["doc"], "#{path}.doc")
         end
 
         # @rbs (json_value value, String path) -> void
@@ -306,8 +302,8 @@ module Ibex
         # @rbs (json_value value, Integer index) -> void
         def validate_production(value, index)
           path = "#{@path}.productions[#{index}]"
-          required = PRODUCTION_REQUIRED + (@version >= 2 ? V2_PRODUCTION_REQUIRED : [])
-          optional = @version >= 2 ? %w[node] : Array.new(0) #: Array[String]
+          required = PRODUCTION_REQUIRED + V2_PRODUCTION_REQUIRED
+          optional = %w[node] #: Array[String]
           production = record(value, path, required, optional)
           id = nonnegative_integer(production["id"], "#{path}.id")
           invalid("#{path}.id", "must equal its array index #{index}") unless id == index
@@ -318,8 +314,6 @@ module Ibex
           validate_action(production["action"], "#{path}.action", rhs_length: rhs.length)
           validate_precedence_override(production["prec_override"], "#{path}.prec_override")
           validate_origin(production["origin"], "#{path}.origin")
-          return unless @version >= 2
-
           nullable_string(production["doc"], "#{path}.doc")
           validate_expansion(production["expansion"], "#{path}.expansion")
           validate_node_annotation(production["node"], "#{path}.node", rhs_length: rhs.length)
@@ -365,14 +359,12 @@ module Ibex
         def validate_action(value, path, rhs_length:)
           return if value.nil?
 
-          required = %w[code loc named_refs context_length] + (@version >= 2 ? V2_ACTION_REQUIRED : [])
+          required = %w[code loc named_refs context_length] + V2_ACTION_REQUIRED
           action = record(value, path, required)
           string(action["code"], "#{path}.code")
           location(action["loc"], "#{path}.loc", nullable: false)
           context_length = nonnegative_integer(action["context_length"], "#{path}.context_length")
           validate_named_refs(action["named_refs"], "#{path}.named_refs", limit: [rhs_length, context_length].max)
-          return unless @version >= 2
-
           validate_action_composition(
             action["composition"], "#{path}.composition", rhs_length: rhs_length
           )
@@ -511,23 +503,14 @@ module Ibex
 
           migration = record(value, path, %w[from_schema_version unavailable])
           from = migration["from_schema_version"]
-          if @version >= 3
-            invalid("#{path}.from_schema_version", "must be 1 or 2") unless [1, 2].include?(from)
-          else
-            literal(from, "#{path}.from_schema_version", 1)
-          end
+          literal(from, "#{path}.from_schema_version", 2)
           values = array(migration["unavailable"], "#{path}.unavailable")
           invalid("#{path}.unavailable", "must not be empty") if values.empty?
-          expected = migration_loss_inventory(from)
+          expected = %w[effective_parser_algorithm effective_parser_entries effective_cst_trivia]
           values.each_with_index { |name, index| enum(name, "#{path}.unavailable[#{index}]", expected) }
           invalid("#{path}.unavailable", "must contain unique names") unless values.uniq.length == values.length
           invalid("#{path}.unavailable", "must equal the deterministic migration loss inventory") unless
             values == expected
-        end
-
-        # @rbs (untyped) -> Array[String]
-        def migration_loss_inventory(from)
-          MigrationMetadata.loss_inventory(@version, from)
         end
 
         # @rbs skip

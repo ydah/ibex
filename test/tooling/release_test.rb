@@ -11,7 +11,7 @@ class ReleaseQualityTest < Minitest::Test
   def test_committed_stable_api_matches_the_release_baseline
     release = Ibex::Quality::Release.new(output: StringIO.new)
 
-    assert_equal 48, release.verify_stable_api!
+    assert_equal 47, release.verify_stable_api!
   end
 
   def test_stable_api_gate_rejects_a_changed_declaration

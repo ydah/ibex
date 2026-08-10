@@ -4,15 +4,10 @@ module Ibex
   module IR
     # Closed migration provenance shared by factories and serialized-document validation.
     module MigrationMetadata
-      UNAVAILABLE_V1_METADATA: Array[String]
-
       UNAVAILABLE_V2_CONFIGURATION: Array[String]
 
       # @rbs (Integer schema_version, migration_metadata? migration) -> void
       def self.validate!: (Integer schema_version, migration_metadata? migration) -> void
-
-      # @rbs (Integer schema_version, Integer from) -> Array[String]
-      def self.loss_inventory: (Integer schema_version, Integer from) -> Array[String]
 
       # @rbs (Object? migration, String path) -> migration_metadata
       private def self.validate_record: (Object? migration, String path) -> migration_metadata

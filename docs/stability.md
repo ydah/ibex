@@ -163,11 +163,10 @@ bounded ambiguity/counterexample analysis for ambiguous grammars, and
 
 The required fields, meanings, identity rules, ordering, and validation
 semantics of a published core Grammar IR or Automaton IR version are frozen
-for the lifetime of that published version. Before v1.0, retaining an older
-unpublished or migration-only reader is an implementation choice, not a
-promise that every generated artifact remains executable forever. The explicit
-`migrate-ir` path may continue to read historical fixtures so that users can
-upgrade data without keeping the runtime compatibility surface open.
+for the lifetime of that published version. Before v1.0, an unpublished or
+migration-only reader may be retired when its maintenance cost exceeds its
+value. The current `migrate-ir` path upgrades Grammar and Automaton IR v2 to
+v3; it does not make retired schema versions executable.
 
 Additive optional core fields require a minor release. Meaning changes,
 required-field changes, or removals require a new major schema version and

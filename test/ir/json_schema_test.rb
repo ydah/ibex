@@ -20,8 +20,8 @@ class IRJSONSchemaTest < Minitest::Test # rubocop:disable Metrics/ClassLength --
     end
   end
 
-  def test_grammar_schema_documents_additive_v1_fields
-    schema = grammar_schema
+  def test_grammar_schema_documents_additive_v2_fields
+    schema = current_grammar_schema
     symbol = schema.dig("$defs", "symbol")
 
     assert symbol.fetch("properties").key?("display_name")
@@ -31,32 +31,31 @@ class IRJSONSchemaTest < Minitest::Test # rubocop:disable Metrics/ClassLength --
     refute_includes schema.fetch("required"), "user_code_chunks"
   end
 
-  def test_automaton_schema_embeds_the_grammar_v1_contract
-    assert_equal "grammar-ir-v1.schema.json", automaton_schema.dig("properties", "grammar", "$ref")
+  def test_automaton_schema_embeds_the_grammar_v2_contract
+    assert_equal "grammar-ir-v2.schema.json", current_automaton_schema.dig("properties", "grammar", "$ref")
   end
 
-  def test_grammar_schema_accepts_golden_and_legacy_v1_documents
-    schemer = JSONSchemer.schema(grammar_schema)
+  def test_grammar_schema_accepts_the_current_golden_document
+    schemer = JSONSchemer.schema(current_grammar_schema, ref_resolver: public_schema_resolver)
 
-    assert_empty schemer.validate(fixture("grammar-v1.json")).to_a
-    assert_empty schemer.validate(fixture("grammar-v1-legacy-expansion-origin.json")).to_a
+    assert_empty schemer.validate(fixture("grammar-v2.json")).to_a
   end
 
   def test_metadata_control_character_rejection_matches_the_runtime_validator
-    document = fixture("grammar-v1.json")
+    document = fixture("grammar-v2.json")
     document.fetch("symbols").fetch(2)["display_name"] = "number\u0085alias"
 
-    refute_empty JSONSchemer.schema(grammar_schema).validate(document).to_a
+    refute_empty JSONSchemer.schema(current_grammar_schema, ref_resolver: public_schema_resolver).validate(document).to_a
     assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
   end
 
-  def test_automaton_schema_accepts_the_golden_v1_document_and_resolves_the_grammar_schema
+  def test_automaton_schema_accepts_the_current_golden_document_and_resolves_the_grammar_schema
     resolver = lambda do |uri|
-      grammar_schema if uri.to_s == grammar_schema.fetch("$id")
+      current_grammar_schema if uri.to_s == current_grammar_schema.fetch("$id")
     end
-    schemer = JSONSchemer.schema(automaton_schema, ref_resolver: resolver)
+    schemer = JSONSchemer.schema(current_automaton_schema, ref_resolver: public_schema_resolver)
 
-    assert_empty schemer.validate(fixture("automaton-v1.json")).to_a
+    assert_empty schemer.validate(fixture("automaton-v2.json")).to_a
   end
 
   def test_v2_schemas_accept_default_and_migrated_golden_documents
@@ -73,10 +72,8 @@ class IRJSONSchemaTest < Minitest::Test # rubocop:disable Metrics/ClassLength --
 
     grammar_schemer = JSONSchemer.schema(grammar, ref_resolver: resolver)
     assert_empty grammar_schemer.validate(fixture("grammar-v2.json")).to_a
-    assert_empty grammar_schemer.validate(fixture("grammar-v1-migrated-v2.json")).to_a
     automaton_schemer = JSONSchemer.schema(automaton, ref_resolver: resolver)
     assert_empty automaton_schemer.validate(fixture("automaton-v2.json")).to_a
-    assert_empty automaton_schemer.validate(fixture("automaton-v1-migrated-v2.json")).to_a
   end
 
   def test_v3_schemas_accept_native_and_migrated_golden_documents
@@ -134,9 +131,6 @@ class IRJSONSchemaTest < Minitest::Test # rubocop:disable Metrics/ClassLength --
 
     assert_empty JSONSchemer.schema(grammar, ref_resolver: resolver).validate(document).to_a
 
-    legacy = fixture("grammar-v1.json")
-    legacy.fetch("options")["cst"] = true
-    refute_empty JSONSchemer.schema(grammar_schema).validate(legacy).to_a
   end
 
   def test_v2_grammar_schema_accepts_ast_node_metadata
@@ -232,6 +226,14 @@ class IRJSONSchemaTest < Minitest::Test # rubocop:disable Metrics/ClassLength --
     @automaton_schema ||= load_json(File.join(SCHEMA_ROOT, "automaton-ir-v1.schema.json"))
   end
 
+  def current_grammar_schema
+    @current_grammar_schema ||= load_json(File.join(SCHEMA_ROOT, "grammar-ir-v2.schema.json"))
+  end
+
+  def current_automaton_schema
+    @current_automaton_schema ||= load_json(File.join(SCHEMA_ROOT, "automaton-ir-v2.schema.json"))
+  end
+
   def schema(name)
     load_json(File.join(SCHEMA_ROOT, name))
   end
@@ -240,6 +242,8 @@ class IRJSONSchemaTest < Minitest::Test # rubocop:disable Metrics/ClassLength --
     documents = [
       grammar_schema,
       automaton_schema,
+      current_grammar_schema,
+      current_automaton_schema,
       schema("grammar-ir-v2.schema.json"),
       schema("automaton-ir-v2.schema.json"),
       schema("lexer-ir-v1.schema.json"),

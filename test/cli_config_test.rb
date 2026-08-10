@@ -88,9 +88,8 @@ class CLIConfigTest < Minitest::Test
     assert_match(/エラー: golden-v3\.y:2:1: configuration conflict/, results.fetch("ja").fetch(:stderr))
   end
 
-  def test_old_and_unspecified_grammar_ir_do_not_claim_historical_parser_facts
+  def test_unspecified_grammar_ir_does_not_claim_historical_parser_facts
     {
-      "grammar-v1.json" => "unavailable",
       "grammar-v2.json" => "unavailable",
       "grammar-v2-migrated-v3.json" => "unspecified"
     }.each do |name, state|

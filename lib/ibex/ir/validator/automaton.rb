@@ -32,7 +32,7 @@ module Ibex
         # @rbs () -> self
         def validate
           required = ROOT_REQUIRED + (@version >= 3 ? V3_ROOT_REQUIRED : [])
-          record(@data, "$", required, @version >= 2 ? V2_ROOT_OPTIONAL : [])
+          record(@data, "$", required, V2_ROOT_OPTIONAL)
           literal(@data["ibex_ir"], "$.ibex_ir", "automaton")
           literal(@data["schema_version"], "$.schema_version", @version)
           enum(@data["algorithm"], "$.algorithm", %w[slr lalr1 ielr1 lr1])

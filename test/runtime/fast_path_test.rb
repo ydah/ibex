@@ -913,7 +913,7 @@ class RuntimeFastPathTest < Minitest::Test
     Ibex::Runtime::EventJSONLTracer.attach(traced, io: output)
     assert_equal "traced", traced.finish
     assert_operator traced.generic_reductions, :>, 0
-    assert_equal ["reduce"], trace_event_names(output)
+    assert_equal ["reduce", "accept"], trace_event_names(output)
   end
 
   def test_observer_installed_by_next_token_is_honored_before_shift
@@ -969,7 +969,7 @@ class RuntimeFastPathTest < Minitest::Test
     end
     assert_equal "trace", traced.do_parse
     assert_operator traced.generic_shifts, :>, 0
-    assert_equal %w[shift reduce], trace_event_names(trace_output)
+    assert_equal %w[shift reduce accept], trace_event_names(trace_output)
   end
 
   def test_token_display_side_effect_runs_before_pull_and_push_shifts

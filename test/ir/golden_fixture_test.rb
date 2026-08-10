@@ -43,26 +43,6 @@ class GoldenFixtureTest < Minitest::Test
     assert_golden("automaton-v3.json", automaton, version: 3)
   end
 
-  def test_schema_v1_golden_fixtures_remain_byte_stable
-    %w[grammar-v1.json automaton-v1.json].each do |name|
-      expected = File.read(File.join(FIXTURE_ROOT, name))
-      loaded = Ibex::IR::Serialize.load(expected)
-
-      assert_equal 1, loaded.schema_version
-      assert_equal expected, Ibex::IR::Serialize.dump(loaded), "#{name} must remain byte-stable"
-    end
-  end
-
-  def test_schema_v1_to_v2_migration_golden_fixtures
-    %w[grammar automaton].each do |kind|
-      source = File.read(File.join(FIXTURE_ROOT, "#{kind}-v1.json"))
-      migrated = Ibex::IR::Migration.to_v2(Ibex::IR::Validator.validate(source))
-
-      assert_golden("#{kind}-v1-migrated-v2.json", migrated, version: 2)
-      assert_same migrated, Ibex::IR::Migration.to_v2(migrated)
-    end
-  end
-
   def test_schema_v2_to_v3_migration_golden_fixtures
     %w[grammar automaton].each do |kind|
       source = File.read(File.join(FIXTURE_ROOT, "#{kind}-v2.json"))
@@ -71,32 +51,6 @@ class GoldenFixtureTest < Minitest::Test
       assert_golden("#{kind}-v2-migrated-v3.json", migrated, version: 3)
       assert_same migrated, Ibex::IR::Migration.to_v3(migrated)
     end
-  end
-
-  def test_schema_v1_to_v3_migration_preserves_all_unavailable_metadata
-    grammar = Ibex::IR::Validator.validate(File.read(File.join(FIXTURE_ROOT, "grammar-v1.json")))
-    migrated = Ibex::IR::Migration.to_version(grammar, to: 3)
-
-    assert_equal 1, migrated.migration.fetch(:from_schema_version)
-    assert_equal(
-      Ibex::IR::Migration::UNAVAILABLE_V1_METADATA + Ibex::IR::Migration::UNAVAILABLE_V2_CONFIGURATION,
-      migrated.migration.fetch(:unavailable)
-    )
-    migrated.parser_contract.to_h.each_value do |entry|
-      assert_equal({ value: nil, explicit: false, loc: nil }, entry)
-    end
-  end
-
-  def test_automaton_migration_upgrades_embedded_grammar_and_recalculates_digest
-    source = File.read(File.join(FIXTURE_ROOT, "automaton-v1.json"))
-    original = Ibex::IR::Validator.validate(source)
-    migrated = Ibex::IR::Migration.to_v2(original)
-    expected = "sha256:#{Digest::SHA256.hexdigest(Ibex::IR::Serialize.dump(migrated.grammar))}"
-
-    assert_equal 2, migrated.schema_version
-    assert_equal 2, migrated.grammar.schema_version
-    refute_equal original.grammar_digest, migrated.grammar_digest
-    assert_equal expected, migrated.grammar_digest
   end
 
   def test_automaton_constructor_rejects_mismatched_and_unknown_versions
@@ -108,7 +62,7 @@ class GoldenFixtureTest < Minitest::Test
     }
 
     mismatch = assert_raises(Ibex::Error) { Ibex::IR::Automaton.new(**arguments, schema_version: 1) }
-    assert_includes mismatch.message, "requires Grammar IR v1, got v2"
+    assert_includes mismatch.message, "unsupported automaton schema_version 1"
 
     unknown = assert_raises(Ibex::Error) { Ibex::IR::Automaton.new(**arguments, schema_version: 99) }
     assert_includes unknown.message, "unsupported automaton schema_version 99"

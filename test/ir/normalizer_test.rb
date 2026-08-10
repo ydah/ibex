@@ -437,7 +437,7 @@ class NormalizerTest < Minitest::Test
     error = assert_raises(Ibex::Error) do
       Ibex::IR::Serialize.load('{"ibex_ir":"grammar","schema_version":99}')
     end
-    assert_equal "(ir):1:1: unsupported schema_version 99; expected one of 1, 2, 3", error.message
+    assert_equal "(ir):1:1: unsupported schema_version 99; expected one of 2, 3", error.message
   end
 end
 # rubocop:enable Metrics/ClassLength

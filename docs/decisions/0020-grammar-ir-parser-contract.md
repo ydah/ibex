@@ -3,6 +3,10 @@
 - Status: Accepted
 - Date: 2026-08-05
 
+> Superseded in part before v1.0: Grammar and Automaton IR v1 readers and the
+> v1-to-v2 migration path were retired. The current runtime reads v2 and v3;
+> the v2-to-v3 migration and the Racc-compatible parser contract remain.
+
 ## Context
 
 Parser construction algorithm, multiple-entry construction, and CST trivia
@@ -36,7 +40,7 @@ grammar digest therefore binds the parser contract. It also records whether
 entry construction was shared, isolated, or unavailable during migration;
 the existing algorithm field remains the selected automaton fact.
 
-Version-1 and version-2 readers remain available. Migration to version 3 emits
+Version-2 readers remain available. Migration to version 3 emits
 an unspecified parser contract and records unavailable historical effective
 algorithm, entry, and CST-trivia selections. It never reconstructs those
 selections from current defaults. The current declaration-free source writer
@@ -70,7 +74,7 @@ validate it without evaluating grammar actions or application code.
 - Fragments cannot acquire parser-wide authority; only the normalized root has
   a parser contract.
 - Grammar and Automaton IR each gain version-3 schemas and migration fixtures,
-  while published version-1 and version-2 schemas remain closed.
+  while published version-2 and version-3 schemas remain closed.
 - Typed callers use explicit v3 factories; the v0.2 constructors and their
   stable signature lock remain unchanged.
 - Revisit the rejected sidecar only if parser contracts gain an independent

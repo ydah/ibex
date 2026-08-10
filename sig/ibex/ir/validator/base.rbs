@@ -7,7 +7,7 @@ module Ibex
 
       type json_object = Hash[String, json_value]
 
-      # Shared JSON-shape checks for the two version-1 IR documents.
+      # Shared JSON-shape checks for the versioned IR documents.
       class Base
         POSITION: ::String
 

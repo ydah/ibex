@@ -7,14 +7,14 @@ class IRValidatorTest < Minitest::Test
   FIXTURE_ROOT = File.expand_path("../fixtures/ir", __dir__)
 
   def test_validates_and_loads_grammar_fixture
-    value = Ibex::IR::Validator.validate(fixture("grammar-v1.json"))
+    value = Ibex::IR::Validator.validate(fixture("grammar-v2.json"))
 
     assert_instance_of Ibex::IR::Grammar, value
     assert_equal "GoldenFixtureParser", value.class_name
   end
 
   def test_validates_and_loads_automaton_fixture
-    value = Ibex::IR::Validator.validate(fixture("automaton-v1.json"))
+    value = Ibex::IR::Validator.validate(fixture("automaton-v2.json"))
 
     assert_instance_of Ibex::IR::Automaton, value
     assert_equal "lalr1", value.algorithm
@@ -137,18 +137,16 @@ class IRValidatorTest < Minitest::Test
     )
   end
 
-  def test_accepts_legacy_expansion_origin_without_expression
-    source = fixture("grammar-v1-legacy-expansion-origin.json")
-    value = Ibex::IR::Validator.validate(source)
+  def test_rejects_removed_schema_v1_documents
+    error = assert_raises(Ibex::Error) do
+      Ibex::IR::Validator.validate('{"ibex_ir":"grammar","schema_version":1}')
+    end
 
-    assert_instance_of Ibex::IR::Grammar, value
-    assert_equal "optional_expansion", value.productions.first.origin.fetch(:kind)
-    refute value.productions.first.origin.key?(:expression)
-    assert_equal JSON.parse(source), JSON.parse(Ibex::IR::Serialize.dump(value))
+    assert_equal "(ir):1:1: unsupported schema_version 1; expected one of 2, 3", error.message
   end
 
   def test_accepts_optional_symbol_metadata
-    document = parsed_fixture("grammar-v1.json")
+    document = parsed_fixture("grammar-v2.json")
     document.fetch("symbols").fetch(2)["display_name"] = "number"
     document.fetch("symbols").fetch(2)["semantic_type"] = "Integer"
     document.fetch("symbols").fetch(3)["display_name"] = nil
@@ -276,7 +274,7 @@ class IRValidatorTest < Minitest::Test
   end
 
   def test_rejects_invalid_field_types_with_a_position
-    document = parsed_fixture("grammar-v1.json")
+    document = parsed_fixture("grammar-v2.json")
     document["symbols"] = "not an array"
 
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
@@ -285,7 +283,7 @@ class IRValidatorTest < Minitest::Test
   end
 
   def test_rejects_missing_symbol_reference
-    document = parsed_fixture("grammar-v1.json")
+    document = parsed_fixture("grammar-v2.json")
     document.fetch("productions").fetch(0).fetch("rhs")[0] = 99
 
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
@@ -294,7 +292,7 @@ class IRValidatorTest < Minitest::Test
   end
 
   def test_rejects_missing_state_reference
-    document = parsed_fixture("automaton-v1.json")
+    document = parsed_fixture("automaton-v2.json")
     document.fetch("states").fetch(0).fetch("transitions")["NUMBER"] = 99
 
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
@@ -303,7 +301,7 @@ class IRValidatorTest < Minitest::Test
   end
 
   def test_rejects_missing_lookahead_symbol_reference
-    document = parsed_fixture("automaton-v1.json")
+    document = parsed_fixture("automaton-v2.json")
     document.fetch("states").fetch(0).fetch("items").fetch(0).fetch("lookaheads")[0] = "MISSING"
 
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
@@ -315,7 +313,7 @@ class IRValidatorTest < Minitest::Test
   end
 
   def test_rejects_an_automaton_without_states
-    document = parsed_fixture("automaton-v1.json")
+    document = parsed_fixture("automaton-v2.json")
     document["states"] = []
 
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
@@ -324,7 +322,7 @@ class IRValidatorTest < Minitest::Test
   end
 
   def test_rejects_a_digest_that_does_not_match_the_embedded_grammar
-    document = parsed_fixture("automaton-v1.json")
+    document = parsed_fixture("automaton-v2.json")
     document.fetch("grammar")["class_name"] = "ChangedParser"
 
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
@@ -350,7 +348,7 @@ class IRValidatorTest < Minitest::Test
   end
 
   def test_rejects_inconsistent_conflict_summary
-    document = parsed_fixture("automaton-v1.json")
+    document = parsed_fixture("automaton-v2.json")
     document.fetch("conflict_summary")["rr"] = 1
 
     error = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
@@ -359,7 +357,7 @@ class IRValidatorTest < Minitest::Test
   end
 
   def test_rejects_named_reference_outside_the_action_context
-    document = parsed_fixture("grammar-v1.json")
+    document = parsed_fixture("grammar-v2.json")
     action = document.fetch("productions").fetch(1).fetch("action")
     action.fetch("named_refs") << { "name" => "outside", "index" => 99 }
 
@@ -375,10 +373,10 @@ class IRValidatorTest < Minitest::Test
     missing = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate("{}") }
     assert_equal "(ir):1:1: missing ibex_ir discriminator", missing.message
 
-    document = parsed_fixture("grammar-v1.json")
+    document = parsed_fixture("grammar-v2.json")
     document["schema_version"] = 99
     unsupported = assert_raises(Ibex::Error) { Ibex::IR::Validator.validate(JSON.generate(document)) }
-    assert_equal "(ir):1:1: unsupported schema_version 99; expected one of 1, 2, 3", unsupported.message
+    assert_equal "(ir):1:1: unsupported schema_version 99; expected one of 2, 3", unsupported.message
   end
 
   private
@@ -421,7 +419,7 @@ class IRValidatorTest < Minitest::Test
   end
 
   def automaton_with_reduce_reduce_conflict(reductions:, chose:)
-    document = parsed_fixture("automaton-v1.json")
+    document = parsed_fixture("automaton-v2.json")
     document.fetch("states").fetch(0).fetch("conflicts") << {
       "type" => "reduce_reduce",
       "symbol" => "NUMBER",

@@ -12,9 +12,6 @@ class CLIIRToolsTest < Minitest::Test
       assert_equal "valid grammar IR v2\n", output.string
     end
 
-    output = StringIO.new
-    assert_equal 0, run_cli(["validate-ir", fixture_path("grammar-v1.json")], stdout: output)
-    assert_equal "valid grammar IR v1\n", output.string
   end
 
   def test_validate_ir_normalizes_invalid_input_to_a_positioned_error
@@ -40,8 +37,8 @@ class CLIIRToolsTest < Minitest::Test
   end
 
   def test_compare_accepts_the_same_kind_across_schema_versions
-    before = fixture_path("grammar-v1.json")
-    after = fixture_path("grammar-v1-migrated-v2.json")
+    before = fixture_path("grammar-v2.json")
+    after = fixture_path("grammar-v2-migrated-v3.json")
     output = StringIO.new
 
     assert_equal 0, run_cli(["compare", before, after], stdout: output)
@@ -49,21 +46,6 @@ class CLIIRToolsTest < Minitest::Test
     assert_empty result.dig("symbols", "added")
     assert_empty result.dig("symbols", "removed")
     assert_equal 0, result.dig("productions", "count", "delta")
-  end
-
-  def test_migrate_ir_writes_v2_to_stdout_and_is_idempotent
-    output = StringIO.new
-    assert_equal 0, run_cli(["migrate-ir", fixture_path("grammar-v1.json"), "--to=2"], stdout: output)
-
-    migrated = Ibex::IR::Validator.validate(output.string)
-    assert_equal 2, migrated.schema_version
-    assert_equal 1, migrated.migration.fetch(:from_schema_version)
-    assert_includes migrated.migration.fetch(:unavailable), "source_provenance"
-
-    second = StringIO.new
-    assert_equal 0, run_cli(["migrate-ir", fixture_path("grammar-v1-migrated-v2.json"), "--to=2"],
-                            stdout: second)
-    assert_equal File.read(fixture_path("grammar-v1-migrated-v2.json")), second.string
   end
 
   def test_migrate_ir_writes_v3_without_guessing_historical_configuration
@@ -83,8 +65,8 @@ class CLIIRToolsTest < Minitest::Test
     Dir.mktmpdir do |directory|
       output = File.join(directory, "grammar.json")
 
-      assert_equal 0, run_cli(["migrate-ir", fixture_path("grammar-v1.json"), "--to=2", "-o", output])
-      assert_equal 2, Ibex::IR::Validator.validate(File.read(output)).schema_version
+      assert_equal 0, run_cli(["migrate-ir", fixture_path("grammar-v2.json"), "--to=3", "-o", output])
+      assert_equal 3, Ibex::IR::Validator.validate(File.read(output)).schema_version
       assert_equal ["grammar.json"], Dir.children(directory)
     end
   end
@@ -96,9 +78,9 @@ class CLIIRToolsTest < Minitest::Test
       File.write(target, "old\n")
       File.symlink(target, output)
 
-      assert_equal 0, run_cli(["migrate-ir", fixture_path("grammar-v1.json"), "--to=2", "-o", output])
+      assert_equal 0, run_cli(["migrate-ir", fixture_path("grammar-v2.json"), "--to=3", "-o", output])
       assert File.symlink?(output)
-      assert_equal 2, Ibex::IR::Validator.validate(File.read(target)).schema_version
+      assert_equal 3, Ibex::IR::Validator.validate(File.read(target)).schema_version
     end
   end
 
@@ -107,7 +89,7 @@ class CLIIRToolsTest < Minitest::Test
       output = File.join(directory, "grammar.json")
       previous = File.umask(0o077)
       begin
-        assert_equal 0, run_cli(["migrate-ir", fixture_path("grammar-v1.json"), "--to=2", "-o", output])
+      assert_equal 0, run_cli(["migrate-ir", fixture_path("grammar-v2.json"), "--to=3", "-o", output])
       ensure
         File.umask(previous)
       end
@@ -117,9 +99,9 @@ class CLIIRToolsTest < Minitest::Test
   end
 
   def test_migrate_ir_rejects_path_collisions_unknown_targets_and_downgrades
-    source = fixture_path("grammar-v1.json")
+    source = fixture_path("grammar-v2.json")
     errors = StringIO.new
-    assert_equal 1, run_cli(["migrate-ir", source, "--to=2", "-o", source], stderr: errors)
+    assert_equal 1, run_cli(["migrate-ir", source, "--to=3", "-o", source], stderr: errors)
     assert_includes errors.string, "input and output paths must be distinct"
 
     errors = StringIO.new
@@ -127,8 +109,8 @@ class CLIIRToolsTest < Minitest::Test
     assert_includes errors.string, "unsupported migration target schema_version 99"
 
     errors = StringIO.new
-    assert_equal 1, run_cli(["migrate-ir", fixture_path("grammar-v2.json"), "--to=1"], stderr: errors)
-    assert_includes errors.string, "downgrading schema_version 2 to 1 is not supported"
+    assert_equal 1, run_cli(["migrate-ir", fixture_path("grammar-v3.json"), "--to=2"], stderr: errors)
+    assert_includes errors.string, "downgrading schema_version 3 to 2 is not supported"
 
     errors = StringIO.new
     assert_equal 1, run_cli(["migrate-ir", source], stderr: errors)

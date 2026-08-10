@@ -27,7 +27,6 @@ class IRParameterizedRulesTest < Minitest::Test
     productions.each do |production|
       assert_equal({ rule: "list", arguments: ["NUM"] }, production.expansion.fetch(:parameter))
       assert_empty production.expansion.fetch(:include_chain)
-      refute_includes production.to_h(schema_version: 1), :expansion
     end
   end
 

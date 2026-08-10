@@ -14,7 +14,7 @@ class IRRuleDocumentationTest < Minitest::Test
     assert_predicate symbol.documentation, :frozen?
   end
 
-  def test_rule_documentation_serializes_in_v2_and_is_omitted_from_v1_records
+  def test_rule_documentation_serializes_in_v2
     grammar = documented_value_grammar
     symbol = grammar.symbol("value")
     productions = grammar.productions.select { |production| production.lhs == symbol.id }
@@ -31,8 +31,6 @@ class IRRuleDocumentationTest < Minitest::Test
 
     assert_equal symbol.documentation, validated.symbol("value").documentation
 
-    refute_includes symbol.to_h(schema_version: 1), :doc
-    productions.each { |production| refute_includes production.to_h(schema_version: 1), :doc }
   end
 
   def test_repeated_rule_uses_first_nonnil_documentation_and_accepts_same_text

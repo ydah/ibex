@@ -111,7 +111,7 @@ class IRInlineRulesTest < Minitest::Test
     assert_equal 0, inline_automaton.conflict_summary.fetch(:sr)
   end
 
-  def test_v2_round_trip_retains_executable_plan_and_v1_omits_metadata
+  def test_v2_round_trip_retains_executable_plan
     grammar = normalize(<<~GRAMMAR)
       class P
       pragma extended
@@ -133,9 +133,6 @@ class IRInlineRulesTest < Minitest::Test
     assert_equal %w[Integer String], result_types
     assert_schema_valid(JSON.parse(dumped))
 
-    v1_action = grammar.productions.first.action.to_h(schema_version: 1)
-    refute_includes v1_action, :composition
-    refute_includes grammar.productions.first.to_h(schema_version: 1), :expansion
   end
 
   def test_v2_validator_rejects_composition_slots_that_are_not_yet_available

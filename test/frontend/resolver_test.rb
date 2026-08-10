@@ -103,7 +103,7 @@ class FrontendResolverTest < Minitest::Test
     end
   end
 
-  def test_resolved_ir_has_deterministic_v2_provenance_without_changing_v1_shape
+  def test_resolved_ir_has_deterministic_v2_provenance
     in_directory do |directory|
       root = write(directory, "root.y", "class P\ninclude \"part.y\"\nrule\nstart: helper\nend\n")
       fragment = write(directory, "part.y", "fragment\nrule\nhelper: TOKEN\nend\n")
@@ -196,8 +196,8 @@ class FrontendResolverTest < Minitest::Test
     chain = helper.expansion.fetch(:include_chain).map { |entry| entry.fetch(:file) }
     assert_equal [File.realpath(fragment)], chain
     assert_nil helper.documentation
-    refute_includes helper.to_h(schema_version: 1), :expansion
-    refute_includes helper.to_h(schema_version: 1), :doc
+    assert helper.to_h.key?(:expansion)
+    assert helper.to_h.key?(:doc)
   end
 
   def assert_diamond_files_and_rules(resolution, root, first, second, shared)

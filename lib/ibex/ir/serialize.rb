@@ -27,9 +27,8 @@ module Ibex
       #     ?actions: bool) -> Hash[Integer, serialized_value]
       #   private def normalize_action: (Hash[String, serialized_value] value) -> parser_action?
       #   private def self.normalize_action: (Hash[String, serialized_value] value) -> parser_action?
-      #   private def load_production: (Hash[String, serialized_value] production, Integer schema_version) -> Production
-      #   private def self.load_production: (Hash[String, serialized_value] production,
-      #     Integer schema_version) -> Production
+      #   private def load_production: (Hash[String, serialized_value] production) -> Production
+      #   private def self.load_production: (Hash[String, serialized_value] production) -> Production
       #   private def load_user_code_chunks: (Hash[String,
       #     Array[Hash[String, serialized_value]]] chunks) -> user_code_chunks
       #   private def self.load_user_code_chunks: (Hash[String,
@@ -108,16 +107,24 @@ module Ibex
                             documentation: symbol["doc"])
         end
         productions_data = data.fetch("productions") #: Array[Hash[String, serialized_value]]
-        productions = productions_data.map { |production| load_production(production, schema_version) }
-        if schema_version >= 3
-          return load_grammar_v3(
-            data, symbols, productions, empty_chunks, empty_parameters, empty_printers, empty_tests, empty_recovery
-          )
-        end
+        productions = productions_data.map { |production| load_production(production) }
+        return load_grammar_v3(
+          data, symbols, productions, empty_chunks, empty_parameters, empty_printers, empty_tests, empty_recovery
+        ) if schema_version >= 3
 
-        load_grammar_legacy(
-          data, symbols, productions, empty_chunks, empty_parameters, empty_printers, empty_tests, empty_recovery,
-          schema_version
+        Grammar.new(
+          class_name: data.fetch("class_name"), superclass: data["superclass"], start: data.fetch("start"),
+          expect: data.fetch("expect"), options: symbolize(data.fetch("options")), symbols: symbols,
+          mode: (data["mode"] || "default").to_sym, starts: data["starts"], expect_rr: data["expect_rr"],
+          parser_parameters: symbolize(data.fetch("params", empty_parameters)),
+          value_printers: symbolize(data.fetch("printers", empty_printers)),
+          grammar_tests: load_grammar_tests(data.fetch("tests", empty_tests)),
+          lexer: data["lexer"] && load_lexer(data.fetch("lexer")),
+          recovery: symbolize(data.fetch("recovery", empty_recovery)), productions: productions,
+          user_code: data.fetch("user_code"), conversions: data.fetch("conversions"),
+          warnings: symbolize(data.fetch("warnings")),
+          user_code_chunks: load_user_code_chunks(data.fetch("user_code_chunks", empty_chunks)),
+          source_provenance: symbolize(data["source_provenance"]), migration: symbolize(data["migration"])
         )
       end # rubocop:enable Metrics/AbcSize
 
@@ -140,28 +147,6 @@ module Ibex
           user_code_chunks: load_user_code_chunks(data.fetch("user_code_chunks", empty_chunks)),
           source_provenance: symbolize(data["source_provenance"]), migration: symbolize(data["migration"]),
           parser_contract: load_parser_contract(data["parser_contract"])
-        )
-      end
-
-      def load_grammar_legacy(data, symbols, productions, empty_chunks, empty_parameters, empty_printers, empty_tests,
-                              empty_recovery, schema_version)
-        data = data #: Hash[String, untyped]
-        symbols = symbols #: Array[GrammarSymbol]
-        productions = productions #: Array[Production]
-        Grammar.new(
-          class_name: data.fetch("class_name"), superclass: data["superclass"], start: data.fetch("start"),
-          expect: data.fetch("expect"), options: symbolize(data.fetch("options")), symbols: symbols,
-          mode: (data["mode"] || "default").to_sym, starts: data["starts"], expect_rr: data["expect_rr"],
-          parser_parameters: symbolize(data.fetch("params", empty_parameters)),
-          value_printers: symbolize(data.fetch("printers", empty_printers)),
-          grammar_tests: load_grammar_tests(data.fetch("tests", empty_tests)),
-          lexer: data["lexer"] && load_lexer(data.fetch("lexer")),
-          recovery: symbolize(data.fetch("recovery", empty_recovery)), productions: productions,
-          user_code: data.fetch("user_code"), conversions: data.fetch("conversions"),
-          warnings: symbolize(data.fetch("warnings")),
-          user_code_chunks: load_user_code_chunks(data.fetch("user_code_chunks", empty_chunks)),
-          schema_version: schema_version, source_provenance: symbolize(data["source_provenance"]),
-          migration: symbolize(data["migration"])
         )
       end
 
@@ -252,7 +237,7 @@ module Ibex
       end
 
       # @rbs skip
-      def load_production(production, schema_version)
+      def load_production(production)
         production = production #: Hash[String, untyped]
         action_data = production["action"]
         action_data = action_data #: Hash[String, untyped] if action_data
@@ -265,8 +250,7 @@ module Ibex
         Production.new(id: production.fetch("id"), lhs: production.fetch("lhs"), rhs: production.fetch("rhs"),
                        action: action, precedence_override: production["prec_override"],
                        origin: symbolize(production.fetch("origin")), documentation: production["doc"],
-                       expansion: schema_version >= 2 ? symbolize(production["expansion"]) : nil,
-                       node: schema_version >= 2 ? symbolize(production["node"]) : nil)
+                       expansion: symbolize(production["expansion"]), node: symbolize(production["node"]))
       end
 
       # @rbs skip
@@ -351,13 +335,13 @@ module Ibex
       end
       module_function :validate_version, :load_grammar, :load_automaton, :load_lexer, :load_state, :symbol_keyed,
                       :normalize_action, :load_production, :load_user_code_chunks, :load_symbol_metadata,
-                      :symbol_source_position, :load_grammar_tests, :load_grammar_v3, :load_grammar_legacy,
+                      :symbol_source_position, :load_grammar_tests, :load_grammar_v3,
                       :load_parser_contract, :symbolize
 
       class << self
         private :validate_version, :load_grammar, :load_automaton, :load_lexer, :load_state, :symbol_keyed,
                 :normalize_action, :load_production, :load_user_code_chunks, :load_symbol_metadata,
-                :symbol_source_position, :load_grammar_tests, :load_grammar_v3, :load_grammar_legacy,
+                :symbol_source_position, :load_grammar_tests, :load_grammar_v3,
                 :load_parser_contract, :symbolize
       end
     end

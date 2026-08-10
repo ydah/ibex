@@ -6,12 +6,12 @@ files:
   sig/ibex/ir/automaton_ir.rbs: 175d2701396f50191c24f4c7fe893251f18a1c8d0b4e09b1d2edcdd483970ede
   sig/ibex/ir/grammar_ir.rbs: 69b79a71ed0eb1f80041eee90e495adc0d7c8bb6e5252978ac7359627b702c0b
   sig/ibex/ir/lexer_ir.rbs: 9cf8bac34bcc43fe7371aa9a72e6b4c223714b62994638b6993583a14706a5b3
-  sig/ibex/ir/migration.rbs: 7dab2261fb28c438759ad3752634d44c1a808fa541be4facf6603439ff2ebc94
-  sig/ibex/ir/serialize.rbs: c04b84fc3ed79f8dab858f69b2db0ca4d5d24430c5b24f2b31affc8501970f17
+  sig/ibex/ir/migration.rbs: 371fd29ba85bf2cb85b1af66f2a071dda3860641b58fc1f044f006b9fcf3cc20
+  sig/ibex/ir/serialize.rbs: 5cdb6e50a2aebf196ea694454a87b9d23936e3ee66a47f75fc0ef43909f85620
   sig/ibex/ir/validator.rbs: 5de07834bc4d4f7bcc4f8d1eea414fbfd89f096ee03f7605a23c3ef8a869d1b8
   sig/ibex/ir/validator/automaton.rbs: 050a76fb8d0eae3524d6de1d0f50ea83ad218c4d1dedbbabed4781577a120ce6
   sig/ibex/ir/validator/base.rbs: 69f52171d5f817cfc87723061a62b33de2ae4b42e35a4f6699ac851df4bb1361
-  sig/ibex/ir/validator/grammar.rbs: 7afde1cc932b2d231f5898a3f3268f1325e202483eef0a82a84118c2147f081d
+  sig/ibex/ir/validator/grammar.rbs: 0671b8d6c422c806713b93d743e3d5ebfee7e6bd92b1a04e3475cb08685bab24
   sig/ibex/ir/validator/lexer.rbs: de46177d725ad75d5d85ab3cd54cb68fabe27f26cbeced1d9bf028669680508d
   sig/ibex/runtime.rbs: 0c5a577b1b52faaf133a8860a1e86a9b610074e3de549e00cb5ede8f51206fc9
   sig/ibex/runtime/cst.rbs: 0c0505759ec70999f4a1829a937e0d14ab0456d23c18a803c4c820e8ca000db1
@@ -39,7 +39,6 @@ files:
   sig/ibex/runtime/event.rbs: 64228884896c57933093f9998acb58f3b0e36545df8eb246755a20a4835c88cb
   sig/ibex/runtime/event_jsonl_tracer.rbs: 047d7261153b2d884899aba020512bdaa9a8311f2b5ebb27ab1511ca5a23d4df
   sig/ibex/runtime/event_sanitizer.rbs: 017ae8291974c6c1ce2ef576590e34bd8b2045c12471fa493306d604e26d694f
-  sig/ibex/runtime/jsonl_tracer.rbs: 1b43ded70963bd0febad48bfb5f18e8a6e662040905cdab1c241553535647891
   sig/ibex/runtime/observation.rbs: f50769824a4e68e182877396ad1c5888785952b7da311d93907fbedf113cbf2a
   sig/ibex/runtime/parser.rbs: 1e72073b76baac1b56233f8ef29bb58ee42e18e580fec19f1bb1641c66ee2ee2
   sig/ibex/runtime/parser_sync_recovery.rbs: 5b8022ec5c9e4317769918d556283e95a51e7f4874671900736e0c5aa13d1f0d

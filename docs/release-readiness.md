@@ -190,7 +190,7 @@ table cells, and opaque application Ruby boundaries.
 
 ## Release-basis evidence
 
-`bundle exec rake release:reproducible` compares 48 normalized Stable RBS
+`bundle exec rake release:reproducible` compares 47 normalized Stable RBS
 declaration files with the v0.2.0 baseline. The current result has zero
 differences; the installed-Gem embedded-source helper is an internal packaging
 implementation and is outside that public lock. The task also builds both

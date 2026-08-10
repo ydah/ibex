@@ -6,17 +6,6 @@ module Ibex
   module IR
     # Closed migration provenance shared by factories and serialized-document validation.
     module MigrationMetadata
-      UNAVAILABLE_V1_METADATA = %w[
-        source_provenance
-        symbol_docs
-        production_docs
-        production_expansion
-        action_composition
-        grammar_tests
-        lexer
-        cst
-        ast_nodes
-      ].freeze #: Array[String]
       UNAVAILABLE_V2_CONFIGURATION = %w[
         effective_parser_algorithm
         effective_parser_entries
@@ -26,26 +15,14 @@ module Ibex
       class << self
         # @rbs (Integer schema_version, migration_metadata? migration) -> void
         def validate!(schema_version, migration)
-          if schema_version < 2
-            raise Ibex::Error, "(ir):1:1: $.migration requires schema_version 2 or 3" if migration
-
-            return
-          end
+          raise Ibex::Error, "(ir):1:1: $.migration requires schema_version 3" if schema_version < 3 && migration
           return unless migration
 
           path = "$.migration"
           migration = validate_record(migration, path)
           from = migration.fetch(:from_schema_version)
           validate_source_version(schema_version, from, path)
-          validate_inventory(migration.fetch(:unavailable), loss_inventory(schema_version, from), path)
-        end
-
-        # @rbs (Integer schema_version, Integer from) -> Array[String]
-        def loss_inventory(schema_version, from)
-          return UNAVAILABLE_V1_METADATA unless schema_version >= 3
-
-          prefix = from == 1 ? UNAVAILABLE_V1_METADATA : Array.new(0) #: Array[String]
-          prefix + UNAVAILABLE_V2_CONFIGURATION
+          validate_inventory(migration.fetch(:unavailable), UNAVAILABLE_V2_CONFIGURATION, path)
         end
 
         private
@@ -68,14 +45,9 @@ module Ibex
 
         # @rbs (Integer schema_version, Integer from, String path) -> void
         def validate_source_version(schema_version, from, path)
-          if schema_version >= 3
-            return if [1, 2].include?(from)
+          return if schema_version >= 3 && from == 2
 
-            raise Ibex::Error, "(ir):1:1: #{path}.from_schema_version must be 1 or 2"
-          end
-          return if from == 1
-
-          raise Ibex::Error, "(ir):1:1: #{path}.from_schema_version must be 1"
+          raise Ibex::Error, "(ir):1:1: #{path}.from_schema_version must be 2"
         end
 
         # @rbs (Object? unavailable, Array[String] expected, String path) -> void

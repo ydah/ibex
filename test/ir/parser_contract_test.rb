@@ -107,7 +107,7 @@ class IRParserContractTest < Minitest::Test
 
     error = assert_raises(Ibex::Error) { rebuild_v3_grammar(grammar, migration: forged) }
 
-    assert_equal "(ir):1:1: $.migration.from_schema_version must be 1 or 2", error.message
+    assert_equal "(ir):1:1: $.migration.from_schema_version must be 2", error.message
   end
 
   def test_v3_grammar_factory_preserves_valid_migration_metadata
@@ -141,13 +141,13 @@ class IRParserContractTest < Minitest::Test
     )
 
     assert_predicate status, :success?, stderr
-    assert_equal "(ir):1:1: $.migration.from_schema_version must be 1 or 2\n", stdout
+    assert_equal "(ir):1:1: $.migration.from_schema_version must be 2\n", stdout
   end
 
   def test_direct_migration_require_loads_the_shared_inventory
     script = <<~RUBY
       require "ibex/ir/migration"
-      puts Ibex::IR::Migration::UNAVAILABLE_V1_METADATA.first
+      puts Ibex::IR::Migration::UNAVAILABLE_V2_CONFIGURATION.first
     RUBY
 
     stdout, stderr, status = Open3.capture3(
@@ -155,7 +155,7 @@ class IRParserContractTest < Minitest::Test
     )
 
     assert_predicate status, :success?, stderr
-    assert_equal "source_provenance\n", stdout
+    assert_equal "effective_parser_algorithm\n", stdout
   end
 
   private
