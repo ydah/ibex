@@ -2,17 +2,17 @@
 version: 1
 baseline: v0.2.0
 files:
-  sig/ibex/ir.rbs: 6ec85b8e07ade3df537df475235041c9ba234bee0a94c77d1b74b2441d4ba22a
-  sig/ibex/ir/automaton_ir.rbs: 50ba737a8f999ef76ce6139ff30054964f19aaccfb525ec2eb865e59fabdf7ae
-  sig/ibex/ir/grammar_ir.rbs: 04a03bb0755502872d4a3cf9bd525ddef58dba22cc10ef4eaf5f468ac8d90503
-  sig/ibex/ir/lexer_ir.rbs: fd41f3df2e90c6eb776da8ba87352d354e452790f127fb830a7f712125cd2778
+  sig/ibex/ir.rbs: 52ef4f7e354ed897d11a3a967d82ce5df733b69210012b145087e578fb4b4779
+  sig/ibex/ir/automaton_ir.rbs: 175d2701396f50191c24f4c7fe893251f18a1c8d0b4e09b1d2edcdd483970ede
+  sig/ibex/ir/grammar_ir.rbs: 69b79a71ed0eb1f80041eee90e495adc0d7c8bb6e5252978ac7359627b702c0b
+  sig/ibex/ir/lexer_ir.rbs: 9cf8bac34bcc43fe7371aa9a72e6b4c223714b62994638b6993583a14706a5b3
   sig/ibex/ir/migration.rbs: 7dab2261fb28c438759ad3752634d44c1a808fa541be4facf6603439ff2ebc94
-  sig/ibex/ir/serialize.rbs: 0a049fb361d6742e632b9110a05a34a7c30db01ac15b0200ff6407d16bc69ccc
+  sig/ibex/ir/serialize.rbs: fd70ac38843d9038f842d11d454ca38ba33b296b6c966b114d24d306881f8cc9
   sig/ibex/ir/validator.rbs: 5de07834bc4d4f7bcc4f8d1eea414fbfd89f096ee03f7605a23c3ef8a869d1b8
-  sig/ibex/ir/validator/automaton.rbs: 384dd5a364a16cf0c78fa6c3bf34ade75eb5e1f8756a18d36c7da6e143ab8bfc
-  sig/ibex/ir/validator/base.rbs: f0e3d69646bd128f3d07b3518c68f621c95b441e8591ea4d258b6c61474c739f
-  sig/ibex/ir/validator/grammar.rbs: 28ca010de58281d157c5dddf169fa052e4de452c1719434d7211727db395790a
-  sig/ibex/ir/validator/lexer.rbs: 4b049e817ebd9c7e40b51ccda1335088734869af5ea61ff9bbd3ec51ea62de58
+  sig/ibex/ir/validator/automaton.rbs: e13af4a95a1b783fdfe66fbc1db68ba2b2130f1532eb9d416a2e70eabaccf814
+  sig/ibex/ir/validator/base.rbs: 69f52171d5f817cfc87723061a62b33de2ae4b42e35a4f6699ac851df4bb1361
+  sig/ibex/ir/validator/grammar.rbs: 974b99fe2f4770ed6b30ac629fb2963d8926ff3f35cdfdac23f79c67287f606b
+  sig/ibex/ir/validator/lexer.rbs: de46177d725ad75d5d85ab3cd54cb68fabe27f26cbeced1d9bf028669680508d
   sig/ibex/runtime.rbs: 0c5a577b1b52faaf133a8860a1e86a9b610074e3de549e00cb5ede8f51206fc9
   sig/ibex/runtime/cst.rbs: 0c0505759ec70999f4a1829a937e0d14ab0456d23c18a803c4c820e8ca000db1
   sig/ibex/runtime/cst/annotation.rbs: 0127ffa3b2c64dae773f222f57c6867486cf56dd400ce62c72d1bd51d44ac12d
@@ -22,31 +22,31 @@ files:
   sig/ibex/runtime/cst/editor.rbs: 9cd777465bb36789003dd0436b3b88508103411913e7d8eb68dc6b0a0ca4504c
   sig/ibex/runtime/cst/green/builder.rbs: 33687990cc3eeecc3c52bb811366a1b9b6d6c1593e8a46b63c1aaaad1b5cbbdc
   sig/ibex/runtime/cst/green/cache.rbs: 2273a4b7d7f691e11c3e3631ff0a25fbc2691864ad05684295f6fb71c7ceafea
-  sig/ibex/runtime/cst/green/node.rbs: 209a92c07ded005a6fae07c5ab594e878740339d0bdfbbeeff999f42c3d39e44
-  sig/ibex/runtime/cst/green/token.rbs: ddb7f11c3eb05f44f5180e342824447128e35b2b460a8355f76d7cd81dc6d2b3
-  sig/ibex/runtime/cst/green/trivia.rbs: 1fb4301da3d2483ad8a0e621d28627fb66ece64d923f09d32cc2fc963aef2bd7
-  sig/ibex/runtime/cst/kind.rbs: 76d9575890a766b03757adfbc57e32788ff69c2c4cc90e4534407556dbf39751
-  sig/ibex/runtime/cst/parse_result.rbs: 8613a530991e325af0f6fc1e34bf98dc403fd680165eebb27cd6a480d1d6104c
+  sig/ibex/runtime/cst/green/node.rbs: bb7b25d118ebf0e309f1650c00cfca658339e364506c561f6e339752c1d829db
+  sig/ibex/runtime/cst/green/token.rbs: d41a714a794bfce6cddf368e2fcc281382b4d45151fe5f295c6932eeff5e690e
+  sig/ibex/runtime/cst/green/trivia.rbs: 4953fb6104ee78624cf3469de08e945dfc11e80181d132da0f8c9828af9191e5
+  sig/ibex/runtime/cst/kind.rbs: 3ccbd8ee43dae49626d049c8a26dd3ff1fc764194a55a37f7a26f7891d2d2d75
+  sig/ibex/runtime/cst/parse_result.rbs: 516d768304d03d84c60f4bf4b304affbc470cbbfc8e130d4bc06674a8f82e37b
   sig/ibex/runtime/cst/rewriter.rbs: 9ceb1cdd7db911a3b8e1510119fdfa8e5f28377f3bb5f9e8d3a5255b4f4983b5
-  sig/ibex/runtime/cst/serialize.rbs: 0ed806bc5dd96567dbd83bb529179b9160186f79aec028e742a419d61bfa66e6
+  sig/ibex/runtime/cst/serialize.rbs: cfc894d53ad485a80b7dba91c98ee14a7ba19d919c38344bb74140a5229d5cdd
   sig/ibex/runtime/cst/serialized_tree.rbs: 021c073a91f9744587b148175dcbc71abd18f7e79973a2c7d68a2096b01cacc5
   sig/ibex/runtime/cst/source_text.rbs: 4353d73cf29a3f31c7e82fd6e6085182259365ae40264a30affeaa64e5e6a899
-  sig/ibex/runtime/cst/syntax_node.rbs: 79f9bde85a1a0028a851dafe9df32b98b0708f5dacd63fa170a10e6183c55f25
-  sig/ibex/runtime/cst/syntax_token.rbs: 5472f3a448bf57cf3b6cb9072bfecfc6e1b7b52952e96000345486f7f6b40024
+  sig/ibex/runtime/cst/syntax_node.rbs: c1ad173bb100457baddc0ed7ebc88875038c23aa1c0047b5b0a13b107296300a
+  sig/ibex/runtime/cst/syntax_token.rbs: 3c4f568a40da5772ff40eaaae53641735906358b32000e6c35b3f6ddc50e4d28
   sig/ibex/runtime/cst/text_edit.rbs: 2c299ab114604ac807bb7cbb4d058f693622be6cd35b8065dc4535cc0a174d51
-  sig/ibex/runtime/cst/typed_node.rbs: 8f18bc99865c09cc60d4a8ce9cbeadbd0ec64a88562b03881864fb48ef8a21a6
-  sig/ibex/runtime/cst/validator.rbs: 4c3f199ad0ef9da42ffea22f575932abc1295fb863b317621fbb90ed0fe8b482
-  sig/ibex/runtime/event.rbs: 713488011bd054f1e4873c11bf664582d4f0883ebd40432edf97e3b2f636a031
-  sig/ibex/runtime/event_jsonl_tracer.rbs: f114d6146b3b8ae1247d9a224238367e2f3c930bcbba6e22d42e3fac22a90aba
-  sig/ibex/runtime/event_sanitizer.rbs: 4275a63ac1511e3594e77826c48aa7dddc9b882ce1ad363e5e4cb83cc2f9b692
-  sig/ibex/runtime/jsonl_tracer.rbs: f27727dd60d5df915548f3fe355c3e17f2d6a0569fcc70dd4ab808fd54108394
-  sig/ibex/runtime/observation.rbs: 408b64d0312f8f627f58a41348f69281758bad36677d6d95e6dae1f2667b2d52
-  sig/ibex/runtime/parser.rbs: 151f33f4e6709710a50ce6ef391d8fd97e8f0c77b7e6e69b458c9aaf6068f3b3
-  sig/ibex/runtime/parser_sync_recovery.rbs: 210bb641ba5bb4adb0217f0e8be3203e2e58bc746e1af71523df87bd763daa54
+  sig/ibex/runtime/cst/typed_node.rbs: 2026a9e898e8a55200173740ed3b93fa7b5a2c53b1dd91d964103ec166f1b148
+  sig/ibex/runtime/cst/validator.rbs: 7ac2acc4d88a14e36ece8a9b27ada1823e575a979ee4b44261992bb74b5dc349
+  sig/ibex/runtime/event.rbs: 64228884896c57933093f9998acb58f3b0e36545df8eb246755a20a4835c88cb
+  sig/ibex/runtime/event_jsonl_tracer.rbs: 047d7261153b2d884899aba020512bdaa9a8311f2b5ebb27ab1511ca5a23d4df
+  sig/ibex/runtime/event_sanitizer.rbs: 68a122caeb8771b603f87b4f916697354faba627c8a86d53c4c42da81e29e29a
+  sig/ibex/runtime/jsonl_tracer.rbs: 67ea9b96d670f3b05337ef1a6b6215bdf897fc899aac48c724b3e96a8f749599
+  sig/ibex/runtime/observation.rbs: f50769824a4e68e182877396ad1c5888785952b7da311d93907fbedf113cbf2a
+  sig/ibex/runtime/parser.rbs: 6f97512c881fad0d53da2955f8d50ada2a44ef73bb222fd79e8f7cd300121166
+  sig/ibex/runtime/parser_sync_recovery.rbs: 5b8022ec5c9e4317769918d556283e95a51e7f4874671900736e0c5aa13d1f0d
   sig/ibex/runtime/resource_limits.rbs: 7b74d816b3b0c953a9ca2a92e775ab6be774876812f791041602739bf04e5c97
   sig/ibex/runtime/table_format.rbs: 74b32eb9849e69eccd8552c8202ef9999ea8b069757703f50be99718640b4ba4
   sig/ibex/runtime/version.rbs: a6da338424d25712f9538b5be147699f38dd62a3d85d1d6e027620df041b9f04
-  sig/ibex/tables.rbs: 279b93a00efe195b0b3ea794332779194014e0d68483a6e90d0ae8f597e2b629
-  sig/ibex/tables/compact.rbs: 53a5bedea58036bc1684817de4edd4164e060812c50c16cd57e363ac68918bc0
-  sig/ibex/tables/compact_actions.rbs: 1babd68c0252096d6d3685da9775e4779af1e191dabea6a79f3c361010fb44d8
-  sig/ibex/tables/compact_productions.rbs: 09598e04e215457080a95fe9a767c5b9d8aa65dfd60be0603773d9187fa56e41
+  sig/ibex/tables.rbs: 28c4f83b40aca336fb19079b9e79e3c256c4f65b373ace8b74aa6f7879f62eee
+  sig/ibex/tables/compact.rbs: 60c4309c1f13bc1beb3fdba04fe7d88b214fa73d87fe86e3f7043192b7a89616
+  sig/ibex/tables/compact_actions.rbs: 1495b21fe4a226eab192a576db9d9e623d5f85f08422ae9744a1da46ccffe9e0
+  sig/ibex/tables/compact_productions.rbs: 49c53008585ffad0755fa282b9d76b67d3ad1b1cb3ac6a27ca0461c98b417503
