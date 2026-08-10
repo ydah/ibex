@@ -215,6 +215,7 @@ module Ibex
         code = integer(code, path)
         invalid(path, "accept is only valid for $eof") if code.zero? && !token_id.zero?
         invalid(path, "$eof cannot be shifted") if token_id.zero? && code.positive?
+        validate_action_code(code, path)
       end
 
       # @rbs (ValidationSupport::json_value code, String path) -> void
