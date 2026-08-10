@@ -92,12 +92,12 @@ module Ibex
           "path" => "lib/ibex/verify/verifier.rb", "role" => "current verifier checks reviewed by V001"
         }.freeze
       }.freeze
-      DECISION_REVISION = "51c8d278caec9ee9829611a9fe35313f710b3dba"
+      DECISION_REVISION = "095a5df7e6d0dbaa6c1dce0be681fa7eb8fdfa04"
       DECISION_REVISION_ROLE = "reviewed repository evidence immediately before dossier publication"
       DECISION_DATE = "2026-08-08"
-      DOSSIER_REVISION = "1e2ef29f6c35d48064895e8ac596025b56ef1d2b"
+      DOSSIER_REVISION = "563599cfa3ad9df42b9bf14e6e25cdad5b633ef1"
       DOSSIER_PATH = "tool/quality/evidence/direct-ielr-decision-v1.json"
-      DOSSIER_DIGEST = "543d48a83bfa3244a0aab439923ed3ff42c8f5dd1652146942899d97c9a581dc"
+      DOSSIER_DIGEST = "f6f9c92661c2bbd8514fadb32b8f43948e2b6b659ab1b663e56f04c66d447274"
       V001_REVISION = "c7e5cad89ccd00591f3127fdb76a789bbeb202ab"
       V001_PARENT_REVISION = "2d86d52ef92c2b07046c05f4fd55c32a1d6400a9"
       V001_SOURCE_DIGESTS = {
