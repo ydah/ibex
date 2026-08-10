@@ -318,8 +318,8 @@ generator. To build and install both current local gems:
 ```sh
 gem build ibex-runtime.gemspec
 gem build ibex.gemspec
-gem install ./ibex-runtime-0.1.0.gem
-gem install ./ibex-0.1.0.gem
+gem install ./ibex-runtime-0.2.0.gem
+gem install ./ibex-0.2.0.gem
 ```
 
 ## Diagnose, verify, and inspect

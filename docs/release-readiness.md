@@ -44,7 +44,7 @@ contracts, not to every Preview implementation detail or evidence capture.
 | Hundreds-of-productions scale | Pass | 501 productions, 503 states, 125.008 ms average complete build |
 | Ten-case error UX comparison | Partial | 10/10 snapshots and 8/10 useful repairs are public; independent review is missing |
 | Public generator/runtime performance baseline | Pass at measured revision | Direct formal ten-run result artifact is published below; the historical projection remains retained separately |
-| Semantic-value RBS and typed ratchet | Pass | Generated reduction signatures include declared RHS/LHS types; whole-library Steep is 88.4% typed |
+| Semantic-value RBS and typed ratchet | Pass | Generated reduction signatures include declared RHS/LHS types; the 2026-08-08 evidence revision measured whole-library Steep at 88.4% typed |
 | Compatibility suite unbeaten | Pass at the measured revision | Current black-box, self-host, IR, property, and runtime suites are green |
 | Release basis | Pass without publication | Stable declaration diff is 0 across 48 locked files; both gems build byte-identically under two environments |
 
@@ -183,11 +183,12 @@ publisher, and reviewer logins to agree. This establishes only GitHub namespace
 control and account metadata, not cryptographic identity or a signature. The
 gate remains intentionally failing while the public status is HOLD.
 
-The current whole-library `steep stats` result is 23,517 typed calls and 2,946
+The 2026-07-31 evidence snapshot recorded 23,517 typed calls and 2,946
 untyped calls out of 26,463, or 88.9% typed. Generated parser RBS refines
 declared terminal, nonterminal, RHS tuple, and reduction result types. Untyped
 values remain explicit at undeclared grammar symbols, decoded JSON, dynamic
-table cells, and opaque application Ruby boundaries.
+table cells, and opaque application Ruby boundaries. The current repository
+result is maintained in the generated type-statistics block in `README.md`.
 
 ## Release-basis evidence
 
