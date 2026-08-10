@@ -17,15 +17,15 @@ module Ibex
     class ParseError < StandardError
       attr_reader :token_id #: Integer?
       attr_reader :token_name #: String?
-      attr_reader :token_value #: untyped
+      attr_reader :token_value #: Object?
       attr_reader :expected_tokens #: Array[String]
-      attr_reader :location #: untyped
+      attr_reader :location #: Object?
       attr_reader :state #: Integer?
       attr_reader :suggestions #: Array[String]
       attr_reader :error_id #: String?
 
       # rubocop:disable Layout/LineLength
-      # @rbs (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: untyped, ?expected_tokens: Array[String], ?location: untyped, ?state: Integer?, ?suggestions: Array[String], ?error_id: String?, ?detail: String?) -> void
+      # @rbs (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: Object?, ?expected_tokens: Array[String], ?location: Object?, ?state: Integer?, ?suggestions: Array[String], ?error_id: String?, ?detail: String?) -> void
       # rubocop:enable Layout/LineLength
       def initialize(
         message = nil,
@@ -74,7 +74,7 @@ module Ibex
         message
       end
 
-      # @rbs (Symbol key) -> untyped
+      # @rbs (Symbol key) -> Object?
       def location_value(key)
         return nil unless @location
         return @location.public_send(key) if @location.respond_to?(key)
@@ -90,7 +90,7 @@ module Ibex
       attr_reader :limit #: Integer
       attr_reader :observed #: Integer
 
-      # @rbs (resource: Symbol, limit: Integer, observed: Integer, state: Integer?, location: untyped) -> void
+      # @rbs (resource: Symbol, limit: Integer, observed: Integer, state: Integer?, location: Object?) -> void
       def initialize(resource:, limit:, observed:, state:, location:)
         @resource = resource
         @limit = limit
@@ -101,7 +101,7 @@ module Ibex
         )
       end
 
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
       def to_h
         {
           type: :resource_limit, resource: @resource, limit: @limit, observed: @observed,
@@ -442,7 +442,7 @@ module Ibex
       # Pull tokens from `next_token` and execute parser production actions.
       # A generated-lexer `next_token` executes lexer actions; a handwritten
       # implementation does not invoke the generated lexer.
-      # @rbs () -> untyped
+      # @rbs () -> Object?
       def do_parse
         drive_parser(nil)
       end
@@ -465,7 +465,7 @@ module Ibex
       # Parse tokens yielded by `receiver.method_id` and execute parser
       # production actions. This caller-fed path does not invoke generated
       # lexer actions.
-      # @rbs (untyped receiver, Symbol method_id) -> untyped
+      # @rbs (untyped receiver, Symbol method_id) -> Object?
       def yyparse(receiver, method_id)
         stream = Enumerator.new do |tokens|
           receiver.__send__(method_id) { |token| tokens << token }
@@ -503,7 +503,7 @@ module Ibex
       # Supply EOF to a caller-driven parser session and return its result.
       # Committed reductions execute parser production actions; this token-fed
       # path does not invoke generated lexer actions.
-      # @rbs (?location: untyped) -> untyped
+      # @rbs (?location: Object?) -> Object?
       def finish(location: nil)
         run_push_driver do
           start_push_session
@@ -551,14 +551,14 @@ module Ibex
 
       # Override in pull parsers. Return `[token, value]`,
       # `[token, value, location]`, `false`, or `nil`.
-      # @rbs () -> ([untyped, untyped] | [untyped, untyped, untyped] | false | nil)
+      # @rbs () -> ([Object?, Object?] | [Object?, Object?, Object?] | false | nil)
       def next_token
         raise NotImplementedError, "(input):1:1: next_token must be implemented"
       end
 
       # Override to recover from syntax errors. The default raises unless a
       # bounded automatic repair has already been selected.
-      # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> untyped
+      # @rbs (Integer token_id, Object? value, Array[Object?] value_stack) -> Object?
       def on_error(token_id, value, _value_stack)
         return if @repair_selected
         return if cst_enabled?
@@ -583,40 +583,40 @@ module Ibex
 
       # Called after an ordinary input token is shifted. Override to observe
       # the internal token id, semantic value, and destination state.
-      # @rbs (Integer token_id, untyped value, Integer state) -> void
+      # @rbs (Integer token_id, Object? value, Integer state) -> void
       def on_shift(_token_id, _value, _state); end
 
       # Location-aware shift observer. The compatible hook above retains its
       # original signature and runs first.
-      # @rbs (Integer token_id, untyped value, Integer state, untyped location) -> void
+      # @rbs (Integer token_id, Object? value, Integer state, Object? location) -> void
       def on_shift_location(_token_id, _value, _state, _location); end
 
       # Called after a production's semantic action and goto are committed.
       # Override to observe its id, RHS values, and semantic result.
-      # @rbs (Integer production_id, Array[untyped] values, untyped result) -> void
+      # @rbs (Integer production_id, Array[Object?] values, Object? result) -> void
       def on_reduce(_production_id, _values, _result); end
 
       # Location-aware reduction observer.
-      # @rbs (Integer production_id, Array[untyped] values, untyped result,
-      #   Array[untyped] locations, untyped result_location) -> void
+      # @rbs (Integer production_id, Array[Object?] values, Object? result,
+      #   Array[Object?] locations, Object? result_location) -> void
       def on_reduce_location(_production_id, _values, _result, _locations, _result_location); end
 
       # Called after the synthetic error token enters a recovery state.
       # The payload describes the original error before recovery popped stacks.
-      # @rbs (Integer token_id, untyped value, Array[untyped] value_stack) -> void
+      # @rbs (Integer token_id, Object? value, Array[Object?] value_stack) -> void
       def on_error_recover(_token_id, _value, _value_stack); end
 
       # Location-aware recovery observer.
-      # @rbs (Integer token_id, untyped value, Array[untyped] value_stack,
-      #   untyped location, Integer state) -> void
+      # @rbs (Integer token_id, Object? value, Array[Object?] value_stack,
+      #   Object? location, Integer state) -> void
       def on_error_recover_location(_token_id, _value, _value_stack, _location, _state); end
 
       # Called when yacc recovery discards an application token.
-      # @rbs (Integer token_id, untyped value, untyped location, Symbol reason) -> void
+      # @rbs (Integer token_id, Object? value, Object? location, Symbol reason) -> void
       def on_discard(_token_id, _value, _location, _reason); end
 
       # Install an opt-in value formatter for human-readable yydebug traces.
-      # @rbs ((^(untyped) -> untyped)? printer) -> (^(untyped) -> untyped)?
+      # @rbs ((^(Object?) -> Object?)? printer) -> (^(Object?) -> Object?)?
       def trace_value_printer=(printer)
         ensure_runtime_initialized!
         unless printer.nil? || printer.respond_to?(:call)
@@ -692,7 +692,7 @@ module Ibex
 
       # Return the location of a one-based RHS position or named reference
       # while a semantic action is running.
-      # @rbs (Integer | Symbol | String reference) -> untyped
+      # @rbs (Integer | Symbol | String reference) -> Object?
       def loc(reference)
         locations = @semantic_locations
         raise ParseError, "(runtime):1:1: loc is only available inside a semantic action" unless locations
@@ -711,7 +711,7 @@ module Ibex
       end
 
       # Return the synthesized span of the reduction being evaluated.
-      # @rbs () -> untyped
+      # @rbs () -> Object?
       def result_loc
         unless @semantic_locations
           raise ParseError, "(runtime):1:1: result_loc is only available inside a semantic action"
@@ -818,7 +818,7 @@ module Ibex
 
       # Keep the two historical value-stack names as read-compatible aliases.
       # Applications must not mutate or replace these internal arrays.
-      # @rbs (Array[untyped] values) -> void
+      # @rbs (Array[Object?] values) -> void
       def install_value_stack(values)
         @value_stack = values
         @vstack = values

@@ -8,11 +8,11 @@ module Ibex
 
       attr_reader token_name: String?
 
-      attr_reader token_value: untyped
+      attr_reader token_value: Object?
 
       attr_reader expected_tokens: Array[String]
 
-      attr_reader location: untyped
+      attr_reader location: Object?
 
       attr_reader state: Integer?
 
@@ -21,9 +21,9 @@ module Ibex
       attr_reader error_id: String?
 
       # rubocop:disable Layout/LineLength
-      # @rbs (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: untyped, ?expected_tokens: Array[String], ?location: untyped, ?state: Integer?, ?suggestions: Array[String], ?error_id: String?, ?detail: String?) -> void
+      # @rbs (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: Object?, ?expected_tokens: Array[String], ?location: Object?, ?state: Integer?, ?suggestions: Array[String], ?error_id: String?, ?detail: String?) -> void
       # rubocop:enable Layout/LineLength
-      def initialize: (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: untyped, ?expected_tokens: Array[String], ?location: untyped, ?state: Integer?, ?suggestions: Array[String], ?error_id: String?, ?detail: String?) -> void
+      def initialize: (?String? message, ?token_id: Integer?, ?token_name: String?, ?token_value: Object?, ?expected_tokens: Array[String], ?location: Object?, ?state: Integer?, ?suggestions: Array[String], ?error_id: String?, ?detail: String?) -> void
 
       # @rbs () -> String
       def location_label: () -> String
@@ -33,8 +33,8 @@ module Ibex
       # @rbs () -> String
       def diagnostic_message: () -> String
 
-      # @rbs (Symbol key) -> untyped
-      def location_value: (Symbol key) -> untyped
+      # @rbs (Symbol key) -> Object?
+      def location_value: (Symbol key) -> Object?
     end
 
     # Raised when a configured parser-session resource budget is exhausted.
@@ -45,11 +45,11 @@ module Ibex
 
       attr_reader observed: Integer
 
-      # @rbs (resource: Symbol, limit: Integer, observed: Integer, state: Integer?, location: untyped) -> void
-      def initialize: (resource: Symbol, limit: Integer, observed: Integer, state: Integer?, location: untyped) -> void
+      # @rbs (resource: Symbol, limit: Integer, observed: Integer, state: Integer?, location: Object?) -> void
+      def initialize: (resource: Symbol, limit: Integer, observed: Integer, state: Integer?, location: Object?) -> void
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h: () -> Hash[Symbol, Object?]
     end
 
     # Drives a table-defined LR parser without native extensions.
@@ -147,11 +147,11 @@ module Ibex
 
       COMPACT_ACCEPTED: Object
 
-      EMPTY_ROW: Hash[Integer, untyped]
+      EMPTY_ROW: Hash[Integer, Object?]
 
       EMPTY_LOCATION_NAMES: Hash[Symbol, Integer]
 
-      EMPTY_LOCATIONS: Array[untyped]
+      EMPTY_LOCATIONS: Array[Object?]
 
       EMPTY_GREEN_TRIVIA: Array[CST::GreenTrivia]
 
