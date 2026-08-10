@@ -95,9 +95,9 @@ module Ibex
       DECISION_REVISION = "4c3a5346dbbfe84fce5a33e2b75d00e2fe074cc1"
       DECISION_REVISION_ROLE = "reviewed repository evidence immediately before dossier publication"
       DECISION_DATE = "2026-08-11"
-      DOSSIER_REVISION = "554ac700b290e13f858008457e5b920d15048e0e"
+      DOSSIER_REVISION = "fde24126495558c7c25d42cec721fc08183aa8c0"
       DOSSIER_PATH = "tool/quality/evidence/direct-ielr-decision-v1.json"
-      DOSSIER_DIGEST = "81b27dd95126227282ed03402ac7d2c9fa67dc7251f7b67cc89e77fa9cbcd16e"
+      DOSSIER_DIGEST = "4674a5a6f7ca71d338ef6a00e1b572ba3b98fbe354c3b5ca020425e541c87a29"
       V001_REVISION = "c7e5cad89ccd00591f3127fdb76a789bbeb202ab"
       V001_PARENT_REVISION = "2d86d52ef92c2b07046c05f4fd55c32a1d6400a9"
       V001_SOURCE_DIGESTS = {
@@ -273,7 +273,7 @@ module Ibex
           "Default and strict both construct the algorithm-specific reference",
           "LALR(1), IELR(1), and LR(1) verification enumerate the canonical LR(1)",
           "It does not establish conflict preservation,\ncanonical state correspondence, or split witnesses",
-          "| `ielr-adequacy` | Conflict preservation"
+          "| `ielr-adequacy` | Unbounded language equivalence"
         ]
         missing = required.reject { |text| source.include?(text) }
         raise "V001 IELR boundary wording drift: #{missing.join(', ')}" unless missing.empty?
