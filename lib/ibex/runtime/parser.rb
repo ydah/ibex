@@ -1422,7 +1422,8 @@ module Ibex
         return if production[:location_action] == true && generated_action_symbol?(production[:action])
 
         raise ParseError,
-              "(tables):1:1: parser table format version #{PARSER_TABLE_FORMAT_VERSION} production #{index} has an inconsistent " \
+              "(tables):1:1: parser table format version #{PARSER_TABLE_FORMAT_VERSION} " \
+              "production #{index} has an inconsistent " \
               ":composition_action marker; a generated action Symbol with :location_action is required"
       end
 
@@ -1431,7 +1432,8 @@ module Ibex
         borrowed = production[:borrowed_values_action] == true
         if borrowed && production[:values_action] != true
           raise ParseError,
-                "(tables):1:1: parser table format version #{PARSER_TABLE_FORMAT_VERSION} production #{index} has an inconsistent " \
+                "(tables):1:1: parser table format version #{PARSER_TABLE_FORMAT_VERSION} " \
+                "production #{index} has an inconsistent " \
                 ":borrowed_values_action marker; :values_action is required"
         end
         return if production[:values_action] != true
@@ -1441,7 +1443,8 @@ module Ibex
                   production.fetch(:location_context_length, 0).zero?
 
         raise ParseError,
-              "(tables):1:1: parser table format version #{PARSER_TABLE_FORMAT_VERSION} production #{index} has an inconsistent " \
+              "(tables):1:1: parser table format version #{PARSER_TABLE_FORMAT_VERSION} " \
+              "production #{index} has an inconsistent " \
               ":values_action marker; a generated action Symbol without location, composition, or context " \
               "markers is required"
       end
@@ -1453,7 +1456,8 @@ module Ibex
         return if positional_action_contract?(production)
 
         raise ParseError,
-              "(tables):1:1: parser table format version #{PARSER_TABLE_FORMAT_VERSION} production #{index} has an inconsistent " \
+              "(tables):1:1: parser table format version #{PARSER_TABLE_FORMAT_VERSION} " \
+              "production #{index} has an inconsistent " \
               ":positional_action marker; a generated action Symbol with zero to four RHS values and no other " \
               "action ABI markers is required"
       end

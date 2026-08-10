@@ -43,6 +43,7 @@ module Ibex
           unless encoding == :signed
             raise ArgumentError, "unknown compact action encoding #{encoding.inspect}; expected :signed"
           end
+
           new(
             offsets: PackedIntegers.decode_required(offsets),
             codes: PackedIntegers.decode_signed(codes),
@@ -89,7 +90,6 @@ module Ibex
 
           [:reduce, REDUCE_BASE - code].freeze #: [:reduce, Integer]
         end
-
       end
 
       # @rbs (offsets: Array[Integer], codes: Array[Integer?], checks: Array[Integer?],
