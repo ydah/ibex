@@ -12,10 +12,10 @@ module Ibex
     STRUCTURE_NEUTRAL_UNSUPPORTED: Array[String]
 
     class BudgetExceeded < Ibex::Error
-      attr_reader details: Hash[Symbol, untyped]
+      attr_reader details: Hash[Symbol, Object?]
 
-      # @rbs (Hash[Symbol, untyped] details) -> void
-      def initialize: (Hash[Symbol, untyped] details) -> void
+      # @rbs (Hash[Symbol, Object?] details) -> void
+      def initialize: (Hash[Symbol, Object?] details) -> void
     end
 
     # One directive occurrence and its original source position.
@@ -33,8 +33,8 @@ module Ibex
       # @rbs (name: String, status: Symbol, line: Integer, column: Integer, detail: String) -> void
       def initialize: (name: String, status: Symbol, line: Integer, column: Integer, detail: String) -> void
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h: () -> Hash[Symbol, Object?]
     end
 
     # One opaque C action and its mechanical reference rewrite.
@@ -55,8 +55,8 @@ module Ibex
       #   encoded: String) -> void
       def initialize: (id: Integer, line: Integer, column: Integer, original: String, transformed: String, encoded: String) -> void
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h: () -> Hash[Symbol, Object?]
     end
 
     # Immutable source artifact and versioned analysis report.
@@ -79,8 +79,8 @@ module Ibex
       #   actions: Array[Action], rule_count: Integer, bounds: Hash[Symbol, Integer]) -> void
       def initialize: (source: String, file: String, class_name: String, directives: Array[Directive], actions: Array[Action], rule_count: Integer, bounds: Hash[Symbol, Integer]) -> void
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h: () -> Hash[Symbol, Object?]
 
       # @rbs () -> Array[Directive]
       def structural_unsupported: () -> Array[Directive]

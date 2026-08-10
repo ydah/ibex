@@ -59,9 +59,9 @@ module Ibex
     ].freeze #: Array[String]
 
     class BudgetExceeded < Ibex::Error
-      attr_reader :details #: Hash[Symbol, untyped]
+      attr_reader :details #: Hash[Symbol, Object?]
 
-      # @rbs (Hash[Symbol, untyped] details) -> void
+      # @rbs (Hash[Symbol, Object?] details) -> void
       def initialize(details)
         @details = IR.deep_freeze(details)
         super("(bison-import):1:1: configured import budget was exhausted")
@@ -86,7 +86,7 @@ module Ibex
         freeze
       end
 
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
       def to_h
         { name: @name, status: @status, line: @line, column: @column, detail: @detail }
       end
@@ -113,7 +113,7 @@ module Ibex
         freeze
       end
 
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
       def to_h
         {
           id: @id, line: @line, column: @column,
@@ -146,7 +146,7 @@ module Ibex
         freeze
       end
 
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
       def to_h
         unsupported = @directives.select { |directive| directive.status == :unsupported }
         structural = structural_unsupported
