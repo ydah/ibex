@@ -3,7 +3,7 @@
 module Ibex
   module Verify
     # Checks Automaton IR semantics against an independently derived collection.
-    # rubocop:disable Metrics/ClassLength -- V1-V8 share one violation and item-identity model.
+    # rubocop:disable Metrics/ClassLength -- V1-V9 share one violation and item-identity model.
     class Verifier
       DEFAULT_CHECKS: Array[String]
 
@@ -18,6 +18,11 @@ module Ibex
       def verify: () -> Result
 
       private
+
+      # V9 is a bounded semantic witness for IELR only.  It deliberately does
+      # not replace V1/V2 or claim unbounded language equivalence.
+      # @rbs () -> void
+      def verify_ielr_adequacy: () -> void
 
       # @rbs () -> void
       def verify_grammar_digest: () -> void

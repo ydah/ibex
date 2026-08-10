@@ -51,9 +51,10 @@ It records:
 - a distinct `pass`, `violations`, or `exhausted` outcome.
 
 A completed default report names V1, V3, V4, V6, V7, and V8. A completed
-strict report additionally names V2 and V5. An exhausted report conservatively
+strict report additionally names V2, V5, and V9. V9 executes only for IELR
+and records a bounded canonical acceptance witness. An exhausted report conservatively
 records no completed checks, includes the requested profile and bounds, and
-is not a pass. The meanings and limitations of V1-V8 remain those in
+is not a pass. The meanings and limitations of V1-V9 remain those in
 [`verifier-trust-boundary.md`](verifier-trust-boundary.md).
 
 The report's `evidence_digest` covers the complete report except that digest
@@ -124,9 +125,9 @@ closed `excluded_trust` field always identifies the following boundaries:
 The manifest binds the wrapper's bytes to the same publication, but neither
 the report builder nor validator parses, loads, or executes those bytes.
 Likewise, the table sidecar exposes opaque production action slots with
-`verified: false`. V1-V8 rebuild internal table views but do not consume the
+`verified: false`. V1-V9 rebuild internal table views but do not consume the
 persisted sidecar or prove the builder's Automaton-IR-to-sidecar projection.
-A `pass` applies only to the named V1-V8 checks over the supplied Automaton IR
+A `pass` applies only to the named V1-V9 checks over the supplied Automaton IR
 plus the reported structural validation and digest relationships.
 
 The checker, IR validator and serializer, reference collection, set analysis,

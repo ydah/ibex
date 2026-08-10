@@ -43,6 +43,7 @@ run; “strict” means the ID is listed only for `--strict`.
 | V6 | default | Every submitted state is reachable from an entry through submitted transitions, GOTOs, or shift actions, and every embedded-grammar nonterminal derives some terminal sentence. |
 | V7 | default | For each terminal, effective zero-length reductions and their submitted GOTOs do not form a state cycle that can reduce forever without consuming that terminal. |
 | V8 | default | A cell with multiple derived candidates has a declared resolver; resolver records are unique and complete for their token, name only cell candidates, and choose the effective ACTION (or an allowed error). |
+| V9 | strict | For IELR, a bounded canonical-reference witness compares accepted/error outcomes for terminal sequences up to three tokens and fails closed on witness-budget exhaustion. It is a semantic regression witness, not unbounded language equivalence or split-proof verification. Non-IELR algorithms do not execute the witness. |
 <!-- verifier-checks:end -->
 
 Default and strict both construct the algorithm-specific reference and both
@@ -50,7 +51,10 @@ rebuild and compare plain and compact rows. Strict adds the V2 completeness
 requirements. It also changes a row mismatch's identifier from V4 to V5; it
 does not add another table representation or inspect generated table bytes.
 In particular, default-mode item checks are soundness/subset checks and can
-accept an incomplete collection that strict mode rejects.
+accept an incomplete collection that strict mode rejects. For `ielr1`, strict
+mode additionally runs V9. V9 compares the submitted table with a
+verifier-owned canonical LR(1) machine over a finite breadth-first token set;
+a clean result is evidence only within the recorded token and case bounds.
 
 ## Supported algorithms and reference cost
 
@@ -61,7 +65,7 @@ The CLI validator accepts only the following serialized algorithm identities.
 | --- | --- |
 | `slr` | Build the full LR(0) collection. Completed submitted items use FOLLOW sets for lookaheads. Strict mode requires exact LR(0) core coverage. |
 | `lalr1` | Build the full canonical LR(1) collection and union states with the same LR(0) core. Submitted items are subsets by default; strict mode requires the complete merged states. |
-| `ielr1` | Build the full canonical LR(1) collection and its LALR core unions. Each submitted partition must be a subset of its core union; strict mode requires the union of submitted partitions to cover it. This does not prove IELR adequacy or the reason for each split. |
+| `ielr1` | Build the full canonical LR(1) collection and its LALR core unions. Each submitted partition must be a subset of its core union; strict mode requires the union of submitted partitions to cover it and runs the bounded V9 acceptance witness. This does not prove unbounded IELR adequacy, the reason for each split, or split witnesses. |
 | `lr1` | Build the full canonical LR(1) collection. Submitted items are subsets by default; strict mode requires the complete canonical states. |
 <!-- verifier-algorithms:end -->
 
@@ -74,9 +78,12 @@ rejected structurally before the CLI verifier runs; an Automaton object made
 directly with an unknown value receives V1.
 
 The supported `ielr1` check is intentionally narrower than a future direct
-IELR verifier: it checks membership and, in strict mode, union coverage. It
-does not establish conflict preservation, canonical state correspondence, or
-split witnesses.
+IELR verifier: it checks membership, union coverage, and (in strict mode) a
+bounded acceptance witness. It does not establish conflict preservation,
+canonical state correspondence, or split witnesses. Raw ACTION-cell
+correspondence remains a diagnostic: IELR state merging can produce a
+canonical error cell versus a target reduction cell without an observed
+acceptance difference in the bounded witness.
 
 ## Limits and exhaustion
 
@@ -138,8 +145,8 @@ an unqualified correctness proof.
 | `lexer-actions` | Lexer IR, tokenization, generated lexer actions, handwritten lexers, or parser-to-lexer feedback. |
 | `resolver-policy` | Whether a resolver's claimed `by` reason correctly applies grammar precedence/associativity policy; V8 checks record/candidate/selected-cell consistency. |
 | `grammar-properties` | Unambiguity, language equivalence to another grammar/parser, completeness of `%expect` as a design claim, or application semantics. |
-| `ielr-adequacy` | Conflict preservation, why an IELR state was split, or a proof that every split has the required canonical correspondence. |
-| `data-only-artifact` | The standalone `ibex verify` command does not consume a supplied executable table artifact, compact-table bytes, generated bundle, manifest/report binding, or artifact digest. The current Automaton IR contains states and actions, and the verifier rebuilds table views from them. The separate bundle report records this verifier result and binds table identities without widening V1-V8. |
+| `ielr-adequacy` | Unbounded language equivalence, conflict preservation, why an IELR state was split, or a proof that every split has the required canonical correspondence. Strict V9 supplies only a bounded acceptance witness. |
+| `data-only-artifact` | The standalone `ibex verify` command does not consume a supplied executable table artifact, compact-table bytes, generated bundle, manifest/report binding, or artifact digest. The current Automaton IR contains states and actions, and the verifier rebuilds table views from them. The separate bundle report records this verifier result and binds table identities without widening V1-V9. |
 | `security` | Authenticity, trusted publication, signatures, sandboxing, confidentiality, or availability under hostile resource use. |
 <!-- verifier-non-goals:end -->
 
@@ -149,7 +156,7 @@ verification of the code and never executes it.
 
 The data-only table and scoped bundle are separate layers around this
 verifier. Their validators check closed formats and digest relationships, but
-they do not make the standalone V1-V8 implementation consume or independently
+they do not make the standalone V1-V9 implementation consume or independently
 verify sidecar bytes. Consequently `ibex verify` must still not be described
 as validating generated Ruby, table artifacts, or manifests.
 

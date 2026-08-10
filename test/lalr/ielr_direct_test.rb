@@ -304,6 +304,61 @@ class IELRDirectTest < Minitest::Test
        state.transitions, state.actions, state.gotos, state.default_action, state.conflicts]
     end
   end
+
+  def test_bounded_language_witness_matches_canonical_for_both_ielr_strategies
+    FIXTURES.each do |path|
+      grammar = Ibex::Normalizer.new(
+        Ibex::Frontend::Parser.new(File.binread(path), file: path).parse
+      ).normalize
+      %i[direct partition].each do |strategy|
+        automaton = Ibex::LALR::Builder.new(
+          grammar, algorithm: :ielr, ielr_strategy: strategy
+        ).build
+        witness = Ibex::Verify::LanguageWitness.new(
+          grammar, automaton, max_tokens: 6, max_cases: 10_000
+        ).verify
+
+        assert_predicate witness, :ok?, "#{path} #{strategy}: #{witness.differences.inspect}"
+        refute witness.truncated, "#{path} #{strategy} exhausted the witness budget"
+      end
+    end
+  end
+
+  # rubocop:disable Metrics/AbcSize -- the fixture mutation is intentionally explicit.
+  def test_bounded_language_witness_returns_a_short_fault_trace
+    path = File.expand_path("../fixtures/ielr/fig1.y", __dir__)
+    grammar = Ibex::Normalizer.new(
+      Ibex::Frontend::Parser.new(File.binread(path), file: path).parse
+    ).normalize
+    original = Ibex::LALR::Builder.new(
+      grammar, algorithm: :ielr, ielr_strategy: :direct
+    ).build
+    a_id = grammar.symbol("'a'").id
+    states = original.states.map do |state|
+      next state unless state.id == 3
+
+      Ibex::IR::AutomatonState.new(
+        id: state.id, items: state.items, transitions: state.transitions,
+        actions: state.actions.reject { |token_id, _action| token_id == a_id },
+        gotos: state.gotos, default_action: state.default_action, conflicts: state.conflicts
+      )
+    end
+    faulty = Ibex::IR::Automaton.new(
+      grammar: grammar, states: states, conflict_summary: original.conflict_summary,
+      algorithm: original.algorithm, entry_states: original.entry_states,
+      entry_construction: original.entry_construction
+    )
+
+    witness = Ibex::Verify::LanguageWitness.new(
+      grammar, faulty, max_tokens: 4, max_cases: 10_000
+    ).verify
+
+    refute_predicate witness, :ok?
+    assert_equal ["'b'", "'a'", "'b'"], witness.differences.fetch(0).tokens
+    assert_equal :accepted, witness.differences.fetch(0).canonical
+    assert_equal :error, witness.differences.fetch(0).target
+  end
+  # rubocop:enable Metrics/AbcSize
 end
 
 # rubocop:enable Metrics/ClassLength

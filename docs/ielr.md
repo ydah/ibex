@@ -80,9 +80,12 @@ review satisfy the direct-IELR decision dossier.
 `Verify::ActionCorrespondence` and `LALR::InadequacyReport` are explicit
 diagnostic tools. They compare resolved actions and preserve a bounded search
 budget, but canonical-vs-target state pairing is not assumed to be a function.
-Normal parser construction never invokes these diagnostics. Existing
-canonical-core verification remains the trusted boundary until a separate
-review upgrades the direct-IELR evidence.
+`Verify::LanguageWitness` supplies the strict IELR V9 bounded acceptance
+comparison; it reports token-level acceptance witnesses and fails closed when
+its finite case budget is exhausted. It does not prove unbounded equivalence,
+conflict preservation, or split correctness. Normal parser construction never
+invokes these diagnostics. Existing canonical-core verification remains the
+trusted boundary for release decisions.
 
 The implementation is independently derived from the published IELR paper and
 the repository's parser specifications. GNU Bison or another GPL

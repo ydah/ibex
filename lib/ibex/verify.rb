@@ -7,6 +7,7 @@ require_relative "verify/reference_collection"
 require_relative "verify/result"
 require_relative "verify/verifier"
 require_relative "verify/action_correspondence"
+require_relative "verify/language_witness"
 
 module Ibex
   module Verify

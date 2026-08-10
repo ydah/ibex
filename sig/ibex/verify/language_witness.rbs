@@ -1,0 +1,112 @@
+# Generated from lib/ibex/verify/language_witness.rb with RBS::Inline
+
+module Ibex
+  module Verify
+    type witness_status = :accepted | :error | :missing_entry | :shifted
+
+    # Compares canonical and submitted parser acceptance over a bounded set of
+    # terminal sequences.  This is a semantic witness, not a proof of language
+    # equivalence: the reference collection is complete within its budgets and
+    # the token enumeration is deliberately finite.
+    class LanguageWitness
+      class Difference
+        attr_reader entry: String
+
+        attr_reader tokens: Array[String]
+
+        attr_reader canonical: witness_status
+
+        attr_reader target: witness_status
+
+        # @rbs (entry: String, tokens: Array[String], canonical: witness_status,
+        #   target: witness_status) -> void
+        def initialize: (entry: String, tokens: Array[String], canonical: witness_status, target: witness_status) -> void
+      end
+
+      class Result
+        attr_reader differences: Array[Difference]
+
+        attr_reader explored: Integer
+
+        attr_reader truncated: bool
+
+        attr_reader max_tokens: Integer
+
+        attr_reader max_cases: Integer
+
+        # @rbs (differences: Array[Difference], explored: Integer, truncated: bool,
+        #   max_tokens: Integer, max_cases: Integer) -> void
+        def initialize: (differences: Array[Difference], explored: Integer, truncated: bool, max_tokens: Integer, max_cases: Integer) -> void
+
+        # @rbs () -> bool
+        def ok?: () -> bool
+      end
+
+      # @rbs (IR::Grammar grammar, IR::Automaton target, ?max_tokens: Integer,
+      #   ?max_cases: Integer, ?max_states: Integer, ?max_items: Integer) -> void
+      def initialize: (IR::Grammar grammar, IR::Automaton target, ?max_tokens: Integer, ?max_cases: Integer, ?max_states: Integer, ?max_items: Integer) -> void
+
+      # @rbs () -> Result
+      def verify: () -> Result
+
+      private
+
+      # @rbs () -> Array[IR::GrammarSymbol]
+      def input_tokens: () -> Array[IR::GrammarSymbol]
+
+      # @rbs (String, Array[Integer], Array[Difference], Integer) -> [Integer, bool]
+      def verify_entry: (String, Array[Integer], Array[Difference], Integer) -> [ Integer, bool ]
+
+      # @rbs (Integer id) -> String
+      def token_name: (Integer id) -> String
+
+      # @rbs (String entry, Array[Integer]) -> witness_status
+      def simulate_target: (String entry, Array[Integer]) -> witness_status
+
+      # Canonical collection is intentionally built here rather than through
+      # the production construction entry point, keeping this witness
+      # independent from construction code.
+      class CanonicalMachine
+        # @rbs (IR::Grammar grammar, max_states: Integer, max_items: Integer) -> void
+        def initialize: (IR::Grammar grammar, max_states: Integer, max_items: Integer) -> void
+
+        # @rbs (String entry, Array[Integer]) -> witness_status
+        def simulate: (String entry, Array[Integer]) -> witness_status
+
+        private
+
+        # @rbs (ReferenceCollection::Collection) -> Array[IR::AutomatonState]
+        def build_states: (ReferenceCollection::Collection) -> Array[IR::AutomatonState]
+
+        # @rbs (ReferenceCollection::Collection, Set[Array[Integer]], Integer) -> IR::AutomatonState
+        def build_state: (ReferenceCollection::Collection, Set[Array[Integer]], Integer) -> IR::AutomatonState
+
+        # @rbs (Array[IR::AutomatonItem], Hash[Integer, Integer]) -> Hash[Integer, IR::parser_action]
+        def resolve_actions: (Array[IR::AutomatonItem], Hash[Integer, Integer]) -> Hash[Integer, IR::parser_action]
+
+        # @rbs (Hash[Integer, Integer]) -> Hash[Integer, Array[IR::parser_action]]
+        def transition_candidates: (Hash[Integer, Integer]) -> Hash[Integer, Array[IR::parser_action]]
+
+        # @rbs (Array[IR::AutomatonItem], Hash[Integer, Array[IR::parser_action]]) -> void
+        def completed_candidates: (Array[IR::AutomatonItem], Hash[Integer, Array[IR::parser_action]]) -> void
+
+        # @rbs (Integer production_id) -> Array[Integer]
+        def rhs_for: (Integer production_id) -> Array[Integer]
+      end
+
+      # A stack machine shared by the canonical reference and submitted IR.
+      class Machine
+        # @rbs (Array[IR::AutomatonState] states, IR::Grammar grammar) -> void
+        def initialize: (Array[IR::AutomatonState] states, IR::Grammar grammar) -> void
+
+        # @rbs (Integer initial, Array[Integer]) -> witness_status
+        def simulate: (Integer initial, Array[Integer]) -> witness_status
+
+        private
+
+        # @rbs (Array[Integer], Integer) -> witness_status
+        def consume: (Array[Integer], Integer) -> witness_status
+      end
+    end
+  end
+end

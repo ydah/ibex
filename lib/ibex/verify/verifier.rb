@@ -4,10 +4,10 @@
 module Ibex
   module Verify
     # Checks Automaton IR semantics against an independently derived collection.
-    # rubocop:disable Metrics/ClassLength -- V1-V8 share one violation and item-identity model.
+    # rubocop:disable Metrics/ClassLength -- V1-V9 share one violation and item-identity model.
     class Verifier
       DEFAULT_CHECKS = %w[V1 V3 V4 V6 V7 V8].freeze #: Array[String]
-      STRICT_CHECKS = %w[V2 V5].freeze #: Array[String]
+      STRICT_CHECKS = %w[V2 V5 V9].freeze #: Array[String]
       ERROR_ACTION = { type: :error }.freeze #: IR::error_action
 
       # @rbs (IR::Automaton automaton, ?strict: bool, ?max_states: Integer, ?max_items: Integer) -> void
@@ -31,6 +31,7 @@ module Ibex
         verify_reachability_and_productivity
         verify_epsilon_termination
         verify_conflict_determinism
+        verify_ielr_adequacy if @strict
         Result.new(
           algorithm: @automaton.algorithm, strict: @strict,
           checks: DEFAULT_CHECKS + (@strict ? STRICT_CHECKS : []),
@@ -40,6 +41,37 @@ module Ibex
       end
 
       private
+
+      # V9 is a bounded semantic witness for IELR only.  It deliberately does
+      # not replace V1/V2 or claim unbounded language equivalence.
+      # @rbs () -> void
+      def verify_ielr_adequacy
+        return unless @automaton.algorithm == "ielr1"
+
+        witness = LanguageWitness.new(
+          @grammar, @automaton, max_tokens: 3, max_cases: 10_000,
+                                max_states: @max_states, max_items: @max_items
+        ).verify
+        if witness.truncated
+          violation(
+            "V9", "$.states",
+            "bounded canonical acceptance witness exhausted its budget " \
+            "(max_tokens=#{witness.max_tokens}, max_cases=#{witness.max_cases})"
+          )
+        end
+        witness.differences.each do |difference|
+          violation(
+            "V9", "$.states",
+            "canonical/target acceptance differs for entry #{difference.entry.inspect} " \
+            "and tokens #{difference.tokens.inspect}: " \
+            "canonical=#{difference.canonical}, target=#{difference.target}"
+          )
+        end
+      rescue BudgetExceeded
+        raise
+      rescue StandardError => e
+        violation("V9", "$.states", "bounded canonical acceptance witness failed: #{e.message}")
+      end
 
       # @rbs () -> void
       def verify_grammar_digest

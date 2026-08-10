@@ -407,7 +407,9 @@ algorithm-specific lookaheads, expanded default reductions and error masks,
 reachability, productivity, epsilon termination, resolver consistency, and
 rebuilt plain/compact row equality. `--strict` adds collection completeness
 and reports that same row equality as V5 rather than V4. The verifier does not
-consume generated Ruby or a supplied executable table artifact. Its exact
+consume generated Ruby or a supplied executable table artifact. Strict IELR
+verification also runs the bounded V9 canonical acceptance witness; this is
+not an unbounded equivalence proof. Its exact
 shared dependencies, algorithm limits, resource semantics, fault mapping, and
 non-goals are documented in the [verifier trust boundary](verifier-trust-boundary.md).
 `ibex verify` uses exit statuses 0 for valid, 1 for a violation, and 2 for
