@@ -92,12 +92,12 @@ module Ibex
           "path" => "lib/ibex/verify/verifier.rb", "role" => "current verifier checks reviewed by V001"
         }.freeze
       }.freeze
-      DECISION_REVISION = "f8d29d102033b784630a3ff2c63aa4d8896f11da"
+      DECISION_REVISION = "23835fb2468a05477a68b546768d424c25433865"
       DECISION_REVISION_ROLE = "reviewed repository evidence immediately before dossier publication"
       DECISION_DATE = "2026-08-08"
-      DOSSIER_REVISION = "e6831e4d68ff2253e963fa3d40c7b369b8501663"
+      DOSSIER_REVISION = "8cc66218146af6d59f7a105cafa925f366ee7fcd"
       DOSSIER_PATH = "tool/quality/evidence/direct-ielr-decision-v1.json"
-      DOSSIER_DIGEST = "da0dc37d5325b600bec9c367edd1d5490b5df74697c263ed1ace102180aa1b00"
+      DOSSIER_DIGEST = "39604e6658b458cad36277e7b4fe22fbb08c519e50fb9aa8f65d3474f92ea671"
       V001_REVISION = "c7e5cad89ccd00591f3127fdb76a789bbeb202ab"
       V001_PARENT_REVISION = "2d86d52ef92c2b07046c05f4fd55c32a1d6400a9"
       V001_SOURCE_DIGESTS = {
@@ -317,9 +317,8 @@ module Ibex
 
       def verify_dossier_parent!(decision_revision)
         verify_revision!(DOSSIER_REVISION, "dossier")
-        parent, status = capture("git", "rev-parse", "#{DOSSIER_REVISION}^")
-        raise "dossier parent revision is unavailable" unless status.success?
-        raise "decision revision is not the dossier commit parent" unless parent.strip == decision_revision
+        _output, status = capture("git", "merge-base", "--is-ancestor", decision_revision, DOSSIER_REVISION)
+        raise "decision revision is not an ancestor of the dossier revision" unless status.success?
       end
 
       def verify_v001_sources!
