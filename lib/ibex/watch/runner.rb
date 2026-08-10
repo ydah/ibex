@@ -3,13 +3,22 @@
 
 module Ibex
   module Watch
+    # @rbs!
+    #   interface _BuildResult
+    #     def source_paths: () -> Array[String]
+    #     def attempted_paths: () -> Array[String]
+    #   end
+    #   interface _Output
+    #     def puts: (*Object?) -> Object?
+    #   end
+
     # Polls source fingerprints, debounces changes, and publishes stable builds.
     class Runner
       DEFAULT_INTERVAL = 0.25 #: Float
       DEFAULT_DEBOUNCE = 0.05 #: Float
 
       # rubocop:disable Layout/LineLength
-      # @rbs (paths: Array[String], build: ^() -> untyped, publish: ^(untyped, SourceSnapshot, ^() -> bool) -> void, failure_paths: ^() -> Array[String], stderr: untyped, clock: ^() -> Float, sleeper: ^(Float) -> void, iteration_hook: ^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil), ?interval: Float, ?debounce: Float) -> void
+      # @rbs (paths: Array[String], build: ^() -> _BuildResult, publish: ^(_BuildResult, SourceSnapshot, ^() -> bool) -> void, failure_paths: ^() -> Array[String], stderr: _Output, clock: ^() -> Float, sleeper: ^(Float) -> void, iteration_hook: ^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil), ?interval: Float, ?debounce: Float) -> void
       def initialize(paths:, build:, publish:, failure_paths:, stderr:, clock:, sleeper:, iteration_hook:,
                      interval: DEFAULT_INTERVAL, debounce: DEFAULT_DEBOUNCE)
         @fixed_paths = normalize_paths(paths)
@@ -158,7 +167,7 @@ module Ibex
 
       # @rbs () { () -> Integer } -> Integer
       def with_signal_handlers
-        previous = {} #: Hash[String, untyped]
+        previous = {} #: Hash[String, Object?]
         if Thread.current == Thread.main
           previous["INT"] = Signal.trap("INT") { @signal_status = 130 }
           previous["TERM"] = Signal.trap("TERM") { @signal_status = 143 }
