@@ -25,7 +25,9 @@ module Ibex
 
     # Immutable independent-verification report.
     class Result
-      # @rbs! type report_value = String | Integer | bool | Array[String] | Hash[Symbol, Integer] | Array[Hash[Symbol, String]]
+      # @rbs!
+      #   type report_value = String | Integer | bool | Array[String] | Hash[Symbol, Integer]
+      #     | Array[Hash[Symbol, String]]
 
       attr_reader :algorithm #: String
       attr_reader :strict #: bool

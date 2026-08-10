@@ -333,9 +333,7 @@ module Ibex
       # path does not invoke generated lexer actions.
       # Returns `:need_more` after consuming it, `[:accepted, result]` after
       # acceptance, or `[:rejected, result]` after recovery terminates.
-      # rubocop:disable Layout/LineLength
       # @rbs (runtime_value token, ?runtime_value value, ?runtime_value location) -> runtime_value
-      # rubocop:enable Layout/LineLength
       def push: (runtime_value token, ?runtime_value value, ?runtime_value location) -> runtime_value
 
       # Supply EOF to a caller-driven parser session and return its result.
@@ -574,7 +572,8 @@ module Ibex
       # @rbs (Integer production_id, Hash[Symbol, runtime_value] production, Integer length) -> [:continue]
       def fast_reduce: (Integer production_id, Hash[Symbol, runtime_value] production, Integer length) -> [ :continue ]
 
-      # @rbs (Integer production_id, Hash[Symbol, runtime_value] production, Integer length, Symbol action) -> runtime_value
+      # @rbs (Integer production_id, Hash[Symbol, runtime_value] production, Integer length,
+      #   Symbol action) -> runtime_value
       def fast_values_reduce: (Integer production_id, Hash[Symbol, runtime_value] production, Integer length, Symbol action) -> runtime_value
 
       # @rbs (Integer next_state) -> runtime_value

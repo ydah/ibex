@@ -445,6 +445,7 @@ module Ibex
         %i[project cli].each do |kind|
           request = source_value(key, kind, sources, locations)
           next unless request
+
           request_value = request.value #: Integer
           floor_value = floor.value #: Integer
           raise Conflict.new(key, floor, request) if request_value < floor_value

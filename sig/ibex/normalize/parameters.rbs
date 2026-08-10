@@ -2,6 +2,7 @@
 
 module Ibex
   # Iterative, hygienic specialization of validated parameterized user rules.
+  # rubocop:disable Metrics/ModuleLength -- parameter-frame transitions are kept together for auditability.
   module NormalizeParameters
     type parameter_operation = [ :item | :finish_item, Frontend::AST::item ] | [ :value, String ] | [ :finish_suffix, Frontend::AST::Optional | Frontend::AST::Star | Frontend::AST::Plus ] | [ :finish_separated, Frontend::AST::SeparatedList ] | [ :group_alternative, String, Frontend::AST::Group, Array[Frontend::AST::item] ] | [ :finish_group_alternative, String, Frontend::AST::Group, Integer ]
 

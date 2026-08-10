@@ -192,13 +192,12 @@ module Ibex
       terminal = @symbols.fetch(symbol_id).terminal?
       reference = [:physical, rhs.length] #: inline_reference
       logical_refs = variant.fetch(:logical_refs) + [reference] #: Array[inline_reference]
-      result = variant.merge(
+      variant.merge(
         rhs: rhs + [symbol_id],
         logical_refs: logical_refs,
         precedence_override: terminal ? nil : variant[:precedence_override],
         precedence_contributes: terminal || variant.fetch(:precedence_contributes)
-      )
-      result #: inline_variant
+      ) #: inline_variant
     end
 
     # @rbs (inline_variant parent, inline_variant child) -> inline_variant
@@ -212,7 +211,7 @@ module Ibex
       logical_refs = parent.fetch(:logical_refs) + [
         remap_inline_reference(output_ref, physical_offset, step_offset)
       ] #: Array[inline_reference]
-      result = parent.merge(
+      parent.merge(
         rhs: rhs,
         steps: combined_steps,
         logical_refs: logical_refs,
@@ -222,8 +221,7 @@ module Ibex
         precedence_contributes: parent.fetch(:precedence_contributes) ||
           child.fetch(:precedence_contributes),
         parameter: parent[:parameter] || child[:parameter]
-      )
-      result #: inline_variant
+      ) #: inline_variant
     end
 
     # @rbs (inline_variant parent, inline_variant child,
@@ -292,13 +290,12 @@ module Ibex
       rule = @inline_rule_by_symbol.fetch(symbol_id)
       step = inline_action_step(production, variant.fetch(:logical_refs), variant.fetch(:rhs).length, :inline, rule)
       steps << step
-      result = variant.merge(
+      variant.merge(
         steps: steps,
         output_ref: [:step, steps.length - 1],
         inline_used: true,
         inline_rule: rule
-      )
-      result #: inline_variant
+      ) #: inline_variant
     end
 
     # @rbs (IR::Production production, Array[inline_reference] inputs, Integer lookahead,
@@ -306,12 +303,12 @@ module Ibex
     def inline_action_step(production, inputs, lookahead, kind, rule)
       action = production.action
       location = action&.location || production.origin.fetch(:loc)
-      location = location #: IR::location
+      typed_location = location #: IR::location
       {
         kind: kind,
         rule: rule,
         code: action&.code,
-        loc: location,
+        loc: typed_location,
         named_refs: action&.named_refs || [],
         context_length: action&.context_length || 0,
         inputs: inputs,
@@ -342,7 +339,7 @@ module Ibex
     def composed_inline_action(production, physical_length, steps)
       action = production.action
       location = action&.location || production.origin.fetch(:loc)
-      location = location #: IR::location
+      typed_location = location #: IR::location
       fragments = steps.map do |step|
         { kind: step.fetch(:kind), source: inline_source_provenance(step.fetch(:loc)) }
       end
@@ -354,7 +351,7 @@ module Ibex
       } #: IR::action_composition
       IR::Action.new(
         code: action&.code || inline_implicit_code(production.rhs.length),
-        location: location,
+        location: typed_location,
         composition: composition
       )
     end

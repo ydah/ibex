@@ -15,7 +15,8 @@ module Ibex
       attr_reader :location #: Location?
       attr_reader :reason #: String
 
-      # @rbs (Key key, source: Symbol, value: config_value, status: Symbol, reason: String, ?location: Location?) -> void
+      # @rbs (Key key, source: Symbol, value: config_value, status: Symbol, reason: String,
+      #   ?location: Location?) -> void
       def initialize(key, source:, value:, status:, reason:, location: nil)
         raise ArgumentError, "configuration evidence key must be a Configuration::Key" unless key.is_a?(Key)
         raise ArgumentError, "unknown configuration evidence source: #{source.inspect}" unless SOURCES.include?(source)

@@ -73,9 +73,9 @@ module Ibex
       def append_repetition_accessors(lines, fields)
         repeated = fields.select { |_field, slot| slot.is_a?(Hash) && slot[:extraction] }
         repeated.each do |field, slot|
-          slot = slot #: Hash[Symbol, untyped]
-          index = slot.fetch(:index) #: Integer
-          separated = slot.fetch(:extraction) == :separated_list
+          typed_slot = slot #: Hash[Symbol, untyped]
+          index = typed_slot.fetch(:index) #: Integer
+          separated = typed_slot.fetch(:extraction) == :separated_list
           lines << "      def each_#{field}_element = list_items(#{index}, separated: #{separated})"
           next unless separated
 
@@ -85,9 +85,9 @@ module Ibex
         return unless repeated.one?
 
         field, slot = repeated.first
-        slot = slot #: Hash[Symbol, untyped]
+        typed_slot = slot #: Hash[Symbol, untyped]
         lines << "      alias each_element each_#{field}_element"
-        return unless slot.fetch(:extraction) == :separated_list
+        return unless typed_slot.fetch(:extraction) == :separated_list
 
         lines << "      alias each_separator each_#{field}_separator"
       end

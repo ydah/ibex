@@ -6,6 +6,7 @@ require "json"
 
 module Ibex
   # Deterministic description of one published parser generation.
+  # rubocop:disable Metrics/ModuleLength -- manifest schema validation is kept in one auditable unit.
   module GenerationManifest
     # @rbs!
     #   type json_value = String | Integer | Float | bool | nil | Array[json_value] | Hash[String, json_value]
@@ -206,4 +207,5 @@ module Ibex
     end
     private_class_method :verify_entries
   end
+  # rubocop:enable Metrics/ModuleLength
 end

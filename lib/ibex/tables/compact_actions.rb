@@ -74,6 +74,7 @@ module Ibex
         # @rbs (Integer? code) -> IR::runtime_action?
         def unpack(code)
           return unless code
+
           if code == ACCEPT_CODE
             accept = [:accept].freeze #: [:accept]
             return accept

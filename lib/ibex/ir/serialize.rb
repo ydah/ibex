@@ -6,6 +6,7 @@ module Ibex
   module IR
     # Stable JSON serialization for versioned pipeline IR.
     # rubocop:disable Metrics/ModuleLength -- explicit versioned fields keep serialization changes auditable.
+    # rubocop:disable Lint/SelfAssignment -- RBS inline assertions narrow schema-decoded values in place.
     module Serialize
       # @rbs!
       #   type serialized_value = untyped
@@ -20,12 +21,15 @@ module Ibex
       #   private def self.load_lexer: (Hash[String, serialized_value] data) -> Lexer
       #   private def load_state: (Hash[String, serialized_value] state, Grammar grammar) -> AutomatonState
       #   private def self.load_state: (Hash[String, serialized_value] state, Grammar grammar) -> AutomatonState
-      #   private def symbol_keyed: (Hash[String, serialized_value] values, Grammar grammar, ?actions: bool) -> Hash[Integer, serialized_value]
-      #   private def self.symbol_keyed: (Hash[String, serialized_value] values, Grammar grammar, ?actions: bool) -> Hash[Integer, serialized_value]
+      #   private def symbol_keyed: (Hash[String, serialized_value] values, Grammar grammar,
+      #     ?actions: bool) -> Hash[Integer, serialized_value]
+      #   private def self.symbol_keyed: (Hash[String, serialized_value] values, Grammar grammar,
+      #     ?actions: bool) -> Hash[Integer, serialized_value]
       #   private def normalize_action: (Hash[String, serialized_value] value) -> parser_action?
       #   private def self.normalize_action: (Hash[String, serialized_value] value) -> parser_action?
       #   private def load_production: (Hash[String, serialized_value] production, Integer schema_version) -> Production
-      #   private def self.load_production: (Hash[String, serialized_value] production, Integer schema_version) -> Production
+      #   private def self.load_production: (Hash[String, serialized_value] production,
+      #     Integer schema_version) -> Production
       #   private def load_user_code_chunks: (Hash[String,
       #     Array[Hash[String, serialized_value]]] chunks) -> user_code_chunks
       #   private def self.load_user_code_chunks: (Hash[String,
@@ -357,6 +361,7 @@ module Ibex
                 :load_parser_contract, :symbolize
       end
     end
+    # rubocop:enable Lint/SelfAssignment
     # rubocop:enable Metrics/ModuleLength
   end
 end

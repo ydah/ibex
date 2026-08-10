@@ -4,6 +4,7 @@ module Ibex
   module IR
     # Stable JSON serialization for versioned pipeline IR.
     # rubocop:disable Metrics/ModuleLength -- explicit versioned fields keep serialization changes auditable.
+    # rubocop:disable Lint/SelfAssignment -- RBS inline assertions narrow schema-decoded values in place.
     module Serialize
       type serialized_value = untyped
 

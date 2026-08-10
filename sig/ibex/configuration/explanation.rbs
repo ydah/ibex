@@ -20,7 +20,8 @@ module Ibex
 
       attr_reader reason: String
 
-      # @rbs (Key key, source: Symbol, value: config_value, status: Symbol, reason: String, ?location: Location?) -> void
+      # @rbs (Key key, source: Symbol, value: config_value, status: Symbol, reason: String,
+      #   ?location: Location?) -> void
       def initialize: (Key key, source: Symbol, value: config_value, status: Symbol, reason: String, ?location: Location?) -> void
 
       # @rbs () -> Hash[String, json_value]

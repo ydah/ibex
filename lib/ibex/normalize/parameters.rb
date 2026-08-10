@@ -2,6 +2,7 @@
 
 module Ibex
   # Iterative, hygienic specialization of validated parameterized user rules.
+  # rubocop:disable Metrics/ModuleLength -- parameter-frame transitions are kept together for auditability.
   module NormalizeParameters
     # @rbs!
     #   type parameter_operation =
@@ -221,4 +222,5 @@ module Ibex
       frame[:values] = []
     end
   end
+  # rubocop:enable Metrics/ModuleLength
 end

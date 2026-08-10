@@ -32,6 +32,7 @@ module Ibex
       # @rbs (lsp_value? value) -> lsp_object
       def params_hash(value)
         return {} if value.nil?
+
         if value.is_a?(Hash)
           result = value #: lsp_object
           return result

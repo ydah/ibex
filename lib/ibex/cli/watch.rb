@@ -72,19 +72,19 @@ module Ibex
 
     # @rbs (Watch::_BuildResult build, Watch::SourceSnapshot snapshot, ^() -> bool continue) -> void
     def publish_watch_generation(build, snapshot, continue)
-      build = build #: Build
+      typed_build = build #: Build
       stable = lambda do
-        continue.call && build.source_records.all?(&:current?) &&
+        continue.call && typed_build.source_records.all?(&:current?) &&
           Watch::SourceSnapshot.new(snapshot.paths) == snapshot
       end
       GenerationTransaction.new(
-        build.artifacts,
+        typed_build.artifacts,
         warning: ->(message) { @stderr.puts("ibex: warning: #{message}") },
         stability_check: stable,
-        source_records: build.source_records,
+        source_records: typed_build.source_records,
         lock_sleeper: @watch_sleeper
       ).commit
-      build.statuses.each { |message| report_status(message) }
+      typed_build.statuses.each { |message| report_status(message) }
     end
 
     # @rbs (String path) -> Array[String]

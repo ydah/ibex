@@ -84,7 +84,7 @@ module Ibex
 
       # @rbs (Array[String] lines, IR::Production production) -> void
       def append_action(lines, production)
-        location = (production.action&.location || production.origin.fetch(:loc)) #: IR::location
+        location = production.action&.location || production.origin.fetch(:loc) #: IR::location
         append_method(lines, location, @method_source.compiled_action_method_source(production))
       end
 
