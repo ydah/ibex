@@ -17,6 +17,7 @@ test("site is self-hosted and applies a restrictive policy", async () => {
     readFile(new URL("getting-started/index.html", output), "utf8"),
     readFile(new URL("docs/index.html", output), "utf8"),
     readFile(new URL("project/index.html", output), "utf8"),
+    readFile(new URL("project/status/index.html", output), "utf8"),
     readFile(new URL("playground/index.html", output), "utf8"),
     readFile(new URL("compatibility/index.html", output), "utf8"),
     readFile(new URL("extensions/index.html", output), "utf8"),

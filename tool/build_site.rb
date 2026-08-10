@@ -163,7 +163,7 @@ def write_site_metadata
   FileUtils.cp(STATIC_ROOT.join("social-preview.svg"), OUTPUT.join("social-preview.svg"))
   OUTPUT.join("robots.txt").write("User-agent: *\nAllow: /\nSitemap: https://ydah.github.io/ibex/sitemap.xml\n")
   urls = ["", "getting-started/", "docs/", "gallery/", "playground/", "compatibility/", "extensions/", "experimental/",
-          "project/"]
+          "project/", "project/status/"]
   urls.concat(DOCUMENTATION.map { |slug, _| "docs/#{slug}/" })
   sitemap = urls.uniq.map { |url| "  <url><loc>https://ydah.github.io/ibex/#{url}</loc></url>" }.join("\n")
   OUTPUT.join("sitemap.xml").write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n#{sitemap}\n</urlset>\n")
@@ -180,6 +180,9 @@ FileUtils.cp(STATIC_ROOT.join("styles.css"), OUTPUT)
   FileUtils.mkdir_p(destination)
   FileUtils.cp(STATIC_ROOT.join(volume, "index.html"), destination)
 end
+status_destination = OUTPUT.join("project/status")
+FileUtils.mkdir_p(status_destination)
+FileUtils.cp(STATIC_ROOT.join("project/status/index.html"), status_destination)
 FileUtils.cp(STATIC_ROOT.join("playground/index.html"), PLAYGROUND_OUTPUT)
 DOCUMENTATION_VOLUMES.each do |volume|
   destination = OUTPUT.join(volume)
