@@ -4,6 +4,14 @@ module Ibex
   # Bounded language comparison over two immutable parser automata.
   # rubocop:disable Metrics/ClassLength -- the three comparison strategies share one report and budget contract.
   class Equiv
+    type tree_node_signature = [String, Array[String]]
+
+    type tree_trace_entry = [String, Array[String], tree_node_signature?]
+
+    type terminal_signature = [String, [Symbol, Integer]?]
+
+    type production_signature = [String, Array[String], String?]
+
     CAVEAT: String
 
     DEFAULT_MAX_ACTIONS: Integer
@@ -11,17 +19,17 @@ module Ibex
     DEFAULT_MAX_STACK: Integer
 
     class Difference < Ibex::Error
-      attr_reader details: Hash[Symbol, untyped]
+      attr_reader details: Hash[Symbol, Object?]
 
-      # @rbs (Hash[Symbol, untyped] details) -> void
-      def initialize: (Hash[Symbol, untyped] details) -> void
+      # @rbs (Hash[Symbol, Object?] details) -> void
+      def initialize: (Hash[Symbol, Object?] details) -> void
     end
 
     class BudgetExceeded < Ibex::Error
-      attr_reader details: Hash[Symbol, untyped]
+      attr_reader details: Hash[Symbol, Object?]
 
-      # @rbs (Hash[Symbol, untyped] details) -> void
-      def initialize: (Hash[Symbol, untyped] details) -> void
+      # @rbs (Hash[Symbol, Object?] details) -> void
+      def initialize: (Hash[Symbol, Object?] details) -> void
     end
 
     # @rbs (IR::Automaton left, IR::Automaton right, ?sample_count: Integer, ?seed: Integer,
@@ -29,8 +37,8 @@ module Ibex
     #   ?rule_map: Hash[String, String]) -> void
     def initialize: (IR::Automaton left, IR::Automaton right, ?sample_count: Integer, ?seed: Integer, ?max_tokens: Integer, ?max_configurations: Integer, ?max_actions: Integer, ?max_stack: Integer, ?rule_map: Hash[String, String]) -> void
 
-    # @rbs () -> Hash[Symbol, untyped]
-    def run: () -> Hash[Symbol, untyped]
+    # @rbs () -> Hash[Symbol, Object?]
+    def run: () -> Hash[Symbol, Object?]
 
     private
 
@@ -61,29 +69,29 @@ module Ibex
     # @rbs () -> bool
     def tree_structural_identity?: () -> bool
 
-    # @rbs (IR::Grammar grammar) -> Array[untyped]
-    def tree_grammar_signature: (IR::Grammar grammar) -> Array[untyped]
+    # @rbs (IR::Grammar grammar) -> Array[tree_node_signature]
+    def tree_grammar_signature: (IR::Grammar grammar) -> Array[tree_node_signature]
 
-    # @rbs (IR::node_annotation? node) -> untyped
-    def node_signature: (IR::node_annotation? node) -> untyped
+    # @rbs (IR::node_annotation? node) -> tree_node_signature?
+    def node_signature: (IR::node_annotation? node) -> tree_node_signature?
 
-    # @rbs (IR::Automaton automaton, Machine::Configuration configuration, map_left: bool) -> Array[untyped]
-    def tree_trace: (IR::Automaton automaton, Machine::Configuration configuration, map_left: bool) -> Array[untyped]
+    # @rbs (IR::Automaton automaton, Machine::Configuration configuration, map_left: bool) -> Array[tree_trace_entry]
+    def tree_trace: (IR::Automaton automaton, Machine::Configuration configuration, map_left: bool) -> Array[tree_trace_entry]
 
-    # @rbs (IR::Grammar grammar, map_left: bool) -> Hash[Symbol, untyped]
-    def grammar_signature: (IR::Grammar grammar, map_left: bool) -> Hash[Symbol, untyped]
+    # @rbs (IR::Grammar grammar, map_left: bool) -> Hash[Symbol, Object?]
+    def grammar_signature: (IR::Grammar grammar, map_left: bool) -> Hash[Symbol, Object?]
 
-    # @rbs (IR::Grammar grammar, map_left: bool) -> Hash[Symbol, untyped]
-    def recovery_signature: (IR::Grammar grammar, map_left: bool) -> Hash[Symbol, untyped]
+    # @rbs (IR::Grammar grammar, map_left: bool) -> Hash[Symbol, Object?]
+    def recovery_signature: (IR::Grammar grammar, map_left: bool) -> Hash[Symbol, Object?]
 
-    # @rbs (IR::Grammar grammar) -> Array[Array[untyped]]
-    def terminal_signatures: (IR::Grammar grammar) -> Array[Array[untyped]]
+    # @rbs (IR::Grammar grammar) -> Array[terminal_signature]
+    def terminal_signatures: (IR::Grammar grammar) -> Array[terminal_signature]
 
-    # @rbs (IR::Grammar grammar, map_left: bool) -> Array[Array[untyped]]
-    def production_signatures: (IR::Grammar grammar, map_left: bool) -> Array[Array[untyped]]
+    # @rbs (IR::Grammar grammar, map_left: bool) -> Array[production_signature]
+    def production_signatures: (IR::Grammar grammar, map_left: bool) -> Array[production_signature]
 
-    # @rbs (IR::Grammar grammar, IR::Production production, map_left: bool) -> Array[untyped]
-    def production_signature: (IR::Grammar grammar, IR::Production production, map_left: bool) -> Array[untyped]
+    # @rbs (IR::Grammar grammar, IR::Production production, map_left: bool) -> production_signature
+    def production_signature: (IR::Grammar grammar, IR::Production production, map_left: bool) -> production_signature
 
     # @rbs (IR::Grammar grammar, Integer id) -> String
     def symbol_name: (IR::Grammar grammar, Integer id) -> String
@@ -100,14 +108,14 @@ module Ibex
     # @rbs () -> Array[String]
     def terminal_alphabet: () -> Array[String]
 
-    # @rbs (Machine::Configuration left, Machine::Configuration right) -> Array[untyped]
-    def product_key: (Machine::Configuration left, Machine::Configuration right) -> Array[untyped]
+    # @rbs (Machine::Configuration left, Machine::Configuration right) -> Array[Object?]
+    def product_key: (Machine::Configuration left, Machine::Configuration right) -> Array[Object?]
 
     # @rbs (Machine::Configuration left, Machine::Configuration right) -> bool
     def both_rejected?: (Machine::Configuration left, Machine::Configuration right) -> bool
 
-    # @rbs (structural: bool, samples: Integer, configurations: Integer) -> Hash[Symbol, untyped]
-    def successful_report: (structural: bool, samples: Integer, configurations: Integer) -> Hash[Symbol, untyped]
+    # @rbs (structural: bool, samples: Integer, configurations: Integer) -> Hash[Symbol, Object?]
+    def successful_report: (structural: bool, samples: Integer, configurations: Integer) -> Hash[Symbol, Object?]
 
     # @rbs () -> bool
     def tree_requested?: () -> bool

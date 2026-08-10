@@ -9,14 +9,20 @@ module Ibex
   # Bounded language comparison over two immutable parser automata.
   # rubocop:disable Metrics/ClassLength -- the three comparison strategies share one report and budget contract.
   class Equiv
+    # @rbs!
+    #   type tree_node_signature = [String, Array[String]]
+    #   type tree_trace_entry = [String, Array[String], tree_node_signature?]
+    #   type terminal_signature = [String, [Symbol, Integer]?]
+    #   type production_signature = [String, Array[String], String?]
+
     CAVEAT = "Bounded search is not a proof of equivalence." #: String
     DEFAULT_MAX_ACTIONS = 100_000 #: Integer
     DEFAULT_MAX_STACK = 10_000 #: Integer
 
     class Difference < Ibex::Error
-      attr_reader :details #: Hash[Symbol, untyped]
+      attr_reader :details #: Hash[Symbol, Object?]
 
-      # @rbs (Hash[Symbol, untyped] details) -> void
+      # @rbs (Hash[Symbol, Object?] details) -> void
       def initialize(details)
         @details = IR.deep_freeze(details)
         label = details[:witness] ? " for #{details.fetch(:witness).inspect}" : ""
@@ -25,9 +31,9 @@ module Ibex
     end
 
     class BudgetExceeded < Ibex::Error
-      attr_reader :details #: Hash[Symbol, untyped]
+      attr_reader :details #: Hash[Symbol, Object?]
 
-      # @rbs (Hash[Symbol, untyped] details) -> void
+      # @rbs (Hash[Symbol, Object?] details) -> void
       def initialize(details)
         @details = IR.deep_freeze(details)
         super("(equiv):1:1: configured budget was exhausted")
@@ -60,7 +66,7 @@ module Ibex
       @right_machine = Machine.new(right, max_actions: max_actions, max_stack: max_stack)
     end
 
-    # @rbs () -> Hash[Symbol, untyped]
+    # @rbs () -> Hash[Symbol, Object?]
     def run
       verify_inputs!
       structural = structural_identity?
@@ -196,17 +202,17 @@ module Ibex
       tree_grammar_signature(@left.grammar) == tree_grammar_signature(@right.grammar)
     end
 
-    # @rbs (IR::Grammar grammar) -> Array[untyped]
+    # @rbs (IR::Grammar grammar) -> Array[tree_node_signature]
     def tree_grammar_signature(grammar)
       grammar.productions.map { |production| node_signature(production.node) }
     end
 
-    # @rbs (IR::node_annotation? node) -> untyped
+    # @rbs (IR::node_annotation? node) -> tree_node_signature?
     def node_signature(node)
       node && [node.fetch(:name), node.fetch(:fields)]
     end
 
-    # @rbs (IR::Automaton automaton, Machine::Configuration configuration, map_left: bool) -> Array[untyped]
+    # @rbs (IR::Automaton automaton, Machine::Configuration configuration, map_left: bool) -> Array[tree_trace_entry]
     def tree_trace(automaton, configuration, map_left:)
       configuration.reductions.map do |production_id|
         production = automaton.grammar.productions.fetch(production_id)
@@ -222,7 +228,7 @@ module Ibex
       end
     end
 
-    # @rbs (IR::Grammar grammar, map_left: bool) -> Hash[Symbol, untyped]
+    # @rbs (IR::Grammar grammar, map_left: bool) -> Hash[Symbol, Object?]
     def grammar_signature(grammar, map_left:)
       {
         starts: grammar.starts.map { |name| mapped_name(grammar, name, map_left: map_left) },
@@ -232,7 +238,7 @@ module Ibex
       }
     end
 
-    # @rbs (IR::Grammar grammar, map_left: bool) -> Hash[Symbol, untyped]
+    # @rbs (IR::Grammar grammar, map_left: bool) -> Hash[Symbol, Object?]
     def recovery_signature(grammar, map_left:)
       {
         sync_tokens: grammar.recovery.fetch(:sync_tokens),
@@ -242,7 +248,7 @@ module Ibex
       }
     end
 
-    # @rbs (IR::Grammar grammar) -> Array[Array[untyped]]
+    # @rbs (IR::Grammar grammar) -> Array[terminal_signature]
     def terminal_signatures(grammar)
       grammar.terminals.map do |symbol|
         precedence = symbol.precedence
@@ -250,12 +256,12 @@ module Ibex
       end
     end
 
-    # @rbs (IR::Grammar grammar, map_left: bool) -> Array[Array[untyped]]
+    # @rbs (IR::Grammar grammar, map_left: bool) -> Array[production_signature]
     def production_signatures(grammar, map_left:)
       grammar.productions.map { |production| production_signature(grammar, production, map_left: map_left) }
     end
 
-    # @rbs (IR::Grammar grammar, IR::Production production, map_left: bool) -> Array[untyped]
+    # @rbs (IR::Grammar grammar, IR::Production production, map_left: bool) -> production_signature
     def production_signature(grammar, production, map_left:)
       lhs = symbol_name(grammar, production.lhs)
       rhs = production.rhs.map { |id| symbol_name(grammar, id) }
@@ -314,7 +320,7 @@ module Ibex
       end.uniq.sort
     end
 
-    # @rbs (Machine::Configuration left, Machine::Configuration right) -> Array[untyped]
+    # @rbs (Machine::Configuration left, Machine::Configuration right) -> Array[Object?]
     def product_key(left, right)
       key = [left.stack, left.status, left.actions, right.stack, right.status, right.actions]
       key.push(left.reductions, right.reductions) if tree_requested?
@@ -326,7 +332,7 @@ module Ibex
       left.status == :error && right.status == :error
     end
 
-    # @rbs (structural: bool, samples: Integer, configurations: Integer) -> Hash[Symbol, untyped]
+    # @rbs (structural: bool, samples: Integer, configurations: Integer) -> Hash[Symbol, Object?]
     def successful_report(structural:, samples:, configurations:)
       methods = if structural
                   ["structural_comparison"]
