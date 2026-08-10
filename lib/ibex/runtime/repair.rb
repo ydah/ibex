@@ -40,6 +40,8 @@ module Ibex
 
     # One immutable insertion, deletion, or replacement.
     class RepairEdit
+      # @rbs! type document_value = Symbol | Integer | String
+
       KINDS = %i[insert delete replace].freeze #: Array[Symbol]
 
       attr_reader :kind #: Symbol
@@ -62,7 +64,7 @@ module Ibex
         freeze
       end
 
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, document_value]
       def to_h
         { kind: @kind, position: @position, token_id: @token_id, token_name: @token_name, cost: @cost }.freeze
       end
@@ -84,7 +86,7 @@ module Ibex
         freeze
       end
 
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Integer | Array[Hash[Symbol, RepairEdit::document_value]]]
       def to_h
         { cost: @cost, configurations: @configurations, edits: @edits.map(&:to_h).freeze }.freeze
       end
@@ -123,10 +125,10 @@ module Ibex
     class RepairInput
       attr_reader :token_id #: Integer
       attr_reader :token_name #: String
-      attr_reader :value #: untyped
-      attr_reader :location #: untyped
+      attr_reader :value #: Object?
+      attr_reader :location #: Object?
 
-      # @rbs (token_id: Integer, token_name: String, value: untyped, location: untyped) -> void
+      # @rbs (token_id: Integer, token_name: String, value: Object?, location: Object?) -> void
       def initialize(token_id:, token_name:, value:, location:)
         @token_id = token_id
         @token_name = token_name.dup.freeze

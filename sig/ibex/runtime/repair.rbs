@@ -28,6 +28,8 @@ module Ibex
 
     # One immutable insertion, deletion, or replacement.
     class RepairEdit
+      type document_value = Symbol | Integer | String
+
       KINDS: Array[Symbol]
 
       attr_reader kind: Symbol
@@ -43,8 +45,8 @@ module Ibex
       # @rbs (kind: Symbol, position: Integer, token_id: Integer, token_name: String, cost: Integer) -> void
       def initialize: (kind: Symbol, position: Integer, token_id: Integer, token_name: String, cost: Integer) -> void
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, document_value]
+      def to_h: () -> Hash[Symbol, document_value]
     end
 
     # Deterministically selected repair.
@@ -58,8 +60,8 @@ module Ibex
       # @rbs (edits: Array[RepairEdit], configurations: Integer) -> void
       def initialize: (edits: Array[RepairEdit], configurations: Integer) -> void
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Integer | Array[Hash[Symbol, RepairEdit::document_value]]]
+      def to_h: () -> Hash[Symbol, Integer | Array[Hash[Symbol, RepairEdit::document_value]]]
     end
 
     # Closed internal outcome for callers that must distinguish bounded search
@@ -86,12 +88,12 @@ module Ibex
 
       attr_reader token_name: String
 
-      attr_reader value: untyped
+      attr_reader value: Object?
 
-      attr_reader location: untyped
+      attr_reader location: Object?
 
-      # @rbs (token_id: Integer, token_name: String, value: untyped, location: untyped) -> void
-      def initialize: (token_id: Integer, token_name: String, value: untyped, location: untyped) -> void
+      # @rbs (token_id: Integer, token_name: String, value: Object?, location: Object?) -> void
+      def initialize: (token_id: Integer, token_name: String, value: Object?, location: Object?) -> void
 
       # @rbs () -> bool
       def eof?: () -> bool
