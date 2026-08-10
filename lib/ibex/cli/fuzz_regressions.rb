@@ -34,13 +34,13 @@ module Ibex
       details = minimized_fuzz_mismatch(fuzzer, mismatch, grammar_path, external)
       report = {
         ibex_report: "fuzz", schema_version: 1, result: "difference", mismatch: details
-      } #: Hash[Symbol, untyped]
+      } #: Hash[Symbol, Object?]
       report[:external] = external[1] if external
       write_fuzz_report(report)
       1
     end
 
-    # @rbs (Hash[Symbol, untyped] report) -> void
+    # @rbs (Hash[Symbol, Object?] report) -> void
     def write_fuzz_report(report)
       if @options.fetch(:fuzz_format, "json") == "json"
         @stdout.puts JSON.pretty_generate(report)
@@ -74,19 +74,19 @@ module Ibex
       report = {
         ibex_report: "fuzz", schema_version: 1, result: "budget_exhausted",
         budget: error.details.merge(phase: phase)
-      } #: Hash[Symbol, untyped]
+      } #: Hash[Symbol, Object?]
       report[:external] = external[1] if external
       write_fuzz_report(report)
       2
     end
 
     # @rbs (Fuzz fuzzer, Fuzz::Mismatch mismatch, String grammar_path,
-    #   fuzz_external_target? external) -> Hash[Symbol, untyped]
+    #   fuzz_external_target? external) -> Hash[Symbol, Object?]
     def minimized_fuzz_mismatch(fuzzer, mismatch, grammar_path, external)
       result = fuzzer.minimize(
         mismatch, max_trials: @options.fetch(:fuzz_max_reduction_trials, 1_000)
       )
-      details = mismatch.details.dup #: untyped
+      details = mismatch.details.dup #: Hash[Symbol, Object?]
       details[:minimized_tokens] = result.items
       details[:reduction] = {
         original_size: result.original_size, minimized_size: result.items.length,
@@ -124,7 +124,7 @@ module Ibex
     end
 
     # @rbs (fuzz_mismatch mismatch, DeltaReducer::Result result, String grammar_path,
-    #   fuzz_external_description? external) -> Hash[Symbol, untyped]
+    #   fuzz_external_description? external) -> Hash[Symbol, Object?]
     def fuzz_regression_document(mismatch, result, grammar_path, external)
       document = {
         ibex_report: "fuzz-regression", schema_version: 1, grammar: grammar_path,
@@ -137,7 +137,7 @@ module Ibex
           original_size: result.original_size, minimized_size: result.items.length,
           trials: result.trials, complete: result.complete
         }
-      } #: Hash[Symbol, untyped]
+      } #: Hash[Symbol, Object?]
       document[:external] = external if external
       document
     end
