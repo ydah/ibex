@@ -33,14 +33,18 @@ module Ibex
       #   private def self.load_lexer: (Hash[String, IR::serialized_value] data) -> Lexer
       #   private def load_state: (Hash[String, IR::serialized_value] state, Grammar grammar) -> AutomatonState
       #   private def self.load_state: (Hash[String, IR::serialized_value] state, Grammar grammar) -> AutomatonState
-      #   private def symbol_keyed: (Hash[String, IR::serialized_value] values, Grammar grammar, ?actions: bool) -> Hash[Integer, IR::serialized_value]
-      #   private def self.symbol_keyed: (Hash[String, IR::serialized_value] values, Grammar grammar, ?actions: bool) -> Hash[Integer, IR::serialized_value]
+      #   private def symbol_keyed: (Hash[String, IR::serialized_value] values, Grammar grammar,
+      #     ?actions: bool) -> Hash[Integer, IR::serialized_value]
+      #   private def self.symbol_keyed: (Hash[String, IR::serialized_value] values, Grammar grammar,
+      #     ?actions: bool) -> Hash[Integer, IR::serialized_value]
       #   private def normalize_action: (Hash[String, IR::serialized_value] value) -> parser_action?
       #   private def self.normalize_action: (Hash[String, IR::serialized_value] value) -> parser_action?
       #   private def load_production: (Hash[String, IR::serialized_value] production) -> Production
       #   private def self.load_production: (Hash[String, IR::serialized_value] production) -> Production
-      #   private def load_user_code_chunks: (Hash[String, Array[Hash[String, IR::serialized_value]]] chunks) -> user_code_chunks
-      #   private def self.load_user_code_chunks: (Hash[String, Array[Hash[String, IR::serialized_value]]] chunks) -> user_code_chunks
+      #   private def load_user_code_chunks: (Hash[String,
+      #     Array[Hash[String, IR::serialized_value]]] chunks) -> user_code_chunks
+      #   private def self.load_user_code_chunks: (Hash[String,
+      #     Array[Hash[String, IR::serialized_value]]] chunks) -> user_code_chunks
       #   private def load_symbol_metadata: (Hash[String, IR::serialized_value] symbol, String field) -> String?
       #   private def self.load_symbol_metadata: (Hash[String, IR::serialized_value] symbol, String field) -> String?
       #   private def load_grammar_tests: (Array[Hash[String, IR::serialized_value]] tests) -> Array[grammar_test]

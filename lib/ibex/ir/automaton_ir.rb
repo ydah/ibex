@@ -91,7 +91,8 @@ module Ibex
       end
 
       # @rbs (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary,
-      #   algorithm: String, grammar_digest: String?, entry_states: Hash[String, Integer]?, entry_construction: String) -> void
+      #   algorithm: String, grammar_digest: String?, entry_states: Hash[String, Integer]?,
+      #   entry_construction: String) -> void
       def initialize_current(grammar:, states:, conflict_summary:, algorithm:, grammar_digest:, entry_states:,
                              entry_construction:)
         unless grammar.schema_version == SCHEMA_VERSION
