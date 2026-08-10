@@ -2379,7 +2379,7 @@ features:
       triggers: [Two releases complete without IELR semantics changes., A public_real LALR-inadequacy user publishes a verified benefit.]
       required_evidence: [V001/direct-comparison evidence, external workload benefit, exact-release R002 results]
     release_gate: { status: blocked, blockers: [R001, R002], summary: R001 is HOLD and the exact-revision R002 rerun is pending; H001 grants no promotion. }
-    sources: [{ path: lib/ibex/lalr/builder.rb, sha256: cf27b5ade80e8a88738570916dbe2429504605f9c35da83552425d04b348c69a }]
+    sources: [{ path: lib/ibex/lalr/builder.rb, sha256: 69a4b832abf5c1d6332049fc584b9c46f8b43609fad65dc0682e618e84ea52ad }]
 
   - id: lsp
     name: LSP

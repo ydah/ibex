@@ -27,9 +27,10 @@ module Ibex
       def initialize(grammar, sets, starts: nil, profile: false)
         @grammar = grammar
         @sets = sets
-        @starts = (starts || grammar.starts).dup
+        @grammar_starts = grammar_starts.freeze
+        @starts = (starts || @grammar_starts).dup
         raise ArgumentError, "starts must be a nonempty subset of grammar starts" if
-          @starts.empty? || (@starts - grammar.starts).any?
+          @starts.empty? || (@starts - @grammar_starts).any?
 
         @productions_by_lhs = grammar.productions.group_by(&:lhs)
         @augmented_production_ids = @starts.map { |name| AUGMENTED_PRODUCTION - start_index(name) }
@@ -85,7 +86,7 @@ module Ibex
         @item_key_stride = [*@augmented_rhs.values, *@production_rhs].map(&:length).max.to_i + 1
         # Negative augmented ids are global to Grammar#starts.  A builder
         # may isolate a non-first entry, so reserve the full global range.
-        @production_offset = @grammar.starts.length
+        @production_offset = @grammar_starts.length
         @node_stride = (@production_offset + @production_rhs.length) * @item_key_stride
       end
 
@@ -98,8 +99,9 @@ module Ibex
         cursor = 0
         while cursor < states.length
           transitions[cursor] = {}
-          shifted_kernels(states.fetch(cursor)).keys.sort.each do |symbol_id|
-            target = closure(shifted_kernels(states.fetch(cursor)).fetch(symbol_id))
+          kernels = shifted_kernels(states.fetch(cursor))
+          kernels.keys.sort.each do |symbol_id|
+            target = closure(kernels.fetch(symbol_id))
             key = item_key(target)
             target_id = indexes[key] ||= begin
               states << target
@@ -271,7 +273,14 @@ module Ibex
 
       # @rbs (String name) -> Integer
       def start_index(name)
-        @grammar.starts.index(name) || raise(Ibex::Error, "missing start symbol #{name}")
+        @grammar_starts.index(name) || raise(Ibex::Error, "missing start symbol #{name}")
+      end
+
+      # @rbs () -> Array[String]
+      def grammar_starts
+        return @grammar.starts if @grammar.respond_to?(:starts)
+
+        [@grammar.start]
       end
     end
   end
