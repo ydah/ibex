@@ -1,8 +1,3 @@
----
-title: Maturity audit
-description: Canonical Stable, Preview, and Experimental feature boundaries for Ibex.
----
-
 # Preview and Experimental maturity audit
 
 [`maturity.yml`](maturity.yml) and the validator-owned commit authorities in

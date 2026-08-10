@@ -20,13 +20,11 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "8e298acd19db10fe1962948d56ad7f0483005a91",
+    "base_revision": "b1a6c1985ccc112fd81bf5fcb99ce6d50c5b76ab",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
-    "capture_worktree_clean": false,
-    "capture_worktree_status": [
-      " M README.md"
-    ],
-    "capture_worktree_status_sha256": "bb901fa1628c27517a39241e519a8a8866cabcdcd99bd8904f322381cd9092c4",
+    "capture_worktree_clean": true,
+    "capture_worktree_status": [],
+    "capture_worktree_status_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
     "bound_paths": [
       {
         "path": ".github/workflows/main.yml",
@@ -48,9 +46,9 @@
       },
       {
         "path": "docs/maturity.md",
-        "sha256": "08e93bceb76122868c11d7ecae84b093f7208c253aac1f70d034fa89974944a5",
+        "sha256": "7ac15be15ffa06f33ff6496e20781bf95f58c59cc406f759d9d420ee74af3edb",
         "git_state": "base",
-        "base_sha256": "08e93bceb76122868c11d7ecae84b093f7208c253aac1f70d034fa89974944a5"
+        "base_sha256": "7ac15be15ffa06f33ff6496e20781bf95f58c59cc406f759d9d420ee74af3edb"
       },
       {
         "path": "docs/maturity.yml",
@@ -60,9 +58,9 @@
       },
       {
         "path": "docs/workloads.md",
-        "sha256": "156c7cf359015fa0df4c1f90e86b4435087deb2a896d251ed98345d9046487a9",
+        "sha256": "752aedf08615715b83f68ac08e4cea9b5f8abbee29e28879a0562730edd8e168",
         "git_state": "base",
-        "base_sha256": "156c7cf359015fa0df4c1f90e86b4435087deb2a896d251ed98345d9046487a9"
+        "base_sha256": "752aedf08615715b83f68ac08e4cea9b5f8abbee29e28879a0562730edd8e168"
       },
       {
         "path": "lib/ibex/lalr/build_metrics.rb",
@@ -185,7 +183,7 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "7d470418eb9b031f573e8aa302baaaccaa6653e27c5899c9c939cc410681516a",
+    "bound_paths_sha256": "d5e4cd2e8ac80a1a1519e7f20ca4625430ffde4091099d33001893476dc2edd8",
     "implementation_sha256": "5519cbab9899b3c2dec8d6264527115e7e0ea553e16a3801f481758492f78985",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
@@ -297,7 +295,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001651,
+                  "value": 0.001236,
                   "release_gate": false
                 }
               },
@@ -366,7 +364,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.005413,
+                  "value": 0.0046,
                   "release_gate": false
                 }
               },
@@ -458,7 +456,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001054,
+                  "value": 0.000785,
                   "release_gate": false
                 }
               },
@@ -527,7 +525,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001978,
+                  "value": 0.001705,
                   "release_gate": false
                 }
               },
@@ -619,7 +617,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000773,
+                  "value": 0.000593,
                   "release_gate": false
                 }
               },
@@ -688,7 +686,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000957,
+                  "value": 0.000814,
                   "release_gate": false
                 }
               },
@@ -782,7 +780,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000753,
+                  "value": 0.000487,
                   "release_gate": false
                 }
               },
@@ -852,7 +850,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000723,
+                  "value": 0.000543,
                   "release_gate": false
                 }
               },
@@ -922,7 +920,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000498,
+                  "value": 0.000411,
                   "release_gate": false
                 }
               },
@@ -992,7 +990,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.003168,
+                  "value": 0.002473,
                   "release_gate": false
                 }
               },
@@ -1106,7 +1104,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.020919,
+                  "value": 0.014273,
                   "release_gate": false
                 }
               },
@@ -1175,7 +1173,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.074885,
+                  "value": 0.056835,
                   "release_gate": false
                 }
               },

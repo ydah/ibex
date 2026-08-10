@@ -22,6 +22,10 @@ development continues. The default compatible mode and its current IR
 contracts are the conservative adoption baseline. See the [release status](https://ydah.github.io/ibex/project/status/)
 and [stability policy](docs/stability.md) for the human-readable boundaries.
 
+<!-- r001-review-status:start -->
+R001: `HOLD` — [`awaiting_independent_review`](docs/error-ux-review-status-v1.json).
+<!-- r001-review-status:end -->
+
 ## Install
 
 Add the generator to an application or tool project:
