@@ -73,16 +73,16 @@ class TablesTest < Minitest::Test
     end
   end
 
-  def test_legacy_compact_action_codes_are_normalized
+  def test_unsigned_compact_action_codes_are_rejected
     packed = Ibex::Tables::PackedIntegers
-    compact = Ibex::Tables::CompactActions.packed(
-      packed.encode([0]), packed.encode([0, 1, 4, 7]), packed.encode([0, 0, 0, 0]), row_count: 1
-    )
+    error = assert_raises(ArgumentError) do
+      Ibex::Tables::CompactActions.packed(
+        packed.encode([0]), packed.encode([0, 1, 4, 7]), packed.encode([0, 0, 0, 0]),
+        row_count: 1, encoding: :legacy
+      )
+    end
 
-    assert_equal [:accept], compact.lookup(0, 0)
-    assert_equal [:error], compact.lookup(0, 1)
-    assert_equal [:shift, 1], compact.lookup(0, 2)
-    assert_equal [:reduce, 2], compact.lookup(0, 3)
+    assert_match(/expected :signed/, error.message)
   end
 
   def test_packed_integer_literals_round_trip_nil_and_multibyte_values

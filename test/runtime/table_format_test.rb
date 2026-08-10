@@ -24,36 +24,6 @@ class RuntimeTableFormatTest < Minitest::Test
     def next_token = raise("legacy parser read a token")
   end
 
-  class VersionOneParser < CurrentParser
-    TABLES = CurrentParser::TABLES.merge(format_version: 1).freeze
-
-    def self.parser_tables = TABLES
-  end
-
-  class VersionTwoParser < CurrentParser
-    TABLES = CurrentParser::TABLES.merge(format_version: 2).freeze
-
-    def self.parser_tables = TABLES
-  end
-
-  class VersionThreeParser < CurrentParser
-    TABLES = CurrentParser::TABLES.merge(format_version: 3).freeze
-
-    def self.parser_tables = TABLES
-  end
-
-  class VersionFourParser < CurrentParser
-    TABLES = CurrentParser::TABLES.merge(format_version: 4).freeze
-
-    def self.parser_tables = TABLES
-  end
-
-  class VersionFiveParser < CurrentParser
-    TABLES = CurrentParser::TABLES.merge(format_version: 5).freeze
-
-    def self.parser_tables = TABLES
-  end
-
   class LegacyCSTParser < CurrentParser
     TABLES = CurrentParser::TABLES.merge(cst: true).freeze
 
@@ -105,16 +75,20 @@ class RuntimeTableFormatTest < Minitest::Test
 
   def test_current_hand_written_table_is_accepted
     assert_equal 6, Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION
-    assert_equal [1, 2, 3, 4, 5, 6], Ibex::Runtime::SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS
+    assert_equal [6], Ibex::Runtime::SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS
     assert_nil CurrentParser.new.do_parse
   end
 
-  def test_version_one_through_five_tables_remain_accepted
-    assert_nil VersionOneParser.new.do_parse
-    assert_nil VersionTwoParser.new.do_parse
-    assert_nil VersionThreeParser.new.do_parse
-    assert_nil VersionFourParser.new.do_parse
-    assert_nil VersionFiveParser.new.do_parse
+  def test_previous_table_formats_fail_before_reading_tokens
+    (1..5).each do |version|
+      tables = CurrentParser::TABLES.merge(format_version: version).freeze
+      parser = Class.new(CurrentParser)
+      parser.define_singleton_method(:parser_tables) { tables }
+      parser.define_method(:next_token) { raise "old parser table read a token" }
+
+      error = assert_raises(Ibex::Runtime::ParseError) { parser.new.do_parse }
+      assert_match(/unsupported parser table format version #{version}/, error.message)
+    end
   end
 
   def test_legacy_cst_tables_fail_before_reading_tokens
@@ -138,7 +112,7 @@ class RuntimeTableFormatTest < Minitest::Test
 
     assert_match(/\(tables\):1:1:/, error.message)
     assert_match(/unsupported parser table format version 7/, error.message)
-    assert_match(/runtime supports 1, 2, 3, 4, 5, 6/, error.message)
+    assert_match(/runtime supports 6/, error.message)
     assert_match(/regenerate/i, error.message)
   end
 

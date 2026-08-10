@@ -12,10 +12,6 @@ module Ibex
       ERROR_CODE = -1 #: Integer
       SHIFT_BASE = 1 #: Integer
       REDUCE_BASE = -2 #: Integer
-      LEGACY_ERROR_CODE = 1 #: Integer
-      LEGACY_SHIFT_BASE = 2 #: Integer
-      LEGACY_REDUCE_BASE = 3 #: Integer
-      private_constant :LEGACY_ERROR_CODE, :LEGACY_SHIFT_BASE, :LEGACY_REDUCE_BASE
 
       attr_reader :codes #: Array[Integer?]
       attr_reader :dense_codes #: Array[Integer?]?
@@ -43,10 +39,13 @@ module Ibex
 
         # @rbs (String offsets, String codes, String checks, row_count: Integer,
         #   ?encoding: Symbol, ?column_count: Integer?) -> CompactActions
-        def packed(offsets, codes, checks, row_count:, encoding: :legacy, column_count: nil)
+        def packed(offsets, codes, checks, row_count:, encoding: :signed, column_count: nil)
+          unless encoding == :signed
+            raise ArgumentError, "unknown compact action encoding #{encoding.inspect}; expected :signed"
+          end
           new(
             offsets: PackedIntegers.decode_required(offsets),
-            codes: encoding == :signed ? PackedIntegers.decode_signed(codes) : PackedIntegers.decode(codes),
+            codes: PackedIntegers.decode_signed(codes),
             checks: PackedIntegers.decode(checks),
             row_count: row_count,
             encoding: encoding,
@@ -91,25 +90,13 @@ module Ibex
           [:reduce, REDUCE_BASE - code].freeze #: [:reduce, Integer]
         end
 
-        # Convert codes emitted before signed compact actions without changing
-        # their generated table literals.
-        # @rbs (Integer? code) -> Integer?
-        def legacy_to_signed(code)
-          return unless code
-          return ACCEPT_CODE if code == ACCEPT_CODE
-          return ERROR_CODE if code == LEGACY_ERROR_CODE
-          return SHIFT_BASE + ((code - LEGACY_SHIFT_BASE) / 2) if code.even?
-
-          REDUCE_BASE - ((code - LEGACY_REDUCE_BASE) / 2)
-        end
       end
 
       # @rbs (offsets: Array[Integer], codes: Array[Integer?], checks: Array[Integer?],
       #   row_count: Integer, ?encoding: Symbol, ?column_count: Integer?) -> void
-      def initialize(offsets:, codes:, checks:, row_count:, encoding: :legacy, column_count: nil)
-        codes = codes.map { |code| self.class.legacy_to_signed(code) } if encoding == :legacy
-        unless %i[legacy signed].include?(encoding)
-          raise ArgumentError, "unknown compact action encoding #{encoding.inspect}"
+      def initialize(offsets:, codes:, checks:, row_count:, encoding: :signed, column_count: nil)
+        unless encoding == :signed
+          raise ArgumentError, "unknown compact action encoding #{encoding.inspect}; expected :signed"
         end
 
         @codes = codes.freeze

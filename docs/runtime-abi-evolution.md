@@ -26,7 +26,7 @@ ir:
     embedded_in_grammar: true
 parser_tables:
   current_writer: 6
-  readable: [1, 2, 3, 4, 5, 6]
+  readable: [6]
   cst_readable: [6]
   fail_before_input: true
 versions:
@@ -138,16 +138,12 @@ made open to avoid assigning new meaning to an old version.
 
 ## Parser-table formats
 
-The generator emits format v6. The current runtime recognizes formats v1
-through v6, with these constraints:
+The generator emits format v6, and the runtime recognizes only that current
+format. Older generated tables fail before input so the runtime does not carry
+historical action-ABI branches indefinitely:
 
 | Format | Non-CST runtime contract | CST contract | Current writer |
 | ---: | --- | --- | --- |
-| v1 | historical two-argument or application action | unsupported | no |
-| v2 | adds marked five-argument location action | unsupported | no |
-| v3 | adds marked six-argument composed action and validates generated markers | unsupported | no |
-| v4 | adds marked one-Array values action | unsupported | no |
-| v5 | adds marked safe positional action | unsupported | no |
 | v6 | retains the preceding action contracts | structured CST metadata is accepted | yes |
 
 Plain and compact tables are encodings of the same lookup contract, not
@@ -175,9 +171,10 @@ Regeneration is required when:
 - an embedded parser must receive runtime fixes or a newer runtime ABI; or
 - a release note for a new format explicitly retires an older reader.
 
-A valid non-CST v1-v5 table does not require regeneration merely because v6 is
-the current writer. Regeneration is nevertheless the supported way to adopt
-new generated code and runtime behavior.
+Non-CST v1-v5 tables are outside the pre-v1 runtime compatibility obligation
+and require regeneration. Applications that need to keep an old generated
+artifact can pin the matching pre-v1 runtime package instead of making the
+current reader retain every historical table branch.
 
 ## Generator and runtime versions
 
@@ -186,8 +183,7 @@ new generated code and runtime behavior.
 | Ibex 0.2.0 non-embedded output (table v6) | `ibex-runtime` 0.2.0 | supported and covered by packaging/runtime tests |
 | Ibex 0.2.0 non-embedded output | a future version admitted by `~> 0.2.0` | dependency resolution permits it; compatibility is an obligation of that future release, not current execution evidence |
 | Ibex 0.2.0 embedded output | runtime sources copied by Ibex 0.2.0 | self-contained and covered by packaging/runtime tests |
-| old non-CST table v1-v5 | `ibex-runtime` 0.2.0 | accepted by the current reader tests |
-| old CST table v1-v5 or a boolean CST marker | `ibex-runtime` 0.2.0 | rejected before input; regenerate |
+| old non-CST or CST table v1-v5 | `ibex-runtime` 0.2.0 | rejected before input; regenerate or pin the matching pre-v1 runtime |
 | table v7 or later | `ibex-runtime` 0.2.0 | rejected before input; upgrade the runtime or regenerate to a supported format |
 
 `ibex` 0.2.0 declares `ibex-runtime ~> 0.2.0`; in RubyGems terms that admits

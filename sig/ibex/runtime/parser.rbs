@@ -523,8 +523,8 @@ module Ibex
       # @rbs () -> Hash[Symbol, runtime_value]
       def validate_parser_table_format!: () -> Hash[Symbol, runtime_value]
 
-      # @rbs (Hash[Symbol, runtime_value] tables, Integer actual) -> void
-      def validate_current_cst_tables!: (Hash[Symbol, runtime_value] tables, Integer actual) -> void
+      # @rbs (Hash[Symbol, runtime_value] tables) -> void
+      def validate_current_cst_tables!: (Hash[Symbol, runtime_value] tables) -> void
 
       # Generated parser tables are deeply frozen before they can cross a
       # Ractor boundary. Their action-marker contract only needs one scan per
@@ -542,17 +542,17 @@ module Ibex
       # @rbs () -> bool
       def generated_action_contract_cache_accessible?: () -> bool
 
-      # @rbs (Hash[Symbol, runtime_value] tables, Integer version) -> void
-      def validate_generated_action_contracts!: (Hash[Symbol, runtime_value] tables, Integer version) -> void
+      # @rbs (Hash[Symbol, runtime_value] tables) -> void
+      def validate_generated_action_contracts!: (Hash[Symbol, runtime_value] tables) -> void
 
-      # @rbs (Hash[Symbol, runtime_value] production, Integer index, Integer version) -> void
-      def validate_composition_action_contract!: (Hash[Symbol, runtime_value] production, Integer index, Integer version) -> void
+      # @rbs (Hash[Symbol, runtime_value] production, Integer index) -> void
+      def validate_composition_action_contract!: (Hash[Symbol, runtime_value] production, Integer index) -> void
 
-      # @rbs (Hash[Symbol, runtime_value] production, Integer index, Integer version) -> void
-      def validate_values_action_contract!: (Hash[Symbol, runtime_value] production, Integer index, Integer version) -> void
+      # @rbs (Hash[Symbol, runtime_value] production, Integer index) -> void
+      def validate_values_action_contract!: (Hash[Symbol, runtime_value] production, Integer index) -> void
 
-      # @rbs (Hash[Symbol, runtime_value] production, Integer index, Integer version) -> void
-      def validate_positional_action_contract!: (Hash[Symbol, runtime_value] production, Integer index, Integer version) -> void
+      # @rbs (Hash[Symbol, runtime_value] production, Integer index) -> void
+      def validate_positional_action_contract!: (Hash[Symbol, runtime_value] production, Integer index) -> void
 
       # @rbs (Hash[Symbol, runtime_value] production) -> bool
       def positional_action_contract?: (Hash[Symbol, runtime_value] production) -> bool

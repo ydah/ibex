@@ -1350,19 +1350,19 @@ module Ibex
                 "regenerate the parser with the installed Ibex version"
         end
 
-        validate_current_cst_tables!(tables, actual)
-        if actual >= 3 && !generated_action_contracts_validated?(tables)
-          validate_generated_action_contracts!(tables, actual)
+        validate_current_cst_tables!(tables)
+        unless generated_action_contracts_validated?(tables)
+          validate_generated_action_contracts!(tables)
           cache_generated_action_contracts!(tables)
         end
         tables
       end
 
-      # @rbs (Hash[Symbol, runtime_value] tables, Integer actual) -> void
-      def validate_current_cst_tables!(tables, actual)
+      # @rbs (Hash[Symbol, runtime_value] tables) -> void
+      def validate_current_cst_tables!(tables)
         cst = tables[:cst]
         return if cst.nil? || cst == false
-        return if actual == PARSER_TABLE_FORMAT_VERSION && cst.is_a?(Hash)
+        return if cst.is_a?(Hash)
 
         raise ParseError,
               "(tables):1:1: legacy CST parser tables are unsupported; " \
@@ -1407,53 +1407,53 @@ module Ibex
         true
       end
 
-      # @rbs (Hash[Symbol, runtime_value] tables, Integer version) -> void
-      def validate_generated_action_contracts!(tables, version)
+      # @rbs (Hash[Symbol, runtime_value] tables) -> void
+      def validate_generated_action_contracts!(tables)
         tables.fetch(:productions).each_with_index do |production, index|
-          validate_composition_action_contract!(production, index, version)
-          validate_values_action_contract!(production, index, version)
-          validate_positional_action_contract!(production, index, version)
+          validate_composition_action_contract!(production, index)
+          validate_values_action_contract!(production, index)
+          validate_positional_action_contract!(production, index)
         end
       end
 
-      # @rbs (Hash[Symbol, runtime_value] production, Integer index, Integer version) -> void
-      def validate_composition_action_contract!(production, index, version)
+      # @rbs (Hash[Symbol, runtime_value] production, Integer index) -> void
+      def validate_composition_action_contract!(production, index)
         return unless production[:composition_action] == true
         return if production[:location_action] == true && generated_action_symbol?(production[:action])
 
         raise ParseError,
-              "(tables):1:1: parser table format version #{version} production #{index} has an inconsistent " \
+              "(tables):1:1: parser table format version #{PARSER_TABLE_FORMAT_VERSION} production #{index} has an inconsistent " \
               ":composition_action marker; a generated action Symbol with :location_action is required"
       end
 
-      # @rbs (Hash[Symbol, runtime_value] production, Integer index, Integer version) -> void
-      def validate_values_action_contract!(production, index, version)
+      # @rbs (Hash[Symbol, runtime_value] production, Integer index) -> void
+      def validate_values_action_contract!(production, index)
         borrowed = production[:borrowed_values_action] == true
         if borrowed && production[:values_action] != true
           raise ParseError,
-                "(tables):1:1: parser table format version #{version} production #{index} has an inconsistent " \
+                "(tables):1:1: parser table format version #{PARSER_TABLE_FORMAT_VERSION} production #{index} has an inconsistent " \
                 ":borrowed_values_action marker; :values_action is required"
         end
-        return if version < 4 || production[:values_action] != true
+        return if production[:values_action] != true
         return if generated_action_symbol?(production[:action]) &&
                   production[:location_action] != true &&
                   production[:composition_action] != true &&
                   production.fetch(:location_context_length, 0).zero?
 
         raise ParseError,
-              "(tables):1:1: parser table format version #{version} production #{index} has an inconsistent " \
+              "(tables):1:1: parser table format version #{PARSER_TABLE_FORMAT_VERSION} production #{index} has an inconsistent " \
               ":values_action marker; a generated action Symbol without location, composition, or context " \
               "markers is required"
       end
 
-      # @rbs (Hash[Symbol, runtime_value] production, Integer index, Integer version) -> void
-      def validate_positional_action_contract!(production, index, version)
-        return if version < 5 || production[:positional_action] != true
+      # @rbs (Hash[Symbol, runtime_value] production, Integer index) -> void
+      def validate_positional_action_contract!(production, index)
+        return unless production[:positional_action] == true
 
         return if positional_action_contract?(production)
 
         raise ParseError,
-              "(tables):1:1: parser table format version #{version} production #{index} has an inconsistent " \
+              "(tables):1:1: parser table format version #{PARSER_TABLE_FORMAT_VERSION} production #{index} has an inconsistent " \
               ":positional_action marker; a generated action Symbol with zero to four RHS values and no other " \
               "action ABI markers is required"
       end
@@ -1800,29 +1800,25 @@ module Ibex
 
       # @rbs (Hash[Symbol, runtime_value] production, runtime_value action) -> bool
       def generated_location_action?(production, action)
-        parser_tables.fetch(:format_version) >= 2 &&
-          production[:location_action] == true &&
+        production[:location_action] == true &&
           generated_action_symbol?(action)
       end
 
       # @rbs (Hash[Symbol, runtime_value] production, runtime_value action) -> bool
       def generated_values_action?(production, action)
-        parser_tables.fetch(:format_version) >= 4 &&
-          production[:values_action] == true &&
+        production[:values_action] == true &&
           generated_action_symbol?(action)
       end
 
       # @rbs (Hash[Symbol, runtime_value] production, runtime_value action) -> bool
       def generated_positional_action?(production, action)
-        parser_tables.fetch(:format_version) >= 5 &&
-          production[:positional_action] == true &&
+        production[:positional_action] == true &&
           generated_action_symbol?(action)
       end
 
       # @rbs (Hash[Symbol, runtime_value] production, runtime_value action) -> bool
       def generated_composition_action?(production, action)
-        parser_tables.fetch(:format_version) >= 3 &&
-          production[:composition_action] == true &&
+        production[:composition_action] == true &&
           generated_location_action?(production, action)
       end
 

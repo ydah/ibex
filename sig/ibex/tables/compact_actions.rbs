@@ -13,12 +13,6 @@ module Ibex
 
       REDUCE_BASE: Integer
 
-      LEGACY_ERROR_CODE: Integer
-
-      LEGACY_SHIFT_BASE: Integer
-
-      LEGACY_REDUCE_BASE: Integer
-
       attr_reader codes: Array[Integer?]
 
       attr_reader dense_codes: Array[Integer?]?
@@ -37,11 +31,6 @@ module Ibex
 
       # @rbs (Integer? code) -> IR::runtime_action?
       def self.unpack: (Integer? code) -> IR::runtime_action?
-
-      # Convert codes emitted before signed compact actions without changing
-      # their generated table literals.
-      # @rbs (Integer? code) -> Integer?
-      def self.legacy_to_signed: (Integer? code) -> Integer?
 
       # @rbs (offsets: Array[Integer], codes: Array[Integer?], checks: Array[Integer?],
       #   row_count: Integer, ?encoding: Symbol, ?column_count: Integer?) -> void

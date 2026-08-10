@@ -37,11 +37,11 @@ module Ibex
         require_fragments(
           "lib/ibex/runtime/parser.rb",
           "SUPPORTED_PARSER_TABLE_FORMAT_VERSIONS.include?(actual)",
-          "actual == PARSER_TABLE_FORMAT_VERSION && cst.is_a?(Hash)"
+          "return if cst.is_a?(Hash)"
         )
         require_fragments(
           "test/runtime/table_format_test.rb",
-          "test_version_one_through_five_tables_remain_accepted",
+          "test_previous_table_formats_fail_before_reading_tokens",
           "test_legacy_cst_tables_fail_before_reading_tokens",
           "test_unsupported_parser_table_format_version_fails_before_reading_tokens"
         )

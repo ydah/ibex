@@ -136,52 +136,9 @@ class RuntimeActionContractTest < Minitest::Test
     end
   end
 
-  class VersionOneGeneratedShapeParser < BaseParser
-    ACTION_NAME = :_ibex_action_0 # rubocop:disable Naming/VariableNumber
-    TABLES = RuntimeActionContractTest::TABLES.merge(
-      format_version: 1,
-      productions: [
-        { lhs: 3, length: 1, action: ACTION_NAME, location_action: true, composition_action: true }
-      ]
-    ).freeze
-
-    attr_reader :action_argument_count
-
-    def self.parser_tables = TABLES
-
-    private
-
-    define_method(ACTION_NAME) do |values, _stack|
-      @action_argument_count = 2
-      values.fetch(0)
-    end
-  end
-
-  class VersionTwoGeneratedShapeParser < BaseParser
-    ACTION_NAME = :_ibex_action_0 # rubocop:disable Naming/VariableNumber
-    TABLES = RuntimeActionContractTest::TABLES.merge(
-      format_version: 2,
-      productions: [
-        { lhs: 3, length: 1, action: ACTION_NAME, location_action: true, composition_action: true }
-      ]
-    ).freeze
-
-    attr_reader :action_argument_count
-
-    def self.parser_tables = TABLES
-
-    private
-
-    define_method(ACTION_NAME) do |values, _stack, _locations, _location_stack, _location|
-      @action_argument_count = 5
-      values.fetch(0)
-    end
-  end
-
   class VersionThreeComposedShapeParser < BaseParser
     ACTION_NAME = :_ibex_action_0 # rubocop:disable Naming/VariableNumber
     TABLES = RuntimeActionContractTest::TABLES.merge(
-      format_version: 3,
       productions: [
         { lhs: 3, length: 1, action: ACTION_NAME, location_action: true, composition_action: true }
       ]
@@ -202,7 +159,6 @@ class RuntimeActionContractTest < Minitest::Test
   class InconsistentCompositionParser < BaseParser
     ACTION_NAME = :_ibex_action_0 # rubocop:disable Naming/VariableNumber
     TABLES = RuntimeActionContractTest::TABLES.merge(
-      format_version: 3,
       productions: [{ lhs: 3, length: 1, action: ACTION_NAME, composition_action: true }]
     ).freeze
 
@@ -213,7 +169,6 @@ class RuntimeActionContractTest < Minitest::Test
   class VersionFourValuesShapeParser < BaseParser
     ACTION_NAME = :_ibex_action_0 # rubocop:disable Naming/VariableNumber
     TABLES = RuntimeActionContractTest::TABLES.merge(
-      format_version: 4,
       productions: [{ lhs: 3, length: 1, action: ACTION_NAME, values_action: true }]
     ).freeze
 
@@ -229,29 +184,9 @@ class RuntimeActionContractTest < Minitest::Test
     end
   end
 
-  class VersionThreeValuesShapeParser < BaseParser
-    ACTION_NAME = :_ibex_action_0 # rubocop:disable Naming/VariableNumber
-    TABLES = RuntimeActionContractTest::TABLES.merge(
-      format_version: 3,
-      productions: [{ lhs: 3, length: 1, action: ACTION_NAME, values_action: true }]
-    ).freeze
-
-    attr_reader :action_argument_count
-
-    def self.parser_tables = TABLES
-
-    private
-
-    define_method(ACTION_NAME) do |values, _stack|
-      @action_argument_count = 2
-      values.fetch(0)
-    end
-  end
-
   class LocatedValuesShapeParser < BaseParser
     ACTION_NAME = :_ibex_action_0 # rubocop:disable Naming/VariableNumber
     TABLES = RuntimeActionContractTest::TABLES.merge(
-      format_version: 4,
       uses_locations: true,
       productions: [
         {
@@ -272,7 +207,6 @@ class RuntimeActionContractTest < Minitest::Test
 
   class InconsistentValuesParser < BaseParser
     TABLES = RuntimeActionContractTest::TABLES.merge(
-      format_version: 4,
       productions: [{ lhs: 3, length: 1, action: :consume, values_action: true }]
     ).freeze
 
@@ -282,7 +216,6 @@ class RuntimeActionContractTest < Minitest::Test
 
   class InconsistentBorrowedValuesParser < BaseParser
     TABLES = RuntimeActionContractTest::TABLES.merge(
-      format_version: 4,
       productions: [
         { lhs: 3, length: 1, action: :_ibex_action_0, borrowed_values_action: true } # rubocop:disable Naming/VariableNumber
       ]
@@ -371,21 +304,7 @@ class RuntimeActionContractTest < Minitest::Test
     assert_same token_location, action_span.finish
   end
 
-  def test_version_one_generated_shape_ignores_the_location_marker
-    parser = VersionOneGeneratedShapeParser.new([%i[TOKEN value]])
-
-    assert_equal :value, parser.do_parse
-    assert_equal 2, parser.action_argument_count
-  end
-
-  def test_version_two_honors_locations_but_ignores_the_composition_marker
-    parser = VersionTwoGeneratedShapeParser.new([%i[TOKEN value]])
-
-    assert_equal :value, parser.do_parse
-    assert_equal 5, parser.action_argument_count
-  end
-
-  def test_version_three_composition_marker_receives_the_lookahead_location
+  def test_composition_marker_receives_the_lookahead_location
     token_location = { file: "composition.txt", line: 2, column: 3 }
     parser = VersionThreeComposedShapeParser.new([[:TOKEN, :value, token_location]])
 
@@ -400,18 +319,11 @@ class RuntimeActionContractTest < Minitest::Test
     assert_nil lookahead
   end
 
-  def test_version_four_values_marker_receives_only_the_reduction_values
+  def test_values_marker_receives_only_the_reduction_values
     parser = VersionFourValuesShapeParser.new([%i[TOKEN value]])
 
     assert_equal :value, parser.do_parse
     assert_equal 1, parser.action_argument_count
-  end
-
-  def test_version_three_ignores_the_values_marker
-    parser = VersionThreeValuesShapeParser.new([%i[TOKEN value]])
-
-    assert_equal :value, parser.do_parse
-    assert_equal 2, parser.action_argument_count
   end
 
   def test_values_action_retains_public_location_helpers_on_the_generic_path
@@ -426,30 +338,30 @@ class RuntimeActionContractTest < Minitest::Test
     assert_same token_location, span.finish
   end
 
-  def test_version_three_rejects_an_inconsistent_composition_marker_before_input
+  def test_rejects_an_inconsistent_composition_marker_before_input
     error = assert_raises(Ibex::Runtime::ParseError) do
       InconsistentCompositionParser.new([%i[TOKEN value]]).do_parse
     end
 
-    assert_match(/version 3 production 0/, error.message)
+    assert_match(/version 6 production 0/, error.message)
     assert_match(/inconsistent :composition_action marker/, error.message)
   end
 
-  def test_version_four_rejects_an_inconsistent_values_marker_before_input
+  def test_rejects_an_inconsistent_values_marker_before_input
     error = assert_raises(Ibex::Runtime::ParseError) do
       InconsistentValuesParser.new([%i[TOKEN value]]).do_parse
     end
 
-    assert_match(/version 4 production 0/, error.message)
+    assert_match(/version 6 production 0/, error.message)
     assert_match(/inconsistent :values_action marker/, error.message)
   end
 
-  def test_version_four_rejects_a_borrowed_marker_without_values_marker_before_input
+  def test_rejects_a_borrowed_marker_without_values_marker_before_input
     error = assert_raises(Ibex::Runtime::ParseError) do
       InconsistentBorrowedValuesParser.new([%i[TOKEN value]]).do_parse
     end
 
-    assert_match(/version 4 production 0/, error.message)
+    assert_match(/version 6 production 0/, error.message)
     assert_match(/inconsistent :borrowed_values_action marker/, error.message)
   end
 

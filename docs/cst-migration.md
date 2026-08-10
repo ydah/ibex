@@ -1,10 +1,9 @@
 # CST Red/Green migration
 
 The runtime supports only the current format-v6 Red/Green representation for
-`pragma cst`. CST parser tables from formats v1 through v5, and boolean
-`cst: true` tables without structured metadata, fail before the first token is
-read and instruct the application to regenerate. Older non-CST parser tables
-remain executable.
+`pragma cst`. CST parser tables from formats v1 through v5, boolean
+`cst: true` tables without structured metadata, and all v1-v5 non-CST tables
+fail before the first token is read and instruct the application to regenerate.
 
 Regenerate with the same command used for the grammar, for example:
 
