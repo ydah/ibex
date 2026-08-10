@@ -25,7 +25,7 @@ module Ibex
     #     ?help: String
     #   }
     #   private def input_path: (Array[String]) -> String
-    #   private def set_local_configuration_option: (Hash[Symbol, untyped], Symbol, untyped) -> void
+    #   private def set_local_configuration_option: (Hash[Symbol, Object?], Symbol, Object?) -> void
 
     private
 
