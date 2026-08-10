@@ -113,5 +113,4 @@ class CLIIRContractTest < Minitest::Test
   def fixture(name)
     File.join(FIXTURE_ROOT, name)
   end
-
 end

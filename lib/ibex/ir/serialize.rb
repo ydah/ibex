@@ -15,6 +15,20 @@ module Ibex
       #   private def self.validate_version: (Hash[String, serialized_value] data) -> void
       #   private def load_grammar: (Hash[String, serialized_value] data) -> Grammar
       #   private def self.load_grammar: (Hash[String, serialized_value] data) -> Grammar
+      #   private def load_symbols: (Hash[String, serialized_value] data) -> Array[GrammarSymbol]
+      #   private def self.load_symbols: (Hash[String, serialized_value] data) -> Array[GrammarSymbol]
+      #   private def load_productions: (Hash[String, serialized_value] data) -> Array[Production]
+      #   private def self.load_productions: (Hash[String, serialized_value] data) -> Array[Production]
+      #   private def empty_chunks: () -> Hash[String, serialized_value]
+      #   private def self.empty_chunks: () -> Hash[String, serialized_value]
+      #   private def empty_parameters: () -> Array[serialized_value]
+      #   private def self.empty_parameters: () -> Array[serialized_value]
+      #   private def empty_printers: () -> Array[serialized_value]
+      #   private def self.empty_printers: () -> Array[serialized_value]
+      #   private def empty_tests: () -> Array[serialized_value]
+      #   private def self.empty_tests: () -> Array[serialized_value]
+      #   private def empty_recovery: () -> Hash[String, serialized_value]
+      #   private def self.empty_recovery: () -> Hash[String, serialized_value]
       #   private def load_automaton: (Hash[String, serialized_value] data) -> Automaton
       #   private def self.load_automaton: (Hash[String, serialized_value] data) -> Automaton
       #   private def load_lexer: (Hash[String, serialized_value] data) -> Lexer
@@ -41,7 +55,6 @@ module Ibex
       #   private def self.symbol_source_position: (Hash[String, serialized_value] symbol) -> String
       #   private def symbolize: (serialized_value value) -> serialized_value
       #   private def self.symbolize: (serialized_value value) -> serialized_value
-
       # @rbs (Grammar | Automaton | Lexer value) -> String
       def dump(value)
         normalize = lambda do |entry|
@@ -85,20 +98,38 @@ module Ibex
         return if SUPPORTED_SCHEMA_VERSIONS.include?(version)
 
         expected = SUPPORTED_SCHEMA_VERSIONS.join(", ")
-        raise Ibex::Error, "(ir):1:1: unsupported schema_version #{version.inspect}; expected the current format (#{expected})"
+        raise Ibex::Error,
+              "(ir):1:1: unsupported schema_version #{version.inspect}; expected the current format (#{expected})"
       end
 
       # @rbs skip
+      # rubocop:disable Metrics/AbcSize -- explicit current Grammar IR field mapping is the loader contract.
       def load_grammar(data)
         data = data #: Hash[String, untyped]
-        empty_chunks = {} #: Hash[String, serialized_value]
-        empty_parameters = [] #: Array[serialized_value]
-        empty_printers = [] #: Array[serialized_value]
-        empty_tests = [] #: Array[serialized_value]
-        empty_recovery = { "sync_tokens" => [], "on_error_reduce" => [] } #: Hash[String, serialized_value]
         data.fetch("schema_version") #: Integer
+        Grammar.new(
+          class_name: data.fetch("class_name"), superclass: data["superclass"], start: data.fetch("start"),
+          expect: data.fetch("expect"), options: symbolize(data.fetch("options")), symbols: load_symbols(data),
+          mode: (data["mode"] || "default").to_sym, starts: data["starts"], expect_rr: data["expect_rr"],
+          parser_parameters: symbolize(data.fetch("params", empty_parameters)),
+          value_printers: symbolize(data.fetch("printers", empty_printers)),
+          grammar_tests: load_grammar_tests(data.fetch("tests", empty_tests)),
+          lexer: data["lexer"] && load_lexer(data.fetch("lexer")),
+          recovery: symbolize(data.fetch("recovery", empty_recovery)),
+          productions: load_productions(data),
+          user_code: data.fetch("user_code"), conversions: data.fetch("conversions"),
+          warnings: symbolize(data.fetch("warnings")),
+          user_code_chunks: load_user_code_chunks(data.fetch("user_code_chunks", empty_chunks)),
+          source_provenance: symbolize(data["source_provenance"]),
+          parser_contract: load_parser_contract(data.fetch("parser_contract"))
+        )
+      end
+      # rubocop:enable Metrics/AbcSize
+
+      # @rbs skip
+      def load_symbols(data)
         symbols_data = data.fetch("symbols") #: Array[Hash[String, serialized_value]]
-        symbols = symbols_data.map do |symbol|
+        symbols_data.map do |symbol|
           GrammarSymbol.new(id: symbol.fetch("id"), name: symbol.fetch("name"), kind: symbol.fetch("kind"),
                             reserved: symbol.fetch("reserved"), precedence: symbolize(symbol["prec"]),
                             location: symbolize(symbol["loc"]),
@@ -106,24 +137,43 @@ module Ibex
                             semantic_type: load_symbol_metadata(symbol, "semantic_type"),
                             documentation: symbol["doc"])
         end
+      end
+
+      # @rbs skip
+      def load_productions(data)
         productions_data = data.fetch("productions") #: Array[Hash[String, serialized_value]]
-        productions = productions_data.map { |production| load_production(production) }
-        Grammar.new(
-          class_name: data.fetch("class_name"), superclass: data["superclass"], start: data.fetch("start"),
-          expect: data.fetch("expect"), options: symbolize(data.fetch("options")), symbols: symbols,
-          mode: (data["mode"] || "default").to_sym, starts: data["starts"], expect_rr: data["expect_rr"],
-          parser_parameters: symbolize(data.fetch("params", empty_parameters)),
-          value_printers: symbolize(data.fetch("printers", empty_printers)),
-          grammar_tests: load_grammar_tests(data.fetch("tests", empty_tests)),
-          lexer: data["lexer"] && load_lexer(data.fetch("lexer")),
-          recovery: symbolize(data.fetch("recovery", empty_recovery)), productions: productions,
-          user_code: data.fetch("user_code"), conversions: data.fetch("conversions"),
-          warnings: symbolize(data.fetch("warnings")),
-          user_code_chunks: load_user_code_chunks(data.fetch("user_code_chunks", empty_chunks)),
-          source_provenance: symbolize(data["source_provenance"]),
-          parser_contract: load_parser_contract(data.fetch("parser_contract"))
-        )
-      end # rubocop:enable Metrics/AbcSize
+        productions_data.map { |production| load_production(production) }
+      end
+
+      # @rbs skip
+      def empty_chunks
+        value = {} #: Hash[String, serialized_value]
+        value.freeze
+      end
+
+      # @rbs skip
+      def empty_parameters
+        value = [] #: Array[serialized_value]
+        value.freeze
+      end
+
+      # @rbs skip
+      def empty_printers
+        value = [] #: Array[serialized_value]
+        value.freeze
+      end
+
+      # @rbs skip
+      def empty_tests
+        value = [] #: Array[serialized_value]
+        value.freeze
+      end
+
+      # @rbs skip
+      def empty_recovery
+        value = { "sync_tokens" => [], "on_error_reduce" => [] } #: Hash[String, serialized_value]
+        value.freeze
+      end
 
       # @rbs skip
       def load_automaton(data)
@@ -147,7 +197,8 @@ module Ibex
         unless SUPPORTED_LEXER_SCHEMA_VERSIONS.include?(version)
           expected = SUPPORTED_LEXER_SCHEMA_VERSIONS.join(", ")
           raise Ibex::Error,
-                "(ir):1:1: unsupported lexer schema_version #{version.inspect}; expected the current lexer format (#{expected})"
+                "(ir):1:1: unsupported lexer schema_version #{version.inspect}; " \
+                "expected the current lexer format (#{expected})"
         end
         rules_data = data.fetch("rules") #: Array[Hash[String, serialized_value]]
         rules = rules_data.map do |rule|
@@ -299,13 +350,17 @@ module Ibex
         else value
         end
       end
-      module_function :validate_version, :load_grammar, :load_automaton, :load_lexer, :load_state, :symbol_keyed,
+      module_function :validate_version, :load_grammar, :load_symbols, :load_productions,
+                      :empty_chunks, :empty_parameters, :empty_printers, :empty_tests, :empty_recovery,
+                      :load_automaton, :load_lexer, :load_state, :symbol_keyed,
                       :normalize_action, :load_production, :load_user_code_chunks, :load_symbol_metadata,
                       :symbol_source_position, :load_grammar_tests,
                       :load_parser_contract, :symbolize
 
       class << self
-        private :validate_version, :load_grammar, :load_automaton, :load_lexer, :load_state, :symbol_keyed,
+        private :validate_version, :load_grammar, :load_symbols, :load_productions,
+                :empty_chunks, :empty_parameters, :empty_printers, :empty_tests, :empty_recovery,
+                :load_automaton, :load_lexer, :load_state, :symbol_keyed,
                 :normalize_action, :load_production, :load_user_code_chunks, :load_symbol_metadata,
                 :symbol_source_position, :load_grammar_tests,
                 :load_parser_contract, :symbolize

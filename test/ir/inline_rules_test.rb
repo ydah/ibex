@@ -4,6 +4,7 @@ require_relative "../test_helper"
 require "json"
 require "json_schemer"
 
+# rubocop:disable Metrics/ClassLength -- the inline-rule matrix is one cohesive contract suite.
 class IRInlineRulesTest < Minitest::Test
   SCHEMA_ROOT = File.expand_path("../../schema", __dir__)
 
@@ -132,7 +133,6 @@ class IRInlineRulesTest < Minitest::Test
     result_types = plan.fetch(:steps).map { |step| step[:result_type] }
     assert_equal %w[Integer String], result_types
     assert_schema_valid(JSON.parse(dumped))
-
   end
 
   def test_current_validator_rejects_composition_slots_that_are_not_yet_available
@@ -223,9 +223,11 @@ class IRInlineRulesTest < Minitest::Test
     schemer = JSONSchemer.schema(
       current,
       ref_resolver: lambda do |uri|
-        { foundation.fetch("$id") => foundation, extensions.fetch("$id") => extensions, current.fetch("$id") => current }[uri.to_s]
+        { foundation.fetch("$id") => foundation, extensions.fetch("$id") => extensions,
+          current.fetch("$id") => current }[uri.to_s]
       end
     )
     assert_empty schemer.validate(document).to_a
   end
 end
+# rubocop:enable Metrics/ClassLength

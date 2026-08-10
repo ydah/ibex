@@ -178,7 +178,10 @@ class IRParameterizedRulesTest < Minitest::Test
     current = JSON.parse(File.read(File.join(SCHEMA_ROOT, "grammar-ir.schema.json")))
     schemer = JSONSchemer.schema(
       current,
-      ref_resolver: ->(uri) { { foundation.fetch("$id") => foundation, extensions.fetch("$id") => extensions, current.fetch("$id") => current }[uri.to_s] }
+      ref_resolver: lambda { |uri|
+        { foundation.fetch("$id") => foundation, extensions.fetch("$id") => extensions,
+          current.fetch("$id") => current }[uri.to_s]
+      }
     )
     assert_empty schemer.validate(document).to_a
   end

@@ -79,9 +79,9 @@ module Ibex
           end
 
           entries = contract.fetch("entries")
-          if entries["explicit"] && entry_construction != entries["value"]
-            invalid("$.entry_construction", "must match the embedded parser contract")
-          end
+          return unless entries["explicit"] && entry_construction != entries["value"]
+
+          invalid("$.entry_construction", "must match the embedded parser contract")
         end
 
         # @rbs () -> void

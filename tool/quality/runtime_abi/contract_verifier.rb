@@ -121,7 +121,12 @@ module Ibex
 
       def verify_schemas(kind, versions)
         versions.each do |version|
-          schema_name = %w[grammar automaton].include?(kind) ? "#{kind}-ir.schema.json" : "#{kind}-ir-v#{version}.schema.json"
+          schema_name = if %w[grammar
+                              automaton].include?(kind)
+                          "#{kind}-ir.schema.json"
+                        else
+                          "#{kind}-ir-v#{version}.schema.json"
+                        end
           schema = path("schema/#{schema_name}")
           raise "missing #{relative(schema)}" unless File.file?(schema)
         end

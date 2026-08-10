@@ -237,7 +237,8 @@ module Ibex
                         "staged fixed compatibility", "current Grammar IR; legacy CLI override needs D008"]),
           markdown_row(["`parser.algorithm`, `parser.entries`", "Grammar Contract",
                         "fixed generation / explicit algorithm analysis override",
-                        "root `parser` syntax writes the current Grammar IR; manifest records contract and construction facts"]),
+                        "root `parser` syntax writes the current Grammar IR; " \
+                        "manifest records contract and construction facts"]),
           markdown_row(["`cst.trivia`", "Grammar Contract", "fixed generation / explicit analysis override",
                         "root `parser` syntax writes the current Grammar IR; manifest records contract and CST facts"]),
           markdown_row(["table/runtime/debug/source mapping/companions", "Project Build Policy", "project selection",
@@ -248,7 +249,8 @@ module Ibex
           "Fixed means a grammar declaration may be matched but not silently contradicted by generation CLI.",
           "Analysis commands and grammar tests may choose a different algorithm only as an explicit, reported",
           "noncanonical override; parser entry construction remains fixed.",
-          "The current Grammar IR closes persistence for the first-wave construction and CST concepts. The root-only `parser`",
+          "The current Grammar IR closes persistence for the first-wave construction and CST concepts. " \
+          "The root-only `parser`",
           "block exposes `parser.algorithm`, `parser.entries`, and `cst_trivia` as source syntax and requires the",
           "existing `pragma cst` compatibility declaration; declaration-free grammars retain the current default.",
           "",
@@ -1771,6 +1773,7 @@ module Ibex
           unless %w[current current_gap].include?(manifest)
             raise "registration #{id} grammar contract must record its manifest state"
           end
+
           expected_persistence = GRAMMAR_CONTRACT_PERSISTENCE[entry.fetch("canonical_key")]
           unless expected_persistence == [ir, manifest]
             raise "registration #{id} grammar contract IR/manifest persistence is inconsistent"

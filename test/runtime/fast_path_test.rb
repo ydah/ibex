@@ -913,7 +913,7 @@ class RuntimeFastPathTest < Minitest::Test
     Ibex::Runtime::EventJSONLTracer.attach(traced, io: output)
     assert_equal "traced", traced.finish
     assert_operator traced.generic_reductions, :>, 0
-    assert_equal ["reduce", "accept"], trace_event_names(output)
+    assert_equal %w[reduce accept], trace_event_names(output)
   end
 
   def test_observer_installed_by_next_token_is_honored_before_shift

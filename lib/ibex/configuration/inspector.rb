@@ -11,7 +11,6 @@ module Ibex
     # Converts parsed source or validated Grammar IR into static configuration facts.
     # rubocop:disable Metrics/ModuleLength -- source and IR adapters share one closed evidence vocabulary.
     module Inspector
-
       # @rbs (Frontend::Resolution resolution) -> Input
       def from_source(resolution)
         unless resolution.is_a?(Frontend::Resolution)

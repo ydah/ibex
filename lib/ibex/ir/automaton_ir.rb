@@ -151,9 +151,7 @@ module Ibex
 
       # @rbs (String value) -> String
       def validate_entry_construction(value)
-        unless %w[shared isolated].include?(value)
-          raise Ibex::Error, "entry construction must be shared or isolated"
-        end
+        raise Ibex::Error, "entry construction must be shared or isolated" unless %w[shared isolated].include?(value)
 
         value.dup.freeze
       end
@@ -179,7 +177,6 @@ module Ibex
 
         raise Ibex::Error, "automaton entry construction conflicts with the embedded parser contract"
       end
-
     end
   end
 end

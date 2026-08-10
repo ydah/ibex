@@ -23,7 +23,8 @@ module Ibex
         supported = type == "lexer" ? SUPPORTED_LEXER_SCHEMA_VERSIONS : SUPPORTED_SCHEMA_VERSIONS
         unless supported.include?(version)
           expected = supported.join(", ")
-          raise Ibex::Error, "#{POSITION}: unsupported schema_version #{version.inspect}; expected the current format (#{expected})"
+          raise Ibex::Error,
+                "#{POSITION}: unsupported schema_version #{version.inspect}; expected the current format (#{expected})"
         end
 
         case type

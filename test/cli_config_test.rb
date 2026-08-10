@@ -5,7 +5,7 @@ require "fileutils"
 require "stringio"
 require "tmpdir"
 
-# rubocop:disable Metrics/ClassLength -- configuration command cases cover the static trust boundary.
+# -- configuration command cases cover the static trust boundary.
 class CLIConfigTest < Minitest::Test
   def test_default_only_source_explains_every_registry_key
     with_grammar("class P\nrule\nstart: TOKEN\nend\n") do |path|
@@ -237,4 +237,3 @@ class CLIConfigTest < Minitest::Test
     io.rewind
   end
 end
-# rubocop:enable Metrics/ClassLength

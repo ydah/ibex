@@ -17,7 +17,7 @@ class IRRuleDocumentationTest < Minitest::Test
   def test_rule_documentation_serializes_in_current_ir
     grammar = documented_value_grammar
     symbol = grammar.symbol("value")
-    productions = grammar.productions.select { |production| production.lhs == symbol.id }
+    grammar.productions.select { |production| production.lhs == symbol.id }
     serialized = Ibex::IR::Serialize.dump(grammar)
     document = JSON.parse(serialized)
     serialized_symbol = document.fetch("symbols").find { |entry| entry.fetch("name") == "value" }
@@ -30,7 +30,6 @@ class IRRuleDocumentationTest < Minitest::Test
     raise "expected grammar IR" unless validated.is_a?(Ibex::IR::Grammar)
 
     assert_equal symbol.documentation, validated.symbol("value").documentation
-
   end
 
   def test_repeated_rule_uses_first_nonnil_documentation_and_accepts_same_text

@@ -66,7 +66,6 @@ module Ibex
         value[:doc] = @documentation
         value
       end
-
     end
 
     # Opaque Ruby semantic action metadata.
@@ -204,6 +203,7 @@ module Ibex
           recovery: recovery, lexer: lexer, mode: mode, starts: starts, parser_contract: parser_contract
         )
       end
+
       # @rbs skip
       def initialize_current(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
                              conversions:, warnings:, user_code_chunks:, source_provenance:, expect_rr:,
@@ -321,9 +321,9 @@ module Ibex
 
       # @rbs skip
       def validate_current_metadata(parser_contract)
-        unless parser_contract.is_a?(ParserContract)
-          raise ArgumentError, "parser_contract must be a ParserContract"
-        end
+        return if parser_contract.is_a?(ParserContract)
+
+        raise ArgumentError, "parser_contract must be a ParserContract"
       end
     end
   end

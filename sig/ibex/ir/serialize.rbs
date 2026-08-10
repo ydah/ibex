@@ -16,6 +16,34 @@ module Ibex
 
       private def self.load_grammar: (Hash[String, serialized_value] data) -> Grammar
 
+      private def load_symbols: (Hash[String, serialized_value] data) -> Array[GrammarSymbol]
+
+      private def self.load_symbols: (Hash[String, serialized_value] data) -> Array[GrammarSymbol]
+
+      private def load_productions: (Hash[String, serialized_value] data) -> Array[Production]
+
+      private def self.load_productions: (Hash[String, serialized_value] data) -> Array[Production]
+
+      private def empty_chunks: () -> Hash[String, serialized_value]
+
+      private def self.empty_chunks: () -> Hash[String, serialized_value]
+
+      private def empty_parameters: () -> Array[serialized_value]
+
+      private def self.empty_parameters: () -> Array[serialized_value]
+
+      private def empty_printers: () -> Array[serialized_value]
+
+      private def self.empty_printers: () -> Array[serialized_value]
+
+      private def empty_tests: () -> Array[serialized_value]
+
+      private def self.empty_tests: () -> Array[serialized_value]
+
+      private def empty_recovery: () -> Hash[String, serialized_value]
+
+      private def self.empty_recovery: () -> Hash[String, serialized_value]
+
       private def load_automaton: (Hash[String, serialized_value] data) -> Automaton
 
       private def self.load_automaton: (Hash[String, serialized_value] data) -> Automaton

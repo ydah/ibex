@@ -27,38 +27,44 @@ class CLIGenerationTransactionTest < Minitest::Test
     Dir.mktmpdir("ibex-cli-generation") do |directory|
       grammar = File.join(directory, "parser.y")
       File.binwrite(grammar, cst_grammar_source)
-      cases = {
-        "default" => [[], "leading"],
-        "leading" => [["--cst-trivia=leading"], "leading"],
-        "balanced" => [["--cst-trivia=balanced"], "balanced"],
-        "drop" => [["--cst-trivia=drop"], "drop"],
-        "attach" => [["--cst-trivia=attach"], "leading"]
-      }
+      documents = cst_trivia_manifests(directory, grammar)
+      assert_canonical_cst_trivia(documents)
+    end
+  end
 
-      documents = cases.to_h do |name, (arguments, expected)|
-        document = generate_manifest(directory, grammar, name, arguments)
-        assert_equal 1, document.fetch("schema_version")
-        assert_equal expected, document.fetch("options").fetch("cst_trivia")
-        [name, document]
-      end
+  def cst_trivia_manifests(directory, grammar)
+    cases = {
+      "default" => [[], "leading"],
+      "leading" => [["--cst-trivia=leading"], "leading"],
+      "balanced" => [["--cst-trivia=balanced"], "balanced"],
+      "drop" => [["--cst-trivia=drop"], "drop"],
+      "attach" => [["--cst-trivia=attach"], "leading"]
+    }
+    cases.to_h do |name, (arguments, expected)|
+      document = generate_manifest(directory, grammar, name, arguments)
+      assert_equal 1, document.fetch("schema_version")
+      assert_equal expected, document.fetch("options").fetch("cst_trivia")
+      [name, document]
+    end
+  end
 
-      default_cst = documents.fetch("default").fetch("options").fetch("effective_configuration").find do |entry|
-        entry.fetch("key") == "cst.trivia"
-      end
-      leading_cst = documents.fetch("leading").fetch("options").fetch("effective_configuration").find do |entry|
-        entry.fetch("key") == "cst.trivia"
-      end
-      attach_cst = documents.fetch("attach").fetch("options").fetch("effective_configuration").find do |entry|
-        entry.fetch("key") == "cst.trivia"
-      end
-      assert_equal({ "kind" => "builtin" }, default_cst.fetch("origin"))
-      assert_equal false, default_cst.fetch("explicit")
-      assert_equal({ "kind" => "cli" }, leading_cst.fetch("origin"))
-      assert_equal true, leading_cst.fetch("explicit")
-      assert_equal({ "kind" => "cli" }, attach_cst.fetch("origin"))
-      assert_equal true, attach_cst.fetch("explicit")
-      refute_equal documents.fetch("leading").fetch("options"), documents.fetch("balanced").fetch("options")
-      refute_equal documents.fetch("leading").fetch("options"), documents.fetch("drop").fetch("options")
+  def assert_canonical_cst_trivia(documents)
+    default_cst = effective_cst_entry(documents.fetch("default"))
+    leading_cst = effective_cst_entry(documents.fetch("leading"))
+    attach_cst = effective_cst_entry(documents.fetch("attach"))
+    assert_equal({ "kind" => "builtin" }, default_cst.fetch("origin"))
+    assert_equal false, default_cst.fetch("explicit")
+    assert_equal({ "kind" => "cli" }, leading_cst.fetch("origin"))
+    assert_equal true, leading_cst.fetch("explicit")
+    assert_equal({ "kind" => "cli" }, attach_cst.fetch("origin"))
+    assert_equal true, attach_cst.fetch("explicit")
+    refute_equal documents.fetch("leading").fetch("options"), documents.fetch("balanced").fetch("options")
+    refute_equal documents.fetch("leading").fetch("options"), documents.fetch("drop").fetch("options")
+  end
+
+  def effective_cst_entry(document)
+    document.fetch("options").fetch("effective_configuration").find do |entry|
+      entry.fetch("key") == "cst.trivia"
     end
   end
 

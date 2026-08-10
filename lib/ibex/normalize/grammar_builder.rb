@@ -18,7 +18,7 @@ module Ibex
         productions: @productions, user_code: normalized_user_code,
         conversions: @conversions, warnings: @warnings, user_code_chunks: normalized_user_code_chunks,
         source_provenance: { file: @ast.loc.file, root: @resolution&.root_directory, byte_span: nil }
-      } #: { class_name: String, superclass: String?, start: String, expect: Integer, options: IR::grammar_options, symbols: Array[IR::GrammarSymbol], productions: Array[IR::Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[IR::grammar_warning] }
+      } #: { class_name: String, superclass: String?, start: String, expect: Integer, options: IR::grammar_options, symbols: Array[IR::GrammarSymbol], productions: Array[IR::Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[IR::grammar_warning] } # rubocop:disable Layout/LineLength -- inline Steep shape mirrors the normalized builder contract.
 
       IR::Grammar.new(**keywords, parser_contract: parser_contract || IR::ParserContract.new) # steep:ignore Ruby::InsufficientKeywordArguments
     end

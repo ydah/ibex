@@ -10,7 +10,9 @@ module Ibex
           ibex_ir schema_version class_name superclass start expect options symbols productions user_code
           conversions warnings source_provenance parser_contract
         ].freeze #: Array[String]
-        ROOT_OPTIONAL = %w[user_code_chunks expect_rr params printers tests recovery lexer mode starts].freeze #: Array[String]
+        ROOT_OPTIONAL = %w[
+          user_code_chunks expect_rr params printers tests recovery lexer mode starts
+        ].freeze #: Array[String]
         SYMBOL_REQUIRED = %w[id name kind reserved prec loc].freeze #: Array[String]
         SYMBOL_OPTIONAL = %w[display_name semantic_type].freeze #: Array[String]
         SYMBOL_METADATA_REQUIRED = %w[doc].freeze #: Array[String]
