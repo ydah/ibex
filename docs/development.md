@@ -1,3 +1,8 @@
+---
+title: Development and quality checks
+description: Contributor workflow, reproducibility checks, and quality gates for Ibex.
+---
+
 # Development and quality checks
 
 This document describes contributor workflow and repository quality gates.

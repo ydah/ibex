@@ -1,3 +1,8 @@
+---
+title: Concrete syntax trees
+description: Lossless Red/Green CSTs, typed views, editing, and incremental session boundaries.
+---
+
 # Red/Green concrete syntax trees
 
 <!-- stable:batch-cst:v1 -->

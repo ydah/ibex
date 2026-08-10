@@ -1,3 +1,8 @@
+---
+title: Stability policy
+description: Compatibility, promotion, deprecation, and feature-development rules for Ibex.
+---
+
 # Stability, compatibility, and deprecation
 
 Ibex separates support level from activation. Opt-in controls do not determine

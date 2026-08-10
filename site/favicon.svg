@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title>Ibex</title>
+  <rect width="64" height="64" rx="12" fill="#0b1120"/>
+  <path d="M17 18h8v28h-8zm15 0h8v28h-8zm8 8h8v8h-8z" fill="#4ade80"/>
+</svg>

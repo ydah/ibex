@@ -1,3 +1,8 @@
+---
+title: Architecture
+description: Ibex's grammar, IR, parser construction, runtime, and verification boundaries.
+---
+
 # Architecture and IR schemas
 
 Ibex keeps syntax, grammar meaning, automaton construction, and output concerns behind two immutable current contracts.

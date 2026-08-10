@@ -1,3 +1,8 @@
+---
+title: Verification report
+description: Validate parser-table artifacts and understand the independent verifier trust boundary.
+---
+
 # Scoped generation verification report
 
 Ibex can explicitly render a verifiable generation bundle containing a

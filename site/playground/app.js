@@ -1,4 +1,33 @@
-const SAMPLE = `class Browser::ExpressionParser
+const SAMPLES = {
+  calculator: `class Calculator
+token NUMBER
+left '+'
+left '*'
+rule
+  expression : expression '+' expression
+             | expression '*' expression
+             | NUMBER
+end
+`,
+  json: `class JsonParser
+token LBRACE RBRACE LBRACKET RBRACKET STRING NUMBER
+rule
+  value : STRING | NUMBER | object | array
+  object : LBRACE RBRACE | LBRACE members RBRACE
+  members : STRING ':' value | members ',' STRING ':' value
+  array : LBRACKET RBRACKET | LBRACKET values RBRACKET
+  values : value | values ',' value
+end
+`,
+  conflict: `class AmbiguousParser
+token NUMBER
+rule
+  expression : expression '+' expression
+             | expression '*' expression
+             | NUMBER
+end
+`,
+  expression: `class Browser::ExpressionParser
 token NUMBER
 left '+' '-'
 left '*' '/'
@@ -9,13 +38,15 @@ rule
              | expression '/' expression
              | NUMBER
 end
-`;
+`
+};
 
 const ANALYSIS_TIMEOUT_MS = 15_000;
 const elements = {
   form: document.querySelector("#playground-form"),
   source: document.querySelector("#grammar-source"),
   sourceSize: document.querySelector("#source-size"),
+  sample: document.querySelector("#sample"),
   algorithm: document.querySelector("#algorithm"),
   analyze: document.querySelector("#analyze-button"),
   reset: document.querySelector("#reset-button"),
@@ -27,6 +58,12 @@ const elements = {
   download: document.querySelector("#download-button"),
   copy: document.querySelector("#copy-button")
 };
+elements.tabs = [...document.querySelectorAll("[data-tab]")];
+elements.panels = Object.fromEntries(
+  ["summary", "diagnostics", "conflicts", "automaton"].map((name) => [name, document.querySelector(`#panel-${name}`)])
+);
+elements.automaton = document.querySelector("#automaton-output code");
+elements.summaryEmpty = document.querySelector("#summary-empty");
 
 let worker;
 let requestSequence = 0;
@@ -97,7 +134,10 @@ function failAnalysis(message) {
   renderDiagnostics([{ message, location: null }]);
   renderConflicts([]);
   elements.summary.classList.add("hidden");
+  elements.summaryEmpty.classList.remove("hidden");
+  elements.automaton.textContent = "{}";
   elements.resultActions.classList.add("hidden");
+  selectTab("diagnostics");
 }
 
 function renderResult(result) {
@@ -107,13 +147,18 @@ function renderResult(result) {
     setStatus("Fix the diagnostics and try again.", "error");
     renderConflicts([]);
     elements.summary.classList.add("hidden");
+    elements.summaryEmpty.classList.remove("hidden");
+    elements.automaton.textContent = "{}";
+    selectTab("diagnostics");
     elements.resultActions.classList.add("hidden");
     return;
   }
 
   renderSummary(result.summary);
   renderConflicts(result.conflicts, result.conflicts_truncated);
+  elements.automaton.textContent = JSON.stringify(result.automaton, null, 2);
   elements.resultActions.classList.remove("hidden");
+  selectTab("summary");
   const conflictCount = result.summary.conflicts;
   setStatus(
     conflictCount === 0
@@ -143,6 +188,7 @@ function renderSummary(summary) {
     })
   );
   elements.summary.classList.remove("hidden");
+  elements.summaryEmpty.classList.add("hidden");
 }
 
 function renderDiagnostics(diagnostics) {
@@ -210,9 +256,32 @@ function updateSourceSize() {
 }
 
 function resetSample() {
-  elements.source.value = SAMPLE;
+  elements.source.value = SAMPLES[elements.sample.value] || SAMPLES.calculator;
   updateSourceSize();
   elements.source.focus();
+}
+
+function selectSample(sample) {
+  if (!SAMPLES[sample]) return;
+  elements.sample.value = sample;
+  resetSample();
+}
+
+function selectTab(name) {
+  elements.tabs.forEach((tab) => {
+    const selected = tab.dataset.tab === name;
+    tab.setAttribute("aria-selected", String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+  });
+  Object.entries(elements.panels).forEach(([panelName, panel]) => {
+    panel.classList.toggle("hidden", panelName !== name);
+  });
+}
+
+function selectSampleFromLocation() {
+  const querySample = new URLSearchParams(window.location.search).get("sample");
+  const fragmentSample = new URLSearchParams(window.location.hash.slice(1)).get("sample");
+  selectSample(querySample || fragmentSample || "calculator");
 }
 
 function downloadAutomaton() {
@@ -243,6 +312,7 @@ async function copySummary() {
 
 elements.form.addEventListener("submit", submitAnalysis);
 elements.reset.addEventListener("click", resetSample);
+elements.sample.addEventListener("change", () => selectSample(elements.sample.value));
 elements.source.addEventListener("input", updateSourceSize);
 elements.source.addEventListener("keydown", (event) => {
   if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
@@ -252,6 +322,18 @@ elements.source.addEventListener("keydown", (event) => {
 });
 elements.download.addEventListener("click", downloadAutomaton);
 elements.copy.addEventListener("click", copySummary);
+elements.tabs.forEach((tab, index) => {
+  tab.addEventListener("click", () => selectTab(tab.dataset.tab));
+  tab.addEventListener("keydown", (event) => {
+    if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const next = event.key === "Home" ? 0 : event.key === "End" ? elements.tabs.length - 1 :
+      (index + (event.key === "ArrowRight" ? 1 : -1) + elements.tabs.length) % elements.tabs.length;
+    elements.tabs[next].focus();
+    selectTab(elements.tabs[next].dataset.tab);
+  });
+});
 
-resetSample();
+selectSampleFromLocation();
+selectTab("summary");
 createWorker();

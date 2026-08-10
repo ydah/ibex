@@ -13,21 +13,30 @@
       name="description"
       content="A Pure Ruby LR parser generator with diagnostics, versioned IR, typed output, and multiple construction algorithms."
     >
+    <link rel="canonical" href="https://ydah.github.io/ibex/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Ibex — Pure Ruby LR parser generator">
+    <meta property="og:description" content="Build parsers, inspect the machine, and migrate from racc with Pure Ruby tooling.">
+    <meta property="og:url" content="https://ydah.github.io/ibex/">
+    <meta property="og:image" content="https://ydah.github.io/ibex/social-preview.svg">
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body>
+    <a class="skip-link" href="#content">Skip to content</a>
     <header class="site-header">
       <a class="brand" href="./" aria-label="Ibex home">IBEX<span aria-hidden="true">_</span></a>
       <nav aria-label="Primary">
-        <a href="./compatibility/">Docs</a>
-        <a href="./gallery/">Gallery</a>
+        <a href="./getting-started/">Get started</a>
+        <a href="./docs/">Docs</a>
+        <a href="./gallery/">Examples</a>
         <a href="./playground/">Playground</a>
         <a href="./api/">API</a>
         <a href="https://github.com/ydah/ibex">GitHub</a>
       </nav>
     </header>
 
-    <main>
+    <main id="content">
       <section class="hero" aria-labelledby="hero-title">
         <p class="eyebrow">PURE RUBY · LR TOOLCHAIN</p>
         <h1 id="hero-title">Build parsers.<br><span>See the machine.</span></h1>
@@ -36,8 +45,8 @@
           inspectable automata, structured diagnostics, and typed interfaces.
         </p>
         <div class="actions">
-          <a class="button button-primary" href="./playground/">Open the playground</a>
-          <a class="button button-secondary" href="./api/">Read the API reference</a>
+          <a class="button button-primary" href="./getting-started/">Get started</a>
+          <a class="button button-secondary" href="./playground/">Try the playground</a>
         </div>
       </section>
 
@@ -100,11 +109,19 @@
           source data and never executes them.
         </p>
       </section>
+      <section class="status-strip" aria-labelledby="status-title">
+        <div>
+          <p class="eyebrow">PROJECT STATUS</p>
+          <h2 id="status-title">Pre-1.0, evidence-driven.</h2>
+        </div>
+        <p>v1.0 publication is on hold pending independent error-experience review. The compatible baseline is available now and feature development continues.</p>
+        <a class="button button-secondary" href="./project/">Read project status</a>
+      </section>
     </main>
 
     <footer>
       <p>Released under the MIT License.</p>
-      <a href="https://github.com/ydah/ibex">Source and issue tracker</a>
+      <span><a href="./project/">Project status</a> · <a href="https://github.com/ydah/ibex">Source and issues</a></span>
     </footer>
   </body>
 </html>

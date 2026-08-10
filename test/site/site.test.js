@@ -14,6 +14,9 @@ function rubyString(vm, value) {
 test("site is self-hosted and applies a restrictive policy", async () => {
   const pages = await Promise.all([
     readFile(new URL("index.html", output), "utf8"),
+    readFile(new URL("getting-started/index.html", output), "utf8"),
+    readFile(new URL("docs/index.html", output), "utf8"),
+    readFile(new URL("project/index.html", output), "utf8"),
     readFile(new URL("playground/index.html", output), "utf8"),
     readFile(new URL("compatibility/index.html", output), "utf8"),
     readFile(new URL("extensions/index.html", output), "utf8"),
@@ -24,8 +27,29 @@ test("site is self-hosted and applies a restrictive policy", async () => {
   for (const html of pages) {
     assert.match(html, /Content-Security-Policy/);
     assert.match(html, /wasm-unsafe-eval/);
-    assert.doesNotMatch(html, /<(?:script|link)\b[^>]+(?:src|href)=["']https?:\/\//);
+    assert.match(html, /Skip to content/);
+    assert.match(html, /rel="canonical"/);
+    assert.match(html, /property="og:title"/);
+    assert.doesNotMatch(html, /<script\b[^>]+src=["']https?:\/\//);
+    assert.doesNotMatch(html, /<link\b[^>]+rel=["']stylesheet["'][^>]+href=["']https?:\/\//);
   }
+});
+
+test("Pages renders task documentation from canonical Markdown", async () => {
+  const [source, gettingStarted, grammar, status, sitemap] = await Promise.all([
+    readFile(new URL("../../docs/getting-started.md", import.meta.url), "utf8"),
+    readFile(new URL("docs/getting-started/index.html", output), "utf8"),
+    readFile(new URL("docs/grammar-reference/index.html", output), "utf8"),
+    readFile(new URL("docs/status/index.html", output), "utf8"),
+    readFile(new URL("sitemap.xml", output), "utf8")
+  ]);
+
+  assert.match(source, /title: Getting started/);
+  assert.match(gettingStarted, /Install the generator/);
+  assert.match(grammar, /Grammar reference/);
+  assert.match(status, /independent review/);
+  assert.match(sitemap, /docs\/grammar-reference\//);
+  assert.match(sitemap, /getting-started\//);
 });
 
 test("documentation separates maturity levels and publishes the covered gallery", async () => {
@@ -37,12 +61,12 @@ test("documentation separates maturity levels and publishes the covered gallery"
 
   assert.match(home, /DOCUMENTATION BY MATURITY/);
   assert.match(compatibility, /PERMANENT DEFAULT CONTRACT/);
-  assert.match(compatibility, /release-readiness\.md/);
-  assert.match(compatibility, /stability\.md/);
+  assert.match(compatibility, /release-readiness\//);
+  assert.match(compatibility, /stability\//);
   assert.match(extensions, /EXPLICIT OPT-IN SURFACE/);
-  assert.match(extensions, /stability\.md/);
+  assert.match(extensions, /stability\//);
   assert.match(experimental, /EVIDENCE BEFORE PROMOTION/);
-  assert.match(experimental, /stability\.md/);
+  assert.match(experimental, /stability\//);
   assert.match(experimental, /Syntax-only incremental CST sessions are shipped as Experimental/);
   assert.match(experimental, /Generalized LR and GLR ambiguity handling are not shipped/);
   assert.doesNotMatch(experimental, /incremental parsing\s+are not shipped/);
@@ -70,9 +94,14 @@ test("playground exposes accessible controls and worker limits", async () => {
 
   assert.match(html, /aria-live="polite"/);
   assert.match(html, /for="grammar-source"/);
+  assert.match(html, /id="sample"/);
+  assert.match(html, /data-tab="automaton"/);
+  assert.match(html, /aria-controls="panel-conflicts"/);
   assert.match(html, /type="submit"/);
   assert.match(app, /15e3|15000|15_000/);
   assert.match(app, /new Worker/);
+  assert.match(app, /SAMPLES/);
+  assert.match(app, /URLSearchParams/);
 });
 
 test("ruby.wasm loads the browser bundle and analyzes a grammar", { timeout: 30_000 }, async () => {

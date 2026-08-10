@@ -10,20 +10,30 @@
     >
     <title>Extensions — Ibex documentation</title>
     <meta name="description" content="Opt-in Ibex grammar, lexer, tree, type, and diagnostic features.">
+    <link rel="canonical" href="https://ydah.github.io/ibex/extensions/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Extensions — Ibex documentation">
+    <meta property="og:description" content="Opt-in Ibex grammar, lexer, tree, type, and diagnostic features.">
+    <meta property="og:url" content="https://ydah.github.io/ibex/extensions/">
+    <meta property="og:image" content="https://ydah.github.io/ibex/social-preview.svg">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="../styles.css">
   </head>
   <body>
+    <a class="skip-link" href="#content">Skip to content</a>
     <header class="site-header">
       <a class="brand" href="../" aria-label="Ibex home">IBEX<span aria-hidden="true">_</span></a>
       <nav aria-label="Primary">
-        <a href="../compatibility/">Compatibility</a>
-        <a aria-current="page" href="./">Extended</a>
-        <a href="../experimental/">Experimental</a>
-        <a href="../gallery/">Gallery</a>
+        <a href="../getting-started/">Get started</a>
+        <a aria-current="page" href="../docs/">Docs</a>
+        <a href="../gallery/">Examples</a>
+        <a href="../playground/">Playground</a>
+        <a href="../api/">API</a>
+        <a href="https://github.com/ydah/ibex">GitHub</a>
       </nav>
     </header>
 
-    <main class="docs-main">
+    <main id="content" class="docs-main">
       <header class="docs-heading">
         <span class="maturity maturity-preview">Extended</span>
         <p class="eyebrow">EXPLICIT OPT-IN SURFACE</p>
@@ -41,7 +51,7 @@
             EBNF groups, parameterized and inline rules, middle actions, multiple entries,
             imports, token aliases, explicit empty rules, and constructor parameters.
           </p>
-          <a href="https://github.com/ydah/ibex/blob/main/docs/grammar-reference.md">Extended grammar reference →</a>
+          <a href="../docs/grammar-reference/">Extended grammar reference →</a>
         </article>
         <article class="doc-card">
           <h2>Integrated lexing</h2>
@@ -49,7 +59,7 @@
             Longest-match rules, lexical states, Unicode-aware locations, and streaming String,
             IO, or Fiber input are generated beside the parser.
           </p>
-          <a href="https://github.com/ydah/ibex/blob/main/docs/lexer-migration.md">Lexer migration guide →</a>
+          <a href="../docs/lexer-migration/">Lexer migration guide →</a>
         </article>
         <article class="doc-card">
           <h2>Trees and types</h2>
@@ -75,7 +85,7 @@
           Extended features are opt-in and may mature independently. Their documented syntax and
           generated contracts are tested, but they do not alter compatible-mode defaults.
         </p>
-        <a href="https://github.com/ydah/ibex/blob/main/docs/stability.md">Review the promotion inventory →</a>
+          <a href="../docs/stability/">Review the promotion inventory →</a>
       </aside>
     </main>
 

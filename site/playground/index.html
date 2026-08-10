@@ -13,22 +13,31 @@
       name="description"
       content="Analyze LR grammars entirely in your browser with Ibex and ruby.wasm."
     >
+    <link rel="canonical" href="https://ydah.github.io/ibex/playground/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Playground — Ibex">
+    <meta property="og:description" content="Analyze LR grammars entirely in your browser with Ibex and ruby.wasm.">
+    <meta property="og:url" content="https://ydah.github.io/ibex/playground/">
+    <meta property="og:image" content="https://ydah.github.io/ibex/social-preview.svg">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="../styles.css">
     <script type="module" src="./app.js"></script>
   </head>
   <body>
+    <a class="skip-link" href="#content">Skip to content</a>
     <header class="site-header">
       <a class="brand" href="../" aria-label="Ibex home">IBEX<span aria-hidden="true">_</span></a>
       <nav aria-label="Primary">
-        <a href="../compatibility/">Docs</a>
-        <a href="../gallery/">Gallery</a>
+        <a href="../getting-started/">Get started</a>
+        <a href="../docs/">Docs</a>
+        <a href="../gallery/">Examples</a>
         <a aria-current="page" href="./">Playground</a>
         <a href="../api/">API</a>
         <a href="https://github.com/ydah/ibex">GitHub</a>
       </nav>
     </header>
 
-    <main class="playground-main">
+    <main id="content" class="playground-main">
       <div class="playground-heading">
         <p class="eyebrow">BROWSER LAB</p>
         <h1>Inspect an LR grammar.</h1>
@@ -47,8 +56,17 @@
           <label class="field-label hidden" for="grammar-source">Grammar source</label>
           <textarea id="grammar-source" name="grammar" spellcheck="false" maxlength="100000"></textarea>
           <div class="editor-controls">
+            <label class="field-label" for="sample">
+              Sample
+              <select id="sample" name="sample">
+                <option value="calculator">Calculator · compatible</option>
+                <option value="json">JSON · generated lexer shape</option>
+                <option value="conflict">Conflict · inspect a witness</option>
+                <option value="expression">Expression · extended grammar</option>
+              </select>
+            </label>
             <label class="field-label" for="algorithm">
-              Construction
+              Construction algorithm
               <select id="algorithm" name="algorithm">
                 <option value="lalr">LALR(1) · direct</option>
                 <option value="ielr">IELR(1)</option>
@@ -70,20 +88,42 @@
           </div>
           <p id="status" class="status" role="status" aria-live="polite">Loading the analyzer…</p>
 
-          <dl id="summary" class="summary-grid hidden"></dl>
+          <div class="tab-list" role="tablist" aria-label="Analysis result views">
+            <button class="tab-button" id="tab-summary" type="button" role="tab" aria-selected="true" aria-controls="panel-summary" data-tab="summary">Summary</button>
+            <button class="tab-button" id="tab-diagnostics" type="button" role="tab" aria-selected="false" aria-controls="panel-diagnostics" data-tab="diagnostics">Diagnostics</button>
+            <button class="tab-button" id="tab-conflicts" type="button" role="tab" aria-selected="false" aria-controls="panel-conflicts" data-tab="conflicts">Conflicts</button>
+            <button class="tab-button" id="tab-automaton" type="button" role="tab" aria-selected="false" aria-controls="panel-automaton" data-tab="automaton">Automaton IR</button>
+          </div>
 
-          <section class="result-section" aria-labelledby="diagnostics-title">
-            <h3 id="diagnostics-title">Diagnostics</h3>
-            <ol id="diagnostics">
-              <li class="empty">No analysis yet.</li>
-            </ol>
+          <section class="tab-panel result-section" id="panel-summary" role="tabpanel" aria-labelledby="tab-summary">
+            <dl id="summary" class="summary-grid hidden"></dl>
+            <p id="summary-empty" class="empty">No analysis yet.</p>
+            <div class="algorithm-note">
+              <h3>Construction choices</h3>
+              <p>Analyze the same source with another algorithm to compare bounded observations. The algorithm is an invocation choice unless the grammar declares a canonical one.</p>
+              <table><thead><tr><th>Algorithm</th><th>Role</th></tr></thead><tbody>
+                <tr><td><code>LALR(1)</code></td><td>Compatible default</td></tr>
+                <tr><td><code>IELR(1)</code></td><td>Preview conflict-preserving backend</td></tr>
+                <tr><td><code>LR(1)</code></td><td>Canonical analysis</td></tr>
+                <tr><td><code>SLR</code></td><td>FOLLOW-set reductions</td></tr>
+              </tbody></table>
+            </div>
           </section>
 
-          <section class="result-section" aria-labelledby="conflicts-title">
+          <section class="tab-panel result-section hidden" id="panel-diagnostics" role="tabpanel" aria-labelledby="tab-diagnostics" tabindex="0">
+            <h3 id="diagnostics-title">Diagnostics</h3>
+            <ol id="diagnostics"><li class="empty">No analysis yet.</li></ol>
+          </section>
+
+          <section class="tab-panel result-section hidden" id="panel-conflicts" role="tabpanel" aria-labelledby="tab-conflicts" tabindex="0">
             <h3 id="conflicts-title">Conflicts &amp; counterexamples</h3>
-            <ol id="conflicts">
-              <li class="empty">No analysis yet.</li>
-            </ol>
+            <ol id="conflicts"><li class="empty">No analysis yet.</li></ol>
+          </section>
+
+          <section class="tab-panel result-section hidden" id="panel-automaton" role="tabpanel" aria-labelledby="tab-automaton" tabindex="0">
+            <h3>Automaton IR</h3>
+            <p class="empty">The current bounded result can be downloaded or inspected here.</p>
+            <pre id="automaton-output" class="automaton-output"><code>{}</code></pre>
           </section>
 
           <div id="result-actions" class="result-actions hidden">

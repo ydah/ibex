@@ -10,20 +10,30 @@
     >
     <title>Grammar gallery — Ibex</title>
     <meta name="description" content="Maintained Ibex grammar examples with declared tests and complete production coverage.">
+    <link rel="canonical" href="https://ydah.github.io/ibex/gallery/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Grammar gallery — Ibex">
+    <meta property="og:description" content="Maintained Ibex grammar examples with declared tests and complete production coverage.">
+    <meta property="og:url" content="https://ydah.github.io/ibex/gallery/">
+    <meta property="og:image" content="https://ydah.github.io/ibex/social-preview.svg">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="../styles.css">
   </head>
   <body>
+    <a class="skip-link" href="#content">Skip to content</a>
     <header class="site-header">
       <a class="brand" href="../" aria-label="Ibex home">IBEX<span aria-hidden="true">_</span></a>
       <nav aria-label="Primary">
-        <a href="../compatibility/">Docs</a>
-        <a aria-current="page" href="./">Gallery</a>
+        <a href="../getting-started/">Get started</a>
+        <a href="../docs/">Docs</a>
+        <a aria-current="page" href="./">Examples</a>
         <a href="../playground/">Playground</a>
         <a href="../api/">API</a>
+        <a href="https://github.com/ydah/ibex">GitHub</a>
       </nav>
     </header>
 
-    <main class="docs-main">
+    <main id="content" class="docs-main">
       <header class="docs-heading">
         <span class="coverage-proof">100% production coverage in CI</span>
         <p class="eyebrow">EXECUTABLE GRAMMAR GALLERY</p>
@@ -39,27 +49,32 @@
         <article class="doc-card">
           <h2>Calculator</h2>
           <p>Integer arithmetic, precedence by grammar structure, parentheses, and a handwritten lexer.</p>
-          <a href="https://github.com/ydah/ibex/blob/main/examples/calculator.y">Open calculator.y →</a>
+          <a href="../playground/?sample=calculator">Open calculator in Playground →</a>
+          <a href="https://github.com/ydah/ibex/blob/main/examples/calculator.y">View calculator.y source</a>
         </article>
         <article class="doc-card">
           <h2>JSON</h2>
           <p>Generated lexer rules, conversion actions, recursive objects and arrays, and every JSON value.</p>
-          <a href="https://github.com/ydah/ibex/blob/main/examples/json.y">Open json.y →</a>
+          <a href="../playground/?sample=json">Open JSON shape in Playground →</a>
+          <a href="https://github.com/ydah/ibex/blob/main/examples/json.y">View json.y source</a>
         </article>
         <article class="doc-card">
           <h2>CSV</h2>
           <p>Quoted fields, escaped quotes, row recursion, and generated newline-aware tokenization.</p>
-          <a href="https://github.com/ydah/ibex/blob/main/examples/csv.y">Open csv.y →</a>
+          <a href="../playground/?sample=calculator">Open a compatible sample in Playground →</a>
+          <a href="https://github.com/ydah/ibex/blob/main/examples/csv.y">View csv.y source</a>
         </article>
         <article class="doc-card">
           <h2>INI</h2>
           <p>Line-oriented scanning, sections, entries, blank lines, and a nested Ruby Hash result.</p>
-          <a href="https://github.com/ydah/ibex/blob/main/examples/ini.y">Open ini.y →</a>
+          <a href="../playground/?sample=calculator">Open a compatible sample in Playground →</a>
+          <a href="https://github.com/ydah/ibex/blob/main/examples/ini.y">View ini.y source</a>
         </article>
         <article class="doc-card">
           <h2>Tiny language</h2>
           <p>A Lox-scale starting point with variables, assignment, print statements, expressions, and AST execution.</p>
-          <a href="https://github.com/ydah/ibex/blob/main/examples/tiny_language.y">Open tiny_language.y →</a>
+          <a href="../playground/?sample=expression">Open extended sample in Playground →</a>
+          <a href="https://github.com/ydah/ibex/blob/main/examples/tiny_language.y">View tiny_language.y source</a>
         </article>
         <article class="doc-card">
           <h2>Use the same gate</h2>

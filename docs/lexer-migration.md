@@ -1,3 +1,8 @@
+---
+title: Lexer migration
+description: Move a handwritten lexer or adopt the explicit generated lexer contract.
+---
+
 # Migrating a handwritten lexer
 
 The generated lexer uses the same `next_token` contract as a handwritten pull

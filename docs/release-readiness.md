@@ -1,3 +1,8 @@
+---
+title: Release readiness
+description: Outcome-based release evidence, limitations, and the current publication decision.
+---
+
 # v1.0 readiness report
 
 This is the outcome-based v1.0 decision required by the project design. It

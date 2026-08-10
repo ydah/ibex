@@ -1,3 +1,8 @@
+---
+title: Grammar reference
+description: Write compatible and extended Ibex grammars and understand their generated contracts.
+---
+
 # Grammar reference
 
 <!-- stable:compatible-parser:v2 -->

@@ -1,3 +1,8 @@
+---
+title: Workload registry
+description: Evidence identities, workload provenance, and comparative measurement boundaries.
+---
+
 # Public workload and problem registry
 
 [`workloads.yml`](workloads.yml) is the machine-readable authority for workload

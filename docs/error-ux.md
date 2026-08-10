@@ -1,3 +1,8 @@
+---
+title: Error experience evidence
+description: Bounded diagnostics, repair behavior, and the evidence boundary for parser errors.
+---
+
 # JSON error UX evidence
 
 This report fixes the Phase 14 error-experience baseline against ten malformed

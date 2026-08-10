@@ -1,3 +1,8 @@
+---
+title: Migrating from racc
+description: Move a racc grammar to Ibex with explicit compatibility checks and runtime boundaries.
+---
+
 # Migrating from racc
 
 Ibex targets grammar-file compatibility, generated parser public API compatibility, and the main racc CLI options. It does not

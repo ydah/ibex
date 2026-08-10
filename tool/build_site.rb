@@ -2,12 +2,18 @@
 
 require "fileutils"
 require "pathname"
+require "cgi"
+require_relative "site_markdown"
 
 ROOT = Pathname(__dir__).join("..").expand_path
 OUTPUT = ROOT.join("tmp/site")
 STATIC_ROOT = ROOT.join("site")
 PLAYGROUND_OUTPUT = OUTPUT.join("playground")
 DOCUMENTATION_VOLUMES = %w[compatibility extensions experimental gallery].freeze
+DOCUMENTATION = Dir[ROOT.join("docs/*.md").to_s].filter_map do |path|
+  relative = Pathname(path).relative_path_from(ROOT).to_s.delete_suffix(".md")
+  [relative.delete_prefix("docs/"), Pathname(path)]
+end.freeze
 RUBY_ENTRIES = %w[
   lib/ibex/version.rb
   lib/ibex/error.rb
@@ -63,12 +69,117 @@ def bundled_ruby_source
   ].join("\n")
 end
 
+# rubocop:disable Metrics/MethodLength -- the shared static shell is intentionally visible in one template.
+def site_page(title:, description:, canonical:, prefix:, body:, active: "Docs")
+  escaped_title = CGI.escapeHTML(title)
+  escaped_description = CGI.escapeHTML(description)
+  <<~HTML
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="color-scheme" content="dark">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+        <title>#{escaped_title} — Ibex</title>
+        <meta name="description" content="#{escaped_description}">
+        <link rel="canonical" href="#{canonical}">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="#{escaped_title} — Ibex">
+        <meta property="og:description" content="#{escaped_description}">
+        <meta property="og:url" content="#{canonical}">
+        <meta property="og:image" content="https://ydah.github.io/ibex/social-preview.svg">
+        <link rel="icon" href="#{prefix}favicon.svg" type="image/svg+xml">
+        <link rel="stylesheet" href="#{prefix}styles.css">
+      </head>
+      <body>
+        <a class="skip-link" href="#content">Skip to content</a>
+        <header class="site-header">
+          <a class="brand" href="#{prefix}" aria-label="Ibex home">IBEX<span aria-hidden="true">_</span></a>
+          <nav aria-label="Primary">
+            <a#{' aria-current="page"' if active == 'Get started'} href="#{prefix}getting-started/">Get started</a>
+            <a#{' aria-current="page"' if active == 'Docs'} href="#{prefix}docs/">Docs</a>
+            <a#{' aria-current="page"' if active == 'Examples'} href="#{prefix}gallery/">Examples</a>
+            <a#{' aria-current="page"' if active == 'Playground'} href="#{prefix}playground/">Playground</a>
+            <a#{' aria-current="page"' if active == 'API'} href="#{prefix}api/">API</a>
+            <a href="https://github.com/ydah/ibex">GitHub</a>
+          </nav>
+        </header>
+        <main id="content" class="docs-main">
+          #{body}
+        </main>
+        <footer>
+          <p>Ibex is pre-1.0. Compatible mode is the conservative baseline.</p>
+          <a href="#{prefix}project/">Project status</a>
+        </footer>
+      </body>
+    </html>
+  HTML
+end
+# rubocop:enable Metrics/MethodLength
+
+def render_documentation
+  documentation_root = OUTPUT.join("docs")
+  FileUtils.mkdir_p(documentation_root)
+  DOCUMENTATION.each do |slug, path|
+    document = Ibex::SiteMarkdown.load(path)
+    destination = documentation_root.join(slug, "index.html")
+    FileUtils.mkdir_p(destination.dirname)
+    body = <<~HTML
+      <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="../">Docs</a><span aria-hidden="true">/</span><span aria-current="page">#{CGI.escapeHTML(document.title)}</span></nav>
+      <header class="docs-heading">
+        <p class="eyebrow">IBEX DOCUMENTATION</p>
+        <h1>#{CGI.escapeHTML(document.title)}</h1>
+        <p>#{CGI.escapeHTML(document.description)}</p>
+      </header>
+      <article class="markdown-body">
+        #{Ibex::SiteMarkdown::Renderer.new(document.body, current_slug: slug).render}
+      </article>
+    HTML
+    destination.write(site_page(
+                        title: document.title,
+                        description: document.description,
+                        canonical: "https://ydah.github.io/ibex/docs/#{slug}/",
+                        prefix: "../../",
+                        body: body
+                      ))
+  end
+end
+
+def copy_document_assets
+  Dir[ROOT.join("docs/**/*").to_s].each do |path|
+    next unless File.file?(path)
+    next if path.end_with?(".md")
+
+    relative = Pathname(path).relative_path_from(ROOT.join("docs"))
+    destination = OUTPUT.join("docs", relative)
+    FileUtils.mkdir_p(destination.dirname)
+    FileUtils.cp(path, destination)
+  end
+end
+
+def write_site_metadata
+  FileUtils.cp(STATIC_ROOT.join("favicon.svg"), OUTPUT.join("favicon.svg"))
+  FileUtils.cp(STATIC_ROOT.join("social-preview.svg"), OUTPUT.join("social-preview.svg"))
+  OUTPUT.join("robots.txt").write("User-agent: *\nAllow: /\nSitemap: https://ydah.github.io/ibex/sitemap.xml\n")
+  urls = ["", "getting-started/", "docs/", "gallery/", "playground/", "compatibility/", "extensions/", "experimental/",
+          "project/"]
+  urls.concat(DOCUMENTATION.map { |slug, _| "docs/#{slug}/" })
+  sitemap = urls.uniq.map { |url| "  <url><loc>https://ydah.github.io/ibex/#{url}</loc></url>" }.join("\n")
+  OUTPUT.join("sitemap.xml").write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n#{sitemap}\n</urlset>\n")
+end
+
 abort "refusing to write outside tmp/site" unless OUTPUT.to_s.start_with?(ROOT.join("tmp").to_s)
 
 FileUtils.rm_rf(OUTPUT)
 FileUtils.mkdir_p(PLAYGROUND_OUTPUT)
 FileUtils.cp(STATIC_ROOT.join("index.html"), OUTPUT)
 FileUtils.cp(STATIC_ROOT.join("styles.css"), OUTPUT)
+%w[getting-started docs project].each do |volume|
+  destination = OUTPUT.join(volume)
+  FileUtils.mkdir_p(destination)
+  FileUtils.cp(STATIC_ROOT.join(volume, "index.html"), destination)
+end
 FileUtils.cp(STATIC_ROOT.join("playground/index.html"), PLAYGROUND_OUTPUT)
 DOCUMENTATION_VOLUMES.each do |volume|
   destination = OUTPUT.join(volume)
@@ -77,3 +188,6 @@ DOCUMENTATION_VOLUMES.each do |volume|
 end
 PLAYGROUND_OUTPUT.join("ibex.rb").write(bundled_ruby_source)
 OUTPUT.join(".nojekyll").write("")
+render_documentation
+copy_document_assets
+write_site_metadata

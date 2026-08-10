@@ -10,20 +10,30 @@
     >
     <title>Experimental — Ibex documentation</title>
     <meta name="description" content="Ibex research surfaces, budgets, evidence, and adoption boundaries.">
+    <link rel="canonical" href="https://ydah.github.io/ibex/experimental/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Experimental — Ibex documentation">
+    <meta property="og:description" content="Ibex research surfaces, budgets, evidence, and adoption boundaries.">
+    <meta property="og:url" content="https://ydah.github.io/ibex/experimental/">
+    <meta property="og:image" content="https://ydah.github.io/ibex/social-preview.svg">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="../styles.css">
   </head>
   <body>
+    <a class="skip-link" href="#content">Skip to content</a>
     <header class="site-header">
       <a class="brand" href="../" aria-label="Ibex home">IBEX<span aria-hidden="true">_</span></a>
       <nav aria-label="Primary">
-        <a href="../compatibility/">Compatibility</a>
-        <a href="../extensions/">Extended</a>
-        <a aria-current="page" href="./">Experimental</a>
-        <a href="../gallery/">Gallery</a>
+        <a href="../getting-started/">Get started</a>
+        <a aria-current="page" href="../docs/">Docs</a>
+        <a href="../gallery/">Examples</a>
+        <a href="../playground/">Playground</a>
+        <a href="../api/">API</a>
+        <a href="https://github.com/ydah/ibex">GitHub</a>
       </nav>
     </header>
 
-    <main class="docs-main">
+    <main id="content" class="docs-main">
       <header class="docs-heading">
         <span class="maturity maturity-experimental">Experimental</span>
         <p class="eyebrow">EVIDENCE BEFORE PROMOTION</p>
@@ -41,7 +51,7 @@
             Optional insertion, deletion, and replacement search interprets tables without running
             actions, then replays one selected repair through the normal runtime.
           </p>
-          <a href="https://github.com/ydah/ibex/blob/main/docs/error-ux.md">Measured error UX evidence →</a>
+          <a href="../docs/error-ux/">Measured error UX evidence →</a>
         </article>
         <article class="doc-card">
           <h2>Shipped incremental CST</h2>
@@ -49,7 +59,7 @@
             Syntax-only incremental CST sessions are shipped as Experimental. They conservatively
             reuse Green subtrees, suppress parser actions, and still run generated lexer actions.
           </p>
-          <a href="https://github.com/ydah/ibex/blob/main/docs/cst.md">Read the incremental trust boundary →</a>
+          <a href="../docs/cst/">Read the incremental trust boundary →</a>
         </article>
         <article class="doc-card">
           <h2>Unshipped generalized parsing</h2>
@@ -57,7 +67,7 @@
             Generalized LR and GLR ambiguity handling are not shipped. IELR is a distinct shipped
             Preview algorithm and is not presented as generalized parsing.
           </p>
-          <a href="https://github.com/ydah/ibex/blob/main/docs/stability.md">Read the research decisions →</a>
+          <a href="../docs/stability/">Read the research decisions →</a>
         </article>
         <article class="doc-card">
           <h2>Hard budgets</h2>
@@ -73,7 +83,7 @@
             Promotion requires a public contract, representative use, adversarial tests,
             performance evidence, migration notes, and complete documentation.
           </p>
-          <a href="https://github.com/ydah/ibex/blob/main/docs/stability.md">Read the complete policy →</a>
+          <a href="../docs/stability/">Read the complete policy →</a>
         </article>
       </div>
 

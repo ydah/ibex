@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Ibex — Pure Ruby LR parser generator</title>
+  <desc id="desc">Build parsers, inspect the machine.</desc>
+  <rect width="1200" height="630" fill="#0b1120"/>
+  <path d="M0 88h1200M0 176h1200M0 264h1200M0 352h1200M0 440h1200M0 528h1200M88 0v630M176 0v630M264 0v630M352 0v630M440 0v630M528 0v630M616 0v630M704 0v630M792 0v630M880 0v630M968 0v630M1056 0v630M1144 0v630" stroke="#4ade80" stroke-opacity=".08"/>
+  <text x="96" y="176" fill="#f8fafc" font-family="monospace" font-size="54" font-weight="700" letter-spacing="8">IBEX<tspan fill="#4ade80">_</tspan></text>
+  <text x="96" y="310" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="72" font-weight="800">Build parsers.</text>
+  <text x="96" y="392" fill="#4ade80" font-family="system-ui, sans-serif" font-size="72" font-weight="800">See the machine.</text>
+  <text x="96" y="486" fill="#a8b3c5" font-family="system-ui, sans-serif" font-size="28">Pure Ruby · racc-compatible · inspectable LR tooling</text>
+</svg>
