@@ -363,11 +363,11 @@
       },
       {
         "path": "lib/ibex/ir/automaton_ir.rb",
-        "sha256": "b1b9e814d023859a980032d487683ee2db37805c027d792669ef5fb88497724d"
+        "sha256": "eac715f2b1b2209819bdf07cac0f664b33e132cd2b4ab4ce82390fa9e42f18fc"
       },
       {
         "path": "lib/ibex/ir/grammar_ir.rb",
-        "sha256": "1ab25ee1e1165a200f41ee67877f3169e37d554fbd4249e8b4c13de99fca5e0d"
+        "sha256": "6730214c8f310e521cb9924d5f67e9a0c14465b05683f346abf159255357e7a0"
       },
       {
         "path": "lib/ibex/ir/lexer_ir.rb",
@@ -379,15 +379,15 @@
       },
       {
         "path": "lib/ibex/ir/serialize.rb",
-        "sha256": "035d243c045e904a18e27659a3d0b3ff029b2a011a99af1daaafaf07fa6b3d16"
+        "sha256": "4c15e04b863891a8cd4a2ce792e657bc783358c1dc2c3419f90d04ea09ec4e54"
       },
       {
         "path": "lib/ibex/ir/validator.rb",
-        "sha256": "ec2a93e31bc370cec4ad3ad84ac4d322bdb830e528789cbd4e629a8657ee94fb"
+        "sha256": "7d92701a65114efb03ecafe2bf7ad6482f8a4144e5cadccde4e9215c6689563b"
       },
       {
         "path": "lib/ibex/ir/validator/automaton.rb",
-        "sha256": "0a50e73125abe607ba021987010401eff044311aef8ce84b4170d518c66f9238"
+        "sha256": "c60a3fc165bbed63160a805649c63f9d56bbb6ed21a6e2c1348ed416a4594f3a"
       },
       {
         "path": "lib/ibex/ir/validator/base.rb",
@@ -395,7 +395,7 @@
       },
       {
         "path": "lib/ibex/ir/validator/grammar.rb",
-        "sha256": "0be8e52910953a9d7354318071f31c23b96913055a20ffd0395ff60e4ffc1559"
+        "sha256": "9d0153578e1fd2301e5c670c586ea934f4208e42031f6a8649198dda55a1d3d1"
       },
       {
         "path": "lib/ibex/ir/validator/lexer.rb",
@@ -479,7 +479,7 @@
       },
       {
         "path": "lib/ibex/normalize/grammar_builder.rb",
-        "sha256": "5e08c8b0706a8de479c35a622cbbb6195383ba35145cb45f8c7857015ed30646"
+        "sha256": "15f955c7807f20987d9d998e136d16675a8f8686842695e6e6c1107c33b2c022"
       },
       {
         "path": "lib/ibex/normalize/inline_expansion.rb",

@@ -6,7 +6,7 @@ files:
   sig/ibex/ir/automaton_ir.rbs: ab9c57864fff750ff01a2a394ea224efb74be075156a45da644530c32615ae8b
   sig/ibex/ir/grammar_ir.rbs: 237cff5a6f9c07d45ebedfa0833f0fa35c97c40f0e7a4f71bc880bd315906e96
   sig/ibex/ir/lexer_ir.rbs: 9cf8bac34bcc43fe7371aa9a72e6b4c223714b62994638b6993583a14706a5b3
-  sig/ibex/ir/serialize.rbs: 4f106d8f07d3588faf8347fa4532ca5a3a30cbbcdcb07a11a3066e1955c73d89
+  sig/ibex/ir/serialize.rbs: b34453e77b466251ad9c07e4cd55c3a1c45a4a2a3560ff4bc2c81e4b7b1d10d8
   sig/ibex/ir/validator.rbs: 5de07834bc4d4f7bcc4f8d1eea414fbfd89f096ee03f7605a23c3ef8a869d1b8
   sig/ibex/ir/validator/automaton.rbs: f9faf50a0f38d4b580e1d0cbe2a561815dfded494bff4687bea2032d9820a651
   sig/ibex/ir/validator/base.rbs: 69f52171d5f817cfc87723061a62b33de2ae4b42e35a4f6699ac851df4bb1361
