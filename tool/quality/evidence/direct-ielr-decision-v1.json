@@ -7,8 +7,8 @@
     "status": "final_no_go",
     "basis": "repository_evidence",
     "review_state": "validated",
-    "date": "2026-08-08",
-    "revision": "e9115369a907985a9b674bf0304fe131f157e9ac",
+    "date": "2026-08-11",
+    "revision": "4c3a5346dbbfe84fce5a33e2b75d00e2fe074cc1",
     "revision_role": "reviewed repository evidence immediately before dossier publication"
   },
   "follow_on": {
@@ -162,7 +162,7 @@
       {
         "id": "v001-trust-boundary",
         "path": "docs/verifier-trust-boundary.md",
-        "sha256": "9ffc237e437ad08f81fbea15e48b1c2223df4dad95da0ddadb7927e98893a301",
+        "sha256": "e35d515f0c48702364f43f673b0ba0709095ef126ef888e21906fdefb21486d5",
         "role": "verifier reference cost, assurance boundary, and explicit IELR non-goals"
       },
       {
@@ -174,10 +174,10 @@
       {
         "id": "v001-verifier",
         "path": "lib/ibex/verify/verifier.rb",
-        "sha256": "e532160c98e22c9431012121a19d47ef7303c5b5e135fc3c00a166c1eb7e533c",
+        "sha256": "934ae84111581d2edd4230b06733f259bbf72839042a67c62d20558973af2e2e",
         "role": "current verifier checks reviewed by V001"
       }
     ],
-    "sources_sha256": "cfa9f23ea2067e48eeb91d23136998e934ea999971661edad4b7dd04df51426e"
+    "sources_sha256": "a1537b7eee848d9a4a204c8c47efb38fa61c4eedbeaa1eca4ef0e2ea99ff9d49"
   }
 }

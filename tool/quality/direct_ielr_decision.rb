@@ -92,9 +92,9 @@ module Ibex
           "path" => "lib/ibex/verify/verifier.rb", "role" => "current verifier checks reviewed by V001"
         }.freeze
       }.freeze
-      DECISION_REVISION = "e9115369a907985a9b674bf0304fe131f157e9ac"
+      DECISION_REVISION = "4c3a5346dbbfe84fce5a33e2b75d00e2fe074cc1"
       DECISION_REVISION_ROLE = "reviewed repository evidence immediately before dossier publication"
-      DECISION_DATE = "2026-08-08"
+      DECISION_DATE = "2026-08-11"
       DOSSIER_REVISION = "554ac700b290e13f858008457e5b920d15048e0e"
       DOSSIER_PATH = "tool/quality/evidence/direct-ielr-decision-v1.json"
       DOSSIER_DIGEST = "81b27dd95126227282ed03402ac7d2c9fa67dc7251f7b67cc89e77fa9cbcd16e"
@@ -272,7 +272,7 @@ module Ibex
         required = [
           "Default and strict both construct the algorithm-specific reference",
           "LALR(1), IELR(1), and LR(1) verification enumerate the canonical LR(1)",
-          "does not establish conflict preservation, canonical state correspondence, or\nsplit witnesses",
+          "It does not establish conflict preservation,\ncanonical state correspondence, or split witnesses",
           "| `ielr-adequacy` | Conflict preservation"
         ]
         missing = required.reject { |text| source.include?(text) }

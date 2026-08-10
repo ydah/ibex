@@ -6,8 +6,8 @@ the default or as a release-readiness claim; I002 remains
 blocked. This decision is a feature gate, not a claim that direct IELR has no
 future value.
 
-The final decision date is 2026-08-08. Revision
-`e9115369a907985a9b674bf0304fe131f157e9ac` is the repository evidence snapshot
+The final decision date is 2026-08-11. Revision
+`4c3a5346dbbfe84fce5a33e2b75d00e2fe074cc1` is the repository evidence snapshot
 reviewed immediately before this dossier was published; it is not a claim that
 the dossier itself existed in that revision. The machine record marks the
 decision `final_no_go`, its basis `repository_evidence`, and its review state
