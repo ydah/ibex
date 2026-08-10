@@ -8,7 +8,7 @@
     "basis": "repository_evidence",
     "review_state": "validated",
     "date": "2026-08-08",
-    "revision": "f8d29d102033b784630a3ff2c63aa4d8896f11da",
+    "revision": "74f49fe0f96b1ad7b3e35b198ce82db8c266d4de",
     "revision_role": "reviewed repository evidence immediately before dossier publication"
   },
   "follow_on": {
@@ -136,9 +136,9 @@
     "rule": "future direct IELR design must remain independent; GPL implementation source must not be inspected or translated"
   },
   "evidence_identity": {
-    "profile_capture_base_revision": "b1a6c1985ccc112fd81bf5fcb99ce6d50c5b76ab",
-    "profile_bound_paths_sha256": "d5e4cd2e8ac80a1a1519e7f20ca4625430ffde4091099d33001893476dc2edd8",
-    "profile_implementation_sha256": "5519cbab9899b3c2dec8d6264527115e7e0ea553e16a3801f481758492f78985",
+    "profile_capture_base_revision": "b25ba0dcf6936fa25fd55b37a6c6871bf597b939",
+    "profile_bound_paths_sha256": "92fdfb673d9fb95ef59d50a96c7934c702f515d8d08e4f0b8454e742a3f724",
+    "profile_implementation_sha256": "b4ff3ec4406bae04fc55ad13949b8f5babd6efdfeb4ad5751aac6cce2b466354",
     "v001_revision": "c7e5cad89ccd00591f3127fdb76a789bbeb202ab",
     "sources": [
       {
@@ -150,13 +150,13 @@
       {
         "id": "h005-machine-evidence",
         "path": "tool/profile/evidence/construction-profile-v1.json",
-        "sha256": "318ad1446c21406662ee5f5be836a5fd63c1dacae4134efe2c511f02bb4e1be9",
+      "sha256": "d92130e5c42e2d9135e93030f1471403df03e9ed5bbb987581a9e9db1a5a5ed1",
         "role": "machine-readable workload measurements, thresholds, decision, and capture provenance"
       },
       {
         "id": "h005-evidence-schema",
         "path": "schema/construction-profile-v1.schema.json",
-        "sha256": "e7daf5e6c94c92bbb0405ed188fd1454d7adab9da27fe99694a949fb88c0a49e",
+      "sha256": "0cdac1514e965800701286084c18411a190ac424527ebf9de2163cbc204b4462",
         "role": "closed H005 evidence contract"
       },
       {
@@ -178,6 +178,6 @@
         "role": "current verifier checks reviewed by V001"
       }
     ],
-    "sources_sha256": "559006b6472c7c5aa7e732aa58c230b7e7a4aea656680bb69eb581a8409f07a4"
+  "sources_sha256": "4f2415580722b88f4980746d351f3ee1b9b276528bf6f44d464c66d99cd0390c"
   }
 }
