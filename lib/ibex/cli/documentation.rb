@@ -20,8 +20,8 @@ module Ibex
     #   private def input_path: (Array[String]) -> String
     #   private def same_file_target?: (String left, String right) -> bool
     #   private def atomic_write_ir: (String path, String source) -> void
-    #   private def local_configuration_value: (Hash[Symbol, untyped], String) -> untyped
-    #   private def set_local_configuration_option: (Hash[Symbol, untyped], Symbol, untyped) -> void
+    #   private def local_configuration_value: (Hash[Symbol, Object?], String) -> Object?
+    #   private def set_local_configuration_option: (Hash[Symbol, Object?], Symbol, Object?) -> void
 
     private
 
