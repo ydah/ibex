@@ -11,8 +11,8 @@ module Ibex
       # @rbs (IR::Grammar grammar, ?generated_action_abi: GeneratedActionABI::Cache?) -> void
       def initialize: (IR::Grammar grammar, ?generated_action_abi: GeneratedActionABI::Cache?) -> void
 
-      # @rbs (IR::Production production, Hash[Symbol, untyped] step, Integer index) -> String
-      def composed_fragment_method_source: (IR::Production production, Hash[Symbol, untyped] step, Integer index) -> String
+      # @rbs (IR::Production production, IR::action_composition_step step, Integer index) -> String
+      def composed_fragment_method_source: (IR::Production production, IR::action_composition_step step, Integer index) -> String
 
       # @rbs (IR::Production production, Integer index) -> String
       def composed_fragment_name: (IR::Production production, Integer index) -> String
@@ -43,8 +43,8 @@ module Ibex
       # @rbs (Array[String] lines, production: IR::Production) -> void
       def append_direct_parameter_values: (Array[String] lines, production: IR::Production) -> void
 
-      # @rbs (Hash[Symbol, untyped] step) -> String
-      def composed_semantic_code: (Hash[Symbol, untyped] step) -> String
+      # @rbs (IR::action_composition_step step) -> String
+      def composed_semantic_code: (IR::action_composition_step step) -> String
 
       # @rbs (String source, Array[IR::named_ref] named_refs) -> void
       def append_named_values: (String source, Array[IR::named_ref] named_refs) -> void

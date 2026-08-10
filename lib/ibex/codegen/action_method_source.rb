@@ -17,7 +17,7 @@ module Ibex
         @generated_action_abi = generated_action_abi || GeneratedActionABI::Cache.new
       end
 
-      # @rbs (IR::Production production, Hash[Symbol, untyped] step, Integer index) -> String
+      # @rbs (IR::Production production, IR::action_composition_step step, Integer index) -> String
       def composed_fragment_method_source(production, step, index)
         source = "private def #{composed_fragment_name(production, index)}" \
                  "(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location); "
@@ -97,7 +97,7 @@ module Ibex
 
         require "ripper"
         tokens = Object.const_get(:Ripper).__send__(:lex, source)
-        # @type var tokens: Array[[[Integer, Integer], Symbol, String, untyped]]
+        # @type var tokens: Array[GeneratedActionABI::ripper_token]
         tokens.any? { |_position, event, _token, _state| event == :on_heredoc_beg }
       end
 
@@ -149,7 +149,7 @@ module Ibex
         end
       end
 
-      # @rbs (Hash[Symbol, untyped] step) -> String
+      # @rbs (IR::action_composition_step step) -> String
       def composed_semantic_code(step)
         maximum = [step.fetch(:inputs).length, step.fetch(:context_length)].max
         ActionLocations.new(

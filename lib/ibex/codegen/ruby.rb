@@ -214,12 +214,12 @@ module Ibex
         @grammar.conversions.empty?
       end
 
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> CSTMetadata::metadata
       def cst_metadata
         @cst_metadata ||= CSTMetadata.new(@grammar, trivia_policy: @cst_trivia).build
       end
 
-      # @rbs (untyped value) -> String
+      # @rbs (Object? value) -> String
       def deep_frozen_literal(value)
         case value
         when Array
@@ -236,7 +236,7 @@ module Ibex
         end
       end
 
-      # @rbs (untyped table) -> String
+      # @rbs (Object? table) -> String
       def table_literal(table)
         if table.is_a?(Tables::CompactActions)
           return "Ibex::Tables::CompactActions.packed(#{packed_integers_literal(table.offsets)}, " \

@@ -23,17 +23,17 @@ module Ibex
       # @rbs (Array[String] lines, IR::Production production) -> void
       def append_composed_action_method: (Array[String] lines, IR::Production production) -> void
 
-      # @rbs (Array[String] lines, IR::Production production, Hash[Symbol, untyped] step, Integer index) -> void
-      def append_composed_fragment_method: (Array[String] lines, IR::Production production, Hash[Symbol, untyped] step, Integer index) -> void
+      # @rbs (Array[String] lines, IR::Production production, IR::action_composition_step step, Integer index) -> void
+      def append_composed_fragment_method: (Array[String] lines, IR::Production production, IR::action_composition_step step, Integer index) -> void
 
       # @rbs (IR::Production production, Integer index) -> String
       def composed_fragment_name: (IR::Production production, Integer index) -> String
 
-      # @rbs (Array[String] lines, IR::Production production, Hash[Symbol, untyped] plan) -> void
-      def append_composed_orchestrator: (Array[String] lines, IR::Production production, Hash[Symbol, untyped] plan) -> void
+      # @rbs (Array[String] lines, IR::Production production, IR::action_composition_plan plan) -> void
+      def append_composed_orchestrator: (Array[String] lines, IR::Production production, IR::action_composition_plan plan) -> void
 
-      # @rbs (Array[String] lines, IR::Production production, Hash[Symbol, untyped] step, Integer index) -> void
-      def append_composed_step: (Array[String] lines, IR::Production production, Hash[Symbol, untyped] step, Integer index) -> void
+      # @rbs (Array[String] lines, IR::Production production, IR::action_composition_step step, Integer index) -> void
+      def append_composed_step: (Array[String] lines, IR::Production production, IR::action_composition_step step, Integer index) -> void
 
       # @rbs (Array[String] lines, IR::Production production) -> void
       def append_compiled_action_method: (Array[String] lines, IR::Production production) -> void

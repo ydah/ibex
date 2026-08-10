@@ -48,7 +48,7 @@ module Ibex
         append_composed_orchestrator(lines, production, plan)
       end
 
-      # @rbs (Array[String] lines, IR::Production production, Hash[Symbol, untyped] step, Integer index) -> void
+      # @rbs (Array[String] lines, IR::Production production, IR::action_composition_step step, Integer index) -> void
       def append_composed_fragment_method(lines, production, step, index)
         source = action_method_source.composed_fragment_method_source(production, step, index)
         if @line_convert
@@ -67,7 +67,7 @@ module Ibex
         action_method_source.composed_fragment_name(production, index)
       end
 
-      # @rbs (Array[String] lines, IR::Production production, Hash[Symbol, untyped] plan) -> void
+      # @rbs (Array[String] lines, IR::Production production, IR::action_composition_plan plan) -> void
       def append_composed_orchestrator(lines, production, plan)
         lines << "  private def _ibex_action_#{production.id}" \
                  "(val, _values, _ibex_locations, _ibex_location_stack, _ibex_location, " \
@@ -80,7 +80,7 @@ module Ibex
         lines.push("    _ibex_composed_values.last", "  end", "")
       end
 
-      # @rbs (Array[String] lines, IR::Production production, Hash[Symbol, untyped] step, Integer index) -> void
+      # @rbs (Array[String] lines, IR::Production production, IR::action_composition_step step, Integer index) -> void
       def append_composed_step(lines, production, step, index)
         inputs = step.fetch(:inputs)
         lines << "    _ibex_step_values = _ibex_composed_values.values_at(#{inputs.join(', ')})"
