@@ -20,9 +20,21 @@ module Ibex
     #   type item_set = Set[lr_item]
     #   type packed_items = Hash[item_core, Set[Integer]]
     #   type transitions = Array[Hash[Integer, Integer]]
+    #   type build_collection = {
+    #     construction_states: Integer,
+    #     canonical_states: Integer?,
+    #     strategy: Symbol,
+    #     lr0_states: Integer?,
+    #     lr0_items: Integer?,
+    #     canonical_items: Integer?,
+    #     propagation_edges: Integer?,
+    #     ielr_initial_partitions: Integer?,
+    #     ielr_final_partitions: Integer?
+    #   }
+    #   type conflict_fingerprint = [Symbol, String, Array[Integer]]
     #   type lookahead_node = [Integer, Integer, Integer]
     #   type state_partition = Array[Integer]
-    #   type derivation_node = Hash[Symbol, untyped]
+    #   type derivation_node = Hash[Symbol, Object?]
     #   type search_status = :conflict | :shifted | :accepted
     #   type search_entry = [search_status, ConflictSearch::Configuration]
     #   type search_result = {

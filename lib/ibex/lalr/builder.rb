@@ -113,7 +113,7 @@ module Ibex
         summary
       end
 
-      # @rbs () -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
+      # @rbs () -> [Array[packed_items], transitions, build_collection]
       def automaton_collection
         return ielr_collection if @algorithm == :ielr
         return canonical_lr1_collection if @algorithm == :lr1
@@ -125,7 +125,7 @@ module Ibex
         @canonical_item_cache = nil
       end
 
-      # @rbs () -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
+      # @rbs () -> [Array[packed_items], transitions, build_collection]
       def ielr_collection
         states, transitions = canonical_collection
         partition = IELRPartition.new(@grammar, states, transitions, profile: @profile)
@@ -136,13 +136,13 @@ module Ibex
         [items, merged_transitions, profile]
       end
 
-      # @rbs () -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
+      # @rbs () -> [Array[packed_items], transitions, build_collection]
       def canonical_lr1_collection
         states, transitions = canonical_collection
         [pack_canonical_items(states), transitions, canonical_profile(states, strategy: :canonical_lr1)]
       end
 
-      # @rbs (Symbol strategy) -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
+      # @rbs (Symbol strategy) -> [Array[packed_items], transitions, build_collection]
       def merged_canonical_collection(strategy)
         states, transitions = canonical_collection
         items, merged_transitions = merge_lalr(states, transitions)
@@ -150,7 +150,7 @@ module Ibex
         [items, merged_transitions, canonical_profile(states, strategy: strategy)]
       end
 
-      # @rbs () -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
+      # @rbs () -> [Array[packed_items], transitions, build_collection]
       def direct_collection
         direct = DirectLookaheads.new(@grammar, @sets, profile: @profile)
         items, transitions = direct.build
@@ -164,7 +164,7 @@ module Ibex
         [items, transitions, profile]
       end
 
-      # @rbs (Array[item_set] states, strategy: Symbol) -> Hash[Symbol, untyped]
+      # @rbs (Array[item_set] states, strategy: Symbol) -> build_collection
       def canonical_profile(states, strategy:)
         cores = states.to_h { |items| [core_key(items), true] }.keys if @profile
         {
@@ -182,7 +182,7 @@ module Ibex
         [items.sum(&:length), items.sum { |state| state.values.sum(&:length) }]
       end
 
-      # @rbs (Hash[Symbol, untyped] collection, Integer final_states, Integer? final_items,
+      # @rbs (build_collection collection, Integer final_states, Integer? final_items,
       #   Integer? final_lookahead_items) -> BuildMetrics
       def build_metrics(collection, final_states, final_items, final_lookahead_items)
         BuildMetrics.new(
@@ -400,9 +400,8 @@ module Ibex
       end
 
       # Conflict hashes are produced locally immediately before this boundary.
-      # Keeping the parameter untyped avoids duplicating both discriminated
-      # hash variants solely to add their common optional provenance field.
-      # @rbs (untyped conflict) -> IR::conflict
+      # Both conflict variants carry the same optional midrule provenance field.
+      # @rbs (IR::conflict conflict) -> IR::conflict
       def attribute_midrule_conflict(conflict)
         production_ids = if conflict[:type] == :shift_reduce
                            [conflict[:reduce]]
@@ -663,7 +662,7 @@ module Ibex
         reachable
       end
 
-      # @rbs () -> Set[Array[untyped]]
+      # @rbs () -> Set[conflict_fingerprint]
       def isolated_conflict_fingerprints
         @start_names.each_with_object(Set.new) do |name, fingerprints|
           isolated = self.class.new(
@@ -676,7 +675,7 @@ module Ibex
         end
       end
 
-      # @rbs (IR::conflict conflict) -> Array[untyped]
+      # @rbs (IR::conflict conflict) -> conflict_fingerprint
       def conflict_fingerprint(conflict)
         reductions = if conflict[:type] == :shift_reduce
                        [conflict[:reduce]]

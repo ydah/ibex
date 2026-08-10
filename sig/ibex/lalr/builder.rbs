@@ -57,30 +57,30 @@ module Ibex
       # @rbs (Array[IR::AutomatonState] states) -> IR::conflict_summary
       def conflict_summary: (Array[IR::AutomatonState] states) -> IR::conflict_summary
 
-      # @rbs () -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
-      def automaton_collection: () -> [ Array[packed_items], transitions, Hash[Symbol, untyped] ]
+      # @rbs () -> [Array[packed_items], transitions, build_collection]
+      def automaton_collection: () -> [ Array[packed_items], transitions, build_collection ]
 
-      # @rbs () -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
-      def ielr_collection: () -> [ Array[packed_items], transitions, Hash[Symbol, untyped] ]
+      # @rbs () -> [Array[packed_items], transitions, build_collection]
+      def ielr_collection: () -> [ Array[packed_items], transitions, build_collection ]
 
-      # @rbs () -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
-      def canonical_lr1_collection: () -> [ Array[packed_items], transitions, Hash[Symbol, untyped] ]
+      # @rbs () -> [Array[packed_items], transitions, build_collection]
+      def canonical_lr1_collection: () -> [ Array[packed_items], transitions, build_collection ]
 
-      # @rbs (Symbol strategy) -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
-      def merged_canonical_collection: (Symbol strategy) -> [ Array[packed_items], transitions, Hash[Symbol, untyped] ]
+      # @rbs (Symbol strategy) -> [Array[packed_items], transitions, build_collection]
+      def merged_canonical_collection: (Symbol strategy) -> [ Array[packed_items], transitions, build_collection ]
 
-      # @rbs () -> [Array[packed_items], transitions, Hash[Symbol, untyped]]
-      def direct_collection: () -> [ Array[packed_items], transitions, Hash[Symbol, untyped] ]
+      # @rbs () -> [Array[packed_items], transitions, build_collection]
+      def direct_collection: () -> [ Array[packed_items], transitions, build_collection ]
 
-      # @rbs (Array[item_set] states, strategy: Symbol) -> Hash[Symbol, untyped]
-      def canonical_profile: (Array[item_set] states, strategy: Symbol) -> Hash[Symbol, untyped]
+      # @rbs (Array[item_set] states, strategy: Symbol) -> build_collection
+      def canonical_profile: (Array[item_set] states, strategy: Symbol) -> build_collection
 
       # @rbs (Array[packed_items] items) -> [Integer?, Integer?]
       def profiled_final_item_counts: (Array[packed_items] items) -> [ Integer?, Integer? ]
 
-      # @rbs (Hash[Symbol, untyped] collection, Integer final_states, Integer? final_items,
+      # @rbs (build_collection collection, Integer final_states, Integer? final_items,
       #   Integer? final_lookahead_items) -> BuildMetrics
-      def build_metrics: (Hash[Symbol, untyped] collection, Integer final_states, Integer? final_items, Integer? final_lookahead_items) -> BuildMetrics
+      def build_metrics: (build_collection collection, Integer final_states, Integer? final_items, Integer? final_lookahead_items) -> BuildMetrics
 
       # @rbs () -> String
       def algorithm_name: () -> String
@@ -124,11 +124,9 @@ module Ibex
       # @rbs (Integer state_id, Array[IR::AutomatonItem] items, Hash[Integer, Integer] transitions) -> IR::AutomatonState
       def build_state: (Integer state_id, Array[IR::AutomatonItem] items, Hash[Integer, Integer] transitions) -> IR::AutomatonState
 
-      # Conflict hashes are produced locally immediately before this boundary.
-      # Keeping the parameter untyped avoids duplicating both discriminated
-      # hash variants solely to add their common optional provenance field.
-      # @rbs (untyped conflict) -> IR::conflict
-      def attribute_midrule_conflict: (untyped conflict) -> IR::conflict
+      # Both conflict variants carry the same optional midrule provenance field.
+      # @rbs (IR::conflict conflict) -> IR::conflict
+      def attribute_midrule_conflict: (IR::conflict conflict) -> IR::conflict
 
       # @rbs (Array[IR::AutomatonItem] items, Hash[Integer, Array[IR::parser_action]] candidates) -> void
       def add_completed_actions: (Array[IR::AutomatonItem] items, Hash[Integer, Array[IR::parser_action]] candidates) -> void
@@ -196,11 +194,11 @@ module Ibex
       # @rbs (Array[IR::AutomatonState] states, Hash[String, Integer] entry_states) -> Array[Array[String]]
       def entry_reachability: (Array[IR::AutomatonState] states, Hash[String, Integer] entry_states) -> Array[Array[String]]
 
-      # @rbs () -> Set[Array[untyped]]
-      def isolated_conflict_fingerprints: () -> Set[Array[untyped]]
+      # @rbs () -> Set[conflict_fingerprint]
+      def isolated_conflict_fingerprints: () -> Set[conflict_fingerprint]
 
-      # @rbs (IR::conflict conflict) -> Array[untyped]
-      def conflict_fingerprint: (IR::conflict conflict) -> Array[untyped]
+      # @rbs (IR::conflict conflict) -> conflict_fingerprint
+      def conflict_fingerprint: (IR::conflict conflict) -> conflict_fingerprint
     end
   end
 end
