@@ -13,8 +13,8 @@ module Ibex
       # @rbs (production: Integer, dot: Integer, lookaheads: Array[Integer]) -> void
       def initialize: (production: Integer, dot: Integer, lookaheads: Array[Integer]) -> void
 
-      # @rbs (Grammar grammar) -> Hash[Symbol, untyped]
-      def to_h: (Grammar grammar) -> Hash[Symbol, untyped]
+      # @rbs (Grammar grammar) -> Hash[Symbol, Object?]
+      def to_h: (Grammar grammar) -> Hash[Symbol, Object?]
     end
 
     # A deterministic LALR automaton state.
@@ -38,13 +38,13 @@ module Ibex
       #   ?conflicts: Array[conflict]) -> void
       def initialize: (id: Integer, items: Array[AutomatonItem], transitions: Hash[Integer, Integer], actions: Hash[Integer, parser_action], gotos: Hash[Integer, Integer], ?default_action: parser_action?, ?conflicts: Array[conflict]) -> void
 
-      # @rbs (Grammar grammar) -> Hash[Symbol, untyped]
-      def to_h: (Grammar grammar) -> Hash[Symbol, untyped]
+      # @rbs (Grammar grammar) -> Hash[Symbol, Object?]
+      def to_h: (Grammar grammar) -> Hash[Symbol, Object?]
 
       private
 
-      # @rbs (Hash[Integer, untyped] values, Grammar grammar) -> Hash[String, untyped]
-      def named_keys: (Hash[Integer, untyped] values, Grammar grammar) -> Hash[String, untyped]
+      # @rbs (Hash[Integer, Object?] values, Grammar grammar) -> Hash[String, Object?]
+      def named_keys: (Hash[Integer, Object?] values, Grammar grammar) -> Hash[String, Object?]
     end
 
     # Immutable LALR automaton and its source grammar.
@@ -68,8 +68,8 @@ module Ibex
       #   ?entry_states: Hash[String, Integer]?) -> void
       def initialize: (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary, ?algorithm: String, ?grammar_digest: String?, ?schema_version: Integer, ?entry_states: Hash[String, Integer]?) -> void
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h: () -> Hash[Symbol, Object?]
 
       private
 

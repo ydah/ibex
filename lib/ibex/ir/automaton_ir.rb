@@ -16,7 +16,7 @@ module Ibex
         freeze
       end
 
-      # @rbs (Grammar grammar) -> Hash[Symbol, untyped]
+      # @rbs (Grammar grammar) -> Hash[Symbol, Object?]
       def to_h(grammar)
         { production: @production, dot: @dot,
           lookaheads: @lookaheads.map do |id|
@@ -50,7 +50,7 @@ module Ibex
         freeze
       end
 
-      # @rbs (Grammar grammar) -> Hash[Symbol, untyped]
+      # @rbs (Grammar grammar) -> Hash[Symbol, Object?]
       def to_h(grammar)
         { id: @id, items: @items.map { |item| item.to_h(grammar) },
           transitions: named_keys(@transitions, grammar), actions: named_keys(@actions, grammar),
@@ -59,7 +59,7 @@ module Ibex
 
       private
 
-      # @rbs (Hash[Integer, untyped] values, Grammar grammar) -> Hash[String, untyped]
+      # @rbs (Hash[Integer, Object?] values, Grammar grammar) -> Hash[String, Object?]
       def named_keys(values, grammar)
         values.to_h do |symbol_id, value|
           symbol = grammar.symbol_by_id(symbol_id) || raise(Ibex::Error, "missing grammar symbol id #{symbol_id}")
@@ -133,12 +133,12 @@ module Ibex
       end
       private :initialize_versioned
 
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
       def to_h
         value = { ibex_ir: "automaton", schema_version: @schema_version, algorithm: @algorithm,
                   grammar_digest: @grammar_digest, grammar: @grammar.to_h,
                   states: @states.map { |state| state.to_h(@grammar) },
-                  conflict_summary: @conflict_summary } #: Hash[Symbol, untyped]
+                  conflict_summary: @conflict_summary } #: Hash[Symbol, Object?]
         value[:entry_states] = @entry_states unless @entry_states == { @grammar.start => 0 }
         value[:entry_construction] = @entry_construction if @schema_version >= 3
         value
