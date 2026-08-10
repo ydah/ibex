@@ -1,7 +1,7 @@
 {
   "ibex_ir": "cst",
   "schema_version": 1,
-  "grammar_digest": "sha256:dbc9a970f57fd57a7bdb045f8d55f7f7220cf98b1da209e89bc8e175b6c81bae",
+  "grammar_digest": "sha256:6495c5fd88ec0e2e80b1754883e13219fa3b4ca90fec3f25c4e0a767ef8a6cc1",
   "table_format": 6,
   "state_count": 3,
   "production_count": 1,

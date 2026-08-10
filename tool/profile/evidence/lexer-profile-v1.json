@@ -20,11 +20,13 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "a005552d853c934da69c89ad0de1aecc97264d77",
+    "base_revision": "0c8f379f6682edc637302bc17b9a81c6b7dc2a90",
     "base_revision_role": "Exact clean capture revision and parent of the committed evidence revision",
-    "capture_worktree_clean": true,
-    "capture_worktree_status": [],
-    "capture_worktree_status_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "capture_worktree_clean": false,
+    "capture_worktree_status": [
+      " M docs/error-ux-round2-v1.json"
+    ],
+    "capture_worktree_status_sha256": "dfb1530b86c7a20a38090d9a96d5ebfee87c12192533b021d3f12fa87dcdd304",
     "bound_paths": [
       {
         "path": "Rakefile",
@@ -190,9 +192,9 @@
       },
       {
         "path": "lib/ibex/frontend/generated_parser.rb",
-        "sha256": "45b4b2a0bd6495e158fbc25074bff3727def8b94349c4b53f7fe1ff1fcf9635f",
+        "sha256": "a9c909a60c9e9b44e10a417e9c80098f03217399726542936cebcfe2a35ed88a",
         "git_state": "base",
-        "base_sha256": "45b4b2a0bd6495e158fbc25074bff3727def8b94349c4b53f7fe1ff1fcf9635f"
+        "base_sha256": "a9c909a60c9e9b44e10a417e9c80098f03217399726542936cebcfe2a35ed88a"
       },
       {
         "path": "lib/ibex/frontend/generated_parser_base.rb",
@@ -358,69 +360,51 @@
       },
       {
         "path": "lib/ibex/ir.rb",
-        "sha256": "40397fa9f9e0412151793d5d37f456555291cf8a47865e7509e50c9afe162d74",
+        "sha256": "d5c19a41a108dc99f7a127e0234066e421cfede810aad40c63baf898293f91b7",
         "git_state": "base",
-        "base_sha256": "40397fa9f9e0412151793d5d37f456555291cf8a47865e7509e50c9afe162d74"
+        "base_sha256": "d5c19a41a108dc99f7a127e0234066e421cfede810aad40c63baf898293f91b7"
       },
       {
         "path": "lib/ibex/ir/automaton_ir.rb",
-        "sha256": "49135dcce0f6451f646ec554e4fa70ff8c5f797a5968218984f7aaac8513261f",
+        "sha256": "b1b9e814d023859a980032d487683ee2db37805c027d792669ef5fb88497724d",
         "git_state": "base",
-        "base_sha256": "49135dcce0f6451f646ec554e4fa70ff8c5f797a5968218984f7aaac8513261f"
+        "base_sha256": "b1b9e814d023859a980032d487683ee2db37805c027d792669ef5fb88497724d"
       },
       {
         "path": "lib/ibex/ir/grammar_ir.rb",
-        "sha256": "5a86cd4f262f72fc409ba415ed6c581a8f9a0fff85d2994c513f0dd688ca769c",
+        "sha256": "1ab25ee1e1165a200f41ee67877f3169e37d554fbd4249e8b4c13de99fca5e0d",
         "git_state": "base",
-        "base_sha256": "5a86cd4f262f72fc409ba415ed6c581a8f9a0fff85d2994c513f0dd688ca769c"
+        "base_sha256": "1ab25ee1e1165a200f41ee67877f3169e37d554fbd4249e8b4c13de99fca5e0d"
       },
       {
         "path": "lib/ibex/ir/lexer_ir.rb",
-        "sha256": "316c1cbc66c9129ce8850a4599f0006c78e977be885c10df731d9f684018bccd",
+        "sha256": "17b4239b55f8e5b4c5e6edac7e75b7af746340a257c727a8c37d4671330b69bc",
         "git_state": "base",
-        "base_sha256": "316c1cbc66c9129ce8850a4599f0006c78e977be885c10df731d9f684018bccd"
-      },
-      {
-        "path": "lib/ibex/ir/migration.rb",
-        "sha256": "c4018d6be44434e7966c2cf1683939941f6e578adad068251394afb7237f5fa1",
-        "git_state": "base",
-        "base_sha256": "c4018d6be44434e7966c2cf1683939941f6e578adad068251394afb7237f5fa1"
-      },
-      {
-        "path": "lib/ibex/ir/migration_metadata.rb",
-        "sha256": "9f11b93e7904290a33982414071f4290eb0ec4755394aae4b317c721357c6b49",
-        "git_state": "base",
-        "base_sha256": "9f11b93e7904290a33982414071f4290eb0ec4755394aae4b317c721357c6b49"
+        "base_sha256": "17b4239b55f8e5b4c5e6edac7e75b7af746340a257c727a8c37d4671330b69bc"
       },
       {
         "path": "lib/ibex/ir/parser_contract.rb",
-        "sha256": "7f0367f8482ef4f4b0b3595fe62e0c236e00540605cb3e838c698e960f41f659",
+        "sha256": "b7a09c8f2d801e91eeacaf70e510d924e5d13999166587b3b420ec71fed7b1d6",
         "git_state": "base",
-        "base_sha256": "7f0367f8482ef4f4b0b3595fe62e0c236e00540605cb3e838c698e960f41f659"
+        "base_sha256": "b7a09c8f2d801e91eeacaf70e510d924e5d13999166587b3b420ec71fed7b1d6"
       },
       {
         "path": "lib/ibex/ir/serialize.rb",
-        "sha256": "721e0df119e75ccf88ee2cc0bcbdfef3144601c9cb4e958bc3c6e23b378c93bf",
+        "sha256": "edea97821dec526b8a53864c44ed621a9b5f313b7b41e80c1ff7768ed8815718",
         "git_state": "base",
-        "base_sha256": "721e0df119e75ccf88ee2cc0bcbdfef3144601c9cb4e958bc3c6e23b378c93bf"
-      },
-      {
-        "path": "lib/ibex/ir/v3.rb",
-        "sha256": "3f41adce24ffa87e168182efea80a4cbf0f6b04d28fd68d291fa9a09e2b57df1",
-        "git_state": "base",
-        "base_sha256": "3f41adce24ffa87e168182efea80a4cbf0f6b04d28fd68d291fa9a09e2b57df1"
+        "base_sha256": "edea97821dec526b8a53864c44ed621a9b5f313b7b41e80c1ff7768ed8815718"
       },
       {
         "path": "lib/ibex/ir/validator.rb",
-        "sha256": "5910e5f22723a04f0526d6757f40d46a0b60589dd2701ed902d4fb6fe74a3fb8",
+        "sha256": "ec2a93e31bc370cec4ad3ad84ac4d322bdb830e528789cbd4e629a8657ee94fb",
         "git_state": "base",
-        "base_sha256": "5910e5f22723a04f0526d6757f40d46a0b60589dd2701ed902d4fb6fe74a3fb8"
+        "base_sha256": "ec2a93e31bc370cec4ad3ad84ac4d322bdb830e528789cbd4e629a8657ee94fb"
       },
       {
         "path": "lib/ibex/ir/validator/automaton.rb",
-        "sha256": "2151ded419dd0e282eb336d7f03842529bdfa4bba484cb97e65a53e6f8291812",
+        "sha256": "d6a0fc5ff94f1beb4c461924bf08bcbe28f0a53aadb6f9d08d3d67cfc25d02e2",
         "git_state": "base",
-        "base_sha256": "2151ded419dd0e282eb336d7f03842529bdfa4bba484cb97e65a53e6f8291812"
+        "base_sha256": "d6a0fc5ff94f1beb4c461924bf08bcbe28f0a53aadb6f9d08d3d67cfc25d02e2"
       },
       {
         "path": "lib/ibex/ir/validator/base.rb",
@@ -430,9 +414,9 @@
       },
       {
         "path": "lib/ibex/ir/validator/grammar.rb",
-        "sha256": "f553f769f73d35c97ae35753a86f6f7c6714246ecfbeaa28c218e88673641f0a",
+        "sha256": "4700afef04d4fa655b3a9b523e17b2e91c1ed611a273dfe1a39df3d422d7a51b",
         "git_state": "base",
-        "base_sha256": "f553f769f73d35c97ae35753a86f6f7c6714246ecfbeaa28c218e88673641f0a"
+        "base_sha256": "4700afef04d4fa655b3a9b523e17b2e91c1ed611a273dfe1a39df3d422d7a51b"
       },
       {
         "path": "lib/ibex/ir/validator/lexer.rb",
@@ -454,9 +438,9 @@
       },
       {
         "path": "lib/ibex/lalr/builder.rb",
-        "sha256": "7eb44da23f446d8ea7cd658bb249dcba72cf1c557d17fd84a407e9efc818d211",
+        "sha256": "cf27b5ade80e8a88738570916dbe2429504605f9c35da83552425d04b348c69a",
         "git_state": "base",
-        "base_sha256": "7eb44da23f446d8ea7cd658bb249dcba72cf1c557d17fd84a407e9efc818d211"
+        "base_sha256": "cf27b5ade80e8a88738570916dbe2429504605f9c35da83552425d04b348c69a"
       },
       {
         "path": "lib/ibex/lalr/conflict.rb",
@@ -544,9 +528,9 @@
       },
       {
         "path": "lib/ibex/normalize/grammar_builder.rb",
-        "sha256": "b418582f249561c89eea2c1c85910aedbaffdbdc283baecb93b246f1aa351968",
+        "sha256": "5e08c8b0706a8de479c35a622cbbb6195383ba35145cb45f8c7857015ed30646",
         "git_state": "base",
-        "base_sha256": "b418582f249561c89eea2c1c85910aedbaffdbdc283baecb93b246f1aa351968"
+        "base_sha256": "5e08c8b0706a8de479c35a622cbbb6195383ba35145cb45f8c7857015ed30646"
       },
       {
         "path": "lib/ibex/normalize/inline_expansion.rb",
@@ -610,9 +594,9 @@
       },
       {
         "path": "lib/ibex/normalize/parser_configuration.rb",
-        "sha256": "118bb78893712703a165434082e4ab69aa8460777c9289eea67a820aa31a44c0",
+        "sha256": "79424dc443d89fc6bb00102d37627fdde11a1d53e06df7ed254968a5d466b589",
         "git_state": "base",
-        "base_sha256": "118bb78893712703a165434082e4ab69aa8460777c9289eea67a820aa31a44c0"
+        "base_sha256": "79424dc443d89fc6bb00102d37627fdde11a1d53e06df7ed254968a5d466b589"
       },
       {
         "path": "lib/ibex/normalize/recovery_declarations.rb",
@@ -1042,9 +1026,9 @@
       },
       {
         "path": "test/packaging/schema_files_test.rb",
-        "sha256": "78073e605c22e40241ccbb427601c20389a435e2f08b6dd6ff37de144483a316",
+        "sha256": "c33974f2c12a2054073b0b22e58618ffc40bcb56faf11e377d521f05d8f2ce7e",
         "git_state": "base",
-        "base_sha256": "78073e605c22e40241ccbb427601c20389a435e2f08b6dd6ff37de144483a316"
+        "base_sha256": "c33974f2c12a2054073b0b22e58618ffc40bcb56faf11e377d521f05d8f2ce7e"
       },
       {
         "path": "test/profile/lexer_profile_schema_test.rb",
@@ -1066,9 +1050,9 @@
       },
       {
         "path": "test/support/public_json_schemas.rb",
-        "sha256": "d80617fdc1d1b0dcf24ec7ae852418459442d3a081122b47be0cd7e01ded45d5",
+        "sha256": "d593aaad713277d809c28e913c7ac1f0ab53c5323c12c6475bb96eda7f649b6f",
         "git_state": "base",
-        "base_sha256": "d80617fdc1d1b0dcf24ec7ae852418459442d3a081122b47be0cd7e01ded45d5"
+        "base_sha256": "d593aaad713277d809c28e913c7ac1f0ab53c5323c12c6475bb96eda7f649b6f"
       },
       {
         "path": "tool/lexer_profile.rb",
@@ -1107,15 +1091,15 @@
         "base_sha256": "9ecbc77e2544d25c230e5f05b1f9eaf9c9bb04924575cce8b5c8607e27695ef4"
       }
     ],
-    "bound_paths_sha256": "f2454b1da90b0f8666e762728863c9fa3e5026d02025cfc6058c8f1415f4aaa0",
-    "implementation_sha256": "4898cac177597f08e11b328d48a121ce2f5ee014bc54b687e75694b0f6a0a6fe",
+    "bound_paths_sha256": "e20624c01dbadc7796b6ccbd255345eea2c14166ac6c369be8e6f214873fb642",
+    "implementation_sha256": "5ceeb412024a4b72eab56734ece884d4ce2ffe4d9d5c5b3392b4035c4a212f69",
     "deterministic_report_input_sha256": "d6b853e9bec0687b2e811fa55adfad173c7f7de788cc53e73e77797321b9014d",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "a3541bc86aa89a1e973407149ee6e0302a5de51e3e4d4d7d0b34be18599b1b78",
     "heuristic_analysis_sha256": "1870a00b14aea7a46278e4b80e9bd60db4b499c343c7a7a90faf9c3923e27e76",
     "evidence_path": "tool/profile/evidence/lexer-profile-v1.json",
     "evidence_exclusion_reason": "the evidence file is excluded from its own digest to avoid circularity",
-    "capture_identity_sha256": "c174a03428793da22d7644650c520116fb8911d3c010b6f6135d757b7757430e"
+    "capture_identity_sha256": "2dc9cddde1190324d757641dc99873894cafbf4f1de565c2a9deb0b074ffb6fe"
   },
   "measurement_policy": {
     "runtime_role": "diagnostic_observation_only",
@@ -1238,7 +1222,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000195,
+                "value": 0.000182,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1340,7 +1324,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000145,
+                "value": 0.000147,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1430,7 +1414,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000119,
+                "value": 0.000124,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1526,7 +1510,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000135,
+                "value": 0.000132,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1616,7 +1600,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.004121,
+                "value": 0.004115,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1706,7 +1690,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000228,
+                "value": 0.00023,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1802,7 +1786,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000183,
+                "value": 0.00019,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1902,7 +1886,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000159,
+                "value": 0.000179,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2032,7 +2016,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000191,
+                "value": 0.000238,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2202,7 +2186,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000316,
+                "value": 0.00038,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2312,7 +2296,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000181,
+                "value": 0.000187,
                 "release_gate": false
               },
               "allocated_objects": {

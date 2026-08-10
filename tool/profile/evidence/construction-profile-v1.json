@@ -20,11 +20,14 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "cb5210fdb92e4d8a5d6d8f0c57aacaa2992448ce",
+    "base_revision": "0c8f379f6682edc637302bc17b9a81c6b7dc2a90",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
-    "capture_worktree_clean": true,
-    "capture_worktree_status": [],
-    "capture_worktree_status_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "capture_worktree_clean": false,
+    "capture_worktree_status": [
+      " M docs/error-ux-round2-v1.json",
+      " M tool/profile/evidence/lexer-profile-v1.json"
+    ],
+    "capture_worktree_status_sha256": "1c5d800ddbda13662820beea109da58a581ac8db9aba926bc77666bb0f84e7fc",
     "bound_paths": [
       {
         "path": ".github/workflows/main.yml",
@@ -70,9 +73,9 @@
       },
       {
         "path": "lib/ibex/lalr/builder.rb",
-        "sha256": "7eb44da23f446d8ea7cd658bb249dcba72cf1c557d17fd84a407e9efc818d211",
+        "sha256": "cf27b5ade80e8a88738570916dbe2429504605f9c35da83552425d04b348c69a",
         "git_state": "base",
-        "base_sha256": "7eb44da23f446d8ea7cd658bb249dcba72cf1c557d17fd84a407e9efc818d211"
+        "base_sha256": "cf27b5ade80e8a88738570916dbe2429504605f9c35da83552425d04b348c69a"
       },
       {
         "path": "lib/ibex/lalr/direct_lookaheads.rb",
@@ -118,9 +121,9 @@
       },
       {
         "path": "test/ir/json_schema_test.rb",
-        "sha256": "232c67082012666b9e41834f93a92477acbf0c207480f915e08247f3da318775",
+        "sha256": "70c974a1335aa4ef3f57aa4503bc0e235b1dc110dea12ae0c4d5cf42a0e9bad7",
         "git_state": "base",
-        "base_sha256": "232c67082012666b9e41834f93a92477acbf0c207480f915e08247f3da318775"
+        "base_sha256": "70c974a1335aa4ef3f57aa4503bc0e235b1dc110dea12ae0c4d5cf42a0e9bad7"
       },
       {
         "path": "test/profile/construction_profile_schema_test.rb",
@@ -154,9 +157,9 @@
       },
       {
         "path": "test/support/public_json_schemas.rb",
-        "sha256": "d80617fdc1d1b0dcf24ec7ae852418459442d3a081122b47be0cd7e01ded45d5",
+        "sha256": "d593aaad713277d809c28e913c7ac1f0ab53c5323c12c6475bb96eda7f649b6f",
         "git_state": "base",
-        "base_sha256": "d80617fdc1d1b0dcf24ec7ae852418459442d3a081122b47be0cd7e01ded45d5"
+        "base_sha256": "d593aaad713277d809c28e913c7ac1f0ab53c5323c12c6475bb96eda7f649b6f"
       },
       {
         "path": "tool/construction_profile.rb",
@@ -183,8 +186,8 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "d115347b3e37835f8ca0f68bd2a1c70b8e7a06cfee05627f45d27f7edb8a3b76",
-    "implementation_sha256": "64181868ef6fc060524497ef271fe8a949310c824938071c231befd6b31249ce",
+    "bound_paths_sha256": "dcf281163bb2f3e2f7d419c74927d6d07d726bbeb801df576579fbb289d8242b",
+    "implementation_sha256": "5519cbab9899b3c2dec8d6264527115e7e0ea553e16a3801f481758492f78985",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
     "evidence_path": "tool/profile/evidence/construction-profile-v1.json",
@@ -295,7 +298,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001277,
+                  "value": 0.002133,
                   "release_gate": false
                 }
               },
@@ -364,7 +367,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.004422,
+                  "value": 0.003889,
                   "release_gate": false
                 }
               },
@@ -456,7 +459,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000785,
+                  "value": 0.000721,
                   "release_gate": false
                 }
               },
@@ -525,7 +528,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.00162,
+                  "value": 0.001439,
                   "release_gate": false
                 }
               },
@@ -617,7 +620,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000587,
+                  "value": 0.000524,
                   "release_gate": false
                 }
               },
@@ -686,7 +689,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000864,
+                  "value": 0.000761,
                   "release_gate": false
                 }
               },
@@ -780,7 +783,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000465,
+                  "value": 0.000458,
                   "release_gate": false
                 }
               },
@@ -850,7 +853,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000464,
+                  "value": 0.000528,
                   "release_gate": false
                 }
               },
@@ -920,7 +923,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000381,
+                  "value": 0.000383,
                   "release_gate": false
                 }
               },
@@ -990,7 +993,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.00165,
+                  "value": 0.000409,
                   "release_gate": false
                 }
               },
@@ -1104,7 +1107,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.012795,
+                  "value": 0.010133,
                   "release_gate": false
                 }
               },
@@ -1173,7 +1176,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.053721,
+                  "value": 0.052534,
                   "release_gate": false
                 }
               },

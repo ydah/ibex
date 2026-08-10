@@ -1,7 +1,7 @@
 {
   "ibex_conflict_explanation_blind_review": "h004",
   "schema_version": 1,
-  "source_study_sha256": "13874dc73f43da3174677f608382edac11ca21d520baa0cf956ce71d1b37b112",
+  "source_study_sha256": "0587a6b9371df45b8e7f04e9d1fbfee218fcd15955faefca8c91404ec294b5e1",
   "protocol": {
     "phase": "blind",
     "required_tasks": [
@@ -25,7 +25,7 @@
       "automaton": {
         "algorithm": "lalr1",
         "state_count": 6,
-        "digest": "c8405e1c2a861dcebf17eb72b5f481ebd538f8e8c5ff11c76d0193b3287d617d",
+        "digest": "52f511e9234cdaf01034f97eb9b4c04508ec241e544c5021cdf1cf66eda12b84",
         "conflict_summary": {
           "sr": 1,
           "resolved_sr": 0,
@@ -495,7 +495,7 @@
       "automaton": {
         "algorithm": "lalr1",
         "state_count": 10,
-        "digest": "6ee85992edc25bce777970e062a10a8866836b2dd39ed3257858da0bb42a8bba",
+        "digest": "38b7ac370b226d978ec2a46da4985df05dbfa127b6bf2f6c6d003bda0d6ba379",
         "conflict_summary": {
           "sr": 1,
           "resolved_sr": 0,
@@ -1055,7 +1055,7 @@
       "automaton": {
         "algorithm": "lalr1",
         "state_count": 5,
-        "digest": "5bf5f218031835ffc1c3f21a7f427d1750c15dbfe4c5c71e4ad12b10df23fb27",
+        "digest": "89b40b0e4cda884823a5bf7aa7efb9061a5aa49c674e64be799f16ca9f5a8f02",
         "conflict_summary": {
           "sr": 0,
           "resolved_sr": 0,
@@ -1271,7 +1271,7 @@
       "automaton": {
         "algorithm": "lalr1",
         "state_count": 13,
-        "digest": "b7cdde5ba5f0c425ee320e561f82c652afd78d9fc8c07b5c041bc5f7c7520f4a",
+        "digest": "898e03bde6a42d130ca266fcbaec502d65de66ae7b8d69ca601d515b69ea0349",
         "conflict_summary": {
           "sr": 0,
           "resolved_sr": 0,
