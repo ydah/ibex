@@ -6,8 +6,8 @@ module Ibex
 
     SUPPORTED_SCHEMA_VERSIONS: Array[Integer]
 
-    # @rbs (untyped value) -> untyped
-    def self?.deep_freeze: (untyped value) -> untyped
+    # @rbs (Object? value) -> Object?
+    def self?.deep_freeze: (Object? value) -> Object?
 
     # An interned terminal or nonterminal.
     class GrammarSymbol
@@ -39,8 +39,8 @@ module Ibex
       # @rbs () -> bool
       def nonterminal?: () -> bool
 
-      # @rbs (?schema_version: Integer) -> Hash[Symbol, untyped]
-      def to_h: (?schema_version: Integer) -> Hash[Symbol, untyped]
+      # @rbs (?schema_version: Integer) -> Hash[Symbol, Object?]
+      def to_h: (?schema_version: Integer) -> Hash[Symbol, Object?]
     end
 
     # Opaque Ruby semantic action metadata.
@@ -59,8 +59,8 @@ module Ibex
       #   ?composition: action_composition?) -> void
       def initialize: (code: String, location: location, ?named_refs: Array[named_ref], ?context_length: Integer, ?composition: action_composition?) -> void
 
-      # @rbs (?schema_version: Integer) -> Hash[Symbol, untyped]
-      def to_h: (?schema_version: Integer) -> Hash[Symbol, untyped]
+      # @rbs (?schema_version: Integer) -> Hash[Symbol, Object?]
+      def to_h: (?schema_version: Integer) -> Hash[Symbol, Object?]
     end
 
     # A normalized BNF production using symbol ids.
@@ -75,7 +75,7 @@ module Ibex
 
       attr_reader precedence_override: Integer?
 
-      attr_reader origin: Hash[Symbol, untyped]
+      attr_reader origin: Hash[Symbol, Object?]
 
       attr_reader documentation: String?
 
@@ -84,12 +84,12 @@ module Ibex
       attr_reader node: node_annotation?
 
       # @rbs (id: Integer, lhs: Integer, rhs: Array[Integer], action: Action?, precedence_override: Integer?,
-      #   origin: Hash[Symbol, untyped], ?documentation: String?, ?expansion: production_expansion?,
+      #   origin: Hash[Symbol, Object?], ?documentation: String?, ?expansion: production_expansion?,
       #   ?node: node_annotation?) -> void
-      def initialize: (id: Integer, lhs: Integer, rhs: Array[Integer], action: Action?, precedence_override: Integer?, origin: Hash[Symbol, untyped], ?documentation: String?, ?expansion: production_expansion?, ?node: node_annotation?) -> void
+      def initialize: (id: Integer, lhs: Integer, rhs: Array[Integer], action: Action?, precedence_override: Integer?, origin: Hash[Symbol, Object?], ?documentation: String?, ?expansion: production_expansion?, ?node: node_annotation?) -> void
 
-      # @rbs (?schema_version: Integer) -> Hash[Symbol, untyped]
-      def to_h: (?schema_version: Integer) -> Hash[Symbol, untyped]
+      # @rbs (?schema_version: Integer) -> Hash[Symbol, Object?]
+      def to_h: (?schema_version: Integer) -> Hash[Symbol, Object?]
     end
 
     # One opaque user-code block and the location of its first code line.
@@ -101,8 +101,8 @@ module Ibex
       # @rbs (code: String, location: location) -> void
       def initialize: (code: String, location: location) -> void
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h: () -> Hash[Symbol, Object?]
     end
 
     # Immutable normalized grammar exchanged between pipeline stages.
@@ -176,8 +176,8 @@ module Ibex
       # @rbs () -> Array[GrammarSymbol]
       def nonterminals: () -> Array[GrammarSymbol]
 
-      # @rbs () -> Hash[Symbol, untyped]
-      def to_h: () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h: () -> Hash[Symbol, Object?]
 
       private
 
@@ -187,14 +187,14 @@ module Ibex
       # @rbs (String start, Array[String]? starts, grammar_mode mode) -> Array[String]
       def validate_starts: (String start, Array[String]? starts, grammar_mode mode) -> Array[String]
 
-      # @rbs (Hash[Symbol, untyped] value) -> void
-      def append_optional_metadata: (Hash[Symbol, untyped] value) -> void
+      # @rbs (Hash[Symbol, Object?] value) -> void
+      def append_optional_metadata: (Hash[Symbol, Object?] value) -> void
 
-      # @rbs (Hash[Symbol, untyped] value) -> void
-      def append_parser_metadata: (Hash[Symbol, untyped] value) -> void
+      # @rbs (Hash[Symbol, Object?] value) -> void
+      def append_parser_metadata: (Hash[Symbol, Object?] value) -> void
 
-      # @rbs (Hash[Symbol, untyped] value) -> void
-      def append_recovery_metadata: (Hash[Symbol, untyped] value) -> void
+      # @rbs (Hash[Symbol, Object?] value) -> void
+      def append_recovery_metadata: (Hash[Symbol, Object?] value) -> void
 
       # @rbs () -> void
       def validate_user_code_chunks: () -> void

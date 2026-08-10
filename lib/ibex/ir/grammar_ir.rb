@@ -10,7 +10,7 @@ module Ibex
     LATEST_SCHEMA_VERSION = 3
     SUPPORTED_SCHEMA_VERSIONS = [1, 2, 3].freeze #: Array[Integer]
 
-    # @rbs (untyped value) -> untyped
+    # @rbs (Object? value) -> Object?
     def deep_freeze(value)
       case value
       when Array then value.each { |item| deep_freeze(item) }
@@ -57,10 +57,10 @@ module Ibex
       # @rbs () -> bool
       def nonterminal? = @kind == :nonterminal
 
-      # @rbs (?schema_version: Integer) -> Hash[Symbol, untyped]
+      # @rbs (?schema_version: Integer) -> Hash[Symbol, Object?]
       def to_h(schema_version: SCHEMA_VERSION)
         value = { id: @id, name: @name, kind: @kind, reserved: @reserved,
-                  prec: @precedence, loc: @location } #: Hash[Symbol, untyped]
+                  prec: @precedence, loc: @location } #: Hash[Symbol, Object?]
         value[:display_name] = @display_name if @display_name
         value[:semantic_type] = @semantic_type if @semantic_type
         value[:doc] = @documentation if schema_version >= 2
@@ -87,10 +87,10 @@ module Ibex
         freeze
       end
 
-      # @rbs (?schema_version: Integer) -> Hash[Symbol, untyped]
+      # @rbs (?schema_version: Integer) -> Hash[Symbol, Object?]
       def to_h(schema_version: SCHEMA_VERSION)
         value = { code: @code, loc: @location, named_refs: @named_refs,
-                  context_length: @context_length } #: Hash[Symbol, untyped]
+                  context_length: @context_length } #: Hash[Symbol, Object?]
         value[:composition] = @composition if schema_version >= 2
         value
       end
@@ -103,13 +103,13 @@ module Ibex
       attr_reader :rhs #: Array[Integer]
       attr_reader :action #: Action?
       attr_reader :precedence_override #: Integer?
-      attr_reader :origin #: Hash[Symbol, untyped]
+      attr_reader :origin #: Hash[Symbol, Object?]
       attr_reader :documentation #: String?
       attr_reader :expansion #: production_expansion?
       attr_reader :node #: node_annotation?
 
       # @rbs (id: Integer, lhs: Integer, rhs: Array[Integer], action: Action?, precedence_override: Integer?,
-      #   origin: Hash[Symbol, untyped], ?documentation: String?, ?expansion: production_expansion?,
+      #   origin: Hash[Symbol, Object?], ?documentation: String?, ?expansion: production_expansion?,
       #   ?node: node_annotation?) -> void
       def initialize(id:, lhs:, rhs:, action:, precedence_override:, origin:, documentation: nil, expansion: nil,
                      node: nil)
@@ -125,10 +125,10 @@ module Ibex
         freeze
       end
 
-      # @rbs (?schema_version: Integer) -> Hash[Symbol, untyped]
+      # @rbs (?schema_version: Integer) -> Hash[Symbol, Object?]
       def to_h(schema_version: SCHEMA_VERSION)
         value = { id: @id, lhs: @lhs, rhs: @rhs, action: @action&.to_h(schema_version: schema_version),
-                  prec_override: @precedence_override, origin: @origin } #: Hash[Symbol, untyped]
+                  prec_override: @precedence_override, origin: @origin } #: Hash[Symbol, Object?]
         if schema_version >= 2
           value[:doc] = @documentation
           value[:expansion] = @expansion
@@ -150,7 +150,7 @@ module Ibex
         freeze
       end
 
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
       def to_h
         { code: @code, loc: @location }
       end
@@ -276,14 +276,14 @@ module Ibex
       # @rbs () -> Array[GrammarSymbol]
       def nonterminals = @symbols.select(&:nonterminal?)
 
-      # @rbs () -> Hash[Symbol, untyped]
+      # @rbs () -> Hash[Symbol, Object?]
       def to_h
         value = { ibex_ir: "grammar", schema_version: @schema_version, class_name: @class_name, superclass: @superclass,
                   start: @start, expect: @expect, options: @options,
                   symbols: @symbols.map { |symbol| symbol.to_h(schema_version: @schema_version) },
                   productions: @productions.map { |production| production.to_h(schema_version: @schema_version) },
                   user_code: @user_code, conversions: @conversions,
-                  warnings: @warnings } #: Hash[Symbol, untyped]
+                  warnings: @warnings } #: Hash[Symbol, Object?]
         append_optional_metadata(value)
         value
       end
@@ -306,7 +306,7 @@ module Ibex
         values
       end
 
-      # @rbs (Hash[Symbol, untyped] value) -> void
+      # @rbs (Hash[Symbol, Object?] value) -> void
       def append_optional_metadata(value)
         append_parser_metadata(value)
         append_recovery_metadata(value)
@@ -319,7 +319,7 @@ module Ibex
         value[:parser_contract] = @parser_contract.to_h if @schema_version >= 3
       end
 
-      # @rbs (Hash[Symbol, untyped] value) -> void
+      # @rbs (Hash[Symbol, Object?] value) -> void
       def append_parser_metadata(value)
         value[:expect_rr] = @expect_rr unless @expect_rr.nil?
         value[:mode] = @mode if @mode == :extended
@@ -330,7 +330,7 @@ module Ibex
         value[:lexer] = @lexer.to_h if @lexer && @schema_version >= 2
       end
 
-      # @rbs (Hash[Symbol, untyped] value) -> void
+      # @rbs (Hash[Symbol, Object?] value) -> void
       def append_recovery_metadata(value)
         return if @recovery[:sync_tokens].empty? && @recovery[:on_error_reduce].empty?
 
