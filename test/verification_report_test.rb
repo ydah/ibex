@@ -159,7 +159,8 @@ class VerificationReportTest < Minitest::Test
 
   def test_validator_accepts_unicode_logical_basenames
     Dir.mktmpdir("ibex-verification-report") do |directory|
-      input = input_for(directory, SOURCE, basename: "文法.y")
+      input = input_for(directory, SOURCE,
+                        basename: "文法.y".b.force_encoding(Encoding::ASCII_8BIT))
       value = build_automaton(SOURCE, input.path)
       document = Ibex::VerificationReport.validate(
         render_report(value, input, table_path: "表.ibex.json")

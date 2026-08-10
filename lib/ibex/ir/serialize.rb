@@ -43,7 +43,7 @@ module Ibex
           case entry
           when String
             normalized = entry.dup.force_encoding(Encoding::UTF_8)
-            normalized.valid_encoding? ? normalized : entry
+            normalized.valid_encoding? ? normalized : normalized.scrub
           when Array
             entry.map { |child| normalize.call(child) }
           when Hash

@@ -17,7 +17,7 @@ module Ibex
             value.map { |item| canonical(item) }
           when String
             normalized = value.dup.force_encoding(Encoding::UTF_8)
-            normalized.valid_encoding? ? normalized : value
+            normalized.valid_encoding? ? normalized : normalized.scrub
           else
             value
           end

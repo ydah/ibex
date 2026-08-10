@@ -70,7 +70,7 @@ module Ibex
         case value
         when String
           normalized = value.dup.force_encoding(Encoding::UTF_8)
-          normalized.valid_encoding? ? normalized : value
+          normalized.valid_encoding? ? normalized : normalized.scrub
         when Array
           value.map { |child| normalize_for_json(child) }
         when Hash
