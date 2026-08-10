@@ -264,8 +264,10 @@ module Ibex
           { "unavailable" => reason.freeze }.freeze
         end
 
-        # @rbs (Module owner, Symbol method_name, untyped receiver, *untyped args, **untyped keywords)
-        #   ?{ (*untyped) -> untyped } -> untyped
+        # Reflection deliberately erases the receiver's method signature; callers validate
+        # returned values at each sanitization boundary.
+        # @rbs (Module owner, Symbol method_name, Object? receiver, *Object?, **Object?)
+        #   ?{ (*Object?) -> Object? } -> Object?
         def core_call(owner, method_name, receiver, ...)
           owner.instance_method(method_name).bind(receiver).call(...)
         end

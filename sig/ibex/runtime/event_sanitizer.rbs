@@ -86,9 +86,11 @@ module Ibex
       # @rbs (String reason) -> Hash[String, json_value]
       private def self.unavailable: (String reason) -> Hash[String, json_value]
 
-      # @rbs (Module owner, Symbol method_name, untyped receiver, *untyped args, **untyped keywords)
-      #   ?{ (*untyped) -> untyped } -> untyped
-      private def self.core_call: (Module owner, Symbol method_name, untyped receiver, *untyped args, **untyped keywords) ?{ (*untyped) -> untyped } -> untyped
+      # Reflection deliberately erases the receiver's method signature; callers validate
+      # returned values at each sanitization boundary.
+      # @rbs (Module owner, Symbol method_name, Object? receiver, *Object?, **Object?)
+      #   ?{ (*Object?) -> Object? } -> Object?
+      private def self.core_call: (Module owner, Symbol method_name, Object? receiver, *Object?, **Object?) ?{ (*Object?) -> Object? } -> Object?
     end
   end
 end
