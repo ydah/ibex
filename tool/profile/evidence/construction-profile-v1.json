@@ -20,14 +20,11 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "0c8f379f6682edc637302bc17b9a81c6b7dc2a90",
+    "base_revision": "50b86622ca470111a7084fbdaaeeff20228f3ee8",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
-    "capture_worktree_clean": false,
-    "capture_worktree_status": [
-      " M docs/error-ux-round2-v1.json",
-      " M tool/profile/evidence/lexer-profile-v1.json"
-    ],
-    "capture_worktree_status_sha256": "1c5d800ddbda13662820beea109da58a581ac8db9aba926bc77666bb0f84e7fc",
+    "capture_worktree_clean": true,
+    "capture_worktree_status": [],
+    "capture_worktree_status_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
     "bound_paths": [
       {
         "path": ".github/workflows/main.yml",
@@ -298,7 +295,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.002133,
+                  "value": 0.00115,
                   "release_gate": false
                 }
               },
@@ -367,7 +364,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.003889,
+                  "value": 0.004337,
                   "release_gate": false
                 }
               },
@@ -459,7 +456,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000721,
+                  "value": 0.00077,
                   "release_gate": false
                 }
               },
@@ -528,7 +525,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001439,
+                  "value": 0.001553,
                   "release_gate": false
                 }
               },
@@ -620,7 +617,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000524,
+                  "value": 0.000579,
                   "release_gate": false
                 }
               },
@@ -689,7 +686,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000761,
+                  "value": 0.00077,
                   "release_gate": false
                 }
               },
@@ -783,7 +780,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000458,
+                  "value": 0.000459,
                   "release_gate": false
                 }
               },
@@ -853,7 +850,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000528,
+                  "value": 0.000521,
                   "release_gate": false
                 }
               },
@@ -923,7 +920,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000383,
+                  "value": 0.000388,
                   "release_gate": false
                 }
               },
@@ -993,7 +990,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000409,
+                  "value": 0.001712,
                   "release_gate": false
                 }
               },
@@ -1107,7 +1104,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.010133,
+                  "value": 0.011714,
                   "release_gate": false
                 }
               },
@@ -1176,7 +1173,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.052534,
+                  "value": 0.050435,
                   "release_gate": false
                 }
               },
