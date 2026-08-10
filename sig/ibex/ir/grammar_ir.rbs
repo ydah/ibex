@@ -2,6 +2,9 @@
 
 module Ibex
   module IR
+    # Grammar IR has one active wire format.  A future incompatible format
+    # change may advance this number, but the runtime never treats old
+    # formats as an alternate compatibility surface.
     SCHEMA_VERSION: ::Integer
 
     SUPPORTED_SCHEMA_VERSIONS: Array[Integer]
@@ -155,15 +158,21 @@ module Ibex
       #   options: grammar_options,
       #   symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String],
       #   conversions: Hash[String, String], warnings: Array[grammar_warning], ?user_code_chunks: user_code_chunks?,
-      #   ?source_provenance: source_provenance?,
+      #   ?parser_parameters: Array[parser_parameter],
       #   ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test],
       #   ?recovery: recovery_policy?, ?lexer: Lexer?,
-      #   ?mode: grammar_mode, ?starts: Array[String]?) -> void
+      #   ?mode: grammar_mode, ?starts: Array[String]?, ?parser_contract: ParserContract,
+      #   ?source_provenance: source_provenance?) -> void
       # rubocop:disable Metrics/AbcSize, Metrics/ParameterLists
       # Immutable current IR is constructed from explicit public fields.
-      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?expect_rr: Integer?, ?user_code_chunks: user_code_chunks?, ?source_provenance: source_provenance?, ?parser_parameters: Array[parser_parameter], ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test], ?recovery: recovery_policy?, ?lexer: Lexer?, ?mode: grammar_mode, ?starts: Array[String]?, ?parser_contract: ParserContract) -> void
+      def initialize: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], ?expect_rr: Integer?, ?user_code_chunks: user_code_chunks?, ?parser_parameters: Array[parser_parameter], ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test], ?recovery: recovery_policy?, ?lexer: Lexer?, ?mode: grammar_mode, ?starts: Array[String]?, ?parser_contract: ParserContract, ?source_provenance: source_provenance?) -> void
 
-      # @rbs (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], user_code_chunks: user_code_chunks?, source_provenance: source_provenance?, expect_rr: Integer?, parser_parameters: Array[parser_parameter], value_printers: Array[value_printer], grammar_tests: Array[grammar_test], recovery: recovery_policy?, lexer: Lexer?, mode: grammar_mode, starts: Array[String]?, parser_contract: ParserContract) -> void
+      # @rbs (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options,
+      #   symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String],
+      #   conversions: Hash[String, String], warnings: Array[grammar_warning], user_code_chunks: user_code_chunks?,
+      #   source_provenance: source_provenance?, expect_rr: Integer?, parser_parameters: Array[parser_parameter],
+      #   value_printers: Array[value_printer], grammar_tests: Array[grammar_test], recovery: recovery_policy?,
+      #   lexer: Lexer?, mode: grammar_mode, starts: Array[String]?, parser_contract: ParserContract) -> void
       def initialize_current: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], user_code_chunks: user_code_chunks?, source_provenance: source_provenance?, expect_rr: Integer?, parser_parameters: Array[parser_parameter], value_printers: Array[value_printer], grammar_tests: Array[grammar_test], recovery: recovery_policy?, lexer: Lexer?, mode: grammar_mode, starts: Array[String]?, parser_contract: ParserContract) -> void
 
       # @rbs (String name) -> GrammarSymbol?
@@ -171,9 +180,6 @@ module Ibex
 
       # @rbs (Integer? id) -> GrammarSymbol?
       def symbol_by_id: (Integer? id) -> GrammarSymbol?
-
-      # @rbs (ParserContract parser_contract) -> void
-      def validate_current_metadata: (ParserContract parser_contract) -> void
 
       # @rbs () -> Array[GrammarSymbol]
       def terminals: () -> Array[GrammarSymbol]
@@ -203,6 +209,9 @@ module Ibex
 
       # @rbs () -> void
       def validate_user_code_chunks: () -> void
+
+      # @rbs (ParserContract parser_contract) -> void
+      def validate_current_metadata: (ParserContract parser_contract) -> void
     end
   end
 end

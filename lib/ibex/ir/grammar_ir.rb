@@ -186,7 +186,8 @@ module Ibex
       #   ?parser_parameters: Array[parser_parameter],
       #   ?value_printers: Array[value_printer], ?grammar_tests: Array[grammar_test],
       #   ?recovery: recovery_policy?, ?lexer: Lexer?,
-      #   ?mode: grammar_mode, ?starts: Array[String]?) -> void
+      #   ?mode: grammar_mode, ?starts: Array[String]?, ?parser_contract: ParserContract,
+      #   ?source_provenance: source_provenance?) -> void
       # rubocop:disable Metrics/AbcSize, Metrics/ParameterLists
       # Immutable current IR is constructed from explicit public fields.
       def initialize(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
@@ -204,7 +205,12 @@ module Ibex
         )
       end
 
-      # @rbs skip
+      # @rbs (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options,
+      #   symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String],
+      #   conversions: Hash[String, String], warnings: Array[grammar_warning], user_code_chunks: user_code_chunks?,
+      #   source_provenance: source_provenance?, expect_rr: Integer?, parser_parameters: Array[parser_parameter],
+      #   value_printers: Array[value_printer], grammar_tests: Array[grammar_test], recovery: recovery_policy?,
+      #   lexer: Lexer?, mode: grammar_mode, starts: Array[String]?, parser_contract: ParserContract) -> void
       def initialize_current(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
                              conversions:, warnings:, user_code_chunks:, source_provenance:, expect_rr:,
                              parser_parameters:, value_printers:, grammar_tests:, recovery:, lexer:, mode:, starts:,
@@ -319,7 +325,7 @@ module Ibex
         end
       end
 
-      # @rbs skip
+      # @rbs (ParserContract parser_contract) -> void
       def validate_current_metadata(parser_contract)
         return if parser_contract.is_a?(ParserContract)
 

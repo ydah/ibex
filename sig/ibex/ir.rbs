@@ -2,6 +2,8 @@
 
 module Ibex
   module IR
+    type serialized_value = untyped
+
     type location = { file: String, line: Integer, column: Integer }
 
     type precedence = { associativity: Symbol, level: Integer }

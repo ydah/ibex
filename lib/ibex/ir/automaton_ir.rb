@@ -90,7 +90,8 @@ module Ibex
         )
       end
 
-      # @rbs skip
+      # @rbs (grammar: Grammar, states: Array[AutomatonState], conflict_summary: conflict_summary,
+      #   algorithm: String, grammar_digest: String?, entry_states: Hash[String, Integer]?, entry_construction: String) -> void
       def initialize_current(grammar:, states:, conflict_summary:, algorithm:, grammar_digest:, entry_states:,
                              entry_construction:)
         unless grammar.schema_version == SCHEMA_VERSION
@@ -156,14 +157,14 @@ module Ibex
         value.dup.freeze
       end
 
-      # @rbs skip
+      # @rbs () -> void
       def validate_parser_contract
         contract = @grammar.parser_contract
         validate_parser_algorithm(contract)
         validate_parser_entries(contract)
       end
 
-      # @rbs skip
+      # @rbs (ParserContract contract) -> void
       def validate_parser_algorithm(contract)
         selected_algorithm = { "lalr1" => :lalr, "ielr1" => :ielr }.fetch(@algorithm, @algorithm.to_sym)
         return unless contract.algorithm.explicit && contract.algorithm.value != selected_algorithm
@@ -171,7 +172,7 @@ module Ibex
         raise Ibex::Error, "automaton algorithm conflicts with the embedded parser contract"
       end
 
-      # @rbs skip
+      # @rbs (ParserContract contract) -> void
       def validate_parser_entries(contract)
         return unless contract.entries.explicit && contract.entries.value.to_s != @entry_construction
 

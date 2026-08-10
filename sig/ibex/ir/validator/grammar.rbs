@@ -16,11 +16,11 @@ module Ibex
 
         SYMBOL_METADATA_REQUIRED: Array[String]
 
+        PRODUCTION_REQUIRED: Array[String]
+
         PRODUCTION_METADATA_REQUIRED: Array[String]
 
         ACTION_COMPOSITION_REQUIRED: Array[String]
-
-        PRODUCTION_REQUIRED: Array[String]
 
         ORIGIN_KINDS: Array[String]
 

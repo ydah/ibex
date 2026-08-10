@@ -10,6 +10,7 @@ module Ibex
   module IR
     # Shared static shapes used across analysis, automaton construction, and code generation.
     # @rbs!
+    #   type serialized_value = untyped
     #   type location = { file: String, line: Integer, column: Integer }
     #   type precedence = { associativity: Symbol, level: Integer }
     #   type named_ref = { name: String, index: Integer }

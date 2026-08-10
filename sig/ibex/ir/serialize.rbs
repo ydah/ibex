@@ -6,95 +6,78 @@ module Ibex
     # rubocop:disable Metrics/ModuleLength -- explicit fields keep serialization changes auditable.
     # rubocop:disable Lint/SelfAssignment -- RBS inline assertions narrow schema-decoded values in place.
     module Serialize
-      type serialized_value = untyped
-
-      private def validate_version: (Hash[String, serialized_value] data) -> void
-
-      private def self.validate_version: (Hash[String, serialized_value] data) -> void
-
-      private def load_grammar: (Hash[String, serialized_value] data) -> Grammar
-
-      private def self.load_grammar: (Hash[String, serialized_value] data) -> Grammar
-
-      private def load_symbols: (Hash[String, serialized_value] data) -> Array[GrammarSymbol]
-
-      private def self.load_symbols: (Hash[String, serialized_value] data) -> Array[GrammarSymbol]
-
-      private def load_productions: (Hash[String, serialized_value] data) -> Array[Production]
-
-      private def self.load_productions: (Hash[String, serialized_value] data) -> Array[Production]
-
-      private def empty_chunks: () -> Hash[String, serialized_value]
-
-      private def self.empty_chunks: () -> Hash[String, serialized_value]
-
-      private def empty_parameters: () -> Array[serialized_value]
-
-      private def self.empty_parameters: () -> Array[serialized_value]
-
-      private def empty_printers: () -> Array[serialized_value]
-
-      private def self.empty_printers: () -> Array[serialized_value]
-
-      private def empty_tests: () -> Array[serialized_value]
-
-      private def self.empty_tests: () -> Array[serialized_value]
-
-      private def empty_recovery: () -> Hash[String, serialized_value]
-
-      private def self.empty_recovery: () -> Hash[String, serialized_value]
-
-      private def load_automaton: (Hash[String, serialized_value] data) -> Automaton
-
-      private def self.load_automaton: (Hash[String, serialized_value] data) -> Automaton
-
-      private def load_lexer: (Hash[String, serialized_value] data) -> Lexer
-
-      private def self.load_lexer: (Hash[String, serialized_value] data) -> Lexer
-
-      private def load_state: (Hash[String, serialized_value] state, Grammar grammar) -> AutomatonState
-
-      private def self.load_state: (Hash[String, serialized_value] state, Grammar grammar) -> AutomatonState
-
-      private def symbol_keyed: (Hash[String, serialized_value] values, Grammar grammar, ?actions: bool) -> Hash[Integer, serialized_value]
-
-      private def self.symbol_keyed: (Hash[String, serialized_value] values, Grammar grammar, ?actions: bool) -> Hash[Integer, serialized_value]
-
-      private def normalize_action: (Hash[String, serialized_value] value) -> parser_action?
-
-      private def self.normalize_action: (Hash[String, serialized_value] value) -> parser_action?
-
-      private def load_production: (Hash[String, serialized_value] production) -> Production
-
-      private def self.load_production: (Hash[String, serialized_value] production) -> Production
-
-      private def load_user_code_chunks: (Hash[String, Array[Hash[String, serialized_value]]] chunks) -> user_code_chunks
-
-      private def self.load_user_code_chunks: (Hash[String, Array[Hash[String, serialized_value]]] chunks) -> user_code_chunks
-
-      private def load_symbol_metadata: (Hash[String, serialized_value] symbol, String field) -> String?
-
-      private def self.load_symbol_metadata: (Hash[String, serialized_value] symbol, String field) -> String?
-
-      private def load_grammar_tests: (Array[Hash[String, serialized_value]] tests) -> Array[grammar_test]
-
-      private def self.load_grammar_tests: (Array[Hash[String, serialized_value]] tests) -> Array[grammar_test]
-
-      private def symbol_source_position: (Hash[String, serialized_value] symbol) -> String
-
-      private def self.symbol_source_position: (Hash[String, serialized_value] symbol) -> String
-
-      private def symbolize: (serialized_value value) -> serialized_value
-
-      private def self.symbolize: (serialized_value value) -> serialized_value
-
       # @rbs (Grammar | Automaton | Lexer value) -> String
       def self?.dump: (Grammar | Automaton | Lexer value) -> String
 
       # @rbs (String source) -> (Grammar | Automaton | Lexer)
       def self?.load: (String source) -> (Grammar | Automaton | Lexer)
 
-      def load_parser_contract: (untyped value) -> untyped
+      private
+
+      # @rbs (Hash[String, IR::serialized_value] data) -> void
+      def self?.validate_version: (Hash[String, IR::serialized_value] data) -> void
+
+      # rubocop:disable Metrics/AbcSize -- explicit current Grammar IR field mapping is the loader contract.
+      # @rbs (Hash[String, IR::serialized_value] data) -> Grammar
+      def load_grammar: (Hash[String, IR::serialized_value] data) -> Grammar
+
+      # @rbs (Hash[String, IR::serialized_value] data) -> Array[GrammarSymbol]
+      def load_symbols: (Hash[String, IR::serialized_value] data) -> Array[GrammarSymbol]
+
+      # @rbs (Hash[String, IR::serialized_value] data) -> Array[Production]
+      def load_productions: (Hash[String, IR::serialized_value] data) -> Array[Production]
+
+      # @rbs () -> Hash[String, IR::serialized_value]
+      def empty_chunks: () -> Hash[String, IR::serialized_value]
+
+      # @rbs () -> Array[IR::serialized_value]
+      def empty_parameters: () -> Array[IR::serialized_value]
+
+      # @rbs () -> Array[IR::serialized_value]
+      def empty_printers: () -> Array[IR::serialized_value]
+
+      # @rbs () -> Array[IR::serialized_value]
+      def empty_tests: () -> Array[IR::serialized_value]
+
+      # @rbs () -> Hash[String, IR::serialized_value]
+      def empty_recovery: () -> Hash[String, IR::serialized_value]
+
+      # @rbs (Hash[String, IR::serialized_value] data) -> Automaton
+      def load_automaton: (Hash[String, IR::serialized_value] data) -> Automaton
+
+      # @rbs (Hash[String, IR::serialized_value] data) -> Lexer
+      def load_lexer: (Hash[String, IR::serialized_value] data) -> Lexer
+
+      # @rbs (Hash[String, IR::serialized_value] state, Grammar grammar) -> AutomatonState
+      def load_state: (Hash[String, IR::serialized_value] state, Grammar grammar) -> AutomatonState
+
+      # @rbs (Hash[String, IR::serialized_value] values, Grammar grammar, ?actions: bool) -> Hash[Integer, IR::serialized_value]
+      def symbol_keyed: (Hash[String, IR::serialized_value] values, Grammar grammar, ?actions: bool) -> Hash[Integer, IR::serialized_value]
+
+      # @rbs (Hash[String, IR::serialized_value] value) -> parser_action?
+      def normalize_action: (Hash[String, IR::serialized_value] value) -> parser_action?
+
+      # @rbs (Hash[String, IR::serialized_value] production) -> Production
+      def load_production: (Hash[String, IR::serialized_value] production) -> Production
+
+      # @rbs (Hash[String, Array[Hash[String, IR::serialized_value]]] chunks) -> user_code_chunks
+      def load_user_code_chunks: (Hash[String, Array[Hash[String, IR::serialized_value]]] chunks) -> user_code_chunks
+
+      # @rbs (Hash[String, IR::serialized_value] symbol, String field) -> String?
+      def load_symbol_metadata: (Hash[String, IR::serialized_value] symbol, String field) -> String?
+
+      # @rbs (Hash[String, IR::serialized_value] symbol) -> String
+      def symbol_source_position: (Hash[String, IR::serialized_value] symbol) -> String
+
+      # @rbs (Array[Hash[String, IR::serialized_value]] tests) -> Array[grammar_test]
+      def load_grammar_tests: (Array[Hash[String, IR::serialized_value]] tests) -> Array[grammar_test]
+
+      # @rbs (IR::serialized_value value) -> IR::serialized_value
+      def load_parser_contract: (IR::serialized_value value) -> IR::serialized_value
+
+      # Parsed IR values are recursively heterogeneous until schema validation narrows them.
+      # @rbs (IR::serialized_value value) -> IR::serialized_value
+      def symbolize: (IR::serialized_value value) -> IR::serialized_value
     end
   end
 end

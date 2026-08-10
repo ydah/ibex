@@ -1,7 +1,7 @@
 # Generated from lib/ibex/normalize/grammar_builder.rb with RBS::Inline
 
 module Ibex
-  # Builds the current Grammar IR without a compatibility branch.
+  # Builds the single current Grammar IR format for every normalized source.
   module NormalizeGrammarBuilder
     private
 

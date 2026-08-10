@@ -67,12 +67,12 @@ module Ibex
 
         private
 
-        # @rbs skip
+        # @rbs () -> void
         def validate_root_record
           record(@data, @path, ROOT_REQUIRED, ROOT_OPTIONAL)
         end
 
-        # @rbs skip
+        # @rbs () -> void
         def validate_optional_parser_metadata
           validate_value_printers if @data.key?("printers")
           validate_grammar_tests if @data.key?("tests")
@@ -81,12 +81,12 @@ module Ibex
           validate_parser_contract
         end
 
-        # @rbs skip
+        # @rbs () -> void
         def validate_parser_parameters_if_present
           validate_parser_parameters if @data.key?("params")
         end
 
-        # @rbs skip
+        # @rbs () -> void
         def validate_optional_source_metadata
           validate_user_code_chunks if @data.key?("user_code_chunks")
           validate_source_provenance(@data["source_provenance"], "#{@path}.source_provenance")
@@ -490,7 +490,7 @@ module Ibex
           invalid("#{path}.end", "must be greater than or equal to start") if end_byte < start_byte
         end
 
-        # @rbs skip
+        # @rbs () -> void
         def validate_parser_contract
           path = "#{@path}.parser_contract"
           contract = record(@data["parser_contract"], path, %w[algorithm entries cst_trivia])
