@@ -252,14 +252,14 @@ module Ibex
       REPAIR_PENDING_OUTCOME = [:repair_pending].freeze #: [:repair_pending]
       TERMINAL_OUTCOMES = %i[accepted done].freeze #: Array[Symbol]
       COMPACT_ACCEPTED = Object.new.freeze #: Object
-      empty_row = {} # @type var empty_row: Hash[Integer, untyped]
+      empty_row = {} # @type var empty_row: Hash[Integer, Object?]
       empty_location_names = {} # @type var empty_location_names: Hash[Symbol, Integer]
-      empty_locations = [] # @type var empty_locations: Array[untyped]
+      empty_locations = [] # @type var empty_locations: Array[Object?]
       empty_green_trivia = [] # @type var empty_green_trivia: Array[CST::GreenTrivia]
 
-      EMPTY_ROW = empty_row.freeze #: Hash[Integer, untyped]
+      EMPTY_ROW = empty_row.freeze #: Hash[Integer, Object?]
       EMPTY_LOCATION_NAMES = empty_location_names.freeze #: Hash[Symbol, Integer]
-      EMPTY_LOCATIONS = empty_locations.freeze #: Array[untyped]
+      EMPTY_LOCATIONS = empty_locations.freeze #: Array[Object?]
       EMPTY_GREEN_TRIVIA = empty_green_trivia.freeze #: Array[CST::GreenTrivia]
       private_constant :ERROR_ACTION, :SYNC_RECOVER_ACTION, :CONTINUE_OUTCOME, :REPAIR_PENDING_OUTCOME,
                        :TERMINAL_OUTCOMES, :COMPACT_ACCEPTED, :FAST_PATH_HOOK_NAMES, :FAST_PATH_HOOK_REFERENCES,
@@ -269,13 +269,13 @@ module Ibex
       # @rbs @yydebug_output: IO
       # @rbs @source: untyped
       # @rbs @state_stack: Array[Integer]
-      # @rbs @value_stack: Array[untyped]
-      # @rbs @vstack: Array[untyped]
-      # @rbs @racc_vstack: Array[untyped]
-      # @rbs @location_stack: Array[untyped]?
-      # @rbs @lookahead: untyped
-      # @rbs @lookahead_value: untyped
-      # @rbs @lookahead_location: untyped
+      # @rbs @value_stack: Array[Object?]
+      # @rbs @vstack: Array[Object?]
+      # @rbs @racc_vstack: Array[Object?]
+      # @rbs @location_stack: Array[Object?]?
+      # @rbs @lookahead: Object
+      # @rbs @lookahead_value: Object?
+      # @rbs @lookahead_location: Object?
       # @rbs @recovery_shifts: Integer
       # @rbs @semantic_error: bool
       # @rbs @accept_requested: bool
@@ -286,27 +286,27 @@ module Ibex
       # @rbs @runtime_driver_thread: Thread?
       # @rbs @runtime_observers: Hash[Observation::Subscription, Proc]?
       # @rbs @runtime_event_sequence: Integer
-      # @rbs @runtime_lookahead_token_display: untyped
+      # @rbs @runtime_lookahead_token_display: String?
       # @rbs @runtime_observation_mutex: Mutex
       # @rbs @repair_policy: RepairPolicy?
       # @rbs @repair_input_buffer: Array[RepairInput]?
       # @rbs @repair_selected: bool
-      # @rbs @semantic_locations: Array[untyped]?
+      # @rbs @semantic_locations: Array[Object?]?
       # @rbs @semantic_location_names: Hash[Symbol, Integer]?
-      # @rbs @semantic_result_location: untyped
-      # @rbs @trace_value_printer: (^(untyped) -> untyped)?
-      # @rbs @sync_recovery_context: Hash[Symbol, untyped]?
-      # @rbs @sync_recovery_token_data: Hash[String, untyped]?
+      # @rbs @semantic_result_location: Object?
+      # @rbs @trace_value_printer: (^(Object?) -> Object?)?
+      # @rbs @sync_recovery_context: Hash[Symbol, Object?]?
+      # @rbs @sync_recovery_token_data: Hash[String, Object?]?
       # @rbs @sync_recovery_observers: Array[Proc]?
       # @rbs @green_builder: CST::GreenBuilder?
       # @rbs @green_kinds: CST::Kind?
       # @rbs @green_cache: CST::NodeCache?
       # @rbs @syntax_root: CST::SyntaxNode?
-      # @rbs @syntax_diagnostics: Array[untyped]
+      # @rbs @syntax_diagnostics: Array[Object?]
       # @rbs @green_pending_skipped: Array[CST::GreenTrivia]
       # @rbs @resource_limits: ResourceLimits
       # @rbs @recovery_attempts: Integer
-      # @rbs @runtime_parser_tables: Hash[Symbol, untyped]?
+      # @rbs @runtime_parser_tables: Hash[Symbol, Object?]?
       # @rbs @runtime_fast_path: bool
       # @rbs @runtime_fast_path_tracker_installed: bool
       # @rbs @runtime_fast_path_hooks_mutated: bool

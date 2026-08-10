@@ -169,7 +169,7 @@ module Ibex
 
       @runtime_event_sequence: Integer
 
-      @runtime_lookahead_token_display: untyped
+      @runtime_lookahead_token_display: String?
 
       @runtime_observation_mutex: Mutex
 
@@ -179,7 +179,7 @@ module Ibex
 
       @repair_selected: bool
 
-      @semantic_locations: Array[untyped]?
+      @semantic_locations: Array[Object?]?
 
       @incremental_reused_descendants: Integer
 
@@ -189,19 +189,19 @@ module Ibex
 
       @recovery_shifts: Integer
 
-      @lookahead_location: untyped
+      @lookahead_location: Object?
 
-      @lookahead_value: untyped
+      @lookahead_value: Object?
 
-      @lookahead: untyped
+      @lookahead: Object
 
-      @location_stack: Array[untyped]?
+      @location_stack: Array[Object?]?
 
-      @racc_vstack: Array[untyped]
+      @racc_vstack: Array[Object?]
 
-      @vstack: Array[untyped]
+      @vstack: Array[Object?]
 
-      @value_stack: Array[untyped]
+      @value_stack: Array[Object?]
 
       @state_stack: Array[Integer]
 
@@ -235,7 +235,7 @@ module Ibex
 
       @runtime_fast_path: bool
 
-      @runtime_parser_tables: Hash[Symbol, untyped]?
+      @runtime_parser_tables: Hash[Symbol, Object?]?
 
       @recovery_attempts: Integer
 
@@ -243,7 +243,7 @@ module Ibex
 
       @green_pending_skipped: Array[CST::GreenTrivia]
 
-      @syntax_diagnostics: Array[untyped]
+      @syntax_diagnostics: Array[Object?]
 
       @syntax_root: CST::SyntaxNode?
 
@@ -255,13 +255,13 @@ module Ibex
 
       @sync_recovery_observers: Array[Proc]?
 
-      @sync_recovery_token_data: Hash[String, untyped]?
+      @sync_recovery_token_data: Hash[String, Object?]?
 
-      @sync_recovery_context: Hash[Symbol, untyped]?
+      @sync_recovery_context: Hash[Symbol, Object?]?
 
-      @trace_value_printer: (^(untyped) -> untyped)?
+      @trace_value_printer: (^(Object?) -> Object?)?
 
-      @semantic_result_location: untyped
+      @semantic_result_location: Object?
 
       @semantic_location_names: Hash[Symbol, Integer]?
 
