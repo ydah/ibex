@@ -1,0 +1,36 @@
+name: Bug report
+description: Report a reproducible problem with Ibex.
+title: "[bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please remove secrets and proprietary grammar source. Security issues belong in the private process in SECURITY.md.
+  - type: input
+    id: version
+    attributes:
+      label: Ibex and Ruby versions
+      placeholder: "Ibex 0.2.0, Ruby 3.4.5"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Include a minimal grammar, command, and input that reproduce the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: Diagnostics and checks
+      description: Paste complete diagnostics and the relevant test command.
+    validations:
+      required: true

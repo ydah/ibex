@@ -11,11 +11,14 @@ Gem::Specification.new do |spec|
 
   spec.summary = "A Pure Ruby LR parser generator"
   spec.description = "Ibex generates LR parsers from racc-compatible grammars without native extensions."
-  spec.homepage = "https://github.com/ydah/ibex"
+  spec.homepage = "https://ydah.github.io/ibex/"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "#{spec.homepage}/tree/main"
+  spec.metadata["source_code_uri"] = "https://github.com/ydah/ibex"
+  spec.metadata["documentation_uri"] = "https://ydah.github.io/ibex/api/"
+  spec.metadata["changelog_uri"] = "https://github.com/ydah/ibex/blob/main/CHANGELOG.md"
+  spec.metadata["bug_tracker_uri"] = "https://github.com/ydah/ibex/issues"
   spec.metadata["rubygems_mfa_required"] = "true"
 
   package_files = Dir.chdir(__dir__) do
