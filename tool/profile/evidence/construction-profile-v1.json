@@ -20,7 +20,7 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "b1a6c1985ccc112fd81bf5fcb99ce6d50c5b76ab",
+    "base_revision": "b25ba0dcf6936fa25fd55b37a6c6871bf597b939",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": true,
     "capture_worktree_status": [],
@@ -63,22 +63,82 @@
         "base_sha256": "752aedf08615715b83f68ac08e4cea9b5f8abbee29e28879a0562730edd8e168"
       },
       {
-        "path": "lib/ibex/lalr/build_metrics.rb",
-        "sha256": "dfca69a5d16cc32ce7fc89ad3a53aa1ce6bb0b12d6e8ae0dd2cf5e2f6e9df3c4",
+        "path": "lib/ibex/analysis/digraph.rb",
+        "sha256": "470aa4ed7af53c60993044667ed74813e15c19d3f0450a3404f12c10a88f9b98",
         "git_state": "base",
-        "base_sha256": "dfca69a5d16cc32ce7fc89ad3a53aa1ce6bb0b12d6e8ae0dd2cf5e2f6e9df3c4"
+        "base_sha256": "470aa4ed7af53c60993044667ed74813e15c19d3f0450a3404f12c10a88f9b98"
+      },
+      {
+        "path": "lib/ibex/lalr/build_metrics.rb",
+        "sha256": "eadf2b10f366c110a4110592b6cfe3e221b69577cb1b7993c6ebc5d4d8c31717",
+        "git_state": "base",
+        "base_sha256": "eadf2b10f366c110a4110592b6cfe3e221b69577cb1b7993c6ebc5d4d8c31717"
       },
       {
         "path": "lib/ibex/lalr/builder.rb",
-        "sha256": "cf27b5ade80e8a88738570916dbe2429504605f9c35da83552425d04b348c69a",
+        "sha256": "69a4b832abf5c1d6332049fc584b9c46f8b43609fad65dc0682e618e84ea52ad",
         "git_state": "base",
-        "base_sha256": "cf27b5ade80e8a88738570916dbe2429504605f9c35da83552425d04b348c69a"
+        "base_sha256": "69a4b832abf5c1d6332049fc584b9c46f8b43609fad65dc0682e618e84ea52ad"
       },
       {
         "path": "lib/ibex/lalr/direct_lookaheads.rb",
-        "sha256": "4bcfe4cbdd03ee8824a38660007a6b061408a2433505be6d5bf19a23d78dc5e0",
+        "sha256": "c005c4433b6d5d57bd8273fb9a77de2746c6cdf3f209496e81610cbb45b820e8",
         "git_state": "base",
-        "base_sha256": "4bcfe4cbdd03ee8824a38660007a6b061408a2433505be6d5bf19a23d78dc5e0"
+        "base_sha256": "c005c4433b6d5d57bd8273fb9a77de2746c6cdf3f209496e81610cbb45b820e8"
+      },
+      {
+        "path": "lib/ibex/lalr/goto_follows.rb",
+        "sha256": "45afbbbc0242b5129e832c3078e77542e42cb7707792d653f582bf8fe4d6f22f",
+        "git_state": "base",
+        "base_sha256": "45afbbbc0242b5129e832c3078e77542e42cb7707792d653f582bf8fe4d6f22f"
+      },
+      {
+        "path": "lib/ibex/lalr/ielr/annotator.rb",
+        "sha256": "0e9ff819d170f00fec6cf9e6a7db5663ca68c0b92957617e829b14bbb7c5240f",
+        "git_state": "base",
+        "base_sha256": "0e9ff819d170f00fec6cf9e6a7db5663ca68c0b92957617e829b14bbb7c5240f"
+      },
+      {
+        "path": "lib/ibex/lalr/ielr/bits.rb",
+        "sha256": "dc04aa752f6eae4f88bbbaabe0435f8367b8866c88fda89785065d2578d3544e",
+        "git_state": "base",
+        "base_sha256": "dc04aa752f6eae4f88bbbaabe0435f8367b8866c88fda89785065d2578d3544e"
+      },
+      {
+        "path": "lib/ibex/lalr/ielr/inadequacy.rb",
+        "sha256": "6c3ac93e2c08793425886c3786fcaea6d422e0b86372b2aa256fea0854709962",
+        "git_state": "base",
+        "base_sha256": "6c3ac93e2c08793425886c3786fcaea6d422e0b86372b2aa256fea0854709962"
+      },
+      {
+        "path": "lib/ibex/lalr/ielr/item_lookaheads.rb",
+        "sha256": "359d3448117447909143c815ef0c53b081893100982aa608ae50f32aa48cdd80",
+        "git_state": "base",
+        "base_sha256": "359d3448117447909143c815ef0c53b081893100982aa608ae50f32aa48cdd80"
+      },
+      {
+        "path": "lib/ibex/lalr/ielr/pipeline.rb",
+        "sha256": "c5dd215e3ab13482d11fb4ef7b5aa49d170dbb5456e396b57b74fe8baa1aea0b",
+        "git_state": "base",
+        "base_sha256": "c5dd215e3ab13482d11fb4ef7b5aa49d170dbb5456e396b57b74fe8baa1aea0b"
+      },
+      {
+        "path": "lib/ibex/lalr/ielr/split_stability.rb",
+        "sha256": "08402d91c0fe4e39d449cbf55617cee04fc73dd3aae2be8207e62b4590ccbcd3",
+        "git_state": "base",
+        "base_sha256": "08402d91c0fe4e39d449cbf55617cee04fc73dd3aae2be8207e62b4590ccbcd3"
+      },
+      {
+        "path": "lib/ibex/lalr/ielr/split_state.rb",
+        "sha256": "f37dc70b338be92ee6f8a91f179834f7c00a6b9b868e3b4778b80fe0fcbc179d",
+        "git_state": "base",
+        "base_sha256": "f37dc70b338be92ee6f8a91f179834f7c00a6b9b868e3b4778b80fe0fcbc179d"
+      },
+      {
+        "path": "lib/ibex/lalr/ielr/state_splitter.rb",
+        "sha256": "75c3cef68be399e893a1a160027fb9abc6410e0f12adaed8acbad09c8093568c",
+        "git_state": "base",
+        "base_sha256": "75c3cef68be399e893a1a160027fb9abc6410e0f12adaed8acbad09c8093568c"
       },
       {
         "path": "lib/ibex/lalr/ielr_partition.rb",
@@ -87,28 +147,58 @@
         "base_sha256": "842610d6ce3e2ae0850807e340a38864c85c27f513e42c26a6759cd865d9a506"
       },
       {
-        "path": "schema/construction-profile-v1.schema.json",
-        "sha256": "e7daf5e6c94c92bbb0405ed188fd1454d7adab9da27fe99694a949fb88c0a49e",
+        "path": "lib/ibex/lalr/inadequacy_report.rb",
+        "sha256": "b24034913b7f993fb7954efd09bd9e0446c2360d27f393b602cb3e7f1c462667",
         "git_state": "base",
-        "base_sha256": "e7daf5e6c94c92bbb0405ed188fd1454d7adab9da27fe99694a949fb88c0a49e"
+        "base_sha256": "b24034913b7f993fb7954efd09bd9e0446c2360d27f393b602cb3e7f1c462667"
+      },
+      {
+        "path": "lib/ibex/lalr/lookahead_propagation.rb",
+        "sha256": "5083b6be1b7e68d5b2482feca736bd5396b4d757506e00062ac8557a676f9ce8",
+        "git_state": "base",
+        "base_sha256": "5083b6be1b7e68d5b2482feca736bd5396b4d757506e00062ac8557a676f9ce8"
+      },
+      {
+        "path": "lib/ibex/lalr/lr0_collection.rb",
+        "sha256": "abfcca1bd7da9006be889a092af35083a8211cce4655a7c893bee91109ddd1d8",
+        "git_state": "base",
+        "base_sha256": "abfcca1bd7da9006be889a092af35083a8211cce4655a7c893bee91109ddd1d8"
+      },
+      {
+        "path": "lib/ibex/lalr/unreachable_states.rb",
+        "sha256": "d2abb577b11337a36ab729e705bbfc145ebc3405a6ab07a12f969a6622d5cf75",
+        "git_state": "base",
+        "base_sha256": "d2abb577b11337a36ab729e705bbfc145ebc3405a6ab07a12f969a6622d5cf75"
+      },
+      {
+        "path": "lib/ibex/verify/action_correspondence.rb",
+        "sha256": "8d0d4370925adf5b15d68ca4eff638be4375ea07ccbc39109c4695424038199a",
+        "git_state": "base",
+        "base_sha256": "8d0d4370925adf5b15d68ca4eff638be4375ea07ccbc39109c4695424038199a"
+      },
+      {
+        "path": "schema/construction-profile-v1.schema.json",
+        "sha256": "0cdac1514e965800701286084c18411a190ac424527ebf9de2163cbc204b4462",
+        "git_state": "base",
+        "base_sha256": "0cdac1514e965800701286084c18411a190ac424527ebf9de2163cbc204b4462"
       },
       {
         "path": "sig/ibex/lalr/build_metrics.rbs",
-        "sha256": "a5528dca9a395670cb6400a23873d76dbadd8d5e160131a5c1d6d56052c32c92",
+        "sha256": "252ed62e63312ac0ba9154ebddc88411922e38af186c1f92df188a3afe0b0a56",
         "git_state": "base",
-        "base_sha256": "a5528dca9a395670cb6400a23873d76dbadd8d5e160131a5c1d6d56052c32c92"
+        "base_sha256": "252ed62e63312ac0ba9154ebddc88411922e38af186c1f92df188a3afe0b0a56"
       },
       {
         "path": "sig/ibex/lalr/builder.rbs",
-        "sha256": "c071c023ec112a2a3fe4c8f839cf33bd9644fb9691bab1553412aed9bc0dc744",
+        "sha256": "81fec699226b1dde3604aff8ded64ce44258a38a9df11a3cb8d0f108e5b1737b",
         "git_state": "base",
-        "base_sha256": "c071c023ec112a2a3fe4c8f839cf33bd9644fb9691bab1553412aed9bc0dc744"
+        "base_sha256": "81fec699226b1dde3604aff8ded64ce44258a38a9df11a3cb8d0f108e5b1737b"
       },
       {
         "path": "sig/ibex/lalr/direct_lookaheads.rbs",
-        "sha256": "9195fe9310a68dc0b80524757cdecce66d14cb13a5cd3f4c45d2409cdfc4658c",
+        "sha256": "a3c737c74a3110a41ce2c08c461c9bd802fc0c08cccfc9ece354fc729edac46b",
         "git_state": "base",
-        "base_sha256": "9195fe9310a68dc0b80524757cdecce66d14cb13a5cd3f4c45d2409cdfc4658c"
+        "base_sha256": "a3c737c74a3110a41ce2c08c461c9bd802fc0c08cccfc9ece354fc729edac46b"
       },
       {
         "path": "sig/ibex/lalr/ielr_partition.rbs",
@@ -160,15 +250,15 @@
       },
       {
         "path": "tool/construction_profile.rb",
-        "sha256": "793e5f2e4e4d7d5853fce698b8dc2d453b24c95f9b3b5de70145c24aef76af24",
+        "sha256": "065ebca54cfff15824950786c1fa759e10297767737e2f9a377aa9508c7e7a65",
         "git_state": "base",
-        "base_sha256": "793e5f2e4e4d7d5853fce698b8dc2d453b24c95f9b3b5de70145c24aef76af24"
+        "base_sha256": "065ebca54cfff15824950786c1fa759e10297767737e2f9a377aa9508c7e7a65"
       },
       {
         "path": "tool/profile/construction_profiler.rb",
-        "sha256": "6c32c2184e105f3797549ab33975243220a0b3dec1811d48e334e8e725c65d2f",
+        "sha256": "0276ea275f0c0bbfcd69c2b27691a3377e2fc37e2d735cc34be0c24be1f49763",
         "git_state": "base",
-        "base_sha256": "6c32c2184e105f3797549ab33975243220a0b3dec1811d48e334e8e725c65d2f"
+        "base_sha256": "0276ea275f0c0bbfcd69c2b27691a3377e2fc37e2d735cc34be0c24be1f49763"
       },
       {
         "path": "tool/quality/construction_profile.rb",
@@ -183,8 +273,8 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "d5e4cd2e8ac80a1a1519e7f20ca4625430ffde4091099d33001893476dc2edd8",
-    "implementation_sha256": "5519cbab9899b3c2dec8d6264527115e7e0ea553e16a3801f481758492f78985",
+    "bound_paths_sha256": "92fdfb673d9fb95ef59d50a96c7934c702f515d8d08a8e4f0b8454e742a3f724",
+    "implementation_sha256": "b4ff3ec4406bae04fc55ad13949b8f5babd6efdfeb4ad5751aac6cce2b466354",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
     "evidence_path": "tool/profile/evidence/construction-profile-v1.json",
@@ -286,6 +376,38 @@
                 "ielr_final_partitions": {
                   "status": "not_applicable",
                   "reason": "this construction path does not run IELR partitioning"
+                },
+                "ielr_annotations": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_annotated_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_inadequacies": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_split_stable_discarded": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not record discarded IELR annotations"
+                },
+                "ielr_lalr_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run direct IELR phases"
+                },
+                "ielr_split_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not split IELR states"
+                },
+                "ielr_unreachable_removed": {
+                  "status": "not_applicable",
+                  "reason": "unreachable-state compaction is disabled"
+                },
+                "ielr_remergeable_candidates": {
+                  "status": "not_applicable",
+                  "reason": "remergeable-state analysis is not implemented"
                 }
               },
               "conflicts": {
@@ -295,7 +417,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001236,
+                  "value": 0.001721,
                   "release_gate": false
                 }
               },
@@ -355,6 +477,38 @@
                 "ielr_final_partitions": {
                   "status": "measured",
                   "value": 15
+                },
+                "ielr_annotations": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_annotated_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_inadequacies": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_split_stable_discarded": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not record discarded IELR annotations"
+                },
+                "ielr_lalr_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run direct IELR phases"
+                },
+                "ielr_split_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not split IELR states"
+                },
+                "ielr_unreachable_removed": {
+                  "status": "not_applicable",
+                  "reason": "unreachable-state compaction is disabled"
+                },
+                "ielr_remergeable_candidates": {
+                  "status": "not_applicable",
+                  "reason": "remergeable-state analysis is not implemented"
                 }
               },
               "conflicts": {
@@ -364,7 +518,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.0046,
+                  "value": 0.005411,
                   "release_gate": false
                 }
               },
@@ -447,6 +601,38 @@
                 "ielr_final_partitions": {
                   "status": "not_applicable",
                   "reason": "this construction path does not run IELR partitioning"
+                },
+                "ielr_annotations": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_annotated_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_inadequacies": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_split_stable_discarded": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not record discarded IELR annotations"
+                },
+                "ielr_lalr_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run direct IELR phases"
+                },
+                "ielr_split_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not split IELR states"
+                },
+                "ielr_unreachable_removed": {
+                  "status": "not_applicable",
+                  "reason": "unreachable-state compaction is disabled"
+                },
+                "ielr_remergeable_candidates": {
+                  "status": "not_applicable",
+                  "reason": "remergeable-state analysis is not implemented"
                 }
               },
               "conflicts": {
@@ -456,7 +642,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000785,
+                  "value": 0.00187,
                   "release_gate": false
                 }
               },
@@ -516,6 +702,38 @@
                 "ielr_final_partitions": {
                   "status": "measured",
                   "value": 27
+                },
+                "ielr_annotations": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_annotated_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_inadequacies": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_split_stable_discarded": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not record discarded IELR annotations"
+                },
+                "ielr_lalr_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run direct IELR phases"
+                },
+                "ielr_split_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not split IELR states"
+                },
+                "ielr_unreachable_removed": {
+                  "status": "not_applicable",
+                  "reason": "unreachable-state compaction is disabled"
+                },
+                "ielr_remergeable_candidates": {
+                  "status": "not_applicable",
+                  "reason": "remergeable-state analysis is not implemented"
                 }
               },
               "conflicts": {
@@ -525,7 +743,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001705,
+                  "value": 0.002172,
                   "release_gate": false
                 }
               },
@@ -608,6 +826,38 @@
                 "ielr_final_partitions": {
                   "status": "not_applicable",
                   "reason": "this construction path does not run IELR partitioning"
+                },
+                "ielr_annotations": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_annotated_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_inadequacies": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_split_stable_discarded": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not record discarded IELR annotations"
+                },
+                "ielr_lalr_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run direct IELR phases"
+                },
+                "ielr_split_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not split IELR states"
+                },
+                "ielr_unreachable_removed": {
+                  "status": "not_applicable",
+                  "reason": "unreachable-state compaction is disabled"
+                },
+                "ielr_remergeable_candidates": {
+                  "status": "not_applicable",
+                  "reason": "remergeable-state analysis is not implemented"
                 }
               },
               "conflicts": {
@@ -617,7 +867,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000593,
+                  "value": 0.000845,
                   "release_gate": false
                 }
               },
@@ -677,6 +927,38 @@
                 "ielr_final_partitions": {
                   "status": "measured",
                   "value": 26
+                },
+                "ielr_annotations": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_annotated_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_inadequacies": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_split_stable_discarded": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not record discarded IELR annotations"
+                },
+                "ielr_lalr_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run direct IELR phases"
+                },
+                "ielr_split_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not split IELR states"
+                },
+                "ielr_unreachable_removed": {
+                  "status": "not_applicable",
+                  "reason": "unreachable-state compaction is disabled"
+                },
+                "ielr_remergeable_candidates": {
+                  "status": "not_applicable",
+                  "reason": "remergeable-state analysis is not implemented"
                 }
               },
               "conflicts": {
@@ -686,7 +968,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000814,
+                  "value": 0.001023,
                   "release_gate": false
                 }
               },
@@ -771,6 +1053,38 @@
                 "ielr_final_partitions": {
                   "status": "not_applicable",
                   "reason": "this construction path does not run IELR partitioning"
+                },
+                "ielr_annotations": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_annotated_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_inadequacies": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_split_stable_discarded": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not record discarded IELR annotations"
+                },
+                "ielr_lalr_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run direct IELR phases"
+                },
+                "ielr_split_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not split IELR states"
+                },
+                "ielr_unreachable_removed": {
+                  "status": "not_applicable",
+                  "reason": "unreachable-state compaction is disabled"
+                },
+                "ielr_remergeable_candidates": {
+                  "status": "not_applicable",
+                  "reason": "remergeable-state analysis is not implemented"
                 }
               },
               "conflicts": {
@@ -780,7 +1094,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000487,
+                  "value": 0.004925,
                   "release_gate": false
                 }
               },
@@ -841,6 +1155,38 @@
                 "ielr_final_partitions": {
                   "status": "measured",
                   "value": 9
+                },
+                "ielr_annotations": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_annotated_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_inadequacies": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_split_stable_discarded": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not record discarded IELR annotations"
+                },
+                "ielr_lalr_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run direct IELR phases"
+                },
+                "ielr_split_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not split IELR states"
+                },
+                "ielr_unreachable_removed": {
+                  "status": "not_applicable",
+                  "reason": "unreachable-state compaction is disabled"
+                },
+                "ielr_remergeable_candidates": {
+                  "status": "not_applicable",
+                  "reason": "remergeable-state analysis is not implemented"
                 }
               },
               "conflicts": {
@@ -850,7 +1196,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000543,
+                  "value": 0.000996,
                   "release_gate": false
                 }
               },
@@ -911,6 +1257,38 @@
                 "ielr_final_partitions": {
                   "status": "not_applicable",
                   "reason": "this construction path does not run IELR partitioning"
+                },
+                "ielr_annotations": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_annotated_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_inadequacies": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_split_stable_discarded": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not record discarded IELR annotations"
+                },
+                "ielr_lalr_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run direct IELR phases"
+                },
+                "ielr_split_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not split IELR states"
+                },
+                "ielr_unreachable_removed": {
+                  "status": "not_applicable",
+                  "reason": "unreachable-state compaction is disabled"
+                },
+                "ielr_remergeable_candidates": {
+                  "status": "not_applicable",
+                  "reason": "remergeable-state analysis is not implemented"
                 }
               },
               "conflicts": {
@@ -920,7 +1298,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000411,
+                  "value": 0.000593,
                   "release_gate": false
                 }
               },
@@ -981,6 +1359,38 @@
                 "ielr_final_partitions": {
                   "status": "measured",
                   "value": 9
+                },
+                "ielr_annotations": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_annotated_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_inadequacies": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_split_stable_discarded": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not record discarded IELR annotations"
+                },
+                "ielr_lalr_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run direct IELR phases"
+                },
+                "ielr_split_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not split IELR states"
+                },
+                "ielr_unreachable_removed": {
+                  "status": "not_applicable",
+                  "reason": "unreachable-state compaction is disabled"
+                },
+                "ielr_remergeable_candidates": {
+                  "status": "not_applicable",
+                  "reason": "remergeable-state analysis is not implemented"
                 }
               },
               "conflicts": {
@@ -990,7 +1400,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.002473,
+                  "value": 0.000531,
                   "release_gate": false
                 }
               },
@@ -1095,6 +1505,38 @@
                 "ielr_final_partitions": {
                   "status": "not_applicable",
                   "reason": "this construction path does not run IELR partitioning"
+                },
+                "ielr_annotations": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_annotated_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_inadequacies": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_split_stable_discarded": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not record discarded IELR annotations"
+                },
+                "ielr_lalr_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run direct IELR phases"
+                },
+                "ielr_split_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not split IELR states"
+                },
+                "ielr_unreachable_removed": {
+                  "status": "not_applicable",
+                  "reason": "unreachable-state compaction is disabled"
+                },
+                "ielr_remergeable_candidates": {
+                  "status": "not_applicable",
+                  "reason": "remergeable-state analysis is not implemented"
                 }
               },
               "conflicts": {
@@ -1104,7 +1546,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.014273,
+                  "value": 0.013638,
                   "release_gate": false
                 }
               },
@@ -1164,6 +1606,38 @@
                 "ielr_final_partitions": {
                   "status": "measured",
                   "value": 227
+                },
+                "ielr_annotations": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_annotated_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_inadequacies": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not annotate IELR states"
+                },
+                "ielr_split_stable_discarded": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not record discarded IELR annotations"
+                },
+                "ielr_lalr_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not run direct IELR phases"
+                },
+                "ielr_split_states": {
+                  "status": "not_applicable",
+                  "reason": "this construction path does not split IELR states"
+                },
+                "ielr_unreachable_removed": {
+                  "status": "not_applicable",
+                  "reason": "unreachable-state compaction is disabled"
+                },
+                "ielr_remergeable_candidates": {
+                  "status": "not_applicable",
+                  "reason": "remergeable-state analysis is not implemented"
                 }
               },
               "conflicts": {
@@ -1173,7 +1647,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.056835,
+                  "value": 0.076673,
                   "release_gate": false
                 }
               },
