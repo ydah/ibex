@@ -5,7 +5,7 @@ blocked. This decision is a feature gate, not a claim that direct IELR has no
 future value.
 
 The final decision date is 2026-08-08. Revision
-`34be03ca4f5421a63b6c9101fcfb9e8955caba04` is the repository evidence snapshot
+`176bdd5e1f39228337178b731e2e59182666e429` is the repository evidence snapshot
 reviewed immediately before this dossier was published; it is not a claim that
 the dossier itself existed in that revision. The machine record marks the
 decision `final_no_go`, its basis `repository_evidence`, and its review state
@@ -97,9 +97,9 @@ and verifier implementations by path and SHA-256 at the reviewed revision. It
 also binds:
 
 - H005 capture base revision
-  `c6ce52528465a1b46a97ac5a1b5d22c9b2f5f880`;
+  `13496f2ecf4d3df7fec3d00f3416051d29f5dbc9`;
 - H005 bound-path digest
-  `e79579a65010ce7cd86f6e8757bfcb90100684365287d300b3de435bb8dbd83f`;
+  `27b5abf3e1ec20b9b904e46c9f7283ebb6b9a710bb3f0d05a6cad067d9627ac3`;
 - H005 implementation digest
   `6c62c6c1ca7f9ad078405019502d1e7bed8364d1786a4f45755480d372122aac`;
 - V001 revision `5cf20f6c9d5b82738965bd0aead8fa3a2ac14d8b`.
