@@ -55,8 +55,8 @@ module Ibex
 
   # @rbs!
   #   interface _CLIOutput
-  #     def puts: (*untyped) -> untyped
-  #     def write: (String) -> untyped
+  #     def puts: (*Object?) -> Object?
+  #     def write: (String) -> Object?
   #   end
   #   interface _CLIInput
   #     def read: () -> String
@@ -249,7 +249,7 @@ module Ibex
       @configuration_explicit_options[name] = true
     end
 
-    # @rbs (Symbol name, untyped value) -> void
+    # @rbs (Symbol name, Object? value) -> void
     def set_configuration_option(name, value)
       @options[name] = value
       mark_configuration_option(name)
@@ -274,24 +274,24 @@ module Ibex
 
     # Resolve a command-local legacy option hash without promoting it into the
     # reusable CLI instance's generation settings.
-    # @rbs (Hash[Symbol, untyped] options, explicit_keys: Array[Symbol]) -> Configuration::Resolver
+    # @rbs (Hash[Symbol, Object?] options, explicit_keys: Array[Symbol]) -> Configuration::Resolver
     def resolve_configuration_options(options, explicit_keys:)
       Configuration::CLIAdapter.new(options, explicit_keys: explicit_keys).resolve
     end
 
-    # @rbs (Hash[Symbol, untyped] options, String name) -> untyped
+    # @rbs (Hash[Symbol, Object?] options, String name) -> Object?
     def local_configuration_value(options, name)
       explicit_keys = options.fetch(:configuration_explicit)
       resolve_configuration_options(options, explicit_keys: explicit_keys).value(name)
     end
 
-    # @rbs (Hash[Symbol, untyped] options, Symbol name, untyped value) -> void
+    # @rbs (Hash[Symbol, Object?] options, Symbol name, Object? value) -> void
     def set_local_configuration_option(options, name, value)
       options[name] = value
       options.fetch(:configuration_explicit) << name
     end
 
-    # @rbs (String name) -> untyped
+    # @rbs (String name) -> Object?
     def configuration_value(name)
       effective_configuration.value(name)
     end
@@ -503,14 +503,14 @@ module Ibex
 
     # @rbs @analysis_configuration: Configuration::Resolver?
 
-    # @rbs (IR::Grammar grammar, ?options: Hash[Symbol, untyped], ?explicit_keys: Array[Symbol]) -> IR::Grammar
+    # @rbs (IR::Grammar grammar, ?options: Hash[Symbol, Object?], ?explicit_keys: Array[Symbol]) -> IR::Grammar
     def activate_analysis_grammar(grammar, options: @options, explicit_keys: @configuration_explicit_options.keys)
       adapter = Configuration::CLIAdapter.new(options, explicit_keys: explicit_keys)
       cli = adapter.configuration_values
       contract = grammar.parser_contract
       grammar_values = contract&.configuration_values || {}
       locations = contract&.configuration_locations || {}
-      overrides = {} #: Hash[String, untyped]
+      overrides = {} #: Hash[String, Object?]
       algorithm = "parser.algorithm"
       if grammar_values.key?(algorithm) && cli.key?(algorithm) &&
          grammar_values.fetch(algorithm) != cli.fetch(algorithm)
@@ -528,7 +528,7 @@ module Ibex
       active
     end
 
-    # @rbs (IR::Grammar grammar, Hash[Symbol, untyped] options, Array[Symbol] explicit_keys) ->
+    # @rbs (IR::Grammar grammar, Hash[Symbol, Object?] options, Array[Symbol] explicit_keys) ->
     #   [IR::Grammar, Symbol, IR::Automaton]
     def construct_analysis_automaton(grammar, options, explicit_keys)
       active = activate_analysis_grammar(grammar, options: options, explicit_keys: explicit_keys)
