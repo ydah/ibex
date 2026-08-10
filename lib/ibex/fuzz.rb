@@ -52,7 +52,7 @@ module Ibex
     #   ?max_depth: Integer, ?max_expansions: Integer, ?max_actions: Integer, ?max_stack: Integer,
     #   ?coverage_guided: bool, ?path_length: Integer, ?algorithms: Array[Symbol],
     #   ?automata: Hash[Symbol, IR::Automaton]?, ?against: (^(Array[String]) -> Symbol)?,
-    #   ?against_description: Hash[Symbol, untyped]?) -> void
+    #   ?against_description: Hash[Symbol, Object?]?) -> void
     # rubocop:disable Metrics/ParameterLists
     def initialize(grammar, seed: 0, count: 100, max_tokens: 32, max_depth: 16,
                    max_expansions: Samples::DEFAULT_MAX_EXPANSIONS, max_actions: DEFAULT_MAX_ACTIONS,
@@ -79,7 +79,7 @@ module Ibex
     end
     # rubocop:enable Metrics/ParameterLists
 
-    # @rbs () -> Hash[Symbol, untyped]
+    # @rbs () -> Hash[Symbol, Object?]
     def run
       sentences = generate_sentences
       mutation_count = 0
@@ -124,7 +124,7 @@ module Ibex
       ).generate(count: @count)
     end
 
-    # @rbs (Integer sentence_count, Integer mutation_count) -> Hash[Symbol, untyped]
+    # @rbs (Integer sentence_count, Integer mutation_count) -> Hash[Symbol, Object?]
     def successful_report(sentence_count, mutation_count)
       report = {
         ibex_report: "fuzz", schema_version: 1, seed: @seed,

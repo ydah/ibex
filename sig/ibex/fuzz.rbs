@@ -33,12 +33,12 @@ module Ibex
     #   ?max_depth: Integer, ?max_expansions: Integer, ?max_actions: Integer, ?max_stack: Integer,
     #   ?coverage_guided: bool, ?path_length: Integer, ?algorithms: Array[Symbol],
     #   ?automata: Hash[Symbol, IR::Automaton]?, ?against: (^(Array[String]) -> Symbol)?,
-    #   ?against_description: Hash[Symbol, untyped]?) -> void
+    #   ?against_description: Hash[Symbol, Object?]?) -> void
     # rubocop:disable Metrics/ParameterLists
-    def initialize: (IR::Grammar grammar, ?seed: Integer, ?count: Integer, ?max_tokens: Integer, ?max_depth: Integer, ?max_expansions: Integer, ?max_actions: Integer, ?max_stack: Integer, ?coverage_guided: bool, ?path_length: Integer, ?algorithms: Array[Symbol], ?automata: Hash[Symbol, IR::Automaton]?, ?against: (^(Array[String]) -> Symbol)?, ?against_description: Hash[Symbol, untyped]?) -> void
+    def initialize: (IR::Grammar grammar, ?seed: Integer, ?count: Integer, ?max_tokens: Integer, ?max_depth: Integer, ?max_expansions: Integer, ?max_actions: Integer, ?max_stack: Integer, ?coverage_guided: bool, ?path_length: Integer, ?algorithms: Array[Symbol], ?automata: Hash[Symbol, IR::Automaton]?, ?against: (^(Array[String]) -> Symbol)?, ?against_description: Hash[Symbol, Object?]?) -> void
 
-    # @rbs () -> Hash[Symbol, untyped]
-    def run: () -> Hash[Symbol, untyped]
+    # @rbs () -> Hash[Symbol, Object?]
+    def run: () -> Hash[Symbol, Object?]
 
     # Minimize one observed mismatch without changing its kind or outcomes.
     # @rbs (Mismatch mismatch, ?max_trials: Integer) -> DeltaReducer::Result
@@ -49,8 +49,8 @@ module Ibex
     # @rbs () -> Array[Array[String]]
     def generate_sentences: () -> Array[Array[String]]
 
-    # @rbs (Integer sentence_count, Integer mutation_count) -> Hash[Symbol, untyped]
-    def successful_report: (Integer sentence_count, Integer mutation_count) -> Hash[Symbol, untyped]
+    # @rbs (Integer sentence_count, Integer mutation_count) -> Hash[Symbol, Object?]
+    def successful_report: (Integer sentence_count, Integer mutation_count) -> Hash[Symbol, Object?]
 
     # @rbs () -> Hash[Symbol, IR::Automaton]
     def build_automata: () -> Hash[Symbol, IR::Automaton]
