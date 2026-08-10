@@ -4,16 +4,26 @@ module Ibex
   module LSP
     # Reads and writes bounded LSP JSON-RPC messages over Content-Length framing.
     class Transport
+      # @rbs!
+      #   interface _Input
+      #     def read: (Integer length) -> String?
+      #     def readpartial: (Integer length) -> String
+      #   end
+      #   interface _Output
+      #     def write: (String value) -> Object?
+      #     def flush: () -> Object?
+      #   end
+
       HEADER_SEPARATOR = "\r\n\r\n"
 
-      # @rbs (untyped input, untyped output) -> void
+      # @rbs (_Input input, _Output output) -> void
       def initialize(input, output)
         @input = input
         @output = output
         @buffer = String.new(encoding: Encoding::BINARY)
       end
 
-      # @rbs () -> Hash[String, untyped]?
+      # @rbs () -> LSP::lsp_object?
       def read_message
         header = read_header
         return unless header
@@ -28,7 +38,7 @@ module Ibex
         raise ProtocolError.new("malformed JSON: #{e.message}", code: -32_700)
       end
 
-      # @rbs (Hash[String, untyped] message) -> void
+      # @rbs (LSP::lsp_object message) -> void
       def write_message(message)
         body = JSON.generate(message)
         if body.bytesize > Limits::MAX_OUTPUT_BYTES
