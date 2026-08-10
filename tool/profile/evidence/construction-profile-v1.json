@@ -20,13 +20,11 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "79db665e711b535c4d5e4df04485d4378fe8aac4",
+    "base_revision": "e2f8c54c94f4c94bc9f86ce6ab5c99a392f9248a",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
-    "capture_worktree_clean": false,
-    "capture_worktree_status": [
-      " M tool/profile/evidence/construction-profile-v1.json"
-    ],
-    "capture_worktree_status_sha256": "22d2d2a5469501003dac427055891c20d485f0cf242d410f9006231ffc07eef1",
+    "capture_worktree_clean": true,
+    "capture_worktree_status": [],
+    "capture_worktree_status_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
     "bound_paths": [
       {
         "path": ".github/workflows/main.yml",
@@ -297,7 +295,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001185,
+                  "value": 0.001216,
                   "release_gate": false
                 }
               },
@@ -366,7 +364,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.004467,
+                  "value": 0.004385,
                   "release_gate": false
                 }
               },
@@ -458,7 +456,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000777,
+                  "value": 0.000771,
                   "release_gate": false
                 }
               },
@@ -527,7 +525,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001563,
+                  "value": 0.001548,
                   "release_gate": false
                 }
               },
@@ -619,7 +617,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000556,
+                  "value": 0.000568,
                   "release_gate": false
                 }
               },
@@ -688,7 +686,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000788,
+                  "value": 0.000771,
                   "release_gate": false
                 }
               },
@@ -782,7 +780,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000465,
+                  "value": 0.000462,
                   "release_gate": false
                 }
               },
@@ -852,7 +850,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000523,
+                  "value": 0.000511,
                   "release_gate": false
                 }
               },
@@ -922,7 +920,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000365,
+                  "value": 0.000373,
                   "release_gate": false
                 }
               },
@@ -992,7 +990,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000391,
+                  "value": 0.000393,
                   "release_gate": false
                 }
               },
@@ -1106,7 +1104,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.01246,
+                  "value": 0.012297,
                   "release_gate": false
                 }
               },
@@ -1175,7 +1173,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.049166,
+                  "value": 0.049955,
                   "release_gate": false
                 }
               },

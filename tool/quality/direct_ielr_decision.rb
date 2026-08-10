@@ -92,7 +92,7 @@ module Ibex
           "path" => "lib/ibex/verify/verifier.rb", "role" => "current verifier checks reviewed by V001"
         }.freeze
       }.freeze
-      DECISION_REVISION = "a22da63e6c65a25e3e609a917b25d8d5aa50911b"
+      DECISION_REVISION = "e2f8c54c94f4c94bc9f86ce6ab5c99a392f9248a"
       DECISION_REVISION_ROLE = "reviewed repository evidence immediately before dossier publication"
       DECISION_DATE = "2026-08-08"
       DOSSIER_REVISION = "3d3b9a971285349b84153b219af95d87f2c358d6"

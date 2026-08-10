@@ -8,7 +8,7 @@
     "basis": "repository_evidence",
     "review_state": "validated",
     "date": "2026-08-08",
-    "revision": "79db665e711b535c4d5e4df04485d4378fe8aac4",
+    "revision": "e2f8c54c94f4c94bc9f86ce6ab5c99a392f9248a",
     "revision_role": "reviewed repository evidence immediately before dossier publication"
   },
   "follow_on": {
@@ -136,7 +136,7 @@
     "rule": "future direct IELR design must remain independent; GPL implementation source must not be inspected or translated"
   },
   "evidence_identity": {
-    "profile_capture_base_revision": "79db665e711b535c4d5e4df04485d4378fe8aac4",
+    "profile_capture_base_revision": "e2f8c54c94f4c94bc9f86ce6ab5c99a392f9248a",
     "profile_bound_paths_sha256": "95d0ecf6e30de30e806837d61d2dddca179cbeb74f45b8ec8fe214fd0f460fcb",
     "profile_implementation_sha256": "91893512b36c4f17df5be9710e6b57953fb26e00479e575c6408929649310cea",
     "v001_revision": "5cf20f6c9d5b82738965bd0aead8fa3a2ac14d8b",
@@ -150,7 +150,7 @@
       {
         "id": "h005-machine-evidence",
         "path": "tool/profile/evidence/construction-profile-v1.json",
-        "sha256": "f4ec1a69ba5f79bb933a8487529869f492e63d4bc6d355b7136b189831d62778",
+        "sha256": "3771075994f616df3367f0be15fdcb313467661c04ae655888a3345e5de693ec",
         "role": "machine-readable workload measurements, thresholds, decision, and capture provenance"
       },
       {
@@ -178,6 +178,6 @@
         "role": "current verifier checks reviewed by V001"
       }
     ],
-    "sources_sha256": "907e98655cbfd23790bf7aa3309c46408cddfd7f88ea1b78baa021492a412698"
+    "sources_sha256": "483ca52c05d0047d25aa3e002d6f158b261e4e90db1643a9574d0e8fd2bfcd76"
   }
 }
