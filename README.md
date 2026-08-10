@@ -42,6 +42,7 @@ bundle add ibex-runtime
 
 Save this as `calculator.y`:
 
+<!-- calculator-grammar:start -->
 ```text
 class Calculator
 token NUM
@@ -69,6 +70,7 @@ if $PROGRAM_NAME == __FILE__
   puts Calculator.new.parse_tokens(tokens)
 end
 ```
+<!-- calculator-grammar:end -->
 
 Generate and run it:
 
@@ -131,5 +133,14 @@ npm run test:site
 
 The [development guide](https://ydah.github.io/ibex/docs/development/) lists
 the focused frontend, type, evidence, browser, and workflow checks.
+
+## Decisions and evidence
+
+The public reference also indexes the [direct IELR decision](docs/direct-ielr-decision.md),
+[direct multi-entry decision](docs/direct-multi-entry-decision.md),
+[verifier trust boundary](docs/verifier-trust-boundary.md), and the
+[error-experience review status](docs/error-ux-review-status-v1.json). These
+records scope claims to their evidence and revision; they do not change the
+compatible installation path above.
 
 Ibex is available under the [MIT License](LICENSE.txt).
