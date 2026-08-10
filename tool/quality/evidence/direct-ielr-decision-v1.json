@@ -137,8 +137,8 @@
   },
   "evidence_identity": {
     "profile_capture_base_revision": "27e1edb977d189e5f3797e1438fa33cb87767adc",
-    "profile_bound_paths_sha256": "31131001274d2b1f57cb496ab1b9bebd3951d5c5304a190fad24fe5c185e94fc",
-    "profile_implementation_sha256": "91893512b36c4f17df5be9710e6b57953fb26e00479e575c6408929649310cea",
+    "profile_bound_paths_sha256": "b5fa7fafd2e1dea3733f27b86e770a5598fe669602bab6cbabd9eefb7fe32c09",
+    "profile_implementation_sha256": "64181868ef6fc060524497ef271fe8a949310c824938071c231befd6b31249ce",
     "v001_revision": "c7e5cad89ccd00591f3127fdb76a789bbeb202ab",
     "sources": [
       {
