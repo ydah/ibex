@@ -170,7 +170,7 @@ claims:
         - Ibex allocates fewer objects for every reuse workload, while new-instance allocation ratios remain 1.051–1.190x.
         - Generated output is smaller for all three grammars.
         - These values are a release baseline, not portable scores or an assertion of parity.
-      body_sha256: 1c2f3931186d83a301c27ede3895f521b4d9bbcb0bdd480a8b61db7fb94b6535
+      body_sha256: 44b2c95f676be051c56731b6b96a8a860001419c7a11cb99d8cd344181c7b604
     subjects:
       - tool: ibex
         identity_kind: repository
@@ -277,7 +277,7 @@ claims:
         - "| BCDice command | 1.309690 | 1.010467 | 0.675012 | 1.331780 | 1.129299 | 0.981449 |"
         - "| Nokogiri CSS | 1.288118 | 0.994802 | 0.670484 | 1.193522 | 1.074838 | 0.936806 |"
       allowed_strength: []
-      body_sha256: e10475ace73a5db634bb7adf42f11100ed17ef46b3a5f93b534c58b826ebeaa5
+      body_sha256: d15ee062a4e13e57e1395d1d6da776d9490375fd5e560831dc5f6f80057797c6
     subjects:
       - tool: ibex
         identity_kind: repository
