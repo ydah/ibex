@@ -711,7 +711,7 @@
       },
       {
         "path": "lib/ibex/runtime/parser.rb",
-        "sha256": "43a1fa73cf4b2ba53687a7afff6f548ce6c2cff62c6db064959c49bde996791e"
+        "sha256": "61a0b1fedc16cacf6386e2a3eb1d0381e72698c7562f920c9b763b476f5f23dd"
       },
       {
         "path": "lib/ibex/runtime/parser_sync_recovery.rb",

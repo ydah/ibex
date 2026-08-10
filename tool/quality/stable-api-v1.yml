@@ -41,7 +41,7 @@ files:
   sig/ibex/runtime/event_sanitizer.rbs: 017ae8291974c6c1ce2ef576590e34bd8b2045c12471fa493306d604e26d694f
   sig/ibex/runtime/jsonl_tracer.rbs: 1b43ded70963bd0febad48bfb5f18e8a6e662040905cdab1c241553535647891
   sig/ibex/runtime/observation.rbs: f50769824a4e68e182877396ad1c5888785952b7da311d93907fbedf113cbf2a
-  sig/ibex/runtime/parser.rbs: 1f974e679f2c7f0929371fa1cc379b4cf29ecee5b3cca48ebddb33af7c477bda
+  sig/ibex/runtime/parser.rbs: 1e72073b76baac1b56233f8ef29bb58ee42e18e580fec19f1bb1641c66ee2ee2
   sig/ibex/runtime/parser_sync_recovery.rbs: 5b8022ec5c9e4317769918d556283e95a51e7f4874671900736e0c5aa13d1f0d
   sig/ibex/runtime/resource_limits.rbs: 7b74d816b3b0c953a9ca2a92e775ab6be774876812f791041602739bf04e5c97
   sig/ibex/runtime/table_format.rbs: 74b32eb9849e69eccd8552c8202ef9999ea8b069757703f50be99718640b4ba4

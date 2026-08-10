@@ -169,7 +169,7 @@ class CSTRuntimeIntegrationTest < Minitest::Test # rubocop:disable Metrics/Class
 
     error = assert_raises(Ibex::Runtime::ParseError) { legacy_class.new.parse("1 + 2 ") }
 
-    assert_match(/legacy CST parser tables are unsupported/, error.message)
+    assert_match(/unsupported parser table format version 5/, error.message)
     assert_match(/regenerate/, error.message)
     %i[Trivia Token Missing Error Node].each do |name|
       refute Ibex::Runtime::CST.const_defined?(name, false)

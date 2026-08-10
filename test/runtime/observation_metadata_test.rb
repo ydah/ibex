@@ -4,7 +4,7 @@ require_relative "../test_helper"
 
 class RuntimeObservationMetadataTest < Minitest::Test
   TABLES = {
-    format_version: 1,
+    format_version: Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION,
     tokens: {},
     token_names: { 0 => "$eof", 1 => "error" },
     actions: [{ 0 => [:accept] }],
@@ -12,7 +12,7 @@ class RuntimeObservationMetadataTest < Minitest::Test
     productions: []
   }.freeze
 
-  def test_legacy_table_reports_format_and_nullable_generation_metadata
+  def test_current_table_reports_format_and_nullable_generation_metadata
     parser_class = Class.new(Ibex::Runtime::Parser) do
       define_singleton_method(:parser_tables) { RuntimeObservationMetadataTest::TABLES }
       define_method(:next_token) { nil }
@@ -26,7 +26,7 @@ class RuntimeObservationMetadataTest < Minitest::Test
       {
         "driver" => "pull",
         "initial_state" => 0,
-        "table_format_version" => 1,
+        "table_format_version" => Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION,
         "grammar_digest" => nil,
         "state_count" => nil,
         "production_count" => nil
