@@ -20,14 +20,11 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "8e298acd19db10fe1962948d56ad7f0483005a91",
+    "base_revision": "f8c508882bc0d9e8895931fcc47c2e72e81f00be",
     "base_revision_role": "Exact clean capture revision and parent of the committed evidence revision",
-    "capture_worktree_clean": false,
-    "capture_worktree_status": [
-      " M README.md",
-      " M tool/profile/evidence/construction-profile-v1.json"
-    ],
-    "capture_worktree_status_sha256": "2b103e94f3333cfbc19765e4af5f3304ecb851be59be3316024f4e0a7d15a1d8",
+    "capture_worktree_clean": true,
+    "capture_worktree_status": [],
+    "capture_worktree_status_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
     "bound_paths": [
       {
         "path": "Rakefile",
@@ -1100,7 +1097,7 @@
     "heuristic_analysis_sha256": "1870a00b14aea7a46278e4b80e9bd60db4b499c343c7a7a90faf9c3923e27e76",
     "evidence_path": "tool/profile/evidence/lexer-profile-v1.json",
     "evidence_exclusion_reason": "the evidence file is excluded from its own digest to avoid circularity",
-    "capture_identity_sha256": "40d4be771d5826b9762c9130d406ee8d5bada0817bcfb3b12112be1d52828bef"
+    "capture_identity_sha256": "d997363924634e5b045d48542722c648ed5bce76e7efc9d16ee48928d88b4cc6"
   },
   "measurement_policy": {
     "runtime_role": "diagnostic_observation_only",
@@ -1223,7 +1220,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000314,
+                "value": 0.000347,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1325,7 +1322,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000266,
+                "value": 0.000262,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1415,7 +1412,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000229,
+                "value": 0.000236,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1511,7 +1508,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000247,
+                "value": 0.000244,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1601,7 +1598,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.004972,
+                "value": 0.004909,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1691,7 +1688,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000358,
+                "value": 0.000347,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1787,7 +1784,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000299,
+                "value": 0.000324,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1887,7 +1884,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000287,
+                "value": 0.000308,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2017,7 +2014,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000489,
+                "value": 0.00033,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2187,7 +2184,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000535,
+                "value": 0.00049,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2297,7 +2294,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000492,
+                "value": 0.000272,
                 "release_gate": false
               },
               "allocated_objects": {
