@@ -20,7 +20,7 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "189e6b9f6a7fb91c0d92cecc09e3679140fdf6e1",
+    "base_revision": "e5dd77c54f8496b485218392865c35bcf88ba6df",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": true,
     "capture_worktree_status": [],
@@ -238,9 +238,9 @@
       },
       {
         "path": "test/quality/maturity_test.rb",
-        "sha256": "b789c4883ab152c9b26124e82d4cf70b2a9ebcf9dfe375420d30e6808028003c",
+        "sha256": "006a55cf49c7c8e72da5299d000141e7eb9bd8e2df73bc60e28c9087d70e755f",
         "git_state": "base",
-        "base_sha256": "b789c4883ab152c9b26124e82d4cf70b2a9ebcf9dfe375420d30e6808028003c"
+        "base_sha256": "006a55cf49c7c8e72da5299d000141e7eb9bd8e2df73bc60e28c9087d70e755f"
       },
       {
         "path": "test/support/public_json_schemas.rb",
@@ -273,7 +273,7 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "c8e6ae85b3dcda9a71e90947633990ae98aa4551d61c228ad3497d01ecff58d6",
+    "bound_paths_sha256": "8da52da87f172e3055e6c45ede5dda815dcd32561cd7fa7623981fe6c0cc15c7",
     "implementation_sha256": "43069426a179b8a843301f38ed8126f53c1719023ef3704e60b2cf35a5eef168",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
@@ -417,7 +417,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001537,
+                  "value": 0.001672,
                   "release_gate": false
                 }
               },
@@ -518,7 +518,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.00536,
+                  "value": 0.005436,
                   "release_gate": false
                 }
               },
@@ -642,7 +642,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001698,
+                  "value": 0.001585,
                   "release_gate": false
                 }
               },
@@ -743,7 +743,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.002161,
+                  "value": 0.002116,
                   "release_gate": false
                 }
               },
@@ -867,7 +867,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000874,
+                  "value": 0.000805,
                   "release_gate": false
                 }
               },
@@ -968,7 +968,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001033,
+                  "value": 0.001008,
                   "release_gate": false
                 }
               },
@@ -1094,7 +1094,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.00522,
+                  "value": 0.00465,
                   "release_gate": false
                 }
               },
@@ -1196,7 +1196,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001032,
+                  "value": 0.000952,
                   "release_gate": false
                 }
               },
@@ -1298,7 +1298,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000597,
+                  "value": 0.000593,
                   "release_gate": false
                 }
               },
@@ -1400,7 +1400,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000525,
+                  "value": 0.000524,
                   "release_gate": false
                 }
               },
@@ -1546,7 +1546,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.011122,
+                  "value": 0.012113,
                   "release_gate": false
                 }
               },
@@ -1647,7 +1647,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.06684,
+                  "value": 0.064326,
                   "release_gate": false
                 }
               },
