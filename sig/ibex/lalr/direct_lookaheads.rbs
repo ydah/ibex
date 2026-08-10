@@ -85,6 +85,9 @@ module Ibex
 
       # @rbs (String name) -> Integer
       def start_index: (String name) -> Integer
+
+      # @rbs () -> Array[String]
+      def grammar_starts: () -> Array[String]
     end
   end
 end
