@@ -3,6 +3,10 @@
 
 require "set"
 
+# This class intentionally owns collection and propagation state so the
+# single-start compatibility path remains byte-identical.
+# rubocop:disable Metrics/AbcSize, Metrics/ClassLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+
 module Ibex
   module LALR
     # Builds an LR(0) collection and propagates LALR(1) lookaheads directly
@@ -13,43 +17,37 @@ module Ibex
       EMPTY_NODES = Array.new(0).freeze #: Array[Integer]
       private_constant :EMPTY_PRODUCTIONS, :EMPTY_NODES
 
-      # @rbs @grammar: IR::Grammar
-      # @rbs @sets: Analysis::Sets
-      # @rbs @productions_by_lhs: Hash[Integer, Array[IR::Production]]
-      # @rbs @augmented_rhs: Array[Integer]
-      # @rbs @production_rhs: Array[Array[Integer]]
-      # @rbs @augmented_item_cores: Array[item_core]
-      # @rbs @production_item_cores: Array[Array[item_core]]
-      # @rbs @item_key_stride: Integer
-      # @rbs @node_stride: Integer
-      # @rbs @terminal_ids: Array[Integer]
-      # @rbs @terminal_masks: Array[Integer]
-      # @rbs @terminal_ids_by_bits: Hash[Integer, Array[Integer]]
-      # @rbs @lr0_state_count: Integer?
-      # @rbs @lr0_item_count: Integer?
-      # @rbs @propagation_edge_count: Integer?
-      # @rbs @profile: bool
-
       attr_reader :lr0_state_count #: Integer?
       attr_reader :lr0_item_count #: Integer?
       attr_reader :propagation_edge_count #: Integer?
+      attr_reader :states #: Array[core_set]
+      attr_reader :transitions #: transitions
 
-      # @rbs (IR::Grammar grammar, Analysis::Sets sets, ?profile: bool) -> void
-      def initialize(grammar, sets, profile: false)
+      # @rbs (IR::Grammar grammar, Analysis::Sets sets, ?starts: Array[String]?, ?profile: bool) -> void
+      def initialize(grammar, sets, starts: nil, profile: false)
         @grammar = grammar
         @sets = sets
+        @starts = (starts || grammar.starts).dup
+        raise ArgumentError, "starts must be a nonempty subset of grammar starts" if
+          @starts.empty? || (@starts - grammar.starts).any?
+
         @productions_by_lhs = grammar.productions.group_by(&:lhs)
-        start = grammar.symbol(grammar.start) || raise(Ibex::Error, "missing start symbol")
-        @augmented_rhs = [start.id].freeze
+        @augmented_production_ids = @starts.map { |name| AUGMENTED_PRODUCTION - start_index(name) }
+        @augmented_rhs = @starts.each_with_index.to_h do |name, index|
+          symbol = grammar.symbol(name) || raise(Ibex::Error, "missing start symbol #{name}")
+          [@augmented_production_ids.fetch(index), [symbol.id].freeze]
+        end.freeze
         @production_rhs = grammar.productions.map(&:rhs).freeze
-        @augmented_item_cores = item_cores_for(AUGMENTED_PRODUCTION, @augmented_rhs.length)
+        @augmented_item_cores = @augmented_rhs.to_h do |production_id, rhs|
+          [production_id, item_cores_for(production_id, rhs.length)]
+        end.freeze
         @production_item_cores = grammar.productions.map do |production|
           item_cores_for(production.id, production.rhs.length)
         end.freeze
-        initialize_item_encoding(grammar.productions.length)
+        initialize_item_encoding
         @terminal_ids = grammar.terminals.map(&:id).freeze
         @terminal_masks = @terminal_ids.map { |id| 1 << id }.freeze
-        @terminal_ids_by_bits = {}
+        @terminal_ids_by_bits = {} #: Hash[Integer, Array[Integer]]
         @lr0_state_count = nil
         @lr0_item_count = nil
         @propagation_edge_count = nil
@@ -59,6 +57,8 @@ module Ibex
       # @rbs () -> [Array[packed_items], transitions]
       def build
         states, transitions = lr0_collection
+        @states = states
+        @transitions = transitions
         lookaheads = empty_lookaheads(states)
         propagation = propagation_graph(states, transitions, lookaheads)
         if @profile
@@ -66,31 +66,40 @@ module Ibex
           @lr0_item_count = states.sum(&:length)
           @propagation_edge_count = propagation.values.sum(&:length)
         end
-        lookaheads.fetch(0).fetch(item_core(AUGMENTED_PRODUCTION, 0)) << 0
+        @starts.each_with_index do |_name, index|
+          lookaheads.fetch(index).fetch(item_core(augmented_production(index), 0)) << 0
+        end
         propagate(lookaheads, propagation)
         [lookaheads, transitions]
       end
 
+      # @rbs (Integer index) -> Integer
+      def augmented_production(index)
+        @augmented_production_ids.fetch(index)
+      end
+
       private
 
-      # @rbs (Integer production_count) -> void
-      def initialize_item_encoding(production_count)
-        @item_key_stride = [@augmented_rhs, *@production_rhs].map(&:length).max.to_i + 1
-        @node_stride = (production_count + 1) * @item_key_stride
+      # @rbs () -> void
+      def initialize_item_encoding
+        @item_key_stride = [*@augmented_rhs.values, *@production_rhs].map(&:length).max.to_i + 1
+        # Negative augmented ids are global to Grammar#starts.  A builder
+        # may isolate a non-first entry, so reserve the full global range.
+        @production_offset = @grammar.starts.length
+        @node_stride = (@production_offset + @production_rhs.length) * @item_key_stride
       end
 
       # @rbs () -> [Array[core_set], transitions]
       def lr0_collection
-        seed = Set[item_core(AUGMENTED_PRODUCTION, 0)] #: core_set
-        states = [closure(seed)]
+        states = @starts.each_index.map { |index| closure(Set[item_core(augmented_production(index), 0)]) }
         transitions = [] #: transitions
-        indexes = { item_key(states.first) => 0 }
+        indexes = {} #: Hash[Array[Integer], Integer]
+        states.each_with_index { |items, index| indexes[item_key(items)] = index }
         cursor = 0
         while cursor < states.length
           transitions[cursor] = {}
-          kernels = shifted_kernels(states.fetch(cursor))
-          kernels.keys.sort.each do |symbol_id|
-            target = closure(kernels.fetch(symbol_id))
+          shifted_kernels(states.fetch(cursor)).keys.sort.each do |symbol_id|
+            target = closure(shifted_kernels(states.fetch(cursor)).fetch(symbol_id))
             key = item_key(target)
             target_id = indexes[key] ||= begin
               states << target
@@ -136,9 +145,7 @@ module Ibex
 
       # @rbs (Array[core_set] states) -> Array[packed_items]
       def empty_lookaheads(states)
-        states.map do |items|
-          items.to_h { |item| [item, Set.new] } #: packed_items
-        end
+        states.map { |items| items.to_h { |item| [item, Set.new] } }
       end
 
       # @rbs (Array[core_set] states, transitions transitions, Array[packed_items] lookaheads) ->
@@ -162,9 +169,7 @@ module Ibex
         return unless symbol_id
 
         target_state = transitions.fetch(state_id).fetch(symbol_id)
-        source = node_id(state_id, production_id, dot)
-        target = node_id(target_state, production_id, dot + 1)
-        edges[source] << target
+        edges[node_id(state_id, production_id, dot)] << node_id(target_state, production_id, dot + 1)
       end
 
       # @rbs (Hash[Integer, Array[Integer]] edges, Array[packed_items] lookaheads,
@@ -180,10 +185,7 @@ module Ibex
         @productions_by_lhs.fetch(symbol.id, EMPTY_PRODUCTIONS).each do |production|
           target_item = item_core(production.id, 0)
           lookaheads.fetch(state_id).fetch(target_item).merge(spontaneous)
-          if @sets.sequence_nullable?(suffix)
-            target = node_id(state_id, production.id, 0)
-            edges[source] << target
-          end
+          edges[source] << node_id(state_id, production.id, 0) if @sets.sequence_nullable?(suffix)
         end
       end
 
@@ -191,12 +193,10 @@ module Ibex
       def propagate(lookaheads, edges)
         queue = lookaheads.each_with_index.flat_map do |items, state_id|
           items.filter_map do |(production_id, dot), tokens|
-            next if tokens.empty?
-
-            node_id(state_id, production_id, dot)
+            node_id(state_id, production_id, dot) unless tokens.empty?
           end
-        end #: Array[Integer]
-        queued = queue.to_h { |node| [node, true] } #: Hash[Integer, bool]
+        end
+        queued = queue.to_h { |node| [node, true] }
         cursor = 0
         while cursor < queue.length
           source = queue.fetch(cursor)
@@ -219,60 +219,62 @@ module Ibex
       def node_set(lookaheads, node)
         state_id = node / @node_stride
         item = node % @node_stride
-        production_id = (item / @item_key_stride) - 1
-        dot = item % @item_key_stride
+        production_id = ((item / @item_key_stride) - @production_offset).to_i
+        dot = (item % @item_key_stride).to_i
         lookaheads.fetch(state_id).fetch(item_core(production_id, dot))
       end
 
       # @rbs (Integer state_id, Integer production_id, Integer dot) -> Integer
       def node_id(state_id, production_id, dot)
-        (state_id * @node_stride) + ((production_id + 1) * @item_key_stride) + dot
+        ((state_id * @node_stride) + ((production_id + @production_offset) * @item_key_stride) + dot).to_i
       end
 
       # @rbs (Integer bits) -> Array[Integer]
       def terminal_ids(bits)
         @terminal_ids_by_bits.fetch(bits) do
-          selected = [] #: Array[Integer]
-          index = 0
-          while index < @terminal_ids.length
-            selected << @terminal_ids[index] if bits.anybits?(@terminal_masks[index])
-            index += 1
-          end
+          selected = @terminal_ids.select { |id| bits.anybits?(@terminal_masks[@terminal_ids.index(id)]) }
           @terminal_ids_by_bits[bits] = selected.freeze
         end
       end
 
       # @rbs (Integer production_id) -> Array[Integer]
       def rhs_for(production_id)
-        return @augmented_rhs if production_id == AUGMENTED_PRODUCTION
+        return @augmented_rhs.fetch(production_id) if production_id.negative?
 
         @production_rhs.fetch(production_id)
       end
 
       # @rbs (Integer production_id, Integer rhs_length) -> Array[item_core]
       def item_cores_for(production_id, rhs_length)
-        Array.new(rhs_length + 1) do |dot|
-          [production_id, dot].freeze #: item_core
-        end.freeze
+        result = Array.new(rhs_length + 1) #: Array[item_core]
+        rhs_length.next.times do |dot|
+          core = [production_id, dot].freeze #: item_core
+          result[dot] = core
+        end
+        result.freeze
       end
 
       # @rbs (Integer production_id, Integer dot) -> item_core
       def item_core(production_id, dot)
         raise IndexError, "invalid item dot: #{dot}" if dot.negative?
-        return @augmented_item_cores.fetch(dot) if production_id == AUGMENTED_PRODUCTION
-        raise IndexError, "invalid production id: #{production_id}" if production_id.negative?
+        return @augmented_item_cores.fetch(production_id).fetch(dot) if production_id.negative?
 
         @production_item_cores.fetch(production_id).fetch(dot)
       end
 
-      # Encode each pair collision-free before sorting so Hash does not
-      # repeatedly hash and compare nested item-core arrays.
       # @rbs (core_set items) -> Array[Integer]
       def item_key(items)
         items.map do |production_id, dot|
-          ((production_id + 1) * @item_key_stride) + dot
+          (((production_id + @production_offset) * @item_key_stride) + dot).to_i
         end.sort!
+      end
+
+      # @rbs (String name) -> Integer
+      def start_index(name)
+        @grammar.starts.index(name) || raise(Ibex::Error, "missing start symbol #{name}")
       end
     end
   end
 end
+
+# rubocop:enable Metrics/AbcSize, Metrics/ClassLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity

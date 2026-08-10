@@ -1,0 +1,17 @@
+# Generated from lib/ibex/lalr/ielr/pipeline.rb with RBS::Inline
+
+module Ibex
+  module LALR
+    module IELR
+      # Coordinates the canonical-free direct IELR phases.  The returned
+      # profile deliberately reports canonical metrics as unavailable.
+      class Pipeline
+        # @rbs (IR::Grammar grammar, Analysis::Sets sets, ?starts: Array[String]?, ?profile: bool) -> void
+        def initialize: (IR::Grammar grammar, Analysis::Sets sets, ?starts: Array[String]?, ?profile: bool) -> void
+
+        # @rbs () -> [Array[packed_items], transitions, LALR::build_collection]
+        def build: () -> [ Array[packed_items], transitions, LALR::build_collection ]
+      end
+    end
+  end
+end

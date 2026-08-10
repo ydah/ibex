@@ -1,0 +1,19 @@
+# Generated from lib/ibex/analysis/digraph.rb with RBS::Inline
+
+module Ibex
+  module Analysis
+    # Computes the transitive bit-set closure used by the LR lookahead
+    # algorithms.  The implementation is iterative so a large grammar cannot
+    # exhaust Ruby's call stack merely because its dependency graph is deep.
+    module Digraph
+      # @rbs (Array[Integer] initial, Array[Array[Integer]] edges) -> Array[Integer]
+      def self?.closure: (Array[Integer] initial, Array[Array[Integer]] edges) -> Array[Integer]
+
+      # @rbs (Array[Array[Integer]] edges) -> Array[Array[Integer]]
+      def self?.strongly_connected_components: (Array[Array[Integer]] edges) -> Array[Array[Integer]]
+
+      # @rbs (Array[Array[Integer]]) -> Array[Integer]
+      def self?.topological_order: (Array[Array[Integer]]) -> Array[Integer]
+    end
+  end
+end

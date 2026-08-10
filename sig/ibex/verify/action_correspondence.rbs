@@ -1,0 +1,52 @@
+# Generated from lib/ibex/verify/action_correspondence.rb with RBS::Inline
+
+module Ibex
+  module Verify
+    type correspondence_action = IR::parser_action
+
+    # Compares resolved ACTION/GOTO behavior over all paired viable prefixes.
+    class ActionCorrespondence
+      class Difference < Struct[Symbol | Integer? | correspondence_action?]
+        attr_accessor kind(): Symbol
+        attr_accessor canonical_state(): Integer
+        attr_accessor target_state(): Integer
+        attr_accessor symbol(): Integer?
+        attr_accessor canonical(): correspondence_action?
+        attr_accessor target(): correspondence_action?
+
+        def self.new: (kind: Symbol, canonical_state: Integer, target_state: Integer, symbol: Integer?, canonical: correspondence_action?, target: correspondence_action?) -> instance
+      end
+
+      class Result < Struct[Array[Difference] | Integer | bool]
+        attr_accessor differences(): Array[Difference]
+        attr_accessor explored(): Integer
+        attr_accessor truncated(): bool
+
+        def self.new: (differences: Array[Difference], explored: Integer, truncated: bool) -> instance
+        def ok?: () -> bool
+      end
+
+      # @rbs (IR::Automaton canonical, IR::Automaton target, ?max_pairs: Integer) -> void
+      def initialize: (IR::Automaton canonical, IR::Automaton target, ?max_pairs: Integer) -> void
+
+      # @rbs () -> Result
+      def verify: () -> Result
+
+      private
+
+      # @rbs (Integer, Integer, IR::AutomatonState, IR::AutomatonState,
+      #   Array[Difference], Array[Array[Integer]]) -> void
+      def compare_terminals: (Integer, Integer, IR::AutomatonState, IR::AutomatonState, Array[Difference], Array[Array[Integer]]) -> void
+
+      # @rbs (Integer, Integer, IR::AutomatonState, IR::AutomatonState,
+      #   Array[Difference], Array[Array[Integer]]) -> void
+      def compare_gotos: (Integer, Integer, IR::AutomatonState, IR::AutomatonState, Array[Difference], Array[Array[Integer]]) -> void
+
+      # @rbs (IR::AutomatonState, Integer) -> IR::parser_action
+      def effective_action: (IR::AutomatonState, Integer) -> IR::parser_action
+
+      # @rbs (IR::parser_action) -> Array[Object]
+      def action_signature: (IR::parser_action) -> Array[Object]
+    end
+  end
+end

@@ -11,11 +11,15 @@ module Ibex
 
       LALR_STRATEGIES: Array[Symbol]
 
+      IELR_STRATEGIES: Array[Symbol]
+
       @grammar: IR::Grammar
 
       @algorithm: Symbol
 
       @lalr_strategy: Symbol
+
+      @ielr_strategy: Symbol
 
       @sets: Analysis::Sets
 
@@ -33,6 +37,8 @@ module Ibex
 
       @profile: bool
 
+      @remove_unreachable: bool
+
       @canonical_suffix_lookahead_cache: Hash[Integer, Hash[Integer, Hash[Integer, Array[Integer]]]]
 
       @canonical_item_cache: Hash[Integer, Array[Array[lr_item?]?]]?
@@ -42,8 +48,10 @@ module Ibex
       attr_reader metrics: BuildMetrics?
 
       # @rbs (IR::Grammar grammar, ?algorithm: Symbol | String, ?lalr_strategy: Symbol | String,
-      #   ?entry_isolation: bool, ?starts: Array[String]?, ?attribute_entries: bool, ?profile: bool) -> void
-      def initialize: (IR::Grammar grammar, ?algorithm: Symbol | String, ?lalr_strategy: Symbol | String, ?entry_isolation: bool, ?starts: Array[String]?, ?attribute_entries: bool, ?profile: bool) -> void
+      #   ?ielr_strategy: Symbol | String,
+      #   ?entry_isolation: bool, ?starts: Array[String]?, ?attribute_entries: bool, ?profile: bool,
+      #   ?remove_unreachable: bool) -> void
+      def initialize: (IR::Grammar grammar, ?algorithm: Symbol | String, ?lalr_strategy: Symbol | String, ?ielr_strategy: Symbol | String, ?entry_isolation: bool, ?starts: Array[String]?, ?attribute_entries: bool, ?profile: bool, ?remove_unreachable: bool) -> void
 
       # @rbs () -> IR::Automaton
       def build: () -> IR::Automaton
@@ -62,6 +70,9 @@ module Ibex
 
       # @rbs () -> [Array[packed_items], transitions, build_collection]
       def ielr_collection: () -> [ Array[packed_items], transitions, build_collection ]
+
+      # @rbs () -> [Array[packed_items], transitions, build_collection]
+      def ielr_direct_collection: () -> [ Array[packed_items], transitions, build_collection ]
 
       # @rbs () -> [Array[packed_items], transitions, build_collection]
       def canonical_lr1_collection: () -> [ Array[packed_items], transitions, build_collection ]

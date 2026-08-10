@@ -108,6 +108,11 @@ The default frontend remains unchanged unless a grammar opts into
 [maturity audit](https://ydah.github.io/ibex/docs/maturity/) before adopting a
 Preview or Experimental surface.
 
+IELR is also explicit: `--algorithm=ielr` uses the conservative partition
+strategy by default, while `--ielr-strategy=direct` enables the experimental
+LR(0)-based construction. Direct IELR is profiled and reviewable, but it is not
+the default release strategy; see the [IELR guide](docs/ielr.md).
+
 ## Trust boundary
 
 Static frontend, formatting, documentation, LSP, IR, verification, and

@@ -232,7 +232,15 @@
         "final_lookahead_items": { "$ref": "#/$defs/measurement" },
         "propagation_edges": { "$ref": "#/$defs/measurement" },
         "ielr_initial_partitions": { "$ref": "#/$defs/measurement" },
-        "ielr_final_partitions": { "$ref": "#/$defs/measurement" }
+        "ielr_final_partitions": { "$ref": "#/$defs/measurement" },
+        "ielr_annotations": { "$ref": "#/$defs/measurement" },
+        "ielr_annotated_states": { "$ref": "#/$defs/measurement" },
+        "ielr_inadequacies": { "$ref": "#/$defs/measurement" },
+        "ielr_split_stable_discarded": { "$ref": "#/$defs/measurement" },
+        "ielr_lalr_states": { "$ref": "#/$defs/measurement" },
+        "ielr_split_states": { "$ref": "#/$defs/measurement" },
+        "ielr_unreachable_removed": { "$ref": "#/$defs/measurement" },
+        "ielr_remergeable_candidates": { "$ref": "#/$defs/measurement" }
       },
       "additionalProperties": false
     },
@@ -249,7 +257,15 @@
         "final_lookahead_items": { "$ref": "#/$defs/measured" },
         "propagation_edges": { "$ref": "#/$defs/measured" },
         "ielr_initial_partitions": { "$ref": "#/$defs/not_applicable" },
-        "ielr_final_partitions": { "$ref": "#/$defs/not_applicable" }
+        "ielr_final_partitions": { "$ref": "#/$defs/not_applicable" },
+        "ielr_annotations": { "$ref": "#/$defs/not_applicable" },
+        "ielr_annotated_states": { "$ref": "#/$defs/not_applicable" },
+        "ielr_inadequacies": { "$ref": "#/$defs/not_applicable" },
+        "ielr_split_stable_discarded": { "$ref": "#/$defs/not_applicable" },
+        "ielr_lalr_states": { "$ref": "#/$defs/not_applicable" },
+        "ielr_split_states": { "$ref": "#/$defs/not_applicable" },
+        "ielr_unreachable_removed": { "$ref": "#/$defs/not_applicable" },
+        "ielr_remergeable_candidates": { "$ref": "#/$defs/not_applicable" }
       },
       "additionalProperties": false
     },
@@ -266,7 +282,40 @@
         "final_lookahead_items": { "$ref": "#/$defs/measured" },
         "propagation_edges": { "$ref": "#/$defs/not_applicable" },
         "ielr_initial_partitions": { "$ref": "#/$defs/measured" },
-        "ielr_final_partitions": { "$ref": "#/$defs/measured" }
+        "ielr_final_partitions": { "$ref": "#/$defs/measured" },
+        "ielr_annotations": { "$ref": "#/$defs/not_applicable" },
+        "ielr_annotated_states": { "$ref": "#/$defs/not_applicable" },
+        "ielr_inadequacies": { "$ref": "#/$defs/not_applicable" },
+        "ielr_split_stable_discarded": { "$ref": "#/$defs/not_applicable" },
+        "ielr_lalr_states": { "$ref": "#/$defs/not_applicable" },
+        "ielr_split_states": { "$ref": "#/$defs/not_applicable" },
+        "ielr_unreachable_removed": { "$ref": "#/$defs/not_applicable" },
+        "ielr_remergeable_candidates": { "$ref": "#/$defs/not_applicable" }
+      },
+      "additionalProperties": false
+    },
+    "ielr_direct_structural": {
+      "type": "object",
+      "required": ["lr0_states", "lr0_items", "canonical_states", "canonical_items", "final_states", "final_items", "final_lookahead_items", "propagation_edges", "ielr_initial_partitions", "ielr_final_partitions"],
+      "properties": {
+        "lr0_states": { "$ref": "#/$defs/measured" },
+        "lr0_items": { "$ref": "#/$defs/measured" },
+        "canonical_states": { "$ref": "#/$defs/not_applicable" },
+        "canonical_items": { "$ref": "#/$defs/not_applicable" },
+        "final_states": { "$ref": "#/$defs/measured" },
+        "final_items": { "$ref": "#/$defs/measured" },
+        "final_lookahead_items": { "$ref": "#/$defs/measured" },
+        "propagation_edges": { "$ref": "#/$defs/measured" },
+        "ielr_initial_partitions": { "$ref": "#/$defs/not_applicable" },
+        "ielr_final_partitions": { "$ref": "#/$defs/not_applicable" },
+        "ielr_annotations": { "$ref": "#/$defs/measured" },
+        "ielr_annotated_states": { "$ref": "#/$defs/measured" },
+        "ielr_inadequacies": { "$ref": "#/$defs/measured" },
+        "ielr_split_stable_discarded": { "$ref": "#/$defs/not_applicable" },
+        "ielr_lalr_states": { "$ref": "#/$defs/measured" },
+        "ielr_split_states": { "$ref": "#/$defs/measured" },
+        "ielr_unreachable_removed": { "$ref": "#/$defs/measured" },
+        "ielr_remergeable_candidates": { "$ref": "#/$defs/not_applicable" }
       },
       "additionalProperties": false
     },
@@ -283,7 +332,15 @@
         "final_lookahead_items": { "$ref": "#/$defs/measured" },
         "propagation_edges": { "$ref": "#/$defs/not_applicable" },
         "ielr_initial_partitions": { "$ref": "#/$defs/not_applicable" },
-        "ielr_final_partitions": { "$ref": "#/$defs/not_applicable" }
+        "ielr_final_partitions": { "$ref": "#/$defs/not_applicable" },
+        "ielr_annotations": { "$ref": "#/$defs/not_applicable" },
+        "ielr_annotated_states": { "$ref": "#/$defs/not_applicable" },
+        "ielr_inadequacies": { "$ref": "#/$defs/not_applicable" },
+        "ielr_split_stable_discarded": { "$ref": "#/$defs/not_applicable" },
+        "ielr_lalr_states": { "$ref": "#/$defs/not_applicable" },
+        "ielr_split_states": { "$ref": "#/$defs/not_applicable" },
+        "ielr_unreachable_removed": { "$ref": "#/$defs/not_applicable" },
+        "ielr_remergeable_candidates": { "$ref": "#/$defs/not_applicable" }
       },
       "additionalProperties": false
     },
@@ -300,7 +357,15 @@
         "final_lookahead_items": { "$ref": "#/$defs/not_measured" },
         "propagation_edges": { "$ref": "#/$defs/not_measured" },
         "ielr_initial_partitions": { "$ref": "#/$defs/not_measured" },
-        "ielr_final_partitions": { "$ref": "#/$defs/not_measured" }
+        "ielr_final_partitions": { "$ref": "#/$defs/not_measured" },
+        "ielr_annotations": { "$ref": "#/$defs/not_measured" },
+        "ielr_annotated_states": { "$ref": "#/$defs/not_measured" },
+        "ielr_inadequacies": { "$ref": "#/$defs/not_measured" },
+        "ielr_split_stable_discarded": { "$ref": "#/$defs/not_measured" },
+        "ielr_lalr_states": { "$ref": "#/$defs/not_measured" },
+        "ielr_split_states": { "$ref": "#/$defs/not_measured" },
+        "ielr_unreachable_removed": { "$ref": "#/$defs/not_measured" },
+        "ielr_remergeable_candidates": { "$ref": "#/$defs/not_measured" }
       },
       "additionalProperties": false
     },
@@ -408,6 +473,20 @@
                         "algorithm": { "const": "ielr" },
                         "strategy": { "enum": ["ielr_partition", "entry_isolation"] },
                         "structural": { "$ref": "#/$defs/ielr_structural" }
+                      }
+                    },
+                    {
+                      "properties": {
+                        "algorithm": { "const": "ielr" },
+                        "strategy": { "const": "ielr_direct" },
+                        "structural": { "$ref": "#/$defs/ielr_direct_structural" }
+                      }
+                    },
+                    {
+                      "properties": {
+                        "algorithm": { "const": "ielr" },
+                        "strategy": { "const": "entry_isolation" },
+                        "structural": { "$ref": "#/$defs/ielr_direct_structural" }
                       }
                     }
                   ]

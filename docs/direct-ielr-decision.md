@@ -1,6 +1,8 @@
 # Direct IELR decision dossier
 
-I001 is **NO-GO**. Direct IELR construction is not authorized, and I002 remains
+I001 is **NO-GO** for release promotion. An experimental direct IELR
+implementation may exist behind an explicit opt-in, but it is not authorized as
+the default or as a release-readiness claim; I002 remains
 blocked. This decision is a feature gate, not a claim that direct IELR has no
 future value.
 
@@ -46,7 +48,7 @@ that later reviews cannot silently narrow the policy.
 | The benefit is only state-count vanity. | Satisfied | No semantic conflict-removal benefit is established. Structural counts alone do not justify a second construction algorithm. |
 
 The decision is therefore NO-GO on more than one independent ground. In
-particular, implementing a direct builder now would leave the dominant
+particular, promoting a direct builder now would leave the dominant
 canonical-collection cost in the verified workflow.
 
 ## Bound observations and verification gaps

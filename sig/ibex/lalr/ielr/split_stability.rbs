@@ -1,0 +1,27 @@
+# Generated from lib/ibex/lalr/ielr/split_stability.rb with RBS::Inline
+
+module Ibex
+  module LALR
+    module IELR
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      module SplitStability
+        MAX_ENUMERATED_POTENTIALS: ::Integer
+
+        # @rbs (Annotation) -> bool
+        def self?.simple?: (Annotation) -> bool
+
+        # @rbs (Annotation, ConflictResolver) -> bool
+        def self?.split_stable?: (Annotation, ConflictResolver) -> bool
+
+        # @rbs (ConflictResolver, Integer, Array[Object]) -> Object?
+        def self?.resolve: (ConflictResolver, Integer, Array[Object]) -> Object?
+
+        # @rbs (Object?) -> Object?
+        def self?.normalize: (Object?) -> Object?
+
+        # @rbs (Array[Integer]) -> Array[Array[Integer]]
+        def self?.subsets: (Array[Integer]) -> Array[Array[Integer]]
+      end
+    end
+  end
+end

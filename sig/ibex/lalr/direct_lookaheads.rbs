@@ -11,54 +11,29 @@ module Ibex
 
       EMPTY_NODES: Array[Integer]
 
-      @grammar: IR::Grammar
-
-      @sets: Analysis::Sets
-
-      @productions_by_lhs: Hash[Integer, Array[IR::Production]]
-
-      @augmented_rhs: Array[Integer]
-
-      @production_rhs: Array[Array[Integer]]
-
-      @augmented_item_cores: Array[item_core]
-
-      @production_item_cores: Array[Array[item_core]]
-
-      @item_key_stride: Integer
-
-      @node_stride: Integer
-
-      @terminal_ids: Array[Integer]
-
-      @terminal_masks: Array[Integer]
-
-      @terminal_ids_by_bits: Hash[Integer, Array[Integer]]
-
-      @lr0_state_count: Integer?
-
-      @lr0_item_count: Integer?
-
-      @propagation_edge_count: Integer?
-
-      @profile: bool
-
       attr_reader lr0_state_count: Integer?
 
       attr_reader lr0_item_count: Integer?
 
       attr_reader propagation_edge_count: Integer?
 
-      # @rbs (IR::Grammar grammar, Analysis::Sets sets, ?profile: bool) -> void
-      def initialize: (IR::Grammar grammar, Analysis::Sets sets, ?profile: bool) -> void
+      attr_reader states: Array[core_set]
+
+      attr_reader transitions: transitions
+
+      # @rbs (IR::Grammar grammar, Analysis::Sets sets, ?starts: Array[String]?, ?profile: bool) -> void
+      def initialize: (IR::Grammar grammar, Analysis::Sets sets, ?starts: Array[String]?, ?profile: bool) -> void
 
       # @rbs () -> [Array[packed_items], transitions]
       def build: () -> [ Array[packed_items], transitions ]
 
+      # @rbs (Integer index) -> Integer
+      def augmented_production: (Integer index) -> Integer
+
       private
 
-      # @rbs (Integer production_count) -> void
-      def initialize_item_encoding: (Integer production_count) -> void
+      # @rbs () -> void
+      def initialize_item_encoding: () -> void
 
       # @rbs () -> [Array[core_set], transitions]
       def lr0_collection: () -> [ Array[core_set], transitions ]
@@ -105,10 +80,11 @@ module Ibex
       # @rbs (Integer production_id, Integer dot) -> item_core
       def item_core: (Integer production_id, Integer dot) -> item_core
 
-      # Encode each pair collision-free before sorting so Hash does not
-      # repeatedly hash and compare nested item-core arrays.
       # @rbs (core_set items) -> Array[Integer]
       def item_key: (core_set items) -> Array[Integer]
+
+      # @rbs (String name) -> Integer
+      def start_index: (String name) -> Integer
     end
   end
 end

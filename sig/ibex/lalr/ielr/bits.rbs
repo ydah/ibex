@@ -1,0 +1,14 @@
+# Generated from lib/ibex/lalr/ielr/bits.rb with RBS::Inline
+
+module Ibex
+  module LALR
+    module IELR
+      module Bits
+        # @rbs (Integer bits) { (Integer) -> void } -> void
+        # @rbs (Integer bits) -> Enumerator[Integer, void]
+        def self?.each_set_bit: (Integer bits) { (Integer) -> void } -> void
+                              | (Integer bits) -> Enumerator[Integer, void]
+      end
+    end
+  end
+end

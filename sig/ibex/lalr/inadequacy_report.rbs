@@ -1,0 +1,21 @@
+# Generated from lib/ibex/lalr/inadequacy_report.rb with RBS::Inline
+
+module Ibex
+  module LALR
+    type report_value = String | Symbol | Integer | bool | nil | IR::parser_action | Array[report_value] | Hash[Symbol, report_value]
+
+    # Diagnostic-only report for canonical-vs-LALR action differences.  It is
+    # intentionally separate from normal construction because it enumerates a
+    # canonical LR(1) reference.
+    class InadequacyReport
+      # @rbs (IR::Automaton canonical, IR::Automaton target, ?max_pairs: Integer) -> void
+      def initialize: (IR::Automaton canonical, IR::Automaton target, ?max_pairs: Integer) -> void
+
+      # @rbs () -> Hash[Symbol, report_value]
+      def to_h: () -> Hash[Symbol, report_value]
+
+      # @rbs () -> String
+      def to_json: () -> String
+    end
+  end
+end

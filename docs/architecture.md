@@ -13,7 +13,7 @@ Ruby DSL ───────────────────────�
                                                                                |              |
                                                                                |          Lexer IR v1
                                                     |
-                                               set analysis
+                                                    set analysis
                                                     |
                                       SLR/LALR/IELR/LR1 Builder -> Automaton IR
                                                                     |
@@ -22,6 +22,12 @@ Ruby DSL ───────────────────────�
 
 Frontend changes stop at the Normalizer. Algorithm strategies consume Grammar IR and produce identical Automaton IR shapes.
 Outputs consume Automaton IR and never call builder internals. The CLI only connects stages and supports JSON resumption.
+
+IELR has two construction strategies. The conservative `partition` strategy
+builds canonical LR(1) and partitions compatible isocores. The opt-in `direct`
+strategy works from LR(0), goto-follow closures, lane annotations, and targeted
+state splitting before rerunning lookahead propagation. Both use the shared
+conflict resolver and downstream Automaton IR pipeline. See the [IELR guide](ielr.md).
 
 ## Execution trust boundary
 

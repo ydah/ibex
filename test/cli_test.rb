@@ -77,6 +77,22 @@ class CLITest < Minitest::Test
     end
   end
 
+  def test_emits_direct_ielr_automaton_ir_without_canonical_construction
+    Tempfile.create(["grammar", ".y"]) do |file|
+      file.write("class P\nrule\nstart: TOKEN\nend\n")
+      file.flush
+      output = StringIO.new
+      status = Ibex::CLI.start(
+        ["--algorithm=ielr", "--ielr-strategy=direct", "--emit=automaton-ir", file.path],
+        stdout: output,
+        stderr: StringIO.new
+      )
+
+      assert_equal 0, status
+      assert_equal "ielr1", JSON.parse(output.string).fetch("algorithm")
+    end
+  end
+
   def test_entry_isolation_emits_independent_entry_state_sets
     Tempfile.create(["multiple-start", ".y"]) do |file|
       file.write(<<~GRAMMAR)

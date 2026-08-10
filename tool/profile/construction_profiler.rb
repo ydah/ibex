@@ -17,15 +17,27 @@ module Ibex
       STRUCTURAL_FIELDS = %i[
         lr0_states lr0_items canonical_states canonical_items final_states final_items
         final_lookahead_items propagation_edges ielr_initial_partitions ielr_final_partitions
+        ielr_annotations ielr_annotated_states ielr_inadequacies ielr_split_stable_discarded
+        ielr_lalr_states ielr_split_states ielr_unreachable_removed ielr_remergeable_candidates
       ].freeze
 
-      def initialize(wall_seconds: 60.0, clock: nil, builder_factory: nil)
+      def initialize(wall_seconds: 60.0, clock: nil, builder_factory: nil, ielr_strategy: :partition)
         raise ArgumentError, "wall_seconds must be positive" unless wall_seconds.positive?
+        unless LALR::Builder::IELR_STRATEGIES.include?(ielr_strategy.to_sym)
+          raise ArgumentError, "unknown IELR construction strategy #{ielr_strategy.inspect}"
+        end
 
         @wall_seconds = wall_seconds
+        @ielr_strategy = ielr_strategy.to_sym
         @clock = clock || -> { Process.clock_gettime(Process::CLOCK_MONOTONIC) }
         @builder_factory = builder_factory || lambda do |grammar, algorithm, isolated|
-          LALR::Builder.new(grammar, algorithm: algorithm, entry_isolation: isolated, profile: true)
+          LALR::Builder.new(
+            grammar,
+            algorithm: algorithm,
+            ielr_strategy: @ielr_strategy,
+            entry_isolation: isolated,
+            profile: true
+          )
         end
       end
 
@@ -112,6 +124,36 @@ module Ibex
           ),
           "ielr_final_partitions" => optional(
             metrics.ielr_final_partitions, "this construction path does not run IELR partitioning"
+          )
+        }.merge(ielr_metrics(metrics))
+      end
+
+      def ielr_metrics(metrics)
+        {
+          "ielr_annotations" => optional(
+            metrics.ielr_annotations, "this construction path does not annotate IELR states"
+          ),
+          "ielr_annotated_states" => optional(
+            metrics.ielr_annotated_states, "this construction path does not annotate IELR states"
+          ),
+          "ielr_inadequacies" => optional(
+            metrics.ielr_inadequacies, "this construction path does not annotate IELR states"
+          ),
+          "ielr_split_stable_discarded" => optional(
+            metrics.ielr_split_stable_discarded,
+            "this construction path does not record discarded IELR annotations"
+          ),
+          "ielr_lalr_states" => optional(
+            metrics.ielr_lalr_states, "this construction path does not run direct IELR phases"
+          ),
+          "ielr_split_states" => optional(
+            metrics.ielr_split_states, "this construction path does not split IELR states"
+          ),
+          "ielr_unreachable_removed" => optional(
+            metrics.ielr_unreachable_removed, "unreachable-state compaction is disabled"
+          ),
+          "ielr_remergeable_candidates" => optional(
+            metrics.ielr_remergeable_candidates, "remergeable-state analysis is not implemented"
           )
         }
       end
@@ -320,11 +362,26 @@ module Ibex
         docs/maturity.md
         docs/maturity.yml
         docs/workloads.md
+        lib/ibex/analysis/digraph.rb
         lib/ibex/lalr/build_metrics.rb
         lib/ibex/lalr/builder.rb
         lib/ibex/lalr/direct_lookaheads.rb
+        lib/ibex/lalr/goto_follows.rb
         lib/ibex/lalr/ielr_partition.rb
+        lib/ibex/lalr/ielr/annotator.rb
+        lib/ibex/lalr/ielr/bits.rb
+        lib/ibex/lalr/ielr/inadequacy.rb
+        lib/ibex/lalr/ielr/item_lookaheads.rb
+        lib/ibex/lalr/ielr/pipeline.rb
+        lib/ibex/lalr/ielr/split_stability.rb
+        lib/ibex/lalr/ielr/split_state.rb
+        lib/ibex/lalr/ielr/state_splitter.rb
+        lib/ibex/lalr/inadequacy_report.rb
+        lib/ibex/lalr/lookahead_propagation.rb
+        lib/ibex/lalr/lr0_collection.rb
+        lib/ibex/lalr/unreachable_states.rb
         schema/construction-profile-v1.schema.json
+        lib/ibex/verify/action_correspondence.rb
         sig/ibex/lalr/build_metrics.rbs
         sig/ibex/lalr/builder.rbs
         sig/ibex/lalr/direct_lookaheads.rbs
@@ -345,8 +402,23 @@ module Ibex
         lib/ibex/lalr/build_metrics.rb
         lib/ibex/lalr/builder.rb
         lib/ibex/lalr/direct_lookaheads.rb
+        lib/ibex/analysis/digraph.rb
+        lib/ibex/lalr/goto_follows.rb
         lib/ibex/lalr/ielr_partition.rb
+        lib/ibex/lalr/ielr/annotator.rb
+        lib/ibex/lalr/ielr/bits.rb
+        lib/ibex/lalr/ielr/inadequacy.rb
+        lib/ibex/lalr/ielr/item_lookaheads.rb
+        lib/ibex/lalr/ielr/pipeline.rb
+        lib/ibex/lalr/ielr/split_stability.rb
+        lib/ibex/lalr/ielr/split_state.rb
+        lib/ibex/lalr/ielr/state_splitter.rb
+        lib/ibex/lalr/inadequacy_report.rb
+        lib/ibex/lalr/lookahead_propagation.rb
+        lib/ibex/lalr/lr0_collection.rb
+        lib/ibex/lalr/unreachable_states.rb
         schema/construction-profile-v1.schema.json
+        lib/ibex/verify/action_correspondence.rb
         tool/profile/construction_profiler.rb
         tool/quality/construction_profile.rb
         tool/quality/construction_profile_integrity.rb
@@ -414,9 +486,9 @@ module Ibex
     class ConstructionReport
       MATRIX_REVISION = "2d86d52ef92c2b07046c05f4fd55c32a1d6400a9"
 
-      def initialize(root:, wall_seconds:, checkouts: {})
+      def initialize(root:, wall_seconds:, checkouts: {}, ielr_strategy: :partition)
         @root = File.expand_path(root)
-        @profiler = ConstructionProfiler.new(wall_seconds: wall_seconds)
+        @profiler = ConstructionProfiler.new(wall_seconds: wall_seconds, ielr_strategy: ielr_strategy)
         @wall_seconds = wall_seconds
         @checkouts = checkouts
         @registry = YAML.safe_load_file(File.join(@root, "docs/workloads.yml"), aliases: false)

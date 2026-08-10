@@ -1,0 +1,38 @@
+# Generated from lib/ibex/lalr/lookahead_propagation.rb with RBS::Inline
+
+module Ibex
+  module LALR
+    # Recomputes item lookaheads on an already-built LR(0) automaton.  This is
+    # Phase 4 of direct IELR and is also useful as an independent cross-check
+    # for DirectLookaheads.
+    class LookaheadPropagation
+      EMPTY: Array[Integer]
+
+      attr_reader propagation_edge_count: Integer
+
+      # @rbs (IR::Grammar grammar, Analysis::Sets sets, Array[core_set] states, transitions transitions,
+      #   seeds: Array[[Integer, item_core, Integer]]) -> Array[packed_items]
+      def initialize: (IR::Grammar grammar, Analysis::Sets sets, Array[core_set] states, transitions transitions, seeds: Array[[ Integer, item_core, Integer ]]) -> Array[packed_items]
+
+      # @rbs () -> Array[packed_items]
+      def build: () -> Array[packed_items]
+
+      private
+
+      # @rbs (Hash[Object, Array[Object]], Integer, Integer, Integer) -> void
+      def add_transition: (Hash[Object, Array[Object]], Integer, Integer, Integer) -> void
+
+      # @rbs (Hash[Object, Array[Object]], Array[packed_items], Integer, Integer, Integer) -> void
+      def add_closure: (Hash[Object, Array[Object]], Array[packed_items], Integer, Integer, Integer) -> void
+
+      # @rbs (Array[packed_items], Hash[Object, Array[Object]]) -> void
+      def propagate: (Array[packed_items], Hash[Object, Array[Object]]) -> void
+
+      # @rbs (Integer bits) -> Array[Integer]
+      def terminal_ids: (Integer bits) -> Array[Integer]
+
+      # @rbs (Integer production_id) -> Array[Integer]
+      def rhs_for: (Integer production_id) -> Array[Integer]
+    end
+  end
+end

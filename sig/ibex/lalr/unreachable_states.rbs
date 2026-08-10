@@ -1,0 +1,25 @@
+# Generated from lib/ibex/lalr/unreachable_states.rb with RBS::Inline
+
+module Ibex
+  module LALR
+    # Optional post-resolution compaction.  It is intentionally off by
+    # default because state numbers are part of diagnostics and golden output.
+    module UnreachableStates
+      # @rbs (Array[IR::AutomatonState] states, Array[Integer] start_states) ->
+      #   [Array[IR::AutomatonState], Hash[Integer, Integer]]
+      def self?.remove: (Array[IR::AutomatonState] states, Array[Integer] start_states) -> [ Array[IR::AutomatonState], Hash[Integer, Integer] ]
+
+      # @rbs (Array[IR::AutomatonState], Array[Integer]) -> Array[Integer]
+      def self?.reachable_states: (Array[IR::AutomatonState], Array[Integer]) -> Array[Integer]
+
+      # @rbs (Hash[Integer, Integer], Hash[Integer, Integer]) -> Hash[Integer, Integer]
+      def self?.remap_edges: (Hash[Integer, Integer], Hash[Integer, Integer]) -> Hash[Integer, Integer]
+
+      # @rbs (IR::parser_action?, Hash[Integer, Integer]) -> IR::parser_action?
+      def self?.remap_action: (IR::parser_action?, Hash[Integer, Integer]) -> IR::parser_action?
+
+      # @rbs (IR::conflict, Hash[Integer, Integer]) -> IR::conflict
+      def self?.remap_conflict: (IR::conflict, Hash[Integer, Integer]) -> IR::conflict
+    end
+  end
+end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# rbs_inline: enabled
 
 require "set"
 
@@ -11,10 +12,12 @@ module Ibex
 
       ALGORITHMS = %i[slr lalr ielr lr1].freeze #: Array[Symbol]
       LALR_STRATEGIES = %i[direct canonical_merge].freeze #: Array[Symbol]
+      IELR_STRATEGIES = %i[direct partition].freeze #: Array[Symbol]
 
       # @rbs @grammar: IR::Grammar
       # @rbs @algorithm: Symbol
       # @rbs @lalr_strategy: Symbol
+      # @rbs @ielr_strategy: Symbol
       # @rbs @sets: Analysis::Sets
       # @rbs @productions_by_lhs: Hash[Integer, Array[IR::Production]]
       # @rbs @resolver: ConflictResolver
@@ -23,6 +26,7 @@ module Ibex
       # @rbs @entry_isolation: bool
       # @rbs @attribute_entries: bool
       # @rbs @profile: bool
+      # @rbs @remove_unreachable: bool
       # @rbs @canonical_suffix_lookahead_cache: Hash[Integer, Hash[Integer, Hash[Integer, Array[Integer]]]]
       # @rbs @canonical_item_cache: Hash[Integer, Array[Array[lr_item?]?]]?
       # @rbs @canonical_key_radices: [Integer, Integer, Integer]?
@@ -30,19 +34,26 @@ module Ibex
       attr_reader :metrics #: BuildMetrics?
 
       # @rbs (IR::Grammar grammar, ?algorithm: Symbol | String, ?lalr_strategy: Symbol | String,
-      #   ?entry_isolation: bool, ?starts: Array[String]?, ?attribute_entries: bool, ?profile: bool) -> void
+      #   ?ielr_strategy: Symbol | String,
+      #   ?entry_isolation: bool, ?starts: Array[String]?, ?attribute_entries: bool, ?profile: bool,
+      #   ?remove_unreachable: bool) -> void
       def initialize(grammar, algorithm: :lalr, lalr_strategy: :direct, entry_isolation: false,
-                     starts: nil, attribute_entries: true, profile: false)
+                     ielr_strategy: :partition, starts: nil, attribute_entries: true, profile: false,
+                     remove_unreachable: false)
         unless ALGORITHMS.include?(algorithm.to_sym)
           raise ArgumentError, "unknown parser algorithm #{algorithm.inspect}"
         end
         unless LALR_STRATEGIES.include?(lalr_strategy.to_sym)
           raise ArgumentError, "unknown LALR construction strategy #{lalr_strategy.inspect}"
         end
+        unless IELR_STRATEGIES.include?(ielr_strategy.to_sym)
+          raise ArgumentError, "unknown IELR construction strategy #{ielr_strategy.inspect}"
+        end
 
         @grammar = grammar
         @algorithm = algorithm.to_sym
         @lalr_strategy = lalr_strategy.to_sym
+        @ielr_strategy = ielr_strategy.to_sym
         @sets = Analysis::Sets.new(grammar)
         @productions_by_lhs = grammar.productions.group_by(&:lhs)
         @resolver = ConflictResolver.new(grammar)
@@ -58,6 +69,7 @@ module Ibex
         @entry_isolation = entry_isolation
         @attribute_entries = attribute_entries
         @profile = profile
+        @remove_unreachable = remove_unreachable
       end
 
       # @rbs () -> IR::Automaton
@@ -69,6 +81,11 @@ module Ibex
         states = OnErrorReductions.apply(@grammar, states)
         states = DefaultReductions.apply(states, terminal_ids: @grammar.terminals.map(&:id))
         entry_states = entry_states_for(merged_items)
+        if @remove_unreachable
+          states, mapping = UnreachableStates.remove(states, entry_states.values.uniq)
+          entry_states = entry_states.transform_values { |state_id| mapping.fetch(state_id) }
+          collection[:ielr_unreachable_removed] = mapping.length - states.length if collection.respond_to?(:[]=)
+        end
         states = attribute_entry_conflicts(states, entry_states) if @attribute_entries && @start_names.length > 1
         summary = conflict_summary(states)
         final_items, final_lookahead_items = profiled_final_item_counts(merged_items)
@@ -120,6 +137,8 @@ module Ibex
 
       # @rbs () -> [Array[packed_items], transitions, build_collection]
       def ielr_collection
+        return ielr_direct_collection if @ielr_strategy == :direct
+
         states, transitions = canonical_collection
         partition = IELRPartition.new(@grammar, states, transitions, profile: @profile)
         items, merged_transitions = partition.build
@@ -127,6 +146,12 @@ module Ibex
         profile[:ielr_initial_partitions] = partition.initial_partition_count
         profile[:ielr_final_partitions] = partition.final_partition_count
         [items, merged_transitions, profile]
+      end
+
+      # @rbs () -> [Array[packed_items], transitions, build_collection]
+      def ielr_direct_collection
+        pipeline = IELR::Pipeline.new(@grammar, @sets, starts: @start_names, profile: @profile)
+        pipeline.build
       end
 
       # @rbs () -> [Array[packed_items], transitions, build_collection]
@@ -152,7 +177,10 @@ module Ibex
           construction_states: items.length, canonical_states: nil, strategy: :direct_lalr,
           lr0_states: direct.lr0_state_count, lr0_items: direct.lr0_item_count, canonical_items: nil,
           propagation_edges: direct.propagation_edge_count,
-          ielr_initial_partitions: nil, ielr_final_partitions: nil
+          ielr_initial_partitions: nil, ielr_final_partitions: nil,
+          ielr_annotations: nil, ielr_annotated_states: nil, ielr_inadequacies: nil,
+          ielr_split_stable_discarded: nil, ielr_lalr_states: nil, ielr_split_states: nil,
+          ielr_unreachable_removed: nil, ielr_remergeable_candidates: nil
         }
         [items, transitions, profile]
       end
@@ -164,7 +192,10 @@ module Ibex
           construction_states: states.length, canonical_states: states.length, strategy: strategy,
           lr0_states: cores&.length, lr0_items: cores&.sum(&:length),
           canonical_items: @profile ? states.sum(&:length) : nil,
-          propagation_edges: nil, ielr_initial_partitions: nil, ielr_final_partitions: nil
+          propagation_edges: nil, ielr_initial_partitions: nil, ielr_final_partitions: nil,
+          ielr_annotations: nil, ielr_annotated_states: nil, ielr_inadequacies: nil,
+          ielr_split_stable_discarded: nil, ielr_lalr_states: nil, ielr_split_states: nil,
+          ielr_unreachable_removed: nil, ielr_remergeable_candidates: nil
         }
       end
 
@@ -188,6 +219,14 @@ module Ibex
           propagation_edges: collection.fetch(:propagation_edges),
           ielr_initial_partitions: collection.fetch(:ielr_initial_partitions),
           ielr_final_partitions: collection.fetch(:ielr_final_partitions),
+          ielr_annotations: collection.fetch(:ielr_annotations, nil),
+          ielr_annotated_states: collection.fetch(:ielr_annotated_states, nil),
+          ielr_inadequacies: collection.fetch(:ielr_inadequacies, nil),
+          ielr_split_stable_discarded: collection.fetch(:ielr_split_stable_discarded, nil),
+          ielr_lalr_states: collection.fetch(:ielr_lalr_states, nil),
+          ielr_split_states: collection.fetch(:ielr_split_states, nil),
+          ielr_unreachable_removed: collection.fetch(:ielr_unreachable_removed, nil),
+          ielr_remergeable_candidates: collection.fetch(:ielr_remergeable_candidates, nil),
           final_states: final_states, final_items: final_items, final_lookahead_items: final_lookahead_items
         )
       end
@@ -542,7 +581,15 @@ module Ibex
           final_lookahead_items: sum_optional_metric(entries, :final_lookahead_items),
           propagation_edges: sum_optional_metric(entries, :propagation_edges),
           ielr_initial_partitions: sum_optional_metric(entries, :ielr_initial_partitions),
-          ielr_final_partitions: sum_optional_metric(entries, :ielr_final_partitions)
+          ielr_final_partitions: sum_optional_metric(entries, :ielr_final_partitions),
+          ielr_annotations: sum_optional_metric(entries, :ielr_annotations),
+          ielr_annotated_states: sum_optional_metric(entries, :ielr_annotated_states),
+          ielr_inadequacies: sum_optional_metric(entries, :ielr_inadequacies),
+          ielr_split_stable_discarded: sum_optional_metric(entries, :ielr_split_stable_discarded),
+          ielr_lalr_states: sum_optional_metric(entries, :ielr_lalr_states),
+          ielr_split_states: sum_optional_metric(entries, :ielr_split_states),
+          ielr_unreachable_removed: sum_optional_metric(entries, :ielr_unreachable_removed),
+          ielr_remergeable_candidates: sum_optional_metric(entries, :ielr_remergeable_candidates)
         )
       end
 
@@ -566,7 +613,9 @@ module Ibex
       def isolated_entry(name)
         builder = self.class.new(
           @grammar, algorithm: @algorithm, lalr_strategy: @lalr_strategy,
-                    starts: [name], entry_isolation: true, attribute_entries: false, profile: @profile
+                    ielr_strategy: @ielr_strategy,
+                    starts: [name], entry_isolation: true, attribute_entries: false, profile: @profile,
+                    remove_unreachable: @remove_unreachable
         )
         automaton = builder.build
         metrics = builder.metrics
@@ -659,6 +708,7 @@ module Ibex
         @start_names.each_with_object(Set.new) do |name, fingerprints|
           isolated = self.class.new(
             @grammar, algorithm: @algorithm, lalr_strategy: @lalr_strategy,
+                      ielr_strategy: @ielr_strategy,
                       starts: [name], attribute_entries: false
           ).build
           isolated.states.each do |state|

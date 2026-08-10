@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# rbs_inline: enabled
 
 require "json"
 require "optparse"
@@ -75,6 +76,9 @@ module Ibex
   #     ?algorithm: Symbol,
   #     ?suggest_ielr: bool,
   #     ?entry_isolation: bool,
+  #     ?ielr_strategy: Symbol,
+  #     ?ielr_report: bool,
+  #     ?remove_unreachable: bool,
   #     ?warnings: Array[Symbol],
   #     ?output: String,
   #     ?embedded: bool,
@@ -390,6 +394,7 @@ module Ibex
     end
 
     # @rbs (OptionParser options) -> void
+    # rubocop:disable Metrics/MethodLength -- pipeline flags share one parser boundary.
     def add_pipeline_options(options)
       options.on("--emit=FORMAT", "ast, sets, lexer-ir, grammar-ir, automaton-ir, or ruby") do |value|
         @options[:emit] = value
@@ -411,6 +416,15 @@ module Ibex
       options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
         set_configuration_option(:algorithm, value.to_sym)
       end
+      options.on("--ielr-strategy=NAME", %w[direct partition], "IELR construction strategy") do |value|
+        @options[:ielr_strategy] = value.to_sym
+      end
+      options.on("--ielr-report", "report canonical-vs-IELR action differences") do
+        @options[:ielr_report] = true
+      end
+      options.on("--remove-unreachable", "compact unreachable IELR states after resolution") do
+        @options[:remove_unreachable] = true
+      end
       options.on("--suggest-ielr", "check whether IELR removes unexpected LALR conflicts") do
         @options[:suggest_ielr] = true
       end
@@ -422,6 +436,7 @@ module Ibex
       end
       options.on("--watch", "regenerate file outputs when grammar sources change") { @options[:watch] = true }
     end
+    # rubocop:enable Metrics/MethodLength
 
     # @rbs (OptionParser options) -> void
     def add_output_options(options)
@@ -536,7 +551,9 @@ module Ibex
       active = activate_analysis_grammar(grammar, options: options, explicit_keys: explicit_keys)
       algorithm = configuration_value("parser.algorithm") #: Symbol
       automaton = LALR::Builder.new(
-        active, algorithm: algorithm, entry_isolation: configuration_value("parser.entries") == :isolated
+        active, algorithm: algorithm, ielr_strategy: options.fetch(:ielr_strategy, :partition),
+                remove_unreachable: options.fetch(:remove_unreachable, false),
+                entry_isolation: configuration_value("parser.entries") == :isolated
       ).build
       [active, algorithm, automaton]
     end
@@ -1014,13 +1031,22 @@ module Ibex
       algorithm = configuration_value("parser.algorithm")
       report_status("building #{algorithm} automaton")
       automaton = LALR::Builder.new(
-        grammar, algorithm: algorithm, entry_isolation: configuration_value("parser.entries") == :isolated
+        grammar, algorithm: algorithm, ielr_strategy: @options.fetch(:ielr_strategy, :partition),
+                 remove_unreachable: @options.fetch(:remove_unreachable, false),
+                 entry_isolation: configuration_value("parser.entries") == :isolated
       ).build
+      write_ielr_report(grammar, automaton) if @options[:ielr_report]
       report_conflicts(automaton, input_path)
       suggest_ielr(automaton, input_path)
       write_report(automaton, input_path) if @options[:verbose] && !@options[:verify_output]
       write_visualizations(automaton) unless @options[:verify_output]
       automaton
+    end
+
+    # @rbs (IR::Grammar grammar, IR::Automaton automaton) -> void
+    def write_ielr_report(grammar, automaton)
+      canonical = LALR::Builder.new(grammar, algorithm: :lr1).build
+      @stdout.write(LALR::InadequacyReport.new(canonical, automaton).to_json)
     end
 
     # @rbs (IR::Automaton automaton, String input_path) -> void

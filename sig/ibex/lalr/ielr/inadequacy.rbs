@@ -1,0 +1,26 @@
+# Generated from lib/ibex/lalr/ielr/inadequacy.rb with RBS::Inline
+
+module Ibex
+  module LALR
+    module IELR
+      type contribution = [Symbol, Integer?]
+
+      class Inadequacy < Struct[Integer | Array[contribution]]
+        attr_accessor state(): Integer
+        attr_accessor token(): Integer
+        attr_accessor contributions(): Array[contribution]
+        attr_accessor id(): Integer
+
+        def self.new: (state: Integer, token: Integer, contributions: Array[contribution], id: Integer) -> instance
+      end
+
+      class Annotation < Struct[Inadequacy | Array[Integer?]]
+        attr_accessor inadequacy(): Inadequacy
+        attr_accessor matrix(): Array[Integer?]
+
+        def self.new: (inadequacy: Inadequacy, matrix: Array[Integer?]) -> instance
+        def key: () -> [Integer, Array[Integer?]]
+      end
+    end
+  end
+end
