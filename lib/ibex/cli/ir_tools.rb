@@ -101,7 +101,7 @@ module Ibex
     end
 
     # @rbs (IR::Grammar | IR::Automaton | IR::Lexer before,
-    #   IR::Grammar | IR::Automaton | IR::Lexer after) -> Hash[Symbol, untyped]
+    #   IR::Grammar | IR::Automaton | IR::Lexer after) -> Hash[Symbol, Object?]
     def compare_ir(before, after)
       return compare_grammars(before, after) if before.is_a?(IR::Grammar) && after.is_a?(IR::Grammar)
       if before.is_a?(IR::Automaton) && after.is_a?(IR::Automaton)
@@ -121,7 +121,7 @@ module Ibex
       raise Ibex::Error, "(cli):1:1: unsupported IR comparison"
     end
 
-    # @rbs (IR::Lexer before, IR::Lexer after) -> Hash[Symbol, untyped]
+    # @rbs (IR::Lexer before, IR::Lexer after) -> Hash[Symbol, Object?]
     def compare_lexers(before, after)
       before_rules = before.rules.map { |rule| [rule.state, rule.kind, rule.token, rule.pattern, rule.options] }
       after_rules = after.rules.map { |rule| [rule.state, rule.kind, rule.token, rule.pattern, rule.options] }
@@ -136,7 +136,7 @@ module Ibex
       }
     end
 
-    # @rbs (IR::Grammar before, IR::Grammar after) -> Hash[Symbol, untyped]
+    # @rbs (IR::Grammar before, IR::Grammar after) -> Hash[Symbol, Object?]
     def compare_grammars(before, after)
       before_symbols = before.symbols.map(&:name)
       after_symbols = after.symbols.map(&:name)

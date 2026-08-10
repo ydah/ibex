@@ -27,14 +27,14 @@ module Ibex
     def single_ir_path: (Array[String] arguments, String command) -> String
 
     # @rbs (IR::Grammar | IR::Automaton | IR::Lexer before,
-    #   IR::Grammar | IR::Automaton | IR::Lexer after) -> Hash[Symbol, untyped]
-    def compare_ir: (IR::Grammar | IR::Automaton | IR::Lexer before, IR::Grammar | IR::Automaton | IR::Lexer after) -> Hash[Symbol, untyped]
+    #   IR::Grammar | IR::Automaton | IR::Lexer after) -> Hash[Symbol, Object?]
+    def compare_ir: (IR::Grammar | IR::Automaton | IR::Lexer before, IR::Grammar | IR::Automaton | IR::Lexer after) -> Hash[Symbol, Object?]
 
-    # @rbs (IR::Lexer before, IR::Lexer after) -> Hash[Symbol, untyped]
-    def compare_lexers: (IR::Lexer before, IR::Lexer after) -> Hash[Symbol, untyped]
+    # @rbs (IR::Lexer before, IR::Lexer after) -> Hash[Symbol, Object?]
+    def compare_lexers: (IR::Lexer before, IR::Lexer after) -> Hash[Symbol, Object?]
 
-    # @rbs (IR::Grammar before, IR::Grammar after) -> Hash[Symbol, untyped]
-    def compare_grammars: (IR::Grammar before, IR::Grammar after) -> Hash[Symbol, untyped]
+    # @rbs (IR::Grammar before, IR::Grammar after) -> Hash[Symbol, Object?]
+    def compare_grammars: (IR::Grammar before, IR::Grammar after) -> Hash[Symbol, Object?]
 
     # @rbs (IR::Grammar grammar) -> Array[String]
     def production_shapes: (IR::Grammar grammar) -> Array[String]
