@@ -25,9 +25,10 @@ part of diagnostics and generated artifacts.
 item propagator. Paper fixtures cover the split and no-split cases, and the
 acceptance matrix checks direct IELR against LALR for the four conflict examples.
 The independent verifier still uses its canonical reference collection for V1/V2;
-`Verify::ActionCorrespondence` and `LALR::InadequacyReport` are bounded diagnostic
-tools, not a scale-independent proof. Global minimum state merging and remergeable
-state optimization are intentionally out of scope.
+strict IELR verification additionally runs the bounded V9 acceptance witness.
+`Verify::ActionCorrespondence` and `LALR::InadequacyReport` remain bounded
+diagnostic tools, not a scale-independent proof. Global minimum state merging and
+remergeable state optimization are intentionally out of scope.
 
 ## Operational decision
 
