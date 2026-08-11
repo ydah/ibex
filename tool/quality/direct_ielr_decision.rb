@@ -95,9 +95,9 @@ module Ibex
       DECISION_REVISION = "3f85ef193fbd6f8db84a56b809879232faf52c9b"
       DECISION_REVISION_ROLE = "reviewed repository evidence immediately before dossier publication"
       DECISION_DATE = "2026-08-11"
-      DOSSIER_REVISION = "fde24126495558c7c25d42cec721fc08183aa8c0"
+      DOSSIER_REVISION = "c52699768bb8f00ead965a2adc1e11611524877b"
       DOSSIER_PATH = "tool/quality/evidence/direct-ielr-decision-v1.json"
-      DOSSIER_DIGEST = "4674a5a6f7ca71d338ef6a00e1b572ba3b98fbe354c3b5ca020425e541c87a29"
+      DOSSIER_DIGEST = "5a7ba780cad269854f4ebee534149116aa302f69386d81a7e30b705257084cb4"
       V001_REVISION = "c7e5cad89ccd00591f3127fdb76a789bbeb202ab"
       V001_PARENT_REVISION = "2d86d52ef92c2b07046c05f4fd55c32a1d6400a9"
       V001_SOURCE_DIGESTS = {
