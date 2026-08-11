@@ -136,9 +136,9 @@
     "rule": "future direct IELR design must remain independent; GPL implementation source must not be inspected or translated"
   },
   "evidence_identity": {
-    "profile_capture_base_revision": "e5dd77c54f8496b485218392865c35bcf88ba6df",
-    "profile_bound_paths_sha256": "8da52da87f172e3055e6c45ede5dda815dcd32561cd7fa7623981fe6c0cc15c7",
-    "profile_implementation_sha256": "43069426a179b8a843301f38ed8126f53c1719023ef3704e60b2cf35a5eef168",
+    "profile_capture_base_revision": "c6142721cf6e952de9c46ccce1b72aa55e2e3ec9",
+    "profile_bound_paths_sha256": "26eb3baa9beb09511ba795d6a4f2c146caccf7729a6b20c6072dea3431c84c8a",
+    "profile_implementation_sha256": "be40c8ad905f5fd54d4f971d89dbb0f93d36f6d9f15521198272d2f0bd6fd60d",
     "v001_revision": "c7e5cad89ccd00591f3127fdb76a789bbeb202ab",
     "sources": [
       {
