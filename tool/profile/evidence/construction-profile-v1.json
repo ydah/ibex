@@ -20,13 +20,11 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "c6142721cf6e952de9c46ccce1b72aa55e2e3ec9",
+    "base_revision": "fd666989f130a57046deafcf2b1d134c5c996502",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
-    "capture_worktree_clean": false,
-    "capture_worktree_status": [
-      " M tool/profile/evidence/construction-profile-v1.json"
-    ],
-    "capture_worktree_status_sha256": "22d2d2a5469501003dac427055891c20d485f0cf242d410f9006231ffc07eef1",
+    "capture_worktree_clean": true,
+    "capture_worktree_status": [],
+    "capture_worktree_status_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
     "bound_paths": [
       {
         "path": ".github/workflows/main.yml",
@@ -132,9 +130,9 @@
       },
       {
         "path": "lib/ibex/lalr/ielr/split_state.rb",
-        "sha256": "696f0fbd7377593ae1dacc612258cac4076590315d95e8669d793ee5c7eb79ec",
+        "sha256": "a930eb4a1f0bd3ec62cc4474225f63803c5f7085bcc4a397296a81ac15ac8b36",
         "git_state": "base",
-        "base_sha256": "696f0fbd7377593ae1dacc612258cac4076590315d95e8669d793ee5c7eb79ec"
+        "base_sha256": "a930eb4a1f0bd3ec62cc4474225f63803c5f7085bcc4a397296a81ac15ac8b36"
       },
       {
         "path": "lib/ibex/lalr/ielr/state_splitter.rb",
@@ -174,9 +172,9 @@
       },
       {
         "path": "lib/ibex/verify/action_correspondence.rb",
-        "sha256": "243cdbb4977a55fcca260035c55d0588e906caf7a16542d2c88d15b686a2532f",
+        "sha256": "881a726059f0ce3dd2451111b3bf4a7c82dee5b796d4976af4f7bb2630f17c49",
         "git_state": "base",
-        "base_sha256": "243cdbb4977a55fcca260035c55d0588e906caf7a16542d2c88d15b686a2532f"
+        "base_sha256": "881a726059f0ce3dd2451111b3bf4a7c82dee5b796d4976af4f7bb2630f17c49"
       },
       {
         "path": "schema/construction-profile-v1.schema.json",
@@ -275,8 +273,8 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "26eb3baa9beb09511ba795d6a4f2c146caccf7729a6b20c6072dea3431c84c8a",
-    "implementation_sha256": "be40c8ad905f5fd54d4f971d89dbb0f93d36f6d9f15521198272d2f0bd6fd60d",
+    "bound_paths_sha256": "cefab3a0d6bc2210eb1d6ff7e6e55ffa1dc8fdae58783490dee6f6c95b066277",
+    "implementation_sha256": "b8501d92797e3009bee79fa66ad01ddf56655e337af95d2a630c3f9c66138b3e",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
     "evidence_path": "tool/profile/evidence/construction-profile-v1.json",
@@ -419,7 +417,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001919,
+                  "value": 0.002287,
                   "release_gate": false
                 }
               },
@@ -520,7 +518,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.006168,
+                  "value": 0.010306,
                   "release_gate": false
                 }
               },
@@ -644,7 +642,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001111,
+                  "value": 0.001925,
                   "release_gate": false
                 }
               },
@@ -745,7 +743,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.002094,
+                  "value": 0.003135,
                   "release_gate": false
                 }
               },
@@ -869,7 +867,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000898,
+                  "value": 0.001196,
                   "release_gate": false
                 }
               },
@@ -970,7 +968,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001123,
+                  "value": 0.001393,
                   "release_gate": false
                 }
               },
@@ -1096,7 +1094,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000672,
+                  "value": 0.000856,
                   "release_gate": false
                 }
               },
@@ -1198,7 +1196,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000765,
+                  "value": 0.001178,
                   "release_gate": false
                 }
               },
@@ -1300,7 +1298,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000532,
+                  "value": 0.005203,
                   "release_gate": false
                 }
               },
@@ -1402,7 +1400,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000556,
+                  "value": 0.000907,
                   "release_gate": false
                 }
               },
@@ -1548,7 +1546,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.020641,
+                  "value": 0.016963,
                   "release_gate": false
                 }
               },
@@ -1649,7 +1647,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.082644,
+                  "value": 0.10003,
                   "release_gate": false
                 }
               },

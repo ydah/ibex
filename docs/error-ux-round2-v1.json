@@ -471,7 +471,7 @@
       },
       {
         "path": "lib/ibex/lalr/ielr/split_state.rb",
-        "sha256": "696f0fbd7377593ae1dacc612258cac4076590315d95e8669d793ee5c7eb79ec"
+        "sha256": "a930eb4a1f0bd3ec62cc4474225f63803c5f7085bcc4a397296a81ac15ac8b36"
       },
       {
         "path": "lib/ibex/lalr/ielr/state_splitter.rb",
@@ -835,7 +835,7 @@
       },
       {
         "path": "lib/ibex/verify/action_correspondence.rb",
-        "sha256": "243cdbb4977a55fcca260035c55d0588e906caf7a16542d2c88d15b686a2532f"
+        "sha256": "881a726059f0ce3dd2451111b3bf4a7c82dee5b796d4976af4f7bb2630f17c49"
       },
       {
         "path": "lib/ibex/verify/language_witness.rb",
