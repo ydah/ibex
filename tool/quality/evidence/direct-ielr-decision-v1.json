@@ -8,7 +8,7 @@
     "basis": "repository_evidence",
     "review_state": "validated",
     "date": "2026-08-11",
-    "revision": "4c3a5346dbbfe84fce5a33e2b75d00e2fe074cc1",
+    "revision": "3f85ef193fbd6f8db84a56b809879232faf52c9b",
     "revision_role": "reviewed repository evidence immediately before dossier publication"
   },
   "follow_on": {
@@ -150,7 +150,7 @@
       {
         "id": "h005-machine-evidence",
         "path": "tool/profile/evidence/construction-profile-v1.json",
-        "sha256": "e45126afbd15821c7d11ca6823ebaf2b18ef7a7c41bbebd8002523a547721e14",
+        "sha256": "1b14d0f06503250f01e149ba9e41d3435d177b1089d84896739a348d6a7b6eff",
         "role": "machine-readable workload measurements, thresholds, decision, and capture provenance"
       },
       {
@@ -178,6 +178,6 @@
         "role": "current verifier checks reviewed by V001"
       }
     ],
-    "sources_sha256": "a1537b7eee848d9a4a204c8c47efb38fa61c4eedbeaa1eca4ef0e2ea99ff9d49"
+    "sources_sha256": "af339316c78902e23b667123e579634e507419bce5049297b48da926a9974b86"
   }
 }
