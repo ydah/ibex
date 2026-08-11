@@ -8,7 +8,7 @@
     "basis": "repository_evidence",
     "review_state": "validated",
     "date": "2026-08-11",
-    "revision": "dc47b8b74a104415b49c38735ef259ed8798c5fd",
+    "revision": "b38dc4eca3276fe0460db9614818940687baafe0",
     "revision_role": "reviewed repository evidence immediately before dossier publication"
   },
   "follow_on": {
@@ -136,7 +136,7 @@
     "rule": "future direct IELR design must remain independent; GPL implementation source must not be inspected or translated"
   },
   "evidence_identity": {
-    "profile_capture_base_revision": "fd666989f130a57046deafcf2b1d134c5c996502",
+    "profile_capture_base_revision": "caa07ee5c8e6775b1615b0fd90a5047d7e078b2f",
     "profile_bound_paths_sha256": "cefab3a0d6bc2210eb1d6ff7e6e55ffa1dc8fdae58783490dee6f6c95b066277",
     "profile_implementation_sha256": "b8501d92797e3009bee79fa66ad01ddf56655e337af95d2a630c3f9c66138b3e",
     "v001_revision": "c7e5cad89ccd00591f3127fdb76a789bbeb202ab",

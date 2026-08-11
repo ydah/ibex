@@ -20,7 +20,7 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "fd666989f130a57046deafcf2b1d134c5c996502",
+    "base_revision": "caa07ee5c8e6775b1615b0fd90a5047d7e078b2f",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": true,
     "capture_worktree_status": [],

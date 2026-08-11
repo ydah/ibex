@@ -20,7 +20,7 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "fd666989f130a57046deafcf2b1d134c5c996502",
+    "base_revision": "caa07ee5c8e6775b1615b0fd90a5047d7e078b2f",
     "base_revision_role": "Exact clean capture revision and parent of the committed evidence revision",
     "capture_worktree_clean": true,
     "capture_worktree_status": [],
@@ -1181,7 +1181,7 @@
     "heuristic_analysis_sha256": "1870a00b14aea7a46278e4b80e9bd60db4b499c343c7a7a90faf9c3923e27e76",
     "evidence_path": "tool/profile/evidence/lexer-profile-v1.json",
     "evidence_exclusion_reason": "the evidence file is excluded from its own digest to avoid circularity",
-    "capture_identity_sha256": "b1f105f5d1192e02450458269bb747172fe8b30a0bf52815f8ae863beeaeaf7b"
+    "capture_identity_sha256": "033e4239bf611c869d4cec1ffd4b24ea81a2844187f344284dc982923b34144f"
   },
   "measurement_policy": {
     "runtime_role": "diagnostic_observation_only",
