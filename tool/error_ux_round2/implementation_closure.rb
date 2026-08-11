@@ -5,6 +5,10 @@ module Ibex
     # Collects the repository-owned Ruby sources reachable from the H003 generator.
     class ImplementationClosure
       ENTRYPOINTS = ["tool/error_ux_round2.rb"].freeze
+      # Release metadata is loaded by the aggregate entrypoint but cannot alter
+      # the diagnostic behavior captured by H003. Excluding it keeps a version
+      # bump from invalidating a behavioral evidence snapshot.
+      RELEASE_METADATA_PATHS = %w[lib/ibex/version.rb lib/ibex/runtime/version.rb].freeze
       REQUIRE = /^\s*require(_relative)?\s+["']([^"']+)["']/
 
       def initialize(root:)
@@ -25,9 +29,11 @@ module Ibex
           next if visited.key?(path)
 
           visited[path] = true
+          next if RELEASE_METADATA_PATHS.include?(path)
+
           pending.concat(dependencies(path))
         end
-        visited.keys.sort
+        visited.keys.reject { |path| RELEASE_METADATA_PATHS.include?(path) }.sort
       end
 
       def dependencies(path)

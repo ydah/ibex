@@ -92,8 +92,17 @@ module Ibex
         test/fixtures/lexer_profile/unicode-property.y
       ].freeze
       SOURCE_DEPENDENCY_PATHS = LexerProfileDependencies::SOURCE_PATHS
-      BOUND_PATHS = (%w[
+      # Package metadata and release version constants are loaded by the
+      # aggregate graph but do not affect lexer construction or observations.
+      # Keep them out of the evidence binding so release bumps remain metadata
+      # changes rather than profile invalidations.
+      RELEASE_METADATA_PATHS = %w[
         ibex.gemspec
+        lib/ibex/version.rb
+        lib/ibex/runtime/version.rb
+      ].freeze
+      BOUND_SOURCE_DEPENDENCY_PATHS = (SOURCE_DEPENDENCY_PATHS - RELEASE_METADATA_PATHS).freeze
+      BOUND_PATHS = (%w[
         Rakefile
         docs/lexer-construction-profile.md
         docs/workloads.yml
@@ -109,8 +118,8 @@ module Ibex
         tool/profile/lexer_profiler.rb
         tool/quality/lexer_profile.rb
         tool/quality/lexer_profile_integrity.rb
-      ] + FIXTURE_PATHS + SOURCE_DEPENDENCY_PATHS).sort.freeze
-      IMPLEMENTATION_PATHS = (SOURCE_DEPENDENCY_PATHS + %w[
+      ] + FIXTURE_PATHS + BOUND_SOURCE_DEPENDENCY_PATHS).sort.freeze
+      IMPLEMENTATION_PATHS = (BOUND_SOURCE_DEPENDENCY_PATHS + %w[
         schema/lexer-profile-v1.schema.json
         tool/profile/lexer_profile_dependencies.rb
         tool/profile/lexer_profile_report.rb

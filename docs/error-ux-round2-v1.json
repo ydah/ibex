@@ -786,10 +786,6 @@
         "sha256": "7a792b78f825759d6ff11dbce5a33be679445bdfbb24875cea801c9df70951dd"
       },
       {
-        "path": "lib/ibex/runtime/version.rb",
-        "sha256": "9acea67d5f720d5eb0f7258e5b5870a90ff59a6eebde967fdf7e93966e7ed948"
-      },
-      {
         "path": "lib/ibex/samples.rb",
         "sha256": "d65c379dc456aea2facf0e482a7e90aa663f6668412063ea05992780b889cc25"
       },
@@ -854,10 +850,6 @@
         "sha256": "934ae84111581d2edd4230b06733f259bbf72839042a67c62d20558973af2e2e"
       },
       {
-        "path": "lib/ibex/version.rb",
-        "sha256": "aaba7a0260e012ab6a83f8da01fa108398f7d0e1ca6c01a0a77a00fb7cec34ea"
-      },
-      {
         "path": "lib/ibex/watch.rb",
         "sha256": "818710c2fc444ae7910bf98d3b3c0a2cedd425115936b4f10a659a52cc09ac33"
       },
@@ -883,7 +875,7 @@
       },
       {
         "path": "tool/error_ux_round2/implementation_closure.rb",
-        "sha256": "bbc4af872e7b9143904d867fbe1d025f15749a032a88e20d06937aca62647060"
+        "sha256": "60f1fac3f41ea5246809bb6050fb7bf74e442079df6c45d5b2d14fa88b14a1b2"
       },
       {
         "path": "tool/error_ux_round2/policy.rb",

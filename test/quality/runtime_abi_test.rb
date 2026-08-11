@@ -33,9 +33,11 @@ class RuntimeABITest < Minitest::Test
   end
 
   def test_rejects_stale_table_or_package_versions
+    current_generator_version = Ibex::VERSION
     {
       "current_writer: 6" => "current_writer: 7",
-      'generator: "0.2.0"' => 'generator: "0.2.1"'
+      %Q{generator: "#{current_generator_version}"} =>
+        %Q{generator: "#{current_generator_version}.stale"}
     }.each do |before, after|
       with_root do |root|
         replace(root, "docs/runtime-abi-evolution.md", before, after)
