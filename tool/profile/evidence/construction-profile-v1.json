@@ -20,7 +20,7 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "caa07ee5c8e6775b1615b0fd90a5047d7e078b2f",
+    "base_revision": "cae26cb57a5a82a71bc2574f61fd4504332b8504",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": true,
     "capture_worktree_status": [],
@@ -52,9 +52,9 @@
       },
       {
         "path": "docs/maturity.yml",
-        "sha256": "764bb6bf013a7f024a01edac0f14f376043a8c31e471681109a3f4fec8de8123",
+        "sha256": "3ef36d5c3814634754fe7349b8307ee3fe49d88a83efa1373211582c79998db3",
         "git_state": "base",
-        "base_sha256": "764bb6bf013a7f024a01edac0f14f376043a8c31e471681109a3f4fec8de8123"
+        "base_sha256": "3ef36d5c3814634754fe7349b8307ee3fe49d88a83efa1373211582c79998db3"
       },
       {
         "path": "docs/workloads.md",
@@ -273,7 +273,7 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "cefab3a0d6bc2210eb1d6ff7e6e55ffa1dc8fdae58783490dee6f6c95b066277",
+    "bound_paths_sha256": "b6c6aa97735009ab0cc40e808ecb61fdfcf6f57f70c0b173b05f42d0f0a03e95",
     "implementation_sha256": "b8501d92797e3009bee79fa66ad01ddf56655e337af95d2a630c3f9c66138b3e",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
