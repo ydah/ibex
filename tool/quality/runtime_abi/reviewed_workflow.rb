@@ -28,7 +28,8 @@ module Ibex
               "bundle exec rake test:ir_schema", "bundle exec rake test:no_exec",
               "bundle exec rake test:adversarial", "bundle exec rake gallery:build",
               "bundle exec rake gallery:conflicts", "bundle exec rake fuzz:short",
-              "bundle exec rake fuzz:injection", "bundle exec rake deps:zero",
+              "bundle exec rake fuzz:direct", "bundle exec rake fuzz:injection",
+              "bundle exec rake deps:zero",
               "bundle exec rake network:zero"
             )
           },
