@@ -159,8 +159,7 @@ class VerificationReportTest < Minitest::Test
 
   def test_validator_accepts_unicode_logical_basenames
     Dir.mktmpdir("ibex-verification-report") do |directory|
-      input = input_for(directory, SOURCE,
-                        basename: "文法.y".b.force_encoding(Encoding::ASCII_8BIT))
+      input = input_for(directory, SOURCE, basename: "文法.y")
       value = build_automaton(SOURCE, input.path)
       document = Ibex::VerificationReport.validate(
         render_report(value, input, table_path: "表.ibex.json")
@@ -169,6 +168,14 @@ class VerificationReportTest < Minitest::Test
       assert_equal "input/0000/文法.y", document.dig("input", "files", 0, "logical_path")
       assert_equal "table/表.ibex.json", document.dig("table", "logical_path")
     end
+  end
+
+  def test_json_serializer_normalizes_binary_utf8_strings
+    logical_path = "input/0000/文法.y".b
+    document = JSON.parse(Ibex::TableArtifact::Serializer.compact("logical_path" => logical_path))
+
+    assert_equal "input/0000/文法.y", document.fetch("logical_path")
+    assert_equal Encoding::UTF_8, document.fetch("logical_path").encoding
   end
 
   private
