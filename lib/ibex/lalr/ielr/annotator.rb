@@ -81,7 +81,7 @@ module Ibex
           end
         end
 
-        # @rbs (Integer state_id, Integer token_id) -> Array[Array[Symbol, Integer?]]
+        # @rbs (Integer state_id, Integer token_id) -> Array[[Symbol, Integer?]]
         def contributions_for(state_id, token_id)
           reductions = @items.fetch(state_id).filter_map do |(production_id, dot), lookaheads|
             next unless dot == rhs_for(production_id).length && lookaheads.include?(token_id)

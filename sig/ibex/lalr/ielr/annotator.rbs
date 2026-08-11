@@ -26,8 +26,8 @@ module Ibex
         # @rbs (Integer state_id) -> Array[Inadequacy]
         def build_inadequacies: (Integer state_id) -> Array[Inadequacy]
 
-        # @rbs (Integer state_id, Integer token_id) -> Array[Array[Symbol, Integer?]]
-        def contributions_for: (Integer state_id, Integer token_id) -> Array[[Symbol, Integer?]]
+        # @rbs (Integer state_id, Integer token_id) -> Array[[Symbol, Integer?]]
+        def contributions_for: (Integer state_id, Integer token_id) -> Array[[ Symbol, Integer? ]]
 
         # @rbs (Integer state_id, Inadequacy inadequacy) -> Annotation
         def annotate_manifestation: (Integer state_id, Inadequacy inadequacy) -> Annotation

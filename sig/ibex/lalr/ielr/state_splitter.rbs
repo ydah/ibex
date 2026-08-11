@@ -21,6 +21,7 @@ module Ibex
 
         # @rbs (IR::Grammar grammar, Array[core_set] states, transitions transitions,
         #   Array[packed_items] items, GotoFollows goto_follows, ?resolver: ConflictResolver?) -> void
+        # rubocop:disable Metrics/AbcSize -- initialization wires the phase tables once.
         def initialize: (IR::Grammar grammar, Array[core_set] states, transitions transitions, Array[packed_items] items, GotoFollows goto_follows, ?resolver: ConflictResolver?) -> void
 
         # @rbs () -> [Array[packed_items], transitions]

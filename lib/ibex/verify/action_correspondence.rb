@@ -5,8 +5,11 @@
 
 module Ibex
   module Verify
+    # @rbs! type correspondence_action = IR::parser_action
+
     # Compares resolved ACTION/GOTO behavior over all paired viable prefixes.
     class ActionCorrespondence
+      # @rbs skip
       Difference = Struct.new(:kind, :canonical_state, :target_state, :symbol, :canonical, :target,
                               keyword_init: true) do
         def initialize(**values)
@@ -14,11 +17,30 @@ module Ibex
           freeze
         end
       end
+      # @rbs skip
       Result = Struct.new(:differences, :explored, :truncated, keyword_init: true) do
         def ok?
           differences.empty? && !truncated
         end
       end
+
+      # @rbs!
+      #   class Difference < Struct[Symbol | Integer? | correspondence_action?]
+      #     attr_accessor kind: Symbol
+      #     attr_accessor canonical_state: Integer
+      #     attr_accessor target_state: Integer
+      #     attr_accessor symbol: Integer?
+      #     attr_accessor canonical: correspondence_action?
+      #     attr_accessor target: correspondence_action?
+      #     def self.new: (kind: Symbol, canonical_state: Integer, target_state: Integer, symbol: Integer?, canonical: correspondence_action?, target: correspondence_action?) -> instance
+      #   end
+      #   class Result < Struct[Array[Difference] | Integer | bool]
+      #     attr_accessor differences: Array[Difference]
+      #     attr_accessor explored: Integer
+      #     attr_accessor truncated: bool
+      #     def self.new: (differences: Array[Difference], explored: Integer, truncated: bool) -> instance
+      #     def ok?: () -> bool
+      #   end
 
       # @rbs (IR::Automaton canonical, IR::Automaton target, ?max_pairs: Integer) -> void
       def initialize(canonical, target, max_pairs: nil)

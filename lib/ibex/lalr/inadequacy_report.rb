@@ -8,6 +8,9 @@ require_relative "../verify/action_correspondence"
 
 module Ibex
   module LALR
+    # @rbs! type report_value = String | Symbol | Integer | bool | nil | IR::parser_action |
+    #   Array[report_value] | Hash[Symbol, report_value]
+
     # Diagnostic-only report for canonical-vs-LALR action differences.  It is
     # intentionally separate from normal construction because it enumerates a
     # canonical LR(1) reference.

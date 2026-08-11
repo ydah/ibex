@@ -41,7 +41,15 @@ module Ibex
     #     canonical_items: Integer?,
     #     propagation_edges: Integer?,
     #     ielr_initial_partitions: Integer?,
-    #     ielr_final_partitions: Integer?
+    #     ielr_final_partitions: Integer?,
+    #     ielr_annotations: Integer?,
+    #     ielr_annotated_states: Integer?,
+    #     ielr_inadequacies: Integer?,
+    #     ielr_split_stable_discarded: Integer?,
+    #     ielr_lalr_states: Integer?,
+    #     ielr_split_states: Integer?,
+    #     ielr_unreachable_removed: Integer?,
+    #     ielr_remergeable_candidates: Integer?
     #   }
     #   type conflict_fingerprint = [Symbol, String, Array[Integer]]
     #   type lookahead_node = [Integer, Integer, Integer]
