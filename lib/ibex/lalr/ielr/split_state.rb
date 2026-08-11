@@ -12,7 +12,8 @@ module Ibex
       #     attr_accessor core: Array[item_core]
       #     attr_accessor transitions: Array[[Integer, Integer]]
       #     attr_accessor lalr_isocore: Integer
-      #     def self.new: (core: Array[item_core], transitions: Array[[Integer, Integer]], lalr_isocore: Integer) -> instance
+      #     def self.new: (core: Array[item_core], transitions: Array[[Integer, Integer]],
+      #       lalr_isocore: Integer) -> instance
       #   end
     end
   end

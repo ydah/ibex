@@ -32,7 +32,8 @@ module Ibex
       #     attr_accessor symbol: Integer?
       #     attr_accessor canonical: correspondence_action?
       #     attr_accessor target: correspondence_action?
-      #     def self.new: (kind: Symbol, canonical_state: Integer, target_state: Integer, symbol: Integer?, canonical: correspondence_action?, target: correspondence_action?) -> instance
+      #     def self.new: (kind: Symbol, canonical_state: Integer, target_state: Integer,
+      #       symbol: Integer?, canonical: correspondence_action?, target: correspondence_action?) -> instance
       #   end
       #   class Result < Struct[Array[Difference] | Integer | bool]
       #     attr_accessor differences: Array[Difference]
