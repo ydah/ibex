@@ -11,7 +11,7 @@
     "strict": { "type": "boolean" },
     "checks": {
       "type": "array",
-      "items": { "enum": ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8"] },
+        "items": { "enum": ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9"] },
       "uniqueItems": true
     },
     "bounds": {
@@ -30,7 +30,7 @@
         "type": "object",
         "required": ["id", "location", "message"],
         "properties": {
-          "id": { "enum": ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8"] },
+          "id": { "enum": ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9"] },
           "location": { "type": "string" },
           "message": { "type": "string" }
         },
