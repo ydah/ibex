@@ -4960,7 +4960,7 @@ registrations:
 - id: lib/ibex/cli/impact.rb#impact_option_parser#--algorithm=NAME
   source: lib/ibex/cli/impact.rb
   method: impact_option_parser
-  line: 67
+  line: 66
   declaration_sha256: 0ea734cec697453c0cd6fd6b1a50007a643de8258d8f6cd2be9bdb14e790be12
   context_sha256:
   surface: impact
@@ -4989,7 +4989,7 @@ registrations:
 - id: lib/ibex/cli/impact.rb#impact_option_parser#--baseline=PATH
   source: lib/ibex/cli/impact.rb
   method: impact_option_parser
-  line: 62
+  line: 61
   declaration_sha256: 3e75bf2c4e1b109bb3e1f869240fcacf9d68d92a2c6defdcb86618296a471afe
   context_sha256:
   surface: impact
@@ -5018,7 +5018,7 @@ registrations:
 - id: lib/ibex/cli/impact.rb#impact_option_parser#--coverage=PATH
   source: lib/ibex/cli/impact.rb
   method: impact_option_parser
-  line: 61
+  line: 60
   declaration_sha256: 4f03f26acd4c3973a96f407e14c7688dc996d0ce5beb81177e9f0c1b07190b86
   context_sha256:
   surface: impact
@@ -5047,7 +5047,7 @@ registrations:
 - id: lib/ibex/cli/impact.rb#impact_option_parser#--depth=N
   source: lib/ibex/cli/impact.rb
   method: impact_option_parser
-  line: 52
+  line: 51
   declaration_sha256: eb83e7d2607a511c5476071807cbcc62b474a782c7e520c7ed8c098402c00089
   context_sha256:
   surface: impact
@@ -5076,7 +5076,7 @@ registrations:
 - id: lib/ibex/cli/impact.rb#impact_option_parser#--fail-on=LIST
   source: lib/ibex/cli/impact.rb
   method: impact_option_parser
-  line: 64
+  line: 63
   declaration_sha256: f6288aaa7a1d015f8fb768d55703d3c2ffc562a875f573a45cdf37f48f833bc0
   context_sha256:
   surface: impact
@@ -5105,7 +5105,7 @@ registrations:
 - id: lib/ibex/cli/impact.rb#impact_option_parser#--format=FORMAT
   source: lib/ibex/cli/impact.rb
   method: impact_option_parser
-  line: 74
+  line: 73
   declaration_sha256: 03d0ea46cc73dfd89e8e1d7db753efada82431442e23693be017d52738438776
   context_sha256:
   surface: impact
@@ -5134,7 +5134,7 @@ registrations:
 - id: lib/ibex/cli/impact.rb#impact_option_parser#--help
   source: lib/ibex/cli/impact.rb
   method: impact_option_parser
-  line: 75
+  line: 74
   declaration_sha256: 755ed0e58917fe980e92adc77f206959febc69f4af5490e4f9966c77e28af457
   context_sha256:
   surface: impact
@@ -5163,7 +5163,7 @@ registrations:
 - id: lib/ibex/cli/impact.rb#impact_option_parser#--kind=LIST
   source: lib/ibex/cli/impact.rb
   method: impact_option_parser
-  line: 57
+  line: 56
   declaration_sha256: d0261aaffb87e57503946388cfe1b5111e20939ec6e404c8ddf1e1177e35f0e9
   context_sha256:
   surface: impact
@@ -5192,7 +5192,7 @@ registrations:
 - id: lib/ibex/cli/impact.rb#impact_option_parser#--mode=MODE
   source: lib/ibex/cli/impact.rb
   method: impact_option_parser
-  line: 70
+  line: 69
   declaration_sha256: 340150aeb982167de31111889e5860eca10fc68a0cc971c18461785be7ad2d4c
   context_sha256:
   surface: impact
@@ -5221,7 +5221,7 @@ registrations:
 - id: lib/ibex/cli/impact.rb#impact_option_parser#--severity=LEVEL
   source: lib/ibex/cli/impact.rb
   method: impact_option_parser
-  line: 58
+  line: 57
   declaration_sha256: e1e3d1d65291671f83f86502a70ed83d89bcce39065ffd61daa4ccc4c5a48996
   context_sha256:
   surface: impact
@@ -5250,7 +5250,7 @@ registrations:
 - id: lib/ibex/cli/impact.rb#impact_option_parser#--symbol=NAME[,NAME]
   source: lib/ibex/cli/impact.rb
   method: impact_option_parser
-  line: 49
+  line: 48
   declaration_sha256: 2af44a39b4a906d34b1fd93ee3390349988ef503d6eafc96f866cbc52ad877d0
   context_sha256:
   surface: impact
@@ -5279,7 +5279,7 @@ registrations:
 - id: lib/ibex/cli/impact.rb#impact_option_parser#--update-baseline
   source: lib/ibex/cli/impact.rb
   method: impact_option_parser
-  line: 63
+  line: 62
   declaration_sha256: 28560f39541c860116cbc6c16a7089ba25cc8062e682883e14e90b3e742dac60
   context_sha256:
   surface: impact
