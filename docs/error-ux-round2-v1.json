@@ -11,7 +11,7 @@
     "implementation_sources": [
       {
         "path": "lib/ibex.rb",
-        "sha256": "8da8f2b43bd71fbf359aba4d28d23fc4366b9b4a696a35ecb2eea9dbed0d889a"
+        "sha256": "d55ef0e0d5a3e4647eee23093055574078e26a99338a64162aa8cdabaa05b129"
       },
       {
         "path": "lib/ibex/analysis.rb",
@@ -23,7 +23,7 @@
       },
       {
         "path": "lib/ibex/analysis/sets.rb",
-        "sha256": "9fd97106dacd8dea5f342a422c961a6e71a94370bf97bbabf6abe201137a180d"
+        "sha256": "23356c106d47467f1d52f4d2bad4e8e29caf8a55b74fb245e6307b8275fc5027"
       },
       {
         "path": "lib/ibex/artifact_set.rb",
@@ -360,6 +360,42 @@
       {
         "path": "lib/ibex/grammar_tests.rb",
         "sha256": "9b14fcf8b027ce005d270976679da3af223a0ed3f555aaa53593a6f3761ab29a"
+      },
+      {
+        "path": "lib/ibex/impact.rb",
+        "sha256": "dfb95aa512bb4ea481b67576f1e7630feaca79ab4985d8cd3be458bd947fb8c6"
+      },
+      {
+        "path": "lib/ibex/impact/action_impact.rb",
+        "sha256": "deb4a936f5a5a2580784e534e526a6ffa889976f0653b651afa0945de2ce985f"
+      },
+      {
+        "path": "lib/ibex/impact/automaton_impact.rb",
+        "sha256": "3fbe18acdf72dabfaceda0272d0f3ebcf98bbe230428d5a803ae360151191a77"
+      },
+      {
+        "path": "lib/ibex/impact/coverage_impact.rb",
+        "sha256": "3b971a44b77cc82aa19d07f4da2105c54d500f66126cf68e77bf94cae3b5ba5e"
+      },
+      {
+        "path": "lib/ibex/impact/graph.rb",
+        "sha256": "604a9638472e96bab9797287259c88ceaf12630c346b00de04357ba9510a6465"
+      },
+      {
+        "path": "lib/ibex/impact/propagation.rb",
+        "sha256": "c88d91bf8cfd9e5475cb0140ec8ec738d0c824a81edeb5c7c724bf7a04e3b8fd"
+      },
+      {
+        "path": "lib/ibex/impact/report.rb",
+        "sha256": "359f6c8d6a6d0701c517a0c56a893273136942b38bd87b66050606ed2002b03d"
+      },
+      {
+        "path": "lib/ibex/impact/seeds.rb",
+        "sha256": "757b75afa20296f11ff515f6404f6ef2cbcb42dc8959fa3de98b29fa33f9ef92"
+      },
+      {
+        "path": "lib/ibex/impact/severity.rb",
+        "sha256": "eff5da3b02f3a0c7fbc4d9314eb432cf57548acf7a84f16951ce5b510dd716aa"
       },
       {
         "path": "lib/ibex/ir.rb",

@@ -233,10 +233,10 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
     inventory = document
     entries = inventory.fetch("registrations")
 
-    assert_equal 187, inventory.dig("scope", "call_site_count")
-    assert_equal 196, inventory.dig("scope", "runtime_registration_count")
+    assert_equal 199, inventory.dig("scope", "call_site_count")
+    assert_equal 208, inventory.dig("scope", "runtime_registration_count")
     assert_equal ["exe/*", "lib/**/*.rb"], inventory.dig("scope", "source_globs")
-    assert_equal(214, entries.sum { |entry| entry.fetch("effective_spellings").length })
+    assert_equal(226, entries.sum { |entry| entry.fetch("effective_spellings").length })
 
     fix = entries.select { |entry| entry.fetch("method") == "add_fix_budget_options" }
     imports = entries.select { |entry| entry.fetch("method") == "add_bison_import_budgets" }
