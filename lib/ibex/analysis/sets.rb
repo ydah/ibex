@@ -7,6 +7,11 @@ module Ibex
       attr_reader :nullable_bits #: Integer
       attr_reader :first_bits #: Array[Integer]
       attr_reader :follow_bits #: Array[Integer]
+      # The index is a symbol id; each value lists the symbols that must be
+      # recomputed when the indexed symbol's set changes. These edges already
+      # point in the impact-propagation direction.
+      attr_reader :first_dependencies #: Array[Array[Integer]]
+      attr_reader :follow_dependencies #: Array[Array[Integer]]
 
       # @rbs @grammar: IR::Grammar
 
@@ -16,6 +21,8 @@ module Ibex
         @nullable_bits = 0
         @first_bits = Array.new(grammar.symbols.length, 0)
         @follow_bits = Array.new(grammar.symbols.length, 0)
+        @first_dependencies = []
+        @follow_dependencies = []
         grammar.terminals.each { |terminal| @first_bits[terminal.id] = bit(terminal.id) }
         compute_nullable
         compute_first
@@ -99,6 +106,7 @@ module Ibex
           end
         end
 
+        @first_dependencies = freeze_dependencies(dependencies)
         propagate_bits(@first_bits, dependencies, @grammar.terminals.map(&:id))
       end
 
@@ -112,8 +120,14 @@ module Ibex
         end
         dependencies = Array.new(@grammar.symbols.length) { [] }
         @grammar.productions.each { |production| initialize_follow(production, dependencies) }
+        @follow_dependencies = freeze_dependencies(dependencies)
         seeds = @grammar.nonterminals.filter_map { |symbol| symbol.id unless @follow_bits[symbol.id].zero? }
         propagate_bits(@follow_bits, dependencies, seeds)
+      end
+
+      # @rbs (Array[Array[Integer]] dependencies) -> Array[Array[Integer]]
+      def freeze_dependencies(dependencies)
+        dependencies.map { |targets| targets.uniq.sort.freeze }.freeze
       end
 
       # @rbs (IR::Production production, Array[Array[Integer]] dependencies) -> void

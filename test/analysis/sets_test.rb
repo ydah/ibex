@@ -49,6 +49,25 @@ class AnalysisSetsTest < Minitest::Test
     assert_equal ["'z'", "'x'"], names
   end
 
+  def test_exposes_dependencies_in_impact_direction
+    parsed = grammar(<<~GRAMMAR)
+      class P
+      rule
+      start: pair
+      pair: value
+      value: 'x'
+      end
+    GRAMMAR
+    sets = Ibex::Analysis::Sets.new(parsed)
+
+    assert_equal [parsed.symbol("start").id], sets.first_dependencies.fetch(parsed.symbol("pair").id)
+    assert_equal [parsed.symbol("pair").id], sets.first_dependencies.fetch(parsed.symbol("value").id)
+    assert_equal [parsed.symbol("value").id], sets.follow_dependencies.fetch(parsed.symbol("pair").id)
+    assert sets.first_dependencies.frozen?
+    assert sets.first_dependencies.all?(&:frozen?)
+    assert sets.follow_dependencies.frozen?
+  end
+
   def test_handles_a_thousand_productions_within_target
     rules = (0...1000).map do |index|
       rhs = index == 999 ? "'end'" : "n#{index + 1}"
