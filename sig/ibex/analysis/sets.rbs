@@ -10,6 +10,13 @@ module Ibex
 
       attr_reader follow_bits: Array[Integer]
 
+      # The index is a symbol id; each value lists the symbols that must be
+      # recomputed when the indexed symbol's set changes. These edges already
+      # point in the impact-propagation direction.
+      attr_reader first_dependencies: Array[Array[Integer]]
+
+      attr_reader follow_dependencies: Array[Array[Integer]]
+
       @grammar: IR::Grammar
 
       # @rbs (IR::Grammar grammar) -> void
@@ -43,6 +50,9 @@ module Ibex
 
       # @rbs () -> void
       def compute_follow: () -> void
+
+      # @rbs (Array[Array[Integer]] dependencies) -> Array[Array[Integer]]
+      def freeze_dependencies: (Array[Array[Integer]] dependencies) -> Array[Array[Integer]]
 
       # @rbs (IR::Production production, Array[Array[Integer]] dependencies) -> void
       def initialize_follow: (IR::Production production, Array[Array[Integer]] dependencies) -> void

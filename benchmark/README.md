@@ -168,6 +168,19 @@ benchmark/examples.rb --generation-iterations 3 --runtime-iterations 100
 This second benchmark measures a complete grammar-to-Ruby build and repeated parses for every smaller example variant. `--json`
 emits results suitable for local comparison.
 
+Measure the impact-analysis dependency retention and graph construction on the
+representative grammar with:
+
+```sh
+bundle exec ruby benchmark/impact.rb --iterations 3
+bundle exec ruby benchmark/impact.rb --iterations 3 --json
+```
+
+The report separates `Analysis::Sets` construction from graph construction and
+records dependency/edge counts and allocated objects. It is a local regression
+observation for the retained dependency metadata; it is not a portable speed
+claim or a CI threshold.
+
 The runtime-event instrumentation boundary has a separate construction-count probe with no timing threshold:
 
 ```sh

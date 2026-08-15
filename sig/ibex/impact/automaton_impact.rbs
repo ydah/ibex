@@ -1,0 +1,34 @@
+# Generated from lib/ibex/impact/automaton_impact.rb with RBS::Inline
+
+module Ibex
+  module Impact
+    # Maps propagated grammar symbols to parser states and conflict changes.
+    class AutomatonImpact
+      attr_reader affected_states: Array[Integer]
+
+      attr_reader production_ids: Array[Integer]
+
+      attr_reader conflict_states: Array[Integer]
+
+      # @rbs (IR::Automaton automaton, Array[Integer]) -> void
+      def initialize: (IR::Automaton automaton, Array[Integer]) -> void
+
+      # @rbs (Hash[Symbol, Object?] diff) -> Hash[Symbol, Object?]
+      def conflict_changes: (Hash[Symbol, Object?] diff) -> Hash[Symbol, Object?]
+
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h: () -> Hash[Symbol, Object?]
+
+      private
+
+      # @rbs () -> Array[Integer]
+      def affected_productions: () -> Array[Integer]
+
+      # @rbs () -> Array[Integer]
+      def affected_state_ids: () -> Array[Integer]
+
+      # @rbs () -> Array[Integer]
+      def conflict_state_ids: () -> Array[Integer]
+    end
+  end
+end

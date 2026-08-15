@@ -25,6 +25,8 @@ require_relative "lalr/inadequacy_report"
 require_relative "lalr/direct_lookaheads"
 require_relative "lalr/ielr_partition"
 require_relative "lalr/builder"
+require_relative "lalr/unreachable_states"
+require_relative "impact"
 require_relative "codegen/ruby"
 require_relative "cli/counterexample_options"
 require_relative "cli/generation_error_messages"
@@ -35,6 +37,7 @@ module Ibex
   CLI_FEATURE_ROOT = File.expand_path("cli", __dir__ || raise("CLI source directory is unavailable")) #: String
   autoload :CLIAmbiguity, File.join(CLI_FEATURE_ROOT, "ambiguity")
   autoload :CLIAnalysis, File.join(CLI_FEATURE_ROOT, "analysis")
+  autoload :CLIImpact, File.join(CLI_FEATURE_ROOT, "impact")
   autoload :CLIBisonImport, File.join(CLI_FEATURE_ROOT, "bison_import")
   autoload :CLICoverage, File.join(CLI_FEATURE_ROOT, "coverage")
   autoload :CLIDebug, File.join(CLI_FEATURE_ROOT, "debug")
@@ -152,6 +155,7 @@ module Ibex
     SUBCOMMAND_HANDLERS = {
       "check" => %i[CLIAmbiguity run_check_command],
       "diff" => %i[CLIAnalysis run_diff_command],
+      "impact" => %i[CLIImpact run_impact_command],
       "diagnose" => %i[CLIDiagnostics run_diagnose_command],
       "coverage" => %i[CLICoverage run_coverage_command], "config" => %i[CLIConfig run_config_command],
       "debug" => %i[CLIDebug run_debug_command],
@@ -374,6 +378,7 @@ module Ibex
       options.separator("    debug AUTOMATON [TOKEN]  simulate validated Automaton IR tables")
       options.separator("    diagnose                  collect frontend diagnostics")
       options.separator("    diff OLD NEW              classify grammar and automaton changes")
+      options.separator("    impact GRAMMAR            report grammar change propagation")
       options.separator("    doc                       render grammar documentation")
       options.separator("    errors --list|--update  list or update example-keyed syntax error messages")
       options.separator("    equiv LEFT RIGHT          search for bounded language differences")

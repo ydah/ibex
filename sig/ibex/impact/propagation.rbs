@@ -1,0 +1,56 @@
+# Generated from lib/ibex/impact/propagation.rb with RBS::Inline
+
+module Ibex
+  module Impact
+    # One shortest witness for a symbol reached by dependency propagation.
+    class Node
+      attr_reader symbol: Integer
+
+      attr_reader distance: Integer
+
+      attr_reader witness: Array[Edge]
+
+      attr_reader kind: Symbol
+
+      attr_reader component: Array[Integer]
+
+      # @rbs (symbol: Integer, distance: Integer, witness: Array[Edge], kind: Symbol, component: Array[Integer]) -> void
+      def initialize: (symbol: Integer, distance: Integer, witness: Array[Edge], kind: Symbol, component: Array[Integer]) -> void
+    end
+
+    # Performs deterministic forward propagation over a dependency graph.
+    class Propagation
+      # @rbs (Graph graph) -> void
+      def initialize: (Graph graph) -> void
+
+      # @rbs (Array[Integer] seeds, Symbol kind, ?max_depth: Integer?) -> Hash[Integer, Node]
+      def propagate: (Array[Integer] seeds, Symbol kind, ?max_depth: Integer?) -> Hash[Integer, Node]
+
+      alias call propagate
+
+      private
+
+      # @rbs (Integer?) -> void
+      def validate_depth: (Integer?) -> void
+
+      # @rbs (Array[Integer]) -> Array[Integer]
+      def normalize_seeds: (Array[Integer]) -> Array[Integer]
+
+      # @rbs (Array[Array[Integer]], Integer) -> Array[Integer]
+      def component_index: (Array[Array[Integer]], Integer) -> Array[Integer]
+
+      # @rbs (Array[Array[Integer]], Array[Integer], Integer) -> [Array[Array[Integer]], Hash[[Integer, Integer], Edge]]
+      def component_adjacency: (Array[Array[Integer]], Array[Integer], Integer) -> [ Array[Array[Integer]], Hash[[ Integer, Integer ], Edge] ]
+
+      # @rbs (Array[Integer], Array[Integer], Array[Array[Integer]],
+      #   Hash[[Integer, Integer], Edge], Integer?) -> Hash[Integer, [Integer, Array[Edge]]]
+      def traverse_components: (Array[Integer], Array[Integer], Array[Array[Integer]], Hash[[ Integer, Integer ], Edge], Integer?) -> Hash[Integer, [ Integer, Array[Edge] ]]
+
+      # @rbs (Integer, Integer) -> Edge
+      def edge_between: (Integer, Integer) -> Edge
+
+      # @rbs (Hash[Integer, [Integer, Array[Edge]]], Array[Array[Integer]], Symbol) -> Hash[Integer, Node]
+      def build_nodes: (Hash[Integer, [ Integer, Array[Edge] ]], Array[Array[Integer]], Symbol) -> Hash[Integer, Node]
+    end
+  end
+end

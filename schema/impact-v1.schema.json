@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ydah/ibex/main/schema/impact-v1.schema.json",
+  "title": "Ibex grammar impact report v1",
+  "type": "object",
+  "required": ["ibex_report", "schema_version", "mode", "algorithm", "grammar_digest", "seeds", "symbols", "automaton", "actions", "coverage", "warnings", "totals"],
+  "properties": {
+    "ibex_report": { "const": "impact" },
+    "schema_version": { "const": 1 },
+    "mode": { "enum": ["potential", "diff"] },
+    "algorithm": { "enum": ["slr", "lalr1", "ielr1", "lr1"] },
+    "grammar_digest": {
+      "type": "object",
+      "required": ["before", "after"],
+      "properties": {
+        "before": { "type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$" },
+        "after": { "type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$" }
+      },
+      "additionalProperties": false
+    },
+    "seeds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["symbol", "origin", "nullable_boundary"],
+        "properties": {
+          "symbol": { "type": "string" },
+          "origin": { "enum": ["symbol", "diff"] },
+          "nullable_boundary": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      },
+      "maxItems": 100000
+    },
+    "symbols": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/symbol" },
+      "maxItems": 100000
+    },
+    "automaton": {
+      "type": "object",
+      "required": ["states", "affected_states", "conflicts", "unreachable"],
+      "properties": {
+        "states": {
+          "type": "object",
+          "required": ["before", "after", "delta"],
+          "properties": {
+            "before": { "type": ["integer", "null"], "minimum": 0 },
+            "after": { "type": "integer", "minimum": 0 },
+            "delta": { "type": ["integer", "null"] }
+          },
+          "additionalProperties": false
+        },
+        "affected_states": { "type": "array", "items": { "type": "integer", "minimum": 0 }, "uniqueItems": true },
+        "conflicts": { "$ref": "#/$defs/classification" },
+        "unreachable": { "type": "array", "items": { "type": "integer", "minimum": 0 }, "uniqueItems": true }
+      },
+      "additionalProperties": false
+    },
+    "actions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/action" },
+      "maxItems": 100000
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["status", "reports"],
+      "properties": {
+        "status": { "enum": ["not_requested", "matched", "unmatched"] },
+        "reports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "productions"],
+            "properties": {
+              "path": { "type": "string" },
+              "productions": { "type": "array", "items": { "type": "integer", "minimum": 0 }, "uniqueItems": true }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "warnings": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "totals": {
+      "type": "object",
+      "required": ["info", "low", "medium", "high", "critical"],
+      "properties": {
+        "info": { "type": "integer", "minimum": 0 },
+        "low": { "type": "integer", "minimum": 0 },
+        "medium": { "type": "integer", "minimum": 0 },
+        "high": { "type": "integer", "minimum": 0 },
+        "critical": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "classification": {
+      "type": "object",
+      "required": ["added", "removed", "changed"],
+      "properties": {
+        "added": { "type": "array", "items": { "type": "object" } },
+        "removed": { "type": "array", "items": { "type": "object" } },
+        "changed": { "type": "array", "items": { "type": "object" } }
+      },
+      "additionalProperties": false
+    },
+    "change": {
+      "type": "object",
+      "required": ["added", "removed"],
+      "properties": {
+        "added": { "type": "array", "items": { "type": "string" } },
+        "removed": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "symbol": {
+      "type": "object",
+      "required": ["symbol", "severity", "kinds", "distance", "component", "sets", "witness"],
+      "properties": {
+        "symbol": { "type": "string" },
+        "severity": { "enum": ["info", "low", "medium", "high", "critical"] },
+        "kinds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "distance": { "type": "integer", "minimum": 0 },
+        "component": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "sets": {
+          "type": "object",
+          "required": ["first", "follow", "nullable"],
+          "properties": {
+            "first": { "$ref": "#/$defs/change" },
+            "follow": { "$ref": "#/$defs/change" },
+            "nullable": {
+              "type": ["object", "null"],
+              "required": ["before", "after"],
+              "properties": { "before": { "type": "boolean" }, "after": { "type": "boolean" } },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "witness": { "type": "array", "items": { "$ref": "#/$defs/witness" } }
+      },
+      "additionalProperties": false
+    },
+    "witness": {
+      "type": "object",
+      "required": ["from", "to", "production", "loc"],
+      "properties": {
+        "from": { "type": "string" },
+        "to": { "type": "string" },
+        "production": { "type": ["string", "null"] },
+        "loc": {
+          "type": ["object", "null"],
+          "properties": {
+            "file": { "type": "string" },
+            "line": { "type": "integer", "minimum": 1 },
+            "column": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "action": {
+      "type": "object",
+      "required": ["production", "severity", "reason", "context_length", "loc"],
+      "properties": {
+        "production": { "type": "string" },
+        "severity": { "enum": ["medium", "high"] },
+        "reason": { "type": "string" },
+        "context_length": {
+          "type": "object",
+          "required": ["before", "after"],
+          "properties": { "before": { "type": "integer", "minimum": 0 }, "after": { "type": "integer", "minimum": 0 } },
+          "additionalProperties": false
+        },
+        "loc": { "$ref": "#/$defs/witness/properties/loc" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

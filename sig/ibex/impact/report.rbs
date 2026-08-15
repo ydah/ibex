@@ -1,0 +1,57 @@
+# Generated from lib/ibex/impact/report.rb with RBS::Inline
+
+module Ibex
+  module Impact
+    # Builds the deterministic public impact-v1 document.
+    class Report
+      # @rbs (mode: String, algorithm: String, grammar: IR::Grammar, before: IR::Automaton?, after: IR::Automaton?,
+      #   seeds: Array[Hash[Symbol, Object?]], nodes: Hash[Integer, Node], symbol_kinds: Hash[Integer, Array[String]],
+      #   set_changes: Hash[String, Hash[Symbol, Object?]], automaton: Hash[Symbol, Object?],
+      #   actions: Array[Hash[Symbol, Object?]], coverage: Hash[Symbol, Object?], ?minimum: String,
+      #   ?warnings: Array[String]) -> void
+      # rubocop:disable Metrics/ParameterLists
+      def initialize: (mode: String, algorithm: String, grammar: IR::Grammar, before: IR::Automaton?, after: IR::Automaton?, seeds: Array[Hash[Symbol, Object?]], nodes: Hash[Integer, Node], symbol_kinds: Hash[Integer, Array[String]], set_changes: Hash[String, Hash[Symbol, Object?]], automaton: Hash[Symbol, Object?], actions: Array[Hash[Symbol, Object?]], coverage: Hash[Symbol, Object?], ?minimum: String, ?warnings: Array[String]) -> void
+
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h: () -> Hash[Symbol, Object?]
+
+      private
+
+      # @rbs () -> Array[Hash[Symbol, Object?]]
+      def symbol_documents: () -> Array[Hash[Symbol, Object?]]
+
+      # @rbs (Integer) -> Hash[Symbol, Object?]?
+      def symbol_document: (Integer) -> Hash[Symbol, Object?]?
+
+      # @rbs (Integer) -> bool
+      def nonterminal?: (Integer) -> bool
+
+      # @rbs (String, Array[String]) -> String
+      def document_severity: (String, Array[String]) -> String
+
+      # @rbs (Node?, Integer) -> Array[String]
+      def component_names: (Node?, Integer) -> Array[String]
+
+      # @rbs (String kind) -> String
+      def kind_severity: (String kind) -> String
+
+      # @rbs (String name, String current) -> String
+      def action_severity: (String name, String current) -> String
+
+      # @rbs () -> Hash[Symbol, Array[String]]
+      def empty_change: () -> Hash[Symbol, Array[String]]
+
+      # @rbs (Array[Edge]) -> Array[Hash[Symbol, Object?]]
+      def witness_documents: (Array[Edge]) -> Array[Hash[Symbol, Object?]]
+
+      # @rbs (Integer) -> String
+      def symbol_name: (Integer) -> String
+
+      # @rbs (IR::Production?) -> String?
+      def production_shape: (IR::Production?) -> String?
+
+      # @rbs (Array[Hash[Symbol, Object?]], Array[Hash[Symbol, Object?]]) -> Hash[Symbol, Integer]
+      def totals: (Array[Hash[Symbol, Object?]], Array[Hash[Symbol, Object?]]) -> Hash[Symbol, Integer]
+    end
+  end
+end

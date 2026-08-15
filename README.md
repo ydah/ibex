@@ -99,6 +99,7 @@ convenient. Use `--check` in CI to detect stale generated output.
 | --- | --- | --- |
 | Compatible mode | Existing racc grammars and conservative migrations | Stable baseline |
 | Extended mode | EBNF, imports, generated lexers, trees, types, and tooling | Preview; explicit opt-in |
+| `ibex impact` | Grammar propagation, automaton, action metadata, and coverage review | Preview; read-only |
 | Browser playground and incremental CST sessions | Local analysis and evaluation | Preview/Experimental; bounded |
 
 The default frontend remains unchanged unless a grammar opts into
@@ -107,6 +108,10 @@ The default frontend remains unchanged unless a grammar opts into
 [racc migration guide](https://ydah.github.io/ibex/docs/racc-migration/), and
 [maturity audit](https://ydah.github.io/ibex/docs/maturity/) before adopting a
 Preview or Experimental surface.
+
+Use [`ibex impact`](docs/impact.md) to review where a changed nonterminal can
+propagate. Its reports are deterministic and read-only; nullable boundaries and
+source-only action references remain explicit limitations.
 
 IELR is also explicit: `--algorithm=ielr` uses the conservative partition
 strategy by default, while `--ielr-strategy=direct` enables the experimental

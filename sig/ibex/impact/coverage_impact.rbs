@@ -1,0 +1,28 @@
+# Generated from lib/ibex/impact/coverage_impact.rb with RBS::Inline
+
+module Ibex
+  module Impact
+    # Selects separated runtime coverage reports for affected productions.
+    class CoverageImpact
+      attr_reader status: String
+
+      attr_reader reports: Array[Hash[Symbol, Object?]]
+
+      attr_reader warnings: Array[String]
+
+      # @rbs (IR::Automaton automaton, Array[Integer], Array[[String, Coverage::Report]]) -> void
+      def initialize: (IR::Automaton automaton, Array[Integer], Array[[ String, Coverage::Report ]]) -> void
+
+      # @rbs () -> Hash[Symbol, Object?]
+      def to_h: () -> Hash[Symbol, Object?]
+
+      private
+
+      # @rbs (Array[[String, Coverage::Report]]) -> Array[Hash[Symbol, Object?]]
+      def select_reports: (Array[[ String, Coverage::Report ]]) -> Array[Hash[Symbol, Object?]]
+
+      # @rbs (Array[[String, Coverage::Report]]) -> String
+      def coverage_status: (Array[[ String, Coverage::Report ]]) -> String
+    end
+  end
+end

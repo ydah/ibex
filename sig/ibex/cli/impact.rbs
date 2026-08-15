@@ -1,0 +1,77 @@
+# Generated from lib/ibex/cli/impact.rb with RBS::Inline
+
+module Ibex
+  # CLI adapter for potential and confirmed grammar impact reports.
+  # rubocop:disable Metrics/ModuleLength, Metrics/MethodLength, Metrics/AbcSize
+  module CLIImpact
+    include CLIAnalysis
+
+    private
+
+    # @rbs (Array[String] arguments) -> Integer
+    def run_impact_command: (Array[String] arguments) -> Integer
+
+    # @rbs (Array[String]) -> Hash[Symbol, untyped]
+    def impact_option_parser: (Array[String]) -> Hash[Symbol, untyped]
+
+    # @rbs (String value) -> Array[Symbol]
+    def parse_kinds: (String value) -> Array[Symbol]
+
+    # @rbs (Array[String], Hash[Symbol, untyped]) -> [Hash[Symbol, Object?], Array[String]]
+    def potential_impact: (Array[String], Hash[Symbol, untyped]) -> [ Hash[Symbol, Object?], Array[String] ]
+
+    # @rbs (Array[String], Hash[Symbol, untyped]) -> [Hash[Symbol, Object?], Array[String]]
+    def confirmed_impact: (Array[String], Hash[Symbol, untyped]) -> [ Hash[Symbol, Object?], Array[String] ]
+
+    # @rbs (Impact::Graph, Array[Integer], Hash[Symbol, untyped]) ->
+    #   [Hash[Integer, Impact::Node], Hash[Integer, Array[String]]]
+    def propagate: (Impact::Graph, Array[Integer], Hash[Symbol, untyped]) -> [ Hash[Integer, Impact::Node], Hash[Integer, Array[String]] ]
+
+    # @rbs (IR::Automaton, Array[Integer], Hash[Symbol, untyped]) -> Impact::CoverageImpact
+    def load_coverage: (IR::Automaton, Array[Integer], Hash[Symbol, untyped]) -> Impact::CoverageImpact
+
+    # @rbs (Impact::Seeds, Impact::CoverageImpact) -> Array[String]
+    def nullable_warnings: (Impact::Seeds, Impact::CoverageImpact) -> Array[String]
+
+    # @rbs (IR::Automaton, Impact::AutomatonImpact) -> Hash[Symbol, Object?]
+    def potential_automaton_document: (IR::Automaton, Impact::AutomatonImpact) -> Hash[Symbol, Object?]
+
+    # @rbs (IR::Automaton, IR::Automaton, Hash[Symbol, Object?], Impact::AutomatonImpact) -> Hash[Symbol, Object?]
+    def confirmed_automaton_document: (IR::Automaton, IR::Automaton, Hash[Symbol, Object?], Impact::AutomatonImpact) -> Hash[Symbol, Object?]
+
+    # @rbs (IR::Automaton) -> Array[Integer]
+    def unreachable_state_ids: (IR::Automaton) -> Array[Integer]
+
+    # @rbs (IR::Automaton, IR::Automaton) ->
+    #   [Hash[String, Hash[Symbol, Object?]], Hash[String, Array[String]]]
+    def compare_sets: (IR::Automaton, IR::Automaton) -> [ Hash[String, Hash[Symbol, Object?]], Hash[String, Array[String]] ]
+
+    # @rbs (Analysis::Sets, Analysis::Sets, IR::GrammarSymbol?, IR::GrammarSymbol?, Symbol) ->
+    #   Hash[Symbol, Array[String]]
+    def set_change: (Analysis::Sets, Analysis::Sets, IR::GrammarSymbol?, IR::GrammarSymbol?, Symbol) -> Hash[Symbol, Array[String]]
+
+    # @rbs (Hash[Symbol, Array[String]], Hash[Symbol, Array[String]], Hash[Symbol, Object?]?) -> bool
+    def set_change_empty?: (Hash[Symbol, Array[String]], Hash[Symbol, Array[String]], Hash[Symbol, Object?]?) -> bool
+
+    # @rbs (Analysis::Sets, Analysis::Sets, IR::GrammarSymbol?, IR::GrammarSymbol?) -> Hash[Symbol, Object?]?
+    def nullable_change: (Analysis::Sets, Analysis::Sets, IR::GrammarSymbol?, IR::GrammarSymbol?) -> Hash[Symbol, Object?]?
+
+    # @rbs (Hash[Integer, Array[String]], Hash[String, Array[String]], IR::Grammar) -> Hash[Integer, Array[String]]
+    def merge_symbol_kinds: (Hash[Integer, Array[String]], Hash[String, Array[String]], IR::Grammar) -> Hash[Integer, Array[String]]
+
+    # @rbs (IR::Automaton) -> Array[String]
+    def conflict_identities: (IR::Automaton) -> Array[String]
+
+    # @rbs (IR::Grammar, Hash[Symbol, Object?]) -> String
+    def conflict_identity: (IR::Grammar, Hash[Symbol, Object?]) -> String
+
+    # @rbs (IR::Grammar, Integer) -> String
+    def production_shape: (IR::Grammar, Integer) -> String
+
+    # @rbs (Hash[Symbol, Object?], Array[String], Hash[Symbol, untyped]) -> void
+    def apply_baseline: (Hash[Symbol, Object?], Array[String], Hash[Symbol, untyped]) -> void
+
+    # @rbs (Hash[Symbol, Object?], String) -> void
+    def write_impact_report: (Hash[Symbol, Object?], String) -> void
+  end
+end

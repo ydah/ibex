@@ -1,0 +1,52 @@
+# Generated from lib/ibex/impact/severity.rb with RBS::Inline
+
+module Ibex
+  module Impact
+    # Stores only conflict identities so a baseline is stable across state ids.
+    class Baseline
+      # @rbs (String path) -> void
+      def initialize: (String path) -> void
+
+      # @rbs () -> Array[String]
+      def conflicts: () -> Array[String]
+
+      # @rbs (Array[String] identities) -> void
+      def write: (Array[String] identities) -> void
+    end
+
+    # Severity ranking and CI gate evaluation for impact findings.
+    module Severity
+      LEVELS: Array[String]
+
+      FAIL_ON: Array[String]
+
+      RANK: Hash[String, Integer]
+
+      CHANGE_TO_GATE: Hash[String, Symbol]
+
+      # @rbs (String left, String right) -> String
+      def self?.max: (String left, String right) -> String
+
+      # @rbs (Hash[String, Array[String]], Array[Hash[Symbol, String]]) -> Hash[String, String]
+      def self?.symbols: (Hash[String, Array[String]], Array[Hash[Symbol, String]]) -> Hash[String, String]
+
+      # @rbs (String) -> String
+      def self?.level_for_kind: (String) -> String
+
+      # @rbs (Hash[Symbol, Object?] report, Array[String] gates) -> bool
+      def self?.fails?: (Hash[Symbol, Object?] report, Array[String] gates) -> bool
+
+      # @rbs (Hash[Symbol, Object?], Array[String]) -> bool
+      def self?.conflict_gate?: (Hash[Symbol, Object?], Array[String]) -> bool
+
+      # @rbs (Hash[Symbol, Object?], Array[String]) -> bool
+      def self?.unreachable_gate?: (Hash[Symbol, Object?], Array[String]) -> bool
+
+      # @rbs (Hash[Symbol, Object?], Array[String]) -> bool
+      def self?.action_gate?: (Hash[Symbol, Object?], Array[String]) -> bool
+
+      # @rbs (Array[String] gates) -> Array[String]
+      def self?.validate_gates: (Array[String] gates) -> Array[String]
+    end
+  end
+end

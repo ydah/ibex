@@ -1,0 +1,67 @@
+# Generated from lib/ibex/impact/graph.rb with RBS::Inline
+
+module Ibex
+  module Impact
+    # A grammar dependency edge with enough origin information for a witness.
+    class Edge
+      attr_reader source: Integer
+
+      attr_reader target: Integer
+
+      attr_reader kind: Symbol
+
+      attr_reader production: Integer?
+
+      attr_reader position: Integer?
+
+      # @rbs (source: Integer, target: Integer, kind: Symbol, production: Integer?, position: Integer?) -> void
+      def initialize: (source: Integer, target: Integer, kind: Symbol, production: Integer?, position: Integer?) -> void
+
+      # @rbs () -> Array[Integer | Symbol | nil]
+      def sort_key: () -> Array[Integer | Symbol | nil]
+    end
+
+    # Combines reference, FIRST, and FOLLOW propagation dependencies.
+    class Graph
+      EDGE_KINDS: Array[Symbol]
+
+      KIND_ALIASES: Hash[Symbol, Array[Symbol]]
+
+      attr_reader grammar: IR::Grammar
+
+      attr_reader sets: Analysis::Sets
+
+      # @rbs (IR::Grammar grammar, ?sets: Analysis::Sets) -> void
+      def initialize: (IR::Grammar grammar, ?sets: Analysis::Sets) -> void
+
+      # @rbs (?Symbol kind) -> untyped
+      def edges: (?Symbol kind) -> untyped
+
+      # @rbs (Symbol kind) -> Array[Array[Integer]]
+      def adjacency: (Symbol kind) -> Array[Array[Integer]]
+
+      private
+
+      # @rbs () -> Hash[Symbol, Array[Edge]]
+      def build_edges: () -> Hash[Symbol, Array[Edge]]
+
+      # @rbs (Hash[Symbol, Array[Edge]], IR::Production) -> void
+      def add_production_edges: (Hash[Symbol, Array[Edge]], IR::Production) -> void
+
+      # @rbs (Hash[Symbol, Array[Edge]], IR::Production, Integer, Integer) -> void
+      def add_first_edge: (Hash[Symbol, Array[Edge]], IR::Production, Integer, Integer) -> void
+
+      # @rbs (Hash[Symbol, Array[Edge]], IR::Production, Integer, Integer) -> void
+      def add_follow_edges: (Hash[Symbol, Array[Edge]], IR::Production, Integer, Integer) -> void
+
+      # @rbs (Hash[Symbol, Array[Edge]], IR::Production, Integer, Integer) -> void
+      def add_follow_first_edges: (Hash[Symbol, Array[Edge]], IR::Production, Integer, Integer) -> void
+
+      # @rbs (Integer source, Integer target, Symbol kind, IR::Production production, Integer position) -> Edge
+      def edge: (Integer source, Integer target, Symbol kind, IR::Production production, Integer position) -> Edge
+
+      # @rbs () -> void
+      def freeze_edges: () -> void
+    end
+  end
+end

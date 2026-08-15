@@ -1,0 +1,26 @@
+# Generated from lib/ibex/impact/seeds.rb with RBS::Inline
+
+module Ibex
+  module Impact
+    # Converts command-line symbols and Diff rule ids into analysis seeds.
+    class Seeds
+      attr_reader ids: Array[Integer]
+
+      attr_reader records: Array[Hash[Symbol, Object?]]
+
+      # @rbs (IR::Grammar grammar, Array[String] names, ?origin: String) -> void
+      def initialize: (IR::Grammar grammar, Array[String] names, ?origin: String) -> void
+
+      # @rbs (IR::Grammar grammar, Hash[Symbol, Object?] diff, ?origin: String) -> Seeds
+      def self.from_diff: (IR::Grammar grammar, Hash[Symbol, Object?] diff, ?origin: String) -> Seeds
+
+      private
+
+      # @rbs (String name, String origin) -> Array[Hash[Symbol, Object?]]
+      def resolve: (String name, String origin) -> Array[Hash[Symbol, Object?]]
+
+      # @rbs (Integer) -> bool
+      def nullable_boundary?: (Integer) -> bool
+    end
+  end
+end

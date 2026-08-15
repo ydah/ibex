@@ -29,6 +29,7 @@ module Ibex
         ["lib/ibex/cli.rb", "add_signature_output_options"] => "generate",
         ["lib/ibex/cli/ambiguity.rb", "ambiguity_option_parser"] => "check-ambiguity",
         ["lib/ibex/cli/analysis.rb", "analysis_options"] => "diff-or-metrics",
+        ["lib/ibex/cli/impact.rb", "impact_option_parser"] => "impact",
         ["lib/ibex/cli/bison_import.rb", "add_bison_import_budgets"] => "import-bison",
         ["lib/ibex/cli/bison_import.rb", "bison_import_option_parser"] => "import-bison",
         ["lib/ibex/cli/config.rb", "add_config_contract_options"] => "config",

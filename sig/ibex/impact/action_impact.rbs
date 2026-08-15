@@ -1,0 +1,39 @@
+# Generated from lib/ibex/impact/action_impact.rb with RBS::Inline
+
+module Ibex
+  module Impact
+    # Checks only structured action metadata; action source remains opaque.
+    class ActionImpact
+      attr_reader findings: Array[Hash[Symbol, Object?]]
+
+      # @rbs (IR::Grammar before, IR::Grammar after, ?affected_names: Array[String]?) -> void
+      def initialize: (IR::Grammar before, IR::Grammar after, ?affected_names: Array[String]?) -> void
+
+      # @rbs () -> Array[Hash[Symbol, Object?]]
+      def to_a: () -> Array[Hash[Symbol, Object?]]
+
+      private
+
+      # @rbs () -> Array[Hash[Symbol, Object?]]
+      def compare: () -> Array[Hash[Symbol, Object?]]
+
+      # @rbs (String name) -> Array[Hash[Symbol, Object?]]
+      def compare_rule: (String name) -> Array[Hash[Symbol, Object?]]
+
+      # @rbs (IR::Grammar grammar, String name) -> Array[IR::Production]
+      def productions_for: (IR::Grammar grammar, String name) -> Array[IR::Production]
+
+      # @rbs (IR::Production before, IR::Production after) -> Hash[Symbol, Object?]
+      def finding_for: (IR::Production before, IR::Production after) -> Hash[Symbol, Object?]
+
+      # @rbs (IR::Action?, Integer, Integer) -> [String, String]
+      def finding_reason: (IR::Action?, Integer, Integer) -> [ String, String ]
+
+      # @rbs (IR::Action?, Integer) -> bool
+      def out_of_range?: (IR::Action?, Integer) -> bool
+
+      # @rbs (IR::Grammar grammar, IR::Production production) -> String
+      def production_name: (IR::Grammar grammar, IR::Production production) -> String
+    end
+  end
+end

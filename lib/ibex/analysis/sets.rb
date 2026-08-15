@@ -21,8 +21,8 @@ module Ibex
         @nullable_bits = 0
         @first_bits = Array.new(grammar.symbols.length, 0)
         @follow_bits = Array.new(grammar.symbols.length, 0)
-        @first_dependencies = []
-        @follow_dependencies = []
+        @first_dependencies = [] #: Array[Array[Integer]]
+        @follow_dependencies = [] #: Array[Array[Integer]]
         grammar.terminals.each { |terminal| @first_bits[terminal.id] = bit(terminal.id) }
         compute_nullable
         compute_first
