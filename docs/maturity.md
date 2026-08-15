@@ -2,7 +2,7 @@
 
 [`maturity.yml`](maturity.yml) and the validator-owned commit authorities in
 [`maturity_authority.rb`](../tool/quality/maturity_authority.rb) form the joint
-human-reviewed trust boundary for H001. The registry binds the current 18
+human-reviewed trust boundary for H001. The registry binds the current 19
 Preview and two Experimental features to the reviewed repository revision,
 source digests, activation, external-use status, specification-history
 confidence, issue audit, documentation and tooling gaps, performance and safety
@@ -12,7 +12,7 @@ the other; changing a classification requires reviewing and updating both.
 ## Result
 
 <!-- maturity-summary:start -->
-Inventory: **18 Preview, 2 Experimental**. Active new Preview tracks: **1/3** (grammar syntax: **1/1**). Experimental product features: **2/5**.
+Inventory: **19 Preview, 2 Experimental**. Active new Preview tracks: **2/3** (grammar syntax: **1/1**). Experimental product features: **2/5**.
 Release dependency state: R001 **hold_external**; R002 **pending_exact_revision**; no feature is promoted by this audit.
 
 | Stable ID | Feature | Current maturity | Decision | External use | Release gate |
@@ -28,6 +28,7 @@ Release dependency state: R001 **hold_external**; R002 **pending_exact_revision*
 | `ast-generation` | AST generation | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
 | `grammar-tests` | grammar tests | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
 | `documentation-tooling` | documentation tooling | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
+| `impact` | Grammar impact analysis | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
 | `ielr` | IELR | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
 | `lsp` | LSP | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |
 | `watch` | watch | Preview | Keep Preview | not demonstrated | Blocked: R001, R002 |

@@ -12,7 +12,7 @@ class MaturityTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   REGISTRY = File.join(ROOT, "docs/maturity.yml")
   NARRATIVE = File.join(ROOT, "docs/maturity.md")
-  TODAY = Date.new(2026, 8, 11)
+  TODAY = Date.new(2026, 8, 15)
   KNOWN_NONSEMANTIC_MAPPINGS = {
     "semantic-locations-types" => {
       "v0.2.0..reviewed" => %w[
@@ -40,7 +40,7 @@ class MaturityTest < Minitest::Test
   def test_review_date_covers_the_reviewed_commit_in_its_recorded_timezone
     revision = document.dig("audit", "reviewed_repository_revision")
 
-    assert_equal Date.new(2026, 8, 11), Ibex::Quality::Maturity.commit_date(ROOT, revision)
+    assert_equal Date.new(2026, 8, 15), Ibex::Quality::Maturity.commit_date(ROOT, revision)
 
     changed = document
     changed.fetch("audit")["reviewed_at"] = "2026-08-04"
@@ -50,7 +50,7 @@ class MaturityTest < Minitest::Test
   def test_rejects_a_missing_duplicate_or_reordered_feature
     changed = document
     changed.fetch("features").pop
-    assert_error(changed, "exact 18 Preview + 2 Experimental")
+    assert_error(changed, "exact 19 Preview + 2 Experimental")
 
     changed = document
     changed.fetch("features")[1]["id"] = changed.fetch("features").first.fetch("id")
@@ -58,7 +58,7 @@ class MaturityTest < Minitest::Test
 
     changed = document
     changed.fetch("features").rotate!
-    assert_error(changed, "exact 18 Preview + 2 Experimental")
+    assert_error(changed, "exact 19 Preview + 2 Experimental")
   end
 
   def test_rejects_silent_maturity_changes_and_promotion_without_release_evidence
@@ -141,15 +141,15 @@ class MaturityTest < Minitest::Test
 
     changed = document
     audit = changed.dig("audit", "issue_audits", 0)
-    audit["checked_at"] = "2026-08-12"
+    audit["checked_at"] = "2026-08-16"
     audit["fresh_until"] = "2026-09-05"
     assert_error(changed, "checked_at cannot be in the future")
 
     changed = document
     audit = changed.dig("audit", "issue_audits", 0)
-    audit["checked_at"] = "2026-08-12"
+    audit["checked_at"] = "2026-08-16"
     audit["fresh_until"] = "2026-09-05"
-    assert_error(changed, "checked_at cannot follow the maturity review", today: Date.new(2026, 8, 12))
+    assert_error(changed, "checked_at cannot follow the maturity review", today: Date.new(2026, 8, 16))
 
     changed = document
     changed.dig("audit", "issue_audits", 0, "result")["status"] = "unknown"

@@ -36,6 +36,7 @@ module Ibex
         "ast-generation" => "preview",
         "grammar-tests" => "preview",
         "documentation-tooling" => "preview",
+        "impact" => "preview",
         "ielr" => "preview",
         "lsp" => "preview",
         "watch" => "preview",
@@ -74,6 +75,7 @@ module Ibex
         "ast-generation" => %w[lib/ibex/codegen/ruby_ast.rb],
         "grammar-tests" => %w[lib/ibex/grammar_tests.rb],
         "documentation-tooling" => %w[lib/ibex/codegen/documentation.rb],
+        "impact" => %w[lib/ibex/impact/graph.rb],
         "ielr" => %w[lib/ibex/lalr/builder.rb],
         "lsp" => %w[lib/ibex/lsp/server.rb],
         "watch" => %w[lib/ibex/watch/runner.rb],
@@ -106,6 +108,7 @@ module Ibex
         "ast-generation" => [["node-declarations", "extended", false]],
         "grammar-tests" => [["grammar-test-command", "explicit_command", false]],
         "documentation-tooling" => [["documentation-command", "explicit_command", false]],
+        "impact" => [["impact-command", "explicit_command", false]],
         "ielr" => [["ielr-algorithm", "explicit_option", false]],
         "lsp" => [["lsp-command", "explicit_command", false]],
         "watch" => [["watch-option", "explicit_option", false]],
@@ -391,7 +394,7 @@ module Ibex
       def verify_budgets(budgets, features)
         exact_keys!(budgets, BUDGET_KEYS, "budgets")
         expected = {
-          "active_new_preview_tracks" => 1,
+          "active_new_preview_tracks" => 2,
           "preview_track_limit" => 3,
           "active_grammar_syntax_tracks" => 1,
           "grammar_syntax_track_limit" => 1,
@@ -434,7 +437,7 @@ module Ibex
       def verify_features(features, audit, dependencies, workloads)
         record_array!(features, "features")
         ids = features.map { |feature| feature.fetch("id") }
-        raise "maturity inventory must contain the exact 18 Preview + 2 Experimental features in canonical order" unless
+        raise "maturity inventory must contain the exact 19 Preview + 2 Experimental features in canonical order" unless
           ids == EXPECTED.keys
         raise "introduction authority inventory drift" unless INTRODUCTION_AUTHORITIES.keys == EXPECTED.keys
         raise "semantic commit authority inventory drift" unless SEMANTIC_COMMIT_AUTHORITIES.keys == EXPECTED.keys
@@ -627,6 +630,8 @@ module Ibex
 
       def verify_first_release(id, release, introduction, authority)
         exact_keys!(release, %w[status tag revision], "#{id}: first_release")
+        return verify_unreleased_first_release(id, release, introduction) if release.fetch("status") == "unreleased"
+
         raise "#{id}: every audited feature must name its first release" unless release.fetch("status") == "released"
 
         expected_tag = authority.fetch(:first_release)
@@ -638,6 +643,12 @@ module Ibex
         earlier_tags = RELEASES.keys.take_while { |tag| tag != expected_tag }
         already_released = earlier_tags.any? { |tag| @release_ancestors.fetch(tag).include?(introduction) }
         raise "#{id}: first release is later than a tag that already contains the introduction" if already_released
+      end
+
+      def verify_unreleased_first_release(id, release, introduction)
+        raise "#{id}: unreleased feature must not name a release tag" unless release.fetch("tag").nil?
+        raise "#{id}: unreleased feature revision must be its introduction" unless
+          release.fetch("revision") == introduction
       end
 
       def verify_history_snapshots(id, snapshots, authority)
@@ -719,6 +730,13 @@ module Ibex
         raise "introduction parent is outside reviewed history" unless @reviewed_ancestors.include?(introduction_parent)
 
         first_release = authority.fetch(:first_release)
+        if first_release.nil?
+          return [{
+            id: "introduction..reviewed", from: introduction_parent, to: @reviewed_revision,
+            before_status: "absent", after_status: "present"
+          }]
+        end
+
         boundaries = [{
           id: "introduction..#{first_release}", from: introduction_parent, to: RELEASES.fetch(first_release),
           before_status: "absent", after_status: "present"

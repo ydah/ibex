@@ -5,7 +5,7 @@ module Ibex
     # rubocop:disable Metrics/ModuleLength -- one closed authority maps every audited feature.
     # Human-reviewed Git authorities used by the executable maturity audit.
     module MaturityAuthority
-      REVIEWED_REVISION = "1d65430f3b3788854cd930d05a7c9a55d8d0d11e"
+      REVIEWED_REVISION = "5992a4ce58fe2bcfa0bf644bfc97555e987e3d57"
       RELEASES = {
         "v0.1.0" => "65d41edf381afb9c18e01e55332a293332f340e6",
         "v0.2.0" => "bd88b1203706c37bf225e837a2fe46d334d4651d"
@@ -75,6 +75,12 @@ module Ibex
           revision: "81026ff3390990cad716e9953c8b485f9ac198fe", first_release: "v0.2.0",
           feature_status: %w[absent present present],
           absent_sources: [["lib/ibex/codegen/documentation.rb"], [], []]
+        },
+        "impact" => {
+          path: "lib/ibex/impact/graph.rb", query: "class Graph",
+          revision: "5992a4ce58fe2bcfa0bf644bfc97555e987e3d57", first_release: nil,
+          feature_status: %w[absent absent present],
+          absent_sources: [["lib/ibex/impact/graph.rb"], ["lib/ibex/impact/graph.rb"], []]
         },
         "ielr" => {
           path: "lib/ibex/lalr/builder.rb", query: "algorithm == :ielr",
@@ -233,6 +239,9 @@ module Ibex
         "documentation-tooling" => {
           "introduction..v0.2.0" => %w[81026ff3390990cad716e9953c8b485f9ac198fe],
           "v0.2.0..reviewed" => []
+        },
+        "impact" => {
+          "introduction..reviewed" => %w[5992a4ce58fe2bcfa0bf644bfc97555e987e3d57]
         },
         "ielr" => {
           "introduction..v0.2.0" => %w[
