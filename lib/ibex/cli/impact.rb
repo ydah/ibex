@@ -14,7 +14,6 @@ module Ibex
 
     private
 
-
     # @rbs (Array[String] arguments) -> Integer
     def run_impact_command(arguments)
       settings = impact_option_parser(arguments)
