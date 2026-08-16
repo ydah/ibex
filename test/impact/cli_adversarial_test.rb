@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../test_helper"
+require "json"
 require "stringio"
 require "tmpdir"
 
@@ -35,6 +36,36 @@ class ImpactCLIAdversarialTest < Minitest::Test
     end
   end
 
+  def test_reference_only_change_does_not_crash_or_escalate_seed_to_high
+    with_sources(
+      "class P\ntoken A\nrule\nstart: left\nleft: A\nright: A\nend\n",
+      "class P\ntoken A\nrule\nstart: right\nleft: A\nright: A\nend\n"
+    ) do |before, after|
+      result = run_impact(["impact", "--severity=info", before, after])
+      report = JSON.parse(result.fetch(:stdout))
+      start = report.fetch("symbols").find { |symbol| symbol.fetch("symbol") == "start" }
+
+      assert_equal 0, result.fetch(:status)
+      assert_equal "medium", start.fetch("severity")
+      assert_equal ["reference"], start.fetch("kinds")
+    end
+  end
+
+  def test_precedence_changes_are_reported_as_medium
+    with_sources(
+      "class P\ntoken NUM PLUS\npreclow\nleft PLUS\nprechigh\nrule\nstart: expr\nexpr: NUM | expr PLUS expr\nend\n",
+      "class P\ntoken NUM PLUS\npreclow\nright PLUS\nprechigh\nrule\nstart: expr\nexpr: NUM | expr PLUS expr\nend\n"
+    ) do |before, after|
+      result = run_impact(["impact", "--mode=extended", "--severity=medium", before, after])
+      report = JSON.parse(result.fetch(:stdout))
+      plus = report.fetch("symbols").find { |symbol| symbol.fetch("symbol") == "PLUS" }
+
+      assert_equal 0, result.fetch(:status)
+      assert_equal "medium", plus.fetch("severity")
+      assert_equal %w[metadata precedence], plus.fetch("kinds")
+    end
+  end
+
   private
 
   def normalize_grammar(source)
@@ -54,5 +85,21 @@ class ImpactCLIAdversarialTest < Minitest::Test
       algorithm: base.algorithm, grammar_digest: base.grammar_digest, entry_states: base.entry_states,
       entry_construction: base.entry_construction
     )
+  end
+
+  def run_impact(arguments)
+    stdout = StringIO.new
+    stderr = StringIO.new
+    { status: Ibex::CLI.start(arguments, stdout: stdout, stderr: stderr), stdout: stdout.string, stderr: stderr.string }
+  end
+
+  def with_sources(before_source, after_source)
+    Dir.mktmpdir("ibex-impact") do |directory|
+      before = File.join(directory, "before.y")
+      after = File.join(directory, "after.y")
+      File.binwrite(before, before_source)
+      File.binwrite(after, after_source)
+      yield before, after
+    end
   end
 end

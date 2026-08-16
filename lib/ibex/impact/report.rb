@@ -135,7 +135,7 @@ module Ibex
       # @rbs (String kind) -> String
       def kind_severity(kind)
         return "high" if %w[first follow nullable action_arity].include?(kind)
-        return "medium" if kind == "reference"
+        return "medium" if %w[reference precedence].include?(kind)
         return "low" if kind == "metadata"
 
         "info"
@@ -240,7 +240,7 @@ module Ibex
         paths = @coverage.fetch(:reports, empty_reports).map { |report| coverage_report_path(report) }
         @warnings.map do |warning|
           paths.reduce(warning) { |current, path| current.gsub(path, stable_path(path)) }
-        end.sort
+        end.sort.uniq
       end
 
       # @rbs (IR::location?) -> Hash[Symbol, Integer]?

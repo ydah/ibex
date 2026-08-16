@@ -85,7 +85,7 @@ module Ibex
       # @rbs (String) -> String
       def level_for_kind(kind)
         return "high" if %w[first follow nullable].include?(kind)
-        return "medium" if kind == "reference"
+        return "medium" if %w[reference precedence].include?(kind)
 
         "low"
       end

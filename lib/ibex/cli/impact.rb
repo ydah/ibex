@@ -133,6 +133,8 @@ module Ibex
       nodes, symbol_kinds = propagate(graph, seeds.ids, settings)
       set_changes, changed_kinds = compare_sets(before, after)
       symbol_kinds = merge_symbol_kinds(symbol_kinds, changed_kinds, after.grammar)
+      precedence_kinds = precedence_symbol_kinds(symbol_changes, after.grammar)
+      symbol_kinds = merge_symbol_kinds(symbol_kinds, precedence_kinds, after.grammar)
       automaton_impact = Impact::AutomatonImpact.new(after, nodes.keys)
       actions = Impact::ActionImpact.new(before.grammar, after.grammar, affected_names: names).to_a
       coverage = load_coverage(after, automaton_impact.production_ids, settings)
@@ -157,7 +159,7 @@ module Ibex
         current.each do |id, node|
           best = nodes[id]
           nodes[id] = node if best.nil? || node.distance < best.distance
-          symbol_kinds[id] << kind.to_s
+          symbol_kinds[id] << kind.to_s unless node.distance.zero? && node.witness.empty?
         end
       end
       [nodes.sort.to_h, symbol_kinds.transform_values { |value| value.uniq.sort }]
@@ -294,9 +296,22 @@ module Ibex
         id = grammar.symbol(name)&.id
         next unless id
 
-        result[id] = (result[id] + kinds).uniq.sort
+        result[id] = (result.fetch(id, []) + kinds).uniq.sort
       end
       result
+    end
+
+    # @rbs (Hash[Symbol, Array[Hash[Symbol, Object?]]], IR::Grammar) -> Hash[String, Array[String]]
+    def precedence_symbol_kinds(symbol_changes, grammar)
+      symbol_changes.fetch(:changed).each_with_object({}) do |record, result|
+        before = record.fetch(:before)
+        after = record.fetch(:after)
+        next unless before.is_a?(Hash) && after.is_a?(Hash)
+        next if before.fetch(:precedence) == after.fetch(:precedence)
+
+        name = record.fetch(:id).to_s
+        result[name] = ["precedence"] if grammar.symbol(name)
+      end
     end
 
     # @rbs (IR::Automaton) -> Array[String]
