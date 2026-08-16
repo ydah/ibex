@@ -141,7 +141,7 @@
           "const": 1
         },
         "rubric_path": {
-          "const": "docs/error-ux-review-rubric-v1.md"
+          "const": "docs/evidence/error-ux-review-rubric-v1.md"
         },
         "rubric_sha256": {
           "$ref": "#/$defs/sha256"

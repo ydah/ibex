@@ -1698,7 +1698,7 @@
       "identify_cause",
       "choose_edit"
     ],
-    "blind_artifact_path": "docs/conflict-explanation-reviews/v1/blind-study-v1.json",
-    "registry_path": "docs/conflict-explanation-review-status-v1.json"
+    "blind_artifact_path": "docs/records/conflict-explanation/reviews/v1/blind-study-v1.json",
+    "registry_path": "docs/records/conflict-explanation/review-status-v1.json"
   }
 }

@@ -29,9 +29,9 @@ Gem::Specification.new do |spec|
       *Dir.glob("lib/**/*.yml"),
       *Dir.glob("sig/**/*.rbs"),
       *Dir.glob("schema/*.json"),
-      *Dir.glob("docs/**/*.md").reject { |path| path.start_with?("docs/investigations/") },
-      "docs/error-ux-round2-v1.json",
-      "docs/error-ux-round2-review-status-v1.json",
+      *Dir.glob("docs/**/*.md").reject { |path| path.start_with?("docs/records/investigations/") },
+      "docs/records/error-ux/round2-v1.json",
+      "docs/records/error-ux/round2-review-status-v1.json",
       *Dir.glob("examples/**/*").select { |path| File.file?(path) }
     ]
   end

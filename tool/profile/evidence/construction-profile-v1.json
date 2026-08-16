@@ -24,7 +24,7 @@
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": false,
     "capture_worktree_status": [
-      " M docs/error-ux-round2-v1.json"
+      " M docs/records/error-ux/round2-v1.json"
     ],
     "capture_worktree_status_sha256": "dfb1530b86c7a20a38090d9a96d5ebfee87c12192533b021d3f12fa87dcdd304",
     "bound_paths": [
@@ -41,25 +41,25 @@
         "base_sha256": "6b87e6ea058cc3b302ad291f99ea7de8f8493fac4ae51a8ac544aade564aadb9"
       },
       {
-        "path": "docs/construction-profiling.md",
+        "path": "docs/records/profiles/construction-profiling.md",
         "sha256": "0af9ddf4682b9769b4b738a98e2ae67445a20c4a8c41269c95c87938ddf5bef7",
         "git_state": "base",
         "base_sha256": "0af9ddf4682b9769b4b738a98e2ae67445a20c4a8c41269c95c87938ddf5bef7"
       },
       {
-        "path": "docs/maturity.md",
+        "path": "docs/policy/maturity.md",
         "sha256": "10292839ffc2f5f18f6b58bc5297c341ca7350b1f46b6de8eec84a5e024c2803",
         "git_state": "base",
         "base_sha256": "10292839ffc2f5f18f6b58bc5297c341ca7350b1f46b6de8eec84a5e024c2803"
       },
       {
-        "path": "docs/maturity.yml",
+        "path": "docs/registry/maturity.yml",
         "sha256": "25971bbd1006fe53ada4851c4ac3b7c9b6be3d2cbd0951c4bc041c9765ff9ce5",
         "git_state": "base",
         "base_sha256": "25971bbd1006fe53ada4851c4ac3b7c9b6be3d2cbd0951c4bc041c9765ff9ce5"
       },
       {
-        "path": "docs/workloads.md",
+        "path": "docs/policy/workloads.md",
         "sha256": "752aedf08615715b83f68ac08e4cea9b5f8abbee29e28879a0562730edd8e168",
         "git_state": "base",
         "base_sha256": "752aedf08615715b83f68ac08e4cea9b5f8abbee29e28879a0562730edd8e168"

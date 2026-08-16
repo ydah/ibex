@@ -44,6 +44,11 @@ end
 
 # rubocop:disable Metrics/BlockLength -- quality gates are intentionally grouped under one namespace.
 namespace :quality do
+  desc "Verify documentation structure, publication, links, and Stable markers"
+  task :docs_coverage do
+    ruby "-Ilib", "-r./tool/quality/docs_coverage", "-e", "Ibex::Quality::DocsCoverage.new.verify!"
+  end
+
   desc "Run the bounded mutation suite for compact parser tables"
   task :mutation do
     sh "bundle", "exec", "mutant", "run"
@@ -172,9 +177,9 @@ namespace :test do
     ruby "-Itest", "test/analysis_no_exec_test.rb"
   end
 
-  desc "Require synchronized English/Japanese coverage for every Stable contract"
+  desc "Run the documentation quality gate through the test namespace"
   task :docs_coverage do
-    ruby "-Ilib", "-r./tool/quality/docs_coverage", "-e", "Ibex::Quality::DocsCoverage.new.verify!"
+    Rake::Task["quality:docs_coverage"].invoke
   end
 end
 # rubocop:enable Metrics/BlockLength

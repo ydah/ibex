@@ -8,8 +8,8 @@ require "yaml"
 # rubocop:disable Metrics/ClassLength -- one adversarial suite mutates every closed registry field family.
 class WorkloadsTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
-  REGISTRY = File.join(ROOT, "docs/workloads.yml")
-  DOCUMENTATION = File.join(ROOT, "docs/workloads.md")
+  REGISTRY = File.join(ROOT, "docs/registry/workloads.yml")
+  DOCUMENTATION = File.join(ROOT, "docs/policy/workloads.md")
   EVIDENCE = File.join(ROOT, "tool/quality/workloads/evidence.yml")
 
   def test_repository_registry_and_cross_manifest_bindings_are_valid

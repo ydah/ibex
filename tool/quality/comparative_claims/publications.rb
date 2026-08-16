@@ -12,7 +12,7 @@ module Ibex
         より(?:速い|高速|遅い|優れ(?:る|ている)?|劣る|小さい|大きい) | 最速 | 最遅 | 最高 | 最低 |
         上回る | 下回る | 勝る | 劣る
       )/ix
-      POLICY = "docs/comparison-policy.md"
+      POLICY = "docs/policy/comparison-policy.md"
 
       def initialize(root:, claims:, readme:, aliases:)
         @root = root

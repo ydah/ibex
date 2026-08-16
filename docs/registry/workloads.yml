@@ -1,0 +1,981 @@
+schema_version: 1
+counting_method:
+  id: ibex-normalized-lalr-v1
+  algorithm: lalr
+  description: >-
+    Parse the exact grammar bytes with the source's admitted frontend mode, normalize to Grammar IR,
+    count user productions and all normalized terminals including $eof and error, then build Ibex's
+    direct LALR automaton and count states and unresolved conflicts. Bison inputs are first processed
+    by the pinned Ibex importer; structurally incomplete imports are not reported as complete counts.
+  source_revision: d901b787c7e10c1ab3344ac0156f802ab29ad207
+problems:
+  - id: problem-bison-dialect-coverage
+    status: observed
+    title: Pinned Bison-family sources contain directives outside the admitted import subset
+    evidence:
+      - docs/guides/bison-import.md
+      - gallery/EXTERNAL.md
+      - tool/quality/bison_external.rb
+  - id: problem-conflict-volume
+    status: observed
+    title: The imported jq grammar produces a large unresolved conflict set under the measured construction
+    evidence:
+      - tool/quality/bison_external.rb
+  - id: problem-public-runtime-performance
+    status: observed
+    title: The historical public comparison projection retains slower Ibex cold and new-instance rows
+    evidence:
+      - benchmark/README.md
+      - docs/registry/claims.yml
+      - docs/policy/release-readiness.md
+workloads:
+  - id: bcdice-command-parser
+    classification: public_real
+    owner: bcdice
+    project: BCDice
+    repository_url: https://github.com/bcdice/BCDice
+    revision: 21b4a03789bf2080ad41aaf31299b609ee7bda86
+    source_binding:
+      kind: public_workloads
+      id: bcdice_command
+    grammar:
+      identity: BCDice command parser
+      path: lib/bcdice/command/parser.y
+      sha256: 845f4fcd5dedfc276dd3529cc86015a1b806bb7912346a04ce5a78a1977bb4d8
+      storage: remote
+      source_url: https://github.com/bcdice/BCDice/blob/21b4a03789bf2080ad41aaf31299b609ee7bda86/lib/bcdice/command/parser.y
+    license:
+      expression: BSD-3-Clause
+      evidence:
+        - locator: https://github.com/bcdice/BCDice/blob/21b4a03789bf2080ad41aaf31299b609ee7bda86/LICENSE
+          sha256: d7b2502fc32b0b677c329f71e349c2d7faa6d9a0c1a66cd69ae4756950026fee
+          storage: remote
+    permission:
+      status: public_source
+      evidence:
+        - locator: https://github.com/bcdice/BCDice/blob/21b4a03789bf2080ad41aaf31299b609ee7bda86/lib/bcdice/command/parser.y
+          sha256: 845f4fcd5dedfc276dd3529cc86015a1b806bb7912346a04ce5a78a1977bb4d8
+          storage: remote
+    counts:
+      method: ibex-normalized-lalr-v1
+      productions:
+        status: measured
+        value: 34
+      states:
+        status: measured
+        value: 56
+      tokens:
+        status: measured
+        value: 19
+    used_features:
+      - class_header
+      - compatible_mode
+      - empty_productions
+      - opaque_ruby_actions
+      - user_code_sections
+    known_conflicts:
+      reduce_reduce:
+        status: measured
+        value: 0
+      shift_reduce:
+        status: measured
+        value: 2
+    current_pain:
+      status: observed
+      problem_ids:
+        - problem-public-runtime-performance
+      summary: >-
+        This grammar is one of the three exact-revision public rows for which the historical
+        comparison projection retained slower Ibex cold-generation and new-instance observations.
+      evidence:
+        - benchmark/README.md
+        - docs/policy/release-readiness.md
+    current_workaround:
+      status: documented
+      summary: >-
+        The formal harness keeps the pinned Racc implementation as the comparison baseline and
+        does not claim that an Ibex-side performance workaround exists.
+      evidence:
+        - benchmark/README.md
+    benchmark_eligibility:
+      status: eligible
+      scopes:
+        - public_generation
+        - public_runtime
+      reasons:
+        - Exact source, dependency definition, grammar digest, license, and representative inputs are pinned.
+        - The benchmark verifies the checkout revision, origin, cleanliness, grammar digest, and behavior.
+  - id: bison-gnu-calc
+    classification: external_real
+    owner: akimd
+    project: bison
+    repository_url: https://github.com/akimd/bison
+    revision: 25b3d0e1a3f97a33615099e4b211f3953990c203
+    source_binding:
+      kind: bison_external
+      id: gnu-bison-calc
+    grammar:
+      identity: GNU Bison C calculator example
+      path: examples/c/calc/calc.y
+      sha256: 59259755e8619ebb514b1c1832de28574341efbb64f3f593318961c0cfa4aa1b
+      storage: remote
+      source_url: https://github.com/akimd/bison/blob/25b3d0e1a3f97a33615099e4b211f3953990c203/examples/c/calc/calc.y
+    license:
+      expression: GPL-3.0-or-later
+      evidence:
+        - locator: https://github.com/akimd/bison/blob/25b3d0e1a3f97a33615099e4b211f3953990c203/COPYING
+          sha256: 3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986
+          storage: remote
+    permission:
+      status: public_source
+      evidence:
+        - locator: https://github.com/akimd/bison/blob/25b3d0e1a3f97a33615099e4b211f3953990c203/examples/c/calc/calc.y
+          sha256: 59259755e8619ebb514b1c1832de28574341efbb64f3f593318961c0cfa4aa1b
+          storage: remote
+    counts:
+      method: ibex-normalized-lalr-v1
+      productions:
+        status: measured
+        value: 13
+      states:
+        status: measured
+        value: 22
+      tokens:
+        status: measured
+        value: 11
+    used_features:
+      - bison_import
+      - bison_nonstructural_directive_reporting
+      - opaque_actions
+      - typed_symbols
+    known_conflicts:
+      reduce_reduce:
+        status: measured
+        value: 0
+      shift_reduce:
+        status: measured
+        value: 0
+    current_pain:
+      status: observed
+      problem_ids:
+        - problem-bison-dialect-coverage
+      summary: The import report retains one unsupported nonstructural directive for review.
+      evidence:
+        - tool/quality/bison_external.rb
+    current_workaround:
+      status: documented
+      summary: >-
+        Import strips actions, reports unsupported directives, and publishes only aggregate
+        measurements from the temporary downloaded source.
+      evidence:
+        - docs/guides/bison-import.md
+        - gallery/EXTERNAL.md
+    benchmark_eligibility:
+      status: diagnostic_only
+      scopes:
+        - bison_import_compatibility
+      reasons:
+        - The exact public source and license are pinned and the structurally complete import is measured.
+        - This is an import compatibility input, not a representative Ruby runtime performance workload.
+  - id: bison-jq-parser
+    classification: external_real
+    owner: jqlang
+    project: jq
+    repository_url: https://github.com/jqlang/jq
+    revision: 603db3f57741d217ba651e61086b550a72148b83
+    source_binding:
+      kind: bison_external
+      id: jq
+    grammar:
+      identity: jq parser
+      path: src/parser.y
+      sha256: 803aa7c0b1acba2228e52d1de392fb51e60a7bbe23e42870aea1d62c43360c60
+      storage: remote
+      source_url: https://github.com/jqlang/jq/blob/603db3f57741d217ba651e61086b550a72148b83/src/parser.y
+    license:
+      expression: MIT
+      evidence:
+        - locator: https://github.com/jqlang/jq/blob/603db3f57741d217ba651e61086b550a72148b83/COPYING
+          sha256: ad2b4a266b2268939c1446979759706077421cf906a203aa188c6f396e8cfd74
+          storage: remote
+    permission:
+      status: public_source
+      evidence:
+        - locator: https://github.com/jqlang/jq/blob/603db3f57741d217ba651e61086b550a72148b83/src/parser.y
+          sha256: 803aa7c0b1acba2228e52d1de392fb51e60a7bbe23e42870aea1d62c43360c60
+          storage: remote
+    counts:
+      method: ibex-normalized-lalr-v1
+      productions:
+        status: measured
+        value: 167
+      states:
+        status: measured
+        value: 311
+      tokens:
+        status: measured
+        value: 100
+    used_features:
+      - bison_import
+      - bison_nonstructural_directive_reporting
+      - locations
+      - opaque_actions
+      - parser_parameters
+      - typed_symbols
+    known_conflicts:
+      reduce_reduce:
+        status: measured
+        value: 0
+      shift_reduce:
+        status: measured
+        value: 408
+    current_pain:
+      status: observed
+      problem_ids:
+        - problem-bison-dialect-coverage
+        - problem-conflict-volume
+      summary: >-
+        The import report retains one unsupported directive and the imported direct-LALR
+        measurement contains 408 unresolved shift/reduce conflicts.
+      evidence:
+        - tool/quality/bison_external.rb
+    current_workaround:
+      status: documented
+      summary: >-
+        The external gate reports the imported structure and conflicts without presenting the
+        result as a semantics-preserving jq parser or a runtime benchmark.
+      evidence:
+        - docs/guides/bison-import.md
+        - gallery/EXTERNAL.md
+    benchmark_eligibility:
+      status: diagnostic_only
+      scopes:
+        - bison_import_compatibility
+        - conflict_analysis
+      reasons:
+        - Exact source, license, aggregate structure, and conflicts are pinned.
+        - Action semantics and the application's lexer/runtime integration are outside this measurement.
+  - id: bison-php-parser
+    classification: external_real
+    owner: php
+    project: php-src
+    repository_url: https://github.com/php/php-src
+    revision: 7b78eb4fcc29c5cafa083c667558d0fe79c0c499
+    source_binding:
+      kind: bison_external
+      id: php
+    grammar:
+      identity: PHP Zend language parser
+      path: Zend/zend_language_parser.y
+      sha256: afb7ad325d4bd7ca4bb037c96dd31e8afdd0652469f0248cc4139a475f0d5e98
+      storage: remote
+      source_url: https://github.com/php/php-src/blob/7b78eb4fcc29c5cafa083c667558d0fe79c0c499/Zend/zend_language_parser.y
+    license:
+      expression: BSD-3-Clause
+      evidence:
+        - locator: https://github.com/php/php-src/blob/7b78eb4fcc29c5cafa083c667558d0fe79c0c499/LICENSE
+          sha256: 76000691f0de039d3080fe8226131f5c4bb29e8996c1de96b94823fad0499fbd
+          storage: remote
+    permission:
+      status: public_source
+      evidence:
+        - locator: https://github.com/php/php-src/blob/7b78eb4fcc29c5cafa083c667558d0fe79c0c499/Zend/zend_language_parser.y
+          sha256: afb7ad325d4bd7ca4bb037c96dd31e8afdd0652469f0248cc4139a475f0d5e98
+          storage: remote
+    counts:
+      method: ibex-normalized-lalr-v1
+      productions:
+        status: measured
+        value: 635
+      states:
+        status: measured
+        value: 1203
+      tokens:
+        status: measured
+        value: 185
+    used_features:
+      - bison_import
+      - bison_nonstructural_directive_reporting
+      - opaque_actions
+      - precedence
+      - typed_symbols
+    known_conflicts:
+      reduce_reduce:
+        status: measured
+        value: 0
+      shift_reduce:
+        status: measured
+        value: 0
+    current_pain:
+      status: observed
+      problem_ids:
+        - problem-bison-dialect-coverage
+      summary: The import report retains one unsupported nonstructural directive for review.
+      evidence:
+        - tool/quality/bison_external.rb
+    current_workaround:
+      status: documented
+      summary: The external gate records aggregate imported structure while excluding application action semantics.
+      evidence:
+        - docs/guides/bison-import.md
+        - gallery/EXTERNAL.md
+    benchmark_eligibility:
+      status: diagnostic_only
+      scopes:
+        - bison_import_compatibility
+        - scale_construction
+      reasons:
+        - Exact public source, license, and structurally complete imported counts are pinned.
+        - This does not measure PHP runtime behavior or action equivalence.
+  - id: bison-postgresql-parser
+    classification: external_real
+    owner: postgres
+    project: postgres
+    repository_url: https://github.com/postgres/postgres
+    revision: d6eac691747499645f21398c9e305d7a671e0229
+    source_binding:
+      kind: bison_external
+      id: postgresql
+    grammar:
+      identity: PostgreSQL backend SQL grammar
+      path: src/backend/parser/gram.y
+      sha256: 649da7c47a4d4a26062e9acde2c588ac796a3b74a94079649dd6d16c53a717fe
+      storage: remote
+      source_url: https://github.com/postgres/postgres/blob/d6eac691747499645f21398c9e305d7a671e0229/src/backend/parser/gram.y
+    license:
+      expression: PostgreSQL
+      evidence:
+        - locator: https://github.com/postgres/postgres/blob/d6eac691747499645f21398c9e305d7a671e0229/COPYRIGHT
+          sha256: 3d6af92ff8a4c2cdf69afb1cf44edea727922f5cd0cf8b5f72b11cdecac8fdfd
+          storage: remote
+    permission:
+      status: public_source
+      evidence:
+        - locator: https://github.com/postgres/postgres/blob/d6eac691747499645f21398c9e305d7a671e0229/src/backend/parser/gram.y
+          sha256: 649da7c47a4d4a26062e9acde2c588ac796a3b74a94079649dd6d16c53a717fe
+          storage: remote
+    counts:
+      method: ibex-normalized-lalr-v1
+      productions:
+        status: measured
+        value: 3640
+      states:
+        status: measured
+        value: 6942
+      tokens:
+        status: measured
+        value: 562
+    used_features:
+      - bison_import
+      - bison_nonstructural_directive_reporting
+      - locations
+      - opaque_actions
+      - precedence
+      - typed_symbols
+    known_conflicts:
+      reduce_reduce:
+        status: measured
+        value: 0
+      shift_reduce:
+        status: measured
+        value: 0
+    current_pain:
+      status: observed
+      problem_ids:
+        - problem-bison-dialect-coverage
+      summary: The import report retains three unsupported nonstructural directives for review.
+      evidence:
+        - tool/quality/bison_external.rb
+    current_workaround:
+      status: documented
+      summary: The scheduled gate checks aggregate import structure and does not execute PostgreSQL actions.
+      evidence:
+        - docs/guides/bison-import.md
+        - gallery/EXTERNAL.md
+    benchmark_eligibility:
+      status: diagnostic_only
+      scopes:
+        - bison_import_compatibility
+        - scale_construction
+      reasons:
+        - Exact public source, license, and structurally complete imported counts are pinned.
+        - This is a large construction input, not a database parser runtime benchmark.
+  - id: bison-ruby-bison-era
+    classification: external_real
+    owner: ruby
+    project: ruby
+    repository_url: https://github.com/ruby/ruby
+    revision: e51014f9c05aa65cbf203442d37fef7c12390015
+    source_binding:
+      kind: bison_external
+      id: ruby-bison-era
+    grammar:
+      identity: CRuby Bison-era parse.y
+      path: parse.y
+      sha256: cd9d083728abb271d24241347623c91d7e2bac2d063331938afc8fcad312b555
+      storage: remote
+      source_url: https://github.com/ruby/ruby/blob/e51014f9c05aa65cbf203442d37fef7c12390015/parse.y
+    license:
+      expression: Ruby OR BSD-2-Clause
+      evidence:
+        - locator: https://github.com/ruby/ruby/blob/e51014f9c05aa65cbf203442d37fef7c12390015/COPYING
+          sha256: 967586d538a28955ec2541910cf63c5ac345fcdea94bfb1f1705a1f6eb36bcbb
+          storage: remote
+    permission:
+      status: public_source
+      evidence:
+        - locator: https://github.com/ruby/ruby/blob/e51014f9c05aa65cbf203442d37fef7c12390015/parse.y
+          sha256: cd9d083728abb271d24241347623c91d7e2bac2d063331938afc8fcad312b555
+          storage: remote
+    counts:
+      method: ibex-normalized-lalr-v1
+      productions:
+        status: measured
+        value: 781
+      states:
+        status: measured
+        value: 1303
+      tokens:
+        status: measured
+        value: 158
+    used_features:
+      - bison_import
+      - bison_nonstructural_directive_reporting
+      - locations
+      - opaque_actions
+      - precedence
+      - typed_symbols
+    known_conflicts:
+      reduce_reduce:
+        status: measured
+        value: 0
+      shift_reduce:
+        status: measured
+        value: 0
+    current_pain:
+      status: observed
+      problem_ids:
+        - problem-bison-dialect-coverage
+      summary: The import report retains two unsupported nonstructural directives for review.
+      evidence:
+        - tool/quality/bison_external.rb
+    current_workaround:
+      status: documented
+      summary: >-
+        The external gate compares aggregate GNU Bison and Ibex state counts while documenting
+        the distinct acceptance-state convention.
+      evidence:
+        - docs/guides/bison-import.md
+        - gallery/EXTERNAL.md
+    benchmark_eligibility:
+      status: diagnostic_only
+      scopes:
+        - bison_import_compatibility
+        - external_state_comparison
+      reasons:
+        - Exact public source, license, structurally complete imported counts, and Bison comparison are pinned.
+        - It is not evidence about current CRuby's Lrama grammar or runtime parser behavior.
+  - id: bison-ruby-current-lrama
+    classification: external_real
+    owner: ruby
+    project: ruby
+    repository_url: https://github.com/ruby/ruby
+    revision: 825c457945cdb0d07c6075846dc778b147224cbf
+    source_binding:
+      kind: bison_external
+      id: ruby-current-lrama
+    grammar:
+      identity: Current pinned CRuby Lrama parse.y analysis input
+      path: parse.y
+      sha256: 90ff67d6f610bacc24439dfac6c1c30ed9eb08aa8b80225c0f074947f1894bb5
+      storage: remote
+      source_url: https://github.com/ruby/ruby/blob/825c457945cdb0d07c6075846dc778b147224cbf/parse.y
+    license:
+      expression: Ruby OR BSD-2-Clause
+      evidence:
+        - locator: https://github.com/ruby/ruby/blob/825c457945cdb0d07c6075846dc778b147224cbf/COPYING
+          sha256: 4ebe48076b3ee165fbb9350aa8a9552f8043c8ed8a7edca2089133d33c1ea45f
+          storage: remote
+    permission:
+      status: public_source
+      evidence:
+        - locator: https://github.com/ruby/ruby/blob/825c457945cdb0d07c6075846dc778b147224cbf/parse.y
+          sha256: 90ff67d6f610bacc24439dfac6c1c30ed9eb08aa8b80225c0f074947f1894bb5
+          storage: remote
+    counts:
+      method: ibex-normalized-lalr-v1
+      productions:
+        status: not_measured
+        reason: Twenty-two structural directives are unsupported, so the importer output is incomplete.
+      states:
+        status: not_measured
+        reason: A state count from the structurally incomplete imported grammar is not a complete grammar count.
+      tokens:
+        status: not_measured
+        reason: A token count from the structurally incomplete imported grammar is not a complete grammar count.
+    used_features:
+      - bison_import
+      - lrama_extensions
+      - opaque_actions
+      - structural_unsupported_reporting
+    known_conflicts:
+      reduce_reduce:
+        status: not_measured
+        reason: Conflict counts from the structurally incomplete import are diagnostic partial observations only.
+      shift_reduce:
+        status: not_measured
+        reason: Conflict counts from the structurally incomplete import are diagnostic partial observations only.
+    current_pain:
+      status: observed
+      problem_ids:
+        - problem-bison-dialect-coverage
+      summary: >-
+        The pinned grammar uses Lrama extensions; the importer reports 22 structural gaps and
+        therefore cannot claim a complete automaton for this workload.
+      evidence:
+        - gallery/EXTERNAL.md
+        - tool/quality/bison_external.rb
+    current_workaround:
+      status: documented
+      summary: >-
+        The gate labels the result structurally incomplete, lists the unsupported directives,
+        and keeps it separate from the five structurally complete Bison-family inputs.
+      evidence:
+        - docs/guides/bison-import.md
+        - gallery/EXTERNAL.md
+    benchmark_eligibility:
+      status: ineligible
+      scopes: []
+      reasons:
+        - Structural import gaps make production, token, state, and conflict totals incomplete.
+        - Partial diagnostic figures must not be promoted to real-workload benchmark evidence.
+  - id: gallery-calc
+    classification: repository_synthetic
+    owner: ydah
+    project: ibex
+    repository_url: https://github.com/ydah/ibex
+    revision: 8dae6f7cede1d262cb9211a07b72b8c903e96126
+    source_binding:
+      kind: gallery
+      id: calc
+    grammar:
+      identity: Self-authored calculator gallery grammar
+      path: gallery/calc/grammar.y
+      sha256: e9c25a35bd0351e58c3aefd9397097ac04701e052bad7fd234e72e357b5bac07
+      storage: repository
+      source_url: repository
+    license:
+      expression: MIT
+      evidence:
+        - locator: gallery/calc/LICENSE
+          sha256: b919dd0c8ad910ad6d52d63b81eec2959a965aae9965946c26f40d6c3cb760b6
+          storage: repository
+    permission:
+      status: repository_owned
+      evidence:
+        - locator: gallery/calc/PROVENANCE.md
+          sha256: 5757574146b2fab2f01200f4a4e47039fbc8f64636f96ba5e4cf7c97166e1dd6
+          storage: repository
+    counts:
+      method: ibex-normalized-lalr-v1
+      productions:
+        status: measured
+        value: 7
+      states:
+        status: measured
+        value: 15
+      tokens:
+        status: measured
+        value: 9
+    used_features:
+      - generated_lexer
+      - opaque_ruby_actions
+      - precedence
+      - syntax_error_catalog
+    known_conflicts:
+      reduce_reduce:
+        status: measured
+        value: 0
+      shift_reduce:
+        status: measured
+        value: 0
+    current_pain:
+      status: none_recorded
+      problem_ids: []
+      summary: No workload-specific pain is recorded; this is a bounded synthetic correctness fixture.
+      evidence: []
+    current_workaround:
+      status: not_applicable
+      summary: No workaround is needed or claimed for this synthetic fixture.
+      evidence: []
+    benchmark_eligibility:
+      status: eligible
+      scopes:
+        - correctness
+        - differential_fuzzing
+        - table_verification
+      reasons:
+        - Repository-owned source, provenance, license, corpus, diagnostics, and expected metrics are committed.
+        - Synthetic results must remain labeled synthetic and cannot establish public-language impact.
+  - id: gallery-json
+    classification: repository_synthetic
+    owner: ydah
+    project: ibex
+    repository_url: https://github.com/ydah/ibex
+    revision: d901b787c7e10c1ab3344ac0156f802ab29ad207
+    source_binding:
+      kind: gallery
+      id: json
+    grammar:
+      identity: Self-authored JSON gallery grammar
+      path: gallery/json/grammar.y
+      sha256: 162484428a798541dfced3a12e6e38eb6f1231aec03157c273b25493fa6f9f66
+      storage: repository
+      source_url: repository
+    license:
+      expression: MIT
+      evidence:
+        - locator: gallery/json/LICENSE
+          sha256: b919dd0c8ad910ad6d52d63b81eec2959a965aae9965946c26f40d6c3cb760b6
+          storage: repository
+    permission:
+      status: repository_owned
+      evidence:
+        - locator: gallery/json/PROVENANCE.md
+          sha256: 411b8c1d9d631cb68007e49f553273d3753c968892c93e7eb7423c8067baa1e7
+          storage: repository
+    counts:
+      method: ibex-normalized-lalr-v1
+      productions:
+        status: measured
+        value: 17
+      states:
+        status: measured
+        value: 27
+      tokens:
+        status: measured
+        value: 13
+    used_features:
+      - generated_lexer
+      - opaque_ruby_actions
+      - syntax_error_catalog
+      - user_code_sections
+    known_conflicts:
+      reduce_reduce:
+        status: measured
+        value: 0
+      shift_reduce:
+        status: measured
+        value: 0
+    current_pain:
+      status: none_recorded
+      problem_ids: []
+      summary: No workload-specific pain is recorded; this is a bounded synthetic correctness fixture.
+      evidence: []
+    current_workaround:
+      status: not_applicable
+      summary: No workaround is needed or claimed for this synthetic fixture.
+      evidence: []
+    benchmark_eligibility:
+      status: eligible
+      scopes:
+        - correctness
+        - differential_fuzzing
+        - table_verification
+      reasons:
+        - Repository-owned source, provenance, license, corpus, diagnostics, and expected metrics are committed.
+        - Synthetic results must remain labeled synthetic and cannot establish public-language impact.
+  - id: gallery-sql-lite
+    classification: repository_synthetic
+    owner: ydah
+    project: ibex
+    repository_url: https://github.com/ydah/ibex
+    revision: d901b787c7e10c1ab3344ac0156f802ab29ad207
+    source_binding:
+      kind: gallery
+      id: sql-lite
+    grammar:
+      identity: Self-authored SQL subset gallery grammar
+      path: gallery/sql-lite/grammar.y
+      sha256: 1369ba9384456fc02d0ccb9cef81dd0e96fcdd387f00266b28df0ac5be1b5f2a
+      storage: repository
+      source_url: repository
+    license:
+      expression: MIT
+      evidence:
+        - locator: gallery/sql-lite/LICENSE
+          sha256: b919dd0c8ad910ad6d52d63b81eec2959a965aae9965946c26f40d6c3cb760b6
+          storage: repository
+    permission:
+      status: repository_owned
+      evidence:
+        - locator: gallery/sql-lite/PROVENANCE.md
+          sha256: 3724215b6c0ad96cc24c55ca652fabf515b23c721bbd46398fcd032bc076c6d9
+          storage: repository
+    counts:
+      method: ibex-normalized-lalr-v1
+      productions:
+        status: measured
+        value: 14
+      states:
+        status: measured
+        value: 26
+      tokens:
+        status: measured
+        value: 14
+    used_features:
+      - generated_lexer
+      - opaque_ruby_actions
+      - precedence
+      - syntax_error_catalog
+    known_conflicts:
+      reduce_reduce:
+        status: measured
+        value: 0
+      shift_reduce:
+        status: measured
+        value: 0
+    current_pain:
+      status: none_recorded
+      problem_ids: []
+      summary: No workload-specific pain is recorded; this is a bounded synthetic correctness fixture.
+      evidence: []
+    current_workaround:
+      status: not_applicable
+      summary: No workaround is needed or claimed for this synthetic fixture.
+      evidence: []
+    benchmark_eligibility:
+      status: eligible
+      scopes:
+        - correctness
+        - differential_fuzzing
+        - table_verification
+      reasons:
+        - Repository-owned source, provenance, license, corpus, diagnostics, and expected metrics are committed.
+        - Synthetic results must remain labeled synthetic and cannot establish public-language impact.
+  - id: ibex-frontend
+    classification: repository_real
+    owner: ydah
+    project: ibex
+    repository_url: https://github.com/ydah/ibex
+    revision: 8dae6f7cede1d262cb9211a07b72b8c903e96126
+    source_binding:
+      kind: repository
+      id: ibex-frontend
+    grammar:
+      identity: Ibex production self-hosted grammar frontend
+      path: lib/ibex/frontend/grammar.y
+      sha256: c615e4a180b21df377585a0804776a3f2af33c3753ef617f6798c9566848e403
+      storage: repository
+      source_url: repository
+    license:
+      expression: MIT
+      evidence:
+        - locator: LICENSE.txt
+          sha256: b919dd0c8ad910ad6d52d63b81eec2959a965aae9965946c26f40d6c3cb760b6
+          storage: repository
+    permission:
+      status: repository_owned
+      evidence:
+        - locator: LICENSE.txt
+          sha256: b919dd0c8ad910ad6d52d63b81eec2959a965aae9965946c26f40d6c3cb760b6
+          storage: repository
+    counts:
+      method: ibex-normalized-lalr-v1
+      productions:
+        status: measured
+        value: 146
+      states:
+        status: measured
+        value: 227
+      tokens:
+        status: measured
+        value: 60
+    used_features:
+      - empty_productions
+      - opaque_ruby_actions
+      - self_hosting
+      - user_code_sections
+    known_conflicts:
+      reduce_reduce:
+        status: measured
+        value: 0
+      shift_reduce:
+        status: measured
+        value: 0
+    current_pain:
+      status: none_recorded
+      problem_ids: []
+      summary: No unresolved workload-specific pain is recorded for the production grammar at this pinned revision.
+      evidence: []
+    current_workaround:
+      status: not_applicable
+      summary: Regeneration, shadow-grammar comparison, and self-host tests are safeguards rather than workarounds.
+      evidence: []
+    benchmark_eligibility:
+      status: eligible
+      scopes:
+        - production_self_hosting
+        - regression
+      reasons:
+        - The production source, generated parser checks, shadow grammar, license, and self-host tests are repository-owned.
+        - This is a real repository workload, but it is not a third-party adoption claim.
+  - id: namae-parser
+    classification: public_real
+    owner: berkmancenter
+    project: namae
+    repository_url: https://github.com/berkmancenter/namae
+    revision: d33875aaf1fc420a8dfe946a3b29cc3e19710061
+    source_binding:
+      kind: public_workloads
+      id: namae
+    grammar:
+      identity: Namae personal-name parser
+      path: lib/namae/parser.y
+      sha256: ac626034b016696bf5b8d4868005ff98cecadf74162294d2c6f9d6e128158198
+      storage: remote
+      source_url: https://github.com/berkmancenter/namae/blob/d33875aaf1fc420a8dfe946a3b29cc3e19710061/lib/namae/parser.y
+    license:
+      expression: AGPL-3.0-only OR BSD-2-Clause
+      evidence:
+        - locator: https://github.com/berkmancenter/namae/blob/d33875aaf1fc420a8dfe946a3b29cc3e19710061/AGPL
+          sha256: 1c52b86e404c62e197b5be8623b94531b55040192a46592343c71512bebe93a0
+          storage: remote
+        - locator: https://github.com/berkmancenter/namae/blob/d33875aaf1fc420a8dfe946a3b29cc3e19710061/BSDL
+          sha256: bd0b20b9264de2ebaf6c291d8b7f45378bf2eee07c13292c60142283b958fb35
+          storage: remote
+        - locator: https://github.com/berkmancenter/namae/blob/d33875aaf1fc420a8dfe946a3b29cc3e19710061/namae.gemspec
+          sha256: 6fe3e91ea62949b102312c7bfff9fb1b850ae76d336c9ff6de00e77a7c815f0d
+          storage: remote
+    permission:
+      status: public_source
+      evidence:
+        - locator: https://github.com/berkmancenter/namae/blob/d33875aaf1fc420a8dfe946a3b29cc3e19710061/lib/namae/parser.y
+          sha256: ac626034b016696bf5b8d4868005ff98cecadf74162294d2c6f9d6e128158198
+          storage: remote
+    counts:
+      method: ibex-normalized-lalr-v1
+      productions:
+        status: measured
+        value: 51
+      states:
+        status: measured
+        value: 78
+      tokens:
+        status: measured
+        value: 12
+    used_features:
+      - class_header
+      - compatible_mode
+      - empty_productions
+      - expect_directive
+      - opaque_ruby_actions
+      - user_code_sections
+    known_conflicts:
+      reduce_reduce:
+        status: measured
+        value: 0
+      shift_reduce:
+        status: measured
+        value: 0
+    current_pain:
+      status: observed
+      problem_ids:
+        - problem-public-runtime-performance
+      summary: >-
+        This grammar is one of the three exact-revision public rows for which the historical
+        comparison projection retained slower Ibex cold-generation and new-instance observations.
+      evidence:
+        - benchmark/README.md
+        - docs/policy/release-readiness.md
+    current_workaround:
+      status: documented
+      summary: >-
+        The formal harness keeps the pinned Racc implementation as the comparison baseline and
+        does not claim that an Ibex-side performance workaround exists.
+      evidence:
+        - benchmark/README.md
+    benchmark_eligibility:
+      status: eligible
+      scopes:
+        - public_generation
+        - public_runtime
+      reasons:
+        - Exact source, dependency definition, grammar digest, license, and representative inputs are pinned.
+        - The benchmark verifies the checkout revision, origin, cleanliness, grammar digest, and behavior.
+  - id: nokogiri-css-parser
+    classification: public_real
+    owner: sparklemotion
+    project: nokogiri
+    repository_url: https://github.com/sparklemotion/nokogiri
+    revision: 04a4c29c6a605ad40a78f4ce343ced0832a1805c
+    source_binding:
+      kind: public_workloads
+      id: nokogiri_css
+    grammar:
+      identity: Nokogiri CSS selector parser
+      path: lib/nokogiri/css/parser.y
+      sha256: 3ba8e2b573c099686c4186d0eef0a670dcaf93d2081f5678be45fb8600dc873a
+      storage: remote
+      source_url: https://github.com/sparklemotion/nokogiri/blob/04a4c29c6a605ad40a78f4ce343ced0832a1805c/lib/nokogiri/css/parser.y
+    license:
+      expression: MIT
+      evidence:
+        - locator: https://github.com/sparklemotion/nokogiri/blob/04a4c29c6a605ad40a78f4ce343ced0832a1805c/LICENSE.md
+          sha256: fdc2068b104e269be2946e21d271d340dfd003f0c8f964308cba4404f75db1aa
+          storage: remote
+    permission:
+      status: public_source
+      evidence:
+        - locator: https://github.com/sparklemotion/nokogiri/blob/04a4c29c6a605ad40a78f4ce343ced0832a1805c/lib/nokogiri/css/parser.y
+          sha256: 3ba8e2b573c099686c4186d0eef0a670dcaf93d2081f5678be45fb8600dc873a
+          storage: remote
+    counts:
+      method: ibex-normalized-lalr-v1
+      productions:
+        status: measured
+        value: 81
+      states:
+        status: measured
+        value: 117
+      tokens:
+        status: measured
+        value: 32
+    used_features:
+      - class_header
+      - compatible_mode
+      - empty_productions
+      - opaque_ruby_actions
+      - user_code_sections
+    known_conflicts:
+      reduce_reduce:
+        status: measured
+        value: 1
+      shift_reduce:
+        status: measured
+        value: 0
+    current_pain:
+      status: observed
+      problem_ids:
+        - problem-public-runtime-performance
+      summary: >-
+        This grammar is one of the three exact-revision public rows for which the historical
+        comparison projection retained slower Ibex cold-generation and new-instance observations.
+      evidence:
+        - benchmark/README.md
+        - docs/policy/release-readiness.md
+    current_workaround:
+      status: documented
+      summary: >-
+        The formal harness keeps the pinned Racc implementation as the comparison baseline and
+        does not claim that an Ibex-side performance workaround exists.
+      evidence:
+        - benchmark/README.md
+    benchmark_eligibility:
+      status: eligible
+      scopes:
+        - public_generation
+        - public_runtime
+      reasons:
+        - Exact source, dependency definition, grammar digest, license, and representative inputs are pinned.
+        - The benchmark verifies the checkout revision, origin, cleanliness, grammar digest, and behavior.

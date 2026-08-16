@@ -232,9 +232,9 @@ module Ibex
 
       def initialize(root: ROOT, registry: nil, narrative: nil, stability: nil, today: Date.today)
         @root = File.expand_path(root)
-        @registry = registry || path("docs/maturity.yml")
-        @narrative = narrative || path("docs/maturity.md")
-        @stability = stability || path("docs/stability.md")
+        @registry = registry || path("docs/registry/maturity.yml")
+        @narrative = narrative || path("docs/policy/maturity.md")
+        @stability = stability || path("docs/policy/stability.md")
         @today = today
       end
 
@@ -411,9 +411,9 @@ module Ibex
       def verify_release_dependencies(dependencies)
         exact_keys!(dependencies, %w[R001 R002 B003], "release_dependencies")
         expected = {
-          "R001" => ["hold_external", "docs/error-ux-review-status-v1.json"],
-          "R002" => ["pending_exact_revision", "docs/release-readiness.md"],
-          "B003" => ["complete", "docs/workloads.yml"]
+          "R001" => ["hold_external", "docs/evidence/error-ux-review-status-v1.json"],
+          "R002" => ["pending_exact_revision", "docs/policy/release-readiness.md"],
+          "B003" => ["complete", "docs/registry/workloads.yml"]
         }
         dependencies.each do |id, dependency|
           exact_keys!(dependency, %w[status evidence summary], "#{id} dependency")
@@ -428,7 +428,7 @@ module Ibex
       end
 
       def load_workloads
-        document = load_yaml(path("docs/workloads.yml"))
+        document = load_yaml(path("docs/registry/workloads.yml"))
         document.fetch("workloads").to_h do |workload|
           [workload.fetch("id"), workload]
         end
@@ -1072,7 +1072,7 @@ module Ibex
           actual = source[/#{Regexp.escape(SUMMARY_START)}.*?#{Regexp.escape(SUMMARY_END)}/m]
           raise "#{relative(file)} is missing the canonical maturity summary" unless actual
           unless actual == expected
-            raise "#{relative(file)} maturity summary drift; regenerate it from docs/maturity.yml"
+            raise "#{relative(file)} maturity summary drift; regenerate it from docs/registry/maturity.yml"
           end
         end
       end

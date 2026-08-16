@@ -1,15 +1,19 @@
 # frozen_string_literal: true
 
 require "cgi"
+require "pathname"
 
 module Ibex
   module SiteMarkdown
     Document = Struct.new(:title, :description, :body, keyword_init: true)
 
     class Renderer
-      def initialize(markdown, current_slug:)
+      def initialize(markdown, current_slug:, current_document_path: nil, document_slugs: {}, asset_hrefs: {})
         @markdown = markdown
         @current_slug = current_slug
+        @current_document_path = current_document_path
+        @document_slugs = document_slugs
+        @asset_hrefs = asset_hrefs
         @headings = Hash.new(0)
       end
 
@@ -117,7 +121,13 @@ module Ibex
       private
 
       def render_fragment(lines)
-        self.class.new(lines.join("\n"), current_slug: @current_slug).render
+        self.class.new(
+          lines.join("\n"),
+          current_slug: @current_slug,
+          current_document_path: @current_document_path,
+          document_slugs: @document_slugs,
+          asset_hrefs: @asset_hrefs
+        ).render
       end
 
       def block_start?(line)
@@ -156,23 +166,29 @@ module Ibex
         return href if href.start_with?("http:", "https:", "#")
 
         path, fragment = href.split("#", 2)
-        if ["README.md", "../README.md"].include?(path)
-          path = github_href("README.md")
-        elsif path.start_with?("../schema/", "../test/", "../tool/", "../examples/", "../benchmark/")
-          path = github_href(path.delete_prefix("../"))
-        elsif path.start_with?("../gallery/", "conflict-explanation-reviews/", "error-ux-round2-reviews/")
-          path = github_href("docs/#{path.delete_prefix('../')}")
+        target = documentation_target(path)
+        if (slug = @document_slugs[target])
+          path = "../#{slug}/"
+        elsif (asset = @asset_hrefs[target])
+          path = "../#{asset}"
         elsif path.end_with?(".md")
-          path = path.sub(%r{\A\.\./}, "").sub(%r{\Adocs/}, "")
-          path = if path == "README.md" || path.start_with?("decisions/", "investigations/", "benchmark/")
-                   github_href(path == "README.md" ? path : "docs/#{path}")
-                 else
-                   "../#{path.delete_suffix('.md')}/"
-                 end
-        elsif path.end_with?(".yml", ".json") && !path.start_with?("../")
+          repository_path = target&.start_with?("docs/") ? target : "docs/#{target || path.delete_prefix('../')}"
+          path = github_href(repository_path)
+        elsif path.start_with?("../")
+          repository_path = path.sub(%r{\A(?:\.\./)+}, "")
+          if repository_path.match?(%r{\A(?:schema|test|tool|examples|benchmark|gallery)/})
+            path = github_href(repository_path)
+          end
+        elsif path.end_with?(".yml", ".json")
           path = "../#{path}"
         end
         fragment ? "#{path}##{fragment}" : path
+      end
+
+      def documentation_target(path)
+        return unless @current_document_path
+
+        Pathname(@current_document_path).dirname.join(path).cleanpath.to_s
       end
       # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "gate_id": "H004-subjective-usefulness",
+  "status": "HOLD",
+  "review_phase": "blind_collection",
+  "reason": "awaiting_at_least_two_independent_human_reviews",
+  "study_path": "test/fixtures/conflict_explanations/study-v1.json",
+  "study_sha256": "20dd85da90aaf1fde8ec7ed3da4ca5c925287712b4878b172d60a3456362bd3e",
+  "blind_artifact_path": "docs/records/conflict-explanation/reviews/v1/blind-study-v1.json",
+  "blind_artifact_sha256": "14d905d52c012c01e47e5dbbbefcd0dc47e9b5bfef20adcafc74f82dc93d33cf",
+  "records": [],
+  "disagreement_summary": "not_available_without_reviews"
+}

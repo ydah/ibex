@@ -1,8 +1,8 @@
 # Whole-builder benchmark
 
 Comparative measurements are publishable claims only when they follow the
-[comparison policy](../docs/comparison-policy.md) and have a validated entry in
-[`docs/claims.yml`](../docs/claims.yml). Benchmark output alone is not a claim:
+[comparison policy](../docs/policy/comparison-policy.md) and have a validated entry in
+[`docs/registry/claims.yml`](../docs/registry/claims.yml). Benchmark output alone is not a claim:
 the registry also fixes its wording, subjects, corpus, environment, unsupported
 semantics, evidence, limitations, and review conditions. Run
 `bundle exec rake quality:comparative_claims` before publishing comparative
@@ -278,7 +278,7 @@ The formal release-evidence workloads for Namae, BCDice's command parser, and
 Nokogiri CSS have an executable manifest in
 `benchmark/public_workloads.json`. Their exact source and license evidence,
 structural counts, known problems, and eligibility scopes are also bound in the
-[public workload registry](../docs/workloads.md). Prepare separate, clean
+[public workload registry](../docs/policy/workloads.md). Prepare separate, clean
 checkouts without running code from them:
 
 ```sh

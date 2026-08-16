@@ -25,7 +25,7 @@ class RuntimeABITest < Minitest::Test
 
   def test_rejects_stale_documented_ir_version
     with_root do |root|
-      replace(root, "docs/runtime-abi-evolution.md", "current_writer: 1", "current_writer: 2")
+      replace(root, "docs/policy/runtime-abi-evolution.md", "current_writer: 1", "current_writer: 2")
 
       error = assert_raises(RuntimeError) { verify(root) }
       assert_includes error.message, "Grammar IR policy is stale"
@@ -40,7 +40,7 @@ class RuntimeABITest < Minitest::Test
         %(generator: "#{current_generator_version}.stale")
     }.each do |before, after|
       with_root do |root|
-        replace(root, "docs/runtime-abi-evolution.md", before, after)
+        replace(root, "docs/policy/runtime-abi-evolution.md", before, after)
 
         assert_raises(RuntimeError) { verify(root) }
       end
@@ -50,7 +50,7 @@ class RuntimeABITest < Minitest::Test
   def test_rejects_95_or_97_as_the_matrix_count
     [95, 97].each do |count|
       with_root do |root|
-        replace(root, "docs/test-interactions.md", "expected_cases: 96", "expected_cases: #{count}")
+        replace(root, "docs/records/test-interactions.md", "expected_cases: 96", "expected_cases: #{count}")
 
         error = assert_raises(RuntimeError) { verify(root) }
         assert_includes error.message, "expected_cases must be 96"
@@ -60,7 +60,7 @@ class RuntimeABITest < Minitest::Test
 
   def test_rejects_a_missing_matrix_axis
     with_root do |root|
-      replace(root, "docs/test-interactions.md", "    locations: [\"off\", \"on\"]\n", "")
+      replace(root, "docs/records/test-interactions.md", "    locations: [\"off\", \"on\"]\n", "")
 
       error = assert_raises(RuntimeError) { verify(root) }
       assert_includes error.message, "documented matrix axes are stale or missing"
@@ -69,7 +69,7 @@ class RuntimeABITest < Minitest::Test
 
   def test_rejects_an_omitted_interaction
     with_root do |root|
-      path = File.join(root, "docs/test-interactions.md")
+      path = File.join(root, "docs/records/test-interactions.md")
       source = File.binread(path)
       source.sub!(/  - id: embedded_runtime\n(?:    .*\n){3}/, "")
       File.binwrite(path, source)

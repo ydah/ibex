@@ -1,1 +1,1 @@
-docs/comparison-policy.md
+docs/policy/comparison-policy.md

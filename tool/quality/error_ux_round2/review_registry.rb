@@ -39,7 +39,7 @@ module Ibex
       def validate_evidence_binding!(document, evidence)
         digest = Digest::SHA256.hexdigest(File.binread(@evidence_path))
         identity = document.fetch("evidence")
-        unless identity == { "path" => "docs/error-ux-round2-v1.json", "sha256" => digest }
+        unless identity == { "path" => "docs/records/error-ux/round2-v1.json", "sha256" => digest }
           raise "H003 review registry evidence digest drift"
         end
 

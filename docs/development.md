@@ -45,7 +45,7 @@ root `Gemfile` and its committed lockfile for every development tool.
 
 Feature development may proceed while a release decision is `HOLD`. Before
 merging the first user-visible change for a feature, check the active-track
-limits in [`stability.md`](stability.md#feature-development-budget) and update
+limits in [`stability.md`](policy/stability.md#feature-development-budget) and update
 that inventory in the same pull request.
 
 For the active declarative parser-construction track, change the canonical
@@ -111,7 +111,7 @@ mutations; scheduled CI raises this to 100,000. All searches have token,
 depth, expansion, action, stack, or subprocess-trial bounds. Timing and memory
 remain observations, not pass/fail thresholds.
 
-`quality:workloads` validates the [public workload registry](workloads.md),
+`quality:workloads` validates the [public workload registry](policy/workloads.md),
 including exact source and license-evidence identities, measured versus
 not-measured states, benchmark eligibility, and cross-manifest consistency.
 It recomputes repository-owned grammar counts without downloading external
@@ -127,15 +127,15 @@ reviewer/disagreement inventory, and binds the unchanged R001 normative
 snapshot.
 
 `quality:maturity` validates the exact 18 Preview and two Experimental records
-in the [maturity audit](maturity.md), including activation, evidence gaps,
+in the [maturity audit](policy/maturity.md), including activation, evidence gaps,
 external-use classification, issue-audit freshness, decisions, source digests,
 feature budgets, release blockers, and the synchronized public summary.
 This is an audit-integrity gate, not a promise that every Preview implementation
 or historical evidence capture remains runtime-compatible before v1.0.
 
 `quality:runtime_abi` is contract-only: it cross-checks the published [runtime ABI evolution
-policy](runtime-abi-evolution.md) and [test-interaction
-policy](test-interactions.md) against implementation constants, schemas, the
+policy](policy/runtime-abi-evolution.md) and [test-interaction
+policy](records/test-interactions.md) against implementation constants, schemas, the
 96-case matrix, scheduled gates, and golden inputs, and ignores ambient GitHub
 event variables. The minimal `runtime-abi-assessment` CI job runs only checkout,
 Ruby setup, and the `quality:runtime_abi_pr` entry, which explicitly receives the
@@ -205,25 +205,16 @@ publishes a package and leaves no release artifact in the repository.
 
 Artifact signing is deliberately not simulated with a repository-local key.
 The release remains blocked until the outcome gates in
-[`release-readiness.md`](release-readiness.md) pass. When that happens, the
+[`release-readiness.md`](policy/release-readiness.md) pass. When that happens, the
 release environment must provide a protected external signing identity and
 bind its signature or provenance attestation to the printed artifact digest.
 
-## GitHub release workflow
+## Release preparation
 
-The tag-triggered [`Release` workflow](../.github/workflows/release.yml)
-validates that the generator and runtime versions match the tag, runs the full
-quality suite, checks reproducible package builds, publishes both gems to
-RubyGems.org through Trusted Publishing, and attaches both gems plus
-`SHA256SUMS` to the GitHub Release. Configure a trusted publisher for both
-`ibex` and `ibex-runtime` before using the workflow.
-
-After committing the intended release version, create and push its tag:
-
-```sh
-git tag -a v0.4.0 -m "Release v0.4.0"
-git push origin v0.4.0
-```
+Release readiness is governed by the [release-readiness policy](policy/release-readiness.md)
+and the reproducibility task above. Keep publication credentials, signing
+identities, and external release automation outside this documentation layer;
+this guide records only repository-local checks.
 
 The same workflow can be started manually for an existing tag through
 `workflow_dispatch`.
@@ -309,7 +300,7 @@ Performance observations are not ordinary CI timing thresholds. Follow the
 [benchmark guide](../benchmark/README.md) for workload identities, formal
 comparison commands, environment matching, artifact validation, and
 append-only result history. Use stable workload and problem IDs from the
-[workload registry](workloads.md) when proposing or prioritizing improvements.
+[workload registry](policy/workloads.md) when proposing or prioritizing improvements.
 
 The development bundle includes the exact-version external-grammar profiler:
 
@@ -322,4 +313,4 @@ Use it to locate costs, then repeat the uninstrumented public comparison to
 produce reviewable performance evidence.
 
 The versioned error-experience snapshot and its review procedure live in
-[`docs/error-ux.md`](error-ux.md).
+[`docs/evidence/error-ux.md`](evidence/error-ux.md).

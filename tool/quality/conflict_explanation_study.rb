@@ -12,7 +12,7 @@ module Ibex
     class ConflictExplanationStudy
       ROOT = File.expand_path("../..", __dir__)
       FIXTURE_ROOT = File.join(ROOT, "test/fixtures/conflict_explanations")
-      BLIND_REVIEW_PATH = "docs/conflict-explanation-reviews/v1/blind-study-v1.json"
+      BLIND_REVIEW_PATH = "docs/records/conflict-explanation/reviews/v1/blind-study-v1.json"
       SEARCH_BOUNDS = { max_tokens: 16, max_configurations: 100_000 }.freeze
       REPAIR_BOUNDS = {
         max_candidates: 32,
@@ -79,7 +79,7 @@ module Ibex
             "status" => "external_pending",
             "required_tasks" => %w[identify_cause choose_edit],
             "blind_artifact_path" => BLIND_REVIEW_PATH,
-            "registry_path" => "docs/conflict-explanation-review-status-v1.json"
+            "registry_path" => "docs/records/conflict-explanation/review-status-v1.json"
           }
         }
       end
@@ -111,7 +111,7 @@ module Ibex
       def verify!(evidence_path: File.join(@fixture_root, "study-v1.json"),
                   schema_path: File.join(@root, "schema/conflict-explanation-study-v1.schema.json"),
                   blind_path: File.join(@root, BLIND_REVIEW_PATH),
-                  review_path: File.join(@root, "docs/conflict-explanation-review-status-v1.json"),
+                  review_path: File.join(@root, "docs/records/conflict-explanation/review-status-v1.json"),
                   review_schema_path: File.join(@root, "schema/conflict-explanation-review-v1.schema.json"))
         source = File.binread(evidence_path)
         committed = JSON.parse(source)
@@ -311,7 +311,7 @@ module Ibex
           "status" => "external_pending",
           "required_tasks" => %w[identify_cause choose_edit],
           "blind_artifact_path" => BLIND_REVIEW_PATH,
-          "registry_path" => "docs/conflict-explanation-review-status-v1.json"
+          "registry_path" => "docs/records/conflict-explanation/review-status-v1.json"
         }
         return if review == expected
 

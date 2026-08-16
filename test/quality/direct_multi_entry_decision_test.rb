@@ -9,7 +9,7 @@ class DirectMultiEntryDecisionTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   EVIDENCE = File.join(ROOT, "tool/profile/evidence/construction-profile-v1.json")
   SCHEMA = File.join(ROOT, "schema/construction-profile-v1.schema.json")
-  DOCUMENT = File.join(ROOT, "docs/direct-multi-entry-decision.md")
+  DOCUMENT = File.join(ROOT, "docs/records/ielr/direct-multi-entry-decision.md")
 
   def test_h005_machine_decision_classifies_m001_as_more_data
     assert_empty schemer.validate(evidence).to_a
@@ -86,8 +86,8 @@ class DirectMultiEntryDecisionTest < Minitest::Test
     readme = File.binread(File.join(ROOT, "README.md"))
     specification = Gem::Specification.load(File.join(ROOT, "ibex.gemspec"))
 
-    assert_includes readme, "docs/direct-multi-entry-decision.md"
-    assert_includes specification.files, "docs/direct-multi-entry-decision.md"
+    assert_includes readme, "docs/records/ielr/direct-multi-entry-decision.md"
+    assert_includes specification.files, "docs/records/ielr/direct-multi-entry-decision.md"
     assert_includes specification.files, "schema/construction-profile-v1.schema.json"
   end
 

@@ -10,8 +10,8 @@ require_relative "../../tool/quality/conflict_explanation_study"
 class ConflictExplanationStudyTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   EVIDENCE = File.join(ROOT, "test/fixtures/conflict_explanations/study-v1.json")
-  BLIND = File.join(ROOT, "docs/conflict-explanation-reviews/v1/blind-study-v1.json")
-  REGISTRY = File.join(ROOT, "docs/conflict-explanation-review-status-v1.json")
+  BLIND = File.join(ROOT, "docs/records/conflict-explanation/reviews/v1/blind-study-v1.json")
+  REGISTRY = File.join(ROOT, "docs/records/conflict-explanation/review-status-v1.json")
   SCHEMA = File.join(ROOT, "schema/conflict-explanation-study-v1.schema.json")
 
   def test_committed_machine_corpus_is_closed_and_reproducible
@@ -108,9 +108,9 @@ class ConflictExplanationStudyTest < Minitest::Test
 
     refute_empty schemer.validate(changed).to_a
     assert_equal "external_pending", evidence.dig("subjective_review", "status")
-    assert_equal "docs/conflict-explanation-reviews/v1/blind-study-v1.json",
+    assert_equal "docs/records/conflict-explanation/reviews/v1/blind-study-v1.json",
                  evidence.dig("subjective_review", "blind_artifact_path")
-    assert_equal "docs/conflict-explanation-review-status-v1.json",
+    assert_equal "docs/records/conflict-explanation/review-status-v1.json",
                  evidence.dig("subjective_review", "registry_path")
   end
 

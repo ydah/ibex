@@ -518,9 +518,9 @@
           "const": ["identify_cause", "choose_edit"]
         },
         "blind_artifact_path": {
-          "const": "docs/conflict-explanation-reviews/v1/blind-study-v1.json"
+          "const": "docs/records/conflict-explanation/reviews/v1/blind-study-v1.json"
         },
-        "registry_path": { "const": "docs/conflict-explanation-review-status-v1.json" }
+        "registry_path": { "const": "docs/records/conflict-explanation/review-status-v1.json" }
       },
       "additionalProperties": false
     }

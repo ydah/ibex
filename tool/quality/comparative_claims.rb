@@ -21,7 +21,7 @@ module Ibex
 
       def initialize(root: ROOT, registry: nil, readme: "README.md")
         @root = File.expand_path(root)
-        @registry = registry || File.join(@root, "docs/claims.yml")
+        @registry = registry || File.join(@root, "docs/registry/claims.yml")
         @readme = readme
       end
 

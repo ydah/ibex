@@ -10,7 +10,7 @@ require "tmpdir"
 
 class ErrorUXReviewTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
-  STATUS = File.join(ROOT, "docs/error-ux-review-status-v1.json")
+  STATUS = File.join(ROOT, "docs/evidence/error-ux-review-status-v1.json")
 
   def test_repository_kit_is_ready_but_release_gate_truthfully_holds
     review = Ibex::Quality::ErrorUXReview.new

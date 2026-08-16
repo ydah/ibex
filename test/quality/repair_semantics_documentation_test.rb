@@ -4,7 +4,7 @@ require_relative "../test_helper"
 
 class RepairSemanticsDocumentationTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
-  DOCUMENT = File.join(ROOT, "docs/repair-semantics.md")
+  DOCUMENT = File.join(ROOT, "docs/records/repair-semantics.md")
 
   EXPECTED_COVERAGE = {
     "policy-and-default-off" => "test/runtime/repair_test.rb",

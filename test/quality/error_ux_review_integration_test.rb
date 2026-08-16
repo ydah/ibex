@@ -11,9 +11,9 @@ require "yaml"
 class ErrorUXReviewIntegrationTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   OVERLAY = %w[
-    README.md docs/claims.yml docs/error-ux.md docs/error-ux-review-rubric-v1.md
-    docs/error-ux-review-status-v1.json docs/error-ux-reviews/v1/records/README.md
-    docs/release-readiness.md schema/error-ux-review-v1.schema.json
+    README.md docs/registry/claims.yml docs/evidence/error-ux.md docs/evidence/error-ux-review-rubric-v1.md
+    docs/evidence/error-ux-review-status-v1.json docs/records/error-ux/reviews/v1/records/README.md
+    docs/policy/comparison-policy.md docs/policy/release-readiness.md schema/error-ux-review-v1.schema.json
   ].freeze
   FakeFetcher = Struct.new(:bytes, :login) do
     def blob_bytes(_source)
@@ -35,10 +35,10 @@ class ErrorUXReviewIntegrationTest < Minitest::Test
       assert_error(verifier(root, payload), "status marker does not publish PASS")
 
       bind_report!(root, "README.md", registration)
-      bind_report!(root, "docs/error-ux.md", registration)
-      assert_error(verifier(root, payload), "docs/release-readiness.md")
+      bind_report!(root, "docs/evidence/error-ux.md", registration)
+      assert_error(verifier(root, payload), "docs/policy/release-readiness.md")
 
-      bind_report!(root, "docs/release-readiness.md", registration)
+      bind_report!(root, "docs/policy/release-readiness.md", registration)
       review = verifier(root, payload)
       assert_kind_of Hash, review.verify_kit!
       assert_equal "PASS R001: independent_review_published", review.release_gate!
@@ -63,19 +63,19 @@ class ErrorUXReviewIntegrationTest < Minitest::Test
   end
 
   def stage_payload_and_pass_status(root)
-    status = read_json(root, "docs/error-ux-review-status-v1.json")
+    status = read_json(root, "docs/evidence/error-ux-review-status-v1.json")
     revision = Ibex::Quality::ErrorUXReviewIdentity.git_revision(root)
     template = Ibex::Quality::ErrorUXReviewTemplate.new(root: root, kit: status.fetch("kit"), revision: revision)
     payload = finalize_payload(template.build)
     bytes = "#{JSON.pretty_generate(payload)}\n".b
-    relative = "docs/error-ux-reviews/v1/records/example-review.json"
+    relative = "docs/records/error-ux/reviews/v1/records/example-review.json"
     write(root, relative, bytes)
 
     registration = registration(relative, bytes)
     status["status"] = "PASS"
     status["reason"] = "independent_review_published"
     status["records"] = [registration]
-    write_json(root, "docs/error-ux-review-status-v1.json", status)
+    write_json(root, "docs/evidence/error-ux-review-status-v1.json", status)
     [bytes, registration]
   end
 
@@ -120,7 +120,7 @@ class ErrorUXReviewIntegrationTest < Minitest::Test
   end
 
   def bind_claim!(root, registration) # rubocop:disable Metrics/AbcSize -- explicit fixture mirrors the closed claim.
-    registry = YAML.safe_load_file(File.join(root, "docs/claims.yml"), permitted_classes: [], aliases: false)
+    registry = YAML.safe_load_file(File.join(root, "docs/registry/claims.yml"), permitted_classes: [], aliases: false)
     claim = registry.fetch("claims").find { |entry| entry["id"] == "racc-error-ux-json-v1" }
     claim["state"] = "measured"
     claim.fetch("binding")["kind"] = "claim"
@@ -144,11 +144,11 @@ class ErrorUXReviewIntegrationTest < Minitest::Test
     update_comparative_block!(root, claim)
     clean_stale_report_text!(root)
     claim.fetch("binding")["body_sha256"] = comparative_body_digest(root)
-    File.write(File.join(root, "docs/claims.yml"), YAML.dump(registry))
+    File.write(File.join(root, "docs/registry/claims.yml"), YAML.dump(registry))
   end
 
   def update_comparative_block!(root, claim)
-    path = File.join(root, "docs/error-ux.md")
+    path = File.join(root, "docs/evidence/error-ux.md")
     source = File.binread(path)
     source.gsub!("comparative-evidence:racc-error-ux-json-v1", "comparative-claim:racc-error-ux-json-v1")
     start = "<!-- comparative-claim:racc-error-ux-json-v1:start -->"
@@ -168,7 +168,7 @@ class ErrorUXReviewIntegrationTest < Minitest::Test
   end
 
   def comparative_body_digest(root)
-    source = File.binread(File.join(root, "docs/error-ux.md"))
+    source = File.binread(File.join(root, "docs/evidence/error-ux.md"))
     start = "<!-- comparative-claim:racc-error-ux-json-v1:start -->"
     finish = "<!-- comparative-claim:racc-error-ux-json-v1:end -->"
     body = source.split(start, 2).last.split(finish, 2).first.delete_prefix("\n")
@@ -185,7 +185,11 @@ class ErrorUXReviewIntegrationTest < Minitest::Test
   def bind_report!(root, relative, registration)
     path = File.join(root, relative)
     source = File.binread(path)
-    status_link = relative == "README.md" ? "docs/error-ux-review-status-v1.json" : "error-ux-review-status-v1.json"
+    status_link = if relative == "README.md"
+                    "docs/evidence/error-ux-review-status-v1.json"
+                  else
+                    "error-ux-review-status-v1.json"
+                  end
     body = <<~MARKER.chomp
       R001: `PASS`
 
@@ -261,7 +265,7 @@ class ErrorUXReviewIntegrationTest < Minitest::Test
   end
 
   def assert_json_mutation_fails(root, payload, message, &block)
-    assert_mutation_fails(root, payload, "docs/error-ux-review-status-v1.json", message) do |source|
+    assert_mutation_fails(root, payload, "docs/evidence/error-ux-review-status-v1.json", message) do |source|
       document = JSON.parse(source)
       block.call(document)
       "#{JSON.pretty_generate(document)}\n"
@@ -269,7 +273,7 @@ class ErrorUXReviewIntegrationTest < Minitest::Test
   end
 
   def assert_yaml_mutation_fails(root, payload, message, &block)
-    assert_mutation_fails(root, payload, "docs/claims.yml", message) do |source|
+    assert_mutation_fails(root, payload, "docs/registry/claims.yml", message) do |source|
       document = YAML.safe_load(source, permitted_classes: [], aliases: false)
       block.call(document)
       YAML.dump(document)

@@ -13,7 +13,7 @@ Describe the observable change and the evidence used to review it.
 
 Complete this block when the pull request changes a runtime-facing path. Leave
 the defaults for changes outside that boundary. See
-`docs/runtime-abi-evolution.md` for the allowed vocabulary and decision rules.
+`docs/policy/runtime-abi-evolution.md` for the allowed vocabulary and decision rules.
 
 <!-- ibex-runtime-abi-assessment:start -->
 ```yaml

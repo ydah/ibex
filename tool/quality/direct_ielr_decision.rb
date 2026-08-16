@@ -70,7 +70,7 @@ module Ibex
       }.freeze
       SOURCES = {
         "h005-human-report" => {
-          "path" => "docs/construction-profiling.md",
+          "path" => "docs/records/profiles/construction-profiling.md",
           "role" => "H005 thresholds, observations, NO-GO rationale, and reconsideration evidence"
         }.freeze,
         "h005-machine-evidence" => {
@@ -81,7 +81,7 @@ module Ibex
           "path" => "schema/construction-profile-v1.schema.json", "role" => "closed H005 evidence contract"
         }.freeze,
         "v001-trust-boundary" => {
-          "path" => "docs/verifier-trust-boundary.md",
+          "path" => "docs/policy/verifier-trust-boundary.md",
           "role" => "verifier reference cost, assurance boundary, and explicit IELR non-goals"
         }.freeze,
         "v001-reference-collection" => {
@@ -101,7 +101,7 @@ module Ibex
       V001_REVISION = "c7e5cad89ccd00591f3127fdb76a789bbeb202ab"
       V001_PARENT_REVISION = "2d86d52ef92c2b07046c05f4fd55c32a1d6400a9"
       V001_SOURCE_DIGESTS = {
-        "docs/verifier-trust-boundary.md" => "12568cd0e22a291a3d1466e537c32062fc490fd4bcb6bc886971b78f1aefbe46",
+        "docs/policy/verifier-trust-boundary.md" => "12568cd0e22a291a3d1466e537c32062fc490fd4bcb6bc886971b78f1aefbe46",
         "lib/ibex/verify/reference_collection.rb" => "d07e900652c61ddd942380d49edce0a3c811605cd82490c1e0e6db54010746fb",
         "lib/ibex/verify/verifier.rb" => "66efb73edf90d5466e102ea756c5b36e645ea6f5a780250b0b056dbfe34a80a3"
       }.freeze
@@ -268,7 +268,7 @@ module Ibex
       end
 
       def validate_verifier_boundary!(document)
-        source = File.binread(File.join(@root, "docs/verifier-trust-boundary.md"))
+        source = File.binread(File.join(@root, "docs/policy/verifier-trust-boundary.md"))
         required = [
           "Default and strict both construct the algorithm-specific reference",
           "LALR(1), IELR(1), and LR(1) verification enumerate the canonical LR(1)",
@@ -336,7 +336,7 @@ module Ibex
             Digest::SHA256.hexdigest(bytes.b) == digest
         end
 
-        _bytes, status = capture("git", "show", "#{V001_PARENT_REVISION}:docs/verifier-trust-boundary.md")
+        _bytes, status = capture("git", "show", "#{V001_PARENT_REVISION}:docs/policy/verifier-trust-boundary.md")
         raise "V001 trust-boundary source was not introduced at the bound revision" if status.success?
       end
 

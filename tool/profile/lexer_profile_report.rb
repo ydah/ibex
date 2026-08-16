@@ -104,8 +104,8 @@ module Ibex
       BOUND_SOURCE_DEPENDENCY_PATHS = (SOURCE_DEPENDENCY_PATHS - RELEASE_METADATA_PATHS).freeze
       BOUND_PATHS = (%w[
         Rakefile
-        docs/lexer-construction-profile.md
-        docs/workloads.yml
+        docs/records/profiles/lexer-construction-profile.md
+        docs/registry/workloads.yml
         schema/lexer-profile-v1.schema.json
         test/packaging/schema_files_test.rb
         test/profile/lexer_profile_schema_test.rb
@@ -309,7 +309,7 @@ module Ibex
       def initialize(root:)
         @root = File.expand_path(root)
         @profiler = LexerProfiler.new
-        @registry = YAML.safe_load_file(File.join(@root, "docs/workloads.yml"), aliases: false)
+        @registry = YAML.safe_load_file(File.join(@root, "docs/registry/workloads.yml"), aliases: false)
       end
 
       def build

@@ -33,13 +33,13 @@
         "base_sha256": "6b87e6ea058cc3b302ad291f99ea7de8f8493fac4ae51a8ac544aade564aadb9"
       },
       {
-        "path": "docs/lexer-construction-profile.md",
+        "path": "docs/records/profiles/lexer-construction-profile.md",
         "sha256": "4569b07acebf9c66a81370236bf122529dba9db712a6bbfded15c7e8a3d1e17b",
         "git_state": "base",
         "base_sha256": "4569b07acebf9c66a81370236bf122529dba9db712a6bbfded15c7e8a3d1e17b"
       },
       {
-        "path": "docs/workloads.yml",
+        "path": "docs/registry/workloads.yml",
         "sha256": "734e37963e961ed19e8e1cc51f9676cc38f61ea2c0bc4a4a3bf114c24cd389f7",
         "git_state": "base",
         "base_sha256": "734e37963e961ed19e8e1cc51f9676cc38f61ea2c0bc4a4a3bf114c24cd389f7"

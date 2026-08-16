@@ -28,7 +28,7 @@
       "type": "object",
       "required": ["path", "sha256"],
       "properties": {
-        "path": { "const": "docs/error-ux-round2-v1.json" },
+        "path": { "const": "docs/records/error-ux/round2-v1.json" },
         "sha256": { "$ref": "#/$defs/sha256" }
       },
       "additionalProperties": false

@@ -39,11 +39,11 @@ The following subjects belong in their operational documents instead:
 - documentation organization, generation, hosting, and publication:
   the relevant documentation or workflow;
 - maturity, compatibility, and deprecation policy:
-  [`docs/stability.md`](../stability.md);
+  [`docs/policy/stability.md`](../policy/stability.md);
 - release decisions and release gates:
-  [`docs/release-readiness.md`](../release-readiness.md); and
+  [`docs/policy/release-readiness.md`](../policy/release-readiness.md); and
 - error-experience evidence and human assessments:
-  [`docs/error-ux.md`](../error-ux.md).
+  [`docs/evidence/error-ux.md`](../evidence/error-ux.md).
 
 Use [`0000-template.md`](0000-template.md) for a new implementation decision.
 
@@ -72,3 +72,4 @@ Use [`0000-template.md`](0000-template.md) for a new implementation decision.
 - [0021: Persist executable parser tables as a data-only sidecar](0021-data-only-parser-table-sidecar.md)
 - [0022: Bind scoped verification evidence through the generation manifest](0022-manifest-bound-verification-report.md)
 - [0023: Keep editor repair proposals syntax-only](0023-syntax-only-repair-results.md)
+- [0024: Keep direct IELR as an opt-in construction strategy](0024-direct-ielr-construction.md)

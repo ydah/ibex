@@ -10,8 +10,8 @@ require "yaml"
 # rubocop:disable Metrics/ClassLength -- one adversarial suite mutates every closed evidence family.
 class MaturityTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
-  REGISTRY = File.join(ROOT, "docs/maturity.yml")
-  NARRATIVE = File.join(ROOT, "docs/maturity.md")
+  REGISTRY = File.join(ROOT, "docs/registry/maturity.yml")
+  NARRATIVE = File.join(ROOT, "docs/policy/maturity.md")
   TODAY = Date.new(2026, 8, 15)
   KNOWN_NONSEMANTIC_MAPPINGS = {
     "semantic-locations-types" => {
@@ -509,7 +509,7 @@ class MaturityTest < Minitest::Test
 
     Dir.mktmpdir("maturity-stability-test-") do |directory|
       stability = File.join(directory, "stability.md")
-      source = File.read(File.join(ROOT, "docs/stability.md")).sub("Keep Experimental", "Retain Experimental")
+      source = File.read(File.join(ROOT, "docs/policy/stability.md")).sub("Keep Experimental", "Retain Experimental")
       File.write(stability, source)
       error = assert_raises(RuntimeError) do
         Ibex::Quality::Maturity.new(stability: stability, today: TODAY).verify!

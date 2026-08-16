@@ -3,6 +3,7 @@
 require "fileutils"
 require "pathname"
 require "cgi"
+require "yaml"
 require_relative "site_markdown"
 
 ROOT = Pathname(__dir__).join("..").expand_path
@@ -10,9 +11,20 @@ OUTPUT = ROOT.join("tmp/site")
 STATIC_ROOT = ROOT.join("site")
 PLAYGROUND_OUTPUT = OUTPUT.join("playground")
 DOCUMENTATION_VOLUMES = %w[compatibility extensions experimental gallery].freeze
-DOCUMENTATION = Dir[ROOT.join("docs/*.md").to_s].filter_map do |path|
-  relative = Pathname(path).relative_path_from(ROOT).to_s.delete_suffix(".md")
-  [relative.delete_prefix("docs/"), Pathname(path)]
+PUBLICATION_MANIFEST = YAML.safe_load_file(
+  ROOT.join("docs/index.yml"), permitted_classes: [], aliases: false
+)
+DOCUMENTATION = PUBLICATION_MANIFEST.fetch("documents").map do |entry|
+  [entry.fetch("slug"), ROOT.join("docs", entry.fetch("path"))]
+end.freeze
+DOCUMENTATION_SLUGS = PUBLICATION_MANIFEST.fetch("documents").to_h do |entry|
+  [entry.fetch("path"), entry.fetch("slug")]
+end.freeze
+DOCUMENT_ASSETS = PUBLICATION_MANIFEST.fetch("assets").map do |entry|
+  [ROOT.join("docs", entry.fetch("path")), entry.fetch("href")]
+end.freeze
+ASSET_HREFS = PUBLICATION_MANIFEST.fetch("assets").to_h do |entry|
+  [entry.fetch("path"), entry.fetch("href")]
 end.freeze
 RUBY_ENTRIES = %w[
   lib/ibex/version.rb
@@ -118,6 +130,7 @@ def site_page(title:, description:, canonical:, prefix:, body:, active: "Docs")
 end
 # rubocop:enable Metrics/MethodLength
 
+# rubocop:disable Metrics/BlockLength -- the publication manifest and page shell are kept together.
 def render_documentation
   documentation_root = OUTPUT.join("docs")
   FileUtils.mkdir_p(documentation_root)
@@ -133,7 +146,13 @@ def render_documentation
         <p>#{CGI.escapeHTML(document.description)}</p>
       </header>
       <article class="markdown-body">
-        #{Ibex::SiteMarkdown::Renderer.new(document.body, current_slug: slug).render}
+        #{Ibex::SiteMarkdown::Renderer.new(
+          document.body,
+          current_slug: slug,
+          current_document_path: path.relative_path_from(ROOT.join('docs')).to_s,
+          document_slugs: DOCUMENTATION_SLUGS,
+          asset_hrefs: ASSET_HREFS
+        ).render}
       </article>
     HTML
     destination.write(site_page(
@@ -145,16 +164,15 @@ def render_documentation
                       ))
   end
 end
+# rubocop:enable Metrics/BlockLength
 
 def copy_document_assets
-  Dir[ROOT.join("docs/**/*").to_s].each do |path|
-    next unless File.file?(path)
-    next if path.end_with?(".md")
+  DOCUMENT_ASSETS.each do |source, href|
+    raise "missing publication asset #{source.relative_path_from(ROOT)}" unless source.file?
 
-    relative = Pathname(path).relative_path_from(ROOT.join("docs"))
-    destination = OUTPUT.join("docs", relative)
+    destination = OUTPUT.join("docs", href)
     FileUtils.mkdir_p(destination.dirname)
-    FileUtils.cp(path, destination)
+    FileUtils.cp(source, destination)
   end
 end
 

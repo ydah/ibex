@@ -7,11 +7,11 @@ class VerifierTrustBoundaryDocumentationTest < Minitest::Test
   include Ibex::TestSupport::VerifierFaultCorpus
 
   ROOT = File.expand_path("../..", __dir__)
-  DOCUMENT = File.join(ROOT, "docs/verifier-trust-boundary.md")
+  DOCUMENT = File.join(ROOT, "docs/policy/verifier-trust-boundary.md")
 
   def test_document_is_linked_from_public_reference_pages
-    assert_includes File.binread(File.join(ROOT, "README.md")), "docs/verifier-trust-boundary.md"
-    assert_includes File.binread(File.join(ROOT, "docs/architecture.md")), "verifier-trust-boundary.md"
+    assert_includes File.binread(File.join(ROOT, "README.md")), "docs/policy/verifier-trust-boundary.md"
+    assert_includes File.binread(File.join(ROOT, "docs/concepts/architecture.md")), "verifier-trust-boundary.md"
     assert_includes File.binread(File.join(ROOT, "docs/grammar-reference.md")), "verifier-trust-boundary.md"
   end
 

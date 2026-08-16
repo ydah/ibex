@@ -16,7 +16,7 @@ path = File.expand_path("../test/fixtures/conflict_explanations/study-v1.json", 
 if options.fetch(:write)
   File.binwrite(path, capture)
   document = JSON.parse(capture)
-  blind_path = File.expand_path("../docs/conflict-explanation-reviews/v1/blind-study-v1.json", __dir__)
+  blind_path = File.expand_path("../docs/records/conflict-explanation/reviews/v1/blind-study-v1.json", __dir__)
   File.binwrite(blind_path, study.render_blind(document))
 else
   $stdout.write(capture)

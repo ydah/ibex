@@ -16,7 +16,7 @@ module Ibex
       include ErrorUXReviewIdentity
 
       ROOT = File.expand_path("../..", __dir__)
-      STATUS = "docs/error-ux-review-status-v1.json"
+      STATUS = "docs/evidence/error-ux-review-status-v1.json"
       SNAPSHOT_SCHEMA = "schema/error-ux-v1.schema.json"
 
       def initialize(root: ROOT, status: STATUS, fetcher: ErrorUXReviewStrictFetcher.new,

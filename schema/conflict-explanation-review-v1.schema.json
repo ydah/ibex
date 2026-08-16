@@ -25,7 +25,7 @@
     "study_path": { "const": "test/fixtures/conflict_explanations/study-v1.json" },
     "study_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
     "blind_artifact_path": {
-      "const": "docs/conflict-explanation-reviews/v1/blind-study-v1.json"
+      "const": "docs/records/conflict-explanation/reviews/v1/blind-study-v1.json"
     },
     "blind_artifact_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
     "records": {

@@ -1,0 +1,88 @@
+# Publication manifest for tool/build_site.rb.
+#
+# `slug` is the public URL segment under https://ydah.github.io/ibex/docs/.
+# `path` is the repository path relative to docs/. Slugs are deliberately
+# decoupled from paths so documents can move between layers without breaking
+# published URLs or inbound links.
+version: 1
+
+documents:
+  # Entry points
+  - slug: getting-started
+    path: getting-started.md
+  - slug: grammar-reference
+    path: grammar-reference.md
+  - slug: development
+    path: development.md
+
+  # Guides
+  - slug: racc-migration
+    path: guides/racc-migration.md
+  - slug: lexer-migration
+    path: guides/lexer-migration.md
+  - slug: bison-import
+    path: guides/bison-import.md
+  - slug: cst-migration
+    path: guides/cst-migration.md
+  - slug: editor-setup
+    path: guides/editor-setup.md
+
+  # Concepts
+  - slug: architecture
+    path: concepts/architecture.md
+  - slug: cst
+    path: concepts/cst.md
+  - slug: ielr
+    path: concepts/ielr.md
+  - slug: impact
+    path: concepts/impact.md
+  - slug: configuration-model
+    path: concepts/configuration-model.md
+  - slug: configuration-report
+    path: concepts/configuration-report.md
+  - slug: syntax-sessions
+    path: concepts/syntax-sessions.md
+  - slug: table-artifact
+    path: concepts/table-artifact.md
+  - slug: verification-report
+    path: concepts/verification-report.md
+
+  # Policy
+  - slug: stability
+    path: policy/stability.md
+  - slug: maturity
+    path: policy/maturity.md
+  - slug: comparison-policy
+    path: policy/comparison-policy.md
+  - slug: runtime-abi-evolution
+    path: policy/runtime-abi-evolution.md
+  - slug: verifier-trust-boundary
+    path: policy/verifier-trust-boundary.md
+  - slug: release-readiness
+    path: policy/release-readiness.md
+  - slug: workloads
+    path: policy/workloads.md
+  - slug: status
+    path: policy/status.md
+
+  # Evidence registered in registry/claims.yml or cited by public copy
+  - slug: error-ux
+    path: evidence/error-ux.md
+  - slug: error-ux-review-rubric-v1
+    path: evidence/error-ux-review-rubric-v1.md
+
+  # Records cited by the public README
+  - slug: direct-ielr-decision
+    path: records/ielr/direct-ielr-decision.md
+  - slug: direct-multi-entry-decision
+    path: records/ielr/direct-multi-entry-decision.md
+
+assets:
+  - path: registry/claims.yml
+    href: claims.yml
+  - path: registry/maturity.yml
+    href: maturity.yml
+  - path: registry/workloads.yml
+    href: workloads.yml
+  - path: evidence/error-ux-review-status-v1.json
+    href: error-ux-review-status-v1.json

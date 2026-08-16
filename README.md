@@ -20,10 +20,10 @@ Ibex is pre-1.0. The v1.0 publication decision is on hold pending an
 independent review of the published error-experience evidence; feature
 development continues. The default compatible mode and its current IR
 contracts are the conservative adoption baseline. See the [release status](https://ydah.github.io/ibex/project/status/)
-and [stability policy](docs/stability.md) for the human-readable boundaries.
+and [stability policy](docs/policy/stability.md) for the human-readable boundaries.
 
 <!-- r001-review-status:start -->
-R001: `HOLD` — [`awaiting_independent_review`](docs/error-ux-review-status-v1.json).
+R001: `HOLD` — [`awaiting_independent_review`](docs/evidence/error-ux-review-status-v1.json).
 <!-- r001-review-status:end -->
 
 <!-- type-stats:start -->
@@ -109,14 +109,14 @@ The default frontend remains unchanged unless a grammar opts into
 [maturity audit](https://ydah.github.io/ibex/docs/maturity/) before adopting a
 Preview or Experimental surface.
 
-Use [`ibex impact`](docs/impact.md) to review where a changed nonterminal can
+Use [`ibex impact`](docs/concepts/impact.md) to review where a changed nonterminal can
 propagate. Its reports are deterministic and read-only; nullable boundaries and
 source-only action references remain explicit limitations.
 
 IELR is also explicit: `--algorithm=ielr` uses the conservative partition
 strategy by default, while `--ielr-strategy=direct` enables the experimental
 LR(0)-based construction. Direct IELR is profiled and reviewable, but it is not
-the default release strategy; see the [IELR guide](docs/ielr.md).
+the default release strategy; see the [IELR guide](docs/concepts/ielr.md).
 
 ## Trust boundary
 
@@ -155,10 +155,10 @@ the focused frontend, type, evidence, browser, and workflow checks.
 
 ## Decisions and evidence
 
-The public reference also indexes the [direct IELR decision](docs/direct-ielr-decision.md),
-[direct multi-entry decision](docs/direct-multi-entry-decision.md),
-[verifier trust boundary](docs/verifier-trust-boundary.md), and the
-[error-experience review status](docs/error-ux-review-status-v1.json). These
+The public reference also indexes the [direct IELR decision](docs/records/ielr/direct-ielr-decision.md),
+[direct multi-entry decision](docs/records/ielr/direct-multi-entry-decision.md),
+[verifier trust boundary](docs/policy/verifier-trust-boundary.md), and the
+[error-experience review status](docs/evidence/error-ux-review-status-v1.json). These
 records scope claims to their evidence and revision; they do not change the
 compatible installation path above.
 

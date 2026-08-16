@@ -42,10 +42,10 @@ class RuntimeABITrustedBaseTest < Minitest::Test
 
   def test_malformed_base_contract_fails_closed
     with_runtime_abi_root do |root|
-      valid = File.binread(File.join(root, "docs/runtime-abi-evolution.md"))
-      replace_project_text(root, "docs/runtime-abi-evolution.md", "runtime_paths:\n", "runtime_paths: [\n")
+      valid = File.binread(File.join(root, "docs/policy/runtime-abi-evolution.md"))
+      replace_project_text(root, "docs/policy/runtime-abi-evolution.md", "runtime_paths:\n", "runtime_paths: [\n")
       base = ensure_runtime_abi_git(root)
-      File.binwrite(File.join(root, "docs/runtime-abi-evolution.md"), valid)
+      File.binwrite(File.join(root, "docs/policy/runtime-abi-evolution.md"), valid)
       head = commit_all(root, "repair head contract")
       event = missing_assessment_event(root, base, head)
 
@@ -66,7 +66,7 @@ class RuntimeABITrustedBaseTest < Minitest::Test
 
   def test_missing_base_contract_uses_bootstrap_paths_only_for_explicit_introduction
     with_runtime_abi_root do |root|
-      contract_path = File.join(root, "docs/runtime-abi-evolution.md")
+      contract_path = File.join(root, "docs/policy/runtime-abi-evolution.md")
       contract = File.binread(contract_path)
       FileUtils.rm(contract_path)
       base = ensure_runtime_abi_git(root)
@@ -79,7 +79,7 @@ class RuntimeABITrustedBaseTest < Minitest::Test
       end
       assert_includes error.message, "complete structured ABI assessment"
 
-      git_runtime_abi!(root, "rm", "-q", "docs/runtime-abi-evolution.md")
+      git_runtime_abi!(root, "rm", "-q", "docs/policy/runtime-abi-evolution.md")
       missing_head = commit_all(root, "remove runtime ABI contract")
       trusted = trusted_base(root)
       error = assert_raises(RuntimeError) { trusted.union(pull_request_event(base, missing_head)) }
@@ -91,7 +91,7 @@ class RuntimeABITrustedBaseTest < Minitest::Test
 
   def shrink_head_policy(root)
     SHRUNK_PATHS.each do |pattern|
-      replace_project_text(root, "docs/runtime-abi-evolution.md", "  - #{pattern}\n", "")
+      replace_project_text(root, "docs/policy/runtime-abi-evolution.md", "  - #{pattern}\n", "")
     end
     replace_project_text(
       root, "tool/quality/runtime_abi/reviewed_policy.rb",
@@ -132,7 +132,7 @@ class RuntimeABITrustedBaseTest < Minitest::Test
     target = File.join(root, "event.json")
     FileUtils.cp(source, target)
     rewrite_event_shas(target, base, head)
-    evidence = ["docs/runtime-abi-evolution.md"]
+    evidence = ["docs/policy/runtime-abi-evolution.md"]
     evidence << "tool/quality/runtime_abi/reviewed_policy.rb" unless omitted.end_with?("reviewed_policy.rb")
     evidence << "test/runtime/cst_serialize_test.rb"
     rewrite_event_body(

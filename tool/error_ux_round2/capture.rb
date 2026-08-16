@@ -11,7 +11,7 @@ module Ibex
   module ErrorUXRound2
     ROOT = File.expand_path("../..", __dir__)
     CORPUS = File.join(ROOT, "test/fixtures/error_ux_round2/corpus-v1.json")
-    EVIDENCE = File.join(ROOT, "docs/error-ux-round2-v1.json")
+    EVIDENCE = File.join(ROOT, "docs/records/error-ux/round2-v1.json")
     R001_SNAPSHOT = File.join(ROOT, "test/fixtures/error_ux/json-errors-v1.json")
     R001_SNAPSHOT_SHA256 = "bf49b2f8ba5329f1984d6e90e4b170b5811f4c800536fca56eba1f2725189dbf"
     FIXTURE_CLASSES = {

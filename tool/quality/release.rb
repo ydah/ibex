@@ -31,7 +31,7 @@ module Ibex
         }
       ].freeze
       FORBIDDEN_PACKAGE_PREFIXES = %w[
-        .git/ .idea/ benchmark/ docs/investigations/ gallery/ test/ tool/
+        .git/ .idea/ benchmark/ docs/records/investigations/ gallery/ test/ tool/
       ].freeze
 
       def initialize(root: ROOT, manifest: MANIFEST, output: $stdout)

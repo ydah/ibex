@@ -10,7 +10,7 @@ class RuntimeABIHardeningTest < Minitest::Test
 
   def test_runtime_paths_cannot_omit_codegen_rbs_protection
     with_runtime_abi_root do |root|
-      replace_project_text(root, "docs/runtime-abi-evolution.md", "  - sig/ibex/codegen/**/*\n", "")
+      replace_project_text(root, "docs/policy/runtime-abi-evolution.md", "  - sig/ibex/codegen/**/*\n", "")
 
       error = assert_raises(RuntimeError) { verify_runtime_abi(root) }
       assert_includes error.message, "cannot omit required protections"
@@ -20,7 +20,7 @@ class RuntimeABIHardeningTest < Minitest::Test
 
   def test_policy_validator_fixture_and_workflow_changes_require_assessment
     changed = [
-      "docs/runtime-abi-evolution.md",
+      "docs/policy/runtime-abi-evolution.md",
       "tool/quality/runtime_abi/assessment.rb",
       "test/fixtures/runtime_abi/pull_request.json",
       ".github/workflows/main.yml"
@@ -36,7 +36,7 @@ class RuntimeABIHardeningTest < Minitest::Test
 
   def test_duplicate_entry_cannot_preserve_a_spoofed_96_product
     with_runtime_abi_root do |root|
-      replace_project_text(root, "docs/test-interactions.md",
+      replace_project_text(root, "docs/records/test-interactions.md",
                            "entries: [single, multi, isolated]", "entries: [single, multi, multi]")
       replace_project_text(root, "test/matrix.yml",
                            "entries: [single, multi, isolated]", "entries: [single, multi, multi]")
@@ -49,7 +49,7 @@ class RuntimeABIHardeningTest < Minitest::Test
   def test_interaction_row_cannot_spoof_embedded_runtime_ownership
     with_runtime_abi_root do |root|
       original = "tests: [test/packaging/runtime_gem_test.rb, test/codegen/ractor_shareability_test.rb]"
-      replace_project_text(root, "docs/test-interactions.md", original, "tests: [test/runtime/parser_test.rb]")
+      replace_project_text(root, "docs/records/test-interactions.md", original, "tests: [test/runtime/parser_test.rb]")
 
       error = assert_raises(RuntimeError) { verify_runtime_abi(root) }
       assert_includes error.message, "interaction inventory, axes, coverage, or ownership is stale"
@@ -59,7 +59,7 @@ class RuntimeABIHardeningTest < Minitest::Test
   def test_interaction_row_cannot_spoof_syntax_session_ownership
     with_runtime_abi_root do |root|
       original = "tests: [test/runtime/syntax_session_test.rb, test/packaging/runtime_gem_test.rb]"
-      replace_project_text(root, "docs/test-interactions.md", original, "tests: [test/runtime/parser_test.rb]")
+      replace_project_text(root, "docs/records/test-interactions.md", original, "tests: [test/runtime/parser_test.rb]")
 
       error = assert_raises(RuntimeError) { verify_runtime_abi(root) }
       assert_includes error.message, "interaction inventory, axes, coverage, or ownership is stale"
@@ -109,7 +109,8 @@ class RuntimeABIHardeningTest < Minitest::Test
     git!(root, "init", "-q")
     git!(root, "config", "user.email", "abi-test@example.invalid")
     git!(root, "config", "user.name", "ABI Test")
-    write(root, "docs/runtime-abi-evolution.md", File.binread(File.join(PROJECT_ROOT, "docs/runtime-abi-evolution.md")))
+    source = File.join(PROJECT_ROOT, "docs/policy/runtime-abi-evolution.md")
+    write(root, "docs/policy/runtime-abi-evolution.md", File.binread(source))
     write(root, "lib/ibex/runtime/deleted file.rb", "delete\n")
     write(root, "lib/ibex/runtime/renamed old.rb", "rename\n")
     git!(root, "add", "-A")

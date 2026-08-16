@@ -14,8 +14,8 @@ module Ibex
 
       def initialize(root: Ibex::ErrorUXRound2::ROOT, evidence: nil, review_registry: nil, output: $stdout)
         @root = File.expand_path(root)
-        @evidence = evidence || File.join(@root, "docs/error-ux-round2-v1.json")
-        @review_registry = review_registry || File.join(@root, "docs/error-ux-round2-review-status-v1.json")
+        @evidence = evidence || File.join(@root, "docs/records/error-ux/round2-v1.json")
+        @review_registry = review_registry || File.join(@root, "docs/records/error-ux/round2-review-status-v1.json")
         @output = output
       end
 

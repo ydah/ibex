@@ -7,7 +7,7 @@ require "yaml"
 
 class ComparativeClaimStatesTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
-  REGISTRY = File.join(ROOT, "docs/claims.yml")
+  REGISTRY = File.join(ROOT, "docs/registry/claims.yml")
 
   def test_tool_state_pending_claims_and_reason_are_derived_from_all_claims
     changed = document

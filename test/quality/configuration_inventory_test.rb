@@ -10,7 +10,7 @@ require "yaml"
 class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/ClassLength
   ROOT = File.expand_path("../..", __dir__)
   REGISTRY = File.join(ROOT, "test/fixtures/configuration/options-v1.yml")
-  DOCUMENT = File.join(ROOT, "docs/declarative-configuration.md")
+  DOCUMENT = File.join(ROOT, "docs/generated/declarative-configuration.md")
   WATCH_REGISTRATION =
     'options.on("--watch", "regenerate file outputs when grammar sources change") { @options[:watch] = true }'
   REVIEWER_MUTATIONS = {
@@ -2090,8 +2090,9 @@ class ConfigurationInventoryTest < Minitest::Test # rubocop:disable Metrics/Clas
       FileUtils.cp_r(File.join(ROOT, "lib/ibex/cli"), File.join(root, "lib/ibex/cli"))
       FileUtils.mkdir_p(File.join(root, "test/fixtures/configuration"))
       FileUtils.cp(REGISTRY, File.join(root, "test/fixtures/configuration/options-v1.yml"))
-      FileUtils.mkdir_p(File.join(root, "docs"))
-      FileUtils.cp(DOCUMENT, File.join(root, "docs/declarative-configuration.md"))
+      destination = File.join(root, "docs/generated/declarative-configuration.md")
+      FileUtils.mkdir_p(File.dirname(destination))
+      FileUtils.cp(DOCUMENT, destination)
       yield root
     end
   end

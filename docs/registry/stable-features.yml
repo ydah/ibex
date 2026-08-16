@@ -1,0 +1,16 @@
+# Increment contract_revision and update both documents whenever a Stable
+# contract changes. The coverage gate rejects a one-sided revision update.
+version: 3
+features:
+  compatible-parser:
+    contract_revision: 2
+    en: docs/grammar-reference.md
+  current-ir:
+    contract_revision: 1
+    en: docs/concepts/architecture.md
+  batch-cst:
+    contract_revision: 1
+    en: docs/concepts/cst.md
+  compatibility-policy:
+    contract_revision: 1
+    en: docs/policy/stability.md

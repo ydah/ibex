@@ -24,8 +24,8 @@ module Ibex
       end
 
       def verify!
-        @abi_contract = load_contract(path("docs/runtime-abi-evolution.md"), "runtime-abi")
-        @test_contract = load_contract(path("docs/test-interactions.md"), "test-interaction")
+        @abi_contract = load_contract(path("docs/policy/runtime-abi-evolution.md"), "runtime-abi")
+        @test_contract = load_contract(path("docs/records/test-interactions.md"), "test-interaction")
         verify_abi(@abi_contract)
         RuntimeABITestContractVerifier.new(root: @root, contract: @test_contract).verify!
         self

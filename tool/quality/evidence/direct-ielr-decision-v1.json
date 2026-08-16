@@ -143,7 +143,7 @@
     "sources": [
       {
         "id": "h005-human-report",
-        "path": "docs/construction-profiling.md",
+        "path": "docs/records/profiles/construction-profiling.md",
         "sha256": "0af9ddf4682b9769b4b738a98e2ae67445a20c4a8c41269c95c87938ddf5bef7",
         "role": "H005 thresholds, observations, NO-GO rationale, and reconsideration evidence"
       },
@@ -161,7 +161,7 @@
       },
       {
         "id": "v001-trust-boundary",
-        "path": "docs/verifier-trust-boundary.md",
+        "path": "docs/policy/verifier-trust-boundary.md",
         "sha256": "e35d515f0c48702364f43f673b0ba0709095ef126ef888e21906fdefb21486d5",
         "role": "verifier reference cost, assurance boundary, and explicit IELR non-goals"
       },

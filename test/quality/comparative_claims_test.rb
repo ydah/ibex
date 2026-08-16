@@ -8,12 +8,12 @@ require "yaml"
 
 class ComparativeClaimsTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
-  REGISTRY = File.join(ROOT, "docs/claims.yml")
+  REGISTRY = File.join(ROOT, "docs/registry/claims.yml")
   FIXTURES = File.join(ROOT, "test/fixtures/comparative_claims")
   PORTABLE_FILES = %w[
-    README.md benchmark/README.md benchmark/public_workloads.json docs/claims.yml
-    docs/comparison-policy.md docs/error-ux-review-rubric-v1.md
-    docs/error-ux-review-status-v1.json docs/error-ux.md docs/release-readiness.md
+    README.md benchmark/README.md benchmark/public_workloads.json docs/registry/claims.yml
+    docs/policy/comparison-policy.md docs/evidence/error-ux-review-rubric-v1.md
+    docs/evidence/error-ux-review-status-v1.json docs/evidence/error-ux.md docs/policy/release-readiness.md
     benchmark/results/public/2026-08-08-8c9cef999d09-ruby-4.0.0-arm64-darwin24.json
     schema/error-ux-review-v1.schema.json
     test/fixtures/error_ux/json-errors-v1.json
@@ -31,7 +31,7 @@ class ComparativeClaimsTest < Minitest::Test
   def test_rejects_missing_evidence_and_nondeterministic_claim_order
     missing = document
     missing_evidence = missing.fetch("claims").first.fetch("evidence").find do |entry|
-      entry["path"] == "docs/error-ux.md"
+      entry["path"] == "docs/evidence/error-ux.md"
     end
     missing_evidence["path"] = "docs/missing-evidence.md"
     assert_error(missing, "missing evidence")
@@ -75,7 +75,7 @@ class ComparativeClaimsTest < Minitest::Test
       claim = changed.fetch("claims").first
       path = "test/fixtures/comparative_claims/#{fixture}"
       claim.fetch("binding")["path"] = path
-      claim.fetch("evidence").find { |entry| entry["path"] == "docs/error-ux.md" }["path"] = path
+      claim.fetch("evidence").find { |entry| entry["path"] == "docs/evidence/error-ux.md" }["path"] = path
       claim.fetch("evidence").sort_by! { |entry| entry.fetch("path") }
 
       assert_error(changed, "body digest mismatch")
@@ -220,7 +220,7 @@ class ComparativeClaimsTest < Minitest::Test
         FileUtils.mkdir_p(File.dirname(target))
         FileUtils.cp(File.join(ROOT, relative), target)
       end
-      path = File.join(root, "docs/error-ux.md")
+      path = File.join(root, "docs/evidence/error-ux.md")
       File.write(path, yield(File.read(path, encoding: Encoding::UTF_8)))
 
       error = assert_raises(RuntimeError) do

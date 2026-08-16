@@ -102,7 +102,7 @@ full-text synchronization and UTF-16 positions. Open buffers override disk throu
 creating an included fragment re-diagnoses all known dependent roots. It supports diagnostics, definition, references,
 prepare-rename, rename, and hover. Rename accepts only defined identifiers, checks scope/collisions, includes open versions in
 the workspace edit, and reparses/re-resolves every affected closure before returning edits. Grammar actions, heredocs, and user
-code are never executed. See [editor setup](editor-setup.md).
+code are never executed. See [editor setup](guides/editor-setup.md).
 
 `parse_with_diagnostics(max_diagnostics: 20)` collects up to the limit independently from the lexical and syntax phases, merges
 them in source order, and returns the globally earliest records. Recovery is deliberately limited to complete declarations,
@@ -231,7 +231,7 @@ Regex execution remains subject to Ruby Regexp complexity. The static lint
 flags common nested-quantifier shapes as `lexer_redos`; `--warnings=all,error`
 promotes the warning to an error. This heuristic is not a proof of safety.
 Applications must still bound untrusted input and review patterns. See the
-[lexer migration guide](lexer-migration.md) and [ADR 0014](decisions/0014-versioned-generated-lexer.md).
+[lexer migration guide](guides/lexer-migration.md) and [ADR 0014](decisions/0014-versioned-generated-lexer.md).
 
 ## Concrete syntax trees
 
@@ -258,7 +258,7 @@ Inspect `diagnostics`, `contains_error?`, `each_error`, and token
 `synthetic_root`. Application exceptions still propagate. Only current
 format-v6 structured CST tables are executable; older CST tables fail before
 token consumption and must be regenerated. See the
-[CST guide](cst.md) and [migration guide](cst-migration.md).
+[CST guide](concepts/cst.md) and [migration guide](guides/cst-migration.md).
 
 ## Generated AST nodes and traversal
 
@@ -451,7 +451,7 @@ before normal action replay. Insertions carry nil values, replacements retain th
 continues into yacc recovery without reporting the incident twice. Push parsing may return `:need_more` while retaining the
 unexpected token. Semantic `yyerror` is not automatically repaired. See [ADR
 0012](decisions/0012-bounded-nonexecuting-analysis.md).
-The gallery JSON [error UX evidence](error-ux.md) records the SP-4 baseline:
+The gallery JSON [error UX evidence](evidence/error-ux.md) records the SP-4 baseline:
 8 of 10 selected plans were assessed useful, so the bounded single-plan feature
 continues as an explicit experimental option.
 
@@ -635,7 +635,7 @@ the strict V5 identifier. `--max-states` and `--max-items` bound only the
 reference derivation. JSON is the default report format; exit 0 means valid, 1
 means a concrete violation, and 2 means the reference budget was exhausted.
 Opaque semantic actions are never executed. See the
-[verifier trust boundary](verifier-trust-boundary.md) for the exact TCB,
+[verifier trust boundary](policy/verifier-trust-boundary.md) for the exact TCB,
 algorithm-specific strength, resource non-goals, and generated-artifact
 boundary.
 
@@ -694,7 +694,7 @@ Input bytes, structural tokens, rule groups, and actions have independent
 positive budgets. Read-only grammar analysis commands auto-detect two Bison
 `%%` section markers. The complete directive, naming, external-corpus, and
 CRuby `parse.y` contracts are in the
-[Bison import guide](bison-import.md).
+[Bison import guide](guides/bison-import.md).
 
 All CLI forms accept `--lang=LANG`; `IBEX_LANG` supplies the default. Built-in
 diagnostic catalogs ship for `en` and `ja`. Locale suffixes such as

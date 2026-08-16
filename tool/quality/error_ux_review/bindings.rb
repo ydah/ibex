@@ -9,10 +9,10 @@ module Ibex
     module ErrorUXReviewBindings
       CLAIM_ID = "racc-error-ux-json-v1"
       CLAIM_EVIDENCE = %w[
-        docs/error-ux-review-rubric-v1.md docs/error-ux-review-status-v1.json
+        docs/evidence/error-ux-review-rubric-v1.md docs/evidence/error-ux-review-status-v1.json
         schema/error-ux-review-v1.schema.json
       ].freeze
-      REPORTS = %w[README.md docs/error-ux.md docs/release-readiness.md].freeze
+      REPORTS = %w[README.md docs/evidence/error-ux.md docs/policy/release-readiness.md].freeze
       START_MARKER = "<!-- r001-review-status:start -->"
       END_MARKER = "<!-- r001-review-status:end -->"
       HUMAN_LIMITATION = "Independent human review remains subjective and cannot prove affiliation, conflict " \
@@ -30,7 +30,7 @@ module Ibex
 
       def verify_claim_state!(root, status, records)
         registry = YAML.safe_load_file(
-          ErrorUXReviewIdentity.repository_path(root, "docs/claims.yml", "comparative claim registry"),
+          ErrorUXReviewIdentity.repository_path(root, "docs/registry/claims.yml", "comparative claim registry"),
           permitted_classes: [], aliases: false
         )
         claim = registry.fetch("claims").find { |entry| entry["id"] == CLAIM_ID }

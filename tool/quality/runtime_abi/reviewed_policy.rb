@@ -7,7 +7,7 @@ module Ibex
       RATIONALE_SENTINEL = "Replace this placeholder with the compatibility reasoning."
       REQUIRED_RUNTIME_PATHS = %w[
         .github/pull_request_template.md .github/workflows/main.yml Rakefile
-        docs/runtime-abi-evolution.md docs/test-interactions.md
+        docs/policy/runtime-abi-evolution.md docs/records/test-interactions.md
         tool/quality/runtime_abi.rb tool/quality/runtime_abi/**/*
         test/quality/runtime_abi*_test.rb test/support/runtime_abi_test_project.rb
         test/fixtures/runtime_abi/**/*

@@ -69,12 +69,12 @@ The default mode is the conservative racc migration surface. Add
 `pragma extended` immediately after the class header, or pass
 `--mode=extended`, when the grammar needs EBNF groups, imports, generated
 lexers, typed trees, or other opt-in features. The [grammar reference](grammar-reference.md)
-lists the exact syntax and the [maturity audit](maturity.md) records support
+lists the exact syntax and the [maturity audit](policy/maturity.md) records support
 level per API.
 
 ## Next steps
 
-- [Migrate an existing racc grammar](racc-migration.md).
-- [Configure grammar-owned and invocation-owned settings](configuration-model.md).
+- [Migrate an existing racc grammar](guides/racc-migration.md).
+- [Configure grammar-owned and invocation-owned settings](concepts/configuration-model.md).
 - [Inspect a grammar locally in the Playground](https://ydah.github.io/ibex/playground/).
 - [Read the runtime and grammar reference](grammar-reference.md).

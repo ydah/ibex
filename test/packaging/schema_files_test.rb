@@ -41,7 +41,7 @@ class SchemaFilesPackagingTest < Minitest::Test
     specification = Gem::Specification.load(File.expand_path("../../ibex.gemspec", __dir__))
 
     assert_includes specification.files, "schema/lexer-profile-v1.schema.json"
-    assert_includes specification.files, "docs/lexer-construction-profile.md"
+    assert_includes specification.files, "docs/records/profiles/lexer-construction-profile.md"
   end
 
   def test_h003_error_ux_evidence_contract_is_packaged
@@ -49,10 +49,10 @@ class SchemaFilesPackagingTest < Minitest::Test
     expected = %w[
       schema/error-ux-round2-v1.schema.json
       schema/error-ux-round2-review-v1.schema.json
-      docs/error-ux-round2.md
-      docs/error-ux-round2-v1.json
-      docs/error-ux-round2-review-status-v1.json
-      docs/error-ux-round2-reviews/v1/records/README.md
+      docs/records/error-ux/round2.md
+      docs/records/error-ux/round2-v1.json
+      docs/records/error-ux/round2-review-status-v1.json
+      docs/records/error-ux/round2-reviews/v1/records/README.md
     ]
 
     expected.each { |path| assert_includes specification.files, path }
@@ -70,7 +70,7 @@ class SchemaFilesPackagingTest < Minitest::Test
       sig/ibex/verification_report/builder.rbs
       sig/ibex/verification_report/validator.rbs
       schema/verification-report-v1.schema.json
-      docs/verification-report.md
+      docs/concepts/verification-report.md
       docs/decisions/0022-manifest-bound-verification-report.md
     ]
 

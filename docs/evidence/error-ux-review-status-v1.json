@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "gate_id": "R001",
+  "status": "HOLD",
+  "reason": "awaiting_independent_review",
+  "kit": {
+    "id": "ibex-error-ux-independent-review",
+    "version": 1,
+    "repository_url": "https://github.com/ydah/ibex",
+    "rubric_path": "docs/evidence/error-ux-review-rubric-v1.md",
+    "rubric_sha256": "d403e98ec7c28e5022a83645ef253c4c9fc6fa57eb72210ae57118af59dbc8c8",
+    "schema_path": "schema/error-ux-review-v1.schema.json",
+    "schema_sha256": "b73faed74798fdbb83468702389ccaa5a72e04a2fafd47f66f0c9c6f558ca3d1",
+    "records_directory": "docs/records/error-ux/reviews/v1/records",
+    "maintainer_github_logins": [
+      "ydah"
+    ],
+    "snapshot": {
+      "path": "test/fixtures/error_ux/json-errors-v1.json",
+      "introduced_at_revision": "cc20c5eb799cc218ebea665df64261f10d030f75",
+      "sha256": "bf49b2f8ba5329f1984d6e90e4b170b5811f4c800536fca56eba1f2725189dbf",
+      "case_ids": [
+        "EUX-01",
+        "EUX-02",
+        "EUX-03",
+        "EUX-04",
+        "EUX-05",
+        "EUX-06",
+        "EUX-07",
+        "EUX-08",
+        "EUX-09",
+        "EUX-10"
+      ]
+    },
+    "corpus_at_introduction": {
+      "ibex_grammar": "examples/json.y",
+      "ibex_grammar_sha256": "66191b3a211b5e61e0a67cabdae8677de7daa7dffbab5a49208c7f3e31ae0ef8",
+      "racc_grammar": "test/fixtures/error_ux/json_racc.y",
+      "racc_grammar_sha256": "825ee109bd7b6949207850d679042869272208e34cba0fa0efcb235ce35e25dd"
+    }
+  },
+  "records": []
+}

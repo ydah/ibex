@@ -26,8 +26,8 @@ module Ibex
 
       def initialize(root: ROOT, registry: nil, documentation: nil, evidence: nil)
         @root = File.expand_path(root)
-        @registry = registry || File.join(@root, "docs/workloads.yml")
-        @documentation = documentation || File.join(@root, "docs/workloads.md")
+        @registry = registry || File.join(@root, "docs/registry/workloads.yml")
+        @documentation = documentation || File.join(@root, "docs/policy/workloads.md")
         @evidence = evidence || File.join(@root, "tool/quality/workloads/evidence.yml")
       end
 

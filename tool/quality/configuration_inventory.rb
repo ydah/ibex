@@ -13,7 +13,7 @@ module Ibex
     class ConfigurationInventory
       ROOT = File.expand_path("../..", __dir__)
       REGISTRY = "test/fixtures/configuration/options-v1.yml"
-      DOCUMENT = "docs/declarative-configuration.md"
+      DOCUMENT = "docs/generated/declarative-configuration.md"
       SOURCE_GLOBS = ["exe/*", "lib/**/*.rb"].freeze
       REGISTRATION_APIS = %w[
         on on_head on_tail define define_head define_tail def_option def_head_option def_tail_option

@@ -358,10 +358,10 @@ module Ibex
       BOUND_PATHS = %w[
         .github/workflows/main.yml
         Rakefile
-        docs/construction-profiling.md
-        docs/maturity.md
-        docs/maturity.yml
-        docs/workloads.md
+        docs/records/profiles/construction-profiling.md
+        docs/policy/maturity.md
+        docs/registry/maturity.yml
+        docs/policy/workloads.md
         lib/ibex/analysis/digraph.rb
         lib/ibex/lalr/build_metrics.rb
         lib/ibex/lalr/builder.rb
@@ -491,7 +491,7 @@ module Ibex
         @profiler = ConstructionProfiler.new(wall_seconds: wall_seconds, ielr_strategy: ielr_strategy)
         @wall_seconds = wall_seconds
         @checkouts = checkouts
-        @registry = YAML.safe_load_file(File.join(@root, "docs/workloads.yml"), aliases: false)
+        @registry = YAML.safe_load_file(File.join(@root, "docs/registry/workloads.yml"), aliases: false)
       end
 
       def build

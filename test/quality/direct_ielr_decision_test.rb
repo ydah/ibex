@@ -163,9 +163,9 @@ class DirectIELRDecisionTest < Minitest::Test
 
   def test_public_document_is_indexed_and_points_to_machine_record
     readme = File.binread(File.join(ROOT, "README.md"))
-    document = File.binread(File.join(ROOT, "docs/direct-ielr-decision.md"))
+    document = File.binread(File.join(ROOT, "docs/records/ielr/direct-ielr-decision.md"))
 
-    assert_includes readme, "docs/direct-ielr-decision.md"
+    assert_includes readme, "docs/records/ielr/direct-ielr-decision.md"
     assert_includes document, "direct-ielr-decision-v1.json"
     assert_includes document, "direct-ielr-decision-v1.schema.json"
     assert_includes document, "I002 remains\nblocked"

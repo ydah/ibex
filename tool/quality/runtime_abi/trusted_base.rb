@@ -10,11 +10,11 @@ module Ibex
     class RuntimeABITrustedBase
       include RuntimeABIDocument
 
-      CONTRACT_PATH = "docs/runtime-abi-evolution.md"
+      CONTRACT_PATH = "docs/policy/runtime-abi-evolution.md"
       SHA = /\A[0-9a-f]{40,64}\z/
       BOOTSTRAP_RUNTIME_PATHS = %w[
         .github/workflows/**/* .github/pull_request_template.md Rakefile
-        docs/runtime-abi-evolution.md docs/test-interactions.md
+        docs/policy/runtime-abi-evolution.md docs/records/test-interactions.md
         tool/quality/runtime_abi.rb tool/quality/runtime_abi/**/*
         test/quality/runtime_abi*_test.rb test/fixtures/runtime_abi/**/*
         lib/ibex/runtime.rb lib/ibex/runtime/**/*

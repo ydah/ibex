@@ -9,8 +9,8 @@ require_relative "../../tool/quality/error_ux_round2"
 
 class ErrorUXRound2QualityTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
-  EVIDENCE = File.join(ROOT, "docs/error-ux-round2-v1.json")
-  REVIEW_REGISTRY = File.join(ROOT, "docs/error-ux-round2-review-status-v1.json")
+  EVIDENCE = File.join(ROOT, "docs/records/error-ux/round2-v1.json")
+  REVIEW_REGISTRY = File.join(ROOT, "docs/records/error-ux/round2-review-status-v1.json")
   R001 = File.join(ROOT, "test/fixtures/error_ux/json-errors-v1.json")
 
   def test_committed_h003_capture_is_current_and_truthfully_held

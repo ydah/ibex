@@ -13,16 +13,17 @@ module Ibex
       REVISION = /\A[0-9a-f]{40}\z/
       PLACEHOLDER = /(?:REPLACE_WITH|\bTBD\b|\bTODO\b)/i
       PUBLIC_LINKS = {
-        "README.md" => ["(docs/error-ux-review-status-v1.json)"],
-        "docs/error-ux.md" => [
+        "README.md" => ["(docs/evidence/error-ux-review-status-v1.json)"],
+        "docs/evidence/error-ux.md" => [
           "(error-ux-review-status-v1.json)", "(error-ux-review-rubric-v1.md)",
-          "(../schema/error-ux-review-v1.schema.json)"
+          "(../../schema/error-ux-review-v1.schema.json)"
         ],
-        "docs/release-readiness.md" => [
-          "(error-ux-review-status-v1.json)", "(error-ux-review-rubric-v1.md)"
+        "docs/policy/release-readiness.md" => [
+          "(../evidence/error-ux-review-status-v1.json)", "(../evidence/error-ux-review-rubric-v1.md)"
         ],
-        "docs/error-ux-reviews/v1/records/README.md" => [
-          "(../../../error-ux-review-status-v1.json)", "(../../../error-ux-review-rubric-v1.md)"
+        "docs/records/error-ux/reviews/v1/records/README.md" => [
+          "(../../../../../evidence/error-ux-review-status-v1.json)",
+          "(../../../../../evidence/error-ux-review-rubric-v1.md)"
         ]
       }.freeze
 
