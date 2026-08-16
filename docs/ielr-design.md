@@ -1,8 +1,9 @@
 # Direct IELR(1) implementation design
 
 This document is the maintained implementation summary for the paper-derived
-IELR(1) pipeline. The complete design definition and fixture tables are maintained alongside this public summary; this public copy records the
-decisions that are part of the shipped implementation.
+IELR(1) pipeline. The complete design definition and fixture tables are
+maintained alongside this public summary, which records the decisions that
+are part of the shipped implementation.
 
 ## Contract
 
