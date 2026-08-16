@@ -39,6 +39,12 @@ module Ibex
     # @rbs (IR::Automaton, IR::Automaton, Hash[Symbol, Object?], Impact::AutomatonImpact) -> Hash[Symbol, Object?]
     def confirmed_automaton_document: (IR::Automaton, IR::Automaton, Hash[Symbol, Object?], Impact::AutomatonImpact) -> Hash[Symbol, Object?]
 
+    # @rbs (IR::Grammar) -> Array[String]
+    def unreachable_nonterminal_names: (IR::Grammar) -> Array[String]
+
+    # @rbs (IR::Grammar, IR::Grammar) -> Array[String]
+    def newly_unreachable_nonterminal_names: (IR::Grammar, IR::Grammar) -> Array[String]
+
     # @rbs (IR::Automaton) -> Array[Integer]
     def unreachable_state_ids: (IR::Automaton) -> Array[Integer]
 
@@ -67,6 +73,9 @@ module Ibex
 
     # @rbs (Hash[Integer, Array[String]], Hash[String, Array[String]], IR::Grammar) -> Hash[Integer, Array[String]]
     def merge_symbol_kinds: (Hash[Integer, Array[String]], Hash[String, Array[String]], IR::Grammar) -> Hash[Integer, Array[String]]
+
+    # @rbs (Hash[Symbol, Array[Hash[Symbol, Object?]]], IR::Grammar) -> Hash[String, Array[String]]
+    def precedence_symbol_kinds: (Hash[Symbol, Array[Hash[Symbol, Object?]]], IR::Grammar) -> Hash[String, Array[String]]
 
     # @rbs (IR::Automaton) -> Array[String]
     def conflict_identities: (IR::Automaton) -> Array[String]

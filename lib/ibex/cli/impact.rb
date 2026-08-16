@@ -319,7 +319,8 @@ module Ibex
 
     # @rbs (Hash[Symbol, Array[Hash[Symbol, Object?]]], IR::Grammar) -> Hash[String, Array[String]]
     def precedence_symbol_kinds(symbol_changes, grammar)
-      symbol_changes.fetch(:changed).each_with_object({}) do |record, result|
+      result = {} #: Hash[String, Array[String]]
+      symbol_changes.fetch(:changed).each do |record|
         before = record.fetch(:before)
         after = record.fetch(:after)
         next unless before.is_a?(Hash) && after.is_a?(Hash)
@@ -328,6 +329,7 @@ module Ibex
         name = record.fetch(:id).to_s
         result[name] = ["precedence"] if grammar.symbol(name)
       end
+      result
     end
 
     # @rbs (IR::Automaton) -> Array[String]
