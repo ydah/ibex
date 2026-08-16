@@ -20,20 +20,15 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7",
+    "base_revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": false,
     "capture_worktree_status": [
-      " M docs/policy/workloads.md",
-      " M docs/registry/maturity.yml",
-      " M docs/registry/workloads.yml",
-      " M test/quality/maturity_test.rb",
+      " M test/quality/direct_ielr_decision_test.rb",
       " M tool/profile/construction_profiler.rb",
-      " M tool/profile/evidence/construction-profile-v1.json",
-      " M tool/profile/evidence/lexer-profile-v1.json",
-      " M tool/quality/maturity_authority.rb"
+      " M tool/profile/evidence/construction-profile-v1.json"
     ],
-    "capture_worktree_status_sha256": "e6cdd7242f9033925f336867f280e959461bd869503fe683a033fa08f68d4204",
+    "capture_worktree_status_sha256": "d3391a15de3e7042068c5b51c994da9a71dda7bb8ff80ca5491e3d0c8f610d0d",
     "bound_paths": [
       {
         "path": ".github/workflows/main.yml",
@@ -56,8 +51,8 @@
       {
         "path": "docs/policy/workloads.md",
         "sha256": "4079d3500da1134a9f5ccdcf9b82a395d31dde46c18ee2684543cac565e82ff6",
-        "git_state": "modified",
-        "base_sha256": "9fa8da978c0bfd7a679955fc0bbf04546cfd8001db60d4f1a5d72c5ee7cf2b5a"
+        "git_state": "base",
+        "base_sha256": "4079d3500da1134a9f5ccdcf9b82a395d31dde46c18ee2684543cac565e82ff6"
       },
       {
         "path": "docs/records/profiles/construction-profiling.md",
@@ -68,8 +63,8 @@
       {
         "path": "docs/registry/maturity.yml",
         "sha256": "508d4c0ffe746fca0209044289ba2fee4a5430dd8a7a7a23e2e60ff4eed9860f",
-        "git_state": "modified",
-        "base_sha256": "49e77917ca365ffa22480c52c03ebe2bcfcee0d618964969e0f0d9a7aaf01e46"
+        "git_state": "base",
+        "base_sha256": "508d4c0ffe746fca0209044289ba2fee4a5430dd8a7a7a23e2e60ff4eed9860f"
       },
       {
         "path": "lib/ibex/analysis/digraph.rb",
@@ -248,8 +243,8 @@
       {
         "path": "test/quality/maturity_test.rb",
         "sha256": "d59a0c6a62c2072ab253c9edd7761b37093ef44a4bf770a06b73e75b7371cf89",
-        "git_state": "modified",
-        "base_sha256": "ccdfcbfb6bebe159b33dd70cf14000edaf570568bf60fd20cd8476560c9f9793"
+        "git_state": "base",
+        "base_sha256": "d59a0c6a62c2072ab253c9edd7761b37093ef44a4bf770a06b73e75b7371cf89"
       },
       {
         "path": "test/support/public_json_schemas.rb",
@@ -265,9 +260,9 @@
       },
       {
         "path": "tool/profile/construction_profiler.rb",
-        "sha256": "a8f70dfc773575a59b05b152201b13255e32a179d1a2b8622501aba35b140400",
+        "sha256": "95557daa9269803f95d97cd08e804220d5535146bcddba3e68dc210ed68d778e",
         "git_state": "modified",
-        "base_sha256": "0f464df89590878197669e944b0457bae898a37df73351e27da5c630d58cf0e7"
+        "base_sha256": "a8f70dfc773575a59b05b152201b13255e32a179d1a2b8622501aba35b140400"
       },
       {
         "path": "tool/quality/construction_profile.rb",
@@ -282,8 +277,8 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "e1980e30f6f8d06ec07e66442cfbeb34f43d9fdd0a9249ae72a1de84cf82ced6",
-    "implementation_sha256": "71e2ea200cb830770ca435de19b3bbd3a5470228b8bf805b3ea3132327b1a78e",
+    "bound_paths_sha256": "f08f23bf540aacbab70856dceb1dddbdb8456993d227180b65b6862d0d7c90db",
+    "implementation_sha256": "f5c00daac7fc1808e6e8b328c68b46b04764e57660d6efad6ce566d977529554",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
     "evidence_path": "tool/profile/evidence/construction-profile-v1.json",
@@ -1726,7 +1721,7 @@
         {
           "id": "verifier-tcb",
           "target": "V001 complete and reviewed",
-          "observed": "complete at c7e5cad",
+          "observed": "complete at f9d2c54",
           "satisfied": true
         },
         {

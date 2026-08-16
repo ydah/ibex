@@ -219,7 +219,7 @@ module Ibex
             threshold("representative-real-profiles", "at least 2", profiled.to_s, profiled >= 2),
             threshold("real-ielr-need", "at least 2 grammars with meaningful conflicts removed",
                       "#{candidates} structural candidates; 0 semantically reviewed", false),
-            threshold("verifier-tcb", "V001 complete and reviewed", "complete at c7e5cad", true),
+          threshold("verifier-tcb", "V001 complete and reviewed", "complete at f9d2c54", true),
             threshold("scale-independent-verification", "verification avoids canonical LR(1) enumeration",
                       "not satisfied: default and strict IELR verification enumerate canonical LR(1)", false)
           ],
