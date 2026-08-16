@@ -7,8 +7,8 @@
     "status": "final_no_go",
     "basis": "repository_evidence",
     "review_state": "validated",
-    "date": "2026-08-11",
-    "revision": "05bf8c357cdb58a5f95ca4939a96be16e3d43c30",
+    "date": "2026-08-17",
+    "revision": "ae8bc3c5e5b9ad0c3be52cdbbd6955f3f7160774",
     "revision_role": "reviewed repository evidence immediately before dossier publication"
   },
   "follow_on": {
@@ -136,33 +136,33 @@
     "rule": "future direct IELR design must remain independent; GPL implementation source must not be inspected or translated"
   },
   "evidence_identity": {
-    "profile_capture_base_revision": "acb08c2848843dce52f6c806a5800cd3d3f83fe0",
-    "profile_bound_paths_sha256": "d6325f16b00c6215cd610cacd2d5c1151dc95159d38b35e60f102e279dc49210",
-    "profile_implementation_sha256": "b8501d92797e3009bee79fa66ad01ddf56655e337af95d2a630c3f9c66138b3e",
-    "v001_revision": "c7e5cad89ccd00591f3127fdb76a789bbeb202ab",
+    "profile_capture_base_revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
+    "profile_bound_paths_sha256": "f08f23bf540aacbab70856dceb1dddbdb8456993d227180b65b6862d0d7c90db",
+    "profile_implementation_sha256": "f5c00daac7fc1808e6e8b328c68b46b04764e57660d6efad6ce566d977529554",
+    "v001_revision": "f9d2c54eb4b27fc5ffe798bb0b29d038d97ee35c",
     "sources": [
       {
         "id": "h005-human-report",
         "path": "docs/records/profiles/construction-profiling.md",
-        "sha256": "0af9ddf4682b9769b4b738a98e2ae67445a20c4a8c41269c95c87938ddf5bef7",
+        "sha256": "e69e88b9a474fb07b30d1e29a353e0d80edcced7d538b9ca3cf47413d087034c",
         "role": "H005 thresholds, observations, NO-GO rationale, and reconsideration evidence"
       },
       {
         "id": "h005-machine-evidence",
         "path": "tool/profile/evidence/construction-profile-v1.json",
-        "sha256": "7dcaf456e78cdf0ccf6fb14d69fdcaf5a972fc47c37c1e7457539406cfd3587e",
+        "sha256": "26c89a1ee4c5d6e9ff0098cd5c6bf0881d212a07d2c5dc5b52b8aaaaef155639",
         "role": "machine-readable workload measurements, thresholds, decision, and capture provenance"
       },
       {
         "id": "h005-evidence-schema",
         "path": "schema/construction-profile-v1.schema.json",
-      "sha256": "0cdac1514e965800701286084c18411a190ac424527ebf9de2163cbc204b4462",
+        "sha256": "0cdac1514e965800701286084c18411a190ac424527ebf9de2163cbc204b4462",
         "role": "closed H005 evidence contract"
       },
       {
         "id": "v001-trust-boundary",
         "path": "docs/policy/verifier-trust-boundary.md",
-        "sha256": "e35d515f0c48702364f43f673b0ba0709095ef126ef888e21906fdefb21486d5",
+        "sha256": "7615c078e856bad5b3b8b6606b39dc1b35fedc385da5ab7bbecd1c71b1376b93",
         "role": "verifier reference cost, assurance boundary, and explicit IELR non-goals"
       },
       {
@@ -178,6 +178,6 @@
         "role": "current verifier checks reviewed by V001"
       }
     ],
-    "sources_sha256": "adfd25ba8ebe12de407cd6c11a773cb75b9090603e7dc9a91ca2111665db5097"
+    "sources_sha256": "54805bd3bb6992e3888400a32d8b1ee748c9b967d4a730738da75b67438b3f94"
   }
 }
