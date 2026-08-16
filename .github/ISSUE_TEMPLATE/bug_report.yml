@@ -11,7 +11,7 @@ body:
     id: version
     attributes:
       label: Ibex and Ruby versions
-      placeholder: "Ibex 0.3.0, Ruby 3.4.5"
+      placeholder: "Ibex 0.4.0, Ruby 3.4.5"
     validations:
       required: true
   - type: textarea

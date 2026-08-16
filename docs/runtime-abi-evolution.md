@@ -31,9 +31,9 @@ parser_tables:
   cst_readable: [6]
   fail_before_input: true
 versions:
-  generator: "0.3.0"
-  runtime: "0.3.0"
-  runtime_dependency: "~> 0.3.0"
+  generator: "0.4.0"
+  runtime: "0.4.0"
+  runtime_dependency: "~> 0.4.0"
 runtime_paths:
   - .github/pull_request_template.md
   - .github/workflows/main.yml
@@ -180,18 +180,21 @@ current reader retain every historical table branch.
 
 | Generated artifact | Runtime used | Status |
 | --- | --- | --- |
+| Ibex 0.4.0 non-embedded output (table v6) | `ibex-runtime` 0.4.0 | supported and covered by packaging/runtime tests |
+| Ibex 0.4.0 non-embedded output | a future version admitted by `~> 0.4.0` | dependency resolution permits it; compatibility is an obligation of that future release, not current execution evidence |
+| Ibex 0.4.0 embedded output | runtime sources copied by Ibex 0.4.0 | self-contained and covered by packaging/runtime tests |
 | Ibex 0.3.0 non-embedded output (table v6) | `ibex-runtime` 0.3.0 | supported and covered by packaging/runtime tests |
 | Ibex 0.3.0 non-embedded output | a future version admitted by `~> 0.3.0` | dependency resolution permits it; compatibility is an obligation of that future release, not current execution evidence |
 | Ibex 0.3.0 embedded output | runtime sources copied by Ibex 0.3.0 | self-contained and covered by packaging/runtime tests |
 | Ibex 0.2.0 non-embedded output (table v6) | `ibex-runtime` 0.2.0 | supported and covered by packaging/runtime tests |
 | Ibex 0.2.0 non-embedded output | a future version admitted by `~> 0.2.0` | dependency resolution permits it; compatibility is an obligation of that future release, not current execution evidence |
 | Ibex 0.2.0 embedded output | runtime sources copied by Ibex 0.2.0 | self-contained and covered by packaging/runtime tests |
-| old non-CST or CST table v1-v5 | `ibex-runtime` 0.3.0 | rejected before input; regenerate or pin the matching pre-v1 runtime |
-| table v7 or later | `ibex-runtime` 0.3.0 | rejected before input; upgrade the runtime or regenerate to a supported format |
+| old non-CST or CST table v1-v5 | `ibex-runtime` 0.4.0 | rejected before input; regenerate or pin the matching pre-v1 runtime |
+| table v7 or later | `ibex-runtime` 0.4.0 | rejected before input; upgrade the runtime or regenerate to a supported format |
 
-`ibex` 0.3.0 declares `ibex-runtime ~> 0.3.0`; in RubyGems terms that admits
-runtime releases from 0.3.0 up to, but not including, 0.4.0. The previous
-0.2.0 line remains a historical compatibility boundary. The table format is
+`ibex` 0.4.0 declares `ibex-runtime ~> 0.4.0`; in RubyGems terms that admits
+runtime releases from 0.4.0 up to, but not including, 0.5.0. The previous
+0.3.0 and 0.2.0 lines remain historical compatibility boundaries. The table format is
 still the executable compatibility check. A package requirement alone does not
 prove that an unpublished runtime can execute a generated parser.
 
