@@ -383,11 +383,11 @@
       },
       {
         "path": "lib/ibex/impact/propagation.rb",
-        "sha256": "4c28bf06e7a4b46b4a60a7b2aa20187797f298c8c4880085b3f90b15ada564ff"
+        "sha256": "e8f304a62160a235007ab3b985c677299f43f1010ca7fbc60380e19044ed68a3"
       },
       {
         "path": "lib/ibex/impact/report.rb",
-        "sha256": "80596ee9d56928d980f507cc7251ee45cf0f07560c40a6d89f04d8acfee86ff7"
+        "sha256": "ce3167f86e24eeb71a1f48161ed4d697abc34e08aeabc179a9736e916da6bc12"
       },
       {
         "path": "lib/ibex/impact/seeds.rb",

@@ -17,6 +17,7 @@ module Ibex
       # @rbs @nodes: Hash[Integer, Node]
       # @rbs @symbol_kinds: Hash[Integer, Array[String]]
       # @rbs @set_changes: Hash[String, Hash[Symbol, Object?]]
+      # @rbs @metadata_names: Array[String]
       # @rbs @automaton: Hash[Symbol, Object?]
       # @rbs @actions: Array[Hash[Symbol, Object?]]
       # @rbs @coverage: Hash[Symbol, Object?]
@@ -25,12 +26,13 @@ module Ibex
       # @rbs (mode: String, algorithm: String, grammar: IR::Grammar, before: IR::Automaton?, after: IR::Automaton?,
       #   seeds: Array[Hash[Symbol, Object?]], nodes: Hash[Integer, Node], symbol_kinds: Hash[Integer, Array[String]],
       #   set_changes: Hash[String, Hash[Symbol, Object?]], automaton: Hash[Symbol, Object?],
-      #   actions: Array[Hash[Symbol, Object?]], coverage: Hash[Symbol, Object?], ?minimum: String,
+      #   actions: Array[Hash[Symbol, Object?]], coverage: Hash[Symbol, Object?], ?metadata_names: Array[String],
+      #   ?minimum: String,
       #   ?warnings: Array[String]) -> void
       # rubocop:disable Metrics/ParameterLists
       def initialize(mode:, algorithm:, grammar:, before:, after:, seeds:, nodes:, symbol_kinds:, set_changes:,
                      automaton:,
-                     actions:, coverage:, minimum: "info", warnings: [])
+                     actions:, coverage:, metadata_names: [], minimum: "info", warnings: [])
         @mode = mode
         @algorithm = algorithm
         @grammar = grammar
@@ -40,6 +42,7 @@ module Ibex
         @nodes = nodes
         @symbol_kinds = symbol_kinds
         @set_changes = set_changes
+        @metadata_names = metadata_names.uniq.sort
         @automaton = automaton #: Hash[Symbol, Object?]
         @actions = actions #: Array[Hash[Symbol, Object?]]
         @coverage = coverage #: Hash[Symbol, Object?]
@@ -51,7 +54,7 @@ module Ibex
       # @rbs (?minimum: String) -> Hash[Symbol, Object?]
       def to_h(minimum: @minimum)
         symbols = symbol_documents(minimum)
-        action_records = action_documents
+        action_records = action_documents(minimum)
         {
           ibex_report: "impact", schema_version: 1, mode: @mode, algorithm: @algorithm,
           grammar_digest: { before: stable_grammar_digest(@before), after: stable_grammar_digest(@after) },
@@ -66,32 +69,54 @@ module Ibex
 
       # @rbs (String minimum) -> Array[Hash[Symbol, Object?]]
       def symbol_documents(minimum)
-        ids = (@nodes.keys + @set_changes.keys.filter_map { |name| @grammar.symbol(name)&.id }).uniq.sort
-        documents = ids.filter_map { |id| symbol_document(id) }
+        names = (@nodes.keys.filter_map { |id| @grammar.symbol_by_id(id)&.name } + @set_changes.keys + @metadata_names)
+                .uniq.sort
+        documents = names.filter_map { |name| symbol_document(name) }
         documents.select { |document| Severity::RANK.fetch(severity_of(document)) >= Severity::RANK.fetch(minimum) }
       end
 
-      # @rbs (Integer) -> Hash[Symbol, Object?]?
-      def symbol_document(id)
-        return unless nonterminal?(id)
+      # @rbs (String) -> Hash[Symbol, Object?]?
+      def symbol_document(name)
+        id = @grammar.symbol(name)&.id
+        node = id && @nodes[id]
+        return unless reportable_symbol?(name)
 
-        symbol = @grammar.symbol_by_id(id)
-        node = @nodes[id]
-        name = symbol.name
-        kinds = (@symbol_kinds[id] || []).uniq.sort
+        kinds = symbol_kinds_for(name, id)
         kinds = ["reference"] if kinds.empty? && node
         severity = document_severity(name, kinds)
         {
           symbol: name, severity: severity, kinds: kinds, distance: node&.distance || 0,
-          component: component_names(node, id),
+          component: component_names(node, name),
           sets: @set_changes.fetch(name, { first: empty_change, follow: empty_change, nullable: nil }),
           witness: witness_documents(node&.witness || [])
         }
       end
 
-      # @rbs (Integer) -> bool
-      def nonterminal?(id)
-        @grammar.symbol_by_id(id)&.nonterminal? || false
+      # @rbs (String) -> bool
+      def reportable_symbol?(name)
+        !!(@grammar.symbol(name) || @set_changes.key?(name) || @metadata_names.include?(name))
+      end
+
+      # @rbs (String, Integer?) -> Array[String]
+      def symbol_kinds_for(name, id)
+        kinds = id ? (@symbol_kinds[id] || []).dup : [] #: Array[String]
+        kinds << "metadata" if @metadata_names.include?(name)
+        kinds.concat(change_kinds(name))
+        kinds.uniq.sort
+      end
+
+      # @rbs (String) -> Array[String]
+      def change_kinds(name)
+        change = @set_changes[name]
+        return [] unless change
+
+        kinds = [] #: Array[String]
+        first = change.fetch(:first, empty_change)
+        follow = change.fetch(:follow, empty_change)
+        kinds << "first" unless first.fetch(:added).empty? && first.fetch(:removed).empty?
+        kinds << "follow" unless follow.fetch(:added).empty? && follow.fetch(:removed).empty?
+        kinds << "nullable" if change.fetch(:nullable, nil)
+        kinds
       end
 
       # @rbs (String, Array[String]) -> String
@@ -100,15 +125,18 @@ module Ibex
         action_severity(name, level)
       end
 
-      # @rbs (Node?, Integer) -> Array[String]
-      def component_names(node, id)
-        (node&.component || [id]).sort.map { |member| @grammar.symbol_by_id(member)&.name }.compact.sort
+      # @rbs (Node?, String) -> Array[String]
+      def component_names(node, name)
+        return [name] unless node
+
+        node.component.sort.map { |member| @grammar.symbol_by_id(member)&.name }.compact.sort
       end
 
       # @rbs (String kind) -> String
       def kind_severity(kind)
         return "high" if %w[first follow nullable action_arity].include?(kind)
         return "medium" if kind == "reference"
+        return "low" if kind == "metadata"
 
         "info"
       end
@@ -168,9 +196,9 @@ module Ibex
         counts
       end
 
-      # @rbs () -> Array[Hash[Symbol, Object?]]
-      def action_documents
-        @actions.sort_by { |action| action_production(action) }.map do |action|
+      # @rbs (String minimum) -> Array[Hash[Symbol, Object?]]
+      def action_documents(minimum)
+        documents = @actions.sort_by { |action| action_production(action) }.map do |action|
           production = action_production(action)
           severity = action.fetch(:severity) #: String
           reason = action.fetch(:reason) #: String
@@ -181,6 +209,7 @@ module Ibex
             context_length: context_length, loc: stable_location(location)
           }
         end
+        documents.select { |action| Severity::RANK.fetch(severity_of(action)) >= Severity::RANK.fetch(minimum) }
       end
 
       # @rbs (Hash[Symbol, Object?] action) -> String

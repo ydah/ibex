@@ -124,6 +124,11 @@ module Ibex
       end.uniq.sort
       seed_names = names.select { |name| after.grammar.symbol(name) }
       seeds = Impact::Seeds.new(after.grammar, seed_names, origin: "diff")
+      removed_seed_names = names.reject { |name| after.grammar.symbol(name) }
+      removed_seeds = Impact::Seeds.new(before.grammar, removed_seed_names, origin: "diff")
+      seed_records = (seeds.records + removed_seeds.records).sort_by { |record| record.fetch(:symbol).to_s }
+      symbol_changes = diff.fetch(:symbols) #: Hash[Symbol, Array[Hash[Symbol, Object?]]]
+      metadata_names = symbol_changes.values.flatten.map { |record| record.fetch(:id).to_s }.uniq.sort
       graph = Impact::Graph.new(after.grammar)
       nodes, symbol_kinds = propagate(graph, seeds.ids, settings)
       set_changes, changed_kinds = compare_sets(before, after)
@@ -133,7 +138,8 @@ module Ibex
       coverage = load_coverage(after, automaton_impact.production_ids, settings)
       reporter = Impact::Report.new(
         mode: "diff", algorithm: after.algorithm, grammar: after.grammar, before: before, after: after,
-        seeds: seeds.records, nodes: nodes, symbol_kinds: symbol_kinds, set_changes: set_changes,
+        seeds: seed_records, nodes: nodes, symbol_kinds: symbol_kinds, set_changes: set_changes,
+        metadata_names: metadata_names,
         automaton: confirmed_automaton_document(before, after, diff, automaton_impact), actions: actions,
         coverage: coverage.to_h, minimum: settings.fetch(:severity), warnings: coverage.warnings
       )
@@ -193,7 +199,7 @@ module Ibex
           before: before.states.length, after: after.states.length, delta: after.states.length - before.states.length
         },
         affected_states: impact.affected_states, conflicts: diff.fetch(:conflicts),
-        unreachable: unreachable_state_ids(after) - unreachable_state_ids(before)
+        unreachable: newly_unreachable_state_ids(before, after)
       }
     end
 
@@ -201,6 +207,33 @@ module Ibex
     def unreachable_state_ids(automaton)
       reachable = LALR::UnreachableStates.reachable_states(automaton.states, automaton.entry_states.values)
       (0...automaton.states.length).to_a - reachable
+    end
+
+    # @rbs (IR::Automaton, IR::Automaton) -> Array[Integer]
+    def newly_unreachable_state_ids(before, after)
+      before_keys = unreachable_state_keys(before)
+      unreachable_state_ids(after).reject { |id| before_keys.include?(unreachable_state_key(after, id)) }
+    end
+
+    # @rbs (IR::Automaton) -> Array[String]
+    def unreachable_state_keys(automaton)
+      unreachable_state_ids(automaton).map { |id| unreachable_state_key(automaton, id) }
+    end
+
+    # @rbs (IR::Automaton, Integer) -> String
+    def unreachable_state_key(automaton, id)
+      state = automaton.states.fetch(id)
+      items = state.items.map do |item|
+        production_name = if item.production == LALR::Builder::AUGMENTED_PRODUCTION
+                            "$accept"
+                          else
+                            production = automaton.grammar.productions.fetch(item.production)
+                            production_shape(automaton.grammar, production.id)
+                          end
+        [production_name, item.dot,
+         item.lookaheads.map { |lookahead| automaton.grammar.symbol_by_id(lookahead)&.name || lookahead.to_s }]
+      end.sort_by(&:inspect)
+      JSON.generate(items)
     end
 
     # @rbs (IR::Automaton, IR::Automaton) ->
@@ -303,7 +336,13 @@ module Ibex
       return unless baseline
 
       known = baseline.conflicts
-      report.dig(:automaton, :conflicts, :added)&.reject! { |entry| known.include?(entry.fetch(:id)) }
+      conflicts = report.dig(:automaton, :conflicts, :added)
+      return unless conflicts
+
+      original_count = conflicts.length
+      conflicts.reject! { |entry| known.include?(entry.fetch(:id)) }
+      totals = report.fetch(:totals) #: Hash[Symbol, Integer]
+      totals[:critical] -= original_count - conflicts.length
     end
 
     # @rbs (Hash[Symbol, Object?], String) -> void

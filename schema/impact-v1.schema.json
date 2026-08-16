@@ -51,9 +51,9 @@
           },
           "additionalProperties": false
         },
-        "affected_states": { "type": "array", "items": { "type": "integer", "minimum": 0 }, "uniqueItems": true },
+        "affected_states": { "type": "array", "items": { "type": "integer", "minimum": 0 }, "uniqueItems": true, "maxItems": 100000 },
         "conflicts": { "$ref": "#/$defs/classification" },
-        "unreachable": { "type": "array", "items": { "type": "integer", "minimum": 0 }, "uniqueItems": true }
+        "unreachable": { "type": "array", "items": { "type": "integer", "minimum": 0 }, "uniqueItems": true, "maxItems": 100000 }
       },
       "additionalProperties": false
     },
@@ -74,15 +74,16 @@
             "required": ["path", "productions"],
             "properties": {
               "path": { "type": "string" },
-              "productions": { "type": "array", "items": { "type": "integer", "minimum": 0 }, "uniqueItems": true }
+              "productions": { "type": "array", "items": { "type": "integer", "minimum": 0 }, "uniqueItems": true, "maxItems": 100000 }
             },
             "additionalProperties": false
-          }
+          },
+          "maxItems": 100000
         }
       },
       "additionalProperties": false
     },
-    "warnings": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "warnings": { "type": "array", "items": { "type": "string" }, "uniqueItems": true, "maxItems": 100000 },
     "totals": {
       "type": "object",
       "required": ["info", "low", "medium", "high", "critical"],
@@ -102,18 +103,34 @@
       "type": "object",
       "required": ["added", "removed", "changed"],
       "properties": {
-        "added": { "type": "array", "items": { "type": "object" } },
-        "removed": { "type": "array", "items": { "type": "object" } },
-        "changed": { "type": "array", "items": { "type": "object" } }
+        "added": { "type": "array", "items": { "$ref": "#/$defs/classification_record" }, "maxItems": 100000 },
+        "removed": { "type": "array", "items": { "$ref": "#/$defs/classification_record" }, "maxItems": 100000 },
+        "changed": { "type": "array", "items": { "$ref": "#/$defs/classification_record" }, "maxItems": 100000 }
       },
       "additionalProperties": false
+    },
+    "classification_record": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["id", "value"],
+          "properties": { "id": { "type": "string" }, "value": {} },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["id", "before", "after"],
+          "properties": { "id": { "type": "string" }, "before": {}, "after": {} },
+          "additionalProperties": false
+        }
+      ]
     },
     "change": {
       "type": "object",
       "required": ["added", "removed"],
       "properties": {
-        "added": { "type": "array", "items": { "type": "string" } },
-        "removed": { "type": "array", "items": { "type": "string" } }
+        "added": { "type": "array", "items": { "type": "string" }, "maxItems": 100000 },
+        "removed": { "type": "array", "items": { "type": "string" }, "maxItems": 100000 }
       },
       "additionalProperties": false
     },
@@ -123,9 +140,9 @@
       "properties": {
         "symbol": { "type": "string" },
         "severity": { "enum": ["info", "low", "medium", "high", "critical"] },
-        "kinds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "kinds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true, "maxItems": 100000 },
         "distance": { "type": "integer", "minimum": 0 },
-        "component": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "component": { "type": "array", "items": { "type": "string" }, "uniqueItems": true, "maxItems": 100000 },
         "sets": {
           "type": "object",
           "required": ["first", "follow", "nullable"],
@@ -141,7 +158,7 @@
           },
           "additionalProperties": false
         },
-        "witness": { "type": "array", "items": { "$ref": "#/$defs/witness" } }
+        "witness": { "type": "array", "items": { "$ref": "#/$defs/witness" }, "maxItems": 100000 }
       },
       "additionalProperties": false
     },

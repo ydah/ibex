@@ -42,6 +42,15 @@ module Ibex
     # @rbs (IR::Automaton) -> Array[Integer]
     def unreachable_state_ids: (IR::Automaton) -> Array[Integer]
 
+    # @rbs (IR::Automaton, IR::Automaton) -> Array[Integer]
+    def newly_unreachable_state_ids: (IR::Automaton, IR::Automaton) -> Array[Integer]
+
+    # @rbs (IR::Automaton) -> Array[String]
+    def unreachable_state_keys: (IR::Automaton) -> Array[String]
+
+    # @rbs (IR::Automaton, Integer) -> String
+    def unreachable_state_key: (IR::Automaton, Integer) -> String
+
     # @rbs (IR::Automaton, IR::Automaton) ->
     #   [Hash[String, Hash[Symbol, Object?]], Hash[String, Array[String]]]
     def compare_sets: (IR::Automaton, IR::Automaton) -> [ Hash[String, Hash[Symbol, Object?]], Hash[String, Array[String]] ]

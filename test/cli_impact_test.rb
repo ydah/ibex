@@ -108,6 +108,82 @@ class CLIImpactTest < Minitest::Test
     end
   end
 
+  def test_schema_rejects_unknown_conflict_record_keys
+    with_grammars("start: TOKEN", "start: TOKEN") do |before, after|
+      report = JSON.parse(run_impact(["impact", before, after]).fetch(:stdout))
+      report.fetch("automaton").fetch("conflicts").fetch("added") << { "unexpected" => true }
+
+      schema = JSON.parse(File.binread(File.expand_path("../schema/impact-v1.schema.json", __dir__)))
+      errors = JSONSchemer.schema(schema).validate(report).to_a
+      refute_empty errors
+    end
+  end
+
+  def test_removed_nonterminal_is_reported_and_gated
+    with_grammars("start: TOKEN\nold: TOKEN", "start: TOKEN") do |before, after|
+      result = run_impact(["impact", "--fail-on=first_change", before, after])
+      report = JSON.parse(result.fetch(:stdout))
+
+      assert_equal 1, result.fetch(:status)
+      assert_includes report.fetch("seeds").map { |seed| seed.fetch("symbol") }, "old"
+      old = report.fetch("symbols").find { |symbol| symbol.fetch("symbol") == "old" }
+      assert_equal "high", old.fetch("severity")
+      assert_includes old.fetch("kinds"), "first"
+    end
+  end
+
+  def test_metadata_changes_are_reported_as_low
+    with_sources(
+      "class P\npragma extended\ntoken X\ndisplay X \"old\"\nrule\nstart: X\nend\n",
+      "class P\npragma extended\ntoken X\ndisplay X \"new\"\nrule\nstart: X\nend\n"
+    ) do |before, after|
+      report = JSON.parse(run_impact(["impact", "--mode=extended", "--severity=low", before, after]).fetch(:stdout))
+      symbol = report.fetch("symbols").find { |entry| entry.fetch("symbol") == "X" }
+
+      assert_equal "low", symbol.fetch("severity")
+      assert_equal ["metadata"], symbol.fetch("kinds")
+    end
+  end
+
+  def test_severity_threshold_filters_actions
+    with_sources(
+      "class P\ntoken A B\nrule\nstart: A { result = val[0] }\nend\n",
+      "class P\ntoken A B\nrule\nstart: A B { result = val[0] }\nend\n"
+    ) do |before, after|
+      report = JSON.parse(run_impact(["impact", "--severity=critical", before, after]).fetch(:stdout))
+
+      assert_empty report.fetch("actions")
+    end
+  end
+
+  def test_symbols_are_sorted_by_name
+    with_sources(
+      "class P\nrule\nstart: zeta alpha\nzeta: Z\nalpha: A\nend\n",
+      "class P\nrule\nstart: zeta alpha\nzeta: Z\nalpha: A\nend\n"
+    ) do |before, _after|
+      report = JSON.parse(run_impact(["impact", "--symbol=zeta,alpha", "--severity=info", before]).fetch(:stdout))
+
+      symbols = report.fetch("symbols").map { |entry| entry.fetch("symbol") }
+      assert_equal %w[alpha start zeta], symbols
+    end
+  end
+
+  def test_baseline_filter_updates_critical_totals
+    with_grammars(
+      "statement: ID",
+      "statement: IF expression THEN statement | IF expression THEN statement ELSE statement | ID\nexpression: ID"
+    ) do |before, after|
+      Dir.mktmpdir("ibex-impact-baseline") do |directory|
+        baseline = File.join(directory, "baseline.json")
+        run_impact(["impact", "--baseline=#{baseline}", "--update-baseline", before, after])
+        report = JSON.parse(run_impact(["impact", "--baseline=#{baseline}", before, after]).fetch(:stdout))
+
+        assert_empty report.dig("automaton", "conflicts", "added")
+        assert_equal 0, report.dig("totals", "critical")
+      end
+    end
+  end
+
   private
 
   def run_impact(arguments)
@@ -128,6 +204,16 @@ class CLIImpactTest < Minitest::Test
       after = File.join(directory, "after.y")
       File.binwrite(before, "class P\nrule\n#{before_rules}\nend\n")
       File.binwrite(after, "class P\nrule\n#{after_rules}\nend\n")
+      yield before, after
+    end
+  end
+
+  def with_sources(before_source, after_source)
+    Dir.mktmpdir("ibex-impact") do |directory|
+      before = File.join(directory, "before.y")
+      after = File.join(directory, "after.y")
+      File.binwrite(before, before_source)
+      File.binwrite(after, after_source)
       yield before, after
     end
   end

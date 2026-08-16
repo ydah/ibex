@@ -39,9 +39,10 @@ module Ibex
         adjacency = @graph.adjacency(kind)
         components = Analysis::Digraph.send(:strongly_connected_components, adjacency)
         component_for = component_index(components, adjacency.length)
-        component_edges, witnesses = component_adjacency(adjacency, component_for, components.length)
-        component_nodes = traverse_components(selected, component_for, component_edges, witnesses, max_depth)
-        build_nodes(component_nodes, components, kind)
+        component_edges = component_adjacency(adjacency, component_for, components.length)
+        component_nodes = traverse_components(selected, component_for, component_edges, max_depth)
+        witnesses = symbol_witnesses(selected, adjacency, kind)
+        build_nodes(component_nodes, components, kind, witnesses)
       end
 
       alias call propagate
@@ -72,10 +73,9 @@ module Ibex
         result
       end
 
-      # @rbs (Array[Array[Integer]], Array[Integer], Integer) -> [Array[Array[Integer]], Hash[[Integer, Integer], Edge]]
+      # @rbs (Array[Array[Integer]], Array[Integer], Integer) -> Array[Array[Integer]]
       def component_adjacency(adjacency, component_for, component_count)
         result = Array.new(component_count) { [] } #: Array[Array[Integer]]
-        witnesses = {} #: Hash[[Integer, Integer], Edge]
         adjacency.each_with_index do |successors, source|
           source_component = component_for.fetch(source)
           successors.each do |target|
@@ -83,51 +83,60 @@ module Ibex
             next if source_component == target_component
 
             result[source_component] << target_component
-            witnesses[[source_component, target_component]] ||= edge_between(source, target)
           end
         end
         result.each do |successors|
           successors.uniq!
           successors.sort!
         end
-        [result, witnesses]
+        result
       end
 
-      # @rbs (Array[Integer], Array[Integer], Array[Array[Integer]],
-      #   Hash[[Integer, Integer], Edge], Integer?) -> Hash[Integer, [Integer, Array[Edge]]]
-      def traverse_components(seeds, component_for, component_edges, witnesses, max_depth)
+      # @rbs (Array[Integer], Array[Integer], Array[Array[Integer]], Integer?) -> Hash[Integer, Integer]
+      def traverse_components(seeds, component_for, component_edges, max_depth)
         queue = seeds.uniq.sort.map do |seed|
-          [component_for.fetch(seed), 0, []]
-        end #: Array[[Integer, Integer, Array[Edge]]]
-        result = {} #: Hash[Integer, [Integer, Array[Edge]]]
+          [component_for.fetch(seed), 0]
+        end #: Array[[Integer, Integer]]
+        result = {} #: Hash[Integer, Integer]
         until queue.empty?
-          component, distance, witness = queue.shift
+          component, distance = queue.shift
           next if result.key?(component)
           next if max_depth && distance > max_depth
 
-          result[component] = [distance, witness]
+          result[component] = distance
           component_edges.fetch(component).each do |target|
-            edge = witnesses.fetch([component, target])
-            queue << [target, distance + 1, witness + [edge]]
+            queue << [target, distance + 1]
           end
         end
         result
       end
 
-      # @rbs (Integer, Integer) -> Edge
-      def edge_between(source, target)
-        @graph.edges(:all).find { |edge| edge.source == source && edge.target == target } ||
-          Edge.new(source: source, target: target, kind: :dependency, production: nil, position: nil)
+      # @rbs (Array[Integer], Array[Array[Integer]], Symbol) -> Hash[Integer, Array[Edge]]
+      def symbol_witnesses(seeds, adjacency, kind)
+        edges = @graph.edges(kind).group_by { |edge| [edge.source, edge.target] }
+        queue = seeds.uniq.sort.map { |seed| [seed, []] } #: Array[[Integer, Array[Edge]]]
+        result = {} #: Hash[Integer, Array[Edge]]
+        until queue.empty?
+          symbol, witness = queue.shift
+          next if result.key?(symbol)
+
+          result[symbol] = witness
+          adjacency.fetch(symbol).each do |target|
+            edge = edges.fetch([symbol, target]).fetch(0)
+            queue << [target, witness + [edge]]
+          end
+        end
+        result
       end
 
-      # @rbs (Hash[Integer, [Integer, Array[Edge]]], Array[Array[Integer]], Symbol) -> Hash[Integer, Node]
-      def build_nodes(component_nodes, components, kind)
+      # @rbs (Hash[Integer, Integer], Array[Array[Integer]], Symbol, Hash[Integer, Array[Edge]]) -> Hash[Integer, Node]
+      def build_nodes(component_nodes, components, kind, witnesses)
         result = {} #: Hash[Integer, Node]
-        component_nodes.each do |component, (distance, witness)|
+        component_nodes.each do |component, distance|
           members = components.fetch(component).sort
           members.each do |symbol|
             result[symbol] = Node.new(
-              symbol: symbol, distance: distance, witness: witness, kind: kind, component: members
+              symbol: symbol, distance: distance, witness: witnesses.fetch(symbol), kind: kind, component: members
             )
           end
         end

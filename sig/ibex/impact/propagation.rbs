@@ -40,18 +40,17 @@ module Ibex
       # @rbs (Array[Array[Integer]], Integer) -> Array[Integer]
       def component_index: (Array[Array[Integer]], Integer) -> Array[Integer]
 
-      # @rbs (Array[Array[Integer]], Array[Integer], Integer) -> [Array[Array[Integer]], Hash[[Integer, Integer], Edge]]
-      def component_adjacency: (Array[Array[Integer]], Array[Integer], Integer) -> [ Array[Array[Integer]], Hash[[ Integer, Integer ], Edge] ]
+      # @rbs (Array[Array[Integer]], Array[Integer], Integer) -> Array[Array[Integer]]
+      def component_adjacency: (Array[Array[Integer]], Array[Integer], Integer) -> Array[Array[Integer]]
 
-      # @rbs (Array[Integer], Array[Integer], Array[Array[Integer]],
-      #   Hash[[Integer, Integer], Edge], Integer?) -> Hash[Integer, [Integer, Array[Edge]]]
-      def traverse_components: (Array[Integer], Array[Integer], Array[Array[Integer]], Hash[[ Integer, Integer ], Edge], Integer?) -> Hash[Integer, [ Integer, Array[Edge] ]]
+      # @rbs (Array[Integer], Array[Integer], Array[Array[Integer]], Integer?) -> Hash[Integer, Integer]
+      def traverse_components: (Array[Integer], Array[Integer], Array[Array[Integer]], Integer?) -> Hash[Integer, Integer]
 
-      # @rbs (Integer, Integer) -> Edge
-      def edge_between: (Integer, Integer) -> Edge
+      # @rbs (Array[Integer], Array[Array[Integer]], Symbol) -> Hash[Integer, Array[Edge]]
+      def symbol_witnesses: (Array[Integer], Array[Array[Integer]], Symbol) -> Hash[Integer, Array[Edge]]
 
-      # @rbs (Hash[Integer, [Integer, Array[Edge]]], Array[Array[Integer]], Symbol) -> Hash[Integer, Node]
-      def build_nodes: (Hash[Integer, [ Integer, Array[Edge] ]], Array[Array[Integer]], Symbol) -> Hash[Integer, Node]
+      # @rbs (Hash[Integer, Integer], Array[Array[Integer]], Symbol, Hash[Integer, Array[Edge]]) -> Hash[Integer, Node]
+      def build_nodes: (Hash[Integer, Integer], Array[Array[Integer]], Symbol, Hash[Integer, Array[Edge]]) -> Hash[Integer, Node]
     end
   end
 end
