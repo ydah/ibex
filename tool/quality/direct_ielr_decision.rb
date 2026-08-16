@@ -92,16 +92,16 @@ module Ibex
           "path" => "lib/ibex/verify/verifier.rb", "role" => "current verifier checks reviewed by V001"
         }.freeze
       }.freeze
-      DECISION_REVISION = "05bf8c357cdb58a5f95ca4939a96be16e3d43c30"
+      DECISION_REVISION = "ae8bc3c5e5b9ad0c3be52cdbbd6955f3f7160774"
       DECISION_REVISION_ROLE = "reviewed repository evidence immediately before dossier publication"
-      DECISION_DATE = "2026-08-11"
-      DOSSIER_REVISION = "6509725facc9215a7ed7442c85b22f872b01e748"
+      DECISION_DATE = "2026-08-17"
+      DOSSIER_REVISION = "81fed6adc9203cf67c218d554617457e73d7bcc9"
       DOSSIER_PATH = "tool/quality/evidence/direct-ielr-decision-v1.json"
-      DOSSIER_DIGEST = "1d0389fdd2d2296c7d6b4379445be6a36d8cf1383209c8a1d1b8c1f671f2c6a3"
-      V001_REVISION = "c7e5cad89ccd00591f3127fdb76a789bbeb202ab"
-      V001_PARENT_REVISION = "2d86d52ef92c2b07046c05f4fd55c32a1d6400a9"
+      DOSSIER_DIGEST = "2461cb7a45d1a841dceda594c89613571789926136445bd6332cf5b3410159e3"
+      V001_REVISION = "f9d2c54eb4b27fc5ffe798bb0b29d038d97ee35c"
+      V001_PARENT_REVISION = "8a6c08259dd2a5dbb5c1d5330f06cbdffcf4c940"
       V001_SOURCE_DIGESTS = {
-        "docs/policy/verifier-trust-boundary.md" => "12568cd0e22a291a3d1466e537c32062fc490fd4bcb6bc886971b78f1aefbe46",
+        "docs/verifier-trust-boundary.md" => "12568cd0e22a291a3d1466e537c32062fc490fd4bcb6bc886971b78f1aefbe46",
         "lib/ibex/verify/reference_collection.rb" => "d07e900652c61ddd942380d49edce0a3c811605cd82490c1e0e6db54010746fb",
         "lib/ibex/verify/verifier.rb" => "66efb73edf90d5466e102ea756c5b36e645ea6f5a780250b0b056dbfe34a80a3"
       }.freeze
@@ -336,7 +336,7 @@ module Ibex
             Digest::SHA256.hexdigest(bytes.b) == digest
         end
 
-        _bytes, status = capture("git", "show", "#{V001_PARENT_REVISION}:docs/policy/verifier-trust-boundary.md")
+        _bytes, status = capture("git", "show", "#{V001_PARENT_REVISION}:docs/verifier-trust-boundary.md")
         raise "V001 trust-boundary source was not introduced at the bound revision" if status.success?
       end
 

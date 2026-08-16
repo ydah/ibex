@@ -11,8 +11,9 @@ the default or as a release-readiness claim; I002 remains
 blocked. This decision is a feature gate, not a claim that direct IELR has no
 future value.
 
-The final decision date is 2026-08-11. Revision
-`05bf8c357cdb58a5f95ca4939a96be16e3d43c30` is the repository evidence snapshot
+The decision was revalidated on 2026-08-17 after repository history was
+rewritten; the NO-GO outcome is unchanged. Revision
+`ae8bc3c5e5b9ad0c3be52cdbbd6955f3f7160774` is the repository evidence snapshot
 reviewed immediately before this dossier was published; it is not a claim that
 the dossier itself existed in that revision. The machine record marks the
 decision `final_no_go`, its basis `repository_evidence`, and its review state
@@ -104,12 +105,12 @@ and verifier implementations by path and SHA-256 at the reviewed revision. It
 also binds:
 
 - H005 capture base revision
-  `acb08c2848843dce52f6c806a5800cd3d3f83fe0`;
+  `1b96f50b84ee1bf37bb299e9dc62bac7c23c1487`;
 - H005 bound-path digest
-  `d6325f16b00c6215cd610cacd2d5c1151dc95159d38b35e60f102e279dc49210`;
+  `f08f23bf540aacbab70856dceb1dddbdb8456993d227180b65b6862d0d7c90db`;
 - H005 implementation digest
-  `b8501d92797e3009bee79fa66ad01ddf56655e337af95d2a630c3f9c66138b3e`;
-- V001 revision `c7e5cad89ccd00591f3127fdb76a789bbeb202ab`.
+  `f5c00daac7fc1808e6e8b328c68b46b04764e57660d6efad6ce566d977529554`;
+- V001 revision `f9d2c54eb4b27fc5ffe798bb0b29d038d97ee35c`.
 
 The quality gate verifies the schema, exact GO/NO-GO inventory, follow-on
 block, H005 thresholds and measurements, V001 boundary statements, legal
