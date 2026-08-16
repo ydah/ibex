@@ -20,7 +20,7 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "32fb9623ff11a46a5146c716c9163d7bc8cdc277",
+    "base_revision": "5a0479094a88c019c1109bf5d9495abb69854cc9",
     "base_revision_role": "Exact clean capture revision and parent of the committed evidence revision",
     "capture_worktree_clean": true,
     "capture_worktree_status": [],
@@ -28,21 +28,21 @@
     "bound_paths": [
       {
         "path": "Rakefile",
-        "sha256": "6b87e6ea058cc3b302ad291f99ea7de8f8493fac4ae51a8ac544aade564aadb9",
+        "sha256": "edfb96d1834979fc6ca1105b6709c26c7c45c65a0a5de285371d2ed06acedd8f",
         "git_state": "base",
-        "base_sha256": "6b87e6ea058cc3b302ad291f99ea7de8f8493fac4ae51a8ac544aade564aadb9"
+        "base_sha256": "edfb96d1834979fc6ca1105b6709c26c7c45c65a0a5de285371d2ed06acedd8f"
       },
       {
         "path": "docs/records/profiles/lexer-construction-profile.md",
-        "sha256": "4569b07acebf9c66a81370236bf122529dba9db712a6bbfded15c7e8a3d1e17b",
+        "sha256": "211201ebf22715b580840f1b4ae6692cb91a77aa76c3c4bf48d72a8a20ffc6b3",
         "git_state": "base",
-        "base_sha256": "4569b07acebf9c66a81370236bf122529dba9db712a6bbfded15c7e8a3d1e17b"
+        "base_sha256": "211201ebf22715b580840f1b4ae6692cb91a77aa76c3c4bf48d72a8a20ffc6b3"
       },
       {
         "path": "docs/registry/workloads.yml",
-        "sha256": "734e37963e961ed19e8e1cc51f9676cc38f61ea2c0bc4a4a3bf114c24cd389f7",
+        "sha256": "5e3f274fae78be6f377051ec70743dcbe4dbcea88eb115acc121b20172c96350",
         "git_state": "base",
-        "base_sha256": "734e37963e961ed19e8e1cc51f9676cc38f61ea2c0bc4a4a3bf114c24cd389f7"
+        "base_sha256": "5e3f274fae78be6f377051ec70743dcbe4dbcea88eb115acc121b20172c96350"
       },
       {
         "path": "lib/ibex/analysis.rb",
@@ -1090,9 +1090,9 @@
       },
       {
         "path": "test/packaging/schema_files_test.rb",
-        "sha256": "c33974f2c12a2054073b0b22e58618ffc40bcb56faf11e377d521f05d8f2ce7e",
+        "sha256": "384b99462a5167dbf307e467b783b19d65e0d6d876f02948c0cb7df045d44cec",
         "git_state": "base",
-        "base_sha256": "c33974f2c12a2054073b0b22e58618ffc40bcb56faf11e377d521f05d8f2ce7e"
+        "base_sha256": "384b99462a5167dbf307e467b783b19d65e0d6d876f02948c0cb7df045d44cec"
       },
       {
         "path": "test/profile/lexer_profile_schema_test.rb",
@@ -1132,9 +1132,9 @@
       },
       {
         "path": "tool/profile/lexer_profile_report.rb",
-        "sha256": "9aecdd0a7dea5d5915dc9055d60de8b8186d99010dd188cb0b41ad52342da732",
+        "sha256": "4cdad4bba5605a120d378e7422311de6cba86c4d17f204b784b73cf9a6da5b36",
         "git_state": "base",
-        "base_sha256": "9aecdd0a7dea5d5915dc9055d60de8b8186d99010dd188cb0b41ad52342da732"
+        "base_sha256": "4cdad4bba5605a120d378e7422311de6cba86c4d17f204b784b73cf9a6da5b36"
       },
       {
         "path": "tool/profile/lexer_profiler.rb",
@@ -1155,17 +1155,17 @@
         "base_sha256": "9ecbc77e2544d25c230e5f05b1f9eaf9c9bb04924575cce8b5c8607e27695ef4"
       }
     ],
-    "bound_paths_sha256": "48c954b4fb84c562fd4ad4a490b12d3c3ef12f29941dfcfab9f155313fa8be95",
-    "implementation_sha256": "edff5b45a6d9ede8096afbd7981ad19ac3bec15dc907130705240c54cfc3c05b",
-    "deterministic_report_input_sha256": "d6b853e9bec0687b2e811fa55adfad173c7f7de788cc53e73e77797321b9014d",
+    "bound_paths_sha256": "3146543438dc56d0ceda86083a75135a5ebd16cf3c9f491486232b2f9eb7f067",
+    "implementation_sha256": "b3d9be63fd9457666cc3882a6be5ebdd65ca0e544646e0180f9b6b013d5db8ff",
+    "deterministic_report_input_sha256": "7a1e42c7b175de7bd08560531808352b5d1ac07ab34725dbc411739b6b46fcad",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "a3541bc86aa89a1e973407149ee6e0302a5de51e3e4d4d7d0b34be18599b1b78",
     "heuristic_analysis_sha256": "1870a00b14aea7a46278e4b80e9bd60db4b499c343c7a7a90faf9c3923e27e76",
     "evidence_path": "tool/profile/evidence/lexer-profile-v1.json",
     "evidence_exclusion_reason": "the evidence file is excluded from its own digest to avoid circularity",
-    "capture_identity_sha256": "5dcc36af7ca14b607a31ccd01a70c10236a32468d75accd1676da2d4d3ee5aa0"
+    "capture_identity_sha256": "d1dfb20ab7ae17e40a58ff5c7728d05cd3eb7525ba567a5adc811c328ec59bf4"
   },
-  "measurement_policy": {
+ "measurement_policy": {
     "runtime_role": "diagnostic_observation_only",
     "elapsed_time_release_gate": false,
     "allocation_count_release_gate": false,
