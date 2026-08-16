@@ -5,7 +5,7 @@ module Ibex
     # rubocop:disable Metrics/ModuleLength -- one closed authority maps every audited feature.
     # Human-reviewed Git authorities used by the executable maturity audit.
     module MaturityAuthority
-      REVIEWED_REVISION = "5992a4ce58fe2bcfa0bf644bfc97555e987e3d57"
+      REVIEWED_REVISION = "f237eb9274ef7b6ed1bd63fc6fb1a6b1d899989f"
       RELEASES = {
         "v0.1.0" => "65d41edf381afb9c18e01e55332a293332f340e6",
         "v0.2.0" => "bd88b1203706c37bf225e837a2fe46d334d4651d"
@@ -78,7 +78,7 @@ module Ibex
         },
         "impact" => {
           path: "lib/ibex/impact/graph.rb", query: "class Graph",
-          revision: "5992a4ce58fe2bcfa0bf644bfc97555e987e3d57", first_release: nil,
+          revision: "f237eb9274ef7b6ed1bd63fc6fb1a6b1d899989f", first_release: nil,
           feature_status: %w[absent absent present],
           absent_sources: [["lib/ibex/impact/graph.rb"], ["lib/ibex/impact/graph.rb"], []]
         },
@@ -241,7 +241,7 @@ module Ibex
           "v0.2.0..reviewed" => []
         },
         "impact" => {
-          "introduction..reviewed" => %w[5992a4ce58fe2bcfa0bf644bfc97555e987e3d57]
+          "introduction..reviewed" => %w[f237eb9274ef7b6ed1bd63fc6fb1a6b1d899989f]
         },
         "ielr" => {
           "introduction..v0.2.0" => %w[
@@ -251,13 +251,13 @@ module Ibex
             d589970fa588fd6a0464e6396fe2da668431aec4
           ],
           "v0.2.0..reviewed" => %w[
-            9cdd1a97e1ee5f6a6fb8da83295a1d42bd3e6c51
-            1d65430f3b3788854cd930d05a7c9a55d8d0d11e
+            b530250e58ab254f72a78b744ac8d3382fef90c8
+            6034540794cf7d24740f71395a3c5c3f6663609e
           ]
         },
         "lsp" => {
           "introduction..v0.2.0" => %w[5b8151385c491366deb41c930a1132599edfb9e9],
-          "v0.2.0..reviewed" => %w[c2648ee2dca3fc8df86d4a5213b5a8e8bf688063]
+          "v0.2.0..reviewed" => %w[1dde28b6bcd70339c1d80600d0f1500dbf56da89]
         },
         "watch" => {
           "introduction..v0.2.0" => %w[570d857f582cb61ac60840210b22a86db086cc51],
@@ -286,7 +286,7 @@ module Ibex
         },
         "bounded-repair" => {
           "introduction..v0.2.0" => %w[df8ac82c0ed0c8862190ac88671949f0d5e8a001],
-          "v0.2.0..reviewed" => %w[5d3895e7b9d7cf88760063fee3afc9b56a9ad66f]
+          "v0.2.0..reviewed" => %w[bf7af5c185e31ecaec6d7e8fb2233ed4f613c33d]
         },
         "incremental-cst" => {
           "introduction..v0.2.0" => %w[
@@ -296,9 +296,9 @@ module Ibex
           ],
           "v0.2.0..reviewed" => %w[
             789d1ea5eece0fb2e4461a89398acc84ded93885
-            c05888c71781ecd20a938e8d135248450467f8db
-            2d2ba95466ead0a4079c5826f28ef4d8549726a1
-            5d3895e7b9d7cf88760063fee3afc9b56a9ad66f
+            69b1882be80a032c4a35df6fc2ff0150bc6b45a9
+            cd9da726eea25762af3b53acb655d6af734a21f1
+            bf7af5c185e31ecaec6d7e8fb2233ed4f613c33d
           ]
         }
       }.freeze

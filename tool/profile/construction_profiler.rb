@@ -484,7 +484,7 @@ module Ibex
 
     # Builds the repository/public workload report and keeps source classes separate.
     class ConstructionReport
-      MATRIX_REVISION = "2d86d52ef92c2b07046c05f4fd55c32a1d6400a9"
+      MATRIX_REVISION = "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7"
 
       def initialize(root:, wall_seconds:, checkouts: {}, ielr_strategy: :partition)
         @root = File.expand_path(root)

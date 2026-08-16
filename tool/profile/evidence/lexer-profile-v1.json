@@ -1974,7 +1974,7 @@
           "grammar": {
             "identity": "Self-authored calculator gallery grammar",
             "path": "gallery/calc/grammar.y",
-            "revision": "8dae6f7cede1d262cb9211a07b72b8c903e96126",
+            "revision": "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7",
             "sha256": "e9c25a35bd0351e58c3aefd9397097ac04701e052bad7fd234e72e357b5bac07",
             "storage": "repository",
             "source_url": "repository"
@@ -1983,7 +1983,7 @@
           "adversarial_features": [],
           "input": {
             "path": "gallery/calc/corpus/basic.txt",
-            "revision": "8dae6f7cede1d262cb9211a07b72b8c903e96126",
+            "revision": "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7",
             "seed_sha256": "a5ae8556110541da35acd9579cc0ce21d01edff2844d5305eabd4bc05dca40d7",
             "sha256": "a5ae8556110541da35acd9579cc0ce21d01edff2844d5305eabd4bc05dca40d7",
             "bytes": 16,
@@ -2104,7 +2104,7 @@
           "grammar": {
             "identity": "Self-authored JSON gallery grammar",
             "path": "gallery/json/grammar.y",
-            "revision": "d901b787c7e10c1ab3344ac0156f802ab29ad207",
+            "revision": "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7",
             "sha256": "162484428a798541dfced3a12e6e38eb6f1231aec03157c273b25493fa6f9f66",
             "storage": "repository",
             "source_url": "repository"
@@ -2113,7 +2113,7 @@
           "adversarial_features": [],
           "input": {
             "path": "gallery/json/corpus/nested.json",
-            "revision": "d901b787c7e10c1ab3344ac0156f802ab29ad207",
+            "revision": "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7",
             "seed_sha256": "5c075188acfe68ca076a670b1ec8858b9fdabd2ad9b3919cd956ee1d5da42613",
             "sha256": "5c075188acfe68ca076a670b1ec8858b9fdabd2ad9b3919cd956ee1d5da42613",
             "bytes": 62,
@@ -2274,7 +2274,7 @@
           "grammar": {
             "identity": "Self-authored SQL subset gallery grammar",
             "path": "gallery/sql-lite/grammar.y",
-            "revision": "d901b787c7e10c1ab3344ac0156f802ab29ad207",
+            "revision": "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7",
             "sha256": "1369ba9384456fc02d0ccb9cef81dd0e96fcdd387f00266b28df0ac5be1b5f2a",
             "storage": "repository",
             "source_url": "repository"
@@ -2283,7 +2283,7 @@
           "adversarial_features": [],
           "input": {
             "path": "gallery/sql-lite/corpus/basic.sql",
-            "revision": "d901b787c7e10c1ab3344ac0156f802ab29ad207",
+            "revision": "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7",
             "seed_sha256": "875d3306294ddb403afb95f8d89b359570a5c3571f04b7a3a8a044165ce476a1",
             "sha256": "875d3306294ddb403afb95f8d89b359570a5c3571f04b7a3a8a044165ce476a1",
             "bytes": 23,

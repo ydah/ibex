@@ -122,7 +122,7 @@ bundle exec ruby -Itest test/quality/workloads_test.rb
 For a repository grammar, update its revision to a commit that already contains
 the recorded source bytes, update its digest, and let the validator recompute
 counts. The initial repository entries intentionally use pre-registry revision
-`d901b787c7e10c1ab3344ac0156f802ab29ad207`, avoiding a self-referential
+`61eeb8b691a499e5f3fd2277c32e3e34eb7169c7`, avoiding a self-referential
 registry commit.
 
 For a public benchmark grammar, change

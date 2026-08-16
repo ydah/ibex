@@ -17,8 +17,8 @@ class MaturityTest < Minitest::Test
     "semantic-locations-types" => {
       "v0.2.0..reviewed" => %w[
         021994f6342c2795d19ee90e58fbf7386ef5fa95
-        1e332a694abbc0b520af97d8a205dc8b8d311360
-        643365686f7a04578b5794a73b8e64028e497f7e
+        c6745b1ebb0598931251497b139b433bef091c1c
+        9f2cf32e3e38a8021d4b5a01922197e4c6adc93c
       ]
     },
     "action-shadow" => {
@@ -27,8 +27,8 @@ class MaturityTest < Minitest::Test
     "incremental-cst" => {
       "v0.2.0..reviewed" => %w[
         021994f6342c2795d19ee90e58fbf7386ef5fa95
-        1e332a694abbc0b520af97d8a205dc8b8d311360
-        643365686f7a04578b5794a73b8e64028e497f7e
+        c6745b1ebb0598931251497b139b433bef091c1c
+        9f2cf32e3e38a8021d4b5a01922197e4c6adc93c
       ]
     }
   }.freeze
@@ -202,12 +202,12 @@ class MaturityTest < Minitest::Test
 
     changed = document
     feature(changed, "watch").dig("specification_history", "introduction")["revision"] =
-      "dcdd015ae2a8ca48e9ab9c64af4baa6264c39705"
+      "f237eb9274ef7b6ed1bd63fc6fb1a6b1d899989f"
     assert_error(changed, "introduction authority drift")
 
     changed = document
     feature(changed, "watch").dig("specification_history", "introduction")["revision"] =
-      "7025560263fedfd8724cf25387ede86cd981ca3f"
+      "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7"
     assert_error(changed, "introduction is outside reviewed history")
 
     changed = document
@@ -227,7 +227,7 @@ class MaturityTest < Minitest::Test
     assert_error(changed, "change boundaries must be chronological and canonical")
 
     changed = document
-    changed.fetch("audit")["reviewed_repository_revision"] = "24c6712db0a3da8f42f13d32b43392ba261adfed"
+    changed.fetch("audit")["reviewed_repository_revision"] = "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7"
     assert_error(changed, "exact reviewed revision authority")
   end
   # rubocop:enable Metrics/AbcSize
@@ -309,7 +309,7 @@ class MaturityTest < Minitest::Test
     assessment = feature(changed, "watch").dig(
       "specification_history", "changes", 0, "commit_assessments", 0
     )
-    assessment["revision"] = "7025560263fedfd8724cf25387ede86cd981ca3f"
+    assessment["revision"] = "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7"
     assert_error(changed, "commit assessment revision is outside reviewed ancestry")
 
     changed = document

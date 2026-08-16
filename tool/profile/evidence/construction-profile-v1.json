@@ -20,13 +20,20 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "acb08c2848843dce52f6c806a5800cd3d3f83fe0",
+    "base_revision": "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": false,
     "capture_worktree_status": [
-      " M docs/records/error-ux/round2-v1.json"
+      " M docs/policy/workloads.md",
+      " M docs/registry/maturity.yml",
+      " M docs/registry/workloads.yml",
+      " M test/quality/maturity_test.rb",
+      " M tool/profile/construction_profiler.rb",
+      " M tool/profile/evidence/construction-profile-v1.json",
+      " M tool/profile/evidence/lexer-profile-v1.json",
+      " M tool/quality/maturity_authority.rb"
     ],
-    "capture_worktree_status_sha256": "dfb1530b86c7a20a38090d9a96d5ebfee87c12192533b021d3f12fa87dcdd304",
+    "capture_worktree_status_sha256": "e6cdd7242f9033925f336867f280e959461bd869503fe683a033fa08f68d4204",
     "bound_paths": [
       {
         "path": ".github/workflows/main.yml",
@@ -36,33 +43,33 @@
       },
       {
         "path": "Rakefile",
-        "sha256": "6b87e6ea058cc3b302ad291f99ea7de8f8493fac4ae51a8ac544aade564aadb9",
+        "sha256": "edfb96d1834979fc6ca1105b6709c26c7c45c65a0a5de285371d2ed06acedd8f",
         "git_state": "base",
-        "base_sha256": "6b87e6ea058cc3b302ad291f99ea7de8f8493fac4ae51a8ac544aade564aadb9"
-      },
-      {
-        "path": "docs/records/profiles/construction-profiling.md",
-        "sha256": "0af9ddf4682b9769b4b738a98e2ae67445a20c4a8c41269c95c87938ddf5bef7",
-        "git_state": "base",
-        "base_sha256": "0af9ddf4682b9769b4b738a98e2ae67445a20c4a8c41269c95c87938ddf5bef7"
+        "base_sha256": "edfb96d1834979fc6ca1105b6709c26c7c45c65a0a5de285371d2ed06acedd8f"
       },
       {
         "path": "docs/policy/maturity.md",
-        "sha256": "10292839ffc2f5f18f6b58bc5297c341ca7350b1f46b6de8eec84a5e024c2803",
+        "sha256": "a122edfd90b0463904d98020c202d6d4f0345d1294aa8dc1886663b3c123ca6e",
         "git_state": "base",
-        "base_sha256": "10292839ffc2f5f18f6b58bc5297c341ca7350b1f46b6de8eec84a5e024c2803"
-      },
-      {
-        "path": "docs/registry/maturity.yml",
-        "sha256": "25971bbd1006fe53ada4851c4ac3b7c9b6be3d2cbd0951c4bc041c9765ff9ce5",
-        "git_state": "base",
-        "base_sha256": "25971bbd1006fe53ada4851c4ac3b7c9b6be3d2cbd0951c4bc041c9765ff9ce5"
+        "base_sha256": "a122edfd90b0463904d98020c202d6d4f0345d1294aa8dc1886663b3c123ca6e"
       },
       {
         "path": "docs/policy/workloads.md",
-        "sha256": "752aedf08615715b83f68ac08e4cea9b5f8abbee29e28879a0562730edd8e168",
+        "sha256": "4079d3500da1134a9f5ccdcf9b82a395d31dde46c18ee2684543cac565e82ff6",
+        "git_state": "modified",
+        "base_sha256": "9fa8da978c0bfd7a679955fc0bbf04546cfd8001db60d4f1a5d72c5ee7cf2b5a"
+      },
+      {
+        "path": "docs/records/profiles/construction-profiling.md",
+        "sha256": "e69e88b9a474fb07b30d1e29a353e0d80edcced7d538b9ca3cf47413d087034c",
         "git_state": "base",
-        "base_sha256": "752aedf08615715b83f68ac08e4cea9b5f8abbee29e28879a0562730edd8e168"
+        "base_sha256": "e69e88b9a474fb07b30d1e29a353e0d80edcced7d538b9ca3cf47413d087034c"
+      },
+      {
+        "path": "docs/registry/maturity.yml",
+        "sha256": "508d4c0ffe746fca0209044289ba2fee4a5430dd8a7a7a23e2e60ff4eed9860f",
+        "git_state": "modified",
+        "base_sha256": "49e77917ca365ffa22480c52c03ebe2bcfcee0d618964969e0f0d9a7aaf01e46"
       },
       {
         "path": "lib/ibex/analysis/digraph.rb",
@@ -240,9 +247,9 @@
       },
       {
         "path": "test/quality/maturity_test.rb",
-        "sha256": "8f486f25264bb3524ec1342b340ba8af167d01a93b7f0b341dd0648f8232fc1f",
-        "git_state": "base",
-        "base_sha256": "8f486f25264bb3524ec1342b340ba8af167d01a93b7f0b341dd0648f8232fc1f"
+        "sha256": "d59a0c6a62c2072ab253c9edd7761b37093ef44a4bf770a06b73e75b7371cf89",
+        "git_state": "modified",
+        "base_sha256": "ccdfcbfb6bebe159b33dd70cf14000edaf570568bf60fd20cd8476560c9f9793"
       },
       {
         "path": "test/support/public_json_schemas.rb",
@@ -258,9 +265,9 @@
       },
       {
         "path": "tool/profile/construction_profiler.rb",
-        "sha256": "0276ea275f0c0bbfcd69c2b27691a3377e2fc37e2d735cc34be0c24be1f49763",
-        "git_state": "base",
-        "base_sha256": "0276ea275f0c0bbfcd69c2b27691a3377e2fc37e2d735cc34be0c24be1f49763"
+        "sha256": "a8f70dfc773575a59b05b152201b13255e32a179d1a2b8622501aba35b140400",
+        "git_state": "modified",
+        "base_sha256": "0f464df89590878197669e944b0457bae898a37df73351e27da5c630d58cf0e7"
       },
       {
         "path": "tool/quality/construction_profile.rb",
@@ -275,14 +282,14 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "d6325f16b00c6215cd610cacd2d5c1151dc95159d38b35e60f102e279dc49210",
-    "implementation_sha256": "b8501d92797e3009bee79fa66ad01ddf56655e337af95d2a630c3f9c66138b3e",
+    "bound_paths_sha256": "e1980e30f6f8d06ec07e66442cfbeb34f43d9fdd0a9249ae72a1de84cf82ced6",
+    "implementation_sha256": "71e2ea200cb830770ca435de19b3bbd3a5470228b8bf805b3ea3132327b1a78e",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
     "evidence_path": "tool/profile/evidence/construction-profile-v1.json",
     "evidence_exclusion_reason": "the evidence file is excluded from its own digest to avoid circularity"
   },
-  "measurement_policy": {
+ "measurement_policy": {
     "wall_seconds_per_run": 60.0,
     "wall_time_role": "observation_only",
     "state_limit": {
@@ -314,7 +321,7 @@
           "grammar": {
             "identity": "Self-authored calculator gallery grammar",
             "path": "gallery/calc/grammar.y",
-            "revision": "8dae6f7cede1d262cb9211a07b72b8c903e96126",
+            "revision": "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7",
             "sha256": "e9c25a35bd0351e58c3aefd9397097ac04701e052bad7fd234e72e357b5bac07"
           },
           "registry_status": "registered",
@@ -539,7 +546,7 @@
           "grammar": {
             "identity": "Self-authored JSON gallery grammar",
             "path": "gallery/json/grammar.y",
-            "revision": "d901b787c7e10c1ab3344ac0156f802ab29ad207",
+            "revision": "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7",
             "sha256": "162484428a798541dfced3a12e6e38eb6f1231aec03157c273b25493fa6f9f66"
           },
           "registry_status": "registered",
@@ -764,7 +771,7 @@
           "grammar": {
             "identity": "Self-authored SQL subset gallery grammar",
             "path": "gallery/sql-lite/grammar.y",
-            "revision": "d901b787c7e10c1ab3344ac0156f802ab29ad207",
+            "revision": "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7",
             "sha256": "1369ba9384456fc02d0ccb9cef81dd0e96fcdd387f00266b28df0ac5be1b5f2a"
           },
           "registry_status": "registered",
@@ -989,7 +996,7 @@
           "grammar": {
             "identity": "Representative matrix multi-entry diagnostic",
             "path": "test/support/matrix_runner.rb#grammar_source(entries=multi,cst=off,locations=off)",
-            "revision": "2d86d52ef92c2b07046c05f4fd55c32a1d6400a9",
+            "revision": "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7",
             "sha256": "af2a9c3b46c31b80e7f9dc983f70b33979d46e6a519b681d7d8a403b4b0f6d8d"
           },
           "registry_status": "unregistered_diagnostic",
@@ -1443,7 +1450,7 @@
           "grammar": {
             "identity": "Ibex production self-hosted grammar frontend",
             "path": "lib/ibex/frontend/grammar.y",
-            "revision": "8dae6f7cede1d262cb9211a07b72b8c903e96126",
+            "revision": "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7",
             "sha256": "c615e4a180b21df377585a0804776a3f2af33c3753ef617f6798c9566848e403"
           },
           "registry_status": "registered",
