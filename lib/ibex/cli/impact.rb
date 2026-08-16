@@ -280,8 +280,8 @@ module Ibex
     def nullable_change(before, after, before_symbol, after_symbol)
       return nil unless before_symbol || after_symbol
 
-      old = before_symbol && before.nullable?(before_symbol)
-      current = after_symbol && after.nullable?(after_symbol)
+      old = before_symbol ? before.nullable?(before_symbol) : false
+      current = after_symbol ? after.nullable?(after_symbol) : false
       return nil if old == current
 
       { before: old, after: current }

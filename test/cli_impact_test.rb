@@ -125,10 +125,21 @@ class CLIImpactTest < Minitest::Test
       report = JSON.parse(result.fetch(:stdout))
 
       assert_equal 1, result.fetch(:status)
+      assert_schema(report)
       assert_includes report.fetch("seeds").map { |seed| seed.fetch("symbol") }, "old"
       old = report.fetch("symbols").find { |symbol| symbol.fetch("symbol") == "old" }
       assert_equal "high", old.fetch("severity")
       assert_includes old.fetch("kinds"), "first"
+    end
+  end
+
+  def test_added_nonterminal_report_matches_schema
+    with_grammars("start: TOKEN", "start: TOKEN\nnew:") do |before, after|
+      report = JSON.parse(run_impact(["impact", before, after]).fetch(:stdout))
+
+      assert_schema(report)
+      added = report.fetch("symbols").find { |symbol| symbol.fetch("symbol") == "new" }
+      assert_equal({ "before" => false, "after" => true }, added.dig("sets", "nullable"))
     end
   end
 
