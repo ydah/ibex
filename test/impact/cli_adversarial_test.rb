@@ -2,6 +2,7 @@
 
 require_relative "../test_helper"
 require "stringio"
+require "tmpdir"
 
 class ImpactCLIAdversarialTest < Minitest::Test
   def test_unreachable_comparison_uses_state_content_not_numeric_ids
@@ -13,6 +14,25 @@ class ImpactCLIAdversarialTest < Minitest::Test
     cli.extend(Ibex::CLIImpact)
 
     assert_equal [base.states.length], cli.send(:newly_unreachable_state_ids, before, after)
+  end
+
+  def test_malformed_baseline_is_reported_as_cli_error
+    Dir.mktmpdir("ibex-impact-baseline") do |directory|
+      before = File.join(directory, "before.y")
+      after = File.join(directory, "after.y")
+      baseline = File.join(directory, "baseline.json")
+      source = "class P\nrule\nstart: TOKEN\nend\n"
+      File.binwrite(before, source)
+      File.binwrite(after, source)
+      File.binwrite(baseline, "[]")
+      stdout = StringIO.new
+      stderr = StringIO.new
+
+      status = Ibex::CLI.start(["impact", "--baseline=#{baseline}", before, after], stdout: stdout, stderr: stderr)
+
+      assert_equal 1, status
+      assert_includes stderr.string, "invalid impact baseline"
+    end
   end
 
   private

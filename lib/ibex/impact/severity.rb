@@ -18,13 +18,28 @@ module Ibex
         return [] unless File.file?(@path)
 
         value = JSON.parse(File.binread(@path))
-        empty_conflicts = [] #: Array[untyped]
-        conflicts = value.fetch("conflicts", empty_conflicts) #: Array[untyped]
-        raise Ibex::Error, "#{@path}:1:1: baseline conflicts must be an array" unless conflicts.is_a?(Array)
+        validate_document(value)
+        conflicts = value.fetch("conflicts") #: Array[untyped]
+        unless conflicts.all? { |identity| identity.is_a?(String) && !identity.empty? }
+          raise Ibex::Error, "#{@path}:1:1: invalid impact baseline: conflicts must contain non-empty strings"
+        end
 
-        conflicts.map(&:to_s).sort.uniq
-      rescue JSON::ParserError, KeyError => e
+        conflicts.sort.uniq
+      rescue JSON::ParserError => e
         raise Ibex::Error, "#{@path}:1:1: invalid impact baseline: #{e.message}"
+      end
+
+      # @rbs (Object?) -> void
+      def validate_document(value)
+        unless value.is_a?(Hash) && value.keys.sort == %w[conflicts schema_version]
+          raise Ibex::Error, "#{@path}:1:1: invalid impact baseline: expected schema_version and conflicts"
+        end
+        unless value.fetch("conflicts").is_a?(Array)
+          raise Ibex::Error, "#{@path}:1:1: invalid impact baseline: conflicts must be an array"
+        end
+        return if value.fetch("schema_version") == 1
+
+        raise Ibex::Error, "#{@path}:1:1: unsupported impact baseline schema"
       end
 
       # @rbs (Array[String] identities) -> void

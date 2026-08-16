@@ -45,7 +45,8 @@ module Ibex
           symbol.name,
           {
             kind: symbol.kind, reserved: symbol.reserved, display_name: symbol.display_name,
-            semantic_type: symbol.semantic_type, precedence: symbol.precedence
+            semantic_type: symbol.semantic_type, precedence: symbol.precedence,
+            documentation: symbol.documentation
           }
         ]
       end

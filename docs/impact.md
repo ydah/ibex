@@ -30,10 +30,10 @@ ibex impact old-parser.y new-parser.y
 ```
 
 This is the confirmed-impact mode. It compares nullable, FIRST, and FOLLOW
-sets, grammar rules, actions' structured metadata, symbol metadata such as
-display labels and semantic types, automaton states, and conflicts. Metadata
-only changes are reported at Low severity. This mode is the canonical input
-for CI review and `--fail-on`.
+sets, grammar rules, actions' structured metadata, and symbol metadata such as
+display labels, semantic types, and documentation, plus automaton states and
+conflicts. Metadata-only changes are reported at Low severity. This mode is
+the canonical input for CI review and `--fail-on`.
 
 Reports are JSON by default and conform to
 [`impact-v1.schema.json`](../schema/impact-v1.schema.json). `--format=text`

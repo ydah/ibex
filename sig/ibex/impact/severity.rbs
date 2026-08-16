@@ -10,6 +10,9 @@ module Ibex
       # @rbs () -> Array[String]
       def conflicts: () -> Array[String]
 
+      # @rbs (Object?) -> void
+      def validate_document: (Object?) -> void
+
       # @rbs (Array[String] identities) -> void
       def write: (Array[String] identities) -> void
     end

@@ -156,6 +156,19 @@ class CLIImpactTest < Minitest::Test
     end
   end
 
+  def test_documentation_changes_are_reported_as_low
+    with_sources(
+      "class P\npragma extended\nrule\n## Old documentation.\nstart: TOKEN\nend\n",
+      "class P\npragma extended\nrule\n## New documentation.\nstart: TOKEN\nend\n"
+    ) do |before, after|
+      report = JSON.parse(run_impact(["impact", "--mode=extended", "--severity=low", before, after]).fetch(:stdout))
+      symbol = report.fetch("symbols").find { |entry| entry.fetch("symbol") == "start" }
+
+      assert_equal "low", symbol.fetch("severity")
+      assert_equal ["metadata"], symbol.fetch("kinds")
+    end
+  end
+
   def test_severity_threshold_filters_actions
     with_sources(
       "class P\ntoken A B\nrule\nstart: A { result = val[0] }\nend\n",

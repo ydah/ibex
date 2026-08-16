@@ -175,7 +175,7 @@
       },
       {
         "path": "lib/ibex/diff.rb",
-        "sha256": "59bf6a408b344557fcfd4106a082ea9ecf00dc7b788e163f0ff023c587f05355"
+        "sha256": "05d5a262f7760eef66392f7392a98912b565c5363555de1bddfd69be353ac0fe"
       },
       {
         "path": "lib/ibex/equiv.rb",
@@ -395,7 +395,7 @@
       },
       {
         "path": "lib/ibex/impact/severity.rb",
-        "sha256": "260f8abf803d6187d56df305b840c0304a982e55f3ed0f908bc657cb2f1830da"
+        "sha256": "acc5c84c817b74f4b6f2e7530b67f04c16845745d49788b556efaa31263eb011"
       },
       {
         "path": "lib/ibex/ir.rb",
