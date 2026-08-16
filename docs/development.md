@@ -213,8 +213,10 @@ bind its signature or provenance attestation to the printed artifact digest.
 
 The tag-triggered [`Release` workflow](../.github/workflows/release.yml)
 validates that the generator and runtime versions match the tag, runs the full
-quality suite, checks reproducible package builds, and attaches both gems plus
-`SHA256SUMS` to the GitHub Release. It does not publish to RubyGems.
+quality suite, checks reproducible package builds, publishes both gems to
+RubyGems.org through Trusted Publishing, and attaches both gems plus
+`SHA256SUMS` to the GitHub Release. Configure a trusted publisher for both
+`ibex` and `ibex-runtime` before using the workflow.
 
 After committing the intended release version, create and push its tag:
 
