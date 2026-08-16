@@ -63,6 +63,23 @@ ignored and produce a warning. A merged report contains aggregate sessions and
 cannot be decomposed back into individual tests; pass separate reports for
 that use case.
 
+## Performance evidence
+
+Measure the three gallery grammars in an isolated process when reviewing
+performance changes:
+
+```sh
+for grammar in gallery/*/grammar.y; do
+  bundle exec ruby benchmark/impact.rb --grammar "$grammar" --iterations 3 --json
+done
+```
+
+The benchmark reports `Sets` and graph construction time, allocated objects,
+dependency-edge count, and the shallow storage size of the retained dependency
+arrays. Ruby allocator and RSS measurements are process-level observations;
+the dependency-edge count and storage size explain the intentional memory cost
+of retaining impact dependencies.
+
 ## Limits and trust boundary
 
 The analyzer treats action bodies and user code as opaque source. It uses only

@@ -22,7 +22,7 @@ module Ibex
 
       RANK: Hash[String, Integer]
 
-      CHANGE_TO_GATE: Hash[String, Symbol]
+      GATE_TO_KIND: Hash[String, String]
 
       # @rbs (String left, String right) -> String
       def self?.max: (String left, String right) -> String

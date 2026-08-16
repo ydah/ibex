@@ -4,6 +4,20 @@ module Ibex
   module Impact
     # Builds the deterministic public impact-v1 document.
     class Report
+      # @rbs @mode: String
+      # @rbs @algorithm: String
+      # @rbs @grammar: IR::Grammar
+      # @rbs @before: IR::Automaton?
+      # @rbs @after: IR::Automaton?
+      # @rbs @seeds: Array[Hash[Symbol, Object?]]
+      # @rbs @nodes: Hash[Integer, Node]
+      # @rbs @symbol_kinds: Hash[Integer, Array[String]]
+      # @rbs @set_changes: Hash[String, Hash[Symbol, Object?]]
+      # @rbs @automaton: Hash[Symbol, Object?]
+      # @rbs @actions: Array[Hash[Symbol, Object?]]
+      # @rbs @coverage: Hash[Symbol, Object?]
+      # @rbs @minimum: String
+      # @rbs @warnings: Array[String]
       # @rbs (mode: String, algorithm: String, grammar: IR::Grammar, before: IR::Automaton?, after: IR::Automaton?,
       #   seeds: Array[Hash[Symbol, Object?]], nodes: Hash[Integer, Node], symbol_kinds: Hash[Integer, Array[String]],
       #   set_changes: Hash[String, Hash[Symbol, Object?]], automaton: Hash[Symbol, Object?],
@@ -12,13 +26,13 @@ module Ibex
       # rubocop:disable Metrics/ParameterLists
       def initialize: (mode: String, algorithm: String, grammar: IR::Grammar, before: IR::Automaton?, after: IR::Automaton?, seeds: Array[Hash[Symbol, Object?]], nodes: Hash[Integer, Node], symbol_kinds: Hash[Integer, Array[String]], set_changes: Hash[String, Hash[Symbol, Object?]], automaton: Hash[Symbol, Object?], actions: Array[Hash[Symbol, Object?]], coverage: Hash[Symbol, Object?], ?minimum: String, ?warnings: Array[String]) -> void
 
-      # @rbs () -> Hash[Symbol, Object?]
-      def to_h: () -> Hash[Symbol, Object?]
+      # @rbs (?minimum: String) -> Hash[Symbol, Object?]
+      def to_h: (?minimum: String) -> Hash[Symbol, Object?]
 
       private
 
-      # @rbs () -> Array[Hash[Symbol, Object?]]
-      def symbol_documents: () -> Array[Hash[Symbol, Object?]]
+      # @rbs (String minimum) -> Array[Hash[Symbol, Object?]]
+      def symbol_documents: (String minimum) -> Array[Hash[Symbol, Object?]]
 
       # @rbs (Integer) -> Hash[Symbol, Object?]?
       def symbol_document: (Integer) -> Hash[Symbol, Object?]?
@@ -38,6 +52,9 @@ module Ibex
       # @rbs (String name, String current) -> String
       def action_severity: (String name, String current) -> String
 
+      # @rbs (Hash[Symbol, Object?] record) -> String
+      def severity_of: (Hash[Symbol, Object?] record) -> String
+
       # @rbs () -> Hash[Symbol, Array[String]]
       def empty_change: () -> Hash[Symbol, Array[String]]
 
@@ -50,8 +67,33 @@ module Ibex
       # @rbs (IR::Production?) -> String?
       def production_shape: (IR::Production?) -> String?
 
-      # @rbs (Array[Hash[Symbol, Object?]], Array[Hash[Symbol, Object?]]) -> Hash[Symbol, Integer]
-      def totals: (Array[Hash[Symbol, Object?]], Array[Hash[Symbol, Object?]]) -> Hash[Symbol, Integer]
+      # @rbs (Array[Hash[Symbol, Object?]], Array[Hash[Symbol, Object?]],
+      #   Hash[Symbol, Object?]) -> Hash[Symbol, Integer]
+      def totals: (Array[Hash[Symbol, Object?]], Array[Hash[Symbol, Object?]], Hash[Symbol, Object?]) -> Hash[Symbol, Integer]
+
+      # @rbs () -> Array[Hash[Symbol, Object?]]
+      def action_documents: () -> Array[Hash[Symbol, Object?]]
+
+      # @rbs (Hash[Symbol, Object?] action) -> String
+      def action_production: (Hash[Symbol, Object?] action) -> String
+
+      # @rbs () -> Hash[Symbol, Object?]
+      def coverage_document: () -> Hash[Symbol, Object?]
+
+      # @rbs (Hash[Symbol, Object?] report) -> String
+      def coverage_report_path: (Hash[Symbol, Object?] report) -> String
+
+      # @rbs () -> Array[String]
+      def stable_warnings: () -> Array[String]
+
+      # @rbs (IR::location?) -> Hash[Symbol, Integer]?
+      def stable_location: (IR::location?) -> Hash[Symbol, Integer]?
+
+      # @rbs (IR::Automaton?) -> String?
+      def stable_grammar_digest: (IR::Automaton?) -> String?
+
+      # @rbs (String) -> String
+      def stable_path: (String) -> String
     end
   end
 end

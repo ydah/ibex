@@ -5,6 +5,9 @@ module Ibex
   module Impact
     # Maps propagated grammar symbols to parser states and conflict changes.
     class AutomatonImpact
+      # @rbs @automaton: IR::Automaton
+      # @rbs @symbol_ids: Array[Integer]
+      # @rbs @production_ids: Array[Integer]
       attr_reader :affected_states #: Array[Integer]
       attr_reader :production_ids #: Array[Integer]
       attr_reader :conflict_states #: Array[Integer]
@@ -12,7 +15,7 @@ module Ibex
       # @rbs (IR::Automaton automaton, Array[Integer]) -> void
       def initialize(automaton, symbol_ids)
         @automaton = automaton
-        @symbol_ids = symbol_ids.uniq.sort
+        @symbol_ids = symbol_ids.uniq.sort #: Array[Integer]
         @production_ids = affected_productions
         @affected_states = affected_state_ids
         @conflict_states = conflict_state_ids

@@ -40,10 +40,9 @@ module Ibex
         new_conflict nullable_change first_change follow_change action_arity unreachable
       ].freeze #: Array[String]
       RANK = LEVELS.each_with_index.to_h.freeze #: Hash[String, Integer]
-      CHANGE_TO_GATE = {
-        "new_conflict" => :new_conflict, "nullable" => :nullable_change, "first" => :first_change,
-        "follow" => :follow_change, "action_arity" => :action_arity, "unreachable" => :unreachable
-      }.freeze #: Hash[String, Symbol]
+      GATE_TO_KIND = {
+        "nullable_change" => "nullable", "first_change" => "first", "follow_change" => "follow"
+      }.freeze #: Hash[String, String]
 
       module_function
 
@@ -86,8 +85,8 @@ module Ibex
 
         symbol_records = report.fetch(:symbols, []) #: Array[Hash[Symbol, Object?]]
         gates.any? do |gate|
-          kind = CHANGE_TO_GATE[gate]
-          kind && symbol_records.any? { |item| item[:kinds].is_a?(Array) && item[:kinds].include?(kind.to_s) }
+          kind = GATE_TO_KIND[gate]
+          kind && symbol_records.any? { |item| item[:kinds].is_a?(Array) && item[:kinds].include?(kind) }
         end
       end
 

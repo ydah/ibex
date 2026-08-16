@@ -17,11 +17,11 @@ module Ibex
     # @rbs (String value) -> Array[Symbol]
     def parse_kinds: (String value) -> Array[Symbol]
 
-    # @rbs (Array[String], Hash[Symbol, untyped]) -> [Hash[Symbol, Object?], Array[String]]
-    def potential_impact: (Array[String], Hash[Symbol, untyped]) -> [ Hash[Symbol, Object?], Array[String] ]
+    # @rbs (Array[String], Hash[Symbol, untyped]) -> [Hash[Symbol, Object?], Array[String], Hash[Symbol, Object?]]
+    def potential_impact: (Array[String], Hash[Symbol, untyped]) -> [ Hash[Symbol, Object?], Array[String], Hash[Symbol, Object?] ]
 
-    # @rbs (Array[String], Hash[Symbol, untyped]) -> [Hash[Symbol, Object?], Array[String]]
-    def confirmed_impact: (Array[String], Hash[Symbol, untyped]) -> [ Hash[Symbol, Object?], Array[String] ]
+    # @rbs (Array[String], Hash[Symbol, untyped]) -> [Hash[Symbol, Object?], Array[String], Hash[Symbol, Object?]]
+    def confirmed_impact: (Array[String], Hash[Symbol, untyped]) -> [ Hash[Symbol, Object?], Array[String], Hash[Symbol, Object?] ]
 
     # @rbs (Impact::Graph, Array[Integer], Hash[Symbol, untyped]) ->
     #   [Hash[Integer, Impact::Node], Hash[Integer, Array[String]]]

@@ -28,10 +28,16 @@ module Ibex
 
       extend CLIAnalysis unless singleton_class.ancestors.include?(CLIAnalysis)
       settings[:algorithm] = local_configuration_value(settings, "parser.algorithm")
-      report, identities = paths.length == 1 ? potential_impact(paths, settings) : confirmed_impact(paths, settings)
+      analysis = if paths.length == 1
+                   potential_impact(paths, settings)
+                 else
+                   confirmed_impact(paths, settings)
+                 end
+      report, identities, gate_report = analysis
       apply_baseline(report, identities, settings)
+      apply_baseline(gate_report, identities, settings)
       write_impact_report(report, settings.fetch(:format))
-      Impact::Severity.fails?(report, settings.fetch(:fail_on)) ? 1 : 0
+      Impact::Severity.fails?(gate_report, settings.fetch(:fail_on)) ? 1 : 0
     end
 
     # @rbs (Array[String]) -> Hash[Symbol, untyped]
@@ -87,7 +93,7 @@ module Ibex
       kinds.uniq
     end
 
-    # @rbs (Array[String], Hash[Symbol, untyped]) -> [Hash[Symbol, Object?], Array[String]]
+    # @rbs (Array[String], Hash[Symbol, untyped]) -> [Hash[Symbol, Object?], Array[String], Hash[Symbol, Object?]]
     def potential_impact(paths, settings)
       automaton = load_analysis_automaton(paths.fetch(0), settings.fetch(:algorithm), explicit: algo_set?(settings))
       names = settings.fetch(:symbols)
@@ -98,16 +104,16 @@ module Ibex
       nodes, symbol_kinds = propagate(graph, seeds.ids, settings)
       automaton_impact = Impact::AutomatonImpact.new(automaton, nodes.keys)
       coverage = load_coverage(automaton, automaton_impact.production_ids, settings)
-      report = Impact::Report.new(
+      reporter = Impact::Report.new(
         mode: "potential", algorithm: automaton.algorithm, grammar: automaton.grammar, before: nil, after: automaton,
         seeds: seeds.records, nodes: nodes, symbol_kinds: symbol_kinds, set_changes: {},
         automaton: potential_automaton_document(automaton, automaton_impact), actions: [], coverage: coverage.to_h,
         minimum: settings.fetch(:severity), warnings: nullable_warnings(seeds, coverage)
-      ).to_h
-      [report, conflict_identities(automaton)]
+      )
+      [reporter.to_h, conflict_identities(automaton), reporter.to_h(minimum: "info")]
     end
 
-    # @rbs (Array[String], Hash[Symbol, untyped]) -> [Hash[Symbol, Object?], Array[String]]
+    # @rbs (Array[String], Hash[Symbol, untyped]) -> [Hash[Symbol, Object?], Array[String], Hash[Symbol, Object?]]
     def confirmed_impact(paths, settings)
       before = load_analysis_automaton(paths.fetch(0), settings.fetch(:algorithm), explicit: algo_set?(settings))
       after = load_analysis_automaton(paths.fetch(1), settings.fetch(:algorithm), explicit: algo_set?(settings))
@@ -125,13 +131,13 @@ module Ibex
       automaton_impact = Impact::AutomatonImpact.new(after, nodes.keys)
       actions = Impact::ActionImpact.new(before.grammar, after.grammar, affected_names: names).to_a
       coverage = load_coverage(after, automaton_impact.production_ids, settings)
-      report = Impact::Report.new(
+      reporter = Impact::Report.new(
         mode: "diff", algorithm: after.algorithm, grammar: after.grammar, before: before, after: after,
         seeds: seeds.records, nodes: nodes, symbol_kinds: symbol_kinds, set_changes: set_changes,
         automaton: confirmed_automaton_document(before, after, diff, automaton_impact), actions: actions,
         coverage: coverage.to_h, minimum: settings.fetch(:severity), warnings: coverage.warnings
-      ).to_h
-      [report, conflict_identities(after)]
+      )
+      [reporter.to_h, conflict_identities(after), reporter.to_h(minimum: "info")]
     end
 
     # @rbs (Impact::Graph, Array[Integer], Hash[Symbol, untyped]) ->
@@ -187,7 +193,7 @@ module Ibex
           before: before.states.length, after: after.states.length, delta: after.states.length - before.states.length
         },
         affected_states: impact.affected_states, conflicts: diff.fetch(:conflicts),
-        unreachable: unreachable_state_ids(after)
+        unreachable: unreachable_state_ids(after) - unreachable_state_ids(before)
       }
     end
 

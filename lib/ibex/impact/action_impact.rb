@@ -5,6 +5,9 @@ module Ibex
   module Impact
     # Checks only structured action metadata; action source remains opaque.
     class ActionImpact
+      # @rbs @before: IR::Grammar
+      # @rbs @after: IR::Grammar
+      # @rbs @affected_names: Array[String]?
       attr_reader :findings #: Array[Hash[Symbol, Object?]]
 
       # @rbs (IR::Grammar before, IR::Grammar after, ?affected_names: Array[String]?) -> void
@@ -34,13 +37,52 @@ module Ibex
       def compare_rule(name)
         before = productions_for(@before, name)
         after = productions_for(@after, name)
-        after.each_with_index.filter_map do |production, index|
-          previous = before[index]
-          next unless previous
+        pair_productions(before, after).filter_map do |previous, production|
           next if previous.rhs.length == production.rhs.length
 
           finding_for(previous, production)
         end
+      end
+
+      # @rbs (Array[IR::Production] before, Array[IR::Production] after) -> Array[[IR::Production, IR::Production]]
+      def pair_productions(before, after)
+        unmatched = before.dup
+        pairs = pair_exact_productions(unmatched, after)
+        pair_by_location(unmatched, after, pairs)
+      end
+
+      # @rbs (Array[IR::Production] unmatched, Array[IR::Production] after) -> Array[[IR::Production, IR::Production]]
+      def pair_exact_productions(unmatched, after)
+        pairs = [] #: Array[[IR::Production, IR::Production]]
+
+        after.each do |production|
+          index = unmatched.index do |candidate|
+            production_signature(@before, candidate) == production_signature(@after, production)
+          end
+          next unless index
+
+          pairs << [unmatched.delete_at(index), production]
+        end
+
+        pairs
+      end
+
+      # @rbs (Array[IR::Production] unmatched, Array[IR::Production] after,
+      #   Array[[IR::Production, IR::Production]]) -> Array[[IR::Production, IR::Production]]
+      def pair_by_location(unmatched, after, pairs)
+        after.each do |production|
+          next if pairs.any? { |_, candidate| candidate.equal?(production) }
+
+          index = unmatched.index do |candidate|
+            location = action_location_identity(production)
+            location && location == action_location_identity(candidate)
+          end
+          next unless index
+
+          pairs << [unmatched.delete_at(index), production]
+        end
+
+        pairs
       end
 
       # @rbs (IR::Grammar grammar, String name) -> Array[IR::Production]
@@ -49,6 +91,25 @@ module Ibex
         return [] unless lhs
 
         grammar.productions.select { |production| production.lhs == lhs }
+      end
+
+      # @rbs (IR::Grammar grammar, IR::Production production) -> [Array[String], String?]
+      def production_signature(grammar, production)
+        rhs = production.rhs.map { |id| grammar.symbol_by_id(id)&.name || id.to_s }
+        precedence = grammar.symbol_by_id(production.precedence_override)&.name
+        [rhs, precedence]
+      end
+
+      # @rbs (IR::Production production) -> [Integer, Integer]?
+      def action_location_identity(production)
+        location = production.origin[:loc] || production.action&.location #: IR::location?
+        return unless location
+
+        line = location[:line]
+        column = location[:column]
+        return unless line && column
+
+        [line, column]
       end
 
       # @rbs (IR::Production before, IR::Production after) -> Hash[Symbol, Object?]

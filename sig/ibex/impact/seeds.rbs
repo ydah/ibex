@@ -4,6 +4,10 @@ module Ibex
   module Impact
     # Converts command-line symbols and Diff rule ids into analysis seeds.
     class Seeds
+      # @rbs @grammar: IR::Grammar
+      # @rbs @sets: Analysis::Sets
+      # @rbs @records: Array[Hash[Symbol, Object?]]
+      # @rbs @ids: Array[Integer]
       attr_reader ids: Array[Integer]
 
       attr_reader records: Array[Hash[Symbol, Object?]]
@@ -15,6 +19,12 @@ module Ibex
       def self.from_diff: (IR::Grammar grammar, Hash[Symbol, Object?] diff, ?origin: String) -> Seeds
 
       private
+
+      # @rbs (Hash[Symbol, Object?] record) -> String
+      def seed_symbol: (Hash[Symbol, Object?] record) -> String
+
+      # @rbs (Hash[Symbol, Object?] record) -> Integer
+      def seed_id: (Hash[Symbol, Object?] record) -> Integer
 
       # @rbs (String name, String origin) -> Array[Hash[Symbol, Object?]]
       def resolve: (String name, String origin) -> Array[Hash[Symbol, Object?]]

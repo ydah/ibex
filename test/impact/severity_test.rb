@@ -17,6 +17,15 @@ class ImpactSeverityTest < Minitest::Test
     assert Ibex::Impact::Severity.fails?(report, ["new_conflict"])
   end
 
+  def test_set_change_gates_match_their_symbol_kinds
+    %w[nullable first follow].each do |kind|
+      report = { automaton: { conflicts: { added: [] }, unreachable: [] }, symbols: [{ kinds: [kind] }], actions: [] }
+      gate = "#{kind == 'nullable' ? 'nullable' : kind}_change"
+
+      assert Ibex::Impact::Severity.fails?(report, [gate]), kind
+    end
+  end
+
   def test_unknown_gate_is_rejected
     error = assert_raises(OptionParser::InvalidArgument) do
       Ibex::Impact::Severity.validate_gates(["not_a_gate"])

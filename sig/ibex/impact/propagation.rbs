@@ -20,6 +20,7 @@ module Ibex
 
     # Performs deterministic forward propagation over a dependency graph.
     class Propagation
+      # @rbs @graph: Graph
       # @rbs (Graph graph) -> void
       def initialize: (Graph graph) -> void
 

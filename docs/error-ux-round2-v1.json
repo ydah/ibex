@@ -367,11 +367,11 @@
       },
       {
         "path": "lib/ibex/impact/action_impact.rb",
-        "sha256": "deb4a936f5a5a2580784e534e526a6ffa889976f0653b651afa0945de2ce985f"
+        "sha256": "c701e9f097540f71d7a6ea68b8aff6982496f279db517032c4cae049a057058f"
       },
       {
         "path": "lib/ibex/impact/automaton_impact.rb",
-        "sha256": "3fbe18acdf72dabfaceda0272d0f3ebcf98bbe230428d5a803ae360151191a77"
+        "sha256": "cfe404f6b7130ffd2b276b2a7f63c59ae23e601a828c4c68e352206753785705"
       },
       {
         "path": "lib/ibex/impact/coverage_impact.rb",
@@ -383,19 +383,19 @@
       },
       {
         "path": "lib/ibex/impact/propagation.rb",
-        "sha256": "c88d91bf8cfd9e5475cb0140ec8ec738d0c824a81edeb5c7c724bf7a04e3b8fd"
+        "sha256": "4c28bf06e7a4b46b4a60a7b2aa20187797f298c8c4880085b3f90b15ada564ff"
       },
       {
         "path": "lib/ibex/impact/report.rb",
-        "sha256": "359f6c8d6a6d0701c517a0c56a893273136942b38bd87b66050606ed2002b03d"
+        "sha256": "80596ee9d56928d980f507cc7251ee45cf0f07560c40a6d89f04d8acfee86ff7"
       },
       {
         "path": "lib/ibex/impact/seeds.rb",
-        "sha256": "757b75afa20296f11ff515f6404f6ef2cbcb42dc8959fa3de98b29fa33f9ef92"
+        "sha256": "34ca25eefc11b538ae5e5a7ccf0422eaa68ba057a17f656a003a8510b4cee8b1"
       },
       {
         "path": "lib/ibex/impact/severity.rb",
-        "sha256": "eff5da3b02f3a0c7fbc4d9314eb432cf57548acf7a84f16951ce5b510dd716aa"
+        "sha256": "260f8abf803d6187d56df305b840c0304a982e55f3ed0f908bc657cb2f1830da"
       },
       {
         "path": "lib/ibex/ir.rb",

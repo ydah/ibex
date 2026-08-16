@@ -5,6 +5,10 @@ module Ibex
   module Impact
     # Converts command-line symbols and Diff rule ids into analysis seeds.
     class Seeds
+      # @rbs @grammar: IR::Grammar
+      # @rbs @sets: Analysis::Sets
+      # @rbs @records: Array[Hash[Symbol, Object?]]
+      # @rbs @ids: Array[Integer]
       attr_reader :ids #: Array[Integer]
       attr_reader :records #: Array[Hash[Symbol, Object?]]
 
@@ -12,8 +16,8 @@ module Ibex
       def initialize(grammar, names, origin: "symbol")
         @grammar = grammar
         @sets = Analysis::Sets.new(grammar)
-        @records = names.flat_map { |name| resolve(name, origin) }.sort_by { |record| record.fetch(:symbol).to_s }
-        @ids = @records.map { |record| record.fetch(:id) }.uniq.freeze
+        @records = names.flat_map { |name| resolve(name, origin) }.sort_by { |record| seed_symbol(record) }
+        @ids = @records.map { |record| seed_id(record) }.uniq.freeze
         @records = @records.freeze
         freeze
       end
@@ -29,6 +33,16 @@ module Ibex
       end
 
       private
+
+      # @rbs (Hash[Symbol, Object?] record) -> String
+      def seed_symbol(record)
+        record.fetch(:symbol) #: String
+      end
+
+      # @rbs (Hash[Symbol, Object?] record) -> Integer
+      def seed_id(record)
+        record.fetch(:id) #: Integer
+      end
 
       # @rbs (String name, String origin) -> Array[Hash[Symbol, Object?]]
       def resolve(name, origin)

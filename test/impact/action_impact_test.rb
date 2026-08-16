@@ -14,6 +14,25 @@ class ImpactActionImpactTest < Minitest::Test
     assert_equal "rhs_length_changed", findings.fetch(0).fetch(:reason)
   end
 
+  def test_inserting_an_alternative_does_not_realign_existing_actions
+    before = normalize(<<~GRAMMAR)
+      class P
+      token A B C
+      rule
+      start: A B { result = val[0] } | C { result = val[0] }
+      end
+    GRAMMAR
+    after = normalize(<<~GRAMMAR)
+      class P
+      token A B C
+      rule
+      start: A { result = val[0] } | A B { result = val[0] } | C { result = val[0] }
+      end
+    GRAMMAR
+
+    assert_empty Ibex::Impact::ActionImpact.new(before, after, affected_names: ["start"]).to_a
+  end
+
   private
 
   def normalize(source)

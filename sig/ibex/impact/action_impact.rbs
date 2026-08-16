@@ -4,6 +4,9 @@ module Ibex
   module Impact
     # Checks only structured action metadata; action source remains opaque.
     class ActionImpact
+      # @rbs @before: IR::Grammar
+      # @rbs @after: IR::Grammar
+      # @rbs @affected_names: Array[String]?
       attr_reader findings: Array[Hash[Symbol, Object?]]
 
       # @rbs (IR::Grammar before, IR::Grammar after, ?affected_names: Array[String]?) -> void
@@ -20,8 +23,24 @@ module Ibex
       # @rbs (String name) -> Array[Hash[Symbol, Object?]]
       def compare_rule: (String name) -> Array[Hash[Symbol, Object?]]
 
+      # @rbs (Array[IR::Production] before, Array[IR::Production] after) -> Array[[IR::Production, IR::Production]]
+      def pair_productions: (Array[IR::Production] before, Array[IR::Production] after) -> Array[[ IR::Production, IR::Production ]]
+
+      # @rbs (Array[IR::Production] unmatched, Array[IR::Production] after) -> Array[[IR::Production, IR::Production]]
+      def pair_exact_productions: (Array[IR::Production] unmatched, Array[IR::Production] after) -> Array[[ IR::Production, IR::Production ]]
+
+      # @rbs (Array[IR::Production] unmatched, Array[IR::Production] after,
+      #   Array[[IR::Production, IR::Production]]) -> Array[[IR::Production, IR::Production]]
+      def pair_by_location: (Array[IR::Production] unmatched, Array[IR::Production] after, Array[[ IR::Production, IR::Production ]]) -> Array[[ IR::Production, IR::Production ]]
+
       # @rbs (IR::Grammar grammar, String name) -> Array[IR::Production]
       def productions_for: (IR::Grammar grammar, String name) -> Array[IR::Production]
+
+      # @rbs (IR::Grammar grammar, IR::Production production) -> [Array[String], String?]
+      def production_signature: (IR::Grammar grammar, IR::Production production) -> [ Array[String], String? ]
+
+      # @rbs (IR::Production production) -> [Integer, Integer]?
+      def action_location_identity: (IR::Production production) -> [ Integer, Integer ]?
 
       # @rbs (IR::Production before, IR::Production after) -> Hash[Symbol, Object?]
       def finding_for: (IR::Production before, IR::Production after) -> Hash[Symbol, Object?]

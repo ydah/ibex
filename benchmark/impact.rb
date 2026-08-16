@@ -22,7 +22,8 @@ module ImpactBenchmark
       configuration: options.slice(:grammar, :iterations),
       measurements: {
         sets_ms_average: average(samples, :sets_ms), graph_ms_average: average(samples, :graph_ms),
-        allocated_objects_average: average(samples, :allocated_objects)
+        allocated_objects_average: average(samples, :allocated_objects),
+        dependency_storage_bytes_average: average(samples, :dependency_storage_bytes)
       },
       structure: {
         symbols: grammar.symbols.length, productions: grammar.productions.length,
@@ -63,9 +64,16 @@ module ImpactBenchmark
     {
       sets_ms: sets_ms, graph_ms: graph_ms,
       allocated_objects: GC.stat.fetch(:total_allocated_objects) - allocated_before,
+      dependency_storage_bytes: dependency_storage_bytes(sets),
       dependency_edges: sets.first_dependencies.sum(&:length) + sets.follow_dependencies.sum(&:length),
       graph_edges: graph.edges(:all).length
     }
+  end
+
+  def dependency_storage_bytes(sets)
+    [sets.first_dependencies, sets.follow_dependencies].sum do |dependencies|
+      ObjectSpace.memsize_of(dependencies) + dependencies.sum { |edges| ObjectSpace.memsize_of(edges) }
+    end
   end
 
   def elapsed_ms(started)
@@ -88,7 +96,8 @@ module ImpactBenchmark
       "graph edges: #{structure.fetch(:graph_edges)}",
       "Sets: #{measurements.fetch(:sets_ms_average)} ms average",
       "Graph: #{measurements.fetch(:graph_ms_average)} ms average",
-      "allocated objects: #{measurements.fetch(:allocated_objects_average)} average"
+      "allocated objects: #{measurements.fetch(:allocated_objects_average)} average",
+      "dependency storage: #{measurements.fetch(:dependency_storage_bytes_average)} bytes average"
     ].join("\n")
   end
 end
