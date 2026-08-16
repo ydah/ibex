@@ -387,7 +387,7 @@
       },
       {
         "path": "lib/ibex/impact/report.rb",
-        "sha256": "ce3167f86e24eeb71a1f48161ed4d697abc34e08aeabc179a9736e916da6bc12"
+        "sha256": "68f5e40fb39ed9ff7262623214ad1854728cfcb12865e61a08254588deb9d3de"
       },
       {
         "path": "lib/ibex/impact/seeds.rb",
@@ -395,7 +395,7 @@
       },
       {
         "path": "lib/ibex/impact/severity.rb",
-        "sha256": "acc5c84c817b74f4b6f2e7530b67f04c16845745d49788b556efaa31263eb011"
+        "sha256": "35e950839d0300136f754958992f34eeff641d772cf60468a8d5546432cd224b"
       },
       {
         "path": "lib/ibex/ir.rb",
