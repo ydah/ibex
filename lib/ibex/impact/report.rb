@@ -193,6 +193,8 @@ module Ibex
         counts[:critical] += conflicts.length
         unreachable = automaton.fetch(:unreachable, []) #: Array[Integer]
         counts[:critical] += unreachable.length
+        unreachable_nonterminals = automaton.fetch(:unreachable_nonterminals, []) #: Array[String]
+        counts[:critical] += unreachable_nonterminals.length
         counts
       end
 

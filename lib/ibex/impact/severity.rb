@@ -112,7 +112,11 @@ module Ibex
 
       # @rbs (Hash[Symbol, Object?], Array[String]) -> bool
       def unreachable_gate?(report, gates)
-        gates.include?("unreachable") && report.dig(:automaton, :unreachable)&.any?
+        return false unless gates.include?("unreachable")
+
+        states = report.dig(:automaton, :unreachable) || []
+        nonterminals = report.dig(:automaton, :unreachable_nonterminals) || []
+        states.any? || nonterminals.any?
       end
 
       # @rbs (Hash[Symbol, Object?], Array[String]) -> bool

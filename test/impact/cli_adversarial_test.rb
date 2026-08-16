@@ -2,6 +2,7 @@
 
 require_relative "../test_helper"
 require "json"
+require "json_schemer"
 require "stringio"
 require "tmpdir"
 
@@ -66,6 +67,35 @@ class ImpactCLIAdversarialTest < Minitest::Test
     end
   end
 
+  def test_new_unreachable_nonterminal_is_critical_and_gated
+    with_sources(
+      "class P\ntoken TOKEN OTHER\nrule\nstart: TOKEN\nend\n",
+      "class P\ntoken TOKEN OTHER\nrule\nstart: TOKEN\nunused: OTHER\nend\n"
+    ) do |before, after|
+      result = run_impact(["impact", "--fail-on=unreachable", "--severity=info", before, after])
+      report = JSON.parse(result.fetch(:stdout))
+
+      assert_equal 1, result.fetch(:status)
+      assert_equal ["unused"], report.dig("automaton", "unreachable_nonterminals")
+      assert_operator report.dig("totals", "critical"), :>=, 1
+      assert_schema(report)
+    end
+  end
+
+  def test_duplicate_nullable_warnings_are_deduplicated
+    Dir.mktmpdir("ibex-impact-warning") do |directory|
+      grammar = File.join(directory, "grammar.y")
+      File.binwrite(grammar, "class P\ntoken TOKEN\nrule\nstart: optional\noptional: | TOKEN\nend\n")
+
+      result = run_impact(["impact", "--symbol=optional,optional", "--severity=info", grammar])
+      report = JSON.parse(result.fetch(:stdout))
+
+      assert_equal 0, result.fetch(:status)
+      assert_equal 1, report.fetch("warnings").length
+      assert_schema(report)
+    end
+  end
+
   private
 
   def normalize_grammar(source)
@@ -91,6 +121,14 @@ class ImpactCLIAdversarialTest < Minitest::Test
     stdout = StringIO.new
     stderr = StringIO.new
     { status: Ibex::CLI.start(arguments, stdout: stdout, stderr: stderr), stdout: stdout.string, stderr: stderr.string }
+  end
+
+  def assert_schema(report)
+    schema_path = File.expand_path("../../schema/impact-v1.schema.json", __dir__)
+    schema = JSON.parse(File.binread(schema_path))
+    errors = JSONSchemer.schema(schema).validate(report).to_a
+
+    assert_empty errors, errors.inspect
   end
 
   def with_sources(before_source, after_source)

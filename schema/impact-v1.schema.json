@@ -39,7 +39,7 @@
     },
     "automaton": {
       "type": "object",
-      "required": ["states", "affected_states", "conflicts", "unreachable"],
+      "required": ["states", "affected_states", "conflicts", "unreachable", "unreachable_nonterminals"],
       "properties": {
         "states": {
           "type": "object",
@@ -53,7 +53,13 @@
         },
         "affected_states": { "type": "array", "items": { "type": "integer", "minimum": 0 }, "uniqueItems": true, "maxItems": 100000 },
         "conflicts": { "$ref": "#/$defs/classification" },
-        "unreachable": { "type": "array", "items": { "type": "integer", "minimum": 0 }, "uniqueItems": true, "maxItems": 100000 }
+        "unreachable": { "type": "array", "items": { "type": "integer", "minimum": 0 }, "uniqueItems": true, "maxItems": 100000 },
+        "unreachable_nonterminals": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true,
+          "maxItems": 100000
+        }
       },
       "additionalProperties": false
     },

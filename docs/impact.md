@@ -46,6 +46,8 @@ witnesses are deterministic for identical inputs.
 `--depth=N` bounds it. `--severity=medium` is the default display threshold.
 The accepted `--fail-on` values are `new_conflict`, `nullable_change`,
 `first_change`, `follow_change`, `action_arity`, and `unreachable`.
+The report separates unreachable parser states from newly unreachable nonterminals;
+either kind activates `--fail-on=unreachable`.
 
 `--baseline=PATH` records known conflict identities independently of numeric
 state IDs. `--update-baseline` writes the current identities. A missing

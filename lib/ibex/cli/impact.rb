@@ -191,7 +191,8 @@ module Ibex
       { states: { before: nil, after: automaton.states.length, delta: nil },
         affected_states: impact.affected_states,
         conflicts: { added: added, removed: removed, changed: changed },
-        unreachable: unreachable_state_ids(automaton) }
+        unreachable: unreachable_state_ids(automaton),
+        unreachable_nonterminals: unreachable_nonterminal_names(automaton.grammar) }
     end
 
     # @rbs (IR::Automaton, IR::Automaton, Hash[Symbol, Object?], Impact::AutomatonImpact) -> Hash[Symbol, Object?]
@@ -201,8 +202,23 @@ module Ibex
           before: before.states.length, after: after.states.length, delta: after.states.length - before.states.length
         },
         affected_states: impact.affected_states, conflicts: diff.fetch(:conflicts),
-        unreachable: newly_unreachable_state_ids(before, after)
+        unreachable: newly_unreachable_state_ids(before, after),
+        unreachable_nonterminals: newly_unreachable_nonterminal_names(before.grammar, after.grammar)
       }
+    end
+
+    # @rbs (IR::Grammar) -> Array[String]
+    def unreachable_nonterminal_names(grammar)
+      grammar.warnings.filter_map do |warning|
+        next unless warning.fetch(:type).to_sym == :unreachable_nonterminal
+
+        warning.fetch(:symbol).to_s
+      end.uniq.sort
+    end
+
+    # @rbs (IR::Grammar, IR::Grammar) -> Array[String]
+    def newly_unreachable_nonterminal_names(before, after)
+      unreachable_nonterminal_names(after) - unreachable_nonterminal_names(before)
     end
 
     # @rbs (IR::Automaton) -> Array[Integer]
