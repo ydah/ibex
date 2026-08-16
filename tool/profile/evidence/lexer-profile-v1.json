@@ -1215,7 +1215,7 @@
           "grammar": {
             "identity": "H006 adversarial alternation",
             "path": "test/fixtures/lexer_profile/alternation.y",
-            "revision": "10db74e0b6f33f2ece6899d0b9e153ed92bf1d48",
+            "revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
             "sha256": "eece0f8ffd24f81557063ca255bbd55a6d63f3e9b970249dd68a9076c50fe35f",
             "storage": "repository",
             "source_url": "repository"
@@ -1227,7 +1227,7 @@
           ],
           "input": {
             "path": "test/fixtures/lexer_profile/alternation.txt",
-            "revision": "10db74e0b6f33f2ece6899d0b9e153ed92bf1d48",
+            "revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
             "seed_sha256": "fb8e20fc2e4c3f248c60c39bd652f3c1347298bb977b8b4d5903b85055620603",
             "sha256": "fb8e20fc2e4c3f248c60c39bd652f3c1347298bb977b8b4d5903b85055620603",
             "bytes": 2,
@@ -1313,7 +1313,7 @@
           "grammar": {
             "identity": "H006 adversarial lazy-quantifier",
             "path": "test/fixtures/lexer_profile/lazy-quantifier.y",
-            "revision": "10db74e0b6f33f2ece6899d0b9e153ed92bf1d48",
+            "revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
             "sha256": "336bb977e5938371c89a26a448bb134eb79b5fbeeffc07a24cf30f5d7017c055",
             "storage": "repository",
             "source_url": "repository"
@@ -1324,7 +1324,7 @@
           ],
           "input": {
             "path": "test/fixtures/lexer_profile/lazy-quantifier.txt",
-            "revision": "10db74e0b6f33f2ece6899d0b9e153ed92bf1d48",
+            "revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
             "seed_sha256": "9834876dcfb05cb167a5c24953eba58c4ac89b1adf57f28f2f9d09af107ee8f0",
             "sha256": "9834876dcfb05cb167a5c24953eba58c4ac89b1adf57f28f2f9d09af107ee8f0",
             "bytes": 3,
@@ -1415,7 +1415,7 @@
           "grammar": {
             "identity": "H006 adversarial long-common-prefix",
             "path": "test/fixtures/lexer_profile/long-common-prefix.y",
-            "revision": "10db74e0b6f33f2ece6899d0b9e153ed92bf1d48",
+            "revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
             "sha256": "0a040a74c63798417c29518f156da7929b4084f1720291a9f77caba1c73e17ea",
             "storage": "repository",
             "source_url": "repository"
@@ -1426,7 +1426,7 @@
           ],
           "input": {
             "path": "test/fixtures/lexer_profile/long-common-prefix.txt",
-            "revision": "10db74e0b6f33f2ece6899d0b9e153ed92bf1d48",
+            "revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
             "seed_sha256": "3e63da2d835edc34e3bca8eef3a454427eae1b01381bbc01c6ca812e1066d660",
             "sha256": "3e63da2d835edc34e3bca8eef3a454427eae1b01381bbc01c6ca812e1066d660",
             "bytes": 65,
@@ -1505,7 +1505,7 @@
           "grammar": {
             "identity": "H006 adversarial nested-quantifier",
             "path": "test/fixtures/lexer_profile/nested-quantifier.y",
-            "revision": "10db74e0b6f33f2ece6899d0b9e153ed92bf1d48",
+            "revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
             "sha256": "159a9c6e80a65d6954e36a70b495bd580e9073a31084fe92a80746a906a4a4ed",
             "storage": "repository",
             "source_url": "repository"
@@ -1517,7 +1517,7 @@
           ],
           "input": {
             "path": "test/fixtures/lexer_profile/nested-quantifier.txt",
-            "revision": "10db74e0b6f33f2ece6899d0b9e153ed92bf1d48",
+            "revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
             "seed_sha256": "3e63da2d835edc34e3bca8eef3a454427eae1b01381bbc01c6ca812e1066d660",
             "sha256": "3e63da2d835edc34e3bca8eef3a454427eae1b01381bbc01c6ca812e1066d660",
             "bytes": 65,
@@ -1601,7 +1601,7 @@
           "grammar": {
             "identity": "H006 adversarial chunk-boundary",
             "path": "test/fixtures/lexer_profile/chunk-boundary.y",
-            "revision": "10db74e0b6f33f2ece6899d0b9e153ed92bf1d48",
+            "revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
             "sha256": "bfe52e9cf41c852f58d1c384d59a8dc3964e8177842fff1c9d5a7694884d068b",
             "storage": "repository",
             "source_url": "repository"
@@ -1612,7 +1612,7 @@
           ],
           "input": {
             "path": "test/fixtures/lexer_profile/chunk-boundary.txt",
-            "revision": "10db74e0b6f33f2ece6899d0b9e153ed92bf1d48",
+            "revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
             "seed_sha256": "6836cf13bac400e9105071cd6af47084dfacad4e5e302c94bfed24e013afb73e",
             "sha256": "e272ab033e681c493db52e4b95a86de8d6d5d0a83ca42b430d924db69ba6686a",
             "bytes": 16512,
@@ -1691,7 +1691,7 @@
           "grammar": {
             "identity": "H006 adversarial unicode-property",
             "path": "test/fixtures/lexer_profile/unicode-property.y",
-            "revision": "10db74e0b6f33f2ece6899d0b9e153ed92bf1d48",
+            "revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
             "sha256": "8ff2023aab526b16a2f722bca3c4035959df5ab934eb7e8b078c9e51c6d724ce",
             "storage": "repository",
             "source_url": "repository"
@@ -1702,7 +1702,7 @@
           ],
           "input": {
             "path": "test/fixtures/lexer_profile/unicode-property.txt",
-            "revision": "10db74e0b6f33f2ece6899d0b9e153ed92bf1d48",
+            "revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
             "seed_sha256": "f549bd57652fb420ffa70f7c7b3b4ce1594055b1a20b8599f654ec6d5cadc0fa",
             "sha256": "f549bd57652fb420ffa70f7c7b3b4ce1594055b1a20b8599f654ec6d5cadc0fa",
             "bytes": 6,
@@ -1778,7 +1778,7 @@
           "grammar": {
             "identity": "H006 adversarial stateful-string",
             "path": "test/fixtures/lexer_profile/stateful-string.y",
-            "revision": "10db74e0b6f33f2ece6899d0b9e153ed92bf1d48",
+            "revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
             "sha256": "0d572ddf563565292359342db5b67d3fe43daebc58538e9441e59dc0802cfad1",
             "storage": "repository",
             "source_url": "repository"
@@ -1790,7 +1790,7 @@
           ],
           "input": {
             "path": "test/fixtures/lexer_profile/stateful-string.txt",
-            "revision": "10db74e0b6f33f2ece6899d0b9e153ed92bf1d48",
+            "revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
             "seed_sha256": "f2635eaef8f96cf4836c7cd5063f445b17cb2bb6185c1b208e2b97b38c930139",
             "sha256": "f2635eaef8f96cf4836c7cd5063f445b17cb2bb6185c1b208e2b97b38c930139",
             "bytes": 15,
@@ -1877,7 +1877,7 @@
           "grammar": {
             "identity": "H006 adversarial parser-feedback",
             "path": "test/fixtures/lexer_profile/parser-feedback.y",
-            "revision": "10db74e0b6f33f2ece6899d0b9e153ed92bf1d48",
+            "revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
             "sha256": "2b0fb668e6390dca47d951297cf51a2bae8c3e290d5e8e37f2d029031ac33bd2",
             "storage": "repository",
             "source_url": "repository"
@@ -1889,7 +1889,7 @@
           ],
           "input": {
             "path": "test/fixtures/lexer_profile/parser-feedback.txt",
-            "revision": "10db74e0b6f33f2ece6899d0b9e153ed92bf1d48",
+            "revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
             "seed_sha256": "87c2aebe999878ed1c244b6a85d1a2ad0b5c6f0916afed00797c1bc7d6097961",
             "sha256": "87c2aebe999878ed1c244b6a85d1a2ad0b5c6f0916afed00797c1bc7d6097961",
             "bytes": 8,

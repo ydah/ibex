@@ -289,7 +289,7 @@ module Ibex
     # Builds exact-revision synthetic and public-real lexer evidence.
     # rubocop:disable Metrics/ClassLength -- exact workload binding and policy stay in one auditable report builder.
     class LexerProfileReport
-      FIXTURE_REVISION = "10db74e0b6f33f2ece6899d0b9e153ed92bf1d48"
+      FIXTURE_REVISION = "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487"
       GALLERY_INPUTS = {
         "gallery-calc" => "gallery/calc/corpus/basic.txt",
         "gallery-json" => "gallery/json/corpus/nested.json",
