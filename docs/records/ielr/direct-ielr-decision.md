@@ -13,7 +13,7 @@ future value.
 
 The decision was revalidated on 2026-08-17 after repository history was
 rewritten; the NO-GO outcome is unchanged. Revision
-`ae8bc3c5e5b9ad0c3be52cdbbd6955f3f7160774` is the repository evidence snapshot
+`bb4ff91ec9da84e3d1ac7c752be6a46461aa5151` is the repository evidence snapshot
 reviewed immediately before this dossier was published; it is not a claim that
 the dossier itself existed in that revision. The machine record marks the
 decision `final_no_go`, its basis `repository_evidence`, and its review state
@@ -105,11 +105,11 @@ and verifier implementations by path and SHA-256 at the reviewed revision. It
 also binds:
 
 - H005 capture base revision
-  `1b96f50b84ee1bf37bb299e9dc62bac7c23c1487`;
+  `72a8b16f1b442f63ff6a980b7bf6c33fbe3d11c2`;
 - H005 bound-path digest
-  `f08f23bf540aacbab70856dceb1dddbdb8456993d227180b65b6862d0d7c90db`;
+  `0c21c4ecee4f4d40a5cae335391592b1afa7501ce6b67e6411791293378df822`;
 - H005 implementation digest
-  `f5c00daac7fc1808e6e8b328c68b46b04764e57660d6efad6ce566d977529554`;
+  `70e054f98de6bd8defa43f9e1d527783f1fbcfcd0a23245153a8fb9a941a2671`;
 - V001 revision `f9d2c54eb4b27fc5ffe798bb0b29d038d97ee35c`.
 
 The quality gate verifies the schema, exact GO/NO-GO inventory, follow-on
