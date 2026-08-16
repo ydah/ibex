@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to validate and publish
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and publish GitHub release
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+
+    steps:
+      - name: Check out the release tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+
+      - name: Verify release version and quality gates
+        run: |
+          ruby - <<'RUBY'
+          require_relative "lib/ibex/version"
+          require_relative "lib/ibex/runtime/version"
+
+          tag = ENV.fetch("RELEASE_TAG")
+          abort "release tag must match vMAJOR.MINOR.PATCH" unless tag.match?(/\Av\d+\.\d+\.\d+\z/)
+
+          expected = tag.delete_prefix("v")
+          versions = [Ibex::VERSION, Ibex::Runtime::VERSION]
+          abort "release tag #{tag} does not match package versions #{versions.inspect}" unless versions.all? do |version|
+            version == expected
+          end
+          RUBY
+          bundle exec rake
+          bundle exec rake release:reproducible
+
+      - name: Build release packages
+        run: |
+          version="${RELEASE_TAG#v}"
+          mkdir -p dist
+          gem build ibex-runtime.gemspec --output "dist/ibex-runtime-${version}.gem"
+          gem build ibex.gemspec --output "dist/ibex-${version}.gem"
+          sha256sum dist/*.gem > dist/SHA256SUMS
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${RELEASE_TAG#v}"
+          gh release create "$RELEASE_TAG" dist/*.gem dist/SHA256SUMS \
+            --verify-tag \
+            --title "Ibex ${version}" \
+            --generate-notes

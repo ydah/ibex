@@ -209,6 +209,23 @@ The release remains blocked until the outcome gates in
 release environment must provide a protected external signing identity and
 bind its signature or provenance attestation to the printed artifact digest.
 
+## GitHub release workflow
+
+The tag-triggered [`Release` workflow](../.github/workflows/release.yml)
+validates that the generator and runtime versions match the tag, runs the full
+quality suite, checks reproducible package builds, and attaches both gems plus
+`SHA256SUMS` to the GitHub Release. It does not publish to RubyGems.
+
+After committing the intended release version, create and push its tag:
+
+```sh
+git tag -a v0.4.0 -m "Release v0.4.0"
+git push origin v0.4.0
+```
+
+The same workflow can be started manually for an existing tag through
+`workflow_dispatch`.
+
 ## Browser site and API documentation
 
 Install the locked browser dependencies and build the same self-hosted site
