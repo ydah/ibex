@@ -67,14 +67,18 @@ jobs:
           mkdir -p dist
           gem build ibex-runtime.gemspec --output "dist/ibex-runtime-${version}.gem"
           gem build ibex.gemspec --output "dist/ibex-${version}.gem"
-          sha256sum dist/*.gem > dist/SHA256SUMS
+          (cd dist && sha256sum -- *.gem > SHA256SUMS)
 
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           version="${RELEASE_TAG#v}"
-          gh release create "$RELEASE_TAG" dist/*.gem dist/SHA256SUMS \
-            --verify-tag \
-            --title "Ibex ${version}" \
-            --generate-notes
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" dist/*.gem dist/SHA256SUMS --clobber
+          else
+            gh release create "$RELEASE_TAG" dist/*.gem dist/SHA256SUMS \
+              --verify-tag \
+              --title "Ibex ${version}" \
+              --generate-notes
+          fi
