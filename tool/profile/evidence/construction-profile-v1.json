@@ -20,15 +20,11 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "1b96f50b84ee1bf37bb299e9dc62bac7c23c1487",
+    "base_revision": "72a8b16f1b442f63ff6a980b7bf6c33fbe3d11c2",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
-    "capture_worktree_clean": false,
-    "capture_worktree_status": [
-      " M test/quality/direct_ielr_decision_test.rb",
-      " M tool/profile/construction_profiler.rb",
-      " M tool/profile/evidence/construction-profile-v1.json"
-    ],
-    "capture_worktree_status_sha256": "d3391a15de3e7042068c5b51c994da9a71dda7bb8ff80ca5491e3d0c8f610d0d",
+    "capture_worktree_clean": true,
+    "capture_worktree_status": [],
+    "capture_worktree_status_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
     "bound_paths": [
       {
         "path": ".github/workflows/main.yml",
@@ -260,9 +256,9 @@
       },
       {
         "path": "tool/profile/construction_profiler.rb",
-        "sha256": "95557daa9269803f95d97cd08e804220d5535146bcddba3e68dc210ed68d778e",
-        "git_state": "modified",
-        "base_sha256": "a8f70dfc773575a59b05b152201b13255e32a179d1a2b8622501aba35b140400"
+        "sha256": "82a7d6ae639225c148c9e8ba937ae5cde511a4f31162d4451a8451f95ed3af26",
+        "git_state": "base",
+        "base_sha256": "82a7d6ae639225c148c9e8ba937ae5cde511a4f31162d4451a8451f95ed3af26"
       },
       {
         "path": "tool/quality/construction_profile.rb",
@@ -277,8 +273,8 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "f08f23bf540aacbab70856dceb1dddbdb8456993d227180b65b6862d0d7c90db",
-    "implementation_sha256": "f5c00daac7fc1808e6e8b328c68b46b04764e57660d6efad6ce566d977529554",
+    "bound_paths_sha256": "0c21c4ecee4f4d40a5cae335391592b1afa7501ce6b67e6411791293378df822",
+    "implementation_sha256": "70e054f98de6bd8defa43f9e1d527783f1fbcfcd0a23245153a8fb9a941a2671",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
     "evidence_path": "tool/profile/evidence/construction-profile-v1.json",
