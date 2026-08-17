@@ -7,17 +7,22 @@ description: Ibex's grammar, IR, parser construction, runtime, and verification 
 
 Ibex keeps syntax, grammar meaning, automaton construction, and output concerns behind two immutable current contracts.
 
-```text
-.y root/fragments -> Frontend Lexer/CST -> self-hosted LR Parser -> canonical Resolver ─┐
-Ruby DSL ───────────────────────────────────────────────────────┴─> Grammar AST -> Normalizer -> Grammar IR
-                                                                               |              |
-                                                                               |          Lexer IR v1
-                                                    |
-                                                    set analysis
-                                                    |
-                                      SLR/LALR/IELR/LR1 Builder -> Automaton IR
-                                                                    |
-                       Ruby/RBS/action-shadow generators / report / DOT / Mermaid / HTML / counterexamples
+```mermaid
+flowchart TB
+  source[".y root / fragments"] --> lexer["Frontend lexer / CST"]
+  lexer --> parser["Self-hosted LR parser"]
+  parser --> resolver["Canonical resolver"]
+  dsl["Ruby DSL"] --> ast["Grammar AST"]
+  resolver --> ast
+  ast --> normalizer["Normalizer"]
+  normalizer --> grammar["Grammar IR"]
+  normalizer --> lexer_ir["Lexer IR v1"]
+  lexer_ir -. "embedded in" .-> grammar
+  grammar --> builder["SLR / LALR / IELR / LR(1) builder"]
+  grammar --> sets["Set analysis"]
+  sets -. "lookahead inputs where needed" .-> builder
+  builder --> automaton["Automaton IR"]
+  automaton --> outputs["Ruby / RBS / action-shadow generators<br/>reports / DOT / Mermaid / HTML / counterexamples"]
 ```
 
 Frontend changes stop at the Normalizer. Algorithm strategies consume Grammar IR and produce identical Automaton IR shapes.
