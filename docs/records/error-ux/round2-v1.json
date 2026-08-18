@@ -127,7 +127,7 @@
       },
       {
         "path": "lib/ibex/configuration.rb",
-        "sha256": "be3040219a76081947fab2fdbceea402ceec940554d0b2790f3634261d60a17e"
+        "sha256": "a004dffd196c3474289a25135e61da2013d0e05e4b68c323c67af6297f51c868"
       },
       {
         "path": "lib/ibex/configuration/explanation.rb",
@@ -223,7 +223,7 @@
       },
       {
         "path": "lib/ibex/frontend/parser_configuration_support.rb",
-        "sha256": "d742ac1908ccad9b3cfe610921fd698c3d8aca33ae611ad9e8572ef3993a3c2a"
+        "sha256": "4534f6071609b95c670739ea18718532c7ed0c31d676596489d898b35a9b650c"
       },
       {
         "path": "lib/ibex/frontend/resolution.rb",
@@ -303,11 +303,11 @@
       },
       {
         "path": "lib/ibex/ir/automaton_ir.rb",
-        "sha256": "eb36c3e9f4dd2c28072f899894515054dedea4510b6b436953fa364587205dbe"
+        "sha256": "71731478e8e28dcd29641182a44519588386bd38066d47687846d461f0e49dc3"
       },
       {
         "path": "lib/ibex/ir/grammar_ir.rb",
-        "sha256": "cb48ee7c493b6db6bf7c33c08057c5ebf8ab615a917863ce0384bea0119d65a0"
+        "sha256": "9693e768ea22913c19435c3dc6f9c95fd6d2394138ddd4224c4b523f01502bd0"
       },
       {
         "path": "lib/ibex/ir/lexer_ir.rb",
@@ -315,7 +315,7 @@
       },
       {
         "path": "lib/ibex/ir/parser_contract.rb",
-        "sha256": "b7a09c8f2d801e91eeacaf70e510d924e5d13999166587b3b420ec71fed7b1d6"
+        "sha256": "4ca6d95fc33b5456c159d624a8826fa71c1de957e39e3d683bb81d08005ed7ee"
       },
       {
         "path": "lib/ibex/ir/serialize.rb",
@@ -327,7 +327,7 @@
       },
       {
         "path": "lib/ibex/ir/validator/automaton.rb",
-        "sha256": "c60a3fc165bbed63160a805649c63f9d56bbb6ed21a6e2c1348ed416a4594f3a"
+        "sha256": "63b1a5f8fbe3ee7077f457c6e9f63c02f0511df0e24a10f7ac5c6a76c476c581"
       },
       {
         "path": "lib/ibex/ir/validator/base.rb",
@@ -335,7 +335,7 @@
       },
       {
         "path": "lib/ibex/ir/validator/grammar.rb",
-        "sha256": "d966e322757d09b0de439119b2894dd96859b01ee2d4e15d7015a27fbc404579"
+        "sha256": "cff81fb7f5abf9fd779f9e025c67732625e1feb3129e57af28aba137fdb3df66"
       },
       {
         "path": "lib/ibex/ir/validator/lexer.rb",
@@ -347,7 +347,7 @@
       },
       {
         "path": "lib/ibex/lalr/build_metrics.rb",
-        "sha256": "eadf2b10f366c110a4110592b6cfe3e221b69577cb1b7993c6ebc5d4d8c31717"
+        "sha256": "134bb25df967fcfe87b0046cb5541fb4e25672abbf5241669f9f32d8f0d061f3"
       },
       {
         "path": "lib/ibex/lalr/builder.rb",
@@ -507,7 +507,7 @@
       },
       {
         "path": "lib/ibex/normalize/parser_configuration.rb",
-        "sha256": "79424dc443d89fc6bb00102d37627fdde11a1d53e06df7ed254968a5d466b589"
+        "sha256": "483d3207717818b592cc381ff814ea8fef6f1f4f69012c7f4833d824f9f606d4"
       },
       {
         "path": "lib/ibex/normalize/recovery_declarations.rb",
