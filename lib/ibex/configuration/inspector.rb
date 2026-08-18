@@ -11,6 +11,8 @@ module Ibex
     # Converts parsed source or validated Grammar IR into static configuration facts.
     # rubocop:disable Metrics/ModuleLength -- source and IR adapters share one closed evidence vocabulary.
     module Inspector
+      extend self
+
       # @rbs (Frontend::Resolution resolution) -> Input
       def from_source(resolution)
         unless resolution.is_a?(Frontend::Resolution)
@@ -35,7 +37,6 @@ module Ibex
           grammar_values: values, grammar_locations: locations, evidence: evidence, recordings: recordings
         )
       end
-      module_function :from_source
 
       # @rbs (IR::Grammar grammar, path: String) -> Input
       def from_grammar_ir(grammar, path:)
@@ -58,7 +59,10 @@ module Ibex
           grammar_values: values, grammar_locations: locations, evidence: evidence, recordings: recordings
         )
       end
-      module_function :from_grammar_ir
+
+      module_function :from_source, :from_grammar_ir
+
+      private
 
       # @rbs (Hash[String, config_value] values, Hash[String, Location] locations,
       #   Hash[String, Array[Evidence]] evidence, String name, config_value value,
@@ -75,8 +79,6 @@ module Ibex
           )
         ]
       end
-      module_function :add_source_fact
-      private_class_method :add_source_fact
 
       # @rbs (Frontend::AST::Root root, Hash[String, config_value] values, Hash[String, Location] locations,
       #   Hash[String, Array[Evidence]] evidence) -> void
@@ -98,8 +100,6 @@ module Ibex
         locations[name] = selected_location
         evidence[name] = option_evidence(key, occurrences, selected_value)
       end
-      module_function :add_source_options
-      private_class_method :add_source_options
 
       # @rbs (Frontend::AST::Root root, Hash[String, config_value] values, Hash[String, Location] locations,
       #   Hash[String, Array[Evidence]] evidence) -> void
@@ -114,8 +114,6 @@ module Ibex
           )
         end
       end
-      module_function :add_source_parser_contract
-      private_class_method :add_source_parser_contract
 
       # @rbs (String name) -> bool?
       def option_value(name)
@@ -124,8 +122,6 @@ module Ibex
 
         nil
       end
-      module_function :option_value
-      private_class_method :option_value
 
       # @rbs (Frontend::Location | Location location) -> Location
       def configuration_location(location)
@@ -133,8 +129,6 @@ module Ibex
 
         Ibex::Location.new(file: location.file, line: location.line, column: location.column)
       end
-      module_function :configuration_location
-      private_class_method :configuration_location
 
       # @rbs (Key key, Array[[bool, Location]] occurrences, bool selected_value) -> Array[Evidence]
       def option_evidence(key, occurrences, selected_value)
@@ -155,8 +149,6 @@ module Ibex
           Evidence.new(key, source: :grammar, value: value, status: status, location: location, reason: reason)
         end
       end
-      module_function :option_evidence
-      private_class_method :option_evidence
 
       # @rbs (Hash[String, config_value] values, Hash[String, Array[Evidence]] evidence,
       #   Hash[String, Recording] recordings, String name, config_value value) -> void
@@ -173,8 +165,6 @@ module Ibex
           :recorded, "Grammar IR records the effective value but not the original declaration location"
         )
       end
-      module_function :add_ir_fact
-      private_class_method :add_ir_fact
 
       # @rbs (IR::Grammar grammar, Hash[String, config_value] values, Hash[String, Location] locations,
       #   Hash[String, Array[Evidence]] evidence, Hash[String, Recording] recordings) -> void
@@ -184,8 +174,6 @@ module Ibex
           add_contract_entry(name, entry, values, locations, evidence, recordings)
         end
       end
-      module_function :add_parser_contract
-      private_class_method :add_parser_contract
 
       # @rbs (String name, IR::ParserContract::Entry entry, Hash[String, config_value] values,
       #   Hash[String, Location] locations, Hash[String, Array[Evidence]] evidence,
@@ -213,8 +201,6 @@ module Ibex
         ]
         recordings[name] = Recording.new(:recorded, "The current Grammar IR records an explicit parser contract")
       end
-      module_function :add_contract_entry
-      private_class_method :add_contract_entry
 
       # @rbs (IR::ParserContract contract) -> Hash[String, IR::ParserContract::Entry]
       def contract_entries(contract)
@@ -224,8 +210,6 @@ module Ibex
           "cst.trivia" => contract.cst_trivia
         }
       end
-      module_function :contract_entries
-      private_class_method :contract_entries
     end
     # rubocop:enable Metrics/ModuleLength
   end

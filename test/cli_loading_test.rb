@@ -133,6 +133,16 @@ class CLILoadingTest < Minitest::Test
     refute_includes result.fetch("features"), "ibex/racc_migration.rb"
   end
 
+  def test_config_subcommand_loads_in_a_fresh_process
+    stdout, stderr, process = Open3.capture3(
+      RbConfig.ruby, "-I#{File.expand_path('../lib', __dir__)}", File.expand_path("../exe/ibex", __dir__),
+      "config", "--help", chdir: File.expand_path("..", __dir__)
+    )
+
+    assert process.success?, stderr
+    assert_match(/Usage: ibex config/, stdout)
+  end
+
   def test_selected_subcommand_declares_its_transitive_dependencies
     grammar = File.expand_path("../benchmark/grammars/representative.y", __dir__)
     result = loaded_features_after("explain", grammar)
