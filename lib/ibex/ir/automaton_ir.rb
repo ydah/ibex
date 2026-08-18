@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../configuration"
+
 module Ibex
   module IR
     # A merged LALR item with its lookahead token ids.
@@ -153,7 +155,9 @@ module Ibex
 
       # @rbs (String value) -> String
       def validate_entry_construction(value)
-        raise Ibex::Error, "entry construction must be shared or isolated" unless %w[shared isolated].include?(value)
+        unless Configuration::Registry.parser_setting_values(:entries).map(&:to_s).include?(value)
+          raise Ibex::Error, "entry construction must be shared or isolated"
+        end
 
         value.dup.freeze
       end

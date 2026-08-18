@@ -2,6 +2,7 @@
 # rbs_inline: enabled
 
 require_relative "../location"
+require_relative "../configuration"
 
 module Ibex
   module IR
@@ -12,17 +13,7 @@ module Ibex
       #   type entry_location = { file: String?, line: Integer, column: Integer }
       #   type entry_value = String? | bool | entry_location?
 
-      DEFINITIONS = {
-        algorithm: {
-          configuration: "parser.algorithm", values: %i[slr lalr ielr lr1].freeze
-        }.freeze,
-        entries: {
-          configuration: "parser.entries", values: %i[shared isolated].freeze
-        }.freeze,
-        cst_trivia: {
-          configuration: "cst.trivia", values: %i[leading balanced drop].freeze
-        }.freeze
-      }.freeze #: Hash[Symbol, definition]
+      DEFINITIONS = Configuration::Registry.parser_setting_definitions #: Hash[Symbol, definition]
 
       # One specified or explicitly unspecified contract field.
       class Entry

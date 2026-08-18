@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../../configuration"
+
 module Ibex
   module TableArtifact
     class MetadataValidator
@@ -70,7 +72,10 @@ module Ibex
         path = "$.payload.cst"
         data = record(data, path, %w[version trivia_policy kinds slots])
         invalid("#{path}.version", "must be 1") unless integer(data.fetch("version"), "#{path}.version") == 1
-        enum(data.fetch("trivia_policy"), "#{path}.trivia_policy", %w[leading balanced drop])
+        enum(
+          data.fetch("trivia_policy"), "#{path}.trivia_policy",
+          Configuration::Registry.parser_setting_values(:cst_trivia).map(&:to_s)
+        )
         kind_count = validate_cst_kinds(data.fetch("kinds"), "#{path}.kinds")
         validate_cst_slots(data.fetch("slots"), "#{path}.slots", kind_count)
       end

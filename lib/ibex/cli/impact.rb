@@ -69,7 +69,9 @@ module Ibex
         options.on("--fail-on=LIST", "CI gate conditions") do |value|
           settings[:fail_on] = Impact::Severity.validate_gates(value.split(",").map(&:strip))
         end
-        options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "algorithm for grammar inputs") do |value|
+        options.on(
+          "--algorithm=NAME", Configuration::Registry::CLI_ALGORITHM_VALUES, "algorithm for grammar inputs"
+        ) do |value|
           set_local_configuration_option(settings, :algorithm, value.to_sym)
         end
         options.on("--mode=MODE", %w[default extended], "grammar mode") do |value|

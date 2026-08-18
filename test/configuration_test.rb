@@ -19,6 +19,16 @@ class ConfigurationTest < Minitest::Test # rubocop:disable Metrics/ClassLength -
     assert_raises(ArgumentError) { Configuration::Registry.fetch("parser.unknown") }
   end
 
+  def test_parser_contract_and_cli_vocabulary_are_derived_from_registry
+    definitions = Configuration::Registry.parser_setting_definitions
+
+    assert_equal definitions, Ibex::IR::ParserContract::DEFINITIONS
+    assert_equal %i[slr lalr ielr lr1], Configuration::Registry.parser_setting_values(:algorithm)
+    assert_equal %w[slr lalr ielr lr1], Configuration::Registry::CLI_ALGORITHM_VALUES
+    assert_equal %w[leading balanced drop attach], Configuration::Registry::CLI_CST_TRIVIA_VALUES
+    assert_equal :cst_trivia, Configuration::Registry.parser_setting_key(:cst_trivia).parser_setting
+  end
+
   def test_builtins_are_implicit_canonical_typed_values
     configuration = Configuration::Resolver.new
     algorithm = configuration.fetch("parser.algorithm")

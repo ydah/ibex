@@ -37,10 +37,14 @@ module Ibex
       attr_reader :policy #: Symbol
       attr_reader :allowed_values #: Array[config_value]?
       attr_reader :cli_option #: Symbol?
+      attr_reader :parser_setting #: Symbol?
+      attr_reader :cli_aliases #: Array[String]
 
       # @rbs (String name, type: Symbol, default: config_value, owner: Symbol,
-      #   ?allowed_values: Array[config_value]?, ?cli_option: Symbol?) -> void
-      def initialize(name, type:, default:, owner:, allowed_values: nil, cli_option: nil)
+      #   ?allowed_values: Array[config_value]?, ?cli_option: Symbol?, ?parser_setting: Symbol?,
+      #   ?cli_aliases: Array[String]) -> void
+      def initialize(name, type:, default:, owner:, allowed_values: nil, cli_option: nil, parser_setting: nil,
+                     cli_aliases: [])
         validate_identity!(name, owner)
 
         @name = name.dup.freeze
@@ -50,6 +54,8 @@ module Ibex
         validate_shape!(type, cli_option)
         @allowed_values = allowed_values&.map { |value| immutable(value) }&.freeze
         @cli_option = cli_option
+        @parser_setting = parser_setting&.to_sym
+        @cli_aliases = cli_aliases.map(&:to_s).freeze
         @default = validate(default)
         freeze
       end
@@ -277,11 +283,14 @@ module Ibex
         Key.new("grammar.mode", type: :symbol, default: :default, owner: :grammar_contract,
                                 allowed_values: %i[default extended], cli_option: :mode),
         Key.new("parser.algorithm", type: :symbol, default: :lalr, owner: :grammar_contract,
-                                    allowed_values: %i[slr lalr ielr lr1], cli_option: :algorithm),
+                                    allowed_values: %i[slr lalr ielr lr1], cli_option: :algorithm,
+                                    parser_setting: :algorithm),
         Key.new("parser.entries", type: :symbol, default: :shared, owner: :grammar_contract,
-                                  allowed_values: %i[shared isolated], cli_option: :entry_isolation),
+                                  allowed_values: %i[shared isolated], cli_option: :entry_isolation,
+                                  parser_setting: :entries),
         Key.new("cst.trivia", type: :symbol, default: :leading, owner: :grammar_contract,
-                              allowed_values: %i[leading balanced drop], cli_option: :cst_trivia),
+                              allowed_values: %i[leading balanced drop], cli_option: :cst_trivia,
+                              parser_setting: :cst_trivia, cli_aliases: ["attach"]),
         Key.new("parser.superclass", type: :optional_string, default: nil, owner: :grammar_contract,
                                      cli_option: :superclass),
         Key.new("actions.omit_calls", type: :optional_boolean, default: nil, owner: :grammar_contract,
@@ -300,6 +309,10 @@ module Ibex
                                     cli_option: :executable)
       ].freeze #: Array[Key]
       BY_NAME = DEFINITIONS.to_h { |key| [key.name, key] }.freeze #: Hash[String, Key]
+      CLI_ALGORITHM_VALUES = BY_NAME.fetch("parser.algorithm").allowed_values.map(&:to_s).freeze
+      CLI_CST_TRIVIA_VALUES = (
+        BY_NAME.fetch("cst.trivia").allowed_values.map(&:to_s) + BY_NAME.fetch("cst.trivia").cli_aliases
+      ).freeze
 
       class << self
         # @rbs (String name) -> Key
@@ -310,6 +323,36 @@ module Ibex
         # @rbs () -> Array[Key]
         def keys
           DEFINITIONS
+        end
+
+        # @rbs () -> Hash[Symbol, Hash[Symbol, untyped]]
+        def parser_setting_definitions
+          @parser_setting_definitions ||= DEFINITIONS.each_with_object({}) do |key, definitions|
+            next unless key.parser_setting
+
+            definitions[key.parser_setting] = {
+              configuration: key.name,
+              values: key.allowed_values.map(&:to_sym).freeze
+            }.freeze
+          end.freeze
+        end
+
+        # @rbs (Symbol setting) -> Array[Symbol]
+        def parser_setting_values(setting)
+          parser_setting_definitions.fetch(setting).fetch(:values)
+        end
+
+        # @rbs (Symbol setting) -> Key
+        def parser_setting_key(setting)
+          fetch(parser_setting_definitions.fetch(setting).fetch(:configuration))
+        end
+
+        # @rbs (Symbol option) -> Array[String]
+        def cli_values(option)
+          key = DEFINITIONS.find { |candidate| candidate.cli_option == option && candidate.allowed_values }
+          raise ArgumentError, "configuration option has no enumerable values: #{option.inspect}" unless key
+
+          (key.allowed_values.map(&:to_s) + key.cli_aliases).freeze
         end
       end
     end

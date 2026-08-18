@@ -41,9 +41,7 @@ module Ibex
     def validated_parser_setting_definition(setting)
       # @type self: Normalizer
       definition = IR::ParserContract::DEFINITIONS[setting.key]
-      unless %i[algorithm entries cst_trivia].include?(setting.key) && definition
-        fail_at(setting.loc, "unknown parser setting #{setting.key}")
-      end
+      fail_at(setting.loc, "unknown parser setting #{setting.key}") unless definition
       unless definition.fetch(:values).include?(setting.value)
         allowed = definition.fetch(:values).join(", ")
         fail_at(setting.loc, "parser.#{setting.key} must be one of #{allowed}; got #{setting.value}")

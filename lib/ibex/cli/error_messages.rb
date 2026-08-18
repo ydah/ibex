@@ -64,15 +64,22 @@ module Ibex
           @options[:from] = value
         end
         options.on("--mode=MODE", %w[default extended], "grammar mode") { |value| select_configuration_mode(value) }
-        options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
-          set_configuration_option(:algorithm, value.to_sym)
-          @options[:messages_algorithm_explicit] = true
-        end
+        add_error_messages_algorithm_option(options)
         options.on("--warnings=CATEGORIES", "all, error, all,error, or none") do |value|
           @options[:warnings] = warning_categories(value)
         end
         options.on("-S", "--output-status", "show pipeline status") { @options[:status] = true }
         options.on("--help", "show help") { @options[:help] = true }
+      end
+    end
+
+    # @rbs (OptionParser options) -> void
+    def add_error_messages_algorithm_option(options)
+      options.on(
+        "--algorithm=NAME", Configuration::Registry::CLI_ALGORITHM_VALUES, "parser construction algorithm"
+      ) do |value|
+        set_configuration_option(:algorithm, value.to_sym)
+        @options[:messages_algorithm_explicit] = true
       end
     end
 

@@ -62,7 +62,9 @@ module Ibex
           settings[:mode] = value.to_sym
           mark_configuration_option(:mode)
         end
-        options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
+        options.on(
+          "--algorithm=NAME", Configuration::Registry::CLI_ALGORITHM_VALUES, "parser construction algorithm"
+        ) do |value|
           settings[:algorithm] = value.to_sym
           mark_configuration_option(:algorithm)
         end

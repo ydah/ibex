@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../../configuration"
+
 module Ibex
   module IR
     module Validator
@@ -494,10 +496,13 @@ module Ibex
         def validate_parser_contract
           path = "#{@path}.parser_contract"
           contract = record(@data["parser_contract"], path, %w[algorithm entries cst_trivia])
-          validate_contract_entry(contract["algorithm"], "#{path}.algorithm", %w[slr lalr ielr lr1])
-          validate_contract_entry(contract["entries"], "#{path}.entries", %w[shared isolated])
+          validate_contract_entry(contract["algorithm"], "#{path}.algorithm",
+                                  Configuration::Registry.parser_setting_values(:algorithm).map(&:to_s))
+          validate_contract_entry(contract["entries"], "#{path}.entries",
+                                  Configuration::Registry.parser_setting_values(:entries).map(&:to_s))
           cst = validate_contract_entry(
-            contract["cst_trivia"], "#{path}.cst_trivia", %w[leading balanced drop]
+            contract["cst_trivia"], "#{path}.cst_trivia",
+            Configuration::Registry.parser_setting_values(:cst_trivia).map(&:to_s)
           )
           return unless cst["explicit"]
 

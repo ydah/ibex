@@ -82,13 +82,15 @@ module Ibex
       options.on("--mode=MODE", %w[default extended], "grammar mode") do |value|
         set_local_configuration_option(settings, :mode, value.to_sym)
       end
-      options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
+      options.on(
+        "--algorithm=NAME", Configuration::Registry::CLI_ALGORITHM_VALUES, "parser construction algorithm"
+      ) do |value|
         set_local_configuration_option(settings, :algorithm, value.to_sym)
       end
       options.on("--entry-isolation", "build independent state sets for each start symbol") do
         set_local_configuration_option(settings, :entry_isolation, true)
       end
-      options.on("--cst-trivia=POLICY", %w[leading balanced drop attach], "CST trivia policy") do |value|
+      options.on("--cst-trivia=POLICY", Configuration::Registry::CLI_CST_TRIVIA_VALUES, "CST trivia policy") do |value|
         set_local_configuration_option(settings, :cst_trivia, value.to_sym)
       end
       options.on("--superclass=CLASS", "request a parser superclass") do |value|

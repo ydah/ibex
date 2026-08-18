@@ -414,12 +414,14 @@ module Ibex
       end
       options.on(
         "--cst-trivia=POLICY",
-        %w[leading balanced drop attach],
+        Configuration::Registry::CLI_CST_TRIVIA_VALUES,
         "leading, balanced, drop, or attach (alias for leading)"
       ) do |value|
         set_configuration_option(:cst_trivia, value.to_sym)
       end
-      options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
+      options.on(
+        "--algorithm=NAME", Configuration::Registry::CLI_ALGORITHM_VALUES, "parser construction algorithm"
+      ) do |value|
         set_configuration_option(:algorithm, value.to_sym)
       end
       options.on("--ielr-strategy=NAME", %w[direct partition], "IELR construction strategy") do |value|

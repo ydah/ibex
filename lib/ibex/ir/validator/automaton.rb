@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../../configuration"
+
 module Ibex
   module IR
     module Validator
@@ -67,7 +69,8 @@ module Ibex
         # @rbs (Hash[String, untyped] grammar) -> void
         def validate_construction_contract(grammar)
           entry_construction = enum(
-            @data["entry_construction"], "$.entry_construction", %w[shared isolated]
+            @data["entry_construction"], "$.entry_construction",
+            Configuration::Registry.parser_setting_values(:entries).map(&:to_s)
           )
           contract = grammar.fetch("parser_contract")
           algorithm = contract.fetch("algorithm")

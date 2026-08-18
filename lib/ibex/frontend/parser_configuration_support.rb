@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../configuration"
+
 module Ibex
   module Frontend
     # Shares the closed parser-declaration semantics between bootstrap and generated frontends.
@@ -9,11 +11,9 @@ module Ibex
       #   private def fail_at: (Location, String) -> bot
       #   private def extended_only!: (Location, String) -> void
 
-      PARSER_SETTING_VALUES = {
-        "algorithm" => %w[slr lalr ielr lr1].freeze,
-        "entries" => %w[shared isolated].freeze,
-        "cst_trivia" => %w[leading balanced drop].freeze
-      }.freeze #: Hash[String, Array[String]]
+      PARSER_SETTING_VALUES = Configuration::Registry.parser_setting_definitions.to_h do |name, definition|
+        [name.to_s, definition.fetch(:values).map(&:to_s).freeze]
+      end.freeze #: Hash[String, Array[String]]
 
       private
 

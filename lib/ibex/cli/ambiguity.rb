@@ -55,7 +55,9 @@ module Ibex
         options.on("--format=FORMAT", %w[text json], "text or json (default: text)") do |value|
           @options[:check_format] = value
         end
-        options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "parser construction algorithm") do |value|
+        options.on(
+          "--algorithm=NAME", Configuration::Registry::CLI_ALGORITHM_VALUES, "parser construction algorithm"
+        ) do |value|
           set_configuration_option(:algorithm, value.to_sym)
         end
         options.on("--entry-isolation", "build independent state sets for each start symbol") do

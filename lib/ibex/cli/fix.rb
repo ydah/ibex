@@ -91,13 +91,7 @@ module Ibex
         options.banner = "Usage: ibex fix [options] GRAMMAR"
         add_fix_target_options(options, settings)
         add_fix_budget_options(options, settings)
-        options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "current construction algorithm") do |value|
-          set_local_configuration_option(settings, :algorithm, value.to_sym)
-        end
-        options.on("--mode=MODE", %w[default extended], "grammar mode") do |value|
-          set_local_configuration_option(settings, :mode, value.to_sym)
-          set_configuration_option(:mode, value.to_sym)
-        end
+        add_fix_parser_options(options, settings)
         options.on("--apply[=ID]", "atomically apply one safe source proposal") do |value|
           settings[:apply] = value || true
         end
@@ -110,6 +104,17 @@ module Ibex
       settings[:paths] = parser.parse(arguments)
       settings[:algorithm] = local_configuration_value(settings, "parser.algorithm")
       settings
+    end
+
+    # @rbs (OptionParser options, Hash[Symbol, untyped] settings) -> void
+    def add_fix_parser_options(options, settings)
+      options.on(
+        "--algorithm=NAME", Configuration::Registry::CLI_ALGORITHM_VALUES, "current construction algorithm"
+      ) { |value| set_local_configuration_option(settings, :algorithm, value.to_sym) }
+      options.on("--mode=MODE", %w[default extended], "grammar mode") do |value|
+        set_local_configuration_option(settings, :mode, value.to_sym)
+        set_configuration_option(:mode, value.to_sym)
+      end
     end
 
     # @rbs (OptionParser options, Hash[Symbol, untyped] settings) -> void

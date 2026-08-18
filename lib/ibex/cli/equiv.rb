@@ -55,7 +55,9 @@ module Ibex
       parser = OptionParser.new do |options|
         options.banner = "Usage: ibex equiv [options] LEFT RIGHT"
         add_equiv_search_options(options, settings)
-        options.on("--algorithm=NAME", %w[slr lalr ielr lr1], "algorithm for grammar inputs") do |value|
+        options.on(
+          "--algorithm=NAME", Configuration::Registry::CLI_ALGORITHM_VALUES, "algorithm for grammar inputs"
+        ) do |value|
           set_local_configuration_option(settings, :algorithm, value.to_sym)
         end
         options.on("--mode=MODE", %w[default extended], "grammar mode") do |value|
