@@ -152,32 +152,77 @@ module Ibex
   # Command-line pipeline coordinator.
   # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.
   class CLI
-    SUBCOMMAND_HANDLERS = {
-      "check" => %i[CLIAmbiguity run_check_command],
-      "diff" => %i[CLIAnalysis run_diff_command],
-      "impact" => %i[CLIImpact run_impact_command],
-      "diagnose" => %i[CLIDiagnostics run_diagnose_command],
-      "coverage" => %i[CLICoverage run_coverage_command], "config" => %i[CLIConfig run_config_command],
-      "debug" => %i[CLIDebug run_debug_command],
-      "doc" => %i[CLIDocumentation run_documentation_command],
-      "errors" => %i[CLIErrorMessages run_error_messages_command],
-      "equiv" => %i[CLIEquiv run_equiv_command],
-      "explain" => %i[CLIExplain run_explain_command],
-      "fmt" => %i[CLIFormatting run_format_command],
-      "fix" => %i[CLIFix run_fix_command],
-      "fuzz" => %i[CLIFuzz run_fuzz_command],
-      "test" => %i[CLIGrammarTests run_grammar_tests_command],
-      "lsp" => %i[CLILSP run_lsp_command],
-      "import" => %i[CLIBisonImport run_bison_import_command],
-      "metrics" => %i[CLIAnalysis run_metrics_command],
-      "migrate-check" => %i[CLIRaccMigration run_migrate_check_command],
-      "migrate-harness" => %i[CLIRaccMigration run_migrate_harness_command],
-      "reduce" => %i[CLIReduce run_reduce_command],
-      "samples" => %i[CLISamples run_samples_command],
-      "verify" => %i[CLIVerify run_verify_command],
-      "validate-ir" => %i[CLIIRTools run_validate_ir_command],
-      "compare" => %i[CLIIRTools run_compare_command]
-    }.freeze #: Hash[String, [Symbol, Symbol]]
+    FEATURE_LOADERS = {
+      CLIAmbiguity: -> { CLIAmbiguity },
+      CLIAnalysis: -> { CLIAnalysis },
+      CLIImpact: -> { CLIImpact },
+      CLIDiagnostics: -> { CLIDiagnostics },
+      CLICoverage: -> { CLICoverage },
+      CLIConfig: -> { CLIConfig },
+      CLIDebug: -> { CLIDebug },
+      CLIDocumentation: -> { CLIDocumentation },
+      CLIErrorMessages: -> { CLIErrorMessages },
+      CLIEquiv: -> { CLIEquiv },
+      CLIExplain: -> { CLIExplain },
+      CLIFormatting: -> { CLIFormatting },
+      CLIFix: -> { CLIFix },
+      CLIFuzz: -> { CLIFuzz },
+      CLIGrammarTests: -> { CLIGrammarTests },
+      CLILSP: -> { CLILSP },
+      CLIBisonImport: -> { CLIBisonImport },
+      CLIRaccMigration: -> { CLIRaccMigration },
+      CLIReduce: -> { CLIReduce },
+      CLISamples: -> { CLISamples },
+      CLIVerify: -> { CLIVerify },
+      CLIIRTools: -> { CLIIRTools },
+      CLIWatch: -> { CLIWatch }
+    }.freeze #: Hash[Symbol, ^() -> Module]
+
+    # A fixed command object keeps dispatch explicit while feature modules stay lazy.
+    class Command
+      def initialize(feature, &handler)
+        @feature = feature
+        @handler = handler
+        freeze
+      end
+
+      # @rbs (Ibex::CLI cli, Array[String] arguments) -> Integer?
+      def call(cli, arguments)
+        extension = FEATURE_LOADERS.fetch(@feature).call
+        cli.extend(extension) unless cli.singleton_class.ancestors.include?(extension)
+        cli.instance_exec(arguments, &@handler)
+      end
+    end
+
+    COMMANDS = {
+      "check" => Command.new(:CLIAmbiguity) { |arguments| run_check_command(arguments) },
+      "diff" => Command.new(:CLIAnalysis) { |arguments| run_diff_command(arguments) },
+      "impact" => Command.new(:CLIImpact) { |arguments| run_impact_command(arguments) },
+      "diagnose" => Command.new(:CLIDiagnostics) { |arguments| run_diagnose_command(arguments) },
+      "coverage" => Command.new(:CLICoverage) { |arguments| run_coverage_command(arguments) },
+      "config" => Command.new(:CLIConfig) { |arguments| run_config_command(arguments) },
+      "debug" => Command.new(:CLIDebug) { |arguments| run_debug_command(arguments) },
+      "doc" => Command.new(:CLIDocumentation) { |arguments| run_documentation_command(arguments) },
+      "errors" => Command.new(:CLIErrorMessages) { |arguments| run_error_messages_command(arguments) },
+      "equiv" => Command.new(:CLIEquiv) { |arguments| run_equiv_command(arguments) },
+      "explain" => Command.new(:CLIExplain) { |arguments| run_explain_command(arguments) },
+      "fmt" => Command.new(:CLIFormatting) { |arguments| run_format_command(arguments) },
+      "fix" => Command.new(:CLIFix) { |arguments| run_fix_command(arguments) },
+      "fuzz" => Command.new(:CLIFuzz) { |arguments| run_fuzz_command(arguments) },
+      "test" => Command.new(:CLIGrammarTests) { |arguments| run_grammar_tests_command(arguments) },
+      "lsp" => Command.new(:CLILSP) { |arguments| run_lsp_command(arguments) },
+      "import" => Command.new(:CLIBisonImport) { |arguments| run_bison_import_command(arguments) },
+      "metrics" => Command.new(:CLIAnalysis) { |arguments| run_metrics_command(arguments) },
+      "migrate-check" => Command.new(:CLIRaccMigration) { |arguments| run_migrate_check_command(arguments) },
+      "migrate-harness" => Command.new(:CLIRaccMigration) { |arguments| run_migrate_harness_command(arguments) },
+      "reduce" => Command.new(:CLIReduce) { |arguments| run_reduce_command(arguments) },
+      "samples" => Command.new(:CLISamples) { |arguments| run_samples_command(arguments) },
+      "verify" => Command.new(:CLIVerify) { |arguments| run_verify_command(arguments) },
+      "validate-ir" => Command.new(:CLIIRTools) { |arguments| run_validate_ir_command(arguments) },
+      "compare" => Command.new(:CLIIRTools) { |arguments| run_compare_command(arguments) }
+    }.freeze #: Hash[String, Command]
+
+    WATCH_COMMAND = Command.new(:CLIWatch) { |path| run_watch(path) }
 
     include CLICounterexampleOptions
     include CLIGenerationErrorMessages
@@ -336,24 +381,21 @@ module Ibex
 
     # @rbs (Array[String] arguments) -> Integer?
     def dispatch_subcommand(arguments)
-      definition = SUBCOMMAND_HANDLERS[arguments.first]
-      return unless definition
+      command = COMMANDS[arguments.first]
+      return unless command
 
-      feature, handler = definition
-      activate_cli_feature(feature)
-      send(handler, arguments.drop(1))
+      command.call(self, arguments.drop(1))
     end
 
     # @rbs (Symbol feature) -> void
     def activate_cli_feature(feature)
-      extension = Ibex.const_get(feature)
+      extension = FEATURE_LOADERS.fetch(feature).call
       extend extension unless singleton_class.ancestors.include?(extension)
     end
 
     # @rbs (String path) -> Integer
     def run_watch_feature(path)
-      activate_cli_feature(:CLIWatch)
-      send(:run_watch, path)
+      WATCH_COMMAND.call(self, path)
     end
 
     # @rbs () -> OptionParser

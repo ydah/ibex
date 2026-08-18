@@ -26,6 +26,11 @@ module Ibex
 
     # @rbs (Array[String] arguments) -> Integer
     def run_bison_import_command(arguments)
+      if arguments == ["--help"]
+        @stdout.puts("Usage: ibex import bison [options] grammar.y")
+        return 0
+      end
+
       kind = arguments.shift
       raise Ibex::Error, "(bison-import):1:1: import requires the `bison` format" unless kind == "bison"
 

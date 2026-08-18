@@ -24,6 +24,11 @@ module Ibex
 
     # @rbs (Array[String] arguments) -> Integer
     def run_coverage_command(arguments)
+      if arguments == ["--help"]
+        @stdout.puts("Usage: ibex coverage collect|merge|check [options] FILE...")
+        return 0
+      end
+
       operation = arguments.shift
       case operation
       when "collect" then run_coverage_collect(arguments)

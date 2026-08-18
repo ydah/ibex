@@ -9,6 +9,11 @@ module Ibex
 
     # @rbs (Array[String] arguments) -> Integer
     def run_validate_ir_command(arguments)
+      if arguments == ["--help"]
+        @stdout.puts("Usage: ibex validate-ir FILE")
+        return 0
+      end
+
       path = single_ir_path(arguments, "validate-ir")
       value = IR::Validator.validate(File.read(path))
       kind = if value.is_a?(IR::Grammar)
@@ -24,6 +29,11 @@ module Ibex
 
     # @rbs (Array[String] arguments) -> Integer
     def run_compare_command(arguments)
+      if arguments == ["--help"]
+        @stdout.puts("Usage: ibex compare BEFORE_IR AFTER_IR")
+        return 0
+      end
+
       raise Ibex::Error, "(cli):1:1: compare requires exactly two IR files" unless arguments.length == 2
 
       before = IR::Validator.validate(File.read(arguments.fetch(0)))
