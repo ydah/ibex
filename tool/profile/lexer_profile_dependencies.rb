@@ -21,6 +21,8 @@ module Ibex
         lib/ibex/version.rb
         lib/ibex/error.rb
         lib/ibex/location.rb
+        lib/ibex/configuration.rb
+        lib/ibex/configuration/**/*.rb
         lib/ibex/generation_input.rb
         lib/ibex/tables.rb
         lib/ibex/analysis.rb
