@@ -127,7 +127,7 @@
       },
       {
         "path": "lib/ibex/configuration.rb",
-        "sha256": "94a5f8ec80e1d28ca1254720128f3b703e20321e8989442f516548b210c92aa6"
+        "sha256": "3ae7ec6aa3f160017ce19336c98389e2e18efcb3f5753772f7fc7109c90b626c"
       },
       {
         "path": "lib/ibex/configuration/explanation.rb",
