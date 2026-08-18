@@ -91,7 +91,7 @@
       },
       {
         "path": "lib/ibex/codegen/ruby.rb",
-        "sha256": "933a156a39aa4dcbfe3396da0262054378ca3c73c7f651561b24347997fdd3dc"
+        "sha256": "1461cddffb6487720e4eece6ebd240de3184d0711d2a79fe8b5f52c6f3959009"
       },
       {
         "path": "lib/ibex/codegen/ruby_actions.rb",
@@ -127,7 +127,7 @@
       },
       {
         "path": "lib/ibex/configuration.rb",
-        "sha256": "3ae7ec6aa3f160017ce19336c98389e2e18efcb3f5753772f7fc7109c90b626c"
+        "sha256": "be3040219a76081947fab2fdbceea402ceec940554d0b2790f3634261d60a17e"
       },
       {
         "path": "lib/ibex/configuration/explanation.rb",
