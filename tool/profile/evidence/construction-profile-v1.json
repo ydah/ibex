@@ -9,7 +9,7 @@
     "ruby_patchlevel": 0,
     "ruby_description": "ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin24]",
     "ruby_platform": "arm64-darwin24",
-    "rubyopt": null,
+    "rubyopt": "-r/Users/yudai.takada/.rbenv/versions/4.0.0/lib/ruby/gems/4.0.0/gems/bundler-4.0.13/lib/bundler/setup",
     "yjit_enabled": false,
     "host_os": "darwin24",
     "host_cpu": "arm64",
@@ -20,7 +20,7 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "ea62ecae62090d8a8aa8e59d65787db20273ff50",
+    "base_revision": "26a345b73b49f8991bc3fd9d130067a7396f29da",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": true,
     "capture_worktree_status": [],
@@ -70,9 +70,9 @@
       },
       {
         "path": "lib/ibex/lalr/build_metrics.rb",
-        "sha256": "eadf2b10f366c110a4110592b6cfe3e221b69577cb1b7993c6ebc5d4d8c31717",
+        "sha256": "134bb25df967fcfe87b0046cb5541fb4e25672abbf5241669f9f32d8f0d061f3",
         "git_state": "base",
-        "base_sha256": "eadf2b10f366c110a4110592b6cfe3e221b69577cb1b7993c6ebc5d4d8c31717"
+        "base_sha256": "134bb25df967fcfe87b0046cb5541fb4e25672abbf5241669f9f32d8f0d061f3"
       },
       {
         "path": "lib/ibex/lalr/builder.rb",
@@ -273,9 +273,9 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "dd304f8c0fec31f6e14bba9d50b288536d8b793580c44906a6e675252e052044",
-    "implementation_sha256": "70e054f98de6bd8defa43f9e1d527783f1fbcfcd0a23245153a8fb9a941a2671",
-    "environment_observation_sha256": "57f7425707abbc64d0a167ca40946b3907d727c9ed9d0dbdcfa529f373cb00f2",
+    "bound_paths_sha256": "1b29519e854aa76053df2fb90ef7b999cba1057fd1960cffe11b8b36f4582409",
+    "implementation_sha256": "e9f329611fbb6c3e4f20322c0acb8933e642835c94d986c16eda7d693e161804",
+    "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
     "evidence_path": "tool/profile/evidence/construction-profile-v1.json",
     "evidence_exclusion_reason": "the evidence file is excluded from its own digest to avoid circularity"
@@ -417,7 +417,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001133,
+                  "value": 0.003177,
                   "release_gate": false
                 }
               },
@@ -518,7 +518,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.00392,
+                  "value": 0.004347,
                   "release_gate": false
                 }
               },
@@ -642,7 +642,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000733,
+                  "value": 0.000877,
                   "release_gate": false
                 }
               },
@@ -743,7 +743,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.002435,
+                  "value": 0.001608,
                   "release_gate": false
                 }
               },
@@ -867,7 +867,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000584,
+                  "value": 0.000641,
                   "release_gate": false
                 }
               },
@@ -968,7 +968,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000744,
+                  "value": 0.000816,
                   "release_gate": false
                 }
               },
@@ -1094,7 +1094,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.00044,
+                  "value": 0.000508,
                   "release_gate": false
                 }
               },
@@ -1196,7 +1196,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000514,
+                  "value": 0.000557,
                   "release_gate": false
                 }
               },
@@ -1298,7 +1298,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000374,
+                  "value": 0.000425,
                   "release_gate": false
                 }
               },
@@ -1400,7 +1400,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001037,
+                  "value": 0.000429,
                   "release_gate": false
                 }
               },
@@ -1546,7 +1546,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.008735,
+                  "value": 0.013973,
                   "release_gate": false
                 }
               },
@@ -1647,7 +1647,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.050032,
+                  "value": 0.055169,
                   "release_gate": false
                 }
               },
