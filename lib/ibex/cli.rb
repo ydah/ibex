@@ -186,7 +186,7 @@ module Ibex
         freeze
       end
 
-      # @rbs (Ibex::CLI cli, Array[String] arguments) -> Integer?
+      # @rbs (Ibex::CLI cli, Array[String] | String arguments) -> Integer?
       def call(cli, arguments)
         extension = FEATURE_LOADERS.fetch(@feature).call
         cli.extend(extension) unless cli.singleton_class.ancestors.include?(extension)
