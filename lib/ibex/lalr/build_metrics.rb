@@ -3,32 +3,30 @@
 
 module Ibex
   module LALR
-    # Optional measurements are kept explicit for schema stability.
-    # rubocop:disable Metrics/ParameterLists
-    # Immutable structural measurements from one automaton build. These counts
-    # are intended for diagnostics and benchmarks, not parser behavior.
-    class BuildMetrics
-      attr_reader :construction_states #: Integer
-      attr_reader :canonical_states #: Integer?
-      attr_reader :final_states #: Integer
-      attr_reader :strategy #: Symbol
-      attr_reader :lr0_states #: Integer?
-      attr_reader :lr0_items #: Integer?
-      attr_reader :canonical_items #: Integer?
-      attr_reader :final_items #: Integer?
-      attr_reader :final_lookahead_items #: Integer?
-      attr_reader :propagation_edges #: Integer?
-      attr_reader :ielr_initial_partitions #: Integer?
-      attr_reader :ielr_final_partitions #: Integer?
-      attr_reader :ielr_annotations #: Integer?
-      attr_reader :ielr_annotated_states #: Integer?
-      attr_reader :ielr_inadequacies #: Integer?
-      attr_reader :ielr_split_stable_discarded #: Integer?
-      attr_reader :ielr_lalr_states #: Integer?
-      attr_reader :ielr_split_states #: Integer?
-      attr_reader :ielr_unreachable_removed #: Integer?
-      attr_reader :ielr_remergeable_candidates #: Integer?
-
+    # Immutable structural measurements from one automaton build.
+    BuildMetrics = Struct.new(
+      :construction_states,
+      :canonical_states,
+      :final_states,
+      :strategy,
+      :lr0_states,
+      :lr0_items,
+      :canonical_items,
+      :final_items,
+      :final_lookahead_items,
+      :propagation_edges,
+      :ielr_initial_partitions,
+      :ielr_final_partitions,
+      :ielr_annotations,
+      :ielr_annotated_states,
+      :ielr_inadequacies,
+      :ielr_split_stable_discarded,
+      :ielr_lalr_states,
+      :ielr_split_states,
+      :ielr_unreachable_removed,
+      :ielr_remergeable_candidates,
+      keyword_init: true
+    ) do
       # @rbs (construction_states: Integer, canonical_states: Integer?, final_states: Integer, strategy: Symbol,
       #   ?lr0_states: Integer?, ?lr0_items: Integer?, ?canonical_items: Integer?, ?final_items: Integer?,
       #   ?final_lookahead_items: Integer?, ?propagation_edges: Integer?, ?ielr_initial_partitions: Integer?,
@@ -36,36 +34,10 @@ module Ibex
       #   ?ielr_inadequacies: Integer?, ?ielr_split_stable_discarded: Integer?, ?ielr_lalr_states: Integer?,
       #   ?ielr_split_states: Integer?, ?ielr_unreachable_removed: Integer?,
       #   ?ielr_remergeable_candidates: Integer?) -> void
-      def initialize(construction_states:, canonical_states:, final_states:, strategy:, lr0_states: nil, lr0_items: nil,
-                     canonical_items: nil, final_items: nil, final_lookahead_items: nil, propagation_edges: nil,
-                     ielr_initial_partitions: nil, ielr_final_partitions: nil, ielr_annotations: nil,
-                     ielr_annotated_states: nil, ielr_inadequacies: nil, ielr_split_stable_discarded: nil,
-                     ielr_lalr_states: nil, ielr_split_states: nil, ielr_unreachable_removed: nil,
-                     ielr_remergeable_candidates: nil)
-        @construction_states = construction_states
-        @canonical_states = canonical_states
-        @final_states = final_states
-        @strategy = strategy
-        @lr0_states = lr0_states
-        @lr0_items = lr0_items
-        @canonical_items = canonical_items
-        @final_items = final_items
-        @final_lookahead_items = final_lookahead_items
-        @propagation_edges = propagation_edges
-        @ielr_initial_partitions = ielr_initial_partitions
-        @ielr_final_partitions = ielr_final_partitions
-        @ielr_annotations = ielr_annotations
-        @ielr_annotated_states = ielr_annotated_states
-        @ielr_inadequacies = ielr_inadequacies
-        @ielr_split_stable_discarded = ielr_split_stable_discarded
-        @ielr_lalr_states = ielr_lalr_states
-        @ielr_split_states = ielr_split_states
-        @ielr_unreachable_removed = ielr_unreachable_removed
-        @ielr_remergeable_candidates = ielr_remergeable_candidates
+      def initialize(construction_states:, canonical_states:, final_states:, strategy:, **optional)
+        super
         freeze
       end
     end
   end
 end
-
-# rubocop:enable Metrics/ParameterLists
