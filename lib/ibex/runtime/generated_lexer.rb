@@ -2,6 +2,7 @@
 # rbs_inline: enabled
 
 require_relative "lexer_input" unless defined?(Ibex::Runtime::LexerInput)
+require_relative "cst" unless defined?(Ibex::Runtime::CST::Kind)
 
 module Ibex
   module Runtime

@@ -2,6 +2,7 @@
 # rbs_inline: enabled
 
 require_relative "event_sanitizer" unless defined?(Ibex::Runtime::EventSanitizer)
+require_relative "cst" unless defined?(Ibex::Runtime::CST::Kind)
 
 module Ibex
   module Runtime

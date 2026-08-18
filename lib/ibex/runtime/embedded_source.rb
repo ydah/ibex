@@ -90,7 +90,10 @@ module Ibex
 
       # @rbs (String path) -> String
       def self.source(path)
-        File.read(path).lines.reject { |line| line.start_with?("# frozen_string_literal:") }.join.rstrip
+        File.read(path).lines.reject do |line|
+          line.start_with?("# frozen_string_literal:") || REQUIRE_RELATIVE.match?(line) ||
+            line.lstrip.start_with?("autoload ")
+        end.join.rstrip
       end
       private_class_method :source
     end

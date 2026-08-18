@@ -10,7 +10,6 @@ require_relative "table_format" unless defined?(Ibex::Runtime::PARSER_TABLE_FORM
 module Ibex
   module Runtime
     autoload :ASTData, File.join(__dir__, "ast_data")
-    autoload :CST, File.join(__dir__, "cst")
     autoload :SyntaxSessionTrustError, File.join(__dir__, "syntax_session")
     autoload :SyntaxSessionCancelled, File.join(__dir__, "syntax_session")
     autoload :SyntaxSessionResourceLimitError, File.join(__dir__, "syntax_session")
@@ -391,6 +390,7 @@ module Ibex
       # @rbs (CST::SourceText source_text, ?resource_limits: ResourceLimits?, ?blender: bool) ->
       #   CST::IncrementalParseSession
       def self.incremental_session(source_text, resource_limits: nil, blender: true)
+        require_relative "cst" unless defined?(Ibex::Runtime::CST::Kind)
         CST::IncrementalParseSession.new(
           self, source_text, resource_limits: resource_limits, blender: blender
         )
@@ -1918,6 +1918,8 @@ module Ibex
           @green_memo_stack = EMPTY_LOCATIONS
           return
         end
+
+        require_relative "cst" unless defined?(Ibex::Runtime::CST::Kind)
 
         @syntax_diagnostics = [] if @syntax_diagnostics.frozen?
         @green_pending_skipped = [] if @green_pending_skipped.frozen?
