@@ -175,8 +175,8 @@ module Ibex
       results = [{
         path: path, label: path, source: original, formatted: replacement
       }]
-      targets = send(:formatting_targets, results)
-      send(:transactionally_write_formatted, targets)
+      targets = formatting_targets(results)
+      transactionally_write_formatted(targets)
       report[:applied] = proposal.fetch(:id)
     end
 

@@ -26,7 +26,6 @@ module Ibex
         raise Ibex::Error, "(impact):1:1: impact requires one grammar or two grammar files"
       end
 
-      extend CLIAnalysis unless singleton_class.ancestors.include?(CLIAnalysis)
       settings[:algorithm] = local_configuration_value(settings, "parser.algorithm")
       analysis = if paths.length == 1
                    potential_impact(paths, settings)
