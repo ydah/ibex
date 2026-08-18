@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 # rbs_inline: enabled
 
+require_relative "samples"
+require_relative "verify"
+require_relative "equiv/machine"
+
 module Ibex
+  # Bounded language comparison over two immutable parser automata.
   # rubocop:disable Metrics/ClassLength -- the three comparison strategies share one report and budget contract.
   class Equiv
-    require_relative "samples"
-    require_relative "verify"
-    require_relative "equiv/machine"
-
-    # Bounded language comparison over two immutable parser automata.
     # @rbs!
     #   type tree_node_signature = [String, Array[String]]
     #   type tree_trace_entry = [String, Array[String], tree_node_signature?]
