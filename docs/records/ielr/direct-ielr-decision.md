@@ -11,9 +11,9 @@ the default or as a release-readiness claim; I002 remains
 blocked. This decision is a feature gate, not a claim that direct IELR has no
 future value.
 
-The decision was revalidated on 2026-08-17 after repository history was
-rewritten; the NO-GO outcome is unchanged. Revision
-`bb4ff91ec9da84e3d1ac7c752be6a46461aa5151` is the repository evidence snapshot
+The decision was revalidated on 2026-08-18 after the H005 profile was
+recaptured; the NO-GO outcome is unchanged. Revision
+`f9db131efc5748fafc99a8676544f18a090e8ea1` is the repository evidence snapshot
 reviewed immediately before this dossier was published; it is not a claim that
 the dossier itself existed in that revision. The machine record marks the
 decision `final_no_go`, its basis `repository_evidence`, and its review state
@@ -105,9 +105,9 @@ and verifier implementations by path and SHA-256 at the reviewed revision. It
 also binds:
 
 - H005 capture base revision
-  `72a8b16f1b442f63ff6a980b7bf6c33fbe3d11c2`;
+  `ea62ecae62090d8a8aa8e59d65787db20273ff50`;
 - H005 bound-path digest
-  `0c21c4ecee4f4d40a5cae335391592b1afa7501ce6b67e6411791293378df822`;
+  `dd304f8c0fec31f6e14bba9d50b288536d8b793580c44906a6e675252e052044`;
 - H005 implementation digest
   `70e054f98de6bd8defa43f9e1d527783f1fbcfcd0a23245153a8fb9a941a2671`;
 - V001 revision `f9d2c54eb4b27fc5ffe798bb0b29d038d97ee35c`.
