@@ -141,7 +141,7 @@ class MaturityTest < Minitest::Test
 
     changed = document
     audit = changed.dig("audit", "issue_audits", 0)
-    audit["checked_at"] = "2026-08-16"
+    audit["checked_at"] = "2026-08-19"
     audit["fresh_until"] = "2026-09-05"
     assert_error(changed, "checked_at cannot be in the future")
 
@@ -207,7 +207,7 @@ class MaturityTest < Minitest::Test
 
     changed = document
     feature(changed, "watch").dig("specification_history", "introduction")["revision"] =
-      "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7"
+      `git rev-parse HEAD`.strip
     assert_error(changed, "introduction is outside reviewed history")
 
     changed = document
@@ -309,7 +309,7 @@ class MaturityTest < Minitest::Test
     assessment = feature(changed, "watch").dig(
       "specification_history", "changes", 0, "commit_assessments", 0
     )
-    assessment["revision"] = "61eeb8b691a499e5f3fd2277c32e3e34eb7169c7"
+    assessment["revision"] = `git rev-parse HEAD`.strip
     assert_error(changed, "commit assessment revision is outside reviewed ancestry")
 
     changed = document
