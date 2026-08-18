@@ -4,15 +4,38 @@
 require_relative "location_span" unless defined?(Ibex::Runtime::LocationSpan)
 require_relative "observation" unless defined?(Ibex::Runtime::Observation)
 require_relative "resource_limits" unless defined?(Ibex::Runtime::ResourceLimits)
-require_relative "syntax_session" unless defined?(Ibex::Runtime::SyntaxSession)
-require_relative "repair" unless defined?(Ibex::Runtime::RepairPolicy)
-require_relative "repair_search" unless defined?(Ibex::Runtime::RepairSearch)
-require_relative "syntax_repair" unless defined?(Ibex::Runtime::SyntaxRepairer)
 require_relative "parser_sync_recovery" unless defined?(Ibex::Runtime::ParserSyncRecovery)
 require_relative "table_format" unless defined?(Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION)
 
 module Ibex
   module Runtime
+    autoload :ASTData, File.join(__dir__, "ast_data")
+    autoload :CST, File.join(__dir__, "cst")
+    autoload :SyntaxSessionTrustError, File.join(__dir__, "syntax_session")
+    autoload :SyntaxSessionCancelled, File.join(__dir__, "syntax_session")
+    autoload :SyntaxSessionResourceLimitError, File.join(__dir__, "syntax_session")
+    autoload :CancellationToken, File.join(__dir__, "syntax_session")
+    autoload :SyntaxSessionLimits, File.join(__dir__, "syntax_session")
+    autoload :SyntaxSessionMetrics, File.join(__dir__, "syntax_session")
+    autoload :SyntaxSessionDiagnostic, File.join(__dir__, "syntax_session")
+    autoload :SyntaxSessionResult, File.join(__dir__, "syntax_session")
+    autoload :SyntaxSession, File.join(__dir__, "syntax_session")
+    autoload :RepairPolicy, File.join(__dir__, "repair")
+    autoload :RepairEdit, File.join(__dir__, "repair")
+    autoload :RepairPlan, File.join(__dir__, "repair")
+    autoload :RepairSearchResult, File.join(__dir__, "repair")
+    autoload :RepairInput, File.join(__dir__, "repair")
+    autoload :RepairAdvance, File.join(__dir__, "repair")
+    autoload :RepairPriorityQueue, File.join(__dir__, "repair_priority_queue")
+    autoload :RepairSearch, File.join(__dir__, "repair_search")
+    autoload :SyntaxRepairEdit, File.join(__dir__, "syntax_repair")
+    autoload :SyntaxRepairPlan, File.join(__dir__, "syntax_repair")
+    autoload :SyntaxRepairResult, File.join(__dir__, "syntax_repair")
+    autoload :SyntaxRepairer, File.join(__dir__, "syntax_repair")
+    autoload :LexerInput, File.join(__dir__, "lexer_input")
+    autoload :GeneratedLexer, File.join(__dir__, "generated_lexer")
+    autoload :EventJSONLTracer, File.join(__dir__, "event_jsonl_tracer")
+
     # Semantic values and lexer locations intentionally cross the runtime
     # boundary without a closed application type. Keep that boundary named so
     # the rest of the parser remains structurally typed.
