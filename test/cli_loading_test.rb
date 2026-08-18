@@ -8,17 +8,26 @@ require "tmpdir"
 
 class CLILoadingTest < Minitest::Test
   UNRELATED_GENERATION_FEATURES = %w[
+    ibex/bison_import.rb
     ibex/cli/coverage.rb
+    ibex/delta_reducer.rb
+    ibex/diff.rb
+    ibex/equiv.rb
+    ibex/fix.rb
+    ibex/fuzz.rb
+    ibex/grammar_tests.rb
     ibex/cli/lsp.rb
     ibex/cli/racc_migration.rb
     ibex/coverage.rb
-    ibex/grammar_tests.rb
+    ibex/impact.rb
     ibex/lsp.rb
+    ibex/metrics.rb
     ibex/racc_migration.rb
     ibex/samples.rb
     ibex/table_simulation.rb
     ibex/verifiable_generation_bundle.rb
     ibex/verification_report.rb
+    ibex/verify.rb
   ].freeze
   DEFERRED_GENERATION_FEATURES = %w[
     ibex/bison_import.rb

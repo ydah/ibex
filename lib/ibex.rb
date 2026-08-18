@@ -14,24 +14,10 @@ require_relative "ibex/generation_transaction"
 require_relative "ibex/watch"
 require_relative "ibex/tables"
 require "ibex/runtime"
-require_relative "ibex/coverage"
-require_relative "ibex/table_simulation"
 require_relative "ibex/frontend"
 require_relative "ibex/ir"
 require_relative "ibex/normalize"
 require_relative "ibex/analysis"
-require_relative "ibex/samples"
-require_relative "ibex/fuzz"
-require_relative "ibex/delta_reducer"
-require_relative "ibex/verify"
-require_relative "ibex/equiv"
-require_relative "ibex/diff"
-require_relative "ibex/metrics"
-require_relative "ibex/impact"
-require_relative "ibex/fix"
-require_relative "ibex/bison_import"
-require_relative "ibex/grammar_tests"
-require_relative "ibex/racc_migration"
 require_relative "ibex/lalr"
 require_relative "ibex/codegen/symbol_labels"
 require_relative "ibex/codegen/report"
@@ -53,6 +39,21 @@ require_relative "ibex/codegen/documentation"
 
 # Ibex generates and runs Pure Ruby LR parsers.
 module Ibex
+  autoload :Coverage, File.join(__dir__, "ibex/coverage")
+  autoload :TableSimulation, File.join(__dir__, "ibex/table_simulation")
+  autoload :Samples, File.join(__dir__, "ibex/samples")
+  autoload :Fuzz, File.join(__dir__, "ibex/fuzz")
+  autoload :DeltaReducer, File.join(__dir__, "ibex/delta_reducer")
+  autoload :Verify, File.join(__dir__, "ibex/verify")
+  autoload :Equiv, File.join(__dir__, "ibex/equiv")
+  autoload :Diff, File.join(__dir__, "ibex/diff")
+  autoload :Metrics, File.join(__dir__, "ibex/metrics")
+  autoload :Impact, File.join(__dir__, "ibex/impact")
+  autoload :Fix, File.join(__dir__, "ibex/fix")
+  autoload :BisonImport, File.join(__dir__, "ibex/bison_import")
+  autoload :GrammarTests, File.join(__dir__, "ibex/grammar_tests")
+  autoload :RaccMigration, File.join(__dir__, "ibex/racc_migration")
+
   ParseError = Runtime::ParseError #: singleton(Runtime::ParseError)
   ResourceLimitError = Runtime::ResourceLimitError #: singleton(Runtime::ResourceLimitError)
 end
