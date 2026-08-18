@@ -171,7 +171,6 @@ module Ibex
       attr_reader :options #: grammar_options
       attr_reader :symbols #: Array[GrammarSymbol]
       attr_reader :productions #: Array[Production]
-      attr_reader :user_code #: Hash[String, String]
       attr_reader :user_code_chunks #: user_code_chunks
       attr_reader :conversions #: Hash[String, String]
       attr_reader :warnings #: Array[grammar_warning]
@@ -211,6 +210,7 @@ module Ibex
       #   source_provenance: source_provenance?, expect_rr: Integer?, parser_parameters: Array[parser_parameter],
       #   value_printers: Array[value_printer], grammar_tests: Array[grammar_test], recovery: recovery_policy?,
       #   lexer: Lexer?, mode: grammar_mode, starts: Array[String]?, parser_contract: ParserContract) -> void
+      # rubocop:disable Metrics/MethodLength -- explicit immutable field assignment is the IR constructor contract.
       def initialize_current(class_name:, superclass:, start:, expect:, options:, symbols:, productions:, user_code:,
                              conversions:, warnings:, user_code_chunks:, source_provenance:, expect_rr:,
                              parser_parameters:, value_printers:, grammar_tests:, recovery:, lexer:, mode:, starts:,
@@ -234,9 +234,12 @@ module Ibex
         @options = IR.deep_freeze(options)
         @symbols = symbols.freeze
         @productions = productions.freeze
-        @user_code = IR.deep_freeze(user_code)
         @user_code_chunks = IR.deep_freeze(user_code_chunks || {})
-        validate_user_code_chunks
+        validate_user_code_chunks(user_code)
+        @user_code_names = user_code.keys.freeze
+        @legacy_user_code = IR.deep_freeze(
+          user_code.reject { |name, _code| @user_code_chunks.key?(name) }
+        )
         @conversions = IR.deep_freeze(conversions)
         @warnings = IR.deep_freeze(warnings)
         @schema_version = SCHEMA_VERSION
@@ -246,11 +249,26 @@ module Ibex
         @symbols_by_id = @symbols.to_h { |symbol| [symbol.id, symbol] }.freeze
         freeze
       end
+      # rubocop:enable Metrics/MethodLength
       # rubocop:enable Metrics/AbcSize, Metrics/ParameterLists
       private :initialize_current
 
       # @rbs (String name) -> GrammarSymbol?
       def symbol(name) = @symbols_by_name[name]
+
+      # @rbs () -> Hash[String, String]
+      def user_code
+        @user_code_names.to_h do |name|
+          code = if @user_code_chunks.key?(name)
+                   @user_code_chunks.fetch(name).map(&:code).join
+                 else
+                   @legacy_user_code.fetch(name)
+                 end
+          [name, code]
+        end
+          .freeze
+      end
+
       # @rbs (Integer? id) -> GrammarSymbol?
       def symbol_by_id(id) = @symbols_by_id[id]
       # @rbs () -> Array[GrammarSymbol]
@@ -264,7 +282,7 @@ module Ibex
                   start: @start, expect: @expect, options: @options,
                   symbols: @symbols.map(&:to_h),
                   productions: @productions.map(&:to_h),
-                  user_code: @user_code, conversions: @conversions,
+                  user_code: user_code, conversions: @conversions,
                   warnings: @warnings } #: Hash[Symbol, Object?]
         append_optional_metadata(value)
         value
@@ -317,9 +335,9 @@ module Ibex
       end
 
       # @rbs () -> void
-      def validate_user_code_chunks
+      def validate_user_code_chunks(user_code)
         @user_code_chunks.each do |name, chunks|
-          next if chunks.map(&:code).join == @user_code.fetch(name, "")
+          next if chunks.map(&:code).join == user_code.fetch(name, "")
 
           raise Ibex::Error, "(ir):1:1: user-code chunks do not match the concatenated #{name} section"
         end

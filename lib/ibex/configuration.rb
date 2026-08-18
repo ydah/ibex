@@ -34,7 +34,6 @@ module Ibex
       attr_reader :type #: Symbol
       attr_reader :default #: config_value
       attr_reader :owner #: Symbol
-      attr_reader :policy #: Symbol
       attr_reader :allowed_values #: Array[config_value]?
       attr_reader :cli_option #: Symbol?
       attr_reader :parser_setting #: Symbol?
@@ -50,7 +49,6 @@ module Ibex
         @name = name.dup.freeze
         @type = type
         @owner = owner
-        @policy = OWNER_POLICIES.fetch(owner)
         validate_shape!(type, cli_option)
         @allowed_values = allowed_values&.map { |value| immutable(value) }&.freeze
         @cli_option = cli_option
@@ -78,6 +76,11 @@ module Ibex
         OWNER_NAMES.fetch(@owner)
       end
 
+      # @rbs () -> Symbol
+      def policy
+        OWNER_POLICIES.fetch(@owner)
+      end
+
       private
 
       # @rbs (String name, Symbol owner) -> void
@@ -90,7 +93,7 @@ module Ibex
       # @rbs (Symbol type, Symbol? cli_option) -> void
       def validate_shape!(type, cli_option)
         raise ArgumentError, "cli_option must be a Symbol or nil" unless cli_option.nil? || cli_option.is_a?(Symbol)
-        return unless @policy == :minimum && type != :integer
+        return unless policy == :minimum && type != :integer
 
         raise ArgumentError, "minimum configuration keys must have Integer values"
       end
@@ -345,14 +348,6 @@ module Ibex
         # @rbs (Symbol setting) -> Key
         def parser_setting_key(setting)
           fetch(parser_setting_definitions.fetch(setting).fetch(:configuration))
-        end
-
-        # @rbs (Symbol option) -> Array[String]
-        def cli_values(option)
-          key = DEFINITIONS.find { |candidate| candidate.cli_option == option && candidate.allowed_values }
-          raise ArgumentError, "configuration option has no enumerable values: #{option.inspect}" unless key
-
-          (key.allowed_values.map(&:to_s) + key.cli_aliases).freeze
         end
       end
     end
