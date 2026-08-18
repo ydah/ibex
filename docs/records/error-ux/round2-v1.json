@@ -27,7 +27,7 @@
       },
       {
         "path": "lib/ibex/artifact_set.rb",
-        "sha256": "79a350a24af5aaa47515c396b737870ab748db0c7e94fa8b90ea79ef23535bb5"
+        "sha256": "99dc9f7f74909a005ecd646cb4b7576f194e3f72ade94c1f791527ccffdd85cd"
       },
       {
         "path": "lib/ibex/codegen/action_locations.rb",
@@ -575,7 +575,7 @@
       },
       {
         "path": "lib/ibex/watch/runner.rb",
-        "sha256": "0011eab3c3d059e4f89048e12b934984ecbe031aa1c9d023821cf8807af418e9"
+        "sha256": "901d0a01fa727a6ca6a3dc64deef6fe7716cc166a0dda34e5b321237bed21556"
       },
       {
         "path": "lib/ibex/watch/source_snapshot.rb",
