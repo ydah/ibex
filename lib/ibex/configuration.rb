@@ -155,25 +155,19 @@ module Ibex
       attr_reader :key #: Key
       attr_reader :value #: config_value
       attr_reader :origin #: Origin
-      attr_reader :explicit #: bool
-      attr_reader :canonical #: bool
       attr_reader :declared_value #: config_value
 
-      # @rbs (Key key, config_value value, origin: Origin, explicit: bool, canonical: bool,
+      # @rbs (Key key, config_value value, origin: Origin,
       #   ?declared_value: config_value | Object) -> void
-      def initialize(key, value, origin:, explicit:, canonical:, declared_value: DECLARED_VALUE_UNSET)
+      def initialize(key, value, origin:, declared_value: DECLARED_VALUE_UNSET)
         raise ArgumentError, "configuration value key must be a Configuration::Key" unless key.is_a?(Key)
         raise ArgumentError, "configuration value origin must be a Configuration::Origin" unless origin.is_a?(Origin)
-        raise ArgumentError, "explicit must be boolean" unless BOOLEAN_VALUES.include?(explicit)
-        raise ArgumentError, "canonical must be boolean" unless BOOLEAN_VALUES.include?(canonical)
 
-        validate_provenance!(key, origin, explicit, canonical, declared_value)
+        validate_provenance!(key, origin, declared_value)
 
         @key = key
         @value = key.validate(value)
         @origin = origin
-        @explicit = explicit
-        @canonical = canonical
         declared = declared_value #: config_value
         @declared_value = declared.equal?(DECLARED_VALUE_UNSET) ? nil : key.validate(declared)
 
@@ -188,10 +182,10 @@ module Ibex
           "owner" => @key.owner_name,
           "policy" => @key.policy.to_s,
           "origin" => @origin.to_h,
-          "explicit" => @explicit,
-          "canonical" => @canonical
+          "explicit" => explicit,
+          "canonical" => canonical
         } #: Hash[String, json_value]
-        unless @canonical
+        unless canonical
           result["analysis"] = {
             "declared" => json_value(@declared_value),
             "selected" => json_value(@value),
@@ -202,23 +196,30 @@ module Ibex
         result
       end
 
-      private
-
-      # @rbs (Key key, Origin origin, bool explicit, bool canonical, config_value | Object declared_value) -> void
-      def validate_provenance!(key, origin, explicit, canonical, declared_value)
-        validate_canonical_origin!(key, origin, canonical)
-        validate_owner_source!(key, origin)
-        validate_explicitness!(origin, explicit)
-        validate_declared_evidence!(canonical, declared_value)
+      # @rbs () -> bool
+      # rubocop:disable Naming/PredicateMethod -- public JSON fields are named explicit/canonical.
+      def explicit
+        @origin.kind != :builtin
       end
 
-      # @rbs (Key key, Origin origin, bool canonical) -> void
-      def validate_canonical_origin!(key, origin, canonical)
-        analysis_override = origin.kind == :analysis_override
-        unless analysis_override == !canonical
-          raise ArgumentError, "analysis_override origin must identify a noncanonical selection"
-        end
-        return if canonical || key.policy == :fixed
+      # @rbs () -> bool
+      def canonical
+        @origin.kind != :analysis_override
+      end
+      # rubocop:enable Naming/PredicateMethod
+
+      private
+
+      # @rbs (Key key, Origin origin, config_value | Object declared_value) -> void
+      def validate_provenance!(key, origin, declared_value)
+        validate_canonical_origin!(key, origin)
+        validate_owner_source!(key, origin)
+        validate_declared_evidence!(origin, declared_value)
+      end
+
+      # @rbs (Key key, Origin origin) -> void
+      def validate_canonical_origin!(key, origin)
+        return unless origin.kind == :analysis_override && key.policy != :fixed
 
         raise ArgumentError, "noncanonical selections are only valid for fixed configuration"
       end
@@ -233,14 +234,9 @@ module Ibex
         raise ArgumentError, "#{key.name} is invocation configuration and cannot be project-owned"
       end
 
-      # @rbs (Origin origin, bool explicit) -> void
-      def validate_explicitness!(origin, explicit)
-        raise ArgumentError, "builtin configuration cannot be explicit" if origin.kind == :builtin && explicit
-        raise ArgumentError, "non-builtin configuration must be explicit" if origin.kind != :builtin && !explicit
-      end
-
-      # @rbs (bool canonical, config_value | Object declared_value) -> void
-      def validate_declared_evidence!(canonical, declared_value)
+      # @rbs (Origin origin, config_value | Object declared_value) -> void
+      def validate_declared_evidence!(origin, declared_value)
+        canonical = origin.kind != :analysis_override
         declared = !declared_value.equal?(DECLARED_VALUE_UNSET)
         raise ArgumentError, "canonical selections cannot carry declared evidence" if canonical && declared
         return if canonical || declared
@@ -389,7 +385,7 @@ module Ibex
       # @rbs (Key key, Hash[Symbol, Hash[String, config_value]] sources,
       #   Hash[Symbol, Hash[String, Location]] locations) -> Value
       def resolve_key(key, sources, locations)
-        builtin = value_from(key, key.default, :builtin, locations, explicit: false)
+        builtin = value_from(key, key.default, :builtin, locations)
         selected = case key.policy
                    when :fixed then resolve_fixed(key, builtin, sources, locations)
                    when :minimum then resolve_minimum(key, builtin, sources, locations)
@@ -404,10 +400,7 @@ module Ibex
         end
 
         selected_origin = origin(:analysis_override, key.name, locations)
-        Value.new(
-          key, override.fetch(key.name), origin: selected_origin,
-                                         explicit: true, canonical: false, declared_value: selected.value
-        )
+        Value.new(key, override.fetch(key.name), origin: selected_origin, declared_value: selected.value)
       end
 
       # @rbs (Key key, Value builtin, Hash[Symbol, Hash[String, config_value]] sources,
@@ -471,15 +464,12 @@ module Ibex
         entries = sources.fetch(kind)
         return unless entries.key?(key.name)
 
-        value_from(key, entries.fetch(key.name), kind, locations, explicit: true)
+        value_from(key, entries.fetch(key.name), kind, locations)
       end
 
-      # @rbs (Key key, config_value raw, Symbol kind, Hash[Symbol, Hash[String, Location]] locations,
-      #   explicit: bool) -> Value
-      def value_from(key, raw, kind, locations, explicit:)
-        Value.new(
-          key, raw, origin: origin(kind, key.name, locations), explicit: explicit, canonical: true
-        )
+      # @rbs (Key key, config_value raw, Symbol kind, Hash[Symbol, Hash[String, Location]] locations) -> Value
+      def value_from(key, raw, kind, locations)
+        Value.new(key, raw, origin: origin(kind, key.name, locations))
       end
 
       # @rbs (Symbol kind, String name, Hash[Symbol, Hash[String, Location]] locations) -> Origin

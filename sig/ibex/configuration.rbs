@@ -96,29 +96,26 @@ module Ibex
 
       attr_reader declared_value: config_value
 
-      # @rbs (Key key, config_value value, origin: Origin, explicit: bool, canonical: bool,
+      # @rbs (Key key, config_value value, origin: Origin,
       #   ?declared_value: config_value | Object) -> void
-      def initialize: (Key key, config_value value, origin: Origin, explicit: bool, canonical: bool, ?declared_value: config_value | Object) -> void
+      def initialize: (Key key, config_value value, origin: Origin, ?declared_value: config_value | Object) -> void
 
       # @rbs () -> Hash[String, json_value]
       def to_h: () -> Hash[String, json_value]
 
       private
 
-      # @rbs (Key key, Origin origin, bool explicit, bool canonical, config_value | Object declared_value) -> void
-      def validate_provenance!: (Key key, Origin origin, bool explicit, bool canonical, config_value | Object declared_value) -> void
+      # @rbs (Key key, Origin origin, config_value | Object declared_value) -> void
+      def validate_provenance!: (Key key, Origin origin, config_value | Object declared_value) -> void
 
-      # @rbs (Key key, Origin origin, bool canonical) -> void
-      def validate_canonical_origin!: (Key key, Origin origin, bool canonical) -> void
+      # @rbs (Key key, Origin origin) -> void
+      def validate_canonical_origin!: (Key key, Origin origin) -> void
 
       # @rbs (Key key, Origin origin) -> void
       def validate_owner_source!: (Key key, Origin origin) -> void
 
-      # @rbs (Origin origin, bool explicit) -> void
-      def validate_explicitness!: (Origin origin, bool explicit) -> void
-
-      # @rbs (bool canonical, config_value | Object declared_value) -> void
-      def validate_declared_evidence!: (bool canonical, config_value | Object declared_value) -> void
+      # @rbs (Origin origin, config_value | Object declared_value) -> void
+      def validate_declared_evidence!: (Origin origin, config_value | Object declared_value) -> void
 
       # @rbs (config_value value) -> (String | Integer | bool | nil)
       def json_value: (config_value value) -> (String | Integer | bool | nil)

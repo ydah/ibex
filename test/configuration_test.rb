@@ -168,34 +168,26 @@ class ConfigurationTest < Minitest::Test # rubocop:disable Metrics/ClassLength -
     builtin = Configuration::Origin.new(:builtin)
 
     assert_raises(ArgumentError) do
-      Configuration::Value.new("parser.algorithm", :lalr, origin: builtin, explicit: false, canonical: true)
+      Configuration::Value.new("parser.algorithm", :lalr, origin: builtin)
     end
     assert_raises(ArgumentError) do
-      Configuration::Value.new(key, :lalr, origin: :builtin, explicit: false, canonical: true)
-    end
-    assert_raises(ArgumentError) do
-      Configuration::Value.new(key, :lalr, origin: builtin, explicit: "no", canonical: true)
-    end
-    assert_raises(ArgumentError) do
-      Configuration::Value.new(key, :lalr, origin: builtin, explicit: false, canonical: nil)
+      Configuration::Value.new(key, :lalr, origin: :builtin)
     end
   end
 
-  def test_value_constructor_rejects_incoherent_origin_and_explicitness
-    key = Configuration::Registry.fetch("parser.algorithm")
-    builtin = Configuration::Origin.new(:builtin)
-    cli = Configuration::Origin.new(:cli)
-    override = Configuration::Origin.new(:analysis_override)
+  def test_value_provenance_flags_are_derived_from_origin
+    builtin = Configuration::Resolver.new.fetch("parser.algorithm")
+    cli = Configuration::Resolver.new(cli: { "parser.algorithm" => :lr1 }).fetch("parser.algorithm")
+    override = Configuration::Resolver.new(
+      analysis_overrides: { "parser.algorithm" => :lr1 }
+    ).fetch("parser.algorithm")
 
-    assert_raises(ArgumentError) do
-      Configuration::Value.new(key, :lalr, origin: builtin, explicit: true, canonical: true)
-    end
-    assert_raises(ArgumentError) do
-      Configuration::Value.new(key, :lalr, origin: cli, explicit: false, canonical: true)
-    end
-    assert_raises(ArgumentError) do
-      Configuration::Value.new(key, :lalr, origin: override, explicit: true, canonical: true)
-    end
+    refute builtin.explicit
+    assert builtin.canonical
+    assert cli.explicit
+    assert cli.canonical
+    assert override.explicit
+    refute override.canonical
   end
 
   def test_value_constructor_requires_coherent_declared_evidence
@@ -205,22 +197,22 @@ class ConfigurationTest < Minitest::Test # rubocop:disable Metrics/ClassLength -
 
     assert_raises(ArgumentError) do
       Configuration::Value.new(
-        key, :lr1, origin: cli, explicit: true, canonical: false, declared_value: :lalr
+        key, :lr1, origin: cli, declared_value: :lalr
       )
     end
     assert_raises(ArgumentError) do
-      Configuration::Value.new(key, :lr1, origin: override, explicit: true, canonical: false)
+      Configuration::Value.new(key, :lr1, origin: override)
     end
     assert_raises(ArgumentError) do
       Configuration::Value.new(
-        key, :lalr, origin: cli, explicit: true, canonical: true, declared_value: nil
+        key, :lalr, origin: cli, declared_value: nil
       )
     end
 
     build_key = Configuration::Registry.fetch("table.representation")
     assert_raises(ArgumentError) do
       Configuration::Value.new(
-        build_key, :plain, origin: override, explicit: true, canonical: false, declared_value: :compact
+        build_key, :plain, origin: override, declared_value: :compact
       )
     end
   end
@@ -239,7 +231,7 @@ class ConfigurationTest < Minitest::Test # rubocop:disable Metrics/ClassLength -
     build_key = Configuration::Registry.fetch("table.representation")
     assert_raises(ArgumentError) do
       Configuration::Value.new(
-        build_key, :plain, origin: Configuration::Origin.new(:grammar), explicit: true, canonical: true
+        build_key, :plain, origin: Configuration::Origin.new(:grammar)
       )
     end
 
@@ -249,7 +241,7 @@ class ConfigurationTest < Minitest::Test # rubocop:disable Metrics/ClassLength -
     )
     assert_raises(ArgumentError) do
       Configuration::Value.new(
-        invocation_key, :quiet, origin: Configuration::Origin.new(:project), explicit: true, canonical: true
+        invocation_key, :quiet, origin: Configuration::Origin.new(:project)
       )
     end
     assert_raises(ArgumentError) do
