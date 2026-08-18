@@ -18,7 +18,6 @@ module Ibex
       project_build: "project-build",
       invocation: "invocation"
     }.freeze #: Hash[Symbol, String]
-    POLICIES = %i[fixed minimum build invocation].freeze #: Array[Symbol]
     ORIGIN_KINDS = %i[builtin grammar project cli analysis_override].freeze #: Array[Symbol]
     BOOLEAN_VALUES = [true, false].freeze #: Array[bool]
     DECLARED_VALUE_UNSET = Object.new.freeze #: Object
@@ -37,16 +36,16 @@ module Ibex
       attr_reader :allowed_values #: Array[config_value]?
       attr_reader :cli_option #: Symbol?
 
-      # @rbs (String name, type: Symbol, default: config_value, owner: Symbol, policy: Symbol,
+      # @rbs (String name, type: Symbol, default: config_value, owner: Symbol,
       #   ?allowed_values: Array[config_value]?, ?cli_option: Symbol?) -> void
-      def initialize(name, type:, default:, owner:, policy:, allowed_values: nil, cli_option: nil)
-        validate_identity!(name, owner, policy)
-        validate_shape!(type, policy, cli_option)
+      def initialize(name, type:, default:, owner:, allowed_values: nil, cli_option: nil)
+        validate_identity!(name, owner)
 
         @name = name.dup.freeze
         @type = type
         @owner = owner
-        @policy = policy
+        @policy = OWNER_POLICIES.fetch(owner)
+        validate_shape!(type, cli_option)
         @allowed_values = allowed_values&.map { |value| immutable(value) }&.freeze
         @cli_option = cli_option
         @default = validate(default)
@@ -73,21 +72,17 @@ module Ibex
 
       private
 
-      # @rbs (String name, Symbol owner, Symbol policy) -> void
-      def validate_identity!(name, owner, policy)
+      # @rbs (String name, Symbol owner) -> void
+      def validate_identity!(name, owner)
         valid_name = name.is_a?(String) && name.match?(/\A[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+\z/)
         raise ArgumentError, "invalid canonical configuration key: #{name.inspect}" unless valid_name
         raise ArgumentError, "unknown configuration owner: #{owner.inspect}" unless OWNER_NAMES.key?(owner)
-        raise ArgumentError, "unknown configuration policy: #{policy.inspect}" unless POLICIES.include?(policy)
-        return if OWNER_POLICIES.fetch(owner) == policy
-
-        raise ArgumentError, "#{owner} configuration must use #{OWNER_POLICIES.fetch(owner)} policy"
       end
 
-      # @rbs (Symbol type, Symbol policy, Symbol? cli_option) -> void
-      def validate_shape!(type, policy, cli_option)
+      # @rbs (Symbol type, Symbol? cli_option) -> void
+      def validate_shape!(type, cli_option)
         raise ArgumentError, "cli_option must be a Symbol or nil" unless cli_option.nil? || cli_option.is_a?(Symbol)
-        return unless policy == :minimum && type != :integer
+        return unless @policy == :minimum && type != :integer
 
         raise ArgumentError, "minimum configuration keys must have Integer values"
       end
@@ -281,29 +276,29 @@ module Ibex
     # Closed definitions shared by generation, grammar tests, and analyses.
     module Registry
       DEFINITIONS = [
-        Key.new("grammar.mode", type: :symbol, default: :default, owner: :grammar_contract, policy: :fixed,
+        Key.new("grammar.mode", type: :symbol, default: :default, owner: :grammar_contract,
                                 allowed_values: %i[default extended], cli_option: :mode),
-        Key.new("parser.algorithm", type: :symbol, default: :lalr, owner: :grammar_contract, policy: :fixed,
+        Key.new("parser.algorithm", type: :symbol, default: :lalr, owner: :grammar_contract,
                                     allowed_values: %i[slr lalr ielr lr1], cli_option: :algorithm),
-        Key.new("parser.entries", type: :symbol, default: :shared, owner: :grammar_contract, policy: :fixed,
+        Key.new("parser.entries", type: :symbol, default: :shared, owner: :grammar_contract,
                                   allowed_values: %i[shared isolated], cli_option: :entry_isolation),
-        Key.new("cst.trivia", type: :symbol, default: :leading, owner: :grammar_contract, policy: :fixed,
+        Key.new("cst.trivia", type: :symbol, default: :leading, owner: :grammar_contract,
                               allowed_values: %i[leading balanced drop], cli_option: :cst_trivia),
-        Key.new("parser.superclass", type: :optional_string, default: nil, owner: :grammar_contract, policy: :fixed,
+        Key.new("parser.superclass", type: :optional_string, default: nil, owner: :grammar_contract,
                                      cli_option: :superclass),
         Key.new("actions.omit_calls", type: :optional_boolean, default: nil, owner: :grammar_contract,
-                                      policy: :fixed, cli_option: :omit_actions),
-        Key.new("table.representation", type: :symbol, default: :compact, owner: :project_build, policy: :build,
+                                      cli_option: :omit_actions),
+        Key.new("table.representation", type: :symbol, default: :compact, owner: :project_build,
                                         allowed_values: %i[plain compact], cli_option: :table),
-        Key.new("runtime.embedded", type: :boolean, default: false, owner: :project_build, policy: :build,
+        Key.new("runtime.embedded", type: :boolean, default: false, owner: :project_build,
                                     cli_option: :embedded),
-        Key.new("build.debug", type: :boolean, default: false, owner: :project_build, policy: :build,
+        Key.new("build.debug", type: :boolean, default: false, owner: :project_build,
                                cli_option: :debug),
-        Key.new("source.line_mapping", type: :symbol, default: :actions, owner: :project_build, policy: :build,
+        Key.new("source.line_mapping", type: :symbol, default: :actions, owner: :project_build,
                                        allowed_values: %i[actions all none], cli_option: :line_convert),
-        Key.new("build.frozen_strings", type: :boolean, default: false, owner: :project_build, policy: :build,
+        Key.new("build.frozen_strings", type: :boolean, default: false, owner: :project_build,
                                         cli_option: :frozen),
-        Key.new("build.executable", type: :optional_string, default: nil, owner: :project_build, policy: :build,
+        Key.new("build.executable", type: :optional_string, default: nil, owner: :project_build,
                                     cli_option: :executable)
       ].freeze #: Array[Key]
       BY_NAME = DEFINITIONS.to_h { |key| [key.name, key] }.freeze #: Hash[String, Key]

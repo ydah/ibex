@@ -84,7 +84,7 @@ class ConfigurationTest < Minitest::Test # rubocop:disable Metrics/ClassLength -
   def test_minimum_merge_strengthens_and_rejects_weakening
     key = Configuration::Key.new(
       "test.production_coverage", type: :integer, default: 0,
-                                  owner: :grammar_minimum, policy: :minimum
+                                  owner: :grammar_minimum
     )
     configuration = Configuration::Resolver.new(
       keys: [key], grammar: { key.name => 60 }, project: { key.name => 70 }, cli: { key.name => 80 }
@@ -154,11 +154,7 @@ class ConfigurationTest < Minitest::Test # rubocop:disable Metrics/ClassLength -
   def test_invalid_key_and_origin_metadata_are_rejected
     assert_raises(ArgumentError) do
       Configuration::Key.new("Algorithm", type: :symbol, default: :lalr,
-                                          owner: :grammar_contract, policy: :fixed)
-    end
-    assert_raises(ArgumentError) do
-      Configuration::Key.new("parser.valid", type: :symbol, default: :lalr,
-                                             owner: :grammar_contract, policy: :build)
+                                          owner: :grammar_contract)
     end
     assert_raises(ArgumentError) { Configuration::Origin.new(:environment) }
     assert_raises(ArgumentError) { Configuration::Origin.new(:grammar, location: "grammar.y:1:1") }
@@ -249,7 +245,7 @@ class ConfigurationTest < Minitest::Test # rubocop:disable Metrics/ClassLength -
 
     invocation_key = Configuration::Key.new(
       "test.output_mode", type: :symbol, default: :normal,
-                          owner: :invocation, policy: :invocation, allowed_values: %i[normal quiet]
+                          owner: :invocation, allowed_values: %i[normal quiet]
     )
     assert_raises(ArgumentError) do
       Configuration::Value.new(

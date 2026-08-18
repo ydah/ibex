@@ -26,6 +26,7 @@ require_relative "lalr/direct_lookaheads"
 require_relative "lalr/ielr_partition"
 require_relative "lalr/builder"
 require_relative "lalr/unreachable_states"
+# CLIImpact loads its analysis dependencies when the subcommand is selected.
 require_relative "codegen/ruby"
 require_relative "cli/counterexample_options"
 require_relative "cli/generation_error_messages"
