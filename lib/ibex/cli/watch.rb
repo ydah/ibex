@@ -47,7 +47,6 @@ module Ibex
         publish: ->(build, snapshot, continue) { publish_watch_generation(build, snapshot, continue) },
         failure_paths: -> { watch_failure_paths(path) },
         stderr: @stderr,
-        clock: @watch_clock,
         sleeper: @watch_sleeper,
         iteration_hook: @watch_iteration_hook
       ).run

@@ -193,21 +193,21 @@ module Ibex
     # @rbs @generation_automaton: IR::Automaton?
 
     # rubocop:disable Layout/LineLength
-    # @rbs (Array[String] arguments, ?stdin: _CLIInput, ?stdout: _CLIOutput, ?stderr: _CLIOutput, ?watch_clock: (^() -> Float)?, ?watch_sleeper: (^(Float) -> void)?, ?watch_iteration_hook: (^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil))?) -> Integer
-    def self.start(arguments, stdin: $stdin, stdout: $stdout, stderr: $stderr, watch_clock: nil, watch_sleeper: nil,
+    # @rbs (Array[String] arguments, ?stdin: _CLIInput, ?stdout: _CLIOutput, ?stderr: _CLIOutput, ?watch_sleeper: (^(Float) -> void)?, ?watch_iteration_hook: (^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil))?) -> Integer
+    def self.start(arguments, stdin: $stdin, stdout: $stdout, stderr: $stderr, watch_sleeper: nil,
                    watch_iteration_hook: nil)
       new(
-        stdin: stdin, stdout: stdout, stderr: stderr, watch_clock: watch_clock,
+        stdin: stdin, stdout: stdout, stderr: stderr,
         watch_sleeper: watch_sleeper, watch_iteration_hook: watch_iteration_hook
       ).run(arguments)
     end
 
-    # @rbs (?stdin: _CLIInput, stdout: _CLIOutput, stderr: _CLIOutput, ?watch_clock: (^() -> Float)?, ?watch_sleeper: (^(Float) -> void)?, ?watch_iteration_hook: (^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil))?) -> void
-    def initialize(stdout:, stderr:, stdin: $stdin, watch_clock: nil, watch_sleeper: nil, watch_iteration_hook: nil)
+    # @rbs (?stdin: _CLIInput, stdout: _CLIOutput, stderr: _CLIOutput, ?watch_sleeper: (^(Float) -> void)?, ?watch_iteration_hook: (^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil))?) -> void
+    def initialize(stdout:, stderr:, stdin: $stdin, watch_sleeper: nil, watch_iteration_hook: nil)
       @stdin = stdin
       @stdout = stdout
       @stderr = stderr
-      @watch_clock = watch_clock || -> { Process.clock_gettime(Process::CLOCK_MONOTONIC) }
+      # Watch debounce is sleeper-driven; no clock is injected.
       @watch_sleeper = watch_sleeper || ->(seconds) { sleep(seconds) }
       @watch_iteration_hook = watch_iteration_hook || ->(_event, _iteration, _paths) {}
       @language = Messages.language(ENV.fetch("IBEX_LANG", nil))

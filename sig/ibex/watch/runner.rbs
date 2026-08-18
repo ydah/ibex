@@ -19,8 +19,8 @@ module Ibex
       DEFAULT_DEBOUNCE: Float
 
       # rubocop:disable Layout/LineLength
-      # @rbs (paths: Array[String], build: ^() -> _BuildResult, publish: ^(_BuildResult, SourceSnapshot, ^() -> bool) -> void, failure_paths: ^() -> Array[String], stderr: _Output, clock: ^() -> Float, sleeper: ^(Float) -> void, iteration_hook: ^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil), ?interval: Float, ?debounce: Float) -> void
-      def initialize: (paths: Array[String], build: ^() -> _BuildResult, publish: ^(_BuildResult, SourceSnapshot, ^() -> bool) -> void, failure_paths: ^() -> Array[String], stderr: _Output, clock: ^() -> Float, sleeper: ^(Float) -> void, iteration_hook: ^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil), ?interval: Float, ?debounce: Float) -> void
+      # @rbs (paths: Array[String], build: ^() -> _BuildResult, publish: ^(_BuildResult, SourceSnapshot, ^() -> bool) -> void, failure_paths: ^() -> Array[String], stderr: _Output, sleeper: ^(Float) -> void, iteration_hook: ^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil), ?interval: Float, ?debounce: Float) -> void
+      def initialize: (paths: Array[String], build: ^() -> _BuildResult, publish: ^(_BuildResult, SourceSnapshot, ^() -> bool) -> void, failure_paths: ^() -> Array[String], stderr: _Output, sleeper: ^(Float) -> void, iteration_hook: ^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil), ?interval: Float, ?debounce: Float) -> void
 
       # @rbs () -> Integer
       def run: () -> Integer

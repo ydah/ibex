@@ -18,8 +18,8 @@ module Ibex
       DEFAULT_DEBOUNCE = 0.05 #: Float
 
       # rubocop:disable Layout/LineLength
-      # @rbs (paths: Array[String], build: ^() -> _BuildResult, publish: ^(_BuildResult, SourceSnapshot, ^() -> bool) -> void, failure_paths: ^() -> Array[String], stderr: _Output, clock: ^() -> Float, sleeper: ^(Float) -> void, iteration_hook: ^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil), ?interval: Float, ?debounce: Float) -> void
-      def initialize(paths:, build:, publish:, failure_paths:, stderr:, clock:, sleeper:, iteration_hook:,
+      # @rbs (paths: Array[String], build: ^() -> _BuildResult, publish: ^(_BuildResult, SourceSnapshot, ^() -> bool) -> void, failure_paths: ^() -> Array[String], stderr: _Output, sleeper: ^(Float) -> void, iteration_hook: ^(Symbol, Integer, Array[String]) -> (Integer | Symbol | nil), ?interval: Float, ?debounce: Float) -> void
+      def initialize(paths:, build:, publish:, failure_paths:, stderr:, sleeper:, iteration_hook:,
                      interval: DEFAULT_INTERVAL, debounce: DEFAULT_DEBOUNCE)
         @fixed_paths = normalize_paths(paths)
         @successful_paths = [] #: Array[String]
@@ -28,7 +28,6 @@ module Ibex
         @publish = publish
         @failure_paths = failure_paths
         @stderr = stderr
-        @clock = clock
         @sleeper = sleeper
         @iteration_hook = iteration_hook
         @interval = interval
@@ -114,7 +113,6 @@ module Ibex
       # @rbs (SourceSnapshot changed) -> SourceSnapshot
       def debounce(changed)
         loop do
-          @clock.call
           @sleeper.call(@debounce)
           return changed if @signal_status
 

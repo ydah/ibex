@@ -209,7 +209,6 @@ class CLIWatchTest < Minitest::Test
       ["--watch", *arguments],
       stdout: StringIO.new,
       stderr: stderr,
-      watch_clock: -> { 0.0 },
       watch_sleeper: sleeper,
       watch_iteration_hook: hook
     )

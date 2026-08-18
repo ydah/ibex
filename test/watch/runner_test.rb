@@ -136,7 +136,6 @@ class WatchRunnerTest < Minitest::Test
       publish: publish,
       failure_paths: -> { [path] },
       stderr: stderr,
-      clock: -> { 0.0 },
       sleeper: sleeper,
       iteration_hook: hook
     )
