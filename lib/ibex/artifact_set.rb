@@ -22,42 +22,12 @@ module Ibex
   end
 
   # A generation's rendered outputs before any target is changed.
-  class ArtifactSet
-    # @rbs! include Enumerable[Artifact]
-    # @rbs skip
-    include Enumerable
-
-    # @rbs () -> void
-    def initialize
-      @artifacts = [] #: Array[Artifact]
-    end
-
+  class ArtifactSet < Array
     # @rbs (kind: Symbol, path: String, content: String, ?mode: Integer?) -> Artifact
     def add(kind:, path:, content:, mode: nil)
       artifact = Artifact.new(kind: kind, path: path, content: content, mode: mode)
-      @artifacts << artifact
+      self << artifact
       artifact
-    end
-
-    # @rbs!
-    #   def each: () -> Enumerator[Artifact, ArtifactSet]
-    #           | () { (Artifact) -> void } -> ArtifactSet
-    # @rbs skip
-    def each(&block)
-      return enum_for(:each) unless block
-
-      @artifacts.each(&block)
-      self
-    end
-
-    # @rbs () -> Array[Artifact]
-    def to_a
-      @artifacts.dup
-    end
-
-    # @rbs () -> bool
-    def empty?
-      @artifacts.empty?
     end
   end
 end

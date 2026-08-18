@@ -16,22 +16,10 @@ module Ibex
   end
 
   # A generation's rendered outputs before any target is changed.
-  class ArtifactSet
-    include Enumerable[Artifact]
-
-    # @rbs () -> void
-    def initialize: () -> void
+  class ArtifactSet < Array[Artifact]
 
     # @rbs (kind: Symbol, path: String, content: String, ?mode: Integer?) -> Artifact
     def add: (kind: Symbol, path: String, content: String, ?mode: Integer?) -> Artifact
 
-    def each: () -> Enumerator[Artifact, ArtifactSet]
-            | () { (Artifact) -> void } -> ArtifactSet
-
-    # @rbs () -> Array[Artifact]
-    def to_a: () -> Array[Artifact]
-
-    # @rbs () -> bool
-    def empty?: () -> bool
   end
 end
