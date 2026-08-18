@@ -122,6 +122,7 @@ module Ibex
           lines << Runtime::EmbeddedSource.render
         elsif @runtime_require
           lines << "require #{@runtime_require.inspect}"
+          lines << 'require "ibex/runtime/cst"' if cst?
         end
         lines << ""
       end

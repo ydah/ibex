@@ -8,6 +8,8 @@ require_relative "location"
 module Ibex
   # Typed, provenance-preserving effective configuration.
   module Configuration
+    autoload :AnalysisGrammar, File.join(__dir__, "configuration/analysis_grammar")
+
     # @rbs!
     #   type config_value = Symbol | String | Integer | bool | nil
     #   type json_value = String | Integer | bool | nil | Array[json_value] | Hash[String, json_value]
