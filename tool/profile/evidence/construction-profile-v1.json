@@ -20,14 +20,11 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "e3843fbac6632175d2cb33b98587d67bc49d1c3f",
+    "base_revision": "9a86659af823f0b2d5a9f42c5e1ed96ea8df5672",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
-    "capture_worktree_clean": false,
-    "capture_worktree_status": [
-      " M docs/registry/maturity.yml",
-      " M tool/quality/maturity_authority.rb"
-    ],
-    "capture_worktree_status_sha256": "08a70cb85c72cb90786dad40f6bc09ddbf1e3aa64dd6763d75be96c1d83f370b",
+    "capture_worktree_clean": true,
+    "capture_worktree_status": [],
+    "capture_worktree_status_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
     "bound_paths": [
       {
         "path": ".github/workflows/main.yml",
@@ -62,8 +59,8 @@
       {
         "path": "docs/registry/maturity.yml",
         "sha256": "bb85d7f3689578ad4220ed5a6e1f3bf0813074113091ecbd01c39084f754fd95",
-        "git_state": "modified",
-        "base_sha256": "ee4972819874d09d4e3f0730d0be6ba8b302e2f966561502f487975dedf70f1a"
+        "git_state": "base",
+        "base_sha256": "bb85d7f3689578ad4220ed5a6e1f3bf0813074113091ecbd01c39084f754fd95"
       },
       {
         "path": "lib/ibex/analysis/digraph.rb",
@@ -276,7 +273,7 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "f443ccb090b50bb4670685760e739abe3f57ba0eaf101ad6295c31d65ca1c31e",
+    "bound_paths_sha256": "3c0f860d1ac6c77c927c065ce4231657156bd194e4c01bebf0df1c6c417fcd13",
     "implementation_sha256": "91160673bb0d540a738a698781b283d332729c5afafee6a601b14928b1ed3239",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
@@ -420,7 +417,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001284,
+                  "value": 0.001268,
                   "release_gate": false
                 }
               },
@@ -521,7 +518,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.006766,
+                  "value": 0.004156,
                   "release_gate": false
                 }
               },
@@ -645,7 +642,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000776,
+                  "value": 0.002935,
                   "release_gate": false
                 }
               },
@@ -746,7 +743,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001524,
+                  "value": 0.001744,
                   "release_gate": false
                 }
               },
@@ -870,7 +867,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000567,
+                  "value": 0.000621,
                   "release_gate": false
                 }
               },
@@ -971,7 +968,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000743,
+                  "value": 0.000802,
                   "release_gate": false
                 }
               },
@@ -1097,7 +1094,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000472,
+                  "value": 0.000489,
                   "release_gate": false
                 }
               },
@@ -1199,7 +1196,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000528,
+                  "value": 0.000543,
                   "release_gate": false
                 }
               },
@@ -1301,7 +1298,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000366,
+                  "value": 0.000394,
                   "release_gate": false
                 }
               },
@@ -1403,7 +1400,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001497,
+                  "value": 0.000434,
                   "release_gate": false
                 }
               },
@@ -1549,7 +1546,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.01258,
+                  "value": 0.013825,
                   "release_gate": false
                 }
               },
@@ -1650,7 +1647,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.054935,
+                  "value": 0.052807,
                   "release_gate": false
                 }
               },
