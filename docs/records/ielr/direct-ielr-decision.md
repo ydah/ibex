@@ -14,7 +14,7 @@ future value.
 The machine record marks the decision `final_no_go`, its basis
 `repository_evidence`, and its review state `validated`.
 The reviewed evidence date is `2026-08-19` at revision
-`7d3bdc04f6d57242200014aaabefb2af10819d56`. It asserts no signer, consent, or personal
+`18d328979b0f7b5a015f6498528a4cc94ef08beb`. It asserts no signer, consent, or personal
 decision attribution.
 
 The closed machine record is
@@ -104,21 +104,21 @@ future direct IELR design must remain independent; GPL implementation source mus
 
 The machine dossier binds the evidence sources by path and SHA-256. It also binds:
 
-- H005 capture base revision `9a86659af823f0b2d5a9f42c5e1ed96ea8df5672`;
-- H005 bound-path digest `3c0f860d1ac6c77c927c065ce4231657156bd194e4c01bebf0df1c6c417fcd13`;
+- H005 capture base revision `4c595b006e14acf64d6f1f1def43bf0cee730cd9`;
+- H005 bound-path digest `898c3529b4a4e318d718a1641b1f8530f4208e72179f0c8748fe6a4b3358b81e`;
 - H005 implementation digest `91160673bb0d540a738a698781b283d332729c5afafee6a601b14928b1ed3239`;
 - V001 revision `f9d2c54eb4b27fc5ffe798bb0b29d038d97ee35c`.
 
 | Source ID | Path | Role | SHA-256 |
 | --- | --- | --- | --- |
 | `h005-human-report` | `docs/records/profiles/construction-profiling.md` | H005 thresholds, observations, NO-GO rationale, and reconsideration evidence | `e69e88b9a474fb07b30d1e29a353e0d80edcced7d538b9ca3cf47413d087034c` |
-| `h005-machine-evidence` | `tool/profile/evidence/construction-profile-v1.json` | machine-readable workload measurements, thresholds, decision, and capture provenance | `455eda380089f5599c8921727f655a9476f4ab6073ce56edcabbbefa28a777dc` |
+| `h005-machine-evidence` | `tool/profile/evidence/construction-profile-v1.json` | machine-readable workload measurements, thresholds, decision, and capture provenance | `96c6bc2cf39048c4c6719e90e090272f528cdd5344ebc6281db9da6ecdd3b46b` |
 | `h005-evidence-schema` | `schema/construction-profile-v1.schema.json` | closed H005 evidence contract | `0cdac1514e965800701286084c18411a190ac424527ebf9de2163cbc204b4462` |
 | `v001-trust-boundary` | `docs/policy/verifier-trust-boundary.md` | verifier reference cost, assurance boundary, and explicit IELR non-goals | `7615c078e856bad5b3b8b6606b39dc1b35fedc385da5ab7bbecd1c71b1376b93` |
 | `v001-reference-collection` | `lib/ibex/verify/reference_collection.rb` | independent reference collection implementation reviewed by V001 | `d07e900652c61ddd942380d49edce0a3c811605cd82490c1e0e6db54010746fb` |
 | `v001-verifier` | `lib/ibex/verify/verifier.rb` | current verifier checks reviewed by V001 | `934ae84111581d2edd4230b06733f259bbf72839042a67c62d20558973af2e2e` |
 
-Aggregate source-list digest: `626c070313ad747eaf9cf6b4a80f251d03d362253babce4d30f9e5574795c907`.
+Aggregate source-list digest: `ec0cfbddc45dd03bf7d53d4918119a820c802d9a6bf33837d8886848628085e6`.
 
 Exact reviewed history is part of the evidence contract. A shallow checkout
 that omits the decision or V001 revision fails closed with an unavailable
