@@ -12,8 +12,8 @@ module Ibex
     class DirectIELRProvenance
       DOSSIER_REVISION = "c31c3409c78fcba8e01f9d0f2c95010c3e02c328"
       DOSSIER_PATH = "tool/quality/evidence/direct-ielr-decision-v1.json"
-      DOSSIER_DIGEST = "e53d4903bcf539f93653c8e5e55f10fa1338957c9be639f8f4b57316707735e0"
-      DECISION_REVISION = "18d328979b0f7b5a015f6498528a4cc94ef08beb"
+      DOSSIER_DIGEST = "bbe89c714f12c44e2e857554492b28d778ff7b6808cfe0eaa8d82192752dec59"
+      DECISION_REVISION = "5c569ceaf06e9fb217ea5211194d605bbbc3e2ff"
       DECISION_DATE = "2026-08-19"
       DECISION_REVISION_ROLE = "reviewed repository evidence immediately before dossier publication"
       V001_REVISION = "f9d2c54eb4b27fc5ffe798bb0b29d038d97ee35c"
