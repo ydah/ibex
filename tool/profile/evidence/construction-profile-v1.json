@@ -20,20 +20,14 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "4bc23a1d9e8169ef0b5c9bc813772cf1ee171978",
+    "base_revision": "e3843fbac6632175d2cb33b98587d67bc49d1c3f",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": false,
     "capture_worktree_status": [
-      " M docs/records/error-ux/round2-v1.json",
-      " M lib/ibex/cli.rb",
-      " M lib/ibex/ir/automaton_ir.rb",
-      " M lib/ibex/ir/grammar_ir.rb",
-      " M lib/ibex/ir/lexer_ir.rb",
-      " M lib/ibex/runtime/embedded_source.rb",
-      " M lib/ibex/runtime/parser.rb",
-      " M test/runtime/parse_session_state_test.rb"
+      " M docs/registry/maturity.yml",
+      " M tool/quality/maturity_authority.rb"
     ],
-    "capture_worktree_status_sha256": "8ede711170d35214f18436de9784ff4fa803bda7c98aeddc92c49ab561c7e30e",
+    "capture_worktree_status_sha256": "08a70cb85c72cb90786dad40f6bc09ddbf1e3aa64dd6763d75be96c1d83f370b",
     "bound_paths": [
       {
         "path": ".github/workflows/main.yml",
@@ -67,8 +61,8 @@
       },
       {
         "path": "docs/registry/maturity.yml",
-        "sha256": "ee4972819874d09d4e3f0730d0be6ba8b302e2f966561502f487975dedf70f1a",
-        "git_state": "base",
+        "sha256": "bb85d7f3689578ad4220ed5a6e1f3bf0813074113091ecbd01c39084f754fd95",
+        "git_state": "modified",
         "base_sha256": "ee4972819874d09d4e3f0730d0be6ba8b302e2f966561502f487975dedf70f1a"
       },
       {
@@ -282,7 +276,7 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "6928720711b8774139d957776c80d853eb9f0cd2deb0ca8b7d2897a93f92c9a7",
+    "bound_paths_sha256": "f443ccb090b50bb4670685760e739abe3f57ba0eaf101ad6295c31d65ca1c31e",
     "implementation_sha256": "91160673bb0d540a738a698781b283d332729c5afafee6a601b14928b1ed3239",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
@@ -426,7 +420,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001304,
+                  "value": 0.001284,
                   "release_gate": false
                 }
               },
@@ -527,7 +521,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.004251,
+                  "value": 0.006766,
                   "release_gate": false
                 }
               },
@@ -651,7 +645,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000882,
+                  "value": 0.000776,
                   "release_gate": false
                 }
               },
@@ -752,7 +746,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.003958,
+                  "value": 0.001524,
                   "release_gate": false
                 }
               },
@@ -876,7 +870,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000646,
+                  "value": 0.000567,
                   "release_gate": false
                 }
               },
@@ -977,7 +971,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000821,
+                  "value": 0.000743,
                   "release_gate": false
                 }
               },
@@ -1103,7 +1097,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000531,
+                  "value": 0.000472,
                   "release_gate": false
                 }
               },
@@ -1205,7 +1199,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000563,
+                  "value": 0.000528,
                   "release_gate": false
                 }
               },
@@ -1307,7 +1301,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000401,
+                  "value": 0.000366,
                   "release_gate": false
                 }
               },
@@ -1409,7 +1403,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000431,
+                  "value": 0.001497,
                   "release_gate": false
                 }
               },
@@ -1555,7 +1549,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.013071,
+                  "value": 0.01258,
                   "release_gate": false
                 }
               },
@@ -1656,7 +1650,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.05328,
+                  "value": 0.054935,
                   "release_gate": false
                 }
               },

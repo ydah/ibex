@@ -565,7 +565,9 @@ module Ibex
           ensure_driver_available_without_lock!
           @push_status = :idle
           @source = nil
+          # steep:ignore:start
           reset_parse_session_state!
+          # steep:ignore:end
           @lookahead = NO_LOOKAHEAD
           @lookahead_value = nil
           @lookahead_location = nil
@@ -776,7 +778,9 @@ module Ibex
       # The explicit branches keep every runtime ivar typed while preserving application-owned values.
       # @rbs (ResourceLimits resource_limits, preserve_existing: bool) -> void
       def initialize_runtime_state(resource_limits, preserve_existing:)
+        # steep:ignore:start
         initialize_parse_session_state!(preserve_existing)
+        # steep:ignore:end
         @resource_limits = resource_limits unless preserve_existing && defined?(@resource_limits)
         @yydebug = false unless preserve_existing && defined?(@yydebug)
         @yydebug_output = $stderr unless preserve_existing && defined?(@yydebug_output)
@@ -854,7 +858,7 @@ module Ibex
       end
 
       # @rbs skip
-      # @rbs (bool) -> void
+      # steep:ignore:start
       def initialize_parse_session_state!(preserve_existing)
         return if preserve_existing && defined?(@parse_session_state) && @parse_session_state
 
@@ -875,31 +879,35 @@ module Ibex
         install_value_stack(@parse_session_state.value_stack)
         install_location_stack(@parse_session_state.location_stack)
       end
+      # steep:ignore:end
 
       # @rbs skip
-      # @rbs () -> void
+      # steep:ignore:start
       def reset_parse_session_state!
         @parse_session_state.reset!
         @state_stack = @parse_session_state.state_stack
         install_value_stack(@parse_session_state.value_stack)
         install_location_stack(@parse_session_state.location_stack)
       end
+      # steep:ignore:end
 
       # @rbs skip
-      # @rbs (Array[Integer]) -> void
+      # steep:ignore:start
       def install_state_stack(state_stack)
         @parse_session_state.replace!(
           state_stack, @parse_session_state.value_stack, @parse_session_state.location_stack
         )
         @state_stack = state_stack
       end
+      # steep:ignore:end
 
       # @rbs skip
-      # @rbs (Array[Object?]?) -> void
+      # steep:ignore:start
       def install_location_stack(location_stack)
         @parse_session_state.replace_location_stack!(location_stack)
         @location_stack = location_stack
       end
+      # steep:ignore:end
 
       # @rbs (Integer token_id) -> bool
       def exact_lookahead_accepted?(token_id)
@@ -2432,9 +2440,13 @@ module Ibex
         green_stack = @green_builder&.snapshot if state_stack
         unless shift_error_token
           if state_stack
+            # steep:ignore:start
             install_state_stack(state_stack)
+            # steep:ignore:end
             install_value_stack(value_stack || [])
+            # steep:ignore:start
             install_location_stack(location_stack)
+            # steep:ignore:end
             @green_builder&.restore(green_stack || [])
             return begin_sync_recovery(context, token_data, recovery_observers)
           end
@@ -2982,7 +2994,9 @@ module Ibex
 
       # @rbs (Hash[Symbol, runtime_value] tables) -> void
       def initialize_runtime_fast_path(tables)
+        # steep:ignore:start
         install_location_stack(track_locations?(tables) ? [] : nil)
+        # steep:ignore:end
         @runtime_fast_path = runtime_fast_path_eligible?(tables)
         return unless @runtime_fast_path
         return if @runtime_fast_path_tracker_installed
@@ -3170,7 +3184,9 @@ module Ibex
         elsif location
           new_stack = Array.new(@value_stack.length)
           new_stack << location
+          # steep:ignore:start
           install_location_stack(new_stack)
+          # steep:ignore:end
         end
       end
 

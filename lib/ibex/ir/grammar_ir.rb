@@ -10,27 +10,21 @@ module Ibex
     SCHEMA_VERSION = 1
     SUPPORTED_SCHEMA_VERSIONS = [SCHEMA_VERSION].freeze #: Array[Integer]
 
-    # @rbs skip
+    # Public IR constructors own their containers; callers keep ownership of
+    # the values they pass in while the IR remains deeply immutable.
     # @rbs (Object? value) -> Object?
-    def copy_and_freeze(value)
+    def deep_freeze(value)
       case value
       when String
         value.dup.freeze
       when Array
-        value.map { |item| copy_and_freeze(item) }.freeze
+        value.map { |item| deep_freeze(item) }.freeze
       when Hash
-        value.to_h { |key, item| [copy_and_freeze(key), copy_and_freeze(item)] }.freeze
+        value.to_h { |key, item| [deep_freeze(key), deep_freeze(item)] }.freeze
       else
         value.freeze
       end
     end
-    module_function :copy_and_freeze
-    private_class_method :copy_and_freeze
-
-    # Public IR constructors own their containers; callers keep ownership of
-    # the values they pass in while the IR remains deeply immutable.
-    # @rbs (Object? value) -> Object?
-    def deep_freeze(value) = copy_and_freeze(value)
     module_function :deep_freeze
 
     # An interned terminal or nonterminal.
