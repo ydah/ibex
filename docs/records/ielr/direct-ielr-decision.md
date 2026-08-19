@@ -14,7 +14,7 @@ future value.
 The machine record marks the decision `final_no_go`, its basis
 `repository_evidence`, and its review state `validated`.
 The reviewed evidence date is `2026-08-19` at revision
-`9a86659af823f0b2d5a9f42c5e1ed96ea8df5672`. It asserts no signer, consent, or personal
+`7d3bdc04f6d57242200014aaabefb2af10819d56`. It asserts no signer, consent, or personal
 decision attribution.
 
 The closed machine record is
