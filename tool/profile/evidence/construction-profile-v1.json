@@ -20,24 +20,13 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "f6eb7dcbf6da0bf1ae126d024bf0839d04e6fefe",
+    "base_revision": "98caaf795dbd64a6b58bcb942d6353313044bde1",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": false,
     "capture_worktree_status": [
-      " M README.md",
-      " M docs/records/error-ux/round2-review-status-v1.json",
-      " M docs/records/error-ux/round2-v1.json",
-      " M docs/registry/maturity.yml",
-      " M lib/ibex/cli.rb",
-      " M lib/ibex/cli/fix.rb",
-      " M sig/ibex/cli.rbs",
-      " M sig/ibex/cli/fix.rbs",
-      " M test/fixtures/configuration/options-v1.yml",
-      " M test/quality/maturity_test.rb",
-      " M tool/quality/maturity_authority.rb",
-      " M tool/quality/stable-api-v1.yml"
+      " M test/quality/maturity_test.rb"
     ],
-    "capture_worktree_status_sha256": "f98aa09432830cd64b988f065fb875ccd48e82d2d4dbedab0c012ff602c77152",
+    "capture_worktree_status_sha256": "39cf8d75e6c880e52107c5b11024626a84e6e3201a9dce60332324859beb1ee4",
     "bound_paths": [
       {
         "path": ".github/workflows/main.yml",
@@ -72,8 +61,8 @@
       {
         "path": "docs/registry/maturity.yml",
         "sha256": "ee4972819874d09d4e3f0730d0be6ba8b302e2f966561502f487975dedf70f1a",
-        "git_state": "modified",
-        "base_sha256": "63ec83fb5b854b546c095791659fc3b700fc28d6ef5b68d1f6a2936ef39e0207"
+        "git_state": "base",
+        "base_sha256": "ee4972819874d09d4e3f0730d0be6ba8b302e2f966561502f487975dedf70f1a"
       },
       {
         "path": "lib/ibex/analysis/digraph.rb",
@@ -251,9 +240,9 @@
       },
       {
         "path": "test/quality/maturity_test.rb",
-        "sha256": "dc760b2d73acc1ed032393b68eea0d3d02e63aefd4e732fba30a8ccf0c7f07f0",
+        "sha256": "9d168ca81256ba96ede4c8b377b5a4064f195cac784ea55483df41a925cf842d",
         "git_state": "modified",
-        "base_sha256": "62274f2166f958c5e592f6c866125b05c71ecedb8c8b606af030905dba3bf8c4"
+        "base_sha256": "dc760b2d73acc1ed032393b68eea0d3d02e63aefd4e732fba30a8ccf0c7f07f0"
       },
       {
         "path": "test/support/public_json_schemas.rb",
@@ -286,7 +275,7 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "38e19445b6614c54f924a141d4afb2257f0616971d7545e64a0a1b9f33cc445c",
+    "bound_paths_sha256": "8c01454f02a3aceacbb5cc93542f46cb91dec54fc9c7b5c63abf00bb940d0a81",
     "implementation_sha256": "91160673bb0d540a738a698781b283d332729c5afafee6a601b14928b1ed3239",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
@@ -430,7 +419,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001161,
+                  "value": 0.001096,
                   "release_gate": false
                 }
               },
@@ -531,7 +520,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.005917,
+                  "value": 0.004028,
                   "release_gate": false
                 }
               },
@@ -655,7 +644,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000815,
+                  "value": 0.000775,
                   "release_gate": false
                 }
               },
@@ -756,7 +745,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001504,
+                  "value": 0.003273,
                   "release_gate": false
                 }
               },
@@ -880,7 +869,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.00058,
+                  "value": 0.000576,
                   "release_gate": false
                 }
               },
@@ -981,7 +970,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000768,
+                  "value": 0.000798,
                   "release_gate": false
                 }
               },
@@ -1107,7 +1096,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.00049,
+                  "value": 0.0005,
                   "release_gate": false
                 }
               },
@@ -1209,7 +1198,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000562,
+                  "value": 0.000538,
                   "release_gate": false
                 }
               },
@@ -1311,7 +1300,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000394,
+                  "value": 0.000375,
                   "release_gate": false
                 }
               },
@@ -1413,7 +1402,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000417,
+                  "value": 0.000405,
                   "release_gate": false
                 }
               },
@@ -1559,7 +1548,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.011906,
+                  "value": 0.012037,
                   "release_gate": false
                 }
               },
@@ -1660,7 +1649,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.051037,
+                  "value": 0.051565,
                   "release_gate": false
                 }
               },

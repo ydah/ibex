@@ -141,15 +141,15 @@ class MaturityTest < Minitest::Test
 
     changed = document
     audit = changed.dig("audit", "issue_audits", 0)
-    audit["checked_at"] = "2026-08-19"
+    audit["checked_at"] = "2026-08-20"
     audit["fresh_until"] = "2026-09-05"
     assert_error(changed, "checked_at cannot be in the future")
 
     changed = document
     audit = changed.dig("audit", "issue_audits", 0)
-    audit["checked_at"] = "2026-08-19"
+    audit["checked_at"] = "2026-08-20"
     audit["fresh_until"] = "2026-09-05"
-    assert_error(changed, "checked_at cannot follow the maturity review", today: Date.new(2026, 8, 19))
+    assert_error(changed, "checked_at cannot follow the maturity review", today: Date.new(2026, 8, 20))
 
     changed = document
     changed.dig("audit", "issue_audits", 0, "result")["status"] = "unknown"
