@@ -38,6 +38,8 @@ Metrics/ParameterLists:
   Max: 12
 
 Metrics/PerceivedComplexity:
+  AllowedMethods:
+    - initialize_parse_session_state!
   Max: 10
 
 Style/Documentation:
