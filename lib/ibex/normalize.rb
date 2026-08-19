@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "normalize/declarations"
+require_relative "normalize/context"
 require_relative "normalize/parser_configuration"
 require_relative "normalize/grammar_builder"
 require_relative "normalize/lexer"
@@ -46,6 +47,8 @@ module Ibex
     ].freeze #: Array[String]
     DEFAULT_MAX_PARAMETER_SPECIALIZATIONS = 1_000
     DEFAULT_MAX_INLINE_EXPANSIONS = 10_000
+
+    attr_reader :context #: Normalize::Context
 
     # @rbs @ast: Frontend::AST::Root
     # @rbs @resolution: Frontend::Resolution?
@@ -112,6 +115,7 @@ module Ibex
 
       @ast = ast
       @mode = normalized_mode #: IR::grammar_mode
+      @context = Normalize::Context.new
       @symbols = [] #: Array[IR::GrammarSymbol]
       @symbols_by_name = {} #: Hash[String, IR::GrammarSymbol]
       @productions = [] #: Array[IR::Production]
@@ -130,22 +134,34 @@ module Ibex
 
     # @rbs () -> IR::Grammar
     def normalize
-      read_declarations
-      gather_parameter_templates
-      gather_inline_rules
-      intern_reserved_symbols
-      intern_declared_terminals
-      intern_user_nonterminals
-      parser_contract = normalized_parser_contract
-      normalize_user_productions
-      expand_inline_rules
-      validate_value_printers
-      validate_recovery_declarations
-      validate_grammar
-      build_grammar(parser_contract)
+      phase(:declarations) { read_declarations }
+      phase(:parameter_templates) { gather_parameter_templates }
+      phase(:inline_rules) { gather_inline_rules }
+      phase(:symbols) do
+        intern_reserved_symbols
+        intern_declared_terminals
+        intern_user_nonterminals
+      end
+      parser_contract = phase(:parser_contract) { normalized_parser_contract }
+      phase(:productions) { normalize_user_productions }
+      phase(:expansions) { expand_inline_rules }
+      phase(:validation) do
+        validate_value_printers
+        validate_recovery_declarations
+        validate_grammar
+      end
+      phase(:build) { build_grammar(parser_contract) }
     end
 
     private
+
+    # @rbs (Symbol phase) { () -> untyped } -> untyped
+    def phase(name)
+      @context.begin_phase!(name)
+      result = yield
+      @context.complete_phase!
+      result
+    end
 
     # @rbs (Symbol name, Object value) -> void
     def validate_positive_limit!(name, value)
