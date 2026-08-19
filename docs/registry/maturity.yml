@@ -1927,7 +1927,7 @@ features:
       - { path: lib/ibex/codegen/rbs.rb, sha256: 80dead575a27ed8c4d78d57e7d47bbab815864c474b170ffd3da4411e7c74c4a }
       - { path: lib/ibex/codegen/ruby.rb, sha256: 1461cddffb6487720e4eece6ebd240de3184d0711d2a79fe8b5f52c6f3959009 }
       - { path: lib/ibex/frontend/generated_parser_metadata.rb, sha256: 27fdc65dd639fe8c7766bcaaa6c8e495948405e1e37b49edf042cf9cd34664b7 }
-      - { path: lib/ibex/runtime/parser.rb, sha256: 08ce1015854c82ca0a810f6ee5d84def80cbc83dd474828366080d8caa37349f }
+      - { path: lib/ibex/runtime/parser.rb, sha256: fa6aadd1bd2021d18f0f16f23ec39b86055c5bcd205f5857e5f53a3beffc532d }
 
   - id: ast-generation
     name: AST generation
@@ -3662,7 +3662,7 @@ features:
     sources:
       - { path: lib/ibex/runtime.rb, sha256: b335a81db6515113f16769fa8ff19dedf5f0ab14217ac5234208f68fdbfc913a }
       - { path: lib/ibex/runtime/embedded_source.rb, sha256: 9f4c2df7a3933d72808a8d12f0aeaf1e4998ad83619d6bab50fa35e0d15fcdff }
-      - { path: lib/ibex/runtime/parser.rb, sha256: 08ce1015854c82ca0a810f6ee5d84def80cbc83dd474828366080d8caa37349f }
+      - { path: lib/ibex/runtime/parser.rb, sha256: fa6aadd1bd2021d18f0f16f23ec39b86055c5bcd205f5857e5f53a3beffc532d }
       - { path: lib/ibex/runtime/syntax_session.rb, sha256: f712e97f31ab75e9336e6d09d555adde731935482249aa79d2c184ac73ea0f60 }
       - { path: lib/ibex/runtime/cst/incremental/relexer.rb, sha256: 14157088f33f4517cfe91af7de5fc428bd0f114222b31d3c3ea7ff7ce257dfb3 }
       - { path: lib/ibex/runtime/cst/incremental/session.rb, sha256: 8092f39b1a57d29d89188ec0189923a78063ec9d05cceff300b7158b87afe806 }
