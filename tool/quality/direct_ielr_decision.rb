@@ -105,6 +105,7 @@ module Ibex
         verify_condition_ids!(policy.fetch("no_go_conditions"), NO_GO_CONDITION_IDS, "NO-GO")
         go_satisfied = policy.fetch("go_conditions").any? { |condition| condition.fetch("status") == "satisfied" }
         raise "direct IELR GO condition inventory drift" if go_satisfied
+
         no_go_satisfied = policy.fetch("no_go_conditions").any? { |condition| condition.fetch("status") == "satisfied" }
         raise "NO-GO has no satisfied condition" unless no_go_satisfied
       end
@@ -225,7 +226,6 @@ module Ibex
         gaps = document.fetch("verification_gaps")
         raise "I001 claims unsupported IELR verification" unless gaps.values.all? { |value| value == "not_verified" }
       end
-
     end
   end
 end

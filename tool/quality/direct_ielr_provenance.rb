@@ -43,6 +43,7 @@ module Ibex
         raise "decision date identity drift" unless decision.fetch("date") == DECISION_DATE
         raise "decision revision identity drift" unless decision.fetch("revision") == DECISION_REVISION
         raise "decision revision role drift" unless decision.fetch("revision_role") == DECISION_REVISION_ROLE
+
         decision_revision = document.dig("decision", "revision")
         verify_revision!(decision_revision, "decision")
         verify_dossier_parent!(decision_revision)

@@ -27,7 +27,7 @@ R001: `HOLD` — [`awaiting_independent_review`](docs/evidence/error-ux-review-s
 <!-- r001-review-status:end -->
 
 <!-- type-stats:start -->
-The current whole-library `steep stats` result is 28,554 typed calls and 2,674 untyped calls out of 31,308 (91.2% typed).
+The current whole-library `steep stats` result is 29,958 typed calls and 2,929 untyped calls out of 33,000 (90.8% typed).
 The generated signature tree contains 588 explicit `untyped` occurrences across 44 files.
 <!-- type-stats:end -->
 

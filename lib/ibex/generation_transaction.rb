@@ -233,8 +233,8 @@ module Ibex
     def sync_directory!(directory)
       File.open(directory, File::RDONLY, &:fsync)
     rescue Errno::EINVAL, Errno::ENOTSUP, Errno::EOPNOTSUPP, NotImplementedError => e
-      raise Error,
-            "(generation):1:1: transactional generation requires POSIX directory fsync support for #{directory}: #{e.message}"
+      raise Error, "(generation):1:1: transactional generation requires POSIX directory fsync support for " \
+                   "#{directory}: #{e.message}"
     end
 
     # @rbs () -> void

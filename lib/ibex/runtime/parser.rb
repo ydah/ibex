@@ -859,6 +859,7 @@ module Ibex
 
       # @rbs skip
       # steep:ignore:start
+      # rubocop:disable Metrics/PerceivedComplexity
       def initialize_parse_session_state!(preserve_existing)
         return if preserve_existing && defined?(@parse_session_state) && @parse_session_state
 
@@ -879,6 +880,7 @@ module Ibex
         install_value_stack(@parse_session_state.value_stack)
         install_location_stack(@parse_session_state.location_stack)
       end
+      # rubocop:enable Metrics/PerceivedComplexity
       # steep:ignore:end
 
       # @rbs skip

@@ -45,16 +45,16 @@ module Ibex
         <<~MARKDOWN
           # Direct IELR decision dossier
 
-          I001 is **#{decision.fetch("value")}** for release promotion. An experimental direct IELR
+          I001 is **#{decision.fetch('value')}** for release promotion. An experimental direct IELR
           implementation may exist behind an explicit opt-in, but it is not authorized as
           the default or as a release-readiness claim; I002 remains
           blocked. This decision is a feature gate, not a claim that direct IELR has no
           future value.
 
-          The machine record marks the decision `#{decision.fetch("status")}`, its basis
-          `#{decision.fetch("basis")}`, and its review state `#{decision.fetch("review_state")}`.
-          The reviewed evidence date is `#{decision.fetch("date")}` at revision
-          `#{decision.fetch("revision")}`. It asserts no signer, consent, or personal
+          The machine record marks the decision `#{decision.fetch('status')}`, its basis
+          `#{decision.fetch('basis')}`, and its review state `#{decision.fetch('review_state')}`.
+          The reviewed evidence date is `#{decision.fetch('date')}` at revision
+          `#{decision.fetch('revision')}`. It asserts no signer, consent, or personal
           decision attribution.
 
           The closed machine record is
@@ -81,14 +81,15 @@ module Ibex
           observed evidence rendered below.
 
         MARKDOWN
-        header + condition_table("GO condition", policy.fetch("go_conditions")) + "\n" +
-          condition_table("NO-GO condition", policy.fetch("no_go_conditions"))
+        go_table = condition_table("GO condition", policy.fetch("go_conditions"))
+        no_go_table = condition_table("NO-GO condition", policy.fetch("no_go_conditions"))
+        "#{header}#{go_table}\n#{no_go_table}"
       end
 
       def condition_table(label, conditions)
         rows = conditions.map do |condition|
-          "| #{humanize(condition.fetch("id"))} | #{status(condition.fetch("status"))} | " \
-            "#{condition.fetch("observed")} |"
+          "| #{humanize(condition.fetch('id'))} | #{status(condition.fetch('status'))} | " \
+            "#{condition.fetch('observed')} |"
         end
         "| #{label} | Status | Current evidence |\n| --- | --- | --- |\n#{rows.join("\n")}\n"
       end
@@ -101,25 +102,25 @@ module Ibex
         <<~MARKDOWN
           ## Bound observations and verification gaps
 
-          Measured real grammars: **#{values.fetch("measured_real_grammars")}**.
-          Verified public checkouts: **#{values.fetch("verified_public_checkouts")}**.
-          Real IELR-required workloads: **#{values.fetch("real_ielr_required_workloads")}**.
-          Semantically reviewed conflict removals: **#{values.fetch("semantically_reviewed_conflict_removals")}**.
+          Measured real grammars: **#{values.fetch('measured_real_grammars')}**.
+          Verified public checkouts: **#{values.fetch('verified_public_checkouts')}**.
+          Real IELR-required workloads: **#{values.fetch('real_ielr_required_workloads')}**.
+          Semantically reviewed conflict removals: **#{values.fetch('semantically_reviewed_conflict_removals')}**.
 
-          Current real workload `#{workload.fetch("id")}` records:
+          Current real workload `#{workload.fetch('id')}` records:
 
           | Measurement | Value |
           | --- | ---: |
-          | LR(0) states | #{workload.fetch("lr0_states")} |
-          | LR(0) items | #{workload.fetch("lr0_items")} |
-          | Canonical states | #{workload.fetch("canonical_states")} |
-          | Canonical items | #{workload.fetch("canonical_items")} |
-          | Final states | #{workload.fetch("final_states")} |
-          | Unresolved IELR conflicts | #{workload.fetch("unresolved_ielr_conflicts")} |
+          | LR(0) states | #{workload.fetch('lr0_states')} |
+          | LR(0) items | #{workload.fetch('lr0_items')} |
+          | Canonical states | #{workload.fetch('canonical_states')} |
+          | Canonical items | #{workload.fetch('canonical_items')} |
+          | Final states | #{workload.fetch('final_states')} |
+          | Unresolved IELR conflicts | #{workload.fetch('unresolved_ielr_conflicts')} |
 
-          Canonical scale status: `#{scale.fetch("status")}`.
-          Current verified workflow: `#{scale.fetch("current_verified_workflow")}`.
-          Scope: #{scale.fetch("scope")}
+          Canonical scale status: `#{scale.fetch('status')}`.
+          Current verified workflow: `#{scale.fetch('current_verified_workflow')}`.
+          Scope: #{scale.fetch('scope')}
 
           V001 verification gaps remain explicit:
 
@@ -135,7 +136,7 @@ module Ibex
 
           Reconsideration requires all of the following new evidence:
 
-          #{records.each_with_index.map { |record, index| "#{index + 1}. **#{humanize(record.fetch("id"))}:** #{record.fetch("required_evidence")}." }.join("\n")}
+          #{records.each_with_index.map { |record, index| "#{index + 1}. **#{humanize(record.fetch('id'))}:** #{record.fetch('required_evidence')}." }.join("\n")}
 
           State-count reduction without a real semantic or operational need does not
           reopen the gate.
@@ -148,12 +149,12 @@ module Ibex
         <<~MARKDOWN
           ## Legal and implementation provenance
 
-          Design lineage: `#{provenance.fetch("design_lineage")}`.
-          Permitted design inputs: #{provenance.fetch("permitted_design_inputs").map { |value| "`#{value}`" }.join(", ")}.
-          GPL implementation source used: `#{provenance.fetch("gpl_implementation_source_used")}`.
-          GPL implementation source translated: `#{provenance.fetch("gpl_implementation_source_translated")}`.
+          Design lineage: `#{provenance.fetch('design_lineage')}`.
+          Permitted design inputs: #{provenance.fetch('permitted_design_inputs').map { |value| "`#{value}`" }.join(', ')}.
+          GPL implementation source used: `#{provenance.fetch('gpl_implementation_source_used')}`.
+          GPL implementation source translated: `#{provenance.fetch('gpl_implementation_source_translated')}`.
 
-          #{provenance.fetch("rule")}
+          #{provenance.fetch('rule')}
 
         MARKDOWN
       end
@@ -166,16 +167,16 @@ module Ibex
 
           The machine dossier binds the evidence sources by path and SHA-256. It also binds:
 
-          - H005 capture base revision `#{identity.fetch("profile_capture_base_revision")}`;
-          - H005 bound-path digest `#{identity.fetch("profile_bound_paths_sha256")}`;
-          - H005 implementation digest `#{identity.fetch("profile_implementation_sha256")}`;
-          - V001 revision `#{identity.fetch("v001_revision")}`.
+          - H005 capture base revision `#{identity.fetch('profile_capture_base_revision')}`;
+          - H005 bound-path digest `#{identity.fetch('profile_bound_paths_sha256')}`;
+          - H005 implementation digest `#{identity.fetch('profile_implementation_sha256')}`;
+          - V001 revision `#{identity.fetch('v001_revision')}`.
 
           | Source ID | Path | Role | SHA-256 |
           | --- | --- | --- | --- |
-          #{sources.map { |source| "| `#{source.fetch("id")}` | `#{source.fetch("path")}` | #{source.fetch("role")} | `#{source.fetch("sha256")}` |" }.join("\n")}
+          #{sources.map { |source| "| `#{source.fetch('id')}` | `#{source.fetch('path')}` | #{source.fetch('role')} | `#{source.fetch('sha256')}` |" }.join("\n")}
 
-          Aggregate source-list digest: `#{identity.fetch("sources_sha256")}`.
+          Aggregate source-list digest: `#{identity.fetch('sources_sha256')}`.
 
           Exact reviewed history is part of the evidence contract. A shallow checkout
           that omits the decision or V001 revision fails closed with an unavailable
