@@ -307,7 +307,7 @@
       },
       {
         "path": "lib/ibex/ir/grammar_ir.rb",
-        "sha256": "2c5bd94928716b29366e3bda94c4b15294ab46ff9aa29857a1c2ed5793d31461"
+        "sha256": "2b8d57554d11cce5fb0f17838efc984f15b2150cd3a3501938d8ebf4cf296d79"
       },
       {
         "path": "lib/ibex/ir/lexer_ir.rb",
@@ -659,7 +659,7 @@
       },
       {
         "path": "lib/ibex/runtime/parser.rb",
-        "sha256": "08ce1015854c82ca0a810f6ee5d84def80cbc83dd474828366080d8caa37349f"
+        "sha256": "fa6aadd1bd2021d18f0f16f23ec39b86055c5bcd205f5857e5f53a3beffc532d"
       },
       {
         "path": "lib/ibex/runtime/parser_sync_recovery.rb",
