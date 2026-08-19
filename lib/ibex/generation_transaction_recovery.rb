@@ -99,7 +99,7 @@ module Ibex
     def sync_directories_best_effort
       failures = [] #: Array[String]
       @records.map { |record| record.fetch(:directory) }.uniq.sort.each do |directory|
-        File.open(directory, File::RDONLY, &:fsync)
+        sync_directory!(directory)
       rescue StandardError => e
         failures << "#{directory}: #{e.message}"
       end

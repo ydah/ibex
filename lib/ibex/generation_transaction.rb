@@ -222,8 +222,19 @@ module Ibex
     # @rbs () -> void
     def sync_directories!
       @records.map { |record| record.fetch(:directory) }.uniq.sort.each do |directory|
-        File.open(directory, File::RDONLY, &:fsync)
+        sync_directory!(directory)
       end
+    end
+
+    # Directory durability, advisory locks, hard links, and ordered renames
+    # form the transaction contract. Unsupported filesystems must fail clearly
+    # instead of being treated as a weaker successful publication.
+    # @rbs (String directory) -> void
+    def sync_directory!(directory)
+      File.open(directory, File::RDONLY, &:fsync)
+    rescue Errno::EINVAL, Errno::ENOTSUP, Errno::EOPNOTSUPP, NotImplementedError => e
+      raise Error,
+            "(generation):1:1: transactional generation requires POSIX directory fsync support for #{directory}: #{e.message}"
     end
 
     # @rbs () -> void

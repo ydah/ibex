@@ -43,6 +43,11 @@ The matrix uses the intentionally unlocked `gemfiles/compat.Gemfile` so each
 supported Ruby resolves compatible test dependencies. Contributors use the
 root `Gemfile` and its committed lockfile for every development tool.
 
+Transactional generation currently requires a POSIX filesystem with advisory
+locks, hard links, ordered renames, and directory `fsync`. Unsupported
+filesystems fail explicitly; cross-platform transactional guarantees are not
+claimed until they have dedicated fault-injection coverage.
+
 Feature development may proceed while a release decision is `HOLD`. Before
 merging the first user-visible change for a feature, check the active-track
 limits in [`stability.md`](policy/stability.md#feature-development-budget) and update

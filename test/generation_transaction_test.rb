@@ -79,6 +79,20 @@ class GenerationTransactionTest < Minitest::Test
     end
   end
 
+  def test_rejects_filesystems_without_directory_fsync
+    Dir.mktmpdir("ibex-transaction") do |directory|
+      parser = File.join(directory, "parser.rb")
+      error = assert_raises(Ibex::GenerationTransaction::Error) do
+        File.stub(:open, ->(*_args) { raise Errno::ENOTSUP, "directory fsync" }) do
+          Ibex::GenerationTransaction.new(artifact_set(parser => "new")).commit
+        end
+      end
+
+      assert_match(/requires POSIX directory fsync support/, error.message)
+      refute File.exist?(parser)
+    end
+  end
+
   def test_rejects_portability_collisions_before_writing
     Dir.mktmpdir("ibex-transaction") do |directory|
       parser = File.join(directory, "Parser.rb")

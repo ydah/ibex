@@ -35,3 +35,6 @@ observed; it never publishes a candidate built from changing inputs.
   unsupported cross-file atomicity claim.
 - Transaction and watch code pay filesystem synchronization and hashing costs
   in exchange for a recoverable publication boundary.
+- The publication contract currently requires a POSIX filesystem that supports
+  advisory locks, hard links, ordered renames, and directory `fsync`. Unsupported
+  platforms fail explicitly; they are not silently treated as weaker transactions.
