@@ -12,6 +12,11 @@ module Ibex
     # @rbs (Object? value) -> Object?
     def self?.deep_freeze: (Object? value) -> Object?
 
+    # Public IR constructors own their containers; callers keep ownership of
+    # the values they pass in while the IR remains deeply immutable.
+    # @rbs (Object? value) -> Object?
+    def self?.copy_and_freeze: (Object? value) -> Object?
+
     # An interned terminal or nonterminal.
     class GrammarSymbol
       attr_reader id: Integer

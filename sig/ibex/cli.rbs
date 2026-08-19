@@ -20,14 +20,34 @@ module Ibex
   # Command-line pipeline coordinator.
   # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.
   class CLI
+    attr_reader stdout: _CLIOutput
+
+    attr_reader stderr: _CLIOutput
+
     FEATURE_LOADERS: Hash[Symbol, ^() -> Module]
 
     # A fixed command object keeps dispatch explicit while feature modules stay lazy.
     class Command
-      def initialize: (untyped feature) ?{ (?) -> untyped } -> untyped
+      def self.object: (untyped runner) -> untyped
+
+      def initialize: (untyped feature, ?runner: untyped) ?{ (?) -> untyped } -> untyped
 
       # @rbs (Ibex::CLI cli, Array[String] | String arguments) -> Integer?
       def call: (Ibex::CLI cli, Array[String] | String arguments) -> Integer?
+    end
+
+    class Invocation
+      attr_reader arguments: Array[String]
+
+      attr_reader stdout: _CLIOutput
+
+      # @rbs (arguments: Array[String], stdout: _CLIOutput) -> void
+      def initialize: (arguments: Array[String], stdout: _CLIOutput) -> void
+    end
+
+    class ValidateIRCommand
+      # @rbs (Invocation invocation) -> Integer
+      def call: (Invocation invocation) -> Integer
     end
 
     COMMANDS: Hash[String, Command]

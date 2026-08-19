@@ -4,6 +4,9 @@
 module Ibex
   # Failure recovery and best-effort cleanup for GenerationTransaction.
   module GenerationTransactionRecovery
+    # @rbs!
+    #   private def sync_directory!: (String directory) -> void
+
     private
 
     # @rbs (Exception cause) -> bot

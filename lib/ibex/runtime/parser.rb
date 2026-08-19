@@ -859,8 +859,16 @@ module Ibex
       def initialize_parse_session_state!(preserve_existing)
         return if preserve_existing && defined?(@parse_session_state) && @parse_session_state
 
-        state_stack = preserve_existing && defined?(@state_stack) ? @state_stack : []
-        value_stack = preserve_existing && defined?(@value_stack) ? @value_stack : []
+        state_stack = if preserve_existing && defined?(@state_stack)
+                        @state_stack
+                      else
+                        [] #: Array[Integer]
+                      end
+        value_stack = if preserve_existing && defined?(@value_stack)
+                        @value_stack
+                      else
+                        [] #: Array[runtime_value]
+                      end
         location_stack = preserve_existing && defined?(@location_stack) ? @location_stack : nil
         @parse_session_state = ParseSessionState.new
         @parse_session_state.replace!(state_stack, value_stack, location_stack)

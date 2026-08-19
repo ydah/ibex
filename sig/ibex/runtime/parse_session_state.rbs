@@ -1,0 +1,33 @@
+# Generated from lib/ibex/runtime/parse_session_state.rb with RBS::Inline
+
+module Ibex
+  module Runtime
+    # Mutable stack storage for one parser invocation.
+    #
+    # The parser keeps local aliases to these arrays in its hot paths. The
+    # object owns their lifetime and replacement so recovery and push-session
+    # reset cannot accidentally leave one stack behind.
+    class ParseSessionState
+      attr_reader state_stack: Array[Integer]
+
+      attr_reader value_stack: Array[Object?]
+
+      attr_reader location_stack: Array[Object?]?
+
+      # @rbs () -> void
+      def initialize: () -> void
+
+      # @rbs () -> void
+      def reset!: () -> void
+
+      # @rbs (Array[Integer], Array[Object?], Array[Object?]?) -> void
+      def replace!: (Array[Integer], Array[Object?], Array[Object?]?) -> void
+
+      # @rbs (Array[Object?]) -> void
+      def replace_value_stack!: (Array[Object?]) -> void
+
+      # @rbs (Array[Object?]?) -> void
+      def replace_location_stack!: (Array[Object?]?) -> void
+    end
+  end
+end

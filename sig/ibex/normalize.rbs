@@ -43,7 +43,9 @@ module Ibex
 
     DEFAULT_MAX_INLINE_EXPANSIONS: ::Integer
 
-    @explicit_starts: Array[String]?
+    attr_reader context: Normalize::Context
+
+    @node_shapes: Hash[String, Array[String]]
 
     @parser_configuration: Frontend::AST::ParserConfiguration?
 
@@ -77,7 +79,7 @@ module Ibex
 
     @precedence_locations: Hash[String, IR::location]
 
-    @node_shapes: Hash[String, Array[String]]
+    @precedence: Hash[String, IR::precedence]
 
     @inline_expansion_count: Integer
 
@@ -111,7 +113,7 @@ module Ibex
 
     @start_names: Array[String]
 
-    @precedence: Hash[String, IR::precedence]
+    @explicit_starts: Array[String]?
 
     @declared_tokens: Hash[String, IR::location]
 
@@ -142,6 +144,9 @@ module Ibex
     def normalize: () -> IR::Grammar
 
     private
+
+    # @rbs (Symbol phase) { () -> untyped } -> untyped
+    def phase: (Symbol phase) { () -> untyped } -> untyped
 
     # @rbs (Symbol name, Object value) -> void
     def validate_positive_limit!: (Symbol name, Object value) -> void
