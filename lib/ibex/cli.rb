@@ -196,10 +196,7 @@ module Ibex
 
       # @rbs (Ibex::CLI cli, Array[String] | String arguments) -> Integer?
       def call(cli, arguments)
-        if @runner
-          invocation_arguments = arguments.is_a?(Array) ? arguments : [arguments]
-          return @runner.call(Invocation.new(arguments: invocation_arguments, stdout: cli.stdout))
-        end
+        return @runner.call(Invocation.new(arguments: [*arguments], stdout: cli.stdout)) if @runner
 
         extension = FEATURE_LOADERS.fetch(@feature).call
         cli.extend(extension) unless cli.singleton_class.ancestors.include?(extension)

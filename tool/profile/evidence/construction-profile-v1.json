@@ -20,13 +20,20 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "98caaf795dbd64a6b58bcb942d6353313044bde1",
+    "base_revision": "4bc23a1d9e8169ef0b5c9bc813772cf1ee171978",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": false,
     "capture_worktree_status": [
-      " M test/quality/maturity_test.rb"
+      " M docs/records/error-ux/round2-v1.json",
+      " M lib/ibex/cli.rb",
+      " M lib/ibex/ir/automaton_ir.rb",
+      " M lib/ibex/ir/grammar_ir.rb",
+      " M lib/ibex/ir/lexer_ir.rb",
+      " M lib/ibex/runtime/embedded_source.rb",
+      " M lib/ibex/runtime/parser.rb",
+      " M test/runtime/parse_session_state_test.rb"
     ],
-    "capture_worktree_status_sha256": "39cf8d75e6c880e52107c5b11024626a84e6e3201a9dce60332324859beb1ee4",
+    "capture_worktree_status_sha256": "8ede711170d35214f18436de9784ff4fa803bda7c98aeddc92c49ab561c7e30e",
     "bound_paths": [
       {
         "path": ".github/workflows/main.yml",
@@ -36,9 +43,9 @@
       },
       {
         "path": "Rakefile",
-        "sha256": "edfb96d1834979fc6ca1105b6709c26c7c45c65a0a5de285371d2ed06acedd8f",
+        "sha256": "075ae1dddf9a157c18dc9c5854ffe794d8b7311a398c4553a3f76c07fd6ba184",
         "git_state": "base",
-        "base_sha256": "edfb96d1834979fc6ca1105b6709c26c7c45c65a0a5de285371d2ed06acedd8f"
+        "base_sha256": "075ae1dddf9a157c18dc9c5854ffe794d8b7311a398c4553a3f76c07fd6ba184"
       },
       {
         "path": "docs/policy/maturity.md",
@@ -241,8 +248,8 @@
       {
         "path": "test/quality/maturity_test.rb",
         "sha256": "9d168ca81256ba96ede4c8b377b5a4064f195cac784ea55483df41a925cf842d",
-        "git_state": "modified",
-        "base_sha256": "dc760b2d73acc1ed032393b68eea0d3d02e63aefd4e732fba30a8ccf0c7f07f0"
+        "git_state": "base",
+        "base_sha256": "9d168ca81256ba96ede4c8b377b5a4064f195cac784ea55483df41a925cf842d"
       },
       {
         "path": "test/support/public_json_schemas.rb",
@@ -275,7 +282,7 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "8c01454f02a3aceacbb5cc93542f46cb91dec54fc9c7b5c63abf00bb940d0a81",
+    "bound_paths_sha256": "6928720711b8774139d957776c80d853eb9f0cd2deb0ca8b7d2897a93f92c9a7",
     "implementation_sha256": "91160673bb0d540a738a698781b283d332729c5afafee6a601b14928b1ed3239",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
@@ -419,7 +426,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001096,
+                  "value": 0.001304,
                   "release_gate": false
                 }
               },
@@ -520,7 +527,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.004028,
+                  "value": 0.004251,
                   "release_gate": false
                 }
               },
@@ -644,7 +651,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000775,
+                  "value": 0.000882,
                   "release_gate": false
                 }
               },
@@ -745,7 +752,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.003273,
+                  "value": 0.003958,
                   "release_gate": false
                 }
               },
@@ -869,7 +876,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000576,
+                  "value": 0.000646,
                   "release_gate": false
                 }
               },
@@ -970,7 +977,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000798,
+                  "value": 0.000821,
                   "release_gate": false
                 }
               },
@@ -1096,7 +1103,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.0005,
+                  "value": 0.000531,
                   "release_gate": false
                 }
               },
@@ -1198,7 +1205,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000538,
+                  "value": 0.000563,
                   "release_gate": false
                 }
               },
@@ -1300,7 +1307,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000375,
+                  "value": 0.000401,
                   "release_gate": false
                 }
               },
@@ -1402,7 +1409,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000405,
+                  "value": 0.000431,
                   "release_gate": false
                 }
               },
@@ -1548,7 +1555,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.012037,
+                  "value": 0.013071,
                   "release_gate": false
                 }
               },
@@ -1649,7 +1656,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.051565,
+                  "value": 0.05328,
                   "release_gate": false
                 }
               },

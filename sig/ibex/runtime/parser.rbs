@@ -157,8 +157,6 @@ module Ibex
 
       EMPTY_GREEN_TRIVIA: Array[CST::GreenTrivia]
 
-      @accept_requested: bool
-
       @unknown_token_id: Integer?
 
       @unknown_token_name: String?
@@ -185,6 +183,10 @@ module Ibex
 
       @semantic_locations: Array[runtime_value]?
 
+      @incremental_reused_descendants: Integer
+
+      @accept_requested: bool
+
       @semantic_error: bool
 
       @recovery_shifts: Integer
@@ -205,15 +207,11 @@ module Ibex
 
       @state_stack: Array[Integer]
 
-      @parse_session_state: ParseSessionState
-
       @source: runtime_value
 
       @yydebug_output: IO
 
       @yydebug: bool
-
-      @incremental_reused_descendants: Integer
 
       @green_reused_right_edge: bool
 
@@ -272,8 +270,6 @@ module Ibex
       attr_reader syntax_parse_memo: CST::ParseMemo?
 
       attr_reader incremental_reused_descendants: Integer
-
-      attr_reader parse_session_state: ParseSessionState
 
       # Start a syntax-only incremental session backed by a generated lexer.
       # Parser production actions are suppressed, but generated lexer actions
@@ -467,18 +463,6 @@ module Ibex
       # Applications must not mutate or replace these internal arrays.
       # @rbs (Array[runtime_value] values) -> void
       def install_value_stack: (Array[runtime_value] values) -> void
-
-      # @rbs (bool) -> void
-      def initialize_parse_session_state!: (bool) -> void
-
-      # @rbs () -> void
-      def reset_parse_session_state!: () -> void
-
-      # @rbs (Array[Integer]) -> void
-      def install_state_stack: (Array[Integer]) -> void
-
-      # @rbs (Array[Object?]?) -> void
-      def install_location_stack: (Array[Object?]?) -> void
 
       # @rbs (Integer token_id) -> bool
       def exact_lookahead_accepted?: (Integer token_id) -> bool

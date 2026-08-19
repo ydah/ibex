@@ -10,12 +10,7 @@ module Ibex
     SCHEMA_VERSION = 1
     SUPPORTED_SCHEMA_VERSIONS = [SCHEMA_VERSION].freeze #: Array[Integer]
 
-    # @rbs (Object? value) -> Object?
-    def deep_freeze(value) = copy_and_freeze(value)
-    module_function :deep_freeze
-
-    # Public IR constructors own their containers; callers keep ownership of
-    # the values they pass in while the IR remains deeply immutable.
+    # @rbs skip
     # @rbs (Object? value) -> Object?
     def copy_and_freeze(value)
       case value
@@ -30,6 +25,13 @@ module Ibex
       end
     end
     module_function :copy_and_freeze
+    private_class_method :copy_and_freeze
+
+    # Public IR constructors own their containers; callers keep ownership of
+    # the values they pass in while the IR remains deeply immutable.
+    # @rbs (Object? value) -> Object?
+    def deep_freeze(value) = copy_and_freeze(value)
+    module_function :deep_freeze
 
     # An interned terminal or nonterminal.
     class GrammarSymbol
@@ -51,8 +53,8 @@ module Ibex
         @name = name.dup.freeze
         @kind = kind.to_sym
         @reserved = reserved
-        @precedence = IR.copy_and_freeze(precedence)
-        @location = IR.copy_and_freeze(location)
+        @precedence = IR.deep_freeze(precedence)
+        @location = IR.deep_freeze(location)
         @display_name = display_name&.dup&.freeze
         @semantic_type = semantic_type&.dup&.freeze
         @documentation = documentation&.dup&.freeze
@@ -87,10 +89,10 @@ module Ibex
       #   ?composition: action_composition?) -> void
       def initialize(code:, location:, named_refs: [], context_length: 0, composition: nil)
         @code = code.dup.freeze
-        @location = IR.copy_and_freeze(location)
-        @named_refs = IR.copy_and_freeze(named_refs)
+        @location = IR.deep_freeze(location)
+        @named_refs = IR.deep_freeze(named_refs)
         @context_length = context_length
-        @composition = IR.copy_and_freeze(composition)
+        @composition = IR.deep_freeze(composition)
         freeze
       end
 
@@ -122,13 +124,13 @@ module Ibex
                      node: nil)
         @id = id
         @lhs = lhs
-        @rhs = IR.copy_and_freeze(rhs)
+        @rhs = IR.deep_freeze(rhs)
         @action = action
         @precedence_override = precedence_override
-        @origin = IR.copy_and_freeze(origin)
+        @origin = IR.deep_freeze(origin)
         @documentation = documentation&.dup&.freeze
-        @expansion = IR.copy_and_freeze(expansion)
-        @node = IR.copy_and_freeze(node)
+        @expansion = IR.deep_freeze(expansion)
+        @node = IR.deep_freeze(node)
         freeze
       end
 
@@ -151,7 +153,7 @@ module Ibex
       # @rbs (code: String, location: location) -> void
       def initialize(code:, location:)
         @code = code.dup.freeze
-        @location = IR.copy_and_freeze(location)
+        @location = IR.deep_freeze(location)
         freeze
       end
 
@@ -233,25 +235,25 @@ module Ibex
         @mode = mode
         @expect = expect
         @expect_rr = expect_rr
-        @parser_parameters = IR.copy_and_freeze(parser_parameters)
-        @value_printers = IR.copy_and_freeze(value_printers)
-        @grammar_tests = IR.copy_and_freeze(grammar_tests)
+        @parser_parameters = IR.deep_freeze(parser_parameters)
+        @value_printers = IR.deep_freeze(value_printers)
+        @grammar_tests = IR.deep_freeze(grammar_tests)
         @lexer = lexer
-        @recovery = IR.copy_and_freeze(recovery || { sync_tokens: [], on_error_reduce: [] })
-        @options = IR.copy_and_freeze(options)
+        @recovery = IR.deep_freeze(recovery || { sync_tokens: [], on_error_reduce: [] })
+        @options = IR.deep_freeze(options)
         @symbols = symbols.dup.freeze
         @productions = productions.dup.freeze
-        @user_code_chunks = IR.copy_and_freeze(user_code_chunks || {})
+        @user_code_chunks = IR.deep_freeze(user_code_chunks || {})
         validate_user_code_chunks(user_code)
         @user_code_names = user_code.keys.map { |name| name.dup.freeze }.freeze
-        @legacy_user_code = IR.copy_and_freeze(
+        @legacy_user_code = IR.deep_freeze(
           user_code.reject { |name, _code| @user_code_chunks.key?(name) }
         )
-        @conversions = IR.copy_and_freeze(conversions)
-        @warnings = IR.copy_and_freeze(warnings)
+        @conversions = IR.deep_freeze(conversions)
+        @warnings = IR.deep_freeze(warnings)
         @schema_version = SCHEMA_VERSION
-        @source_provenance = IR.copy_and_freeze(source_provenance)
-        @parser_contract = IR.copy_and_freeze(parser_contract)
+        @source_provenance = IR.deep_freeze(source_provenance)
+        @parser_contract = IR.deep_freeze(parser_contract)
         @symbols_by_name = @symbols.to_h { |symbol| [symbol.name, symbol] }.freeze
         @symbols_by_id = @symbols.to_h { |symbol| [symbol.id, symbol] }.freeze
         freeze

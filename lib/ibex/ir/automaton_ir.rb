@@ -44,11 +44,11 @@ module Ibex
       def initialize(id:, items:, transitions:, actions:, gotos:, default_action: nil, conflicts: [])
         @id = id
         @items = items.dup.freeze
-        @transitions = IR.copy_and_freeze(transitions)
-        @actions = IR.copy_and_freeze(actions)
-        @gotos = IR.copy_and_freeze(gotos)
-        @default_action = IR.copy_and_freeze(default_action)
-        @conflicts = IR.copy_and_freeze(conflicts)
+        @transitions = IR.deep_freeze(transitions)
+        @actions = IR.deep_freeze(actions)
+        @gotos = IR.deep_freeze(gotos)
+        @default_action = IR.deep_freeze(default_action)
+        @conflicts = IR.deep_freeze(conflicts)
         freeze
       end
 
@@ -110,9 +110,9 @@ module Ibex
         end
         @grammar_digest = (grammar_digest || expected_digest).dup.freeze
         @states = states.dup.freeze
-        @entry_states = IR.copy_and_freeze(entry_states || { grammar.start => 0 })
+        @entry_states = IR.deep_freeze(entry_states || { grammar.start => 0 })
         validate_entry_states
-        @conflict_summary = IR.copy_and_freeze(conflict_summary)
+        @conflict_summary = IR.deep_freeze(conflict_summary)
         @schema_version = SCHEMA_VERSION
         @entry_construction = validate_entry_construction(entry_construction)
         validate_parser_contract

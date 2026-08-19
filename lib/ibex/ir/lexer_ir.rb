@@ -28,7 +28,7 @@ module Ibex
         @pattern_kind = pattern_kind
         @options = options.dup.freeze
         @action = action&.dup&.freeze
-        @location = IR.copy_and_freeze(location)
+        @location = IR.deep_freeze(location)
         freeze
       end
 
@@ -57,9 +57,9 @@ module Ibex
 
         @states = states.map { |state| state.dup.freeze }.freeze
         @rules = rules.dup.freeze
-        @warnings = IR.copy_and_freeze(warnings)
+        @warnings = IR.deep_freeze(warnings)
         @schema_version = schema_version
-        @source_provenance = IR.copy_and_freeze(source_provenance)
+        @source_provenance = IR.deep_freeze(source_provenance)
         freeze
       end
 

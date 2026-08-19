@@ -300,7 +300,6 @@ module Ibex
       # @rbs @yydebug: bool
       # @rbs @yydebug_output: IO
       # @rbs @source: runtime_value
-      # @rbs @parse_session_state: ParseSessionState
       # @rbs @state_stack: Array[Integer]
       # @rbs @value_stack: Array[runtime_value]
       # @rbs @vstack: Array[runtime_value]
@@ -356,7 +355,6 @@ module Ibex
 
       attr_reader :syntax_parse_memo #: CST::ParseMemo?
       attr_reader :incremental_reused_descendants #: Integer
-      attr_reader :parse_session_state #: ParseSessionState
 
       # Report the trust boundary of syntax-only operations for this loaded
       # parser class. Current generated artifacts can contain user sections
@@ -855,6 +853,7 @@ module Ibex
         @racc_vstack = values
       end
 
+      # @rbs skip
       # @rbs (bool) -> void
       def initialize_parse_session_state!(preserve_existing)
         return if preserve_existing && defined?(@parse_session_state) && @parse_session_state
@@ -877,6 +876,7 @@ module Ibex
         install_location_stack(@parse_session_state.location_stack)
       end
 
+      # @rbs skip
       # @rbs () -> void
       def reset_parse_session_state!
         @parse_session_state.reset!
@@ -885,6 +885,7 @@ module Ibex
         install_location_stack(@parse_session_state.location_stack)
       end
 
+      # @rbs skip
       # @rbs (Array[Integer]) -> void
       def install_state_stack(state_stack)
         @parse_session_state.replace!(
@@ -893,6 +894,7 @@ module Ibex
         @state_stack = state_stack
       end
 
+      # @rbs skip
       # @rbs (Array[Object?]?) -> void
       def install_location_stack(location_stack)
         @parse_session_state.replace_location_stack!(location_stack)
