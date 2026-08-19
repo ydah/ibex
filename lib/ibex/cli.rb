@@ -152,6 +152,9 @@ module Ibex
   # Command-line pipeline coordinator.
   # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.
   class CLI
+    attr_reader :stdout #: _CLIOutput
+    attr_reader :stderr #: _CLIOutput
+
     FEATURE_LOADERS = {
       CLIAmbiguity: -> { CLIAmbiguity },
       CLIAnalysis: -> { CLIAnalysis },
@@ -180,17 +183,60 @@ module Ibex
 
     # A fixed command object keeps dispatch explicit while feature modules stay lazy.
     class Command
-      def initialize(feature, &handler)
+      def self.object(runner)
+        new(nil, runner: runner)
+      end
+
+      def initialize(feature, runner: nil, &handler)
         @feature = feature
+        @runner = runner
         @handler = handler
         freeze
       end
 
       # @rbs (Ibex::CLI cli, Array[String] | String arguments) -> Integer?
       def call(cli, arguments)
+        return @runner.call(Invocation.new(arguments: arguments, stdout: cli.stdout)) if @runner
+
         extension = FEATURE_LOADERS.fetch(@feature).call
         cli.extend(extension) unless cli.singleton_class.ancestors.include?(extension)
         cli.instance_exec(arguments, &@handler)
+      end
+    end
+
+    class Invocation
+      attr_reader :arguments #: Array[String]
+      attr_reader :stdout #: _CLIOutput
+
+      # @rbs (arguments: Array[String], stdout: _CLIOutput) -> void
+      def initialize(arguments:, stdout:)
+        @arguments = arguments.freeze
+        @stdout = stdout
+        freeze
+      end
+    end
+
+    class ValidateIRCommand
+      # @rbs (Invocation invocation) -> Integer
+      def call(invocation)
+        arguments = invocation.arguments
+        if arguments == ["--help"]
+          invocation.stdout.puts("Usage: ibex validate-ir FILE")
+          return 0
+        end
+
+        raise Ibex::Error, "(cli):1:1: validate-ir requires exactly one IR file" unless arguments.length == 1
+
+        value = IR::Validator.validate(File.read(arguments.fetch(0)))
+        kind = if value.is_a?(IR::Grammar)
+                 "grammar"
+               elsif value.is_a?(IR::Lexer)
+                 "lexer"
+               else
+                 "automaton"
+               end
+        invocation.stdout.puts("valid current #{kind} IR")
+        0
       end
     end
 
@@ -218,7 +264,7 @@ module Ibex
       "reduce" => Command.new(:CLIReduce) { |arguments| run_reduce_command(arguments) },
       "samples" => Command.new(:CLISamples) { |arguments| run_samples_command(arguments) },
       "verify" => Command.new(:CLIVerify) { |arguments| run_verify_command(arguments) },
-      "validate-ir" => Command.new(:CLIIRTools) { |arguments| run_validate_ir_command(arguments) },
+      "validate-ir" => Command.object(ValidateIRCommand.new),
       "compare" => Command.new(:CLIIRTools) { |arguments| run_compare_command(arguments) }
     }.freeze #: Hash[String, Command]
 
