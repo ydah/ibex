@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../test_helper"
+require "ibex/runtime/cst"
 
 class CSTGreenTest < Minitest::Test
   def test_token_widths_and_source_are_byte_exact
