@@ -21,14 +21,14 @@ module Ibex
       #   options: String, action: String?, location: location) -> void
       def initialize(id:, state:, kind:, token:, pattern:, pattern_kind:, options:, action:, location:)
         @id = id
-        @state = state.freeze
+        @state = state.dup.freeze
         @kind = kind
-        @token = token&.freeze
-        @pattern = pattern.freeze
+        @token = token&.dup&.freeze
+        @pattern = pattern.dup.freeze
         @pattern_kind = pattern_kind
-        @options = options.freeze
-        @action = action&.freeze
-        @location = IR.deep_freeze(location)
+        @options = options.dup.freeze
+        @action = action&.dup&.freeze
+        @location = IR.copy_and_freeze(location)
         freeze
       end
 
@@ -55,11 +55,11 @@ module Ibex
         raise ArgumentError, "lexer states must start with INITIAL" unless states.first == "INITIAL"
         raise ArgumentError, "lexer states must be unique" unless states.uniq.length == states.length
 
-        @states = states.map(&:freeze).freeze
-        @rules = rules.freeze
-        @warnings = IR.deep_freeze(warnings)
+        @states = states.map { |state| state.dup.freeze }.freeze
+        @rules = rules.dup.freeze
+        @warnings = IR.copy_and_freeze(warnings)
         @schema_version = schema_version
-        @source_provenance = IR.deep_freeze(source_provenance)
+        @source_provenance = IR.copy_and_freeze(source_provenance)
         freeze
       end
 

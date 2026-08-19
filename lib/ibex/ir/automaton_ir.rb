@@ -14,7 +14,7 @@ module Ibex
       def initialize(production:, dot:, lookaheads:)
         @production = production
         @dot = dot
-        @lookaheads = lookaheads.sort.freeze
+        @lookaheads = lookaheads.sort.dup.freeze
         freeze
       end
 
@@ -43,12 +43,12 @@ module Ibex
       #   ?conflicts: Array[conflict]) -> void
       def initialize(id:, items:, transitions:, actions:, gotos:, default_action: nil, conflicts: [])
         @id = id
-        @items = items.freeze
-        @transitions = IR.deep_freeze(transitions)
-        @actions = IR.deep_freeze(actions)
-        @gotos = IR.deep_freeze(gotos)
-        @default_action = IR.deep_freeze(default_action)
-        @conflicts = IR.deep_freeze(conflicts)
+        @items = items.dup.freeze
+        @transitions = IR.copy_and_freeze(transitions)
+        @actions = IR.copy_and_freeze(actions)
+        @gotos = IR.copy_and_freeze(gotos)
+        @default_action = IR.copy_and_freeze(default_action)
+        @conflicts = IR.copy_and_freeze(conflicts)
         freeze
       end
 
@@ -101,18 +101,18 @@ module Ibex
           raise Ibex::Error, "automaton requires the current Grammar IR format"
         end
 
-        @algorithm = algorithm.freeze
+        @algorithm = algorithm.dup.freeze
         @grammar = grammar
         expected_digest = digest_for(grammar)
         if grammar_digest && grammar_digest != expected_digest
           raise Ibex::Error,
                 "(ir):1:1: $.grammar_digest does not match the embedded grammar; expected #{expected_digest.inspect}"
         end
-        @grammar_digest = (grammar_digest || expected_digest).freeze
-        @states = states.freeze
-        @entry_states = IR.deep_freeze(entry_states || { grammar.start => 0 })
+        @grammar_digest = (grammar_digest || expected_digest).dup.freeze
+        @states = states.dup.freeze
+        @entry_states = IR.copy_and_freeze(entry_states || { grammar.start => 0 })
         validate_entry_states
-        @conflict_summary = IR.deep_freeze(conflict_summary)
+        @conflict_summary = IR.copy_and_freeze(conflict_summary)
         @schema_version = SCHEMA_VERSION
         @entry_construction = validate_entry_construction(entry_construction)
         validate_parser_contract
