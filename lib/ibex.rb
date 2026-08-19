@@ -39,6 +39,8 @@ require_relative "ibex/codegen/documentation"
 
 # Ibex generates and runs Pure Ruby LR parsers.
 module Ibex
+  # Steep models __dir__ as nilable although Ruby defines it for loaded files.
+  # steep:ignore:start
   autoload :Coverage, File.join(__dir__, "ibex/coverage")
   autoload :TableSimulation, File.join(__dir__, "ibex/table_simulation")
   autoload :Samples, File.join(__dir__, "ibex/samples")
@@ -53,6 +55,7 @@ module Ibex
   autoload :BisonImport, File.join(__dir__, "ibex/bison_import")
   autoload :GrammarTests, File.join(__dir__, "ibex/grammar_tests")
   autoload :RaccMigration, File.join(__dir__, "ibex/racc_migration")
+  # steep:ignore:end
 
   ParseError = Runtime::ParseError #: singleton(Runtime::ParseError)
   ResourceLimitError = Runtime::ResourceLimitError #: singleton(Runtime::ResourceLimitError)

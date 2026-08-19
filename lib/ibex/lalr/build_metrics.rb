@@ -34,10 +34,14 @@ module Ibex
       #   ?ielr_inadequacies: Integer?, ?ielr_split_stable_discarded: Integer?, ?ielr_lalr_states: Integer?,
       #   ?ielr_split_states: Integer?, ?ielr_unreachable_removed: Integer?,
       #   ?ielr_remergeable_candidates: Integer?) -> void
+      # The generated Struct signature does not expose this initializer.
+      # @rbs skip
+      # steep:ignore:start
       def initialize(construction_states:, canonical_states:, final_states:, strategy:, **optional)
         super
         freeze
       end
+      # steep:ignore:end
     end
   end
 end

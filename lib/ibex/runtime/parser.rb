@@ -9,6 +9,8 @@ require_relative "table_format" unless defined?(Ibex::Runtime::PARSER_TABLE_FORM
 
 module Ibex
   module Runtime
+    # Steep models __dir__ as nilable although Ruby defines it for loaded files.
+    # steep:ignore:start
     autoload :ASTData, File.join(__dir__, "ast_data")
     autoload :SyntaxSessionTrustError, File.join(__dir__, "syntax_session")
     autoload :SyntaxSessionCancelled, File.join(__dir__, "syntax_session")
@@ -34,6 +36,7 @@ module Ibex
     autoload :LexerInput, File.join(__dir__, "lexer_input")
     autoload :GeneratedLexer, File.join(__dir__, "generated_lexer")
     autoload :EventJSONLTracer, File.join(__dir__, "event_jsonl_tracer")
+    # steep:ignore:end
 
     # Semantic values and lexer locations intentionally cross the runtime
     # boundary without a closed application type. Keep that boundary named so

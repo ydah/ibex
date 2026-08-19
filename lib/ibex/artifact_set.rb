@@ -22,7 +22,7 @@ module Ibex
   end
 
   # A generation's rendered outputs before any target is changed.
-  class ArtifactSet < Array
+  class ArtifactSet < Array #[Artifact]
     # @rbs (kind: Symbol, path: String, content: String, ?mode: Integer?) -> Artifact
     def add(kind:, path:, content:, mode: nil)
       artifact = Artifact.new(kind: kind, path: path, content: content, mode: mode)

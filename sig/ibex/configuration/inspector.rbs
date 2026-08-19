@@ -5,49 +5,53 @@ module Ibex
     # Converts parsed source or validated Grammar IR into static configuration facts.
     # rubocop:disable Metrics/ModuleLength -- source and IR adapters share one closed evidence vocabulary.
     module Inspector
+      def self.from_grammar_ir: (IR::Grammar grammar, path: String) -> Input
+
       # @rbs (Frontend::Resolution resolution) -> Input
       def self?.from_source: (Frontend::Resolution resolution) -> Input
 
       # @rbs (IR::Grammar grammar, path: String) -> Input
-      def self?.from_grammar_ir: (IR::Grammar grammar, path: String) -> Input
+      def from_grammar_ir: (IR::Grammar grammar, path: String) -> Input
+
+      private
 
       # @rbs (Hash[String, config_value] values, Hash[String, Location] locations,
       #   Hash[String, Array[Evidence]] evidence, String name, config_value value,
       #   Frontend::Location | Location location) -> void
-      def self?.add_source_fact: (Hash[String, config_value] values, Hash[String, Location] locations, Hash[String, Array[Evidence]] evidence, String name, config_value value, Frontend::Location | Location location) -> void
+      def add_source_fact: (Hash[String, config_value] values, Hash[String, Location] locations, Hash[String, Array[Evidence]] evidence, String name, config_value value, Frontend::Location | Location location) -> void
 
       # @rbs (Frontend::AST::Root root, Hash[String, config_value] values, Hash[String, Location] locations,
       #   Hash[String, Array[Evidence]] evidence) -> void
-      def self?.add_source_options: (Frontend::AST::Root root, Hash[String, config_value] values, Hash[String, Location] locations, Hash[String, Array[Evidence]] evidence) -> void
+      def add_source_options: (Frontend::AST::Root root, Hash[String, config_value] values, Hash[String, Location] locations, Hash[String, Array[Evidence]] evidence) -> void
 
       # @rbs (Frontend::AST::Root root, Hash[String, config_value] values, Hash[String, Location] locations,
       #   Hash[String, Array[Evidence]] evidence) -> void
-      def self?.add_source_parser_contract: (Frontend::AST::Root root, Hash[String, config_value] values, Hash[String, Location] locations, Hash[String, Array[Evidence]] evidence) -> void
+      def add_source_parser_contract: (Frontend::AST::Root root, Hash[String, config_value] values, Hash[String, Location] locations, Hash[String, Array[Evidence]] evidence) -> void
 
       # @rbs (String name) -> bool?
-      def self?.option_value: (String name) -> bool?
+      def option_value: (String name) -> bool?
 
       # @rbs (Frontend::Location | Location location) -> Location
-      def self?.configuration_location: (Frontend::Location | Location location) -> Location
+      def configuration_location: (Frontend::Location | Location location) -> Location
 
       # @rbs (Key key, Array[[bool, Location]] occurrences, bool selected_value) -> Array[Evidence]
-      def self?.option_evidence: (Key key, Array[[ bool, Location ]] occurrences, bool selected_value) -> Array[Evidence]
+      def option_evidence: (Key key, Array[[ bool, Location ]] occurrences, bool selected_value) -> Array[Evidence]
 
       # @rbs (Hash[String, config_value] values, Hash[String, Array[Evidence]] evidence,
       #   Hash[String, Recording] recordings, String name, config_value value) -> void
-      def self?.add_ir_fact: (Hash[String, config_value] values, Hash[String, Array[Evidence]] evidence, Hash[String, Recording] recordings, String name, config_value value) -> void
+      def add_ir_fact: (Hash[String, config_value] values, Hash[String, Array[Evidence]] evidence, Hash[String, Recording] recordings, String name, config_value value) -> void
 
       # @rbs (IR::Grammar grammar, Hash[String, config_value] values, Hash[String, Location] locations,
       #   Hash[String, Array[Evidence]] evidence, Hash[String, Recording] recordings) -> void
-      def self?.add_parser_contract: (IR::Grammar grammar, Hash[String, config_value] values, Hash[String, Location] locations, Hash[String, Array[Evidence]] evidence, Hash[String, Recording] recordings) -> void
+      def add_parser_contract: (IR::Grammar grammar, Hash[String, config_value] values, Hash[String, Location] locations, Hash[String, Array[Evidence]] evidence, Hash[String, Recording] recordings) -> void
 
       # @rbs (String name, IR::ParserContract::Entry entry, Hash[String, config_value] values,
       #   Hash[String, Location] locations, Hash[String, Array[Evidence]] evidence,
       #   Hash[String, Recording] recordings) -> void
-      def self?.add_contract_entry: (String name, IR::ParserContract::Entry entry, Hash[String, config_value] values, Hash[String, Location] locations, Hash[String, Array[Evidence]] evidence, Hash[String, Recording] recordings) -> void
+      def add_contract_entry: (String name, IR::ParserContract::Entry entry, Hash[String, config_value] values, Hash[String, Location] locations, Hash[String, Array[Evidence]] evidence, Hash[String, Recording] recordings) -> void
 
       # @rbs (IR::ParserContract contract) -> Hash[String, IR::ParserContract::Entry]
-      def self?.contract_entries: (IR::ParserContract contract) -> Hash[String, IR::ParserContract::Entry]
+      def contract_entries: (IR::ParserContract contract) -> Hash[String, IR::ParserContract::Entry]
     end
   end
 end

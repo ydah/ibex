@@ -9,8 +9,6 @@ module Ibex
 
     OWNER_NAMES: Hash[Symbol, String]
 
-    POLICIES: Array[Symbol]
-
     ORIGIN_KINDS: Array[Symbol]
 
     BOOLEAN_VALUES: Array[bool]
@@ -29,15 +27,18 @@ module Ibex
 
       attr_reader owner: Symbol
 
-      attr_reader policy: Symbol
-
       attr_reader allowed_values: Array[config_value]?
 
       attr_reader cli_option: Symbol?
 
+      attr_reader parser_setting: Symbol?
+
+      attr_reader cli_aliases: Array[String]
+
       # @rbs (String name, type: Symbol, default: config_value, owner: Symbol,
-      #   ?allowed_values: Array[config_value]?, ?cli_option: Symbol?) -> void
-      def initialize: (String name, type: Symbol, default: config_value, owner: Symbol, ?allowed_values: Array[config_value]?, ?cli_option: Symbol?) -> void
+      #   ?allowed_values: Array[config_value]?, ?cli_option: Symbol?, ?parser_setting: Symbol?,
+      #   ?cli_aliases: Array[String]) -> void
+      def initialize: (String name, type: Symbol, default: config_value, owner: Symbol, ?allowed_values: Array[config_value]?, ?cli_option: Symbol?, ?parser_setting: Symbol?, ?cli_aliases: Array[String]) -> void
 
       # Validate and defensively freeze a value from an adapter or declaration.
       # @rbs (config_value value) -> config_value
@@ -45,6 +46,9 @@ module Ibex
 
       # @rbs () -> String
       def owner_name: () -> String
+
+      # @rbs () -> Symbol
+      def policy: () -> Symbol
 
       private
 
@@ -90,10 +94,6 @@ module Ibex
 
       attr_reader origin: Origin
 
-      attr_reader explicit: bool
-
-      attr_reader canonical: bool
-
       attr_reader declared_value: config_value
 
       # @rbs (Key key, config_value value, origin: Origin,
@@ -102,6 +102,13 @@ module Ibex
 
       # @rbs () -> Hash[String, json_value]
       def to_h: () -> Hash[String, json_value]
+
+      # @rbs () -> bool
+      # rubocop:disable Naming/PredicateMethod -- public JSON fields are named explicit/canonical.
+      def explicit: () -> bool
+
+      # @rbs () -> bool
+      def canonical: () -> bool
 
       private
 
@@ -139,11 +146,24 @@ module Ibex
 
       BY_NAME: Hash[String, Key]
 
+      CLI_ALGORITHM_VALUES: untyped
+
+      CLI_CST_TRIVIA_VALUES: untyped
+
       # @rbs (String name) -> Key
       def self.fetch: (String name) -> Key
 
       # @rbs () -> Array[Key]
       def self.keys: () -> Array[Key]
+
+      # @rbs () -> Hash[Symbol, Hash[Symbol, untyped]]
+      def self.parser_setting_definitions: () -> Hash[Symbol, Hash[Symbol, untyped]]
+
+      # @rbs (Symbol setting) -> Array[Symbol]
+      def self.parser_setting_values: (Symbol setting) -> Array[Symbol]
+
+      # @rbs (Symbol setting) -> Key
+      def self.parser_setting_key: (Symbol setting) -> Key
     end
 
     # Applies fixed/minimum override algebra and exposes deterministic evidence.
@@ -200,9 +220,8 @@ module Ibex
       #   Hash[Symbol, Hash[String, Location]] locations) -> Value?
       def source_value: (Key key, Symbol kind, Hash[Symbol, Hash[String, config_value]] sources, Hash[Symbol, Hash[String, Location]] locations) -> Value?
 
-      # @rbs (Key key, config_value raw, Symbol kind, Hash[Symbol, Hash[String, Location]] locations,
-      #   explicit: bool) -> Value
-      def value_from: (Key key, config_value raw, Symbol kind, Hash[Symbol, Hash[String, Location]] locations, explicit: bool) -> Value
+      # @rbs (Key key, config_value raw, Symbol kind, Hash[Symbol, Hash[String, Location]] locations) -> Value
+      def value_from: (Key key, config_value raw, Symbol kind, Hash[Symbol, Hash[String, Location]] locations) -> Value
 
       # @rbs (Symbol kind, String name, Hash[Symbol, Hash[String, Location]] locations) -> Origin
       def origin: (Symbol kind, String name, Hash[Symbol, Hash[String, Location]] locations) -> Origin

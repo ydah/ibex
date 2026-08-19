@@ -2,59 +2,50 @@
 
 module Ibex
   module LALR
-    # Optional measurements are kept explicit for schema stability.
-    # rubocop:disable Metrics/ParameterLists
-    # Immutable structural measurements from one automaton build. These counts
-    # are intended for diagnostics and benchmarks, not parser behavior.
-    class BuildMetrics
-      attr_reader construction_states: Integer
+    # Immutable structural measurements from one automaton build.
+    class BuildMetrics < Struct[untyped]
+      attr_accessor construction_states(): untyped
 
-      attr_reader canonical_states: Integer?
+      attr_accessor canonical_states(): untyped
 
-      attr_reader final_states: Integer
+      attr_accessor final_states(): untyped
 
-      attr_reader strategy: Symbol
+      attr_accessor strategy(): untyped
 
-      attr_reader lr0_states: Integer?
+      attr_accessor lr0_states(): untyped
 
-      attr_reader lr0_items: Integer?
+      attr_accessor lr0_items(): untyped
 
-      attr_reader canonical_items: Integer?
+      attr_accessor canonical_items(): untyped
 
-      attr_reader final_items: Integer?
+      attr_accessor final_items(): untyped
 
-      attr_reader final_lookahead_items: Integer?
+      attr_accessor final_lookahead_items(): untyped
 
-      attr_reader propagation_edges: Integer?
+      attr_accessor propagation_edges(): untyped
 
-      attr_reader ielr_initial_partitions: Integer?
+      attr_accessor ielr_initial_partitions(): untyped
 
-      attr_reader ielr_final_partitions: Integer?
+      attr_accessor ielr_final_partitions(): untyped
 
-      attr_reader ielr_annotations: Integer?
+      attr_accessor ielr_annotations(): untyped
 
-      attr_reader ielr_annotated_states: Integer?
+      attr_accessor ielr_annotated_states(): untyped
 
-      attr_reader ielr_inadequacies: Integer?
+      attr_accessor ielr_inadequacies(): untyped
 
-      attr_reader ielr_split_stable_discarded: Integer?
+      attr_accessor ielr_split_stable_discarded(): untyped
 
-      attr_reader ielr_lalr_states: Integer?
+      attr_accessor ielr_lalr_states(): untyped
 
-      attr_reader ielr_split_states: Integer?
+      attr_accessor ielr_split_states(): untyped
 
-      attr_reader ielr_unreachable_removed: Integer?
+      attr_accessor ielr_unreachable_removed(): untyped
 
-      attr_reader ielr_remergeable_candidates: Integer?
+      attr_accessor ielr_remergeable_candidates(): untyped
 
-      # @rbs (construction_states: Integer, canonical_states: Integer?, final_states: Integer, strategy: Symbol,
-      #   ?lr0_states: Integer?, ?lr0_items: Integer?, ?canonical_items: Integer?, ?final_items: Integer?,
-      #   ?final_lookahead_items: Integer?, ?propagation_edges: Integer?, ?ielr_initial_partitions: Integer?,
-      #   ?ielr_final_partitions: Integer?, ?ielr_annotations: Integer?, ?ielr_annotated_states: Integer?,
-      #   ?ielr_inadequacies: Integer?, ?ielr_split_stable_discarded: Integer?, ?ielr_lalr_states: Integer?,
-      #   ?ielr_split_states: Integer?, ?ielr_unreachable_removed: Integer?,
-      #   ?ielr_remergeable_candidates: Integer?) -> void
-      def initialize: (construction_states: Integer, canonical_states: Integer?, final_states: Integer, strategy: Symbol, ?lr0_states: Integer?, ?lr0_items: Integer?, ?canonical_items: Integer?, ?final_items: Integer?, ?final_lookahead_items: Integer?, ?propagation_edges: Integer?, ?ielr_initial_partitions: Integer?, ?ielr_final_partitions: Integer?, ?ielr_annotations: Integer?, ?ielr_annotated_states: Integer?, ?ielr_inadequacies: Integer?, ?ielr_split_stable_discarded: Integer?, ?ielr_lalr_states: Integer?, ?ielr_split_states: Integer?, ?ielr_unreachable_removed: Integer?, ?ielr_remergeable_candidates: Integer?) -> void
+      def self.new: (?construction_states: untyped, ?canonical_states: untyped, ?final_states: untyped, ?strategy: untyped, ?lr0_states: untyped, ?lr0_items: untyped, ?canonical_items: untyped, ?final_items: untyped, ?final_lookahead_items: untyped, ?propagation_edges: untyped, ?ielr_initial_partitions: untyped, ?ielr_final_partitions: untyped, ?ielr_annotations: untyped, ?ielr_annotated_states: untyped, ?ielr_inadequacies: untyped, ?ielr_split_stable_discarded: untyped, ?ielr_lalr_states: untyped, ?ielr_split_states: untyped, ?ielr_unreachable_removed: untyped, ?ielr_remergeable_candidates: untyped) -> instance
+                  | ({ ?construction_states: untyped, ?canonical_states: untyped, ?final_states: untyped, ?strategy: untyped, ?lr0_states: untyped, ?lr0_items: untyped, ?canonical_items: untyped, ?final_items: untyped, ?final_lookahead_items: untyped, ?propagation_edges: untyped, ?ielr_initial_partitions: untyped, ?ielr_final_partitions: untyped, ?ielr_annotations: untyped, ?ielr_annotated_states: untyped, ?ielr_inadequacies: untyped, ?ielr_split_stable_discarded: untyped, ?ielr_lalr_states: untyped, ?ielr_split_states: untyped, ?ielr_unreachable_removed: untyped, ?ielr_remergeable_candidates: untyped }) -> instance
     end
   end
 end

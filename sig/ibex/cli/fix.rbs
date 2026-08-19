@@ -18,6 +18,10 @@ module Ibex
 
     private def set_local_configuration_option: (Hash[Symbol, Object?], Symbol, Object?) -> void
 
+    private def formatting_targets: (Array[Hash[Symbol, untyped]]) -> Array[Hash[Symbol, untyped]]
+
+    private def transactionally_write_formatted: (Array[Hash[Symbol, untyped]]) -> void
+
     private
 
     # @rbs (Array[String] arguments) -> Integer
@@ -29,6 +33,9 @@ module Ibex
     # Keep command-local construction settings separate from reusable CLI state.
     # @rbs (Array[String] arguments) -> Hash[Symbol, untyped]
     def fix_options: (Array[String] arguments) -> Hash[Symbol, untyped]
+
+    # @rbs (OptionParser options, Hash[Symbol, untyped] settings) -> void
+    def add_fix_parser_options: (OptionParser options, Hash[Symbol, untyped] settings) -> void
 
     # @rbs (OptionParser options, Hash[Symbol, untyped] settings) -> void
     def add_fix_target_options: (OptionParser options, Hash[Symbol, untyped] settings) -> void

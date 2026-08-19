@@ -20,7 +20,21 @@ module Ibex
   # Command-line pipeline coordinator.
   # rubocop:disable Metrics/ClassLength -- inline type contracts add lines without adding runtime responsibilities.
   class CLI
-    SUBCOMMAND_HANDLERS: Hash[String, [ Symbol, Symbol ]]
+    FEATURE_LOADERS: Hash[Symbol, ^() -> Module]
+
+    # A fixed command object keeps dispatch explicit while feature modules stay lazy.
+    class Command
+      def initialize: (untyped feature) ?{ (?) -> untyped } -> untyped
+
+      # @rbs (Ibex::CLI cli, Array[String] | String arguments) -> Integer?
+      def call: (Ibex::CLI cli, Array[String] | String arguments) -> Integer?
+    end
+
+    # Steep cannot model methods added to this instance's singleton by autoloaded feature modules.
+    # steep:ignore:start
+    COMMANDS: Hash[String, Command]
+
+    WATCH_COMMAND: untyped
 
     include CLICounterexampleOptions
 

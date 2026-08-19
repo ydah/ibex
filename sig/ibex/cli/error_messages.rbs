@@ -37,6 +37,9 @@ module Ibex
     # @rbs () -> OptionParser
     def error_messages_option_parser: () -> OptionParser
 
+    # @rbs (OptionParser options) -> void
+    def add_error_messages_algorithm_option: (OptionParser options) -> void
+
     # @rbs (String input_path) -> IR::Automaton
     def automaton_for_error_messages: (String input_path) -> IR::Automaton
 

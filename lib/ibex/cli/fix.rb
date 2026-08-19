@@ -17,6 +17,8 @@ module Ibex
     #   private def set_configuration_option: (Symbol, Object?) -> void
     #   private def local_configuration_value: (Hash[Symbol, Object?], String) -> Object?
     #   private def set_local_configuration_option: (Hash[Symbol, Object?], Symbol, Object?) -> void
+    #   private def formatting_targets: (Array[Hash[Symbol, untyped]]) -> Array[Hash[Symbol, untyped]]
+    #   private def transactionally_write_formatted: (Array[Hash[Symbol, untyped]]) -> void
 
     private
 

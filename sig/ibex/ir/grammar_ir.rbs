@@ -140,8 +140,6 @@ module Ibex
 
       attr_reader productions: Array[Production]
 
-      attr_reader user_code: Hash[String, String]
-
       attr_reader user_code_chunks: user_code_chunks
 
       attr_reader conversions: Hash[String, String]
@@ -173,10 +171,14 @@ module Ibex
       #   source_provenance: source_provenance?, expect_rr: Integer?, parser_parameters: Array[parser_parameter],
       #   value_printers: Array[value_printer], grammar_tests: Array[grammar_test], recovery: recovery_policy?,
       #   lexer: Lexer?, mode: grammar_mode, starts: Array[String]?, parser_contract: ParserContract) -> void
+      # rubocop:disable Metrics/MethodLength -- explicit immutable field assignment is the IR constructor contract.
       def initialize_current: (class_name: String, superclass: String?, start: String, expect: Integer, options: grammar_options, symbols: Array[GrammarSymbol], productions: Array[Production], user_code: Hash[String, String], conversions: Hash[String, String], warnings: Array[grammar_warning], user_code_chunks: user_code_chunks?, source_provenance: source_provenance?, expect_rr: Integer?, parser_parameters: Array[parser_parameter], value_printers: Array[value_printer], grammar_tests: Array[grammar_test], recovery: recovery_policy?, lexer: Lexer?, mode: grammar_mode, starts: Array[String]?, parser_contract: ParserContract) -> void
 
       # @rbs (String name) -> GrammarSymbol?
       def symbol: (String name) -> GrammarSymbol?
+
+      # @rbs () -> Hash[String, String]
+      def user_code: () -> Hash[String, String]
 
       # @rbs (Integer? id) -> GrammarSymbol?
       def symbol_by_id: (Integer? id) -> GrammarSymbol?
@@ -207,8 +209,8 @@ module Ibex
       # @rbs (Hash[Symbol, Object?] value) -> void
       def append_recovery_metadata: (Hash[Symbol, Object?] value) -> void
 
-      # @rbs () -> void
-      def validate_user_code_chunks: () -> void
+      # @rbs (Hash[String, String] user_code) -> void
+      def validate_user_code_chunks: (Hash[String, String] user_code) -> void
 
       # @rbs (ParserContract parser_contract) -> void
       def validate_current_metadata: (ParserContract parser_contract) -> void

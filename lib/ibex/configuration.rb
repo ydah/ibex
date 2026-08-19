@@ -8,7 +8,10 @@ require_relative "location"
 module Ibex
   # Typed, provenance-preserving effective configuration.
   module Configuration
+    # Steep models __dir__ as nilable although Ruby defines it for loaded files.
+    # steep:ignore:start
     autoload :AnalysisGrammar, File.join(__dir__, "configuration/analysis_grammar")
+    # steep:ignore:end
 
     # @rbs!
     #   type config_value = Symbol | String | Integer | bool | nil
@@ -312,9 +315,9 @@ module Ibex
                                     cli_option: :executable)
       ].freeze #: Array[Key]
       BY_NAME = DEFINITIONS.to_h { |key| [key.name, key] }.freeze #: Hash[String, Key]
-      CLI_ALGORITHM_VALUES = BY_NAME.fetch("parser.algorithm").allowed_values.map(&:to_s).freeze
+      CLI_ALGORITHM_VALUES = (BY_NAME.fetch("parser.algorithm").allowed_values || []).map(&:to_s).freeze
       CLI_CST_TRIVIA_VALUES = (
-        BY_NAME.fetch("cst.trivia").allowed_values.map(&:to_s) + BY_NAME.fetch("cst.trivia").cli_aliases
+        (BY_NAME.fetch("cst.trivia").allowed_values || []).map(&:to_s) + BY_NAME.fetch("cst.trivia").cli_aliases
       ).freeze
 
       class << self
@@ -330,12 +333,13 @@ module Ibex
 
         # @rbs () -> Hash[Symbol, Hash[Symbol, untyped]]
         def parser_setting_definitions
-          @parser_setting_definitions ||= DEFINITIONS.each_with_object({}) do |key, definitions|
+          definitions = {} #: Hash[Symbol, Hash[Symbol, untyped]]
+          @parser_setting_definitions ||= DEFINITIONS.each_with_object(definitions) do |key, definitions|
             next unless key.parser_setting
 
             definitions[key.parser_setting] = {
               configuration: key.name,
-              values: key.allowed_values.map(&:to_sym).freeze
+              values: (key.allowed_values || []).map { |value| value.to_s.to_sym }.freeze
             }.freeze
           end.freeze
         end

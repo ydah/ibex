@@ -194,6 +194,8 @@ module Ibex
       end
     end
 
+    # Steep cannot model methods added to this instance's singleton by autoloaded feature modules.
+    # steep:ignore:start
     COMMANDS = {
       "check" => Command.new(:CLIAmbiguity) { |arguments| run_check_command(arguments) },
       "diff" => Command.new(:CLIAnalysis) { |arguments| run_diff_command(arguments) },
@@ -223,6 +225,7 @@ module Ibex
     }.freeze #: Hash[String, Command]
 
     WATCH_COMMAND = Command.new(:CLIWatch) { |path| run_watch(path) }
+    # steep:ignore:end
 
     include CLICounterexampleOptions
     include CLIGenerationErrorMessages

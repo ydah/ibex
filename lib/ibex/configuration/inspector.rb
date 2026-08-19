@@ -13,6 +13,9 @@ module Ibex
     module Inspector
       extend self
 
+      # @rbs!
+      #   def self.from_grammar_ir: (IR::Grammar grammar, path: String) -> Input
+
       # @rbs (Frontend::Resolution resolution) -> Input
       def from_source(resolution)
         unless resolution.is_a?(Frontend::Resolution)

@@ -334,7 +334,7 @@ module Ibex
         value[:recovery] = @recovery
       end
 
-      # @rbs () -> void
+      # @rbs (Hash[String, String] user_code) -> void
       def validate_user_code_chunks(user_code)
         @user_code_chunks.each do |name, chunks|
           next if chunks.map(&:code).join == user_code.fetch(name, "")
