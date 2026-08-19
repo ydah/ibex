@@ -10,7 +10,7 @@ module Ibex
     # The dossier remains the semantic source of truth; this class only checks
     # that its published evidence was not silently replaced.
     class DirectIELRProvenance
-      DOSSIER_REVISION = "c31c3409c78fcba8e01f9d0f2c95010c3e02c328"
+      DOSSIER_REVISION = "94ee6dfe1dd73e2d89b729786b1200799bf1d2e9"
       DOSSIER_PATH = "tool/quality/evidence/direct-ielr-decision-v1.json"
       DOSSIER_DIGEST = "bbe89c714f12c44e2e857554492b28d778ff7b6808cfe0eaa8d82192752dec59"
       DECISION_REVISION = "5c569ceaf06e9fb217ea5211194d605bbbc3e2ff"
