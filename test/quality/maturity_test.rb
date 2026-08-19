@@ -12,7 +12,7 @@ class MaturityTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   REGISTRY = File.join(ROOT, "docs/registry/maturity.yml")
   NARRATIVE = File.join(ROOT, "docs/policy/maturity.md")
-  TODAY = Date.new(2026, 8, 18)
+  TODAY = Date.new(2026, 8, 19)
   KNOWN_NONSEMANTIC_MAPPINGS = {
     "semantic-locations-types" => {
       "v0.2.0..reviewed" => %w[
@@ -40,7 +40,7 @@ class MaturityTest < Minitest::Test
   def test_review_date_covers_the_reviewed_commit_in_its_recorded_timezone
     revision = document.dig("audit", "reviewed_repository_revision")
 
-    assert_equal Date.new(2026, 8, 18), Ibex::Quality::Maturity.commit_date(ROOT, revision)
+    assert_equal Date.new(2026, 8, 19), Ibex::Quality::Maturity.commit_date(ROOT, revision)
 
     changed = document
     changed.fetch("audit")["reviewed_at"] = "2026-08-04"

@@ -20,11 +20,24 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "829b5d2d4678add5beb7de800c2f7dcc5ae2ef18",
+    "base_revision": "f6eb7dcbf6da0bf1ae126d024bf0839d04e6fefe",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
-    "capture_worktree_clean": true,
-    "capture_worktree_status": [],
-    "capture_worktree_status_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "capture_worktree_clean": false,
+    "capture_worktree_status": [
+      " M README.md",
+      " M docs/records/error-ux/round2-review-status-v1.json",
+      " M docs/records/error-ux/round2-v1.json",
+      " M docs/registry/maturity.yml",
+      " M lib/ibex/cli.rb",
+      " M lib/ibex/cli/fix.rb",
+      " M sig/ibex/cli.rbs",
+      " M sig/ibex/cli/fix.rbs",
+      " M test/fixtures/configuration/options-v1.yml",
+      " M test/quality/maturity_test.rb",
+      " M tool/quality/maturity_authority.rb",
+      " M tool/quality/stable-api-v1.yml"
+    ],
+    "capture_worktree_status_sha256": "f98aa09432830cd64b988f065fb875ccd48e82d2d4dbedab0c012ff602c77152",
     "bound_paths": [
       {
         "path": ".github/workflows/main.yml",
@@ -58,8 +71,8 @@
       },
       {
         "path": "docs/registry/maturity.yml",
-        "sha256": "63ec83fb5b854b546c095791659fc3b700fc28d6ef5b68d1f6a2936ef39e0207",
-        "git_state": "base",
+        "sha256": "ee4972819874d09d4e3f0730d0be6ba8b302e2f966561502f487975dedf70f1a",
+        "git_state": "modified",
         "base_sha256": "63ec83fb5b854b546c095791659fc3b700fc28d6ef5b68d1f6a2936ef39e0207"
       },
       {
@@ -238,8 +251,8 @@
       },
       {
         "path": "test/quality/maturity_test.rb",
-        "sha256": "62274f2166f958c5e592f6c866125b05c71ecedb8c8b606af030905dba3bf8c4",
-        "git_state": "base",
+        "sha256": "dc760b2d73acc1ed032393b68eea0d3d02e63aefd4e732fba30a8ccf0c7f07f0",
+        "git_state": "modified",
         "base_sha256": "62274f2166f958c5e592f6c866125b05c71ecedb8c8b606af030905dba3bf8c4"
       },
       {
@@ -273,7 +286,7 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "d5d81931e8160840db7e8f33e20d27706338d2f2d89d56ce91315dea4ecb7fb0",
+    "bound_paths_sha256": "38e19445b6614c54f924a141d4afb2257f0616971d7545e64a0a1b9f33cc445c",
     "implementation_sha256": "91160673bb0d540a738a698781b283d332729c5afafee6a601b14928b1ed3239",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
@@ -417,7 +430,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001388,
+                  "value": 0.001161,
                   "release_gate": false
                 }
               },
@@ -518,7 +531,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.006219,
+                  "value": 0.005917,
                   "release_gate": false
                 }
               },
@@ -642,7 +655,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000849,
+                  "value": 0.000815,
                   "release_gate": false
                 }
               },
@@ -743,7 +756,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001546,
+                  "value": 0.001504,
                   "release_gate": false
                 }
               },
@@ -867,7 +880,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000576,
+                  "value": 0.00058,
                   "release_gate": false
                 }
               },
@@ -968,7 +981,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000785,
+                  "value": 0.000768,
                   "release_gate": false
                 }
               },
@@ -1094,7 +1107,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000489,
+                  "value": 0.00049,
                   "release_gate": false
                 }
               },
@@ -1196,7 +1209,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000566,
+                  "value": 0.000562,
                   "release_gate": false
                 }
               },
@@ -1298,7 +1311,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000411,
+                  "value": 0.000394,
                   "release_gate": false
                 }
               },
@@ -1400,7 +1413,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000434,
+                  "value": 0.000417,
                   "release_gate": false
                 }
               },
@@ -1546,7 +1559,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.013067,
+                  "value": 0.011906,
                   "release_gate": false
                 }
               },
@@ -1647,7 +1660,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.053705,
+                  "value": 0.051037,
                   "release_gate": false
                 }
               },

@@ -3562,7 +3562,7 @@ registrations:
   method: add_fix_budget_options
   line: 145
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 523009c39df220b47fc95c1a8c4f538d5a607d7131b0757993e735695e2f36a6
+  context_sha256: 23cf5f641b8a1f8a27568adf411c32f5e78b29a2fefbd7196758014bd291c71a
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3592,7 +3592,7 @@ registrations:
   method: add_fix_budget_options
   line: 145
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 523009c39df220b47fc95c1a8c4f538d5a607d7131b0757993e735695e2f36a6
+  context_sha256: 23cf5f641b8a1f8a27568adf411c32f5e78b29a2fefbd7196758014bd291c71a
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3622,7 +3622,7 @@ registrations:
   method: add_fix_budget_options
   line: 145
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 523009c39df220b47fc95c1a8c4f538d5a607d7131b0757993e735695e2f36a6
+  context_sha256: 23cf5f641b8a1f8a27568adf411c32f5e78b29a2fefbd7196758014bd291c71a
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3652,7 +3652,7 @@ registrations:
   method: add_fix_budget_options
   line: 145
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 523009c39df220b47fc95c1a8c4f538d5a607d7131b0757993e735695e2f36a6
+  context_sha256: 23cf5f641b8a1f8a27568adf411c32f5e78b29a2fefbd7196758014bd291c71a
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3682,7 +3682,7 @@ registrations:
   method: add_fix_budget_options
   line: 145
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 523009c39df220b47fc95c1a8c4f538d5a607d7131b0757993e735695e2f36a6
+  context_sha256: 23cf5f641b8a1f8a27568adf411c32f5e78b29a2fefbd7196758014bd291c71a
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3712,7 +3712,7 @@ registrations:
   method: add_fix_budget_options
   line: 145
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 523009c39df220b47fc95c1a8c4f538d5a607d7131b0757993e735695e2f36a6
+  context_sha256: 23cf5f641b8a1f8a27568adf411c32f5e78b29a2fefbd7196758014bd291c71a
   surface: fix
   declared_spellings:
   - "--#{name}=N"
@@ -3742,7 +3742,7 @@ registrations:
   method: add_fix_budget_options
   line: 145
   declaration_sha256: a361384959a682ad8891826048b4edcd88c3fff2b6f0d82a3b1d0b5dd3c8ab03
-  context_sha256: 523009c39df220b47fc95c1a8c4f538d5a607d7131b0757993e735695e2f36a6
+  context_sha256: 23cf5f641b8a1f8a27568adf411c32f5e78b29a2fefbd7196758014bd291c71a
   surface: fix
   declared_spellings:
   - "--#{name}=N"

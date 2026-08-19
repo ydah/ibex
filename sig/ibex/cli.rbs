@@ -30,8 +30,6 @@ module Ibex
       def call: (Ibex::CLI cli, Array[String] | String arguments) -> Integer?
     end
 
-    # Steep cannot model methods added to this instance's singleton by autoloaded feature modules.
-    # steep:ignore:start
     COMMANDS: Hash[String, Command]
 
     WATCH_COMMAND: untyped

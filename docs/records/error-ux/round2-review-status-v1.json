@@ -5,7 +5,7 @@
   "reason": "awaiting-at-least-two-independent-reviews",
   "evidence": {
     "path": "docs/records/error-ux/round2-v1.json",
-    "sha256": "076004c80dbde9ed5a26e91c533ea97627e950622c9caeae4eddb051045530fd"
+    "sha256": "fbf452023a324f2d548082b81f38565632c05c98744bb10d0c10d01a416a68a2"
   },
   "allowed_labels": [
     "useful",

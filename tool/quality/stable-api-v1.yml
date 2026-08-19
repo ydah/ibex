@@ -4,7 +4,7 @@ baseline: v0.2.0
 files:
   sig/ibex/ir.rbs: b41e9215cdbfb93dbd1e887e33d6e6d67522dd84a4743a020393d7891de14238
   sig/ibex/ir/automaton_ir.rbs: ab9c57864fff750ff01a2a394ea224efb74be075156a45da644530c32615ae8b
-  sig/ibex/ir/grammar_ir.rbs: 39d7f64504bf76d18ed5fa1bea7e02cb4ffa4eb97098bb2b673821af1b64c0d0
+  sig/ibex/ir/grammar_ir.rbs: 1d3bbe4e89e07b3df2c04ae2102e95c5960b45dae6adc97be063b02b552b296d
   sig/ibex/ir/lexer_ir.rbs: 9cf8bac34bcc43fe7371aa9a72e6b4c223714b62994638b6993583a14706a5b3
   sig/ibex/ir/serialize.rbs: 8d4b722bc0dd7d4bfa89a517568b14f8a35897b64c03cd3715ab913a4746ae73
   sig/ibex/ir/validator.rbs: 5de07834bc4d4f7bcc4f8d1eea414fbfd89f096ee03f7605a23c3ef8a869d1b8
