@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../test_helper"
+require "ibex/runtime/cst"
 
 class CSTRedTest < Minitest::Test
   def test_children_are_lazy_memoized_and_offsets_are_contiguous
