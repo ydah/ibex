@@ -20,7 +20,7 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "bbac0af3a5cdab43e95b52f7e35e81c082af5d8e",
+    "base_revision": "3a842a6a6fffe1fc2ffdf4821efaac9f6cabf3c8",
     "base_revision_role": "Exact clean capture revision and parent of the committed evidence revision",
     "capture_worktree_clean": true,
     "capture_worktree_status": [],
@@ -946,9 +946,9 @@
       },
       {
         "path": "lib/ibex/runtime/parser.rb",
-        "sha256": "a9157acf2395bca35d142f5fafad5ca3c84bd6ba8aad20d5b016b03785881276",
+        "sha256": "fa6aadd1bd2021d18f0f16f23ec39b86055c5bcd205f5857e5f53a3beffc532d",
         "git_state": "base",
-        "base_sha256": "a9157acf2395bca35d142f5fafad5ca3c84bd6ba8aad20d5b016b03785881276"
+        "base_sha256": "fa6aadd1bd2021d18f0f16f23ec39b86055c5bcd205f5857e5f53a3beffc532d"
       },
       {
         "path": "lib/ibex/runtime/parser_sync_recovery.rb",
@@ -1191,15 +1191,15 @@
         "base_sha256": "9ecbc77e2544d25c230e5f05b1f9eaf9c9bb04924575cce8b5c8607e27695ef4"
       }
     ],
-    "bound_paths_sha256": "ce1d4819c3eceb4609b14e5d67adbabca7bcb6b49bb88f89788bab47289345db",
-    "implementation_sha256": "3d28abd8fa7649cb1a8821d9b08b6016b6e78080d87bde7f1615a5fe93caa62c",
+    "bound_paths_sha256": "95829d03bab86c5cc39521c331697fb20116b56395d793e6082deaa28a304999",
+    "implementation_sha256": "d95e3f8de1d45c5a06ec9740afa4251fe35cab466e3d9d91f218d8d139acdba6",
     "deterministic_report_input_sha256": "27319d5e6810862093270384d5c05de8424f6967578337fc628765b8661e689b",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "a3541bc86aa89a1e973407149ee6e0302a5de51e3e4d4d7d0b34be18599b1b78",
     "heuristic_analysis_sha256": "1870a00b14aea7a46278e4b80e9bd60db4b499c343c7a7a90faf9c3923e27e76",
     "evidence_path": "tool/profile/evidence/lexer-profile-v1.json",
     "evidence_exclusion_reason": "the evidence file is excluded from its own digest to avoid circularity",
-    "capture_identity_sha256": "120808f8ef936bda05c8ba47e6e54aa91960068c37d3aaa8f510b77c6db1a101"
+    "capture_identity_sha256": "dda7da0229cc5c213aa0846f48724f986f739a5834db7eb01c6f125b69041ebc"
   },
   "measurement_policy": {
     "runtime_role": "diagnostic_observation_only",
@@ -1322,7 +1322,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000193,
+                "value": 0.000216,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1424,7 +1424,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.00015,
+                "value": 0.000151,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1514,7 +1514,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000139,
+                "value": 0.000153,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1610,7 +1610,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000148,
+                "value": 0.00017,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1700,7 +1700,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.003948,
+                "value": 0.004006,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1790,7 +1790,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000319,
+                "value": 0.000614,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1886,7 +1886,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000176,
+                "value": 0.000196,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -1986,7 +1986,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000165,
+                "value": 0.000194,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2116,7 +2116,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000519,
+                "value": 0.000487,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2286,7 +2286,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000374,
+                "value": 0.000386,
                 "release_gate": false
               },
               "allocated_objects": {
@@ -2396,7 +2396,7 @@
             "runtime_observations": {
               "elapsed_seconds": {
                 "status": "observation",
-                "value": 0.000518,
+                "value": 0.000553,
                 "release_gate": false
               },
               "allocated_objects": {
