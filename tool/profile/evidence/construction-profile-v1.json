@@ -20,7 +20,7 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "26a345b73b49f8991bc3fd9d130067a7396f29da",
+    "base_revision": "829b5d2d4678add5beb7de800c2f7dcc5ae2ef18",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": true,
     "capture_worktree_status": [],
@@ -70,9 +70,9 @@
       },
       {
         "path": "lib/ibex/lalr/build_metrics.rb",
-        "sha256": "134bb25df967fcfe87b0046cb5541fb4e25672abbf5241669f9f32d8f0d061f3",
+        "sha256": "4e62aa1d340100f52c30b765f5d2e8961427829e1a5bb344c030ec868e46f409",
         "git_state": "base",
-        "base_sha256": "134bb25df967fcfe87b0046cb5541fb4e25672abbf5241669f9f32d8f0d061f3"
+        "base_sha256": "4e62aa1d340100f52c30b765f5d2e8961427829e1a5bb344c030ec868e46f409"
       },
       {
         "path": "lib/ibex/lalr/builder.rb",
@@ -184,9 +184,9 @@
       },
       {
         "path": "sig/ibex/lalr/build_metrics.rbs",
-        "sha256": "252ed62e63312ac0ba9154ebddc88411922e38af186c1f92df188a3afe0b0a56",
+        "sha256": "ede656c7afdb6eb782694ad483e7cfce75877630d6325710b9b9525fcc84106f",
         "git_state": "base",
-        "base_sha256": "252ed62e63312ac0ba9154ebddc88411922e38af186c1f92df188a3afe0b0a56"
+        "base_sha256": "ede656c7afdb6eb782694ad483e7cfce75877630d6325710b9b9525fcc84106f"
       },
       {
         "path": "sig/ibex/lalr/builder.rbs",
@@ -273,8 +273,8 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "1b29519e854aa76053df2fb90ef7b999cba1057fd1960cffe11b8b36f4582409",
-    "implementation_sha256": "e9f329611fbb6c3e4f20322c0acb8933e642835c94d986c16eda7d693e161804",
+    "bound_paths_sha256": "d5d81931e8160840db7e8f33e20d27706338d2f2d89d56ce91315dea4ecb7fb0",
+    "implementation_sha256": "91160673bb0d540a738a698781b283d332729c5afafee6a601b14928b1ed3239",
     "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
     "evidence_path": "tool/profile/evidence/construction-profile-v1.json",
@@ -417,7 +417,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.003177,
+                  "value": 0.001388,
                   "release_gate": false
                 }
               },
@@ -518,7 +518,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.004347,
+                  "value": 0.006219,
                   "release_gate": false
                 }
               },
@@ -642,7 +642,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000877,
+                  "value": 0.000849,
                   "release_gate": false
                 }
               },
@@ -743,7 +743,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001608,
+                  "value": 0.001546,
                   "release_gate": false
                 }
               },
@@ -867,7 +867,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000641,
+                  "value": 0.000576,
                   "release_gate": false
                 }
               },
@@ -968,7 +968,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000816,
+                  "value": 0.000785,
                   "release_gate": false
                 }
               },
@@ -1094,7 +1094,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000508,
+                  "value": 0.000489,
                   "release_gate": false
                 }
               },
@@ -1196,7 +1196,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000557,
+                  "value": 0.000566,
                   "release_gate": false
                 }
               },
@@ -1298,7 +1298,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000425,
+                  "value": 0.000411,
                   "release_gate": false
                 }
               },
@@ -1400,7 +1400,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000429,
+                  "value": 0.000434,
                   "release_gate": false
                 }
               },
@@ -1546,7 +1546,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.013973,
+                  "value": 0.013067,
                   "release_gate": false
                 }
               },
@@ -1647,7 +1647,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.055169,
+                  "value": 0.053705,
                   "release_gate": false
                 }
               },
