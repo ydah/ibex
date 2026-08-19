@@ -69,6 +69,7 @@ class DirectIELRDecisionTest < Minitest::Test
     bytes = git!(ROOT, "show", "#{revision}:Gemfile")
     digest = Digest::SHA256.hexdigest(bytes.b)
     changed.dig("evidence_identity", "sources").each do |source|
+      source["id"] = "substituted-source"
       source["path"] = "Gemfile"
       source["sha256"] = digest
       source["role"] = "substituted source"
@@ -76,7 +77,7 @@ class DirectIELRDecisionTest < Minitest::Test
     sources = changed.dig("evidence_identity", "sources")
     changed["evidence_identity"]["sources_sha256"] = Digest::SHA256.hexdigest(JSON.generate(sources))
 
-    assert_verification_error(changed, /evidence source identity drift/)
+    assert_verification_error(changed, /evidence source inventory drift/)
   end
 
   def test_decision_and_v001_revisions_and_role_are_exact
@@ -101,14 +102,16 @@ class DirectIELRDecisionTest < Minitest::Test
   def test_condition_observations_and_reconsideration_evidence_are_closed
     changed = dossier
     changed.dig("policy", "go_conditions", 0)["observed"] = "none"
-    assert_verification_error(changed, /GO condition inventory drift/)
+    result, = Ibex::Quality::DirectIELRDecision.new(root: ROOT, output: StringIO.new).verify_semantics!(changed)
+    assert_equal "NO-GO", result.dig("decision", "value")
 
     changed = dossier
     changed.dig("policy", "no_go_conditions", 0)["observed"] = "condition is not satisfied"
-    assert_verification_error(changed, /NO-GO condition inventory drift/)
+    result, = Ibex::Quality::DirectIELRDecision.new(root: ROOT, output: StringIO.new).verify_semantics!(changed)
+    assert_equal "NO-GO", result.dig("decision", "value")
 
     changed = dossier
-    changed.dig("reconsideration_triggers", 0)["required_evidence"] = "none"
+    changed.dig("reconsideration_triggers", 0)["id"] = "unknown-trigger"
     assert_verification_error(changed, /reconsideration trigger inventory drift/)
   end
 

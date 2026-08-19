@@ -35,6 +35,14 @@ namespace :frontend do
   end
 end
 
+namespace :docs do
+  desc "Generate the public direct IELR dossier from its JSON evidence"
+  task :generate do
+    ruby "-Ilib", "-r./tool/quality/direct_ielr_document", "-e",
+         "Ibex::Quality::DirectIELRDocument.write!"
+  end
+end
+
 namespace :runtime do
   desc "Build the standalone runtime gem"
   task :build do
