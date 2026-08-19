@@ -5,6 +5,7 @@ require_relative "location_span" unless defined?(Ibex::Runtime::LocationSpan)
 require_relative "observation" unless defined?(Ibex::Runtime::Observation)
 require_relative "resource_limits" unless defined?(Ibex::Runtime::ResourceLimits)
 require_relative "parser_sync_recovery" unless defined?(Ibex::Runtime::ParserSyncRecovery)
+require_relative "parse_session_state" unless defined?(Ibex::Runtime::ParseSessionState)
 require_relative "table_format" unless defined?(Ibex::Runtime::PARSER_TABLE_FORMAT_VERSION)
 
 module Ibex
@@ -299,6 +300,7 @@ module Ibex
       # @rbs @yydebug: bool
       # @rbs @yydebug_output: IO
       # @rbs @source: runtime_value
+      # @rbs @parse_session_state: ParseSessionState
       # @rbs @state_stack: Array[Integer]
       # @rbs @value_stack: Array[runtime_value]
       # @rbs @vstack: Array[runtime_value]
@@ -354,6 +356,7 @@ module Ibex
 
       attr_reader :syntax_parse_memo #: CST::ParseMemo?
       attr_reader :incremental_reused_descendants #: Integer
+      attr_reader :parse_session_state #: ParseSessionState
 
       # Report the trust boundary of syntax-only operations for this loaded
       # parser class. Current generated artifacts can contain user sections
@@ -564,9 +567,7 @@ module Ibex
           ensure_driver_available_without_lock!
           @push_status = :idle
           @source = nil
-          @state_stack = []
-          install_value_stack([])
-          @location_stack = nil
+          reset_parse_session_state!
           @lookahead = NO_LOOKAHEAD
           @lookahead_value = nil
           @lookahead_location = nil
@@ -777,13 +778,11 @@ module Ibex
       # The explicit branches keep every runtime ivar typed while preserving application-owned values.
       # @rbs (ResourceLimits resource_limits, preserve_existing: bool) -> void
       def initialize_runtime_state(resource_limits, preserve_existing:)
+        initialize_parse_session_state!(preserve_existing)
         @resource_limits = resource_limits unless preserve_existing && defined?(@resource_limits)
         @yydebug = false unless preserve_existing && defined?(@yydebug)
         @yydebug_output = $stderr unless preserve_existing && defined?(@yydebug_output)
         @source = nil unless preserve_existing && defined?(@source)
-        @state_stack = [] unless preserve_existing && defined?(@state_stack)
-        install_value_stack([]) unless preserve_existing && defined?(@value_stack)
-        @location_stack = nil unless preserve_existing && defined?(@location_stack)
         @lookahead = NO_LOOKAHEAD unless preserve_existing && defined?(@lookahead)
         @lookahead_value = nil unless preserve_existing && defined?(@lookahead_value)
         @lookahead_location = nil unless preserve_existing && defined?(@lookahead_location)
@@ -850,9 +849,46 @@ module Ibex
       # Applications must not mutate or replace these internal arrays.
       # @rbs (Array[runtime_value] values) -> void
       def install_value_stack(values)
+        @parse_session_state.replace_value_stack!(values)
         @value_stack = values
         @vstack = values
         @racc_vstack = values
+      end
+
+      # @rbs (bool) -> void
+      def initialize_parse_session_state!(preserve_existing)
+        return if preserve_existing && defined?(@parse_session_state) && @parse_session_state
+
+        state_stack = preserve_existing && defined?(@state_stack) ? @state_stack : []
+        value_stack = preserve_existing && defined?(@value_stack) ? @value_stack : []
+        location_stack = preserve_existing && defined?(@location_stack) ? @location_stack : nil
+        @parse_session_state = ParseSessionState.new
+        @parse_session_state.replace!(state_stack, value_stack, location_stack)
+        @state_stack = @parse_session_state.state_stack
+        install_value_stack(@parse_session_state.value_stack)
+        install_location_stack(@parse_session_state.location_stack)
+      end
+
+      # @rbs () -> void
+      def reset_parse_session_state!
+        @parse_session_state.reset!
+        @state_stack = @parse_session_state.state_stack
+        install_value_stack(@parse_session_state.value_stack)
+        install_location_stack(@parse_session_state.location_stack)
+      end
+
+      # @rbs (Array[Integer]) -> void
+      def install_state_stack(state_stack)
+        @parse_session_state.replace!(
+          state_stack, @parse_session_state.value_stack, @parse_session_state.location_stack
+        )
+        @state_stack = state_stack
+      end
+
+      # @rbs (Array[Object?]?) -> void
+      def install_location_stack(location_stack)
+        @parse_session_state.replace_location_stack!(location_stack)
+        @location_stack = location_stack
       end
 
       # @rbs (Integer token_id) -> bool
@@ -2386,9 +2422,9 @@ module Ibex
         green_stack = @green_builder&.snapshot if state_stack
         unless shift_error_token
           if state_stack
-            @state_stack = state_stack
+            install_state_stack(state_stack)
             install_value_stack(value_stack || [])
-            @location_stack = location_stack
+            install_location_stack(location_stack)
             @green_builder&.restore(green_stack || [])
             return begin_sync_recovery(context, token_data, recovery_observers)
           end
@@ -2936,7 +2972,7 @@ module Ibex
 
       # @rbs (Hash[Symbol, runtime_value] tables) -> void
       def initialize_runtime_fast_path(tables)
-        @location_stack = track_locations?(tables) ? [] : nil
+        install_location_stack(track_locations?(tables) ? [] : nil)
         @runtime_fast_path = runtime_fast_path_eligible?(tables)
         return unless @runtime_fast_path
         return if @runtime_fast_path_tracker_installed
@@ -3124,7 +3160,7 @@ module Ibex
         elsif location
           new_stack = Array.new(@value_stack.length)
           new_stack << location
-          @location_stack = new_stack
+          install_location_stack(new_stack)
         end
       end
 
