@@ -10,15 +10,18 @@ class NormalizerPhaseTest < Minitest::Test
 
     normalizer.normalize
 
-    assert_equal :complete, normalizer.context.phase
+    assert_equal :complete, normalizer.phase_guard.phase
+    assert_same normalizer.phase_guard, normalizer.context
   end
 
-  def test_context_rejects_out_of_order_phases
-    context = Ibex::Normalize::Context.new
+  def test_phase_guard_rejects_out_of_order_phases
+    assert_same Ibex::Normalize::PhaseGuard, Ibex::Normalize::Context
 
-    error = assert_raises(RuntimeError) { context.begin_phase!(:symbols) }
+    phase_guard = Ibex::Normalize::PhaseGuard.new
+
+    error = assert_raises(RuntimeError) { phase_guard.begin_phase!(:symbols) }
 
     assert_match(/expected declarations, got symbols/, error.message)
-    assert_equal :initialized, context.phase
+    assert_equal :initialized, phase_guard.phase
   end
 end

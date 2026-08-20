@@ -43,7 +43,7 @@ module Ibex
 
     DEFAULT_MAX_INLINE_EXPANSIONS: ::Integer
 
-    attr_reader context: Normalize::Context
+    attr_reader phase_guard: Normalize::PhaseGuard
 
     @node_shapes: Hash[String, Array[String]]
 
@@ -142,6 +142,9 @@ module Ibex
 
     # @rbs () -> IR::Grammar
     def normalize: () -> IR::Grammar
+
+    # @rbs () -> Normalize::PhaseGuard
+    def context: () -> Normalize::PhaseGuard
 
     private
 

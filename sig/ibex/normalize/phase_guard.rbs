@@ -1,0 +1,21 @@
+# Generated from lib/ibex/normalize/phase_guard.rb with RBS::Inline
+
+module Ibex
+  module Normalize
+    # Verifies the ordered boundaries of normalization phases.
+    class PhaseGuard
+      PHASES: untyped
+
+      attr_reader phase: Symbol
+
+      # @rbs () -> void
+      def initialize: () -> void
+
+      # @rbs (Symbol phase) -> void
+      def begin_phase!: (Symbol phase) -> void
+
+      # @rbs () -> void
+      def complete_phase!: () -> void
+    end
+  end
+end

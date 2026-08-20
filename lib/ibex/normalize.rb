@@ -48,7 +48,7 @@ module Ibex
     DEFAULT_MAX_PARAMETER_SPECIALIZATIONS = 1_000
     DEFAULT_MAX_INLINE_EXPANSIONS = 10_000
 
-    attr_reader :context #: Normalize::Context
+    attr_reader :phase_guard #: Normalize::PhaseGuard
 
     # @rbs @ast: Frontend::AST::Root
     # @rbs @resolution: Frontend::Resolution?
@@ -115,7 +115,7 @@ module Ibex
 
       @ast = ast
       @mode = normalized_mode #: IR::grammar_mode
-      @context = Normalize::Context.new
+      @phase_guard = Normalize::PhaseGuard.new
       @symbols = [] #: Array[IR::GrammarSymbol]
       @symbols_by_name = {} #: Hash[String, IR::GrammarSymbol]
       @productions = [] #: Array[IR::Production]
@@ -153,13 +153,16 @@ module Ibex
       phase(:build) { build_grammar(parser_contract) }
     end
 
+    # @rbs () -> Normalize::PhaseGuard
+    def context = @phase_guard
+
     private
 
     # @rbs (Symbol phase) { () -> untyped } -> untyped
     def phase(name)
-      @context.begin_phase!(name)
+      @phase_guard.begin_phase!(name)
       result = yield
-      @context.complete_phase!
+      @phase_guard.complete_phase!
       result
     end
 

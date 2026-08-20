@@ -2,21 +2,7 @@
 
 module Ibex
   module Normalize
-    # Tracks the ordered normalization boundary without exposing phase order
-    # as an implicit property of a large mutable receiver.
-    class Context
-      PHASES: untyped
-
-      attr_reader phase: Symbol
-
-      # @rbs () -> void
-      def initialize: () -> void
-
-      # @rbs (Symbol phase) -> void
-      def begin_phase!: (Symbol phase) -> void
-
-      # @rbs () -> void
-      def complete_phase!: () -> void
-    end
+    # Compatibility name for callers that required the old internal class.
+    Context: untyped
   end
 end
