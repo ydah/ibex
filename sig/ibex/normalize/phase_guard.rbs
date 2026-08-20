@@ -8,6 +8,10 @@ module Ibex
 
       attr_reader phase: Symbol
 
+      @index: Integer
+
+      @active: bool
+
       # @rbs () -> void
       def initialize: () -> void
 

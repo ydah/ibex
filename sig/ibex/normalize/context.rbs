@@ -3,6 +3,6 @@
 module Ibex
   module Normalize
     # Compatibility name for callers that required the old internal class.
-    Context: untyped
+    Context: singleton(PhaseGuard)
   end
 end
