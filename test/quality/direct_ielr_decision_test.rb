@@ -160,7 +160,6 @@ class DirectIELRDecisionTest < Minitest::Test
       git!(staging, "switch", "--detach", SHALLOW_BOUNDARY_BASE)
       git!(staging, "-c", "user.name=Ibex Test", "-c", "user.email=test@example.invalid",
            "commit", "--quiet", "--allow-empty", "-m", "test: place V001 at shallow boundary")
-      git!(staging, "branch", "-D", "main")
       git!(staging, "branch", "shallow-boundary", "HEAD")
       assert system("git", "clone", "--quiet", "--depth=64", "--single-branch", "--no-tags",
                     "--branch=shallow-boundary",
@@ -216,7 +215,8 @@ class DirectIELRDecisionTest < Minitest::Test
   end
 
   def git!(root, *arguments)
-    output, error, status = Open3.capture3("git", *arguments, chdir: root)
+    output, error, status = Open3.capture3("git", "-c", "maintenance.auto=false", "-c", "gc.auto=0",
+                                           *arguments, chdir: root)
     raise "git #{arguments.join(' ')} failed: #{error}" unless status.success?
 
     output
