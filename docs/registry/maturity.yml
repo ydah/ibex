@@ -1,16 +1,16 @@
 schema_version: 1
 audit:
-  reviewed_at: "2026-08-19"
+  reviewed_at: "2026-09-08"
   reviewed_repository_revision: 9a86659af823f0b2d5a9f42c5e1ed96ea8df5672
   issue_audits:
-    - id: github-open-issues-2026-08-04
+    - id: github-open-issues-2026-09-08
       provider: github_search_api
       repository: ydah/ibex
       query: "repo:ydah/ibex is:issue is:open"
       command: "gh api -X GET search/issues -f q='repo:ydah/ibex is:issue is:open' -f per_page=100"
       source: https://api.github.com/search/issues?q=repo%3Aydah%2Fibex+is%3Aissue+is%3Aopen
-      checked_at: "2026-08-04"
-      fresh_until: "2026-09-03"
+      checked_at: "2026-09-08"
+      fresh_until: "2026-10-08"
       result:
         status: complete
         total_count: 0
@@ -215,7 +215,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream EBNF groups compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Commit and source snapshots do not establish downstream compatibility or undocumented field use.]
       evidence: [docs/decisions/0006-bounded-structural-grammar-lowering.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: "The exact open-issue query found no report, but unreported correctness defects remain possible." }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: "The exact open-issue query found no report, but unreported correctness defects remain possible." }
     documentation:
       status: complete_with_gaps
       evidence: [docs/grammar-reference.md, README.md]
@@ -393,7 +393,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream parameterized rules compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git history does not record independent adopter compatibility across these releases.]
       evidence: [docs/decisions/0006-bounded-structural-grammar-lowering.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; private and unreported failures are outside the query. }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: The exact open-issue query found no report; private and unreported failures are outside the query. }
     documentation:
       status: complete_with_gaps
       evidence: [docs/grammar-reference.md, docs/concepts/architecture.md]
@@ -575,7 +575,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream inline rules compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git history does not establish downstream action and precedence compatibility.]
       evidence: [docs/decisions/0006-bounded-structural-grammar-lowering.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not prove action-composition correctness. }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: The exact open-issue query found no report and does not prove action-composition correctness. }
     documentation:
       status: complete_with_gaps
       evidence: [docs/grammar-reference.md, docs/concepts/architecture.md]
@@ -811,7 +811,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream middle actions compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Source snapshots do not prove field compatibility of trusted action side effects.]
       evidence: [docs/grammar-reference.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; hidden action-order defects remain possible. }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: The exact open-issue query found no report; hidden action-order defects remain possible. }
     documentation:
       status: complete_with_gaps
       evidence: [docs/grammar-reference.md, docs/concepts/architecture.md]
@@ -1095,7 +1095,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream multiple entries compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Source history does not establish multi-entry application lifecycle compatibility.]
       evidence: [docs/grammar-reference.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: "The exact open-issue query found no report, not proof that every entry interaction is correct." }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: "The exact open-issue query found no report, not proof that every entry interaction is correct." }
     documentation:
       status: complete_with_gaps
       evidence: [docs/grammar-reference.md, docs/records/test-interactions.md]
@@ -1223,7 +1223,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream canonical imports compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Repository history does not establish cross-host field portability.]
       evidence: [docs/decisions/0005-contained-grammar-composition.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; filesystem boundary defects may be unreported. }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: The exact open-issue query found no report; filesystem boundary defects may be unreported. }
     documentation:
       status: complete_with_gaps
       evidence: [docs/grammar-reference.md, docs/concepts/architecture.md]
@@ -1383,7 +1383,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream generated lexers compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Versioned source history does not establish third-party stateful lexer compatibility.]
       evidence: [docs/decisions/0014-versioned-generated-lexer.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not cover unreported stateful-lexer defects. }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: The exact open-issue query found no report and does not cover unreported stateful-lexer defects. }
     documentation:
       status: complete_with_gaps
       evidence: [docs/grammar-reference.md, docs/guides/lexer-migration.md]
@@ -1900,7 +1900,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream semantic locations/types compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [The combined inventory row cannot supply one compatibility history for two activation and API boundaries.]
       evidence: [docs/grammar-reference.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; type unsoundness and location edge cases may be unreported. }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: The exact open-issue query found no report; type unsoundness and location edge cases may be unreported. }
     documentation:
       status: complete_with_gaps
       evidence: [docs/grammar-reference.md, docs/concepts/architecture.md]
@@ -2016,7 +2016,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream AST generation compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git snapshots do not establish downstream generated API compatibility.]
       evidence: [docs/grammar-reference.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not prove downstream AST compatibility. }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: The exact open-issue query found no report and does not prove downstream AST compatibility. }
     documentation:
       status: complete_with_gaps
       evidence: [docs/grammar-reference.md, README.md]
@@ -2128,7 +2128,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream grammar tests compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git snapshots do not establish portability in external project CI environments.]
       evidence: [docs/grammar-reference.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; subprocess and coverage defects may still be unreported. }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: The exact open-issue query found no report; subprocess and coverage defects may still be unreported. }
     documentation:
       status: complete_with_gaps
       evidence: [docs/grammar-reference.md, docs/development.md]
@@ -2232,7 +2232,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream documentation tooling compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git snapshots do not cover independent accessibility or downstream rendering compatibility.]
       evidence: [docs/grammar-reference.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; renderer and accessibility defects may be unreported. }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: The exact open-issue query found no report; renderer and accessibility defects may be unreported. }
     documentation:
       status: complete_with_gaps
       evidence: [docs/grammar-reference.md, docs/development.md]
@@ -2346,7 +2346,7 @@ features:
       - schema/impact-v1.schema.json
       - test/impact/graph_test.rb
     issue_audit:
-      audit_id: github-open-issues-2026-08-04
+      audit_id: github-open-issues-2026-09-08
       status: none_found
       summary: The reviewed public issue query assigned no open issue to grammar impact
         analysis.
@@ -2551,7 +2551,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream IELR compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Source stability does not provide an independent algorithm oracle or application benefit.]
       evidence: [docs/decisions/0007-shared-parser-construction-pipeline.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; absence is not an independent algorithm oracle. }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: The exact open-issue query found no report; absence is not an independent algorithm oracle. }
     documentation:
       status: complete_with_gaps
       evidence: [docs/concepts/architecture.md, docs/grammar-reference.md]
@@ -2667,7 +2667,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream LSP compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Source history does not reconstruct real editor lifecycle and extension compatibility.]
       evidence: [docs/guides/editor-setup.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; editor-specific failures may not be in the repository tracker. }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: The exact open-issue query found no report; editor-specific failures may not be in the repository tracker. }
     documentation:
       status: complete_with_gaps
       evidence: [docs/guides/editor-setup.md, README.md]
@@ -2783,7 +2783,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream watch compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git history does not establish long-running host-specific operational compatibility.]
       evidence: [docs/grammar-reference.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; long-running and host-specific defects may be unreported. }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: The exact open-issue query found no report; long-running and host-specific defects may be unreported. }
     documentation:
       status: complete_with_gaps
       evidence: [docs/grammar-reference.md, docs/development.md]
@@ -2887,7 +2887,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream debug compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git snapshots do not establish external diagnostic usefulness or output compatibility.]
       evidence: [docs/grammar-reference.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not prove simulator fidelity. }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: The exact open-issue query found no report and does not prove simulator fidelity. }
     documentation:
       status: complete_with_gaps
       evidence: [docs/grammar-reference.md, docs/concepts/architecture.md]
@@ -2999,7 +2999,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream coverage compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git snapshots do not establish external CI threshold usefulness or observation overhead.]
       evidence: [docs/decisions/0010-committed-runtime-observation.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; missing-event defects may be unreported. }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: The exact open-issue query found no report; missing-event defects may be unreported. }
     documentation:
       status: complete_with_gaps
       evidence: [docs/grammar-reference.md, docs/development.md]
@@ -3103,7 +3103,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream browser playground compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git history does not reconstruct supported browser and assistive technology compatibility.]
       evidence: [docs/decisions/0015-worker-isolated-browser-analysis.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; browser and accessibility defects may be reported elsewhere or not at all. }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: The exact open-issue query found no report; browser and accessibility defects may be reported elsewhere or not at all. }
     documentation:
       status: incomplete
       evidence: [README.md, docs/policy/stability.md]
@@ -3235,7 +3235,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream action-shadow compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git snapshots do not establish compatibility with an independent type-checker consumer.]
       evidence: [docs/decisions/0011-versioned-semantic-action-boundary.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report and does not establish semantic equivalence with runtime execution. }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: The exact open-issue query found no report and does not establish semantic equivalence with runtime execution. }
     documentation:
       status: complete_with_gaps
       evidence: [docs/grammar-reference.md, docs/concepts/architecture.md]
@@ -3347,7 +3347,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream bounded repair compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git history does not establish external usefulness or a non-nil inserted-value contract.]
       evidence: [docs/decisions/0012-bounded-nonexecuting-analysis.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; it does not negate the two known unhelpful baseline plans. }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: The exact open-issue query found no report; it does not negate the two known unhelpful baseline plans. }
     documentation:
       status: complete_with_gaps
       evidence: [docs/grammar-reference.md, docs/evidence/error-ux.md]
@@ -3640,7 +3640,7 @@ features:
           unresolved_uncertainty: This path review does not establish downstream incremental CST compatibility or behavior outside the validator-owned introduction and canonical source scope.
       unknowns: [Git snapshots do not establish editor lifecycle correctness or external latency behavior.]
       evidence: [docs/decisions/0018-conservative-incremental-syntax-reuse.md, docs/decisions/0019-runtime-syntax-session-boundary.md, docs/policy/stability.md]
-    issue_audit: { audit_id: github-open-issues-2026-08-04, status: none_found, summary: The exact open-issue query found no report; fixed-seed and property tests cannot prove every edit sequence. }
+    issue_audit: { audit_id: github-open-issues-2026-09-08, status: none_found, summary: The exact open-issue query found no report; fixed-seed and property tests cannot prove every edit sequence. }
     documentation:
       status: complete_with_gaps
       evidence: [docs/concepts/cst.md, docs/guides/cst-migration.md, docs/concepts/syntax-sessions.md]

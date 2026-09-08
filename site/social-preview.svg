@@ -1,10 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
   <title id="title">Ibex — Pure Ruby LR parser generator</title>
-  <desc id="desc">Build parsers, inspect the machine.</desc>
-  <rect width="1200" height="630" fill="#0b1120"/>
-  <path d="M0 88h1200M0 176h1200M0 264h1200M0 352h1200M0 440h1200M0 528h1200M88 0v630M176 0v630M264 0v630M352 0v630M440 0v630M528 0v630M616 0v630M704 0v630M792 0v630M880 0v630M968 0v630M1056 0v630M1144 0v630" stroke="#4ade80" stroke-opacity=".08"/>
-  <text x="96" y="176" fill="#f8fafc" font-family="monospace" font-size="54" font-weight="700" letter-spacing="8">IBEX<tspan fill="#4ade80">_</tspan></text>
-  <text x="96" y="310" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="72" font-weight="800">Build parsers.</text>
-  <text x="96" y="392" fill="#4ade80" font-family="system-ui, sans-serif" font-size="72" font-weight="800">See the machine.</text>
-  <text x="96" y="486" fill="#a8b3c5" font-family="system-ui, sans-serif" font-size="28">Pure Ruby · racc-compatible · inspectable LR tooling</text>
+  <desc id="desc">Build the parser. See how it works.</desc>
+  <rect width="1200" height="630" fill="#0b1220"/>
+  <text x="84" y="104" fill="#f5f7fb" font-family="monospace" font-size="32" font-weight="700">ibex<tspan fill="#8bacff">/</tspan></text>
+  <text x="84" y="260" fill="#f5f7fb" font-family="system-ui, sans-serif" font-size="68" font-weight="800">Build the parser.</text>
+  <text x="84" y="340" fill="#f5f7fb" font-family="system-ui, sans-serif" font-size="68" font-weight="800">See how it works.</text>
+  <text x="84" y="430" fill="#aab7ca" font-family="system-ui, sans-serif" font-size="25">Pure Ruby. Racc-compatible. No native extension.</text>
+  <rect x="770" y="84" width="346" height="462" rx="20" fill="#080e19" stroke="#354764" stroke-width="2"/>
+  <text x="806" y="137" fill="#8bacff" font-family="monospace" font-size="18">calculator.y</text>
+  <path d="M770 166h346M806 330h274M806 397h274M806 464h274" stroke="#263650" stroke-width="2"/>
+  <text x="806" y="218" fill="#8bacff" font-family="monospace" font-size="18">rule</text>
+  <text x="826" y="255" fill="#f5f7fb" font-family="monospace" font-size="18">expr : expr '+' term</text>
+  <text x="866" y="291" fill="#f5f7fb" font-family="monospace" font-size="18">| term</text>
+  <circle cx="824" cy="364" r="17" fill="none" stroke="#8bacff"/>
+  <circle cx="824" cy="431" r="17" fill="none" stroke="#8bacff"/>
+  <circle cx="824" cy="498" r="17" fill="none" stroke="#8bacff"/>
+  <text x="818" y="370" fill="#8bacff" font-family="monospace" font-size="16">0</text>
+  <text x="818" y="437" fill="#8bacff" font-family="monospace" font-size="16">4</text>
+  <text x="818" y="504" fill="#8bacff" font-family="monospace" font-size="16">9</text>
+  <text x="858" y="370" fill="#aab7ca" font-family="monospace" font-size="15">expr → • expr '+' term</text>
+  <text x="858" y="437" fill="#aab7ca" font-family="monospace" font-size="15">expr → expr '+' • term</text>
+  <text x="858" y="504" fill="#aab7ca" font-family="monospace" font-size="15">expr → expr '+' term •</text>
 </svg>

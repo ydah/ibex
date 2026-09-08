@@ -2,6 +2,8 @@
 
 require_relative "../test_helper"
 require "ibex/runtime/cst"
+require "open3"
+require "rbconfig"
 
 class CSTGreenTest < Minitest::Test
   def test_token_widths_and_source_are_byte_exact
@@ -114,6 +116,13 @@ class CSTGreenTest < Minitest::Test
   def test_green_tree_can_be_read_concurrently_in_ractors
     skip "Ractor is unavailable" unless defined?(Ractor) && Ractor.respond_to?(:shareable?)
 
+    # Keep Ractor VM state out of the full suite's later garbage collections.
+    if $PROGRAM_NAME != __FILE__
+      output, error, status = Open3.capture3(RbConfig.ruby, __FILE__, "--name", name)
+      assert_predicate status, :success?, output + error
+      return
+    end
+
     root = repeated_root(Ibex::Runtime::CST::NodeCache.new).green
     readers = 2.times.map do
       Ractor.new(root) { |green| [green.to_source, green.descendant_count] }
@@ -124,9 +133,6 @@ class CSTGreenTest < Minitest::Test
   end
 
   def test_green_layer_loads_without_the_parser
-    require "open3"
-    require "rbconfig"
-
     _output, error, status = Open3.capture3(
       RbConfig.ruby, "-Ilib", "-e",
       'require "ibex/runtime/cst/green/builder"; require "ibex/runtime/cst/kind"'

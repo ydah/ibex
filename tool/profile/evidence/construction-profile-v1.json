@@ -9,7 +9,7 @@
     "ruby_patchlevel": 0,
     "ruby_description": "ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin24]",
     "ruby_platform": "arm64-darwin24",
-    "rubyopt": "-r/Users/yudai.takada/.rbenv/versions/4.0.0/lib/ruby/gems/4.0.0/gems/bundler-4.0.13/lib/bundler/setup",
+    "rubyopt": "-r/Users/yudai.takada/.rbenv/versions/4.0.0/lib/ruby/site_ruby/4.0.0/bundler/setup",
     "yjit_enabled": false,
     "host_os": "darwin24",
     "host_cpu": "arm64",
@@ -20,13 +20,19 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "2a5e48aa8008e33f7bb30ccdbd0417141a71e68b",
+    "base_revision": "93878de11568ff326b5e5626e63633e3b83c563c",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": false,
     "capture_worktree_status": [
-      " M tool/profile/evidence/construction-profile-v1.json"
+      " M Gemfile",
+      " M docs/policy/maturity.md",
+      " M docs/registry/maturity.yml",
+      " M gemfiles/compat.Gemfile",
+      " M test/codegen/ractor_shareability_test.rb",
+      " M test/quality/maturity_test.rb",
+      " M test/runtime/cst_green_test.rb"
     ],
-    "capture_worktree_status_sha256": "22d2d2a5469501003dac427055891c20d485f0cf242d410f9006231ffc07eef1",
+    "capture_worktree_status_sha256": "c23b1c12388b17fb14072cb1b0dc8c106568882c1da4aa05cb6f58c618258d11",
     "bound_paths": [
       {
         "path": ".github/workflows/main.yml",
@@ -42,8 +48,8 @@
       },
       {
         "path": "docs/policy/maturity.md",
-        "sha256": "a122edfd90b0463904d98020c202d6d4f0345d1294aa8dc1886663b3c123ca6e",
-        "git_state": "base",
+        "sha256": "49c132f038e20d39abcb3edb327df28cbfe19816982e5bad372f00d839152d02",
+        "git_state": "modified",
         "base_sha256": "a122edfd90b0463904d98020c202d6d4f0345d1294aa8dc1886663b3c123ca6e"
       },
       {
@@ -60,8 +66,8 @@
       },
       {
         "path": "docs/registry/maturity.yml",
-        "sha256": "2075f5f604b23a526a00d44f1303f0178cb3b6450670c494d1da77ac42c46e8f",
-        "git_state": "base",
+        "sha256": "39cc781d4c375cf3274409ffb6a9ae9f945899414d093a4061894e9fd0700257",
+        "git_state": "modified",
         "base_sha256": "2075f5f604b23a526a00d44f1303f0178cb3b6450670c494d1da77ac42c46e8f"
       },
       {
@@ -240,8 +246,8 @@
       },
       {
         "path": "test/quality/maturity_test.rb",
-        "sha256": "9d168ca81256ba96ede4c8b377b5a4064f195cac784ea55483df41a925cf842d",
-        "git_state": "base",
+        "sha256": "2a7b21761beb7b7ca9682551b83c43319a6acd9bd9d3589234b4d99bafd513e5",
+        "git_state": "modified",
         "base_sha256": "9d168ca81256ba96ede4c8b377b5a4064f195cac784ea55483df41a925cf842d"
       },
       {
@@ -275,9 +281,9 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "422bae34d6893296c4a4c8c0317cedf5b155a3f220368ce6b4550838553fd83c",
+    "bound_paths_sha256": "e9defd3a353891abc451e2da1dc36e9d746eb2ff99d13f05108ebad29de05c0f",
     "implementation_sha256": "91160673bb0d540a738a698781b283d332729c5afafee6a601b14928b1ed3239",
-    "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
+    "environment_observation_sha256": "0be50b79f9cd1e5ea677d7d181bf2b4b2f5c3c1ba7d0ca52c2c5ba978b58d862",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
     "evidence_path": "tool/profile/evidence/construction-profile-v1.json",
     "evidence_exclusion_reason": "the evidence file is excluded from its own digest to avoid circularity"
@@ -419,7 +425,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.003179,
+                  "value": 0.001179,
                   "release_gate": false
                 }
               },
@@ -520,7 +526,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.004559,
+                  "value": 0.004106,
                   "release_gate": false
                 }
               },
@@ -644,7 +650,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.00093,
+                  "value": 0.003178,
                   "release_gate": false
                 }
               },
@@ -745,7 +751,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001647,
+                  "value": 0.001719,
                   "release_gate": false
                 }
               },
@@ -869,7 +875,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000653,
+                  "value": 0.000631,
                   "release_gate": false
                 }
               },
@@ -970,7 +976,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000984,
+                  "value": 0.00078,
                   "release_gate": false
                 }
               },
@@ -1096,7 +1102,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000575,
+                  "value": 0.000482,
                   "release_gate": false
                 }
               },
@@ -1198,7 +1204,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.00059,
+                  "value": 0.002095,
                   "release_gate": false
                 }
               },
@@ -1300,7 +1306,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.00043,
+                  "value": 0.00049,
                   "release_gate": false
                 }
               },
@@ -1402,7 +1408,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000556,
+                  "value": 0.000413,
                   "release_gate": false
                 }
               },
@@ -1548,7 +1554,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.01097,
+                  "value": 0.00972,
                   "release_gate": false
                 }
               },
@@ -1649,7 +1655,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.058236,
+                  "value": 0.054758,
                   "release_gate": false
                 }
               },
