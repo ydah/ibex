@@ -20,16 +20,18 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "9ceecb5ab62934328f4475024ebac2647c759013",
+    "base_revision": "c23d8414740b69f32dc7a4ef6014dae5e6429ad6",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
-    "capture_worktree_clean": true,
-    "capture_worktree_status": [],
-    "capture_worktree_status_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "capture_worktree_clean": false,
+    "capture_worktree_status": [
+      " M .github/workflows/main.yml"
+    ],
+    "capture_worktree_status_sha256": "118f42949168b72971c0941b764841e3ea46435071d2c5da037a6ac531e3103f",
     "bound_paths": [
       {
         "path": ".github/workflows/main.yml",
-        "sha256": "e008a5aa2bc6928d5080948c96abb1e165997a6a7ff26236d0018ceca3743f68",
-        "git_state": "base",
+        "sha256": "62708fd80bc45ae9cc6ab85a58cd7ebf0ec8e431c38c1dc8176b91f5b1f10c76",
+        "git_state": "modified",
         "base_sha256": "e008a5aa2bc6928d5080948c96abb1e165997a6a7ff26236d0018ceca3743f68"
       },
       {
@@ -273,7 +275,7 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "3688480eaa0b586ab73eb97c939026f6729efb0b72737103275e721cd2574d1c",
+    "bound_paths_sha256": "4e537a0eb08eb665ab41ba83dac5de915b2fbc2fb7257ae234999267ad73dbc8",
     "implementation_sha256": "91160673bb0d540a738a698781b283d332729c5afafee6a601b14928b1ed3239",
     "environment_observation_sha256": "0be50b79f9cd1e5ea677d7d181bf2b4b2f5c3c1ba7d0ca52c2c5ba978b58d862",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
@@ -417,7 +419,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001334,
+                  "value": 0.001297,
                   "release_gate": false
                 }
               },
@@ -518,7 +520,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.004231,
+                  "value": 0.004377,
                   "release_gate": false
                 }
               },
@@ -642,7 +644,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001031,
+                  "value": 0.000907,
                   "release_gate": false
                 }
               },
@@ -743,7 +745,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001587,
+                  "value": 0.001769,
                   "release_gate": false
                 }
               },
@@ -867,7 +869,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000548,
+                  "value": 0.000607,
                   "release_gate": false
                 }
               },
@@ -968,7 +970,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000718,
+                  "value": 0.001752,
                   "release_gate": false
                 }
               },
@@ -1094,7 +1096,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000471,
+                  "value": 0.001209,
                   "release_gate": false
                 }
               },
@@ -1196,7 +1198,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.002299,
+                  "value": 0.004574,
                   "release_gate": false
                 }
               },
@@ -1298,7 +1300,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000438,
+                  "value": 0.000929,
                   "release_gate": false
                 }
               },
@@ -1400,7 +1402,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000407,
+                  "value": 0.000582,
                   "release_gate": false
                 }
               },
@@ -1546,7 +1548,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.009728,
+                  "value": 0.009479,
                   "release_gate": false
                 }
               },
@@ -1647,7 +1649,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.053528,
+                  "value": 0.054706,
                   "release_gate": false
                 }
               },

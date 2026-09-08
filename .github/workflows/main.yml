@@ -42,7 +42,7 @@ jobs:
           - ruby: '4.0'
             experimental: false
           - ruby: 'head'
-            experimental: false
+            experimental: true
           - ruby: jruby
             experimental: true
           - ruby: truffleruby
