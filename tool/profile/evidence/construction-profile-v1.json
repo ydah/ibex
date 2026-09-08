@@ -20,25 +20,17 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "93878de11568ff326b5e5626e63633e3b83c563c",
+    "base_revision": "9ceecb5ab62934328f4475024ebac2647c759013",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
-    "capture_worktree_clean": false,
-    "capture_worktree_status": [
-      " M Gemfile",
-      " M docs/policy/maturity.md",
-      " M docs/registry/maturity.yml",
-      " M gemfiles/compat.Gemfile",
-      " M test/codegen/ractor_shareability_test.rb",
-      " M test/quality/maturity_test.rb",
-      " M test/runtime/cst_green_test.rb"
-    ],
-    "capture_worktree_status_sha256": "c23b1c12388b17fb14072cb1b0dc8c106568882c1da4aa05cb6f58c618258d11",
+    "capture_worktree_clean": true,
+    "capture_worktree_status": [],
+    "capture_worktree_status_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
     "bound_paths": [
       {
         "path": ".github/workflows/main.yml",
-        "sha256": "097c93d80b8a62555bfc20180b7af90e9ce92119639961ec0ee58ed8e215c7c5",
+        "sha256": "e008a5aa2bc6928d5080948c96abb1e165997a6a7ff26236d0018ceca3743f68",
         "git_state": "base",
-        "base_sha256": "097c93d80b8a62555bfc20180b7af90e9ce92119639961ec0ee58ed8e215c7c5"
+        "base_sha256": "e008a5aa2bc6928d5080948c96abb1e165997a6a7ff26236d0018ceca3743f68"
       },
       {
         "path": "Rakefile",
@@ -49,8 +41,8 @@
       {
         "path": "docs/policy/maturity.md",
         "sha256": "49c132f038e20d39abcb3edb327df28cbfe19816982e5bad372f00d839152d02",
-        "git_state": "modified",
-        "base_sha256": "a122edfd90b0463904d98020c202d6d4f0345d1294aa8dc1886663b3c123ca6e"
+        "git_state": "base",
+        "base_sha256": "49c132f038e20d39abcb3edb327df28cbfe19816982e5bad372f00d839152d02"
       },
       {
         "path": "docs/policy/workloads.md",
@@ -67,8 +59,8 @@
       {
         "path": "docs/registry/maturity.yml",
         "sha256": "39cc781d4c375cf3274409ffb6a9ae9f945899414d093a4061894e9fd0700257",
-        "git_state": "modified",
-        "base_sha256": "2075f5f604b23a526a00d44f1303f0178cb3b6450670c494d1da77ac42c46e8f"
+        "git_state": "base",
+        "base_sha256": "39cc781d4c375cf3274409ffb6a9ae9f945899414d093a4061894e9fd0700257"
       },
       {
         "path": "lib/ibex/analysis/digraph.rb",
@@ -247,8 +239,8 @@
       {
         "path": "test/quality/maturity_test.rb",
         "sha256": "2a7b21761beb7b7ca9682551b83c43319a6acd9bd9d3589234b4d99bafd513e5",
-        "git_state": "modified",
-        "base_sha256": "9d168ca81256ba96ede4c8b377b5a4064f195cac784ea55483df41a925cf842d"
+        "git_state": "base",
+        "base_sha256": "2a7b21761beb7b7ca9682551b83c43319a6acd9bd9d3589234b4d99bafd513e5"
       },
       {
         "path": "test/support/public_json_schemas.rb",
@@ -281,7 +273,7 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "e9defd3a353891abc451e2da1dc36e9d746eb2ff99d13f05108ebad29de05c0f",
+    "bound_paths_sha256": "3688480eaa0b586ab73eb97c939026f6729efb0b72737103275e721cd2574d1c",
     "implementation_sha256": "91160673bb0d540a738a698781b283d332729c5afafee6a601b14928b1ed3239",
     "environment_observation_sha256": "0be50b79f9cd1e5ea677d7d181bf2b4b2f5c3c1ba7d0ca52c2c5ba978b58d862",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
@@ -425,7 +417,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001179,
+                  "value": 0.001334,
                   "release_gate": false
                 }
               },
@@ -526,7 +518,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.004106,
+                  "value": 0.004231,
                   "release_gate": false
                 }
               },
@@ -650,7 +642,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.003178,
+                  "value": 0.001031,
                   "release_gate": false
                 }
               },
@@ -751,7 +743,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001719,
+                  "value": 0.001587,
                   "release_gate": false
                 }
               },
@@ -875,7 +867,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000631,
+                  "value": 0.000548,
                   "release_gate": false
                 }
               },
@@ -976,7 +968,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.00078,
+                  "value": 0.000718,
                   "release_gate": false
                 }
               },
@@ -1102,7 +1094,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000482,
+                  "value": 0.000471,
                   "release_gate": false
                 }
               },
@@ -1204,7 +1196,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.002095,
+                  "value": 0.002299,
                   "release_gate": false
                 }
               },
@@ -1306,7 +1298,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.00049,
+                  "value": 0.000438,
                   "release_gate": false
                 }
               },
@@ -1408,7 +1400,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000413,
+                  "value": 0.000407,
                   "release_gate": false
                 }
               },
@@ -1554,7 +1546,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.00972,
+                  "value": 0.009728,
                   "release_gate": false
                 }
               },
@@ -1655,7 +1647,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.054758,
+                  "value": 0.053528,
                   "release_gate": false
                 }
               },
