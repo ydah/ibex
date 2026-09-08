@@ -11,117 +11,184 @@
     <title>Ibex — Pure Ruby LR parser generator</title>
     <meta
       name="description"
-      content="A Pure Ruby LR parser generator with diagnostics, versioned IR, typed output, and multiple construction algorithms."
+      content="Generate racc-compatible Ruby parsers, inspect LR automata, and diagnose grammar conflicts with a Pure Ruby toolchain."
     >
     <link rel="canonical" href="https://ydah.github.io/ibex/">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Ibex — Pure Ruby LR parser generator">
-    <meta property="og:description" content="Build parsers, inspect the machine, and migrate from racc with Pure Ruby tooling.">
+    <meta property="og:description" content="From grammar to understandable Ruby parser—without a native extension.">
     <meta property="og:url" content="https://ydah.github.io/ibex/">
     <meta property="og:image" content="https://ydah.github.io/ibex/social-preview.svg">
     <link rel="icon" href="./favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="./styles.css">
   </head>
-  <body>
+  <body class="home">
     <a class="skip-link" href="#content">Skip to content</a>
-    <header class="site-header">
-      <a class="brand" href="./" aria-label="Ibex home">IBEX<span aria-hidden="true">_</span></a>
+
+    <header class="site-header home-header">
+      <a class="brand" href="./" aria-label="Ibex home">ibex<span aria-hidden="true">/</span></a>
       <nav aria-label="Primary">
-        <a href="./getting-started/">Get started</a>
-        <a href="./docs/">Docs</a>
-        <a href="./gallery/">Examples</a>
+        <a href="./docs/">Documentation</a>
         <a href="./playground/">Playground</a>
-        <a href="./api/">API</a>
         <a href="https://github.com/ydah/ibex">GitHub</a>
+        <a class="header-cta" href="./getting-started/">Get started</a>
       </nav>
     </header>
 
     <main id="content">
-      <section class="hero" aria-labelledby="hero-title">
-        <p class="eyebrow">PURE RUBY · LR TOOLCHAIN</p>
-        <h1 id="hero-title">Build parsers.<br><span>See the machine.</span></h1>
-        <p class="lede">
-          Ibex turns racc-compatible and extended EBNF grammars into deterministic Ruby parsers,
-          inspectable automata, structured diagnostics, and typed interfaces.
-        </p>
-        <div class="actions">
-          <a class="button button-primary" href="./getting-started/">Get started</a>
-          <a class="button button-secondary" href="./playground/">Try the playground</a>
+      <section class="home-hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="hero-kicker">A Pure Ruby LR parser generator</p>
+          <h1 id="hero-title">Build the parser.<br>See how it works.</h1>
+          <p class="hero-lede">
+            Turn racc-compatible or extended EBNF grammars into deterministic Ruby parsers,
+            inspectable automata, and diagnostics that explain the conflict—not just its line number.
+          </p>
+          <div class="actions">
+            <a class="button button-primary" href="./getting-started/">Build your first parser</a>
+            <a class="text-link" href="./playground/">Try a grammar in your browser</a>
+          </div>
+          <div class="install-line" aria-label="Installation command">
+            <span aria-hidden="true">$</span>
+            <code>gem install ibex</code>
+          </div>
         </div>
+
+        <figure class="parser-view">
+          <figcaption>
+            <span>calculator.y</span>
+            <span>LALR(1)</span>
+          </figcaption>
+          <pre><code><span class="code-muted">rule</span>
+  expr : expr '+' term
+       | term
+  term : term '*' NUMBER
+       | NUMBER
+<span class="code-muted">end</span></code></pre>
+          <div class="machine-view" aria-label="A grammar production represented as parser states">
+            <div><span class="state-dot">0</span><code>expr → • expr '+' term</code></div>
+            <div><span class="state-dot">4</span><code>expr → expr '+' • term</code></div>
+            <div><span class="state-dot">9</span><code>expr → expr '+' term •</code></div>
+          </div>
+          <p class="machine-caption">Grammar in. Ruby parser and reviewable states out.</p>
+        </figure>
       </section>
 
-      <section class="feature-grid" aria-label="Highlights">
-        <article>
-          <p class="feature-number">01</p>
-          <h2>Four LR strategies</h2>
-          <p>Compare direct LALR(1), IELR(1), canonical LR(1), and SLR from one grammar.</p>
-        </article>
-        <article>
-          <p class="feature-number">02</p>
-          <h2>Explain conflicts</h2>
-          <p>Trace conflicts back to states, tokens, resolutions, and bounded counterexamples.</p>
-        </article>
-        <article>
-          <p class="feature-number">03</p>
-          <h2>Stable IR</h2>
-          <p>Validate, compare, migrate, visualize, and reuse versioned grammar and automaton data.</p>
-        </article>
-      </section>
+      <ul class="proof-strip" aria-label="Project characteristics">
+        <li>Pure Ruby</li>
+        <li>Racc-compatible</li>
+        <li>No native extension</li>
+        <li>Local browser analysis</li>
+      </ul>
 
-      <section class="volume-section" aria-labelledby="volumes-title">
-        <div class="section-heading">
-          <p class="eyebrow">DOCUMENTATION BY MATURITY</p>
-          <h2 id="volumes-title">Choose the contract you need.</h2>
+      <section class="capabilities" aria-labelledby="capabilities-title">
+        <div class="section-intro">
+          <p>Why Ibex</p>
+          <h2 id="capabilities-title">A parser generator you can inspect.</h2>
           <p>
-            Compatibility guarantees, opt-in language features, and research surfaces are
-            documented separately so their support level is explicit.
+            Generate the familiar Ruby interface when you need it. Open the machinery when the
+            grammar needs investigation.
           </p>
         </div>
-        <div class="volume-grid">
-          <a class="volume-card" href="./compatibility/">
-            <span class="maturity maturity-stable">Compatibility</span>
-            <h3>Depend on the stable core</h3>
-            <p>Generate and run racc-compatible parsers with a permanent behavior boundary.</p>
-            <span class="card-link">Read the compatibility volume →</span>
+
+        <div class="capability-list">
+          <article>
+            <h3>Stay compatible</h3>
+            <p>Use racc grammar files and the familiar <code>do_parse</code> and <code>yyparse</code> APIs.</p>
+            <a href="./compatibility/">Compatibility contract</a>
+          </article>
+          <article>
+            <h3>Explain the machine</h3>
+            <p>Trace conflicts through states, lookaheads, resolutions, and bounded counterexamples.</p>
+            <a href="./docs/error-ux/">Conflict diagnostics</a>
+          </article>
+          <article>
+            <h3>Choose the construction</h3>
+            <p>Compare LALR(1), IELR(1), canonical LR(1), and SLR from the same grammar.</p>
+            <a href="./docs/ielr/">Algorithm guide</a>
+          </article>
+          <article>
+            <h3>Build tooling on stable data</h3>
+            <p>Validate and compare versioned grammar, lexer, automaton, and diagnostic IR.</p>
+            <a href="./docs/architecture/">Architecture and IR</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="first-parser" aria-labelledby="first-parser-title">
+        <div class="section-intro">
+          <p>First parser</p>
+          <h2 id="first-parser-title">From install to output in three commands.</h2>
+        </div>
+        <ol class="command-steps">
+          <li>
+            <span>1</span>
+            <div><strong>Install Ibex</strong><code>gem install ibex</code></div>
+          </li>
+          <li>
+            <span>2</span>
+            <div><strong>Generate Ruby</strong><code>ibex -o calculator.rb calculator.y</code></div>
+          </li>
+          <li>
+            <span>3</span>
+            <div><strong>Run the parser</strong><code>ruby calculator.rb</code></div>
+          </li>
+        </ol>
+        <a class="text-link" href="./getting-started/">Follow the calculator tutorial</a>
+      </section>
+
+      <section class="browser-section" aria-labelledby="browser-title">
+        <div>
+          <p>Private by design</p>
+          <h2 id="browser-title">Your grammar stays in your browser.</h2>
+        </div>
+        <div>
+          <p>
+            The playground runs Ibex under ruby.wasm in a dedicated worker. It treats action
+            bodies as source data, never executes them, and makes no server round-trip.
+          </p>
+          <a class="button browser-button" href="./playground/">Open the playground</a>
+        </div>
+      </section>
+
+      <section class="contracts" aria-labelledby="contracts-title" aria-label="DOCUMENTATION BY MATURITY">
+        <div class="section-intro">
+          <p>Adopt with clear boundaries</p>
+          <h2 id="contracts-title">Choose the contract you need.</h2>
+          <p>Stable defaults, opt-in extensions, and research surfaces are documented separately.</p>
+        </div>
+        <div class="contract-list">
+          <a href="./compatibility/">
+            <span class="contract-state stable">Stable baseline</span>
+            <strong>Compatibility</strong>
+            <span>Generate and run racc-compatible parsers.</span>
           </a>
-          <a class="volume-card" href="./extensions/">
-            <span class="maturity maturity-preview">Extended</span>
-            <h3>Opt into richer grammars</h3>
-            <p>Use typed values, lexer integration, EBNF, trees, diagnostics, and tooling.</p>
-            <span class="card-link">Read the extensions volume →</span>
+          <a href="./extensions/">
+            <span class="contract-state preview">Preview</span>
+            <strong>Extended</strong>
+            <span>Add EBNF, lexers, typed values, trees, and tooling.</span>
           </a>
-          <a class="volume-card" href="./experimental/">
-            <span class="maturity maturity-experimental">Experimental</span>
-            <h3>Evaluate research surfaces</h3>
-            <p>Understand bounded repair and research algorithms before adopting them.</p>
-            <span class="card-link">Read the experimental volume →</span>
+          <a href="./experimental/">
+            <span class="contract-state experimental">Experimental</span>
+            <strong>Research surfaces</strong>
+            <span>Evaluate bounded repair and emerging algorithms.</span>
           </a>
         </div>
       </section>
 
-      <section class="manifesto">
-        <div>
-          <p class="eyebrow">NO SERVER ROUND-TRIP</p>
-          <h2>Your grammar stays in your browser.</h2>
+      <section class="final-cta" aria-labelledby="final-cta-title">
+        <p>Ibex is pre-1.0. The compatible baseline is available now.</p>
+        <h2 id="final-cta-title">Bring one grammar. Leave with a parser you understand.</h2>
+        <div class="actions">
+          <a class="button button-primary" href="./getting-started/">Get started</a>
+          <a class="text-link" href="./project/">Read project status</a>
         </div>
-        <p>
-          The playground runs Ibex under ruby.wasm in a dedicated worker. It parses action bodies as
-          source data and never executes them.
-        </p>
-      </section>
-      <section class="status-strip" aria-labelledby="status-title">
-        <div>
-          <p class="eyebrow">PROJECT STATUS</p>
-          <h2 id="status-title">Pre-1.0, evidence-driven.</h2>
-        </div>
-        <p>v1.0 publication is on hold pending independent error-experience review. The compatible baseline is available now and feature development continues.</p>
-        <a class="button button-secondary" href="./project/">Read project status</a>
       </section>
     </main>
 
     <footer>
-      <p>Released under the MIT License.</p>
-      <span><a href="./project/">Project status</a> · <a href="https://github.com/ydah/ibex">Source and issues</a></span>
+      <p>Ibex is open source under the MIT License.</p>
+      <span><a href="./docs/">Documentation</a><a href="./project/">Project status</a><a href="https://github.com/ydah/ibex">Source and issues</a></span>
     </footer>
   </body>
 </html>
