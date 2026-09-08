@@ -3,6 +3,7 @@
 require "date"
 require "json"
 require "json_schemer"
+require_relative "construction_profile"
 require_relative "direct_ielr_document"
 require_relative "direct_ielr_provenance"
 
@@ -43,6 +44,7 @@ module Ibex
         provenance.verify_repository_history!
         validate_schema!(document)
         validate_decision!(document)
+        ConstructionProfile.new(root: @root, output: @output).verify!
         profile = validate_profile!(document)
         validate_verifier_boundary!(document)
         provenance.verify!(document, profile)

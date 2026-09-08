@@ -12,7 +12,7 @@ class MaturityTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   REGISTRY = File.join(ROOT, "docs/registry/maturity.yml")
   NARRATIVE = File.join(ROOT, "docs/policy/maturity.md")
-  TODAY = Date.new(2026, 8, 19)
+  TODAY = Date.iso8601(YAML.safe_load_file(REGISTRY).fetch("audit").fetch("reviewed_at"))
   KNOWN_NONSEMANTIC_MAPPINGS = {
     "semantic-locations-types" => {
       "v0.2.0..reviewed" => %w[
@@ -141,15 +141,15 @@ class MaturityTest < Minitest::Test
 
     changed = document
     audit = changed.dig("audit", "issue_audits", 0)
-    audit["checked_at"] = "2026-08-20"
-    audit["fresh_until"] = "2026-09-05"
+    audit["checked_at"] = (TODAY + 1).iso8601
+    audit["fresh_until"] = (TODAY + 17).iso8601
     assert_error(changed, "checked_at cannot be in the future")
 
     changed = document
     audit = changed.dig("audit", "issue_audits", 0)
-    audit["checked_at"] = "2026-08-20"
-    audit["fresh_until"] = "2026-09-05"
-    assert_error(changed, "checked_at cannot follow the maturity review", today: Date.new(2026, 8, 20))
+    audit["checked_at"] = (TODAY + 1).iso8601
+    audit["fresh_until"] = (TODAY + 17).iso8601
+    assert_error(changed, "checked_at cannot follow the maturity review", today: TODAY + 1)
 
     changed = document
     changed.dig("audit", "issue_audits", 0, "result")["status"] = "unknown"

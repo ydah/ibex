@@ -56,7 +56,16 @@ module Ibex
       private
 
       def verify_h005_identity!(document, profile)
-        provenance = profile.fetch("provenance")
+        # Audit refreshes recapture H005; the published decision keeps its reviewed snapshot.
+        path = "tool/profile/evidence/construction-profile-v1.json"
+        bytes, status = capture("git", "show", "#{DECISION_REVISION}:#{path}")
+        raise "reviewed H005 profile is unavailable" unless status.success?
+
+        provenance = JSON.parse(bytes).fetch("provenance")
+        unless profile.dig("provenance", "implementation_sha256") == provenance.fetch("implementation_sha256")
+          raise "H005 current implementation identity drift"
+        end
+
         identity = document.fetch("evidence_identity")
         {
           "profile_capture_base_revision" => "base_revision",
@@ -140,7 +149,10 @@ module Ibex
         expected = source.fetch("sha256")
         current = File.join(@root, path)
         raise "decision evidence source is unavailable: #{path}" unless File.file?(current)
-        raise "decision evidence source digest drift: #{path}" unless Digest::SHA256.file(current).hexdigest == expected
+        # Current H005 is independently validated; its historical bytes remain checked below.
+        unless source.fetch("id") == "h005-machine-evidence" || Digest::SHA256.file(current).hexdigest == expected
+          raise "decision evidence source digest drift: #{path}"
+        end
 
         bytes, status = capture("git", "show", "#{revision}:#{path}")
         raise "decision evidence source is unavailable at reviewed revision: #{path}" unless status.success?

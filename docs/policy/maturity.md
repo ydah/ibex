@@ -79,7 +79,7 @@ generation and runtime, not one of the audited Preview or Experimental
 features, so every external-use result is `not_demonstrated`.
 
 The issue audit ran the exact GitHub Search API query and command recorded in
-the YAML on 2026-08-04. It returned zero open issues with a complete result.
+the YAML on 2026-09-08. It returned zero open issues with a complete result.
 That result expires after 30 days and means only that the public tracker had no
 open report matching the query; it is not a correctness proof. The validator
 fails after the recorded freshness deadline until the exact audit is rerun and
