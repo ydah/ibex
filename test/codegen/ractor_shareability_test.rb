@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative "../test_helper"
+require "open3"
+require "rbconfig"
 
 class RactorShareabilityCodegenTest < Minitest::Test
   SOURCE = <<~GRAMMAR
@@ -36,6 +38,13 @@ class RactorShareabilityCodegenTest < Minitest::Test
 
   def test_distinct_instances_parse_in_ractors_with_shared_tables
     skip "Ractor is unavailable" unless defined?(Ractor) && Ractor.respond_to?(:shareable?)
+
+    # Keep Ractor VM state out of the full suite's later garbage collections.
+    if $PROGRAM_NAME != __FILE__
+      output, error, status = Open3.capture3(RbConfig.ruby, __FILE__, "--name", name)
+      assert_predicate status, :success?, output + error
+      return
+    end
 
     parser_class = generate_parser
     ractors = 2.times.map do |value|

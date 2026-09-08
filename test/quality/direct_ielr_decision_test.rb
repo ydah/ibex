@@ -33,6 +33,17 @@ class DirectIELRDecisionTest < Minitest::Test
     assert_empty JSONSchemer.schema(schema).validate(dossier).to_a
   end
 
+  def test_refreshed_profile_cannot_change_the_reviewed_implementation
+    path = File.join(ROOT, "tool/profile/evidence/construction-profile-v1.json")
+    profile = JSON.parse(File.binread(path))
+    profile.fetch("provenance")["implementation_sha256"] = "0" * 64
+
+    error = assert_raises(RuntimeError) do
+      Ibex::Quality::DirectIELRProvenance.new(root: ROOT, dossier: DOSSIER).verify!(dossier, profile)
+    end
+    assert_match(/current implementation identity drift/, error.message)
+  end
+
   def test_go_condition_or_i002_promotion_is_rejected
     changed = dossier
     changed.dig("policy", "go_conditions", 0)["status"] = "satisfied"
