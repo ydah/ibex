@@ -11,9 +11,9 @@ gem "rake", "~> 13.0"
 gem "rubocop", "1.88.2", require: false
 
 group :types do
-  gem "rbs", "4.0.3", require: false
+  gem "rbs", "4.2.0", require: false
   gem "rbs-inline", "0.14.0", require: false
-  gem "steep", "2.0.0", require: false
+  gem "steep", "2.1.0", require: false
 end
 
 group :docs do
