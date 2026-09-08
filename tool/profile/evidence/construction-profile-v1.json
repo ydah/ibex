@@ -9,7 +9,7 @@
     "ruby_patchlevel": 0,
     "ruby_description": "ruby 4.0.0 (2025-12-25 revision 553f1675f3) +PRISM [arm64-darwin24]",
     "ruby_platform": "arm64-darwin24",
-    "rubyopt": "-r/Users/yudai.takada/.rbenv/versions/4.0.0/lib/ruby/site_ruby/4.0.0/bundler/setup",
+    "rubyopt": "-r/Users/yudai.takada/.rbenv/versions/4.0.0/lib/ruby/gems/4.0.0/gems/bundler-4.0.13/lib/bundler/setup",
     "yjit_enabled": false,
     "host_os": "darwin24",
     "host_cpu": "arm64",
@@ -20,24 +20,25 @@
     "logical_processors": 12
   },
   "provenance": {
-    "base_revision": "c23d8414740b69f32dc7a4ef6014dae5e6429ad6",
+    "base_revision": "5885a499c0677095f2a4b4726043097e3baa5b87",
     "base_revision_role": "Git base only; modified and untracked bound paths are identified separately",
     "capture_worktree_clean": false,
     "capture_worktree_status": [
-      " M .github/workflows/main.yml"
+      " M Rakefile",
+      " M tool/profile/evidence/construction-profile-v1.json"
     ],
-    "capture_worktree_status_sha256": "118f42949168b72971c0941b764841e3ea46435071d2c5da037a6ac531e3103f",
+    "capture_worktree_status_sha256": "c83e836ddd437f8f507050e4fb2078052c969cd83052e9712046279038790640",
     "bound_paths": [
       {
         "path": ".github/workflows/main.yml",
         "sha256": "62708fd80bc45ae9cc6ab85a58cd7ebf0ec8e431c38c1dc8176b91f5b1f10c76",
-        "git_state": "modified",
-        "base_sha256": "e008a5aa2bc6928d5080948c96abb1e165997a6a7ff26236d0018ceca3743f68"
+        "git_state": "base",
+        "base_sha256": "62708fd80bc45ae9cc6ab85a58cd7ebf0ec8e431c38c1dc8176b91f5b1f10c76"
       },
       {
         "path": "Rakefile",
-        "sha256": "075ae1dddf9a157c18dc9c5854ffe794d8b7311a398c4553a3f76c07fd6ba184",
-        "git_state": "base",
+        "sha256": "7f06acab01648092cb60f25575347feecc80e34845e2d22d40f53566a7fcbcb7",
+        "git_state": "modified",
         "base_sha256": "075ae1dddf9a157c18dc9c5854ffe794d8b7311a398c4553a3f76c07fd6ba184"
       },
       {
@@ -275,9 +276,9 @@
         "base_sha256": "e1a1a025bb1e032ee934ef68e27fa1cecc67612892c0077e8f8ba66694f641f5"
       }
     ],
-    "bound_paths_sha256": "4e537a0eb08eb665ab41ba83dac5de915b2fbc2fb7257ae234999267ad73dbc8",
+    "bound_paths_sha256": "5d15425d072d7141d4c030374f77e61fc6b2253f8f72f302db650a09ff664eb3",
     "implementation_sha256": "91160673bb0d540a738a698781b283d332729c5afafee6a601b14928b1ed3239",
-    "environment_observation_sha256": "0be50b79f9cd1e5ea677d7d181bf2b4b2f5c3c1ba7d0ca52c2c5ba978b58d862",
+    "environment_observation_sha256": "e2e5616f035be5486ff7ddbe379deed361d12cb143cea9cfe1831367800d2b94",
     "measurement_policy_sha256": "b0de1ed81a9cb3f357206dea3bf8f16f457405c5b5d51a3c114cd6165a658006",
     "evidence_path": "tool/profile/evidence/construction-profile-v1.json",
     "evidence_exclusion_reason": "the evidence file is excluded from its own digest to avoid circularity"
@@ -419,7 +420,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001297,
+                  "value": 0.001218,
                   "release_gate": false
                 }
               },
@@ -520,7 +521,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.004377,
+                  "value": 0.004025,
                   "release_gate": false
                 }
               },
@@ -644,7 +645,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000907,
+                  "value": 0.000931,
                   "release_gate": false
                 }
               },
@@ -745,7 +746,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001769,
+                  "value": 0.001637,
                   "release_gate": false
                 }
               },
@@ -869,7 +870,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000607,
+                  "value": 0.000591,
                   "release_gate": false
                 }
               },
@@ -970,7 +971,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001752,
+                  "value": 0.00087,
                   "release_gate": false
                 }
               },
@@ -1096,7 +1097,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.001209,
+                  "value": 0.000471,
                   "release_gate": false
                 }
               },
@@ -1198,7 +1199,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.004574,
+                  "value": 0.002383,
                   "release_gate": false
                 }
               },
@@ -1300,7 +1301,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000929,
+                  "value": 0.000479,
                   "release_gate": false
                 }
               },
@@ -1402,7 +1403,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.000582,
+                  "value": 0.000639,
                   "release_gate": false
                 }
               },
@@ -1548,7 +1549,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.009479,
+                  "value": 0.00935,
                   "release_gate": false
                 }
               },
@@ -1649,7 +1650,7 @@
               "observations": {
                 "elapsed_seconds": {
                   "status": "observation",
-                  "value": 0.054706,
+                  "value": 0.057074,
                   "release_gate": false
                 }
               },

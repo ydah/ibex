@@ -7,8 +7,12 @@ Bundler::GemHelper.install_tasks(name: "ibex")
 
 Rake::TestTask.new(:test) do |task|
   task.libs << "test"
-  task.pattern = "test/**/*_test.rb"
+  task.test_files = FileList["test/**/*_test.rb"].exclude("test/quality/configuration_inventory_test.rb")
   task.warning = true
+end
+
+task :test do
+  ruby "-Itest", "test/quality/configuration_inventory_test.rb" unless ENV["TEST"]
 end
 
 desc "Run RuboCop"
