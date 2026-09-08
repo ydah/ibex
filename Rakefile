@@ -12,7 +12,8 @@ Rake::TestTask.new(:test) do |task|
 end
 
 task :test do
-  ruby "-Itest", "test/quality/configuration_inventory_test.rb" unless ENV["TEST"]
+  script = 'GC.disable if RUBY_PATCHLEVEL.negative?; load "test/quality/configuration_inventory_test.rb"'
+  ruby "-Itest", "-e", script unless ENV["TEST"]
 end
 
 desc "Run RuboCop"
