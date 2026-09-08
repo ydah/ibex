@@ -69,7 +69,7 @@ class RuntimeABIEntrypointTest < Minitest::Test
 
   def run_rake_task(root, task, env)
     expression = "load 'Rakefile'; Rake::Task[ENV.fetch('RUNTIME_ABI_TASK')].invoke"
-    Open3.capture3(
+    capture_runtime_abi_subprocess(
       env.merge("RUNTIME_ABI_TASK" => task), RbConfig.ruby, "-rrake", "-e", expression, chdir: root
     )
   end

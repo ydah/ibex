@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "fileutils"
+require "bundler"
 require "json"
 require "open3"
 require "tmpdir"
@@ -29,6 +30,10 @@ module RuntimeABITestProject
     Ibex::Quality::RuntimeABI.new(
       root: root, event_path: event, event_name: "pull_request", changed_paths: changed_paths
     ).verify!
+  end
+
+  def capture_runtime_abi_subprocess(environment, *command, chdir:)
+    Bundler.with_unbundled_env { Open3.capture3(environment, *command, chdir: chdir) }
   end
 
   def fixture_event_copy(root, name = "pull_request.json")
