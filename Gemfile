@@ -8,7 +8,7 @@ gemspec name: "ibex-runtime"
 gem "json_schemer", "2.5.0", require: false
 gem "minitest", "~> 5.0"
 gem "rake", "~> 13.0"
-gem "rubocop", "1.88.2", require: false
+gem "rubocop", "1.90.0", require: false
 
 group :types do
   gem "rbs", "4.2.0", require: false
