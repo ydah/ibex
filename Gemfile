@@ -9,7 +9,7 @@ gem "json_schemer", "2.5.0", require: false
 gem "minitest", "~> 6.0"
 gem "minitest-mock", "~> 5.0"
 gem "rake", "~> 13.0"
-gem "rubocop", "1.88.2", require: false
+gem "rubocop", "1.91.0", require: false
 
 group :types do
   gem "rbs", "4.2.0", require: false
@@ -22,7 +22,7 @@ group :docs do
 end
 
 group :mutation do
-  gem "mutant-minitest", "0.16.3", require: false
+  gem "mutant-minitest", "0.17.0", require: false
 end
 
 group :profile do
