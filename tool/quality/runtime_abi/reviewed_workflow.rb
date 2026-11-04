@@ -5,7 +5,7 @@ module Ibex
     # Reviewed canonical structures for jobs that carry ABI safety gates.
     module RuntimeABIReviewedWorkflow
       CHECKOUT = "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
-      RUBY_SETUP = "ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b"
+      RUBY_SETUP = "ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a"
       BUNDLE_ENV = { "BUNDLE_WITHOUT" => "types:docs:mutation:profile" }.freeze
 
       def self.commands(*values)
