@@ -6,7 +6,8 @@ gemspec name: "ibex"
 gemspec name: "ibex-runtime"
 
 gem "json_schemer", "2.5.0", require: false
-gem "minitest", "~> 5.0"
+gem "minitest", "~> 6.0"
+gem "minitest-mock", "~> 5.0"
 gem "rake", "~> 13.0"
 gem "rubocop", "1.91.0", require: false
 

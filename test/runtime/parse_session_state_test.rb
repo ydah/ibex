@@ -10,7 +10,8 @@ class ParseSessionStateTest < Minitest::Test
     state = parser.instance_variable_get(:@parse_session_state)
     assert_same parser.instance_variable_get(:@state_stack), state.state_stack
     assert_same parser.instance_variable_get(:@value_stack), state.value_stack
-    assert_same parser.instance_variable_get(:@location_stack), state.location_stack
+    assert_nil parser.instance_variable_get(:@location_stack)
+    assert_nil state.location_stack
   end
 
   def test_reset_replaces_all_stack_storage_together
