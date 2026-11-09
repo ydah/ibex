@@ -22,7 +22,7 @@ group :docs do
 end
 
 group :mutation do
-  gem "mutant-minitest", "0.17.0", require: false
+  gem "mutant-minitest", "0.17.1", require: false
 end
 
 group :profile do
