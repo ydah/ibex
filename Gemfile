@@ -9,7 +9,7 @@ gem "json_schemer", "2.5.0", require: false
 gem "minitest", "~> 6.0"
 gem "minitest-mock", "~> 5.0"
 gem "rake", "~> 13.0"
-gem "rubocop", "1.91.0", require: false
+gem "rubocop", "1.92.2", require: false
 
 group :types do
   gem "rbs", "4.2.0", require: false
